@@ -12,10 +12,10 @@
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
-import { findChromium, launchChromium } from '../../lib/arena/chromium.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect } from '../../lib/arena/cdp.ts';
 import type { Cdp } from '../../lib/arena/cdp.ts';
-import { skipExitCode } from '../../lib/arena/arena-scripts-vars.ts';
+import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const node = {
@@ -150,19 +150,14 @@ async function walkTrap(cdp: Cdp, url: string) {
   }
 }
 
-function skip(reason: string): never {
-  const code = skipExitCode();
-  console.error(`check-focus-trap: ${code === 1 ? 'FAILED (strict)' : 'SKIPPED'} — ${reason}`);
-  process.exit(code);
-}
+const skip: (reason: string) => never = (reason) => cannotRun('check-focus-trap', reason);
 
 async function main() {
   if (TRAPS.length === 0) skip('TRAPS is empty -- a walk with nothing to walk proves nothing');
-  const browser = findChromium();
-  if (browser.path === null) skip(browser.reason);
+  const exe = browserOrExit('check-focus-trap');
 
   const server = await startStaticServer(root);
-  const chrome = await launchChromium(browser.path);
+  const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems = [];
   try {

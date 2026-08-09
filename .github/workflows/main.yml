@@ -13,6 +13,8 @@ concurrency:
 
 env:
   BUN_VERSION: 1.3.14
+  # The one workflow that names a browser, so the terminal-override branch stays exercised.
+  # pr.yml and develop.yml name none, which is what proves the candidate list finds one.
   CHROME_PATH: /usr/bin/google-chrome
 
 jobs:

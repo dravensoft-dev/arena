@@ -18,9 +18,9 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
-import { findChromium, launchChromium } from '../../lib/arena/chromium.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect } from '../../lib/arena/cdp.ts';
-import { skipExitCode } from '../../lib/arena/arena-scripts-vars.ts';
+import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { playgroundModel, SUBJECT } from '../../lib/arena/playground-model.ts';
 import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
 import { memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts';
@@ -495,11 +495,9 @@ async function visit(cdp: any, url: string, page: string) {
   }
 }
 
-async function smoke(pages: string[]) {
+async function smoke(pages: string[], exe: string) {
   const server = await startStaticServer(root);
-  const browser = findChromium();
-  if (browser.path === null) throw new Error(`no browser to smoke the playgrounds with: ${browser.reason}`);
-  const chrome = await launchChromium(browser.path);
+  const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems: string[] = [];
   try {
@@ -513,11 +511,7 @@ async function smoke(pages: string[]) {
   return problems.sort();
 }
 
-function skip(reason: string) {
-  const code = skipExitCode();
-  console.error(`check-playgrounds: ${code === 1 ? 'FAILED (strict)' : 'SKIPPED'} — ${reason}`);
-  process.exit(code);
-}
+const skip: (reason: string) => never = (reason) => cannotRun('check-playgrounds', reason);
 
 async function main() {
   const contracts = loadContracts();
@@ -540,9 +534,8 @@ async function main() {
   if (problems.length > 0) report(problems);
 
   const pages = pagePaths();
-  const browser = findChromium();
-  if (!browser.path) skip(`${browser.reason}, so no page was loaded and nothing is known about whether one mounts`);
-  const smoked = await smoke(pages);
+  const exe = browserOrExit('check-playgrounds');
+  const smoked = await smoke(pages, exe);
   if (smoked.length > 0) report(smoked);
 
   console.log(

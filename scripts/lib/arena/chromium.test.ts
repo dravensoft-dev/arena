@@ -4,7 +4,7 @@ import { readdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { CANDIDATES, findChromium, launchChromium } from './chromium.ts';
+import { DARWIN_APPS, LINUX_CANDIDATES, WINDOWS_APPS, candidates, findChromium, launchChromium } from './chromium.ts';
 import { createDispatcher } from './cdp.ts';
 
 function chromiumTempDirs() {
@@ -42,16 +42,73 @@ test('CHROME_PATH pointing at nothing is an explicit reason, not a silent fallba
 });
 
 test('with no CHROME_PATH the first existing candidate wins, in list order', () => {
-  const second = CANDIDATES[1];
-  const found = findChromium({}, (p) => p === second);
+  const second = LINUX_CANDIDATES[1];
+  const found = findChromium({}, (p) => p === second, 'linux');
   assert.deepEqual(found, { path: second });
 });
 
-test('no browser anywhere yields a reason naming what was looked for', () => {
-  const found = findChromium({}, () => false);
+test('the candidate list is reachable at all, which it was not while CHROME_PATH was declared', () => {
+  const found = findChromium({ ARENA_CHECK_STRICT: '1' }, (p) => p === '/usr/bin/chromium', 'linux');
+  assert.deepEqual(found, { path: '/usr/bin/chromium' },
+    'arenaEnv laid CHROME_PATH under the environment, so every machine looked like one where a '
+    + 'person had named a browser and this branch never ran');
+});
+
+test('no browser anywhere yields a reason naming the platform and every path looked at', () => {
+  const found = findChromium({}, () => false, 'linux');
   assert.equal(found.path, null);
   assert.match(found.reason, /no Chromium/i);
   assert.match(found.reason, /CHROME_PATH/);
+  for (const path of LINUX_CANDIDATES) assert.ok(found.reason.includes(path), `${path} unnamed`);
+});
+
+test('a windows candidate list is built from the environment, since no one can hardcode it', () => {
+  const env = { 'ProgramFiles': 'C:\\Program Files', 'LOCALAPPDATA': 'C:\\Users\\dev\\AppData\\Local' };
+  const list = candidates(env, 'win32');
+  assert.ok(list.includes('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'));
+  assert.ok(list.includes('C:\\Users\\dev\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'),
+    'Chrome installs per-user by default, so LOCALAPPDATA is not an afterthought');
+  assert.ok(list.some((p) => p.endsWith('msedge.exe')),
+    'Edge ships on every Windows box and is Chromium, so including it turns "install Chrome '
+    + 'first" into "it already works"');
+});
+
+test('a windows environment key is read case-insensitively, as Windows spells it', () => {
+  assert.deepEqual(candidates({ PROGRAMFILES: 'C:\\PF' }, 'win32'),
+    candidates({ ProgramFiles: 'C:\\PF' }, 'win32'),
+    'Windows sets ProgramFiles, and arenaEnv spreads process.env into a plain object, which '
+    + 'loses the case-insensitive proxy the real one has');
+});
+
+test('a windows candidate list with no roots in the environment is empty rather than invented', () => {
+  assert.deepEqual(candidates({}, 'win32'), []);
+});
+
+test('a darwin candidate list covers both /Applications and the user own', () => {
+  const list = candidates({ HOME: '/Users/dev' }, 'darwin');
+  assert.ok(list.includes(`/Applications/${DARWIN_APPS[0]}`));
+  assert.ok(list.includes(`/Users/dev/Applications/${DARWIN_APPS[0]}`));
+  assert.deepEqual(candidates({}, 'darwin'), DARWIN_APPS.map((app) => `/Applications/${app}`));
+});
+
+test('every list prefers Chrome, then Chromium, then Edge, whatever the root', () => {
+  const order = (list: string[]) => list.map((p) => (
+    /msedge|Edge/.test(p) ? 'edge' : /Chromium|chromium/.test(p) ? 'chromium' : 'chrome'));
+  for (const [on, env] of [['win32', { ProgramFiles: 'C:\\PF', LOCALAPPDATA: 'C:\\LA' }], ['darwin', { HOME: '/Users/dev' }]] as const) {
+    const seen = order(candidates(env, on));
+    assert.ok(seen.lastIndexOf('chrome') < seen.indexOf('edge'), `${on} put an Edge before a Chrome`);
+  }
+  assert.equal(WINDOWS_APPS.length, 3);
+});
+
+test('WSL is told that a browser under /mnt/c cannot reach the gate own server', () => {
+  const wsl = findChromium({ WSL_DISTRO_NAME: 'Debian' }, () => false, 'linux');
+  assert.match(wsl.reason ?? '', /WSL/);
+  assert.match(wsl.reason ?? '', /loopback/);
+
+  const plain = findChromium({}, () => false, 'linux');
+  assert.ok(!/WSL/.test(plain.reason ?? ''),
+    'a message that names WSL on every Linux machine is one a Linux contributor learns to skip');
 });
 
 test('the dispatcher numbers requests and resolves the matching reply', async () => {

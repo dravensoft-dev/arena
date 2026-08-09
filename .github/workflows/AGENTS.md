@@ -193,10 +193,13 @@ question to answer rather than a flag to set. `actions/setup-node` from v6 cache
 only when `packageManager` names npm, and this repository's names bun, so a jump to v5 rather than
 past it would have switched on a cache nobody asked for.
 
-**Chromium.** `check:cards` and `check:focus-trap` drive a real browser, and `CHROME_PATH` is
-terminal: set and pointing at nothing, the gates report that rather than falling back to the
-candidate list. The workflows set it to `/usr/bin/google-chrome`, which the image documents,
-rather than to the declared default.
+**Chromium.** Four gates drive a real browser, and `CHROME_PATH` is terminal: set and pointing
+at nothing, they report that rather than falling back to the candidate list. **Only `main.yml`
+sets it**, to `/usr/bin/google-chrome`, which the image documents. `pr.yml` and `develop.yml`
+name no browser on purpose, so every pull request proves the candidate list finds one, and the
+single workflow that does name one keeps the terminal-override branch exercised. Exporting it
+everywhere is what made that list unreachable in the first place, and a runner is the last place
+that should be re-established.
 
 **Strictness is automatic.** GitHub sets `CI=true`, which `skipExitCode()` reads, so a gate
 whose dependency is missing fails instead of skipping. There is nothing to configure and

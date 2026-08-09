@@ -14,7 +14,7 @@ import { toPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
-import { findChromium, launchChromium } from '../../lib/arena/chromium.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect } from '../../lib/arena/cdp.ts';
 import type { CdpSend } from '../../lib/arena/cdp.ts';
 
@@ -25,7 +25,7 @@ type Measured = {
   timedOut?: boolean;
   [metric: string]: any;
 };
-import { skipExitCode } from '../../lib/arena/arena-scripts-vars.ts';
+import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const node = {
@@ -255,30 +255,24 @@ export async function measureCardPage(cdp: CdpSend, file: string, pageRoot: stri
   }
 }
 
-function skip(reason: string): never {
-  const code = skipExitCode();
-  console.error(`check-card-viewports: ${code === 1 ? 'FAILED (strict)' : 'SKIPPED'} — ${reason}`);
-  if (code === 2) console.error('  check-all reports the run INCOMPLETE; the repository declares ARENA_CHECK_STRICT=1, so this environment overrides it.');
-  process.exit(code);
-}
+const skip: (reason: string) => never = (reason) => cannotRun('check-card-viewports', reason);
 
 const PAGE_CONCURRENCY = 1;
 
 async function main() {
-  const browser = findChromium();
-  if (browser.path === null) skip(browser.reason);
+  const exe = browserOrExit('check-card-viewports');
 
   const pages = findCardPages(root);
   const server = await startStaticServer(root);
   let chrome: Awaited<ReturnType<typeof launchChromium>> | undefined;
   let cdp: Awaited<ReturnType<typeof connect>> | undefined;
   try {
-    chrome = await launchChromium(browser.path);
+    chrome = await launchChromium(exe);
     cdp = await connect(chrome.wsUrl);
   } catch (err) {
     await server.close();
     chrome?.kill();
-    skip(`${browser.path} could not be driven: ${(err as Error).message}`);
+    skip(`${exe} could not be driven: ${(err as Error).message}`);
   }
 
   let results;

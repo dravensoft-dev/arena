@@ -11,7 +11,8 @@ import { withTimeout } from '../../utils/with-timeout.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
-import { findChromium, launchChromium } from '../../lib/arena/chromium.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
+import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { connect } from '../../lib/arena/cdp.ts';
 import type { Cdp } from '../../lib/arena/cdp.ts';
 import { COMPARE_SCRIPT } from '../../lib/tailwind/style-parity.ts';
@@ -60,25 +61,21 @@ export function problemsFrom(pass: ParityPass, label: string) {
     `${label}: ${id} does not match its manifest's own class string: ${differing.join('; ')}`);
 }
 
-function skip(reason: string): never {
-  console.log(`check-style-parity: SKIP, ${reason}`);
-  process.exit(2);
-}
+const skip: (reason: string) => never = (reason) => cannotRun('check-style-parity', reason);
 
 async function main() {
-  const browser = findChromium();
-  if (browser.path === null) skip(browser.reason);
+  const exe = browserOrExit('check-style-parity');
 
   const server = await startStaticServer(root);
   let chrome;
   let cdp;
   try {
-    chrome = await launchChromium(browser.path);
+    chrome = await launchChromium(exe);
     cdp = await connect(chrome.wsUrl);
   } catch (err) {
     await server.close();
     chrome?.kill();
-    skip(`${browser.path} could not be driven: ${(err as Error).message}`);
+    skip(`${exe} could not be driven: ${(err as Error).message}`);
   }
 
   const problems = [];
