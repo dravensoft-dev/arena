@@ -7,6 +7,7 @@ import {
   booleanAttribute,
   computed,
   contentChild,
+  effect,
   inject,
   input,
   output,
@@ -14,6 +15,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ArenaFooter } from '../../../ProjectionMarkers';
+import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaDialogStyles } from './ArenaDialog.variants';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 
@@ -71,6 +73,15 @@ export class ArenaDialog {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    effect(() => {
+      const value = this.width();
+      if (value === undefined || arenaIsCssWidth(value)) return;
+      arenaWarnOnce(
+        `arena-dialog: width takes a CSS width and "${value}" is not one, so the browser drops the `
+        + 'declaration and the panel keeps its default. Pass a length, or the spacing scale '
+        + 'arithmetic the default itself uses: calc(var(--sp-1) * 160).',
+      );
+    });
     afterRenderEffect(() => {
       const isOpen = this.open();
       untracked(() => {
@@ -95,4 +106,11 @@ export class ArenaDialog {
       if (panel) arenaTrapTabKey(panel, event, this.doc.activeElement);
     }
   }
+}
+
+function arenaIsCssWidth(value: string): boolean {
+  if (value.includes('(') || typeof document === 'undefined') return true;
+  const probe = document.createElement('div');
+  probe.style.width = value;
+  return probe.style.width !== '';
 }

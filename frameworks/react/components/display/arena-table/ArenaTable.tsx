@@ -9,7 +9,8 @@ import { ArenaSelect } from '../../forms/arena-select/ArenaSelect.tsx';
 import type { ArenaTableRowProps } from '../arena-table-row/ArenaTableRow.tsx';
 
 import type {
-  ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTableSort, ArenaTableSortControl,
+  ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSort,
+  ArenaTableSortControl,
 } from '../../../Api.generated';
 
 export type { ArenaTableColumn };
@@ -43,6 +44,9 @@ export interface ArenaTableProps {
   /** Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. */
   page?: ArenaTablePage;
 
+  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
+  pageControl?: ArenaTablePageControl;
+
   /** A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */
   onPageChange?: (page: number) => void;
 }
@@ -63,7 +67,7 @@ const arenaTableStyles = arenaStyles(manifest);
 
 export function ArenaTable({
   columns, children, empty = 'No data.', responsive = true, label,
-  sort, sortControl = 'auto', onSortChange, page, onPageChange,
+  sort, sortControl = 'auto', onSortChange, page, pageControl = 'auto', onPageChange,
 }: ArenaTableProps) {
   if (!label?.trim()) throw new Error('ArenaTable: `label` is required');
   if (columns == null) throw new Error('ArenaTable: `columns` is required');
@@ -235,7 +239,7 @@ export function ArenaTable({
           </table>
         </>
       )}
-      {!bare && page && (
+      {!bare && page && pageControl !== 'none' && (
         <div className={arenaTableStyles({ narrow: false }).pager()}>
           <ArenaPagination page={page.index} pageCount={pageCount} ariaLabel={label}
             onChange={(next) => onPageChange?.(next)} />

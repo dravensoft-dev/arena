@@ -30,7 +30,7 @@ required too and throws when absent; `open={false}` is the closed state and is
 not an absence.
 
 `width` is a **CSS string**, not a number; pass a token expression
-(`width="calc(var(--sp-1) * 200)"`), never a bare `520`. The panel is capped at
+(`width="calc(var(--sp-1) * 200)"`), never a bare `520`. A named size is not one of the things it takes: `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default, so Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
 `92vw` regardless, so a wide dialog still fits a narrow viewport.
 
 Arena dismisses the dialog two ways, and both report through `onClose`: **Escape**
