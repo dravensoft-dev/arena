@@ -82,6 +82,7 @@
     "check:prompts": "bun scripts/check/arena/check-prompts.ts",
     "check:script-tokens": "bun scripts/check/arena/check-script-tokens.ts",
     "check:duplicate-constants": "bun scripts/check/arena/check-duplicate-constants.ts",
+    "check:deadlines": "bun scripts/check/arena/check-deadlines.ts",
     "check:dimensions": "bun scripts/check/arena/check-dimension-literals.ts",
     "check:states": "bun scripts/check/arena/check-manifest-states.ts",
     "check:appearance": "bun scripts/check/arena/check-appearance.ts",
