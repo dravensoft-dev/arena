@@ -271,7 +271,7 @@ async function main() {
     cdp = await connect(chrome.wsUrl);
   } catch (err) {
     await server.close();
-    chrome?.kill();
+    await chrome?.kill();
     skip(`${exe} could not be driven: ${(err as Error).message}`);
   }
 
@@ -285,7 +285,7 @@ async function main() {
     results = pages.map((file) => byFile.get(file));
   } finally {
     cdp.close();
-    chrome.kill();
+    await chrome.kill();
     await server.close();
   }
 

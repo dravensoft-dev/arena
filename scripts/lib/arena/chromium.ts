@@ -1,15 +1,15 @@
 /* Finds and launches a headless browser for the four gates that need one, and decides for all
  * of them what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it
  * says so instead of falling back -- but it is no longer declared: laying a default under the
- * environment made every machine look like one where a person had named a browser, which left
- * the candidate list unreachable and the macOS entries in it dead from the day they were
- * written. The list is keyed by platform and, on Windows, built from the environment, because a
- * program directory is not a path anyone can hardcode. Edge is in every list: it is Chromium, it
- * speaks CDP with these flags, and it turns "install Chrome first" into "it already works".
- * `browserOrExit` is the single spelling of the strict-or-skip decision, since the four gates
- * had drifted into three -- one exited 2 outright, two read skipExitCode, and one threw. */
+ * environment left the candidate list unreachable and its macOS entries dead from the day they
+ * were written. The list is keyed by platform and, on Windows, built from the environment,
+ * because a program directory is not a path anyone can hardcode. `browserOrExit` is the single
+ * spelling of the strict-or-skip decision, since the four gates had drifted into three.
+ * Teardown asks, then insists, then removes: a signal, a bounded wait for the exit, a forced
+ * reap of the tree, and only then the profile, because removing a directory a browser is still
+ * writing succeeds by luck on Linux and fails with EBUSY on Windows. */
 
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -97,28 +97,65 @@ export function browserOrExit(gate: string, env: Env = arenaEnv(), on: Platform 
   return found.path ?? cannotRun(gate, found.reason, env);
 }
 
-export async function launchChromium(exePath: string): Promise<{ wsUrl: string; kill: () => void }> {
-  const profile = mkdtempSync(join(tmpdir(), 'arena-chromium-'));
+export const DEVTOOLS_TIMEOUT_MS = 60_000;
 
-  const child = spawn(exePath, [
+export const EXIT_TIMEOUT_MS = 5_000;
+
+export function browserFlags(profile: string, on: Platform = platform) {
+  const container = on === 'linux' ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
+  return [
     '--headless',
     '--disable-gpu',
-    '--no-sandbox',
     '--hide-scrollbars',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-extensions',
+    ...container,
     '--remote-debugging-port=0',
     `--user-data-dir=${profile}`,
     'about:blank',
-  ], { stdio: ['ignore', 'ignore', 'pipe'], detached: true });
+  ];
+}
 
-  const kill = () => {
-    if (typeof child.pid === 'number') {
-      try { process.kill(-child.pid, 'SIGKILL'); } catch {  }
+export async function launchChromium(exePath: string, on: Platform = platform): Promise<{ wsUrl: string; kill: () => Promise<void> }> {
+  const profile = mkdtempSync(join(tmpdir(), 'arena-chromium-'));
+
+  const child = spawn(exePath, browserFlags(profile, on), {
+    stdio: ['ignore', 'ignore', 'pipe'],
+    detached: on !== 'win32',
+  });
+
+  let exited = child.exitCode !== null;
+  const hasExited = new Promise<void>((done) => {
+    if (exited) { done(); return; }
+    const settle = () => { exited = true; done(); };
+    child.once('exit', settle);
+    child.once('error', settle);
+  });
+
+  const force = () => {
+    const pid = child.pid;
+    if (typeof pid !== 'number' || exited) return;
+    if (on === 'win32') {
+      try { spawnSync('taskkill', ['/pid', String(pid), '/T', '/F']); } catch {  }
+      return;
     }
-    try { rmSync(profile, { recursive: true, force: true }); } catch {  }
+    try { process.kill(-pid, 'SIGKILL'); } catch {  }
+  };
+
+  const kill = async () => {
+    if (!exited) {
+      try { child.kill(); } catch {  }
+      await Promise.race([hasExited, new Promise((r) => { setTimeout(r, EXIT_TIMEOUT_MS).unref?.(); })]);
+      force();
+      await Promise.race([hasExited, new Promise((r) => { setTimeout(r, EXIT_TIMEOUT_MS).unref?.(); })]);
+    }
+    try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
   };
 
   const wsUrl = await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('Chromium did not report a DevTools endpoint within 20s')), 20_000);
+    const timer = setTimeout(() => reject(new Error(
+      `Chromium did not report a DevTools endpoint within ${DEVTOOLS_TIMEOUT_MS / 1000}s`)), DEVTOOLS_TIMEOUT_MS);
     let buffered = '';
     child.stderr.on('data', (chunk) => {
       buffered += String(chunk);
@@ -128,7 +165,7 @@ export async function launchChromium(exePath: string): Promise<{ wsUrl: string; 
     child.on('exit', (code) => { clearTimeout(timer); reject(new Error(`Chromium exited with code ${code} before listening`)); });
 
     child.on('error', (err) => { clearTimeout(timer); reject(err); });
-  }).catch((err) => { kill(); throw err; });
+  }).catch(async (err) => { await kill(); throw err; });
 
   return { wsUrl: wsUrl as string, kill };
 }

@@ -4,7 +4,7 @@ import { readdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { DARWIN_APPS, LINUX_CANDIDATES, WINDOWS_APPS, candidates, findChromium, launchChromium } from './chromium.ts';
+import { DARWIN_APPS, LINUX_CANDIDATES, WINDOWS_APPS, browserFlags, candidates, findChromium, launchChromium } from './chromium.ts';
 import { createDispatcher } from './cdp.ts';
 
 function chromiumTempDirs() {
@@ -174,7 +174,7 @@ test('launchChromium rejects instead of crashing when spawn cannot start the bin
   assert.deepEqual(after, before, 'a temp profile dir was left behind by the rejected launch');
 });
 
-test('kill() reaps the whole process group: no descendant survives it and no temp profile outlives it', async (t) => {
+test('kill() reaps the whole tree: no descendant survives it and no temp profile outlives it', async (t) => {
   const found = findChromium();
   if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
 
@@ -188,9 +188,48 @@ test('kill() reaps the whole process group: no descendant survives it and no tem
   assert.ok(beforeKill.length > 1,
     `expected Chromium to have forked at least one subprocess sharing ${profilePath}, found ${beforeKill.length}`);
 
-  kill();
+  await kill();
 
   const settled = await waitUntil(() => !existsSync(profilePath) && processesNaming(profilePath).length === 0);
   assert.ok(settled,
     `outlived kill(): dir exists=${existsSync(profilePath)}, processes=${JSON.stringify(processesNaming(profilePath))}`);
+});
+
+test('the container flags are linux only, since --no-sandbox is a real weakening elsewhere', () => {
+  const linux = browserFlags('/tmp/p', 'linux');
+  assert.ok(linux.includes('--no-sandbox'));
+  assert.ok(linux.includes('--disable-dev-shm-usage'),
+    'a small /dev/shm is what makes Chromium crash under a container, which is where CI runs');
+  for (const on of ['darwin', 'win32'] as const) {
+    assert.ok(!browserFlags('/tmp/p', on).includes('--no-sandbox'),
+      `${on} got --no-sandbox, which is a container idiom and a real weakening on a real desktop`);
+  }
+});
+
+test('every platform is told not to run its first-run flow, which delays the DevTools line', () => {
+  for (const on of ['linux', 'darwin', 'win32'] as const) {
+    const flags = browserFlags('/tmp/p', on);
+    for (const flag of ['--headless', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0']) {
+      assert.ok(flags.includes(flag), `${on} is missing ${flag}`);
+    }
+    assert.ok(flags.includes('--user-data-dir=/tmp/p'));
+  }
+});
+
+test('kill() has already finished when it resolves, rather than leaving a wait to the caller', async (t) => {
+  const found = findChromium();
+  if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
+
+  const before = chromiumTempDirs();
+  const { kill } = await launchChromium(found.path);
+  const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
+  const profilePath = join(tmpdir(), created[0] ?? '');
+
+  await kill();
+
+  assert.equal(existsSync(profilePath), false,
+    'no polling: the profile is gone the instant kill() resolves, because the removal happens '
+    + 'after the exit rather than on the line after the signal, which is the race that fails '
+    + 'with EBUSY on Windows and succeeds by luck here');
+  assert.deepEqual(processesNaming(profilePath), []);
 });

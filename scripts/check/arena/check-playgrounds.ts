@@ -505,7 +505,7 @@ async function smoke(pages: string[], exe: string) {
       (page: string) => visit(cdp, `http://127.0.0.1:${server.port}/${page}`, page));
     problems.push(...perPage.flat());
   } finally {
-    chrome.kill?.();
+    await chrome.kill?.();
     server.close?.();
   }
   return problems.sort();

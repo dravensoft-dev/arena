@@ -166,7 +166,7 @@ async function main() {
       problems.push(...walkProblems(trap.name, walk));
     }
   } finally {
-    chrome.kill?.();
+    await chrome.kill?.();
     server.close?.();
   }
 
