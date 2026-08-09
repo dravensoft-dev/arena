@@ -1,13 +1,7 @@
-/* KILL_BUDGET_MS is DERIVED from what teardown allows itself, never a round number, because the
- * two have to move together: every case here that launches a browser can spend the grace, the
- * exit timeout and a settle wait, which already exceeds the 5s default. A test that can outrun
- * its own deadline by construction is worse than a slow one -- bun abandons the callback with
- * its child processes still pending, and the next file to call test() reports an error that
- * names neither. These passed here at 145ms and timed out at 5001ms on a runner, where Chrome
- * had been signalled the instant it reported its endpoint. Reading the process tree is keyed by
- * platform, pgrep answering by command line where Win32_Process is the only thing that holds one
- * on Windows; the query is built by a pure function, so the branch neither host runs is asserted
- * from both. A skip is DECLARED and never called: bun implements no t.skip(). */
+/* Reading the process tree is keyed by platform, pgrep answering by command line where
+ * Win32_Process is the only thing that holds one on Windows; the query is built by a pure
+ * function, so the branch neither host runs is asserted from both. A skip is DECLARED and
+ * never called: bun implements no t.skip(). */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,13 +10,16 @@ import { tmpdir } from 'node:os';
 import { basename, join, win32 } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
-  DARWIN_APPS, GRACE, LINUX_CANDIDATES, REAP, WINDOWS_APPS, browserFlags,
+  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, REAP, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium,
 } from './chromium.ts';
+import { budgetFor, deadline, type Deadline } from './deadline.ts';
 
-const SETTLE_TIMEOUT_MS = 5_000;
+const SETTLE: Deadline = deadline('chromium:settle', 5_000,
+  'the span this suite gives a reaped tree to disappear from the process table before it '
+  + 'calls the disappearance a failure rather than a delay');
 
-const KILL_BUDGET_MS = (GRACE.ms + REAP.ms + SETTLE_TIMEOUT_MS) * 2;
+const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE);
 import { createDispatcher } from './cdp.ts';
 import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
@@ -107,7 +104,7 @@ const NEEDS_A_SIGNAL = platform === 'win32'
     + 'taskkill /T /F, which the reap cases above exercise against a real browser'
   : false;
 
-async function waitUntil(predicate: () => boolean, { timeoutMs = SETTLE_TIMEOUT_MS, intervalMs = 100 } = {}) {
+async function waitUntil(predicate: () => boolean, { timeoutMs = SETTLE.ms, intervalMs = 100 } = {}) {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     if (predicate()) return true;
@@ -255,7 +252,7 @@ test('a request made after drain still gets its own promise, unaffected by the e
 });
 
 test('launchChromium rejects instead of crashing when spawn cannot start the binary, and leaves no temp profile behind',
-  { timeout: KILL_BUDGET_MS }, async () => {
+  { timeout: BUDGET_MS }, async () => {
   const before = chromiumTempDirs();
   await assert.rejects(() => launchChromium('/this/path/does/not/exist'));
   const after = chromiumTempDirs();
@@ -328,7 +325,7 @@ test('a host that can look and finds none says that, which is the answer the rea
 });
 
 test('kill() reaps the whole tree: no descendant survives it and no temp profile outlives it',
-  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
+  { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
   const before = chromiumTempDirs();
   const { kill } = await launchChromium(BROWSER_PATH);
   const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
@@ -368,7 +365,7 @@ test('every platform is told not to run its first-run flow, which delays the Dev
 });
 
 test('kill() has already finished when it resolves, rather than leaving a wait to the caller',
-  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
+  { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
     const before = chromiumTempDirs();
     const { kill } = await launchChromium(BROWSER_PATH);
     const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
@@ -384,20 +381,20 @@ test('kill() has already finished when it resolves, rather than leaving a wait t
   });
 
 test('teardown is bounded even where the browser ignores the signal, which is what CI showed',
-  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
+  { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
     const { kill } = await launchChromium(BROWSER_PATH);
     const started = Date.now();
     await kill();
     const took = Date.now() - started;
 
     assert.ok(took < GRACE.ms + REAP.ms, `kill() took ${took}ms, past its own bound`);
-    assert.ok(GRACE.ms + REAP.ms < KILL_BUDGET_MS,
+    assert.ok(GRACE.ms + REAP.ms < BUDGET_MS,
       'the budget has to exceed the worst case, or this suite measures how fast a browser dies '
       + 'rather than whether teardown finished, which is how it failed on a runner and not here');
   });
 
 test('a browser that IGNORES the signal is still reaped, and inside the bound',
-  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
+  { timeout: BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'arena-deaf-browser-'));
     const exe = join(dir, 'deaf-browser.sh');
     writeFileSync(exe,
@@ -424,7 +421,7 @@ test('a browser that IGNORES the signal is still reaped, and inside the bound',
   });
 
 test('a parent that dies ON the signal still leaves no descendant behind',
-  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
+  { timeout: BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'arena-leaky-browser-'));
     const exe = join(dir, 'leaky-browser.sh');
     writeFileSync(exe,

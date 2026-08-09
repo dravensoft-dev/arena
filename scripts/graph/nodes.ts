@@ -16,6 +16,11 @@ import { isScript } from '../lib/arena/domains.ts';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { matchesSpec } from './pathspecs.ts';
 import type { GraphNode } from './graph.ts';
+import { deadline, type Deadline } from '../lib/arena/deadline.ts';
+
+export const COLLECTION: Deadline = deadline('graph:collection', 30_000,
+  'collecting imports every script under the three phases, which measured 3227ms warm on a '
+  + 'machine with nothing else on it, and every one of them is parsed on the way');
 
 export const COLLECTED_PHASES = ['build', 'generate', 'check'];
 

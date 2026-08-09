@@ -1,18 +1,15 @@
 /* Both refusals asserted here are the vacuous pass in its two forms: a runner given no
  * project would check nothing and report nothing wrong, and a gate holding no project at
- * all would do the same one level up. Neither can be reached by accident once they throw.
- * SPAWN_BUDGET_MS is stated because spawning tsc is not a five-second operation by nature and
- * node:test defaults to five: this file measured 4527ms here, warm, so a shared runner is a coin
- * toss. A test that outruns its deadline is worse than a slow one, since the callback is
- * abandoned with tsc still running and the next FILE to call test() reports the error. */
+ * all would do the same one level up. Neither can be reached by accident once they throw. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
-import { tscBin, typecheck, projectFiles, zeroProjectProblems } from './typecheck.ts';
+import { TSC_SPAWN, tscBin, typecheck, projectFiles, zeroProjectProblems } from './typecheck.ts';
+import { budgetFor } from './deadline.ts';
 
-const SPAWN_BUDGET_MS = 60_000;
+const BUDGET_MS = budgetFor(TSC_SPAWN);
 
 test('tsc runs under plain node, so a gate built on this has no skip path to take', () => {
   assert.ok(tscBin(repoRoot).endsWith(join('typescript', 'lib', 'tsc.js')));
@@ -28,13 +25,13 @@ test('checking no project is refused by both readers, because it would report no
 });
 
 test('a project tsc cannot read is an error rather than an empty file list',
-  { timeout: SPAWN_BUDGET_MS }, () => {
+  { timeout: BUDGET_MS }, () => {
   assert.throws(() => projectFiles({ project: 'scripts/tsconfig.does-not-exist.json' }),
     /tsc could not read/);
 });
 
 test('projectFiles reports the files a project reached, which is what proves the globs matched',
-  { timeout: SPAWN_BUDGET_MS }, () => {
+  { timeout: BUDGET_MS }, () => {
   const files = projectFiles({ project: 'scripts/tsconfig.check.json' });
   assert.ok(files.length > 0, 'a project reaching no file compiles nothing and reports clean');
   assert.ok(files.some((p) => p.endsWith('scripts/lib/arena/typecheck.ts')),

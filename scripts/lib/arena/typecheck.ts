@@ -13,6 +13,12 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import { childOutput } from './child-output.ts';
+import { deadline, type Deadline } from './deadline.ts';
+
+export const TSC_SPAWN: Deadline = deadline('typecheck:spawn', 30_000,
+  'spawning tsc over a project is not a five-second operation by nature and this measured '
+  + '4527ms warm on a machine with nothing else on it, so a shared runner is a coin toss at '
+  + 'the default');
 
 type TypecheckOptions = { root?: string; project?: string };
 

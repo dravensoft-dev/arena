@@ -28,3 +28,13 @@ export function isDeadline(value: unknown): value is Deadline {
     && typeof candidate.ms === 'number'
     && typeof candidate.why === 'string';
 }
+
+export const BUDGET_SLACK = 2;
+
+export function budgetFor(...spent: Deadline[]): number {
+  if (spent.length === 0) {
+    throw new Error('a budget derived from no deadline is a hand-written number wearing a call, '
+      + 'and the set it is derived from is the only thing that can be checked');
+  }
+  return spent.reduce((total, one) => total + one.ms, 0) * BUDGET_SLACK;
+}

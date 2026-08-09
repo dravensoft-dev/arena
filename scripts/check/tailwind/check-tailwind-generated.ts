@@ -7,6 +7,11 @@ import {
 } from '../../build/tailwind/build-tailwind.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
+
+export const COMPILE: Deadline = deadline('tailwind:compile', 30_000,
+  'compiling the utility sheet measured 3770ms warm on a machine with nothing else on it, and '
+  + 'a runner sharing its cores with four other jobs is not that machine');
 
 export { BANNER, generatedPath };
 
