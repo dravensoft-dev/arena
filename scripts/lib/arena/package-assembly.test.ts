@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
-import { toPosix, relPosix } from '../../utils/posix-path.ts';
+import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
@@ -61,8 +61,8 @@ test('the walk honours the exclusion list at every depth', () => {
     'node_modules/x/index.ts': '',
   });
   assert.deepEqual(
-    collectFiles(root).map((p) => p.slice(root.length + 1)),
-    [join('components', 'display', 'arena-tag', 'ArenaTag.ts')],
+    collectFiles(root).map((p) => relPosix(root, p)),
+    ['components/display/arena-tag/ArenaTag.ts'],
   );
   rmSync(root, { recursive: true });
 });
@@ -220,9 +220,9 @@ const importsIn = (css: string) => [...css.matchAll(/@import\s+'([^']+)'/g)].map
 test('every import the component barrel writes resolves to a sheet the same call emits', () => {
   const root = tailwindTree(['tag', 'button']);
   const sheets = componentSheets('', () => ({ base: '' }), root);
-  const emitted = new Set(sheets.map((s) => toPosix(s.to)));
+  const emitted = new Set(sheets.map((s) => s.to));
 
-  const barrel = sheets.find((s) => toPosix(s.to) === 'css/components.css');
+  const barrel = sheets.find((s) => s.to === 'css/components.css');
   assert.ok(barrel, 'the barrel is emitted');
   const links = importsIn(barrel.content);
   assert.deepEqual(links, ['./components/button.css', './components/tag.css']);

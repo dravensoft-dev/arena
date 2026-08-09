@@ -11,7 +11,7 @@
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -134,6 +134,45 @@ export const RULES: Rule[] = [
     reaches: 'suites as well',
   },
   {
+    id: 'host-separator',
+    pattern: /import\s*\{[^}]*\bsep\b[^}]*\}\s*from\s*'node:path'|(?<![\w$])\w+\.sep\b/g,
+    owners: [
+      'scripts/utils/posix-path.ts',
+      'scripts/utils/posix-path.test.ts',
+      'scripts/generate/core/arena-to-prod/arena-to-prod.ts',
+    ],
+    why: 'the host separator is a backslash on one machine and a slash on the other, so writing it '
+      + 'down anywhere else is a comparison that holds on the machine it was written on: a repo-'
+      + 'relative path is posix and splitting it on the host separator returns the whole string as '
+      + 'one segment, and a prefix built with it matches nothing. Ask isInside whether a path is '
+      + 'under another and relPosix what it is called. The owner\'s own suite is the second, since '
+      + 'proving a conversion converts anything means writing a native path down on a machine that '
+      + 'has none; the third is the CLI tree copied whole into bin/, which cannot import a helper '
+      + 'it would climb out of itself to reach',
+    reaches: 'suites as well',
+  },
+  {
+    id: 'sliced-relative',
+    pattern: /\.slice\(\s*[\w$]+\.length\s*\+\s*1\s*\)/g,
+    owners: [],
+    why: 'a repo-relative path is relPosix(base, path) and never the absolute one with the base '
+      + 'sliced off its front: the slice keeps whatever separator the host walked with, so the '
+      + 'answer is native on Windows and posix here, and every reader that splits it on a forward '
+      + 'slash reads one segment. It is also silently wrong the day base arrives with a trailing '
+      + 'separator, which relative answers correctly and arithmetic on a length cannot',
+    reaches: 'suites as well',
+  },
+  {
+    id: 'slash-index',
+    pattern: /lastIndexOf\('\/'\)|lastIndexOf\("\/"\)/g,
+    owners: [],
+    why: 'the last segment of a path is basename and the rest is dirname, and both read a forward '
+      + 'slash on every host, a native one included. Hunting the index of a slash by hand answers '
+      + '-1 on the path a Windows walk hands over, so the slice returns the whole string or all '
+      + 'but its last character, and the lookup that follows misses in silence',
+    reaches: 'suites as well',
+  },
+  {
     id: 'prefix-containment',
     pattern: /startsWith\([^)]*\+\s*(?:'|"|`)[/\\]/g,
     owners: ['scripts/utils/posix-path.ts'],
@@ -146,7 +185,7 @@ export const RULES: Rule[] = [
 export function inScope(path: string) {
   const rel = relPosix(root, path);
   if (!rel.startsWith('scripts/')) return false;
-  const name = rel.slice(rel.lastIndexOf('/') + 1);
+  const name = basename(rel);
   return isScript(name) && !isSuite(name);
 }
 
@@ -159,7 +198,7 @@ export const SUITE_RULES = RULES.filter((rule) => rule.reaches === 'suites as we
 export function inSuiteScope(path: string) {
   const rel = relPosix(root, path);
   if (!rel.startsWith('scripts/')) return false;
-  return isSuite(rel.slice(rel.lastIndexOf('/') + 1));
+  return isSuite(basename(rel));
 }
 
 export function suiteFiles(base = root) {
@@ -406,7 +445,7 @@ export function portabilityProblems(base = root) {
   scan(files, RULES);
   scan(suites, SUITE_RULES);
 
-  problems.push(...staleOwners(files, base));
+  problems.push(...staleOwners([...files, ...suites], base));
   problems.push(...matrixProblems(base));
   problems.push(...gateProblems(base));
   problems.push(...browserPathProblems(base));

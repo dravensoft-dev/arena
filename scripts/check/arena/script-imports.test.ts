@@ -12,9 +12,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
-import { basename, join, dirname, relative, sep } from 'node:path';
+import { basename, join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
-import { relPosix } from '../../utils/posix-path.ts';
+import { isInside, relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { isScript, isSuite } from '../../lib/arena/domains.ts';
@@ -84,7 +84,7 @@ export function reachesOutOfUtils(path: string) {
     if (insideLiteral(literals, m.index)) continue;
     if (spec.startsWith('node:')) continue;
     if (!spec.startsWith('.')) { escaping.push(spec); continue; }
-    if (!join(dirname(path), spec).startsWith(`${UTILS}${sep}`)) escaping.push(spec);
+    if (!isInside(UTILS, join(dirname(path), spec))) escaping.push(spec);
   }
   return escaping;
 }

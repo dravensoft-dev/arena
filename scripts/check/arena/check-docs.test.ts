@@ -103,7 +103,7 @@ test('DOUBTS.md and docs/ are exempt from the size limit, and nothing else is', 
     'README.md': over,
   });
   assert.deepEqual(documentSizeProblems(root, NO_ALLOWANCE).problems.map((p) => p.split(':')[0]), ['README.md']);
-  assert.deepEqual(SIZE_EXEMPT, ['DOUBTS.md', join('docs', '')]);
+  assert.deepEqual(SIZE_EXEMPT, ['DOUBTS.md', 'docs/']);
   rmSync(root, { recursive: true });
 });
 
@@ -151,7 +151,7 @@ test('docs/ is exempt from the punctuation rule and DOUBTS.md is not', () => {
 });
 
 test('the two maps the punctuation rule reads are asserted by name', () => {
-  assert.deepEqual(Object.keys(PROSE_EXEMPT), [join('docs', '')]);
+  assert.deepEqual(Object.keys(PROSE_EXEMPT), ['docs/']);
   for (const reason of Object.values(PROSE_EXEMPT)) assert.match(reason, /\w/);
   assert.deepEqual(BANNED_PUNCTUATION, [['—', 'an em dash']]);
 });
@@ -285,10 +285,10 @@ test('a generator is not its own output, and content never overrides the name', 
 });
 
 test('allowsHeader covers scripts, a .test. infix and a test/ directory', () => {
-  assert.equal(allowsHeader(join('scripts', 'a.mjs')), true);
-  assert.equal(allowsHeader(join('frameworks', 'react', 'a', 'A.test.jsx')), true);
-  assert.equal(allowsHeader(join('frameworks', 'angular', 'test', 'Harness.ts')), true);
-  assert.equal(allowsHeader(join('frameworks', 'react', 'a', 'A.jsx')), false);
+  assert.equal(allowsHeader('scripts/a.mjs'), true);
+  assert.equal(allowsHeader('frameworks/react/a/A.test.jsx'), true);
+  assert.equal(allowsHeader('frameworks/angular/test/Harness.ts'), true);
+  assert.equal(allowsHeader('frameworks/react/a/A.jsx'), false);
 });
 
 test('a walk that reaches nothing is a failure, not a vacuous pass', () => {
@@ -360,13 +360,13 @@ test('the rule reaches prompts alone, and a sibling of the component is not a co
 });
 
 test('an index under frameworks/ is a consumer document, and the root router is the one that is not', () => {
-  assert.equal(isConsumerDocument(join('frameworks', 'SKILL.md')), true);
-  assert.equal(isConsumerDocument(join('frameworks', 'react', 'SKILL.md')), true);
-  assert.equal(isConsumerDocument(join('frameworks', 'react', 'components', 'a', 'A.prompt.md')), true);
+  assert.equal(isConsumerDocument('frameworks/SKILL.md'), true);
+  assert.equal(isConsumerDocument('frameworks/react/SKILL.md'), true);
+  assert.equal(isConsumerDocument('frameworks/react/components/a/A.prompt.md'), true);
   assert.equal(isConsumerDocument('SKILL.md'), false,
     'the root router names the contributor branch to send a contributor away');
-  assert.equal(isConsumerDocument(join('frameworks', 'react', 'README.md')), false);
-  assert.equal(isConsumerDocument(join('docs', 'SKILL.md')), false, 'the tree decides, not the name alone');
+  assert.equal(isConsumerDocument('frameworks/react/README.md'), false);
+  assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
 });
 
 test('an index citing a contributor path fails the same way a prompt does', () => {

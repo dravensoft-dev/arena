@@ -109,7 +109,14 @@ thing to hold true:
   two directions: without a separator boundary it lets `/repo-evil` pass as `/repo`, and with a
   hardcoded `'/'` it refuses every nested path on Windows. `relative` answers in the host
   separator, so its result is native until something says otherwise; spelling that as two calls
-  is what let a manifest key reach five readers that split it on `'/'`.
+  is what let a manifest key reach five readers that split it on `'/'`. **Nothing else writes the
+  host separator down, computes a relative path by slicing the base's length off an absolute one,
+  or hunts a path's last slash by hand.** Each of those reads a native path as one segment on
+  Windows and as a correct answer here, which is a gate that passes by finding nothing: a chart
+  excused by a directory nobody matched, a header allowance a file never got, a page a citation
+  could not resolve. `basename` and `dirname` read a forward slash on every host and are how a
+  path is taken apart. A key a suite writes as an expected value is held to the same rule, since
+  a native path in an assertion passes only on the machine that wrote it.
 - **A binary is spawned by resolved path**, never a bare name and never a `node_modules/.bin`
   shim. `lib/arena/host-binary.ts` for one the host supplies and `lib/arena/node-bin.ts` for one
   this tree installs. There is no `git` on Windows, there is `git.exe`, and `.bin` holds a `.CMD`

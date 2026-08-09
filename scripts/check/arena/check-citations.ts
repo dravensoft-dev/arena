@@ -88,7 +88,7 @@ export function basenames(base = root, ignored = ignoredRoots(base)) {
 export function bareDocumentProblems(base = root, files = documents(base), names = basenames(base)) {
   const problems = [];
   for (const path of files) {
-    const rel = path.slice(base.length + 1);
+    const rel = relPosix(base, path);
     for (const [line, text] of readFileSync(path, 'utf8').split('\n').entries()) {
       for (const cited of text.match(BARE_DOCUMENT) ?? []) {
         if (names.has(cited)) continue;
@@ -108,7 +108,7 @@ export function citationProblems(base = root, files = documents(base), exempt = 
   const problems = [];
   const met = new Set();
   for (const path of files) {
-    const rel = path.slice(base.length + 1);
+    const rel = relPosix(base, path);
     for (const [line, text] of readFileSync(path, 'utf8').split('\n').entries()) {
       for (const raw of text.match(pattern) ?? []) {
         const cited = raw.replace(TRAILING_PUNCTUATION, '');
@@ -137,7 +137,7 @@ export function ignoredCitationProblems(base = root, files = documents(base), ig
   const problems = [];
 
   for (const path of files) {
-    const rel = path.slice(base.length + 1);
+    const rel = relPosix(base, path);
     for (const [line, text] of readFileSync(path, 'utf8').split('\n').entries()) {
       for (const raw of text.match(pattern) ?? []) {
         const cited = raw.replace(TRAILING_PUNCTUATION, '');

@@ -10,7 +10,7 @@
  * falls back inside the shared limit after being raised fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join, relative, basename, sep } from 'node:path';
+import { join, basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -25,7 +25,7 @@ export const HEADER_MAX_LINES = 10;
 export const QUOTED_RUN_CHARS = 90;
 
 export const EXPLANATORY_BY_CHARTER = 'DOUBTS.md';
-export const DATED_PROCESS_DOCUMENTS = join('docs', '');
+export const DATED_PROCESS_DOCUMENTS = 'docs/';
 export const SIZE_EXEMPT = [
   EXPLANATORY_BY_CHARTER,
   DATED_PROCESS_DOCUMENTS,
@@ -70,7 +70,7 @@ export function isGenerated(path: string) {
 }
 
 export function allowsHeader(repoRelativePath: string) {
-  const parts = repoRelativePath.split(sep);
+  const parts = repoRelativePath.split('/');
   return parts[0] === 'scripts'
     || parts.includes('test')
     || basename(repoRelativePath).includes('.test.');
@@ -82,7 +82,7 @@ function isPragma(text: string) {
 
 export const CONSUMER_LAST_STOP = '.prompt.md';
 export const CONSUMER_INDEX = 'SKILL.md';
-export const CONSUMER_TREE = `frameworks${sep}`;
+export const CONSUMER_TREE = 'frameworks/';
 
 export const BRANCH_SWITCH = {
   'SKILL.md':

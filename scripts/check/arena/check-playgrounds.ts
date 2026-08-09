@@ -13,6 +13,7 @@ import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
 import { playgroundModel, SUBJECT } from '../../lib/arena/playground-model.ts';
@@ -379,9 +380,9 @@ export function citationProblems(
 ) {
   const problems = [];
   const pages = new Set(emitted);
-  const pageNames = new Set(emitted.map((rel) => rel.slice(rel.lastIndexOf('/') + 1)));
+  const pageNames = new Set(emitted.map((rel) => basename(rel)));
   for (const path of files) {
-    const rel = path.slice(base.length + 1);
+    const rel = relPosix(base, path);
     for (const [line, text] of readFileSync(path, 'utf8').split('\n').entries()) {
       for (const cited of text.match(PATH_LIKE) ?? []) {
         const cleaned = cited.replace(/[.,;:)]+$/, '');

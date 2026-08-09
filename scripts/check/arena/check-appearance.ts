@@ -8,7 +8,7 @@
  * which is the blind spot check-dimension-literals already declares in its own header. */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -172,10 +172,6 @@ export function componentDir(name: string) {
   return category ? join(REACT_COMPONENTS, category, kebab(name)) : null;
 }
 
-export function directoryOf(path: string) {
-  return path.slice(0, path.lastIndexOf('/'));
-}
-
 export function reactRendersManifest(text: string, manifest: string) {
   const throughRecipe = /from '[^']*Tv\.generated/.test(text) && text.includes(`${manifest}.manifest.generated`);
   const throughClasses = /from '[^']*ArenaStyles\.generated/.test(text) && text.includes(`${manifest}.classes.generated`);
@@ -222,7 +218,7 @@ export function collect() {
   const literals = [];
   let scanned = 0;
   for (const path of files) {
-    if (excused.has(directoryOf(path))) continue;
+    if (excused.has(dirname(path))) continue;
     scanned += 1;
     const rel = relPosix(repoRoot, path);
     for (const { key, value } of literalStyleProblems(readFileSync(path, 'utf8'), rel))
