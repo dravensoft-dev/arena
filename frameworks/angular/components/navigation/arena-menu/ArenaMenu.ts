@@ -10,6 +10,7 @@ import {
 import { TemplatePortal } from '@angular/cdk/portal';
 import type { ArenaMenuAlign, ArenaMenuItem } from '../../../Api.generated';
 import { sp1 } from '../../../Tokens.generated';
+import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaMenuStyles } from './ArenaMenu.variants';
 
 const TRIGGER_SELECTOR =
@@ -122,7 +123,22 @@ export class ArenaMenu {
     return first instanceof HTMLElement ? first : null;
   }
 
+  private reportTrigger(): void {
+    if (this.host.nativeElement.querySelector(TRIGGER_SELECTOR)) return;
+    const first = this.host.nativeElement.firstElementChild;
+    arenaWarnOnce(
+      first === null
+        ? 'arena-menu is given no trigger: mark the element that opens it with the `trigger` '
+          + 'attribute, or nothing opens the menu at all.'
+        : `arena-menu's trigger is a <${first.tagName.toLowerCase()}>, which takes no focus and `
+          + 'answers no key. The menu opens on a pointer and on nothing else, and a reader on a '
+          + 'keyboard cannot reach it. Project a control: an ArenaIconButton or an ArenaButton, '
+          + 'or your own element carrying a button role and a tabindex.',
+    );
+  }
+
   private bindTrigger(): void {
+    this.reportTrigger();
     const trigger = this.trigger();
     if (!trigger) return;
     const onClick = (): void => this.toggle();

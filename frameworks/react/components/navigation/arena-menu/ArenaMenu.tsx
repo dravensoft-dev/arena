@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMenu.classes.generated.ts';
 
@@ -21,6 +22,9 @@ export interface ArenaMenuProps {
   onSelect?: (item: ArenaMenuItem) => void;
 }
 
+
+const TRIGGER_SELECTOR =
+  'button:not([tabindex="-1"]), a[href]:not([tabindex="-1"]), [role="button"]:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
 
 const arenaMenuStyles = arenaStyles(manifest);
 
@@ -68,6 +72,14 @@ export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMe
   useEffect(() => {
     const el = triggerEl();
     if (!el) return;
+    if (!el.matches(TRIGGER_SELECTOR) && !el.querySelector(TRIGGER_SELECTOR)) {
+      arenaWarnOnce(
+        `ArenaMenu's trigger renders a <${el.tagName.toLowerCase()}>, which takes no focus and `
+        + 'answers no key. The menu opens on a pointer and on nothing else, and a reader on a '
+        + 'keyboard cannot reach it. Pass a control: an ArenaIconButton or an ArenaButton, or your '
+        + 'own element carrying a button role and a tabindex.',
+      );
+    }
     el.setAttribute('aria-haspopup', 'menu');
     el.setAttribute('aria-expanded', String(open));
   }, [open]);
