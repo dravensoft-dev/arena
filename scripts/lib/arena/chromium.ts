@@ -4,10 +4,10 @@
  * environment left the candidate list unreachable and its macOS entries dead from the day they
  * were written. The list is keyed by platform and built from the environment on Windows, where a
  * program directory is no path anyone can hardcode. `browserOrExit` is the single spelling of
- * the strict-or-skip decision, since the four gates had drifted into three.
- * Teardown asks, then insists, then removes: a signal, a SHORT grace, a forced reap, then the
- * profile, since removing a directory a browser still writes to fails with EBUSY on Windows.
- * The grace is short: a browser signalled as it reports its endpoint may not answer at all. */
+ * the strict-or-skip decision, since the four gates had drifted into three. Teardown asks the
+ * parent, reaps the GROUP whatever the parent did, then waits for it to empty before removing
+ * the profile: the polite exit is the leaky one, leaving a zygote and a renderer, and a
+ * directory one still writes to fails with EBUSY. The grace is short: TERM may go unanswered. */
 
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
@@ -104,6 +104,8 @@ export const GRACE_MS = 1_000;
 
 export const EXIT_TIMEOUT_MS = 5_000;
 
+export const GROUP_POLL_MS = 50;
+
 export function browserFlags(profile: string, on: Platform = platform) {
   const container = on === 'linux' ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
   return [
@@ -136,9 +138,9 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     child.once('error', settle);
   });
 
-  const force = () => {
+  const reapGroup = () => {
     const pid = child.pid;
-    if (typeof pid !== 'number' || exited) return;
+    if (typeof pid !== 'number') return;
     if (on === 'win32') {
       const why = 'to reap a browser process tree, which a signal cannot do on Windows';
       try { spawnSync(hostBinary('taskkill', why, { on }), ['/pid', String(pid), '/T', '/F']); } catch {  }
@@ -147,20 +149,31 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     try { process.kill(-pid, 'SIGKILL'); } catch {  }
   };
 
+  const groupGone = () => {
+    const pid = child.pid;
+    if (typeof pid !== 'number' || on === 'win32') return true;
+    try { process.kill(-pid, 0); return false; } catch { return true; }
+  };
+
   const settledWithin = (ms: number) => Promise.race([
     hasExited,
     new Promise<void>((done) => { setTimeout(done, ms).unref?.(); }),
   ]);
 
+  const emptyWithin = async (ms: number) => {
+    const until = Date.now() + ms;
+    while (!groupGone() && Date.now() < until) {
+      await new Promise<void>((done) => { setTimeout(done, GROUP_POLL_MS).unref?.(); });
+    }
+  };
+
   const kill = async () => {
     if (!exited) {
       try { child.kill(); } catch {  }
       await settledWithin(GRACE_MS);
-      if (!exited) {
-        force();
-        await settledWithin(EXIT_TIMEOUT_MS);
-      }
     }
+    reapGroup();
+    await emptyWithin(EXIT_TIMEOUT_MS);
     try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
   };
 

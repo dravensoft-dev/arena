@@ -422,3 +422,33 @@ test('a browser that IGNORES the signal is still reaped, and inside the bound',
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+test('a parent that dies ON the signal still leaves no descendant behind',
+  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-leaky-browser-'));
+    const exe = join(dir, 'leaky-browser.sh');
+    writeFileSync(exe,
+      '#!/bin/sh\n'
+      + "sh -c 'sleep 60' \"$@\" &\n"
+      + 'echo "DevTools listening on ws://127.0.0.1:9/devtools/browser/stand-in" >&2\n'
+      + 'sleep 60\n');
+    chmodSync(exe, 0o755);
+
+    const before = chromiumTempDirs();
+    try {
+      const { kill } = await launchChromium(exe);
+      const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
+      const profilePath = join(tmpdir(), created[0] ?? '');
+      assert.equal(pidsNaming(profilePath).length, 2,
+        'the stand-in and the descendant it backgrounded both name the profile, or this case is '
+        + 'not standing in for the shape it exists to hold');
+
+      await kill();
+
+      assert.deepEqual(pidsNaming(profilePath), [],
+        'the parent heard TERM and exited, so teardown never escalated, and a group nobody reaped '
+        + 'outlives the call that claims to have reaped it');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
