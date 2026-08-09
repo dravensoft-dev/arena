@@ -37,17 +37,16 @@ test('the workflow matrix is exactly the declared list, in both directions', () 
   assert.deepEqual(matrixProblems(), []);
 });
 
-test('a leg that reports without gating says so in both places, or one of them is a lie', () => {
+test('every leg gates, and one that did not would have to say so in both places', () => {
   const legs = matrixLegs(workflow());
   for (const [name, one] of Object.entries(SUPPORTED_OS)) {
     assert.equal(legs.get(name), one.blocking, `${name} disagrees with the matrix`);
   }
-  assert.ok(BLOCKING_OS.length >= 1 && BLOCKING_OS.length < SUPPORTED_OS_NAMES.length,
-    'at least one leg gates, or the workflow proves nothing, and at least one does not, or this '
-    + 'distinction is dead code that will rot before it is next needed');
-  assert.equal(SUPPORTED_OS['windows-latest']?.blocking, false,
-    'Windows reports and does not gate until a runner has confirmed the branches unit tests '
-    + 'carry alone. When it is green that flag flips, and the flip IS the support claim.');
+  assert.deepEqual(SUPPORTED_OS_NAMES.filter((name) => !BLOCKING_OS.includes(name)), [],
+    'a leg that reports without gating hands pr-gate a success whatever it said, so a platform '
+    + 'carrying that flag is one whose red mark stops nothing. The flag stays readable and the '
+    + 'branch that reads it is held from an injected map in check-portability.test.ts, which is '
+    + 'what keeps it from being a clause nothing exercises.');
 });
 
 test('every supported OS carries a reason, and ubuntu says why it is there twice over', () => {

@@ -93,9 +93,9 @@ doing in a matrix leg.
 **A leg that fails without failing the gate is `continue-on-error`, and the flag comes from one
 place.** `scripts/ci/arena/supported-os.ts` declares `blocking` per platform with its reason, the
 matrix sets `continue-on-error: ${{ !matrix.blocking }}`, and a failing leg with that flag hands
-`needs` a result of `success`. So `windows-latest` reports and does not gate, and the gate needs
-no clause of its own about it: flipping the flag to `true` is the single edit that makes Windows
-block, which is the whole definition of that platform being supported.
+`needs` a result of `success`. So the flag is the single edit that decides whether a platform
+gates, and `pr-gate` needs no clause of its own about any of them: a leg declared blocking turns
+a red operating system into a merge request that cannot land.
 
 ## Arena main
 

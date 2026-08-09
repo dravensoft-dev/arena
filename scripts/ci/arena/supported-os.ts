@@ -25,12 +25,13 @@ export const SUPPORTED_OS: Record<string, SupportedOs> = {
       + 'install that cannot resolve them is the first thing that would fail.',
   },
   'windows-latest': {
-    blocking: false,
-    why: 'the one platform whose branches are carried by unit tests with the platform injected '
-      + 'and by no runner: PATHEXT resolution, junctions instead of directory symlinks, taskkill '
-      + 'instead of a process group, and backslashes through every path comparison. It reports '
-      + 'and does not gate until it is green, because a leg expected to be red either blocks '
-      + 'every pull request or teaches everyone to ignore a red mark, and both end the same way.',
+    blocking: true,
+    why: 'the platform whose branches no other leg exercises: PATHEXT resolution, junctions '
+      + 'instead of directory symlinks, taskkill instead of a process group, and backslashes '
+      + 'through every path comparison. Each of those is carried by a unit test with the platform '
+      + 'injected, and this leg is the only place they run together on a machine that spells a '
+      + 'path that way. It gates, so what a Linux runner cannot answer stops a merge instead of '
+      + 'being a red mark beside a green gate that everybody learns to read past.',
   },
 };
 

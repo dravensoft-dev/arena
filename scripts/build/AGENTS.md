@@ -39,16 +39,16 @@ under `/mnt/c` launches and then reports a clean console over a page it never lo
 serve on the WSL loopback, and a Windows-side browser resolves `127.0.0.1` to Windows's own.
 `findChromium` says so in its failure message when `WSL_DISTRO_NAME` is set.
 
-**Windows natively is being brought up now, and reports without gating.** Its branches are
-written -- `PATHEXT` resolution, junctions instead of directory symlinks, `taskkill` instead of a
-process group, backslashes through every path comparison -- and covered by unit tests with the
-platform injected, which is why they can be covered from a Linux runner at all. What no runner
-has yet confirmed is the whole of it running together. That claim lives where `DOUBTS.md` says
-such a thing belongs, in a reason-carrying map a gate holds rather than in prose:
-`../ci/arena/supported-os.ts` carries a `blocking` flag per platform with its reason, and
-`check:portability` fails if the matrix in `pr.yml` and that list disagree about either
-the names or the flags. **`windows-latest` flipping to `blocking: true` is the whole definition
-of Windows being supported**, so until then WSL2 is the path a contributor should take.
+**Windows natively gates, the same as Linux and macOS.** Its branches are written -- `PATHEXT`
+resolution, junctions instead of directory symlinks, `taskkill` instead of a process group,
+backslashes through every path comparison -- and covered by unit tests with the platform
+injected, which is why they can be covered from a Linux runner at all. What only a runner
+confirms is the whole of it running together, and that is the one thing the leg buys. Which
+platforms gate lives where `DOUBTS.md` says such a claim belongs, in a reason-carrying map a gate
+holds rather than in prose: `../ci/arena/supported-os.ts` carries a `blocking` flag per platform
+with its reason, and `check:portability` fails if the matrix in `pr.yml` and that list disagree
+about either the names or the flags. **A `blocking: false` leg reports and does not gate**, which
+is the single place a platform stops gating and the reason the gate holds no clause of its own.
 
 ## Compile Arena for the first time
 

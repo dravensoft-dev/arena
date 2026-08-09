@@ -231,7 +231,7 @@ jobs:
           - os: macos-latest
             blocking: true
           - os: windows-latest
-            blocking: false
+            blocking: true
     steps:
       - name: a path under %TEMP% outruns the 260-char budget before the tree does
         if: runner.os == 'Windows'
