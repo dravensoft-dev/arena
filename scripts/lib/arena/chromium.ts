@@ -16,6 +16,7 @@ import { join } from 'node:path';
 import { arenaEnv, cannotRun } from './arena-scripts-vars.ts';
 import { hostBinary } from './host-binary.ts';
 import { platform, type Platform } from './platform.ts';
+import { deadline, type Deadline } from './deadline.ts';
 
 export const LINUX_CANDIDATES = [
   '/usr/bin/chromium',
@@ -98,11 +99,18 @@ export function browserOrExit(gate: string, env: Env = arenaEnv(), on: Platform 
   return found.path ?? cannotRun(gate, found.reason, env);
 }
 
-export const DEVTOOLS_TIMEOUT_MS = 60_000;
+export const DEVTOOLS: Deadline = deadline('chromium:devtools', 60_000,
+  'a runner that has not launched this browser before pages the binary in from disk before it '
+  + 'prints its endpoint, and a first launch against a cold page cache is the slowest this is');
 
-export const GRACE_MS = 1_000;
+export const GRACE: Deadline = deadline('chromium:grace', 1_000,
+  'short by intent rather than by measurement: a browser signalled as it reports its endpoint '
+  + 'may not answer the signal at all, and waiting longer for an answer that is not coming is '
+  + 'what stalls a gate four times a sweep');
 
-export const EXIT_TIMEOUT_MS = 5_000;
+export const REAP: Deadline = deadline('chromium:reap', 5_000,
+  'the span a signalled process group has to empty before the wait is a hang rather than a '
+  + 'teardown, measured against a browser that forks a zygote and a renderer of its own');
 
 export const GROUP_POLL_MS = 50;
 
@@ -170,16 +178,17 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
   const kill = async () => {
     if (!exited) {
       try { child.kill(); } catch {  }
-      await settledWithin(GRACE_MS);
+      await settledWithin(GRACE.ms);
     }
     reapGroup();
-    await emptyWithin(EXIT_TIMEOUT_MS);
+    await emptyWithin(REAP.ms);
     try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
   };
 
   const wsUrl = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(
-      `Chromium did not report a DevTools endpoint within ${DEVTOOLS_TIMEOUT_MS / 1000}s`)), DEVTOOLS_TIMEOUT_MS);
+      `Chromium did not report a DevTools endpoint within ${DEVTOOLS.ms}ms, which is that size `
+      + `because ${DEVTOOLS.why}`)), DEVTOOLS.ms);
     let buffered = '';
     child.stderr.on('data', (chunk) => {
       buffered += String(chunk);

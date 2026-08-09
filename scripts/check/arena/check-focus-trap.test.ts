@@ -9,7 +9,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import {
-  TRAPS, FOCUSABLE, walkProblems, READY_TIMEOUT_MS, NAVIGATE_TIMEOUT_MS,
+  TRAPS, FOCUSABLE, walkProblems, PANEL_HELD, NAVIGATE,
 } from './check-focus-trap.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -93,10 +93,10 @@ test('a silent page names what it fetched and what it raised, since three failur
 });
 
 test('a missing panel says how long it was waited for, which is what separates the two readings', () => {
-  assert.match(walkProblems('X', { panel: false })[0] ?? '', new RegExp(`${READY_TIMEOUT_MS}ms`),
+  assert.match(walkProblems('X', { panel: false })[0] ?? '', new RegExp(`${PANEL_HELD.ms}ms`),
     'a page that renders nothing and a runner slower than the wait produce the same sentence '
     + 'otherwise, and one of those is a component to fix while the other is a deadline to raise');
-  assert.ok(READY_TIMEOUT_MS > NAVIGATE_TIMEOUT_MS / 2,
+  assert.ok(PANEL_HELD.ms > NAVIGATE.ms / 2,
     'the wait for a panel is the same order as the wait for the navigation that has to precede '
     + 'it, or the gate gives up on rendering long before it would give up on loading');
 });

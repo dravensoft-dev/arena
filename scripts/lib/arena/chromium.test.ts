@@ -16,13 +16,13 @@ import { tmpdir } from 'node:os';
 import { basename, join, win32 } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
-  DARWIN_APPS, EXIT_TIMEOUT_MS, GRACE_MS, LINUX_CANDIDATES, WINDOWS_APPS, browserFlags,
+  DARWIN_APPS, GRACE, LINUX_CANDIDATES, REAP, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium,
 } from './chromium.ts';
 
 const SETTLE_TIMEOUT_MS = 5_000;
 
-const KILL_BUDGET_MS = (GRACE_MS + EXIT_TIMEOUT_MS + SETTLE_TIMEOUT_MS) * 2;
+const KILL_BUDGET_MS = (GRACE.ms + REAP.ms + SETTLE_TIMEOUT_MS) * 2;
 import { createDispatcher } from './cdp.ts';
 import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
@@ -390,8 +390,8 @@ test('teardown is bounded even where the browser ignores the signal, which is wh
     await kill();
     const took = Date.now() - started;
 
-    assert.ok(took < GRACE_MS + EXIT_TIMEOUT_MS, `kill() took ${took}ms, past its own bound`);
-    assert.ok(GRACE_MS + EXIT_TIMEOUT_MS < KILL_BUDGET_MS,
+    assert.ok(took < GRACE.ms + REAP.ms, `kill() took ${took}ms, past its own bound`);
+    assert.ok(GRACE.ms + REAP.ms < KILL_BUDGET_MS,
       'the budget has to exceed the worst case, or this suite measures how fast a browser dies '
       + 'rather than whether teardown finished, which is how it failed on a runner and not here');
   });
@@ -413,11 +413,11 @@ test('a browser that IGNORES the signal is still reaped, and inside the bound',
       await kill();
       const took = Date.now() - started;
 
-      assert.ok(took >= GRACE_MS, `took ${took}ms, so the grace was never spent and TERM was heard`);
-      assert.ok(took < GRACE_MS * 2,
+      assert.ok(took >= GRACE.ms, `took ${took}ms, so the grace was never spent and TERM was heard`);
+      assert.ok(took < GRACE.ms * 2,
         `took ${took}ms. Once the grace is spent the reap is immediate, so anything near a second `
         + 'grace means teardown waited instead of escalating. That is what stalls a gate finally '
-        + `block four times a sweep, and at ${EXIT_TIMEOUT_MS}ms it is what timed out on a runner.`);
+        + `block four times a sweep, and at ${REAP.ms}ms it is what timed out on a runner.`);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

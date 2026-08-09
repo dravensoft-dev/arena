@@ -10,6 +10,7 @@
  * and writing it loose once made this gate call a correct combobox a broken trap. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
+import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
@@ -30,8 +31,14 @@ export const node = {
 };
 
 
-export const NAVIGATE_TIMEOUT_MS = 30_000;
-export const READY_TIMEOUT_MS = 20_000;
+export const NAVIGATE: Deadline = deadline('focus-trap:navigate', 30_000,
+  'a demo page fetches its own bundle, so the first navigation of a sweep pays for a cold HTTP '
+  + 'cache and for whatever the static server is still writing');
+
+export const PANEL_HELD: Deadline = deadline('focus-trap:panel-held', 20_000,
+  'the panel opens from the page fixture after the framework has mounted, so this covers a '
+  + 'bundle parse, a hydration and an opening transition on a runner with no GPU');
+
 const READY_POLL_MS = 50;
 const STEP_MS = 60;
 
@@ -92,7 +99,7 @@ export function silenceOf(silence?: Silence) {
 export function walkProblems(name: string, walk: TrapWalk) {
   const problems: string[] = [];
   if (!walk.panel) {
-    return [`${name}: no ${PANEL} rendered inside ${READY_TIMEOUT_MS}ms, so nothing was walked${silenceOf(walk.silence)}`];
+    return [`${name}: no ${PANEL} rendered inside ${PANEL_HELD.ms}ms, so nothing was walked${silenceOf(walk.silence)}`];
   }
   if (walk.focusables === 0) {
     return [`${name}: the panel holds no Tab stop at all, so a keyboard user who reaches it cannot act`];
@@ -122,7 +129,8 @@ async function walkTrap(cdp: Cdp, url: string) {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
     await cdp.send('Page.enable', {}, sessionId);
     await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_ERRORS }, sessionId);
-    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE_TIMEOUT_MS, `${url}: navigate timed out`);
+    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
+      `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
     const ev = (expression: string) => cdp.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, sessionId);
     const tab = async (shift: boolean) => {
@@ -134,13 +142,13 @@ async function walkTrap(cdp: Cdp, url: string) {
     };
 
     await ev(`new Promise((resolve) => {
-      const deadline = Date.now() + ${READY_TIMEOUT_MS};
+      const until = Date.now() + ${PANEL_HELD.ms};
       const held = () => {
         const panel = document.querySelector(${JSON.stringify(PANEL)});
         return Boolean(panel && panel.contains(document.activeElement));
       };
       const tick = () => {
-        if (held() || Date.now() >= deadline) resolve(true);
+        if (held() || Date.now() >= until) resolve(true);
         else setTimeout(tick, ${READY_POLL_MS});
       };
       tick();
