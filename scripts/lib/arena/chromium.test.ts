@@ -1,9 +1,11 @@
-/* KILL_BUDGET_MS is well past the worst case teardown allows itself, and it is stated because a
- * test whose deadline is the default 5s measures how fast a browser answers a signal rather than
- * whether teardown finished. That differs by build and by runner: these cases passed here at
- * 145ms and timed out at 5001ms on a runner, where Chrome had been signalled the instant it
- * reported its endpoint and was still starting its subprocesses. The stand-in that ignores TERM
- * needs no browser at all, so the escalation is covered on every machine. */
+/* KILL_BUDGET_MS is DERIVED from what teardown allows itself, never a round number, because the
+ * two have to move together: every case here that launches a browser can spend the grace, the
+ * exit timeout and a settle wait, which already exceeds the 5s default. A test that can outrun
+ * its own deadline by construction is worse than a slow one -- bun abandons the callback with
+ * its child processes still pending, and the next file to call test() reports an error that
+ * names neither. These passed here at 145ms and timed out at 5001ms on a runner, where Chrome
+ * had been signalled the instant it reported its endpoint. The stand-in that ignores TERM needs
+ * no browser at all, so the escalation is covered on every machine. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,7 +18,9 @@ import {
   candidates, findChromium, launchChromium,
 } from './chromium.ts';
 
-const KILL_BUDGET_MS = 20_000;
+const SETTLE_TIMEOUT_MS = 5_000;
+
+const KILL_BUDGET_MS = (GRACE_MS + EXIT_TIMEOUT_MS + SETTLE_TIMEOUT_MS) * 2;
 import { createDispatcher } from './cdp.ts';
 import { platform } from './platform.ts';
 
@@ -33,7 +37,7 @@ function processesNaming(profilePath: string) {
   }
 }
 
-async function waitUntil(predicate: () => boolean, { timeoutMs = 5000, intervalMs = 100 } = {}) {
+async function waitUntil(predicate: () => boolean, { timeoutMs = SETTLE_TIMEOUT_MS, intervalMs = 100 } = {}) {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     if (predicate()) return true;
@@ -180,14 +184,16 @@ test('a request made after drain still gets its own promise, unaffected by the e
   assert.deepEqual(await b.result, { ok: true });
 });
 
-test('launchChromium rejects instead of crashing when spawn cannot start the binary, and leaves no temp profile behind', async () => {
+test('launchChromium rejects instead of crashing when spawn cannot start the binary, and leaves no temp profile behind',
+  { timeout: KILL_BUDGET_MS }, async () => {
   const before = chromiumTempDirs();
   await assert.rejects(() => launchChromium('/this/path/does/not/exist'));
   const after = chromiumTempDirs();
   assert.deepEqual(after, before, 'a temp profile dir was left behind by the rejected launch');
 });
 
-test('kill() reaps the whole tree: no descendant survives it and no temp profile outlives it', async (t) => {
+test('kill() reaps the whole tree: no descendant survives it and no temp profile outlives it',
+  { timeout: KILL_BUDGET_MS }, async (t) => {
   const found = findChromium();
   if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
 

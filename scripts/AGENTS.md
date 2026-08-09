@@ -132,6 +132,17 @@ the same domain, not merely somewhere under `lib/`.
 grants `scripts/` and test files. Anything that will not fit goes in the gate's own reason
 strings, which its paired suite already asserts by name.
 
+**A test that spawns a compiler or drives a browser states its own deadline.** `node:test`
+defaults to five seconds, and spawning `tsc`, compiling the Tailwind layer, importing every
+collected script or launching Chromium is not a five-second operation by nature. **A test that
+outruns its deadline is worse than a slow one**: the callback is abandoned with its child still
+running, and the next FILE to call `test()` reports `test() inside another test() is not yet
+implemented in Bun`, which names neither the slow test nor the real cause. That is how a timing
+failure arrives disguised as an unrelated file. The budget is a named constant, **derived where
+there is something to derive it from** -- `chromium.test.ts` computes it from the grace and exit
+timeouts teardown allows itself, so the two cannot drift apart -- and a measurement is written
+beside it, because "it is fast here" is the claim a shared runner disproves.
+
 **A test under `scripts/` may not import a framework layer's `.ts` or `.tsx`.** `check-all.ts`
 also runs these suites under plain node, which cannot resolve the extensionless imports those
 toolchains expect.
