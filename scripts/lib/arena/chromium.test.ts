@@ -23,18 +23,46 @@ const SETTLE_TIMEOUT_MS = 5_000;
 const KILL_BUDGET_MS = (GRACE_MS + EXIT_TIMEOUT_MS + SETTLE_TIMEOUT_MS) * 2;
 import { createDispatcher } from './cdp.ts';
 import { platform } from './platform.ts';
+import { hostBinary } from './host-binary.ts';
 
 function chromiumTempDirs() {
   return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-')));
 }
 
-function processesNaming(profilePath: string) {
+const PROBE = 'pgrep';
+const NO_MATCH = 1;
+
+type Seen = { looked: true; pids: string[] } | { looked: false; why: string };
+
+function processesNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}): Seen {
+  let probe;
   try {
-    return execFileSync('pgrep', ['-f', `user-data-dir=${profilePath}`], { stdio: ['ignore', 'pipe', 'ignore'] })
-      .toString().trim().split('\n').filter(Boolean);
-  } catch {
-    return [];
+    probe = hostBinary(PROBE, 'to observe whether a reaped browser left a descendant behind', where);
+  } catch (e) {
+    return { looked: false, why: (e as Error).message };
   }
+  try {
+    const out = execFileSync(probe, ['-f', `user-data-dir=${profilePath}`], { stdio: ['ignore', 'pipe', 'ignore'] });
+    return { looked: true, pids: out.toString().trim().split('\n').filter(Boolean) };
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException & { status?: number };
+    if (err.status === NO_MATCH) return { looked: true, pids: [] };
+    return {
+      looked: false,
+      why: `${PROBE} exited ${err.status ?? err.code}, which is neither a match nor the `
+        + `${NO_MATCH} it reports for none.`,
+    };
+  }
+}
+
+function pidsNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}) {
+  const seen = processesNaming(profilePath, where);
+  if (!seen.looked) {
+    assert.fail(`the process tree cannot be observed on this host: ${seen.why} This suite could not `
+      + 'look, which is a different fact from the browser not having forked, and reporting the '
+      + 'second in place of the first sends whoever reads it into a teardown that is fine.');
+  }
+  return seen.pids;
 }
 
 async function waitUntil(predicate: () => boolean, { timeoutMs = SETTLE_TIMEOUT_MS, intervalMs = 100 } = {}) {
@@ -192,6 +220,28 @@ test('launchChromium rejects instead of crashing when spawn cannot start the bin
   assert.deepEqual(after, before, 'a temp profile dir was left behind by the rejected launch');
 });
 
+test('a host with no way to look says so, instead of reporting a browser that forked nothing', () => {
+  const seen = processesNaming(join(tmpdir(), 'arena-chromium-nowhere'), { env: { PATH: '' } });
+  assert.equal(seen.looked, false,
+    `a host without ${PROBE} cannot answer this question at all, and Windows is one. Answering it `
+    + 'anyway with an empty list is how a missing tool arrives as a defect in the thing it was '
+    + 'brought in to measure.');
+  assert.match(seen.looked ? '' : seen.why, new RegExp(PROBE),
+    'the reason names the probe, since what is missing is what has to be installed');
+
+  assert.throws(() => pidsNaming(join(tmpdir(), 'arena-chromium-nowhere'), { env: { PATH: '' } }),
+    /cannot be observed on this host/,
+    'every case that reads the tree goes through this, so the sentence a reader gets names the '
+    + 'host that cannot answer rather than a browser that did nothing wrong');
+});
+
+test('a host that can look and finds none says that, which is the answer the reap wants', () => {
+  const seen = processesNaming(join(tmpdir(), 'arena-chromium-no-such-profile'));
+  assert.deepEqual(seen, { looked: true, pids: [] },
+    `${PROBE} exits ${NO_MATCH} for no match, and reading that as a failure to run would make `
+    + 'every clean teardown indistinguishable from a host that cannot observe one');
+});
+
 test('kill() reaps the whole tree: no descendant survives it and no temp profile outlives it',
   { timeout: KILL_BUDGET_MS }, async (t) => {
   const found = findChromium();
@@ -203,15 +253,15 @@ test('kill() reaps the whole tree: no descendant survives it and no temp profile
   assert.equal(created.length, 1, 'launchChromium should have made exactly one new temp profile dir');
   const profilePath = join(tmpdir(), created[0] ?? '');
 
-  const beforeKill = processesNaming(profilePath);
+  const beforeKill = pidsNaming(profilePath);
   assert.ok(beforeKill.length > 1,
     `expected Chromium to have forked at least one subprocess sharing ${profilePath}, found ${beforeKill.length}`);
 
   await kill();
 
-  const settled = await waitUntil(() => !existsSync(profilePath) && processesNaming(profilePath).length === 0);
+  const settled = await waitUntil(() => !existsSync(profilePath) && pidsNaming(profilePath).length === 0);
   assert.ok(settled,
-    `outlived kill(): dir exists=${existsSync(profilePath)}, processes=${JSON.stringify(processesNaming(profilePath))}`);
+    `outlived kill(): dir exists=${existsSync(profilePath)}, processes=${JSON.stringify(pidsNaming(profilePath))}`);
 });
 
 test('the container flags are linux only, since --no-sandbox is a real weakening elsewhere', () => {
@@ -251,7 +301,7 @@ test('kill() has already finished when it resolves, rather than leaving a wait t
       'no polling: the profile is gone the instant kill() resolves, because the removal happens '
       + 'after the exit rather than on the line after the signal, which is the race that fails '
       + 'with EBUSY on Windows and succeeds by luck here');
-    assert.deepEqual(processesNaming(profilePath), []);
+    assert.deepEqual(pidsNaming(profilePath), []);
   });
 
 test('teardown is bounded even where the browser ignores the signal, which is what CI showed',
