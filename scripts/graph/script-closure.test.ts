@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { toPosix } from '../utils/posix-path.ts';
+import { relPosix } from '../utils/posix-path.ts';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { relativeSpecifiers, scriptClosure } from './script-closure.ts';
 
@@ -74,7 +74,7 @@ test('a specifier that resolves to nothing is skipped, not thrown on', () => {
 
 test('this module reaches the two it was extracted to serve, in this repository', () => {
   const closure = scriptClosure(join(repoRoot, 'scripts/graph/script-closure.ts'), repoRoot);
-  assert.ok(closure.includes(toPosix(relative(repoRoot, join(repoRoot, 'scripts/lib/arena/comments.ts')))),
+  assert.ok(closure.includes(relPosix(repoRoot, join(repoRoot, 'scripts/lib/arena/comments.ts'))),
     'the lexer is what tells a written specifier from a performed one, so an edit to it has to '
     + 'invalidate every node whose script reads a specifier');
   assert.ok(closure.length >= 3, 'a closure of one is a scan that found nothing');

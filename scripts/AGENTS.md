@@ -95,18 +95,21 @@ globs that reach them. A gate that parses what it captured is the dangerous case
 truncated read there is a wrong answer rather than a failure. Spawning with `stdio: 'inherit'`
 is unaffected and stays as it is: a runner that only relays a child's output reads none of it.
 
-**No script assumes one operating system, and `check:portability` holds it.** Six rules, each a
-ban with one named owner, so the question is never whether a construct is correct but where it
-may live:
+**No script assumes one operating system, and `check:portability` holds it.** Every rule is a
+ban with a named owner, so the question is never whether a construct is correct but where it
+may live. The count lives in `RULES` and not in this sentence, a number here being one more
+thing to hold true:
 
 - **`process.platform` belongs to `lib/arena/platform.ts`.** Everywhere else takes the answer as
   a parameter, which is what makes a branch written for Windows testable from Linux: the machine
   a contributor happens to own stops deciding which half of the tooling is covered.
-- **A path that leaves this process goes through `toPosix`, and one compared against another
-  through `isInside`.** Both are in `utils/posix-path.ts`, and both take the path module. A
-  string prefix is wrong in one of two directions: without a separator boundary it lets
-  `/repo-evil` pass as `/repo`, and with a hardcoded `'/'` it refuses every nested path on
-  Windows.
+- **A path that leaves this process goes through `toPosix`, a repo-relative one through
+  `relPosix`, and one compared against another through `isInside`.** All three are in
+  `utils/posix-path.ts`, and all three take the path module. A string prefix is wrong in one of
+  two directions: without a separator boundary it lets `/repo-evil` pass as `/repo`, and with a
+  hardcoded `'/'` it refuses every nested path on Windows. `relative` answers in the host
+  separator, so its result is native until something says otherwise; spelling that as two calls
+  is what let a manifest key reach five readers that split it on `'/'`.
 - **A binary is spawned by resolved path**, never a bare name and never a `node_modules/.bin`
   shim. `lib/arena/host-binary.ts` for one the host supplies and `lib/arena/node-bin.ts` for one
   this tree installs. There is no `git` on Windows, there is `git.exe`, and `.bin` holds a `.CMD`

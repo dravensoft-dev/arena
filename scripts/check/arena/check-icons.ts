@@ -5,8 +5,8 @@
  * empty and is meant to stay that way: a name Phosphor does not have is a typo, not a case. */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
@@ -120,7 +120,7 @@ export function collect(root = ROOT) {
     const text = readFileSync(file, 'utf8');
     if (!text.includes('ph-')) continue;
     scanned += 1;
-    const where = toPosix(relative(root, file));
+    const where = relPosix(root, file);
     problems.push(...tokenProblems(text, where, weights));
     for (const [token] of text.matchAll(ICON_TOKEN)) seen.add(token);
   }

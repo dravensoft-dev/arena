@@ -7,8 +7,8 @@
  * level nobody wrote rather than as one that does not need one. */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { basename, dirname, join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { basename, dirname, join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -35,7 +35,7 @@ export function skips(name: string, relativeDirectory: string) {
 }
 
 export function markdownFiles(base = root): string[] {
-  const posix = (path: string) => toPosix(relative(base, path));
+  const posix = (path: string) => relPosix(base, path);
   return walkFiles(base, { skip: (name, path) => skips(name, posix(dirname(path))) })
     .filter((path) => path.endsWith('.md'))
     .map(posix);

@@ -11,8 +11,8 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
-import { basename, dirname, join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { basename, dirname, join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -66,7 +66,7 @@ export function pathPattern(roots: string[]) {
 }
 
 const entrySkip = (base: string, ignored: Set<string>) => (name: string, path: string) => {
-  const relativeDirectory = toPosix(relative(base, dirname(path)));
+  const relativeDirectory = relPosix(base, dirname(path));
   if (relativeDirectory === '' && ignored.has(name)) return true;
   return skips(name, relativeDirectory);
 };

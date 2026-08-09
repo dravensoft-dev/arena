@@ -6,9 +6,9 @@
  * specifiers to prove they resolve, and takes them from here so the pattern is written once. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 import { literalRanges, insideLiteral } from '../lib/arena/comments.ts';
-import { toPosix } from '../utils/posix-path.ts';
+import { relPosix } from '../utils/posix-path.ts';
 
 const SPECIFIER = /(?:from|import)\s*\(?\s*['"](\.[^'"]*)['"]/g;
 
@@ -45,5 +45,5 @@ export function scriptClosure(entry: string, root: string) {
     }
   };
   walk(entry);
-  return [...seen].map((path) => toPosix(relative(root, path))).sort();
+  return [...seen].map((path) => relPosix(root, path)).sort();
 }

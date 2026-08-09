@@ -14,7 +14,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { basename, join, dirname, relative, sep } from 'node:path';
 import { tmpdir } from 'node:os';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { isScript, isSuite } from '../../lib/arena/domains.ts';
@@ -34,7 +34,7 @@ export const VENDORED_VERBATIM = new Set([
 
 export function guardProblems(paths: string[], root = repoRoot) {
   return paths
-    .map((p) => toPosix(relative(root, p)))
+    .map((p) => relPosix(root, p))
     .filter((rel: string) => !VENDORED_VERBATIM.has(rel))
     .filter((rel: string) => EXTENSION_COUPLED_GUARD.test(readFileSync(join(root, rel), 'utf8')))
     .map((rel: string) => `${rel} decides whether it is the program by matching its own filename`);

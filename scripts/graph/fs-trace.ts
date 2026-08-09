@@ -8,8 +8,8 @@
  * It cannot see inside a process the script spawns, which is what `untraceable` says out loud. */
 
 import { createRequire } from 'node:module';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
-import { toPosix } from '../utils/posix-path.ts';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { relPosix } from '../utils/posix-path.ts';
 
 const required = createRequire(import.meta.url);
 
@@ -28,7 +28,7 @@ export const traceFile = (root: string, name: string) =>
 export function relativeToRoot(root: string, target: unknown) {
   if (typeof target !== 'string' || target === '') return null;
   const full = isAbsolute(target) ? target : resolve(process.cwd(), target);
-  const rel = toPosix(relative(root, full));
+  const rel = relPosix(root, full);
   if (rel === '' || rel.startsWith('..')) return null;
   return rel;
 }

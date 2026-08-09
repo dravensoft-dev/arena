@@ -1,14 +1,18 @@
 /* `toPosix` makes one claim, and it is about intent rather than about this platform: the
  * conversion is a no-op wherever the separator is already a forward slash, which is why
- * nineteen sites could spell it three ways and never disagree. `isInside` is the opposite
- * case and is why the path module is a parameter: its answer DOES differ by platform, and
- * a suite that could only assert this one would leave the half nobody has a machine for
- * covered by nothing. The win32 cases below run here, on Linux, and that is the point. */
+ * nineteen sites could spell it three ways and never disagree. That no-op is also why it
+ * takes the path module now: asserted without one it can only be asked the question whose
+ * answer is already the input, so a caller depending on the conversion was depending on
+ * something this suite had never once seen happen. `isInside` is the case where the answer
+ * DOES differ by platform, and a suite that could only assert the Linux one would leave the
+ * half nobody has a machine for covered by nothing. `relPosix` is both at once: a `relative`
+ * answer is native, and every caller here wants it posix. The win32 cases below run on
+ * Linux, and that is the point. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join, posix, sep, win32 } from 'node:path';
-import { isInside, toPosix } from './posix-path.ts';
+import { isInside, relPosix, toPosix } from './posix-path.ts';
 
 test('a path already spelled with forward slashes comes back unchanged', () => {
   assert.equal(toPosix('css/components/arena-badge.css'), 'css/components/arena-badge.css');
@@ -21,6 +25,26 @@ test('a path built by join comes back with forward slashes whatever built it', (
 
 test('every separator is replaced and not merely the first', () => {
   assert.equal(toPosix(['a', 'b', 'c'].join(sep)), 'a/b/c');
+});
+
+test('under win32 a native path becomes a posix one, which no Linux runner would show', () => {
+  assert.equal(toPosix('frameworks\\tailwind\\components\\display\\ArenaBadge.manifest.json', win32),
+    'frameworks/tailwind/components/display/ArenaBadge.manifest.json');
+  assert.equal(toPosix('C:\\repo\\frameworks\\tailwind\\Theme.css', win32),
+    'C:/repo/frameworks/tailwind/Theme.css');
+  assert.equal(toPosix('already/posix', win32), 'already/posix',
+    'win32 reads a forward slash too, so a path already spelled that way converts rather than doubling');
+});
+
+test('a relative answer is native, and relPosix is the spelling every caller of it wanted', () => {
+  assert.equal(
+    relPosix('C:\\repo', 'C:\\repo\\frameworks\\tailwind\\components\\display\\arena-badge\\ArenaBadge.manifest.json', win32),
+    'frameworks/tailwind/components/display/arena-badge/ArenaBadge.manifest.json',
+    'this key is split on "/" to count a depth, prefix-replaced and sorted by three readers, and '
+    + 'the native answer makes every one of them a silent no-op rather than a failure');
+  assert.equal(relPosix('/repo', '/repo/frameworks/tailwind/Theme.css', posix),
+    'frameworks/tailwind/Theme.css', 'the platform that emits the tracked files must see no change');
+  assert.equal(relPosix('C:\\repo', 'C:\\repo', win32), '', 'a path relative to itself is empty, not "."');
 });
 
 test('a path is inside itself, and a nested one is inside its base', () => {

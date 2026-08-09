@@ -8,9 +8,9 @@
 
 import { createHash } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { walkFiles } from '../utils/walk-files.ts';
-import { toPosix } from '../utils/posix-path.ts';
+import { relPosix } from '../utils/posix-path.ts';
 
 export type Stamp = { size: number; mtimeMs: number; hash: string };
 
@@ -20,7 +20,7 @@ export const sha256 = (data: string | Uint8Array) => createHash('sha256').update
 
 export function universe(root: string) {
   return walkFiles(root, { skip: (name) => SKIPPED_DIRECTORIES.has(name) })
-    .map((full) => toPosix(relative(root, full)));
+    .map((full) => relPosix(root, full));
 }
 
 export function stampOf(path: string, previous?: Stamp): Stamp {
