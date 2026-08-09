@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { FILES, RESOLVES_AGAINST, SCRIPT_TARGETS, collectScriptTokens, designPath } from './generate-tokens.ts';
+import { FILES, RESOLVES_AGAINST, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const DESIGN = join(repoRoot, 'contracts/design');
@@ -34,6 +34,23 @@ test('a design source path carries no host separator, on the platform whose sepa
         + 'backslash escapes the character after it rather than separating two of them, so the pattern matches '
         + 'no file, every source loads empty, and the generated output is a header with nothing under it.');
     }
+  }
+});
+
+test('a token belongs to the source whose name it carries, in every spelling glob reports one back in', () => {
+  const spellings: [string, string, typeof posix][] = [
+    ['a posix runner', '/home/runner/work/arena/arena/contracts/design/chart.json', posix],
+    ["glob's posix mode on a Windows drive", '//?/D:/a/arena/arena/contracts/design/chart.json', posix],
+    ['a native Windows path', 'D:\\a\\arena\\arena\\contracts\\design\\chart.json', win32],
+  ];
+  for (const [name, filePath, on] of spellings) {
+    assert.ok(isFrom({ filePath } as never, 'chart.json', on),
+      `${name} spells the source "${filePath}", which the walk did not recognise as chart.json. `
+      + 'A source it cannot recognise contributes no token, and the generator reports success over '
+      + 'a file with nothing in it.');
+    assert.ok(!isFrom({ filePath } as never, 'spacing.json', on),
+      `${name} spells chart.json as "${filePath}" and it was read as spacing.json, which would `
+      + "emit one file's tokens under another file's block.");
   }
 });
 
