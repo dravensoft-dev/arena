@@ -76,9 +76,12 @@ test('the matrix is asked on a merge request to main, and by nothing else automa
   assert.ok(!/\bpush:/.test(triggers),
     'not on a push either, which is the cost of the choice and is stated in the workflow: work '
     + 'that lands on develop and stays there is never asked this question');
-  assert.match(triggers, /workflow_dispatch:/,
-    'the hand crank stays, since it fires on nobody schedule and is what answers when Windows '
-    + 'needs looking at during bring-up');
+  assert.ok(!/workflow_dispatch:/.test(triggers),
+    'and not by hand either. A leg somebody can trigger is a leg somebody can trigger to make a '
+    + 'branch look ready, so the merge request is the only thing that asks.');
+
+  assert.deepEqual(triggers.match(/^\s{2}\w[\w-]*:/gm)?.map((one) => one.trim()), ['pull_request:'],
+    'one event, counted rather than described, so a trigger added without a reason fails here');
 });
 
 test('all three operating systems are legs, which is the whole subject of the workflow', () => {

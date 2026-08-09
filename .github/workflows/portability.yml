@@ -14,11 +14,10 @@ name: Arena portability
 # matrix equal to that list -- the names and the blocking flags both.
 
 on:
-  # A merge request to main, and nothing else automatic. main is what the packages are published
-  # from, so the last question asked before a change reaches it is whether the tree still works
-  # on a machine that is not the one it was written on. workflow_dispatch stays as a hand crank,
-  # which fires on nobody's schedule but answers when Windows needs looking at during bring-up.
-  workflow_dispatch:
+  # One event, and no other way in. Not a schedule, not a push, and not a hand crank: a merge
+  # request to main is the only thing that asks this question, so the answer is never one
+  # somebody triggered to make a branch look ready. Seeing a leg before then means opening the
+  # merge request, which is the point rather than the cost.
   pull_request:
     branches: [main]
 
