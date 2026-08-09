@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, forwardRef, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, forwardRef, inject, input,
+} from '@angular/core';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
@@ -86,6 +88,14 @@ export class ArenaSideNavItem {
   protected readonly off = computed(() => (this.disabled() ? 'true' : null));
 
   protected readonly count = computed(() => arenaBadgeCount(this.badge()));
+
+  constructor() {
+    effect((onCleanup) => {
+      const key = this.id();
+      this.nav.claim(key);
+      onCleanup(() => this.nav.release(key));
+    });
+  }
 
   protected activate(event: Event): void {
     if (this.disabled()) { event.preventDefault(); return; }

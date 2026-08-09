@@ -1,4 +1,4 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { computed, Injectable, Signal, signal } from '@angular/core';
 
 export abstract class ArenaSideNavChild {}
 
@@ -8,6 +8,34 @@ export class ArenaSideNavState {
   activeId: Signal<string | undefined> = signal(undefined);
   indentStep: Signal<number> = signal(3);
   activate: (id: string) => void = () => {};
+
+  private readonly ids = signal<readonly string[]>([]);
+  private readonly groups = signal<readonly ArenaSideNavState[]>([]);
+
+  readonly holdsActive: Signal<boolean> = computed(() => {
+    const active = this.activeId();
+    if (active === undefined) return false;
+    return this.ids().includes(active) || this.groups().some((group) => group.holdsActive());
+  });
+
+  claim(id: string): void {
+    this.ids.update((ids) => [...ids, id]);
+  }
+
+  release(id: string): void {
+    this.ids.update((ids) => {
+      const at = ids.indexOf(id);
+      return at === -1 ? ids : [...ids.slice(0, at), ...ids.slice(at + 1)];
+    });
+  }
+
+  adopt(group: ArenaSideNavState): void {
+    this.groups.update((groups) => [...groups, group]);
+  }
+
+  orphan(group: ArenaSideNavState): void {
+    this.groups.update((groups) => groups.filter((held) => held !== group));
+  }
 }
 
 export function arenaIndentFor(indentStep: number, depth: number): string {

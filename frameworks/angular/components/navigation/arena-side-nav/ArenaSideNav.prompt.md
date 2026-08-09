@@ -38,6 +38,13 @@ component between two levels is harmless**, because DI walks past it, and so is 
 so is any depth of projection. Nothing here inspects its own children, so nothing here can be
 broken by what sits between them.
 
+**A row declares its own id to the nearest state, and that is how a group knows it holds the
+active destination.** The travel is the row's, not the group's, for the same reason the indent is:
+a row is where its own `id` is bound, so it is the only place that value can be read without
+asking a question about a child that has not been given one yet. So a group opens itself around
+an active row it never sees, whether a `@for` built that row, a wrapper component holds it, or it
+sits three levels down.
+
 `indentStep` is a **number**, never a CSS string, a multiplier on `--sp-1`, not a length. A row at
 depth N is padded `calc(var(--sp-1) * 3 + var(--sp-1) * indentStep * N)`, so the indent
 re-densifies and re-themes with the token. Pass a step, never a length: a CSS string here
