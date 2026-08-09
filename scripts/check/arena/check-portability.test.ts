@@ -5,7 +5,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RULES, inScope, portabilityProblems, setupProblems, staleOwners, violations } from './check-portability.ts';
+import {
+  CLONE_ROOT_BUDGET, MAX_PATH, RULES, checkoutProblems, inScope, matrixLegs, matrixProblems,
+  portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
+} from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
 
@@ -98,4 +101,52 @@ test('the real declaration is named in full, which is the claim the gate makes',
   assert.deepEqual(setupProblems(), [],
     'the list was never in one place before: bun came from packageManager, git and node from '
     + 'whichever gate spawned them, and a contributor found each by hitting it');
+});
+
+test('a reserved device name is refused, whatever its extension or case', () => {
+  for (const path of ['frameworks/react/aux.ts', 'scripts/CON.ts', 'contracts/nul', 'a/Com1.json']) {
+    const problems = checkoutProblems([path]);
+    assert.equal(problems.length, 1, `${path} was allowed`);
+    assert.match(problems[0] ?? '', /reserved device name/,
+      'Windows refuses these outright, so a clone there cannot write the file at all. No gate '
+      + 'over file content could ever see it, because the defect is the name.');
+  }
+  assert.deepEqual(checkoutProblems(['scripts/console.ts', 'a/conduct.md']), [],
+    'the stem is the whole segment before the first dot, so a name merely beginning with one is '
+    + 'an ordinary name');
+});
+
+test('a character NTFS refuses, and a name ending in a dot or a space, are refused', () => {
+  assert.match(checkoutProblems(['a/what?.ts'])[0] ?? '', /character NTFS refuses/);
+  assert.match(checkoutProblems(['a/b:c.ts'])[0] ?? '', /character NTFS refuses/);
+  assert.match(checkoutProblems(['a/trailing.'])[0] ?? '', /dot or a space/,
+    'Windows strips it silently, so the checked-out name would not be the tracked one');
+  assert.match(checkoutProblems(['a/trailing '])[0] ?? '', /dot or a space/);
+
+  assert.deepEqual(checkoutProblems(['intro/Arena - Overview.html', 'a/trailing .ts']), [],
+    'a space INSIDE a name is ordinary on Windows, and this tree already ships one. Only a '
+    + 'segment ENDING in a space or a dot is the case Windows rewrites under you.');
+});
+
+test('two paths differing only in case cannot both be checked out', () => {
+  const problems = checkoutProblems(['frameworks/react/Card.tsx', 'frameworks/react/card.tsx']);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /differ only in case/);
+  assert.match(problems[0] ?? '', /quietly wrong rather than loudly broken/,
+    'on a case-insensitive filesystem one silently overwrites the other');
+  assert.deepEqual(checkoutProblems(['a/Card.tsx', 'a/Chart.tsx']), []);
+});
+
+test('a path past what a Windows checkout allows is refused, budget and all', () => {
+  const room = MAX_PATH - CLONE_ROOT_BUDGET;
+  assert.deepEqual(checkoutProblems([`a/${'x'.repeat(room - 2)}`]), []);
+  const problems = checkoutProblems([`a/${'x'.repeat(room)}`]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /core\.longpaths/);
+});
+
+test('the real tree is inside every one of those, and there is a real tree to be inside them', () => {
+  const paths = trackedPaths();
+  assert.ok(paths.length > 1000, `git listed ${paths.length} tracked path(s), which is too few`);
+  assert.deepEqual(checkoutProblems(paths), []);
 });

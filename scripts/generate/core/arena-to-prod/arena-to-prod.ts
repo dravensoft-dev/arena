@@ -438,5 +438,14 @@ export function main(argv: string[], environment: Environment = {}) {
   return options.strict && theme.reports.length + markers.reports.length + icons.reports.length ? 1 : 0;
 }
 
-const invokedAs = process.argv[1] ? realpathSync(process.argv[1]) : '';
-if (invokedAs === fileURLToPath(import.meta.url)) process.exit(main(process.argv.slice(2)));
+export function isProgram(entry: string | undefined, self: string) {
+  if (entry === undefined) return false;
+  if (entry === self) return true;
+  try {
+    return realpathSync(entry) === realpathSync(self);
+  } catch {
+    return false;
+  }
+}
+
+if (isProgram(process.argv[1], fileURLToPath(import.meta.url))) process.exit(main(process.argv.slice(2)));

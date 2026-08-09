@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
-  relativeFrom, themeStep, iconsStep, main, componentMap, USAGE, THEME_SHEET, ICONS_SHEET, COMPONENT_MAP,
+  relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
+  COMPONENT_MAP,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
@@ -506,4 +507,41 @@ test('--undrawn is a flag rather than an argument, and an unknown one still fail
   assert.equal(parseArgs(['--undrawn']).undrawn, true);
   assert.equal(parseArgs([]).undrawn, false);
   assert.match(errorOf(['--undrawn-please']), /unknown flag/);
+});
+
+test('the CLI decides it is the program the same way the tooling does, since it cannot import that', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-cli-entry-'));
+  try {
+    const self = join(dir, 'arena-to-prod.mjs');
+    writeFileSync(self, '');
+
+    assert.equal(isProgram(self, self), true, 'the raw comparison answers first');
+    assert.equal(isProgram(join(dir, 'other.mjs'), self), false);
+    assert.equal(isProgram(undefined, self), false, 'an argv[1] that is not there is not this module');
+    assert.equal(isProgram(join(dir, 'gone.mjs'), self), false,
+      'an entry that resolves to nothing is not this module rather than a throw at import. The '
+      + 'spelling this replaced called realpathSync on argv[1] unguarded, so a missing entry '
+      + 'crashed the command a consumer had just installed.');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('it takes the union both ways, which is the half the shipped copy had lost', (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-cli-link-'));
+  try {
+    const real = join(dir, 'arena-to-prod.mjs');
+    const link = join(dir, 'linked.mjs');
+    writeFileSync(real, '');
+    try {
+      symlinkSync(real, link);
+    } catch (err) {
+      t.skip(`this host will not create a symlink (${(err as Error).message})`);
+      return;
+    }
+
+    assert.equal(isProgram(link, real), true,
+      'an entry reached through a link is still this module, and that is exactly what an npm '
+      + 'bin/ entry is. main-module.ts records that sixty copies compared raw and one resolved '
+      + 'only argv[1]; this file ships inside both packages, where scripts/ does not exist, so it '
+      + 'could not import the union and was left spelling the losing half.');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

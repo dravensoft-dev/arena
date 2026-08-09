@@ -10,6 +10,7 @@
  * list, a rule living only in YAML being a rule nothing tests. */
 
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { join, relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -17,7 +18,8 @@ import { toPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { findComments, insideLiteral, literalRanges } from '../../lib/arena/comments.ts';
 import { isScript, isSuite } from '../../lib/arena/domains.ts';
-import { SUPPORTED_OS_NAMES } from '../../ci/arena/supported-os.ts';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
+import { SUPPORTED_OS, SUPPORTED_OS_NAMES } from '../../ci/arena/supported-os.ts';
 import { HOST_BINARIES } from '../../lib/arena/host-binaries.ts';
 
 export const node = {
@@ -30,6 +32,18 @@ export const node = {
 export const WORKFLOWS = '.github/workflows';
 
 export const SETUP_DOCUMENT = 'scripts/build/AGENTS.md';
+
+export const RESERVED_NAMES = new Set([
+  'con', 'prn', 'aux', 'nul',
+  ...Array.from({ length: 9 }, (_, i) => `com${i + 1}`),
+  ...Array.from({ length: 9 }, (_, i) => `lpt${i + 1}`),
+]);
+
+export const ILLEGAL_IN_NAME = /[<>:"|?*\u0000-\u001f]/;
+
+export const CLONE_ROOT_BUDGET = 40;
+
+export const MAX_PATH = 260;
 
 export type Rule = {
   id: string;
@@ -156,7 +170,19 @@ export function staleOwners(files: string[], base = root, rules = RULES) {
       + 'An exception cannot outlive the thing it was written for.'));
 }
 
-export function matrixProblems(base = root, supported = SUPPORTED_OS_NAMES) {
+export function matrixLegs(text: string) {
+  const legs = new Map<string, boolean | undefined>();
+  for (const match of text.matchAll(/^\s*-\s*os:\s*(\S+)\s*$(?:\n\s*blocking:\s*(true|false))?/gm)) {
+    legs.set(match[1] ?? '', match[2] === undefined ? undefined : match[2] === 'true');
+  }
+  for (const match of text.matchAll(/^\s*os:\s*\[([^\]]+)\]\s*$/gm)) {
+    for (const one of (match[1] ?? '').split(',')) legs.set(one.trim(), undefined);
+  }
+  legs.delete('');
+  return legs;
+}
+
+export function matrixProblems(base = root, supported = SUPPORTED_OS) {
   const path = join(base, WORKFLOWS, 'portability.yml');
   let text;
   try {
@@ -164,17 +190,29 @@ export function matrixProblems(base = root, supported = SUPPORTED_OS_NAMES) {
   } catch {
     return [`${WORKFLOWS}/portability.yml is missing, so nothing runs on a second operating system`];
   }
-  const matched = /os:\s*\[([^\]]+)\]/.exec(text);
-  if (!matched) return [`${WORKFLOWS}/portability.yml declares no os matrix`];
 
-  const legs = (matched[1] ?? '').split(',').map((one) => one.trim()).filter(Boolean);
-  const missing = supported.filter((one) => !legs.includes(one));
-  const extra = legs.filter((one) => !supported.includes(one));
-  return [
-    ...missing.map((one) => `supported-os.ts names ${one} and the matrix does not run it`),
-    ...extra.map((one) => `the matrix runs ${one} and supported-os.ts does not name it, so nothing `
-      + 'says what that leg buys'),
-  ];
+  const legs = matrixLegs(text);
+  if (legs.size === 0) return [`${WORKFLOWS}/portability.yml declares no os matrix`];
+
+  const problems = [];
+  for (const name of Object.keys(supported)) {
+    if (!legs.has(name)) { problems.push(`supported-os.ts names ${name} and the matrix does not run it`); continue; }
+    const declared = supported[name]?.blocking;
+    const inMatrix = legs.get(name);
+    if (inMatrix !== declared) {
+      problems.push(`supported-os.ts says ${name} is ${declared ? '' : 'not '}blocking and the `
+        + `matrix says ${inMatrix === undefined ? 'nothing' : inMatrix}. A leg that reports and `
+        + 'does not gate is a decision with a reason, so the two have to agree or one of them is '
+        + 'a lie a reader will believe.');
+    }
+  }
+  for (const name of legs.keys()) {
+    if (!Object.hasOwn(supported, name)) {
+      problems.push(`the matrix runs ${name} and supported-os.ts does not name it, so nothing `
+        + 'says what that leg buys');
+    }
+  }
+  return problems;
 }
 
 export function browserPathProblems(base = root) {
@@ -209,8 +247,54 @@ export function setupProblems(base = root, declared = HOST_BINARIES) {
       + 'setup document nothing holds is one that goes stale the first time the list moves.');
 }
 
+export function trackedPaths(base = root) {
+  const git = hostBinary('git', 'to list what a clone would have to check out, which is the only '
+    + 'list that answers whether a checkout can happen at all');
+  const { stdout } = spawnSync(git, ['ls-files', '-z'], { cwd: base, encoding: 'utf8' });
+  return (stdout ?? '').split('\0').filter(Boolean);
+}
+
+export function checkoutProblems(paths: string[]) {
+  const problems: string[] = [];
+  const byLowerCase = new Map<string, string>();
+
+  for (const path of paths) {
+    for (const segment of path.split('/')) {
+      const stem = (segment.split('.')[0] ?? '').toLowerCase();
+      if (RESERVED_NAMES.has(stem)) {
+        problems.push(`${path}: the segment "${segment}" is a reserved device name on Windows, `
+          + 'so a clone there cannot write it at all, whatever the extension or the case');
+      }
+      if (ILLEGAL_IN_NAME.test(segment)) {
+        problems.push(`${path}: the segment "${segment}" carries a character NTFS refuses`);
+      }
+      if (/[. ]$/.test(segment)) {
+        problems.push(`${path}: the segment "${segment}" ends in a dot or a space, which Windows `
+          + 'silently strips, so the checked-out name would not be the tracked one');
+      }
+    }
+
+    const lower = path.toLowerCase();
+    const seen = byLowerCase.get(lower);
+    if (seen !== undefined && seen !== path) {
+      problems.push(`${path} and ${seen} differ only in case, so a case-insensitive filesystem `
+        + 'cannot hold both. On Windows and on macOS one silently overwrites the other, and the '
+        + 'clone is quietly wrong rather than loudly broken.');
+    }
+    byLowerCase.set(lower, path);
+
+    if (CLONE_ROOT_BUDGET + path.length > MAX_PATH) {
+      problems.push(`${path} is ${path.length} characters, and ${CLONE_ROOT_BUDGET} for a `
+        + `plausible clone root puts it past the ${MAX_PATH} a Windows checkout allows without `
+        + 'core.longpaths');
+    }
+  }
+  return problems;
+}
+
 export function portabilityProblems(base = root) {
   const files = scriptFiles(base);
+  const tracked = trackedPaths(base);
   const problems: string[] = [];
 
   for (const file of files) {
@@ -226,12 +310,14 @@ export function portabilityProblems(base = root) {
   problems.push(...matrixProblems(base));
   problems.push(...browserPathProblems(base));
   problems.push(...setupProblems(base));
+  problems.push(...checkoutProblems(tracked));
 
-  return { problems, scanned: files.length, rules: RULES.length };
+  const longest = tracked.reduce((n, path) => Math.max(n, path.length), 0);
+  return { problems, scanned: files.length, rules: RULES.length, tracked: tracked.length, longest };
 }
 
 function main() {
-  const { problems, scanned, rules } = portabilityProblems();
+  const { problems, scanned, rules, tracked, longest } = portabilityProblems();
 
   if (scanned === 0) {
     console.error('check-portability: scanned 0 script(s); the tree moved under this gate');
@@ -245,8 +331,10 @@ function main() {
   }
 
   console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s), every exception `
-    + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, and the `
-    + `matrix runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s)`);
+    + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, the matrix `
+    + `runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s), and ${tracked} `
+    + `tracked path(s) are ones a Windows checkout can hold, the longest at ${longest} of the `
+    + `${MAX_PATH - CLONE_ROOT_BUDGET} left after a clone root`);
 }
 
 if (isMainModule(import.meta.url)) main();
