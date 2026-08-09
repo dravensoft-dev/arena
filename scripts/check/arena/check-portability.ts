@@ -11,10 +11,10 @@
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { findComments, insideLiteral, literalRanges } from '../../lib/arena/comments.ts';
 import { isScript, isSuite } from '../../lib/arena/domains.ts';
@@ -113,6 +113,16 @@ export const RULES: Rule[] = [
       + 'decision the day either is fixed',
   },
   {
+    id: 'native-relative',
+    pattern: /toPosix\(\s*relative\(|\.set\(\s*relative\(|\[\s*relative\(/g,
+    owners: [],
+    why: 'relative answers in the host separator, and relPosix is the one spelling of the answer '
+      + 'that leaves this process: a key or an index read back by an operation assuming a forward '
+      + 'slash makes a prefix replace a no-op, a segment count short by the depth and a sort a '
+      + 'different order, so the build writes a wrong file rather than failing, and the two-call '
+      + 'form is where the conversion gets left out',
+  },
+  {
     id: 'prefix-containment',
     pattern: /startsWith\([^)]*\+\s*(?:'|"|`)[/\\]/g,
     owners: ['scripts/utils/posix-path.ts'],
@@ -122,7 +132,7 @@ export const RULES: Rule[] = [
 ];
 
 export function inScope(path: string) {
-  const rel = toPosix(relative(root, path));
+  const rel = relPosix(root, path);
   if (!rel.startsWith('scripts/')) return false;
   const name = rel.slice(rel.lastIndexOf('/') + 1);
   return isScript(name) && !isSuite(name);
@@ -163,7 +173,7 @@ export function violations(rel: string, source: string, rules = RULES) {
 }
 
 export function staleOwners(files: string[], base = root, rules = RULES) {
-  const present = new Set(files.map((file) => toPosix(relative(base, file))));
+  const present = new Set(files.map((file) => relPosix(base, file)));
   return rules.flatMap((rule) => rule.owners
     .filter((owner) => !present.has(owner))
     .map((owner) => `${rule.id} names ${owner} as its owner, and no script in scope is there. `
@@ -220,7 +230,7 @@ export function browserPathProblems(base = root) {
   const naming = walkFiles(dir)
     .filter((file) => file.endsWith('.yml'))
     .filter((file) => /^\s*CHROME_PATH:/m.test(readFileSync(file, 'utf8')))
-    .map((file) => toPosix(relative(base, file)));
+    .map((file) => relPosix(base, file));
 
   if (naming.length === 1) return [];
   if (naming.length === 0) {
@@ -298,7 +308,7 @@ export function portabilityProblems(base = root) {
   const problems: string[] = [];
 
   for (const file of files) {
-    const rel = toPosix(relative(base, file));
+    const rel = relPosix(base, file);
     for (const { rule, line, text } of violations(rel, readFileSync(file, 'utf8'))) {
       const owner = rule.owners.length === 0 ? 'nowhere' : rule.owners.join(' or ');
       problems.push(`${rel}:${line}: ${JSON.stringify(text)} breaks ${rule.id}, which lives in `

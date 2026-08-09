@@ -21,6 +21,7 @@ const PLANTED: Record<string, string> = {
   'raw-symlink': "symlinkSync(from, to, 'dir');\n",
   'locale-ordering': 'names.sort((a, b) => a.localeCompare(b));\n',
   'second-separator-spelling': "const p = path.split('\\\\').join('/');\n",
+  'native-relative': 'manifests.set(relative(root, p), readJson(p));\n',
   'prefix-containment': "const ok = path.startsWith(base + '/');\n",
 };
 
