@@ -1,11 +1,24 @@
+/* KILL_BUDGET_MS is well past the worst case teardown allows itself, and it is stated because a
+ * test whose deadline is the default 5s measures how fast a browser answers a signal rather than
+ * whether teardown finished. That differs by build and by runner: these cases passed here at
+ * 145ms and timed out at 5001ms on a runner, where Chrome had been signalled the instant it
+ * reported its endpoint and was still starting its subprocesses. The stand-in that ignores TERM
+ * needs no browser at all, so the escalation is covered on every machine. */
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, existsSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { DARWIN_APPS, LINUX_CANDIDATES, WINDOWS_APPS, browserFlags, candidates, findChromium, launchChromium } from './chromium.ts';
+import {
+  DARWIN_APPS, EXIT_TIMEOUT_MS, GRACE_MS, LINUX_CANDIDATES, WINDOWS_APPS, browserFlags,
+  candidates, findChromium, launchChromium,
+} from './chromium.ts';
+
+const KILL_BUDGET_MS = 20_000;
 import { createDispatcher } from './cdp.ts';
+import { platform } from './platform.ts';
 
 function chromiumTempDirs() {
   return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-')));
@@ -216,20 +229,69 @@ test('every platform is told not to run its first-run flow, which delays the Dev
   }
 });
 
-test('kill() has already finished when it resolves, rather than leaving a wait to the caller', async (t) => {
-  const found = findChromium();
-  if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
+test('kill() has already finished when it resolves, rather than leaving a wait to the caller',
+  { timeout: KILL_BUDGET_MS }, async (t) => {
+    const found = findChromium();
+    if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
 
-  const before = chromiumTempDirs();
-  const { kill } = await launchChromium(found.path);
-  const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
-  const profilePath = join(tmpdir(), created[0] ?? '');
+    const before = chromiumTempDirs();
+    const { kill } = await launchChromium(found.path);
+    const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
+    const profilePath = join(tmpdir(), created[0] ?? '');
 
-  await kill();
+    await kill();
 
-  assert.equal(existsSync(profilePath), false,
-    'no polling: the profile is gone the instant kill() resolves, because the removal happens '
-    + 'after the exit rather than on the line after the signal, which is the race that fails '
-    + 'with EBUSY on Windows and succeeds by luck here');
-  assert.deepEqual(processesNaming(profilePath), []);
-});
+    assert.equal(existsSync(profilePath), false,
+      'no polling: the profile is gone the instant kill() resolves, because the removal happens '
+      + 'after the exit rather than on the line after the signal, which is the race that fails '
+      + 'with EBUSY on Windows and succeeds by luck here');
+    assert.deepEqual(processesNaming(profilePath), []);
+  });
+
+test('teardown is bounded even where the browser ignores the signal, which is what CI showed',
+  { timeout: KILL_BUDGET_MS }, async (t) => {
+    const found = findChromium();
+    if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
+
+    const { kill } = await launchChromium(found.path);
+    const started = Date.now();
+    await kill();
+    const took = Date.now() - started;
+
+    assert.ok(took < GRACE_MS + EXIT_TIMEOUT_MS, `kill() took ${took}ms, past its own bound`);
+    assert.ok(GRACE_MS + EXIT_TIMEOUT_MS < KILL_BUDGET_MS,
+      'the budget has to exceed the worst case, or this suite measures how fast a browser dies '
+      + 'rather than whether teardown finished, which is how it failed on a runner and not here');
+  });
+
+test('a browser that IGNORES the signal is still reaped, and inside the bound',
+  { timeout: KILL_BUDGET_MS }, async (t) => {
+    if (platform === 'win32') {
+      t.skip('the stand-in is a shell script, and the Windows escalation is taskkill /T /F');
+      return;
+    }
+
+    const dir = mkdtempSync(join(tmpdir(), 'arena-deaf-browser-'));
+    const exe = join(dir, 'deaf-browser.sh');
+    writeFileSync(exe,
+      '#!/bin/sh\n'
+      + "trap '' TERM\n"
+      + 'echo "DevTools listening on ws://127.0.0.1:9/devtools/browser/stand-in" >&2\n'
+      + 'sleep 60\n');
+    chmodSync(exe, 0o755);
+
+    try {
+      const { kill } = await launchChromium(exe);
+      const started = Date.now();
+      await kill();
+      const took = Date.now() - started;
+
+      assert.ok(took >= GRACE_MS, `took ${took}ms, so the grace was never spent and TERM was heard`);
+      assert.ok(took < GRACE_MS * 2,
+        `took ${took}ms. Once the grace is spent the reap is immediate, so anything near a second `
+        + 'grace means teardown waited instead of escalating. That is what stalls a gate finally '
+        + `block four times a sweep, and at ${EXIT_TIMEOUT_MS}ms it is what timed out on a runner.`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });

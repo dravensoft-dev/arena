@@ -2,12 +2,12 @@
  * of them what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it
  * says so instead of falling back -- but it is no longer declared: laying a default under the
  * environment left the candidate list unreachable and its macOS entries dead from the day they
- * were written. The list is keyed by platform and, on Windows, built from the environment,
- * because a program directory is not a path anyone can hardcode. `browserOrExit` is the single
- * spelling of the strict-or-skip decision, since the four gates had drifted into three.
- * Teardown asks, then insists, then removes: a signal, a bounded wait for the exit, a forced
- * reap of the tree, and only then the profile, because removing a directory a browser is still
- * writing succeeds by luck on Linux and fails with EBUSY on Windows. */
+ * were written. The list is keyed by platform and built from the environment on Windows, where a
+ * program directory is no path anyone can hardcode. `browserOrExit` is the single spelling of
+ * the strict-or-skip decision, since the four gates had drifted into three.
+ * Teardown asks, then insists, then removes: a signal, a SHORT grace, a forced reap, then the
+ * profile, since removing a directory a browser still writes to fails with EBUSY on Windows.
+ * The grace is short: a browser signalled as it reports its endpoint may not answer at all. */
 
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
@@ -100,6 +100,8 @@ export function browserOrExit(gate: string, env: Env = arenaEnv(), on: Platform 
 
 export const DEVTOOLS_TIMEOUT_MS = 60_000;
 
+export const GRACE_MS = 1_000;
+
 export const EXIT_TIMEOUT_MS = 5_000;
 
 export function browserFlags(profile: string, on: Platform = platform) {
@@ -145,12 +147,19 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     try { process.kill(-pid, 'SIGKILL'); } catch {  }
   };
 
+  const settledWithin = (ms: number) => Promise.race([
+    hasExited,
+    new Promise<void>((done) => { setTimeout(done, ms).unref?.(); }),
+  ]);
+
   const kill = async () => {
     if (!exited) {
       try { child.kill(); } catch {  }
-      await Promise.race([hasExited, new Promise((r) => { setTimeout(r, EXIT_TIMEOUT_MS).unref?.(); })]);
-      force();
-      await Promise.race([hasExited, new Promise((r) => { setTimeout(r, EXIT_TIMEOUT_MS).unref?.(); })]);
+      await settledWithin(GRACE_MS);
+      if (!exited) {
+        force();
+        await settledWithin(EXIT_TIMEOUT_MS);
+      }
     }
     try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
   };
