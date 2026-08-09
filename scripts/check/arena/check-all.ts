@@ -73,6 +73,7 @@ export const GATES = [
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },
   { name: 'check:assertions', file: 'angular/check-assertions.ts' },
   { name: 'check:cdk', file: 'angular/check-cdk.ts' },
+  { name: 'check:boolean-inputs', file: 'angular/check-boolean-inputs.ts' },
 ];
 
 export function gatesFor(domains: string[]) {

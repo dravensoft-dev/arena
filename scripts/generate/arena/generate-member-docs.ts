@@ -33,6 +33,7 @@ export const node = {
     'build:react-package',
     'check:angular',
     'check:api',
+    'check:boolean-inputs',
     'check:appearance',
     'check:arbitrary',
     'check:behaviour',

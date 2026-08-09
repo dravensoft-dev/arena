@@ -66,6 +66,7 @@
     "check:angular-demos": "bun scripts/check/angular/check-angular-demos.ts",
     "check:assertions": "bun scripts/check/angular/check-assertions.ts",
     "check:cdk": "bun scripts/check/angular/check-cdk.ts",
+    "check:boolean-inputs": "bun scripts/check/angular/check-boolean-inputs.ts",
     "check:tailwind": "bun scripts/check/tailwind/check-tailwind.ts",
     "check:tailwind-generated": "bun scripts/check/tailwind/check-tailwind-generated.ts",
     "check:coverage": "bun scripts/check/tailwind/check-tailwind-coverage.ts",
