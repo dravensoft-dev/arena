@@ -11,6 +11,7 @@ import { pascal } from '../../utils/case.ts';
 import { LAYERS } from './layers.ts';
 import { repoRoot } from './repo-root.ts';
 import { captured } from '../../utils/captures.ts';
+import { toPosix } from '../../utils/posix-path.ts';
 
 const SPECIFIER = /(?:from|import)\s*\(?\s*['"](\.[^'"]+)['"]/g;
 const SOURCE = /\.(tsx?|jsx?|mjs)$/;
@@ -37,7 +38,7 @@ export function importedComponents(text: string, path: string, layer: string, ro
   const prefix = `frameworks/${layer}/components/`;
   const names: string[] = [];
   for (const m of text.matchAll(SPECIFIER)) {
-    const target = relative(root, resolve(dirname(path), captured(m))).split('\\').join('/');
+    const target = toPosix(relative(root, resolve(dirname(path), captured(m))));
     if (!target.startsWith(prefix)) continue;
     const parts = target.slice(prefix.length).replace(SOURCE, '').split('/');
     if (parts.length !== 3) continue;
