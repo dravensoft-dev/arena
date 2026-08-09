@@ -10,14 +10,14 @@
 
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { byKey } from './compare.ts';
 
 export type WalkOptions = { skip?: (name: string, path: string) => boolean };
 
 export function walkFiles(dir: string, options: WalkOptions = {}): string[] {
   const found: string[] = [];
   const walk = (at: string) => {
-    const entries = readdirSync(at, { withFileTypes: true })
-      .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    const entries = readdirSync(at, { withFileTypes: true }).sort(byKey((entry) => entry.name));
     for (const entry of entries) {
       const path = join(at, entry.name);
       if (options.skip?.(entry.name, path)) continue;

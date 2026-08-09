@@ -12,6 +12,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
+import { byCodeUnit, byKey } from '../../utils/compare.ts';
 
 export const node = {
   name: 'check:dimensions',
@@ -506,7 +507,7 @@ function report(found: DimensionHit[]) {
     if (!byValue.has(f.raw)) byValue.set(f.raw, []);
     byValue.get(f.raw).push(f.file);
   }
-  for (const [prop, byValue] of [...byProp].sort((a, b) => a[0].localeCompare(b[0]))) {
+  for (const [prop, byValue] of [...byProp].sort(byKey(([prop]) => prop))) {
     const total = [...byValue.values()].reduce((n, files) => n + files.length, 0);
     console.log(`\n${prop}  (${total} site(s), ${byValue.size} distinct value(s))`);
     for (const [raw, files] of [...byValue].sort((a, b) => b[1].length - a[1].length))
@@ -516,7 +517,7 @@ function report(found: DimensionHit[]) {
 }
 
 function reportSites(found: DimensionHit[]) {
-  const sorted = [...found].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  const sorted = [...found].sort((a, b) => byCodeUnit(a.file, b.file) || a.line - b.line);
   for (const f of sorted) console.log(`${f.file}:${f.line}  ${f.prop}: ${f.raw}`);
 }
 

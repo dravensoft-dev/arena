@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { captured } from '../../utils/captures.ts';
+import { byKey } from '../../utils/compare.ts';
 
 export const MAP_FILE = 'components.json';
 
@@ -39,7 +40,7 @@ export function componentFiles(layer: string, extension: string, root = repoRoot
   const base = join(root, 'frameworks', layer, 'components');
   const found: { at: string; file: string; symbol: string }[] = [];
   if (!existsSync(base)) return found;
-  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
+  const byName = byKey((entry: { name: string }) => entry.name);
   for (const category of readdirSync(base, { withFileTypes: true }).sort(byName)) {
     if (!category.isDirectory()) continue;
     for (const directory of readdirSync(join(base, category.name), { withFileTypes: true }).sort(byName)) {

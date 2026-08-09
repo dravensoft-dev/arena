@@ -155,10 +155,12 @@ export function componentMap(root: string): ComponentMap | null {
   }
 }
 
+const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
 export function sourceFiles(path: string) {
   const found: string[] = [];
   const walk = (at: string) => {
-    for (const entry of readdirSync(at, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    for (const entry of readdirSync(at, { withFileTypes: true }).sort((a, b) => byCodeUnit(a.name, b.name))) {
       if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
       const full = join(at, entry.name);
       if (entry.isDirectory()) { walk(full); continue; }

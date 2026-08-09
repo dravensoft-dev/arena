@@ -9,6 +9,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { fontWeights, googleFontsUrl } from '../../lib/core/arena-config.ts';
 import { childEntries } from '../../lib/core/dtcg-shapes.ts';
+import { byKey } from '../../utils/compare.ts';
 
 type Face = { family: string; weight: [number, number]; file: string };
 
@@ -79,7 +80,7 @@ export const FONTS = 'assets/fonts/Fonts.generated.json';
 
 export function faceRecord(faces: Face[], root: string) {
   const out: Record<string, unknown> = {};
-  for (const { family, weight, file } of [...faces].sort((a, b) => a.file.localeCompare(b.file))) {
+  for (const { family, weight, file } of [...faces].sort(byKey((face) => face.file))) {
     out[file] = {
       family,
       weights: weight,
