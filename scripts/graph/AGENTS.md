@@ -13,7 +13,7 @@ judging.
 | `inputs.ts` | what a file is, as a fingerprint: `universe(root)` walks the tree once, `stampOf(path, previous)` filters on the stat and arbitrates on the hash, and `digestOf(paths, stamps)` folds a list into one value. |
 | `script-closure.ts` | every module under `scripts/` a script reaches: `relativeSpecifiers(source)` and `scriptClosure(entry, root)`. |
 | `fingerprint.ts` | what a node is worth comparing: `fingerprintOne(node, measure)` and `fingerprintNodes(...)` over the whole set, in dependency order. |
-| `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. |
+| `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. |
 | `plan.ts` | whether a node runs and the sentence saying why: `decide(node, current, previous, onDisk)`. |
 | `run-build.ts` | the build, in the order the graph derives. |
 | `graph-problems.ts` | everything `check:graph` asserts, so the gate under `check/arena/` is a print and an exit. |
@@ -147,6 +147,21 @@ Every other outcome deletes it. A SKIP recorded as green is a node that never ru
 with no entry cannot be kept, so a machine that cannot run a step is honest about it for ever rather
 than once. The entry is written after each node, so a run that stops halfway keeps the greens before
 the failure.
+
+## `.cache/` belongs to one machine and one operating system
+
+Both files record `platform` and `arch` beside `version`, and a mismatch is discarded whole, exactly
+as an older version is. A fingerprint is a claim about what a step produced **here**, and the schema
+being identical is precisely why version alone cannot carry it: the shape agrees and the answer does
+not. The prebuilt `@tailwindcss/oxide`, `rollup` and `lightningcss` binaries differ by architecture,
+`ng-packagr` and `tsc` emit through a platform's own path handling, and a step kept on the strength
+of another machine's run is a step that has never run on this one.
+
+**One working tree can be reached by two operating systems**, which is what makes this a rule rather
+than a precaution: a WSL2 clone under `/mnt/c` is visited by Windows-bun and Linux-bun in turn, over
+the same `.cache/`. That clone also pays a coarser mtime through the 9p layer, which widens the one
+blind spot below from "takes a deliberate mtime restore" to "happens". Neither is worth a mechanism:
+**clone into the Linux filesystem**, and `--force` answers the rest.
 
 ## What a run prints
 

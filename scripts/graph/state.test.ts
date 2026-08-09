@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   FILES_PATH, STATE_PATH, VERSION, forget, readFiles, readState, recordGreen, writeFiles, writeState,
 } from './state.ts';
+import { arch, platform } from '../lib/arena/platform.ts';
 import type { Fingerprint } from './fingerprint.ts';
 
 const withRoot = (run: (root: string) => void) => {
@@ -55,6 +56,37 @@ test('a state written by an older fingerprint is discarded whole rather than rea
     assert.equal(readState(root).size, 0,
       'a fingerprint means nothing across a change to what goes into it, and half a schema is worse '
       + 'than none: it would skip on a comparison whose terms have moved');
+  });
+});
+
+test('a state written on another machine is discarded, because a fingerprint is local', () => {
+  withRoot((root) => {
+    const path = join(root, STATE_PATH);
+    mkdirSync(dirname(path), { recursive: true });
+    const held = { version: VERSION, platform, arch, nodes: { 'generate:tokens': entry('9f3a') } };
+
+    writeFileSync(path, JSON.stringify(held));
+    assert.equal(readState(root).size, 1, 'this machine reads back what this machine wrote');
+
+    writeFileSync(path, JSON.stringify({ ...held, platform: 'sunos' }));
+    assert.equal(readState(root).size, 0,
+      'one tree can be reached by two operating systems -- a WSL2 clone under /mnt/c is visited by '
+      + 'Windows-bun and Linux-bun in turn -- and a cache that answered for one would keep a step '
+      + 'that has never run on the other');
+
+    writeFileSync(path, JSON.stringify({ ...held, arch: 'loong64' }));
+    assert.equal(readState(root).size, 0,
+      'the prebuilt oxide, rollup and lightningcss binaries differ by architecture, so what a step '
+      + 'produced on one is not what it produces on another at the same version');
+  });
+});
+
+test('the machine is recorded, so a discard is a comparison rather than a guess', () => {
+  withRoot((root) => {
+    writeFiles(new Map([['a.txt', { size: 3, mtimeMs: 1, hash: 'aaaa' }]]), root);
+    const held = JSON.parse(readFileSync(join(root, FILES_PATH), 'utf8'));
+    assert.equal(held.platform, platform);
+    assert.equal(held.arch, arch);
   });
 });
 
