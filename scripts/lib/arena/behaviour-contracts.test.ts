@@ -7,6 +7,7 @@ import {
   angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases,
 } from './behaviour-contracts.ts';
 import { pascal } from '../../utils/case.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import type { BehaviourBinding } from './behaviour-contracts.ts';
 
 const ok = {
@@ -221,20 +222,22 @@ test('the Angular inventory finds every component, no category and no bare modul
 });
 
 test('an Angular binding path resolves the category by looking and the stem as Pascal', () => {
-  assert.deepEqual(angularBindingPath('.', 'arena-bar-chart'), {
-    path: 'frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.behaviour.json',
-    stem: 'ArenaBarChart',
-    tail: 'charts/arena-bar-chart/ArenaBarChart.behaviour.json',
-  });
+  const found = angularBindingPath('.', 'arena-bar-chart');
+  assert.equal(relPosix('.', found?.path ?? ''),
+    'frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.behaviour.json',
+    'the path is spelled for the host, since nothing but readJson ever receives it, so what is '
+    + 'held here is where it looked and not which separator this machine writes');
+  assert.equal(found?.stem, 'ArenaBarChart');
+  assert.equal(found?.tail, 'charts/arena-bar-chart/ArenaBarChart.behaviour.json');
   assert.equal(angularBindingPath('.', 'no-such-component'), null);
 });
 
 test('a React binding path resolves the category by looking and the stem as Pascal', () => {
-  assert.deepEqual(reactBindingPath('.', 'arena-bar-chart'), {
-    path: 'frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.behaviour.json',
-    stem: 'ArenaBarChart',
-    tail: 'charts/arena-bar-chart/ArenaBarChart.behaviour.json',
-  });
+  const found = reactBindingPath('.', 'arena-bar-chart');
+  assert.equal(relPosix('.', found?.path ?? ''),
+    'frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.behaviour.json');
+  assert.equal(found?.stem, 'ArenaBarChart');
+  assert.equal(found?.tail, 'charts/arena-bar-chart/ArenaBarChart.behaviour.json');
   assert.equal(reactBindingPath('.', 'no-such-component'), null);
 });
 

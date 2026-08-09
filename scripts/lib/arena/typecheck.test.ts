@@ -37,8 +37,10 @@ test('projectFiles reports the files a project reached, which is what proves the
   { timeout: SPAWN_BUDGET_MS }, () => {
   const files = projectFiles({ project: 'scripts/tsconfig.check.json' });
   assert.ok(files.length > 0, 'a project reaching no file compiles nothing and reports clean');
-  assert.ok(files.some((p) => p.endsWith(join('scripts', 'lib', 'arena', 'typecheck.ts'))),
-    'the project did not reach this very module, so it is not reading the tree it claims to');
+  assert.ok(files.some((p) => p.endsWith('scripts/lib/arena/typecheck.ts')),
+    'the project did not reach this very module, so it is not reading the tree it claims to. tsc '
+    + 'prints a forward slash on every host, this list being its own output rather than a walk, '
+    + 'so a suffix spelled for the machine matches nothing on Windows');
 });
 
 test('a gate holding zero projects is a failure, not a clean run', () => {

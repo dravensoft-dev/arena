@@ -24,11 +24,16 @@ test('a file whose stat has not moved is taken from the record, and never read a
     const when = first.mtimeMs / 1000;
     utimesSync(path, when, when);
 
-    assert.equal(statSync(path).size, first.size, 'the fixture holds the size as well as the time');
-    assert.equal(stampOf(path, first), first,
+    const kept = statSync(path);
+    assert.equal(kept.size, first.size, 'the fixture holds the size as well as the time');
+    const record = { ...first, mtimeMs: kept.mtimeMs };
+    assert.equal(stampOf(path, record), record,
       'the stat is the filter and it is trusted when it agrees, which is the whole saving. This '
       + 'fixture IS the blind spot, written on purpose: a rewrite that restores both the size and '
-      + 'the mtime is read as the file it was, and --force is what answers it');
+      + 'the mtime is read as the file it was, and --force is what answers it. The record takes '
+      + 'the mtime the filesystem kept rather than the one handed to utimes, because a double of '
+      + 'seconds does not round-trip to the same millisecond on every filesystem, and what is '
+      + 'under test is the agreement rather than that arithmetic');
   });
 });
 

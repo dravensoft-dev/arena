@@ -5,6 +5,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
 import { directiveFor, markerProblems, markerUses } from './markers.ts';
 
 const MARKERS = {
@@ -32,7 +33,7 @@ test('the same template with the import is fine', () => {
 });
 
 test('a template in its own file is read through templateUrl, which is how an Angular app is usually written', () => {
-  const files = { 'app/shell.html': '<arena-card><button action>Retry</button></arena-card>' };
+  const files = { [join('app', 'shell.html')]: '<arena-card><button action>Retry</button></arena-card>' };
   const problems = markerProblems(
     [{ path: 'app/shell.ts', source: "@Component({ imports: [ArenaCard], templateUrl: './shell.html' })" }],
     MARKERS,
