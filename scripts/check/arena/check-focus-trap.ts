@@ -11,6 +11,7 @@
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
+import { POLL_MS } from '../../lib/arena/wait-for.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
@@ -39,8 +40,38 @@ export const PANEL_HELD: Deadline = deadline('focus-trap:panel-held', 20_000,
   'the panel opens from the page fixture after the framework has mounted, so this covers a '
   + 'bundle parse, a hydration and an opening transition on a runner with no GPU');
 
-const READY_POLL_MS = 50;
-const STEP_MS = 60;
+export const FOCUS_MOVED: Deadline = deadline('focus-trap:focus-moved', 2_000,
+  'the span a synthetic Tab has to land before the wait is a hang rather than a keypress, which '
+  + 'is generous because a focus handler may run a transition and a scroll before it settles');
+
+export function heldExpression(bound: Deadline) {
+  return `new Promise((resolve) => {
+    const until = Date.now() + ${bound.ms};
+    const started = Date.now();
+    const held = () => {
+      const panel = document.querySelector(${JSON.stringify(PANEL)});
+      return Boolean(panel && panel.contains(document.activeElement));
+    };
+    const tick = () => {
+      if (held()) resolve({ held: true, waitedMs: Date.now() - started });
+      else if (Date.now() >= until) resolve({ held: false, waitedMs: Date.now() - started });
+      else setTimeout(tick, ${POLL_MS});
+    };
+    tick();
+  })`;
+}
+
+export function movedExpression(bound: Deadline) {
+  return `new Promise((resolve) => {
+    const before = document.activeElement;
+    const until = Date.now() + ${bound.ms};
+    const tick = () => {
+      if (document.activeElement !== before || Date.now() >= until) resolve(true);
+      else setTimeout(tick, ${POLL_MS});
+    };
+    tick();
+  })`;
+}
 
 const REACHABLE = ':not([tabindex="-1"])';
 export const FOCUSABLE = [
@@ -98,8 +129,15 @@ export function silenceOf(silence?: Silence) {
 
 export function walkProblems(name: string, walk: TrapWalk) {
   const problems: string[] = [];
+  if (walk.expired) {
+    return [`${name}: ${PANEL_HELD.name} was not seen within ${PANEL_HELD.ms}ms, which is that `
+      + `size because ${PANEL_HELD.why}. The wait expired after ${walk.waitedMs}ms, so this says `
+      + 'the panel was not seen in time and says nothing about whether the component draws one'
+      + silenceOf(walk.silence)];
+  }
   if (!walk.panel) {
-    return [`${name}: no ${PANEL} rendered inside ${PANEL_HELD.ms}ms, so nothing was walked${silenceOf(walk.silence)}`];
+    return [`${name}: the wait ended with no ${PANEL} in the document, so the component rendered `
+      + `no panel and nothing was walked${silenceOf(walk.silence)}`];
   }
   if (walk.focusables === 0) {
     return [`${name}: the panel holds no Tab stop at all, so a keyboard user who reaches it cannot act`];
@@ -138,21 +176,10 @@ async function walkTrap(cdp: Cdp, url: string) {
       for (const type of ['rawKeyDown', 'keyUp']) {
         await cdp.send('Input.dispatchKeyEvent', { type, windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab', modifiers }, sessionId);
       }
-      await ev(`new Promise((r) => setTimeout(r, ${STEP_MS}))`);
+      await ev(movedExpression(FOCUS_MOVED));
     };
 
-    await ev(`new Promise((resolve) => {
-      const until = Date.now() + ${PANEL_HELD.ms};
-      const held = () => {
-        const panel = document.querySelector(${JSON.stringify(PANEL)});
-        return Boolean(panel && panel.contains(document.activeElement));
-      };
-      const tick = () => {
-        if (held() || Date.now() >= until) resolve(true);
-        else setTimeout(tick, ${READY_POLL_MS});
-      };
-      tick();
-    })`);
+    const ready = (await ev(heldExpression(PANEL_HELD))).result.value;
 
     const seen = (await ev(`(() => {
       const panel = document.querySelector(${JSON.stringify(PANEL)});
@@ -171,7 +198,10 @@ async function walkTrap(cdp: Cdp, url: string) {
       list.forEach((el, i) => { el.dataset.arenaTrapIndex = String(i); });
       return { panel: true, focusables: list.length, startsInside: panel.contains(document.activeElement) };
     })()`)).result.value;
-    if (!seen.panel || seen.focusables === 0) return { ...seen, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
+    const waited = { expired: !ready.held, waitedMs: ready.waitedMs };
+    if (!seen.panel || seen.focusables === 0) {
+      return { ...seen, ...waited, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
+    }
 
     const reached = new Set();
     const forward = [];
@@ -197,6 +227,7 @@ async function walkTrap(cdp: Cdp, url: string) {
 
     return {
       ...seen,
+      ...waited,
       forward,
       visited: reached.size,
       wrapsForward: afterLoop === '0' || reached.size === seen.focusables,
@@ -217,9 +248,11 @@ async function main() {
   const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems = [];
+  let slowest = 0;
   try {
     for (const trap of TRAPS) {
       const walk = await walkTrap(cdp, `http://127.0.0.1:${server.port}/${trap.page}`);
+      slowest = Math.max(slowest, Number(walk.waitedMs ?? 0));
       problems.push(...walkProblems(trap.name, walk));
     }
   } finally {
@@ -232,7 +265,9 @@ async function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-focus-trap: ${TRAPS.length} trap(s) walked with real Tab presses — focus stayed inside, reached every control and wrapped both ways`);
+  console.log(`check-focus-trap: ${TRAPS.length} trap(s) walked with real Tab presses. Focus `
+    + 'stayed inside, reached every control and wrapped both ways. The slowest panel was seen '
+    + `after ${slowest}ms of the ${PANEL_HELD.ms}ms allowed`);
 }
 
 if (isMainModule(import.meta.url)) await main();

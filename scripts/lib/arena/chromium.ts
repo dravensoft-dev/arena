@@ -17,6 +17,7 @@ import { arenaEnv, cannotRun } from './arena-scripts-vars.ts';
 import { hostBinary } from './host-binary.ts';
 import { platform, type Platform } from './platform.ts';
 import { deadline, type Deadline } from './deadline.ts';
+import { waitFor } from './wait-for.ts';
 
 export const LINUX_CANDIDATES = [
   '/usr/bin/chromium',
@@ -112,8 +113,6 @@ export const REAP: Deadline = deadline('chromium:reap', 5_000,
   'the span a signalled process group has to empty before the wait is a hang rather than a '
   + 'teardown, measured against a browser that forks a zygote and a renderer of its own');
 
-export const GROUP_POLL_MS = 50;
-
 export function browserFlags(profile: string, on: Platform = platform) {
   const container = on === 'linux' ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
   return [
@@ -168,20 +167,13 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     new Promise<void>((done) => { setTimeout(done, ms).unref?.(); }),
   ]);
 
-  const emptyWithin = async (ms: number) => {
-    const until = Date.now() + ms;
-    while (!groupGone() && Date.now() < until) {
-      await new Promise<void>((done) => { setTimeout(done, GROUP_POLL_MS).unref?.(); });
-    }
-  };
-
   const kill = async () => {
     if (!exited) {
       try { child.kill(); } catch {  }
       await settledWithin(GRACE.ms);
     }
     reapGroup();
-    await emptyWithin(REAP.ms);
+    await waitFor(groupGone, REAP);
     try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
   };
 

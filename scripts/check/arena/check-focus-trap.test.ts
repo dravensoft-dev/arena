@@ -9,7 +9,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import {
-  TRAPS, FOCUSABLE, walkProblems, PANEL_HELD, NAVIGATE,
+  TRAPS, FOCUSABLE, walkProblems, PANEL_HELD, NAVIGATE, FOCUS_MOVED, heldExpression, movedExpression,
 } from './check-focus-trap.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -92,13 +92,42 @@ test('a silent page names what it fetched and what it raised, since three failur
     'a walk carrying no evidence says exactly what it always said, rather than an empty report');
 });
 
-test('a missing panel says how long it was waited for, which is what separates the two readings', () => {
-  assert.match(walkProblems('X', { panel: false })[0] ?? '', new RegExp(`${PANEL_HELD.ms}ms`),
+test('an expired wait is reported as not seen in time, and never as a panel that is not there', () => {
+  const problems = walkProblems('X', { panel: false, expired: true, waitedMs: PANEL_HELD.ms });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /not seen within/,
     'a page that renders nothing and a runner slower than the wait produce the same sentence '
     + 'otherwise, and one of those is a component to fix while the other is a deadline to raise');
+  assert.match(problems[0] ?? '', new RegExp(`${PANEL_HELD.ms}ms`));
+  assert.doesNotMatch(problems[0] ?? '', /rendered no panel/,
+    'the expiry says nothing about whether the component draws one, because it never looked '
+    + 'after the wait it gave up on');
+});
+
+test('a wait that ENDED with no panel is reported as the component, which is a different owner', () => {
+  const problems = walkProblems('X', { panel: false });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /rendered no panel/);
+  assert.doesNotMatch(problems[0] ?? '', /not seen within/);
+});
+
+test('the wait for a panel is the same order as the wait for the navigation before it', () => {
   assert.ok(PANEL_HELD.ms > NAVIGATE.ms / 2,
-    'the wait for a panel is the same order as the wait for the navigation that has to precede '
-    + 'it, or the gate gives up on rendering long before it would give up on loading');
+    'or the gate gives up on rendering long before it would give up on loading');
+});
+
+test('the panel wait answers whether it SAW the panel, so an expiry is not an empty page', () => {
+  const source = heldExpression(PANEL_HELD);
+  assert.match(source, /resolve\(\{ held: true/, 'the seen answer says it was seen');
+  assert.match(source, /resolve\(\{ held: false/, 'and the expiry says it expired');
+  assert.doesNotMatch(source, /resolve\(true\)/,
+    'resolving the same value either way is what made a slow page and an empty one one problem');
+});
+
+test('a keypress waits for focus to MOVE rather than for a span to pass', () => {
+  const source = movedExpression(FOCUS_MOVED);
+  assert.match(source, /activeElement !== before/, 'the condition is about the subject');
+  assert.ok(source.includes(String(FOCUS_MOVED.ms)), 'and the span beside it is the bound');
 });
 
 test('a trap that never claimed focus on open is reported even when containment holds', () => {
