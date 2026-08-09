@@ -14,6 +14,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { numericConstants } from './check-duplicate-constants.ts';
 import { captured } from '../../utils/captures.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const node = {
   name: 'check:script-tokens',
@@ -170,7 +171,7 @@ async function main() {
       const source = readFileSync(path, 'utf8');
       for (const name of importedNames(source)) { layerImported.add(name); imported.add(name); }
       for (const [name, value] of numericConstants(source)) {
-        constants.push({ name, value, path: relative(root, path) });
+        constants.push({ name, value, path: relPosix(root, path) });
       }
     }
     layers.push({ layer, imported: layerImported, constants });

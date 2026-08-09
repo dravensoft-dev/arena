@@ -12,6 +12,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { typecheck, projectFiles, zeroProjectProblems } from '../../lib/arena/typecheck.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const PROJECTS = [
   { project: 'scripts/tsconfig.check.json',
@@ -28,7 +29,7 @@ export function unreachedProblems(onDisk: string[], included: string[], root = r
   const reached = new Set(included);
   return onDisk
     .filter((path: string) => !reached.has(path))
-    .map((path: string) => `${relative(root, path)} is on disk and the project's globs do not reach it`);
+    .map((path: string) => `${relPosix(root, path)} is on disk and the project's globs do not reach it`);
 }
 
 function main() {

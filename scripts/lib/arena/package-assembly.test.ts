@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
@@ -160,7 +160,7 @@ test('what a command ships reaches nothing outside bin/, because scripts/ is not
       const spec = m[1] ?? '';
       if (spec.startsWith('node:') || !spec.startsWith('.')) continue;
       if (!spec.startsWith('../')) continue;
-      escaping.push(`${relative(to, file)} imports ${spec}`);
+      escaping.push(`${relPosix(to, file)} imports ${spec}`);
     }
   }
   assert.deepEqual(escaping, [],

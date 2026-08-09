@@ -70,7 +70,7 @@ export const RUNTIME_DEPENDENCIES = {
 };
 
 export function fromStaging(target: string) {
-  return posix.relative(STAGING, target);
+  return relPosix(STAGING, target);
 }
 
 export function ngPackageConfig() {

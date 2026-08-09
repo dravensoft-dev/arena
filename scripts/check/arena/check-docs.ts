@@ -18,6 +18,7 @@ import { findComments } from '../../lib/arena/comments.ts';
 import { proseSegments, fencedLines } from '../../lib/arena/markdown-prose.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const MAX_DOCUMENT_CHARS = 60_000;
 export const HEADER_MAX_LINES = 10;
@@ -184,7 +185,7 @@ export function ruleOwnerProblems(root = ROOT, owners = RULE_OWNERS) {
   const problems = [];
   const met = new Set();
   for (const path of documents(root)) {
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     const branch = isConsumerDocument(rel) ? CONSUMER_BRANCH : CONTRIBUTOR_BRANCH;
     const text = readFileSync(path, 'utf8');
     for (const { phrase, owner, reason } of owners) {
@@ -231,7 +232,7 @@ export function punctuationProblems(root = ROOT) {
   const scanned = documents(root);
   const problems = [];
   for (const path of scanned) {
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     if (exempt(Object.keys(PROSE_EXEMPT), rel)) continue;
     for (const segment of proseSegments(readFileSync(path, 'utf8'))) {
       for (const [character, name] of BANNED_PUNCTUATION) {
@@ -255,7 +256,7 @@ export function documentSizeProblems(root = ROOT, allowance = SIZE_ALLOWANCE) {
   const problems = [];
   const sizes = new Map();
   for (const path of scanned) {
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     if (exempt(SIZE_EXEMPT, rel)) continue;
     const size = readFileSync(path, 'utf8').length;
     sizes.set(rel, size);
@@ -304,7 +305,7 @@ export function commentRuleProblems(root = ROOT) {
     if (isGenerated(path)) continue;
     scanned += 1;
 
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     const comments = findComments(source)
       .filter((c) => !isPragma(c.text) && !isMemberDoc(c.text, rel));
     if (comments.length === 0) continue;
@@ -333,10 +334,10 @@ export function commentRuleProblems(root = ROOT) {
 }
 
 export function consumerBranchProblems(root = ROOT) {
-  const scanned = documents(root).filter((p) => isConsumerDocument(relative(root, p)));
+  const scanned = documents(root).filter((p) => isConsumerDocument(relPosix(root, p)));
   const problems = [];
   for (const path of scanned) {
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     const source = readFileSync(path, 'utf8');
     for (const [pattern, reason] of CONTRIBUTOR_PATHS) {
       if (!pattern) continue;
@@ -358,11 +359,11 @@ export function componentCountProblems(root = ROOT) {
   const declared = readJson(join(root, 'frameworks', 'Components.json')) as Record<string, string[]>;
   const shipped = Object.values(declared).flat().length;
   const scanned = documents(root)
-    .filter((p) => basename(p) === CONSUMER_PACKAGE_PAGE && relative(root, p).startsWith(CONSUMER_TREE));
+    .filter((p) => basename(p) === CONSUMER_PACKAGE_PAGE && relPosix(root, p).startsWith(CONSUMER_TREE));
   const problems = [];
 
   for (const path of scanned) {
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     const claims = [...readFileSync(path, 'utf8').matchAll(COMPONENT_COUNT_CLAIM)];
     if (claims.length === 0) {
       problems.push(
@@ -390,10 +391,10 @@ export function componentCountProblems(root = ROOT) {
 }
 
 export function foreignCodeProblems(root = ROOT) {
-  const scanned = documents(root).filter((p) => isConsumerDocument(relative(root, p)));
+  const scanned = documents(root).filter((p) => isConsumerDocument(relPosix(root, p)));
   const problems = [];
   for (const path of scanned) {
-    const rel = relative(root, path);
+    const rel = relPosix(root, path);
     for (const { line, text } of fencedLines(readFileSync(path, 'utf8'))) {
       for (const [pattern, reason] of FOREIGN_CODE) {
         if (!pattern) continue;

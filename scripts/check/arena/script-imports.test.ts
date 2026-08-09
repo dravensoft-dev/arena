@@ -102,7 +102,7 @@ test('every relative import in a non-suite script resolves to a file that is the
   assert.ok(scripts.length > 30, 'this suite found almost no scripts, so it proves almost nothing');
 
   const broken = scripts.flatMap((p) =>
-    unresolvedSpecifiers(p).map((s) => `${relative(repoRoot, p)} imports ${s}`));
+    unresolvedSpecifiers(p).map((s) => `${relPosix(repoRoot, p)} imports ${s}`));
   assert.deepEqual(broken, []);
 });
 
@@ -111,7 +111,7 @@ test('nothing under scripts/utils/ imports past scripts/utils/, which is the who
   assert.ok(files.length >= 4, 'an empty directory proves no boundary, so this counts what it walked');
 
   const escaping = files.flatMap((p) =>
-    reachesOutOfUtils(p).map((s) => `${relative(repoRoot, p)} imports ${s}`));
+    reachesOutOfUtils(p).map((s) => `${relPosix(repoRoot, p)} imports ${s}`));
   assert.deepEqual(escaping, [],
     'a util speaks no vocabulary of this repository, and its import list is where that stops being '
     + 'a claim: one specifier into lib/ makes it a lib module sitting in the wrong directory, and '
@@ -150,7 +150,7 @@ test('a script the graph collects does no work when it is imported', () => {
   assert.ok(collected.length > 50, 'this scan found almost no scripts, so it proves almost nothing');
 
   const working = collected.flatMap((p) =>
-    importTimeEffects(p).map((effect) => `${relative(repoRoot, p)} ${effect}`));
+    importTimeEffects(p).map((effect) => `${relPosix(repoRoot, p)} ${effect}`));
   assert.deepEqual(working, [],
     'the graph collects a node by importing the script that declares it, so a script under these '
     + 'three phases has to survive an import having done nothing. Put the work in main() behind '

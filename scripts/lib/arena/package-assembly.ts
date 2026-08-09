@@ -84,7 +84,7 @@ export function copy(from: string, dir: string, rel: string) {
 export function copyTree(from: string, dir: string, rel: string, keep?: (path: string) => boolean) {
   const written = [];
   for (const file of collectFiles(from, keep)) {
-    written.push(copy(file, dir, join(rel, relative(from, file))));
+    written.push(copy(file, dir, join(rel, relPosix(from, file))));
   }
   return written;
 }
@@ -213,5 +213,5 @@ export function baseManifest(root = repoRoot) {
 
 export function report(name: string, dir: string, files: string[]) {
   const bytes = files.reduce((total, f) => total + (existsSync(f) ? statSync(f).size : 0), 0);
-  return `${name}: ${files.length} file(s), ${(bytes / 1024).toFixed(0)} KiB, in ${relative(repoRoot, dir)}`;
+  return `${name}: ${files.length} file(s), ${(bytes / 1024).toFixed(0)} KiB, in ${relPosix(repoRoot, dir)}`;
 }

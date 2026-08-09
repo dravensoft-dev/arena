@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
-import { join, win32, posix } from 'node:path';
+import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { FILES, RESOLVES_AGAINST, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -26,7 +26,7 @@ function topLevelGroups(source: string) {
 const SCRIPT_FLAG = /"script"\s*:\s*true/g;
 
 test('a design source path carries no host separator, on the platform whose separator is one', () => {
-  for (const [name, on] of [['posix', posix], ['win32', win32]] as const) {
+  for (const [name, on] of [['the host', nodePath], ['win32', win32]] as const) {
     for (const source of SOURCES) {
       const spelled = designPath(source, on);
       assert.ok(!spelled.includes('\\'),

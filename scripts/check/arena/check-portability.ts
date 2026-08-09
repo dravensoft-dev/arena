@@ -120,14 +120,17 @@ export const RULES: Rule[] = [
   },
   {
     id: 'native-relative',
-    pattern: /toPosix\(\s*relative\(|\.set\(\s*relative\(|\[\s*relative\(|=>\s*relative\(/g,
-    owners: [],
-    why: 'relative answers in the host separator, and relPosix is the one spelling of the answer '
-      + 'that leaves this process: a key or an index read back by an operation assuming a forward '
-      + 'slash makes a prefix replace a no-op, a segment count short by the depth and a sort a '
-      + 'different order, so the build writes a wrong file rather than failing, and the mapped '
-      + 'form is where the conversion gets left out, which in a suite reads as an assertion whose '
-      + 'expected value is spelled for one operating system',
+    pattern: /(?<![\w$])relative\(/g,
+    owners: [
+      'scripts/utils/posix-path.ts',
+      'scripts/generate/core/arena-to-prod/arena-to-prod.ts',
+    ],
+    why: 'relative answers in the host separator and relPosix is the one spelling of the answer, '
+      + 'because a repo-relative path is read back by something assuming a forward slash: a prefix '
+      + 'test that silently matches nothing, a segment count short by the depth, a sort in another '
+      + 'order, a citation naming a file nobody can grep. Which shape it is written in does not '
+      + 'change that, so the ban is the call. The second owner is the CLI tree copied whole into '
+      + 'bin/, which cannot import a helper it would climb out of itself to reach',
     reaches: 'suites as well',
   },
   {

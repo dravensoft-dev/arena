@@ -45,7 +45,7 @@ function pruneOrphans(dir: string) {
   const pruned: string[] = [];
   if (!existsSync(dir)) return pruned;
   for (const full of walkFiles(dir)) {
-    const rel = relative(EMIT_DIR, full);
+    const rel = relPosix(EMIT_DIR, full);
     let srcRel;
     if (rel.endsWith('.js.map')) srcRel = rel.slice(0, -'.js.map'.length) + '.ts';
     else if (rel.endsWith('.d.ts')) srcRel = rel.slice(0, -'.d.ts'.length) + '.ts';
@@ -53,7 +53,7 @@ function pruneOrphans(dir: string) {
     else continue;
     if (srcRel.startsWith('..') || !existsSync(join(LAYER_ROOT, srcRel))) {
       rmSync(full);
-      pruned.push(relative(repoRoot, full));
+      pruned.push(relPosix(repoRoot, full));
     }
   }
   return pruned;

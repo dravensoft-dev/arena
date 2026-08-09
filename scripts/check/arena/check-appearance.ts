@@ -195,13 +195,13 @@ export function adoptionProblems(name: string) {
   const problems = [];
   const react = reactSource(name);
   if (react && !reactRendersManifest(readFileSync(react, 'utf8'), manifest)) {
-    problems.push(`${name}: ${relative(repoRoot, react)} does not render its manifest -- it has to `
+    problems.push(`${name}: ${relPosix(repoRoot, react)} does not render its manifest -- it has to `
       + `import arenaStyles from ArenaStyles.generated and ${manifest}.classes.generated (or, until it `
       + `is migrated, arenaTv from Tv.generated and ${manifest}.manifest.generated), and draw its slots`);
   }
   const angular = angularSource(name);
   if (angular && !angularRendersManifest(readFileSync(angular, 'utf8'))) {
-    problems.push(`${name}: ${relative(repoRoot, angular)} does not render its manifest -- it has to `
+    problems.push(`${name}: ${relPosix(repoRoot, angular)} does not render its manifest -- it has to `
       + 'import the recipe built from it, its own .variants or the family parent\'s');
   }
   return problems;
@@ -224,7 +224,7 @@ export function collect() {
   for (const path of files) {
     if (excused.has(directoryOf(path))) continue;
     scanned += 1;
-    const rel = relative(repoRoot, path);
+    const rel = relPosix(repoRoot, path);
     for (const { key, value } of literalStyleProblems(readFileSync(path, 'utf8'), rel))
       literals.push(`${rel}: ${key}: ${value} is appearance typed out by hand; every branch of it is a `
         + 'literal, so it belongs in the manifest');

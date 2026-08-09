@@ -12,6 +12,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { UNMODELLED_UNITS } from '../arena/check-dimension-literals.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const SKIPPED_NAMES = new Set(['node_modules', 'dist', 'vendor']);
 
@@ -128,7 +129,7 @@ function main() {
   let scanned = 0;
   for (const file of walk(root)) {
     scanned++;
-    errs.push(...scanFile(relative(repoRoot, file), readFileSync(file, 'utf8')));
+    errs.push(...scanFile(relPosix(repoRoot, file), readFileSync(file, 'utf8')));
   }
   if (errs.length) {
     console.error(`check-arbitrary-values: ${errs.length} problem(s) under frameworks/\n`);

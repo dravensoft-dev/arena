@@ -10,6 +10,7 @@
 
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export function declaredOption(configPath: string, option: string) {
   const seen = new Set();
@@ -26,7 +27,7 @@ export function declaredOption(configPath: string, option: string) {
 }
 
 export function emitRoot({ rootDir, outDir, layerRoot }: { rootDir: string; outDir: string; layerRoot: string }) {
-  const inside = relative(rootDir, layerRoot);
+  const inside = relPosix(rootDir, layerRoot);
   if (inside.startsWith('..') || isAbsolute(inside)) {
     throw new Error(
       `emit-root: ${layerRoot} is not under rootDir ${rootDir}, so its output has no path under ${outDir}`,

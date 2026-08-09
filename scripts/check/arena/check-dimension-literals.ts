@@ -13,6 +13,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
 import { byCodeUnit, byKey } from '../../utils/compare.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const node = {
   name: 'check:dimensions',
@@ -477,7 +478,7 @@ function collect() {
   const seenComponents = new Set<string>();
   let paramLists = 0;
   for (const file of sourceFiles(join(repoRoot, 'frameworks'))) {
-    const rel = relative(repoRoot, file);
+    const rel = relPosix(repoRoot, file);
     const text = readFileSync(file, 'utf8');
     paramLists += componentParamCount(text);
     for (const name of passthroughSightings(text)) seenComponents.add(name);

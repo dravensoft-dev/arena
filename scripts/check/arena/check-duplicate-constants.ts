@@ -13,6 +13,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const node = {
   name: 'check:duplicate-constants',
@@ -82,7 +83,7 @@ function collect() {
         if (!byName.has(name)) byName.set(name, new Map());
         const layers = byName.get(name);
         if (!layers.has(layer)) layers.set(layer, []);
-        layers.get(layer).push({ file: relative(root, path), value });
+        layers.get(layer).push({ file: relPosix(root, path), value });
       }
     }
   }
