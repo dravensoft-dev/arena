@@ -165,6 +165,7 @@ import './arena.generated.css';
 
 | flag | what it does |
 | --- | --- |
+| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it costs nothing extra: the command already reads your sources to resolve `"components": "auto"`. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-react/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |

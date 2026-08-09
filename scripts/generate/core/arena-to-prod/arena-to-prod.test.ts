@@ -4,6 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
+  undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, themeStep, iconsStep, main, componentMap, USAGE, THEME_SHEET, ICONS_SHEET, COMPONENT_MAP,
 } from './arena-to-prod.ts';
@@ -116,9 +117,13 @@ function project(config: any = readable, files: Record<string, string> = { 'app.
 
 const errorOf = (argv: string[]) => parseArgs(argv).error ?? '';
 
-const options = (root: string, extra: { strict?: boolean; importHeader?: boolean } = {}) => resolved(parseArgs([
+const options = (
+  root: string,
+  extra: { strict?: boolean; importHeader?: boolean; undrawn?: boolean } = {},
+) => resolved(parseArgs([
   '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'),
   ...(extra.strict ? ['--strict'] : []),
+  ...(extra.undrawn ? ['--undrawn'] : []),
   ...(extra.importHeader === false ? ['--no-import'] : []),
 ]));
 
@@ -280,7 +285,7 @@ test('the icons step writes one file holding every weight in use and nothing els
   assert.match(css, /\.ph-bold\.ph-bell:before\{content:"\\e0ce"\}/);
   assert.match(css, /\.ph-fill\.ph-moon:before\{content:"\\e330"\}/);
   assert.doesNotMatch(css, /ph-sun/, 'a glyph nothing draws is the whole reason this command exists');
-  assert.match(step.wrote ?? '', /2 glyph\(s\), 2 weight\(s\)/);
+  assert.match(step.wrote ?? '', /2 glyph\(s\), 2 named by your sources and 0 by Arena's own components, 2 weight\(s\)/);
 
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
@@ -464,4 +469,41 @@ test('Phosphor is looked for upwards, which is where a package manager puts it',
 test('a path already leaving the directory keeps its shape, and a sibling gains one', () => {
   assert.equal(relativeFrom(join('a', 'b'), join('a', 'b', 'c.woff2')), './c.woff2');
   assert.equal(relativeFrom(join('a', 'b'), join('a', 'd.woff2')), '../d.woff2');
+});
+
+test('--undrawn names the shipped components a project draws nowhere', () => {
+  const root = project(auto, { 'app.html': '<arena-button />' });
+  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
+  assert.deepEqual(step.fatal, []);
+  assert.match(step.notes[0] ?? '', /1 of 3 shipped component\(s\) drawn/);
+  assert.match(step.notes[1] ?? '', /2 drawn nowhere: arena-bar-chart, arena-table/);
+  rmSync(root, { recursive: true });
+});
+
+test('a project drawing everything is told so, rather than being handed an empty list', () => {
+  const root = project(auto, { 'app.html': '<arena-button /><arena-table /><arena-bar-chart />' });
+  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
+  assert.match(step.notes[1] ?? '', /every component this package ships is drawn somewhere/);
+  rmSync(root, { recursive: true });
+});
+
+test('a component Arena draws on your behalf is still undrawn, because you never wrote it', () => {
+  const root = project(auto, { 'app.html': '<arena-table />' });
+  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
+  assert.match(step.notes[1] ?? '', /arena-button/);
+  rmSync(root, { recursive: true });
+});
+
+test('--undrawn without the map beside the command says why rather than reporting nothing', () => {
+  const root = project(auto, { 'app.html': '<arena-button />' });
+  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', null);
+  assert.equal(step.notes.length, 0);
+  assert.match(step.fatal[0] ?? '', /reads the component map this package carries/);
+  rmSync(root, { recursive: true });
+});
+
+test('--undrawn is a flag rather than an argument, and an unknown one still fails', () => {
+  assert.equal(parseArgs(['--undrawn']).undrawn, true);
+  assert.equal(parseArgs([]).undrawn, false);
+  assert.match(errorOf(['--undrawn-please']), /unknown flag/);
 });
