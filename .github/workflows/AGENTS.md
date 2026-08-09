@@ -1,7 +1,9 @@
 # .github/workflows/
 
 Five workflows: one guards a pull request, one guards `main`, one guards `develop`, and two
-publish a package.
+publish a package. That count was right and this directory held six: `portability.yml` ran the
+operating system matrix, was named in no diagram here, and is now a job of `Arena PR`, which is
+the same omission read twice.
 
 ```
 pull_request -> main          Arena PR
@@ -26,7 +28,9 @@ build              bun run build:release, which assembles too, then one cache en
    +-- test-angular    if angular        the angular gates + the suites off the ngc emit
    +-- test-tailwind   if tailwind       the tailwind gates
    |
-pr-gate            the only required check
+portable           always, and off the build above: three operating systems, its own bun run build
+   |
+pr-gate            the only required check, and it waits for every job above
 ```
 
 **`build` is one job because the build is one thing.** The steps run in an order the graph derives
@@ -70,7 +74,28 @@ because each compiles something that layer emits.
 **`pr-gate` is the single required check.** A job skipped by an `if` reports success to
 branch protection, so requiring `test-react` directly would be satisfied by a React change
 that failed to route. `pr-gate` runs with `always()` and reads `needs.*.result`, which no
-routing decision can skip.
+routing decision can skip. It is green when every result is `success` or `skipped`, and red on
+`failure` or `cancelled`.
+
+**Being the single required check makes its `needs` list the whole gate**, and a job missing from
+it is a job whose failure branch protection never hears about. That is not hypothetical: the
+operating system matrix was a workflow of its own, `needs` cannot name a job in another workflow,
+and `pr-gate` was therefore green over a red macOS for as long as the arrangement lasted. The
+matrix is a job here now, and `check:portability` holds the list to **every other job in this
+file** rather than to a copy of it kept in step by hand.
+
+**`portable` is the one job that does not take the `build` cache**, and it must not. It asks
+whether `bun run build` works on a machine that is not this one, so a job handed the Linux build
+would be answering a question nobody asked. It builds on each of its three runners and then
+compares the result to what the Linux tree committed, which is what `git diff --exit-code` is
+doing in a matrix leg.
+
+**A leg that fails without failing the gate is `continue-on-error`, and the flag comes from one
+place.** `scripts/ci/arena/supported-os.ts` declares `blocking` per platform with its reason, the
+matrix sets `continue-on-error: ${{ !matrix.blocking }}`, and a failing leg with that flag hands
+`needs` a result of `success`. So `windows-latest` reports and does not gate, and the gate needs
+no clause of its own about it: flipping the flag to `true` is the single edit that makes Windows
+block, which is the whole definition of that platform being supported.
 
 ## Arena main
 

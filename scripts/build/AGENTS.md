@@ -46,7 +46,7 @@ platform injected, which is why they can be covered from a Linux runner at all. 
 has yet confirmed is the whole of it running together. That claim lives where `DOUBTS.md` says
 such a thing belongs, in a reason-carrying map a gate holds rather than in prose:
 `../ci/arena/supported-os.ts` carries a `blocking` flag per platform with its reason, and
-`check:portability` fails if the matrix in `portability.yml` and that list disagree about either
+`check:portability` fails if the matrix in `pr.yml` and that list disagree about either
 the names or the flags. **`windows-latest` flipping to `blocking: true` is the whole definition
 of Windows being supported**, so until then WSL2 is the path a contributor should take.
 

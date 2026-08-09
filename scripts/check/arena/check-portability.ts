@@ -4,10 +4,10 @@
  * stale owner fails too, so an exception cannot outlive its argument. The subject is scripts and
  * not suites -- a suite naming win32 and a C: path is doing its job, and the win32 branches are
  * covered from Linux because it does. Matches go through the lexer check:docs uses, so a
- * construct named in a comment or a string is described rather than performed, except for the
- * two whose construct IS a string, which declare that themselves because skipping literals there
- * would skip the rule. It also holds the matrix in portability.yml equal to the declared OS
- * list, a rule living only in YAML being a rule nothing tests. */
+ * construct in a comment or a string is described rather than performed, bar the two whose
+ * construct IS a string and say so. It also holds pr.yml to two rules, YAML alone being where a
+ * rule nothing tests lives: the OS matrix equals the declared list, and pr-gate's needs equal
+ * every other job there, since a leg the one required check does not name gates nothing. */
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -30,6 +30,10 @@ export const node = {
 };
 
 export const WORKFLOWS = '.github/workflows';
+
+export const PR_WORKFLOW = 'pr.yml';
+
+export const REQUIRED_JOB = 'pr-gate';
 
 export const SETUP_DOCUMENT = 'scripts/build/AGENTS.md';
 
@@ -192,17 +196,78 @@ export function matrixLegs(text: string) {
   return legs;
 }
 
-export function matrixProblems(base = root, supported = SUPPORTED_OS) {
-  const path = join(base, WORKFLOWS, 'portability.yml');
+export function jobBlocks(text: string) {
+  const blocks = new Map<string, string>();
+  const start = text.search(/^jobs:[ \t]*$/m);
+  if (start === -1) return blocks;
+
+  const body = text.slice(start);
+  const heads = [...body.matchAll(/^ {2}([A-Za-z0-9_-]+):[ \t]*$/gm)];
+  heads.forEach((head, i) => {
+    const from = head.index ?? 0;
+    const to = i + 1 < heads.length ? heads[i + 1]?.index ?? body.length : body.length;
+    blocks.set(head[1] ?? '', body.slice(from, to));
+  });
+  return blocks;
+}
+
+export function declaredNeeds(block: string) {
+  const inline = /^ {4}needs:[ \t]*\[([^\]]*)\][ \t]*$/m.exec(block);
+  if (inline) return (inline[1] ?? '').split(',').map((one) => one.trim()).filter(Boolean);
+
+  const listed = /^ {4}needs:[ \t]*\n((?: {6}- .+\n)+)/m.exec(block);
+  if (listed) {
+    return [...(listed[1] ?? '').matchAll(/^ {6}- (.+)$/gm)].map((one) => (one[1] ?? '').trim());
+  }
+  return [];
+}
+
+export function needsProblems(text: string, job = REQUIRED_JOB) {
+  const blocks = jobBlocks(text);
+  const gate = blocks.get(job);
+  if (gate === undefined) {
+    return [`${WORKFLOWS}/${PR_WORKFLOW} declares no ${job}, and it is the one required check`];
+  }
+
+  const named = new Set(declaredNeeds(gate));
+  const missing = [...blocks.keys()].filter((one) => one !== job && !named.has(one));
+  const unknown = [...named].filter((one) => !blocks.has(one));
+
+  const problems = [];
+  if (missing.length > 0) {
+    problems.push(`${job} does not name ${missing.join(', ')}, and a job it does not name is one `
+      + 'whose failure the only required check never sees. A green gate over a red job is worse '
+      + 'than no gate, so the list is every other job in the file.');
+  }
+  for (const one of unknown) {
+    problems.push(`${job} names ${one} and no job in ${PR_WORKFLOW} is called that, so the gate `
+      + 'waits for nothing and says it waited');
+  }
+  return problems;
+}
+
+export function gateProblems(base = root, job = REQUIRED_JOB) {
+  const path = join(base, WORKFLOWS, PR_WORKFLOW);
   let text;
   try {
     text = readFileSync(path, 'utf8');
   } catch {
-    return [`${WORKFLOWS}/portability.yml is missing, so nothing runs on a second operating system`];
+    return [`${WORKFLOWS}/${PR_WORKFLOW} is missing, so nothing guards a merge request`];
+  }
+  return needsProblems(text, job);
+}
+
+export function matrixProblems(base = root, supported = SUPPORTED_OS) {
+  const path = join(base, WORKFLOWS, PR_WORKFLOW);
+  let text;
+  try {
+    text = readFileSync(path, 'utf8');
+  } catch {
+    return [`${WORKFLOWS}/${PR_WORKFLOW} is missing, so nothing runs on a second operating system`];
   }
 
   const legs = matrixLegs(text);
-  if (legs.size === 0) return [`${WORKFLOWS}/portability.yml declares no os matrix`];
+  if (legs.size === 0) return [`${WORKFLOWS}/${PR_WORKFLOW} declares no os matrix`];
 
   const problems = [];
   for (const name of Object.keys(supported)) {
@@ -318,6 +383,7 @@ export function portabilityProblems(base = root) {
 
   problems.push(...staleOwners(files, base));
   problems.push(...matrixProblems(base));
+  problems.push(...gateProblems(base));
   problems.push(...browserPathProblems(base));
   problems.push(...setupProblems(base));
   problems.push(...checkoutProblems(tracked));
@@ -342,7 +408,8 @@ function main() {
 
   console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s), every exception `
     + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, the matrix `
-    + `runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s), and ${tracked} `
+    + `runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s) in a job `
+    + `${REQUIRED_JOB} waits for alongside every other, and ${tracked} `
     + `tracked path(s) are ones a Windows checkout can hold, the longest at ${longest} of the `
     + `${MAX_PATH - CLONE_ROOT_BUDGET} left after a clone root`);
 }

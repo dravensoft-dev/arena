@@ -4,10 +4,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PORTABILITY_GATES, unknownGates, unreasonedGates } from './run-portability.ts';
 import { BLOCKING_OS, SUPPORTED_OS, SUPPORTED_OS_NAMES } from './supported-os.ts';
-import { matrixLegs, matrixProblems } from '../../check/arena/check-portability.ts';
+import {
+  PR_WORKFLOW, WORKFLOWS, matrixLegs, matrixProblems,
+} from '../../check/arena/check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
-const workflow = () => readFileSync(join(repoRoot, '.github/workflows/portability.yml'), 'utf8');
+const workflow = () => readFileSync(join(repoRoot, WORKFLOWS, PR_WORKFLOW), 'utf8');
 
 test('every gate in the list is one check-all declares, so a rename fails here', () => {
   assert.deepEqual(unknownGates(), [],

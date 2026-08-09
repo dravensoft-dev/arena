@@ -6,11 +6,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CLONE_ROOT_BUDGET, MAX_PATH, RULES, checkoutProblems, inScope, matrixLegs, matrixProblems,
+  CLONE_ROOT_BUDGET, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, WORKFLOWS, checkoutProblems,
+  declaredNeeds, gateProblems, inScope, jobBlocks, matrixProblems, needsProblems,
   portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
 } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 
 const PLANTED: Record<string, string> = {
   'platform-branch': 'const win = process.platform === "win32";\n',
@@ -151,3 +153,77 @@ test('the real tree is inside every one of those, and there is a real tree to be
   assert.ok(paths.length > 1000, `git listed ${paths.length} tracked path(s), which is too few`);
   assert.deepEqual(checkoutProblems(paths), []);
 });
+
+const WORKFLOW = `name: Arena PR
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+  build:
+    needs: [changes]
+    runs-on: ubuntu-latest
+  portable:
+    runs-on: \${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            blocking: true
+  pr-gate:
+    needs: [changes, build, portable]
+    runs-on: ubuntu-latest
+`;
+
+test('a job key is found and a trigger above it is not, so the block map is the job list', () => {
+  assert.deepEqual([...jobBlocks(WORKFLOW).keys()], ['changes', 'build', 'portable', 'pr-gate'],
+    'pull_request sits at two spaces as well, and it is above jobs: rather than inside it');
+  assert.equal(jobBlocks('name: nothing\n').size, 0);
+});
+
+test('needs is read in both spellings, since either is valid YAML and one is easier to append to', () => {
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs: [a, b]\n'), ['a', 'b']);
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs:\n      - a\n      - b\n'), ['a', 'b']);
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    runs-on: ubuntu-latest\n'), []);
+});
+
+test('a job the gate does not name is the whole failure, and the message says what it costs', () => {
+  const problems = needsProblems(WORKFLOW.replace('[changes, build, portable]', '[changes, build]'));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /does not name portable/,
+    'this is the exact shape the tree was in: portability ran, and the one required check was '
+    + 'green whatever it answered');
+  assert.match(problems[0] ?? '', /green gate over a red job/);
+});
+
+test('a name in needs that is no job is the same rule read the other way', () => {
+  const problems = needsProblems(WORKFLOW.replace('portable]', 'portability]'));
+  assert.equal(problems.length, 2, 'portable is unnamed and portability is nothing');
+  assert.match(problems.join('\n'), /waits for nothing and says it waited/);
+});
+
+test('a workflow with no gate at all fails rather than passing for lack of anything to check', () => {
+  const problems = needsProblems(WORKFLOW.replace('  pr-gate:', '  something-else:'));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /declares no pr-gate/);
+});
+
+test('the real pr.yml holds, and portable is one of the names, which is the point of the change', () => {
+  assert.deepEqual(gateProblems(), []);
+  const gate = jobBlocks(readFileSync(join(repoRoot, WORKFLOWS, PR_WORKFLOW), 'utf8'))
+    .get(REQUIRED_JOB) ?? '';
+  assert.ok(declaredNeeds(gate).includes('portable'),
+    'needs cannot cross workflows, so the matrix living in pr.yml is what lets the gate read it');
+});
+
+test('a matrix that disagrees with the declaration fails, whichever way it disagrees', () => {
+  const lying = { 'ubuntu-latest': { blocking: false, why: 'it is, and this says otherwise' } };
+  assert.match(matrixProblems(repoRoot, lying).join('\n'), /says ubuntu-latest is not blocking/);
+
+  const absent = { solaris: { blocking: true, why: 'no runner offers it' } };
+  assert.match(matrixProblems(repoRoot, absent).join('\n'), /the matrix does not run it/);
+});
+

@@ -1,11 +1,13 @@
 /* Which operating systems Arena is developed on, declared here rather than only in a matrix.
  * A routing rule that lives in YAML alone is a rule nothing tests, which is the argument
  * changed-layers.ts already makes about the layer filter; check:portability holds the matrix in
- * portability.yml equal to this list AND holds each leg's blocking flag to what is claimed here,
- * so a leg cannot quietly stop counting. Each entry carries its reason, because a matrix row is
- * otherwise indistinguishable from a habit. `blocking: false` is a platform whose branches are
- * written and whose runner has not yet confirmed them: it reports and does not gate, and the
- * flag flipping to true is the whole definition of that platform being supported. */
+ * pr.yml equal to this list AND holds each leg's blocking flag to what is claimed here, so a leg
+ * cannot quietly stop counting. Each entry carries its reason, because a matrix row is otherwise
+ * indistinguishable from a habit. `blocking: false` is a platform whose branches are written and
+ * whose runner has not yet confirmed them: it reports and does not gate, and the flag flipping to
+ * true is the whole definition of that platform being supported. It is the only thing that
+ * decides it, and pr-gate holds no second copy: the leg runs under continue-on-error, which hands
+ * the gate a success whatever that platform said. */
 
 export type SupportedOs = { blocking: boolean; why: string };
 
