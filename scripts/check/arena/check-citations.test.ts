@@ -158,3 +158,20 @@ test('a shortened path is not a claim, even under an ignored root', () => {
       + 'carrying an extension is a claim about a file');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('the walk does not descend into an ignored root, so the document set is the same everywhere', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-citations-walk-'));
+  try {
+    mkdirSync(join(dir, 'docs', 'superpowers', 'plans'), { recursive: true });
+    writeFileSync(join(dir, 'docs', 'superpowers', 'plans', 'a-plan.md'), 'cites nothing/real.md\n');
+    writeFileSync(join(dir, 'AGENTS.md'), '# real\n');
+
+    assert.deepEqual(documents(dir, new Set(['docs'])), [join(dir, 'AGENTS.md')],
+      'a scratch plan is not a document this repository holds to its citations, and judging one '
+      + 'is the same defect as scanning a different alternation: the answer depends on whether a '
+      + 'directory happens to sit on the machine the gate ran on');
+
+    assert.ok(!basenames(dir, new Set(['docs'])).has('a-plan.md'),
+      'a bare citation resolving to a scratch file would pass here and fail on every clone');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

@@ -65,11 +65,14 @@ export function pathPattern(roots: string[]) {
   );
 }
 
-const entrySkip = (base: string) => (name: string, path: string) =>
-  skips(name, toPosix(relative(base, dirname(path))));
+const entrySkip = (base: string, ignored: Set<string>) => (name: string, path: string) => {
+  const relativeDirectory = toPosix(relative(base, dirname(path)));
+  if (relativeDirectory === '' && ignored.has(name)) return true;
+  return skips(name, relativeDirectory);
+};
 
-export function documents(base = root) {
-  return walkFiles(base, { skip: entrySkip(base) }).filter((path) => path.endsWith('.md'));
+export function documents(base = root, ignored = ignoredRoots(base)) {
+  return walkFiles(base, { skip: entrySkip(base, ignored) }).filter((path) => path.endsWith('.md'));
 }
 
 export function namesAFile(cited: string) {
@@ -78,8 +81,8 @@ export function namesAFile(cited: string) {
 
 export const BARE_DOCUMENT = /(?<![A-Za-z0-9._/-])[A-Za-z][A-Za-z0-9-]*(?:\.[a-z0-9-]+)*\.md\b/g;
 
-export function basenames(base = root) {
-  return new Set(walkFiles(base, { skip: entrySkip(base) }).map((path) => basename(path)));
+export function basenames(base = root, ignored = ignoredRoots(base)) {
+  return new Set(walkFiles(base, { skip: entrySkip(base, ignored) }).map((path) => basename(path)));
 }
 
 export function bareDocumentProblems(base = root, files = documents(base), names = basenames(base)) {
