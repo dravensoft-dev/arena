@@ -1,12 +1,22 @@
+/* Compiling the Tailwind layer: the classes a manifest names, the CSS escape each one needs, the
+ * entry stylesheet handed to the CLI, and the manifests themselves keyed for everything
+ * downstream. That key is the repo-relative path spelled posix and never the native one. Five
+ * readers in build-tailwind.ts treat it as a string carrying '/' -- replacing a prefix, counting
+ * segments to a depth, sorting the barrel, mirroring into two layers -- and against a backslash
+ * key each is a silent no-op except the depth, which goes negative and throws. Handing it back to
+ * node costs nothing, since join reads a forward slash on every platform. The two paths in the
+ * entry stylesheet convert for the same reason: a backslash inside a CSS string starts an escape
+ * rather than a segment, so a native root names a file that is not on disk. */
+
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { nodeBin } from '../arena/node-bin.ts';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import type { ManifestClassSource, Manifests } from './manifest-shapes.ts';
 
 export function manifestClasses(manifest: ManifestClassSource): string[] {
@@ -58,7 +68,7 @@ export function layerManifests(root = repoRoot): Manifests {
   const components = join(root, 'frameworks/tailwind/components');
   const manifests: Manifests = new Map();
   for (const p of manifestFiles(components))
-    manifests.set(relative(root, p), readJson(p));
+    manifests.set(relPosix(root, p), readJson(p));
   return manifests;
 }
 

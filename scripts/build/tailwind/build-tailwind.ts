@@ -1,3 +1,13 @@
+/* Everything the Tailwind layer emits from its preset and its manifests: the compiled utilities,
+ * a stylesheet per component, the prelude they share, the barrel that imports them, and the
+ * manifest and class modules the consuming layers read. Every path here is a repo-relative posix
+ * key, the one layerManifests hands out, and never an absolute or a native one. sheetPath
+ * replaces a prefix carrying '/', preludeSpecifier counts segments to a depth, the barrel writes
+ * one into CSS and two mirrors match another prefix, so a key spelled any other way is a no-op
+ * that answers its input: the sheet is written beside its manifest, no barrel imports it, and
+ * nothing says so. preludeSpecifier is the exception and throws, since a depth cannot be
+ * negative -- which on Windows it was, by three, for every component in the tree. */
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -74,13 +84,11 @@ export const node = {
     'build:angular-tests',
     'build:demos',
     'build:react-package',
-    'build:style-parity-page',
     'check:angular',
     'check:api',
     'check:appearance',
     'check:arbitrary',
     'check:behaviour',
-    'check:cards',
     'check:compliance',
     'check:component-css',
     'check:demos',
@@ -96,7 +104,6 @@ export const node = {
     'check:shared-arithmetic',
     'check:skills',
     'check:states',
-    'check:style-parity',
     'check:tailwind-generated',
   ],
 };
@@ -167,6 +174,12 @@ export function buildComponentCss(opts: BuildOptions = {}) {
 
 export function preludeSpecifier(rel: string) {
   const depth = rel.split('/').length - 1 - PRELUDE.split('/').length + 1;
+  if (depth < 0) {
+    throw new Error(`build-tailwind: ${JSON.stringify(rel)} counts ${depth} directories up to ${PRELUDE}, `
+      + 'which means it is not a repo-relative posix key rather than that the sheet sits somewhere odd; '
+      + 'a native separator collapses it to one segment. Repeat of a negative count is a RangeError that '
+      + 'names neither the key nor the reason, which is the whole cost of not saying this here');
+  }
   return `${'../'.repeat(depth)}${basename(PRELUDE)}`;
 }
 

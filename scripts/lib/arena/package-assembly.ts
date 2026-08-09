@@ -1,12 +1,15 @@
 /* What both package builds share: the exclusion list that decides what never ships, the
  * copy that honours it, the CSS chain each package carries, and the manifest templates.
  * `arena` because it reads two framework layers and the repository root. Nothing here
- * compiles anything; each layer's own builder does that with its own toolchain. */
+ * compiles anything; each layer's own builder does that with its own toolchain. sheetPath is
+ * given the repo-relative posix key it documents rather than the absolute path walkFiles
+ * answers: finding its prefix inside an absolute path worked only because a posix one contains
+ * that prefix, and a native one does not, so the sheet would be looked for beside the manifest. */
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync, statSync } from 'node:fs';
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
 import { join, dirname, relative, basename } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from './repo-root.ts';
@@ -120,7 +123,8 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   const { base } = split(css);
   const dir = join(root, 'frameworks', 'tailwind');
   const consume = join(root, ...CONSUME.split('/'));
-  const files = manifestFiles(join(dir, 'components')).map((file) => sheetPath(file));
+  const files = manifestFiles(join(dir, 'components'))
+    .map((file) => join(root, sheetPath(relPosix(root, file))));
   if (files.length === 0) {
     throw new Error('package-assembly: no component stylesheet was found, so the package would ship '
       + 'a barrel that imports nothing and every component would render unstyled');
@@ -156,7 +160,7 @@ export function copyCli(dir: string, root = repoRoot) {
   for (const name of Object.keys(CLI_BINS)) {
     const from = join(root, 'scripts', 'generate', 'core', name);
     const copied = collectFiles(from, (file) => !excluded(basename(file))).map((file) => {
-      const to = join('bin', toPosix(relative(from, file)));
+      const to = join('bin', relPosix(from, file));
       if (!file.endsWith('.ts')) { copy(file, dir, to); return `./${to}`; }
       write(dir, to.replace(/\.ts$/, '.mjs'), emitCli(readFileSync(file, 'utf8')));
       return `./${to.replace(/\.ts$/, '.mjs')}`;

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { win32 } from 'node:path';
 import {
   applyRules, classesManifest, classNames, compoundClass, entryStylesheet, isThemeKey,
   slotClass, stripIndirection, stripProblems, themeKeyMap, variantClass,
@@ -46,6 +47,13 @@ test('the entry wraps every rule in @layer utilities, which is where every Arena
   assert.match(entry, /^@reference '\/x\/Theme\.css';/);
   assert.match(entry, /@layer utilities \{/);
   assert.match(entry, /\.arena-side-nav-item__root \{ @apply flex gap-2; \}/);
+});
+
+test('the reference is posix even from a Windows root, since a backslash in a CSS string is an escape', () => {
+  const entry = entryStylesheet('D:\\a\\arena\\arena\\frameworks\\tailwind\\Theme.css', new Map([['a.json', manifest]]), win32);
+  assert.match(entry, /^@reference 'D:\/a\/arena\/arena\/frameworks\/tailwind\/Theme\.css';/);
+  assert.doesNotMatch(entry.split('\n')[0] ?? '', /\\/,
+    'the runner root that found this is literally D:\\a, where \\a is the CSS escape for a line feed');
 });
 
 test('the theme map reads only single-var declarations, so a literal is never mistaken for an alias', () => {
