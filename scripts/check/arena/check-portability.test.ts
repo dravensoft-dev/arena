@@ -5,7 +5,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RULES, inScope, portabilityProblems, staleOwners, violations } from './check-portability.ts';
+import { RULES, inScope, portabilityProblems, setupProblems, staleOwners, violations } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
 
@@ -84,4 +84,18 @@ test('the tree itself is clean, and the gate scanned enough of it to mean someth
   assert.deepEqual(problems, []);
   assert.ok(scanned > 100, `scanned ${scanned} script(s), which is too few to have walked the tree`);
   assert.equal(rules, RULES.length);
+});
+
+test('a prerequisite the setup document does not name is a problem, since a contributor is sent there', () => {
+  const declared = { fortran: { probe: 'gfortran --version', why: 'it does not' } };
+  const problems = setupProblems(repoRoot, declared);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /gfortran --version/);
+  assert.match(problems[0] ?? '', /goes stale/);
+});
+
+test('the real declaration is named in full, which is the claim the gate makes', () => {
+  assert.deepEqual(setupProblems(), [],
+    'the list was never in one place before: bun came from packageManager, git and node from '
+    + 'whichever gate spawned them, and a contributor found each by hitting it');
 });

@@ -18,6 +18,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { findComments, insideLiteral, literalRanges } from '../../lib/arena/comments.ts';
 import { isScript, isSuite } from '../../lib/arena/domains.ts';
 import { SUPPORTED_OS_NAMES } from '../../ci/arena/supported-os.ts';
+import { HOST_BINARIES } from '../../lib/arena/host-binaries.ts';
 
 export const node = {
   name: 'check:portability',
@@ -27,6 +28,8 @@ export const node = {
 };
 
 export const WORKFLOWS = '.github/workflows';
+
+export const SETUP_DOCUMENT = 'scripts/build/AGENTS.md';
 
 export type Rule = {
   id: string;
@@ -190,6 +193,22 @@ export function browserPathProblems(base = root) {
     + 'discovery finds one.'];
 }
 
+export function setupProblems(base = root, declared = HOST_BINARIES) {
+  const path = join(base, SETUP_DOCUMENT);
+  let text;
+  try {
+    text = readFileSync(path, 'utf8');
+  } catch {
+    return [`${SETUP_DOCUMENT} is missing, and it is where a contributor is sent to learn what to install`];
+  }
+
+  return Object.entries(declared)
+    .filter(([, one]) => !text.includes(one.probe))
+    .map(([name, one]) => `${SETUP_DOCUMENT} does not name the probe for ${name}, `
+      + `\`${one.probe}\`. A contributor is sent there to learn what a machine needs, and a `
+      + 'setup document nothing holds is one that goes stale the first time the list moves.');
+}
+
 export function portabilityProblems(base = root) {
   const files = scriptFiles(base);
   const problems: string[] = [];
@@ -206,6 +225,7 @@ export function portabilityProblems(base = root) {
   problems.push(...staleOwners(files, base));
   problems.push(...matrixProblems(base));
   problems.push(...browserPathProblems(base));
+  problems.push(...setupProblems(base));
 
   return { problems, scanned: files.length, rules: RULES.length };
 }
@@ -225,8 +245,8 @@ function main() {
   }
 
   console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s), every exception `
-    + `names a module that is there, and the matrix runs exactly ${SUPPORTED_OS_NAMES.length} `
-    + 'declared operating system(s)');
+    + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, and the `
+    + `matrix runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();

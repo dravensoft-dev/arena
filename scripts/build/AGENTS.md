@@ -12,6 +12,39 @@ two reasons: the git tag has to serve it to a browser directly, true of
 it, true of `assets/fonts/Fonts.generated.json`, whose rebuild needs the network. Everything a
 script writes under `frameworks/` is ignored. `check:generated` holds both halves.
 
+## What the machine needs
+
+Five things, and the list is declared in `../lib/arena/host-binaries.ts` rather than only here,
+so `check:portability` fails when this section and that file disagree. It was never written in
+one place before: `bun` came from `packageManager`, `git` and `node` from whichever gate spawned
+them, a browser from a candidate table, and the networked step from a `.gitignore` comment. A
+contributor found each by hitting it.
+
+| needs | probe | why |
+| --- | --- | --- |
+| `bun` | `bun --version` | the runtime and the package manager. `package.json` pins the version and every workflow pins the same one. |
+| `git` | `git --version` | `check:generated`, `check:skills` and `check:citations` ask it what the tree tracks, which no other tool can answer. |
+| `node` | `node --version` | `check:consumer` runs the shipped CLI the way a consumer runs it, under node rather than bun. It is the one place the two are not interchangeable. |
+| a Chromium-family browser | `bun run check:cards` | the four gates that measure a real render drive Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
+| the network, once | `bun run generate:fonts` | only to rebuild the webfonts. Their outputs are tracked precisely because a clone cannot reproduce them, so a normal build never needs it. |
+
+**On macOS** that is the whole list, and nothing here is Linux-shaped any more.
+
+**On Windows the supported path is WSL2, and the clone belongs in the Linux filesystem.** A tree
+under `/mnt/c` costs a coarser mtime through the 9p layer, which widens the build cache's one
+blind spot from "takes a deliberate mtime restore" to "happens"; it is slow to walk; and it is
+reachable by two operating systems in turn over one `.cache/`, which is why that cache records
+the machine that wrote it. **Install a Linux browser inside the distribution.** A Windows one
+under `/mnt/c` launches and then reports a clean console over a page it never loaded: the gates
+serve on the WSL loopback, and a Windows-side browser resolves `127.0.0.1` to Windows's own.
+`findChromium` says so in its failure message when `WSL_DISTRO_NAME` is set.
+
+Windows natively is the second stage of this work. Its branches are written and covered by unit
+tests with the platform injected, and no runner has proven them. That is recorded where
+`DOUBTS.md` says such a thing belongs, in a reason-carrying map a gate holds rather than in
+prose: `../ci/arena/supported-os.ts` says Windows joins when a runner has proven what those
+tests carry alone, and `check:portability` fails if the matrix and that list disagree.
+
 ## Compile Arena for the first time
 
 ```bash
