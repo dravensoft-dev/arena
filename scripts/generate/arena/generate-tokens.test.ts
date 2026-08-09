@@ -5,9 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { FILES, RESOLVES_AGAINST } from './generate-tokens.ts';
+import { FILES, RESOLVES_AGAINST, SCRIPT_TARGETS, collectScriptTokens, designPath } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const DESIGN = join(repoRoot, 'contracts/design');
@@ -22,6 +22,31 @@ function referencedGroups(source: string) {
 function topLevelGroups(source: string) {
   return Object.keys(readJson(join(DESIGN, source)));
 }
+
+const SCRIPT_FLAG = /"script"\s*:\s*true/g;
+
+test('a design source path carries no host separator, on the platform whose separator is one', () => {
+  for (const [name, on] of [['posix', posix], ['win32', win32]] as const) {
+    for (const source of SOURCES) {
+      const spelled = designPath(source, on);
+      assert.ok(!spelled.includes('\\'),
+        `designPath("${source}") is "${spelled}" on ${name}. Style Dictionary hands this to glob, where a `
+        + 'backslash escapes the character after it rather than separating two of them, so the pattern matches '
+        + 'no file, every source loads empty, and the generated output is a header with nothing under it.');
+    }
+  }
+});
+
+test('every token flagged script-readable survives the walk, which compares the path Style Dictionary reports back', async () => {
+  const declared = SOURCES.reduce((n, source) =>
+    n + [...readFileSync(join(DESIGN, source), 'utf8').matchAll(SCRIPT_FLAG)].length, 0);
+  const collected = await collectScriptTokens();
+
+  assert.equal(collected.length, declared,
+    `contracts/design/ flags ${declared} token(s) script-readable and the walk found ${collected.length}. `
+    + `A token lost here is an export missing from ${SCRIPT_TARGETS.join(' and ')}, which fails as a `
+    + 'compile error in the layer that imports it and never as a message from this generator.');
+});
 
 test('every key and value in RESOLVES_AGAINST is a source this build actually reads', () => {
   for (const [source, against] of Object.entries(RESOLVES_AGAINST)) {

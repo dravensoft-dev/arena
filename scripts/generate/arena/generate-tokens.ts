@@ -1,6 +1,15 @@
+/* Every design source path is spelled posix, because both ends of Style Dictionary read one:
+ * it hands `source` straight to glob, where a backslash is an escape rather than a separator,
+ * so a host-joined path matches no file at all on Windows and the whole token set loads empty;
+ * and it stamps each token's filePath with glob's posix answer, which is what the walk below
+ * compares against. Those two spellings are one function so they cannot drift, and it takes the
+ * path module, which is what makes the Windows case a suite rather than a runner. */
+
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import nodePath, { join } from 'node:path';
+import { toPosix } from '../../utils/posix-path.ts';
+import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../../lib/core/serialize-token.ts';
@@ -168,14 +177,18 @@ export async function buildScriptModules() {
   return new Map(SCRIPT_TARGETS.map((path) => [path, body]));
 }
 
+export function designPath(source: string, on: PathModule = nodePath) {
+  return toPosix(on.join(root, 'contracts/design', source), on);
+}
+
 async function load(source: string) {
-  const path = (s: string) => join(root, 'contracts/design', s);
+  const against = (RESOLVES_AGAINST as Record<string, string[]>)[source] ?? [];
   const sd = new StyleDictionary({
-    source: [...((RESOLVES_AGAINST as Record<string, string[]>)[source] ?? []).map(path), path(source)],
+    source: [...against.map((s) => designPath(s)), designPath(source)],
     platforms: { css: { transforms: ['name/kebab'] } },
   }, { verbosity: 'silent' });
   const { tokens } = await sd.getPlatformTokens('css');
-  return { tokens, from: path(source) };
+  return { tokens, from: designPath(source) };
 }
 
 function comment(d: string) {
