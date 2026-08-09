@@ -19,6 +19,7 @@ import type { ComponentMap } from './components.ts';
 import { scan, drawn, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
+import { markerProblems } from './markers.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -225,6 +226,18 @@ export function readSources(paths: string[]) {
   return sources;
 }
 
+export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
+  if (!map?.markers) return { reports: [] as string[] };
+  const files = [];
+  for (const path of options.paths) {
+    for (const file of sourceFiles(path) ?? []) {
+      if (!file.endsWith('.ts')) continue;
+      files.push({ path: file, source: readFileSync(file, 'utf8') });
+    }
+  }
+  return { reports: markerProblems(files, map.markers) };
+}
+
 export function undrawnStep(options: ResolvedOptions, packageName: string, map: ComponentMap | null) {
   if (!map) {
     return { notes: [] as string[],
@@ -411,13 +424,16 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
+  const markers = markersStep(options, map);
+  for (const line of markers.reports) console.error(`arena-to-prod: ${line}`);
+
   const icons = iconsStep(options, { arena, phosphor });
   for (const line of icons.fatal) console.error(`arena-to-prod: ${line}`);
   for (const line of icons.reports) console.error(`arena-to-prod: ${line}`);
   if (icons.code !== 0) return icons.code;
   console.log(`arena-to-prod: wrote ${icons.wrote}`);
 
-  return options.strict && theme.reports.length + icons.reports.length ? 1 : 0;
+  return options.strict && theme.reports.length + markers.reports.length + icons.reports.length ? 1 : 0;
 }
 
 const invokedAs = process.argv[1] ? realpathSync(process.argv[1]) : '';

@@ -175,6 +175,7 @@ overlay onto Arena's `--z-*` scale, without which a menu opened inside a dialog 
 | flag | what it does |
 | --- | --- |
 | `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it costs nothing extra: the command already reads your sources to resolve `"components": "auto"`. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
+| a projection marker you write and do not import | Reported by name. A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a template that writes the attribute without listing `ArenaFooter` in its own `imports` renders nothing there, and neither the build nor `ngc --strictTemplates` says a word. This is the one defect a component cannot report about itself. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |
