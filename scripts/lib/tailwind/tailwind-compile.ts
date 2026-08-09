@@ -5,6 +5,8 @@ import { basename, join, relative } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { nodeBin } from '../arena/node-bin.ts';
+import { toPosix } from '../../utils/posix-path.ts';
 import type { ManifestClassSource, Manifests } from './manifest-shapes.ts';
 
 export function manifestClasses(manifest: ManifestClassSource): string[] {
@@ -31,12 +33,13 @@ export function manifestFiles(componentsDir: string) {
 }
 
 export function entryStylesheet(preset: string, components: string, extra?: string) {
-  return `@import '${preset}' source(none);\n@source '${components}/**/*.manifest.json';\n`
-    + (extra ? `@source '${extra}';\n` : '');
+  return `@import '${toPosix(preset)}' source(none);\n`
+    + `@source '${toPosix(components)}/**/*.manifest.json';\n`
+    + (extra ? `@source '${toPosix(extra)}';\n` : '');
 }
 
 export function compileEntry(entry: string, root = repoRoot) {
-  const bin = join(root, 'node_modules/.bin/tailwindcss');
+  const bin = nodeBin('@tailwindcss/cli', undefined, root);
   const dir = mkdtempSync(join(tmpdir(), 'arena-tw-'));
   const out = join(dir, 'out.css');
   try {

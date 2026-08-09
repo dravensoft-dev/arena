@@ -13,6 +13,7 @@ import { toPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { nodeBin } from '../../lib/arena/node-bin.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
@@ -139,8 +140,7 @@ function stage(root: string) {
 }
 
 export function ngPackagrBin(root = repoRoot) {
-  const bin = join(root, 'node_modules', '.bin', 'ng-packagr');
-  return existsSync(bin) ? bin : null;
+  try { return nodeBin('ng-packagr', undefined, root); } catch { return null; }
 }
 
 export function buildAngularPackage(root = repoRoot) {
@@ -153,7 +153,7 @@ export function buildAngularPackage(root = repoRoot) {
   const dist = join(root, LAYER, 'dist');
   mkdirSync(dist, { recursive: true });
 
-  const result = spawnSync(bin, ['-p', 'ng-package.json', '-c', 'tsconfig.lib.json'], {
+  const result = spawnSync(process.execPath, [bin, '-p', 'ng-package.json', '-c', 'tsconfig.lib.json'], {
     cwd: staging, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   if (result.status !== 0) {

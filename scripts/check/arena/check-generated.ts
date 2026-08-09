@@ -5,6 +5,7 @@
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { join, relative } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
 import { toPosix } from '../../utils/posix-path.ts';
@@ -188,7 +189,7 @@ export function matches(pattern: string, path: string) {
 }
 
 function gitRun(args: string[], cwd: string) {
-  const { stdout } = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  const { stdout } = spawnSync(hostBinary('git', 'to read what the tree tracks, which is a question only git can answer'), args, { cwd, encoding: 'utf8' });
   return (stdout ?? '').split('\n').filter(Boolean);
 }
 

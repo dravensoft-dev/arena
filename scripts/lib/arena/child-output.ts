@@ -4,10 +4,10 @@
  * read as a whole one: status 0, no error, the output simply missing its last lines. Nothing
  * downstream can tell the difference. The loss is a race: the tsc listing is 485 lines and came
  * back at 445 and at 316 in 2 of 30 runs through a pipe, and whole in 30 of 30 through a file,
- * which is why it survives local runs and lands in CI, where it had check:script-types name 16
- * files as unreached by globs that reach them. A file descriptor the child inherits is written
- * synchronously and has no buffer left to lose. It costs a temporary directory per call, so it
- * is for the spawns whose output is read, never the ones that inherit stdio. */
+ * so it survives local runs and lands in CI, where it had check:script-types name 16 files as
+ * unreached by globs that reach them. An inherited descriptor is written synchronously and has
+ * no buffer to lose, at the cost of a temp directory per call, so this is for spawns whose
+ * output is READ. Readers split on '\n' and a Windows compiler emits CRLF, so the CR goes here. */
 
 import { spawnSync } from 'node:child_process';
 import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
@@ -21,6 +21,8 @@ export type ChildOutput = {
   output: string;
   error?: Error | undefined;
 };
+
+export const withoutCr = (text: string) => text.replace(/\r\n?/g, '\n');
 
 export function childOutput(command: string, args: string[]): ChildOutput {
   const dir = mkdtempSync(join(tmpdir(), 'arena-child-'));
@@ -36,8 +38,8 @@ export function childOutput(command: string, args: string[]): ChildOutput {
       closeSync(out);
       closeSync(err);
     }
-    const stdout = readFileSync(outPath, 'utf8');
-    const stderr = readFileSync(errPath, 'utf8');
+    const stdout = withoutCr(readFileSync(outPath, 'utf8'));
+    const stderr = withoutCr(readFileSync(errPath, 'utf8'));
     return { status: r.status ?? 1, stdout, stderr, output: `${stdout}${stderr}`, error: r.error };
   } finally {
     rmSync(dir, { recursive: true, force: true });

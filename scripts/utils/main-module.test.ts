@@ -36,13 +36,21 @@ test('a module something else imported is not the program', () => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('an entry reached through a symlink is still the program, which is what an npm bin is', () => {
+test('an entry reached through a symlink is still the program, which is what an npm bin is', (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'arena-main-'));
   try {
     const real = join(dir, 'command.ts');
     const link = join(dir, 'linked.ts');
     writeFileSync(real, '');
-    symlinkSync(real, link);
+    try {
+      symlinkSync(real, link);
+    } catch (err) {
+      t.skip(`this host will not create a symlink (${(err as Error).message}). The capability is `
+        + 'what is asked about rather than the platform, because a util suite may import no '
+        + 'Arena module and so cannot ask which one it is running on; on the host where this '
+        + 'fails, Windows without Developer Mode, an npm bin link is a .CMD shim and not a link.');
+      return;
+    }
     withArgv(link, () => assert.equal(isMainModule(pathToFileURL(real).href), true,
       'the raw comparison misses this one, and it is the whole reason the second half exists'));
   } finally { rmSync(dir, { recursive: true, force: true }); }

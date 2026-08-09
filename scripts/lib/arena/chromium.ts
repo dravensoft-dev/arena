@@ -14,6 +14,7 @@ import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { arenaEnv, cannotRun } from './arena-scripts-vars.ts';
+import { hostBinary } from './host-binary.ts';
 import { platform, type Platform } from './platform.ts';
 
 export const LINUX_CANDIDATES = [
@@ -137,7 +138,8 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     const pid = child.pid;
     if (typeof pid !== 'number' || exited) return;
     if (on === 'win32') {
-      try { spawnSync('taskkill', ['/pid', String(pid), '/T', '/F']); } catch {  }
+      const why = 'to reap a browser process tree, which a signal cannot do on Windows';
+      try { spawnSync(hostBinary('taskkill', why, { on }), ['/pid', String(pid), '/T', '/F']); } catch {  }
       return;
     }
     try { process.kill(-pid, 'SIGKILL'); } catch {  }

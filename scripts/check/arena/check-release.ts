@@ -4,6 +4,7 @@
 
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -14,7 +15,8 @@ const readJSON = (p: string) => readJson(join(root, p));
 
 function git(...args: string[]) {
   try {
-    return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return execFileSync(hostBinary('git', 'to read what the tree tracks, which is a question only git can answer'), args,
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
   } catch {
     return null;
   }

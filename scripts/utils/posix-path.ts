@@ -11,7 +11,7 @@
 
 import nodePath, { sep } from 'node:path';
 
-export type PathModule = Pick<typeof nodePath, 'relative' | 'isAbsolute' | 'resolve' | 'sep'>;
+export type PathModule = Pick<typeof nodePath, 'relative' | 'isAbsolute' | 'resolve' | 'join' | 'sep'>;
 
 export function toPosix(path: string) {
   return path.split(sep).join('/');

@@ -17,6 +17,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
+import { linkDir } from '../../lib/arena/platform.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
@@ -71,7 +73,7 @@ export function assembled(layer: string, base = root) {
 export function assemble(base = root) {
   const missing = PACKAGES.filter(({ layer }) => !assembled(layer, base)).map(({ layer }) => layer);
   if (missing.length === 0) return { built: false, missing };
-  const run = spawnSync('bun', ['run', 'build:packages'], { cwd: base, encoding: 'utf8' });
+  const run = spawnSync(process.execPath, ['run', 'build:packages'], { cwd: base, encoding: 'utf8' });
   if (run.status !== 0) {
     throw new Error(`check-consumer: ${missing.join(' and ')} is not assembled and build:packages failed:\n`
       + `${run.stderr ?? ''}`);
@@ -99,12 +101,13 @@ export function installed(layer: string, dir: string, base = root) {
   if (!name) throw new Error(`check-consumer: no package is declared for a layer called "${layer}"`);
   const at = join(dir, 'node_modules', ...name.split('/'));
   mkdirSync(join(at, '..'), { recursive: true });
-  if (!existsSync(at)) symlinkSync(distDir(layer, base), at, 'dir');
+  if (!existsSync(at)) linkDir(distDir(layer, base), at);
   return join(at, CLI);
 }
 
 export function runCli(layer: string, dir: string, base = root) {
-  const run = spawnSync('node', [installed(layer, dir, base), '--src', 'src', '--out', 'out'],
+  const node = hostBinary('node', 'to run the CLI a consumer installs, the way a consumer runs it');
+  const run = spawnSync(node, [installed(layer, dir, base), '--src', 'src', '--out', 'out'],
     { cwd: dir, encoding: 'utf8' });
   const read = (name: string) => {
     const at = join(dir, 'out', name);
