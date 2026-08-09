@@ -1,7 +1,7 @@
 import {
-  ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, forwardRef, inject, input,
+  ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, input,
 } from '@angular/core';
-import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 
 let nextId = 0;
@@ -10,10 +10,7 @@ let nextId = 0;
   selector: 'arena-side-nav-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    ArenaSideNavState,
-    { provide: ArenaSideNavChild, useExisting: forwardRef(() => ArenaSideNavSection) },
-  ],
+  providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().section()',
     role: 'group',

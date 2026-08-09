@@ -1,18 +1,15 @@
 import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, DestroyRef, effect,
-  forwardRef, inject, input, output, signal, untracked,
+  inject, input, output, signal, untracked,
 } from '@angular/core';
-import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 
 @Component({
   selector: 'arena-side-nav-collapsible',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    ArenaSideNavState,
-    { provide: ArenaSideNavChild, useExisting: forwardRef(() => ArenaSideNavCollapsible) },
-  ],
+  providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().section()',
     '[attr.id]': 'null',

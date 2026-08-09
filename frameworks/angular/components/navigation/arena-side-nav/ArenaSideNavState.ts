@@ -1,7 +1,5 @@
 import { computed, Injectable, Signal, signal } from '@angular/core';
 
-export abstract class ArenaSideNavChild {}
-
 @Injectable()
 export class ArenaSideNavState {
   depth: Signal<number> = signal(0);

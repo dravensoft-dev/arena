@@ -1,8 +1,8 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, forwardRef, inject, input,
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input,
 } from '@angular/core';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
-import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 
@@ -10,7 +10,6 @@ import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
   selector: 'arena-side-nav-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: ArenaSideNavChild, useExisting: forwardRef(() => ArenaSideNavItem) }],
   host: {
     style: 'display: contents',
     '[attr.id]': 'null',
