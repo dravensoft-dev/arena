@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import type { ArenaTableColumn } from '../../../Api.generated';
 import { ArenaTableState } from '../arena-table/ArenaTableState';
@@ -17,11 +18,17 @@ const PLAIN: ArenaTableColumn = { header: '' };
     '[style.width]': 'width()',
     '(focus)': 'onFocus()',
   },
+  imports: [NgTemplateOutlet],
   template: `
-    @if (labelled()) {
-      <span [class]="styles().cardLabel()">{{ column().header }}</span>
+    <ng-template #value><ng-content /></ng-template>
+    @if (narrow()) {
+      @if (labelled()) {
+        <span [class]="styles().cardLabel()">{{ column().header }}</span>
+      }
+      <span [class]="valueClass()"><ng-container *ngTemplateOutlet="value" /></span>
+    } @else {
+      <ng-container *ngTemplateOutlet="value" />
     }
-    <span [class]="valueClass()"><ng-content /></span>
   `,
 })
 export class ArenaTableCell {

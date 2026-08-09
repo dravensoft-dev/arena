@@ -138,6 +138,7 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   return [
     { to: join('css', 'base.css'), content: `${SHEET_BANNERS.base}\n${base}` },
     { to: join('css', 'numerals.css'), content: readFileSync(join(dir, 'Numerals.css'), 'utf8') },
+    { to: join('css', 'rhythm.css'), content: readFileSync(join(dir, 'Rhythm.css'), 'utf8') },
     { to: join('css', 'prelude.css'), content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     { to: join('css', 'components.css'), content: `${SHEET_BANNERS.components}\n${barrel}\n` },

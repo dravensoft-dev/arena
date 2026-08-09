@@ -3,7 +3,7 @@
  * bundler, and it holds what only this layer can get wrong: the three lines without which a
  * page mounts nothing and says nothing. There is no coverage list any more, because every
  * component has a page: the inventory is the component tree, so a page cannot go missing
- * and a list cannot go stale. Whether a page RENDERS is check:playgrounds', with a browser. */
+ * and a list cannot go stale. Whether a page RENDERS is held by nothing; see DOUBTS.md. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -66,8 +66,7 @@ export function pageProblems(tree: Record<string, string[]>, read: (path: string
       if (/@dsCard/.test(pageSource)) {
         problems.push(
           `${page}: declares @dsCard. An Angular page's script is git-ignored build output, so on `
-          + 'a fresh clone it renders blank — and check:cards would pass it for having nothing to '
-          + 'overflow, which is a green gate over nothing.',
+          + 'a fresh clone it renders blank, and a box declared around nothing measures nothing.',
         );
       }
 

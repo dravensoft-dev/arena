@@ -9,13 +9,13 @@
         "root": "gap-0"
       },
       "sm": {
-        "root": "gap-3"
+        "root": "gap-group"
       },
       "md": {
-        "root": "gap-4"
+        "root": "gap-component"
       },
       "lg": {
-        "root": "gap-6"
+        "root": "gap-section"
       }
     },
     "centred": {

@@ -143,7 +143,10 @@ export class ArenaCalendar {
   });
 
   private readonly placed = computed(() => arenaPlaceEvents(
-    this.chips().map((chip) => ({ id: chip.id(), start: chip.start(), end: chip.end(), chip })),
+    this.chips().flatMap((chip) => {
+      const times = this.state.timesOf(chip);
+      return times === null ? [] : [{ ...times, chip }];
+    }),
     this.zone(),
   ));
 

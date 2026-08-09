@@ -19,7 +19,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
         eyebrow="Delivery console"
         title="Welcome back"
         footer="Forgot your password?">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--sp-1) * 4)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--rhythm-component)' }}>
           <ArenaInput label="Email" value={email} onChange={setEmail} />
           <ArenaInput label="Password" type="password" value={password} onChange={setPassword} />
           <ArenaButton variant="primary" full onClick={onLogin}>Sign in</ArenaButton>

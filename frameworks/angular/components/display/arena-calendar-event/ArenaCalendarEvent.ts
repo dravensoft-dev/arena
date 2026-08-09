@@ -4,9 +4,12 @@ import {
 } from '@angular/core';
 import type { ArenaCatSlot } from '../../../Api.generated';
 import { arenaCatColor } from '../../../DataVisuals';
+import { arenaPublished } from '../../../ProjectedInputs';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton';
 import { ArenaCalendarState } from '../arena-calendar/ArenaCalendarState';
-import { arenaFormatDate, arenaFormatHM, arenaShowsTime, arenaStacksActions } from '../arena-calendar/CalendarInternals';
+import {
+  type EventTimes, arenaFormatDate, arenaFormatHM, arenaShowsTime, arenaStacksActions,
+} from '../arena-calendar/CalendarInternals';
 import { arenaCalendarEventStyles } from './ArenaCalendarEvent.variants';
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -97,6 +100,10 @@ export class ArenaCalendarEvent {
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. */
   readonly click = output<void>();
+
+  private readonly times = arenaPublished<EventTimes>(
+    () => ({ id: this.id(), start: this.start(), end: this.end() }),
+  );
 
   protected readonly domId = `arena-calendar-event-${seq++}`;
 
@@ -192,6 +199,7 @@ export class ArenaCalendarEvent {
     this.state.register(this, {
       domId: this.domId,
       focus: () => this.focusable()?.nativeElement.focus(),
+      times: this.times,
     });
     this.destroyRef.onDestroy(() => this.state.release(this));
 

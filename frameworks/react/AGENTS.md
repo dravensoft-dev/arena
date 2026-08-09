@@ -224,10 +224,9 @@ reproduces the same view in both. `bun run generate:playgrounds` writes them and
 `check:playgrounds` holds them to a fresh run, to the fixture that seeds them, and to the other
 layer's model.
 
-**They declare no `@dsCard`**, because a playground's height moves with every knob, so nothing
-measures them against a fixed box. What that costs is real and is bought back elsewhere:
-`check:playgrounds` loads all of them in a real browser and fails one that mounts nothing,
-draws no panel or says anything on the console.
+**They declare no `@dsCard`**, because a playground's height moves with every knob, so there
+is no fixed box to declare. Nothing loads one either; [`../../DOUBTS.md`](../../DOUBTS.md)
+carries what that leaves open.
 
 **Every `.prompt.md` carries examples and, where it adds value, a Do / Don't section.**
 

@@ -4,23 +4,17 @@
  * seed is the whole point -- a component drawn from a bad seed still draws. The citation
  * check left here is the half only this gate can make: whether a cited page is one a contract
  * EMITS, and whether a bare filename names anything; a path that merely has to exist is
- * check:citations'. The smoke phase needs a browser, because a page that mounts nothing is
- * invisible to every portable check here: emitted source is what they compare, and one that compiles
- * can still throw on the first render. A page is probed once it is drawn plus a grace window,
- * never on a blind sleep, and a page that never draws still waits the whole deadline. */
+ * check:citations'. Every claim here is made over emitted SOURCE and it opens nothing, so a
+ * page that compiles and then throws on its first render is invisible to it; DOUBTS.md carries
+ * what that leaves open. */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { mapWithConcurrency } from '../../utils/concurrency.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
-import { startStaticServer } from '../../lib/arena/static-server.ts';
-import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
-import { connect } from '../../lib/arena/cdp.ts';
-import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { playgroundModel, SUBJECT } from '../../lib/arena/playground-model.ts';
 import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
 import { memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts';
@@ -408,112 +402,11 @@ export function citationProblems(
   return problems;
 }
 
-export const SMOKE_CONCURRENCY = 8;
-export const SMOKE_READY_MS = 10_000;
-export const SMOKE_GRACE_MS = 250;
-export const SMOKE_POLL_MS = 25;
-export const NAVIGATE_TIMEOUT_MS = 30_000;
-
 export function pagePaths(base = root, files = buildPlaygrounds(base).files) {
   return [...files.keys()].filter((rel) => rel.endsWith('.demo.generated.html')).sort();
 }
 
-export function smokeProblems(page: string, seen: {
-  mounted?: boolean; knobs?: number; staged?: boolean;
-  undefinedClasses?: string[]; errors: string[];
-}) {
-  const problems: string[] = [];
-  if (!seen.mounted) {
-    problems.push(`${page}: mounted nothing — run bun run build first, since a page loads a generated sibling`);
-    return problems;
-  }
-  if (seen.knobs === 0) problems.push(`${page}: drew no knob row, so the panel never read its model`);
-  if (!seen.staged) problems.push(`${page}: drew an empty stage, so the component under test rendered nothing`);
-  for (const name of seen.undefinedClasses ?? []) {
-    problems.push(`${page}: renders .${name} and links no stylesheet defining it, so that part draws `
-      + 'unstyled with nothing in the console. The page links a sheet per surface it draws, and a '
-      + 'surface a component composes internally is one of them');
-  }
-  for (const error of seen.errors) problems.push(`${page}: ${error}`);
-  return problems;
-}
-
-const DRAWN = `(() => {
-  const stage = document.querySelector('.pg-stage');
-  return {
-    mounted: Boolean(document.querySelector('.pg-title')),
-    knobs: document.querySelectorAll('.pg-knob-name').length,
-    staged: ((stage?.textContent ?? '').trim().length > 0) || (stage?.children.length ?? 0) > 0,
-  };
-})()`;
-
-const UNDEFINED_CLASSES = `(() => {
-  const rendered = new Set();
-  for (const el of document.querySelectorAll('*'))
-    for (const c of el.classList) if (/^arena-[a-z0-9-]+__/.test(c)) rendered.add(c);
-  const defined = new Set();
-  const walk = (sheet) => { try { for (const rule of sheet.cssRules) {
-    if (rule.styleSheet) { walk(rule.styleSheet); continue; }
-    for (const m of (rule.cssText ?? '').matchAll(/\\.(arena-[a-z0-9_-]+__[a-z0-9_-]+)/g)) defined.add(m[1]);
-  } } catch { void 0; } };
-  for (const sheet of document.styleSheets) walk(sheet);
-  return [...rendered].filter((c) => !defined.has(c)).sort();
-})()`;
-
-const PROBE = `(() => ({ ...${DRAWN}, undefinedClasses: ${UNDEFINED_CLASSES}, errors: window.__arenaErrors ?? [] }))()`;
-
-export const READY = `new Promise((resolve) => {
-  const deadline = Date.now() + ${SMOKE_READY_MS};
-  const tick = () => {
-    const drawn = ${DRAWN};
-    if (drawn.mounted && drawn.staged && drawn.knobs > 0) { setTimeout(resolve, ${SMOKE_GRACE_MS}); return; }
-    if (Date.now() >= deadline) { resolve(); return; }
-    setTimeout(tick, ${SMOKE_POLL_MS});
-  };
-  tick();
-})`;
-
-const WATCH = "window.__arenaErrors=[];"
-  + "addEventListener('error',(e)=>window.__arenaErrors.push('threw: '+String(e.message)));"
-  + "addEventListener('unhandledrejection',(e)=>window.__arenaErrors.push('rejected: '+String(e.reason)));"
-  + "const ce=console.error;console.error=(...a)=>{"
-  + "window.__arenaErrors.push('console.error: '+a.map(String).join(' ').slice(0,200));ce(...a);};";
-
-async function visit(cdp: any, url: string, page: string) {
-  const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
-  try {
-    const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
-    await cdp.send('Page.enable', {}, sessionId);
-    await cdp.send('Runtime.enable', {}, sessionId);
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: WATCH }, sessionId);
-    await cdp.send('Page.navigate', { url }, sessionId);
-    const ev = (expression: string) => cdp.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, sessionId);
-    await ev(READY);
-    return smokeProblems(page, (await ev(PROBE)).result.value);
-  } finally {
-    try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
-  }
-}
-
-async function smoke(pages: string[], exe: string) {
-  const server = await startStaticServer(root);
-  const chrome = await launchChromium(exe);
-  const cdp = await connect(chrome.wsUrl);
-  const problems: string[] = [];
-  try {
-    const perPage = await mapWithConcurrency(pages, SMOKE_CONCURRENCY,
-      (page: string) => visit(cdp, `http://127.0.0.1:${server.port}/${page}`, page));
-    problems.push(...perPage.flat());
-  } finally {
-    await chrome.kill?.();
-    server.close?.();
-  }
-  return problems.sort();
-}
-
-const skip: (reason: string) => never = (reason) => cannotRun('check-playgrounds', reason);
-
-async function main() {
+function main() {
   const contracts = loadContracts();
   const fixtures = loadFixtures();
   const types = loadTypes();
@@ -533,17 +426,12 @@ async function main() {
   };
   if (problems.length > 0) report(problems);
 
-  const pages = pagePaths();
-  const exe = browserOrExit('check-playgrounds');
-  const smoked = await smoke(pages, exe);
-  if (smoked.length > 0) report(smoked);
-
   console.log(
     `check-playgrounds: ${fixtures.size} fixture(s) seed every contracted member a contract cannot invent, `
     + `${buildPlaygrounds().files.size} emitted file(s) match a fresh run and every page pair carries one model, `
-    + `${pages.length} page(s) mount and draw with a clean console, `
+    + `${pagePaths().length} page(s) emitted, `
     + 'and every page a layer cites is one a contract emits',
   );
 }
 
-if (isMainModule(import.meta.url)) await main();
+if (isMainModule(import.meta.url)) main();

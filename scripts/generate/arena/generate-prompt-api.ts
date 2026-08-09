@@ -28,7 +28,6 @@ export const node = {
     'check:appearance',
     'check:arbitrary',
     'check:behaviour',
-    'check:cards',
     'check:compliance',
     'check:dimensions',
     'check:duplicate-constants',

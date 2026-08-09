@@ -121,12 +121,6 @@ node named `check:` that declares `writes` fails.** The rest follows. Only an ar
 edge, so a graph in which no gate writes is one in which no gate is downstream of another, and a
 sweep reporting every problem in one pass is a property of the shape instead of a rule to remember.
 
-`check:style-parity` was the one gate that wrote. It emitted the page it then drove a browser over,
-and five gates that sweep `frameworks/` read that page incidentally: a failure there would have
-stopped `check:dimensions` from reporting a dimension literal, which has nothing to do with it. The
-emit is now `build:style-parity-page` and the gate measures what that step wrote. Splitting it
-removed the case rather than encoding an exception for it.
-
 ## The fingerprint recorded is measured after the step, never the one that decided it
 
 `generate:member-docs` writes each contracted member's description into the component that

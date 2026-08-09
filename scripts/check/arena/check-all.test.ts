@@ -17,10 +17,10 @@ const CI_JOBS = {
 };
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 52);
+  assert.equal(GATES.length, 50);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:style-parity', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:cards', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -79,8 +79,8 @@ test('a domain that does not exist is refused rather than answered with an empty
 test('the arena domain is where the cross-layer gates are, which is why the core job carries it', () => {
   const arena = gatesFor(['arena']).map((g) => g.name);
   for (const name of ['check:api', 'check:behaviour', 'check:compliance', 'check:structure',
-    'check:dimensions', 'check:layer-independence', 'check:cards', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages',
-    'check:playgrounds']) {
+    'check:dimensions', 'check:layer-independence', 'check:focus-trap', 'check:shared-arithmetic',
+    'check:packages', 'check:playgrounds']) {
     assert.ok(arena.includes(name), `${name} is not in the arena domain`);
   }
 });
@@ -185,8 +185,8 @@ test('summarize reports which steps failed', () => {
 });
 
 test('a skipped step is never a green run — the summary says INCOMPLETE', () => {
-  const out = summarize([{ name: 'a', status: 'pass' }, { name: 'check:cards', status: 'skip' }]);
-  assert.match(out, /SKIP {2}check:cards/);
+  const out = summarize([{ name: 'a', status: 'pass' }, { name: 'check:focus-trap', status: 'skip' }]);
+  assert.match(out, /SKIP {2}check:focus-trap/);
   assert.match(out, /INCOMPLETE/);
   assert.doesNotMatch(out, /all 2 step\(s\) passed/);
 });

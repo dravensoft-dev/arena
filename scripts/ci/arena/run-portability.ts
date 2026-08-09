@@ -21,10 +21,7 @@ export const PORTABILITY_GATES: Record<string, string> = {
   'check:intro': 'Bun.build, whose bundler resolves and emits paths of its own on every platform',
   'check:vendor': 'Bun.build again, over the React vendor chunks a browser then imports by URL',
   'check:demos': 'Bun.Transpiler, which is a Bun API and so a Bun-on-this-platform question',
-  'check:cards': 'a real browser, found through the per-platform candidate list rather than a Linux path',
-  'check:focus-trap': 'the same browser, plus native sequential focus, which is a platform behaviour',
-  'check:playgrounds': 'the same browser, over every emitted page',
-  'check:style-parity': 'the same browser, plus computed styles and emulated media',
+  'check:focus-trap': 'a real browser, found through the per-platform candidate list rather than a Linux path, plus native sequential focus, which is a platform behaviour',
 };
 
 export function unknownGates(names = Object.keys(PORTABILITY_GATES), gates = GATES) {

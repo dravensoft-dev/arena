@@ -40,7 +40,6 @@ export const node = {
     'build:react-package',
     'check:appearance',
     'check:behaviour',
-    'check:cards',
     'check:compliance',
     'check:demos',
     'check:dimensions',

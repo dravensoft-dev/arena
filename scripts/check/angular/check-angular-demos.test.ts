@@ -60,7 +60,7 @@ test("a page pointing at another component's bundle fails", () => {
   assert.ok(problems.some((p) => p.includes("is not this component's bundled entry")));
 });
 
-test('an Angular page declaring @dsCard fails, because a blank page would pass check:cards', () => {
+test('an Angular page declaring @dsCard fails, because its script is build output', () => {
   const files = { ...GOOD };
   files[`${DIR}/ArenaButton${PAGE_SUFFIX}`] =
     '<!-- @dsCard group="Angular" viewport="700x400" name="ArenaButton" subtitle="x" -->\n' + PAGE;

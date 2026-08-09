@@ -62,41 +62,34 @@ token source, which stays platform-neutral.
 
 ## A specimen page declares the box it is cropped to
 
-A specimen starts with an HTML comment, and it must stay the first line, because it is the only
-line `check:cards` reads:
+A specimen starts with an HTML comment, and it must stay the first line:
 
 ```html
 <!-- @dsCard group="…" viewport="WxH" name="…" subtitle="…" -->
 ```
 
-**That viewport is machine-checked.** The gate loads each declaring page at its declared width
-in headless Chromium and fails when the content over-runs the box in either axis, because the
-card is cropped to it and the overflow is lost silently. **Declaring it by arithmetic does not
-work**, so measure by running the gate. Declaring far *more* height than it renders only warns.
+**Nothing measures that viewport.** The card is cropped to it and the overflow is lost
+silently, so a declaration that is too small loses content with nothing to say so, and
+**declaring it by arithmetic does not work**: open the page. [`../DOUBTS.md`](../DOUBTS.md)
+carries what that leaves open.
 
 **A page nobody crops declares none.** The Console is an app with its own scroll area, and a
-playground's height moves with every knob, so there is no fixed box to measure either against.
-What that costs is bought back by `check:playgrounds`, which loads all of them in a real browser
-and fails one that mounts nothing, draws no panel, says anything on the console, or renders an
-`arena-*__*` class no stylesheet it links defines.
+playground's height moves with every knob, so there is no fixed box to declare for either.
 
 ## What holds what, and what nothing holds
 
 | Claim | Held by |
 |---|---|
-| a declaring page fits the viewport it declares | `check:cards`, in real Chromium |
+| **that a declaring page fits the viewport it declares** | **nothing. Open it** |
 | the browsable pages' own runtime modules parse and export what they claim | `browser-modules.test.ts`, under `scripts/check/arena/` |
 | every page bundle matches the source it was built from, and every module entry is a bundle | `check:intro` |
 | `support.js` stays tracked and unedited | `check:generated`, by literal name |
 | **that a specimen's stylesheet path resolves** | **nothing. An unstyled page that happens to fit its box passes outright** |
 | **that a page reads well, or that a colour carries its meaning** | **nothing. Open it** |
 
-**Be exact about what `check:cards` catches**, because it is less than it looks. The only status
-it *fails* on is content over-running the declared box. A broken **script** path leaves the root
-empty, which is reported as unrendered and routed to a skip, which this repository's strict
-setting turns into a failure but a laxer environment turns back into an INCOMPLETE run. A broken
-**stylesheet** path is not caught at all: the page still renders. What stands behind a correct
-specimen is a person running `bun run demos` and opening it.
+**A broken path fails silently in both directions.** A broken script path leaves the root
+empty and a broken stylesheet path still renders, so what stands behind a correct specimen is a
+person running `bun run demos` and opening it.
 
 ## No `.html`, `.css` or `.js` sits loose at the repository root
 

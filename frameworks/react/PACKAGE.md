@@ -67,6 +67,23 @@ that class is a rule about this component and nothing else. Every sheet is named
 which is why `css/components/arena-button.css` is the file and `arena-button` is what you write
 in a `stylesheet` list.
 
+## Your layout goes on a container you own
+
+**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.**
+Arena draws no outer margin on anything, so the air between two components is always yours to
+place, and no component takes a `className` or a `style` of yours: there is no route into an
+Arena element's own box, by design.
+
+React renders the real element in almost every case, so a `.row > * { ... }` rule of yours does
+reach it. `ArenaTabs` is the exception that makes the rule worth stating: it returns a fragment
+and puts no element of its own in the DOM at all, so a rule written against it matches the
+tablist and the panels separately, or nothing. Wrap it, the way you would wrap anything else
+whose layout is yours.
+
+**Write the rule the same way wherever you write it.** A component's own element is Arena's, and
+what it renders is free to change: today it is the real element, and a component that wraps or
+that renders none owes you no warning, because that element was never something to lay out.
+
 ## Declare your skin
 
 Write `arena.config.json` in your project root. This is the whole file, with one palette and
@@ -286,6 +303,7 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/numerals.css` | `.arena-num`, the mono face and `tabular-nums` and no colour. Put it on a figure you draw yourself and a column of them aligns by digit the way a table's does |
+| `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. Put one on a container of your own, which is where your layout goes anyway |
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to
 come before your own rules if you want yours to win.

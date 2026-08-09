@@ -19,7 +19,7 @@ export class ArenaGrid {
     'calc(var(--sp-1) * 50)',
     { transform: (value) => value ?? 'calc(var(--sp-1) * 50)' },
   );
-  /** The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. */
+  /** The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. The three steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections; a grid is that rhythm plus a grid, and nothing here is a number this component chose. */
   readonly gap = input<ArenaGridGap, ArenaGridGap | undefined>('md', { transform: (value) => value ?? 'md' });
   /** A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for. */
   readonly maxWidth = input<string>();

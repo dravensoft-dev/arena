@@ -45,7 +45,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-fast) var(--ease-out)' } as c
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    style: 'display:block;position:relative',
+    style: 'display:block;position:relative;width:100%',
     '[style.height.px]': 'height()',
   },
   template: `

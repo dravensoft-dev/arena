@@ -1,7 +1,9 @@
+import type { ArenaToastTone } from './Api.generated';
+
 export interface ArenaToastNotice {
   title?: string;
   message?: string;
-  tone?: string;
+  tone?: ArenaToastTone;
   actionLabel?: string;
   persist?: boolean;
   dismissible?: boolean;

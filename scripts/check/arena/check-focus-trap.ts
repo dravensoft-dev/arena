@@ -1,8 +1,8 @@
 /* The boundary wrap of a trap is Arena's own .focus() call and happy-dom honours it. The
  * INTERIOR is native sequential focus navigation, which happy-dom does not have: a suite
  * asserting it there passes identically against a perfect trap and against none, which is
- * why the record said a person had to check it. check:cards already drives real Chromium
- * over CDP, and the same connection presses a real Tab. TRAPS names a page per layer that
+ * why the record said a person had to check it. This gate drives real Chromium over CDP and
+ * presses a real Tab, and it is the only one that does. TRAPS names a page per layer that
  * binds dialog-modal, since the contract is the authority and each layer answers it
  * separately. Each page opens its panel from its own fixture, so no button is found by its
  * text: a page whose copy moved used to be walked with nothing open. FOCUSABLE repeats

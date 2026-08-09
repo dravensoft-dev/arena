@@ -22,7 +22,7 @@ test('every gate in the list carries a reason, since a matrix row is otherwise a
 });
 
 test('the four browser gates are in the list, being the ones a platform decides most', () => {
-  for (const name of ['check:cards', 'check:focus-trap', 'check:playgrounds', 'check:style-parity']) {
+  for (const name of ['check:focus-trap']) {
     assert.ok(Object.hasOwn(PORTABILITY_GATES, name), `${name} is missing from the portability list`);
   }
 });

@@ -56,7 +56,7 @@ that set: `core` takes the `core` and `arena` domains, and the other three take 
 
 **`core` runs on every change, and that is not caution.** The `arena` domain is where the
 cross-layer gates are: `check:api`, `check:behaviour`, `check:compliance`, `check:structure`,
-`check:dimensions`, `check:layer-independence`, `check:cards`, `check:focus-trap`. Each of
+`check:dimensions`, `check:layer-independence`, `check:focus-trap`. Each of
 them reads more than one layer, so none of them is a React question or an Angular question.
 And `scripts/lib/arena/behaviour-contracts.test.ts` asserts the React component count by
 literal value: a change confined to `frameworks/react/` breaks a suite under `scripts/`.

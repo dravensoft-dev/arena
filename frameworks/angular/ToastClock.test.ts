@@ -24,6 +24,6 @@ test('a danger notice never runs on a clock, and it ignores a persist of false',
 });
 
 test('any other tone must say so, and then it is held too', () => {
-  assert.equal(arenaToastDelay({ tone: 'warning' }, DISMISS), DISMISS.default);
-  assert.equal(arenaToastDelay({ tone: 'warning', persist: true }, DISMISS), null);
+  assert.equal(arenaToastDelay({ tone: 'gold' }, DISMISS), DISMISS.default);
+  assert.equal(arenaToastDelay({ tone: 'gold', persist: true }, DISMISS), null);
 });

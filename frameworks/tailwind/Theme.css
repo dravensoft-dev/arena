@@ -29,6 +29,7 @@
 @import 'tailwindcss';
 @import './Animations.css';
 @import './Numerals.css';
+@import './Rhythm.css';
 @import './Breakpoints.generated.css';
 
 @theme {
@@ -169,6 +170,17 @@
   --spacing-16: var(--sp-16);
   --spacing-20: var(--sp-20);
   --spacing-24: var(--sp-24);
+
+  /* page rhythm → contracts/design-generated/spacing.generated.css. The steps above
+     are the grid; these are the three of them that carry a role, so a manifest
+     or a page says WHY a gap is that wide instead of only how wide. They sit
+     beside the density keys and share none of their behaviour: a rhythm step
+     does not re-densify, because .arena-compact tightens controls and not the
+     page they sit on. Named `component` rather than `block`, since p-block and
+     m-block would read as the block axis of a logical property. */
+  --spacing-group: var(--rhythm-group);
+  --spacing-component: var(--rhythm-component);
+  --spacing-section: var(--rhythm-section);
 
   /* density → contracts/design-generated/spacing.generated.css, so .arena-compact re-densifies utilities
      the same way it re-densifies components. The key is the token's suffix

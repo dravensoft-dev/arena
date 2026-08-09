@@ -44,7 +44,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readon
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    style: 'display:block;position:relative',
+    style: 'display:block;position:relative;width:100%',
     '[style.height.px]': 'height()',
   },
   template: `

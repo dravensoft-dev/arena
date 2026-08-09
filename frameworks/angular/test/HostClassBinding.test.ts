@@ -848,32 +848,43 @@ test('every Angular primitive host-binds a slot that carries a display utility, 
 });
 
 const HOST_BOUND_ROOT = /'\[class\]':/;
-const HOST_STATIC_DISPLAY = /host:\s*\{[^}]*\bstyle:\s*'[^']*display\s*:/s;
+const HOST_STATIC_DISPLAY = /\bstyle:\s*'[^']*display\s*:/;
 
 test('a primitive that does not host-bind its root takes its host out of layout with display: contents', () => {
-  const componentsDir = ANGULAR_COMPONENTS;
-  const sources: Array<{ name: string; path: string; source: string }> = [];
-
-  for (const category of readdirSync(componentsDir, { withFileTypes: true })) {
-    if (!category.isDirectory()) continue;
-    for (const dir of readdirSync(join(componentsDir, category.name), { withFileTypes: true })) {
-      if (!dir.isDirectory()) continue;
-      const name = kebabToPascal(dir.name);
-      const path = join(componentsDir, category.name, dir.name, `${name}.ts`);
-      sources.push({ name, path, source: readFileSync(path, 'utf8') });
-    }
-  }
+  const sources = primitiveSources();
   assert.ok(sources.length > 0, 'no primitive sources found -- the guard would silently check nothing');
 
   for (const { name, path, source } of sources) {
-    if (HOST_BOUND_ROOT.test(source)) continue;
+    const hostBlock = hostBlockOf(source);
+    if (HOST_BOUND_ROOT.test(hostBlock)) continue;
     assert.match(
-      source,
+      hostBlock,
       HOST_STATIC_DISPLAY,
       `${path}: ${name} leaves its host bare and declares no display on it. An <arena-x> with no `
       + 'display is an inline box, and as a flex item it blockifies to shrink-to-fit -- so a '
       + "w-full on the real element inside resolves against the shrunk host and does nothing. "
       + 'Either host-bind the root slot, or take the host out of layout with display: contents.',
+    );
+  }
+});
+
+const HOST_FILLS_INLINE_AXIS = /\bstyle:\s*'[^']*\bwidth\s*:\s*100%/;
+
+test('a chart host fills the inline axis, so a chart in a row is not shrink-to-fit', () => {
+  const charts = primitiveSources().filter(({ path, source }) => (
+    path.startsWith(join(ANGULAR_COMPONENTS, 'charts')) && !HOST_BOUND_ROOT.test(hostBlockOf(source))
+  ));
+  assert.ok(charts.length > 0, 'no bare-host chart sources found -- the guard would silently check nothing');
+
+  for (const { name, path, source } of charts) {
+    assert.match(
+      hostBlockOf(source),
+      HOST_FILLS_INLINE_AXIS,
+      `${path}: ${name} declares no width on its host. A chart measures its own box and draws an `
+      + 'SVG against it, and display:block alone fills the inline axis only in normal flow: as a '
+      + 'flex item the host blockifies to shrink-to-fit, so the same chart draws narrower inside '
+      + 'a row than inside a column. Six of these carried no width while the seventh did, which '
+      + 'is what a per-component decision looks like when nobody meant to make one.',
     );
   }
 });

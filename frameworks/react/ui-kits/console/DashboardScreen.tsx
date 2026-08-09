@@ -40,10 +40,10 @@ export function DashboardScreen({ onNav, onOpenProject }: DashboardScreenProps) 
   return (
     <Shell active="dashboard" onNav={onNav} title="Projects"
       actions={<ArenaButton variant="primary" size="sm" icon="ph-bold ph-plus">New project</ArenaButton>}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 'calc(var(--sp-1) * 4)', marginBottom: 'calc(var(--sp-1) * 7)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 'var(--rhythm-component)', marginBottom: 'var(--rhythm-section)' }}>
         {METRICS.map((m) => <ArenaStatCard key={m.k} label={m.k} value={m.v} tone={m.tone} />)}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'calc(var(--sp-1) * 4)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'var(--rhythm-component)' }}>
         {PROJECTS.map((p) => (
           <div key={p.name} onClick={() => onOpenProject && onOpenProject(p)} style={{ cursor: 'pointer', display: 'grid' }}>
             <ArenaCard accent={p.status[0] === 'danger'}

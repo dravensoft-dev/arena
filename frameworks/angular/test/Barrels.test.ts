@@ -35,6 +35,12 @@ const ROOT_PRIVATE = new Map([
    + 'exported because a consumer needs those types to type their own data; nobody types data '
    + 'with `calendarHourH`. Exporting it would also publish the one thing the token layer warns '
    + 'about -- a value bound at import time, which cannot re-theme and cannot re-densify.'],
+  ['ProjectedInputs.ts',
+   'the wiring between a component and its own projected child, and a rule about the order '
+   + 'Angular refreshes embedded views in. An adopter renders `arena-calendar` and puts events '
+   + 'inside it; they never stand between the two. Exporting it would publish an answer to a '
+   + 'question only a component in this layer is in a position to ask, and it is typechecked '
+   + 'through the projected child that imports it.'],
   ['ArenaStyles.generated.ts',
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
    + 'imports across one. It replaced the two runtime dependencies, and a consumer has no more '

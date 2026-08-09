@@ -32,6 +32,13 @@
     "20": { "$value": { "value": 80, "unit": "px" } },
     "24": { "$value": { "value": 96, "unit": "px" } }
   },
+  "rhythm": {
+    "$type": "dimension",
+    "$description": "Page rhythm: the air BETWEEN two components, which Arena itself never\ndraws. Every component is an inner box carrying no outer margin, so the space between one\nand the next belongs to whoever places them, and a system that ships the grid without\nnaming any step on it leaves every adopter to pick their own. These are aliases of sp\nrather than fresh numbers, so a rhythm step cannot drift off the 4px grid, and the three\nof them are the steps ArenaGrid's gap variant had already chosen before they had names.\n\nDeliberately not part of dz, on the same cut that separates fs from dz: dz is how dense the\nCONTROLS are and re-densifies under .arena-compact, while this is how a PAGE breathes and\ndoes not. That is why rhythm-group and dz-stack are both 12px, the way fs-sm and dz-text-md\nare both 13px: same length, different question.",
+    "group": { "$value": "{sp.3}", "$description": "Inside one group of related things: a label and its field, a card's own stacked children, a row of chips. Both sides read as one unit." },
+    "component": { "$value": "{sp.4}", "$description": "Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing." },
+    "section": { "$value": "{sp.6}", "$description": "Between two sections of a page. The two sides answer different questions, and this gap is what says so." }
+  },
   "container-max": { "$type": "dimension", "$value": { "value": 1240, "unit": "px" }, "$description": "Container / layout" },
   "gutter": { "$type": "dimension", "$value": { "value": 88, "unit": "px" } },
   "layout": {

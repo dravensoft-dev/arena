@@ -117,7 +117,12 @@ detect whether an optional slot was projected, so its spacing wrapper can be gat
 bare with no `arena-` prefix, because the attribute is the contract member's
 name, per `contracts/api/AGENTS.md`'s binding table) all have consumers in more than one category,
 so they sit at the layer root and `frameworks/angular/index.ts` names each of them
-directly. `DataVisuals.ts` (the identity-or-meaning colour contract, the number writer and the
+directly. `ProjectedInputs.ts` sits there too and is the one root module `index.ts` does **not**
+name: `arenaPublished` is the single answer to the ordering law below, [A projected child's inputs
+are not readable while a sibling is
+rendering](#a-projected-childs-inputs-are-not-readable-while-a-sibling-is-rendering), and it is
+wiring between a component and its own projected child rather than anything an adopter stands
+between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisuals.ts` (the identity-or-meaning colour contract, the number writer and the
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
 its consumers are the three charts **and** `arena-calendar-event`, which reads `arenaCatColor` for a
 chip's identity colour. The name matches the placement: a module a schedule grid consumes is
@@ -279,9 +284,8 @@ templates AOT, and `Bun.build` bundles that output for a browser, one shared Ang
 across every page. An entry imports `@angular/compiler` because `@angular/*` ships partially
 compiled and its injectables need the JIT fallback; without it the page throws before mounting.
 
-The bundle is git-ignored build output, which is why **no Angular page declares `@dsCard`**: on
-a fresh clone the page renders blank, and `check:cards` would pass it for having nothing to
-overflow. `check:angular-demos` is the portable gate instead: it needs no browser and no
+The bundle is git-ignored build output, which is why **no Angular page declares `@dsCard`**:
+on a fresh clone the page renders blank. `check:angular-demos` is the portable gate instead: it needs no browser and no
 bundler, and it holds the three lines without which a page mounts nothing and says nothing. It
 carries **no coverage list**, because the inventory is the component tree: every component has
 a page, so a page cannot go missing and a list cannot go stale.
@@ -292,7 +296,7 @@ is right. What the pages catch is what a suite cannot. A carve-out host that blo
 leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a `full`
 variant renders as nothing at all, and happy-dom has no layout to see it.
 **A checklist line a real browser can decide belongs in a gate rather than in a checklist**,
-which is what `check:cards` and `check:focus-trap` between them took over. What is left for a
+which is what `check:focus-trap` took over for the one it covers. What is left for a
 person is what needs their **judgement**: whether a name is a good name, whether motion reads as
 intended, whether a colour carries the meaning it should. A green `bun run check` says nothing
 about whether anyone did that.
@@ -321,6 +325,49 @@ it, since `contentChild` reaches direct content only.
 
 **What stays uncovered is every consumer outside this repository.** A gate here cannot reach an
 adopter's app; it can only stop Arena's own pages from shipping the example.
+
+## A projected child's inputs are not readable while a sibling is rendering
+
+**A parent may not read a projected child's input from a computation that a CHILD's own render can
+pull.** `ɵɵrepeater` creates every embedded view of a `@for` before any of them updates, so the
+parent's `contentChildren` query is already full while only the first child's bindings have run.
+Reach for a sibling from there and a **required** input throws NG0950, which takes the whole
+change-detection pass with it: every `[class]` binding in the parent's template goes unapplied and
+the component renders as bare unstyled elements. An **optional** input is worse, because it reads as
+its default and nothing says so.
+
+`ArenaCalendar` did this: `placed` mapped `chips()` through `chip.id()`, and it shipped. The first
+consumer app that wrote its events the way a list is written got a toolbar, no grid, no chips and no
+styling, from one thrown error nothing in this repository was positioned to see.
+
+**The child publishes; the parent never pulls.** `arenaPublished` (`ProjectedInputs.ts`) is the one
+spelling: called in the child's own injection context, its effect runs during the CHILD's change
+detection, where that child's inputs are set. The parent reads a plain signal, gets `null` for a
+child that has not published yet, and skips it: a value it can survive rather than an exception it
+cannot. The write happens during the tick, so the views that read it are marked dirty and Angular
+runs them again: the cost is a second pass over the family, not one per child, and the DOM it
+settles on is the one a static fixture produces. `effect()` and not `afterRenderEffect()`, because
+afterRender hooks never run on the server. **The published signal travels the route the family
+already has**, so `ArenaCalendarEvent` keeps it private and hands it to `ArenaCalendarState`
+through the `register` call it was already making, and `ArenaCalendar` reads `state.timesOf(chip)`.
+A public member would have been a member of nothing: `check:api` holds every public member of a
+component equal to its contract, and this is plumbing rather than surface.
+
+**Not every content query is exposed to this, and the difference is which view does the reading.**
+`ArenaTabs` reads `tab.value()` from its own template and its own query, and its view is refreshed
+*after* the consumer's embedded views, by which time every tab is bound; `ArenaTable` and
+`ArenaTableRow` read only `.length`. What made the calendar different is that the CHIP's template
+pulled a chain, `across` to `placementOf` to `placements` to `days` to `placed`, that ends in the
+parent's query, so the read happened from inside an embedded view mid-refresh.
+
+**Which is exactly why the rule is machine-checked rather than reasoned about per component.**
+Every fixture and every generated playground in this repository declares projected children with
+**static attributes**, which Angular sets at element creation, so the values are there before
+anything renders and the failing shape never appears. `test/ProjectedUnderRepeat.test.ts` writes
+them the way a consumer does, property-bound inside a `@for`, once bound before the first render
+and once grown into a tree already built, and pins the result against the static spelling of the
+same tree. Its walk is bidirectional: a new component owning a `contentChildren` query cannot ship
+without a fixture there, and a name left behind once a query is gone fails as stale.
 
 ## The test harness
 

@@ -74,6 +74,45 @@ in a `stylesheet` list.
 
 **An optional value binds straight through.** Every input that carries a default resolves an absent value back to it, so a field of yours that may be unset needs no `?? '...'` at the call site: `[tone]="toast.tone"` is enough, and the default stays stated in one place, the component. It is the members' own defaults that the prompt tables carry.
 
+## Your layout goes on a container you own
+
+**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.**
+Arena draws no outer margin on anything, so the air between two components is always yours to
+place. Where you place it matters: `<arena-button>`, `<arena-card>` and `<arena-tabs>` are three
+of the components that take their host out of layout with `display: contents`, because their
+real root has to be a `<button>`, an `<a>` or a `<div role="tablist">`. That host carries no box,
+so a `margin`, a `flex`, a `min-width` or a `.row > * { ... }` rule aimed at one of them is
+discarded and nothing reports it. The rule parses and the selector matches; there is simply no
+box for the declaration to land on. Which components do this moves between releases, so write
+the rule above everywhere rather than checking it component by component.
+
+**Your own routed components need that same declaration, for the mirror-image reason.** Angular
+puts your component's element between `<router-outlet>` and your content, so a `gap` on the
+container around the outlet reaches that one element and stops there:
+
+```ts
+@Component({
+  selector: 'app-overview',
+  host: { style: 'display: contents' },   // without this, the parent's gap stops here
+  template: `<arena-page-head ... /><arena-grid ... />`,
+})
+export class Overview {}
+```
+
+With it, your sections are children of the container again and the gap reaches each of them.
+Carrying the layout class on the host instead works as well. Either beats finding out as a page
+whose spacing collapsed everywhere at once with nothing in the stylesheet to blame.
+
+**`<router-outlet>` is a flex item too, and it draws nothing.** The routed component is inserted
+as its sibling, so the outlet element is an empty box that still takes a slot in your stack and
+spends one whole gap of it, pushing every page down by one step. `router-outlet { display: none }`
+in your global stylesheet ends it.
+
+**When you wrap a component to size it, give the wrapper a display.** The wrapper is the flex or
+grid item now, so it is what stretches, and a component sitting inside it as a plain block will
+not grow with it: the width lands and the height does not. `display: grid` on a wrapper with one
+child passes the full cell to it.
+
 ## Declare your skin
 
 Write `arena.config.json` in your project root. This is the whole file, with one palette and
@@ -307,6 +346,7 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/numerals.css` | `.arena-num`, the mono face and `tabular-nums` and no colour. Put it on a figure you draw yourself and a column of them aligns by digit the way a table's does |
+| `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. Put one on a container of your own, which is where your layout goes anyway |
 | `css/arena-cdk.css` | the CDK overlay, re-based onto Arena's layering |
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to

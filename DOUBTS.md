@@ -88,3 +88,29 @@ change and covers whichever components that person thought to open.
 
 Re-derive the surface with `find frameworks -name '*.demo.generated.html'`, and serve it with
 `bun run demos`.
+
+**Nothing verifies that a component's emitted stylesheet paints what its manifest paints.** A
+manifest's class string and the per-component sheet compiled from it are two spellings of one
+appearance, and every check over them is a claim about text: which utility a manifest names,
+which declaration the sheet carries, which token a property resolves to.
+
+What it costs: a slot that computes a different value from its own recipe ships with every gate
+green, because the disagreement exists only once both are painted, and no suite paints either.
+The axis most likely to move unseen is the one a default `getComputedStyle` cannot reach anyway,
+a `motion-reduce:` variant, since it is hoisted to a sibling `@media` block rather than
+interleaved the way `@layer utilities` orders it.
+
+Re-derive the surface with `ls frameworks/tailwind/components/*/*/*.manifest.json`, and read a
+sheet against its manifest with `bun run check:component-css`.
+
+**Nothing verifies that a browsable page renders.** Every specimen, playground and demo page in
+the tree is emitted and then compared as source: against the fixture that seeds it, against a
+fresh run of its generator, against the sheets it links. None of them is opened.
+
+What it costs: a page that compiles and mounts nothing is invisible, and so is one that throws on
+its first render, says something on the console, or draws a class no stylesheet it links defines.
+A specimen declaring a `@dsCard` viewport is cropped to it, so content over-running that box is
+lost with nothing to say so, and the declaration cannot be derived by arithmetic.
+
+Re-derive the surface with `find frameworks intro -name '*.demo.generated.html' -o -name '*.card.html'`,
+and open it with `bun run demos`.

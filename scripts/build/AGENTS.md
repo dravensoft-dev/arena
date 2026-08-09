@@ -25,7 +25,7 @@ contributor found each by hitting it.
 | `bun` | `bun --version` | the runtime and the package manager. `package.json` pins the version and every workflow pins the same one. |
 | `git` | `git --version` | `check:generated`, `check:skills` and `check:citations` ask it what the tree tracks, which no other tool can answer. |
 | `node` | `node --version` | `check:consumer` runs the shipped CLI the way a consumer runs it, under node rather than bun. It is the one place the two are not interchangeable. |
-| a Chromium-family browser | `bun run check:cards` | the four gates that measure a real render drive Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
+| a Chromium-family browser | `bun run check:focus-trap` | the one gate that measures a real render drives Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
 | the network, once | `bun run generate:fonts` | only to rebuild the webfonts. Their outputs are tracked precisely because a clone cannot reproduce them, so a normal build never needs it. |
 
 **On macOS** that is the whole list, and nothing here is Linux-shaped any more.
@@ -77,10 +77,10 @@ clone has none of them:
 | `frameworks/react/**/*.generated.js`, one per component and demo entry source | every React demo page; `check:demos` |
 | `frameworks/tailwind/components/**/*.manifest.generated.ts`, one per `<Name>.manifest.json` | every Angular `<Component>.variants.ts`; `check:tailwind-generated` |
 | `frameworks/tailwind/Breakpoints.generated.css` | `Theme.css` imports it, so `build:tailwind` fails outright without it; `check:tokens` |
-| `frameworks/tailwind/Utilities.generated.css` | the oracle `check:style-parity` measures against; never published |
+| `frameworks/tailwind/Utilities.generated.css` | the sheet the package assembly cuts into per-component files; never published |
 | `frameworks/tailwind/consume/`: one `<Component>.styles.generated.css` per manifest, plus `Prelude`, `Preflight` and the `Components` barrel | every specimen and playground, the Console, and both packages |
 | `frameworks/angular/build/demo/` | the Angular demo pages; `check:angular-demos` |
-| `frameworks/**/*.demo.generated.html` and its entry, one per component per layer | the demo pages themselves; `check:playgrounds`, and `check:angular-demos` for the Angular half |
+| `frameworks/**/*.demo.generated.html` and its entry, one per component per layer | the demo pages themselves; `check:angular-demos` for the Angular half |
 
 So on a clone with no build, `bun run demos` serves unstyled or blank pages, neither framework
 layer compiles, because a component's import of `Api.generated` or `Tokens.generated` resolves
