@@ -127,12 +127,12 @@ test('a specifier a generator is writing into its output is not one this script 
 });
 
 test('serve.ts is in scope, and it is the reason this suite exists', () => {
-  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relative(repoRoot, p));
+  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relPosix(repoRoot, p));
   assert.ok(scripts.includes('scripts/serve.ts'));
 });
 
 test('a suite is out of scope, because its fixtures are imports inside strings', () => {
-  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relative(repoRoot, p));
+  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relPosix(repoRoot, p));
   assert.equal(scripts.some((p) => isSuite(p)), false);
   assert.deepEqual(unresolvedSpecifiers(join(repoRoot, 'scripts/check/arena/script-imports.test.ts')), [],
     'and this suite is its own witness: scanned directly it is clean, so exclusion is not hiding a break');
@@ -206,7 +206,7 @@ test('a script is in scope in either extension, and a suite is not', () => {
   try {
     for (const name of ['a.mjs', 'b.ts', 'a.test.mjs', 'b.test.ts', 'notes.md'])
       writeFileSync(join(dir, name), '// fixture\n');
-    assert.deepEqual(scriptsUnder(dir).map((p) => relative(dir, p)).sort(),
+    assert.deepEqual(scriptsUnder(dir).map((p) => relPosix(dir, p)).sort(),
       ['a.mjs', 'a.test.mjs', 'b.ts'],
       'the four modules that stay JavaScript are still scanned, and a .test.mjs is no longer a '
       + 'suite, so it falls to this walk rather than out of every one');

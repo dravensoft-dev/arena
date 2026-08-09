@@ -12,6 +12,7 @@ import { existsSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
@@ -66,15 +67,15 @@ function pruneOrphans(dir: string) {
 function collectTestSources(dir: string) {
   return walkFiles(dir, { skip: (_name, path) => path === EMITTED })
     .filter((full) => full.endsWith('.test.ts'))
-    .map((full) => relative(dir, full));
+    .map((full) => relPosix(dir, full));
 }
 
 function collectEmittedTests(dir: string) {
   if (!existsSync(dir)) return [];
-  return walkFiles(dir).filter((full) => full.endsWith('.test.js')).map((full) => relative(dir, full));
+  return walkFiles(dir).filter((full) => full.endsWith('.test.js')).map((full) => relPosix(dir, full));
 }
 
-export function missingEmitProblems(sourceTests: string[], emittedTests: string[], emitDir = relative(repoRoot, EMIT_DIR)) {
+export function missingEmitProblems(sourceTests: string[], emittedTests: string[], emitDir = relPosix(repoRoot, EMIT_DIR)) {
   const emittedStems = new Set(emittedTests.map((f: string) => f.slice(0, -'.js'.length)));
   const problems = [];
   for (const src of sourceTests) {
@@ -98,7 +99,7 @@ function collectInputs() {
 }
 
 function stamp(path: string) {
-  return { path: relative(repoRoot, path), mtimeMs: statSync(path).mtimeMs };
+  return { path: relPosix(repoRoot, path), mtimeMs: statSync(path).mtimeMs };
 }
 
 function readStamp() {

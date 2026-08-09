@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -119,7 +119,7 @@ test('a suite is TypeScript, so a .test.mjs is not one and would run in neither 
   try {
     for (const name of ['a.test.mjs', 'b.test.ts', 'c.mjs', 'd.ts', 'notes.md'])
       writeFileSync(join(root, name), '// fixture');
-    assert.deepEqual(testFilesUnder(root).map((p) => relative(root, p)).sort(), ['b.test.ts'],
+    assert.deepEqual(testFilesUnder(root).map((p) => relPosix(root, p)).sort(), ['b.test.ts'],
       'domains.test.ts is what stops a .test.mjs reaching the tree at all; this only says '
       + 'that if one did, the run would not silently include it and count it as covered');
   } finally {

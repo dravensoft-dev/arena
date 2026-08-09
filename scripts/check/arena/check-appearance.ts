@@ -11,6 +11,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { blankComments, expressionLeaves, readValue, skipString } from './check-dimension-literals.ts';
 import { HAND_DRAWN, categoryOf, inScope, manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { kebab } from '../../utils/case.ts';
@@ -232,7 +233,7 @@ export function collect() {
   return {
     adoption,
     literals,
-    files: files.map((p) => relative(repoRoot, p)),
+    files: files.map((p) => relPosix(repoRoot, p)),
     walked: files.length,
     scanned,
     scope: scope.length,

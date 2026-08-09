@@ -124,9 +124,11 @@ thing to hold true:
   The four skippable gates had drifted into three readings of that, so on this repository's own
   declared strictness three failed and the fourth skipped.
 
-The rules are enforced over scripts and **not** suites: a suite naming `win32` and a `C:` path is
+Most rules are enforced over scripts and **not** suites: a suite naming `win32` and a `C:` path is
 doing its job, and every win32 branch above is covered from a Linux runner precisely because it
-does.
+does. **The separator rules read suites as well**, and each one says so where it is declared: a
+native path compared against a posix literal is the same defect wherever it sits, and a suite is
+where it lands as an assertion that passes on the machine that wrote it and on no other.
 
 **A test lives beside what it tests**, in the same directory, which for a `lib/` module means
 the same domain, not merely somewhere under `lib/`.

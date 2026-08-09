@@ -1,12 +1,12 @@
 /* No script assumes one operating system. Every rule is a BAN with a named owner, never a
  * judgement about whether a construct is correct, which is what keeps the false-positive rate
  * zero: it does not ask whether spawning a bare name is wise, it asks where that may live. A
- * stale owner fails too, so an exception cannot outlive its argument. The subject is scripts and
- * not suites -- a suite naming win32 and a C: path is doing its job, and the win32 branches are
- * covered from Linux because it does. Matches go through the lexer check:docs uses, so a
- * construct in a comment or a string is described rather than performed, bar the two whose
- * construct IS a string and say so. It also holds pr.yml to two rules, YAML alone being where a
- * rule nothing tests lives: the OS matrix equals the declared list, and pr-gate's needs equal
+ * stale owner fails too, so an exception cannot outlive its argument. Most rules read scripts
+ * alone, a suite naming win32 and a C: path being one doing its job; the separator rules read
+ * suites as well, a native path compared to a posix literal being the same defect wherever it
+ * sits. Matches go through the lexer check:docs uses, so a construct in a comment or a string is
+ * described rather than performed, bar the two whose construct IS a string and say so. It also
+ * holds pr.yml to two rules: the OS matrix equals the declared list, and pr-gate's needs equal
  * every other job there, since a leg the one required check does not name gates nothing. */
 
 import { readFileSync } from 'node:fs';
@@ -55,6 +55,7 @@ export type Rule = {
   owners: string[];
   why: string;
   written?: 'as a string';
+  reaches?: 'suites as well';
 };
 
 export const RULES: Rule[] = [
@@ -115,16 +116,19 @@ export const RULES: Rule[] = [
     owners: ['scripts/utils/posix-path.ts'],
     why: 'toPosix is the one spelling of a separator conversion, and a second one is a second '
       + 'decision the day either is fixed',
+    reaches: 'suites as well',
   },
   {
     id: 'native-relative',
-    pattern: /toPosix\(\s*relative\(|\.set\(\s*relative\(|\[\s*relative\(/g,
+    pattern: /toPosix\(\s*relative\(|\.set\(\s*relative\(|\[\s*relative\(|=>\s*relative\(/g,
     owners: [],
     why: 'relative answers in the host separator, and relPosix is the one spelling of the answer '
       + 'that leaves this process: a key or an index read back by an operation assuming a forward '
       + 'slash makes a prefix replace a no-op, a segment count short by the depth and a sort a '
-      + 'different order, so the build writes a wrong file rather than failing, and the two-call '
-      + 'form is where the conversion gets left out',
+      + 'different order, so the build writes a wrong file rather than failing, and the mapped '
+      + 'form is where the conversion gets left out, which in a suite reads as an assertion whose '
+      + 'expected value is spelled for one operating system',
+    reaches: 'suites as well',
   },
   {
     id: 'prefix-containment',
@@ -132,6 +136,7 @@ export const RULES: Rule[] = [
     owners: ['scripts/utils/posix-path.ts'],
     why: 'whether a path is under another is isInside, asked through relative: a string prefix is '
       + 'fail-open without a separator boundary and fail-closed with a hardcoded one',
+    reaches: 'suites as well',
   },
 ];
 
@@ -144,6 +149,18 @@ export function inScope(path: string) {
 
 export function scriptFiles(base = root) {
   return walkFiles(join(base, 'scripts')).filter(inScope);
+}
+
+export const SUITE_RULES = RULES.filter((rule) => rule.reaches === 'suites as well');
+
+export function inSuiteScope(path: string) {
+  const rel = relPosix(root, path);
+  if (!rel.startsWith('scripts/')) return false;
+  return isSuite(rel.slice(rel.lastIndexOf('/') + 1));
+}
+
+export function suiteFiles(base = root) {
+  return walkFiles(join(base, 'scripts')).filter(inSuiteScope);
 }
 
 export function commentRanges(source: string): [number, number][] {
@@ -369,17 +386,22 @@ export function checkoutProblems(paths: string[]) {
 
 export function portabilityProblems(base = root) {
   const files = scriptFiles(base);
+  const suites = suiteFiles(base);
   const tracked = trackedPaths(base);
   const problems: string[] = [];
 
-  for (const file of files) {
-    const rel = relPosix(base, file);
-    for (const { rule, line, text } of violations(rel, readFileSync(file, 'utf8'))) {
-      const owner = rule.owners.length === 0 ? 'nowhere' : rule.owners.join(' or ');
-      problems.push(`${rel}:${line}: ${JSON.stringify(text)} breaks ${rule.id}, which lives in `
-        + `${owner}. ${rule.why}.`);
+  const scan = (list: string[], rules: Rule[]) => {
+    for (const file of list) {
+      const rel = relPosix(base, file);
+      for (const { rule, line, text } of violations(rel, readFileSync(file, 'utf8'), rules)) {
+        const owner = rule.owners.length === 0 ? 'nowhere' : rule.owners.join(' or ');
+        problems.push(`${rel}:${line}: ${JSON.stringify(text)} breaks ${rule.id}, which lives in `
+          + `${owner}. ${rule.why}.`);
+      }
     }
-  }
+  };
+  scan(files, RULES);
+  scan(suites, SUITE_RULES);
 
   problems.push(...staleOwners(files, base));
   problems.push(...matrixProblems(base));
@@ -389,11 +411,18 @@ export function portabilityProblems(base = root) {
   problems.push(...checkoutProblems(tracked));
 
   const longest = tracked.reduce((n, path) => Math.max(n, path.length), 0);
-  return { problems, scanned: files.length, rules: RULES.length, tracked: tracked.length, longest };
+  return {
+    problems,
+    scanned: files.length,
+    covered: suites.length,
+    rules: RULES.length,
+    tracked: tracked.length,
+    longest,
+  };
 }
 
 function main() {
-  const { problems, scanned, rules, tracked, longest } = portabilityProblems();
+  const { problems, scanned, covered, rules, tracked, longest } = portabilityProblems();
 
   if (scanned === 0) {
     console.error('check-portability: scanned 0 script(s); the tree moved under this gate');
@@ -406,7 +435,8 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s), every exception `
+  console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s) and ${covered} `
+    + `suite(s) to the ${SUITE_RULES.length} that read one, every exception `
     + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, the matrix `
     + `runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s) in a job `
     + `${REQUIRED_JOB} waits for alongside every other, and ${tracked} `

@@ -8,10 +8,11 @@
  * fails here rather than sitting unread. */
 
 import { readFileSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { lineOf } from '../../utils/text.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { splitArguments } from './check-assertions.ts';
 
@@ -118,7 +119,7 @@ export function booleanInputProblems(
 
 function main() {
   const root = join(repoRoot, COMPONENT_ROOT);
-  const files = sourceFiles(root).map((path) => relative(repoRoot, path));
+  const files = sourceFiles(root).map((path) => relPosix(repoRoot, path));
   const { problems, found } = booleanInputProblems(
     files,
     (rel: string) => readFileSync(join(repoRoot, rel), 'utf8'),

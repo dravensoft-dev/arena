@@ -6,9 +6,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CLONE_ROOT_BUDGET, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, WORKFLOWS, checkoutProblems,
-  declaredNeeds, gateProblems, inScope, jobBlocks, matrixProblems, needsProblems,
-  portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
+  CLONE_ROOT_BUDGET, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES, WORKFLOWS,
+  checkoutProblems, declaredNeeds, gateProblems, inScope, inSuiteScope, jobBlocks, matrixProblems,
+  needsProblems, portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
 } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
@@ -83,6 +83,22 @@ test('the subject is scripts and not suites, which name a platform on purpose', 
     'the win32 candidate list is asserted from Linux with C: paths in the fixture, and that is '
     + 'the suite doing its job rather than a script assuming a platform');
   assert.equal(inScope(join(repoRoot, 'frameworks/react/Index.generated.ts')), false);
+});
+
+test('the separator rules read a suite as well, and the rest still leave one alone', () => {
+  assert.equal(inSuiteScope(join(repoRoot, 'scripts/lib/arena/chromium.test.ts')), true);
+  assert.equal(inSuiteScope(join(repoRoot, 'scripts/lib/arena/chromium.ts')), false);
+  assert.equal(inSuiteScope(join(repoRoot, 'frameworks/react/Index.test.ts')), false);
+
+  assert.ok(SUITE_RULES.length > 0 && SUITE_RULES.length < RULES.length,
+    'a set that is empty scans nothing and one that is every rule makes the distinction dead');
+
+  const suite = 'scripts/lib/arena/made-up.test.ts';
+  assert.deepEqual(violations(suite, PLANTED['bare-name-spawn'] ?? '', SUITE_RULES), [],
+    'a suite spawning a bare name in a fixture is describing a platform, which is what it is for');
+  assert.equal(violations(suite, PLANTED['native-relative'] ?? '', SUITE_RULES).length, 1,
+    'a native path in a suite becomes an expected value spelled for one operating system, and '
+    + 'the assertion then passes on the machine that wrote it and nowhere else');
 });
 
 test('the tree itself is clean, and the gate scanned enough of it to mean something', () => {

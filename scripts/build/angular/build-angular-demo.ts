@@ -8,6 +8,7 @@ import { basename, join, relative } from 'node:path';
 import { existsSync, rmSync } from 'node:fs';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -63,7 +64,7 @@ export function collectEntries(dir: string) {
   return walkFiles(dir).filter((full) => isEntry(basename(full))).sort();
 }
 
-export function missingEntryProblems(sourceEntries: string[], emittedEntries: string[], emitDir = relative(repoRoot, EMIT_DIR)) {
+export function missingEntryProblems(sourceEntries: string[], emittedEntries: string[], emitDir = relPosix(repoRoot, EMIT_DIR)) {
   const emitted = new Set(emittedEntries.map((f: string) => f.slice(0, -'.js'.length)));
   const problems = [];
   for (const src of sourceEntries) {
@@ -82,7 +83,7 @@ function collectSourceEntries(dir: string) {
   if (!existsSync(dir)) return [];
   return walkFiles(dir, { skip: (_name, path) => path === EMITTED })
     .filter((full) => isEntry(basename(full), '.ts'))
-    .map((full) => relative(dir, full));
+    .map((full) => relPosix(dir, full));
 }
 
 async function main() {
@@ -117,7 +118,7 @@ async function main() {
 
   const emitProblems = missingEntryProblems(
     collectSourceEntries(LAYER_ROOT),
-    collectEntries(EMIT_DIR).map((p) => relative(EMIT_DIR, p)),
+    collectEntries(EMIT_DIR).map((p) => relPosix(EMIT_DIR, p)),
   );
   if (emitProblems.length > 0) {
     console.error(`\nbuild-angular-demo: ${emitProblems.length} page entr(y/ies) compiled into nothing:\n`);

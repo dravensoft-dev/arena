@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { DOMAINS, SCRIPT_EXTENSIONS, SUITE_EXTENSIONS, STAYS_JAVASCRIPT,
@@ -68,7 +68,7 @@ test('every suite under scripts/ classifies, so the summary can never silently d
   const suites = suitesUnder(join(repoRoot, 'scripts'));
   assert.ok(suites.length > 0, 'a walk with nothing to walk proves nothing');
   const unclassified = suites
-    .map((p) => relative(repoRoot, p))
+    .map((p) => relPosix(repoRoot, p))
     .filter((rel: string) => domainOfTestPath(rel) === null);
   assert.deepEqual(unclassified, []);
 });
