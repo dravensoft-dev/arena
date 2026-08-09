@@ -4,12 +4,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   EXEMPT, SKIPPED_ANYWHERE, SKIPPED_UNDER_FRAMEWORKS, skips, repoRoots, pathPattern,
   documents, namesAFile, citationProblems, zeroDocumentProblems, zeroRootProblems,
+  ignoredCitationProblems,
   BARE_DOCUMENT, basenames, bareDocumentProblems,
 } from './check-citations.ts';
 
@@ -121,4 +122,39 @@ test('a bare name that does exist passes, wherever in the tree it sits', () => {
 test('a metavariable is written <Name>, which the pattern cannot match, so it needs no exception', () => {
   assert.equal('a fixture at <Name>.demo.json'.match(BARE_DOCUMENT), null);
   assert.deepEqual('see X.prompt.md'.match(BARE_DOCUMENT), ['X.prompt.md']);
+});
+
+test('a citation git ignores is a problem, because no clone can follow it', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-citations-ignored-'));
+  try {
+    mkdirSync(join(dir, 'docs'), { recursive: true });
+    writeFileSync(join(dir, 'docs', 'plan.md'), '# a plan');
+    writeFileSync(join(dir, 'AGENTS.md'), 'The plan is docs/plan.md and it says so.\n');
+
+    const problems = ignoredCitationProblems(dir, [join(dir, 'AGENTS.md')], new Set(['docs']));
+    assert.equal(problems.length, 1, 'the file IS there, which is exactly why nothing else fails');
+    assert.match(problems[0] ?? '', /docs\/plan\.md/);
+    assert.match(problems[0] ?? '', /no clone can follow it/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('an ignored root leaves the alternation, so the gate reads one tree on every machine', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-citations-roots-'));
+  try {
+    mkdirSync(join(dir, 'docs'));
+    mkdirSync(join(dir, 'contracts'));
+    assert.deepEqual(repoRoots(dir, new Set(['docs'])), ['contracts'],
+      'docs/ exists on the machine a spec was written on and on no clone, so leaving it in would '
+      + 'make this gate scan a different alternation depending on where it ran');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a shortened path is not a claim, even under an ignored root', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-citations-prose-'));
+  try {
+    writeFileSync(join(dir, 'AGENTS.md'), 'Specs live under docs/superpowers/specs/ by charter.\n');
+    assert.deepEqual(ignoredCitationProblems(dir, [join(dir, 'AGENTS.md')], new Set(['docs'])), [],
+      'naming the directory a document goes in is the charter stating itself, and only a path '
+      + 'carrying an extension is a claim about a file');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

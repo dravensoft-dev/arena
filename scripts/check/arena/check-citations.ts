@@ -9,6 +9,8 @@
  * fails. Use `<Name>` for a metavariable: an `X.prompt.md` reads as a claim. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { basename, dirname, join, relative } from 'node:path';
 import { toPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -34,11 +36,24 @@ export const EXEMPT = new Map([
 const EXTENSION = /\.[A-Za-z0-9]{1,6}$/;
 const TRAILING_PUNCTUATION = /[.,;:)]+$/;
 
-export function repoRoots(base = root) {
+export function presentRoots(base = root) {
   return readdirSync(base, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !SKIPPED_ANYWHERE.has(entry.name))
     .map((entry) => entry.name)
     .sort();
+}
+
+export function ignoredRoots(base = root, names = presentRoots(base)) {
+  if (names.length === 0) return new Set<string>();
+  const git = hostBinary('git', 'to ask which top-level directories it ignores, so this gate reads '
+    + 'the same tree on a clone as on the machine a scratch directory happens to sit');
+  const asked = spawnSync(git, ['check-ignore', '--stdin'],
+    { cwd: base, encoding: 'utf8', input: names.map((name) => `${name}/`).join('\n') });
+  return new Set((asked.stdout ?? '').split('\n').filter(Boolean).map((line) => line.replace(/\/$/, '')));
+}
+
+export function repoRoots(base = root, ignored = ignoredRoots(base)) {
+  return presentRoots(base).filter((name) => !ignored.has(name));
 }
 
 export function pathPattern(roots: string[]) {
@@ -112,6 +127,28 @@ export function citationProblems(base = root, files = documents(base), exempt = 
   return problems;
 }
 
+export function ignoredCitationProblems(base = root, files = documents(base), ignored = ignoredRoots(base)) {
+  const names = [...ignored].filter((name) => !SKIPPED_ANYWHERE.has(name));
+  if (names.length === 0) return [];
+  const pattern = pathPattern(names);
+  const problems = [];
+
+  for (const path of files) {
+    const rel = path.slice(base.length + 1);
+    for (const [line, text] of readFileSync(path, 'utf8').split('\n').entries()) {
+      for (const raw of text.match(pattern) ?? []) {
+        const cited = raw.replace(TRAILING_PUNCTUATION, '');
+        if (!namesAFile(cited)) continue;
+        problems.push(`${rel}:${line + 1}: cites ${cited}, which git ignores, so no clone can `
+          + 'follow it. The path exists here and nowhere else, which is the one failure this gate '
+          + 'cannot otherwise see: an ignored root is not in the alternation at all, so the '
+          + 'citation passes for the wrong reason.');
+      }
+    }
+  }
+  return problems;
+}
+
 export function zeroDocumentProblems(files: string[]) {
   return files.length === 0
     ? ['found 0 documents; an empty result set is a failure, not a clean pass, because a walk that '
@@ -131,6 +168,7 @@ function main() {
   const files = documents();
   const problems = [
     ...zeroRootProblems(repoRoots()),
+    ...ignoredCitationProblems(),
     ...zeroDocumentProblems(files),
     ...citationProblems(root, files),
     ...bareDocumentProblems(root, files),

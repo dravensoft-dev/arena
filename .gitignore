@@ -58,7 +58,6 @@ Thumbs.db
 .vscode/
 *.swp
 *~
-docs/
 
 # Misc
 .thumbnail
@@ -66,6 +65,14 @@ coverage/
 
 # SDD scratch (ledger, task briefs, review packages) is machine-local, not product.
 .superpowers/
+
+# Specs and implementation plans, deleted once executed. What survives is the commit, the gate
+# and the AGENTS.md, never the plan, which is the same intent .superpowers/ above carries.
+# Tracking them would also put every plan inside the git tag that serves the Claude Code plugin.
+# It sat under "Editor / OS" between .vscode/ and .thumbnail, where it read as a misfile rather
+# than a decision. check:citations refuses a tracked document citing a file under here, since an
+# ignored path is one no clone can follow.
+docs/
 
 # Claude Code local settings and task lock, machine-local, not product.
 .claude/
