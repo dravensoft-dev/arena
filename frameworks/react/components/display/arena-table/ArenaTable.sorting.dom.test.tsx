@@ -103,7 +103,7 @@ test('Enter on a DATA row still activates the row, not a sort', () => {
   const root = mount(
     <ArenaTable label={LABEL} columns={COLUMNS} responsive={false}
       sort={{ column: 0, direction: 'asc' }} onSortChange={(next) => seen.push(next)}>
-      <ArenaTableRow onClick={() => { activated += 1; }}>
+      <ArenaTableRow interactive onClick={() => { activated += 1; }}>
         <ArenaTableCell>checkout</ArenaTableCell><ArenaTableCell>Healthy</ArenaTableCell><ArenaTableCell>91</ArenaTableCell>
       </ArenaTableRow>
     </ArenaTable>,

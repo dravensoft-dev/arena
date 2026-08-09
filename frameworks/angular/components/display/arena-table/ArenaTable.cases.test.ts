@@ -38,11 +38,11 @@ const NARROW_WIDTH = 400;
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table [label]="label" [columns]="columns" [responsive]="responsive">
-      <arena-table-row (click)="activated = activated + 1">
+      <arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
         <arena-table-cell>checkout-api</arena-table-cell>
         <arena-table-cell>Healthy</arena-table-cell>
       </arena-table-row>
-      <arena-table-row [disabled]="disabled" (click)="activated = activated + 1">
+      <arena-table-row [interactive]="interactive" [disabled]="disabled" (click)="activated = activated + 1">
         <arena-table-cell>billing-worker</arena-table-cell>
         <arena-table-cell>Degraded</arena-table-cell>
       </arena-table-row>
@@ -53,6 +53,7 @@ class TableHost {
   label = LABEL;
   columns: ArenaTableColumn[] = COLUMNS;
   responsive = false;
+  interactive = false;
   disabled = false;
   activated = 0;
 }
@@ -260,7 +261,7 @@ test('arena-table-cell owns none of the grid it sits in -- the row has its own c
 });
 
 test('a pointer click on a row reaches the consumer exactly once -- twice would mean the native event got through too', async () => {
-  const fixture = await render();
+  const fixture = await render({ interactive: true });
   try {
     const table = tableOf(fixture);
     const row = table.querySelectorAll('[role="row"]')[1] as HTMLElement;
@@ -277,7 +278,7 @@ test('a pointer click on a row reaches the consumer exactly once -- twice would 
 });
 
 test('Enter on a cell activates the row it belongs to, and no other', async () => {
-  const fixture = await render();
+  const fixture = await render({ interactive: true });
   try {
     const table = tableOf(fixture);
     const rows = [...table.querySelectorAll<HTMLElement>('[role="row"]')];

@@ -266,6 +266,7 @@ answering a question a consumer cannot answer from outside.
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime |
 | `arenaCatColor(slot)`, `arenaCatSurface(slot)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
+| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it: the predicate that lets a clickable row hold a checkbox and a row action without taking their presses |
 
 Every other symbol reaching the root is an internal of this layer, exported because the barrel
 is generated wholesale rather than curated, and **carries no compatibility promise**. It carries

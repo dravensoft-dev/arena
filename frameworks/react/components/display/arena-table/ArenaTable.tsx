@@ -6,6 +6,7 @@ import manifest from './ArenaTable.classes.generated.ts';
 
 import { ArenaPagination } from '../../navigation/arena-pagination/ArenaPagination.tsx';
 import { ArenaSelect } from '../../forms/arena-select/ArenaSelect.tsx';
+import type { ArenaTableRowProps } from '../arena-table-row/ArenaTableRow.tsx';
 
 import type {
   ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTableSort, ArenaTableSortControl,
@@ -148,8 +149,9 @@ export function ArenaTable({
       if (curRow === 0) { onHeaderActivate(curCol); return; }
       if (e.key === ' ') return;
       const rowEl = rowEls[curRow - 1];
-      if (rowEl && React.isValidElement<{ onClick?: () => void }>(rowEl) && rowEl.props.onClick) {
-        rowEl.props.onClick();
+      if (rowEl && React.isValidElement<ArenaTableRowProps>(rowEl)) {
+        const { onClick: activate, interactive, disabled } = rowEl.props;
+        if (interactive && activate && !disabled) activate();
       }
       return;
     } else return;

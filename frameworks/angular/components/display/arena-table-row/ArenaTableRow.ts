@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy, Component, DestroyRef, booleanAttribute, computed, contentChildren,
   inject, input, output,
 } from '@angular/core';
+import { isArenaOwnActivation } from '../../../AnchorActivation';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 import { ArenaTableState } from '../arena-table/ArenaTableState';
 import { ArenaTableRowState } from './ArenaTableRowState';
@@ -63,6 +64,7 @@ export class ArenaTableRow {
 
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();
+    if (!this.ownActivation(event)) return;
     this.emit();
   }
 
@@ -71,10 +73,16 @@ export class ArenaTableRow {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
     event.stopPropagation();
+    if (!this.ownActivation(event)) return;
     this.emit();
   }
 
+  private ownActivation(event: Event): boolean {
+    const container = event.currentTarget;
+    return !(container instanceof Element) || isArenaOwnActivation(event.target, container);
+  }
+
   private emit(): void {
-    if (!this.disabled()) this.click.emit();
+    if (this.interactive() && !this.disabled()) this.click.emit();
   }
 }
