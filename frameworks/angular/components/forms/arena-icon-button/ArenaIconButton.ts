@@ -33,9 +33,15 @@ export class ArenaIconButton {
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   readonly label = input.required<string>();
   /** Height, from the density tokens: the same scale ArenaButton uses, so the two re-densify together in a toolbar. */
-  readonly size = input<ArenaControlSize>('md');
+  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
+    'md',
+    { transform: (value) => value ?? 'md' },
+  );
   /** Visual treatment. */
-  readonly variant = input<ArenaIconButtonVariant>('ghost');
+  readonly variant = input<ArenaIconButtonVariant, ArenaIconButtonVariant | undefined>(
+    'ghost',
+    { transform: (value) => value ?? 'ghost' },
+  );
   /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. */
   readonly pressed = input<boolean | undefined>();
   /** Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. */
@@ -43,7 +49,10 @@ export class ArenaIconButton {
   /** Blocks activation and dims the control. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Native button behaviour. Defaults to 'button' so an icon button inside a form does not submit it by accident. */
-  readonly type = input<ArenaButtonType>('button');
+  readonly type = input<ArenaButtonType, ArenaButtonType | undefined>(
+    'button',
+    { transform: (value) => value ?? 'button' },
+  );
   /** Submitted with the form, when the button submits one. */
   readonly name = input<string>();
   /** The value submitted under `name`. */

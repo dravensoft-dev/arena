@@ -121,9 +121,15 @@ export class ArenaDoughnutChart {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
   /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. It costs the centre percentage, which has nowhere to go once the hole is gone: over a wedge it would put --bone on a --color-cat slot, a pair nothing checks for contrast because nothing had drawn it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
-  readonly shape = input<ArenaChartShape>('doughnut');
+  readonly shape = input<ArenaChartShape, ArenaChartShape | undefined>(
+    'doughnut',
+    { transform: (value) => value ?? 'doughnut' },
+  );
   /** How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile; 'stacked' puts the label above the figure; 'auto' measures the legend column and stacks when the row does not give. It exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated, and a legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. */
-  readonly legendLayout = input<ArenaChartLegendLayout>('auto');
+  readonly legendLayout = input<ArenaChartLegendLayout, ArenaChartLegendLayout | undefined>(
+    'auto',
+    { transform: (value) => value ?? 'auto' },
+  );
   /** A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row, which is a real button and answers Enter and Space without the component binding either. It carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**, and that is the whole member: a slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists, and a consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. It is reverse engineering of a component's own DOM, which the next release breaks in silence. */
   readonly sliceActivate = output<number>();
 

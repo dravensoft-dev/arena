@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, EXEMPT } from './check-dimension-literals.ts';
+import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, EXEMPT } from './check-dimension-literals.ts';
 
 test('a bare number is a violation for a dimension-valued property', () => {
   assert.ok(scanValue('fontSize', '13'));
@@ -624,4 +624,14 @@ test('a dist tree is assembled output, so the scan never opens it', () => {
   writeFileSync(join(root, 'react', 'dist', 'components', 'Widget.jsx'), 'const a = { height: 13 };\n');
   assert.deepEqual([...sourceFiles(root)], [join(root, 'react', 'Widget.jsx')]);
   rmSync(root, { recursive: true });
+});
+
+test('an Angular input transform is not the CSS transform, so the value it resolves to is not a dimension', () => {
+  assert.equal(isValueCoercion('transform', '(value) => value ?? 3'), true);
+  assert.equal(isValueCoercion('transform', 'booleanAttribute'), false);
+  assert.equal(isValueCoercion('transform', '`translateY(4px)`'), false);
+  assert.equal(isValueCoercion('width', '(value) => value ?? 3'), false);
+  assert.deepEqual(scanText('readonly lines = input<number, number | undefined>(3, { transform: (value) => value ?? 3 });'), []);
+  assert.equal(scanText('const s = { transform: `translateY(4px)` };').length, 1,
+    'a real CSS transform still has to be a token');
 });

@@ -272,6 +272,12 @@ const COLON_STOP = new Set([',', '}']);
 
 const PROP_COLON = /(?<![\w.-])([a-zA-Z]+)\s*:\s*/g;
 
+export const COERCION = /=>/;
+
+export function isValueCoercion(prop: string, rawValue: string) {
+  return prop === 'transform' && COERCION.test(rawValue);
+}
+
 function scanColonValues(text: string) {
   const out = [];
   for (const m of text.matchAll(PROP_COLON)) {
@@ -279,6 +285,7 @@ function scanColonValues(text: string) {
     if (!PROPS.has(prop)) continue;
     const valueStart = m.index + m[0].length;
     const { text: rawValue } = readValue(text, valueStart, COLON_STOP);
+    if (isValueCoercion(prop, rawValue)) continue;
     const line = lineOf(text, m.index);
     for (const leaf of expressionLeaves(rawValue))
       for (const hit of scanLeaf(prop, leaf))
@@ -315,6 +322,7 @@ function scanDataflow(text: string) {
     if (!PROPS.has(prop)) continue;
     const valueStart = m.index + m[0].length;
     const { text: rawValue } = readValue(text, valueStart, COLON_STOP);
+    if (isValueCoercion(prop, rawValue)) continue;
     for (const leaf of expressionLeaves(rawValue)) {
       const trimmed = leaf.trim();
       if (BARE_IDENTIFIER.test(trimmed) && !bareUsages.has(trimmed)) bareUsages.set(trimmed, prop);

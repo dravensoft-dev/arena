@@ -36,7 +36,10 @@ export class ArenaErrorState {
   /** A Phosphor class name for the danger glyph Arena draws. */
   readonly icon = input<string>();
   /** The headline: what failed. */
-  readonly title = input('Something went wrong');
+  readonly title = input<string, string | undefined>(
+    'Something went wrong',
+    { transform: (value) => value ?? 'Something went wrong' },
+  );
   /** A sentence of detail under the title. */
   readonly message = input<string>();
   /** A diagnostic/support code, shown monospaced. */

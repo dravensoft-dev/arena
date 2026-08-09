@@ -151,7 +151,10 @@ export class ArenaScatterChart {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. */
   readonly valueFormat = input<ArenaNumberFormat>();
   /** The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
-  readonly height = input<number>(ARENA_CHART_HEIGHT);
+  readonly height = input<number, number | undefined>(
+    ARENA_CHART_HEIGHT,
+    { transform: (value) => value ?? ARENA_CHART_HEIGHT },
+  );
 
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;

@@ -43,7 +43,10 @@ export class ArenaToast {
   /** The body. */
   readonly message = input<string>();
   /** The side bar's colour, and whether the toast announces assertively. */
-  readonly tone = input<ArenaToastTone>('neutral');
+  readonly tone = input<ArenaToastTone, ArenaToastTone | undefined>(
+    'neutral',
+    { transform: (value) => value ?? 'neutral' },
+  );
   /** The label of the single inline action: Undo, Retry, View logs. Absent renders no action. */
   readonly actionLabel = input<string>();
   /** The inline action was activated. */

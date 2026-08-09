@@ -34,6 +34,7 @@ export const node = {
     'check:angular',
     'check:api',
     'check:boolean-inputs',
+    'check:optional-inputs',
     'check:appearance',
     'check:arbitrary',
     'check:behaviour',

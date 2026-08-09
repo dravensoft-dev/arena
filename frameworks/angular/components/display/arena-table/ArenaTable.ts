@@ -77,11 +77,17 @@ export class ArenaTable {
   /** Which column the rows are ordered by and which way. Controlled: ArenaTable draws the caret and the aria-sort, and the consumer does the ordering, because ArenaTable does not hold the rows. Absent, no header is a sort target. */
   readonly sort = input<ArenaTableSort>();
   /** How the sort affordance is reached in CARD MODE, where there is no header row to activate and a `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for; 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. It is a member rather than something a consumer draws for themselves because the state it edits, ArenaTableSort, is Arena's: left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. */
-  readonly sortControl = input<ArenaTableSortControl>('auto');
+  readonly sortControl = input<ArenaTableSortControl, ArenaTableSortControl | undefined>(
+    'auto',
+    { transform: (value) => value ?? 'auto' },
+  );
   /** Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. */
   readonly page = input<ArenaTablePage>();
   /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
-  readonly pageControl = input<ArenaTablePageControl>('auto');
+  readonly pageControl = input<ArenaTablePageControl, ArenaTablePageControl | undefined>(
+    'auto',
+    { transform: (value) => value ?? 'auto' },
+  );
   /** A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not, which is why the member is controlled rather than a starting value. */
   readonly sortChange = output<ArenaTableSort>();
   /** A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */

@@ -17,10 +17,10 @@ const CI_JOBS = {
 };
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 50);
+  assert.equal(GATES.length, 51);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:style-parity', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:cards', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs'],
+    ['check:docs', 'check:graph', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:style-parity', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:cards', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -132,10 +132,11 @@ test('the node step names how many suites it found, because a narrowed run and a
   assert.match(step[0]?.name ?? '', /1 found/);
 });
 
-test('the five Angular-layer gates run last -- the compile gate, the demo pages, the assertion shape, the one dependency bridge left, then the input convention', () => {
+test('the six Angular-layer gates run last -- the compile gate, the demo pages, the assertion shape, the one dependency bridge left, then the two input conventions', () => {
   assert.deepEqual(
-    GATES.slice(-5).map((g) => g.name),
-    ['check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs'],
+    GATES.slice(-6).map((g) => g.name),
+    ['check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs',
+      'check:optional-inputs'],
   );
 });
 

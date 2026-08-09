@@ -21,9 +21,15 @@ export class ArenaAppLogo {
   /** The wordmark's second half, drawn muted. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */
   readonly dim = input<string>();
   /** Both halves at once: the mark's slot and the wordmark. */
-  readonly size = input<ArenaLogoSize>('md');
+  readonly size = input<ArenaLogoSize, ArenaLogoSize | undefined>(
+    'md',
+    { transform: (value) => value ?? 'md' },
+  );
   /** Mark beside the name, or above it. */
-  readonly orientation = input<ArenaOrientation>('horizontal');
+  readonly orientation = input<ArenaOrientation, ArenaOrientation | undefined>(
+    'horizontal',
+    { transform: (value) => value ?? 'horizontal' },
+  );
 
   protected readonly styles = computed(() =>
     arenaAppLogoStyles({ size: this.size(), orientation: this.orientation() }));

@@ -73,7 +73,10 @@ export class ArenaMenu {
   /** The entries, in order: activatable rows, dividers and group headers. */
   readonly items = input.required<readonly ArenaMenuItem[]>();
   /** Which edge of the trigger the panel lines up with. */
-  readonly align = input<ArenaMenuAlign>('start');
+  readonly align = input<ArenaMenuAlign, ArenaMenuAlign | undefined>(
+    'start',
+    { transform: (value) => value ?? 'start' },
+  );
   /** An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   readonly select = output<ArenaMenuItem>();
 

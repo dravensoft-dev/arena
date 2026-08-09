@@ -68,9 +68,15 @@ export class ArenaInput {
   /** Called on the value; returns the error message, or empty for valid. */
   readonly validate = input<(value: string) => string>();
   /** When `validate` runs. */
-  readonly validateOn = input<ArenaValidateOn>('blur');
+  readonly validateOn = input<ArenaValidateOn, ArenaValidateOn | undefined>(
+    'blur',
+    { transform: (value) => value ?? 'blur' },
+  );
   /** Native input type. */
-  readonly type = input<ArenaInputType>('text');
+  readonly type = input<ArenaInputType, ArenaInputType | undefined>(
+    'text',
+    { transform: (value) => value ?? 'text' },
+  );
   /** Phosphor class name drawn at the field's start. */
   readonly icon = input<string>();
   /** Static text Arena draws before the value, e.g. `git@`. */

@@ -134,7 +134,10 @@ export class ArenaHorizontalBarChart {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
   /** The plot's height in px, the --chart-height token by default. On this chart it is the axis the categories run down, so a chart of many categories wants more of it: pass the room the data needs rather than letting the bands thin out. There is no scrolling rail here on purpose, because a vertical scroll region nested in a page takes the page's own scroll away from the reader, which is the reasoning that already keeps touch-action off the horizontal one. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
-  readonly height = input<number>(ARENA_CHART_HEIGHT);
+  readonly height = input<number, number | undefined>(
+    ARENA_CHART_HEIGHT,
+    { transform: (value) => value ?? ARENA_CHART_HEIGHT },
+  );
 
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;

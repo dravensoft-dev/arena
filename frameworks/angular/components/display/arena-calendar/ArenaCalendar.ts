@@ -105,7 +105,7 @@ export class ArenaCalendar {
   /** HH:MM the grid starts at. Defaults to the earliest visible event's hour, floored. */
   readonly dayStart = input<string>();
   /** HH:MM the grid ends at. */
-  readonly dayEnd = input('23:00');
+  readonly dayEnd = input<string, string | undefined>('23:00', { transform: (value) => value ?? '23:00' });
   /** 0 = Sunday … 6 = Saturday. */
   readonly weekStartsOn = input(1, { transform: numberAttribute });
   /** Drop Sunday from the week unless an event falls on it. */

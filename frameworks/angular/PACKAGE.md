@@ -72,6 +72,8 @@ that class is a rule about this component and nothing else. Every sheet is named
 which is why `css/components/arena-button.css` is the file and `arena-button` is what you write
 in a `stylesheet` list.
 
+**An optional value binds straight through.** Every input that carries a default resolves an absent value back to it, so a field of yours that may be unset needs no `?? '...'` at the call site: `[tone]="toast.tone"` is enough, and the default stays stated in one place, the component. It is the members' own defaults that the prompt tables carry.
+
 ## Declare your skin
 
 Write `arena.config.json` in your project root. This is the whole file, with one palette and

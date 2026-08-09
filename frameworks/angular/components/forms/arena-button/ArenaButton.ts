@@ -31,9 +31,15 @@ import { arenaButtonStyles } from './ArenaButton.variants';
 })
 export class ArenaButton {
   /** Which action this is. Danger is outline, never filled. */
-  readonly variant = input<ArenaButtonVariant>('primary');
+  readonly variant = input<ArenaButtonVariant, ArenaButtonVariant | undefined>(
+    'primary',
+    { transform: (value) => value ?? 'primary' },
+  );
   /** Height, from the density tokens, so the button re-densifies inside .arena-compact. */
-  readonly size = input<ArenaControlSize>('md');
+  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
+    'md',
+    { transform: (value) => value ?? 'md' },
+  );
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
   readonly icon = input<string>();
   /** Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. */
@@ -45,7 +51,10 @@ export class ArenaButton {
   /** Blocks activation and dims the control. Implied by loading. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. */
-  readonly type = input<ArenaButtonType>('button');
+  readonly type = input<ArenaButtonType, ArenaButtonType | undefined>(
+    'button',
+    { transform: (value) => value ?? 'button' },
+  );
   /** Submitted with the form, when the button submits one. */
   readonly name = input<string>();
   /** The value submitted under `name`. */

@@ -39,7 +39,10 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
 })
 export class ArenaAlert {
   /** The severity: colour, default icon, and (for danger) the alert role. */
-  readonly tone = input<ArenaAlertTone>('info');
+  readonly tone = input<ArenaAlertTone, ArenaAlertTone | undefined>(
+    'info',
+    { transform: (value) => value ?? 'info' },
+  );
   /** An optional bold lead line above the message. */
   readonly title = input<string>();
   /** A Phosphor class name overriding the tone's default glyph. Arena draws it. */

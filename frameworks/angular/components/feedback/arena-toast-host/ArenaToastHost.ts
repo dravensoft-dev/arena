@@ -13,7 +13,10 @@ import { arenaToastHostStyles } from './ArenaToastHost.variants';
 })
 export class ArenaToastHost {
   /** Which corner the stack is pinned to. A bottom placement clears the device's own bottom inset, so a stack on a phone never lands under the home indicator. */
-  readonly placement = input<ArenaToastPlacement>('bottom-end');
+  readonly placement = input<ArenaToastPlacement, ArenaToastPlacement | undefined>(
+    'bottom-end',
+    { transform: (value) => value ?? 'bottom-end' },
+  );
 
   protected readonly styles = computed(() => arenaToastHostStyles({ placement: this.placement() }));
 }

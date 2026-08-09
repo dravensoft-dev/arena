@@ -63,11 +63,20 @@ export class ArenaConfirmDialog {
   /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. */
   readonly title = input.required<string>();
   /** Small uppercase label above the title. */
-  readonly eyebrow = input('Confirm');
+  readonly eyebrow = input<string, string | undefined>(
+    'Confirm',
+    { transform: (value) => value ?? 'Confirm' },
+  );
   /** The confirm button's label. */
-  readonly confirmLabel = input('Confirm');
+  readonly confirmLabel = input<string, string | undefined>(
+    'Confirm',
+    { transform: (value) => value ?? 'Confirm' },
+  );
   /** The cancel button's label. */
-  readonly cancelLabel = input('Cancel');
+  readonly cancelLabel = input<string, string | undefined>(
+    'Cancel',
+    { transform: (value) => value ?? 'Cancel' },
+  );
   /** Gives the confirm button Arena's only filled danger surface. */
   readonly destructive = input(false, { transform: booleanAttribute });
   /** Locks the confirm button until this exact word is typed. */
