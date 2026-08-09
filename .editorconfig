@@ -1,0 +1,17 @@
+# What an editor has to agree with before a file is saved. .gitattributes states the same
+# line-ending rule to git, which is the authority; this states it to the thing that writes
+# the file, so a Windows editor never produces the CRLF git would then have to normalise.
+
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.md]
+# A markdown line break is two trailing spaces, so trimming them edits the prose.
+trim_trailing_whitespace = false
