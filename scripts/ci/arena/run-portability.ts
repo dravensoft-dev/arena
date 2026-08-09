@@ -1,10 +1,10 @@
 /* The gates worth running on a second operating system, each with the reason it is here. The
- * full sweep is 52 gates and most of them judge text a platform cannot change, so paying macOS
- * minutes for all of them per pull request is a cost nobody keeps paying, and a nightly run is
- * where that belongs. What is left is the set whose ANSWER can differ by platform: a spawn, a
- * link, a path, a line ending, a Bun API, a real browser. Declared in TypeScript because a list
- * that lives in YAML is a list nothing tests, and printed with its reason, so a leg that skipped
- * something says which and why rather than reporting a confident pass over less. */
+ * full sweep is 52 gates and most of them judge text no platform can change, so a second machine
+ * running those proves nothing it did not already know. What is left is the set whose ANSWER can
+ * differ by platform: a spawn, a link, a path, a line ending, a Bun API, a real browser. That is
+ * a selection argument rather than a cost one, which is why it survived the nightly run being
+ * deleted. Declared in TypeScript because a list living in YAML is a list nothing tests, and
+ * printed with its reason, so a leg says what it proved rather than that it passed. */
 
 import { spawnSync } from 'node:child_process';
 import { isMainModule } from '../../utils/main-module.ts';

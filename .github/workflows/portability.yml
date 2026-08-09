@@ -1,17 +1,26 @@
 name: Arena portability
 
+# Whether the tooling still runs on a machine that is not the one it was written on. A workflow
+# of its own rather than a matrix over pr.yml, because five jobs across three operating systems
+# at ten times the macOS minute rate is a cost nobody keeps paying, and a cost nobody keeps
+# paying becomes a workflow somebody deletes. Running it on a merge request to main alone is
+# what makes the price worth paying: the event is rare, and it is the one that matters, since
+# main is what the two packages are published from.
+#
+# The cost of that choice, stated rather than discovered: work that lands on develop and stays
+# there is never asked this question. The merge request is what asks it, and nothing before.
+#
+# The legs are declared in scripts/ci/arena/supported-os.ts, and check:portability holds this
+# matrix equal to that list -- the names and the blocking flags both.
+
 on:
+  # A merge request to main, and nothing else automatic. main is what the packages are published
+  # from, so the last question asked before a change reaches it is whether the tree still works
+  # on a machine that is not the one it was written on. workflow_dispatch stays as a hand crank,
+  # which fires on nobody's schedule but answers when Windows needs looking at during bring-up.
   workflow_dispatch:
-  schedule:
-    # Nightly, which is where the expense belongs: nothing here is a per-commit question.
-    - cron: '17 4 * * *'
   pull_request:
-    paths:
-      - 'scripts/**'
-      - 'package.json'
-      - 'bun.lock'
-      - '.github/workflows/**'
-      - '.gitattributes'
+    branches: [main]
 
 permissions:
   contents: read

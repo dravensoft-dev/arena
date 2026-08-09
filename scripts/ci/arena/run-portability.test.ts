@@ -63,3 +63,25 @@ test('the workflow does not override core.autocrlf, which is what proves .gitatt
 test('the workflow exports no CHROME_PATH, so the candidate list is what CI proves', () => {
   assert.ok(!/^\s*CHROME_PATH:/m.test(workflow()));
 });
+
+test('the matrix is asked on a merge request to main, and by nothing else automatic', () => {
+  const text = workflow();
+  const triggers = text.slice(text.indexOf('\non:'), text.indexOf('\npermissions:'));
+
+  assert.match(triggers, /pull_request:\s*\n\s*branches:\s*\[main\]/,
+    'main is what the two packages are published from, so it is the last place worth asking '
+    + 'whether the tree still works on a machine that is not the one it was written on');
+  assert.ok(!/schedule:|cron:/.test(triggers),
+    'nothing runs on a clock: a scheduled leg nobody reads is a cost with no reader');
+  assert.ok(!/\bpush:/.test(triggers),
+    'not on a push either, which is the cost of the choice and is stated in the workflow: work '
+    + 'that lands on develop and stays there is never asked this question');
+  assert.match(triggers, /workflow_dispatch:/,
+    'the hand crank stays, since it fires on nobody schedule and is what answers when Windows '
+    + 'needs looking at during bring-up');
+});
+
+test('all three operating systems are legs, which is the whole subject of the workflow', () => {
+  const legs = [...matrixLegs(workflow()).keys()].sort();
+  assert.deepEqual(legs, ['macos-latest', 'ubuntu-latest', 'windows-latest']);
+});
