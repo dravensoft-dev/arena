@@ -8,7 +8,9 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { TRAPS, FOCUSABLE, walkProblems } from './check-focus-trap.ts';
+import {
+  TRAPS, FOCUSABLE, walkProblems, READY_TIMEOUT_MS, NAVIGATE_TIMEOUT_MS,
+} from './check-focus-trap.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const inside = (n: number) => Array.from({ length: n }, (_, i) => ({ press: i + 1, inside: true }));
@@ -68,6 +70,15 @@ test('a single-stop trap is valid and is not asked to wrap between elements', ()
 test('a panel with no Tab stop at all fails, and a missing panel fails before anything is walked', () => {
   assert.match(walkProblems('X', { panel: true, focusables: 0 })[0] ?? '', /no Tab stop at all/);
   assert.match(walkProblems('X', { panel: false })[0] ?? '', /nothing was walked/);
+});
+
+test('a missing panel says how long it was waited for, which is what separates the two readings', () => {
+  assert.match(walkProblems('X', { panel: false })[0] ?? '', new RegExp(`${READY_TIMEOUT_MS}ms`),
+    'a page that renders nothing and a runner slower than the wait produce the same sentence '
+    + 'otherwise, and one of those is a component to fix while the other is a deadline to raise');
+  assert.ok(READY_TIMEOUT_MS > NAVIGATE_TIMEOUT_MS / 2,
+    'the wait for a panel is the same order as the wait for the navigation that has to precede '
+    + 'it, or the gate gives up on rendering long before it would give up on loading');
 });
 
 test('a trap that never claimed focus on open is reported even when containment holds', () => {

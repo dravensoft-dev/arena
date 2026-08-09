@@ -1,13 +1,13 @@
 /* The boundary wrap of a trap is Arena's own .focus() call and happy-dom honours it. The
  * INTERIOR is native sequential focus navigation, which happy-dom does not have: a suite
- * asserting it there passes identically against a perfect trap and against none, which is
- * why the record said a person had to check it. This gate drives real Chromium over CDP and
- * presses a real Tab, and it is the only one that does. TRAPS names a page per layer that
- * binds dialog-modal, since the contract is the authority and each layer answers it
- * separately. Each page opens its panel from its own fixture, so no button is found by its
- * text: a page whose copy moved used to be walked with nothing open. FOCUSABLE repeats
- * :not([tabindex="-1"]) on every clause because a selector list is OR'd, and writing it
- * loose once made this gate call a correct combobox a broken trap. */
+ * asserting it there passes identically against a perfect trap and against none. This gate
+ * drives real Chromium over CDP and presses a real Tab, and it is the only one that does.
+ * TRAPS names a page per layer binding dialog-modal, each layer answering the contract
+ * separately, and every page opens its panel from its own fixture, so no button is found by
+ * its text. The wait is for that panel to hold focus and not a fixed sleep, a sleep being a
+ * guess about machine speed that reports a slow runner as a component that rendered nothing.
+ * FOCUSABLE repeats :not([tabindex="-1"]) on every clause because a selector list is OR'd,
+ * and writing it loose once made this gate call a correct combobox a broken trap. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -30,8 +30,9 @@ export const node = {
 };
 
 
-const NAVIGATE_TIMEOUT_MS = 30_000;
-const SETTLE_MS = 1_100;
+export const NAVIGATE_TIMEOUT_MS = 30_000;
+export const READY_TIMEOUT_MS = 20_000;
+const READY_POLL_MS = 50;
 const STEP_MS = 60;
 
 const REACHABLE = ':not([tabindex="-1"])';
@@ -67,7 +68,9 @@ export type TrapWalk = {
 
 export function walkProblems(name: string, walk: TrapWalk) {
   const problems: string[] = [];
-  if (!walk.panel) return [`${name}: no ${PANEL} rendered, so nothing was walked`];
+  if (!walk.panel) {
+    return [`${name}: no ${PANEL} rendered inside ${READY_TIMEOUT_MS}ms, so nothing was walked`];
+  }
   if (walk.focusables === 0) {
     return [`${name}: the panel holds no Tab stop at all, so a keyboard user who reaches it cannot act`];
   }
@@ -105,7 +108,18 @@ async function walkTrap(cdp: Cdp, url: string) {
       await ev(`new Promise((r) => setTimeout(r, ${STEP_MS}))`);
     };
 
-    await ev(`new Promise((r) => setTimeout(r, ${SETTLE_MS}))`);
+    await ev(`new Promise((resolve) => {
+      const deadline = Date.now() + ${READY_TIMEOUT_MS};
+      const held = () => {
+        const panel = document.querySelector(${JSON.stringify(PANEL)});
+        return Boolean(panel && panel.contains(document.activeElement));
+      };
+      const tick = () => {
+        if (held() || Date.now() >= deadline) resolve(true);
+        else setTimeout(tick, ${READY_POLL_MS});
+      };
+      tick();
+    })`);
 
     const seen = (await ev(`(() => {
       const panel = document.querySelector(${JSON.stringify(PANEL)});
