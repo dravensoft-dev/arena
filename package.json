@@ -103,10 +103,10 @@
     "check:consumer": "bun scripts/check/arena/check-consumer.ts",
     "check": "bun scripts/check/arena/check-all.ts",
     "ci:summarize": "bun scripts/ci/arena/summarize-tests.ts",
-    "test:scripts": "bun test scripts",
-    "test:react": "bun test frameworks/react --path-ignore-patterns='**/*.dom.test.*'",
-    "test:react-dom": "bun test --preload ./frameworks/react/test/Preload.js '.dom.test.'",
-    "test:angular": "bun run build:angular-tests && bun test frameworks/angular/build/test",
-    "test": "bun run build:angular-tests && bun test scripts frameworks/react frameworks/angular/build/test --path-ignore-patterns='**/*.dom.test.*' && bun test --preload ./frameworks/react/test/Preload.js '.dom.test.'"
+    "test:scripts": "bun scripts/ci/arena/run-suite.ts scripts",
+    "test:react": "bun scripts/ci/arena/run-suite.ts react",
+    "test:react-dom": "bun scripts/ci/arena/run-suite.ts react-dom",
+    "test:angular": "bun scripts/ci/arena/run-suite.ts angular",
+    "test": "bun scripts/ci/arena/run-suite.ts all"
   }
 }

@@ -107,17 +107,37 @@ export function parseCheckArgs(argv: string[]) {
   return { domains, tests, force, release };
 }
 
+export const ANGULAR_EMIT = { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'] };
+
+export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
+  scripts: { emit: false, args: ['test', 'scripts'] },
+  react: { emit: false, args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'] },
+  'react-dom': { emit: false, args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'] },
+  angular: { emit: true, args: ['test', 'frameworks/angular/build/test'] },
+  every: {
+    emit: true,
+    args: ['test', 'scripts', 'frameworks/react', 'frameworks/angular/build/test',
+           '--path-ignore-patterns=**/*.dom.test.*'],
+  },
+};
+
 export function testStep({ isBun, testFiles }: { isBun: boolean; testFiles: string[] }) {
   if (isBun) return [
-    { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'] },
-    { name: 'test (bun test scripts/ + framework suites)',
-      args: ['test', 'scripts', 'frameworks/react', 'frameworks/angular/build/test',
-             '--path-ignore-patterns=**/*.dom.test.*'] },
-    { name: 'test (React DOM suites, isolated)',
-      args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'] },
+    ANGULAR_EMIT,
+    { name: 'test (bun test scripts/ + framework suites)', args: SUITES.every?.args ?? [] },
+    { name: 'test (React DOM suites, isolated)', args: SUITES['react-dom']?.args ?? [] },
   ];
   return [{ name: `test (node --test over every suite under scripts/, ${testFiles.length} found)`,
             args: ['--test', ...testFiles] }];
+}
+
+export function suiteSteps(name: string) {
+  if (name === 'all') return testStep({ isBun: true, testFiles: [] });
+  const suite = SUITES[name];
+  if (!suite) {
+    throw new Error(`run-suite: no suite called "${name}"; it takes all, ${Object.keys(SUITES).join(', ')}`);
+  }
+  return [...(suite.emit ? [ANGULAR_EMIT] : []), { name: `test (${name})`, args: suite.args }];
 }
 
 export function stepStatus(code: number | null) {
