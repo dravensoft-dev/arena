@@ -64,6 +64,17 @@ export function collectEntries(dir: string) {
   return walkFiles(dir).filter((full) => isEntry(basename(full))).sort();
 }
 
+export function unbundledProblems(entryNames: string[], landed: string[], dir: string) {
+  const there = new Set(landed);
+  return entryNames
+    .filter((name: string) => !there.has(name))
+    .map((name: string) => `${dir}/${name} is not there after bundling. Every page loads its own `
+      + 'entry from that directory BY NAME, so a bundler that lands it anywhere else, or under '
+      + `any other name, leaves the page fetching nothing: it renders an empty document and the `
+      + 'gates that open one wait out their whole timeout for a component that was never served. '
+      + `What did land: ${landed.length === 0 ? 'nothing at all' : landed.slice(0, 5).join(', ')}`);
+}
+
 export function missingEntryProblems(sourceEntries: string[], emittedEntries: string[], emitDir = relPosix(repoRoot, EMIT_DIR)) {
   const emitted = new Set(emittedEntries.map((f: string) => f.slice(0, -'.js'.length)));
   const problems = [];
@@ -140,6 +151,17 @@ async function main() {
   if (!built.success) {
     console.error('\nbuild-angular-demo: bundling failed\n');
     for (const log of built.logs) console.error(String(log));
+    process.exit(1);
+  }
+
+  const unbundled = unbundledProblems(
+    entrypoints.map((entry) => basename(entry)),
+    collectEntries(JS_DIR).map((full) => basename(full)),
+    relPosix(repoRoot, JS_DIR),
+  );
+  if (unbundled.length > 0) {
+    console.error(`\nbuild-angular-demo: ${unbundled.length} page(s) bundled to somewhere else\n`);
+    for (const p of unbundled) console.error(`  ${p}`);
     process.exit(1);
   }
 

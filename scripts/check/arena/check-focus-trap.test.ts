@@ -72,6 +72,26 @@ test('a panel with no Tab stop at all fails, and a missing panel fails before an
   assert.match(walkProblems('X', { panel: false })[0] ?? '', /nothing was walked/);
 });
 
+test('a silent page names what it fetched and what it raised, since three failures read alike', () => {
+  const problems = walkProblems('X', {
+    panel: false,
+    silence: {
+      readyState: 'complete',
+      elements: 4,
+      errors: ['failed to load http://127.0.0.1:1/x.demo.entry.generated.js'],
+      scripts: ['x.demo.entry.generated.js 404 0B'],
+    },
+  });
+  assert.match(problems[0] ?? '', /404/);
+  assert.match(problems[0] ?? '', /failed to load/);
+  assert.match(problems[0] ?? '', /complete/,
+    'an entry that 404s, a bundle that throws and a component that draws no panel are one '
+    + 'sentence apart otherwise, and only the first two are about the page rather than the '
+    + 'component this gate is pointed at');
+  assert.ok(!(walkProblems('X', { panel: false })[0] ?? '').includes('The document was'),
+    'a walk carrying no evidence says exactly what it always said, rather than an empty report');
+});
+
 test('a missing panel says how long it was waited for, which is what separates the two readings', () => {
   assert.match(walkProblems('X', { panel: false })[0] ?? '', new RegExp(`${READY_TIMEOUT_MS}ms`),
     'a page that renders nothing and a runner slower than the wait produce the same sentence '

@@ -47,6 +47,11 @@ export const FOCUSABLE = [
 
 export const PANEL = '[role="dialog"], [role="alertdialog"]';
 
+export const COLLECT_ERRORS = `window.__arenaTrapErrors = [];
+addEventListener('error', (e) => window.__arenaTrapErrors.push(
+  String((e.target && e.target.src) ? 'failed to load ' + e.target.src : e.message)), true);
+addEventListener('unhandledrejection', (e) => window.__arenaTrapErrors.push('unhandled rejection: ' + String(e.reason)));`;
+
 export const TRAPS = [
   { name: 'ArenaConfirmDialog:react', page: 'frameworks/react/components/feedback/arena-confirm-dialog/ArenaConfirmDialog.demo.generated.html' },
   { name: 'ArenaOnboarding:react', page: 'frameworks/react/components/feedback/arena-onboarding/ArenaOnboarding.demo.generated.html' },
@@ -56,8 +61,16 @@ export const TRAPS = [
   { name: 'ArenaCommandPalette:angular', page: 'frameworks/angular/components/navigation/arena-command-palette/ArenaCommandPalette.demo.generated.html' },
 ];
 
+export type Silence = {
+  readyState: string;
+  elements: number;
+  errors: string[];
+  scripts: string[];
+};
+
 export type TrapWalk = {
   panel: boolean;
+  silence?: Silence;
   focusables?: number;
   startsInside?: boolean;
   visited?: number;
@@ -66,10 +79,20 @@ export type TrapWalk = {
   [other: string]: any;
 };
 
+export function silenceOf(silence?: Silence) {
+  if (!silence) return '';
+  const scripts = silence.scripts.length === 0 ? 'none' : silence.scripts.join(', ');
+  const errors = silence.errors.length === 0 ? 'none' : silence.errors.join(' | ');
+  return `. The document was ${silence.readyState} holding ${silence.elements} element(s); `
+    + `script(s) fetched: ${scripts}; page error(s): ${errors}. A page that fetched its entry and `
+    + 'raised nothing rendered a component that draws no panel; one whose entry came back empty '
+    + 'or 404 never ran, and the bundle beside the page is what to look at';
+}
+
 export function walkProblems(name: string, walk: TrapWalk) {
   const problems: string[] = [];
   if (!walk.panel) {
-    return [`${name}: no ${PANEL} rendered inside ${READY_TIMEOUT_MS}ms, so nothing was walked`];
+    return [`${name}: no ${PANEL} rendered inside ${READY_TIMEOUT_MS}ms, so nothing was walked${silenceOf(walk.silence)}`];
   }
   if (walk.focusables === 0) {
     return [`${name}: the panel holds no Tab stop at all, so a keyboard user who reaches it cannot act`];
@@ -97,6 +120,8 @@ async function walkTrap(cdp: Cdp, url: string) {
   try {
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
+    await cdp.send('Page.enable', {}, sessionId);
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_ERRORS }, sessionId);
     await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE_TIMEOUT_MS, `${url}: navigate timed out`);
 
     const ev = (expression: string) => cdp.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, sessionId);
@@ -123,7 +148,17 @@ async function walkTrap(cdp: Cdp, url: string) {
 
     const seen = (await ev(`(() => {
       const panel = document.querySelector(${JSON.stringify(PANEL)});
-      if (!panel) return { panel: false, focusables: 0, startsInside: false };
+      if (!panel) return { panel: false, focusables: 0, startsInside: false, silence: {
+        readyState: document.readyState,
+        elements: document.body ? document.body.getElementsByTagName('*').length : 0,
+        errors: (window.__arenaTrapErrors || []).slice(0, 5),
+        scripts: performance.getEntriesByType('resource')
+          .filter((r) => r.name.endsWith('.js'))
+          .map((r) => new URL(r.name).pathname.split('/').pop()
+            + ' ' + (r.responseStatus === undefined ? '?' : r.responseStatus)
+            + ' ' + r.decodedBodySize + 'B')
+          .slice(0, 8),
+      } };
       const list = [...panel.querySelectorAll(${JSON.stringify(FOCUSABLE)})];
       list.forEach((el, i) => { el.dataset.arenaTrapIndex = String(i); });
       return { panel: true, focusables: list.length, startsInside: panel.contains(document.activeElement) };
