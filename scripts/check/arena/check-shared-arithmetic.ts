@@ -25,6 +25,7 @@ export const node = {
 export const PAIRED = [
   'AnchorActivation.ts',
   'WarnOnce.ts',
+  'ToastClock.ts',
   'DataVisuals.ts',
   'components/charts/ChartScales.ts',
   'components/charts/ChartMarks.ts',
