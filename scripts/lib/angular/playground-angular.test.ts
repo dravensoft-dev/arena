@@ -151,7 +151,14 @@ test('a required member is not optional in the interface', () => {
 
 test('the entry opens with the compiler import and bootstraps zoneless, which the gate requires', () => {
   const out = angularEntry(model, places, contracts, MARKERS, '/* banner */\n');
-  assert.match(out, /^\/\* banner \*\/\nimport '@angular\/compiler';$/m);
+  assert.match(out, /^\/\* banner \*\/\nimport \* as angularJitCompiler from '@angular\/compiler';$/m);
+  assert.match(out, /Reflect\.set\(globalThis, 'arenaAngularJitCompiler', angularJitCompiler\);/,
+    'the namespace is read, and a bare side-effect import is not: @angular/compiler declares its '
+    + 'side effects as one path with forward slashes, which a bundler comparing a native one does '
+    + 'not match, so on Windows it dropped the module and every page threw at bootstrap');
+  assert.ok(out.indexOf("Reflect.set(globalThis, 'arenaAngularJitCompiler'") < out.indexOf('bootstrapApplication('),
+    'the compiler has to be registered before anything asks the injector for an injectable that '
+    + 'was only partially compiled, which is the first thing bootstrap does');
   assert.match(out, /bootstrapApplication\(Demo, \{ providers: \[provideZonelessChangeDetection\(\)\] \}\)/);
   assert.match(out, /const MODEL: KnobModel = \{/);
 });

@@ -15,8 +15,9 @@ const PAGE =
   + `<script type="module" src="../../../${BUNDLE_DIR}/ArenaButton.demo.entry.generated.js"></script></body></html>`;
 
 const ENTRY =
-  "import '@angular/compiler';\n"
+  "import * as angularJitCompiler from '@angular/compiler';\n"
   + "import { bootstrapApplication } from '@angular/platform-browser';\n"
+  + "Reflect.set(globalThis, 'arenaAngularJitCompiler', angularJitCompiler);\n"
   + 'bootstrapApplication(Demo, { providers: [provideZonelessChangeDetection()] });\n';
 
 function reader(files: Record<string, string>) {
@@ -70,16 +71,29 @@ test('an Angular page declaring @dsCard fails, because its script is build outpu
 
 test('an entry that bootstraps with a zone fails, because the layer ships no zone.js', () => {
   const files = { ...GOOD };
-  files[`${DIR}/ArenaButton${ENTRY_SUFFIX}`] = "import '@angular/compiler';\nbootstrapApplication(Demo);\n";
+  files[`${DIR}/ArenaButton${ENTRY_SUFFIX}`] = ENTRY.replace(
+    'bootstrapApplication(Demo, { providers: [provideZonelessChangeDetection()] });', 'bootstrapApplication(Demo);');
   const { problems } = pageProblems(TREE, reader(files));
   assert.ok(problems.some((p) => p.includes('does not provide zoneless change detection')));
 });
 
 test('an entry without @angular/compiler fails, because the library ships partially compiled', () => {
   const files = { ...GOOD };
-  files[`${DIR}/ArenaButton${ENTRY_SUFFIX}`] = ENTRY.replace("import '@angular/compiler';\n", '');
+  files[`${DIR}/ArenaButton${ENTRY_SUFFIX}`] =
+    ENTRY.replace("import * as angularJitCompiler from '@angular/compiler';\n", '');
   const { problems } = pageProblems(TREE, reader(files));
   assert.ok(problems.some((p) => p.includes("does not import '@angular/compiler'")));
+});
+
+test('an entry that imports the compiler and never reads it fails, which is the drop that shipped', () => {
+  const files = { ...GOOD };
+  files[`${DIR}/ArenaButton${ENTRY_SUFFIX}`] =
+    ENTRY.replace("Reflect.set(globalThis, 'arenaAngularJitCompiler', angularJitCompiler);\n", '');
+  const { problems } = pageProblems(TREE, reader(files));
+  assert.ok(problems.some((p) => p.includes('imports the compiler and never reads it')),
+    'a bare side-effect import is one a bundler may drop, and this one dropped it on Windows: '
+    + 'the entry fetched 200, threw at bootstrap and the page rendered nothing, which every gate '
+    + 'that opens one read as a component drawing no panel');
 });
 
 test('every component in the shipped tree has a page, and the count is the tree rather than a list', () => {

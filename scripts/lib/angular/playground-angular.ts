@@ -276,7 +276,7 @@ export function angularEntry(model: PlaygroundModel, places: Places,
     (field) => `  protected readonly ${field.name}: ${field.type} = ${JSON.stringify(field.value)};`,
   );
 
-  return `${banner}import '@angular/compiler';
+  return `${banner}import * as angularJitCompiler from '@angular/compiler';
 import { ChangeDetectionStrategy, Component, computed, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { Playground } from '../../../playground/Playground';
@@ -306,6 +306,14 @@ class Demo {
   protected readonly k = computed(() => this.play.values() as unknown as Knobs);
 ${model.knobs.some((knob) => knob.form === 'functionInput') ? '  protected readonly validatorFor = validatorFor;\n' : ''}
 ${fieldRows.length > 0 ? `${fieldRows.join('\n')}\n` : ''}}
+
+/* @angular/* ships partially compiled and nothing here runs the Angular linker, so an injectable
+ * like PlatformLocation resolves through the JIT fallback and the compiler has to be in this
+ * bundle. It is READ rather than imported for its side effect alone: the package declares its
+ * side effects as the one path "./fesm2022/compiler.mjs", which a bundler holding the resolved
+ * file in the host spelling does not match on Windows, so it drops the bare import as dead. The
+ * page then loads its entry, throws at bootstrap and renders an empty document. */
+Reflect.set(globalThis, 'arenaAngularJitCompiler', angularJitCompiler);
 
 bootstrapApplication(Demo, { providers: [provideZonelessChangeDetection()] });
 `;
