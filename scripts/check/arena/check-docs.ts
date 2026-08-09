@@ -1,19 +1,21 @@
-/* Holds the four documentation norms nothing else checks: every .md under
+/* Holds the documentation norms nothing else checks: every .md under
  * MAX_DOCUMENT_CHARS unless SIZE_ALLOWANCE raises it, no banned punctuation in
  * a document's prose, the comment rule, which lets scripts and tests carry one
  * header of at most HEADER_MAX_LINES and every other hand-written source none,
- * and the branch boundary, which keeps a contributor path out of a consumer's
- * last stop and, through RULE_OWNERS, a rule off the branch that does not own
- * it. SIZE_ALLOWANCE is empty, and that emptiness is the claim: a document that
- * falls back inside the shared limit after being raised fails, so a ceiling
- * cannot quietly become permanent. A generated file is never read here. */
+ * the branch boundary, which keeps a contributor path out of a consumer's last
+ * stop and, through RULE_OWNERS, a rule off the branch that does not own it,
+ * and FOREIGN_CODE, which keeps another design system out of the examples a
+ * reader copies while leaving prose free to name one it refuses.
+ * SIZE_ALLOWANCE is empty, and that emptiness is the claim: a document that
+ * falls back inside the shared limit after being raised fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, relative, basename, sep } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { readJson } from '../../utils/read-file.ts';
 import { findComments } from '../../lib/arena/comments.ts';
-import { proseSegments } from '../../lib/arena/markdown-prose.ts';
+import { proseSegments, fencedLines } from '../../lib/arena/markdown-prose.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 
@@ -125,6 +127,13 @@ export const CONTRIBUTOR_PATHS = [
   [/\b[\w-]+\.generated\b(?!\.html)/g,
     'a build product, which a consumer reaches by importing the package rather than by name. '
     + 'A generated demo page is the exception, being the one a by-hand check opens'],
+];
+
+export const FOREIGN_CODE = [
+  [/\bmat-[a-z][\w-]*\b|\bmatInput\b|\bMat[A-Z]\w*\b/g,
+   'Angular Material, which no Arena package depends on and no Arena component imports. An example '
+   + 'reaching for it sends a reader to install a framework to draw what ArenaButton, ArenaIconButton '
+   + 'and ArenaInput already draw'],
 ];
 
 export const CONTRIBUTOR_BRANCH = 'contributor';
@@ -343,6 +352,63 @@ export function consumerBranchProblems(root = ROOT) {
   return { problems, scanned: scanned.length };
 }
 
+export const COMPONENT_COUNT_CLAIM = /\b(\d+) components\b/g;
+
+export function componentCountProblems(root = ROOT) {
+  const declared = readJson(join(root, 'frameworks', 'Components.json')) as Record<string, string[]>;
+  const shipped = Object.values(declared).flat().length;
+  const scanned = documents(root)
+    .filter((p) => basename(p) === CONSUMER_PACKAGE_PAGE && relative(root, p).startsWith(CONSUMER_TREE));
+  const problems = [];
+
+  for (const path of scanned) {
+    const rel = relative(root, path);
+    const claims = [...readFileSync(path, 'utf8').matchAll(COMPONENT_COUNT_CLAIM)];
+    if (claims.length === 0) {
+      problems.push(
+        `${rel}: states no component count, and the page npm shows is where a reader meets one. `
+        + `Write "${shipped} components" so this assertion holds it`,
+      );
+      continue;
+    }
+    for (const claim of claims) {
+      if (Number(claim[1]) === shipped) continue;
+      problems.push(
+        `${rel}: claims ${claim[1]} components and Components.json declares ${shipped}. `
+        + 'A count a reader meets first is worth holding, and this is the assertion that holds it',
+      );
+    }
+  }
+
+  if (scanned.length === 0) {
+    problems.push(
+      `found no ${CONSUMER_PACKAGE_PAGE} under ${CONSUMER_TREE} -- a count nobody counted is the `
+      + 'defect this assertion exists to stop, so an empty walk is a failure rather than a pass',
+    );
+  }
+  return { problems, scanned: scanned.length, shipped };
+}
+
+export function foreignCodeProblems(root = ROOT) {
+  const scanned = documents(root).filter((p) => isConsumerDocument(relative(root, p)));
+  const problems = [];
+  for (const path of scanned) {
+    const rel = relative(root, path);
+    for (const { line, text } of fencedLines(readFileSync(path, 'utf8'))) {
+      for (const [pattern, reason] of FOREIGN_CODE) {
+        if (!pattern) continue;
+        for (const hit of text.match(pattern) ?? []) {
+          problems.push(
+            `${rel}:${line}: a fenced example writes "${hit}", ${reason}. Prose may name a foreign `
+            + 'system to refuse it, and an example is the half a reader copies',
+          );
+        }
+      }
+    }
+  }
+  return { problems, scanned: scanned.length };
+}
+
 export function zeroScanProblems(
   { documents, sources, prompts }: { documents: number; sources: number; prompts: number },
 ) {
@@ -369,9 +435,12 @@ function main() {
     sources: comments.scanned,
     prompts: branch.scanned,
   });
+  const foreign = foreignCodeProblems();
+  const counts = componentCountProblems();
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...punctuation.problems,
-    ...comments.problems, ...branch.problems, ...ruleOwnerProblems(),
+    ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
+    ...counts.problems,
   ];
 
   if (problems.length > 0) {
@@ -383,8 +452,9 @@ function main() {
     `check-docs: ${sizes.scanned} document(s) inside their limit, ${MAX_DOCUMENT_CHARS} characters `
     + `bar ${SIZE_ALLOWANCE.size} on the record, and clear of `
     + `banned punctuation; ${comments.scanned} hand-written source(s) hold to the comment rule; `
-    + `${branch.scanned} consumer document(s) cite no contributor path, and neither branch `
-    + `states one of the other's ${RULE_OWNERS.length} registered rules`,
+    + `${branch.scanned} consumer document(s) cite no contributor path, offer no foreign framework `
+    + `in a fenced example, and neither branch states one of the other's ${RULE_OWNERS.length} `
+    + `registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components`,
   );
 }
 

@@ -9,10 +9,8 @@ serves sign-in, "check your inbox", "this link expired" and two-factor entry.
       <img src="/assets/your-mark.svg" alt="" />
     </arena-app-logo>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Email</mat-label>
-      <input matInput type="email" />
-    </mat-form-field>
+    <arena-input label="Email" type="email" [value]="email()" (change)="email.set($event)" />
+    <arena-button type="submit" full>Sign in</arena-button>
 
     <span footer>Trouble signing in? Contact your administrator.</span>
   </arena-unauth-card>

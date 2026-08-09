@@ -1,9 +1,12 @@
 /* Splits Markdown into its prose runs, one per line, so a gate reading
- * punctuation never judges the code a document quotes. Both skips are lexed
- * rather than matched: a fence closes only on a run of its own character at
- * least as long as the one that opened it, and a code span only on a backtick
- * run of exactly its own length, which may be lines below. Kept dependency-free
- * so it runs under plain node. */
+ * punctuation never judges the code a document quotes, and into the fenced
+ * lines that are the other half of the same split, so a gate reading what a
+ * reader COPIES never judges prose. Both skips are lexed rather than matched: a
+ * fence closes only on a run of its own character at least as long as the one
+ * that opened it, and a code span only on a backtick run of exactly its own
+ * length, which may be lines below. A code span is prose's neighbour and not a
+ * fence, which is what lets a document name a thing it refuses without offering
+ * it. Kept dependency-free so it runs under plain node. */
 
 const OPENS_FENCE = /^ {0,3}(`{3,}|~{3,})/;
 const CLOSES_FENCE = /^ {0,3}(`+|~+)[ \t]*$/;
@@ -35,6 +38,26 @@ function spanEnd(source: string, at: number, ticks: number) {
     i += run - 1;
   }
   return -1;
+}
+
+export function fencedLines(source: string) {
+  const lines: { line: number; text: string }[] = [];
+  let fence = null;
+  let line = 1;
+
+  for (const raw of source.split('\n')) {
+    const opening = OPENS_FENCE.exec(raw);
+    const closing = CLOSES_FENCE.exec(raw);
+    const run = closing?.[1] ?? '';
+
+    if (fence && closing && run[0] === fence[0] && run.length >= fence.length) fence = null;
+    else if (fence) lines.push({ line, text: raw });
+    else if (opening) fence = opening[1];
+
+    line += 1;
+  }
+
+  return lines;
 }
 
 export function proseSegments(source: string) {

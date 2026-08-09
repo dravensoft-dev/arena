@@ -1,12 +1,12 @@
 Arena page header: the display-weight title, an optional subtitle, and the page's
 actions. It measures **itself**, not the viewport, and stacks below `--bp-sm`, a page
-head inside a narrow panel stacks there too, on any screen. Actions are projected, so
-they are real `mat-button`s wearing Arena.
+head inside a narrow panel stacks there too, on any screen. Actions are projected, so the
+head lays out controls the consumer wrote rather than declaring a second button API of its own.
 
 ```html
 <arena-page-head title="Deployments" subtitle="Everything shipped in the last 30 days" align="center">
-  <button actions mat-stroked-button>Export</button>
-  <button actions mat-flat-button>New deployment</button>
+  <arena-button actions variant="secondary">Export</arena-button>
+  <arena-button actions>New deployment</arena-button>
 </arena-page-head>
 ```
 
