@@ -63,7 +63,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
-          key: arena-build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
 
   test-core:
     name: test core
@@ -87,7 +87,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
-          key: arena-build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
       - name: gates (core and the cross-layer arena domain)
@@ -119,7 +119,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
-          key: arena-build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
       - name: gates
@@ -154,7 +154,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
-          key: arena-build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
       - name: gates
@@ -186,7 +186,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
-          key: arena-build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
       - name: gates

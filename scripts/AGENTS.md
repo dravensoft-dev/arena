@@ -95,6 +95,36 @@ globs that reach them. A gate that parses what it captured is the dangerous case
 truncated read there is a wrong answer rather than a failure. Spawning with `stdio: 'inherit'`
 is unaffected and stays as it is: a runner that only relays a child's output reads none of it.
 
+**No script assumes one operating system, and `check:portability` holds it.** Six rules, each a
+ban with one named owner, so the question is never whether a construct is correct but where it
+may live:
+
+- **`process.platform` belongs to `lib/arena/platform.ts`.** Everywhere else takes the answer as
+  a parameter, which is what makes a branch written for Windows testable from Linux: the machine
+  a contributor happens to own stops deciding which half of the tooling is covered.
+- **A path that leaves this process goes through `toPosix`, and one compared against another
+  through `isInside`.** Both are in `utils/posix-path.ts`, and both take the path module. A
+  string prefix is wrong in one of two directions: without a separator boundary it lets
+  `/repo-evil` pass as `/repo`, and with a hardcoded `'/'` it refuses every nested path on
+  Windows.
+- **A binary is spawned by resolved path**, never a bare name and never a `node_modules/.bin`
+  shim. `lib/arena/host-binary.ts` for one the host supplies and `lib/arena/node-bin.ts` for one
+  this tree installs. There is no `git` on Windows, there is `git.exe`, and `.bin` holds a `.CMD`
+  and a `.ps1` there rather than anything named plainly.
+- **Ordering that reaches a file is by code unit**, through `utils/compare.ts`. `localeCompare`
+  puts `a` before `B` under en-US and after it by code unit, so a generator emits two different
+  files on two machines and the `git diff --exit-code` in every workflow calls the second one a
+  generator out of step. That rule's owner list is **empty**, and the emptiness is the claim.
+- **A directory link is `linkDir`**, a junction on Windows, which needs neither Developer Mode
+  nor elevation where a symlink needs both.
+- **A gate that cannot run FAILS, in one spelling.** `cannotRun` in `lib/arena/arena-scripts-vars.ts`.
+  The four skippable gates had drifted into three readings of that, so on this repository's own
+  declared strictness three failed and the fourth skipped.
+
+The rules are enforced over scripts and **not** suites: a suite naming `win32` and a `C:` path is
+doing its job, and every win32 branch above is covered from a Linux runner precisely because it
+does.
+
 **A test lives beside what it tests**, in the same directory, which for a `lib/` module means
 the same domain, not merely somewhere under `lib/`.
 

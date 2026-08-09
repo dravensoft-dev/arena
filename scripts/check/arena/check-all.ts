@@ -26,6 +26,7 @@ export { DOMAINS };
 export const GATES = [
   { name: 'check:docs', file: 'arena/check-docs.ts' },
   { name: 'check:graph', file: 'arena/check-graph.ts' },
+  { name: 'check:portability', file: 'arena/check-portability.ts' },
   { name: 'check:generated', file: 'arena/check-generated.ts' },
   { name: 'check:skills', file: 'arena/check-skills.ts' },
   { name: 'check:prompts', file: 'arena/check-prompts.ts' },

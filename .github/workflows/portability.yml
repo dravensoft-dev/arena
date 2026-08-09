@@ -1,0 +1,70 @@
+name: Arena portability
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Nightly, which is where the expense belongs: nothing here is a per-commit question.
+    - cron: '17 4 * * *'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/**'
+      - '.gitattributes'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portability-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: 1.3.14
+
+jobs:
+  portable:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Every leg reports. A failure on one is a fact about that platform, and cancelling the
+      # others would hide which platforms are fine, which is the whole question being asked.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # core.autocrlf is deliberately left at the runner default. Overriding it would prove
+      # .gitattributes works by not letting it be tested.
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+
+      - name: install, which is the first thing a prebuilt native dependency can refuse
+        run: bun install --frozen-lockfile
+
+      - name: a browser, and CHROME_PATH is deliberately not exported
+        uses: browser-actions/setup-chrome@v1
+
+      - name: build every step
+        run: bun run build
+
+      - name: byte-identical to what the Linux tree committed
+        run: git diff --exit-code
+
+      - name: the tooling's own suites, where the injected-platform cases live
+        run: bun run test:scripts
+
+      - name: the gates whose answer can differ by platform
+        run: bun scripts/ci/arena/run-portability.ts

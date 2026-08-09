@@ -78,6 +78,7 @@
     "check:style-parity": "bun scripts/check/tailwind/check-style-parity.ts",
     "check:docs": "bun scripts/check/arena/check-docs.ts",
     "check:graph": "bun scripts/check/arena/check-graph.ts",
+    "check:portability": "bun scripts/check/arena/check-portability.ts",
     "check:generated": "bun scripts/check/arena/check-generated.ts",
     "check:skills": "bun scripts/check/arena/check-skills.ts",
     "check:prompts": "bun scripts/check/arena/check-prompts.ts",
