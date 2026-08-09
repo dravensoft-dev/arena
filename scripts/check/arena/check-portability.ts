@@ -134,6 +134,18 @@ export const RULES: Rule[] = [
     reaches: 'suites as well',
   },
   {
+    id: 'called-skip',
+    pattern: /(?<![\w$])(?:t|ctx|context)\.skip\(/g,
+    owners: [],
+    why: 'a case this host cannot run declares its skip in the options object, since bun answers '
+      + 't.skip() with NotImplementedError rather than a skip. Every one of these guards a '
+      + 'capability the host may lack, a browser, a symlink, a signal, so the machine that fires '
+      + 'it is the one that already had the least to say, and what it gets is a runner error in '
+      + 'place of the reason somebody wrote for exactly that moment. Decide it before the case: '
+      + '`{ skip: WHY_NOT }`, where WHY_NOT is false or the sentence',
+    reaches: 'suites as well',
+  },
+  {
     id: 'host-separator',
     pattern: /import\s*\{[^}]*\bsep\b[^}]*\}\s*from\s*'node:path'|(?<![\w$])\w+\.sep\b/g,
     owners: [

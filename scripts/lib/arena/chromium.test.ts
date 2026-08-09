@@ -4,14 +4,16 @@
  * its own deadline by construction is worse than a slow one -- bun abandons the callback with
  * its child processes still pending, and the next file to call test() reports an error that
  * names neither. These passed here at 145ms and timed out at 5001ms on a runner, where Chrome
- * had been signalled the instant it reported its endpoint. The stand-in that ignores TERM needs
- * no browser at all, so the escalation is covered on every machine. */
+ * had been signalled the instant it reported its endpoint. Reading the process tree is keyed by
+ * platform, pgrep answering by command line where Win32_Process is the only thing that holds one
+ * on Windows; the query is built by a pure function, so the branch neither host runs is asserted
+ * from both. A skip is DECLARED and never called: bun implements no t.skip(). */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { chmodSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join, win32 } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
   DARWIN_APPS, EXIT_TIMEOUT_MS, GRACE_MS, LINUX_CANDIDATES, WINDOWS_APPS, browserFlags,
@@ -22,35 +24,62 @@ const SETTLE_TIMEOUT_MS = 5_000;
 
 const KILL_BUDGET_MS = (GRACE_MS + EXIT_TIMEOUT_MS + SETTLE_TIMEOUT_MS) * 2;
 import { createDispatcher } from './cdp.ts';
-import { platform } from './platform.ts';
+import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
 
 function chromiumTempDirs() {
   return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-')));
 }
 
-const PROBE = 'pgrep';
-const NO_MATCH = 1;
+const WHY_OBSERVED = 'to observe whether a reaped browser left a descendant behind';
+
+type Observer = { probe: string; query: (naming: string) => string[]; noMatch: number | null };
+
+const OBSERVERS: Record<'win32' | 'posix', Observer> = {
+  win32: {
+    probe: 'powershell',
+    query: (naming) => ['-NoProfile', '-NonInteractive', '-Command',
+      'Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine '
+      + `-and $_.CommandLine.Contains('${naming.replace(/'/g, "''")}') } `
+      + '| ForEach-Object { $_.ProcessId }'],
+    noMatch: null,
+  },
+  posix: {
+    probe: 'pgrep',
+    query: (naming) => ['-f', naming],
+    noMatch: 1,
+  },
+};
+
+export function observerFor(on: Platform = platform): Observer {
+  return OBSERVERS[on === 'win32' ? 'win32' : 'posix'];
+}
+
+export function profileNeedle(profilePath: string, lastSegment = basename) {
+  return lastSegment(profilePath);
+}
 
 type Seen = { looked: true; pids: string[] } | { looked: false; why: string };
 
 function processesNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}): Seen {
+  const observer = observerFor(where.on);
   let probe;
   try {
-    probe = hostBinary(PROBE, 'to observe whether a reaped browser left a descendant behind', where);
+    probe = hostBinary(observer.probe, WHY_OBSERVED, where);
   } catch (e) {
     return { looked: false, why: (e as Error).message };
   }
   try {
-    const out = execFileSync(probe, ['-f', `user-data-dir=${profilePath}`], { stdio: ['ignore', 'pipe', 'ignore'] });
-    return { looked: true, pids: out.toString().trim().split('\n').filter(Boolean) };
+    const out = execFileSync(probe, observer.query(profileNeedle(profilePath)),
+      { stdio: ['ignore', 'pipe', 'ignore'] });
+    return { looked: true, pids: out.toString().split(/\r?\n/).map((one) => one.trim()).filter(Boolean) };
   } catch (e) {
     const err = e as NodeJS.ErrnoException & { status?: number };
-    if (err.status === NO_MATCH) return { looked: true, pids: [] };
+    if (observer.noMatch !== null && err.status === observer.noMatch) return { looked: true, pids: [] };
     return {
       looked: false,
-      why: `${PROBE} exited ${err.status ?? err.code}, which is neither a match nor the `
-        + `${NO_MATCH} it reports for none.`,
+      why: `${observer.probe} exited ${err.status ?? err.code}, which is neither a match nor the `
+        + `${observer.noMatch ?? 0} it reports for none.`,
     };
   }
 }
@@ -64,6 +93,19 @@ function pidsNaming(profilePath: string, where: Parameters<typeof hostBinary>[2]
   }
   return seen.pids;
 }
+
+const BROWSER = findChromium();
+
+const BROWSER_PATH = BROWSER.path ?? '';
+
+const NEEDS_A_BROWSER = BROWSER.path
+  ? false
+  : `no Chromium available to test against: ${BROWSER.reason}`;
+
+const NEEDS_A_SIGNAL = platform === 'win32'
+  ? 'the stand-in is a shell script and Windows has no TERM to ignore: the escalation there is '
+    + 'taskkill /T /F, which the reap cases above exercise against a real browser'
+  : false;
 
 async function waitUntil(predicate: () => boolean, { timeoutMs = SETTLE_TIMEOUT_MS, intervalMs = 100 } = {}) {
   const deadline = Date.now() + timeoutMs;
@@ -220,13 +262,56 @@ test('launchChromium rejects instead of crashing when spawn cannot start the bin
   assert.deepEqual(after, before, 'a temp profile dir was left behind by the rejected launch');
 });
 
+test('each platform observes the tree with the tool it has, and the Windows one is read from here', () => {
+  const win = observerFor('win32');
+  assert.equal(win.probe, 'powershell', 'there is no pgrep on Windows, and a suite that asks for '
+    + 'one there is a suite that cannot see the tree taskkill /T /F was pointed at');
+  const asked = win.query('arena-chromium-x');
+  assert.match(asked.at(-1) ?? '', /Win32_Process/,
+    'the command line is what names the profile, and Win32_Process is the only place Windows '
+    + 'keeps one, which is why tasklist cannot answer this at all');
+  assert.match(asked.at(-1) ?? '', /arena-chromium-x/);
+  assert.ok(asked.includes('-NoProfile'),
+    'a contributor profile that prints a banner would arrive as a process id nobody can parse');
+  assert.match(asked.at(-1) ?? '', /\$_\.ProcessId -ne \$PID/,
+    'the query carries the profile name in its own command line, and Win32_Process lists the '
+    + 'shell running it, so without this the observer counts itself: one process would survive '
+    + 'every reap and the settle would wait out its whole budget for a tree that is already gone. '
+    + 'pgrep never matches its own pid, which is why the POSIX half needs no such clause');
+  assert.equal(win.noMatch, null, 'PowerShell exits 0 with nothing to say, so a status other than '
+    + '0 is a host that could not look rather than a tree with nothing in it');
+
+  for (const on of ['linux', 'darwin'] as const) {
+    assert.deepEqual(observerFor(on).query('arena-chromium-x'), ['-f', 'arena-chromium-x']);
+    assert.equal(observerFor(on).noMatch, 1);
+  }
+});
+
+test('what both are asked for is the profile own name, never the path this host spells', () => {
+  assert.equal(profileNeedle(join(tmpdir(), 'arena-chromium-ab12')), 'arena-chromium-ab12');
+  assert.equal(profileNeedle('C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\arena-chromium-ab12',
+    win32.basename), 'arena-chromium-ab12',
+    'the browser is handed an absolute path and hands its children whatever it makes of one: a '
+    + 'short 8.3 root where this process read a long one, and a quoted flag where the path holds '
+    + 'a space. mkdtemp already made the last segment unique, so matching on it asks the question '
+    + 'the reap actually has, which is whether anything still holds THIS profile');
+});
+
+test('a quote in a profile name is escaped rather than closing the query it sits in', () => {
+  const asked = observerFor('win32').query("arena-chromium-o'brien");
+  assert.match(asked.at(-1) ?? '', /o''brien/,
+    'PowerShell doubles a quote to escape it inside one, and a name that ends the literal early '
+    + 'is a query that reports no process and says nothing about why');
+});
+
 test('a host with no way to look says so, instead of reporting a browser that forked nothing', () => {
+  const probe = observerFor().probe;
   const seen = processesNaming(join(tmpdir(), 'arena-chromium-nowhere'), { env: { PATH: '' } });
   assert.equal(seen.looked, false,
-    `a host without ${PROBE} cannot answer this question at all, and Windows is one. Answering it `
-    + 'anyway with an empty list is how a missing tool arrives as a defect in the thing it was '
-    + 'brought in to measure.');
-  assert.match(seen.looked ? '' : seen.why, new RegExp(PROBE),
+    `a host without ${probe} cannot answer this question at all. Answering it anyway with an `
+    + 'empty list is how a missing tool arrives as a defect in the thing it was brought in to '
+    + 'measure.');
+  assert.match(seen.looked ? '' : seen.why, new RegExp(probe),
     'the reason names the probe, since what is missing is what has to be installed');
 
   assert.throws(() => pidsNaming(join(tmpdir(), 'arena-chromium-nowhere'), { env: { PATH: '' } }),
@@ -238,17 +323,14 @@ test('a host with no way to look says so, instead of reporting a browser that fo
 test('a host that can look and finds none says that, which is the answer the reap wants', () => {
   const seen = processesNaming(join(tmpdir(), 'arena-chromium-no-such-profile'));
   assert.deepEqual(seen, { looked: true, pids: [] },
-    `${PROBE} exits ${NO_MATCH} for no match, and reading that as a failure to run would make `
-    + 'every clean teardown indistinguishable from a host that cannot observe one');
+    `${observerFor().probe} reports no match without failing, and reading that as a failure to `
+    + 'run would make every clean teardown indistinguishable from a host that cannot observe one');
 });
 
 test('kill() reaps the whole tree: no descendant survives it and no temp profile outlives it',
-  { timeout: KILL_BUDGET_MS }, async (t) => {
-  const found = findChromium();
-  if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
-
+  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
   const before = chromiumTempDirs();
-  const { kill } = await launchChromium(found.path);
+  const { kill } = await launchChromium(BROWSER_PATH);
   const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
   assert.equal(created.length, 1, 'launchChromium should have made exactly one new temp profile dir');
   const profilePath = join(tmpdir(), created[0] ?? '');
@@ -286,12 +368,9 @@ test('every platform is told not to run its first-run flow, which delays the Dev
 });
 
 test('kill() has already finished when it resolves, rather than leaving a wait to the caller',
-  { timeout: KILL_BUDGET_MS }, async (t) => {
-    const found = findChromium();
-    if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
-
+  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
     const before = chromiumTempDirs();
-    const { kill } = await launchChromium(found.path);
+    const { kill } = await launchChromium(BROWSER_PATH);
     const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
     const profilePath = join(tmpdir(), created[0] ?? '');
 
@@ -305,11 +384,8 @@ test('kill() has already finished when it resolves, rather than leaving a wait t
   });
 
 test('teardown is bounded even where the browser ignores the signal, which is what CI showed',
-  { timeout: KILL_BUDGET_MS }, async (t) => {
-    const found = findChromium();
-    if (!found.path) { t.skip(`no Chromium available to test against: ${found.reason}`); return; }
-
-    const { kill } = await launchChromium(found.path);
+  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
+    const { kill } = await launchChromium(BROWSER_PATH);
     const started = Date.now();
     await kill();
     const took = Date.now() - started;
@@ -321,12 +397,7 @@ test('teardown is bounded even where the browser ignores the signal, which is wh
   });
 
 test('a browser that IGNORES the signal is still reaped, and inside the bound',
-  { timeout: KILL_BUDGET_MS }, async (t) => {
-    if (platform === 'win32') {
-      t.skip('the stand-in is a shell script, and the Windows escalation is taskkill /T /F');
-      return;
-    }
-
+  { timeout: KILL_BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'arena-deaf-browser-'));
     const exe = join(dir, 'deaf-browser.sh');
     writeFileSync(exe,

@@ -25,6 +25,7 @@ const PLANTED: Record<string, string> = {
   'second-separator-spelling': "const p = path.split('\\\\').join('/');\n",
   'native-relative': 'manifests.set(relative(root, p), readJson(p));\n',
   'prefix-containment': "const ok = path.startsWith(base + '/');\n",
+  'called-skip': "test('x', (t) => { t.skip('no browser here'); });\n",
   'host-separator': "import { join, sep } from 'node:path';\n",
   'sliced-relative': 'const rel = path.slice(root.length + 1);\n',
   'slash-index': "const dir = path.slice(0, path.lastIndexOf('/'));\n",

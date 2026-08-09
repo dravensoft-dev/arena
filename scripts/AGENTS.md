@@ -130,6 +130,10 @@ thing to hold true:
 - **A gate that cannot run FAILS, in one spelling.** `cannotRun` in `lib/arena/arena-scripts-vars.ts`.
   The four skippable gates had drifted into three readings of that, so on this repository's own
   declared strictness three failed and the fourth skipped.
+- **A case a host cannot run declares its skip and never calls one**: `{ skip: WHY_NOT }` beside
+  the timeout, where `WHY_NOT` is `false` or the sentence. Bun answers `t.skip()` with
+  `NotImplementedError`, so the machine lacking the browser, the symlink or the signal is the one
+  that gets a runner error in place of the reason written for exactly that moment.
 
 Most rules are enforced over scripts and **not** suites: a suite naming `win32` and a `C:` path is
 doing its job, and every win32 branch above is covered from a Linux runner precisely because it

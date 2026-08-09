@@ -525,18 +525,28 @@ test('the CLI decides it is the program the same way the tooling does, since it 
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('it takes the union both ways, which is the half the shipped copy had lost', (t) => {
+const NEEDS_A_SYMLINK = (() => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-cli-link-probe-'));
+  try {
+    symlinkSync(join(dir, 'target'), join(dir, 'link'));
+    return false;
+  } catch (err) {
+    return `this host will not create a symlink (${(err as Error).message}), which is Windows `
+      + 'without Developer Mode. It is asked once, before the case is declared, because bun '
+      + 'implements no t.skip() and a skip decided inside the callback throws in its place.';
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+})();
+
+test('it takes the union both ways, which is the half the shipped copy had lost',
+  { skip: NEEDS_A_SYMLINK }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'arena-cli-link-'));
   try {
     const real = join(dir, 'arena-to-prod.mjs');
     const link = join(dir, 'linked.mjs');
     writeFileSync(real, '');
-    try {
-      symlinkSync(real, link);
-    } catch (err) {
-      t.skip(`this host will not create a symlink (${(err as Error).message})`);
-      return;
-    }
+    symlinkSync(real, link);
 
     assert.equal(isProgram(link, real), true,
       'an entry reached through a link is still this module, and that is exactly what an npm '
