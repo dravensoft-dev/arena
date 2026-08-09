@@ -426,7 +426,7 @@ test('a parent that dies ON the signal still leaves no descendant behind',
     const exe = join(dir, 'leaky-browser.sh');
     writeFileSync(exe,
       '#!/bin/sh\n'
-      + "sh -c 'sleep 60' \"$@\" &\n"
+      + "sh -c 'sleep 60; :' \"$@\" &\n"
       + 'echo "DevTools listening on ws://127.0.0.1:9/devtools/browser/stand-in" >&2\n'
       + 'sleep 60\n');
     chmodSync(exe, 0o755);
@@ -436,9 +436,12 @@ test('a parent that dies ON the signal still leaves no descendant behind',
       const { kill } = await launchChromium(exe);
       const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
       const profilePath = join(tmpdir(), created[0] ?? '');
-      assert.equal(pidsNaming(profilePath).length, 2,
-        'the stand-in and the descendant it backgrounded both name the profile, or this case is '
-        + 'not standing in for the shape it exists to hold');
+      assert.ok(pidsNaming(profilePath).length > 1,
+        'the backgrounded descendant has to name the profile too, or this case stands in for '
+        + 'nothing. It is spawned as a LIST, `cmd; :`, because a shell handed one simple command '
+        + 'may exec into it and leave its own argv behind with the profile path in it: bash does, '
+        + 'dash does not, and a case that reads the difference is measuring the host rather than '
+        + 'the teardown');
 
       await kill();
 
