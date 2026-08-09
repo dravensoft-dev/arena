@@ -1,5 +1,6 @@
 import { Injectable, type Signal, computed, signal } from '@angular/core';
 import { calendarGutterW, calendarHourH } from '../../../Tokens.generated';
+import type { EventTimes } from './CalendarInternals';
 
 export interface CalendarCursor {
   day: number;
@@ -23,6 +24,10 @@ export interface ChipPlacement {
 export interface ChipEntry {
   domId: string;
   focus: () => void;
+  /** The chip's own times, as the CHIP published them. ArenaCalendar cannot read the three
+   * required inputs off the instance: it places events while ONE projected sibling renders, and a
+   * sibling further down the same `@for` has no binding yet. See `ProjectedInputs.ts`. */
+  times: Signal<EventTimes | null>;
 }
 
 @Injectable()
@@ -69,6 +74,10 @@ export class ArenaCalendarState {
 
   placementOf(chip: object): ChipPlacement | null {
     return this.placements().get(chip) ?? null;
+  }
+
+  timesOf(chip: object): EventTimes | null {
+    return this.entries().get(chip)?.times() ?? null;
   }
 
   y(min: number): number {

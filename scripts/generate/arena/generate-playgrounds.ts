@@ -8,6 +8,7 @@ import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 
 import { join, dirname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { toPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { playgroundModel } from '../../lib/arena/playground-model.ts';
@@ -47,7 +48,6 @@ export const node = {
     'check:appearance',
     'check:arbitrary',
     'check:behaviour',
-    'check:cards',
     'check:compliance',
     'check:demos',
     'check:dimensions',
@@ -71,7 +71,7 @@ export const CODEC_BANNER =
   + ' * resolve to two different views. */\n';
 
 export function codecTarget(layer: string) {
-  return join('frameworks', layer, 'playground', 'PlaygroundCodec.generated.ts');
+  return toPosix(join('frameworks', layer, 'playground', 'PlaygroundCodec.generated.ts'));
 }
 
 export function renderCodec(source: string) {
@@ -153,15 +153,15 @@ export function componentFiles(base = root, components = allComponents(base)) {
     const model = playgroundModel(contract, fixtures.get(name), types);
     const places = placesFor(model, all);
     const place = all.get(name);
-    const dir = join('frameworks', '<layer>', 'components', place.category, place.dir);
+    const dir = toPosix(join('frameworks', '<layer>', 'components', place.category, place.dir));
 
     const reactDir = dir.replace('<layer>', 'react');
-    files.set(join(reactDir, `${name}.demo.generated.html`), reactPage(model, PAGE_BANNER));
-    files.set(join(reactDir, `${name}.demo.entry.generated.tsx`), reactEntry(model, places, ENTRY_BANNER));
+    files.set(`${reactDir}/${name}.demo.generated.html`, reactPage(model, PAGE_BANNER));
+    files.set(`${reactDir}/${name}.demo.entry.generated.tsx`, reactEntry(model, places, ENTRY_BANNER));
 
     const angularDir = dir.replace('<layer>', 'angular');
-    files.set(join(angularDir, `${name}.demo.generated.html`), angularPage(model, PAGE_BANNER));
-    files.set(join(angularDir, `${name}.demo.entry.generated.ts`), angularEntry(model, places, contracts, markers, ENTRY_BANNER));
+    files.set(`${angularDir}/${name}.demo.generated.html`, angularPage(model, PAGE_BANNER));
+    files.set(`${angularDir}/${name}.demo.entry.generated.ts`, angularEntry(model, places, contracts, markers, ENTRY_BANNER));
   }
   return files;
 }

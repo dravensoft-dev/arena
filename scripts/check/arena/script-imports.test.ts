@@ -12,9 +12,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
-import { basename, join, dirname, relative, sep } from 'node:path';
+import { basename, join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
-import { toPosix } from '../../utils/posix-path.ts';
+import { isInside, relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { isScript, isSuite } from '../../lib/arena/domains.ts';
@@ -34,7 +34,7 @@ export const VENDORED_VERBATIM = new Set([
 
 export function guardProblems(paths: string[], root = repoRoot) {
   return paths
-    .map((p) => toPosix(relative(root, p)))
+    .map((p) => relPosix(root, p))
     .filter((rel: string) => !VENDORED_VERBATIM.has(rel))
     .filter((rel: string) => EXTENSION_COUPLED_GUARD.test(readFileSync(join(root, rel), 'utf8')))
     .map((rel: string) => `${rel} decides whether it is the program by matching its own filename`);
@@ -84,7 +84,7 @@ export function reachesOutOfUtils(path: string) {
     if (insideLiteral(literals, m.index)) continue;
     if (spec.startsWith('node:')) continue;
     if (!spec.startsWith('.')) { escaping.push(spec); continue; }
-    if (!join(dirname(path), spec).startsWith(`${UTILS}${sep}`)) escaping.push(spec);
+    if (!isInside(UTILS, join(dirname(path), spec))) escaping.push(spec);
   }
   return escaping;
 }
@@ -102,7 +102,7 @@ test('every relative import in a non-suite script resolves to a file that is the
   assert.ok(scripts.length > 30, 'this suite found almost no scripts, so it proves almost nothing');
 
   const broken = scripts.flatMap((p) =>
-    unresolvedSpecifiers(p).map((s) => `${relative(repoRoot, p)} imports ${s}`));
+    unresolvedSpecifiers(p).map((s) => `${relPosix(repoRoot, p)} imports ${s}`));
   assert.deepEqual(broken, []);
 });
 
@@ -111,7 +111,7 @@ test('nothing under scripts/utils/ imports past scripts/utils/, which is the who
   assert.ok(files.length >= 4, 'an empty directory proves no boundary, so this counts what it walked');
 
   const escaping = files.flatMap((p) =>
-    reachesOutOfUtils(p).map((s) => `${relative(repoRoot, p)} imports ${s}`));
+    reachesOutOfUtils(p).map((s) => `${relPosix(repoRoot, p)} imports ${s}`));
   assert.deepEqual(escaping, [],
     'a util speaks no vocabulary of this repository, and its import list is where that stops being '
     + 'a claim: one specifier into lib/ makes it a lib module sitting in the wrong directory, and '
@@ -127,12 +127,12 @@ test('a specifier a generator is writing into its output is not one this script 
 });
 
 test('serve.ts is in scope, and it is the reason this suite exists', () => {
-  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relative(repoRoot, p));
+  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relPosix(repoRoot, p));
   assert.ok(scripts.includes('scripts/serve.ts'));
 });
 
 test('a suite is out of scope, because its fixtures are imports inside strings', () => {
-  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relative(repoRoot, p));
+  const scripts = scriptsUnder(join(repoRoot, 'scripts')).map((p) => relPosix(repoRoot, p));
   assert.equal(scripts.some((p) => isSuite(p)), false);
   assert.deepEqual(unresolvedSpecifiers(join(repoRoot, 'scripts/check/arena/script-imports.test.ts')), [],
     'and this suite is its own witness: scanned directly it is clean, so exclusion is not hiding a break');
@@ -150,7 +150,7 @@ test('a script the graph collects does no work when it is imported', () => {
   assert.ok(collected.length > 50, 'this scan found almost no scripts, so it proves almost nothing');
 
   const working = collected.flatMap((p) =>
-    importTimeEffects(p).map((effect) => `${relative(repoRoot, p)} ${effect}`));
+    importTimeEffects(p).map((effect) => `${relPosix(repoRoot, p)} ${effect}`));
   assert.deepEqual(working, [],
     'the graph collects a node by importing the script that declares it, so a script under these '
     + 'three phases has to survive an import having done nothing. Put the work in main() behind '
@@ -206,7 +206,7 @@ test('a script is in scope in either extension, and a suite is not', () => {
   try {
     for (const name of ['a.mjs', 'b.ts', 'a.test.mjs', 'b.test.ts', 'notes.md'])
       writeFileSync(join(dir, name), '// fixture\n');
-    assert.deepEqual(scriptsUnder(dir).map((p) => relative(dir, p)).sort(),
+    assert.deepEqual(scriptsUnder(dir).map((p) => relPosix(dir, p)).sort(),
       ['a.mjs', 'a.test.mjs', 'b.ts'],
       'the four modules that stay JavaScript are still scanned, and a .test.mjs is no longer a '
       + 'suite, so it falls to this walk rather than out of every one');

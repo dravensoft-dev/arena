@@ -74,7 +74,7 @@ test('a built import is resolved through its anchor, and one whose module moved 
   try {
     assert.deepEqual(builtProblems('a.ts', buildsIn(good, anchors, root), root), []);
     assert.deepEqual(builtProblems('a.ts', buildsIn(gone, anchors, root), root),
-      [`a.ts imports ${join('scripts', 'lib', 'arena', 'layers.ts')}, and nothing is there`],
+      ['a.ts imports scripts/lib/arena/layers.ts, and nothing is there'],
       'this is the break that shipped: pascal left layers.ts and the suite kept naming it');
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

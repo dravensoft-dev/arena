@@ -202,8 +202,8 @@ export const CLAIMS = {
     { chosen: { open: true }, slot: 'panel', has: ['w-120'], why: 'the panel carries its own default width, so the width member is an override rather than a requirement' },
   ],
   ArenaGrid: [
-    ...Object.entries({ none: 'gap-0', sm: 'gap-3', md: 'gap-4', lg: 'gap-6' })
-      .map(([step, cls]) => ({ chosen: { gap: step }, slot: 'root', has: [cls], why: 'four named gap steps are four visible ones, and none really is none' })),
+    ...Object.entries({ none: 'gap-0', sm: 'gap-group', md: 'gap-component', lg: 'gap-section' })
+      .map(([step, cls]) => ({ chosen: { gap: step }, slot: 'root', has: [cls], why: 'four named gap steps are four visible ones, none really is none, and the three that are not spend the page rhythm scale rather than a step this component picked off the grid' })),
     { chosen: { centred: true }, slot: 'root', has: ['mx-auto'], why: 'centred caps the grid against its own maximum and centres what is left' },
     { chosen: { centred: false }, slot: 'root', hasNot: ['mx-auto'], why: 'without it the grid fills its container' },
   ],

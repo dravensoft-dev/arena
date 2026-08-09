@@ -42,9 +42,15 @@ export class ArenaSwitch {
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });
   /** Whether the switch lies horizontally or stands vertically. */
-  readonly orientation = input<ArenaOrientation>('horizontal');
+  readonly orientation = input<ArenaOrientation, ArenaOrientation | undefined>(
+    'horizontal',
+    { transform: (value) => value ?? 'horizontal' },
+  );
   /** The switch's overall size. */
-  readonly size = input<ArenaSwitchSize>('md');
+  readonly size = input<ArenaSwitchSize, ArenaSwitchSize | undefined>(
+    'md',
+    { transform: (value) => value ?? 'md' },
+  );
   /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
   readonly iconOn = input<string>();
   /** A Phosphor class name for the glyph shown while off. */

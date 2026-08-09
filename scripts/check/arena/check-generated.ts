@@ -5,9 +5,10 @@
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, relative } from 'node:path';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
+import { join } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { findComments } from '../../lib/arena/comments.ts';
@@ -104,7 +105,7 @@ export const UNTRACKED = {
     + 'consume/ rather than beside its manifest because every layer links THIS file: the whole '
     + 'directory is the one consumption surface, so no copy of it can disagree with another. '
     + 'The package build collects these into css/components/; check:component-css holds each to '
-    + 'the manifest it came from and check:style-parity holds it to what the recipe paints.',
+    + 'the manifest it came from.',
   'frameworks/tailwind/consume/Components.generated.css':
     'the barrel of every component sheet, in one import, which is what a page drawing most of '
     + 'the library links and what the package ships as css/components.css. A page that draws a '
@@ -132,7 +133,7 @@ export const UNTRACKED = {
 function walk(dir: string, root: string): string[] {
   return walkFiles(dir, { skip: (name) => name.startsWith('.') || SKIPPED_DIRECTORIES.has(name) })
     .filter((full) => SCANNED_EXTENSIONS.some((e) => full.endsWith(e)))
-    .map((full) => toPosix(relative(root, full)));
+    .map((full) => relPosix(root, full));
 }
 
 function startsFile(source: string, comment: { text: string }) {
@@ -188,7 +189,7 @@ export function matches(pattern: string, path: string) {
 }
 
 function gitRun(args: string[], cwd: string) {
-  const { stdout } = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  const { stdout } = spawnSync(hostBinary('git', 'to read what the tree tracks, which is a question only git can answer'), args, { cwd, encoding: 'utf8' });
   return (stdout ?? '').split('\n').filter(Boolean);
 }
 

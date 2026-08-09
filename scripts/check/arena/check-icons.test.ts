@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXEMPT, ICON_TOKEN, SCANNED_ROOTS, everyGlyph, scannedFiles, staleExemptions, tokenProblems,
   weightsFrom, zeroWeightProblems,
@@ -96,7 +97,7 @@ test('the walk skips the directories that hold copies, and takes the roots by na
     'intro/page.html': 'ph-fill ph-gear',
     'somewhere-else/z.ts': 'ph-bold ph-nope',
   });
-  const found = scannedFiles(root).map((p) => p.slice(root.length + 1).split('\\').join('/'));
+  const found = scannedFiles(root).map((p) => relPosix(root, p));
   assert.deepEqual(found.sort(), ['frameworks/react/A.tsx', 'intro/page.html'],
     'dist/ and vendor/ hold copies, and a root the list does not name is out of scope');
   rmSync(root, { recursive: true });

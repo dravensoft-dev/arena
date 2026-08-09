@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, forwardRef, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input,
+} from '@angular/core';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
-import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 
@@ -8,7 +10,6 @@ import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
   selector: 'arena-side-nav-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: ArenaSideNavChild, useExisting: forwardRef(() => ArenaSideNavItem) }],
   host: {
     style: 'display: contents',
     '[attr.id]': 'null',
@@ -86,6 +87,14 @@ export class ArenaSideNavItem {
   protected readonly off = computed(() => (this.disabled() ? 'true' : null));
 
   protected readonly count = computed(() => arenaBadgeCount(this.badge()));
+
+  constructor() {
+    effect((onCleanup) => {
+      const key = this.id();
+      this.nav.claim(key);
+      onCleanup(() => this.nav.release(key));
+    });
+  }
 
   protected activate(event: Event): void {
     if (this.disabled()) { event.preventDefault(); return; }

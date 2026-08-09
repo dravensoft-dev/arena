@@ -4,12 +4,6 @@ Steps to release a new version x.x.x of Arena
 
 bun run build:release
 
-build:release is the full build AND the assembly: every step runs, both packages included, and a
-run that kept anything from the cache fails on its own. Plain `bun run build` keeps what nothing
-has moved under and leaves the packages out, which is right for a development loop and wrong for
-the tree a release is cut from. `bun run build:packages` is the middle one: it assembles and still
-keeps what has not moved, for iterating on packaging.
-
 Then run every gate the same way:
 
 bun run check --release

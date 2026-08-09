@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -17,10 +17,10 @@ const CI_JOBS = {
 };
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 49);
+  assert.equal(GATES.length, 51);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:style-parity', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:cards', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -79,8 +79,8 @@ test('a domain that does not exist is refused rather than answered with an empty
 test('the arena domain is where the cross-layer gates are, which is why the core job carries it', () => {
   const arena = gatesFor(['arena']).map((g) => g.name);
   for (const name of ['check:api', 'check:behaviour', 'check:compliance', 'check:structure',
-    'check:dimensions', 'check:layer-independence', 'check:cards', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages',
-    'check:playgrounds']) {
+    'check:dimensions', 'check:layer-independence', 'check:focus-trap', 'check:shared-arithmetic',
+    'check:packages', 'check:playgrounds']) {
     assert.ok(arena.includes(name), `${name} is not in the arena domain`);
   }
 });
@@ -119,7 +119,7 @@ test('a suite is TypeScript, so a .test.mjs is not one and would run in neither 
   try {
     for (const name of ['a.test.mjs', 'b.test.ts', 'c.mjs', 'd.ts', 'notes.md'])
       writeFileSync(join(root, name), '// fixture');
-    assert.deepEqual(testFilesUnder(root).map((p) => relative(root, p)).sort(), ['b.test.ts'],
+    assert.deepEqual(testFilesUnder(root).map((p) => relPosix(root, p)).sort(), ['b.test.ts'],
       'domains.test.ts is what stops a .test.mjs reaching the tree at all; this only says '
       + 'that if one did, the run would not silently include it and count it as covered');
   } finally {
@@ -132,10 +132,11 @@ test('the node step names how many suites it found, because a narrowed run and a
   assert.match(step[0]?.name ?? '', /1 found/);
 });
 
-test('the four Angular-layer gates run last -- the compile gate, the demo pages, the assertion shape, then the one dependency bridge left', () => {
+test('the six Angular-layer gates run last -- the compile gate, the demo pages, the assertion shape, the one dependency bridge left, then the two input conventions', () => {
   assert.deepEqual(
-    GATES.slice(-4).map((g) => g.name),
-    ['check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk'],
+    GATES.slice(-6).map((g) => g.name),
+    ['check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs',
+      'check:optional-inputs'],
   );
 });
 
@@ -151,7 +152,7 @@ test('testStep runs every suite under bun, with the DOM harness isolated in its 
 });
 
 test('bun is pointed at the tree ngc actually emits, so a rootDir edit cannot run zero Angular suites', () => {
-  const emitted = relative(repoRoot, angularEmitRoot(join(repoRoot, 'frameworks', 'angular', 'tsconfig.test.json')));
+  const emitted = relPosix(repoRoot, angularEmitRoot(join(repoRoot, 'frameworks', 'angular', 'tsconfig.test.json')));
   const bun = testStep({ isBun: true, testFiles: [] }).find((s) => s.args[0] === 'test');
   assert.ok(bun, 'the bun branch runs no `test` step at all');
   const suites = bun.args;
@@ -184,8 +185,8 @@ test('summarize reports which steps failed', () => {
 });
 
 test('a skipped step is never a green run — the summary says INCOMPLETE', () => {
-  const out = summarize([{ name: 'a', status: 'pass' }, { name: 'check:cards', status: 'skip' }]);
-  assert.match(out, /SKIP {2}check:cards/);
+  const out = summarize([{ name: 'a', status: 'pass' }, { name: 'check:focus-trap', status: 'skip' }]);
+  assert.match(out, /SKIP {2}check:focus-trap/);
   assert.match(out, /INCOMPLETE/);
   assert.doesNotMatch(out, /all 2 step\(s\) passed/);
 });

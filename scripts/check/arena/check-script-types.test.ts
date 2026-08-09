@@ -12,6 +12,7 @@ import { existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
+import { toPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { PROJECTS, CHECKED_EXTENSIONS, sourcesUnder, unreachedProblems } from './check-script-types.ts';
 
@@ -93,6 +94,15 @@ test('a file the globs do not reach is reported, which is how a narrowed include
   const missed = unreachedProblems(onDisk, [onDisk[0] ?? '']);
   assert.equal(missed.length, 1);
   assert.match(missed[0] ?? '', /scripts\/b\.ts is on disk and the project's globs do not reach it/);
+});
+
+test('a walk and a compiler that spell a separator differently still name the same file', () => {
+  const onDisk = [join(repoRoot, 'scripts', 'a.mjs'), join(repoRoot, 'scripts', 'b.ts')];
+  const listed = onDisk.map((path) => toPosix(path));
+  assert.deepEqual(unreachedProblems(onDisk, listed), [],
+    'tsc prints a forward slash on every host and walkFiles answers in the host own, so a raw '
+    + 'comparison of the two reports every file under scripts/ as unreached on Windows and the '
+    + 'gate fails over a spelling rather than over a glob');
 });
 
 test('the real tree is fully reached, so this gate is never passing over files it never opened', () => {

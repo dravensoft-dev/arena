@@ -69,7 +69,7 @@ export class ArenaOnboarding {
   /** The tour, in order. An empty tour renders nothing. */
   readonly steps = input.required<readonly ArenaOnboardingStep[]>();
   /** Which step is current. The host owns it and answers next/back. */
-  readonly index = input(0);
+  readonly index = input<number, number | undefined>(0, { transform: (value) => value ?? 0 });
   /** Where to attach the coachmark, as the two viewport coordinates it positions from. Absent floats it bottom-right. */
   readonly anchor = input<ArenaOnboardingAnchor>();
   /** Next was activated on a step that is not the last. */

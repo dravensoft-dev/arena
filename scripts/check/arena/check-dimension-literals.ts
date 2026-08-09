@@ -12,6 +12,8 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
+import { byCodeUnit, byKey } from '../../utils/compare.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const node = {
   name: 'check:dimensions',
@@ -272,6 +274,12 @@ const COLON_STOP = new Set([',', '}']);
 
 const PROP_COLON = /(?<![\w.-])([a-zA-Z]+)\s*:\s*/g;
 
+export const COERCION = /=>/;
+
+export function isValueCoercion(prop: string, rawValue: string) {
+  return prop === 'transform' && COERCION.test(rawValue);
+}
+
 function scanColonValues(text: string) {
   const out = [];
   for (const m of text.matchAll(PROP_COLON)) {
@@ -279,6 +287,7 @@ function scanColonValues(text: string) {
     if (!PROPS.has(prop)) continue;
     const valueStart = m.index + m[0].length;
     const { text: rawValue } = readValue(text, valueStart, COLON_STOP);
+    if (isValueCoercion(prop, rawValue)) continue;
     const line = lineOf(text, m.index);
     for (const leaf of expressionLeaves(rawValue))
       for (const hit of scanLeaf(prop, leaf))
@@ -315,6 +324,7 @@ function scanDataflow(text: string) {
     if (!PROPS.has(prop)) continue;
     const valueStart = m.index + m[0].length;
     const { text: rawValue } = readValue(text, valueStart, COLON_STOP);
+    if (isValueCoercion(prop, rawValue)) continue;
     for (const leaf of expressionLeaves(rawValue)) {
       const trimmed = leaf.trim();
       if (BARE_IDENTIFIER.test(trimmed) && !bareUsages.has(trimmed)) bareUsages.set(trimmed, prop);
@@ -468,7 +478,7 @@ function collect() {
   const seenComponents = new Set<string>();
   let paramLists = 0;
   for (const file of sourceFiles(join(repoRoot, 'frameworks'))) {
-    const rel = relative(repoRoot, file);
+    const rel = relPosix(repoRoot, file);
     const text = readFileSync(file, 'utf8');
     paramLists += componentParamCount(text);
     for (const name of passthroughSightings(text)) seenComponents.add(name);
@@ -498,7 +508,7 @@ function report(found: DimensionHit[]) {
     if (!byValue.has(f.raw)) byValue.set(f.raw, []);
     byValue.get(f.raw).push(f.file);
   }
-  for (const [prop, byValue] of [...byProp].sort((a, b) => a[0].localeCompare(b[0]))) {
+  for (const [prop, byValue] of [...byProp].sort(byKey(([prop]) => prop))) {
     const total = [...byValue.values()].reduce((n, files) => n + files.length, 0);
     console.log(`\n${prop}  (${total} site(s), ${byValue.size} distinct value(s))`);
     for (const [raw, files] of [...byValue].sort((a, b) => b[1].length - a[1].length))
@@ -508,7 +518,7 @@ function report(found: DimensionHit[]) {
 }
 
 function reportSites(found: DimensionHit[]) {
-  const sorted = [...found].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  const sorted = [...found].sort((a, b) => byCodeUnit(a.file, b.file) || a.line - b.line);
   for (const f of sorted) console.log(`${f.file}:${f.line}  ${f.prop}: ${f.raw}`);
 }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { isArenaOwnActivation } from '../../../AnchorActivation.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-table/ArenaTable.classes.generated.ts';
 import type { ArenaTableColumn } from '../../../Api.generated';
@@ -47,7 +48,12 @@ export function ArenaTableRow({
       : child
   ));
 
-  const activate = interactive && onClick && !disabled ? onClick : undefined;
+  const activate = interactive && onClick && !disabled
+    ? (e: React.MouseEvent<Element> | React.KeyboardEvent<Element>) => {
+      if (!isArenaOwnActivation(e.target, e.currentTarget)) return;
+      onClick();
+    }
+    : undefined;
   const cursor = interactive ? (disabled ? 'not-allowed' : 'pointer') : 'default';
 
   if (layout === 'card') {
@@ -59,7 +65,7 @@ export function ArenaTableRow({
         onKeyDown={activate ? (e) => {
           if (e.key !== 'Enter' && e.key !== ' ') return;
           e.preventDefault();
-          activate();
+          activate(e);
         } : undefined}
         className={rowStyles({ narrow: true }).card()}>
         {cells}

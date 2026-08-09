@@ -6,6 +6,12 @@ import {
   buildStylesRuntime, generatedPath, BANNER, node as tailwindNode,
 } from '../../build/tailwind/build-tailwind.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { relPosix } from '../../utils/posix-path.ts';
+import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
+
+export const COMPILE: Deadline = deadline('tailwind:compile', 30_000,
+  'compiling the utility sheet measured 3770ms warm on a machine with nothing else on it, and '
+  + 'a runner sharing its cores with four other jobs is not that machine');
 
 export { BANNER, generatedPath };
 
@@ -26,9 +32,9 @@ export function drift(opts = {}) {
   try {
     committed = readFileSync(path, 'utf8');
   } catch {
-    return relative(repoRoot, path);
+    return relPosix(repoRoot, path);
   }
-  if (committed !== buildTailwind(opts)) return relative(repoRoot, path);
+  if (committed !== buildTailwind(opts)) return relPosix(repoRoot, path);
 
   const emitted = [
     ...buildManifestModules(opts), ...buildComponentCss(opts),
@@ -39,9 +45,9 @@ export function drift(opts = {}) {
     try {
       committedFile = readFileSync(filePath, 'utf8');
     } catch {
-      return relative(repoRoot, filePath);
+      return relPosix(repoRoot, filePath);
     }
-    if (committedFile !== content) return relative(repoRoot, filePath);
+    if (committedFile !== content) return relPosix(repoRoot, filePath);
   }
   return null;
 }

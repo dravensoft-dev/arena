@@ -5,7 +5,7 @@ own `role="img"`.
 
 ```html
 <arena-chart-card title="Deployments per week">
-  <button actions mat-icon-button aria-label="Export"><i class="ph-bold ph-download-simple"></i></button>
+  <arena-icon-button actions icon="ph-bold ph-download-simple" label="Export" />
   <arena-bar-chart label="Deployments per week" [labels]="weeks()" [series]="deployments()" />
 </arena-chart-card>
 ```

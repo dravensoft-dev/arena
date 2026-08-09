@@ -1,7 +1,8 @@
 import { readdirSync, statSync } from 'node:fs';
-import { join, normalize } from 'node:path';
+import { join } from 'node:path';
 import { repoRoot as root } from './lib/arena/repo-root.ts';
 import { arenaEnv } from './lib/arena/arena-scripts-vars.ts';
+import { resolveInRoot } from './lib/arena/static-server.ts';
 
 const port = Number(arenaEnv().PORT) || 8000;
 
@@ -10,12 +11,6 @@ const PAGES = [
   ['Identity  ', '/intro/Dravensoft%20Identity.dc.html'],
   ['Guidelines', '/intro/guidelines/'],
 ];
-
-function resolve(pathname: string) {
-  const rel = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, '');
-  const path = join(root, rel);
-  return path.startsWith(root) ? path : null;
-}
 
 const isDir = (path: string) => { try { return statSync(path).isDirectory(); } catch { return false; } };
 
@@ -38,7 +33,7 @@ Bun.serve({
   port,
   async fetch(req) {
     const { pathname } = new URL(req.url);
-    const path = resolve(pathname);
+    const path = resolveInRoot(root, pathname);
     if (!path) return new Response('Forbidden', { status: 403 });
     if (isDir(path)) {
 

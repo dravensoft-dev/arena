@@ -7,6 +7,7 @@
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { renderTarget, SKILL_TARGETS, loadCategories } from '../../generate/arena/generate-skills.ts';
@@ -33,7 +34,8 @@ export function trackingProblems(target: string, tracked: boolean) {
 }
 
 function trackedFiles(base: string) {
-  const { stdout } = spawnSync('git', ['ls-files', ...SKILL_TARGETS], { cwd: base, encoding: 'utf8' });
+  const git = hostBinary('git', 'to read what the tree tracks, which is a question only git can answer');
+  const { stdout } = spawnSync(git, ['ls-files', ...SKILL_TARGETS], { cwd: base, encoding: 'utf8' });
   return new Set((stdout ?? '').split('\n').filter(Boolean));
 }
 

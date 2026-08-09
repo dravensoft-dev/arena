@@ -1,7 +1,7 @@
 import {
-  ChangeDetectionStrategy, Component, computed, contentChildren, forwardRef, inject, input,
+  ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, input,
 } from '@angular/core';
-import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 
 let nextId = 0;
@@ -10,10 +10,7 @@ let nextId = 0;
   selector: 'arena-side-nav-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    ArenaSideNavState,
-    { provide: ArenaSideNavChild, useExisting: forwardRef(() => ArenaSideNavSection) },
-  ],
+  providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().section()',
     role: 'group',
@@ -31,8 +28,9 @@ export class ArenaSideNavSection {
   private readonly parent = inject(ArenaSideNavState, { skipSelf: true });
   private readonly own = inject(ArenaSideNavState);
 
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   protected readonly labelId = `arena-side-nav-section-${nextId++}`;
-  protected readonly children = contentChildren(ArenaSideNavChild);
 
   protected readonly heading = computed(() => {
     const text = this.label();
@@ -50,11 +48,18 @@ export class ArenaSideNavSection {
     this.own.activeId = this.parent.activeId;
     this.own.indentStep = this.parent.indentStep;
     this.own.activate = (id: string) => this.parent.activate(id);
+    this.parent.adopt(this.own);
+    inject(DestroyRef).onDestroy(() => this.parent.orphan(this.own));
   }
 
   protected ngAfterContentInit(): void {
-    if (this.children().length === 0) {
+    if (this.contentAfterHeading().length === 0) {
       throw new Error('ArenaSideNavSection: a section with no children is not a legal shape — its heading would name nothing');
     }
+  }
+
+  private contentAfterHeading(): Element[] {
+    const element = this.host.nativeElement as HTMLElement;
+    return [...element.children].slice(1);
   }
 }

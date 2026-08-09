@@ -155,7 +155,10 @@ export class ArenaCommandPalette {
   /** Every command the palette can find. Filtered by label and hint as the user types. */
   readonly commands = input.required<readonly ArenaCommand[]>();
   /** The search field's placeholder. */
-  readonly placeholder = input('Search for an action or project…');
+  readonly placeholder = input<string, string | undefined>(
+    'Search for an action or project…',
+    { transform: (value) => value ?? 'Search for an action or project…' },
+  );
   /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
   readonly maxResults = input<number>();
   /** The palette asked to be closed: Escape, the scrim, or a command having been run. */

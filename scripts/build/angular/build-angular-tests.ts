@@ -12,6 +12,7 @@ import { existsSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
@@ -49,7 +50,7 @@ export const node = {
 function pruneOrphans(dir: string) {
   const pruned: string[] = [];
   for (const full of walkFiles(dir)) {
-    const rel = relative(EMIT_DIR, full);
+    const rel = relPosix(EMIT_DIR, full);
     let srcRel;
     if (rel.endsWith('.js.map')) srcRel = rel.slice(0, -'.js.map'.length) + '.ts';
     else if (rel.endsWith('.d.ts')) srcRel = rel.slice(0, -'.d.ts'.length) + '.ts';
@@ -57,7 +58,7 @@ function pruneOrphans(dir: string) {
     else continue;
     if (srcRel.startsWith('..') || !existsSync(join(LAYER_ROOT, srcRel))) {
       rmSync(full);
-      pruned.push(relative(repoRoot, full));
+      pruned.push(relPosix(repoRoot, full));
     }
   }
   return pruned;
@@ -66,15 +67,15 @@ function pruneOrphans(dir: string) {
 function collectTestSources(dir: string) {
   return walkFiles(dir, { skip: (_name, path) => path === EMITTED })
     .filter((full) => full.endsWith('.test.ts'))
-    .map((full) => relative(dir, full));
+    .map((full) => relPosix(dir, full));
 }
 
 function collectEmittedTests(dir: string) {
   if (!existsSync(dir)) return [];
-  return walkFiles(dir).filter((full) => full.endsWith('.test.js')).map((full) => relative(dir, full));
+  return walkFiles(dir).filter((full) => full.endsWith('.test.js')).map((full) => relPosix(dir, full));
 }
 
-export function missingEmitProblems(sourceTests: string[], emittedTests: string[], emitDir = relative(repoRoot, EMIT_DIR)) {
+export function missingEmitProblems(sourceTests: string[], emittedTests: string[], emitDir = relPosix(repoRoot, EMIT_DIR)) {
   const emittedStems = new Set(emittedTests.map((f: string) => f.slice(0, -'.js'.length)));
   const problems = [];
   for (const src of sourceTests) {
@@ -98,7 +99,7 @@ function collectInputs() {
 }
 
 function stamp(path: string) {
-  return { path: relative(repoRoot, path), mtimeMs: statSync(path).mtimeMs };
+  return { path: relPosix(repoRoot, path), mtimeMs: statSync(path).mtimeMs };
 }
 
 function readStamp() {

@@ -8,14 +8,19 @@
  * at all, and check-graph.ts is why: collecting reaches the gate that is running, whose own guard
  * correctly answers that it IS the program, so it re-enters itself once per collection. */
 
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { walkFiles } from '../utils/walk-files.ts';
-import { toPosix } from '../utils/posix-path.ts';
+import { relPosix } from '../utils/posix-path.ts';
 import { isScript } from '../lib/arena/domains.ts';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { matchesSpec } from './pathspecs.ts';
 import type { GraphNode } from './graph.ts';
+import { deadline, type Deadline } from '../lib/arena/deadline.ts';
+
+export const COLLECTION: Deadline = deadline('graph:collection', 30_000,
+  'collecting imports every script under the three phases, which measured 3227ms warm on a '
+  + 'machine with nothing else on it, and every one of them is parsed on the way');
 
 export const COLLECTED_PHASES = ['build', 'generate', 'check'];
 
@@ -68,7 +73,7 @@ export function collectedScripts(root = repoRoot) {
   return COLLECTED_PHASES
     .flatMap((phase) => walkFiles(join(root, 'scripts', phase)))
     .filter((full) => isScript(basename(full)))
-    .map((full) => toPosix(relative(root, full)))
+    .map((full) => relPosix(root, full))
     .sort();
 }
 

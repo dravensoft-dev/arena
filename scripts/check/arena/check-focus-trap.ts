@@ -1,21 +1,23 @@
 /* The boundary wrap of a trap is Arena's own .focus() call and happy-dom honours it. The
  * INTERIOR is native sequential focus navigation, which happy-dom does not have: a suite
- * asserting it there passes identically against a perfect trap and against none, which is
- * why the record said a person had to check it. check:cards already drives real Chromium
- * over CDP, and the same connection presses a real Tab. TRAPS names a page per layer that
- * binds dialog-modal, since the contract is the authority and each layer answers it
- * separately. Each page opens its panel from its own fixture, so no button is found by its
- * text: a page whose copy moved used to be walked with nothing open. FOCUSABLE repeats
- * :not([tabindex="-1"]) on every clause because a selector list is OR'd, and writing it
- * loose once made this gate call a correct combobox a broken trap. */
+ * asserting it there passes identically against a perfect trap and against none. This gate
+ * drives real Chromium over CDP and presses a real Tab, and it is the only one that does.
+ * TRAPS names a page per layer binding dialog-modal, each layer answering the contract
+ * separately, and every page opens its panel from its own fixture, so no button is found by
+ * its text. The wait is for that panel to hold focus and not a fixed sleep, a sleep being a
+ * guess about machine speed that reports a slow runner as a component that rendered nothing.
+ * FOCUSABLE repeats :not([tabindex="-1"]) on every clause because a selector list is OR'd,
+ * and writing it loose once made this gate call a correct combobox a broken trap. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
+import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
+import { POLL_MS } from '../../lib/arena/wait-for.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
-import { findChromium, launchChromium } from '../../lib/arena/chromium.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect } from '../../lib/arena/cdp.ts';
 import type { Cdp } from '../../lib/arena/cdp.ts';
-import { skipExitCode } from '../../lib/arena/arena-scripts-vars.ts';
+import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const node = {
@@ -30,9 +32,46 @@ export const node = {
 };
 
 
-const NAVIGATE_TIMEOUT_MS = 30_000;
-const SETTLE_MS = 1_100;
-const STEP_MS = 60;
+export const NAVIGATE: Deadline = deadline('focus-trap:navigate', 30_000,
+  'a demo page fetches its own bundle, so the first navigation of a sweep pays for a cold HTTP '
+  + 'cache and for whatever the static server is still writing');
+
+export const PANEL_HELD: Deadline = deadline('focus-trap:panel-held', 20_000,
+  'the panel opens from the page fixture after the framework has mounted, so this covers a '
+  + 'bundle parse, a hydration and an opening transition on a runner with no GPU');
+
+export const FOCUS_MOVED: Deadline = deadline('focus-trap:focus-moved', 2_000,
+  'the span a synthetic Tab has to land before the wait is a hang rather than a keypress, which '
+  + 'is generous because a focus handler may run a transition and a scroll before it settles');
+
+export function heldExpression(bound: Deadline) {
+  return `new Promise((resolve) => {
+    const until = Date.now() + ${bound.ms};
+    const started = Date.now();
+    const held = () => {
+      const panel = document.querySelector(${JSON.stringify(PANEL)});
+      return Boolean(panel && panel.contains(document.activeElement));
+    };
+    const tick = () => {
+      if (held()) resolve({ held: true, waitedMs: Date.now() - started });
+      else if (Date.now() >= until) resolve({ held: false, waitedMs: Date.now() - started });
+      else setTimeout(tick, ${POLL_MS});
+    };
+    tick();
+  })`;
+}
+
+export function movedExpression(bound: Deadline) {
+  return `new Promise((resolve) => {
+    const before = document.activeElement;
+    const until = Date.now() + ${bound.ms};
+    const tick = () => {
+      if (document.activeElement !== before || Date.now() >= until) resolve(true);
+      else setTimeout(tick, ${POLL_MS});
+    };
+    tick();
+  })`;
+}
 
 const REACHABLE = ':not([tabindex="-1"])';
 export const FOCUSABLE = [
@@ -46,6 +85,11 @@ export const FOCUSABLE = [
 
 export const PANEL = '[role="dialog"], [role="alertdialog"]';
 
+export const COLLECT_ERRORS = `window.__arenaTrapErrors = [];
+addEventListener('error', (e) => window.__arenaTrapErrors.push(
+  String((e.target && e.target.src) ? 'failed to load ' + e.target.src : e.message)), true);
+addEventListener('unhandledrejection', (e) => window.__arenaTrapErrors.push('unhandled rejection: ' + String(e.reason)));`;
+
 export const TRAPS = [
   { name: 'ArenaConfirmDialog:react', page: 'frameworks/react/components/feedback/arena-confirm-dialog/ArenaConfirmDialog.demo.generated.html' },
   { name: 'ArenaOnboarding:react', page: 'frameworks/react/components/feedback/arena-onboarding/ArenaOnboarding.demo.generated.html' },
@@ -55,8 +99,16 @@ export const TRAPS = [
   { name: 'ArenaCommandPalette:angular', page: 'frameworks/angular/components/navigation/arena-command-palette/ArenaCommandPalette.demo.generated.html' },
 ];
 
+export type Silence = {
+  readyState: string;
+  elements: number;
+  errors: string[];
+  scripts: string[];
+};
+
 export type TrapWalk = {
   panel: boolean;
+  silence?: Silence;
   focusables?: number;
   startsInside?: boolean;
   visited?: number;
@@ -65,9 +117,28 @@ export type TrapWalk = {
   [other: string]: any;
 };
 
+export function silenceOf(silence?: Silence) {
+  if (!silence) return '';
+  const scripts = silence.scripts.length === 0 ? 'none' : silence.scripts.join(', ');
+  const errors = silence.errors.length === 0 ? 'none' : silence.errors.join(' | ');
+  return `. The document was ${silence.readyState} holding ${silence.elements} element(s); `
+    + `script(s) fetched: ${scripts}; page error(s): ${errors}. A page that fetched its entry and `
+    + 'raised nothing rendered a component that draws no panel; one whose entry came back empty '
+    + 'or 404 never ran, and the bundle beside the page is what to look at';
+}
+
 export function walkProblems(name: string, walk: TrapWalk) {
   const problems: string[] = [];
-  if (!walk.panel) return [`${name}: no ${PANEL} rendered, so nothing was walked`];
+  if (walk.expired) {
+    return [`${name}: ${PANEL_HELD.name} was not seen within ${PANEL_HELD.ms}ms, which is that `
+      + `size because ${PANEL_HELD.why}. The wait expired after ${walk.waitedMs}ms, so this says `
+      + 'the panel was not seen in time and says nothing about whether the component draws one'
+      + silenceOf(walk.silence)];
+  }
+  if (!walk.panel) {
+    return [`${name}: the wait ended with no ${PANEL} in the document, so the component rendered `
+      + `no panel and nothing was walked${silenceOf(walk.silence)}`];
+  }
   if (walk.focusables === 0) {
     return [`${name}: the panel holds no Tab stop at all, so a keyboard user who reaches it cannot act`];
   }
@@ -94,7 +165,10 @@ async function walkTrap(cdp: Cdp, url: string) {
   try {
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
-    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE_TIMEOUT_MS, `${url}: navigate timed out`);
+    await cdp.send('Page.enable', {}, sessionId);
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_ERRORS }, sessionId);
+    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
+      `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
     const ev = (expression: string) => cdp.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, sessionId);
     const tab = async (shift: boolean) => {
@@ -102,19 +176,32 @@ async function walkTrap(cdp: Cdp, url: string) {
       for (const type of ['rawKeyDown', 'keyUp']) {
         await cdp.send('Input.dispatchKeyEvent', { type, windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab', modifiers }, sessionId);
       }
-      await ev(`new Promise((r) => setTimeout(r, ${STEP_MS}))`);
+      await ev(movedExpression(FOCUS_MOVED));
     };
 
-    await ev(`new Promise((r) => setTimeout(r, ${SETTLE_MS}))`);
+    const ready = (await ev(heldExpression(PANEL_HELD))).result.value;
 
     const seen = (await ev(`(() => {
       const panel = document.querySelector(${JSON.stringify(PANEL)});
-      if (!panel) return { panel: false, focusables: 0, startsInside: false };
+      if (!panel) return { panel: false, focusables: 0, startsInside: false, silence: {
+        readyState: document.readyState,
+        elements: document.body ? document.body.getElementsByTagName('*').length : 0,
+        errors: (window.__arenaTrapErrors || []).slice(0, 5),
+        scripts: performance.getEntriesByType('resource')
+          .filter((r) => r.name.endsWith('.js'))
+          .map((r) => new URL(r.name).pathname.split('/').pop()
+            + ' ' + (r.responseStatus === undefined ? '?' : r.responseStatus)
+            + ' ' + r.decodedBodySize + 'B')
+          .slice(0, 8),
+      } };
       const list = [...panel.querySelectorAll(${JSON.stringify(FOCUSABLE)})];
       list.forEach((el, i) => { el.dataset.arenaTrapIndex = String(i); });
       return { panel: true, focusables: list.length, startsInside: panel.contains(document.activeElement) };
     })()`)).result.value;
-    if (!seen.panel || seen.focusables === 0) return { ...seen, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
+    const waited = { expired: !ready.held, waitedMs: ready.waitedMs };
+    if (!seen.panel || seen.focusables === 0) {
+      return { ...seen, ...waited, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
+    }
 
     const reached = new Set();
     const forward = [];
@@ -140,6 +227,7 @@ async function walkTrap(cdp: Cdp, url: string) {
 
     return {
       ...seen,
+      ...waited,
       forward,
       visited: reached.size,
       wrapsForward: afterLoop === '0' || reached.size === seen.focusables,
@@ -150,28 +238,25 @@ async function walkTrap(cdp: Cdp, url: string) {
   }
 }
 
-function skip(reason: string): never {
-  const code = skipExitCode();
-  console.error(`check-focus-trap: ${code === 1 ? 'FAILED (strict)' : 'SKIPPED'} — ${reason}`);
-  process.exit(code);
-}
+const skip: (reason: string) => never = (reason) => cannotRun('check-focus-trap', reason);
 
 async function main() {
   if (TRAPS.length === 0) skip('TRAPS is empty -- a walk with nothing to walk proves nothing');
-  const browser = findChromium();
-  if (browser.path === null) skip(browser.reason);
+  const exe = browserOrExit('check-focus-trap');
 
   const server = await startStaticServer(root);
-  const chrome = await launchChromium(browser.path);
+  const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems = [];
+  let slowest = 0;
   try {
     for (const trap of TRAPS) {
       const walk = await walkTrap(cdp, `http://127.0.0.1:${server.port}/${trap.page}`);
+      slowest = Math.max(slowest, Number(walk.waitedMs ?? 0));
       problems.push(...walkProblems(trap.name, walk));
     }
   } finally {
-    chrome.kill?.();
+    await chrome.kill?.();
     server.close?.();
   }
 
@@ -180,7 +265,9 @@ async function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-focus-trap: ${TRAPS.length} trap(s) walked with real Tab presses — focus stayed inside, reached every control and wrapped both ways`);
+  console.log(`check-focus-trap: ${TRAPS.length} trap(s) walked with real Tab presses. Focus `
+    + 'stayed inside, reached every control and wrapped both ways. The slowest panel was seen '
+    + `after ${slowest}ms of the ${PANEL_HELD.ms}ms allowed`);
 }
 
 if (isMainModule(import.meta.url)) await main();

@@ -1,19 +1,15 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, contentChildren, effect,
-  forwardRef, inject, input, output, signal, untracked,
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, DestroyRef, effect,
+  inject, input, output, signal, untracked,
 } from '@angular/core';
-import { ArenaSideNavChild, ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
-import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem';
 
 @Component({
   selector: 'arena-side-nav-collapsible',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    ArenaSideNavState,
-    { provide: ArenaSideNavChild, useExisting: forwardRef(() => ArenaSideNavCollapsible) },
-  ],
+  providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().section()',
     '[attr.id]': 'null',
@@ -49,7 +45,6 @@ export class ArenaSideNavCollapsible {
 
   private readonly parent = inject(ArenaSideNavState, { skipSelf: true });
   private readonly own = inject(ArenaSideNavState);
-  private readonly items = contentChildren(ArenaSideNavItem, { descendants: true });
   private readonly open = signal<boolean | null>(null);
 
   protected readonly triggerId = computed(() => `${this.key()}-trigger`);
@@ -57,10 +52,7 @@ export class ArenaSideNavCollapsible {
   protected readonly expanded = computed(() => this.open() ?? (this.defaultExpanded() || this.holdsActive()));
   protected readonly caretGlyph = computed(() => (this.expanded() ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'));
 
-  protected readonly holdsActive = computed(() => {
-    const active = this.parent.activeId();
-    return active !== undefined && this.items().some((item) => item.id() === active);
-  });
+  protected readonly holdsActive = this.own.holdsActive;
 
   protected readonly heading = computed(() => {
     const text = this.label();
@@ -78,6 +70,8 @@ export class ArenaSideNavCollapsible {
     this.own.activeId = this.parent.activeId;
     this.own.indentStep = this.parent.indentStep;
     this.own.activate = (id: string) => this.parent.activate(id);
+    this.parent.adopt(this.own);
+    inject(DestroyRef).onDestroy(() => this.parent.orphan(this.own));
 
     effect(() => {
       const holds = this.holdsActive();

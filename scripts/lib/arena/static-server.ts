@@ -1,6 +1,14 @@
+/* The static file server behind `bun run demos`, and the fixture three gates load pages from.
+ * `resolveInRoot` is the containment rule both servers ask, rather than each spelling it: a
+ * pathname a client sent is untrusted, and the two spellings that preceded this were each wrong
+ * in their own direction. It answers a path or nothing, so a caller decides what a refusal costs
+ * and neither of them has to remember to compare. A pathname that does not decode is a refusal
+ * too, since throwing out of a request handler is a crash rather than a 403. */
+
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { extname, resolve } from 'node:path';
+import nodePath, { extname } from 'node:path';
+import { isInside, type PathModule } from '../../utils/posix-path.ts';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -20,7 +28,7 @@ export function contentType(path: string) {
   return (TYPES as Record<string, string>)[extname(path).toLowerCase()] ?? 'application/octet-stream';
 }
 
-export function resolveInRoot(root: string, pathname: string) {
+export function resolveInRoot(root: string, pathname: string, on: PathModule = nodePath) {
   let rel;
   try {
     rel = decodeURIComponent(pathname);
@@ -28,11 +36,8 @@ export function resolveInRoot(root: string, pathname: string) {
     return null;
   }
 
-  const relPath = rel.replace(/^\/+/, '');
-
-  const base = root.replace(/\/+$/, '');
-  const path = resolve(base, relPath);
-  return path.startsWith(base + '/') || path === base ? path : null;
+  const path = on.resolve(root, rel.replace(/^[/\\]+/, ''));
+  return isInside(root, path, on) ? path : null;
 }
 
 export function startStaticServer(root: string): Promise<{ port: number; close: () => Promise<void> }> {

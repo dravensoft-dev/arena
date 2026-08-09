@@ -11,6 +11,18 @@ import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { isMainModule } from './main-module.ts';
 
+function whyNoSymlink() {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-symlink-probe-'));
+  try {
+    symlinkSync(join(dir, 'target'), join(dir, 'link'));
+    return false;
+  } catch (err) {
+    return `this host will not create a symlink (${(err as Error).message})`;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 function withArgv(entry: string | undefined, run: () => void) {
   const before = process.argv[1];
   if (entry === undefined) process.argv.splice(1, 1);
@@ -36,7 +48,17 @@ test('a module something else imported is not the program', () => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('an entry reached through a symlink is still the program, which is what an npm bin is', () => {
+const NEEDS_A_SYMLINK = (() => {
+  const why = whyNoSymlink();
+  return why === false ? false : `${why}. The capability is what is asked about rather than the `
+    + 'platform, because a util suite may import no Arena module and so cannot ask which one it '
+    + 'is running on; on the host where this fails, Windows without Developer Mode, an npm bin '
+    + 'link is a .CMD shim and not a link. It is answered once, before the case is declared, '
+    + 'because bun implements no t.skip() and a skip decided inside the callback throws.';
+})();
+
+test('an entry reached through a symlink is still the program, which is what an npm bin is',
+  { skip: NEEDS_A_SYMLINK }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'arena-main-'));
   try {
     const real = join(dir, 'command.ts');

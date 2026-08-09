@@ -7,10 +7,11 @@
  * this gate is what keeps the raw form from coming back. NodeAssert.ts has the measurement. */
 
 import { readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { lineOf } from '../../utils/text.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 export const SUITE_ROOT = 'frameworks/angular';
@@ -99,7 +100,7 @@ export function assertionProblems(files: string[], read: (path: string) => strin
 
 function main() {
   const root = join(repoRoot, SUITE_ROOT);
-  const files = suiteFiles(root).map((path) => relative(repoRoot, path));
+  const files = suiteFiles(root).map((path) => relPosix(repoRoot, path));
   const problems = assertionProblems(files, (rel: string) => readFileSync(join(repoRoot, rel), 'utf8'));
   if (problems.length) {
     console.error(`check-assertions: ${problems.length} problem(s)\n`);

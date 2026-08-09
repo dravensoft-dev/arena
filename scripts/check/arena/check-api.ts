@@ -19,6 +19,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { MEMBER_FORMS, memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { SurfaceMember } from '../../lib/arena/api-surface.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const node = {
   name: 'check:api',
@@ -384,7 +385,7 @@ export function reactImplementationProblems(contract: ContractCandidate, declara
   const where = `react/${contract.component}`;
   const found = reactSourceFor(declarationPath, readFile);
   if (!found) {
-    return [`${where}: no ${REACT_SOURCE_EXTENSIONS.join(' and no ')} beside ${relative(root, declarationPath)}. check:api reads the declaration; without the implementation it can only check what the declaration agrees to.`];
+    return [`${where}: no ${REACT_SOURCE_EXTENSIONS.join(' and no ')} beside ${relPosix(root, declarationPath)}. check:api reads the declaration; without the implementation it can only check what the declaration agrees to.`];
   }
   const source = found.source;
   let impl;

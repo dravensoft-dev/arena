@@ -5,13 +5,16 @@
  * need. It also holds that no script reaches for syntax bare node cannot strip, which is
  * what keeps one runnable by both runtimes check-all targets. A tsconfig
  * whose globs match nothing compiles nothing and reports clean, so this counts what the
- * project actually reached against what is on disk rather than trusting the globs. */
+ * project actually reached against what is on disk rather than trusting the globs. Both sides
+ * are read as repo-relative posix: tsc answers in forward slashes on every host and a walk
+ * answers in the host's own, so comparing them raw calls every file unreached on Windows. */
 
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { typecheck, projectFiles, zeroProjectProblems } from '../../lib/arena/typecheck.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const PROJECTS = [
   { project: 'scripts/tsconfig.check.json',
@@ -25,10 +28,11 @@ export function sourcesUnder(dir: string): string[] {
 }
 
 export function unreachedProblems(onDisk: string[], included: string[], root = repoRoot) {
-  const reached = new Set(included);
+  const reached = new Set(included.map((path: string) => relPosix(root, path)));
   return onDisk
-    .filter((path: string) => !reached.has(path))
-    .map((path: string) => `${relative(root, path)} is on disk and the project's globs do not reach it`);
+    .map((path: string) => relPosix(root, path))
+    .filter((rel: string) => !reached.has(rel))
+    .map((rel: string) => `${rel} is on disk and the project's globs do not reach it`);
 }
 
 function main() {

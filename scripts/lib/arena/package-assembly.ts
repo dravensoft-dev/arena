@@ -1,12 +1,15 @@
 /* What both package builds share: the exclusion list that decides what never ships, the
  * copy that honours it, the CSS chain each package carries, and the manifest templates.
  * `arena` because it reads two framework layers and the repository root. Nothing here
- * compiles anything; each layer's own builder does that with its own toolchain. */
+ * compiles anything; each layer's own builder does that with its own toolchain. sheetPath is
+ * given the repo-relative posix key it documents rather than the absolute path walkFiles
+ * answers: finding its prefix inside an absolute path worked only because a posix one contains
+ * that prefix, and a native one does not, so the sheet would be looked for beside the manifest. */
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync, statSync } from 'node:fs';
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
 import { join, dirname, relative, basename } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from './repo-root.ts';
@@ -81,7 +84,7 @@ export function copy(from: string, dir: string, rel: string) {
 export function copyTree(from: string, dir: string, rel: string, keep?: (path: string) => boolean) {
   const written = [];
   for (const file of collectFiles(from, keep)) {
-    written.push(copy(file, dir, join(rel, relative(from, file))));
+    written.push(copy(file, dir, `${rel}/${relPosix(from, file)}`));
   }
   return written;
 }
@@ -94,7 +97,7 @@ export function writeCssChain(dir: string, name: string, extra: CssChainEntry[] 
   }
   const imports = chain
     .filter(({ linked }) => linked !== false)
-    .map(({ to }) => `@import './${toPosix(to)}';`);
+    .map(({ to }) => `@import './${to}';`);
   write(dir, 'arena.css', `${arenaCssHeader(name)}\n${imports.join('\n')}\n`);
   return chain.map((c) => c.to);
 }
@@ -120,23 +123,25 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   const { base } = split(css);
   const dir = join(root, 'frameworks', 'tailwind');
   const consume = join(root, ...CONSUME.split('/'));
-  const files = manifestFiles(join(dir, 'components')).map((file) => sheetPath(file));
+  const files = manifestFiles(join(dir, 'components'))
+    .map((file) => join(root, sheetPath(relPosix(root, file))));
   if (files.length === 0) {
     throw new Error('package-assembly: no component stylesheet was found, so the package would ship '
       + 'a barrel that imports nothing and every component would render unstyled');
   }
   const named = files.map((file) => ({
-    to: join('css', 'components', `${kebab(basename(file).split('.')[0] ?? '')}.css`),
+    to: `css/components/${kebab(basename(file).split('.')[0] ?? '')}.css`,
     content: readFileSync(file, 'utf8').replace(/@import '(?:\.\.\/)+Prelude\.generated\.css';/, "@import '../prelude.css';"),
     linked: false,
   }));
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
-    { to: join('css', 'base.css'), content: `${SHEET_BANNERS.base}\n${base}` },
-    { to: join('css', 'numerals.css'), content: readFileSync(join(dir, 'Numerals.css'), 'utf8') },
-    { to: join('css', 'prelude.css'), content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
+    { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${base}` },
+    { to: 'css/numerals.css', content: readFileSync(join(dir, 'Numerals.css'), 'utf8') },
+    { to: 'css/rhythm.css', content: readFileSync(join(dir, 'Rhythm.css'), 'utf8') },
+    { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
-    { to: join('css', 'components.css'), content: `${SHEET_BANNERS.components}\n${barrel}\n` },
+    { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
   ];
 }
 
@@ -156,7 +161,7 @@ export function copyCli(dir: string, root = repoRoot) {
   for (const name of Object.keys(CLI_BINS)) {
     const from = join(root, 'scripts', 'generate', 'core', name);
     const copied = collectFiles(from, (file) => !excluded(basename(file))).map((file) => {
-      const to = join('bin', toPosix(relative(from, file)));
+      const to = `bin/${relPosix(from, file)}`;
       if (!file.endsWith('.ts')) { copy(file, dir, to); return `./${to}`; }
       write(dir, to.replace(/\.ts$/, '.mjs'), emitCli(readFileSync(file, 'utf8')));
       return `./${to.replace(/\.ts$/, '.mjs')}`;
@@ -208,5 +213,5 @@ export function baseManifest(root = repoRoot) {
 
 export function report(name: string, dir: string, files: string[]) {
   const bytes = files.reduce((total, f) => total + (existsSync(f) ? statSync(f).size : 0), 0);
-  return `${name}: ${files.length} file(s), ${(bytes / 1024).toFixed(0)} KiB, in ${relative(repoRoot, dir)}`;
+  return `${name}: ${files.length} file(s), ${(bytes / 1024).toFixed(0)} KiB, in ${relPosix(repoRoot, dir)}`;
 }

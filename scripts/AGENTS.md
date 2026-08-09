@@ -95,12 +95,69 @@ globs that reach them. A gate that parses what it captured is the dangerous case
 truncated read there is a wrong answer rather than a failure. Spawning with `stdio: 'inherit'`
 is unaffected and stays as it is: a runner that only relays a child's output reads none of it.
 
+**No script assumes one operating system, and `check:portability` holds it.** Every rule is a
+ban with a named owner, so the question is never whether a construct is correct but where it
+may live. The count lives in `RULES` and not in this sentence, a number here being one more
+thing to hold true:
+
+- **`process.platform` belongs to `lib/arena/platform.ts`.** Everywhere else takes the answer as
+  a parameter, which is what makes a branch written for Windows testable from Linux: the machine
+  a contributor happens to own stops deciding which half of the tooling is covered.
+- **A path that leaves this process goes through `toPosix`, a repo-relative one through
+  `relPosix`, and one compared against another through `isInside`.** All three are in
+  `utils/posix-path.ts`, and all three take the path module. A string prefix is wrong in one of
+  two directions: without a separator boundary it lets `/repo-evil` pass as `/repo`, and with a
+  hardcoded `'/'` it refuses every nested path on Windows. `relative` answers in the host
+  separator, so its result is native until something says otherwise; spelling that as two calls
+  is what let a manifest key reach five readers that split it on `'/'`. **Nothing else writes the
+  host separator down, computes a relative path by slicing the base's length off an absolute one,
+  or hunts a path's last slash by hand.** Each of those reads a native path as one segment on
+  Windows and as a correct answer here, which is a gate that passes by finding nothing: a chart
+  excused by a directory nobody matched, a header allowance a file never got, a page a citation
+  could not resolve. `basename` and `dirname` read a forward slash on every host and are how a
+  path is taken apart. A key a suite writes as an expected value is held to the same rule, since
+  a native path in an assertion passes only on the machine that wrote it.
+- **A binary is spawned by resolved path**, never a bare name and never a `node_modules/.bin`
+  shim. `lib/arena/host-binary.ts` for one the host supplies and `lib/arena/node-bin.ts` for one
+  this tree installs. There is no `git` on Windows, there is `git.exe`, and `.bin` holds a `.CMD`
+  and a `.ps1` there rather than anything named plainly.
+- **Ordering that reaches a file is by code unit**, through `utils/compare.ts`. `localeCompare`
+  puts `a` before `B` under en-US and after it by code unit, so a generator emits two different
+  files on two machines and the `git diff --exit-code` in every workflow calls the second one a
+  generator out of step. That rule's owner list is **empty**, and the emptiness is the claim.
+- **A directory link is `linkDir`**, a junction on Windows, which needs neither Developer Mode
+  nor elevation where a symlink needs both.
+- **A gate that cannot run FAILS, in one spelling.** `cannotRun` in `lib/arena/arena-scripts-vars.ts`.
+  The four skippable gates had drifted into three readings of that, so on this repository's own
+  declared strictness three failed and the fourth skipped.
+- **A case a host cannot run declares its skip and never calls one**: `{ skip: WHY_NOT }` beside
+  the timeout, where `WHY_NOT` is `false` or the sentence. Bun answers `t.skip()` with
+  `NotImplementedError`, so the machine lacking the browser, the symlink or the signal is the one
+  that gets a runner error in place of the reason written for exactly that moment.
+
+Most rules are enforced over scripts and **not** suites: a suite naming `win32` and a `C:` path is
+doing its job, and every win32 branch above is covered from a Linux runner precisely because it
+does. **The separator rules read suites as well**, and each one says so where it is declared: a
+native path compared against a posix literal is the same defect wherever it sits, and a suite is
+where it lands as an assertion that passes on the machine that wrote it and on no other.
+
 **A test lives beside what it tests**, in the same directory, which for a `lib/` module means
 the same domain, not merely somewhere under `lib/`.
 
 **A file here may carry one header comment, at most ten lines**, the exception `check:docs`
 grants `scripts/` and test files. Anything that will not fit goes in the gate's own reason
 strings, which its paired suite already asserts by name.
+
+**A test that spawns a compiler or drives a browser states its own deadline.** `node:test`
+defaults to five seconds, and spawning `tsc`, compiling the Tailwind layer, importing every
+collected script or launching Chromium is not a five-second operation by nature. **A test that
+outruns its deadline is worse than a slow one**: the callback is abandoned with its child still
+running, and the next FILE to call `test()` reports `test() inside another test() is not yet
+implemented in Bun`, which names neither the slow test nor the real cause. That is how a timing
+failure arrives disguised as an unrelated file. The budget is a named constant, **derived where
+there is something to derive it from** -- `chromium.test.ts` computes it from the grace and exit
+timeouts teardown allows itself, so the two cannot drift apart -- and a measurement is written
+beside it, because "it is fast here" is the claim a shared runner disproves.
 
 **A test under `scripts/` may not import a framework layer's `.ts` or `.tsx`.** `check-all.ts`
 also runs these suites under plain node, which cannot resolve the extensionless imports those

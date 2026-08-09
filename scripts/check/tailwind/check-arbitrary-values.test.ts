@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { scanText, scanFile, markerAllowlist, walk, SKIPPED_NAMES } from './check-arbitrary-values.ts';
 
 const found = (s: string) => scanText(s).map((f) => f.cls);
@@ -118,7 +119,7 @@ test('a compiled copy is not a second source, and only copies are skipped', () =
       'angular/build/Emitted.ts', 'angular/components/Real.html'])
       writeFileSync(join(root, rel), '// fixture');
 
-    const found = [...walk(root, join(root, 'angular', 'build'))].map((p) => relative(root, p)).sort();
+    const found = [...walk(root, join(root, 'angular', 'build'))].map((p) => relPosix(root, p)).sort();
     assert.deepEqual(found, ['angular/components/Real.html', 'react/Real.ts'],
       'a walk that reads dist/ reports on the same code twice and on output nobody wrote');
   } finally {

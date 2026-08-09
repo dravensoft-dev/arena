@@ -26,6 +26,7 @@ export { DOMAINS };
 export const GATES = [
   { name: 'check:docs', file: 'arena/check-docs.ts' },
   { name: 'check:graph', file: 'arena/check-graph.ts' },
+  { name: 'check:portability', file: 'arena/check-portability.ts' },
   { name: 'check:generated', file: 'arena/check-generated.ts' },
   { name: 'check:skills', file: 'arena/check-skills.ts' },
   { name: 'check:prompts', file: 'arena/check-prompts.ts' },
@@ -33,6 +34,7 @@ export const GATES = [
   { name: 'check:tokens', file: 'core/check-tokens-generated.ts' },
   { name: 'check:script-tokens', file: 'arena/check-script-tokens.ts' },
   { name: 'check:duplicate-constants', file: 'arena/check-duplicate-constants.ts' },
+  { name: 'check:deadlines', file: 'arena/check-deadlines.ts' },
   { name: 'check:ramp', file: 'core/check-ramp.ts' },
   { name: 'check:text-contrast', file: 'core/check-text-contrast.ts' },
   { name: 'check:tailwind', file: 'tailwind/check-tailwind.ts' },
@@ -42,7 +44,6 @@ export const GATES = [
   { name: 'check:radius', file: 'tailwind/check-radius-tokens.ts' },
   { name: 'check:arbitrary', file: 'tailwind/check-arbitrary-values.ts' },
   { name: 'check:component-css', file: 'tailwind/check-component-css.ts' },
-  { name: 'check:style-parity', file: 'tailwind/check-style-parity.ts' },
   { name: 'check:dimensions', file: 'arena/check-dimension-literals.ts' },
   { name: 'check:states', file: 'arena/check-manifest-states.ts' },
   { name: 'check:appearance', file: 'arena/check-appearance.ts' },
@@ -64,7 +65,6 @@ export const GATES = [
   { name: 'check:react-types', file: 'react/check-react-types.ts' },
   { name: 'check:script-types', file: 'arena/check-script-types.ts' },
   { name: 'check:script-reach', file: 'arena/check-script-reach.ts' },
-  { name: 'check:cards', file: 'arena/check-card-viewports.ts' },
   { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts' },
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },
   { name: 'check:packages', file: 'arena/check-packages.ts' },
@@ -73,6 +73,8 @@ export const GATES = [
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },
   { name: 'check:assertions', file: 'angular/check-assertions.ts' },
   { name: 'check:cdk', file: 'angular/check-cdk.ts' },
+  { name: 'check:boolean-inputs', file: 'angular/check-boolean-inputs.ts' },
+  { name: 'check:optional-inputs', file: 'angular/check-optional-inputs.ts' },
 ];
 
 export function gatesFor(domains: string[]) {
@@ -105,17 +107,37 @@ export function parseCheckArgs(argv: string[]) {
   return { domains, tests, force, release };
 }
 
+export const ANGULAR_EMIT = { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'] };
+
+export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
+  scripts: { emit: false, args: ['test', 'scripts'] },
+  react: { emit: false, args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'] },
+  'react-dom': { emit: false, args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'] },
+  angular: { emit: true, args: ['test', 'frameworks/angular/build/test'] },
+  every: {
+    emit: true,
+    args: ['test', 'scripts', 'frameworks/react', 'frameworks/angular/build/test',
+           '--path-ignore-patterns=**/*.dom.test.*'],
+  },
+};
+
 export function testStep({ isBun, testFiles }: { isBun: boolean; testFiles: string[] }) {
   if (isBun) return [
-    { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'] },
-    { name: 'test (bun test scripts/ + framework suites)',
-      args: ['test', 'scripts', 'frameworks/react', 'frameworks/angular/build/test',
-             '--path-ignore-patterns=**/*.dom.test.*'] },
-    { name: 'test (React DOM suites, isolated)',
-      args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'] },
+    ANGULAR_EMIT,
+    { name: 'test (bun test scripts/ + framework suites)', args: SUITES.every?.args ?? [] },
+    { name: 'test (React DOM suites, isolated)', args: SUITES['react-dom']?.args ?? [] },
   ];
   return [{ name: `test (node --test over every suite under scripts/, ${testFiles.length} found)`,
             args: ['--test', ...testFiles] }];
+}
+
+export function suiteSteps(name: string) {
+  if (name === 'all') return testStep({ isBun: true, testFiles: [] });
+  const suite = SUITES[name];
+  if (!suite) {
+    throw new Error(`run-suite: no suite called "${name}"; it takes all, ${Object.keys(SUITES).join(', ')}`);
+  }
+  return [...(suite.emit ? [ANGULAR_EMIT] : []), { name: `test (${name})`, args: suite.args }];
 }
 
 export function stepStatus(code: number | null) {

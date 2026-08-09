@@ -101,24 +101,20 @@ artifact another gate can read, and a reader of a failed writer either runs agai
 has to be stopped; either way a sweep stops reporting every problem in one pass, which is the first
 thing this runner promises.
 
-`check:style-parity` used to write the page it drives a browser over. That page now comes from
-`build:style-parity-page`, and the gate measures it, the same shape `check:demos` and
-`check:tailwind-generated` already had. What the gate lost is the guarantee that the page is fresh
-because it wrote it a line earlier; what it gained is the contract every other generated artifact
-has, held by `check:generated` and by the build step declaring the manifests as its input.
-
 ## Exit 2 means SKIP, and a skip is never green
 
-**Six** gates need a runtime dependency that plain node does not have: `check:cards`,
-`check:focus-trap`, `check:playgrounds` and `check:style-parity` need a headless browser,
-`check:vendor` needs `Bun.build`, `check:demos` needs `Bun.Transpiler`. `check:playgrounds` runs its portable half
-first and reaches the browser only once that half is clean, so a fixture defect is reported on
-a machine with no browser at all. Where the dependency is missing the gate exits **2**, `check-all` marks
-it `SKIP`, and the whole run reports **INCOMPLETE** rather than passing.
+**Three** gates need a runtime dependency that plain node does not have: `check:focus-trap`
+needs a headless browser, `check:vendor` needs `Bun.build`, `check:demos` needs
+`Bun.Transpiler`. Where the dependency is missing the gate exits **2**, `check-all` marks it
+`SKIP`, and the whole run reports **INCOMPLETE** rather than passing.
 
 **The repository declares itself strict, so that is not the default here**: a gate that cannot
 run **fails**. The soft skip is what an environment has to ask for, by exporting
-`ARENA_CHECK_STRICT` as anything other than `1`. Note that `check-all` exits 0 on a run that
+`ARENA_CHECK_STRICT` as anything other than `1`. **`cannotRun` is the one spelling of that
+decision**, and it is one because the skippable gates had each spelled it their own way: one read
+`skipExitCode()`, one *threw* where the browser was missing, and one exited `2` outright, so on
+this repository's own declared settings some failed where others skipped. A rule spelled once per
+gate is a rule that holds for some of them. Note that `check-all` exits 0 on a run that
 only skips, so a skip is loud in the summary and quiet in the exit status, which is the second
 reason strict is the declared value rather than the opt-in one.
 
@@ -129,16 +125,25 @@ read, so a test run or a CI run needs no exports. There are four, and no gate re
 
 | variable | what it decides |
 | --- | --- |
-| `CHROME_PATH` | The browser `check:cards`, `check:focus-trap` and `check:playgrounds` drive. Declared, so a machine with Chromium anywhere else needs one export and nothing more. |
+| `CHROME_PATH` | The browser `check:focus-trap` drives. **Recognised and never declared**, for the reason `CI` is: a declared value here is not an override but a claim that a person named a browser, and `findChromium` treats that claim as terminal. It was declared as `/usr/bin/chromium` once, and because `arenaEnv()` lays the declared values under the real environment, every machine carried it. That made `CANDIDATES.find(exists)` **unreachable**, so the candidate list behind it never ran and its two macOS entries were dead from the day they were written. |
 | `ARENA_CHECK_STRICT` | Whether a missing dependency fails or skips. Compared against the exact string `1`. |
 | `CI` | The same, compared against the exact string `true`. Recognised and never declared: claiming it would tell the scripts they run on a runner. Note that a runner setting `CI=1` rather than `CI=true` buys nothing here. |
 | `PORT` | The port `bun run demos` serves on. The gates' own server binds an ephemeral port and ignores it. |
 
 **A real environment variable wins over a declared one**, so an override stays a shell prefix
-rather than an edit to a versioned file: `CHROME_PATH=/opt/chrome bun run check:cards`. The one
-trap is that `CHROME_PATH` is terminal wherever it comes from. Pointing it at nothing does not
-fall back to the candidate list, it reports the dangling path, and under the declared strict
-setting that is a failure rather than a skip.
+rather than an edit to a versioned file: `CHROME_PATH=/opt/chrome bun run check:focus-trap`. The one
+trap is that `CHROME_PATH` is terminal. Pointing it at nothing does not fall back to the
+candidate list, it reports the dangling path, and under the declared strict setting that is a
+failure rather than a skip. That is right and it is why it may not be declared: silently
+driving a browser other than the one a person named is worse than saying so, but a *default*
+making every machine look like that person is how the fallback stopped existing.
+
+**With no `CHROME_PATH`, the list is keyed by platform**, and on Windows it is built from
+`ProgramFiles`, `ProgramW6432`, `ProgramFiles(x86)` and `LOCALAPPDATA` rather than hardcoded,
+because a program directory is not a path anyone can write down. Edge is in every list: it is
+Chromium, it speaks CDP with these flags, and on Windows it is already there. The suites assert
+all three lists **with the platform injected**, so the win32 and darwin halves are covered from
+a Linux runner, which is the only place they will be covered for a while.
 
 ## What a generator-comparing gate claims
 
@@ -163,9 +168,9 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 28 | two or more layers at once, or the repository root |
-| [`tailwind/`](./tailwind/AGENTS.md) | 8 | the shared Tailwind layer |
-| [`angular/`](./angular/AGENTS.md) | 4 | the Angular layer |
+| [`arena/`](./arena/AGENTS.md) | 29 | two or more layers at once, or the repository root |
+| [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
+| [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 5 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 4 | the React layer |
 

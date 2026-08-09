@@ -10,7 +10,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { childOutput } from '../../lib/arena/child-output.ts';
@@ -29,7 +29,7 @@ export const NAME = '@dravensoft/arena-react';
 export const LAYER = 'frameworks/react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
-export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'Theme.ts', 'WarnOnce.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
+export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'ToastClock.ts', 'Theme.ts', 'WarnOnce.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
 export const DIST_PROJECT = 'frameworks/react/tsconfig.dist.json';
 
 export const node = {
@@ -92,7 +92,7 @@ export function unresolvedProblems(dir: string) {
   for (const path of distFiles(dir, (p: string) => p.endsWith('.js') || p.endsWith('.d.ts'))) {
     for (const specifier of relativeSpecifiers(readFileSync(path, 'utf8'))) {
       if (existsSync(join(dirname(path), specifier))) continue;
-      problems.push(`${relative(dir, path)} names ${specifier}, which resolves to no file in the package`);
+      problems.push(`${relPosix(dir, path)} names ${specifier}, which resolves to no file in the package`);
     }
   }
   return problems;
@@ -116,7 +116,7 @@ export function assembleModules(root: string, dir: string) {
   };
 
   for (const source of sources) {
-    const rel = toPosix(join('components', relative(join(layer, 'components'), source)));
+    const rel = toPosix(join('components', relPosix(join(layer, 'components'), source)));
     emit(source, rel.replace(/\.tsx?$/, '.js'));
   }
   for (const name of ROOT_TS) {

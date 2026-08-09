@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
-Arena is Dravensoft's design system. This package is its React layer: 55 components whose every
+Arena is Dravensoft's design system. This package is its React layer: 59 components whose every
 value traces to a design token, with one stylesheet to import and no theme provider to wrap
 your tree in.
 
@@ -66,6 +66,23 @@ whoever wrote it, and an `<ArenaCard>` belongs here.
 that class is a rule about this component and nothing else. Every sheet is named the same way,
 which is why `css/components/arena-button.css` is the file and `arena-button` is what you write
 in a `stylesheet` list.
+
+## Your layout goes on a container you own
+
+**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.**
+Arena draws no outer margin on anything, so the air between two components is always yours to
+place, and no component takes a `className` or a `style` of yours: there is no route into an
+Arena element's own box, by design.
+
+React renders the real element in almost every case, so a `.row > * { ... }` rule of yours does
+reach it. `ArenaTabs` is the exception that makes the rule worth stating: it returns a fragment
+and puts no element of its own in the DOM at all, so a rule written against it matches the
+tablist and the panels separately, or nothing. Wrap it, the way you would wrap anything else
+whose layout is yours.
+
+**Write the rule the same way wherever you write it.** A component's own element is Arena's, and
+what it renders is free to change: today it is the real element, and a component that wraps or
+that renders none owes you no warning, because that element was never something to lay out.
 
 ## Declare your skin
 
@@ -165,6 +182,7 @@ import './arena.generated.css';
 
 | flag | what it does |
 | --- | --- |
+| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it costs nothing extra: the command already reads your sources to resolve `"components": "auto"`. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-react/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |
@@ -265,7 +283,10 @@ answering a question a consumer cannot answer from outside.
 | `useArenaContainerWidth(ref?)` | `[ref, width]`: attach the ref to the box and read the width a `ResizeObserver` reports. For a component or a panel that has to fit the room it was given. **`width` is `null` until the first measurement**, so render the wide branch while it is: a panel that flashes into its phone shape on every mount is worse than one that settles into it |
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime |
 | `arenaCatColor(slot)`, `arenaCatSurface(slot)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen |
+| `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, and `toasts` is what you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
+| `arenaToastDelay(notice, intervals)` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
+| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it: the predicate that lets a clickable row hold a checkbox and a row action without taking their presses |
 
 Every other symbol reaching the root is an internal of this layer, exported because the barrel
 is generated wholesale rather than curated, and **carries no compatibility promise**. It carries
@@ -282,6 +303,7 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/numerals.css` | `.arena-num`, the mono face and `tabular-nums` and no colour. Put it on a figure you draw yourself and a column of them aligns by digit the way a table's does |
+| `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. Put one on a container of your own, which is where your layout goes anyway |
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to
 come before your own rules if you want yours to win.

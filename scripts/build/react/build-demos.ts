@@ -5,7 +5,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -40,7 +40,6 @@ export const node = {
     'build:react-package',
     'check:appearance',
     'check:behaviour',
-    'check:cards',
     'check:compliance',
     'check:demos',
     'check:dimensions',
@@ -95,7 +94,7 @@ export async function buildDemos(opts: { root?: string } = {}) {
       if (!transpiler) throw new Error(`build-demos: no transpiler is configured for ${absPath}`);
       const compiled = transpiler.transformSync(source);
       const rewritten = rewriteRelativeSourceImports(compiled);
-      const outRel = toPosix(outputPathFor(relative(root, absPath)));
+      const outRel = toPosix(outputPathFor(relPosix(root, absPath)));
       if (files.has(outRel))
         throw new Error(`build-demos: ${outRel} is written by two sources at once; a .jsx and a .tsx `
           + 'of the same stem compile to one sibling and the second would overwrite the first');

@@ -41,7 +41,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    style: 'display:block;position:relative',
+    style: 'display:block;position:relative;width:100%',
     '[style.height.px]': 'height()',
   },
   template: `
@@ -136,7 +136,10 @@ export class ArenaRadarChart {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. */
   readonly valueFormat = input<ArenaNumberFormat>();
   /** The plot's height in px, the --chart-height token by default. The grid is a circle inscribed in the smaller of the plot's two axes, so this also caps how wide the shape gets. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
-  readonly height = input<number>(ARENA_CHART_HEIGHT);
+  readonly height = input<number, number | undefined>(
+    ARENA_CHART_HEIGHT,
+    { transform: (value) => value ?? ARENA_CHART_HEIGHT },
+  );
 
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;

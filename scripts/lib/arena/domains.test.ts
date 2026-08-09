@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { basename, join, relative } from 'node:path';
-import { toPosix } from '../../utils/posix-path.ts';
+import { basename, join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { DOMAINS, SCRIPT_EXTENSIONS, SUITE_EXTENSIONS, STAYS_JAVASCRIPT,
   domainOfTestPath, isScript, isSuite } from './domains.ts';
@@ -68,7 +68,7 @@ test('every suite under scripts/ classifies, so the summary can never silently d
   const suites = suitesUnder(join(repoRoot, 'scripts'));
   assert.ok(suites.length > 0, 'a walk with nothing to walk proves nothing');
   const unclassified = suites
-    .map((p) => relative(repoRoot, p))
+    .map((p) => relPosix(repoRoot, p))
     .filter((rel: string) => domainOfTestPath(rel) === null);
   assert.deepEqual(unclassified, []);
 });
@@ -110,7 +110,7 @@ const mjsUnder = (dir: string) => walkFiles(dir).filter((full) => full.endsWith(
 
 test('every JavaScript left under scripts/ is one of the four on the record', () => {
   const left = mjsUnder(join(repoRoot, 'scripts'))
-    .map((p) => toPosix(relative(repoRoot, p)))
+    .map((p) => relPosix(repoRoot, p))
     .sort();
   assert.deepEqual(left, [...STAYS_JAVASCRIPT.keys()].sort(),
     'a .mjs here is either a file the migration missed or a fifth exception nobody argued for; '

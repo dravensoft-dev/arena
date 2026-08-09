@@ -7,9 +7,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { toPosix } from './posix-path.ts';
+import { relPosix } from './posix-path.ts';
 import { walkFiles } from './walk-files.ts';
 import type { WalkOptions } from './walk-files.ts';
 
@@ -24,7 +24,7 @@ function tree(files: string[]) {
 }
 
 const found = (root: string, options?: WalkOptions) =>
-  walkFiles(root, options).map((p) => toPosix(relative(root, p)));
+  walkFiles(root, options).map((p) => relPosix(root, p));
 
 test('every file at every depth comes back, and a directory never does', () => {
   const root = tree(['a.ts', 'one/b.ts', 'one/two/three/c.ts']);

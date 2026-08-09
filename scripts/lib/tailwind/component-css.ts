@@ -4,14 +4,15 @@
  * the sheet, so a second copy of the template would let a page render classes no sheet defines
  * and no gate would see it. The strip is the load-bearing half. `@apply` emits Tailwind's own
  * namespace with the Arena token only as a fallback, `var(--spacing, var(--sp-1))`, and an
- * adopter who runs Tailwind declares `--spacing` on their unlayered `:root`, wins, and
- * rescales every component silently. Stripping to `var(--sp-1)` also repairs `.arena-compact`,
- * which is inert while the density tokens resolve once on `:root` and inherit already
- * resolved. An indirection whose pair `Theme.css` does not confirm is an error. */
+ * adopter who runs Tailwind declares `--spacing` on their unlayered `:root`, wins, and rescales
+ * every component silently. Stripping to `var(--sp-1)` also repairs `.arena-compact`, inert while
+ * the density tokens resolve on `:root` and inherit resolved. An indirection `Theme.css` does not
+ * confirm is an error, and the preset it names is posix: a backslash in a CSS string escapes. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseDecls } from '../arena/css-decls.ts';
+import { toPosix, type PathModule } from '../../utils/posix-path.ts';
 import {
   classBase, classesManifest as rawClassesManifest, compoundClass, slotClass, variantClass,
   classesFor as rawClassesFor, arenaClassesFor as rawArenaClassesFor,
@@ -59,12 +60,12 @@ export function classNames(manifest: ComponentManifest) {
   return applyRules(manifest).map((rule) => rule.selector);
 }
 
-export function entryStylesheet(presetPath: string, manifests: Manifests) {
+export function entryStylesheet(presetPath: string, manifests: Manifests, on?: PathModule) {
   const body = [...manifests.values()]
     .flatMap((manifest) => applyRules(manifest))
     .map(({ selector, classes }) => `  .${selector} { @apply ${classes}; }`)
     .join('\n');
-  return `@reference '${presetPath}';\n\n@layer utilities {\n${body}\n}\n`;
+  return `@reference '${toPosix(presetPath, on)}';\n\n@layer utilities {\n${body}\n}\n`;
 }
 
 export function themeKeyMap(themeCss: string) {

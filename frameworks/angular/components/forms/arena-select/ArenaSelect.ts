@@ -48,7 +48,10 @@ export class ArenaSelect {
   /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". */
   readonly placeholder = input<string>();
   /** The choices, drawn as native options. */
-  readonly options = input<readonly ArenaSelectOption[]>([]);
+  readonly options = input<readonly ArenaSelectOption[], readonly ArenaSelectOption[] | undefined>(
+    [],
+    { transform: (value) => value ?? [] },
+  );
   /** The selected option's value. */
   readonly value = input<string>();
   /** Blocks the control and dims it. */

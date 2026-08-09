@@ -1,6 +1,6 @@
 Arena empty state, a section or screen with nothing in it yet, and one clear way
-forward. The action is projected, so it is a real `mat-button` wearing Arena rather
-than a second button implementation. The dashed border is what distinguishes it from
+forward. The action is projected, so the empty state places a control the consumer wrote
+rather than carrying a second button implementation. The dashed border is what distinguishes it from
 `arena-error-state`: nothing is wrong here, there is simply nothing yet. The action
 wrapper only renders when an action is actually projected, an empty state with no
 action ships no dead space for one.
@@ -13,7 +13,7 @@ Arena draws itself, not projected content.
 <arena-empty-state icon="ph-bold ph-folder-open"
                    title="No projects yet"
                    message="A project groups deployments, logs and artifacts for one client.">
-  <button action mat-flat-button (click)="create()">Create a project</button>
+  <arena-button action (click)="create()">Create a project</arena-button>
 </arena-empty-state>
 ```
 

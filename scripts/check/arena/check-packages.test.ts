@@ -1,3 +1,10 @@
+/* Every case that needs an assembled package assembles one, and none of them reads
+ * frameworks/react/dist. That tree is git-ignored and emitted only by build:release, so pointed at
+ * the real one these asserted a fact about the machine rather than about the code: green wherever
+ * someone had built it, ENOENT out of walkFiles everywhere else, and never once a claim this file
+ * makes. The real dist is checked by the gate, which is the caller that guards for it: collect()
+ * runs the same functions over it and skips a package whose manifest is not there. */
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
@@ -291,18 +298,22 @@ test('a cycle terminates rather than walking the same sheet forever', () => {
 test('a package missing a declared component is a stale dist, and says which ones and what to run', () => {
 
   const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
-  const dir = join(root, 'frameworks', 'react', 'dist');
+  const dir = assembled({ 'Index.d.ts': 'export declare const ArenaButton: unknown;\n' });
   const problems = componentReachProblems(pkg, dir, ['ArenaButton', 'ArenaNeverExisted']);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /ArenaNeverExisted/);
   assert.doesNotMatch(problems[0] ?? '', /ArenaButton/, 'a component that IS there must not be reported');
   assert.match(problems[0] ?? '', /build:packages/, 'the message has to carry the one command that fixes it');
+  rmSync(dir, { recursive: true });
 });
 
 test('a package holding every declared component reports nothing', () => {
   const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
-  const dir = join(root, 'frameworks', 'react', 'dist');
-  assert.deepEqual(componentReachProblems(pkg, dir, declaredComponents()), []);
+  const declared = declaredComponents();
+  const surface = declared.map((name) => `export declare const ${name}: unknown;`).join('\n');
+  const dir = assembled({ 'Index.d.ts': `${surface}\n` });
+  assert.deepEqual(componentReachProblems(pkg, dir, declared), []);
+  rmSync(dir, { recursive: true });
 });
 
 test('a directory with no declarations at all is a failure rather than a clean pass', () => {

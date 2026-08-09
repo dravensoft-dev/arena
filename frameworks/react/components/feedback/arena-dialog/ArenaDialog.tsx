@@ -1,4 +1,5 @@
-import React, { useId, useRef } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
+import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaDialog.classes.generated.ts';
 import { useArenaDialogModal } from '../../../UseDialogModal.ts';
@@ -30,7 +31,23 @@ export interface ArenaDialogProps {
 
 const arenaDialogStyles = arenaStyles(manifest);
 
+function arenaIsCssWidth(value: string): boolean {
+  if (value.includes('(') || typeof document === 'undefined') return true;
+  const probe = document.createElement('div');
+  probe.style.width = value;
+  return probe.style.width !== '';
+}
+
 export function ArenaDialog({ open, onClose, title, eyebrow, children, footer, width }: ArenaDialogProps) {
+  useEffect(() => {
+    if (width === undefined || arenaIsCssWidth(width)) return;
+      arenaWarnOnce(
+        `ArenaDialog: width takes a CSS width and "${width}" is not one, so the browser drops the `
+        + 'declaration and the panel keeps its default. Pass a length, or the spacing scale '
+        + 'arithmetic the default itself uses: calc(var(--sp-1) * 160).',
+      );
+  }, [width]);
+
 
   if (!title) throw new Error('ArenaDialog: `title` is required');
 

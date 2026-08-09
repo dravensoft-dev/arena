@@ -1,0 +1,6 @@
+{
+  "name": "ArenaTablePageControl",
+  "kind": "enum",
+  "description": "Whether ArenaTable draws the pager it knows about. It is an enum rather than a boolean on the ArenaTableSortControl precedent, which this member is the second reading of: how a control is REACHED is a decision with room to grow, and the two members answer the same question about the two things a table's own chrome can hold.",
+  "values": ["auto", "none"]
+}

@@ -16,10 +16,19 @@ truthy; a `delta` carrying a `tone`/`direction` but an empty `value` renders no 
 A tile can legitimately show `tone="danger"` with `delta.tone="positive"` in the
 same breath, a bad state that is improving is still a bad state.
 
+`delta` is bound from a property and never written as an object literal in the template, for
+the reason the Don't list below gives:
+
+```ts
+protected readonly revenue: ArenaStatDelta = { value: '12%', direction: 'up', tone: 'positive' };
+protected readonly latency: ArenaStatDelta = { value: '9%', direction: 'down', tone: 'positive' };
+protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', tone: 'positive' };
+```
+
 ```html
-<arena-stat-card label="Revenue" value="$48.2k" [delta]="{ value: '12%', direction: 'up', tone: 'positive' }" />
-<arena-stat-card label="p95 latency" value="184ms" [delta]="{ value: '9%', direction: 'down', tone: 'positive' }" />
-<arena-stat-card label="Open incidents" value="3" tone="danger" [delta]="{ value: '2', direction: 'up', tone: 'positive' }" sub="2 acknowledged" />
+<arena-stat-card label="Revenue" value="$48.2k" [delta]="revenue" />
+<arena-stat-card label="p95 latency" value="184ms" [delta]="latency" />
+<arena-stat-card label="Open incidents" value="3" tone="danger" [delta]="incidents" sub="2 acknowledged" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaStatCard.json. Edit the contract, not this table. -->
@@ -41,7 +50,7 @@ same breath, a bad state that is improving is still a bad state.
 aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
 
 ```html
-<arena-stat-card label="Build time" value="4m 12s" [delta]="{ value: '+3s', direction: 'up' }" icon="ph-bold ph-timer" />
+<arena-stat-card label="Build time" value="4m 12s" [delta]="buildTime" icon="ph-bold ph-timer" />
 ```
 
 **Do / Don't**

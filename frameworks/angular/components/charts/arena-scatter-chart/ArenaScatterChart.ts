@@ -29,6 +29,10 @@ const LINE_STYLE = { strokeWidth: 'var(--bw)' } as const satisfies Readonly<Reco
 
 const TICK_LABEL_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies Readonly<Record<string, string>>;
 
+const SIZE_KEY_VALUE_STYLE = {
+  fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)',
+} as const satisfies Readonly<Record<string, string>>;
+
 const MARK_STYLE = {
   strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-fast) var(--ease-out)',
 } as const satisfies Readonly<Record<string, string>>;
@@ -41,7 +45,7 @@ const MARK_STYLE = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    style: 'display:block;position:relative',
+    style: 'display:block;position:relative;width:100%',
     '[style.height.px]': 'height()',
   },
   template: `
@@ -103,7 +107,7 @@ const MARK_STYLE = {
               <circle [attr.cx]="sizeH() / 2" [attr.cy]="sizeH() / 2" [attr.r]="key.r"
                       fill="none" stroke="var(--border-strong)" [style]="lineStyle" />
             </svg>
-            <span [style]="legendLabelStyle">{{ key.label }}</span>
+            <span [style]="sizeKeyValueStyle">{{ key.label }}</span>
           </span>
         }
       </div>
@@ -151,7 +155,10 @@ export class ArenaScatterChart {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. */
   readonly valueFormat = input<ArenaNumberFormat>();
   /** The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
-  readonly height = input<number>(ARENA_CHART_HEIGHT);
+  readonly height = input<number, number | undefined>(
+    ARENA_CHART_HEIGHT,
+    { transform: (value) => value ?? ARENA_CHART_HEIGHT },
+  );
 
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;
@@ -165,6 +172,7 @@ export class ArenaScatterChart {
   protected readonly legendItemStyle = ARENA_LEGEND_ITEM_STYLE;
   protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
   protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
+  protected readonly sizeKeyValueStyle = SIZE_KEY_VALUE_STYLE;
   protected readonly tickLabelX = arenaTickLabelX();
   protected readonly pointR = chartPointR;
   protected readonly pointRHover = chartPointRHover;

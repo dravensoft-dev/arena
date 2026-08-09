@@ -4,6 +4,7 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { manifestClasses, escapeClass, compileLayer, entryStylesheet, manifestFiles } from './tailwind-compile.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 test('collects classes from slots and from every variant value', () => {
   const m = {
@@ -50,7 +51,10 @@ test('manifestFiles walks the nested component tree and finds every manifest', (
   const dir = join(repoRoot, 'frameworks/tailwind/components');
   const found = manifestFiles(dir);
   assert.equal(found.length, 43);
-  for (const p of found) assert.match(p, /\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/);
+  for (const p of found)
+    assert.match(relPosix(repoRoot, p),
+      /^frameworks\/tailwind\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/,
+      'the walk answers in the host separator, so the shape is read off the repo-relative spelling rather than off whichever one this machine writes');
   assert.deepEqual(found, [...found].sort(), 'the walk returns a stable, sorted order');
 });
 

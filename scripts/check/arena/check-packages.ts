@@ -10,9 +10,9 @@
  * the build green. dist/ is git-ignored, so all but the first are skipped on a fresh clone. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
-import { join, dirname, basename, relative } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -133,7 +133,7 @@ export function globMatches(target: string, dir: string) {
   const pattern = globToRegExp(rel);
   if (!existsSync(dir)) return [];
   return walkFiles(dir)
-    .map((path) => toPosix(relative(dir, path)))
+    .map((path) => relPosix(dir, path))
     .filter((path) => pattern.test(path));
 }
 

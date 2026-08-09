@@ -28,7 +28,7 @@ Editorial type, meaning prose and headings and never chrome (see the `dz` table 
 | `--fs-mega` | 150px | 1.5625 | the approved brand manual's `.big-glyph` specimen |
 
 Exposed in the Tailwind layer as `.text-xs`/`.text-sm`/`.text-md`/`.text-lg`/`.text-h4`/`.text-h3`/`.text-h2`/`.text-h1`/`.text-display`/`.text-hero`/`.text-mega` (`frameworks/tailwind/Theme.css`, `--text-*`).
-- **Spacing:** 4px base grid; generous rhythm in marketing (88px gutter), dense but breathable in product.
+- **Spacing:** 4px base grid; generous rhythm in marketing (88px gutter), dense but breathable in product. The grid is the repertoire of lengths; which of them separates two components is the `rhythm` table below, and that is the one a reader choosing between two steps needs.
 - **Backgrounds:** **always flat.** Arena **does not use color gradients** on any surface: not heroes, not splash screens, not cards, not accents. Depth is built with the surface scale (`base-100`→`base-200`→`base-300`), the hairline border and the warm shadow, never with color transitions. (The only permitted use of `linear-gradient`: the `ArenaSkeleton`'s neutral *shimmer* animation, which is loading motion, not chromatic decoration.) No generic stock photos; real product imagery or striped placeholders.
 - **Borders:** hairline `1px` in `--color-base-300` (alias `--border`); emphasized border in `--line-strong`. The border, not the shadow, is used to separate content on flat surfaces.
 - **Shadows:** warm and deep, negative spread (`0 12px 28px -12px rgba(0,0,0,.6)`). There is no tinted glow: elevation is always the neutral warm shadow.
@@ -91,6 +91,25 @@ Chrome text, meaning a button label, an input's value, a hint, a validation erro
 `--dz-text` is the one token for the "control text" role; every consumer reads it.
 
 Exposed in the Tailwind layer under a `ctl` infix (`--text-ctl`, `--text-ctl-md`, `--text-ctl-sm`, `--text-ctl-xs`, `--text-ctl-2xs`) because the natural `--text-*` keys already belong to `fs`, and two collide on value as well as name (`fs.sm` / `dz.text-md` are both 13px; `fs.xs` / `dz.text-xs` are both 11px). No `dz` token wears an `fs`-shaped name: the `ctl` infix is what keeps the two namespaces distinguishable.
+
+## Page rhythm (`rhythm`)
+The air BETWEEN two components, which Arena itself never draws: every component is an inner box carrying no outer margin, so the space between one and the next belongs to whoever places them. Three steps, authored as aliases of `sp` rather than as fresh numbers so a step cannot drift off the 4px grid, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`:
+
+| Token | Value | Role |
+|---|---|---|
+| `--rhythm-group` | 12px (`sp-3`) | inside one group of related things: a label and its field, a card's own stacked children, a row of chips. Both sides read as one unit |
+| `--rhythm-component` | 16px (`sp-4`) | between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing |
+| `--rhythm-section` | 24px (`sp-6`) | between two sections of a page. The two sides answer different questions, and this gap is what says so |
+
+**These three were already chosen, and what they lacked was names.** `ArenaGrid`'s `gap` variant has always spent `sm`/`md`/`lg` on exactly 12/16/24px with the middle as its default, and it reads the tokens now rather than the raw steps, so a grid is the rhythm plus a grid.
+
+**The scale is closed at both ends.** A gap tighter than `--rhythm-group` is inside a component rather than between two, which is that component's own recipe and not a page decision. A gap wider than `--rhythm-section` is the frame a page draws around its content rather than rhythm within it, and a frame is the consumer's.
+
+**It does not re-densify.** `.arena-compact` tightens `dz`, meaning control heights, row padding and control text, because those say how dense the CONTROLS are. Page rhythm says how a PAGE breathes, and a data-dense table does not make the distance between two cards mean something else. This is the same cut that keeps `fs` out of `dz`.
+
+**`--rhythm-group` and `--dz-stack` are both 12px, and that is not a duplicate.** The precedent is one section up: `fs.sm` / `dz.text-md` are both 13px and `fs.xs` / `dz.text-xs` are both 11px, told apart by namespace because the role differs. Here `--dz-stack` separates stacked items on a control-dense surface and compresses to 8px under `.arena-compact`; `--rhythm-group` separates a page's own content and holds at 12px. Same length today, different question, and only one of them moves.
+
+Exposed in the Tailwind layer as `--spacing-group` / `--spacing-component` / `--spacing-section` (`frameworks/tailwind/Theme.css`), so the utilities read `gap-section`, `p-group` and so on. The middle step is named `component` rather than `block` because `p-block` and `m-block` would read as the block axis of a logical property instead of as a step on this scale.
 
 ## Tracking scale (`ls`)
 Letter-spacing across the system is one role hierarchy: **tracking decreases as the text gets longer**, from the shortest mono micro-labels down through prose-adjacent chrome to the tightest display headings. The family below is that hierarchy, generated into `contracts/design-generated/typography.generated.css` from `contracts/design/typography.json`:

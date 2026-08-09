@@ -36,7 +36,7 @@ absence; the host owns it.
 
 `width` is a **CSS string** and an override, not a requirement: the panel already carries its own
 default and a `92vw` cap, so a wide dialog still fits a narrow viewport. Pass a token expression
-(`width="calc(var(--sp-1) * 200)"`), never a bare number.
+(`width="calc(var(--sp-1) * 200)"`), never a bare number. A named size is not one of the things it takes: `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default, so Arena reports that once at runtime rather than letting it pass in silence.
 
 The footer is projected through the `[footer]` marker and is **optional**, with nothing marked,
 the action row is not rendered at all rather than rendered empty. **Import `ArenaFooter` from

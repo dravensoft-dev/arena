@@ -14,6 +14,7 @@ import {
   consumerBranchProblems, CONSUMER_LAST_STOP, CONSUMER_INDEX, CONTRIBUTOR_PATHS,
   isConsumerDocument, BRANCH_SWITCH, branchSwitchProblems,
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
+  FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -102,7 +103,7 @@ test('DOUBTS.md and docs/ are exempt from the size limit, and nothing else is', 
     'README.md': over,
   });
   assert.deepEqual(documentSizeProblems(root, NO_ALLOWANCE).problems.map((p) => p.split(':')[0]), ['README.md']);
-  assert.deepEqual(SIZE_EXEMPT, ['DOUBTS.md', join('docs', '')]);
+  assert.deepEqual(SIZE_EXEMPT, ['DOUBTS.md', 'docs/']);
   rmSync(root, { recursive: true });
 });
 
@@ -150,7 +151,7 @@ test('docs/ is exempt from the punctuation rule and DOUBTS.md is not', () => {
 });
 
 test('the two maps the punctuation rule reads are asserted by name', () => {
-  assert.deepEqual(Object.keys(PROSE_EXEMPT), [join('docs', '')]);
+  assert.deepEqual(Object.keys(PROSE_EXEMPT), ['docs/']);
   for (const reason of Object.values(PROSE_EXEMPT)) assert.match(reason, /\w/);
   assert.deepEqual(BANNED_PUNCTUATION, [['—', 'an em dash']]);
 });
@@ -284,10 +285,10 @@ test('a generator is not its own output, and content never overrides the name', 
 });
 
 test('allowsHeader covers scripts, a .test. infix and a test/ directory', () => {
-  assert.equal(allowsHeader(join('scripts', 'a.mjs')), true);
-  assert.equal(allowsHeader(join('frameworks', 'react', 'a', 'A.test.jsx')), true);
-  assert.equal(allowsHeader(join('frameworks', 'angular', 'test', 'Harness.ts')), true);
-  assert.equal(allowsHeader(join('frameworks', 'react', 'a', 'A.jsx')), false);
+  assert.equal(allowsHeader('scripts/a.mjs'), true);
+  assert.equal(allowsHeader('frameworks/react/a/A.test.jsx'), true);
+  assert.equal(allowsHeader('frameworks/angular/test/Harness.ts'), true);
+  assert.equal(allowsHeader('frameworks/react/a/A.jsx'), false);
 });
 
 test('a walk that reaches nothing is a failure, not a vacuous pass', () => {
@@ -359,13 +360,13 @@ test('the rule reaches prompts alone, and a sibling of the component is not a co
 });
 
 test('an index under frameworks/ is a consumer document, and the root router is the one that is not', () => {
-  assert.equal(isConsumerDocument(join('frameworks', 'SKILL.md')), true);
-  assert.equal(isConsumerDocument(join('frameworks', 'react', 'SKILL.md')), true);
-  assert.equal(isConsumerDocument(join('frameworks', 'react', 'components', 'a', 'A.prompt.md')), true);
+  assert.equal(isConsumerDocument('frameworks/SKILL.md'), true);
+  assert.equal(isConsumerDocument('frameworks/react/SKILL.md'), true);
+  assert.equal(isConsumerDocument('frameworks/react/components/a/A.prompt.md'), true);
   assert.equal(isConsumerDocument('SKILL.md'), false,
     'the root router names the contributor branch to send a contributor away');
-  assert.equal(isConsumerDocument(join('frameworks', 'react', 'README.md')), false);
-  assert.equal(isConsumerDocument(join('docs', 'SKILL.md')), false, 'the tree decides, not the name alone');
+  assert.equal(isConsumerDocument('frameworks/react/README.md'), false);
+  assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
 });
 
 test('an index citing a contributor path fails the same way a prompt does', () => {
@@ -519,4 +520,88 @@ test('every allowed consumer output carries a reason, because a bare exemption c
     assert.match(name, /\.generated\.[a-z]+$/, `${name} is registered and is not a generated name`);
     assert.ok(reason.includes('CONSUMER'), `${name} is registered with no statement of whose output it is`);
   }
+});
+
+test('a fenced example writing Angular Material fails, and every hit is reported', () => {
+  const root = tree({
+    'frameworks/angular/components/a/A.prompt.md':
+      '```html\n<button actions mat-flat-button>Go</button>\n<input matInput />\n```\n',
+  });
+  const { problems } = foreignCodeProblems(root);
+  assert.equal(problems.length, 2);
+  assert.ok(problems.some((p) => p.includes('"mat-flat-button"')));
+  assert.ok(problems.some((p) => p.includes('"matInput"')));
+  for (const problem of problems) assert.match(problem, /the half a reader copies/);
+  rmSync(root, { recursive: true });
+});
+
+test('prose naming Angular Material to refuse it passes, which is the whole point of the split', () => {
+  const root = tree({
+    'frameworks/angular/components/a/A.prompt.md':
+      'Don\'t use this for a routine question: that is `MatDialog` wearing Arena.\n'
+      + '```html\n<arena-confirm-dialog title="Delete" />\n```\n',
+  });
+  assert.deepEqual(foreignCodeProblems(root).problems, []);
+  rmSync(root, { recursive: true });
+});
+
+test('a contributor document is not scanned for foreign code, because nobody copies an example it does not have', () => {
+  const root = tree({ 'frameworks/angular/AGENTS.md': '```html\n<button mat-flat-button>Go</button>\n```\n' });
+  const { problems, scanned } = foreignCodeProblems(root);
+  assert.deepEqual(problems, []);
+  assert.equal(scanned, 0);
+  rmSync(root, { recursive: true });
+});
+
+test('every FOREIGN_CODE entry carries a global pattern and a reason', () => {
+  assert.equal(FOREIGN_CODE.length, 1);
+  for (const [pattern, reason] of FOREIGN_CODE as [RegExp, string][]) {
+    assert.ok(pattern instanceof RegExp);
+    assert.ok(pattern.global, 'a non-global pattern reports only the first hit on a line');
+    assert.ok(reason.length > 40, 'an entry without its reason is a rule nobody can weigh');
+  }
+});
+
+const ROSTER = JSON.stringify({ display: ['ArenaCard', 'ArenaBadge'], forms: ['ArenaButton'] });
+
+test('a package page whose count matches the declared roster passes', () => {
+  const root = tree({
+    'frameworks/Components.json': ROSTER,
+    'frameworks/react/PACKAGE.md': 'its React layer: 3 components whose every value is a token.\n',
+  });
+  const { problems, shipped } = componentCountProblems(root);
+  assert.deepEqual(problems, []);
+  assert.equal(shipped, 3);
+  rmSync(root, { recursive: true });
+});
+
+test('a stale count fails, naming both numbers', () => {
+  const root = tree({
+    'frameworks/Components.json': ROSTER,
+    'frameworks/angular/PACKAGE.md': 'its Angular layer: 50 components, standalone and OnPush.\n',
+  });
+  const { problems } = componentCountProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /claims 50 components and Components.json declares 3/);
+  rmSync(root, { recursive: true });
+});
+
+test('a package page stating no count at all fails, and is told what to write', () => {
+  const root = tree({
+    'frameworks/Components.json': ROSTER,
+    'frameworks/react/PACKAGE.md': 'its React layer: every value traces to a design token.\n',
+  });
+  const { problems } = componentCountProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /Write "3 components"/);
+  rmSync(root, { recursive: true });
+});
+
+test('finding no package page at all is a failure rather than a vacuous pass', () => {
+  const root = tree({ 'frameworks/Components.json': ROSTER });
+  const { problems, scanned } = componentCountProblems(root);
+  assert.equal(scanned, 0);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /empty walk is a failure/);
+  rmSync(root, { recursive: true });
 });

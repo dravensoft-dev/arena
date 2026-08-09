@@ -64,6 +64,10 @@ nothing.
   trigger at all.
 - **Do** put destructive entries last, behind a `divider`. `destructive: true` draws the row in
   the danger ink and keeps it **outline**: a menu row is never a filled danger surface.
+- **The trigger must be a control, not a picture of one.** An `arena-avatar`, a `<span>` or anything else that takes no focus receives the listeners and answers no key, so the menu
+  opens on a pointer and a reader on a keyboard never reaches it. Arena reports that once at
+  runtime; project an `arena-icon-button`, an `arena-button`, or your own element carrying a
+  button role and a tabindex.
 - **Do** reach for `align="end"` when the trigger sits at the right edge of its row, so the panel
   hangs inward instead of off the page. The CDK will flip it above the trigger near the bottom of
   the viewport on its own.

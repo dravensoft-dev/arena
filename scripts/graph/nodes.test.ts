@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../lib/arena/repo-root.ts';
-import { COLLECTED_PHASES, NEVER_SUBSCRIBES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, neverSubscribesReason } from './nodes.ts';
+import { COLLECTED_PHASES, COLLECTION, NEVER_SUBSCRIBES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, neverSubscribesReason } from './nodes.ts';
+import { budgetFor } from '../lib/arena/deadline.ts';
+
+const BUDGET_MS = budgetFor(COLLECTION);
 
 test('the three collected phases are the ones a run steps through', () => {
   assert.deepEqual(COLLECTED_PHASES, ['build', 'generate', 'check'],
@@ -42,7 +45,8 @@ test('a directory spec covers what is under it, which is how the shipped CLI opt
   assert.equal(neverSubscribesReason('scripts/generate/arena/generate-tokens.ts'), null);
 });
 
-test('the gate that judges the graph is not imported while it is collecting', async () => {
+test('the gate that judges the graph is not imported while it is collecting',
+  { timeout: BUDGET_MS }, async () => {
   assert.ok(neverSubscribesReason('scripts/check/arena/check-graph.ts'),
     'collecting reaches the gate that is running, whose guard correctly answers that it IS the '
     + 'program, so importing it makes it re-enter itself once per collection');
@@ -50,7 +54,8 @@ test('the gate that judges the graph is not imported while it is collecting', as
   assert.equal(declaredIn.has('check:graph'), false);
 });
 
-test('every collected node carries the four keys the graph reads', async () => {
+test('every collected node carries the four keys the graph reads',
+  { timeout: BUDGET_MS }, async () => {
   const { nodes, declaredIn } = await allNodes();
   assert.ok(nodes.length > 0, 'no node collected is a graph that decides nothing');
   for (const node of nodes) {
@@ -63,7 +68,8 @@ test('every collected node carries the four keys the graph reads', async () => {
   }
 });
 
-test('a node is declared once, so two scripts cannot answer to one name', async () => {
+test('a node is declared once, so two scripts cannot answer to one name',
+  { timeout: BUDGET_MS }, async () => {
   const { nodes } = await allNodes();
   const names = nodes.map((node) => node.name);
   assert.deepEqual([...new Set(names)].sort(), [...names].sort());

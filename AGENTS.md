@@ -189,6 +189,16 @@ the one that opened it. `bun run check:citations` holds every path a document na
   status colours, never both in one chart. Status colours are never series colours. One axis.
 - Responsive branches are JS, not media queries, and measure the **container**: a media query can
   only ask about the viewport.
+- **A wait is for a condition, and the span beside it is a deadline rather than a schedule.** A
+  duration is a statement about the machine that measured it, so a wait spelled as one is right
+  where it was written and silently wrong everywhere else: it expires early and reports the
+  subject as absent, which sends a reader into the component that has no defect. Every deadline is
+  declared with `deadline(name, ms, why)` in the file that owns the wait, never as a bare number
+  and never in a table beside it. A suite's budget is derived with `budgetFor(...)` from the
+  deadlines its case can spend, because a budget under one of them abandons the callback with its
+  subject still running, and every file loaded afterwards then reports an error naming neither.
+  `bun run check:deadlines` holds both: that no bare span sits in a wait position, and that a
+  budget names every deadline its own import closure declares.
 
 ## Debt
 

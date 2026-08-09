@@ -45,6 +45,11 @@ that is a DI error rather than a silently inert row.
 - Wire `(click)` only when the whole row means something to activate. A row with one
   actionable thing in it wants an `arena-button` in a cell instead; see the keyboard note
   below.
+- **A control inside a cell keeps its own activation.** A selection checkbox in the first
+  column and a row action in the last are the canonical table, so an activation that starts on
+  a link, a button, a field or anything carrying an interactive role does not reach the row:
+  the checkbox ticks and the reader stays where they are, and the action fires once rather
+  than twice. Only a press that lands on the row itself activates it.
 
 ### Why this one is not host-bound
 

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { findSourceFiles, rewriteRelativeSourceImports, loaderFor, outputPathFor, ROOT_MODULES, ROOTS } from './build-demos.ts';
 
 test('a relative .jsx import points at the .generated.js sibling this script writes', () => {
@@ -34,13 +35,13 @@ test('findSourceFiles keeps every module a page loads and drops a suite or a dec
     writeFileSync(join(badgeDir, 'BadgeInternals.ts'), 'export const n = 1;\n');
     writeFileSync(join(badgeDir, 'ArenaBadge.d.ts'), 'export declare const x: number;\n');
 
-    const found = findSourceFiles(dir).map((p) => p.slice(dir.length + 1));
+    const found = findSourceFiles(dir).map((p) => relPosix(dir, p));
 
     assert.deepEqual(found.sort(), [
-      join('display', 'Display.card.entry.jsx'),
-      join('display', 'badge', 'ArenaBadge.tsx'),
-      join('display', 'badge', 'BadgeInternals.ts'),
-      join('display', 'tag', 'ArenaTag.jsx'),
+      'display/Display.card.entry.jsx',
+      'display/badge/ArenaBadge.tsx',
+      'display/badge/BadgeInternals.ts',
+      'display/tag/ArenaTag.jsx',
     ].sort());
   } finally {
     rmSync(dir, { recursive: true, force: true });

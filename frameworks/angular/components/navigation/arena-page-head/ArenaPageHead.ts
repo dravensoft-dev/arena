@@ -30,7 +30,10 @@ export class ArenaPageHead {
   /** A muted line under the title. */
   readonly subtitle = input<string>();
   /** Cross-axis alignment of the actions block against the title, wide layout only. */
-  readonly align = input<ArenaPageHeadAlign>('start');
+  readonly align = input<ArenaPageHeadAlign, ArenaPageHeadAlign | undefined>(
+    'start',
+    { transform: (value) => value ?? 'start' },
+  );
 
   protected readonly actions = contentChild(ArenaActions);
 

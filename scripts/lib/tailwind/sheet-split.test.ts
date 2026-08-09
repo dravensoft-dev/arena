@@ -89,11 +89,6 @@ test('THE REAL SHEET: the two halves reassemble to every rule the one file carri
     + 'preflight sets on every element AND `.box-border` sets on one, so it proves nothing here');
 });
 
-test('the two halves are named where the packages put them', () => {
-  assert.equal(join('css', 'base.css'), 'css/base.css');
-  assert.equal(join('css', 'utilities.css'), 'css/utilities.css');
-});
-
 test('THE REAL SHEET: nothing is rewritten, only moved -- the halves are the original\'s own bytes', () => {
   const css = readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8');
   const { base, utilities } = splitCompiledSheet(css);

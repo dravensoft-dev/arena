@@ -29,6 +29,7 @@ One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside 
 - Don't reach for the row to style a cell: alignment, width and the mono/gold treatment are the **column's**, so they stay the same all the way down.
 - **Pass `interactive` alongside `onClick`, or the row is inert.** The flag is what makes the card shape a `role="button"` tab stop with an Enter/Space handler; without it the row draws and activates nothing. It is a member rather than "is `onClick` bound?" because no render follows from whether a listener is bound: derived that way, a clickable card row renders pointer-only in a layer that cannot ask the question, and nothing says so.
 - Wire it only when the whole row means something to activate. A row with one actionable thing in it wants an `ArenaButton` in a cell instead, and a table whose rows are all `interactive` puts a tab stop on every one of them.
+- **A control inside a cell keeps its own activation.** A selection checkbox in the first column and a row action in the last are the canonical table, so an activation that starts on a link, a button, a field or anything carrying an interactive role does not reach the row: the checkbox ticks and the reader stays where they are, and the action fires once rather than twice. Only a press that lands on the row itself activates it.
 
 ### What is injected, and therefore not yours
 

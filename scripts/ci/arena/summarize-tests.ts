@@ -13,6 +13,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { testStep } from '../../check/arena/check-all.ts';
 import { DOMAINS, domainOfTestPath, isSuite } from '../../lib/arena/domains.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 export const REPORT_DIR = join('.cache', 'junit');
 
@@ -72,7 +73,7 @@ export function suiteDomains(dir: string) {
   const found = new Set<string>();
   for (const full of walkFiles(dir)) {
     if (!isSuite(basename(full))) continue;
-    const domain = domainOfTestPath(relative(repoRoot, full));
+    const domain = domainOfTestPath(relPosix(repoRoot, full));
     if (domain) found.add(domain);
   }
   return [...found].sort();

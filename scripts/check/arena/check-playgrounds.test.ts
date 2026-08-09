@@ -4,7 +4,7 @@ import {
   coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
-  pagePaths, smokeProblems, READY, SMOKE_READY_MS, SMOKE_GRACE_MS,
+  pagePaths,
 } from './check-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -233,47 +233,9 @@ test('an emission of nothing is a failure rather than a clean pass', () => {
   assert.match(emissionProblems(root, new Map())[0] ?? '', /an empty emit is a failure/);
 });
 
-test('the smoke phase walks every emitted page, in both layers', () => {
+test('every component gets an emitted page in both layers, which is what a citation resolves against', () => {
   const pages = pagePaths(root);
   assert.equal(pages.length, 118);
   assert.equal(pages.filter((p) => p.startsWith('frameworks/react/')).length, 59);
   assert.equal(pages.filter((p) => p.startsWith('frameworks/angular/')).length, 59);
-});
-
-test('a page that mounts nothing is named with the command that builds what it loads', () => {
-  const problems = smokeProblems('X.html', { mounted: false, knobs: 0, staged: false, errors: [] });
-  assert.equal(problems.length, 1, 'nothing mounted, so nothing else is worth saying');
-  assert.match(problems[0] ?? '', /mounted nothing — run bun run build first/);
-});
-
-test('a page that mounts but draws no panel or no component fails, since compiling is not rendering', () => {
-  const problems = smokeProblems('X.html', { mounted: true, knobs: 0, staged: false, errors: [] });
-  assert.match(problems[0] ?? '', /drew no knob row/);
-  assert.match(problems[1] ?? '', /drew an empty stage/);
-});
-
-test('anything the console reports is a problem, because a component can render and still throw', () => {
-  const problems = smokeProblems('X.html', {
-    mounted: true, knobs: 3, staged: true, errors: ['threw: NG0950: ArenaInput "id" is required'],
-  });
-  assert.deepEqual(problems, ['X.html: threw: NG0950: ArenaInput "id" is required']);
-});
-
-test('a page that mounts, draws and says nothing is clean', () => {
-  assert.deepEqual(smokeProblems('X.html', { mounted: true, knobs: 3, staged: true, errors: [] }), []);
-});
-
-test('READY waits for the page to draw rather than for a fixed interval, so a fast page is not slept on', () => {
-  assert.match(READY, /drawn\.mounted && drawn\.staged && drawn\.knobs > 0/);
-  assert.match(READY, /setTimeout\(tick,/);
-});
-
-test('READY resolves at the deadline even when nothing draws, so a dead page is reported rather than hung on', () => {
-  assert.match(READY, new RegExp(`Date\\.now\\(\\) \\+ ${SMOKE_READY_MS}`));
-  assert.match(READY, /Date\.now\(\) >= deadline\) \{ resolve\(\); return; \}/);
-});
-
-test('READY holds a grace window open after the page draws, because an error can arrive after the first render', () => {
-  assert.ok(SMOKE_GRACE_MS > 0, 'probing the instant a page draws would miss anything thrown after it');
-  assert.match(READY, new RegExp(`setTimeout\\(resolve, ${SMOKE_GRACE_MS}\\)`));
 });

@@ -8,9 +8,10 @@
  * which is the blind spot check-dimension-literals already declares in its own header. */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { blankComments, expressionLeaves, readValue, skipString } from './check-dimension-literals.ts';
 import { HAND_DRAWN, categoryOf, inScope, manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { kebab } from '../../utils/case.ts';
@@ -171,10 +172,6 @@ export function componentDir(name: string) {
   return category ? join(REACT_COMPONENTS, category, kebab(name)) : null;
 }
 
-export function directoryOf(path: string) {
-  return path.slice(0, path.lastIndexOf('/'));
-}
-
 export function reactRendersManifest(text: string, manifest: string) {
   const throughRecipe = /from '[^']*Tv\.generated/.test(text) && text.includes(`${manifest}.manifest.generated`);
   const throughClasses = /from '[^']*ArenaStyles\.generated/.test(text) && text.includes(`${manifest}.classes.generated`);
@@ -194,13 +191,13 @@ export function adoptionProblems(name: string) {
   const problems = [];
   const react = reactSource(name);
   if (react && !reactRendersManifest(readFileSync(react, 'utf8'), manifest)) {
-    problems.push(`${name}: ${relative(repoRoot, react)} does not render its manifest -- it has to `
+    problems.push(`${name}: ${relPosix(repoRoot, react)} does not render its manifest -- it has to `
       + `import arenaStyles from ArenaStyles.generated and ${manifest}.classes.generated (or, until it `
       + `is migrated, arenaTv from Tv.generated and ${manifest}.manifest.generated), and draw its slots`);
   }
   const angular = angularSource(name);
   if (angular && !angularRendersManifest(readFileSync(angular, 'utf8'))) {
-    problems.push(`${name}: ${relative(repoRoot, angular)} does not render its manifest -- it has to `
+    problems.push(`${name}: ${relPosix(repoRoot, angular)} does not render its manifest -- it has to `
       + 'import the recipe built from it, its own .variants or the family parent\'s');
   }
   return problems;
@@ -221,9 +218,9 @@ export function collect() {
   const literals = [];
   let scanned = 0;
   for (const path of files) {
-    if (excused.has(directoryOf(path))) continue;
+    if (excused.has(dirname(path))) continue;
     scanned += 1;
-    const rel = relative(repoRoot, path);
+    const rel = relPosix(repoRoot, path);
     for (const { key, value } of literalStyleProblems(readFileSync(path, 'utf8'), rel))
       literals.push(`${rel}: ${key}: ${value} is appearance typed out by hand; every branch of it is a `
         + 'literal, so it belongs in the manifest');
@@ -232,7 +229,7 @@ export function collect() {
   return {
     adoption,
     literals,
-    files: files.map((p) => relative(repoRoot, p)),
+    files: files.map((p) => relPosix(repoRoot, p)),
     walked: files.length,
     scanned,
     scope: scope.length,

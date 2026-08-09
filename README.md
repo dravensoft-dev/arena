@@ -19,7 +19,7 @@ governs what it is about to write, and the gate tells it when it got it wrong.
 Code plugin, and a standalone Agent Skill in [`SKILL.md`](./SKILL.md) that any agent can read.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 7.0.0
+- **Repo/Claude Code plugin**: 8.0.0
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 
@@ -75,8 +75,10 @@ component's `.prompt.md` is how to use that one, and
 everything below is reached through it.
 
 - [`scripts/build/AGENTS.md`](./scripts/build/AGENTS.md): **compile Arena for the first
-  time**, meaning what a fresh clone must build before `bun run demos` or `bun run check`
-  mean anything, and why some generated files are tracked and some are not.
+  time**, meaning what a machine has to already carry, what a fresh clone must build before
+  `bun run demos` or `bun run check` mean anything, and why some generated files are tracked
+  and some are not. Linux and macOS are the two supported platforms; on Windows the supported
+  path is WSL2, with the clone in the Linux filesystem.
 - [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md): the npm channel, meaning how the
   two packages are assembled from the tree in place, why a published Arena carries no skin,
   and what the consumer declares instead.

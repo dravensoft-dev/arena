@@ -42,6 +42,7 @@ saying "no entries right now" and renders.
 
 **Do / Don't**
 - The trigger must have an accessible name (use `ArenaIconButton label`).
+- **The trigger must be a control, not a picture of one.** An `ArenaAvatar`, a `<span>` or anything else that takes no focus receives the handlers and answers no key, so the menu opens on a pointer and a reader on a keyboard never reaches it. Arena reports that once at runtime; pass an `ArenaIconButton`, an `ArenaButton`, or your own element carrying a button role and a tabindex.
 - Destructive actions go last and are marked `destructive`.
 - To choose a value from a form, use `ArenaSelect`, not an ArenaMenu.
 - Don't reach for a per-entry callback -- there is none. Read `onSelect`'s item.

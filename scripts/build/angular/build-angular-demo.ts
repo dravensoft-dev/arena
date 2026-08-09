@@ -8,6 +8,7 @@ import { basename, join, relative } from 'node:path';
 import { existsSync, rmSync } from 'node:fs';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -44,7 +45,7 @@ function pruneOrphans(dir: string) {
   const pruned: string[] = [];
   if (!existsSync(dir)) return pruned;
   for (const full of walkFiles(dir)) {
-    const rel = relative(EMIT_DIR, full);
+    const rel = relPosix(EMIT_DIR, full);
     let srcRel;
     if (rel.endsWith('.js.map')) srcRel = rel.slice(0, -'.js.map'.length) + '.ts';
     else if (rel.endsWith('.d.ts')) srcRel = rel.slice(0, -'.d.ts'.length) + '.ts';
@@ -52,7 +53,7 @@ function pruneOrphans(dir: string) {
     else continue;
     if (srcRel.startsWith('..') || !existsSync(join(LAYER_ROOT, srcRel))) {
       rmSync(full);
-      pruned.push(relative(repoRoot, full));
+      pruned.push(relPosix(repoRoot, full));
     }
   }
   return pruned;
@@ -63,7 +64,18 @@ export function collectEntries(dir: string) {
   return walkFiles(dir).filter((full) => isEntry(basename(full))).sort();
 }
 
-export function missingEntryProblems(sourceEntries: string[], emittedEntries: string[], emitDir = relative(repoRoot, EMIT_DIR)) {
+export function unbundledProblems(entryNames: string[], landed: string[], dir: string) {
+  const there = new Set(landed);
+  return entryNames
+    .filter((name: string) => !there.has(name))
+    .map((name: string) => `${dir}/${name} is not there after bundling. Every page loads its own `
+      + 'entry from that directory BY NAME, so a bundler that lands it anywhere else, or under '
+      + `any other name, leaves the page fetching nothing: it renders an empty document and the `
+      + 'gates that open one wait out their whole timeout for a component that was never served. '
+      + `What did land: ${landed.length === 0 ? 'nothing at all' : landed.slice(0, 5).join(', ')}`);
+}
+
+export function missingEntryProblems(sourceEntries: string[], emittedEntries: string[], emitDir = relPosix(repoRoot, EMIT_DIR)) {
   const emitted = new Set(emittedEntries.map((f: string) => f.slice(0, -'.js'.length)));
   const problems = [];
   for (const src of sourceEntries) {
@@ -82,7 +94,7 @@ function collectSourceEntries(dir: string) {
   if (!existsSync(dir)) return [];
   return walkFiles(dir, { skip: (_name, path) => path === EMITTED })
     .filter((full) => isEntry(basename(full), '.ts'))
-    .map((full) => relative(dir, full));
+    .map((full) => relPosix(dir, full));
 }
 
 async function main() {
@@ -117,7 +129,7 @@ async function main() {
 
   const emitProblems = missingEntryProblems(
     collectSourceEntries(LAYER_ROOT),
-    collectEntries(EMIT_DIR).map((p) => relative(EMIT_DIR, p)),
+    collectEntries(EMIT_DIR).map((p) => relPosix(EMIT_DIR, p)),
   );
   if (emitProblems.length > 0) {
     console.error(`\nbuild-angular-demo: ${emitProblems.length} page entr(y/ies) compiled into nothing:\n`);
@@ -139,6 +151,17 @@ async function main() {
   if (!built.success) {
     console.error('\nbuild-angular-demo: bundling failed\n');
     for (const log of built.logs) console.error(String(log));
+    process.exit(1);
+  }
+
+  const unbundled = unbundledProblems(
+    entrypoints.map((entry) => basename(entry)),
+    collectEntries(JS_DIR).map((full) => basename(full)),
+    relPosix(repoRoot, JS_DIR),
+  );
+  if (unbundled.length > 0) {
+    console.error(`\nbuild-angular-demo: ${unbundled.length} page(s) bundled to somewhere else\n`);
+    for (const p of unbundled) console.error(`  ${p}`);
     process.exit(1);
   }
 

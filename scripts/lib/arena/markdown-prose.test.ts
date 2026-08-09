@@ -4,7 +4,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { proseSegments } from './markdown-prose.ts';
+import { proseSegments, fencedLines } from './markdown-prose.ts';
 
 const texts = (source: string) => proseSegments(source).map((s) => s.text);
 
@@ -86,4 +86,27 @@ test('a segment reports the line it starts on after a fenced block', () => {
 
 test('an empty document yields nothing', () => {
   assert.deepEqual(proseSegments(''), []);
+});
+
+test('a fenced block yields its own lines, and the fences themselves are not among them', () => {
+  assert.deepEqual(fencedLines('lead\n```html\n<x />\n```\ntail'), [{ line: 3, text: '<x />' }]);
+});
+
+test('a code span is not a fenced line, which is how a foil survives its own rule', () => {
+  assert.deepEqual(fencedLines('that is `MatDialog` wearing Arena'), []);
+});
+
+test('a fence closes only on a run of its own character at least as long', () => {
+  assert.deepEqual(fencedLines('````\n```\nstill code\n````\nout'), [
+    { line: 2, text: '```' },
+    { line: 3, text: 'still code' },
+  ]);
+});
+
+test('an unclosed fence runs to the end of the document', () => {
+  assert.deepEqual(fencedLines('```\na\nb'), [{ line: 2, text: 'a' }, { line: 3, text: 'b' }]);
+});
+
+test('a document with no fence yields no lines', () => {
+  assert.deepEqual(fencedLines('one\ntwo'), []);
 });

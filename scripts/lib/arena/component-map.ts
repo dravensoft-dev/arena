@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { captured } from '../../utils/captures.ts';
+import { byKey } from '../../utils/compare.ts';
 
 export const MAP_FILE = 'components.json';
 
@@ -26,12 +27,20 @@ export const DECORATOR_IMPORTS = /imports: \[([^\]]*)\]/g;
 export const EXPORTED = /export (?:function|const) ([A-Za-z0-9_]+)/g;
 export const COMPONENT_NAME = /^[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*$/;
 export const LAYER_IMPORT = /from '\.\.\/\.\.\/[a-z-]+\/[a-z-]+\/([A-Z][A-Za-z0-9]*)\.tsx?'/g;
+export const QUERIED_MARKER = /contentChild\((Arena[A-Za-z0-9]*)\)/g;
+export const MARKER_ATTRIBUTES = new Map([
+  ['ArenaAction', 'action'],
+  ['ArenaActions', 'actions'],
+  ['ArenaBrand', 'brand'],
+  ['ArenaFooter', 'footer'],
+  ['ArenaSecondaryAction', 'secondaryAction'],
+]);
 
 export function componentFiles(layer: string, extension: string, root = repoRoot) {
   const base = join(root, 'frameworks', layer, 'components');
   const found: { at: string; file: string; symbol: string }[] = [];
   if (!existsSync(base)) return found;
-  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
+  const byName = byKey((entry: { name: string }) => entry.name);
   for (const category of readdirSync(base, { withFileTypes: true }).sort(byName)) {
     if (!category.isDirectory()) continue;
     for (const directory of readdirSync(join(base, category.name), { withFileTypes: true }).sort(byName)) {
@@ -76,11 +85,19 @@ export function close(needs: ComponentSheetMap['needs']): ComponentSheetMap['nee
   return closed;
 }
 
-function mapFrom(entries: { symbol: string; keys: string[]; sheet: string | null; uses: string[] }[], edges: string) {
+function mapFrom(
+  entries: { symbol: string; keys: string[]; sheet: string | null; uses: string[]; markers?: string[] }[],
+  edges: string,
+) {
   const draws: ComponentSheetMap['draws'] = {};
   const needs: ComponentSheetMap['needs'] = {};
+  const markers: ComponentSheetMap['markers'] = {};
   for (const { keys, sheet } of entries) {
     for (const key of keys) draws[key] = sheet;
+  }
+  for (const { keys, markers: queried } of entries) {
+    if (!queried?.length) continue;
+    for (const key of keys) markers[key] = [...queried].sort();
   }
   for (const { symbol, sheet, uses } of entries) {
     if (!sheet) continue;
@@ -90,7 +107,7 @@ function mapFrom(entries: { symbol: string; keys: string[]; sheet: string | null
       .filter((s): s is string => Boolean(s) && s !== sheet);
     if (pulled.length) needs[sheet] = [...new Set([...(needs[sheet] ?? []), ...pulled])].sort();
   }
-  return { match: edges, draws, needs: close(needs) };
+  return { match: edges, draws, needs: close(needs), markers };
 }
 
 export function angularComponentMap(root = repoRoot) {
@@ -103,6 +120,9 @@ export function angularComponentMap(root = repoRoot) {
       uses: [...source.matchAll(DECORATOR_IMPORTS)]
         .flatMap((m) => captured(m).split(',').map((name) => name.trim()))
         .filter((name) => /^[A-Z][A-Za-z0-9]*$/.test(name)),
+      markers: [...new Set([...source.matchAll(QUERIED_MARKER)]
+        .map((m) => MARKER_ATTRIBUTES.get(captured(m)))
+        .filter((attribute): attribute is string => Boolean(attribute)))],
     };
   });
   return mapFrom(entries.filter((e) => e.keys.length), 'selector');
@@ -125,6 +145,7 @@ export type ComponentSheetMap = {
   match: string;
   draws: Record<string, string | null>;
   needs: Record<string, string[]>;
+  markers: Record<string, string[]>;
 };
 
 export function componentMap(layer: string, root = repoRoot): ComponentSheetMap {

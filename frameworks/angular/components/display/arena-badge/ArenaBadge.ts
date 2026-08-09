@@ -16,7 +16,10 @@ import { arenaBadgeStyles } from './ArenaBadge.variants';
 })
 export class ArenaBadge {
   /** System status (success/warning/danger/info) reflects an object's actual state; emphasis (accent, gold) is editorial; neutral carries no semantic weight. */
-  readonly tone = input<ArenaTone>('neutral');
+  readonly tone = input<ArenaTone, ArenaTone | undefined>(
+    'neutral',
+    { transform: (value) => value ?? 'neutral' },
+  );
   /** Draws a filled dot in the tone colour before the label. */
   readonly dot = input(false, { transform: booleanAttribute });
 

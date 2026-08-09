@@ -12,7 +12,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';
-import { toPosix } from '../../utils/posix-path.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { captured } from '../../utils/captures.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
@@ -111,7 +111,7 @@ export function builtProblems(rel: string, built: { resolved: Reach[]; unresolva
       `${rel} imports a path built from ${name}, and no anchor of that name is declared in `
       + `${ANCHOR_FILE}, so this gate cannot resolve it and would otherwise skip it in silence`),
     ...resolved.filter(({ path }) => !existsSync(path))
-      .map(({ path }) => `${rel} imports ${toPosix(path.slice(root.length + 1))}, and nothing is there`),
+      .map(({ path }) => `${rel} imports ${relPosix(root, path)}, and nothing is there`),
   ];
 }
 
@@ -119,7 +119,7 @@ export async function bindingProblems(rel: string, reaches: Reach[], root = ROOT
   const problems = [];
   for (const { path, names } of reaches) {
     if (names.length === 0 || !existsSync(path)) continue;
-    const where = toPosix(path.slice(root.length + 1));
+    const where = relPosix(root, path);
     let exported;
     try {
       exported = new Set(Object.keys(await import(pathToFileURL(path).href)));
@@ -150,7 +150,7 @@ export async function reachProblems(root = ROOT) {
     const literals = literalsIn(source);
     if (literals.length + statics.length + built.resolved.length + built.unresolvable.length === 0) continue;
     reaching += 1;
-    const rel = toPosix(path.slice(root.length + 1));
+    const rel = relPosix(root, path);
     const reaches = [...statics, ...built.resolved];
     bound += reaches.reduce((n, one) => n + one.names.length, 0);
     problems.push(

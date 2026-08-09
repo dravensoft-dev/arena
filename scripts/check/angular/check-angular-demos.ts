@@ -3,7 +3,7 @@
  * bundler, and it holds what only this layer can get wrong: the three lines without which a
  * page mounts nothing and says nothing. There is no coverage list any more, because every
  * component has a page: the inventory is the component tree, so a page cannot go missing
- * and a list cannot go stale. Whether a page RENDERS is check:playgrounds', with a browser. */
+ * and a list cannot go stale. Whether a page RENDERS is held by nothing; see DOUBTS.md. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -66,8 +66,7 @@ export function pageProblems(tree: Record<string, string[]>, read: (path: string
       if (/@dsCard/.test(pageSource)) {
         problems.push(
           `${page}: declares @dsCard. An Angular page's script is git-ignored build output, so on `
-          + 'a fresh clone it renders blank — and check:cards would pass it for having nothing to '
-          + 'overflow, which is a green gate over nothing.',
+          + 'a fresh clone it renders blank, and a box declared around nothing measures nothing.',
         );
       }
 
@@ -80,12 +79,22 @@ export function pageProblems(tree: Record<string, string[]>, read: (path: string
           + 'without it nothing in the page ever re-renders',
         );
       }
-      if (!/^import '@angular\/compiler';$/m.test(entrySource)) {
+      const jit = /^import \* as (\w+) from '@angular\/compiler';$/m.exec(entrySource);
+      if (!jit) {
         problems.push(
           `${entry}: does not import '@angular/compiler'. ngc compiles Arena's own components AOT, `
           + 'but @angular/* ships partially compiled and its injectables need the JIT fallback in a '
           + 'browser bundle — without it the page throws before it mounts anything, the same reason '
           + 'the Angular test harness imports it.',
+        );
+      } else if (!new RegExp(`Reflect\\.set\\(globalThis, '\\w+', ${captured(jit)}\\)`).test(entrySource)) {
+        problems.push(
+          `${entry}: imports the compiler and never reads it. A bare side-effect import is one a `
+          + 'bundler may drop, and this one does: @angular/compiler declares its side effects as '
+          + 'the single path "./fesm2022/compiler.mjs", which is not what a resolver holding a '
+          + 'native path compares against, so on Windows the module left the bundle and every '
+          + 'page threw at bootstrap while the entry itself fetched 200. Reading the namespace '
+          + 'into globalThis is what no tree-shaker can prove is dead.',
         );
       }
     }

@@ -132,7 +132,25 @@ jobs:
       - name: the tag exists and the plugin.json it serves hands out this version
         run: bun scripts/check/arena/check-release.ts
 
-      - name: build the sources and assemble the package
+      # Arena main built this exact commit and saved the result under this key. A workflow_run
+      # run resolves to the default branch and reads that scope, so the hand-off is a restore
+      # rather than a second build. The key is the commit and there are no restore-keys: a
+      # prefix fallback would hand this job the assembled tree of another release.
+      - name: the build Arena main already made for this commit
+        id: build
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            frameworks/**/*.generated.*
+            frameworks/react/dist
+            frameworks/angular/dist
+            frameworks/angular/build
+          key: arena-build-${{ runner.os }}-${{ github.event.workflow_run.head_sha || github.sha }}
+
+      # A miss is expected rather than exceptional: a cache is evicted after seven days
+      # unread, and a hand dispatch can ask about a commit whose run is long past.
+      - name: build the sources and assemble the package, if that cache was not there
+        if: steps.build.outputs.cache-hit != 'true'
         run: bun run build:release
 
       - name: hold the manifests and the CLI

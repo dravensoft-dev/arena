@@ -6,9 +6,9 @@
  * specifiers to prove they resolve, and takes them from here so the pattern is written once. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, join } from 'node:path';
 import { literalRanges, insideLiteral } from '../lib/arena/comments.ts';
-import { toPosix } from '../utils/posix-path.ts';
+import { isInside, relPosix } from '../utils/posix-path.ts';
 
 const SPECIFIER = /(?:from|import)\s*\(?\s*['"](\.[^'"]*)['"]/g;
 
@@ -27,7 +27,7 @@ export function relativeSpecifiers(source: string) {
 }
 
 export function scriptClosure(entry: string, root: string) {
-  const scripts = join(root, 'scripts') + sep;
+  const scripts = join(root, 'scripts');
   const seen = new Set<string>();
   const walk = (path: string) => {
     if (seen.has(path)) return;
@@ -40,10 +40,10 @@ export function scriptClosure(entry: string, root: string) {
     }
     for (const spec of relativeSpecifiers(source)) {
       const next = join(dirname(path), spec);
-      if (!next.startsWith(scripts) || !existsSync(next)) continue;
+      if (!isInside(scripts, next) || !existsSync(next)) continue;
       walk(next);
     }
   };
   walk(entry);
-  return [...seen].map((path) => toPosix(relative(root, path))).sort();
+  return [...seen].map((path) => relPosix(root, path)).sort();
 }

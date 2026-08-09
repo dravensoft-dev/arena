@@ -44,12 +44,12 @@ close, and Tab wraps at the panel's edges.
   confirmation, it is a speed bump.
 - **Bind `title`, never write it as a static attribute.** `title="Delete project X"`
   compiles and does set the input, and it also lands on the host as the native HTML
-  `title` attribute, whose host here is the fixed full-viewport scrim, so the browser
-  paints a tooltip over the **entire viewport** for as long as the dialog is open.
-  `[title]="'Delete project X'"` or `[title]="projectName()"` sets the input alone.
-  This host clears the attribute (`'[attr.title]': 'null'`), which the layer holds in
-  both directions: a primitive taking the input and not clearing it fails, and so does
-  one clearing an attribute it takes no input for. The binding above is the clearer spelling, not a workaround.
+  `title` attribute. The host here is the fixed full-viewport scrim, and a native
+  `title` on it would be a tooltip target the size of the page, which is why this host
+  clears the attribute (`'[attr.title]': 'null'`). The layer holds that rule in both
+  directions: a primitive taking the input and not clearing it fails, and so does one
+  clearing an attribute it takes no input for. `[title]="'Delete project X'"` or
+  `[title]="projectName()"` sets the input alone, and it is the spelling that says so.
 - Use `requireText` when the action is genuinely irreversible, and use the name of the
   thing being destroyed as the word.
 - Don't reach for `destructive` on a merely inconvenient action. The filled red is the

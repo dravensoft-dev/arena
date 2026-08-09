@@ -38,6 +38,13 @@ component between two levels is harmless**, because DI walks past it, and so is 
 so is any depth of projection. Nothing here inspects its own children, so nothing here can be
 broken by what sits between them.
 
+**A row declares its own id to the nearest state, and that is how a group knows it holds the
+active destination.** The travel is the row's, not the group's, for the same reason the indent is:
+a row is where its own `id` is bound, so it is the only place that value can be read without
+asking a question about a child that has not been given one yet. So a group opens itself around
+an active row it never sees, whether a `@for` built that row, a wrapper component holds it, or it
+sits three levels down.
+
 `indentStep` is a **number**, never a CSS string, a multiplier on `--sp-1`, not a length. A row at
 depth N is padded `calc(var(--sp-1) * 3 + var(--sp-1) * indentStep * N)`, so the indent
 re-densifies and re-themes with the token. Pass a step, never a length: a CSS string here
@@ -77,12 +84,26 @@ nothing could check which one a caller meant. A member that redefines its neighb
 member that cannot be read in isolation.
 
 Compute the active id yourself. The `NavigationEnd` bridge that turns `router.url` into a
-signal is yours in either design, because `router.url` is a property rather than a signal;
-what is left is one comparison:
+signal is yours in either design, because `router.url` is a property rather than a signal.
+Write the bridge, then the comparison:
 
 ```ts
+private readonly router = inject(Router);
+
+readonly url = toSignal(
+  this.router.events.pipe(filter((e) => e instanceof NavigationEnd), map(() => this.router.url)),
+  { initialValue: this.router.url },
+);
+
 readonly active = computed(() => DESTINATIONS.find((d) => this.url().startsWith(d.href))?.id);
 ```
+
+**Read `router.url` through the bridge and never in the template.** Reading the property
+directly appears to work, because swapping the routed component marks the shell dirty as a
+side effect of how `RouterOutlet` works, and a zoneless `OnPush` shell then re-renders anyway.
+It stops the moment a navigation reuses the component it is already showing, which is what a
+tab change or a parameter change does, and nothing reports it: the rail simply keeps the
+previous destination lit.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`:

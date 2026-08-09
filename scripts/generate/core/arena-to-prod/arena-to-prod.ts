@@ -19,6 +19,7 @@ import type { ComponentMap } from './components.ts';
 import { scan, drawn, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
+import { markerProblems } from './markers.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -34,18 +35,20 @@ export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs',
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
 
 export const USAGE = [
-  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--strict] [--no-import]',
+  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--undrawn] [--strict]',
   '',
   `  --config        the palettes and fonts this project declares; defaults to ${DEFAULT_CONFIG}`,
   `  --src           a source tree to scan for Phosphor class names; repeatable, defaults to ${DEFAULT_SOURCE}`,
   `  -o, --out       where both stylesheets go; defaults to ${DEFAULT_OUT}`,
   `                  it writes ${THEME_SHEET} and ${ICONS_SHEET}, and you import them last`,
+  '  --undrawn       name the components this package ships that your sources draw nowhere',
   '  --strict        exit 1 on a contrast, ramp or missing-glyph report, not only on a config problem',
   '  --no-import     omit the @import of the package stylesheet from the theme output',
 ].join('\n');
 
 export type ResolvedOptions = {
   strict: boolean;
+  undrawn: boolean;
   importHeader: boolean;
   paths: string[];
   config: string;
@@ -60,17 +63,25 @@ export function resolved(options: CliOptions): ResolvedOptions {
     throw new Error('arena-to-prod: parseArgs returned neither --help, nor an error, nor a '
       + 'resolved option set, so every path this command was given is unknown');
   }
-  return { strict: Boolean(options.strict), importHeader: options.importHeader !== false, paths, config, out };
+  return {
+    strict: Boolean(options.strict),
+    undrawn: Boolean(options.undrawn),
+    importHeader: options.importHeader !== false,
+    paths,
+    config,
+    out,
+  };
 }
 
 export function parseArgs(argv: string[]): CliOptions {
   const paths: string[] = [];
-  const options: CliOptions = { strict: false, importHeader: true, paths };
+  const options: CliOptions = { strict: false, undrawn: false, importHeader: true, paths };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === undefined) continue;
     if (arg === '--help' || arg === '-h') return { help: true };
     if (arg === '--strict') { options.strict = true; continue; }
+    if (arg === '--undrawn') { options.undrawn = true; continue; }
     if (arg === '--no-import') { options.importHeader = false; continue; }
     if (arg === '--config') {
       const next = argv[++i];
@@ -144,10 +155,12 @@ export function componentMap(root: string): ComponentMap | null {
   }
 }
 
+const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
 export function sourceFiles(path: string) {
   const found: string[] = [];
   const walk = (at: string) => {
-    for (const entry of readdirSync(at, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    for (const entry of readdirSync(at, { withFileTypes: true }).sort((a, b) => byCodeUnit(a.name, b.name))) {
       if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
       const full = join(at, entry.name);
       if (entry.isDirectory()) { walk(full); continue; }
@@ -207,6 +220,49 @@ export function autoComponents(config: ArenaConfig, options: ResolvedOptions,
   };
 }
 
+export function readSources(paths: string[]) {
+  const sources = [];
+  for (const path of paths) {
+    for (const file of sourceFiles(path) ?? []) sources.push(readFileSync(file, 'utf8'));
+  }
+  return sources;
+}
+
+export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
+  if (!map?.markers) return { reports: [] as string[] };
+  const files = [];
+  for (const path of options.paths) {
+    for (const file of sourceFiles(path) ?? []) {
+      if (!file.endsWith('.ts')) continue;
+      files.push({ path: file, source: readFileSync(file, 'utf8') });
+    }
+  }
+  return { reports: markerProblems(files, map.markers) };
+}
+
+export function undrawnStep(options: ResolvedOptions, packageName: string, map: ComponentMap | null) {
+  if (!map) {
+    return { notes: [] as string[],
+      fatal: ['--undrawn reads the component map this package carries, and it is not beside this '
+        + 'command, so what you draw cannot be compared against what ships'] };
+  }
+  const found = resolveComponents(map, readSources(options.paths), packageName);
+  if (!found) {
+    return { notes: [] as string[],
+      fatal: [`--undrawn cannot read a map keyed by ${JSON.stringify(map.match)}`] };
+  }
+
+  const shipped = Object.keys(map.draws).sort();
+  const undrawn = shipped.filter((key) => !found.keys.includes(key));
+  const notes = [
+    `${found.keys.length} of ${shipped.length} shipped component(s) drawn under ${options.paths.join(', ')}`,
+  ];
+  notes.push(undrawn.length === 0
+    ? 'every component this package ships is drawn somewhere'
+    : `${undrawn.length} drawn nowhere: ${undrawn.join(', ')}`);
+  return { notes, fatal: [] as string[] };
+}
+
 export function themeStep(
   options: ResolvedOptions,
   { packageName, sheets, map }: ThemeEnvironment,
@@ -255,20 +311,28 @@ export function iconsStep(options: ResolvedOptions,
 
   const found: IconScan = { pairs: new Map(), loose: new Set() };
   const reports = [];
+  const ours: IconScan = { pairs: new Map(), loose: new Set() };
 
   if (arena) {
     for (const file of sourceFiles(arena) ?? []) {
       if (dirname(file) === join(arena, 'bin')) continue;
-      scan(readFileSync(file, 'utf8'), found);
+      const source = readFileSync(file, 'utf8');
+      scan(source, found);
+      scan(source, ours);
     }
   } else {
     reports.push('not running from inside an Arena package, so the icons Arena draws itself were not counted');
   }
 
+  const yours: IconScan = { pairs: new Map(), loose: new Set() };
   for (const path of options.paths) {
     const files = sourceFiles(path);
     if (!files) return { code: 2, reports, fatal: [`${path} is not there`] };
-    for (const file of files) scan(readFileSync(file, 'utf8'), found);
+    for (const file of files) {
+      const source = readFileSync(file, 'utf8');
+      scan(source, found);
+      scan(source, yours);
+    }
   }
 
   const wanted = drawn(found);
@@ -306,7 +370,18 @@ export function iconsStep(options: ResolvedOptions,
   mkdirSync(outDir, { recursive: true });
   writeFileSync(out, css);
 
-  return { code: 0, reports, fatal: [] as string[], wrote: `${out} (${kept} glyph(s), ${sheets.length} weight(s), ${css.length} bytes)` };
+  return { code: 0,
+    reports,
+    fatal: [] as string[],
+    wrote: `${out} (${kept} glyph(s), ${glyphNames(yours).size} named by your sources and `
+      + `${glyphNames(ours).size} by Arena's own components, ${sheets.length} weight(s), `
+      + `${css.length} bytes)` };
+}
+
+export function glyphNames(scan: IconScan) {
+  const names = new Set(scan.loose);
+  for (const glyphs of scan.pairs.values()) for (const glyph of glyphs) names.add(glyph);
+  return names;
 }
 
 export type ThemeEnvironment = {
@@ -344,14 +419,33 @@ export function main(argv: string[], environment: Environment = {}) {
   for (const line of theme.notes ?? []) console.log(`arena-to-prod: ${line}`);
   console.log(`arena-to-prod: wrote ${theme.wrote}`);
 
+  if (options.undrawn) {
+    const undrawn = undrawnStep(options, packageName, map);
+    for (const line of undrawn.fatal) console.error(`arena-to-prod: ${line}`);
+    if (undrawn.fatal.length) return 1;
+    for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
+  }
+
+  const markers = markersStep(options, map);
+  for (const line of markers.reports) console.error(`arena-to-prod: ${line}`);
+
   const icons = iconsStep(options, { arena, phosphor });
   for (const line of icons.fatal) console.error(`arena-to-prod: ${line}`);
   for (const line of icons.reports) console.error(`arena-to-prod: ${line}`);
   if (icons.code !== 0) return icons.code;
   console.log(`arena-to-prod: wrote ${icons.wrote}`);
 
-  return options.strict && theme.reports.length + icons.reports.length ? 1 : 0;
+  return options.strict && theme.reports.length + markers.reports.length + icons.reports.length ? 1 : 0;
 }
 
-const invokedAs = process.argv[1] ? realpathSync(process.argv[1]) : '';
-if (invokedAs === fileURLToPath(import.meta.url)) process.exit(main(process.argv.slice(2)));
+export function isProgram(entry: string | undefined, self: string) {
+  if (entry === undefined) return false;
+  if (entry === self) return true;
+  try {
+    return realpathSync(entry) === realpathSync(self);
+  } catch {
+    return false;
+  }
+}
+
+if (isProgram(process.argv[1], fileURLToPath(import.meta.url))) process.exit(main(process.argv.slice(2)));

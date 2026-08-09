@@ -13,6 +13,8 @@ concurrency:
 
 env:
   BUN_VERSION: 1.3.14
+  # The one workflow that names a browser, so the terminal-override branch stays exercised.
+  # pr.yml and develop.yml name none, which is what proves the candidate list finds one.
   CHROME_PATH: /usr/bin/google-chrome
 
 jobs:
@@ -39,6 +41,20 @@ jobs:
 
       - name: the build is idempotent, so a tracked file it rewrote is a generator out of step
         run: git diff --exit-code
+
+      # Saved here rather than at the end of the job: this is the tree the step above just
+      # vouched for, before a gate has had the chance to write anything into it. A re-run of
+      # this workflow reserves a key that already exists, which actions/cache/save logs as a
+      # warning and does not fail on, so the second run keeps the first run's build.
+      - name: the build both publish workflows would otherwise make again
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            frameworks/**/*.generated.*
+            frameworks/react/dist
+            frameworks/angular/dist
+            frameworks/angular/build
+          key: arena-build-${{ runner.os }}-${{ github.sha }}
 
       - name: every gate
         run: bun scripts/check/arena/check-all.ts --no-tests

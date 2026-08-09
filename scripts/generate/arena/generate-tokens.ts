@@ -1,6 +1,15 @@
+/* A design source is identified by its NAME, and the full path exists only to hand to Style
+ * Dictionary, which reads one spelling and reports another back. It passes `source` straight to
+ * glob, where a backslash escapes rather than separates, so the path goes in posix or it matches
+ * no file at all on Windows; and it stamps each token's filePath with glob's posix answer, which
+ * writes a Windows drive as //?/D:/ and therefore equals nothing any join produces. Comparing two
+ * spellings of one file is the defect both halves of that caused, and a name has only one. */
+
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import nodePath, { join } from 'node:path';
+import { toPosix } from '../../utils/posix-path.ts';
+import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../../lib/core/serialize-token.ts';
@@ -168,14 +177,23 @@ export async function buildScriptModules() {
   return new Map(SCRIPT_TARGETS.map((path) => [path, body]));
 }
 
+export function designPath(source: string, on: PathModule = nodePath) {
+  return toPosix(on.join(root, 'contracts/design', source), on);
+}
+
+export function isFrom(token: DtcgToken, source: string, on: PathModule = nodePath) {
+  return typeof token.filePath === 'string'
+    && nodePath.posix.basename(toPosix(token.filePath, on)) === source;
+}
+
 async function load(source: string) {
-  const path = (s: string) => join(root, 'contracts/design', s);
+  const against = (RESOLVES_AGAINST as Record<string, string[]>)[source] ?? [];
   const sd = new StyleDictionary({
-    source: [...((RESOLVES_AGAINST as Record<string, string[]>)[source] ?? []).map(path), path(source)],
+    source: [...against.map((s) => designPath(s)), designPath(source)],
     platforms: { css: { transforms: ['name/kebab'] } },
   }, { verbosity: 'silent' });
   const { tokens } = await sd.getPlatformTokens('css');
-  return { tokens, from: path(source) };
+  return { tokens, from: source };
 }
 
 function comment(d: string) {
@@ -193,7 +211,7 @@ function render(token: DtcgToken) {
 
 function holdsA(node: DtcgNode, from: string): boolean {
   for (const [, child] of childEntries(node)) {
-    if (isToken(child) ? child.filePath === from : holdsA(child, from)) return true;
+    if (isToken(child) ? isFrom(child, from) : holdsA(child, from)) return true;
   }
   return false;
 }
@@ -208,7 +226,7 @@ function* walk({ tokens, from }: { tokens: any; from: string },
   groups: string[] = []): Generator<Emitted> {
   for (const [, child] of childEntries(tokens)) {
     if (isToken(child)) {
-      if (child.filePath === from && isStamped(child)) yield { group: false, token: child, groups };
+      if (isFrom(child, from) && isStamped(child)) yield { group: false, token: child, groups };
       continue;
     }
     if (!child.$description) { yield* walk({ tokens: child, from }, groups); continue; }

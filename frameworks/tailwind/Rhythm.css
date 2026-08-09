@@ -1,0 +1,45 @@
+/* frameworks/tailwind/Rhythm.css
+   The air between components, as classes a consumer puts on their own container.
+   Imported by Theme.css, so `bun run build:tailwind` compiles it into
+   Utilities.generated.css with everything else.
+
+   Arena draws no outer margin on anything, so the space between one component and the next
+   is always the consumer's to place, and until now the system shipped the lengths without
+   shipping anything that applies one. This is that half. It is hand-authored rather than a
+   manifest slot for the reason Numerals.css is: a manifest mirrors a surface, and this
+   belongs to no surface at all. It clears that file's second condition too, because
+   ArenaGrid's own treatment is defined as this plus a grid: its gap variant spends the same
+   three rhythm tokens on the two axes of a grid instead of on a column.
+
+   The classes go on an element the consumer wrote. They are useless on an Arena element and that
+   is not an oversight: a component's host element can declare display:contents and carry no box,
+   and ArenaTabs renders no element of its own at all, so an Arena element is never a layout
+   target. See frameworks/PACKAGING.md, which owns that statement.
+
+   Every value is a var() into a token, and none of them re-densifies: .arena-compact tightens
+   controls, not the page they sit on. */
+
+.arena-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rhythm-component);
+}
+
+.arena-stack--group {
+  gap: var(--rhythm-group);
+}
+
+.arena-stack--section {
+  gap: var(--rhythm-section);
+}
+
+.arena-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rhythm-group);
+}
+
+.arena-row--component {
+  gap: var(--rhythm-component);
+}

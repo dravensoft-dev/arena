@@ -78,7 +78,7 @@ if it and this paragraph ever disagree, the file wins. Every value in it is a
 `var()` into a token, and each animation answers `prefers-reduced-motion` on its
 own terms: decorative motion stops, motion that reports work slows.
 
-## The one hand-authored treatment, and why it is not a manifest slot
+## The two hand-authored treatments, and why neither is a manifest slot
 
 `Numerals.css` holds `.arena-num`: the mono face and `tabular-nums`, and no colour. It is here
 for the same reason the keyframes are, that it belongs to no surface. A manifest mirrors a
@@ -94,6 +94,21 @@ by digit in both places.
 **A second one is not free.** Every rule here is a class nothing gates against a contract, so
 the bar for adding another is that it belongs to no surface at all and that some component's
 own treatment is defined as it plus something.
+
+`Rhythm.css` is the second, and it is here because it clears both halves of that bar rather
+than because a page wanted a shortcut. It holds `.arena-stack` and `.arena-row`, the air
+BETWEEN components, and it belongs to no surface because Arena draws no outer margin anywhere:
+the only root-level margin in the library is `ArenaGrid`'s own centring. The second half is
+`ArenaGrid`, whose `gap` variant is these same three rhythm tokens spent on the two axes of a
+grid instead of on a column, so a grid is this treatment plus a grid. It carries what the token
+family alone could not: a length nothing applies is a length every consumer re-decides.
+
+Its classes go on an element the consumer wrote, never on an Arena element, and that is a
+property of the system rather than a preference. A component's host element may declare
+`display: contents` and carry no box, and `ArenaTabs` renders no element of its own at all, so a
+rule aimed at an Arena element can be discarded with nothing to report it. The statement lives
+in [`../PACKAGING.md`](../PACKAGING.md), which is the document that owns what an adopter may
+lean on and the one place allowed to say it of every target at once.
 
 ## Arbitrary values are a build failure
 
@@ -172,8 +187,8 @@ most likely to miss, because nothing on the page names it: `ArenaTable` renders 
 whoever implements it, and `ArenaUnauthCard` renders an `ArenaCard` in one implementation and draws the
 same frame from its own manifest in another. `scripts/lib/arena/composed-surfaces.ts` reads that
 from every implementation and **unions** it, so a page carries the same list wherever it is
-served, and `check:playgrounds` fails a page rendering an `arena-*__*` class no sheet it links
-defines, in a real browser, which is the only place the question has an answer.
+served. Nothing fails a page rendering an `arena-*__*` class no sheet it links defines, since
+a real browser is the only place that question has an answer.
 
 ## How this layer is laid out
 
@@ -214,9 +229,7 @@ root, whether `Specimen.css`, `Specimen.js` or `consume/Preflight.generated.css`
 references and not a sibling: `../../../consume/components/<category>/<component-kebab>/`,
 which is the specimen's own directory read back under `consume/`.
 
-**Be exact about what catches a miscount, because `check:cards` catches less of it than
-it looks.** That gate loads each declaring page in headless Chromium, and the only status
-it *fails* on is `clip`, meaning content over-running the declared box. So a broken **script**
+**Be exact about what catches a miscount, because nothing loads the page.** A broken **script**
 path (`Specimen.js`, or the page's own manifest `fetch`) leaves `#root` empty, which
 `classify()` reports as `unrendered`; `main()` routes that to `skip()`, which the repository's
 declared strict setting turns into a failure, and which an environment exporting
@@ -230,9 +243,8 @@ check: run `bun run demos` and open the page.
 **One shape of that IS caught, and it is the one a page adds by composing.** A specimen that
 `fetch`es a second manifest, as `ArenaUnauthCard` does `ArenaAppLogo` and `ArenaToastHost` does `ArenaToast`, renders
 a second component's classes and needs that component's sheet as well. `check:component-css`
-reads every `fetch` in the page and fails a missing link, because `check:cards` only sees such a
-page when the unstyled part happens to overrun the declared box, which is luck rather than
-coverage. It still says nothing about a link that is present and points at nothing.
+reads every `fetch` in the page and fails a missing link, which is the whole of what is held
+here. It still says nothing about a link that is present and points at nothing.
 
 ## What ships here
 

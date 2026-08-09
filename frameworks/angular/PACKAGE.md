@@ -4,8 +4,8 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-angular)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
-Arena is Dravensoft's design system. This package is its Angular layer: 50 standalone
-`OnPush` components with signal inputs and outputs, styled by a shared Tailwind recipe per
+Arena is Dravensoft's design system. This package is its Angular layer: 59 components, standalone
+and `OnPush`, with signal inputs and outputs, styled by a shared Tailwind recipe per
 component, and shipped in Angular Package Format.
 
 **The package carries the language. It does not carry a skin.** Your palettes and your fonts
@@ -71,6 +71,47 @@ already: `ArenaAction`, `ArenaActions`, `ArenaBrand`, `ArenaFooter` and `ArenaSe
 that class is a rule about this component and nothing else. Every sheet is named the same way,
 which is why `css/components/arena-button.css` is the file and `arena-button` is what you write
 in a `stylesheet` list.
+
+**An optional value binds straight through.** Every input that carries a default resolves an absent value back to it, so a field of yours that may be unset needs no `?? '...'` at the call site: `[tone]="toast.tone"` is enough, and the default stays stated in one place, the component. It is the members' own defaults that the prompt tables carry.
+
+## Your layout goes on a container you own
+
+**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.**
+Arena draws no outer margin on anything, so the air between two components is always yours to
+place. Where you place it matters: `<arena-button>`, `<arena-card>` and `<arena-tabs>` are three
+of the components that take their host out of layout with `display: contents`, because their
+real root has to be a `<button>`, an `<a>` or a `<div role="tablist">`. That host carries no box,
+so a `margin`, a `flex`, a `min-width` or a `.row > * { ... }` rule aimed at one of them is
+discarded and nothing reports it. The rule parses and the selector matches; there is simply no
+box for the declaration to land on. Which components do this moves between releases, so write
+the rule above everywhere rather than checking it component by component.
+
+**Your own routed components need that same declaration, for the mirror-image reason.** Angular
+puts your component's element between `<router-outlet>` and your content, so a `gap` on the
+container around the outlet reaches that one element and stops there:
+
+```ts
+@Component({
+  selector: 'app-overview',
+  host: { style: 'display: contents' },   // without this, the parent's gap stops here
+  template: `<arena-page-head ... /><arena-grid ... />`,
+})
+export class Overview {}
+```
+
+With it, your sections are children of the container again and the gap reaches each of them.
+Carrying the layout class on the host instead works as well. Either beats finding out as a page
+whose spacing collapsed everywhere at once with nothing in the stylesheet to blame.
+
+**`<router-outlet>` is a flex item too, and it draws nothing.** The routed component is inserted
+as its sibling, so the outlet element is an empty box that still takes a slot in your stack and
+spends one whole gap of it, pushing every page down by one step. `router-outlet { display: none }`
+in your global stylesheet ends it.
+
+**When you wrap a component to size it, give the wrapper a display.** The wrapper is the flex or
+grid item now, so it is what stretches, and a component sitting inside it as a plain block will
+not grow with it: the width lands and the height does not. `display: grid` on a wrapper with one
+child passes the full cell to it.
 
 ## Declare your skin
 
@@ -174,6 +215,8 @@ overlay onto Arena's `--z-*` scale, without which a menu opened inside a dialog 
 
 | flag | what it does |
 | --- | --- |
+| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it costs nothing extra: the command already reads your sources to resolve `"components": "auto"`. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
+| a projection marker you write and do not import | Reported by name. A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a template that writes the attribute without listing `ArenaFooter` in its own `imports` renders nothing there, and neither the build nor `ngc --strictTemplates` says a word. This is the one defect a component cannot report about itself. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |
@@ -281,7 +324,10 @@ un-imported marker from an unfilled slot, so nothing can warn you.
 | `arenaContainerWidth(ref?)` | `Signal<number \| null>` over the host's own box, or the `ElementRef` you pass. For a component or a panel that has to fit the room it was given. **The width is `null` until the first measurement**, so render the wide branch while it is: a panel that flashes into its phone shape on every mount is worse than one that settles into it |
 | `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime |
 | `arenaCatColor(slot)`, `arenaCatSurface(slot)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen |
+| `ArenaToastQueue` | the notice queue, provided in root: it holds their identity and their order, and runs the clock `arena-toast-host` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, and `toasts` is the signal you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
+| `arenaToastDelay(notice, intervals)` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
+| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it: the predicate that lets a clickable row hold a checkbox and a row action without taking their presses |
 | `ARENA_ICONS` | the role-to-Phosphor map Arena's own components draw from, as `{ role, phosphor, weight }`. Read it when you want your icon for a role to match Arena's |
 
 Call either measurement from an injection context, a field initializer or the constructor:
@@ -300,6 +346,7 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/numerals.css` | `.arena-num`, the mono face and `tabular-nums` and no colour. Put it on a figure you draw yourself and a column of them aligns by digit the way a table's does |
+| `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. Put one on a container of your own, which is where your layout goes anyway |
 | `css/arena-cdk.css` | the CDK overlay, re-based onto Arena's layering |
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to

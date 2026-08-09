@@ -1,15 +1,17 @@
 # .github/workflows/
 
 Five workflows: one guards a pull request, one guards `main`, one guards `develop`, and two
-publish a package.
+publish a package. That count was right and this directory held six: `portability.yml` ran the
+operating system matrix, was named in no diagram here, and is now a job of `Arena PR`, which is
+the same omission read twice.
 
 ```
 pull_request -> main          Arena PR
 push to develop               Arena develop
-push to main                  Arena main
+push to main                  Arena main            builds, and saves that build
    |
-   +-- on success             Publish arena-react
-   +-- on success             Publish arena-angular
+   +-- on success             Publish arena-react      restores it
+   +-- on success             Publish arena-angular    restores it
 ```
 
 ## Arena PR
@@ -26,7 +28,9 @@ build              bun run build:release, which assembles too, then one cache en
    +-- test-angular    if angular        the angular gates + the suites off the ngc emit
    +-- test-tailwind   if tailwind       the tailwind gates
    |
-pr-gate            the only required check
+portable           always, and off the build above: three operating systems, its own bun run build
+   |
+pr-gate            the only required check, and it waits for every job above
 ```
 
 **`build` is one job because the build is one thing.** The steps run in an order the graph derives
@@ -45,9 +49,10 @@ so every step runs and a run that kept anything fails on its own.
 list is `frameworks/**/*.generated.*`, the two `dist/` trees and `frameworks/angular/build`. Adding
 `.cache` there would hand the next job the graph's recorded state and turn the whole gate from a
 full run into an incremental one, in silence. `--assert-full` is what would catch it; this
-paragraph is what explains the failure to whoever added the path. **Caching between runs is a
-non-goal**: incrementality is a local development feature, and a workflow starts from a clean
-checkout on purpose.
+paragraph is what explains the failure to whoever added the path. **Caching a build's inputs is a
+non-goal, and carrying its outputs is not the same thing**: `.cache/` is restored nowhere in this
+directory, so no workflow here ever builds incrementally. What a restore hands over is a finished
+tree, and a job that takes one either uses it whole or builds the whole thing itself.
 
 **The four names are on the test stage, where the layers are genuinely disjoint.** A gate
 belongs to exactly one of the five domains `check-all.ts` sorts by, and the jobs partition
@@ -56,7 +61,7 @@ that set: `core` takes the `core` and `arena` domains, and the other three take 
 
 **`core` runs on every change, and that is not caution.** The `arena` domain is where the
 cross-layer gates are: `check:api`, `check:behaviour`, `check:compliance`, `check:structure`,
-`check:dimensions`, `check:layer-independence`, `check:cards`, `check:focus-trap`. Each of
+`check:dimensions`, `check:layer-independence`, `check:focus-trap`. Each of
 them reads more than one layer, so none of them is a React question or an Angular question.
 And `scripts/lib/arena/behaviour-contracts.test.ts` asserts the React component count by
 literal value: a change confined to `frameworks/react/` breaks a suite under `scripts/`.
@@ -69,7 +74,28 @@ because each compiles something that layer emits.
 **`pr-gate` is the single required check.** A job skipped by an `if` reports success to
 branch protection, so requiring `test-react` directly would be satisfied by a React change
 that failed to route. `pr-gate` runs with `always()` and reads `needs.*.result`, which no
-routing decision can skip.
+routing decision can skip. It is green when every result is `success` or `skipped`, and red on
+`failure` or `cancelled`.
+
+**Being the single required check makes its `needs` list the whole gate**, and a job missing from
+it is a job whose failure branch protection never hears about. That is not hypothetical: the
+operating system matrix was a workflow of its own, `needs` cannot name a job in another workflow,
+and `pr-gate` was therefore green over a red macOS for as long as the arrangement lasted. The
+matrix is a job here now, and `check:portability` holds the list to **every other job in this
+file** rather than to a copy of it kept in step by hand.
+
+**`portable` is the one job that does not take the `build` cache**, and it must not. It asks
+whether `bun run build` works on a machine that is not this one, so a job handed the Linux build
+would be answering a question nobody asked. It builds on each of its three runners and then
+compares the result to what the Linux tree committed, which is what `git diff --exit-code` is
+doing in a matrix leg.
+
+**A leg that fails without failing the gate is `continue-on-error`, and the flag comes from one
+place.** `scripts/ci/arena/supported-os.ts` declares `blocking` per platform with its reason, the
+matrix sets `continue-on-error: ${{ !matrix.blocking }}`, and a failing leg with that flag hands
+`needs` a result of `success`. So the flag is the single edit that decides whether a platform
+gates, and `pr-gate` needs no clause of its own about any of them: a leg declared blocking turns
+a red operating system into a merge request that cannot land.
 
 ## Arena main
 
@@ -81,6 +107,19 @@ test invocation is written down, and the run summary carries a table of passes p
 A domain that owns suites and reported no case fails the run, as does a tree that
 contributed nothing and a case belonging to no domain. A reporter that quietly dropped a
 suite would otherwise print a confident table of zeros.
+
+**It saves its build, and that is the only reason the two publish workflows are cheap.** Both of
+them fire on this workflow's success and both used to build the same commit again, so one push to
+`main` built Arena three times. The key is `arena-build-<os>-<sha>`, the commit rather than the
+run, because the run that reads it is not this one and does not know its number. The save sits
+directly after the idempotency check, which is the last moment the tree is known to be exactly
+what the build wrote and nothing a gate has since touched.
+
+The eviction rule is what makes the commit the right key rather than a happy one. A cache goes
+unread for seven days and is gone, so a release cut long after its push finds nothing, and a key
+naming anything looser would have found something to hand over instead. On a re-run of this
+workflow the key already exists and `actions/cache/save` reserves it, fails, and logs a warning,
+so a re-run keeps the first run's build and stays green.
 
 ## Arena develop
 
@@ -95,10 +134,11 @@ the name. Both publish workflows fire on `workflow_run` of the workflow named `A
 `main`. Their `branches: [main]` filter refuses it, but the refusal is one file away from the
 event; a name of its own puts the answer in the workflow that asks.
 
-**It caches nothing**, so `bun install` is cold on every run. `Arena PR` caches because a pull
-request is pushed to repeatedly and its four test jobs each need the one build; `develop` is one
-job that runs once per merge, where the cache saves a fraction of a run it would also have to be
-kept honest across.
+**It caches nothing**, so `bun install` is cold on every run, and it is the only workflow here
+that saves nothing either. `Arena PR` caches because a pull request is pushed to repeatedly and
+its four test jobs each need the one build, and `Arena main` because two publish workflows read
+what it built. `develop` is one job that runs once per merge and is read by nobody, where a cache
+saves a fraction of a run it would also have to be kept honest across.
 
 **Assembling stays, and it is no longer a step of its own.** `bun run build:release` passes
 `--assemble`, so the two packages are part of the run the workflow already makes. Dropping the
@@ -137,11 +177,24 @@ reads. These runs are not jobs of `Arena main` and never appear in its panel, be
 the summary is what that page says without being unfolded.
 
 When the guard says yes, the publish job runs `check-release.ts` first, so a version bump
-pushed without its tag is refused loudly rather than published quietly. Then it builds,
-assembles, holds the manifests, and packs. The tarball and a small record of what was
-published go up as an artifact, because a packed tarball is byte-identical to what leaves
-the machine and is the only account of "what shipped at this version" that does not require
-trusting the registry.
+pushed without its tag is refused loudly rather than published quietly. Then it takes the
+build `Arena main` already made of this commit, holds the manifests, and packs. The tarball
+and a small record of what was published go up as an artifact, because a packed tarball is
+byte-identical to what leaves the machine and is the only account of "what shipped at this
+version" that does not require trusting the registry.
+
+**Restoring that build is a read, and a `workflow_run` run is allowed nothing else.** Only
+`push`, `workflow_dispatch` and a handful of their kind may write to the default branch's cache
+scope; every other event that resolves there, `workflow_run` among them, gets read access and no
+more. That is exactly the shape this needs: `Arena main` is a push and writes, both of these
+follow it and read.
+
+**A miss is expected rather than exceptional, so the build stays in the file behind an `if`.**
+Seven days unread evicts the cache, and the hand dispatch above can ask about a commit whose run
+is long past. There are no `restore-keys`, so a miss is a miss: a prefix fallback would hand this
+job the assembled tree of a different release and pack it under this version. What a miss costs
+is the build this change was written to avoid, which is the right price for the rare case and the
+wrong one for every push.
 
 Authentication is a trusted publisher over OIDC: no token lives in this repository, and
 provenance is attested automatically, with no `--provenance` flag. **The file name of each
@@ -193,20 +246,30 @@ question to answer rather than a flag to set. `actions/setup-node` from v6 cache
 only when `packageManager` names npm, and this repository's names bun, so a jump to v5 rather than
 past it would have switched on a cache nobody asked for.
 
-**Chromium.** `check:cards` and `check:focus-trap` drive a real browser, and `CHROME_PATH` is
-terminal: set and pointing at nothing, the gates report that rather than falling back to the
-candidate list. The workflows set it to `/usr/bin/google-chrome`, which the image documents,
-rather than to the declared default.
+**Chromium.** Four gates drive a real browser, and `CHROME_PATH` is terminal: set and pointing
+at nothing, they report that rather than falling back to the candidate list. **Only `main.yml`
+sets it**, to `/usr/bin/google-chrome`, which the image documents. `pr.yml` and `develop.yml`
+name no browser on purpose, so every pull request proves the candidate list finds one, and the
+single workflow that does name one keeps the terminal-override branch exercised. Exporting it
+everywhere is what made that list unreachable in the first place, and a runner is the last place
+that should be re-established.
 
 **Strictness is automatic.** GitHub sets `CI=true`, which `skipExitCode()` reads, so a gate
 whose dependency is missing fails instead of skipping. There is nothing to configure and
 nothing to remember; a missing browser is a red run.
 
-**The cache is not an artifact.** `actions/cache` carries the build from the `build` job to
-the four test jobs, keyed by run and attempt so it is never stale, and with no `restore-keys`,
-because a prefix fallback would hand a test job the build of another pull request. A restore
-that misses fails the job rather than testing an unbuilt tree. `upload-artifact` appears only
-in the two publish workflows, where the artifact is a release record rather than a hand-off.
+**The cache is not an artifact.** `actions/cache` carries a build to the jobs that need it and
+nothing else, and it does that twice, with no `restore-keys` either time. Inside `Arena PR` the
+key is the run and its attempt, so it is never stale, and a restore that misses fails the job
+rather than testing an unbuilt tree. From `Arena main` to the two publish workflows the key is
+the commit, because the reader is a separate run, and a restore that misses builds instead,
+because there is a real commit whose build has simply aged out. Both keys are exact for the same
+reason: a prefix fallback would hand a job somebody else's build.
+
+`upload-artifact` appears only in the two publish workflows, where the artifact is a release
+record rather than a hand-off. The two never trade places. A cache is evicted at seven days
+unread and is addressed by a key nobody keeps; an artifact is kept for ninety days and is the
+account of what shipped.
 
 **`check:docs` reads this directory.** Every `.md` here is held to the size limit and to the
 punctuation rule, the same as anywhere else in the tree. It does not read `.yml`: nothing

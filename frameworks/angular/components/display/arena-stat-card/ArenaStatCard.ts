@@ -32,7 +32,10 @@ export class ArenaStatCard {
   /** Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. */
   readonly value = input.required<string>();
   /** What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. */
-  readonly tone = input<ArenaTone>('neutral');
+  readonly tone = input<ArenaTone, ArenaTone | undefined>(
+    'neutral',
+    { transform: (value) => value ?? 'neutral' },
+  );
   /** How the number moved. Absent renders no pill. */
   readonly delta = input<ArenaStatDelta>();
   /** Small muted line under the value: context, e.g. "vs last week". */

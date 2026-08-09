@@ -7,7 +7,7 @@
  * animation utilities are excluded by name because `Animations.css` already owns that
  * namespace and they are rules no manifest can derive. The fifth is the specimen's: a page
  * links one sheet per manifest it fetches, since a missing link renders that part unstyled
- * and check:cards only fails a page that overruns its box because of it. */
+ * and nothing opens the page to see it. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';

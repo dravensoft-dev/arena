@@ -452,7 +452,7 @@ its own document's.
 layers' pages differ in one path segment and take the same query string, so **a difference
 between them is a difference in the component**, which is the whole reason to generate them.
 `check:playgrounds` holds every fixture to its contract, every emitted file to a fresh run, and
-each layer's knob model to the other's.
+each layer's knob model to the other's. It opens none of them.
 
 ## What holds what, and what nothing holds
 
@@ -466,9 +466,10 @@ each layer's knob model to the other's.
 | a dimension is a token | `check:dimensions`, with two declared blind spots |
 | a component renders its manifest rather than hand-drawing | `check:appearance`, `EXEMPT` empty |
 | a manifest's states are contracted | `check:states`, states only |
-| the emitted pages match a fresh run and mount in a browser | `check:playgrounds` |
 | a modal traps Tab in a real browser | `check:focus-trap` |
 | **a manifest's colors, sizes or slot structure still match its contract** | **nothing. Read both when either moves** |
+| the emitted pages match a fresh run, and each layer's knob model matches the other's | `check:playgrounds`, over source |
+| **that any page mounts and draws** | **nothing. Open it** |
 | **the two layers paint the same thing** | **nothing. The paired playground pages exist for a person to compare** |
 | **whether a category is the right category** | **nothing. It is editorial judgement** |
 

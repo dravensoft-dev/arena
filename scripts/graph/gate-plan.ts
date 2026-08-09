@@ -3,8 +3,8 @@
  * the answer at all, which is what makes adoption safe: an undeclared gate runs every time, and
  * nothing has to be listed for that to be true. Most gates write nothing, so the value measured
  * before running one is the value after and a second measurement is waste; one that declares
- * writes is measured again, the rule the build follows, because check:style-parity emits the page
- * it drives a browser over. Only a pass records: exit 2 is a SKIP, and a SKIP written down as
+ * writes is measured again, the rule the build follows, and no gate declares one today.
+ * Only a pass records: exit 2 is a SKIP, and a SKIP written down as
  * green is a gate that never runs again on a machine that cannot run it. */
 
 import { existsSync } from 'node:fs';

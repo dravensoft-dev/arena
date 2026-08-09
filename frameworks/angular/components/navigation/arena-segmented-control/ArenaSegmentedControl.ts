@@ -35,7 +35,10 @@ export class ArenaSegmentedControl {
   /** The initially selected value when uncontrolled. Defaults to the first option. */
   readonly defaultValue = input<string>();
   /** Compact or default. */
-  readonly size = input<ArenaSegmentedControlSize>('md');
+  readonly size = input<ArenaSegmentedControlSize, ArenaSegmentedControlSize | undefined>(
+    'md',
+    { transform: (value) => value ?? 'md' },
+  );
   /** Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. */
   readonly ariaLabel = input.required<string>();
   /** Shared name for the underlying radios; generated when omitted. */

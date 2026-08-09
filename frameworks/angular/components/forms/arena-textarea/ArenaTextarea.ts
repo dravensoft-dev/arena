@@ -81,7 +81,7 @@ export class ArenaTextarea {
   /** Caps the length; feeds the counter. */
   readonly maxLength = input<number>();
   /** Initial visible rows. */
-  readonly rows = input(4);
+  readonly rows = input<number, number | undefined>(4, { transform: (value) => value ?? 4 });
   /** Edited; carries the new text. */
   readonly change = output<string>();
 

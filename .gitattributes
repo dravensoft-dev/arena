@@ -1,0 +1,28 @@
+# Every text file is LF in the index and LF in every working tree, whatever a clone's
+# core.autocrlf says. Three things already depend on it and none of them would say so
+# when it broke: the workflows run `git diff --exit-code` to prove the build idempotent,
+# so a CRLF checkout reports every generator out of step; check:docs measures a document
+# in characters, and a CR is one; and every reader of a generated file splits on '\n'
+# and keeps the CR, so a comparison that should match differs by an invisible byte.
+#
+# This declares what the tree already is. `git ls-files --eol` reports LF for every text
+# file here, so a renormalise is a no-op, and that is the point: the accident becomes a
+# contract before a Windows clone gets the chance to disprove it. check:generated holds
+# the other half, refusing a tracked text file that carries a CR at all.
+* text=auto eol=lf
+
+# A binary is diffed by nothing and converted by nothing. The .woff2 are the three git
+# already detects; the rest are named ahead of the first one committed, because the cost
+# of the omission is a corrupted file and the cost of the line is a line.
+*.woff2 binary
+*.png   binary
+*.ico   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.pdf   binary
+
+# An .svg is XML: a brand mark here is read and reviewed as text, and gets LF like the
+# rest. Naming it is what keeps text=auto from having to guess.
+*.svg   text eol=lf

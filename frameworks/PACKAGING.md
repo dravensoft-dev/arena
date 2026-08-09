@@ -153,6 +153,49 @@ one authorised edge lives in `ALLOWED_SPECIFIERS`: a page **linking** the compil
 `frameworks/tailwind/consume/`, which is generated, identical whoever renders it, and read by
 nobody as a source.
 
+## An Arena element is not a layout target, and that is the same kind of statement
+
+The section above says a class name is not API. This one says it about a **box**, and it is the
+more expensive of the two to find out, because this failure is silent.
+
+**Arena promises that a component renders. It does not promise that the element you write
+carries a box.** In the Angular package a primitive binds its root slot to its host wherever it
+can; where it cannot, because the root has to be a real `<button>`, `<input>`, `<label>`, `<ul>`,
+`<nav>` or a `<div role="tablist">`, the host declares `display: contents` and the styled element
+sits inside it. In the React package there is no host element to begin with, and `ArenaTabs` goes
+one step further and returns a fragment, so there is nothing in the DOM to reach at all.
+
+One rule follows, and it is the same rule on both layers: **put your layout on a container you
+own, and let the Arena element be its child.** A `margin`, a `flex`, a `min-width` or a `> *`
+rule aimed at an element with no box is discarded, and nothing reports it. The rule parses, the
+selector matches, and the declaration applies to a box the browser never made.
+
+**A wrapper inherits the job the host would have done, and half a wrapper is its own bug.** The
+wrapper becomes the flex or grid item, so it is the thing that stretches, and a component that
+sits inside it as a plain block does not grow with it: the sizing lands and the component still
+looks short. Give the wrapper the display its child needs, which for a single child is usually
+`display: grid`. Measured on a real page: wrapping alone fixed the width and left the card 60px
+shorter than the one beside it, and the grid closed both.
+
+**Which elements carry a box is not API either**, for the reason the class name is not. The
+carve-out set grows as components arrive, so a rule that lands today can stop landing in a patch,
+and nothing in the tree ties an element's display to anything an adopter can name. Neither
+package takes a class or a style from its consumer on any component, so there was no supported
+route into that box to withdraw.
+
+**This is the statement's home rather than each `PACKAGE.md`**, on the same split as the section
+above: a README tells an adopter what to do, and this says what we are free to change. Until now
+the consequence was written three times, once each in `ArenaPagination`'s, `ArenaCalendarEvent`'s
+and `ArenaBreadcrumbs`' own prompt, and the other components that pay it said nothing. A rule
+recorded per component is a rule that is missing wherever nobody thought to repeat it.
+
+**`css/rhythm.css` is the rule with something behind it.** Telling an adopter to put the layout
+on a container of their own is only half an answer while the system ships the spacing scale and
+nothing that applies a step from it, because the remaining decision, how far apart two
+components go, is then theirs to invent. That sheet holds `.arena-stack` and `.arena-row`, the
+three named steps of the page rhythm scale, and it is meant for exactly the container this
+section says to write.
+
 ## Assembly, not restructuring
 
 Nothing moves. Assembling reads the tree as it stands and writes two directories that were not

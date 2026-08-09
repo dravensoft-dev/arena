@@ -28,12 +28,24 @@ fields, and a callback is not data; `ArenaAlert` takes the same pair for the sam
 **`dismissible` is what shows the ×**, not the presence of `onClose`. A handler alone renders no
 close button, because a layer that cannot detect a listener could not implement the other rule.
 
-On the host, respect `persist`, and take the interval from `ARENA_TOAST_DISMISS`, exported beside the
-component, rather than typing a number:
-`if (!t.persist) setTimeout(dismiss, t.actionLabel ? ARENA_TOAST_DISMISS.actionable : ARENA_TOAST_DISMISS.default);`.
-The longer clock keys off `actionLabel`, which is what actually renders the button, because a
-notice carrying one asks the reader to decide rather than only to read. They are tokens, so a host
-that reads them stays in step with a release that moves one; a host that retypes 4200 does not.
+**`useArenaToasts()` is the clock, and it ships here.** It holds the notices, their identity and
+their order, and it runs the dismissal rule; you keep the host, the placement and the markup:
+
+```tsx
+const { toasts, raise, dismiss } = useArenaToasts();
+// raise({ tone: 'danger', title: 'Pipeline failed' })
+<ArenaToastHost placement="bottom-end">
+  {toasts.map((t) => <ArenaToast key={t.id} {...t} dismissible onClose={() => dismiss(t.id)} />)}
+</ArenaToastHost>
+```
+
+Writing the clock yourself is still fine, and then it is three branches rather than two:
+`persist` holds a notice, `danger` holds one whatever `persist` says, and everything else runs on
+`ARENA_TOAST_DISMISS`, exported beside the component. The longer interval keys off `actionLabel`,
+which is what actually renders the button, because a notice carrying one asks the reader to decide
+rather than only to read. `arenaToastDelay(notice, ARENA_TOAST_DISMISS)` is that rule on its own
+and answers `null` for a notice that must not be taken away. They are tokens, so a host that reads
+them stays in step with a release that moves one; a host that retypes 4200 does not.
 
 **Do / Don't**
 - `persist` on every error/critical toast; the close uses the standard `ph-x` icon (H4).

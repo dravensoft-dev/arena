@@ -55,14 +55,14 @@ export function ProjectScreen({ onNav, project, onToast }: ProjectScreenProps) {
   return (
     <Shell active="dashboard" onNav={onNav} title={p.name}
       actions={<ArenaButton variant="primary" size="sm" icon="ph-bold ph-rocket-launch" onClick={() => setOpen(true)}>Deploy</ArenaButton>}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 3)', marginBottom: 'calc(var(--sp-1) * 5)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--rhythm-group)', marginBottom: 'var(--rhythm-section)' }}>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', letterSpacing: 'var(--ls-field-label)', textTransform: 'uppercase', color: 'var(--mute)' }}>{p.client}</span>
         <ArenaBadge tone="success" dot>Deployed</ArenaBadge>
         {(p.tags || []).map((t: string) => <ArenaTag key={t}>{t}</ArenaTag>)}
       </div>
       <ArenaTabs value={tab} onChange={setTab}>
         <ArenaTab value="Overview" label="Overview">
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'calc(var(--sp-1) * 4)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--rhythm-component)' }}>
             <ArenaCard eyebrow="Status" title="Service health">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'calc(var(--sp-1) * 4)' }}>
                 {[['Uptime', '99.98%', 'var(--success)'], ['p95', '186 ms', 'var(--bone)'], ['Errors', '0.02%', 'var(--gold)']].map(([k, v, c]) => (
@@ -98,7 +98,7 @@ export function ProjectScreen({ onNav, project, onToast }: ProjectScreenProps) {
         <ArenaTab value="Settings" label="Settings">
           <div style={{ maxWidth: 'calc(var(--sp-1) * 130)' }}>
             <ArenaCard title="Automation">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--sp-1) * 4.5)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--rhythm-component)' }}>
                 <ArenaSwitch state={auto} onFuncOn={() => setAuto(true)} onFuncOff={() => setAuto(false)} label="Auto-deploy on approval" />
                 <ArenaSwitch state={false} label="Notify Slack on every release" />
                 <ArenaSwitch state label="Require 2 approvals for production" />

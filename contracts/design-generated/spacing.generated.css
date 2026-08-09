@@ -14,6 +14,23 @@
   --sp-16:64px;
   --sp-20:80px;
   --sp-24:96px;
+
+  /*
+     Page rhythm: the air BETWEEN two components, which Arena itself never
+     draws. Every component is an inner box carrying no outer margin, so the space between one
+     and the next belongs to whoever places them, and a system that ships the grid without
+     naming any step on it leaves every adopter to pick their own. These are aliases of sp
+     rather than fresh numbers, so a rhythm step cannot drift off the 4px grid, and the three
+     of them are the steps ArenaGrid's gap variant had already chosen before they had names.
+     
+     Deliberately not part of dz, on the same cut that separates fs from dz: dz is how dense the
+     CONTROLS are and re-densifies under .arena-compact, while this is how a PAGE breathes and
+     does not. That is why rhythm-group and dz-stack are both 12px, the way fs-sm and dz-text-md
+     are both 13px: same length, different question.
+   */
+  --rhythm-group:12px; /* Inside one group of related things: a label and its field, a card's own stacked children, a row of chips. Both sides read as one unit. */
+  --rhythm-component:16px; /* Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing. */
+  --rhythm-section:24px; /* Between two sections of a page. The two sides answer different questions, and this gap is what says so. */
   --container-max:1240px; /* Container / layout */
   --gutter:88px;
 

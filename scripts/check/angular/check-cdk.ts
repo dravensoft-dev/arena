@@ -12,8 +12,8 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { arenaTokenNames, referencedTokens } from '../../lib/core/arena-tokens.ts';
 import { captured } from '../../utils/captures.ts';
 
-const BRIDGE = join('frameworks', 'angular', 'theme', 'arena-cdk.css');
-const PREBUILT = join('node_modules', '@angular', 'cdk', 'overlay-prebuilt.css');
+const BRIDGE = 'frameworks/angular/theme/arena-cdk.css';
+const PREBUILT = 'node_modules/@angular/cdk/overlay-prebuilt.css';
 
 export const node = {
   name: 'check:cdk',
