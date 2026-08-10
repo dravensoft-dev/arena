@@ -239,10 +239,23 @@
   --radius-2xl: var(--r-2xl);
   --radius-pill: var(--r-pill);
 
+  /* radius ROLES → contracts/design/roles.json. The steps above say how round a
+     corner is; these say which corner is being asked about, and only a question
+     can be answered differently by an extension. A manifest reaches for one of
+     these wherever the decision is a role, which is what check:roles holds. */
+  --radius-surface: var(--r-surface);
+  --radius-control: var(--r-control);
+  --radius-field: var(--r-field);
+
   --shadow-*: initial;
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
   --shadow-3: var(--shadow-3);
+
+  /* the depth role, for the same reason as the radius roles above: a surface
+     that rises on hover asks for its raised state, not for the second step of
+     the elevation scale. */
+  --shadow-surface-raised: var(--shadow-surface-raised);
 
   --ease-*: initial;
   --ease-out: var(--ease-out);

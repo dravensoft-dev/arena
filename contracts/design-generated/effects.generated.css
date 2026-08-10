@@ -86,6 +86,72 @@
 }
 :root{
   /*
+     The corner of a SURFACE: a card, a panel, a sheet, a menu, a dialog.
+     An alias of the r scale rather than a fresh number, on the same footing as rhythm's
+     aliases of sp, so the base value cannot drift off the radius scale.
+     
+     Why the role exists at all: r names how round a corner is, and this names WHICH corner
+     is being asked about. A manifest that reaches for r-lg has said a length; one that reaches
+     for r-surface has said a reason, and only the second can be answered differently by an
+     extension. Re-valuing r-lg to soften a card would soften every unrelated use of the same
+     step, which is the defect the role tier exists to prevent.
+   */
+  --r-surface:14px;
+  /*
+     The corner of a CONTROL the user presses: a button, an icon button, a chip.
+     Separate from r-field although both are r.sm today, on the cut that keeps rhythm-group
+     and dz-stack apart at 12px: same length, different question. An extension that wants pill
+     buttons over rectangular inputs needs the two to be answerable one at a time.
+   */
+  --r-control:6px;
+  /*
+     The corner of a FIELD the user types into: an input, a select, a textarea.
+     The counterpart to r-control, and separate from it for the reason stated there.
+   */
+  --r-field:6px;
+  /*
+     The border of a surface, and therefore Arena's default grouping signal.
+     This is the single most consequential role in the tier: a hairline says 'these things are
+     one region' by drawing the region, which is cheap in pixels and correct for dense data.
+     An extension that sets it to 0px has to make elevation and air carry the grouping instead,
+     and WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated
+     rather than merely allowed.
+   */
+  --bw-surface:1px;
+  /*
+     The border of a pressable control. Distinct from bw-surface because a
+     button's outline is an affordance, saying where the pressable area ends, while a card's
+     is a grouping signal. An extension can drop one and keep the other.
+   */
+  --bw-control:1px;
+  /*
+     The border of a typable field. Distinct again: this one is the boundary
+     WCAG 1.4.11 measures at 3:1, so it is the border with the least freedom of the three.
+   */
+  --bw-field:1px;
+  /*
+     What a surface rises to when it is hovered, dragged or opened over the page.
+     An alias of the shadow scale, so the default raised state is exactly the step it
+     already used. Named for the state rather than the depth so an extension can raise a card
+     further without every other shadow.2 in the system moving with it.
+   */
+  --shadow-surface-raised:0px 12px 28px -12px rgba(0,0,0,.6);
+  /*
+     How long a hover or press response takes. An alias of dur.fast, which is
+     what every such transition already spells inline. An extension is where motion energy is
+     decided, and a duration written as a scale step cannot be re-decided; written as a role
+     it can, without touching the transitions that are fast for a different reason.
+   */
+  --dur-hover:120ms;
+  /*
+     How long something takes to appear: a menu, a popover, a toast, a dialog.
+     An alias of dur.mid. Kept apart from dur-hover because an entrance and a hover answer to
+     different expectations, and an extension that slows one has no reason to slow the other.
+   */
+  --dur-enter:220ms;
+}
+:root{
+  /*
      Layering: a system-wide invariant (what covers what), not geometry. The
      family declares the order; the values only have to preserve it. Before this
      it was five magic numbers in five files: ArenaMenu and ArenaTooltip both sat at 900,

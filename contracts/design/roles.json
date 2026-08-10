@@ -1,0 +1,47 @@
+{
+  "r-surface": {
+    "$type": "dimension",
+    "$value": "{r.lg}",
+    "$description": "The corner of a SURFACE: a card, a panel, a sheet, a menu, a dialog.\nAn alias of the r scale rather than a fresh number, on the same footing as rhythm's\naliases of sp, so the base value cannot drift off the radius scale.\n\nWhy the role exists at all: r names how round a corner is, and this names WHICH corner\nis being asked about. A manifest that reaches for r-lg has said a length; one that reaches\nfor r-surface has said a reason, and only the second can be answered differently by an\nextension. Re-valuing r-lg to soften a card would soften every unrelated use of the same\nstep, which is the defect the role tier exists to prevent."
+  },
+  "r-control": {
+    "$type": "dimension",
+    "$value": "{r.sm}",
+    "$description": "The corner of a CONTROL the user presses: a button, an icon button, a chip.\nSeparate from r-field although both are r.sm today, on the cut that keeps rhythm-group\nand dz-stack apart at 12px: same length, different question. An extension that wants pill\nbuttons over rectangular inputs needs the two to be answerable one at a time."
+  },
+  "r-field": {
+    "$type": "dimension",
+    "$value": "{r.sm}",
+    "$description": "The corner of a FIELD the user types into: an input, a select, a textarea.\nThe counterpart to r-control, and separate from it for the reason stated there."
+  },
+  "bw-surface": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a surface, and therefore Arena's default grouping signal.\nThis is the single most consequential role in the tier: a hairline says 'these things are\none region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn extension that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated\nrather than merely allowed."
+  },
+  "bw-control": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a pressable control. Distinct from bw-surface because a\nbutton's outline is an affordance, saying where the pressable area ends, while a card's\nis a grouping signal. An extension can drop one and keep the other."
+  },
+  "bw-field": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a typable field. Distinct again: this one is the boundary\nWCAG 1.4.11 measures at 3:1, so it is the border with the least freedom of the three."
+  },
+  "shadow-surface-raised": {
+    "$type": "shadow",
+    "$value": "{shadow.2}",
+    "$description": "What a surface rises to when it is hovered, dragged or opened over the page.\nAn alias of the shadow scale, so the default raised state is exactly the step it\nalready used. Named for the state rather than the depth so an extension can raise a card\nfurther without every other shadow.2 in the system moving with it."
+  },
+  "dur-hover": {
+    "$type": "duration",
+    "$value": "{dur.fast}",
+    "$description": "How long a hover or press response takes. An alias of dur.fast, which is\nwhat every such transition already spells inline. An extension is where motion energy is\ndecided, and a duration written as a scale step cannot be re-decided; written as a role\nit can, without touching the transitions that are fast for a different reason."
+  },
+  "dur-enter": {
+    "$type": "duration",
+    "$value": "{dur.mid}",
+    "$description": "How long something takes to appear: a menu, a popover, a toast, a dialog.\nAn alias of dur.mid. Kept apart from dur-hover because an entrance and a hover answer to\ndifferent expectations, and an extension that slows one has no reason to slow the other."
+  }
+}

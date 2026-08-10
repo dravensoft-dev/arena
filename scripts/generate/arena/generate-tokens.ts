@@ -36,6 +36,7 @@ export const FILES = [
   ] },
   { out: 'effects.generated.css', blocks: [
     { selector: ':root', source: 'effects.json' },
+    { selector: ':root', source: 'roles.json' },
     { selector: ':root', source: 'layering.json' },
     { selector: ':root', source: 'chart.json' },
     { selector: ':root', source: 'behaviour.json' },
@@ -44,6 +45,7 @@ export const FILES = [
 
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
+  'roles.json': ['effects.json'],
 };
 
 const EXT = 'com.dravensoft.arena';
