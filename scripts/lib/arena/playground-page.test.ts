@@ -16,16 +16,22 @@ test('every page links the shared chrome, which is what makes the frame the same
   for (const weight of PHOSPHOR_WEIGHTS) assert.match(out, new RegExp(`src/${weight}/style\\.css`));
 });
 
-test('both toggles are static markup outside any framework, so a re-render cannot drop them', () => {
+test('all three toggles are static markup outside any framework, so a re-render cannot drop them', () => {
   const dock = toggleDock();
   assert.match(dock, /class="dtoggle themebtn"/);
   assert.match(dock, /id="density"/);
+  assert.match(dock, /id="extension"/);
   assert.match(page(), /dtoggle-dock/);
 });
 
-test('the theme and density scripts load, or the URL stops reproducing the view', () => {
+test('the voice control ships no dots, because only the catalogue knows how many voices there are', () => {
+  assert.match(toggleDock(), /<span class="cycle"><\/span>/);
+});
+
+test('the theme, density and extension scripts load, or the URL stops reproducing the view', () => {
   assert.match(page(), new RegExp(`<script src="${UP}intro/theme\\.js">`));
   assert.match(page(), new RegExp(`<script src="${UP}intro/density\\.js">`));
+  assert.match(page(), new RegExp(`<script src="${UP}intro/extension\\.js">`));
 });
 
 test('a page declares no card, because its height moves with every knob', () => {

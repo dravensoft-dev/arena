@@ -215,6 +215,16 @@ three default to nothing: the two shadows are fully transparent, because DTCG 20
 shadow as offsets, blur, spread and a colour and has no way to spell the absence of one, and the
 travel is `0px`.
 
+**A variant branch that restates a role as a literal un-paints it, and that is the same defect
+seen from the other end.** `ArenaCard`'s root painted `shadow-surface-rest`, and its `floating`
+variant then wrote `shadow-none` on the false branch, which is the DEFAULT: every ordinary card
+resolved to a transparent literal instead of the role, so the one token authored to let an
+extension trade hairline grouping for elevation reached nothing on the component it was written
+for. A branch meaning "the value the slot already paints" says nothing at all, because the base
+rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
+with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its
+literal cancels the selected branch's inset rule rather than overriding a role.
+
 **Rest and raised compose by source order, not by merging.** A slot's resting depth sets
 `--tw-shadow` in the base rule and its hover sets the same variable in a rule emitted after it,
 which is the ordinary arrangement described above rather than anything new. A slot that already

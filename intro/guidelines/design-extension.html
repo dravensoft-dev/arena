@@ -1,44 +1,95 @@
-<!-- @dsCard group="Effects" viewport="820x300" name="Design extension" subtitle="the same components, two voices" -->
-<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<!-- @dsCard group="Effects" viewport="1120x640" name="Design extension" subtitle="real components, every voice against both themes" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../../frameworks/tailwind/consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../frameworks/tailwind/consume/components/display/arena-card/ArenaCard.styles.generated.css">
+<link rel="stylesheet" href="../../frameworks/tailwind/consume/components/display/arena-tag/ArenaTag.styles.generated.css">
+<link rel="stylesheet" href="../../frameworks/tailwind/consume/components/forms/arena-input/ArenaInput.styles.generated.css">
+<link rel="stylesheet" href="../../frameworks/tailwind/consume/components/forms/arena-button/ArenaButton.styles.generated.css">
 <style>
-  body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--font-body);padding:var(--sp-5)}
-  .cols{display:flex;gap:var(--sp-6);align-items:flex-start}
-  .col{flex:1}
-  .cap{font-family:var(--font-mono);font-size:var(--dz-text-2xs);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--mute);margin-bottom:var(--sp-3)}
-  .card{background:var(--surface-card);border:var(--bw-surface) solid var(--border);border-radius:var(--r-surface);box-shadow:var(--shadow-surface-rest);padding:var(--sp-4)}
-  .title{font-size:var(--fs-h4);font-weight:var(--fw-semibold);margin:0 0 var(--sp-2)}
-  .body{font-size:var(--fs-md);color:var(--text-body);margin:0 0 var(--sp-4)}
-  .row{display:flex;gap:var(--sp-3);align-items:center}
-  .field{flex:1;height:var(--dz-ctl-h);padding:0 var(--sp-3);background:var(--surface-input);color:var(--text-body);
-         border:var(--bw-field) solid var(--border);border-radius:var(--r-field);font-family:var(--font-body);font-size:var(--dz-text)}
-  .btn{height:var(--dz-ctl-h);padding:0 var(--sp-5);background:var(--accent);color:var(--on-accent);cursor:pointer;
-       border:var(--bw-control) solid var(--accent);border-radius:var(--r-control);font-family:var(--font-body);
-       font-weight:var(--fw-semibold);font-size:var(--dz-text);white-space:nowrap;box-shadow:var(--shadow-control-rest);
-       transition:box-shadow var(--dur-hover) var(--ease-out),translate var(--dur-hover) var(--ease-out)}
-  .btn:hover{box-shadow:var(--shadow-control-raised);translate:0 calc(var(--lift-control) * -1)}
-  .tag{display:inline-block;padding:var(--sp-1) var(--sp-2);margin-bottom:var(--sp-3);background:var(--gold-soft);
-       color:var(--gold);border:var(--bw-marker) solid var(--gold-soft);border-radius:var(--r-marker);
-       font-family:var(--font-mono);font-size:var(--dz-text-2xs);letter-spacing:var(--ls-label);text-transform:uppercase}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--font-body)}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--bw-strong);
+        background:var(--color-base-300);min-height:100%}
+  .q{background:var(--bg);padding:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-4)}
+  .cap{font-family:var(--font-mono);font-size:var(--dz-text-2xs);letter-spacing:var(--ls-label);
+       text-transform:uppercase;color:var(--mute)}
+  .cap b{color:var(--text-strong);font-weight:var(--fw-semibold)}
+  .row{display:flex;gap:var(--sp-3);align-items:flex-end;margin-top:var(--sp-5)}
+  .row .arena-input__root{flex:1}
+  .prose{font-size:var(--fs-md);color:var(--text-body);margin:0}
 </style>
 </head><body>
-<div class="cols">
-  <div class="col">
-    <div class="cap">default &middot; groups by hairline</div>
-    <div class="card">
-      <span class="tag">new</span>
-      <p class="title">Aurora keyboard</p>
-      <p class="body">Depth is the surface scale and a one pixel border. Nothing rests above the page.</p>
-      <div class="row"><input class="field" value="1" aria-label="Quantity"><button class="btn">Add to cart</button></div>
-    </div>
-  </div>
-  <div class="col arena-expressive">
-    <div class="cap">.arena-expressive &middot; groups by elevation</div>
-    <div class="card">
-      <span class="tag">new</span>
-      <p class="title">Aurora keyboard</p>
-      <p class="body">The border is gone and elevation carries the grouping. Corners soften, the button lifts, and the field keeps its edge because a control owes 3:1.</p>
-      <div class="row"><input class="field" value="1" aria-label="Quantity"><button class="btn">Add to cart</button></div>
-    </div>
-  </div>
-</div>
+<div class="grid" id="grid"></div>
+<script type="module">
+import { arenaClassesFor } from '../../frameworks/tailwind/ManifestClasses.js';
+
+const MANIFESTS = '../../frameworks/tailwind/components';
+const load = (category, dir, name) =>
+  fetch(`${MANIFESTS}/${category}/${dir}/${name}.manifest.json`).then((r) => r.json());
+
+const [card, tag, input, button] = await Promise.all([
+  load('display', 'arena-card', 'ArenaCard'),
+  load('display', 'arena-tag', 'ArenaTag'),
+  load('forms', 'arena-input', 'ArenaInput'),
+  load('forms', 'arena-button', 'ArenaButton'),
+]);
+
+function el(tag, props = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v === undefined || v === false) continue;
+    if (k === 'text') node.textContent = v;
+    else node.setAttribute(k, String(v));
+  }
+  for (const child of children) node.append(child);
+  return node;
+}
+
+/* One specimen, rendered from the manifests so the quadrants differ in their scope class and in
+   nothing else. A card carries the grouping signal, a tag is a marker pinned to r-pill, a field
+   keeps the border WCAG 1.4.11 asks of it, and the button is the one control that moves on all
+   four of an extension's axes. */
+function specimen() {
+  const c = arenaClassesFor(card, { accent: false, floating: false, interactive: false });
+  const t = arenaClassesFor(tag, { tone: 'primary' });
+  const i = arenaClassesFor(input, { state: 'neutral' });
+  const b = arenaClassesFor(button, { variant: 'primary', size: 'md' });
+
+  return el('div', { class: c.root },
+    el('div', { class: c.head },
+      el('div', {},
+        el('div', { class: c.eyebrow, text: 'Peripherals' }),
+        el('div', { class: c.title, text: 'Aurora keyboard' })),
+      el('span', { class: t.root }, el('span', { class: t.dot }), 'In stock')),
+    el('div', { class: c.body },
+      el('p', { class: 'prose', text: 'The card is the grouping signal. Watch its edge, its corner and whether it sits on the page or above it.' }),
+      el('div', { class: 'row' },
+        el('label', { class: i.root },
+          el('span', { class: i.label, text: 'Quantity' }),
+          el('span', { class: i.field }, el('input', { class: i.input, value: '1', type: 'text' }))),
+        el('button', { class: b.root, type: 'button', text: 'Add to cart' }))));
+}
+
+const VOICES = [{ name: 'none', note: 'groups by common region' }].concat(
+  getComputedStyle(document.documentElement).getPropertyValue('--arena-extensions')
+    .split(',').map((n) => n.trim()).filter(Boolean)
+    .map((name) => ({ name, note: 'groups by elevation and air' })));
+
+const THEMES = [{ name: 'dark', scope: '' }, { name: 'light', scope: 'arena-light' }];
+
+const grid = document.getElementById('grid');
+grid.style.gridTemplateColumns = `repeat(${VOICES.length}, 1fr)`;
+
+for (const theme of THEMES) {
+  for (const voice of VOICES) {
+    const scope = ['q', theme.scope, voice.name === 'none' ? '' : `arena-${voice.name}`]
+      .filter(Boolean).join(' ');
+    const caption = el('div', { class: 'cap' },
+      el('b', { text: voice.name === 'none' ? 'no extension' : `.arena-${voice.name}` }),
+      ` · ${theme.name} · ${voice.note}`);
+    grid.append(el('div', { class: scope }, caption, specimen()));
+  }
+}
+</script>
 </body></html>

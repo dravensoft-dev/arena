@@ -39,8 +39,10 @@ test('an interactive card carries the manifest\'s own hover and focus classes, n
 test('accent and floating each pick their branch of the surface', () => {
   assert.match(renderToStaticMarkup(<ArenaCard>x</ArenaCard>), /\barena-card__root--accent-false\b/);
   assert.match(renderToStaticMarkup(<ArenaCard accent>x</ArenaCard>), /\barena-card__root--accent-true\b/);
-  assert.match(renderToStaticMarkup(<ArenaCard>x</ArenaCard>), /\barena-card__root--floating-false\b/);
   assert.match(renderToStaticMarkup(<ArenaCard floating>x</ArenaCard>), /\barena-card__root--floating-true\b/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaCard>x</ArenaCard>), /\barena-card__root--floating-false\b/,
+    'a resting card carries no class for not floating: the root slot already paints shadow-surface-rest, '
+    + 'and a branch that restated that as the literal shadow-none is what stopped an extension moving it');
 });
 
 test('an href card is interactive without being told so, because navigating IS acting', () => {

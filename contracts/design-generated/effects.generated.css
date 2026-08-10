@@ -429,6 +429,13 @@
    */
   --r-control:10px;
   /*
+     A checkbox box and a segment move with the buttons, one step below them, which is
+     the relationship roles.json authored and not a second decision taken here. Left behind, a 4px
+     checkbox beside a 10px button reads as a control the extension forgot rather than as a small
+     one, and it is the same half-applied look r-surface-floating exists to prevent one tier up.
+   */
+  --r-control-sm:6px;
+  /*
      Fields follow controls, because a form reads as one object when its inputs and its
      submit button share a corner.
    */
@@ -498,4 +505,25 @@
      it had no consumer.
    */
   --fs-hero:120px;
+}
+:root{
+  /*
+     The extensions this build ships, as NAMES rather than as classes, because a
+     consumer names one in arena.config.json and only a page composes the class from it. Derived
+     from FILES in scripts/generate/arena/generate-tokens.ts rather than authored anywhere, so it
+     can neither name an extension that paints nothing nor miss one that does; the name is read
+     off the selector because the selector is what a page applies, and check:extensions is what
+     holds the selector and the file to each other.
+     
+     A token and not a list in a script: every surface that draws Arena already loads this sheet,
+     so the catalogue is readable at any page depth with no fetch, and the control that cycles
+     voices never has to be taught to tell an extension class from a palette one, which is a rule
+     that would then exist twice. "none" is absent because it is the ABSENCE of an extension
+     rather than one this build ships, and a reader prepends it for the same reason
+     arena.config.json spells it out instead of omitting the field.
+     
+     It carries no appearance, which is why check:coverage excludes it from the utility surface
+     rather than looking for a namespace that could hold a list.
+   */
+  --arena-extensions:expressive;
 }

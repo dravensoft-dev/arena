@@ -11,6 +11,11 @@
      same `draven-theme` key but only reads the live class, so without this the
      console would forget the choice on every reload. -->
 <script src="../../../../intro/theme.js"></script>
+<!-- No control, on purpose: this page is a console, not a comparison, and a floating dock over an
+     app's own chrome would be in every capture of it. extension.js applies ?extension=<name> from
+     the URL wherever it loads, so the console can be read in any voice from a link without
+     growing a control the console itself would never ship. -->
+<script src="../../../../intro/extension.js"></script>
 <link rel="stylesheet" href="../../../../node_modules/@phosphor-icons/web/src/bold/style.css">
 <link rel="stylesheet" href="../../../../node_modules/@phosphor-icons/web/src/fill/style.css">
 <link rel="stylesheet" href="../../../../node_modules/@phosphor-icons/web/src/duotone/style.css">

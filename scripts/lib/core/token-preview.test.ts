@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
-import { FILES } from '../../generate/arena/generate-tokens.ts';
+import { CATALOGUE, FILES, extensionsIn } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
   const out = flattenTokens({
@@ -67,19 +67,34 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
       if (!bySelector.has(selector)) bySelector.set(selector, []);
       bySelector.get(selector).push(`contracts/design/${source}`);
     }
-    for (const [selector, sources] of bySelector) cases.push([sources, `contracts/design-generated/${file.out}`, selector]);
+    const catalogued = selectorHoldingTheCatalogue(file);
+    for (const [selector, sources] of bySelector)
+      cases.push([sources, `contracts/design-generated/${file.out}`, selector, selector === catalogued]);
   }
   return cases;
+}
+
+function selectorHoldingTheCatalogue(file: { blocks: { selector: string; source: string }[] }) {
+  return extensionsIn(file.blocks).length ? ':root' : null;
 }
 
 test('derived names match the custom properties the build actually emits', () => {
   const cases = deriveCases(FILES);
   assert.ok(cases.length >= 4, 'expected at least one case per output file');
-  for (const [sources, css, selector] of cases) {
+  for (const [sources, css, selector, holdsCatalogue] of cases) {
     const derived = sources
       .flatMap((s: string) => flattenTokens(readJson(s)).map((t) => t.name))
+      .concat(holdsCatalogue ? [CATALOGUE] : [])
       .sort();
     const emitted = [...parseDecls(readFileSync(css, 'utf8')).get(selector).keys()].sort();
     assert.deepEqual(derived, emitted, `${sources.join(', ')} -> ${css} ${selector}`);
   }
+});
+
+test('the catalogue is the one emitted property no token file declares, and it names every extension', () => {
+  const effects = FILES.find((f) => extensionsIn(f.blocks).length);
+  assert.ok(effects, 'no output file carries an extension block, so the catalogue has nowhere to live');
+  const emitted = parseDecls(readFileSync(`contracts/design-generated/${effects.out}`, 'utf8'));
+  assert.equal(emitted.get(':root').get(CATALOGUE), extensionsIn(effects.blocks).join(','));
+  for (const name of extensionsIn(effects.blocks)) assert.ok(emitted.has(`.arena-${name}`));
 });

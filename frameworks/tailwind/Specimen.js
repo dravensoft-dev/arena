@@ -7,6 +7,10 @@ for (const style of ['bold', 'fill']) {
   document.head.appendChild(link);
 }
 
+const voice = document.createElement('script');
+voice.src = new URL('../../intro/extension.js', import.meta.url).href;
+document.head.appendChild(voice);
+
 export function el(tag, props = {}, ...children) {
   const node = tag === 'svg' || tag === 'path' || tag === 'circle'
     ? document.createElementNS('http://www.w3.org/2000/svg', tag)

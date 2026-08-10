@@ -14,6 +14,11 @@
     "$value": "{r.md}",
     "$description": "A softer button. Not a pill: a pill reads as a tag or a filter chip, and a call to\naction that looks like a filter is a call to action nobody presses."
   },
+  "r-control-sm": {
+    "$type": "dimension",
+    "$value": "{r.sm}",
+    "$description": "A checkbox box and a segment move with the buttons, one step below them, which is\nthe relationship roles.json authored and not a second decision taken here. Left behind, a 4px\ncheckbox beside a 10px button reads as a control the extension forgot rather than as a small\none, and it is the same half-applied look r-surface-floating exists to prevent one tier up."
+  },
   "r-field": {
     "$type": "dimension",
     "$value": "{r.md}",

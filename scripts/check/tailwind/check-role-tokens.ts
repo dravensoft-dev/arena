@@ -32,6 +32,7 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['shadow-1', 'a depth role'],
   ['shadow-2', 'shadow-surface-floating or shadow-control-raised'],
   ['shadow-3', 'shadow-surface-deep'],
+  ['shadow-none', 'nothing at all, when the branch means the depth the slot already paints'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -41,6 +42,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaAvatar:box:rounded-md', 'one branch of a shape variant whose other branches are pill and none, so the value is the shape the caller asked for rather than a surface tier'],
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
+  ['ArenaTabs:tab:shadow-none', 'cancels the inset rule the selected branch draws under a tab, and the slot paints no depth role for it to override. A tab has no resting depth to restore, so the literal is the whole answer here rather than a value written over a role'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {

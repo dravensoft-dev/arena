@@ -96,6 +96,15 @@ dark, and the shadow is what adds to it in light. An extension that removes `bw-
 choosing that trade, and an extension author checking their work in one theme only has not checked
 it.
 
+Two surfaces exist so that check is not a matter of remembering to make it.
+`intro/guidelines/design-extension.html` renders one specimen built from the real manifests once
+per voice and once per theme, in a grid, so the polarity difference is the thing the page is
+about rather than something a reader has to hold in memory between two visits. Everywhere else,
+`intro/extension.js` reads the catalogue from `--arena-extensions` and cycles the scope class: as
+a control in the toggle dock on the Overview and the playgrounds, and as `?extension=<name>` in
+the URL on the specimen cards and the Console, which draw no dock because a floating control would
+land in every capture of them.
+
 ## What an extension cannot reach, and the reason it is not a bug
 
 A token re-values a declaration a slot already makes. It cannot add one. A surface that painted no
@@ -112,3 +121,11 @@ action that lifts, and a hover slow enough to read as a response. It removes `bw
 `bw-control`, `bw-field` or `bw-separator`, because WCAG 1.4.11 asks 3:1 of a control's boundary
 and a card is not a control, and because a table that lost the rules between its rows along with
 its frame would stop being readable.
+
+Its three `fs` steps do not reach the same distance, and the difference is worth stating rather
+than leaving for a reader to discover. `ArenaPageHead` is the only component that consumes
+`fs-h1`. No component consumes `fs-display` or `fs-hero` at all: those two reach a screen only
+through the `text-display` and `text-hero` utilities, which a consumer writes in their own markup.
+So the extension is louder on a page somebody authored than on one assembled from components
+alone, and a reader comparing two voices across the component library will not see those two steps
+move at all.

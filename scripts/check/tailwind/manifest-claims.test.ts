@@ -111,7 +111,7 @@ export const CLAIMS = {
     { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-base-300'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { accent: false }, slot: 'root', has: ['border-base-300'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
-    { chosen: { floating: false }, slot: 'root', has: ['shadow-none'], why: 'depth is the shadow and the surface scale, never a gradient' },
+    { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and an extension can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
     { slot: 'eyebrow', has: ['font-mono', 'uppercase', 'text-primary'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
     { slot: 'title', has: ['font-display', 'text-h4'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],

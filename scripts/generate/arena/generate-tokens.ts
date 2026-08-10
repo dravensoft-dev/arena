@@ -51,6 +51,17 @@ export const RESOLVES_AGAINST = {
   'extension.expressive.json': ['effects.json', 'typography.json'],
 };
 
+export const EXTENSION_PREFIX = 'extension.';
+
+export const CATALOGUE = 'arena-extensions';
+
+export function extensionsIn(blocks: { selector: string; source: string }[]) {
+  return blocks
+    .filter((b) => b.source.startsWith(EXTENSION_PREFIX))
+    .map((b) => b.selector.replace(/^\.arena-/, ''))
+    .sort();
+}
+
 const EXT = 'com.dravensoft.arena';
 
 export const SCRIPT_TARGETS = [
@@ -251,11 +262,34 @@ async function block({ selector, source }: { selector: string; source: string })
   return `${selector}{\n${lines.join('\n')}\n}`;
 }
 
+const CATALOGUE_NOTE = 'The extensions this build ships, as NAMES rather than as classes, because a\n'
+  + 'consumer names one in arena.config.json and only a page composes the class from it. Derived\n'
+  + 'from FILES in scripts/generate/arena/generate-tokens.ts rather than authored anywhere, so it\n'
+  + 'can neither name an extension that paints nothing nor miss one that does; the name is read\n'
+  + 'off the selector because the selector is what a page applies, and check:extensions is what\n'
+  + 'holds the selector and the file to each other.\n'
+  + '\n'
+  + 'A token and not a list in a script: every surface that draws Arena already loads this sheet,\n'
+  + 'so the catalogue is readable at any page depth with no fetch, and the control that cycles\n'
+  + 'voices never has to be taught to tell an extension class from a palette one, which is a rule\n'
+  + 'that would then exist twice. "none" is absent because it is the ABSENCE of an extension\n'
+  + 'rather than one this build ships, and a reader prepends it for the same reason\n'
+  + 'arena.config.json spells it out instead of omitting the field.\n'
+  + '\n'
+  + 'It carries no appearance, which is why check:coverage excludes it from the utility surface\n'
+  + 'rather than looking for a namespace that could hold a list.';
+
+function catalogueBlock(names: string[]) {
+  return `:root{\n${comment(CATALOGUE_NOTE)}\n  --${CATALOGUE}:${names.join(',')};\n}`;
+}
+
 export async function buildAll() {
   const out = new Map();
   for (const file of FILES) {
     const blocks = [];
     for (const b of file.blocks) blocks.push(await block(b));
+    const names = extensionsIn(file.blocks);
+    if (names.length) blocks.push(catalogueBlock(names));
     out.set(file.out, `${HEADER}\n${blocks.join('\n')}\n`);
   }
   return out;
