@@ -1,7 +1,7 @@
 {
   "component": "ArenaToast",
   "slots": {
-    "root": "flex gap-3 items-start w-85 px-4 py-3.5 z-toast bg-base-200 border-t-[length:var(--bw-surface)] border-r-[length:var(--bw-surface)] border-b-[length:var(--bw-surface)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-surface-floating shadow-surface-floating",
+    "root": "flex gap-3 items-start w-85 px-4 py-3.5 z-toast bg-surface-floating border-t-[length:var(--bw-surface)] border-r-[length:var(--bw-surface)] border-b-[length:var(--bw-surface)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-surface-floating shadow-surface-floating",
     "body": "flex-1",
     "title": "flex items-center gap-2 font-body font-semibold text-ctl text-base-content",
     "pinned": "font-mono text-ctl-2xs tracking-column-header uppercase text-base-content/62 border-[length:var(--bw-marker)] border-base-300 rounded-marker px-1",
@@ -11,11 +11,25 @@
   },
   "variants": {
     "tone": {
-      "neutral": { "root": "border-l-neutral", "action": "text-primary" },
-      "success": { "root": "border-l-success", "action": "text-primary" },
-      "danger": { "root": "border-l-error", "action": "text-secondary" },
-      "gold": { "root": "border-l-secondary", "action": "text-primary" }
+      "neutral": {
+        "root": "border-l-neutral",
+        "action": "text-primary"
+      },
+      "success": {
+        "root": "border-l-success",
+        "action": "text-primary"
+      },
+      "danger": {
+        "root": "border-l-error",
+        "action": "text-secondary"
+      },
+      "gold": {
+        "root": "border-l-secondary",
+        "action": "text-primary"
+      }
     }
   },
-  "defaultVariants": { "tone": "neutral" }
+  "defaultVariants": {
+    "tone": "neutral"
+  }
 }

@@ -66,6 +66,19 @@ const themeOf = (t: { path?: string[] }) => {
   return THEME_SCOPES.has(first) ? first : '';
 };
 
+const isAliasedColour = (node: { $type?: string; $value?: unknown }) =>
+  node?.$type === 'color' && typeof node?.$value === 'string' && /^\{.+\}$/.test(node.$value);
+
+function colourReferencesIn(sources: string[]) {
+  const names: string[] = [];
+  for (const source of sources) {
+    for (const [key, node] of Object.entries(readJson(source) as Record<string, any>)) {
+      if (!key.startsWith('$') && isAliasedColour(node)) names.push(key);
+    }
+  }
+  return names;
+}
+
 function deriveCases(files: { out: string; blocks: { selector: string; source: string }[] }[]) {
   const cases = [];
   for (const file of files) {
@@ -84,10 +97,12 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
           .concat(selector === catalogued ? [CATALOGUE] : []),
         css, selector, sources,
       ]);
+      const references = colourReferencesIn(sources);
       for (const [theme, scope] of THEME_SCOPES) {
-        const themed = tokens.filter((t) => themeOf(t) === theme);
-        if (themed.length)
-          cases.push([themed.map((t) => (t.path ?? []).slice(1).join('-')), css, scope(selector), sources]);
+        const themed = tokens.filter((t) => themeOf(t) === theme)
+          .map((t) => (t.path ?? []).slice(1).join('-'));
+        if (themed.length || references.length)
+          cases.push([[...references, ...themed], css, scope(selector), sources]);
       }
     }
   }

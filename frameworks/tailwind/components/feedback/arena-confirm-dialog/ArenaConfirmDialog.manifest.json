@@ -2,7 +2,7 @@
   "component": "ArenaConfirmDialog",
   "slots": {
     "root": "fixed inset-0 z-modal-nested flex items-center justify-center bg-scrim backdrop-blur-scrim",
-    "panel": "w-115 max-w-[92vw] bg-base-200 border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep overflow-hidden",
+    "panel": "w-115 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep overflow-hidden",
     "head": "px-6 pt-5.5",
     "eyebrow": "font-mono text-ctl-xs tracking-label uppercase mb-2",
     "title": "font-display font-extrabold text-h3 text-base-content tracking-tight",
@@ -16,17 +16,33 @@
   },
   "variants": {
     "destructive": {
-      "true": { "eyebrow": "text-error", "confirm": "bg-error-fill text-error-content" },
-      "false": { "eyebrow": "text-primary", "confirm": "bg-primary text-primary-content" }
+      "true": {
+        "eyebrow": "text-error",
+        "confirm": "bg-error-fill text-error-content"
+      },
+      "false": {
+        "eyebrow": "text-primary",
+        "confirm": "bg-primary text-primary-content"
+      }
     },
     "invalid": {
-      "true": { "input": "border-error" },
-      "false": { "input": "border-base-300" }
+      "true": {
+        "input": "border-error"
+      },
+      "false": {
+        "input": "border-base-300"
+      }
     },
     "open": {
       "true": {},
-      "false": { "root": "hidden" }
+      "false": {
+        "root": "hidden"
+      }
     }
   },
-  "defaultVariants": { "destructive": false, "invalid": false, "open": false }
+  "defaultVariants": {
+    "destructive": false,
+    "invalid": false,
+    "open": false
+  }
 }

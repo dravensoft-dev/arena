@@ -33,6 +33,7 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['shadow-2', 'shadow-surface-floating or shadow-control-raised'],
   ['shadow-3', 'shadow-surface-deep'],
   ['shadow-none', 'nothing at all, when the branch means the depth the slot already paints'],
+  ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -43,6 +44,11 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
   ['ArenaTabs:tab:shadow-none', 'cancels the inset rule the selected branch draws under a tab, and the slot paints no depth role for it to override. A tab has no resting depth to restore, so the literal is the whole answer here rather than a value written over a role'],
+  ['ArenaButton:root:bg-base-200', 'the fill of a secondary button, and the hover of a ghost one: a control the user presses rather than a region something is placed inside. A voice that flattens its surfaces onto the page is saying its regions are carried by air, and a button that went with them would stop looking pressable'],
+  ['ArenaIconButton:root:bg-base-200', 'the same, as the hover fill of a control with no resting one'],
+  ['ArenaBulkActionBar:action:bg-base-200', 'the same, as the hover fill of a control INSIDE a floating surface, which is why it must not follow that surface when a voice moves it'],
+  ['ArenaInput:field:bg-base-200', 'the readonly state of a field, which says a control cannot be typed into by matching the surface it sits on. It is a state of a control, not the surface itself, and a voice that moved it would be re-answering readonly rather than re-answering grouping'],
+  ['ArenaTextarea:field:bg-base-200', 'the same readonly state, for the same reason'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {

@@ -47,8 +47,8 @@ export const FILES = [
 
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
-  'roles.json': ['effects.json'],
-  'extension.expressive.json': ['effects.json', 'typography.json'],
+  'roles.json': ['effects.json', 'palette.dark.json'],
+  'extension.expressive.json': ['effects.json', 'typography.json', 'palette.dark.json'],
 };
 
 export const EXTENSION_PREFIX = 'extension.';
@@ -56,7 +56,9 @@ export const EXTENSION_PREFIX = 'extension.';
 export const CATALOGUE = 'arena-extensions';
 
 export const THEME_SCOPES = new Map<string, (selector: string) => string>([
-  ['light', (s) => `.arena-light${s}, .arena-light ${s}, ${s} .arena-light`],
+  ['light', (s) => (s === ':root'
+    ? '.arena-light'
+    : `.arena-light${s}, .arena-light ${s}, ${s} .arena-light`)],
 ]);
 
 export const themeOf = (token: { path?: string[] }) => {
@@ -66,6 +68,16 @@ export const themeOf = (token: { path?: string[] }) => {
 
 export const emittedName = (token: { name: string; path?: string[] }) =>
   (themeOf(token) ? (token.path ?? []).slice(1).join('-') : token.name);
+
+const ALIAS = /^\{([^}]+)\}$/;
+
+export function referenceOf(token: DtcgToken) {
+  if (token.$type !== 'color') return null;
+  const authored = token.original?.$value;
+  if (typeof authored !== 'string') return null;
+  const alias = ALIAS.exec(authored.trim());
+  return alias ? `var(--${(alias[1] ?? '').replace(/\./g, '-')})` : null;
+}
 
 export function extensionsIn(blocks: { selector: string; source: string }[]) {
   return blocks
@@ -229,7 +241,7 @@ function comment(d: string) {
 }
 
 function render(token: StampedToken) {
-  const decl = `  --${emittedName(token)}:${serialize(token)};`;
+  const decl = `  --${emittedName(token)}:${referenceOf(token) ?? serialize(token)};`;
   const d = token.$description;
   if (!d) return decl;
   if (!d.includes('\n')) return `${decl} /* ${d} */`;
@@ -279,13 +291,19 @@ async function block({ selector, source }: { selector: string; source: string })
     const theme = isTokenItem(item) ? themeOf(item.token) : '';
     buckets.set(theme, [...(buckets.get(theme) ?? []), item]);
   }
-  return [...buckets]
-    .filter(([, items]) => items.length)
-    .map(([theme, items]) => {
-      const scoped = theme ? THEME_SCOPES.get(theme)?.(selector) ?? selector : selector;
-      return `${scoped}{\n${renderLines(items).join('\n')}\n}`;
-    })
-    .join('\n');
+  const base = buckets.get('') ?? [];
+  const references = base.filter((item) => isTokenItem(item) && referenceOf(item.token));
+  const out = base.length ? [`${selector}{\n${renderLines(base).join('\n')}\n}`] : [];
+
+  for (const [theme, scope] of THEME_SCOPES) {
+    const restated = references.length
+      ? [`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`] : [];
+    const themed = buckets.get(theme) ?? [];
+    const overrides = themed.length
+      ? [`${scope(selector)}{\n${renderLines(themed).join('\n')}\n}`] : [];
+    out.push(...restated, ...overrides);
+  }
+  return out.join('\n');
 }
 
 const CATALOGUE_NOTE = 'The extensions this build ships, as NAMES rather than as classes, because a\n'

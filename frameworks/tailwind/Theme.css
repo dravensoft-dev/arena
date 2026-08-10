@@ -42,6 +42,12 @@
   --color-base-300: var(--color-base-300);
   --color-base-content: var(--color-base-content);
 
+  /* Surface fill ROLES, so bg-surface asks which surface rather than which step. Named under the
+     colour namespace because that is the namespace bg-* reads, and pointed at the role rather
+     than at a palette step: the role is what an extension re-values. */
+  --color-surface: var(--fill-surface);
+  --color-surface-floating: var(--fill-surface-floating);
+
   /* brand voice */
   --color-primary: var(--color-primary);
   --color-primary-content: var(--color-primary-content);

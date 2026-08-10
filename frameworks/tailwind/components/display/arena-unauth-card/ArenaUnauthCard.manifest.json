@@ -2,7 +2,7 @@
   "component": "ArenaUnauthCard",
   "slots": {
     "root": "block w-full max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)] rounded-surface shadow-surface-deep",
-    "panel": "bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden p-5 shadow-surface-rest",
+    "panel": "bg-surface border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden p-5 shadow-surface-rest",
     "body": "p-4",
     "brand": "flex mb-7",
     "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-1.5",

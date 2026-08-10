@@ -2,7 +2,7 @@
   "component": "ArenaOnboarding",
   "slots": {
     "root": "fixed inset-0 z-onboarding block bg-scrim",
-    "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-base-200 border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep p-5",
+    "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep p-5",
     "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-2",
     "title": "font-display font-extrabold text-h4 text-base-content tracking-tight",
     "body": "font-body text-md leading-body text-base-content/82 mt-2",
@@ -16,13 +16,22 @@
   },
   "variants": {
     "placement": {
-      "floating": { "panel": "right-6 bottom-6" },
-      "anchored": { "panel": "" }
+      "floating": {
+        "panel": "right-6 bottom-6"
+      },
+      "anchored": {
+        "panel": ""
+      }
     },
     "open": {
       "true": {},
-      "false": { "root": "hidden" }
+      "false": {
+        "root": "hidden"
+      }
     }
   },
-  "defaultVariants": { "placement": "floating", "open": false }
+  "defaultVariants": {
+    "placement": "floating",
+    "open": false
+  }
 }

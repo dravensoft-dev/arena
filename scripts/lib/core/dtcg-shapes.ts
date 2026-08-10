@@ -17,6 +17,7 @@ export type DtcgToken = {
   filePath?: string;
   name?: string;
   path?: string[];
+  original?: { $value?: unknown };
 };
 
 export type DtcgGroup = {

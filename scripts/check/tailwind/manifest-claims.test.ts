@@ -80,7 +80,7 @@ export const CLAIMS = {
     { slot: 'mark', has: ['*:w-full', '*:h-full', '*:block'], why: 'the mark slot stretches its projected child rather than sizing it' },
   ],
   ArenaChartCard: [
-    { slot: 'root', has: ['flex', 'bg-base-200', 'border-[length:var(--bw-surface)]', 'border-base-300', 'rounded-surface'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
+    { slot: 'root', has: ['flex', 'bg-surface', 'border-[length:var(--bw-surface)]', 'border-base-300', 'rounded-surface'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
     { slot: 'title', has: ['font-mono', 'uppercase', 'tracking-label'], hasNot: ['font-display', 'text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a microlabel carries neither the display font nor a heading size, which would fabricate a document outline' },
     { slot: 'head', has: ['justify-between', 'items-center', 'flex-wrap'], why: 'the head row spaces title and actions to opposite ends and wraps, since the slot projects one element per control' },
   ],
@@ -107,7 +107,7 @@ export const CLAIMS = {
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
   ArenaCard: [
-    { slot: 'root', has: ['block', 'bg-base-200'], why: 'the card sits on the middle step of the surface scale and is never a zero-area inline box' },
+    { slot: 'root', has: ['block', 'bg-surface'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so a voice can flatten it onto the page, and it is never a zero-area inline box' },
     { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-base-300'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { accent: false }, slot: 'root', has: ['border-base-300'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
@@ -156,7 +156,7 @@ export const CLAIMS = {
   ],
   ArenaUnauthCard: [
     { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
-    { slot: 'panel', has: ['bg-base-200'], hasNot: ['shadow-surface-deep'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either' },
+    { slot: 'panel', has: ['bg-surface'], hasNot: ['shadow-surface-deep'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either. It is a card the page is built around rather than an overlay, so it takes the surface fill and follows a voice that flattens one' },
   ],
   ArenaAlert: [
     ...Object.entries({ info: 'info', success: 'success', warning: 'warning', danger: 'error', neutral: 'neutral' })

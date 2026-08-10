@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem } from './check-role-tokens.ts';
 
 test('a radius scale step in a class string is reported', () => {
-  assert.deepEqual(scaleUsesIn('bg-base-200 rounded-lg overflow-hidden'), ['rounded-lg']);
+  assert.deepEqual(scaleUsesIn('bg-neutral rounded-lg overflow-hidden'), ['rounded-lg']);
 });
 
 test('a bracketed scale use is reported, so the brackets and parens are matched literally rather than as a pattern', () => {
@@ -34,7 +34,7 @@ test('a longer token name is not the scale token it starts with', () => {
 });
 
 test('evaluateManifest names the role that replaces the scale use it found', () => {
-  const manifest = { component: 'Fixture', slots: { root: 'bg-base-200 rounded-lg' } };
+  const manifest = { component: 'Fixture', slots: { root: 'bg-neutral rounded-lg' } };
   assert.deepEqual(evaluateManifest(manifest, new Map()), [
     { component: 'Fixture', slot: 'root', utility: 'rounded-lg', role: 'rounded-surface' },
   ]);

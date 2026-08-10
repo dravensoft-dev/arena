@@ -22,7 +22,7 @@ against the floors before it goes out.
 | Tier | Owns | Moved by |
 |---|---|---|
 | Floor | WCAG contrast, the non-text contrast of a control's boundary and of the focus ring, focus appearance, target size, the reduced-motion policy, danger recognisable without colour | Nobody |
-| Extension | The grouping signal, the radius roles, the border roles, resting and raised depth, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
+| Extension | The grouping signal, the radius roles, the border roles, the surface FILL roles as an assignment, resting and raised depth, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
 | Skin | The 27 palette colours and the three font roles | The consumer, in `arena.config.json` |
 
 An extension may not lower a floor. `bun run check:boundary-contrast` is the one floor this
@@ -30,9 +30,16 @@ feature had to build: an extension that sets a control's or a field's border to 
 boundary onto the fill difference, and the gate measures whether that difference clears the 3:1
 WCAG 1.4.11 asks, in both themes.
 
-The contrast and ramp gates need no per-scope variant, and that is a property of the tiers rather
-than an omission: an extension cannot move a colour, and Arena gates text at 4.5:1 flat with no
-large-text exception, so a type-scale change can neither relax nor tighten what they measure.
+The ramp gate needs no per-scope variant, and that is a property of the tiers rather than an
+omission: an extension cannot author a colour, and the categorical ramp is authored colour.
+
+**`check:text-contrast` did not need one either, and now does.** This document used to argue the
+point from "an extension cannot move a colour", which stopped being true when `fill-surface`
+arrived: an extension may not WRITE a colour, but it may say which of the consumer's colours a
+surface takes, and text on a surface moved from `base-200` to `base-100` sits at a different
+ratio. The gate therefore measures the text levels once per extension scope crossed with both
+themes. It skips an extension that lands on the same surfaces as no extension, and says how many
+it skipped, so a scope is never quietly dropped.
 
 ## Every voice declares its grouping principle, and no two may share one
 
@@ -97,7 +104,29 @@ console on a desk can want the same extension and opposite densities, and only s
 them have that. `.arena-compact` and `.arena-comfortable` are mutually exclusive with each other
 and compose with everything else.
 
-**An extension does not set a colour.** That is the skin, and the skin belongs to the consumer.
+**An extension assigns a colour and never authors one.** The skin belongs to the consumer: the 27
+values are theirs, and no extension writes one. What an extension may say is WHICH of them a
+surface takes, through `fill-surface` and `fill-surface-floating`, the same way `r-surface` says
+which corner rather than how round. A voice grouping by proximity needs exactly this and nothing
+more: a card that keeps a fill keeps a region, however faint, and a voice that said it draws
+nothing would be drawing one.
+
+Three consequences worth stating rather than discovering.
+
+**A fill role is emitted as `var(--color-base-200)` and not as the hex it resolves to.** A colour
+resolved at build time would freeze one theme's palette into the other. It is the only family the
+emitter treats this way; radius and depth stay resolved, because 14px is 14px in both themes.
+
+**And a reference is emitted once per theme, because a `var()` inside a custom property is
+substituted where the property is DECLARED and not where it is used.** `--fill-surface:
+var(--color-base-200)` written only on `:root` computes against the dark palette and then inherits
+that hex into a light region, so a light card came out dark. This was found by rendering, not by
+reading. Every block carrying a colour reference is therefore restated under each theme scope, and
+this is the same thing `contracts/design/colors.css` has always done by declaring its aliases under
+`:root, .arena-light` rather than under `:root` alone.
+
+**The split between the two fill roles is what makes flattening safe.** A voice may take a card
+down to the page's own fill; a menu that followed it would be an unreadable overlay.
 
 **An extension paints no gradient.** It was weighed and refused rather than never considered: a
 fill whose colour is a range turns text contrast into a range too, so the floor stops being a

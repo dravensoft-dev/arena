@@ -26,43 +26,69 @@
     "title": "text-ctl-sm font-semibold text-base-content whitespace-nowrap overflow-hidden text-ellipsis",
     "time": "font-mono text-ctl-2xs text-base-content/62",
     "kebabWrap": "absolute right-0",
-    "panel": "absolute top-full right-0 flex gap-2 p-2 bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-control shadow-surface-floating"
+    "panel": "absolute top-full right-0 flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-base-300 rounded-control shadow-surface-floating"
   },
   "variants": {
     "today": {
-      "true": { "dayNumber": "text-primary" },
-      "false": { "dayNumber": "text-base-content/82" }
+      "true": {
+        "dayNumber": "text-primary"
+      },
+      "false": {
+        "dayNumber": "text-base-content/82"
+      }
     },
     "firstColumn": {
-      "true": { "column": "border-l-0" },
+      "true": {
+        "column": "border-l-0"
+      },
       "false": {}
     },
     "reserve": {
-      "true": { "chip": "pr-[calc(var(--dz-ctl-h-sm)+var(--bw)*2)]" },
+      "true": {
+        "chip": "pr-[calc(var(--dz-ctl-h-sm)+var(--bw)*2)]"
+      },
       "false": {}
     },
     "panelOpen": {
-      "true": { "chip": "overflow-visible" },
+      "true": {
+        "chip": "overflow-visible"
+      },
       "false": {}
     },
     "clickable": {
-      "true": { "chip": "cursor-pointer" },
-      "false": { "chip": "cursor-default" }
+      "true": {
+        "chip": "cursor-pointer"
+      },
+      "false": {
+        "chip": "cursor-default"
+      }
     },
     "dayInteractive": {
       "true": {
         "dayHead": "cursor-pointer bg-transparent border-0 font-body w-full",
         "column": "cursor-pointer"
       },
-      "false": { "dayHead": "cursor-default", "column": "cursor-default" }
+      "false": {
+        "dayHead": "cursor-default",
+        "column": "cursor-default"
+      }
     },
     "disabled": {
-      "true": { "chip": "opacity-50 cursor-not-allowed", "chipBody": "cursor-not-allowed" },
-      "false": { "chipBody": "cursor-pointer" }
+      "true": {
+        "chip": "opacity-50 cursor-not-allowed",
+        "chipBody": "cursor-not-allowed"
+      },
+      "false": {
+        "chipBody": "cursor-pointer"
+      }
     },
     "actionsBelow": {
-      "true": { "kebabWrap": "bottom-0" },
-      "false": { "kebabWrap": "top-0" }
+      "true": {
+        "kebabWrap": "bottom-0"
+      },
+      "false": {
+        "kebabWrap": "top-0"
+      }
     }
   },
   "defaultVariants": {

@@ -8,13 +8,15 @@ import { contrast } from '../../lib/core/validate-palette.mjs';
 import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { extensionFiles, extensionName, resolvedFor } from './check-extensions.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
+export const EFFECTS = 'contracts/design-generated/effects.generated.css';
 
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS],
+  reads: [PALETTE, COLORS, EFFECTS],
   writes: [],
   feeds: [],
 };
@@ -119,9 +121,37 @@ export const REMOVED = [
 
 export { THEMES };
 
+export const SURFACE_ROLES = ['fill-surface', 'fill-surface-floating'];
+
+export const PAGE = 'color-base-100';
+
+const REFERENCE = /^var\(\s*--([\w-]+)\s*\)$/;
+
+export function surfacesUnder(resolved: Map<string, string>) {
+  const names = [PAGE];
+  for (const role of SURFACE_ROLES) {
+    const referenced = REFERENCE.exec(resolved.get(role)?.trim() ?? '')?.[1];
+    if (referenced && !names.includes(referenced)) names.push(referenced);
+  }
+  return names;
+}
+
+export function scopesToMeasure(effects: string, theme: string, extensions: string[]) {
+  const base = surfacesUnder(resolvedFor(effects, '', theme));
+  const out = [{ label: 'no extension', surfaces: base }];
+  for (const name of extensions) {
+    const surfaces = surfacesUnder(resolvedFor(effects, name, theme));
+    if (surfaces.join() === base.join()) continue;
+    out.push({ label: `.arena-${name}`, surfaces });
+  }
+  return out;
+}
+
 function main() {
   const palette = readFileSync(join(root, PALETTE), 'utf8');
   const structure = structureOf(readFileSync(join(root, COLORS), 'utf8'));
+  const effects = readFileSync(join(root, EFFECTS), 'utf8');
+  const extensions = extensionFiles().map(extensionName);
   let ok = true;
 
   for (const { token, use } of REMOVED) {
@@ -132,27 +162,50 @@ function main() {
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
-    const surfaces: [string, string][] = [
-      ['base-100', readHex(body, 'color-base-100')],
-      ['base-200', readHex(body, 'color-base-200')],
-    ];
-    console.log(`\n${t.name} — --color-base-content ${content} over ${surfaces.map(([n, h]) => `${n} ${h}`).join(', ')}`);
-    for (const { token, gate, note } of LEVELS) {
-      const percent = resolvePercent(structure, token);
-      if (percent === null) {
-        ok = false;
-        console.log(`  [FAIL] --${token.padEnd(16)} not declared in contracts/design/colors.css`);
-        continue;
+    for (const scope of scopesToMeasure(effects, t.name, extensions)) {
+      const surfaces: [string, string][] = scope.surfaces
+        .map((name) => [name.replace(/^color-/, ''), readHex(body, name)]);
+      console.log(`\n${t.name}, ${scope.label} — --color-base-content ${content} over ${surfaces.map(([n, h]) => `${n} ${h}`).join(', ')}`);
+      for (const { token, gate, note } of LEVELS) {
+        const percent = resolvePercent(structure, token);
+        if (percent === null) {
+          ok = false;
+          console.log(`  [FAIL] --${token.padEnd(16)} not declared in contracts/design/colors.css`);
+          continue;
+        }
+        const ratios: [string, number][] = surfaces.map(([n, hex]) => [n, contrast(composite(content, hex, percent), hex)]);
+        const failed = gate !== null && ratios.some(([, r]) => r < gate);
+        if (failed) ok = false;
+        const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
+        const detail = ratios.map(([n, r]) => `${n} ${r.toFixed(2)}:1`).join('  ');
+        const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
+        console.log(`  [${glyph}] --${token.padEnd(16)} ${String(percent).padStart(3)}%  ${detail}  ${bar}`);
+        console.log(`         ${note}`);
       }
-      const ratios: [string, number][] = surfaces.map(([n, hex]) => [n, contrast(composite(content, hex, percent), hex)]);
-      const failed = gate !== null && ratios.some(([, r]) => r < gate);
-      if (failed) ok = false;
-      const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
-      const detail = ratios.map(([n, r]) => `${n} ${r.toFixed(2)}:1`).join('  ');
-      const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
-      console.log(`  [${glyph}] --${token.padEnd(16)} ${String(percent).padStart(3)}%  ${detail}  ${bar}`);
-      console.log(`         ${note}`);
+
+      console.log(`\n${t.name}, ${scope.label} — accents on the base surfaces (no fill of their own)`);
+      for (const { token, gate, note } of ON_SURFACE) {
+        const hex = tryHex(body, `color-${token}`);
+        if (!hex) {
+          ok = false;
+          console.log(`  [FAIL] --color-${token.padEnd(18)} ${MISSING}`);
+          console.log(`         ${note}`);
+          continue;
+        }
+        const ratios: [string, number][] = surfaces.map(([n, s]) => [n, contrast(hex, s)]);
+        const failed = gate !== null && ratios.some(([, r]) => r < gate);
+        if (failed) ok = false;
+        const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
+        const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
+        const detail = ratios.map(([n, r]) => `${n} ${r.toFixed(2)}:1`).join('  ');
+        console.log(`  [${glyph}] --color-${token.padEnd(18)} ${hex}  ${detail}  ${bar}`);
+        console.log(`         ${note}`);
+      }
+
     }
+    const quiet = extensions.length + 1 - scopesToMeasure(effects, t.name, extensions).length;
+    if (quiet > 0)
+      console.log(`\n  ${quiet} extension(s) put text on the same surfaces as no extension in ${t.name}, so the run above measured them too`);
 
     console.log(`\n${t.name} — fill/content pairs`);
     for (const { fill, content, gate, deriveFrom, keep, note } of PAIRS) {
@@ -176,25 +229,6 @@ function main() {
       const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
       const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
       console.log(`  [${glyph}] --color-${content.padEnd(18)} ${contentHex} on ${fillHex} (${source})  ${ratio.toFixed(2)}:1  ${bar}`);
-      console.log(`         ${note}`);
-    }
-
-    console.log(`\n${t.name} — accents on the base surfaces (no fill of their own)`);
-    for (const { token, gate, note } of ON_SURFACE) {
-      const hex = tryHex(body, `color-${token}`);
-      if (!hex) {
-        ok = false;
-        console.log(`  [FAIL] --color-${token.padEnd(18)} ${MISSING}`);
-        console.log(`         ${note}`);
-        continue;
-      }
-      const ratios: [string, number][] = surfaces.map(([n, s]) => [n, contrast(hex, s)]);
-      const failed = gate !== null && ratios.some(([, r]) => r < gate);
-      if (failed) ok = false;
-      const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
-      const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
-      const detail = ratios.map(([n, r]) => `${n} ${r.toFixed(2)}:1`).join('  ');
-      console.log(`  [${glyph}] --color-${token.padEnd(18)} ${hex}  ${detail}  ${bar}`);
       console.log(`         ${note}`);
     }
 

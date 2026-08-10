@@ -1,7 +1,7 @@
 {
   "component": "ArenaStatCard",
   "slots": {
-    "root": "flex flex-col gap-2 bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-surface p-5 min-h-30 shadow-surface-rest",
+    "root": "flex flex-col gap-2 bg-surface border-[length:var(--bw-surface)] border-base-300 rounded-surface p-5 min-h-30 shadow-surface-rest",
     "head": "flex items-center justify-between gap-3",
     "label": "font-mono text-ctl-2xs tracking-label uppercase text-base-content/62",
     "icon": "inline-flex text-[length:var(--icon-sm)] text-base-content/62 opacity-60",
@@ -11,19 +11,42 @@
   },
   "variants": {
     "tone": {
-      "neutral": { "value": "text-base-content" },
-      "accent": { "value": "text-primary" },
-      "gold": { "value": "text-secondary" },
-      "success": { "value": "text-success" },
-      "warning": { "value": "text-warning" },
-      "danger": { "value": "text-error" },
-      "info": { "value": "text-info" }
+      "neutral": {
+        "value": "text-base-content"
+      },
+      "accent": {
+        "value": "text-primary"
+      },
+      "gold": {
+        "value": "text-secondary"
+      },
+      "success": {
+        "value": "text-success"
+      },
+      "warning": {
+        "value": "text-warning"
+      },
+      "danger": {
+        "value": "text-error"
+      },
+      "info": {
+        "value": "text-info"
+      }
     },
     "deltaTone": {
-      "neutral": { "delta": "border-neutral text-base-content/62" },
-      "positive": { "delta": "border-success text-success" },
-      "negative": { "delta": "border-error text-error" }
+      "neutral": {
+        "delta": "border-neutral text-base-content/62"
+      },
+      "positive": {
+        "delta": "border-success text-success"
+      },
+      "negative": {
+        "delta": "border-error text-error"
+      }
     }
   },
-  "defaultVariants": { "tone": "neutral", "deltaTone": "neutral" }
+  "defaultVariants": {
+    "tone": "neutral",
+    "deltaTone": "neutral"
+  }
 }

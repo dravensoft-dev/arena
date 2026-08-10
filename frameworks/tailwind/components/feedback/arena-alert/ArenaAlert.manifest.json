@@ -11,16 +11,41 @@
   },
   "variants": {
     "tone": {
-      "info": { "root": "bg-info/16 border-info", "icon": "text-info", "action": "text-info" },
-      "success": { "root": "bg-success/16 border-success", "icon": "text-success", "action": "text-success" },
-      "warning": { "root": "bg-warning/18 border-warning", "icon": "text-warning", "action": "text-warning" },
-      "danger": { "root": "bg-error/14 border-error", "icon": "text-error", "action": "text-error" },
-      "neutral": { "root": "bg-base-200 border-neutral", "icon": "text-neutral", "action": "text-neutral" }
+      "info": {
+        "root": "bg-info/16 border-info",
+        "icon": "text-info",
+        "action": "text-info"
+      },
+      "success": {
+        "root": "bg-success/16 border-success",
+        "icon": "text-success",
+        "action": "text-success"
+      },
+      "warning": {
+        "root": "bg-warning/18 border-warning",
+        "icon": "text-warning",
+        "action": "text-warning"
+      },
+      "danger": {
+        "root": "bg-error/14 border-error",
+        "icon": "text-error",
+        "action": "text-error"
+      },
+      "neutral": {
+        "root": "bg-surface border-neutral",
+        "icon": "text-neutral",
+        "action": "text-neutral"
+      }
     },
     "titled": {
-      "true": { "message": "mt-1" },
+      "true": {
+        "message": "mt-1"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "tone": "info", "titled": false }
+  "defaultVariants": {
+    "tone": "info",
+    "titled": false
+  }
 }

@@ -133,6 +133,34 @@
    */
   --r-marker:4px;
   /*
+     The fill of a surface that belongs to the page: a card, a stat card, a table's
+     frame, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a
+     region is told from the page by its edge and by its fill together.
+     
+     Emitted as a reference and not as a resolved colour, which is the one place the emitter departs
+     from every other role: a radius resolved to 14px is right in both themes, and a colour resolved
+     to a hex would freeze the dark palette into the light one. A role that names WHICH step is asked
+     about has to keep pointing at the step rather than at what the step happens to be.
+     
+     What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
+     drawn. Without this role a card keeps a region the voice just said was not there, and the gate
+     holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
+     value: an extension may say which of the consumer's 27 colours a surface takes, and may not
+     author one.
+   */
+  --fill-surface:var(--color-base-200);
+  /*
+     The fill of a surface that floats over the page: a menu, a dialog, a toast, a
+     sheet, a command palette, a bulk action bar. The same step as fill-surface today and a different
+     question, which is the cut r-surface and r-surface-floating already make one tier up.
+     
+     This is the role that makes flattening the other one safe. A voice that takes a card down to the
+     page's own fill has said its regions are carried by air; a menu that did the same would be an
+     unreadable overlay, because a floating surface is separated from what it covers rather than
+     grouped against it. Split so a voice can answer the two one at a time.
+   */
+  --fill-surface-floating:var(--color-base-200);
+  /*
      The border that encloses a surface, and therefore Arena's default grouping
      signal. This is the single most consequential role in the tier: a hairline says 'these things
      are one region' by drawing the region, which is cheap in pixels and correct for dense data.
@@ -228,6 +256,36 @@
      so no manifest spells one as a duration.
    */
   --dur-state:220ms;
+}
+.arena-light{
+  /*
+     The fill of a surface that belongs to the page: a card, a stat card, a table's
+     frame, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a
+     region is told from the page by its edge and by its fill together.
+     
+     Emitted as a reference and not as a resolved colour, which is the one place the emitter departs
+     from every other role: a radius resolved to 14px is right in both themes, and a colour resolved
+     to a hex would freeze the dark palette into the light one. A role that names WHICH step is asked
+     about has to keep pointing at the step rather than at what the step happens to be.
+     
+     What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
+     drawn. Without this role a card keeps a region the voice just said was not there, and the gate
+     holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
+     value: an extension may say which of the consumer's 27 colours a surface takes, and may not
+     author one.
+   */
+  --fill-surface:var(--color-base-200);
+  /*
+     The fill of a surface that floats over the page: a menu, a dialog, a toast, a
+     sheet, a command palette, a bulk action bar. The same step as fill-surface today and a different
+     question, which is the cut r-surface and r-surface-floating already make one tier up.
+     
+     This is the role that makes flattening the other one safe. A voice that takes a card down to the
+     page's own fill has said its regions are carried by air; a menu that did the same would be an
+     unreadable overlay, because a floating surface is separated from what it covers rather than
+     grouped against it. Split so a voice can answer the two one at a time.
+   */
+  --fill-surface-floating:var(--color-base-200);
 }
 :root{
   /*

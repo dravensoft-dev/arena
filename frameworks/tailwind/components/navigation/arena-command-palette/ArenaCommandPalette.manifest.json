@@ -2,7 +2,7 @@
   "component": "ArenaCommandPalette",
   "slots": {
     "root": "fixed inset-0 z-palette flex items-start justify-center pt-[12vh] bg-scrim backdrop-blur-scrim",
-    "panel": "w-140 max-w-[92vw] bg-base-200 border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep overflow-hidden",
+    "panel": "w-140 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep overflow-hidden",
     "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-base-300",
     "searchIcon": "text-base-content/62 text-[length:var(--icon-lg)]",
     "input": "flex-1 bg-transparent border-none outline-none text-base-content font-body text-ctl",
@@ -23,8 +23,12 @@
   "variants": {
     "open": {
       "true": {},
-      "false": { "root": "hidden" }
+      "false": {
+        "root": "hidden"
+      }
     }
   },
-  "defaultVariants": { "open": false }
+  "defaultVariants": {
+    "open": false
+  }
 }

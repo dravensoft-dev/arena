@@ -29,6 +29,16 @@
     "$value": "{r.xs}",
     "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
   },
+  "fill-surface": {
+    "$type": "color",
+    "$value": "{color.base-200}",
+    "$description": "The fill of a surface that belongs to the page: a card, a stat card, a table's\nframe, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a\nregion is told from the page by its edge and by its fill together.\n\nEmitted as a reference and not as a resolved colour, which is the one place the emitter departs\nfrom every other role: a radius resolved to 14px is right in both themes, and a colour resolved\nto a hex would freeze the dark palette into the light one. A role that names WHICH step is asked\nabout has to keep pointing at the step rather than at what the step happens to be.\n\nWhat it buys: a voice that groups by proximity draws nothing at all, and a fill is something\ndrawn. Without this role a card keeps a region the voice just said was not there, and the gate\nholding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a\nvalue: an extension may say which of the consumer's 27 colours a surface takes, and may not\nauthor one."
+  },
+  "fill-surface-floating": {
+    "$type": "color",
+    "$value": "{color.base-200}",
+    "$description": "The fill of a surface that floats over the page: a menu, a dialog, a toast, a\nsheet, a command palette, a bulk action bar. The same step as fill-surface today and a different\nquestion, which is the cut r-surface and r-surface-floating already make one tier up.\n\nThis is the role that makes flattening the other one safe. A voice that takes a card down to the\npage's own fill has said its regions are carried by air; a menu that did the same would be an\nunreadable overlay, because a floating surface is separated from what it covers rather than\ngrouped against it. Split so a voice can answer the two one at a time."
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw}",
