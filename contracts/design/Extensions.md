@@ -17,6 +17,14 @@ root or on any container, the way `.arena-compact` does. A published Arena ships
 consumer picks one. Arena authors them because Arena is the only party that can measure one
 against the floors before it goes out.
 
+**Shipping a voice is therefore two things rather than one, the partial and the OFFER**, and
+`bun run check:docs` holds the second: each layer's `PACKAGE.md` and the root `SKILL.md` must name
+every voice this build ships, and must name no `arena-` scope class the generated sheets do not
+answer to. Both directions were defects before they were rules. `editorial` shipped and reached
+none of the three, so for a release the CLI offered two voices and every document a consumer reads
+offered one; and a renamed voice leaves its old class behind in prose, where nothing else would
+ever look at it.
+
 ## The three tiers
 
 | Tier | Owns | Moved by |

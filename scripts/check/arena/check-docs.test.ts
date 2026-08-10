@@ -15,6 +15,7 @@ import {
   isConsumerDocument, BRANCH_SWITCH, branchSwitchProblems,
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
+  VOICE_PAGE_CLAIM, NOT_A_VOICE, scopeClassesNamed, voiceCatalogueProblems,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -604,4 +605,111 @@ test('finding no package page at all is a failure rather than a vacuous pass', (
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /empty walk is a failure/);
   rmSync(root, { recursive: true });
+});
+
+const SHIPPED_SCOPES = '.arena-light{--a:1px;}\n.arena-compact{--a:1px;}\n'
+  + '.arena-showcase{--a:1px;}\n.arena-editorial{--a:1px;}\n';
+
+function voiceTree(
+  pages: Record<string, string>,
+  { voices = ['showcase', 'editorial'], scopes = SHIPPED_SCOPES } = {},
+) {
+  return tree({
+    'contracts/design/roles.json': '{}',
+    ...Object.fromEntries(voices.map((n) => [`contracts/design/extension.${n}.json`, '{}'])),
+    'contracts/design-generated/palette.generated.css': ':root{--a:1px;}\n',
+    'contracts/design-generated/typography.generated.css': ':root{--a:1px;}\n',
+    'contracts/design-generated/spacing.generated.css': ':root{--a:1px;}\n',
+    'contracts/design-generated/effects.generated.css': scopes,
+    ...pages,
+  });
+}
+
+const ONE_PAGE = new Map([['PAGE.md', 'the page on the record for this fixture']]);
+
+test('a page offering every voice this build ships passes', () => {
+  const root = voiceTree({ 'PAGE.md': 'Put `.arena-showcase` or `.arena-editorial` on a root.\n' });
+  const { problems, scanned, voices } = voiceCatalogueProblems(root, ONE_PAGE, new Map());
+  assert.deepEqual(problems, []);
+  assert.equal(scanned, 1);
+  assert.deepEqual(voices, ['editorial', 'showcase']);
+  rmSync(root, { recursive: true });
+});
+
+test('a voice the build ships and the page never names fails, and the message carries the catalogue', () => {
+  const root = voiceTree({ 'PAGE.md': 'Put `.arena-showcase` on a root.\n' });
+  const { problems } = voiceCatalogueProblems(root, ONE_PAGE, new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /names no \.arena-editorial/);
+  assert.match(problems[0] ?? '', /\.arena-editorial, \.arena-showcase/);
+  rmSync(root, { recursive: true });
+});
+
+test('a page still offering a renamed voice fails, which is the defect a rename leaves behind', () => {
+  const root = voiceTree({
+    'PAGE.md': 'Put `.arena-showcase` or `.arena-editorial` on a root; `.arena-expressive` is older.\n',
+  });
+  const { problems } = voiceCatalogueProblems(root, ONE_PAGE, new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /offers \.arena-expressive/);
+  assert.match(problems[0] ?? '', /no such scope class/);
+  rmSync(root, { recursive: true });
+});
+
+test('the other axes are read out of the emitted sheets rather than excused, so a theme and a density pass', () => {
+  const root = voiceTree({
+    'PAGE.md': '<html class="arena-light arena-compact arena-showcase">\n`.arena-editorial` too.\n',
+  });
+  assert.deepEqual(voiceCatalogueProblems(root, ONE_PAGE, new Map()).problems, []);
+  rmSync(root, { recursive: true });
+});
+
+test('a class that is shipped and is not a scope class passes on the record, and a stale record fails', () => {
+  const page = 'Put `.arena-showcase` or `.arena-editorial` on a root, `.arena-stack` on a list.\n';
+  const excused = new Map([['arena-stack', 'a layout utility a consumer writes per element']]);
+
+  const kept = voiceTree({ 'PAGE.md': page });
+  assert.deepEqual(voiceCatalogueProblems(kept, ONE_PAGE, excused).problems, []);
+  rmSync(kept, { recursive: true });
+
+  const gone = voiceTree({ 'PAGE.md': 'Put `.arena-showcase` or `.arena-editorial` on a root.\n' });
+  const { problems } = voiceCatalogueProblems(gone, ONE_PAGE, excused);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /NOT_A_VOICE excuses \.arena-stack/);
+  rmSync(gone, { recursive: true });
+});
+
+test('a page on the record that is not there fails, and the failure carries why it was on the record', () => {
+  const root = voiceTree({});
+  const { problems, scanned } = voiceCatalogueProblems(root, ONE_PAGE, new Map());
+  assert.equal(scanned, 0);
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /the page on the record for this fixture/);
+  assert.match(problems[1] ?? '', /read no page on the record/);
+  rmSync(root, { recursive: true });
+});
+
+test('a build shipping no voice at all is a failure rather than an assertion passing over nothing', () => {
+  const root = voiceTree({ 'PAGE.md': 'no voices here\n' },
+    { voices: [], scopes: '.arena-light{--a:1px;}\n' });
+  const { problems } = voiceCatalogueProblems(root, ONE_PAGE, new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /found 0 extensions/);
+  rmSync(root, { recursive: true });
+});
+
+test('a scope class is read from a selector and from a class attribute, and a component BEM name is neither', () => {
+  assert.deepEqual([...scopeClassesNamed('`.arena-showcase` and `.arena-button__root`')], ['arena-showcase']);
+  assert.deepEqual([...scopeClassesNamed('<html class="arena-light arena-editorial">')],
+    ['arena-light', 'arena-editorial']);
+  assert.deepEqual([...scopeClassesNamed('<div className="arena-compact">')], ['arena-compact']);
+  assert.deepEqual([...scopeClassesNamed('write `.arena-<name>` for any of them')], []);
+});
+
+test('every page on the record carries a reason, because an entry with none cannot be judged stale', () => {
+  assert.ok(VOICE_PAGE_CLAIM.size > 0, 'an empty record holds no page to anything');
+  for (const [rel, why] of VOICE_PAGE_CLAIM)
+    assert.ok(why.length > 40, `${rel} is on the record with no reason worth reading: "${why}"`);
+  for (const [name, why] of NOT_A_VOICE)
+    assert.ok(why.length > 40, `${name} is excused with no reason worth reading: "${why}"`);
 });
