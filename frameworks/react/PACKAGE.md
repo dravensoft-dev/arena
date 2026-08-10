@@ -244,8 +244,16 @@ not that, a shop or a landing page, where the job is to invite rather than to sc
 ```
 
 `expressive` softens every corner, drops the border around a surface and lets elevation and air do
-the grouping instead, lifts a control under the pointer, and slows the response enough to read as
-one. Put the class on the root, or on any container to scope it to part of a page.
+the grouping instead, gives a surface more room inside it and more ground around it, lifts a
+control under the pointer, and slows the response enough to read as one. Put the class on the root,
+or on any container to scope it to part of a page.
+
+Its depth is paid for differently in each polarity, and that is deliberate rather than an
+inconsistency. A drop shadow is a darkening, so it separates a light card from a light page and
+does almost nothing between a dark card and a dark page; in dark the voice uses a lit top edge
+instead, which reads because it is light on dark. You get the right one for the palette you are
+in, and if you select the extension in `arena.config.json` you get it per palette without writing
+a class.
 
 It composes with everything else, because the three things change different values: a palette
 class carries colour, a density class carries how large the controls are, and an extension carries

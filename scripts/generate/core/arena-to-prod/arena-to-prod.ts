@@ -14,7 +14,8 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSy
 import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, relative, resolve, sep } from 'node:path';
 import { configProblems, paletteReports, themeCss } from './theme-css.ts';
-import type { ArenaConfig, PackageSheets } from './theme-css.ts';
+import type { ArenaConfig, PackageSheets, ShippedExtension } from './theme-css.ts';
+import { POLARITIES } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawn, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
@@ -133,17 +134,58 @@ export function hostPackageName(root: string) {
 
 export const SHEET_IMPORT = /@import\s+'\.\/([^']+)';/g;
 
-export const EXTENSION_BLOCK = /\.arena-([a-z][a-z0-9-]*)\s*\{([^}]*)\}/g;
+export const CSS_BLOCK = /([^{}]+)\{([^}]*)\}/g;
 
-export function packageExtensions(root: string): Record<string, string[]> {
-  let css: string;
-  try { css = readFileSync(join(root, 'css', 'effects.css'), 'utf8'); } catch { return {}; }
-  const out: Record<string, string[]> = {};
-  for (const m of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(EXTENSION_BLOCK)) {
-    const declarations = (m[2] ?? '').split(';').map((d) => d.trim()).filter(Boolean).map((d) => `${d};`);
-    if (declarations.length) out[m[1] ?? ''] = declarations;
+export const EXTENSION_SELECTOR = /^\.arena-([a-z][a-z0-9-]*)$/;
+
+export const REFERENCE_DECLARATION = /^--[\w-]+:\s*var\(--color-[\w-]+\)$/;
+
+const declarationsIn = (body: string) =>
+  body.split(';').map((d) => d.trim()).filter(Boolean).map((d) => `${d};`);
+
+const blocksIn = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(CSS_BLOCK)]
+  .map((m) => ({ selector: (m[1] ?? '').trim(), declarations: declarationsIn(m[2] ?? '') }))
+  .filter((b) => b.declarations.length);
+
+function effectsCss(root: string) {
+  try { return readFileSync(join(root, 'css', 'effects.css'), 'utf8'); } catch { return null; }
+}
+
+export function polarityOf(selector: string, name: string, polarities: readonly string[]) {
+  const clauses = selector.split(',').map((c) => c.trim()).filter(Boolean);
+  const has = (clause: string, cls: string) => new RegExp(`\\.arena-${cls}(?![\\w-])`).test(clause);
+  for (const polarity of polarities) {
+    if (clauses.every((c) => has(c, name) && has(c, polarity))) return polarity;
+  }
+  return null;
+}
+
+export function packageExtensions(root: string, polarities: readonly string[] = POLARITIES) {
+  const css = effectsCss(root);
+  if (css === null) return {};
+  const blocks = blocksIn(css);
+  const out: Record<string, ShippedExtension> = {};
+  for (const { selector, declarations } of blocks) {
+    const name = EXTENSION_SELECTOR.exec(selector)?.[1];
+    if (name && !polarities.includes(name)) out[name] = { base: declarations, byPolarity: {} };
+  }
+  for (const { selector, declarations } of blocks) {
+    for (const name of Object.keys(out)) {
+      const polarity = polarityOf(selector, name, polarities);
+      const shipped = out[name];
+      if (polarity && shipped) shipped.byPolarity[polarity] = declarations;
+    }
   }
   return out;
+}
+
+export function packageRoleReferences(root: string): string[] {
+  const css = effectsCss(root);
+  if (css === null) return [];
+  return blocksIn(css)
+    .filter((b) => b.selector === ':root')
+    .flatMap((b) => b.declarations)
+    .filter((d) => REFERENCE_DECLARATION.test(d.replace(/;$/, '')));
 }
 
 export function packageSheets(root: string): PackageSheets {
@@ -155,7 +197,7 @@ export function packageSheets(root: string): PackageSheets {
       .map((name) => basename(name, '.css'))
       .sort();
     return layers.length && components.length
-      ? { layers, components, extensions: packageExtensions(root) }
+      ? { layers, components, extensions: packageExtensions(root), roleReferences: packageRoleReferences(root) }
       : null;
   } catch {
     return null;

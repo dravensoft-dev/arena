@@ -253,7 +253,9 @@ test('without the shipped sheets a name can be held to nothing, so the run stops
 const SHEETS_WITH_EXT = {
   layers: ['css/reset.css'],
   components: ['button'],
-  extensions: { expressive: ['--r-surface:22px;', '--bw-surface:0px;'] },
+  extensions: { expressive: { base: ['--r-surface:22px;', '--bw-surface:0px;'],
+    byPolarity: { light: ['--shadow-surface-rest:DROP;'] } } },
+  roleReferences: ['--fill-surface:var(--color-base-200);'],
 };
 
 test('the extension field is optional, and a config without one asks for no extension', () => {
@@ -303,4 +305,34 @@ test('no extension means nothing extra reaches :root', () => {
 test('"none" emits nothing, the same as omitting the field', () => {
   const css = themeCss(config({ extension: 'none' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
   assert.ok(!css.includes('--r-surface'));
+});
+
+test('a voice that answers a polarity reaches the palette of that polarity, not only the default one', () => {
+  const css = themeCss(config({
+    extension: 'expressive',
+    palettes: [
+      { name: 'night', default: true, polarity: 'dark', colors: colors() },
+      { name: 'day', polarity: 'light', colors: colors() },
+    ],
+  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+
+  const dayBlock = css.slice(css.indexOf('.arena-day'));
+  assert.match(dayBlock, /--shadow-surface-rest:DROP;/,
+    'the light half of the voice never reached the light palette, so a consumer would take the dark '
+    + 'answer in their light theme -- the defect the theme group exists to remove');
+  assert.doesNotMatch(css.slice(0, css.indexOf('.arena-day')), /--shadow-surface-rest:DROP;/,
+    'the light half reached :root, where the dark palette would take it too');
+});
+
+test('a colour reference is restated inside every palette, because a var() computes where it is declared', () => {
+  const css = themeCss(config({
+    palettes: [
+      { name: 'night', default: true, polarity: 'dark', colors: colors() },
+      { name: 'day', polarity: 'light', colors: colors() },
+    ],
+  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+
+  assert.match(css.slice(css.indexOf('.arena-day')), /--fill-surface:var\(--color-base-200\);/,
+    'left on :root alone the role computes against the default palette and inherits that colour '
+    + 'into every other one, so a second palette keeps the first one\'s card fill');
 });

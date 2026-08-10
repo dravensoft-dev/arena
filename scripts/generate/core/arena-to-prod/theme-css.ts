@@ -14,7 +14,14 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 
-export type CheckedSheets = { layers: string[]; components: string[]; extensions?: Record<string, string[]> };
+export type ShippedExtension = { base: string[]; byPolarity: Record<string, string[]> };
+
+export type CheckedSheets = {
+  layers: string[];
+  components: string[];
+  extensions?: Record<string, ShippedExtension>;
+  roleReferences?: string[];
+};
 
 export type PackageSheets = CheckedSheets | null;
 
@@ -342,13 +349,15 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
 
   const chosen = typeof config.extension === 'string' && config.extension !== NO_EXTENSION
     ? sheets?.extensions?.[config.extension] : undefined;
-  if (chosen) parts.push(block(':root', [...chosen]));
+  if (chosen) parts.push(block(':root', [...chosen.base, ...(chosen.byPolarity[fallback.polarity] ?? [])]));
 
   for (const palette of config.palettes) {
     if (palette === fallback) continue;
     parts.push(block(`.arena-${palette.name}`, [
       ...colourDeclarations(palette),
       `--picker-invert:${palette.polarity === 'light' ? 0 : 1};`,
+      ...(sheets?.roleReferences ?? []),
+      ...(chosen?.byPolarity[palette.polarity] ?? []),
     ]));
   }
 

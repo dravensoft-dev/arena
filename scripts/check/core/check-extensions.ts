@@ -18,6 +18,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
+import { POLARITIES } from '../../generate/core/arena-to-prod/palette-keys.ts';
 
 const EFFECTS = 'contracts/design-generated/effects.generated.css';
 
@@ -185,6 +186,13 @@ export function extensionProblems(
       `${at}: "${RESERVED_NAME}" is how a consumer says it wants no extension, so an extension `
       + `answering to that name could never be selected`,
     );
+  if (POLARITIES.includes(name))
+    problems.push(
+      `${at}: "${name}" is a theme polarity, and .arena-${name} is already the class a palette of `
+      + `that polarity answers to. An extension named after one would be indistinguishable from the `
+      + `theme's own scope, both to the cascade and to the consumer CLI reading the catalogue out of `
+      + `the shipped CSS.`,
+    );
   if (!KEBAB.test(name))
     problems.push(`${at}: "${name}" is not kebab-case, and the name becomes the class .arena-${name}`);
   const moved = movedTokens(tokens);
@@ -279,8 +287,9 @@ function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-extensions: ${files.length} extension(s), each moving roles only, each emitted under its own class, `
-    + `and each grouping by a mechanism no other one claims`);
+  console.log(`check-extensions: ${files.length} extension(s), each moving roles, fs steps and rhythm steps only, `
+    + `each emitted under its own class, and each grouping by a mechanism no other one claims, `
+    + `measured in ${SCOPES.length} scope(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();

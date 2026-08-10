@@ -9,7 +9,8 @@ import {
   relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
   COMPONENT_MAP, OUTPUT_SHEETS,
 } from './arena-to-prod.ts';
-import { PALETTE_KEYS } from './palette-keys.ts';
+import { PALETTE_KEYS, POLARITIES } from './palette-keys.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import type { ComponentMap } from './components.ts';
 import type { Environment, ThemeEnvironment } from './arena-to-prod.ts';
 
@@ -444,6 +445,7 @@ test('the sheets a package ships are read from beside the command, so no copy of
     layers: ['css/reset.css', 'css/components.css'],
     components: ['button', 'table'],
     extensions: {},
+    roleReferences: [],
   });
   rmSync(root, { recursive: true });
 });
@@ -566,7 +568,7 @@ test('the extensions a package ships are read out of the effects sheet, so no li
   writeFileSync(join(root, 'css', 'effects.css'),
     ':root{\n  --r-surface:14px;\n}\n\n.arena-expressive{\n  /* a reason */\n  --r-surface:22px;\n  --bw-surface:0px;\n}\n');
   assert.deepEqual(packageSheets(root)?.extensions, {
-    expressive: ['--r-surface:22px;', '--bw-surface:0px;'],
+    expressive: { base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
   });
   rmSync(root, { recursive: true });
 });
@@ -597,4 +599,57 @@ test('a consumer file that merely ends in .generated.css is still a source, sinc
 
 test('the skipped names are exactly what the command writes, derived rather than restated', () => {
   assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, THEME_SHEET].sort());
+});
+
+test('a theme-scoped block is the extension it names, never an extension called after the polarity', () => {
+  const root = installed("@import './css/effects.css';\n", ['button']);
+  mkdirSync(join(root, 'css'), { recursive: true });
+  writeFileSync(join(root, 'css', 'effects.css'),
+    ':root{\n  --fill-surface:var(--color-base-200);\n}\n'
+    + '.arena-light{\n  --fill-surface:var(--color-base-200);\n}\n'
+    + '.arena-showcase{\n  --bw-surface:0px;\n}\n'
+    + '.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{\n'
+    + '  --shadow-surface-rest:DROP;\n}\n');
+  const shipped = packageSheets(root)?.extensions ?? {};
+  assert.deepEqual(Object.keys(shipped), ['showcase'],
+    'a bare .arena-light block is the theme restating its own roles, and a descendant selector is '
+    + 'a voice scoped to a polarity; reading either as an extension offers a consumer a voice nobody wrote');
+  assert.deepEqual(shipped.showcase, {
+    base: ['--bw-surface:0px;'],
+    byPolarity: { light: ['--shadow-surface-rest:DROP;'] },
+  });
+  rmSync(root, { recursive: true });
+});
+
+test('a colour reference is read off :root, because a consumer palette has to restate it', () => {
+  const root = installed("@import './css/effects.css';\n", ['button']);
+  mkdirSync(join(root, 'css'), { recursive: true });
+  writeFileSync(join(root, 'css', 'effects.css'),
+    ':root{\n  --fill-surface:var(--color-base-200);\n  --r-surface:14px;\n  --scrim:rgba(0,0,0,.5);\n}\n');
+  assert.deepEqual(packageSheets(root)?.roleReferences, ['--fill-surface:var(--color-base-200);'],
+    'a resolved length and a literal colour are not references and must not be restated');
+  rmSync(root, { recursive: true });
+});
+
+test('the shipped discovery is run against the CSS this build actually emits, not only a fixture', () => {
+  const root = installed("@import './css/effects.css';\n", ['button']);
+  mkdirSync(join(root, 'css'), { recursive: true });
+  writeFileSync(join(root, 'css', 'effects.css'),
+    readFileSync(join(repoRoot, 'contracts/design-generated/effects.generated.css'), 'utf8'));
+
+  const shipped = packageSheets(root)?.extensions ?? {};
+  const names = Object.keys(shipped).sort();
+  assert.ok(names.length > 0, 'found 0 extensions in the real sheet -- an empty result is a failure, not a pass');
+  for (const polarity of POLARITIES) {
+    assert.ok(!names.includes(polarity),
+      `discovery offered a voice called ${polarity}, which is a theme scope rather than an extension`);
+  }
+  for (const [name, { base, byPolarity }] of Object.entries(shipped)) {
+    assert.ok(base.length > 0, `${name} ships an empty base block`);
+    for (const [polarity, declarations] of Object.entries(byPolarity)) {
+      assert.ok(POLARITIES.includes(polarity), `${name} carries a scope called ${polarity}`);
+      assert.ok(declarations.length > 0, `${name} ships an empty ${polarity} block`);
+    }
+  }
+  rmSync(root, { recursive: true });
 });
