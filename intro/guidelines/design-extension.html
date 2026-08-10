@@ -20,7 +20,8 @@
   .stack{display:flex;flex-direction:column;gap:var(--rhythm-component)}
   .row{display:flex;gap:var(--sp-3);align-items:flex-end}
   .row .arena-input__root{flex:1}
-  .prose{font-size:var(--fs-md);color:var(--text-body);margin:0}
+  /* Read from the role, not set here, so a voice that opens its paragraphs shows it. */
+  .prose{font-size:var(--fs-md);line-height:var(--lh-prose);color:var(--text-body);margin:0}
 </style>
 </head><body>
 <div class="grid" id="grid"></div>

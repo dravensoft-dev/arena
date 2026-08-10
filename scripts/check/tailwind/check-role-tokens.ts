@@ -36,6 +36,9 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
   ['p-5', 'p-surface, when the slot is the room a surface gives its own content'],
   ['px-5', 'px-surface, for the same reason'],
+  ['font-extrabold', 'font-heading, when the slot IS a heading in the display face'],
+  ['tracking-tight', 'tracking-heading, for the same reason'],
+  ['leading-body', 'leading-prose, when the slot is text somebody reads'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -54,6 +57,9 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSheet:head:px-5', 'a sheet is pinned to the viewport edge, so its padding is a fit constraint rather than a statement about air. A voice with a lever here could push its content off the screen, which is why the floating tier has no padding role'],
   ['ArenaSheet:body:px-5', 'the same sheet, the same constraint'],
   ['ArenaSheet:foot:px-5', 'the same sheet, the same constraint'],
+  ['ArenaAvatar:box:font-extrabold', 'a monogram rather than a heading: two letters standing in for a face, weighted to read at 12px inside a circle. A voice that lightened its headings has said nothing about initials'],
+  ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no voice'],
+  ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading voice would reflow a form field under somebody mid-sentence'],
   ['ArenaOnboarding:panel:p-5', 'a coachmark is pinned to the element it points at and sized against the viewport in JS, so its padding is a fit constraint for the same reason a sheet\'s is'],
 ]);
 

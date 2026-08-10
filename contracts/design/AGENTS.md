@@ -122,6 +122,7 @@ Two of these numbers the scripts **report without gating**: crimson as text sits
 | An extension authors no colour | Which of the skin's colours a surface takes: `fill-surface` and `fill-surface-floating`, split so flattening a card never flattens an overlay | |
 | Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
 | | Air: `pad-surface` inside a surface, and the `rhythm` steps between two things. Density keeps the controls and the data rows, so the two compose | |
+| Prose leading never closes below 1.5, which is WCAG 1.4.8 and what `lh-root` already is | A heading's weight and tracking, and how far above the floor prose is set | |
 | The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | |
 | The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
 | The three families, and the uppercase-microlabel rule | | |

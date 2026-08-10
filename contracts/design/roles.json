@@ -29,6 +29,26 @@
     "$value": "{r.xs}",
     "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
   },
+  "fw-heading": {
+    "$type": "fontWeight",
+    "$value": "{fw.extrabold}",
+    "$description": "The weight of a heading set in the display face: a card's title, a dialog's title, a\npage head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold\nis 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be\nanswered differently by one voice than by another.\n\nIt matters most to a voice that draws nothing. Once the boxes are gone, the distance between a\nheading and the text under it IS the hierarchy, and weight is half of that distance."
+  },
+  "ls-heading": {
+    "$type": "number",
+    "$value": "{ls.tight}",
+    "$description": "The tracking of a heading in the display face. Authored as the tight step because\nthat is what most title slots already reached for; the five that reached for nothing were the\ninconsistency this role removes rather than a decision anybody made.\n\nSeparate from ls-label and the other ls steps, which are named by the thing that uses them and\nare already role-shaped: a heading is the one use an extension has a reason to re-answer.\n\nCarries cssUnit em like every ls step it stands beside: ls is authored unitless so JS can read it, and\nletter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid\nletter-spacing and silently resolves to normal.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "lh-prose": {
+    "$type": "number",
+    "$value": "{lh.body}",
+    "$description": "The leading of text somebody reads: a dialog's body, an empty state's message, a\npage head's subtitle, a hint under a field. lh-root's own description already calls the three\nsteps below it roles rather than scale, and this names the one an extension has a reason to move.\n\nIt is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21\nspells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is\nset to. A voice may\nopen a paragraph up and may never close it below that, and check:extensions measures the resolved\nvalue in every scope rather than trusting the author.\n\nNote what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it\ndoes not. It requires that content survive a USER overriding spacing to those values without being\nclipped or lost, which is a property of the layout and not of a token, and no gate over this file\ncould hold it."
+  },
   "pad-surface": {
     "$type": "dimension",
     "$value": "{sp.5}",

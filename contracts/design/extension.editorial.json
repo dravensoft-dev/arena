@@ -22,6 +22,16 @@
     "$value": "{sp.0}",
     "$description": "A surface with no line, no depth and no fill has no inside, so it has no room to\ngive: its content sits on the page directly and lines up with everything else that does. Padding\nhere would be an indent nobody asked for, and an indent is a weak enclosure, which is the thing\nthis voice spent its other three decisions removing.\n\nThe floating tier has no padding role at all, which is what keeps a dialog from collapsing onto\nits own edges when this value goes to zero."
   },
+  "fw-heading": {
+    "$type": "fontWeight",
+    "$value": "{fw.black}",
+    "$description": "Once the boxes are gone the type IS the hierarchy, so a heading has to be told\nfrom the text under it by weight alone. 800 to 900, which is the last step the display face has\nand the one the wordmark already uses, so nothing here is a value Arena did not already carry."
+  },
+  "lh-prose": {
+    "$type": "number",
+    "$value": "{lh.loose}",
+    "$description": "1.6 to 1.8, which is the other half of the same decision. A voice that grouped by\ndistance between blocks and then set its paragraphs tight would be arguing with itself: the air\nbetween lines is the same claim as the air between sections, made at the scale of the sentence.\n\nWell above the 1.5 floor WCAG 1.4.8 asks and check:extensions holds. The floor is a minimum, and\nthis voice is the one with a reason to sit far from it."
+  },
   "rhythm-group": {
     "$type": "dimension",
     "$value": "{sp.2}",

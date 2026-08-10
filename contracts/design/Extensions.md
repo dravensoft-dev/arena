@@ -22,7 +22,7 @@ against the floors before it goes out.
 | Tier | Owns | Moved by |
 |---|---|---|
 | Floor | WCAG contrast, the non-text contrast of a control's boundary and of the focus ring, focus appearance, target size, the reduced-motion policy, danger recognisable without colour | Nobody |
-| Extension | The grouping signal, the radius roles, the border roles, the surface FILL roles as an assignment, resting and raised depth, the air a surface gives its content and the air between two things, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
+| Extension | The grouping signal, the radius roles, the border roles, the surface FILL roles as an assignment, resting and raised depth, the air a surface gives its content and the air between two things, a heading's weight and tracking, the leading of prose above its floor, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
 | Skin | The 27 palette colours and the three font roles | The consumer, in `arena.config.json` |
 
 An extension may not lower a floor. `bun run check:boundary-contrast` is the one floor this
@@ -84,6 +84,26 @@ neither. `fs` is the single family outside the role tier an extension may reach,
 are already roles with names rather than an anonymous ladder: re-valuing `fs-display` drags no
 unrelated use with it the way re-valuing `r-lg` would, and the hierarchy ratio is half of what
 separates a landing page from a panel.
+
+**An extension may give a heading a character, and the reading floor is a floor.** `fw-heading`,
+`ls-heading` and `lh-prose` are roles for the same reason `pad-surface` is: `fw` is named by value,
+so extrabold is 800 whoever asked for it, and only a question can be re-answered. They matter most
+to a voice that draws nothing, because once the boxes are gone the distance between a heading and
+the text under it IS the hierarchy.
+
+`lh-prose` is floored at 1.5 and `check:extensions` measures the resolved value in every scope. The
+citation matters, and this plan got it wrong once: **WCAG 1.4.12 does not require a line height of
+1.5.** It requires that content survive a USER overriding spacing to 1.5 line height, 2x paragraph
+spacing, 0.12em letter spacing and 0.16em word spacing without being clipped or lost, which is a
+property of the layout and which no gate over a token file could hold. The criterion that asks an
+author for 1.5 line spacing within a paragraph is **1.4.8 Visual Presentation**, at AAA, and
+technique C21 spells it out on the body element. Arena's own `lh-root` is already set to exactly
+that, so the floor holds a claim the repository was already making.
+
+A reading voice wants one more thing that Arena cannot give it yet: a prose measure. It is refused
+rather than missing. A measure that does not track the font size is not a measure, so it wants `ch`
+units, and DTCG 2025.10 admits `px` and `rem` only. Widening that would trade a conformance claim
+for one token, and the two components that set a measure today do it with an arbitrary literal.
 
 **An extension raises what shouts and never moves what is read.** `expressive` lifts `fs-h1`,
 `fs-display` and `fs-hero` and leaves everything from `fs-h2` down exactly where it was. How large

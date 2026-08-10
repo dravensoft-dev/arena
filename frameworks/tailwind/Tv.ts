@@ -44,13 +44,13 @@ const handWritten: Record<string, ClassGroupEntries[]> = {
   'font-size': [{ text: ['mega', 'hero', 'display', 'h1', 'h2', 'h3', 'h4', 'ctl-lg', 'ctl', 'ctl-md', 'ctl-sm', 'ctl-xs', 'ctl-2xs', 'logo-sm', 'logo-md', 'logo-lg', 'logo-xl'] }],
   rounded: [{ rounded: ['pill', 'surface', 'surface-floating', 'control', 'control-sm', 'field', 'marker'] }],
   z: [{ z: ['nav', 'sheet', 'dropdown', 'tooltip', 'modal', 'modal-nested', 'palette', 'onboarding', 'toast'] }],
-  tracking: [{ tracking: ['label', 'field-label', 'column-header', 'badge', 'uppercase-status', 'mono-nav'] }],
-  leading: [{ leading: ['body', 'ctl'] }],
+  tracking: [{ tracking: ['label', 'field-label', 'column-header', 'badge', 'uppercase-status', 'mono-nav', 'heading'] }],
+  leading: [{ leading: ['body', 'ctl', 'loose', 'prose'] }],
   blur: [{ blur: ['scrim'] }],
   size: [{ size: ['icon-sm', 'icon-md', 'icon-lg', 'icon-xl', 'avatar-xs', 'avatar-sm', 'avatar-md', 'avatar-lg', 'logo-mark-sm', 'logo-mark-md', 'logo-mark-lg', 'logo-mark-xl'] }],
   ease: [{ ease: ['emphatic'] }],
   'max-w': [{ 'max-w': ['page'] }],
-  'font-weight': [{ font: ['regular'] }],
+  'font-weight': [{ font: ['regular', 'heading'] }],
 };
 
 const classGroups: Record<string, ClassGroupEntries[]> = { ...handWritten };

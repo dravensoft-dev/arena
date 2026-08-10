@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   extensionName, extensionProblems, declarationProblems, zeroExtensionProblem, collect,
-  fillsLikeThePage, groupingOf, isZeroLength, movedTokens, paintsNothing, principleProblems,
+  fillsLikeThePage, floorProblems, groupingOf, isZeroLength, movedTokens, paintsNothing,
+  principleProblems,
   proximityRatio, resolvedFor, sharedPrincipleProblems,
 } from './check-extensions.ts';
 
@@ -250,4 +251,12 @@ test('a fill counts as the page only when it references the page colour, never w
   assert.ok(!fillsLikeThePage(new Map([['fill-surface', 'var(--color-base-200)']])));
   assert.ok(!fillsLikeThePage(new Map([['fill-surface', '#141010']])));
   assert.ok(!fillsLikeThePage(new Map()));
+});
+
+test('the reading floor is measured, not trusted, and a voice may sit far above it', () => {
+  assert.deepEqual(floorProblems(new Map([['lh-prose', '1.8']]), 'dark', 'x'), []);
+  assert.deepEqual(floorProblems(new Map([['lh-prose', '1.5']]), 'dark', 'x'), []);
+  assert.match(floorProblems(new Map([['lh-prose', '1.15']]), 'dark', 'x')[0] ?? '',
+    /--lh-prose is 1\.15 in dark, under the 1\.5/);
+  assert.match(floorProblems(new Map(), 'light', 'x')[0] ?? '', /does not resolve to a number in light/);
 });

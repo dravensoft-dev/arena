@@ -3,14 +3,20 @@
   "slots": {
     "root": "flex justify-between gap-4",
     "titles": "min-w-0",
-    "title": "font-display font-extrabold text-h1 leading-snug tracking-tight text-base-content m-0",
-    "subtitle": "font-body text-sm text-base-content/62 leading-body mt-0.5 mb-0",
+    "title": "font-display font-heading text-h1 leading-snug tracking-heading text-base-content m-0",
+    "subtitle": "font-body text-sm text-base-content/62 leading-prose mt-0.5 mb-0",
     "actions": "flex items-center flex-wrap gap-2 shrink-0"
   },
   "variants": {
     "narrow": {
-      "true": { "root": "flex-col items-stretch", "actions": "w-full" },
-      "false": { "root": "flex-row", "actions": "w-auto" }
+      "true": {
+        "root": "flex-col items-stretch",
+        "actions": "w-full"
+      },
+      "false": {
+        "root": "flex-row",
+        "actions": "w-auto"
+      }
     },
     "align": {
       "start": {},
@@ -18,8 +24,23 @@
     }
   },
   "compoundVariants": [
-    { "narrow": false, "align": "start", "class": { "root": "items-start" } },
-    { "narrow": false, "align": "center", "class": { "root": "items-center" } }
+    {
+      "narrow": false,
+      "align": "start",
+      "class": {
+        "root": "items-start"
+      }
+    },
+    {
+      "narrow": false,
+      "align": "center",
+      "class": {
+        "root": "items-center"
+      }
+    }
   ],
-  "defaultVariants": { "narrow": false, "align": "start" }
+  "defaultVariants": {
+    "narrow": false,
+    "align": "start"
+  }
 }

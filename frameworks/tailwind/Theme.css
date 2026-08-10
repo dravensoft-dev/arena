@@ -132,10 +132,18 @@
   --font-weight-extrabold: var(--fw-extrabold);
   --font-weight-black: var(--fw-black);
 
+  /* The weight a heading is set at, as a role: fw is named by value and cannot be re-answered,
+     and a voice that carries its hierarchy in type rather than in boxes has to be able to. */
+  --font-weight-heading: var(--fw-heading);
+
   --leading-*: initial;
   --leading-tight: var(--lh-tight);
   --leading-snug: var(--lh-snug);
   --leading-body: var(--lh-body);
+  --leading-loose: var(--lh-loose);
+
+  /* The leading of text somebody reads, as a role. Floored at 1.5 by check:extensions. */
+  --leading-prose: var(--lh-prose);
 
   /* `ctl` infix for the same reason dz's font-size scale takes one above:
      the natural --leading-none key is a Tailwind stock name, and dz's
@@ -146,6 +154,9 @@
 
   --tracking-*: initial;
   --tracking-tight: var(--ls-tight);
+
+  /* The tracking of a heading, as a role beside the ls steps that are already named by use. */
+  --tracking-heading: var(--ls-heading);
   --tracking-normal: var(--ls-normal);
   --tracking-mono-nav: var(--ls-mono-nav);
   --tracking-uppercase-status: var(--ls-uppercase-status);

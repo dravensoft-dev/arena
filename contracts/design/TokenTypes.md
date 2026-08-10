@@ -46,7 +46,14 @@ values; do not re-derive them.
   so the two representations cannot drift.
 - Every `dimension` and `duration` is `{ "value": N, "unit": "px" | "ms" }`, and the
   unit is required even when `N` is 0.
-- `number`, `fontWeight` values are bare numbers; `cubicBezier` is an array of 4.
+- `number`, `fontWeight` values are bare numbers; `cubicBezier` is an array of 4. A `number` that
+  becomes a CSS length carries `$extensions["com.dravensoft.arena"].cssUnit`, which is how every
+  `ls` step emits `em`. A tracking token that forgets it emits a bare number, which is not a valid
+  `letter-spacing` and resolves silently to `normal`, so the page looks like a design that chose no
+  tracking rather than like a broken one. A test beside the theme namespaces holds it.
+- A `$description` is prose, and Style Dictionary still reads `{...}` in it as a token reference.
+  Writing a CSS snippet with braces into one fails the build with a broken-reference error that
+  names the description rather than the snippet.
 - A `shadow` may carry `"inset": true`, which 2025.10 §9.6 defines as the way to spell an inner
   shadow, and which serialises to CSS's leading `inset` keyword. Arena uses it for exactly one
   thing: a rim light, the lit top edge that pays for figure and ground in dark, where a drop shadow

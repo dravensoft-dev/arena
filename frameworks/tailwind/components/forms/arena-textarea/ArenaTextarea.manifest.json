@@ -13,21 +13,38 @@
   },
   "variants": {
     "state": {
-      "neutral": { "field": "border-base-300 focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16" },
-      "error": { "field": "border-error ring-[length:var(--focus-width)] ring-error/14" }
+      "neutral": {
+        "field": "border-base-300 focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
+      },
+      "error": {
+        "field": "border-error ring-[length:var(--focus-width)] ring-error/14"
+      }
     },
     "resize": {
-      "vertical": { "field": "resize-y" },
-      "none": { "field": "resize-none" }
+      "vertical": {
+        "field": "resize-y"
+      },
+      "none": {
+        "field": "resize-none"
+      }
     },
     "disabled": {
-      "true": { "root": "opacity-50" },
+      "true": {
+        "root": "opacity-50"
+      },
       "false": {}
     },
     "readonly": {
-      "true": { "field": "bg-base-200 cursor-default" },
+      "true": {
+        "field": "bg-base-200 cursor-default"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "state": "neutral", "resize": "vertical", "disabled": false, "readonly": false }
+  "defaultVariants": {
+    "state": "neutral",
+    "resize": "vertical",
+    "disabled": false,
+    "readonly": false
+  }
 }

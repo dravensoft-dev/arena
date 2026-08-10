@@ -5,7 +5,7 @@
     "icon": "shrink-0 text-[length:var(--icon-lg)] leading-ctl",
     "body": "flex-1",
     "title": "font-body font-semibold text-ctl text-base-content",
-    "message": "font-body text-sm text-base-content/82 leading-body",
+    "message": "font-body text-sm text-base-content/82 leading-prose",
     "action": "mt-2.5 bg-transparent border-none p-0 cursor-pointer font-mono text-ctl-sm font-bold tracking-uppercase-status uppercase",
     "close": "inline-flex items-center bg-transparent border-none cursor-pointer text-base-content/62 text-[length:var(--icon-md)] leading-ctl"
   },

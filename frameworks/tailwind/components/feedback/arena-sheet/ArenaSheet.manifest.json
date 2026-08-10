@@ -3,10 +3,10 @@
   "slots": {
     "root": "fixed z-sheet flex flex-col bg-surface-floating border-[length:var(--bw-surface)] border-neutral shadow-surface-deep overflow-hidden",
     "head": "flex items-center gap-3 px-5 py-4 border-b-[length:var(--bw-separator)] border-base-300",
-    "trigger": "flex flex-1 items-center gap-2 bg-transparent border-none p-0 cursor-pointer text-left font-display font-extrabold text-h3 text-base-content tracking-tight transition-[color] duration-[var(--dur-hover)] ease-out hover:text-base-content/82 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+    "trigger": "flex flex-1 items-center gap-2 bg-transparent border-none p-0 cursor-pointer text-left font-display font-heading text-h3 text-base-content tracking-heading transition-[color] duration-[var(--dur-hover)] ease-out hover:text-base-content/82 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
     "caret": "shrink-0 text-[length:var(--icon-md)] leading-ctl text-base-content/62",
     "close": "inline-flex items-center shrink-0 bg-transparent border-none cursor-pointer text-base-content/62 text-[length:var(--icon-md)] leading-ctl transition-[color] duration-[var(--dur-hover)] ease-out hover:text-base-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-    "body": "flex-1 overflow-y-auto px-5 py-4 font-body text-md leading-body text-base-content/82",
+    "body": "flex-1 overflow-y-auto px-5 py-4 font-body text-md leading-prose text-base-content/82",
     "foot": "flex flex-wrap justify-end gap-2.5 px-5 py-4 border-t-[length:var(--bw-separator)] border-base-300"
   },
   "variants": {

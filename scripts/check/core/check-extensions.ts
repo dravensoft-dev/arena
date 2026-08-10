@@ -67,6 +67,19 @@ export const PAGE_FILL = 'color-base-100';
 
 export const MIN_PROXIMITY_RATIO = 4;
 
+export const MIN_PROSE_LEADING = 1.5;
+
+export function floorProblems(at: Map<string, string>, scope: string, where: string) {
+  const leading = Number.parseFloat(at.get('lh-prose') ?? '');
+  if (!Number.isFinite(leading))
+    return [`${where}: --lh-prose does not resolve to a number in ${scope}, so the reading floor cannot be measured`];
+  if (leading < MIN_PROSE_LEADING)
+    return [`${where}: --lh-prose is ${leading} in ${scope}, under the ${MIN_PROSE_LEADING} WCAG 1.4.8 asks of `
+      + `line spacing within a paragraph. A voice may open a paragraph up and may never close it below the `
+      + `floor every element already inherits from --lh-root.`];
+  return [];
+}
+
 const REFERENCE = /^var\(\s*--([\w-]+)\s*\)$/;
 
 export const fillsLikeThePage = (at: Map<string, string>) =>
@@ -296,7 +309,11 @@ export function collect(dir = DESIGN_DIR, effects?: string) {
     problems.push(...extensionProblems(name, tokens, roles));
     problems.push(...principleProblems(name, declared,
       new Map(SCOPES.map((scope) => [scope, resolvedFor(css, name, scope)]))));
+    for (const scope of SCOPES)
+      problems.push(...floorProblems(resolvedFor(css, name, scope), scope, `extension.${name}.json`));
   }
+  for (const scope of SCOPES)
+    problems.push(...floorProblems(resolvedFor(css, '', scope), scope, 'contracts/design/roles.json'));
   problems.push(...sharedPrincipleProblems(declaredBy));
   problems.push(...declarationProblems(files.map(extensionName)));
   return problems;

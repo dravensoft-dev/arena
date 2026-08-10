@@ -7,18 +7,29 @@
     "dot": "size-2.5 rounded-pill bg-primary",
     "text": "flex flex-col gap-0.5",
     "label": "font-body text-ctl text-base-content/82 leading-snug",
-    "hint": "font-body text-ctl-sm text-base-content/62 leading-body",
+    "hint": "font-body text-ctl-sm text-base-content/62 leading-prose",
     "input": "absolute opacity-0 size-0"
   },
   "variants": {
     "checked": {
-      "true": { "ring": "border-primary" },
-      "false": { "ring": "border-neutral" }
+      "true": {
+        "ring": "border-primary"
+      },
+      "false": {
+        "ring": "border-neutral"
+      }
     },
     "disabled": {
-      "true": { "root": "opacity-50 cursor-not-allowed" },
-      "false": { "root": "cursor-pointer" }
+      "true": {
+        "root": "opacity-50 cursor-not-allowed"
+      },
+      "false": {
+        "root": "cursor-pointer"
+      }
     }
   },
-  "defaultVariants": { "checked": false, "disabled": false }
+  "defaultVariants": {
+    "checked": false,
+    "disabled": false
+  }
 }

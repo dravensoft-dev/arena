@@ -5,7 +5,7 @@
     "head": "flex items-center justify-between gap-3",
     "label": "font-mono text-ctl-2xs tracking-label uppercase text-base-content/62",
     "icon": "inline-flex text-[length:var(--icon-sm)] text-base-content/62 opacity-60",
-    "value": "font-display font-extrabold text-h2 leading-snug tabular-nums",
+    "value": "font-display font-heading text-h2 leading-snug tabular-nums tracking-heading",
     "delta": "self-start inline-flex items-center gap-1 rounded-pill px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
     "sub": "font-body text-ctl-sm text-base-content/62"
   },

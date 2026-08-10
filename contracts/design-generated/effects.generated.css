@@ -133,6 +133,46 @@
    */
   --r-marker:4px;
   /*
+     The weight of a heading set in the display face: a card's title, a dialog's title, a
+     page head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold
+     is 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be
+     answered differently by one voice than by another.
+     
+     It matters most to a voice that draws nothing. Once the boxes are gone, the distance between a
+     heading and the text under it IS the hierarchy, and weight is half of that distance.
+   */
+  --fw-heading:800;
+  /*
+     The tracking of a heading in the display face. Authored as the tight step because
+     that is what most title slots already reached for; the five that reached for nothing were the
+     inconsistency this role removes rather than a decision anybody made.
+     
+     Separate from ls-label and the other ls steps, which are named by the thing that uses them and
+     are already role-shaped: a heading is the one use an extension has a reason to re-answer.
+     
+     Carries cssUnit em like every ls step it stands beside: ls is authored unitless so JS can read it, and
+     letter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid
+     letter-spacing and silently resolves to normal.
+   */
+  --ls-heading:-0.02em;
+  /*
+     The leading of text somebody reads: a dialog's body, an empty state's message, a
+     page head's subtitle, a hint under a field. lh-root's own description already calls the three
+     steps below it roles rather than scale, and this names the one an extension has a reason to move.
+     
+     It is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21
+     spells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is
+     set to. A voice may
+     open a paragraph up and may never close it below that, and check:extensions measures the resolved
+     value in every scope rather than trusting the author.
+     
+     Note what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it
+     does not. It requires that content survive a USER overriding spacing to those values without being
+     clipped or lost, which is a property of the layout and not of a token, and no gate over this file
+     could hold it.
+   */
+  --lh-prose:1.6;
+  /*
      The room a surface gives its own content: a card's head and body, a stat card, a
      chart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base
      value cannot drift off the spacing grid.
@@ -659,6 +699,21 @@
      its own edges when this value goes to zero.
    */
   --pad-surface:0px;
+  /*
+     Once the boxes are gone the type IS the hierarchy, so a heading has to be told
+     from the text under it by weight alone. 800 to 900, which is the last step the display face has
+     and the one the wordmark already uses, so nothing here is a value Arena did not already carry.
+   */
+  --fw-heading:900;
+  /*
+     1.6 to 1.8, which is the other half of the same decision. A voice that grouped by
+     distance between blocks and then set its paragraphs tight would be arguing with itself: the air
+     between lines is the same claim as the air between sections, made at the scale of the sentence.
+     
+     Well above the 1.5 floor WCAG 1.4.8 asks and check:extensions holds. The floor is a minimum, and
+     this voice is the one with a reason to sit far from it.
+   */
+  --lh-prose:1.8;
   /*
      Tighter than the default, and that is half of the mechanism. Proximity says two
      things are one by putting them near each other, so near has to be nearer than it needs to be when

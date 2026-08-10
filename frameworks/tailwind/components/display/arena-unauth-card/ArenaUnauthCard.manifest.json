@@ -6,7 +6,7 @@
     "body": "p-4",
     "brand": "flex mb-7",
     "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-1.5",
-    "title": "font-display font-extrabold text-h3 text-base-content mb-6",
+    "title": "font-display font-heading text-h3 text-base-content mb-6 tracking-heading",
     "footer": "mt-5 text-center font-body text-ctl-md text-base-content/62"
   }
 }

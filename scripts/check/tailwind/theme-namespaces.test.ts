@@ -82,3 +82,27 @@ test('a fake key in an unreset, non-native namespace is caught by the completene
   assert.deepEqual(unattributed, ['widget-shape-round'],
     'the completeness check must name widget-shape-round as unattributed and unlisted; if this is empty the fake key slipped through invisibly');
 });
+
+test('every token the tracking namespace reaches emits a length, because a bare number is not a letter-spacing', () => {
+  const generated = ['effects', 'typography'].map((f) =>
+    readFileSync(new URL(`../../../contracts/design-generated/${f}.generated.css`, import.meta.url), 'utf8'));
+  const values = new Map<string, string>();
+  for (const css of generated)
+    for (const decls of parseDecls(css).values())
+      for (const [name, value] of decls) values.set(name, value);
+
+  const reached = [...themeDecls]
+    .filter(([key]) => key.startsWith('tracking-'))
+    .map(([, value]) => /^var\(\s*--([\w-]+)\s*\)$/.exec(value.trim())?.[1])
+    .filter((name): name is string => Boolean(name));
+  assert.ok(reached.length > 1, 'no tracking key resolved to a token, so this test proves nothing');
+
+  for (const name of reached) {
+    const value = values.get(name);
+    assert.ok(value !== undefined, `--${name} is reached by the tracking namespace and declared nowhere`);
+    assert.match(value, /em$/,
+      `--${name} emits "${value}". ls is authored unitless so JS can read it, and a token reached by `
+      + 'letter-spacing needs cssUnit em; without it the declaration is invalid and silently resolves '
+      + 'to normal, which looks exactly like a design that chose no tracking');
+  }
+});
