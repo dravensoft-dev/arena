@@ -93,3 +93,11 @@ test('a token that merely starts with fs is not an fs step', () => {
   const tokens = { 'fsx-display': { $type: 'dimension', $value: { value: 80, unit: 'px' }, $description: 'why' } };
   assert.match(extensionProblems('expressive', tokens, ROLES)[0] ?? '', /fsx-display/);
 });
+
+test('an extension named none fails, because none is how a consumer says it wants no extension', () => {
+  assert.match(extensionProblems('none', ok, ROLES)[0] ?? '', /none/);
+});
+
+test('an extension named default is ordinary, since default is not a word the config gives meaning to', () => {
+  assert.deepEqual(extensionProblems('default', ok, ROLES), []);
+});

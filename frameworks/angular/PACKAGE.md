@@ -295,6 +295,28 @@ those controls owe whatever voice they are speaking in.
 Write no extension of your own: an extension is measured against Arena's accessibility floors
 before it ships, and a hand-written scope class is a claim nobody checked.
 
+### Selecting it in `arena.config.json`
+
+```json
+{ "extension": "expressive" }
+```
+
+The field is **optional and never a list**, so a build carries at most one extension and no
+cascade decides between two. Omit it and you get Arena's default appearance. Write `"none"` and
+you get the same thing, said out loud, which is what a project turns an extension off with rather
+than deleting the line.
+
+Nothing else is a word. `"default"` is not a way to ask for the default appearance: it is an
+unknown extension name and fails the build, and it stays that way unless an extension is one day
+actually called `default`. A config that quietly resolved a name Arena does not ship would be a
+build painting something nobody chose.
+
+The value reaches `:root` in the generated theme, so with the field set you need no class of your
+own. Putting `arena-expressive` on an element is still how you scope one to part of a page.
+
+A palette may not be named after an extension the package ships, since both would be the class
+`.arena-<name>`. The CLI fails that rather than letting the two silently contend.
+
 ## Switch palettes
 
 ```ts

@@ -14,7 +14,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 
-export type CheckedSheets = { layers: string[]; components: string[] };
+export type CheckedSheets = { layers: string[]; components: string[]; extensions?: Record<string, string[]> };
 
 export type PackageSheets = CheckedSheets | null;
 
@@ -37,6 +37,7 @@ export type ArenaFont = {
 export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 
 export type ArenaConfig = {
+  extension?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
   stylesheet?: ArenaStylesheet;
@@ -170,6 +171,24 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
   return problems;
 }
 
+export const NO_EXTENSION = 'none';
+
+export function extensionProblems(value: unknown, sheets: PackageSheets) {
+  if (value === undefined) return [];
+  if (typeof value !== 'string')
+    return [`extension: one name and never a list, so a build carries at most one extension`];
+  if (value === NO_EXTENSION) return [];
+  const shipped = sheets?.extensions;
+  if (!shipped)
+    return ['extension: the extensions this package ships cannot be read from beside this command, '
+      + 'so the name cannot be checked against them'];
+  const names = Object.keys(shipped).sort();
+  if (!names.includes(value))
+    return [`extension: "${value}" is not an extension this package ships, which are `
+      + `${names.join(', ')}. Omit the field or write "${NO_EXTENSION}" for no extension.`];
+  return [];
+}
+
 export function configProblems(config: ArenaConfig, sheets: PackageSheets = null) {
   if (!isObject(config)) return ['the configuration is not an object'];
   const problems = [];
@@ -179,12 +198,17 @@ export function configProblems(config: ArenaConfig, sheets: PackageSheets = null
   } else {
     const seen = new Set<string>();
     (config.palettes as ArenaPalette[]).forEach((p, i) => problems.push(...paletteProblems(p, i, seen)));
+    for (const name of Object.keys(sheets?.extensions ?? {}))
+      if ((config.palettes as ArenaPalette[]).some((p) => isObject(p) && p.name === name))
+        problems.push(`palettes: "${name}" is the name of an extension this package ships, and both `
+          + `would be the class .arena-${name}; rename the palette`);
     const defaults = config.palettes.filter((p) => isObject(p) && p.default === true);
     if (defaults.length > 1) {
       problems.push(`palettes: ${defaults.length} palettes declare default; exactly one reaches :root`);
     }
   }
 
+  problems.push(...extensionProblems(config.extension, sheets));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));
   return problems;
@@ -315,6 +339,10 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     `--picker-invert:${fallback.polarity === 'light' ? 0 : 1};`,
     ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
   ]));
+
+  const chosen = typeof config.extension === 'string' && config.extension !== NO_EXTENSION
+    ? sheets?.extensions?.[config.extension] : undefined;
+  if (chosen) parts.push(block(':root', [...chosen]));
 
   for (const palette of config.palettes) {
     if (palette === fallback) continue;

@@ -1,11 +1,13 @@
-/* A design extension is a scope class that re-values ROLE tokens, and nothing else. It may not
- * reach a scale, a colour, a density or a spacing step: a scale is shared by every use that
- * happens to want that length, so moving one is not an extension but a different Arena. The two
- * halves joined here are the file and the generator block that emits it, because a file nobody
- * emits paints nothing and a block naming no file emits nothing, and each half looks complete
- * on its own. FS_STEP is the one family outside roles.json it may move, because those steps are
- * already roles with names rather than an anonymous ladder, so re-valuing fs-display drags no
- * unrelated use with it. contracts/design/Extensions.md is the normative statement of all of it. */
+/* A design extension is a scope class that re-values ROLE tokens and nothing else: a scale is
+ * shared by every use that wants that length, so moving one is not an extension but a different
+ * Arena. FS_STEP is the one family outside roles.json it may move, because those steps are
+ * already named roles. RESERVED_NAME is the one name it may not have, because a consumer writes
+ * "extension": "none" to ask for none; `default` is reserved by nothing and fails as an unknown
+ * name until an extension is actually called that. The join held here is the file against the
+ * generator block that emits it, since a file nobody emits paints nothing and a block naming no
+ * file emits nothing, and each half looks complete alone.
+ * contracts/design/Extensions.md is the normative statement of all of it. */
+
 
 import { readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -27,6 +29,8 @@ const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 const FS_STEP = /^fs-[a-z0-9]+$/;
 
+export const RESERVED_NAME = 'none';
+
 type Token = { $type?: string; $value?: unknown; $description?: string };
 
 export function extensionName(file: string) {
@@ -42,6 +46,11 @@ export function extensionProblems(
 ) {
   const problems = [];
   const at = `extension.${name}.json`;
+  if (name === RESERVED_NAME)
+    problems.push(
+      `${at}: "${RESERVED_NAME}" is how a consumer says it wants no extension, so an extension `
+      + `answering to that name could never be selected`,
+    );
   if (!KEBAB.test(name))
     problems.push(`${at}: "${name}" is not kebab-case, and the name becomes the class .arena-${name}`);
   const moved = Object.keys(tokens);

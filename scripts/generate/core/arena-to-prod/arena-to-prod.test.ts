@@ -443,6 +443,7 @@ test('the sheets a package ships are read from beside the command, so no copy of
   assert.deepEqual(packageSheets(root), {
     layers: ['css/reset.css', 'css/components.css'],
     components: ['button', 'table'],
+    extensions: {},
   });
   rmSync(root, { recursive: true });
 });
@@ -554,4 +555,26 @@ test('it takes the union both ways, which is the half the shipped copy had lost'
       + 'only argv[1]; this file ships inside both packages, where scripts/ does not exist, so it '
       + 'could not import the union and was left spelling the losing half.');
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the extensions a package ships are read out of the effects sheet, so no list is written twice', () => {
+  const root = installed(
+    "@import './css/reset.css';\n@import './css/effects.css';\n",
+    ['button'],
+  );
+  mkdirSync(join(root, 'css'), { recursive: true });
+  writeFileSync(join(root, 'css', 'effects.css'),
+    ':root{\n  --r-surface:14px;\n}\n\n.arena-expressive{\n  /* a reason */\n  --r-surface:22px;\n  --bw-surface:0px;\n}\n');
+  assert.deepEqual(packageSheets(root)?.extensions, {
+    expressive: ['--r-surface:22px;', '--bw-surface:0px;'],
+  });
+  rmSync(root, { recursive: true });
+});
+
+test('a package whose effects sheet declares no scope class ships no extensions rather than failing', () => {
+  const root = installed("@import './css/reset.css';\n", ['button']);
+  mkdirSync(join(root, 'css'), { recursive: true });
+  writeFileSync(join(root, 'css', 'effects.css'), ':root{\n  --r-surface:14px;\n}\n');
+  assert.deepEqual(packageSheets(root)?.extensions, {});
+  rmSync(root, { recursive: true });
 });

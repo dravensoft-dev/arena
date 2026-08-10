@@ -249,3 +249,58 @@ test('without the shipped sheets a name can be held to nothing, so the run stops
   const [problem] = configProblems(config({ stylesheet: { components: ['arena-button'] } }), null);
   assert.match(problem ?? '', /^stylesheet: the sheets this package ships cannot be read/);
 });
+
+const SHEETS_WITH_EXT = {
+  layers: ['css/reset.css'],
+  components: ['button'],
+  extensions: { expressive: ['--r-surface:22px;', '--bw-surface:0px;'] },
+};
+
+test('the extension field is optional, and a config without one asks for no extension', () => {
+  const c = config();
+  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+});
+
+test('"none" is how a config says it wants no extension, and it is not an unknown name', () => {
+  const c = config({ extension: 'none' });
+  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+});
+
+test('"default" is an unknown extension until one is called that, rather than a word meaning none', () => {
+  const c = config({ extension: 'default' });
+  const problems = configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /default/);
+  assert.match(problems[0] ?? '', /expressive/);
+});
+
+test('a shipped extension is accepted by name', () => {
+  const c = config({ extension: 'expressive' });
+  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+});
+
+test('the extension field is one name and never a list, so a build carries at most one', () => {
+  const c = config({ extension: ['expressive'] });
+  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('extension')) ?? '', /one name/);
+});
+
+test('a palette may not take a shipped extension name, since both become .arena-<name>', () => {
+  const c = config({ palettes: [{ name: 'expressive', default: true, polarity: 'dark', colors: colors() }] });
+  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('expressive')) ?? '', /extension/);
+});
+
+test('the chosen extension reaches :root, so a consumer needs no class of their own', () => {
+  const css = themeCss(config({ extension: 'expressive' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  assert.match(css, /--r-surface:22px;/);
+  assert.match(css, /--bw-surface:0px;/);
+});
+
+test('no extension means nothing extra reaches :root', () => {
+  const css = themeCss(config(), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  assert.ok(!css.includes('--r-surface'));
+});
+
+test('"none" emits nothing, the same as omitting the field', () => {
+  const css = themeCss(config({ extension: 'none' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  assert.ok(!css.includes('--r-surface'));
+});

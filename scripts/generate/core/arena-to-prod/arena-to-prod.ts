@@ -132,6 +132,19 @@ export function hostPackageName(root: string) {
 
 export const SHEET_IMPORT = /@import\s+'\.\/([^']+)';/g;
 
+export const EXTENSION_BLOCK = /\.arena-([a-z][a-z0-9-]*)\s*\{([^}]*)\}/g;
+
+export function packageExtensions(root: string): Record<string, string[]> {
+  let css: string;
+  try { css = readFileSync(join(root, 'css', 'effects.css'), 'utf8'); } catch { return {}; }
+  const out: Record<string, string[]> = {};
+  for (const m of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(EXTENSION_BLOCK)) {
+    const declarations = (m[2] ?? '').split(';').map((d) => d.trim()).filter(Boolean).map((d) => `${d};`);
+    if (declarations.length) out[m[1] ?? ''] = declarations;
+  }
+  return out;
+}
+
 export function packageSheets(root: string): PackageSheets {
   try {
     const layers = [...readFileSync(join(root, 'arena.css'), 'utf8').matchAll(SHEET_IMPORT)]
@@ -140,7 +153,9 @@ export function packageSheets(root: string): PackageSheets {
       .filter((name) => name.endsWith('.css'))
       .map((name) => basename(name, '.css'))
       .sort();
-    return layers.length && components.length ? { layers, components } : null;
+    return layers.length && components.length
+      ? { layers, components, extensions: packageExtensions(root) }
+      : null;
   } catch {
     return null;
   }
