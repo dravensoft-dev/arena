@@ -2,7 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   extensionName, extensionProblems, declarationProblems, zeroExtensionProblem, collect,
+  groupingOf, isZeroLength, paintsNothing, principleProblems, resolvedFor, sharedPrincipleProblems,
 } from './check-extensions.ts';
+
+const LINE = '1px';
+const NO_LINE = '0px';
+const NO_DEPTH = '0px 0px 0px 0px rgba(0,0,0,0)';
+const DEPTH = '0px 2px 6px -2px rgba(0,0,0,.5)';
+
+const at = (over: Record<string, string> = {}) =>
+  new Map(Object.entries({ 'bw-surface': LINE, 'shadow-surface-rest': NO_DEPTH, ...over }));
 
 const ROLES = {
   'r-surface': { $type: 'dimension' },
@@ -100,4 +109,68 @@ test('an extension named none fails, because none is how a consumer says it want
 
 test('an extension named default is ordinary, since default is not a word the config gives meaning to', () => {
   assert.deepEqual(extensionProblems('default', ok, ROLES), []);
+});
+
+test('a length is zero however it is spelled, and a shadow at zero alpha paints nothing', () => {
+  assert.ok(isZeroLength('0px') && isZeroLength('0') && isZeroLength('0rem'));
+  assert.ok(!isZeroLength('1px') && !isZeroLength('0.5px') && !isZeroLength(undefined));
+  assert.ok(paintsNothing(NO_DEPTH) && paintsNothing(undefined));
+  assert.ok(!paintsNothing(DEPTH) && !paintsNothing('0px 2px 6px rgb(0,0,0)'));
+});
+
+test('the principle is read from the arena namespace, and anything else is undeclared', () => {
+  assert.equal(groupingOf({ $extensions: { 'com.dravensoft.arena': { grouping: 'proximity' } } }), 'proximity');
+  assert.equal(groupingOf({ $extensions: { 'com.example': { grouping: 'proximity' } } }), undefined);
+  assert.equal(groupingOf({ 'r-surface': {} }), undefined);
+});
+
+test('a voice that declares no principle fails, because a catalogue of undeclared ones differs by degree', () => {
+  const problems = principleProblems('showcase', undefined, at());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /declares no grouping principle/);
+});
+
+test('a principle Arena does not know fails rather than passing unchecked', () => {
+  assert.match(principleProblems('showcase', 'vibes', at())[0] ?? '', /not a grouping principle/);
+});
+
+test('figure/ground has to remove the line AND arrive with the depth, since either alone is not the trade', () => {
+  assert.deepEqual(principleProblems('showcase', 'figure-ground',
+    at({ 'bw-surface': NO_LINE, 'shadow-surface-rest': DEPTH })), []);
+  assert.match(principleProblems('showcase', 'figure-ground', at({ 'shadow-surface-rest': DEPTH }))[0] ?? '',
+    /still draws --bw-surface/);
+  assert.match(principleProblems('showcase', 'figure-ground', at({ 'bw-surface': NO_LINE }))[0] ?? '',
+    /neither a line nor a depth/);
+});
+
+test('proximity draws nothing at all, so a line or a depth is another principle wearing its name', () => {
+  assert.deepEqual(principleProblems('editorial', 'proximity', at({ 'bw-surface': NO_LINE })), []);
+  assert.match(principleProblems('editorial', 'proximity', at())[0] ?? '', /common region under another name/);
+  assert.match(principleProblems('editorial', 'proximity',
+    at({ 'bw-surface': NO_LINE, 'shadow-surface-rest': DEPTH }))[0] ?? '', /figure and ground under another name/);
+});
+
+test('common region has to draw the region it claims to group by', () => {
+  assert.deepEqual(principleProblems('console', 'common-region', at()), []);
+  assert.match(principleProblems('console', 'common-region', at({ 'bw-surface': NO_LINE }))[0] ?? '',
+    /has to draw it/);
+});
+
+test('two voices claiming one principle fail, which is the whole point of declaring it', () => {
+  const problems = sharedPrincipleProblems(new Map([
+    ['showcase', 'figure-ground'], ['glossy', 'figure-ground'], ['editorial', 'proximity'],
+  ]));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /extension\.showcase\.json and extension\.glossy\.json both group by figure-ground/);
+});
+
+test('an undeclared voice is not counted as sharing with another undeclared one, which is a different failure', () => {
+  assert.deepEqual(sharedPrincipleProblems(new Map([['a', undefined], ['b', undefined]])), []);
+});
+
+test('a role a voice leaves alone resolves to what it inherits, and one it moves to what it wrote', () => {
+  const css = ':root{--bw-surface:1px;--dur-hover:120ms}\n.arena-showcase{--bw-surface:0px}';
+  const resolved = resolvedFor(css, 'showcase');
+  assert.equal(resolved.get('bw-surface'), '0px');
+  assert.equal(resolved.get('dur-hover'), '120ms');
 });

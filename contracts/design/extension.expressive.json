@@ -1,4 +1,9 @@
 {
+  "$extensions": {
+    "com.dravensoft.arena": {
+      "grouping": "figure-ground"
+    }
+  },
   "r-surface": {
     "$type": "dimension",
     "$value": "{r.xl}",

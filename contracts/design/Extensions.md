@@ -34,6 +34,41 @@ The contrast and ramp gates need no per-scope variant, and that is a property of
 than an omission: an extension cannot move a colour, and Arena gates text at 4.5:1 flat with no
 large-text exception, so a type-scale change can neither relax nor tighten what they measure.
 
+## Every voice declares its grouping principle, and no two may share one
+
+An extension exists to be told apart from the one beside it, and values alone cannot promise that:
+two voices picking corners and depths independently end up differing by degree, which reads as one
+voice with a dial rather than as a second answer. So the thing a voice declares is not its values
+but its **mechanism**, in its own file:
+
+```json
+"$extensions": { "com.dravensoft.arena": { "grouping": "figure-ground" } }
+```
+
+Three are known, and they are the Gestalt principles a flat surface can actually spend:
+
+| Principle | What says two things belong together | The invariant `check:extensions` holds |
+|---|---|---|
+| `common-region` | A line drawn around a region | `bw-surface` is not zero |
+| `figure-ground` | A surface standing off a floor | `bw-surface` is zero AND `shadow-surface-rest` paints something |
+| `proximity` | Distance alone, with nothing drawn | `bw-surface` is zero AND `shadow-surface-rest` paints nothing |
+
+The invariants are measured against RESOLVED values rather than authored ones, because a role a
+voice leaves alone still carries what it inherits, and an alias hides whether it landed on zero.
+
+`check:extensions` fails an extension that declares no principle, one that declares a name Arena
+does not know, one whose values contradict its claim, and **two extensions that declare the same
+principle**. That last one is the rule the whole catalogue rests on. A fourth voice therefore needs
+a fourth mechanism and the invariant that holds it, added to `PRINCIPLES` in
+`scripts/check/core/check-extensions.ts`, rather than a fourth name for one of these three. The
+open slot is similarity, where a group is marked rather than enclosed or lifted, and it is the only
+one that would need a manifest to paint an ornament it does not paint today.
+
+Everything else a voice decides follows from the principle rather than sitting beside it. A figure
+needs a silhouette, so its corner is generous and ground has to surround it; an object answers with
+mass, so it lifts and it answers slowly. A voice that grouped by proximity and then rounded its
+corners would be rounding a box it just said was not there.
+
 ## What an extension may move, and the two cuts that say why
 
 **Roles, and the `fs` ladder.** Every key in an extension file is a role in

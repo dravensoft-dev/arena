@@ -128,6 +128,15 @@ Two of these numbers the scripts **report without gating**: crimson as text sits
 An extension may not lower a floor, and the floor gates run against every scope Arena ships rather
 than against `:root` alone.
 
+**Two voices differ by mechanism or they do not differ.** Every extension declares in its own file
+which Gestalt principle answers "what belongs together" for it, and `bun run check:extensions`
+holds the claim against the resolved values: `common-region` draws the region, `figure-ground`
+removes the line and arrives with the depth, `proximity` draws neither. **Two extensions declaring
+the same principle fail the build.** Without that, a second voice can only be the first one taken
+further, and a catalogue of those is one voice with a dial on it. Every other decision a voice
+makes, the corner, the air, the depth, the motion, the type, is derived from the principle rather
+than chosen beside it, which is why the principle is the thing declared and the values are not.
+
 ### The categorical ramp
 
 Eight slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
