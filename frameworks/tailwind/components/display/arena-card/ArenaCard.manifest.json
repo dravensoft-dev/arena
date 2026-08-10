@@ -24,7 +24,7 @@
     },
     "interactive": {
       "true": {
-        "root": "cursor-pointer text-left w-full transition-[background,box-shadow] duration-[var(--dur-hover)] ease-out hover:bg-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary aria-disabled:opacity-45 aria-disabled:cursor-not-allowed"
+        "root": "cursor-pointer text-left w-full transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover hover:bg-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary aria-disabled:opacity-45 aria-disabled:cursor-not-allowed"
       },
       "false": {
         "root": "cursor-auto"

@@ -48,16 +48,6 @@
   --loop-brand:8000ms; /* Rotor: slow enough to read as presence rather than progress */
   --loop-reduced:2400ms; /* What a working loop slows to under prefers-reduced-motion. Motion that reports work slows rather than stopping: a frozen spinner reads as a hung process. */
   --loop-brand-reduced:24000ms; /* Rotor's reduced step: the brand mark is three times slower again, because it is decoration that happens to also mean 'alive' */
-  /*
-     How far a control sinks under the pointer while it is held. Unitless on purpose:
-     it is a transform scale, not a length, so it carries no dimension type and does
-     not re-densify. Both layers press by the same amount and each used to spell it
-     as its own literal -- 0.98 inline in React, scale-98 in the Tailwind manifest --
-     which is one design decision written twice with nothing holding the copies in step.
-     NOT script-readable: nothing does arithmetic on it, both layers reference the custom
-     property directly, and the flag is only for a value JS must consume to produce a position.
-   */
-  --press-scale:0.98;
 
   /*
      How much of a colour a tinted surface keeps, as the percentage a color-mix()
@@ -316,6 +306,49 @@
      so no manifest spells one as a duration.
    */
   --dur-state:220ms;
+  /*
+     The curve a hover or press response travels, and the other half of dur-hover: one
+     says how long the answer takes and this says what it feels like on the way. An alias of ease.out,
+     which is what every such transition already spells inline.
+     
+     A duration on its own cannot carry motion character, which is why promoting only the durations
+     left the tier half built. Arena's default curve leaves at full speed and settles, and that reads
+     as an interface acknowledging a pointer the instant it arrives. A curve that starts slowly reads
+     as an object with mass being moved instead. Those are two voices making the same transition, and
+     only a role lets one of them be re-answered without dragging every entrance and every loop along
+     with it, which is exactly what re-valuing ease.out would do.
+   */
+  --ease-hover:cubic-bezier(.2,.7,.3,1);
+  /*
+     The curve of a state change the user follows, paired with dur-state the way ease-hover
+     is paired with dur-hover. Kept apart from that one for the reason the two durations are kept apart:
+     the eye has to TRACK a switch travelling to its other end, and merely registers that a hover
+     happened.
+     
+     No voice in the shipped catalogue moves it, which is the footing dur-state has stood on since the
+     role tier was built. It is not there in anticipation of a voice: it is there so a manifest that
+     names a state transition names a role at BOTH ends rather than a role for the duration and a scale
+     step for the curve, which is the split check:roles exists to refuse.
+   */
+  --ease-state:cubic-bezier(.2,.7,.3,1);
+  /*
+     How far a control sinks under the pointer while it is held, and the other half of
+     lift-control: that one says how far a control rises, this says how far it goes down. A voice that
+     gives a control mass has a reason to answer both, and until this moved out of effects.json it could
+     answer neither, because a scale is shared by every use that wants that value.
+     
+     Authored as a literal rather than as an alias, for the reason lift-control is: neither has a scale
+     to alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those
+     two are the only numbers in this tier whose value is its own.
+     
+     Unitless on purpose: it is a transform scale, not a length, so it carries no dimension type and
+     does not re-densify. Both layers press by the same amount and each used to spell it as its own
+     literal -- 0.98 inline in React, scale-98 in the Tailwind manifest -- which is one design decision
+     written twice with nothing holding the copies in step. NOT script-readable: nothing does arithmetic
+     on it, both layers reference the custom property directly, and the flag is only for a value JS must
+     consume to produce a position.
+   */
+  --press-scale:0.98;
 }
 .arena-light{
   /*
@@ -635,6 +668,29 @@
      nothing here becomes motion a person waits on.
    */
   --dur-hover:220ms;
+  /*
+     The other half of the same decision, and the half a duration cannot make. Arena's
+     default curve leaves at full speed and settles, which is an interface answering the instant the
+     pointer lands. This one starts from rest, which is what a thing with mass does: 220ms on that
+     curve reads as an object being moved, where 220ms on the default reads as the same instant answer
+     taking longer than it should.
+     
+     Derived from the principle rather than chosen beside it. A figure standing off a ground is an
+     OBJECT, and an object has inertia; a voice that grouped by drawing a region has nothing to give
+     mass to, which is why the default curve is right there and wrong here. Still one of Arena's three
+     steps, because the value a role moves to is the language's and not the voice's.
+   */
+  --ease-hover:cubic-bezier(.4,0,.2,1);
+  /*
+     0.98 to 0.96, which is the return trip of the two pixels lift-control spends. A
+     control that rises under the pointer and then sinks under the press has completed a gesture; one
+     that rises and then barely moves has started one.
+     
+     Twice the default and no further. Past about 0.95 a button reads as a soft thing being squashed
+     rather than a solid one being pressed, and this voice is about objects standing on a floor rather
+     than about toys.
+   */
+  --press-scale:0.96;
   /*
      A page heading that carries a page rather than titling a panel. The base ladder
      accelerates gently because a console has many peers on screen at once; a landing has few, so the

@@ -48,11 +48,6 @@
     "reduced": { "$value": { "value": 2400, "unit": "ms" }, "$description": "What a working loop slows to under prefers-reduced-motion. Motion that reports work slows rather than stopping: a frozen spinner reads as a hung process." },
     "brand-reduced": { "$value": { "value": 24000, "unit": "ms" }, "$description": "Rotor's reduced step: the brand mark is three times slower again, because it is decoration that happens to also mean 'alive'" }
   },
-  "press-scale": {
-    "$type": "number",
-    "$value": 0.98,
-    "$description": "How far a control sinks under the pointer while it is held. Unitless on purpose:\nit is a transform scale, not a length, so it carries no dimension type and does\nnot re-densify. Both layers press by the same amount and each used to spell it\nas its own literal -- 0.98 inline in React, scale-98 in the Tailwind manifest --\nwhich is one design decision written twice with nothing holding the copies in step.\nNOT script-readable: nothing does arithmetic on it, both layers reference the custom\nproperty directly, and the flag is only for a value JS must consume to produce a position."
-  },
   "tint": {
     "$type": "number",
     "$description": "How much of a colour a tinted surface keeps, as the percentage a color-mix()\nkeeps of it. A number carrying a % render hint rather than a dimension, because\nDTCG admits only px and rem in a dimension, the same reason tracking is a number\ncarrying an em hint. Script-readable: both layers build the color-mix() as a\nstring in JS, so the ratio has to arrive as a number rather than as a custom\nproperty. These are the tints of an IDENTITY, a colour that stands for a thing;\nthe per-hue -soft aliases in colors.css are a different family and stay there,\nbecause each is tuned to its own hue rather than shared across all eight.",

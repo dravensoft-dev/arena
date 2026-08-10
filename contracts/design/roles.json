@@ -183,5 +183,20 @@
     "$type": "duration",
     "$value": "{dur.mid}",
     "$description": "How long a state change the user follows takes: a switch travelling to its other\nend, a progress bar reaching a new value, an onboarding dot widening to mark the step it is on.\nAn alias of dur.mid. Kept apart from dur-hover because the eye has to TRACK this one rather than\nmerely register that it happened, which is the whole reason the scale has a second step. Named\nfor the state and not for an entrance: every entrance in Arena is a keyframe in Animations.css,\nso no manifest spells one as a duration."
+  },
+  "ease-hover": {
+    "$type": "cubicBezier",
+    "$value": "{ease.out}",
+    "$description": "The curve a hover or press response travels, and the other half of dur-hover: one\nsays how long the answer takes and this says what it feels like on the way. An alias of ease.out,\nwhich is what every such transition already spells inline.\n\nA duration on its own cannot carry motion character, which is why promoting only the durations\nleft the tier half built. Arena's default curve leaves at full speed and settles, and that reads\nas an interface acknowledging a pointer the instant it arrives. A curve that starts slowly reads\nas an object with mass being moved instead. Those are two voices making the same transition, and\nonly a role lets one of them be re-answered without dragging every entrance and every loop along\nwith it, which is exactly what re-valuing ease.out would do."
+  },
+  "ease-state": {
+    "$type": "cubicBezier",
+    "$value": "{ease.out}",
+    "$description": "The curve of a state change the user follows, paired with dur-state the way ease-hover\nis paired with dur-hover. Kept apart from that one for the reason the two durations are kept apart:\nthe eye has to TRACK a switch travelling to its other end, and merely registers that a hover\nhappened.\n\nNo voice in the shipped catalogue moves it, which is the footing dur-state has stood on since the\nrole tier was built. It is not there in anticipation of a voice: it is there so a manifest that\nnames a state transition names a role at BOTH ends rather than a role for the duration and a scale\nstep for the curve, which is the split check:roles exists to refuse."
+  },
+  "press-scale": {
+    "$type": "number",
+    "$value": 0.98,
+    "$description": "How far a control sinks under the pointer while it is held, and the other half of\nlift-control: that one says how far a control rises, this says how far it goes down. A voice that\ngives a control mass has a reason to answer both, and until this moved out of effects.json it could\nanswer neither, because a scale is shared by every use that wants that value.\n\nAuthored as a literal rather than as an alias, for the reason lift-control is: neither has a scale\nto alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those\ntwo are the only numbers in this tier whose value is its own.\n\nUnitless on purpose: it is a transform scale, not a length, so it carries no dimension type and\ndoes not re-densify. Both layers press by the same amount and each used to spell it as its own\nliteral -- 0.98 inline in React, scale-98 in the Tailwind manifest -- which is one design decision\nwritten twice with nothing holding the copies in step. NOT script-readable: nothing does arithmetic\non it, both layers reference the custom property directly, and the flag is only for a value JS must\nconsume to produce a position."
   }
 }

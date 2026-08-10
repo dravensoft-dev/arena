@@ -108,7 +108,7 @@ export function ArenaHorizontalBarChart({
                   arenaScaleValue(xScale, segment.from), segment.outer ? chartBarRadius : 0)}
                 fill={colors[segment.seriesIndex]?.[i]}
                 opacity={hover === null || hover === i ? 1 : 0.55}
-                style={{ transition: 'opacity var(--dur-fast) var(--ease-out)' }} />
+                style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
             )) : series.map((one, s) => {
               const value = one.values[i];
               if (value === undefined) return null;
@@ -117,7 +117,7 @@ export function ArenaHorizontalBarChart({
               return (
                 <path key={s} d={arenaBarPathH(sub.x, sub.width, x, axis.zeroX, chartBarRadius)} fill={colors[s]?.[i]}
                   opacity={hover === null || hover === i ? 1 : 0.55}
-                  style={{ transition: 'opacity var(--dur-fast) var(--ease-out)' }} />
+                  style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
               );
             })}
           </g>

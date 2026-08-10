@@ -105,6 +105,29 @@ rather than missing. A measure that does not track the font size is not a measur
 units, and DTCG 2025.10 admits `px` and `rem` only. Widening that would trade a conformance claim
 for one token, and the two components that set a measure today do it with an arbitrary literal.
 
+**An extension answers how a control responds, and cannot touch what a response means under reduced
+motion.** Five roles carry motion: `dur-hover` and `ease-hover` for a response to a pointer,
+`dur-state` and `ease-state` for a change the eye follows, and `press-scale` beside `lift-control`
+for the two directions a control travels under a press. The durations were promoted first and that
+left the tier half built, because a duration cannot carry character on its own: 220ms on Arena's
+default curve is the same instant answer taking longer than it should, and 220ms on `ease.in-out`
+is an object with mass being moved. `expressive` sets both, and it sets them because a figure
+standing off a ground is an object; a voice that groups by drawing a region has nothing to give
+mass to.
+
+`dur-state` and `ease-state` are moved by no voice in the catalogue, and that is not an oversight
+waiting to be filled. They exist so a manifest naming a state transition names a role at BOTH ends
+rather than a role for the duration and a scale step for the curve, which is the split `check:roles`
+refuses. A question nobody has re-answered yet is still a question that has been asked.
+
+What no voice may touch is what reduced motion means. `prefers-reduced-motion` is answered per
+animation and per meaning: motion that reports work slows rather than stopping, decoration stops,
+an entrance keeps its fade and drops its travel. Every one of those answers is a keyframe or a
+media query in `frameworks/tailwind/Animations.css` rather than a token, so it is outside an
+extension's reach by the same construction as everything else a manifest does not paint.
+`ArenaButton` is the shape to look at: a voice may take `press-scale` to 0.96 and
+`motion-reduce:active:scale-100` still cancels the whole gesture.
+
 **An extension raises what shouts and never moves what is read.** `expressive` lifts `fs-h1`,
 `fs-display` and `fs-hero` and leaves everything from `fs-h2` down exactly where it was. How large
 a paragraph is set is a legibility decision that every voice shares, so widening the hierarchy is
@@ -271,7 +294,9 @@ reach by construction, and adding it is a change to the manifest rather than to 
 ## The shipped catalogue
 
 `expressive`: grouping by elevation and air instead of by hairline, softer corners, a call to
-action that lifts, and a hover slow enough to read as a response. It removes `bw-surface` and not
+action that lifts, and a hover that answers like an object: 220ms on the `in-out` curve, so it
+starts from rest rather than at full speed, and a press that sinks twice as far as the default,
+which is the return trip of the two pixels it rose. It removes `bw-surface` and not
 `bw-control`, `bw-field` or `bw-separator`, because WCAG 1.4.11 asks 3:1 of a control's boundary
 and a card is not a control, and because a table that lost the rules between its rows along with
 its frame would stop being readable.
@@ -292,9 +317,16 @@ what they cover rather than grouped against it, so they keep `fill-surface-float
 padding a fit constraint gives them. A voice that flattened them too would have made every overlay
 unreadable to win an argument about cards, and that is the reason both families are split in two.
 
-What `editorial` does NOT yet do is the half of a reading voice that lives in type: heavier and
-tighter headings over a longer body measure. Weight, tracking and measure are scales rather than
-roles today, so no voice can reach them, and this one is the argument for making them roles.
+The half of a reading voice that lives in type used to be missing here, and this paragraph used to
+say so: weight, tracking and measure were scales, so no voice could reach them. Two of the three
+are roles now and `editorial` spends both, `fw-heading` to 900 and `lh-prose` to 1.8, which is the
+same claim as its ladder made at the scale of the sentence.
+
+**It leaves `ls-heading` alone, and the reason is the scale rather than the voice.** A reading voice
+does want its headings tighter, and `ls` bottoms out at `tight`, which is exactly where `ls-heading`
+already sits. Going further needs a new step on the scale, and a scale step is Arena's to add rather
+than a voice's: an extension re-values a role, and the value it moves to is still one of Arena's.
+The measure is refused rather than missing, for the `ch` reason above.
 
 Its three `fs` steps do not reach the same distance, and the difference is worth stating rather
 than leaving for a reader to discover. `ArenaPageHead` is the only component that consumes

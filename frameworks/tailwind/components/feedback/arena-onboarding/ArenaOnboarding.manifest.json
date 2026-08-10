@@ -8,7 +8,7 @@
     "body": "font-body text-md leading-prose text-base-content/82 mt-2",
     "foot": "flex items-center gap-1.5 mt-4.5",
     "dots": "flex gap-1.5 flex-1",
-    "dot": "h-2 rounded-pill transition-[width] duration-[var(--dur-state)] ease-out",
+    "dot": "h-2 rounded-pill transition-[width] duration-[var(--dur-state)] ease-state",
     "dotOn": "w-4.5 bg-primary",
     "dotOff": "w-2 bg-neutral",
     "text": "font-mono text-ctl-xs tracking-uppercase-status uppercase font-bold bg-transparent border-none cursor-pointer text-base-content/62",

@@ -3,7 +3,10 @@
  * question can be answered differently by a design extension. Radius and depth are banned by
  * utility name because they have a Tailwind namespace; a border width and a duration are banned
  * by TOKEN name, which catches border-[length:var(--bw)] and the var(--dur-fast) buried in an
- * arbitrary [transition:...] property with one entry rather than one per spelling. SCALE_USES
+ * arbitrary [transition:...] property with one entry rather than one per spelling. An easing is
+ * the one family banned BOTH ways, because it is the one with a namespace that a manifest also
+ * spells as a token inside that same arbitrary property, and the two spellings never collide:
+ * the utility entry cannot match inside var(--ease-out), where a hyphen precedes it. SCALE_USES
  * records the places that genuinely mean the length, one entry per case with its reason. */
 
 import { join } from 'node:path';
@@ -39,9 +42,11 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['font-extrabold', 'font-heading, when the slot IS a heading in the display face'],
   ['tracking-tight', 'tracking-heading, for the same reason'],
   ['leading-body', 'leading-prose, when the slot is text somebody reads'],
+  ['ease-out', 'ease-hover or ease-state, whichever duration the same transition names'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
+  ['--ease-out', '--ease-hover or --ease-state, inside an arbitrary [transition:...] property'],
 ]);
 
 export const SCALE_USES = new Map<string, string>([
@@ -133,7 +138,7 @@ function main() {
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth and duration decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth, duration and easing decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();

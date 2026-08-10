@@ -66,7 +66,8 @@ supplies the state.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generated.html`:
-- The knob **slides** across the track over `--dur-mid` rather than jumping, and the track's
+- The knob **slides** across the track over `--dur-state`/`--ease-state` rather than jumping, and
+  the track's
   colour crossfades with it.
 - Under `prefers-reduced-motion: reduce`, forced in DevTools' Rendering pane, **the knob stops
   travelling and the track colour still crossfades**. That is the intended answer for a state

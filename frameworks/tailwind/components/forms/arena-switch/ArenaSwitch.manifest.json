@@ -2,8 +2,8 @@
   "component": "ArenaSwitch",
   "slots": {
     "root": "inline-flex items-center gap-2.5",
-    "track": "inline-flex items-center justify-start rounded-pill p-0.5 border-none cursor-pointer disabled:cursor-not-allowed transition-[background] duration-[var(--dur-state)] ease-out",
-    "knob": "inline-flex items-center justify-center shrink-0 rounded-pill bg-primary-content transition-[translate] duration-[var(--dur-state)] ease-out motion-reduce:transition-none",
+    "track": "inline-flex items-center justify-start rounded-pill p-0.5 border-none cursor-pointer disabled:cursor-not-allowed transition-[background] duration-[var(--dur-state)] ease-state",
+    "knob": "inline-flex items-center justify-center shrink-0 rounded-pill bg-primary-content transition-[translate] duration-[var(--dur-state)] ease-state motion-reduce:transition-none",
     "icon": "text-primary",
     "label": "inline-flex items-center gap-1.5 font-body text-ctl text-base-content/82",
     "guard": "text-[length:var(--icon-sm)] text-base-content/62"

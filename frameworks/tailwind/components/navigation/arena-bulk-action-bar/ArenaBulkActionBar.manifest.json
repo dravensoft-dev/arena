@@ -6,7 +6,7 @@
     "number": "text-secondary",
     "divider": "w-px h-5.5 bg-base-300",
     "actions": "flex items-center gap-1.5 flex-1 flex-wrap",
-    "action": "inline-flex items-center gap-2 h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-semibold text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-out shadow-control-rest",
+    "action": "inline-flex items-center gap-2 h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-semibold text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-hover shadow-control-rest",
     "actionIcon": "inline-flex text-[length:var(--icon-md)]",
     "clear": "bg-transparent border-none cursor-pointer text-base-content/62 font-mono text-ctl-xs tracking-badge uppercase"
   },

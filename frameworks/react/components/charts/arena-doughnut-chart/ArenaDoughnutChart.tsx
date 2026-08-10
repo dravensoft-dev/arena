@@ -81,7 +81,7 @@ export function ArenaDoughnutChart({
             stroke="var(--surface-card)"
             opacity={hover === null || hover === index ? 1 : 0.55}
             onPointerEnter={() => setHover(index)} onClick={() => onSliceActivate?.(index)}
-            style={{ transition: 'opacity var(--dur-fast) var(--ease-out)', strokeWidth: 'var(--bw-strong)' }} />
+            style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)', strokeWidth: 'var(--bw-strong)' }} />
         ))}
         {shape !== 'pie' && hover !== null && segments[hover] && (
           <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"

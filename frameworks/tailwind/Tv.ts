@@ -48,7 +48,7 @@ const handWritten: Record<string, ClassGroupEntries[]> = {
   leading: [{ leading: ['body', 'ctl', 'loose', 'prose'] }],
   blur: [{ blur: ['scrim'] }],
   size: [{ size: ['icon-sm', 'icon-md', 'icon-lg', 'icon-xl', 'avatar-xs', 'avatar-sm', 'avatar-md', 'avatar-lg', 'logo-mark-sm', 'logo-mark-md', 'logo-mark-lg', 'logo-mark-xl'] }],
-  ease: [{ ease: ['emphatic'] }],
+  ease: [{ ease: ['emphatic', 'hover', 'state'] }],
   'max-w': [{ 'max-w': ['page'] }],
   'font-weight': [{ font: ['regular', 'heading'] }],
 };

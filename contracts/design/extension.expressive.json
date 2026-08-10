@@ -114,6 +114,16 @@
     "$value": "{dur.mid}",
     "$description": "Slower than Arena's default, which is the whole difference between an interface\nthat acknowledges a pointer and one that responds to it. Still inside the transition range, so\nnothing here becomes motion a person waits on."
   },
+  "ease-hover": {
+    "$type": "cubicBezier",
+    "$value": "{ease.in-out}",
+    "$description": "The other half of the same decision, and the half a duration cannot make. Arena's\ndefault curve leaves at full speed and settles, which is an interface answering the instant the\npointer lands. This one starts from rest, which is what a thing with mass does: 220ms on that\ncurve reads as an object being moved, where 220ms on the default reads as the same instant answer\ntaking longer than it should.\n\nDerived from the principle rather than chosen beside it. A figure standing off a ground is an\nOBJECT, and an object has inertia; a voice that grouped by drawing a region has nothing to give\nmass to, which is why the default curve is right there and wrong here. Still one of Arena's three\nsteps, because the value a role moves to is the language's and not the voice's."
+  },
+  "press-scale": {
+    "$type": "number",
+    "$value": 0.96,
+    "$description": "0.98 to 0.96, which is the return trip of the two pixels lift-control spends. A\ncontrol that rises under the pointer and then sinks under the press has completed a gesture; one\nthat rises and then barely moves has started one.\n\nTwice the default and no further. Past about 0.95 a button reads as a soft thing being squashed\nrather than a solid one being pressed, and this voice is about objects standing on a floor rather\nthan about toys."
+  },
   "fs-h1": {
     "$type": "dimension",
     "$value": {

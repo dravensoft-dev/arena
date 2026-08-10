@@ -178,7 +178,10 @@ A manifest writes the role, and `check:roles` fails one that writes the scale:
 `shadow-surface-floating`, `shadow-surface-deep` and `shadow-control-raised` rather than
 `shadow-2` and its siblings; `--bw-surface`, `--bw-control`, `--bw-field`, `--bw-marker` and
 `--bw-separator` rather than `--bw`; `--dur-hover` and `--dur-state` rather than `--dur-fast`
-and `--dur-mid`.
+and `--dur-mid`; `ease-hover` and `ease-state` rather than `ease-out`, paired with the duration
+the same transition names, because a curve is half of what a transition feels like and a manifest
+that named a role for the length and a scale step for the shape would have answered half the
+question.
 
 **Why it is a rule and not a preference**: a design extension is a scope class that re-values
 role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
@@ -194,11 +197,15 @@ next INSIDE a surface. It is a separate role from `--bw-surface` for the reason 
 most to this whole tier, which is that an extension grouping by elevation removes the enclosure
 and a table whose row rules vanished with it would stop being readable.
 
-**Radius and depth are banned by utility name; a border width and a duration by TOKEN name.**
-The first two have a Tailwind namespace and the last two do not, so they are reached as the
-token itself. Banning the token catches `border-[length:var(--bw)]` and the `var(--dur-fast)`
-buried inside an arbitrary `[transition:...]` property with one entry rather than one per
-spelling, which is the shape `ArenaButton`'s three-property transition takes.
+**Radius and depth are banned by utility name; a border width and a duration by TOKEN name; an
+easing by both.** The first two have a Tailwind namespace and the next two do not, so those are
+reached as the token itself. Banning the token catches `border-[length:var(--bw)]` and the
+`var(--dur-fast)` buried inside an arbitrary `[transition:...]` property with one entry rather
+than one per spelling, which is the shape `ArenaButton`'s four-property transition takes. An
+easing is the one family a manifest writes both ways, as `ease-out` beside a duration and as
+`var(--ease-out)` inside that same arbitrary property, so it is banned under both spellings and
+they cannot double-count: the utility pattern refuses a match preceded by a hyphen, which is
+every occurrence inside `var(--ease-out)`.
 
 `SCALE_USES` in `scripts/check/tailwind/check-role-tokens.ts` records the places that genuinely
 mean the length: a placeholder faking the shape of what it stands in for, a tooltip whose corner

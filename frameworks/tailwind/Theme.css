@@ -290,6 +290,15 @@
   --ease-in-out: var(--ease-in-out);
   --ease-emphatic: var(--ease-emphatic);
 
+  /* the motion roles → contracts/design/roles.json. A curve is half of what a
+     transition feels like and the duration is the other half, so the two are
+     promoted together: `.duration-[var(--dur-hover)] .ease-hover` names a role at
+     both ends, which is what check:roles holds. The steps above stay reachable
+     for the entrances and the brand gesture in Animations.css, which answer the
+     reduced-motion policy rather than a voice. */
+  --ease-hover: var(--ease-hover);
+  --ease-state: var(--ease-state);
+
   --blur-*: initial;
   --blur-scrim: var(--scrim-blur);
 

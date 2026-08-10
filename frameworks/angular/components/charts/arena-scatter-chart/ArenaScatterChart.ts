@@ -34,7 +34,7 @@ const SIZE_KEY_VALUE_STYLE = {
 } as const satisfies Readonly<Record<string, string>>;
 
 const MARK_STYLE = {
-  strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-fast) var(--ease-out)',
+  strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-hover) var(--ease-hover)',
 } as const satisfies Readonly<Record<string, string>>;
 
 

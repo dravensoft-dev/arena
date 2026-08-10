@@ -13,8 +13,25 @@ test('a bracketed scale use is reported, so the brackets and parens are matched 
 test('a scale token inside an arbitrary property is reported too, so a transition triple cannot hide one', () => {
   assert.deepEqual(
     scaleUsesIn('[transition:background_var(--dur-fast)_var(--ease-out),box-shadow_var(--dur-mid)_var(--ease-out)]'),
-    ['--dur-fast', '--dur-mid'],
+    ['--dur-fast', '--dur-mid', '--ease-out'],
   );
+});
+
+test('the easing scale is caught as a utility as well, which is the half a transition writes as a class', () => {
+  assert.deepEqual(scaleUsesIn('transition-[background] duration-[var(--dur-hover)] ease-out'), ['ease-out']);
+});
+
+test('an easing spelled as a token counts once and not twice, because the utility pattern cannot match inside var(--ease-out)', () => {
+  assert.deepEqual(scaleUsesIn('duration-[var(--dur-hover)] ease-[var(--ease-out)]'), ['--ease-out']);
+});
+
+test('the motion roles are not scale uses, at either end of the transition', () => {
+  assert.deepEqual(scaleUsesIn('duration-[var(--dur-hover)] ease-hover'), []);
+  assert.deepEqual(scaleUsesIn('duration-[var(--dur-state)] ease-state'), []);
+});
+
+test('the easings a voice never answers are left alone, because an entrance and the brand gesture are not a hover', () => {
+  assert.deepEqual(scaleUsesIn('ease-in-out ease-emphatic'), []);
 });
 
 test('a scale step behind a state modifier is still a scale use', () => {

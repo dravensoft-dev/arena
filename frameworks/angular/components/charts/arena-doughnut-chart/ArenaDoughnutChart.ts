@@ -15,7 +15,7 @@ const DIM_OPACITY = 0.55;
 const SVG_STYLE = { display: 'block', flexShrink: '0' } as const satisfies Readonly<Record<string, string>>;
 
 const SEGMENT_STYLE = {
-  transition: 'opacity var(--dur-fast) var(--ease-out)', strokeWidth: 'var(--bw-strong)',
+  transition: 'opacity var(--dur-hover) var(--ease-hover)', strokeWidth: 'var(--bw-strong)',
 } as const satisfies Readonly<Record<string, string>>;
 
 const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies Readonly<Record<string, string>>;
