@@ -8,7 +8,7 @@ in its directory.
 |---|---|---|
 | [`api/`](api/AGENTS.md) | the members a component's API presents | `api/AGENTS.md`, plus [`api/MemberForms.md`](api/MemberForms.md) |
 | [`behaviour/`](behaviour/AGENTS.md) | what a kind of component must do: roles, keys, focus, dismissal | `behaviour/AGENTS.md` |
-| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md) and [`design/TokenTypes.md`](design/TokenTypes.md) |
+| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md), [`design/TokenTypes.md`](design/TokenTypes.md) and [`design/Extensions.md`](design/Extensions.md) |
 
 **A level's statement is one file or several, and where it is several the split is by AUDIENCE
 rather than by topic.** The `AGENTS.md` is always the half that **decides**, and a sibling is
@@ -18,7 +18,8 @@ what a reader **consults** while doing the work:
   can hold; `api/MemberForms.md` is the vocabulary you write it in, the nine forms, the six
   derived rules, the binding table and the file format.
 - `design/AGENTS.md` says what a value MEANS; `design/Scales.md` is every scale step by step and
-  which role each step plays; `design/TokenTypes.md` says what DTCG `$type` it carries and what
+  which role each step plays; `design/Extensions.md` says which of those values a design
+  extension may re-decide and which it may not; `design/TokenTypes.md` says what DTCG `$type` it carries and what
   shape it is authored in, which only somebody authoring a token or targeting a new platform
   needs.
 - `behaviour/` is one file, because it has no second audience to separate: nobody reads a

@@ -40,12 +40,14 @@ export const FILES = [
     { selector: ':root', source: 'layering.json' },
     { selector: ':root', source: 'chart.json' },
     { selector: ':root', source: 'behaviour.json' },
+    { selector: '.arena-expressive', source: 'extension.expressive.json' },
   ] },
 ];
 
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
   'roles.json': ['effects.json'],
+  'extension.expressive.json': ['effects.json'],
 };
 
 const EXT = 'com.dravensoft.arena';

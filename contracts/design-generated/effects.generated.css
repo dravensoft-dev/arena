@@ -410,3 +410,66 @@
    */
   --limit-pagination-siblings:1;
 }
+.arena-expressive{
+  /*
+     A product card is a thing you want to touch, so its corner is softer than a panel
+     you want to read. One step up the scale rather than an invented number, which is the rule an
+     extension holds to everywhere: it re-values a role, and the value it moves to is still Arena's.
+   */
+  --r-surface:22px;
+  /*
+     The floating tier moves with the surface tier and stays one step below it, so a menu
+     still reads as lighter than the card it opens over. Moving one without the other is the
+     half-applied look the two roles exist to prevent.
+   */
+  --r-surface-floating:14px;
+  /*
+     A softer button. Not a pill: a pill reads as a tag or a filter chip, and a call to
+     action that looks like a filter is a call to action nobody presses.
+   */
+  --r-control:10px;
+  /*
+     Fields follow controls, because a form reads as one object when its inputs and its
+     submit button share a corner.
+   */
+  --r-field:10px;
+  /*
+     A price badge sits on a rounder card, so a square-cornered marker would read as
+     stuck on rather than part of it.
+   */
+  --r-marker:6px;
+  /*
+     The change this extension is actually about. Arena groups by drawing the region,
+     which is cheap in pixels and right for dense data; here the grouping is carried by elevation
+     and air instead, which is the Gestalt trade between common region and figure/ground.
+     
+     Safe to remove because a surface is not a user interface component: WCAG 1.4.11 asks 3:1 of a
+     CONTROL's boundary and of a meaningful graphic, and a card is neither. bw-control and bw-field
+     are therefore untouched below, and bw-separator with them, because a table that lost the rules
+     between its rows when its frame went would stop being readable.
+   */
+  --bw-surface:0px;
+  /*
+     What replaces the border. The lightest step of the elevation scale, because a page
+     of product cards each carrying a dialog's depth reads as a pile rather than a grid.
+   */
+  --shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);
+  /*
+     A call to action that lifts further than anything else on the page. This is where
+     an expressive extension spends most of its emphasis, and it is spent on one element per view,
+     which is the same rule as one primary accent per view.
+   */
+  --shadow-control-raised:0px 30px 60px -20px rgba(0,0,0,.7);
+  /*
+     Two pixels, and no more: the travel has to read as an answer to the pointer rather
+     than as the layout moving. It is a length rather than an alias because the base value is 0 and
+     there is no scale step for a distance a control travels.
+   */
+  --lift-control:2px;
+  /*
+     Slower than Arena's default, which is the whole difference between an interface
+     that acknowledges a pointer and one that responds to it. Still inside the transition range, so
+     nothing here becomes motion a person waits on.
+   */
+  --dur-hover:220ms;
+}

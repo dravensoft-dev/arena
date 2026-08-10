@@ -50,6 +50,7 @@
     "build:angular-package": "bun scripts/build/angular/build-angular-package.ts",
     "build:packages": "bun scripts/graph/run-build.ts --assemble",
     "check:dtcg": "bun scripts/check/core/check-dtcg.ts",
+    "check:extensions": "bun scripts/check/core/check-extensions.ts",
     "check:tokens": "bun scripts/check/core/check-tokens-generated.ts",
     "check:fonts": "bun scripts/check/core/check-fonts-generated.ts",
     "check:ramp": "bun scripts/check/core/check-ramp.ts",

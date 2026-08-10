@@ -111,14 +111,21 @@ only a token and what the device reports. The full `$type` table is
 
 Two of these numbers the scripts **report without gating**: crimson as text sits at 2.80:1 on the dark card, gold as text at 2.24:1 on the light one. Both are below AA and both are deliberate: they are the brand, and a gate there would not tighten a token but repaint Dravensoft. Use them as fills or on the theme that carries them, and reach for `--text-strong` when the job is reading text.
 
-| Invariant, this *is* Arena | Skin, yours to change |
-|---|---|
-| Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | Crimson (`--color-primary`) |
-| No gradients on any surface (one exception: `ArenaSkeleton`'s shimmer) | Gold (`--color-secondary`) |
-| The `base-100`→`base-200`→`base-300` surface scale | The warm-black base values |
-| The hairline border, and the warm shadow scale | The status hues |
-| The type scale, the three families, the uppercase-microlabel rule | The 8 categorical slots |
-| Identity vs meaning; one axis in charts; the ramp is never cycled | |
+**Three tiers, and each has exactly one party who may move it.** The full statement is
+[`Extensions.md`](./Extensions.md); this is the table.
+
+| Floor, nobody moves it | Extension, Arena moves it | Skin, the consumer moves it |
+|---|---|---|
+| Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | The grouping signal: the hairline, or elevation and air instead | Crimson (`--color-primary`) |
+| WCAG contrast, and the 3:1 a control's boundary and the focus ring carry | The radius roles, and the border roles other than a control's and a field's | Gold (`--color-secondary`) |
+| Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
+| The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | The status hues |
+| The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
+| The three families, and the uppercase-microlabel rule | | |
+| Identity vs meaning; one axis in charts; the ramp is never cycled | | |
+
+An extension may not lower a floor, and the floor gates run against every scope Arena ships rather
+than against `:root` alone.
 
 ### The categorical ramp
 

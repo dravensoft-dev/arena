@@ -233,6 +233,33 @@ Both bun and npm run a `pre<name>` script ahead of the script it names, so wirin
 what keeps the two files from ever going stale. They are build products of your config and your
 sources, so ignore them in version control the way you ignore the rest of your build.
 
+## Pick a design extension
+
+Arena ships one visual voice by default: hairline grouping, flat hierarchy, no resting depth, made
+for reading a lot of data at once. A **design extension** is a second voice for the work that is
+not that, a shop or a landing page, where the job is to invite rather than to scan.
+
+```html
+<html class="arena-expressive">
+```
+
+`expressive` softens every corner, drops the border around a surface and lets elevation and air do
+the grouping instead, lifts a control under the pointer, and slows the response enough to read as
+one. Put the class on the root, or on any container to scope it to part of a page.
+
+It composes with everything else, because the three things change different values: a palette
+class carries colour, `arena-compact` carries how dense the controls are, and an extension carries
+the shape and the depth. `<html class="arena-light arena-compact arena-expressive">` is a
+light, dense, expressive page and needs no ordering care.
+
+Two things it deliberately does not do. It does not change control heights or row padding, since
+that is what the compact density is for and a tap target should be decided once. And it does not
+touch the border of a button or an input, because that boundary is what carries the 3:1 those
+controls owe, whatever voice they are speaking in.
+
+Write no extension of your own: an extension is measured against Arena's accessibility floors
+before it ships, and a hand-written scope class is a claim nobody checked.
+
 ## Switch palettes
 
 ```tsx

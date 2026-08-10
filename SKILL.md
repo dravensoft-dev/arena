@@ -55,6 +55,10 @@ Every one of these is enforced somewhere, so breaking one is a defect rather tha
   `icon="ph-bold ph-plus"`. Install `@phosphor-icons/web`; Arena never bundles it.
 - **Two themes, dark first.** Dark is `:root`, light is the `.arena-light` class. Components
   are never rewritten per theme, because they read tokens. `.arena-compact` re-densifies.
+- **A design extension is a second voice, and you pick one.** Put `.arena-expressive` on a root
+  or a container and every component softens, groups by elevation instead of by hairline, and
+  answers the pointer more slowly. It composes with a theme and with the compact density,
+  because the three change different things. Write no extension of your own.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order
   is identity; the status colours are meaning. Status colours are never series colours.
 - **Copy is English, formal and direct**, concrete action verbs, no boastful adjectives.

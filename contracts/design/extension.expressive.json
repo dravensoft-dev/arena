@@ -1,0 +1,58 @@
+{
+  "r-surface": {
+    "$type": "dimension",
+    "$value": "{r.xl}",
+    "$description": "A product card is a thing you want to touch, so its corner is softer than a panel\nyou want to read. One step up the scale rather than an invented number, which is the rule an\nextension holds to everywhere: it re-values a role, and the value it moves to is still Arena's."
+  },
+  "r-surface-floating": {
+    "$type": "dimension",
+    "$value": "{r.lg}",
+    "$description": "The floating tier moves with the surface tier and stays one step below it, so a menu\nstill reads as lighter than the card it opens over. Moving one without the other is the\nhalf-applied look the two roles exist to prevent."
+  },
+  "r-control": {
+    "$type": "dimension",
+    "$value": "{r.md}",
+    "$description": "A softer button. Not a pill: a pill reads as a tag or a filter chip, and a call to\naction that looks like a filter is a call to action nobody presses."
+  },
+  "r-field": {
+    "$type": "dimension",
+    "$value": "{r.md}",
+    "$description": "Fields follow controls, because a form reads as one object when its inputs and its\nsubmit button share a corner."
+  },
+  "r-marker": {
+    "$type": "dimension",
+    "$value": "{r.sm}",
+    "$description": "A price badge sits on a rounder card, so a square-cornered marker would read as\nstuck on rather than part of it."
+  },
+  "bw-surface": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "The change this extension is actually about. Arena groups by drawing the region,\nwhich is cheap in pixels and right for dense data; here the grouping is carried by elevation\nand air instead, which is the Gestalt trade between common region and figure/ground.\n\nSafe to remove because a surface is not a user interface component: WCAG 1.4.11 asks 3:1 of a\nCONTROL's boundary and of a meaningful graphic, and a card is neither. bw-control and bw-field\nare therefore untouched below, and bw-separator with them, because a table that lost the rules\nbetween its rows when its frame went would stop being readable."
+  },
+  "shadow-surface-rest": {
+    "$type": "shadow",
+    "$value": "{shadow.1}",
+    "$description": "What replaces the border. The lightest step of the elevation scale, because a page\nof product cards each carrying a dialog's depth reads as a pile rather than a grid."
+  },
+  "shadow-control-raised": {
+    "$type": "shadow",
+    "$value": "{shadow.3}",
+    "$description": "A call to action that lifts further than anything else on the page. This is where\nan expressive extension spends most of its emphasis, and it is spent on one element per view,\nwhich is the same rule as one primary accent per view."
+  },
+  "lift-control": {
+    "$type": "dimension",
+    "$value": {
+      "value": 2,
+      "unit": "px"
+    },
+    "$description": "Two pixels, and no more: the travel has to read as an answer to the pointer rather\nthan as the layout moving. It is a length rather than an alias because the base value is 0 and\nthere is no scale step for a distance a control travels."
+  },
+  "dur-hover": {
+    "$type": "duration",
+    "$value": "{dur.mid}",
+    "$description": "Slower than Arena's default, which is the whole difference between an interface\nthat acknowledges a pointer and one that responds to it. Still inside the transition range, so\nnothing here becomes motion a person waits on."
+  }
+}
