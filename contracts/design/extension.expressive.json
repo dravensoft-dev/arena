@@ -94,6 +94,21 @@
     },
     "$description": "Two pixels, and no more: the travel has to read as an answer to the pointer rather\nthan as the layout moving. It is a length rather than an alias because the base value is 0 and\nthere is no scale step for a distance a control travels."
   },
+  "pad-surface": {
+    "$type": "dimension",
+    "$value": "{sp.8}",
+    "$description": "20px to 32px, which is the other half of the air this voice spends. Ground around\na figure and room inside it are one decision made twice: a card given more space on the page and\nnone inside it reads as a crowded object standing alone, which is worse than either.\n\nThe floating tier is untouched, and that is the point of the split: a dialog roomed up by the\nsame ratio would start pushing its own buttons past the fold."
+  },
+  "rhythm-component": {
+    "$type": "dimension",
+    "$value": "{sp.6}",
+    "$description": "The ground a figure needs around it. This voice took the line off a surface and\nasked elevation and air to carry the grouping, and air is half of that sentence: a card with no\nborder and no room around it reads as a stripe of a longer surface rather than as an object.\n\nrhythm-group is deliberately left alone. The air INSIDE a group is what makes a label and its\nfield read as one thing, and widening it would loosen the figure while the ground grew, which is\nthe opposite of what figure and ground means."
+  },
+  "rhythm-section": {
+    "$type": "dimension",
+    "$value": "{sp.10}",
+    "$description": "Section air grows further than component air, so the ladder stays a ladder: group\nis 12, component becomes 24 and section becomes 40, which reads 1 to 2 to 3.3 where the default\nreads 1 to 1.33 to 2. A voice that widened one step without the other would flatten the very\nhierarchy the steps exist to state."
+  },
   "dur-hover": {
     "$type": "duration",
     "$value": "{dur.mid}",

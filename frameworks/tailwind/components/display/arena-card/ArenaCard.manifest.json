@@ -2,10 +2,10 @@
   "component": "ArenaCard",
   "slots": {
     "root": "block bg-surface border-[length:var(--bw-surface)] rounded-surface overflow-hidden shadow-surface-rest",
-    "head": "flex items-start justify-between px-5 pt-4.5",
+    "head": "flex items-start justify-between px-surface pt-4.5",
     "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-1.5",
     "title": "font-display font-extrabold text-h4 text-base-content",
-    "body": "p-5"
+    "body": "p-surface"
   },
   "variants": {
     "accent": {

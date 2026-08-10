@@ -121,6 +121,7 @@ Two of these numbers the scripts **report without gating**: crimson as text sits
 | WCAG contrast, and the 3:1 a control's boundary and the focus ring carry | The radius roles, and the border roles other than a control's and a field's | Gold (`--color-secondary`) |
 | An extension authors no colour | Which of the skin's colours a surface takes: `fill-surface` and `fill-surface-floating`, split so flattening a card never flattens an overlay | |
 | Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
+| | Air: `pad-surface` inside a surface, and the `rhythm` steps between two things. Density keeps the controls and the data rows, so the two compose | |
 | The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | |
 | The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
 | The three families, and the uppercase-microlabel rule | | |

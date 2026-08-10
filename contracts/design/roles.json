@@ -29,6 +29,11 @@
     "$value": "{r.xs}",
     "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
   },
+  "pad-surface": {
+    "$type": "dimension",
+    "$value": "{sp.5}",
+    "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA voice needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany voice. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy voice is a coherent thing to want.\n\nThe floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and\na coachmark is pinned to what it points at, so their padding is a fit constraint rather than a\nstatement about air, and giving a voice a lever there would let it push their content off the\nedge. They are recorded in SCALE_USES instead."
+  },
   "fill-surface": {
     "$type": "color",
     "$value": "{color.base-200}",

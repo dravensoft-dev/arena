@@ -206,3 +206,17 @@ test('a voice is held in every scope it ships, so a cue that carries one polarit
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /in light .*neither a line nor a depth/);
 });
+
+test('a rhythm step is movable for the same reason an fs step is, and both still need a reason', () => {
+  const moved = { 'rhythm-section': { $type: 'dimension', $value: '{sp.10}', $description: 'why' } };
+  assert.deepEqual(extensionProblems('editorial', moved, ROLES), []);
+  const mute = { 'rhythm-section': { $type: 'dimension', $value: '{sp.10}' } };
+  assert.match(extensionProblems('editorial', mute, ROLES)[0] ?? '', /\$description/);
+  const wrong = { 'rhythm-section': { $type: 'duration', $value: '{dur.mid}', $description: 'why' } };
+  assert.match(extensionProblems('editorial', wrong, ROLES)[0] ?? '', /rhythm step is a dimension/);
+});
+
+test('a spacing step that is not a rhythm step is still a scale, so an extension cannot reach it', () => {
+  const tokens = { 'sp-5': { $type: 'dimension', $value: '{sp.8}', $description: 'why' } };
+  assert.match(extensionProblems('editorial', tokens, ROLES)[0] ?? '', /sp-5/);
+});

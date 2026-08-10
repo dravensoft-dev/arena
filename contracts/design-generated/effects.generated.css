@@ -133,6 +133,26 @@
    */
   --r-marker:4px;
   /*
+     The room a surface gives its own content: a card's head and body, a stat card, a
+     chart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base
+     value cannot drift off the spacing grid.
+     
+     The cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which
+     Arena never draws and a page applies, and this is the air a component gives its own contents.
+     A voice needs both, because a card with room inside it and none around it reads as a stripe.
+     
+     The cut against density is who is being asked about. Density says how dense the CONTROLS and the
+     DATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in
+     any voice. This says how generous a surface is, which is a statement about the page's register.
+     The two compose: .arena-compact and a roomy voice is a coherent thing to want.
+     
+     The floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and
+     a coachmark is pinned to what it points at, so their padding is a fit constraint rather than a
+     statement about air, and giving a voice a lever there would let it push their content off the
+     edge. They are recorded in SCALE_USES instead.
+   */
+  --pad-surface:20px;
+  /*
      The fill of a surface that belongs to the page: a card, a stat card, a table's
      frame, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a
      region is told from the page by its edge and by its fill together.
@@ -543,6 +563,32 @@
      there is no scale step for a distance a control travels.
    */
   --lift-control:2px;
+  /*
+     20px to 32px, which is the other half of the air this voice spends. Ground around
+     a figure and room inside it are one decision made twice: a card given more space on the page and
+     none inside it reads as a crowded object standing alone, which is worse than either.
+     
+     The floating tier is untouched, and that is the point of the split: a dialog roomed up by the
+     same ratio would start pushing its own buttons past the fold.
+   */
+  --pad-surface:32px;
+  /*
+     The ground a figure needs around it. This voice took the line off a surface and
+     asked elevation and air to carry the grouping, and air is half of that sentence: a card with no
+     border and no room around it reads as a stripe of a longer surface rather than as an object.
+     
+     rhythm-group is deliberately left alone. The air INSIDE a group is what makes a label and its
+     field read as one thing, and widening it would loosen the figure while the ground grew, which is
+     the opposite of what figure and ground means.
+   */
+  --rhythm-component:24px;
+  /*
+     Section air grows further than component air, so the ladder stays a ladder: group
+     is 12, component becomes 24 and section becomes 40, which reads 1 to 2 to 3.3 where the default
+     reads 1 to 1.33 to 2. A voice that widened one step without the other would flatten the very
+     hierarchy the steps exist to state.
+   */
+  --rhythm-section:40px;
   /*
      Slower than Arena's default, which is the whole difference between an interface
      that acknowledges a pointer and one that responds to it. Still inside the transition range, so

@@ -34,6 +34,8 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['shadow-3', 'shadow-surface-deep'],
   ['shadow-none', 'nothing at all, when the branch means the depth the slot already paints'],
   ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
+  ['p-5', 'p-surface, when the slot is the room a surface gives its own content'],
+  ['px-5', 'px-surface, for the same reason'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -49,6 +51,10 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaBulkActionBar:action:bg-base-200', 'the same, as the hover fill of a control INSIDE a floating surface, which is why it must not follow that surface when a voice moves it'],
   ['ArenaInput:field:bg-base-200', 'the readonly state of a field, which says a control cannot be typed into by matching the surface it sits on. It is a state of a control, not the surface itself, and a voice that moved it would be re-answering readonly rather than re-answering grouping'],
   ['ArenaTextarea:field:bg-base-200', 'the same readonly state, for the same reason'],
+  ['ArenaSheet:head:px-5', 'a sheet is pinned to the viewport edge, so its padding is a fit constraint rather than a statement about air. A voice with a lever here could push its content off the screen, which is why the floating tier has no padding role'],
+  ['ArenaSheet:body:px-5', 'the same sheet, the same constraint'],
+  ['ArenaSheet:foot:px-5', 'the same sheet, the same constraint'],
+  ['ArenaOnboarding:panel:p-5', 'a coachmark is pinned to the element it points at and sized against the viewport in JS, so its padding is a fit constraint for the same reason a sheet\'s is'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {

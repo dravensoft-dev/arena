@@ -47,8 +47,8 @@ export const FILES = [
 
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
-  'roles.json': ['effects.json', 'palette.dark.json'],
-  'extension.expressive.json': ['effects.json', 'typography.json', 'palette.dark.json'],
+  'roles.json': ['effects.json', 'palette.dark.json', 'spacing.json'],
+  'extension.expressive.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
 };
 
 export const EXTENSION_PREFIX = 'extension.';

@@ -1,4 +1,4 @@
-<!-- @dsCard group="Effects" viewport="1120x640" name="Design extension" subtitle="real components, every voice against both themes" -->
+<!-- @dsCard group="Effects" viewport="1120x860" name="Design extension" subtitle="real components, every voice against both themes" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="../../frameworks/tailwind/consume/Preflight.generated.css">
@@ -15,7 +15,10 @@
   .cap{font-family:var(--font-mono);font-size:var(--dz-text-2xs);letter-spacing:var(--ls-label);
        text-transform:uppercase;color:var(--mute)}
   .cap b{color:var(--text-strong);font-weight:var(--fw-semibold)}
-  .row{display:flex;gap:var(--sp-3);align-items:flex-end;margin-top:var(--sp-5)}
+  /* The air BETWEEN two peer components, which Arena never draws and a page applies. It is read
+     here rather than hard-coded so a voice that re-values rhythm shows the change on this page. */
+  .stack{display:flex;flex-direction:column;gap:var(--rhythm-component)}
+  .row{display:flex;gap:var(--sp-3);align-items:flex-end}
   .row .arena-input__root{flex:1}
   .prose{font-size:var(--fs-md);color:var(--text-body);margin:0}
 </style>
@@ -46,29 +49,33 @@ function el(tag, props = {}, ...children) {
   return node;
 }
 
-/* One specimen, rendered from the manifests so the quadrants differ in their scope class and in
-   nothing else. A card carries the grouping signal, a tag is a marker pinned to r-pill, a field
-   keeps the border WCAG 1.4.11 asks of it, and the button is the one control that moves on all
-   four of an extension's axes. */
+/* Two peer cards rather than one, so the page shows both halves of what a voice spends: the
+   surface itself, which is fill, edge, corner and depth, and the ground between two of them,
+   which is rhythm. A single card can only ever show the first. */
 function specimen() {
   const c = arenaClassesFor(card, { accent: false, floating: false, interactive: false });
   const t = arenaClassesFor(tag, { tone: 'primary' });
   const i = arenaClassesFor(input, { state: 'neutral' });
   const b = arenaClassesFor(button, { variant: 'primary', size: 'md' });
 
-  return el('div', { class: c.root },
+  const first = el('div', { class: c.root },
     el('div', { class: c.head },
       el('div', {},
         el('div', { class: c.eyebrow, text: 'Peripherals' }),
         el('div', { class: c.title, text: 'Aurora keyboard' })),
       el('span', { class: t.root }, el('span', { class: t.dot }), 'In stock')),
     el('div', { class: c.body },
-      el('p', { class: 'prose', text: 'The card is the grouping signal. Watch its edge, its corner and whether it sits on the page or above it.' }),
+      el('p', { class: 'prose', text: 'Watch the edge of each card, its corner, whether it sits on the page or above it, and how far apart the two of them stand.' })));
+
+  const second = el('div', { class: c.root },
+    el('div', { class: c.body },
       el('div', { class: 'row' },
         el('label', { class: i.root },
           el('span', { class: i.label, text: 'Quantity' }),
           el('span', { class: i.field }, el('input', { class: i.input, value: '1', type: 'text' }))),
         el('button', { class: b.root, type: 'button', text: 'Add to cart' }))));
+
+  return el('div', { class: 'stack' }, first, second);
 }
 
 const VOICES = [{ name: 'none', note: 'groups by common region' }].concat(

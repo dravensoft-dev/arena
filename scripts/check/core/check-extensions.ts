@@ -34,6 +34,8 @@ const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 const FS_STEP = /^fs-[a-z0-9]+$/;
 
+export const RHYTHM_STEP = /^rhythm-[a-z]+$/;
+
 export const RESERVED_NAME = 'none';
 
 export const GROUPING = 'grouping';
@@ -190,9 +192,10 @@ export function extensionProblems(
     problems.push(`${at}: moves no role, and an extension that changes nothing is a class nobody can tell from its absence`);
   for (const { key, token, theme } of moved) {
     const where = theme ? `${at} (${theme})` : at;
-    if (FS_STEP.test(key)) {
+    const named = FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null;
+    if (named) {
       if (token?.$type !== 'dimension')
-        problems.push(`${where}: --${key} is a ${token?.$type}, and an fs step is a dimension`);
+        problems.push(`${where}: --${key} is a ${token?.$type}, and ${named} is a dimension`);
       if (!token?.$description)
         problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
       continue;
@@ -200,7 +203,7 @@ export function extensionProblems(
     const role = roles[key];
     if (!role) {
       problems.push(
-        `${where}: --${key} is neither a role in contracts/design/roles.json nor an fs step. An extension re-values those only: `
+        `${where}: --${key} is neither a role in contracts/design/roles.json nor an fs or rhythm step. An extension re-values those only: `
         + `a scale, a colour, a density step or a spacing step is shared by every use that wants that value, `
         + `so moving one is not an extension but a different Arena.`,
       );

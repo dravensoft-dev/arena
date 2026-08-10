@@ -22,7 +22,7 @@ against the floors before it goes out.
 | Tier | Owns | Moved by |
 |---|---|---|
 | Floor | WCAG contrast, the non-text contrast of a control's boundary and of the focus ring, focus appearance, target size, the reduced-motion policy, danger recognisable without colour | Nobody |
-| Extension | The grouping signal, the radius roles, the border roles, the surface FILL roles as an assignment, resting and raised depth, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
+| Extension | The grouping signal, the radius roles, the border roles, the surface FILL roles as an assignment, resting and raised depth, the air a surface gives its content and the air between two things, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
 | Skin | The 27 palette colours and the three font roles | The consumer, in `arena.config.json` |
 
 An extension may not lower a floor. `bun run check:boundary-contrast` is the one floor this
@@ -94,8 +94,27 @@ is an answer shared by every use that happened to want that length, so re-valuin
 a card also softens every unrelated thing sitting on the same step. That is not an extension, it
 is a different Arena.
 
+**An extension spends air, and the cut against density is who is being asked about.** Two families
+answer air, and both are open to a voice. `pad-surface` is the room a surface gives its own
+content, and `rhythm-group`, `rhythm-component` and `rhythm-section` are the air BETWEEN two
+things, which Arena never draws and a page applies. A voice needs both: a card given room on the
+page and none inside it reads as a crowded object standing alone.
+
+`rhythm` is reachable for the same reason the `fs` ladder is. Its steps are already roles with
+names rather than an anonymous ladder, and `roles.json` says so itself when it calls its own
+aliases "on the same footing as rhythm's aliases of sp". `check:extensions` accepts them by
+pattern, as it does `fs`.
+
+The floating tier deliberately has no padding role. A sheet is pinned to the viewport edge and a
+coachmark to the element it points at, so their padding is a fit constraint rather than a statement
+about air, and a lever there would let a voice push their content off the screen. Those four uses
+are recorded in `SCALE_USES` with that reason rather than left to look like an oversight.
+
 **An extension does not set `dz`.** Control height, row padding and control text say how dense the
-CONTROLS are, and that is density's question. Density is already its own axis, `.arena-compact`,
+CONTROLS and the DATA ROWS are, and that is density's question rather than a voice's: it is target
+size, it is the same answer on a phone in any voice, and it composes with air rather than competing
+with it. `.arena-compact` and a roomy voice is a coherent thing to want, and only separate axes let
+somebody have it. Density is already its own axis, `.arena-compact`,
 and letting an extension reach the same tokens would put two axes in contention with the cascade
 deciding the winner instead of the author. This is also where Fitts's law is answered, once,
 rather than in every extension: `density.comfortable.json` takes a control to 48px, clearing the
