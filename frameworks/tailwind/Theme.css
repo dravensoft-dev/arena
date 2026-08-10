@@ -258,8 +258,10 @@
   /* the depth roles, for the same reason as the radius roles above: a surface
      asks for the tier it sits in or for the state it rises to, not for a step of
      the elevation scale. */
+  --shadow-surface-rest: var(--shadow-surface-rest);
   --shadow-surface-floating: var(--shadow-surface-floating);
   --shadow-surface-deep: var(--shadow-surface-deep);
+  --shadow-control-rest: var(--shadow-control-rest);
   --shadow-control-raised: var(--shadow-control-raised);
 
   --ease-*: initial;

@@ -59,6 +59,37 @@
     "$value": "{shadow.2}",
     "$description": "The depth a surface carries AT REST because it floats over the page: a menu,\na toast, a tooltip, a bulk action bar, a card's floating variant. Distinct from the raised role\nbelow, which is a response to a pointer rather than a statement about where a thing sits."
   },
+  "shadow-surface-rest": {
+    "$type": "shadow",
+    "$value": {
+      "offsetX": {
+        "value": 0,
+        "unit": "px"
+      },
+      "offsetY": {
+        "value": 0,
+        "unit": "px"
+      },
+      "blur": {
+        "value": 0,
+        "unit": "px"
+      },
+      "spread": {
+        "value": 0,
+        "unit": "px"
+      },
+      "color": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "alpha": 0
+      }
+    },
+    "$description": "The depth a surface carries at rest when it is part of the page rather than floating\nover it, which by default is none. Authored as a fully transparent shadow because DTCG 2025.10\ntypes a shadow as offsets, blur, spread and a colour, and has no way to spell the absence of\none; a zero-size shadow at zero alpha is the same pixels and a real token.\n\nIt exists so the property is PAINTED. A token can re-value a declaration a slot already makes\nand cannot add one, so a card that declared no box-shadow could never be given depth by an\nextension, however the extension was written. This is the role that lets an extension trade\nArena's hairline grouping for grouping by elevation, which is the single change that separates\na console panel from a product card."
+  },
   "shadow-surface-deep": {
     "$type": "shadow",
     "$value": "{shadow.3}",
@@ -68,6 +99,45 @@
     "$type": "shadow",
     "$value": "{shadow.2}",
     "$description": "What a control rises to under the pointer. The same step as a surface's raised\nstate today and a different question: an extension that lifts a call to action has no reason to\nlift every card with it, and a commerce extension is mostly a statement about the call to action."
+  },
+  "shadow-control-rest": {
+    "$type": "shadow",
+    "$value": {
+      "offsetX": {
+        "value": 0,
+        "unit": "px"
+      },
+      "offsetY": {
+        "value": 0,
+        "unit": "px"
+      },
+      "blur": {
+        "value": 0,
+        "unit": "px"
+      },
+      "spread": {
+        "value": 0,
+        "unit": "px"
+      },
+      "color": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "alpha": 0
+      }
+    },
+    "$description": "The depth a control carries at rest, which by default is none, for the reason given at\nshadow-surface-rest: the property has to be painted before a value can move it. A commerce\nextension that gives its call to action a resting lift sets this one."
+  },
+  "lift-control": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "How far a control rises under the pointer, which by default is nowhere. Declared on the\none slot that already transitions transform, so the base appearance is unchanged and an\nextension has somewhere to put the gesture. Not a scale: it is a travel distance, and the\nonly length in the tier whose default is its own neutral rather than an alias."
   },
   "dur-hover": {
     "$type": "duration",

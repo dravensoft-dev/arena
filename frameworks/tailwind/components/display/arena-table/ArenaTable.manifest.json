@@ -1,9 +1,9 @@
 {
   "component": "ArenaTable",
   "slots": {
-    "root": "block w-full font-body",
+    "root": "block w-full font-body shadow-surface-rest",
     "grid": "table w-full border-collapse",
-    "frame": "border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden bg-base-200",
+    "frame": "border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden bg-base-200 shadow-surface-rest",
     "table": "w-full border-collapse font-body",
     "headRow": "table-row bg-base-300",
     "th": "table-cell px-row-px py-row-py text-left align-middle font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62 border-b-[length:var(--bw-separator)] border-base-300 outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
@@ -19,7 +19,7 @@
     "sortBar": "flex items-center gap-2 w-full",
     "sortField": "min-w-0 flex-1",
     "cards": "flex flex-col gap-4",
-    "card": "flex flex-col gap-stack bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-surface p-row-px",
+    "card": "flex flex-col gap-stack bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-surface p-row-px shadow-surface-rest",
     "cardRow": "flex items-baseline justify-between gap-3",
     "cardLabel": "font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62",
     "cardValue": "min-w-0 text-right text-ctl font-body text-base-content/82",

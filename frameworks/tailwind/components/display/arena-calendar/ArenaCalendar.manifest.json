@@ -3,8 +3,8 @@
   "slots": {
     "root": "flex flex-col w-full font-body",
     "toolbar": "flex items-center gap-2 mb-3 flex-wrap",
-    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer text-[length:var(--icon-md)]",
-    "today": "inline-flex items-center justify-center h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer font-body text-ctl-md font-semibold",
+    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer text-[length:var(--icon-md)] shadow-control-rest",
+    "today": "inline-flex items-center justify-center h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer font-body text-ctl-md font-semibold shadow-control-rest",
     "heading": "m-0 ml-1 text-md font-semibold text-base-content",
     "actions": "ml-auto flex gap-2 flex-wrap",
     "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-base-300",

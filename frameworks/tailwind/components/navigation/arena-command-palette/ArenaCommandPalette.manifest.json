@@ -11,7 +11,7 @@
     "empty": "px-3 py-4.5 font-body text-md text-base-content/62",
     "group": "flex flex-col",
     "groupLabel": "px-3 pt-3 pb-1.5 font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62",
-    "row": "flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-control border-none cursor-pointer no-underline",
+    "row": "flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-control border-none cursor-pointer no-underline shadow-control-rest",
     "rowDefault": "bg-transparent text-base-content/82",
     "rowActive": "bg-primary/14 text-primary",
     "rowIcon": "inline-flex text-[length:var(--icon-lg)]",

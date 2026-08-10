@@ -205,6 +205,27 @@ mean the length: a placeholder faking the shape of what it stands in for, a tool
 follows its label, a `calc()` adding a hairline up rather than drawing one. Each entry names one
 case and says why, and an entry no manifest carries fails the gate as a stale allowance.
 
+## A slot paints the expressive properties even when they are neutral
+
+A token re-values a declaration a slot already makes and cannot add one. A card that declared no
+`box-shadow` could therefore never be given depth by an extension, however that extension was
+written, so the flat surfaces and the flat controls carry `shadow-surface-rest` and
+`shadow-control-rest`, and `ArenaButton` carries `hover:-translate-y-[var(--lift-control)]`. All
+three default to nothing: the two shadows are fully transparent, because DTCG 2025.10 types a
+shadow as offsets, blur, spread and a colour and has no way to spell the absence of one, and the
+travel is `0px`.
+
+**Rest and raised compose by source order, not by merging.** A slot's resting depth sets
+`--tw-shadow` in the base rule and its hover sets the same variable in a rule emitted after it,
+which is the ordinary arrangement described above rather than anything new. A slot that already
+paints a shadow does not also take a resting role: `ArenaMenu`'s panel floats, `ArenaDialog`'s
+panel is deep, `ArenaCheckbox`'s box spends its shadow on the focus ring, and
+`ArenaSegmentedControl`'s selected segment on its lift.
+
+**A transition names the property Tailwind emits, and v4 emits `translate` and `scale` rather
+than `transform`.** Those are separate animatable properties, so a transition listing `transform`
+animates neither. `ArenaButton`'s transition names `translate` for that reason.
+
 ## Consumption order
 
 1. Bring Arena's tokens into scope with `@import "../../intro/styles.css";` (or the

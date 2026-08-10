@@ -174,6 +174,19 @@
    */
   --shadow-surface-floating:0px 12px 28px -12px rgba(0,0,0,.6);
   /*
+     The depth a surface carries at rest when it is part of the page rather than floating
+     over it, which by default is none. Authored as a fully transparent shadow because DTCG 2025.10
+     types a shadow as offsets, blur, spread and a colour, and has no way to spell the absence of
+     one; a zero-size shadow at zero alpha is the same pixels and a real token.
+     
+     It exists so the property is PAINTED. A token can re-value a declaration a slot already makes
+     and cannot add one, so a card that declared no box-shadow could never be given depth by an
+     extension, however the extension was written. This is the role that lets an extension trade
+     Arena's hairline grouping for grouping by elevation, which is the single change that separates
+     a console panel from a product card.
+   */
+  --shadow-surface-rest:0px 0px 0px 0px rgba(0,0,0,0);
+  /*
      The depth of a surface that commands the screen, whether by covering it (a
      dialog, a sheet, a command palette, a coachmark) or by being the only thing on it (the sign-in
      card). Named for the tier rather than for modality, because the sign-in card is not modal and
@@ -186,6 +199,19 @@
      lift every card with it, and a commerce extension is mostly a statement about the call to action.
    */
   --shadow-control-raised:0px 12px 28px -12px rgba(0,0,0,.6);
+  /*
+     The depth a control carries at rest, which by default is none, for the reason given at
+     shadow-surface-rest: the property has to be painted before a value can move it. A commerce
+     extension that gives its call to action a resting lift sets this one.
+   */
+  --shadow-control-rest:0px 0px 0px 0px rgba(0,0,0,0);
+  /*
+     How far a control rises under the pointer, which by default is nowhere. Declared on the
+     one slot that already transitions transform, so the base appearance is unchanged and an
+     extension has somewhere to put the gesture. Not a scale: it is a travel distance, and the
+     only length in the tier whose default is its own neutral rather than an alias.
+   */
+  --lift-control:0px;
   /*
      How long a hover or press response takes. An alias of dur.fast, which is what
      every such transition already spells inline. An extension is where motion energy is decided, and
