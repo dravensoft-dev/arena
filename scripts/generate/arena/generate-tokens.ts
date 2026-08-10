@@ -42,6 +42,7 @@ export const FILES = [
     { selector: ':root', source: 'chart.json' },
     { selector: ':root', source: 'behaviour.json' },
     { selector: '.arena-expressive', source: 'extension.expressive.json' },
+    { selector: '.arena-editorial', source: 'extension.editorial.json' },
   ] },
 ];
 
@@ -49,6 +50,7 @@ export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
   'roles.json': ['effects.json', 'palette.dark.json', 'spacing.json'],
   'extension.expressive.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
+  'extension.editorial.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
 };
 
 export const EXTENSION_PREFIX = 'extension.';

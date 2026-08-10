@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   extensionName, extensionProblems, declarationProblems, zeroExtensionProblem, collect,
-  groupingOf, isZeroLength, movedTokens, paintsNothing, principleProblems, resolvedFor,
-  sharedPrincipleProblems,
+  fillsLikeThePage, groupingOf, isZeroLength, movedTokens, paintsNothing, principleProblems,
+  proximityRatio, resolvedFor, sharedPrincipleProblems,
 } from './check-extensions.ts';
 
 const LINE = '1px';
@@ -11,8 +11,17 @@ const NO_LINE = '0px';
 const NO_DEPTH = '0px 0px 0px 0px rgba(0,0,0,0)';
 const DEPTH = '0px 2px 6px -2px rgba(0,0,0,.5)';
 
-const roles = (over: Record<string, string> = {}) =>
-  new Map(Object.entries({ 'bw-surface': LINE, 'shadow-surface-rest': NO_DEPTH, ...over }));
+const PAGE_LIKE = 'var(--color-base-100)';
+const OWN_FILL = 'var(--color-base-200)';
+
+const roles = (over: Record<string, string> = {}) => new Map(Object.entries({
+  'bw-surface': LINE,
+  'shadow-surface-rest': NO_DEPTH,
+  'fill-surface': PAGE_LIKE,
+  'rhythm-group': '8px',
+  'rhythm-section': '64px',
+  ...over,
+}));
 
 const at = (over: Record<string, string> = {}) => new Map([['dark', roles(over)]]);
 
@@ -137,17 +146,23 @@ test('a principle Arena does not know fails rather than passing unchecked', () =
   assert.match(principleProblems('showcase', 'vibes', at())[0] ?? '', /not a grouping principle/);
 });
 
-test('figure/ground has to remove the line AND arrive with the depth, since either alone is not the trade', () => {
+test('figure/ground has to remove the line and then separate the figure by depth OR by fill', () => {
   assert.deepEqual(principleProblems('showcase', 'figure-ground',
     at({ 'bw-surface': NO_LINE, 'shadow-surface-rest': DEPTH })), []);
+  assert.deepEqual(principleProblems('showcase', 'figure-ground',
+    at({ 'bw-surface': NO_LINE, 'fill-surface': OWN_FILL })), [],
+  'a fill of its own separates a figure from its ground as a depth does, which is the clause the '
+  + 'fill roles earned');
   assert.match(principleProblems('showcase', 'figure-ground', at({ 'shadow-surface-rest': DEPTH }))[0] ?? '',
     /still draws --bw-surface/);
   assert.match(principleProblems('showcase', 'figure-ground', at({ 'bw-surface': NO_LINE }))[0] ?? '',
-    /neither a line nor a depth/);
+    /neither a depth nor a fill/);
 });
 
 test('proximity draws nothing at all, so a line or a depth is another principle wearing its name', () => {
   assert.deepEqual(principleProblems('editorial', 'proximity', at({ 'bw-surface': NO_LINE })), []);
+  assert.match(principleProblems('editorial', 'proximity',
+    at({ 'bw-surface': NO_LINE, 'fill-surface': OWN_FILL }))[0] ?? '', /a fill is a region drawn/);
   assert.match(principleProblems('editorial', 'proximity', at())[0] ?? '', /common region under another name/);
   assert.match(principleProblems('editorial', 'proximity',
     at({ 'bw-surface': NO_LINE, 'shadow-surface-rest': DEPTH }))[0] ?? '', /figure and ground under another name/);
@@ -204,7 +219,7 @@ test('a voice is held in every scope it ships, so a cue that carries one polarit
   ]);
   const problems = principleProblems('showcase', 'figure-ground', byScope);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /in light .*neither a line nor a depth/);
+  assert.match(problems[0] ?? '', /in light .*neither a depth nor a fill/);
 });
 
 test('a rhythm step is movable for the same reason an fs step is, and both still need a reason', () => {
@@ -219,4 +234,20 @@ test('a rhythm step is movable for the same reason an fs step is, and both still
 test('a spacing step that is not a rhythm step is still a scale, so an extension cannot reach it', () => {
   const tokens = { 'sp-5': { $type: 'dimension', $value: '{sp.8}', $description: 'why' } };
   assert.match(extensionProblems('editorial', tokens, ROLES)[0] ?? '', /sp-5/);
+});
+
+test('proximity is held to a ratio, because distance is the only signal it has left', () => {
+  assert.match(principleProblems('editorial', 'proximity',
+    at({ 'bw-surface': NO_LINE, 'rhythm-section': '24px' }))[0] ?? '', /only 3\.0 times/);
+  assert.deepEqual(principleProblems('editorial', 'proximity',
+    at({ 'bw-surface': NO_LINE, 'rhythm-section': '32px' })), []);
+  assert.equal(proximityRatio(roles()), 8);
+  assert.equal(proximityRatio(new Map([['rhythm-group', '0px'], ['rhythm-section', '64px']])), null);
+});
+
+test('a fill counts as the page only when it references the page colour, never when it merely resolves near it', () => {
+  assert.ok(fillsLikeThePage(new Map([['fill-surface', 'var(--color-base-100)']])));
+  assert.ok(!fillsLikeThePage(new Map([['fill-surface', 'var(--color-base-200)']])));
+  assert.ok(!fillsLikeThePage(new Map([['fill-surface', '#141010']])));
+  assert.ok(!fillsLikeThePage(new Map()));
 });

@@ -63,6 +63,23 @@ export function paintsNothing(shadow: string | undefined) {
   return parts.length === 4 && Number(parts[3]) === 0;
 }
 
+export const PAGE_FILL = 'color-base-100';
+
+export const MIN_PROXIMITY_RATIO = 4;
+
+const REFERENCE = /^var\(\s*--([\w-]+)\s*\)$/;
+
+export const fillsLikeThePage = (at: Map<string, string>) =>
+  REFERENCE.exec(at.get('fill-surface')?.trim() ?? '')?.[1] === PAGE_FILL;
+
+const px = (value: string | undefined) => Number.parseFloat(value ?? '');
+
+export function proximityRatio(at: Map<string, string>) {
+  const near = px(at.get('rhythm-group'));
+  const far = px(at.get('rhythm-section'));
+  return Number.isFinite(near) && Number.isFinite(far) && near > 0 ? far / near : null;
+}
+
 export const PRINCIPLES = new Map<string, {
   says: string;
   holds: (at: Map<string, string>) => string | null;
@@ -79,9 +96,9 @@ export const PRINCIPLES = new Map<string, {
       if (!isZeroLength(at.get('bw-surface')))
         return 'it still draws --bw-surface, so the depth is decoration over the default voice '
           + 'rather than the thing carrying the grouping';
-      if (paintsNothing(at.get('shadow-surface-rest')))
-        return 'it removed --bw-surface and left --shadow-surface-rest painting nothing, so a surface '
-          + 'is told from the page by neither a line nor a depth';
+      if (paintsNothing(at.get('shadow-surface-rest')) && fillsLikeThePage(at))
+        return 'it removed --bw-surface and then gave the surface neither a depth nor a fill of its '
+          + 'own, so a figure is told from its ground by nothing at all';
       return null;
     },
   }],
@@ -92,6 +109,17 @@ export const PRINCIPLES = new Map<string, {
         return 'it draws --bw-surface, which is grouping by common region under another name';
       if (!paintsNothing(at.get('shadow-surface-rest')))
         return 'it paints --shadow-surface-rest, which is grouping by figure and ground under another name';
+      if (!fillsLikeThePage(at))
+        return `it leaves --fill-surface off --${PAGE_FILL}, and a fill is a region drawn however faint `
+          + 'it is, so the surface still encloses what a voice said only distance would group';
+      const ratio = proximityRatio(at);
+      if (ratio === null)
+        return 'its rhythm steps do not resolve to lengths this gate can compare, so the one signal it '
+          + 'has left cannot be measured';
+      if (ratio < MIN_PROXIMITY_RATIO)
+        return `--rhythm-section is only ${ratio.toFixed(1)} times --rhythm-group, and distance is the `
+          + `only signal left once nothing is drawn: under ${MIN_PROXIMITY_RATIO} it cannot carry both `
+          + 'what belongs together and what does not';
       return null;
     },
   }],

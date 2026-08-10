@@ -57,8 +57,8 @@ Three are known, and they are the Gestalt principles a flat surface can actually
 | Principle | What says two things belong together | The invariant `check:extensions` holds |
 |---|---|---|
 | `common-region` | A line drawn around a region | `bw-surface` is not zero |
-| `figure-ground` | A surface standing off a floor | `bw-surface` is zero AND `shadow-surface-rest` paints something |
-| `proximity` | Distance alone, with nothing drawn | `bw-surface` is zero AND `shadow-surface-rest` paints nothing |
+| `figure-ground` | A surface standing off a floor | `bw-surface` is zero AND the surface is separated by a depth or by a fill of its own |
+| `proximity` | Distance alone, with nothing drawn | `bw-surface` is zero, `shadow-surface-rest` paints nothing, `fill-surface` is the page's own colour, and `rhythm-section` is at least four times `rhythm-group` |
 
 The invariants are measured against RESOLVED values rather than authored ones, because a role a
 voice leaves alone still carries what it inherits, and an alias hides whether it landed on zero.
@@ -255,6 +255,26 @@ action that lifts, and a hover slow enough to read as a response. It removes `bw
 `bw-control`, `bw-field` or `bw-separator`, because WCAG 1.4.11 asks 3:1 of a control's boundary
 and a card is not a control, and because a table that lost the rules between its rows along with
 its frame would stop being readable.
+
+`editorial`: grouping by proximity, which means grouping by nothing drawn. It takes the line off a
+surface like `expressive` does and then, unlike it, puts nothing in its place: the resting depth
+stays neutral, `fill-surface` takes the page's own colour so a card stops being a card, and
+`pad-surface` goes to zero because a surface with no line, no depth and no fill has no inside to
+give room in. What is left is the ladder, tightened at one end and widened at the other: 8px inside
+a group, 24px between peers, 64px between sections, a ratio of eight where the default is two.
+
+That ratio is not decoration, it is the whole mechanism, which is why `check:extensions` holds it
+above four. The other two voices can afford a gentler ladder because a hairline or a depth is
+carrying the grouping beside it; this one has nothing else.
+
+Its floating surfaces are deliberately untouched. A menu, a dialog and a toast are separated from
+what they cover rather than grouped against it, so they keep `fill-surface-floating` and the
+padding a fit constraint gives them. A voice that flattened them too would have made every overlay
+unreadable to win an argument about cards, and that is the reason both families are split in two.
+
+What `editorial` does NOT yet do is the half of a reading voice that lives in type: heavier and
+tighter headings over a longer body measure. Weight, tracking and measure are scales rather than
+roles today, so no voice can reach them, and this one is the argument for making them roles.
 
 Its three `fs` steps do not reach the same distance, and the difference is worth stating rather
 than leaving for a reader to discover. `ArenaPageHead` is the only component that consumes

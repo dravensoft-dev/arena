@@ -1,4 +1,4 @@
-<!-- @dsCard group="Effects" viewport="1120x860" name="Design extension" subtitle="real components, every voice against both themes" -->
+<!-- @dsCard group="Effects" viewport="1560x860" name="Design extension" subtitle="real components, every voice against both themes" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="../../frameworks/tailwind/consume/Preflight.generated.css">
@@ -78,10 +78,19 @@ function specimen() {
   return el('div', { class: 'stack' }, first, second);
 }
 
-const VOICES = [{ name: 'none', note: 'groups by common region' }].concat(
-  getComputedStyle(document.documentElement).getPropertyValue('--arena-extensions')
-    .split(',').map((n) => n.trim()).filter(Boolean)
-    .map((name) => ({ name, note: 'groups by elevation and air' })));
+/* The note under each column is the principle the voice DECLARES, read out of its own partial
+   rather than written here. A caption that said what a reader was about to see would be a second
+   claim beside the one check:extensions holds, and the two could disagree. */
+const DESIGN = '../../contracts/design';
+const catalogue = getComputedStyle(document.documentElement)
+  .getPropertyValue('--arena-extensions').split(',').map((n) => n.trim()).filter(Boolean);
+
+const declared = await Promise.all(catalogue.map(async (name) => {
+  const partial = await (await fetch(`${DESIGN}/extension.${name}.json`)).json();
+  return { name, note: `groups by ${partial.$extensions['com.dravensoft.arena'].grouping}` };
+}));
+
+const VOICES = [{ name: 'none', note: 'groups by common-region' }, ...declared];
 
 const THEMES = [{ name: 'dark', scope: '' }, { name: 'light', scope: 'arena-light' }];
 
