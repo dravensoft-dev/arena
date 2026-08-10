@@ -45,6 +45,11 @@ also where Fitts's law is answered, once, rather than in every extension.
 
 **An extension does not set a colour.** That is the skin, and the skin belongs to the consumer.
 
+**An extension paints no gradient.** It was weighed and refused rather than never considered: a
+fill whose colour is a range turns text contrast into a range too, so the floor stops being a
+number a gate can hold, and DTCG 2025.10 has no type for a gradient function, so the value could
+not be a token in the first place. An extension buys its expression with shape, depth and motion.
+
 The rule those three share: **the axes own disjoint token groups**, so an extension, a density and
 a palette can compose in any combination and no ordering question arises.
 

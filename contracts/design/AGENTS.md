@@ -117,9 +117,10 @@ Two of these numbers the scripts **report without gating**: crimson as text sits
 | Floor, nobody moves it | Extension, Arena moves it | Skin, the consumer moves it |
 |---|---|---|
 | Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | The grouping signal: the hairline, or elevation and air instead | Crimson (`--color-primary`) |
+| No gradients on any surface (one exception: `ArenaSkeleton`'s shimmer). An extension buys its expression with shape, depth and motion, never with a fill whose contrast is a range | | The status hues |
 | WCAG contrast, and the 3:1 a control's boundary and the focus ring carry | The radius roles, and the border roles other than a control's and a field's | Gold (`--color-secondary`) |
 | Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
-| The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | The status hues |
+| The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | |
 | The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
 | The three families, and the uppercase-microlabel rule | | |
 | Identity vs meaning; one axis in charts; the ramp is never cycled | | |
