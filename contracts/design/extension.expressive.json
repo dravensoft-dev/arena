@@ -35,7 +35,7 @@
   "shadow-surface-rest": {
     "$type": "shadow",
     "$value": "{shadow.1}",
-    "$description": "What replaces the border. The lightest step of the elevation scale, because a page\nof product cards each carrying a dialog's depth reads as a pile rather than a grid."
+    "$description": "What replaces the border. The lightest step of the elevation scale, because a page\nof product cards each carrying a dialog's depth reads as a pile rather than a grid.\n\nIt does most of its work in light. A warm-black shadow on a warm-black page is barely a boundary,\nso in dark the base-100 to base-200 step is what still separates a card from the page and this\nonly deepens it. Verified by looking at intro/guidelines/design-extension.html in both themes,\nwhich is the only way that could have been found."
   },
   "shadow-control-raised": {
     "$type": "shadow",
@@ -54,5 +54,29 @@
     "$type": "duration",
     "$value": "{dur.mid}",
     "$description": "Slower than Arena's default, which is the whole difference between an interface\nthat acknowledges a pointer and one that responds to it. Still inside the transition range, so\nnothing here becomes motion a person waits on."
+  },
+  "fs-h1": {
+    "$type": "dimension",
+    "$value": {
+      "value": 52,
+      "unit": "px"
+    },
+    "$description": "A page heading that carries a page rather than titling a panel. The base ladder\naccelerates gently because a console has many peers on screen at once; a landing has few, so the\njump from the body it sits over is wider here.\n\nThe reading sizes below h2 do not move, in this extension or in any other. Body and chrome text\nis the one thing every voice shares, because how large a paragraph is set is a legibility\ndecision and not an expressive one. An extension widens the hierarchy by raising what shouts,\nnever by shrinking what is read."
+  },
+  "fs-display": {
+    "$type": "dimension",
+    "$value": {
+      "value": 80,
+      "unit": "px"
+    },
+    "$description": "The step a hero headline is set at. 80 over 64 is a fifth again, which reads as a\ndifferent kind of page rather than as the same page with bigger type."
+  },
+  "fs-hero": {
+    "$type": "dimension",
+    "$value": {
+      "value": 120,
+      "unit": "px"
+    },
+    "$description": "The largest step anything is actually set at, and the reason fs-hero was kept when\nit had no consumer."
   }
 }

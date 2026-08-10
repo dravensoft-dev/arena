@@ -38,16 +38,9 @@ export const SCALE_UTILITIES = new Map<string, string>([
 ]);
 
 export const SCALE_USES = new Map<string, string>([
-  ['ArenaTooltip:bubble:rounded-sm', 'a tooltip is a label with a background rather than a surface: nothing is placed inside it, and its corner follows the text it wraps'],
-  ['ArenaCalendar:panel:rounded-sm', 'the day/week/month switcher is a floating panel drawn at the control radius on purpose, because it sits flush against the control that opens it'],
-  ['ArenaCalendar:chip:rounded-sm', 'an event chip is a block of content positioned on a grid, neither a control nor a surface'],
-  ['ArenaSkeleton:root:rounded-sm', 'a placeholder takes the shape of the thing it stands in for, so its corner is the shape being faked rather than a role'],
-  ['ArenaSkeleton:root:rounded-xs', 'the same, for the line variant of that placeholder'],
-  ['ArenaSkeleton:line:rounded-xs', 'the same, for a line of text'],
-  ['ArenaSkeleton:lastLine:rounded-xs', 'the same, for the short last line'],
-  ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
   ['ArenaAvatar:box:rounded-md', 'one branch of a shape variant whose other branches are pill and none, so the value is the shape the caller asked for rather than a surface tier'],
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
+  ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {

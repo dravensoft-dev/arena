@@ -33,6 +33,7 @@ export const FILES = [
     { selector: ':root', source: 'icon.json' },
     { selector: ':root', source: 'component.json' },
     { selector: '.arena-compact', source: 'density.compact.json' },
+    { selector: '.arena-comfortable', source: 'density.comfortable.json' },
   ] },
   { out: 'effects.generated.css', blocks: [
     { selector: ':root', source: 'effects.json' },
@@ -47,7 +48,7 @@ export const FILES = [
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
   'roles.json': ['effects.json'],
-  'extension.expressive.json': ['effects.json'],
+  'extension.expressive.json': ['effects.json', 'typography.json'],
 };
 
 const EXT = 'com.dravensoft.arena';
@@ -92,7 +93,7 @@ export const node = {
     'check:skills',
     'check:tailwind',
     'check:tailwind-generated',
-    'check:text-contrast',
+    'check:boundary-contrast', 'check:text-contrast',
     'check:tokens',
   ],
 };

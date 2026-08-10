@@ -452,6 +452,11 @@
   /*
      What replaces the border. The lightest step of the elevation scale, because a page
      of product cards each carrying a dialog's depth reads as a pile rather than a grid.
+     
+     It does most of its work in light. A warm-black shadow on a warm-black page is barely a boundary,
+     so in dark the base-100 to base-200 step is what still separates a card from the page and this
+     only deepens it. Verified by looking at intro/guidelines/design-extension.html in both themes,
+     which is the only way that could have been found.
    */
   --shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);
   /*
@@ -472,4 +477,25 @@
      nothing here becomes motion a person waits on.
    */
   --dur-hover:220ms;
+  /*
+     A page heading that carries a page rather than titling a panel. The base ladder
+     accelerates gently because a console has many peers on screen at once; a landing has few, so the
+     jump from the body it sits over is wider here.
+     
+     The reading sizes below h2 do not move, in this extension or in any other. Body and chrome text
+     is the one thing every voice shares, because how large a paragraph is set is a legibility
+     decision and not an expressive one. An extension widens the hierarchy by raising what shouts,
+     never by shrinking what is read.
+   */
+  --fs-h1:52px;
+  /*
+     The step a hero headline is set at. 80 over 64 is a fifth again, which reads as a
+     different kind of page rather than as the same page with bigger type.
+   */
+  --fs-display:80px;
+  /*
+     The largest step anything is actually set at, and the reason fs-hero was kept when
+     it had no consumer.
+   */
+  --fs-hero:120px;
 }

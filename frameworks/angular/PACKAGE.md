@@ -282,14 +282,15 @@ the grouping instead, lifts a control under the pointer, and slows the response 
 one. Put the class on the root, or on any container to scope it to part of a page.
 
 It composes with everything else, because the three things change different values: a palette
-class carries colour, `arena-compact` carries how dense the controls are, and an extension carries
-the shape and the depth. `<html class="arena-light arena-compact arena-expressive">` is a
-light, dense, expressive page and needs no ordering care.
+class carries colour, a density class carries how large the controls are, and an extension carries
+the shape and the depth. `<html class="arena-light arena-comfortable arena-expressive">` is a
+light, roomy, expressive page and needs no ordering care.
 
-Two things it deliberately does not do. It does not change control heights or row padding, since
-that is what the compact density is for and a tap target should be decided once. And it does not
-touch the border of a button or an input, because that boundary is what carries the 3:1 those
-controls owe, whatever voice they are speaking in.
+Two things it deliberately does not do. It does not change control heights or row padding: that is
+the density's job, and `arena-comfortable` takes a control to a 48px touch target while
+`arena-compact` tightens it for dense work. Pick one of those two, never both. And an extension
+does not touch the border of a button or an input, because that boundary is what carries the 3:1
+those controls owe whatever voice they are speaking in.
 
 Write no extension of your own: an extension is measured against Arena's accessibility floors
 before it ships, and a hand-written scope class is a claim nobody checked.

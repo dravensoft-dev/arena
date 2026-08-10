@@ -246,7 +246,7 @@ export const CLAIMS = {
   ],
   ArenaTooltip: [
     ...[true, false].map((anchored) => ({ chosen: { anchored }, slot: 'bubble',
-      has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-sm', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
+      has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
       why: 'the appearance is identical in both models and only the position moves' })),
     { chosen: { anchored: false }, slot: 'root', has: ['relative', 'inline-flex'], why: 'in flow the bubble is positioned against a relative root' },
     { chosen: { anchored: true }, slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'anchored, the overlay pane owns the position and every wrapper-relative utility is gone' },

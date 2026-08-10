@@ -78,13 +78,25 @@ System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`
 ## Control density type scale (`dz`)
 Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own five-step text scale, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json` (base) and `contracts/design/density.compact.json` (the `.arena-compact` override):
 
-| Token | Value | Compact (`.arena-compact`) | Role |
-|---|---|---|---|
-| `--dz-text` | 14px | 13px | control text: buttons, inputs, selects, menu items, table cells |
-| `--dz-text-md` | 13px | 12px | secondary control text: tag chips, pagination, secondary buttons |
-| `--dz-text-sm` | 12px | 11px | secondary control text: hints, validation errors, badges, legends |
-| `--dz-text-xs` | 11px | 10px | micro control text: field labels, shortcuts, eyebrow labels |
-| `--dz-text-2xs` | 10px | 10px | column headers, row micro-labels |
+| Token | Value | Compact (`.arena-compact`) | Comfortable (`.arena-comfortable`) | Role |
+|---|---|---|---|---|
+| `--dz-text` | 14px | 13px | 14px | control text: buttons, inputs, selects, menu items, table cells |
+| `--dz-text-md` | 13px | 12px | 13px | secondary control text: tag chips, pagination, secondary buttons |
+| `--dz-text-sm` | 12px | 11px | 12px | secondary control text: hints, validation errors, badges, legends |
+| `--dz-text-xs` | 11px | 10px | 11px | micro control text: field labels, shortcuts, eyebrow labels |
+| `--dz-text-2xs` | 10px | 10px | 10px | column headers, row micro-labels |
+
+**Comfortable grows the box and leaves the words alone**, and the asymmetry with compact is the
+point. Compact shrinks the text because an expert reading a dense table is trading legibility for
+how much fits on a screen; comfortable has nothing to buy with the same trade, so `--dz-ctl-h`
+goes to 48px, `--dz-ctl-h-sm` to 40px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
+`--dz-row-px` to 20px and `--dz-stack` to 16px, while every step above stays where it is.
+
+48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
+the 40px base does not. This is the whole reason target size is density's axis and never a design
+extension's, since how large a control is answers who is pointing at it rather than what voice the
+product speaks in. The two density classes are mutually exclusive with each other, because both
+set the same keys, and compose with a theme and with an extension, because those set others.
 
 `--dz-text-2xs` does not shrink further in the compact scope: −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 

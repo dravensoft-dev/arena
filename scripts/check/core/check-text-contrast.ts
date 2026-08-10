@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { contrast } from '../../lib/core/validate-palette.mjs';
+import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -18,16 +19,7 @@ export const node = {
   feeds: [],
 };
 
-function block(css: string, selector: string, file: string) {
-  const m = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`))?.[1];
-  if (m === undefined) throw new Error(`${file}: no ${selector} block found`);
-  return m;
-}
-function readHex(body: string, name: string) {
-  const m = body.match(new RegExp(`--${name}\\s*:\\s*(#[0-9a-fA-F]{6})`))?.[1];
-  if (!m) throw new Error(`palette.generated.css: --${name} missing or not a #rrggbb literal`);
-  return m;
-}
+const block = paletteBlock;
 
 function tryHex(body: string, name: string) {
   try { return readHex(body, name); } catch { return null; }
@@ -125,10 +117,7 @@ export const REMOVED = [
   { token: 'text-faint', use: '--text-muted' },
 ];
 
-export const THEMES = [
-  { name: 'dark', selector: ':root' },
-  { name: 'light', selector: '\\.arena-light' },
-];
+export { THEMES };
 
 function main() {
   const palette = readFileSync(join(root, PALETTE), 'utf8');

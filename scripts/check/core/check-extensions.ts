@@ -3,7 +3,9 @@
  * happens to want that length, so moving one is not an extension but a different Arena. The two
  * halves joined here are the file and the generator block that emits it, because a file nobody
  * emits paints nothing and a block naming no file emits nothing, and each half looks complete
- * on its own. contracts/design/Extensions.md is the normative statement of all of it. */
+ * on its own. FS_STEP is the one family outside roles.json it may move, because those steps are
+ * already roles with names rather than an anonymous ladder, so re-valuing fs-display drags no
+ * unrelated use with it. contracts/design/Extensions.md is the normative statement of all of it. */
 
 import { readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -22,6 +24,8 @@ export const node = {
 const DESIGN_DIR = join(repoRoot, 'contracts/design');
 export const PREFIX = 'extension.';
 const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
+const FS_STEP = /^fs-[a-z0-9]+$/;
 
 type Token = { $type?: string; $value?: unknown; $description?: string };
 
@@ -44,10 +48,17 @@ export function extensionProblems(
   if (!moved.length)
     problems.push(`${at}: moves no role, and an extension that changes nothing is a class nobody can tell from its absence`);
   for (const key of moved) {
+    if (FS_STEP.test(key)) {
+      if (tokens[key]?.$type !== 'dimension')
+        problems.push(`${at}: --${key} is a ${tokens[key]?.$type}, and an fs step is a dimension`);
+      if (!tokens[key]?.$description)
+        problems.push(`${at}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
+      continue;
+    }
     const role = roles[key];
     if (!role) {
       problems.push(
-        `${at}: --${key} is not a role in contracts/design/roles.json. An extension re-values roles only: `
+        `${at}: --${key} is neither a role in contracts/design/roles.json nor an fs step. An extension re-values those only: `
         + `a scale, a colour, a density step or a spacing step is shared by every use that wants that value, `
         + `so moving one is not an extension but a different Arena.`,
       );

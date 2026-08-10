@@ -37,6 +37,7 @@ export const GATES = [
   { name: 'check:duplicate-constants', file: 'arena/check-duplicate-constants.ts' },
   { name: 'check:deadlines', file: 'arena/check-deadlines.ts' },
   { name: 'check:ramp', file: 'core/check-ramp.ts' },
+  { name: 'check:boundary-contrast', file: 'core/check-boundary-contrast.ts' },
   { name: 'check:text-contrast', file: 'core/check-text-contrast.ts' },
   { name: 'check:tailwind', file: 'tailwind/check-tailwind.ts' },
   { name: 'check:tailwind-generated', file: 'tailwind/check-tailwind-generated.ts' },

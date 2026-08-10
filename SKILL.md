@@ -54,7 +54,8 @@ Every one of these is enforced somewhere, so breaking one is a defect rather tha
 - **Icons are Phosphor class-name strings, never elements and never SVG**:
   `icon="ph-bold ph-plus"`. Install `@phosphor-icons/web`; Arena never bundles it.
 - **Two themes, dark first.** Dark is `:root`, light is the `.arena-light` class. Components
-  are never rewritten per theme, because they read tokens. `.arena-compact` re-densifies.
+  are never rewritten per theme, because they read tokens. `.arena-compact` re-densifies
+  and `.arena-comfortable` grows the controls to a 48px touch target; the two are exclusive.
 - **A design extension is a second voice, and you pick one.** Put `.arena-expressive` on a root
   or a container and every component softens, groups by elevation instead of by hairline, and
   answers the pointer more slowly. It composes with a theme and with the compact density,

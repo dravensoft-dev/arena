@@ -73,3 +73,23 @@ test('zeroExtensionProblem fails on an empty walk rather than reporting a clean 
 test('the real tree holds: every shipped extension moves roles only, and the generator emits each one', () => {
   assert.deepEqual(collect(), []);
 });
+
+test('an extension re-valuing an fs step is accepted, because the type ladder is already a set of roles', () => {
+  const tokens = { 'fs-display': { $type: 'dimension', $value: { value: 80, unit: 'px' }, $description: 'why' } };
+  assert.deepEqual(extensionProblems('expressive', tokens, ROLES), []);
+});
+
+test('an fs step still needs a reason, like any other move', () => {
+  const tokens = { 'fs-display': { $type: 'dimension', $value: { value: 80, unit: 'px' } } };
+  assert.match(extensionProblems('expressive', tokens, ROLES)[0] ?? '', /\$description/);
+});
+
+test('an fs step declared as something other than a dimension fails', () => {
+  const tokens = { 'fs-display': { $type: 'duration', $value: '{dur.mid}', $description: 'why' } };
+  assert.match(extensionProblems('expressive', tokens, ROLES)[0] ?? '', /dimension/);
+});
+
+test('a token that merely starts with fs is not an fs step', () => {
+  const tokens = { 'fsx-display': { $type: 'dimension', $value: { value: 80, unit: 'px' }, $description: 'why' } };
+  assert.match(extensionProblems('expressive', tokens, ROLES)[0] ?? '', /fsx-display/);
+});

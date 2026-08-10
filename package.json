@@ -54,6 +54,7 @@
     "check:tokens": "bun scripts/check/core/check-tokens-generated.ts",
     "check:fonts": "bun scripts/check/core/check-fonts-generated.ts",
     "check:ramp": "bun scripts/check/core/check-ramp.ts",
+    "check:boundary-contrast": "bun scripts/check/core/check-boundary-contrast.ts",
     "check:text-contrast": "bun scripts/check/core/check-text-contrast.ts",
     "check:demos": "bun scripts/check/react/check-demos-generated.ts",
     "check:react-barrel": "bun scripts/check/react/check-react-barrel.ts",

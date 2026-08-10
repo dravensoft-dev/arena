@@ -1,0 +1,44 @@
+<!-- @dsCard group="Effects" viewport="820x300" name="Design extension" subtitle="the same components, two voices" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--font-body);padding:var(--sp-5)}
+  .cols{display:flex;gap:var(--sp-6);align-items:flex-start}
+  .col{flex:1}
+  .cap{font-family:var(--font-mono);font-size:var(--dz-text-2xs);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--mute);margin-bottom:var(--sp-3)}
+  .card{background:var(--surface-card);border:var(--bw-surface) solid var(--border);border-radius:var(--r-surface);box-shadow:var(--shadow-surface-rest);padding:var(--sp-4)}
+  .title{font-size:var(--fs-h4);font-weight:var(--fw-semibold);margin:0 0 var(--sp-2)}
+  .body{font-size:var(--fs-md);color:var(--text-body);margin:0 0 var(--sp-4)}
+  .row{display:flex;gap:var(--sp-3);align-items:center}
+  .field{flex:1;height:var(--dz-ctl-h);padding:0 var(--sp-3);background:var(--surface-input);color:var(--text-body);
+         border:var(--bw-field) solid var(--border);border-radius:var(--r-field);font-family:var(--font-body);font-size:var(--dz-text)}
+  .btn{height:var(--dz-ctl-h);padding:0 var(--sp-5);background:var(--accent);color:var(--on-accent);cursor:pointer;
+       border:var(--bw-control) solid var(--accent);border-radius:var(--r-control);font-family:var(--font-body);
+       font-weight:var(--fw-semibold);font-size:var(--dz-text);white-space:nowrap;box-shadow:var(--shadow-control-rest);
+       transition:box-shadow var(--dur-hover) var(--ease-out),translate var(--dur-hover) var(--ease-out)}
+  .btn:hover{box-shadow:var(--shadow-control-raised);translate:0 calc(var(--lift-control) * -1)}
+  .tag{display:inline-block;padding:var(--sp-1) var(--sp-2);margin-bottom:var(--sp-3);background:var(--gold-soft);
+       color:var(--gold);border:var(--bw-marker) solid var(--gold-soft);border-radius:var(--r-marker);
+       font-family:var(--font-mono);font-size:var(--dz-text-2xs);letter-spacing:var(--ls-label);text-transform:uppercase}
+</style>
+</head><body>
+<div class="cols">
+  <div class="col">
+    <div class="cap">default &middot; groups by hairline</div>
+    <div class="card">
+      <span class="tag">new</span>
+      <p class="title">Aurora keyboard</p>
+      <p class="body">Depth is the surface scale and a one pixel border. Nothing rests above the page.</p>
+      <div class="row"><input class="field" value="1" aria-label="Quantity"><button class="btn">Add to cart</button></div>
+    </div>
+  </div>
+  <div class="col arena-expressive">
+    <div class="cap">.arena-expressive &middot; groups by elevation</div>
+    <div class="card">
+      <span class="tag">new</span>
+      <p class="title">Aurora keyboard</p>
+      <p class="body">The border is gone and elevation carries the grouping. Corners soften, the button lifts, and the field keeps its edge because a control owes 3:1.</p>
+      <div class="row"><input class="field" value="1" aria-label="Quantity"><button class="btn">Add to cart</button></div>
+    </div>
+  </div>
+</div>
+</body></html>

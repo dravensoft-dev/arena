@@ -22,16 +22,31 @@ against the floors before it goes out.
 | Tier | Owns | Moved by |
 |---|---|---|
 | Floor | WCAG contrast, the non-text contrast of a control's boundary and of the focus ring, focus appearance, target size, the reduced-motion policy, danger recognisable without colour | Nobody |
-| Extension | The grouping signal, the radius roles, the border roles, resting and raised depth, the motion roles | Arena, in a DTCG partial |
+| Extension | The grouping signal, the radius roles, the border roles, resting and raised depth, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
 | Skin | The 27 palette colours and the three font roles | The consumer, in `arena.config.json` |
 
-An extension may not lower a floor, and it does not get to argue the point: the contrast and ramp
-gates run against every scope Arena ships, not only against `:root`.
+An extension may not lower a floor. `bun run check:boundary-contrast` is the one floor this
+feature had to build: an extension that sets a control's or a field's border to zero has moved the
+boundary onto the fill difference, and the gate measures whether that difference clears the 3:1
+WCAG 1.4.11 asks, in both themes.
+
+The contrast and ramp gates need no per-scope variant, and that is a property of the tiers rather
+than an omission: an extension cannot move a colour, and Arena gates text at 4.5:1 flat with no
+large-text exception, so a type-scale change can neither relax nor tighten what they measure.
 
 ## What an extension may move, and the two cuts that say why
 
-**Roles only.** Every key in an extension file is a role in [`roles.json`](./roles.json), and
-`bun run check:extensions` fails one that is not. A role is a question, which is why it can be
+**Roles, and the `fs` ladder.** Every key in an extension file is a role in
+[`roles.json`](./roles.json) or a step of `fs`, and `bun run check:extensions` fails one that is
+neither. `fs` is the single family outside the role tier an extension may reach, because its steps
+are already roles with names rather than an anonymous ladder: re-valuing `fs-display` drags no
+unrelated use with it the way re-valuing `r-lg` would, and the hierarchy ratio is half of what
+separates a landing page from a panel.
+
+**An extension raises what shouts and never moves what is read.** `expressive` lifts `fs-h1`,
+`fs-display` and `fs-hero` and leaves everything from `fs-h2` down exactly where it was. How large
+a paragraph is set is a legibility decision that every voice shares, so widening the hierarchy is
+done by raising the top of the ladder rather than by lowering its middle. A role is a question, which is why it can be
 answered differently here: `r-surface` asks which corner, `bw-separator` asks which edge. A scale
 is an answer shared by every use that happened to want that length, so re-valuing `r-lg` to soften
 a card also softens every unrelated thing sitting on the same step. That is not an extension, it
@@ -40,8 +55,12 @@ is a different Arena.
 **An extension does not set `dz`.** Control height, row padding and control text say how dense the
 CONTROLS are, and that is density's question. Density is already its own axis, `.arena-compact`,
 and letting an extension reach the same tokens would put two axes in contention with the cascade
-deciding the winner instead of the author. Comfortable controls are a second density file. This is
-also where Fitts's law is answered, once, rather than in every extension.
+deciding the winner instead of the author. This is also where Fitts's law is answered, once,
+rather than in every extension: `density.comfortable.json` takes a control to 48px, clearing the
+44px WCAG 2.5.8 asks at its enhanced level, which the 40px base does not. A shop on a phone and a
+console on a desk can want the same extension and opposite densities, and only separate axes let
+them have that. `.arena-compact` and `.arena-comfortable` are mutually exclusive with each other
+and compose with everything else.
 
 **An extension does not set a colour.** That is the skin, and the skin belongs to the consumer.
 
@@ -61,6 +80,21 @@ blocks in `FILES` in `scripts/generate/arena/generate-tokens.ts` for exactly tha
 `check:extensions` joins the file to the block and fails either half alone, because a file the
 generator does not emit paints nothing, and a block naming no file emits nothing, and each looks
 complete on its own.
+
+## Grouping by elevation is polarity-dependent, and grouping by region is not
+
+A hairline is visible on any surface. A shadow is a darkening, so it separates a light card from a
+light page and does almost nothing between a dark card and a dark page: Arena's shadow scale is
+warm black, and warm black on `#141010` is not a boundary. Measured on the specimen card, the same
+extension reads as clearly lifted in light and as a slightly paler rectangle in dark.
+
+That is a property of figure/ground rather than a defect in the mechanism, and an extension cannot
+answer it by varying with the theme, because an extension is a scope class beside the palette and
+not inside it. `expressive` therefore leans on something a floor already guarantees: the
+`base-100` to `base-200` to `base-300` surface scale is what separates a card from the page in
+dark, and the shadow is what adds to it in light. An extension that removes `bw-surface` is
+choosing that trade, and an extension author checking their work in one theme only has not checked
+it.
 
 ## What an extension cannot reach, and the reason it is not a bug
 
