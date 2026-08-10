@@ -47,6 +47,12 @@ values; do not re-derive them.
 - Every `dimension` and `duration` is `{ "value": N, "unit": "px" | "ms" }`, and the
   unit is required even when `N` is 0.
 - `number`, `fontWeight` values are bare numbers; `cubicBezier` is an array of 4.
+- A `shadow` may carry `"inset": true`, which 2025.10 §9.6 defines as the way to spell an inner
+  shadow, and which serialises to CSS's leading `inset` keyword. Arena uses it for exactly one
+  thing: a rim light, the lit top edge that pays for figure and ground in dark, where a drop shadow
+  is a darkening on an already dark page and separates nothing. Note that a colour carrying both
+  `hex` and an `alpha` below 1 loses the alpha on the way out, so an `rgba` shadow colour is
+  authored as `components` with no `hex`, the way every shadow in `effects.json` already is.
 
 ### Script-readable tokens
 

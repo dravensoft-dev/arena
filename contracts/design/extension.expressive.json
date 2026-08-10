@@ -44,8 +44,42 @@
   },
   "shadow-surface-rest": {
     "$type": "shadow",
-    "$value": "{shadow.1}",
-    "$description": "What replaces the border. The lightest step of the elevation scale, because a page\nof product cards each carrying a dialog's depth reads as a pile rather than a grid.\n\nIt does most of its work in light. A warm-black shadow on a warm-black page is barely a boundary,\nso in dark the base-100 to base-200 step is what still separates a card from the page and this\nonly deepens it. Verified by looking at intro/guidelines/design-extension.html in both themes,\nwhich is the only way that could have been found."
+    "$value": {
+      "offsetX": {
+        "value": 0,
+        "unit": "px"
+      },
+      "offsetY": {
+        "value": 1,
+        "unit": "px"
+      },
+      "blur": {
+        "value": 0,
+        "unit": "px"
+      },
+      "spread": {
+        "value": 0,
+        "unit": "px"
+      },
+      "color": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "alpha": 0.12
+      },
+      "inset": true
+    },
+    "$description": "What replaces the border in DARK, and the reason this extension varies with the\ntheme at all. A drop shadow is a darkening, so it separates a light card from a light page and\ndoes almost nothing between a dark card and a dark page.\n\nThe obvious alternative was measured and refused: moving the card onto a different step of the\nsurface scale. The widest step Dravensoft's base ramp offers in dark is base-300 on base-100 at\n1.13:1, and neutral on base-100 at 1.22:1. Neither is an edge anybody sees, and the ramp belongs\nto the consumer, so an extension cannot widen it.\n\nA rim light inverts the direction instead. White at 12% over base-200 reads about 1.5:1 against\nthe page, because it is light on dark rather than dark on dark. It is inset along the top edge\nand not a ring, which matters: a ring would be a hairline drawn around a region, which is the\nmechanism this extension traded away. An edge lit from above is a statement about an object\nstanding in light, so it is still figure and ground."
+  },
+  "light": {
+    "shadow-surface-rest": {
+      "$type": "shadow",
+      "$value": "{shadow.1}",
+      "$description": "In light a darkening is a boundary again, so the ordinary drop shadow is the\nanswer and it REPLACES the rim rather than joining it: two depth cues on one edge read as a\nseam. The lightest step of the elevation scale, because a page of product cards each carrying a\ndialog's depth reads as a pile rather than a grid."
+    }
   },
   "shadow-control-raised": {
     "$type": "shadow",

@@ -4,7 +4,9 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
-import { CATALOGUE, FILES, extensionsIn } from '../../generate/arena/generate-tokens.ts';
+import {
+  CATALOGUE, FILES, THEME_SCOPES, extensionsIn,
+} from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
   const out = flattenTokens({
@@ -59,6 +61,11 @@ test('an unknown type still yields a renderable shape rather than undefined', ()
   assert.equal(previewFor('brandnew', 'gradient'), 'value');
 });
 
+const themeOf = (t: { path?: string[] }) => {
+  const first = t.path?.[0] ?? '';
+  return THEME_SCOPES.has(first) ? first : '';
+};
+
 function deriveCases(files: { out: string; blocks: { selector: string; source: string }[] }[]) {
   const cases = [];
   for (const file of files) {
@@ -68,8 +75,21 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
       bySelector.get(selector).push(`contracts/design/${source}`);
     }
     const catalogued = selectorHoldingTheCatalogue(file);
-    for (const [selector, sources] of bySelector)
-      cases.push([sources, `contracts/design-generated/${file.out}`, selector, selector === catalogued]);
+    const css = `contracts/design-generated/${file.out}`;
+    for (const [selector, sources] of bySelector) {
+      const tokens: { name: string; path?: string[] }[] =
+        sources.flatMap((s: string) => flattenTokens(readJson(s)));
+      cases.push([
+        tokens.filter((t) => !themeOf(t)).map((t) => t.name)
+          .concat(selector === catalogued ? [CATALOGUE] : []),
+        css, selector, sources,
+      ]);
+      for (const [theme, scope] of THEME_SCOPES) {
+        const themed = tokens.filter((t) => themeOf(t) === theme);
+        if (themed.length)
+          cases.push([themed.map((t) => (t.path ?? []).slice(1).join('-')), css, scope(selector), sources]);
+      }
+    }
   }
   return cases;
 }
@@ -78,16 +98,15 @@ function selectorHoldingTheCatalogue(file: { blocks: { selector: string; source:
   return extensionsIn(file.blocks).length ? ':root' : null;
 }
 
-test('derived names match the custom properties the build actually emits', () => {
+test('derived names match the custom properties the build actually emits, in every scope a block carries', () => {
   const cases = deriveCases(FILES);
   assert.ok(cases.length >= 4, 'expected at least one case per output file');
-  for (const [sources, css, selector, holdsCatalogue] of cases) {
-    const derived = sources
-      .flatMap((s: string) => flattenTokens(readJson(s)).map((t) => t.name))
-      .concat(holdsCatalogue ? [CATALOGUE] : [])
-      .sort();
-    const emitted = [...parseDecls(readFileSync(css, 'utf8')).get(selector).keys()].sort();
-    assert.deepEqual(derived, emitted, `${sources.join(', ')} -> ${css} ${selector}`);
+  assert.ok(cases.some(([, , selector]) => String(selector).includes('.arena-light')),
+    'no theme-scoped case was derived, so this test would pass without ever reading a theme block');
+  for (const [names, css, selector, sources] of cases) {
+    const emitted = [...parseDecls(readFileSync(String(css), 'utf8')).get(selector).keys()].sort();
+    assert.deepEqual([...(names as string[])].sort(), emitted,
+      `${(sources as string[]).join(', ')} -> ${css} ${selector}`);
   }
 });
 

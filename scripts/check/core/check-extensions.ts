@@ -17,7 +17,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
-import { FILES } from '../../generate/arena/generate-tokens.ts';
+import { FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 const EFFECTS = 'contracts/design-generated/effects.generated.css';
 
@@ -100,15 +100,21 @@ export function groupingOf(tokens: Record<string, unknown>) {
   return typeof meta?.[GROUPING] === 'string' ? meta[GROUPING] : undefined;
 }
 
-export function resolvedFor(css: string, name: string) {
+export const SCOPES = ['dark', ...THEME_SCOPES.keys()];
+
+export function resolvedFor(css: string, name: string, scope = 'dark') {
   const decls = parseDecls(css);
+  const themed = THEME_SCOPES.get(scope)?.(`.arena-${name}`);
   return new Map<string, string>([
     ...(decls.get(':root') ?? new Map()),
     ...(decls.get(`.arena-${name}`) ?? new Map()),
+    ...((themed && decls.get(themed)) || new Map()),
   ]);
 }
 
-export function principleProblems(name: string, declared: string | undefined, at: Map<string, string>) {
+export function principleProblems(
+  name: string, declared: string | undefined, byScope: Map<string, Map<string, string>>,
+) {
   const problems = [];
   const file = `extension.${name}.json`;
   if (declared === undefined) {
@@ -129,9 +135,15 @@ export function principleProblems(name: string, declared: string | undefined, at
     );
     return problems;
   }
-  const broken = principle.holds(at);
-  if (broken)
-    problems.push(`${file}: claims to group by ${declared}, where ${principle.says}, but ${broken}`);
+  for (const [scope, at] of byScope) {
+    const broken = principle.holds(at);
+    if (broken)
+      problems.push(
+        `${file}: claims to group by ${declared}, where ${principle.says}, but in ${scope} ${broken}. `
+        + `A voice checked in one theme only has not been checked: a depth cue that works in one polarity `
+        + `can do nothing in the other, which is why an extension may carry a theme group.`,
+      );
+  }
   return problems;
 }
 
@@ -150,6 +162,17 @@ export function sharedPrincipleProblems(declaredBy: Map<string, string | undefin
       + `other does not use, or ship one.`);
 }
 
+export function movedTokens(tokens: Record<string, unknown>) {
+  const out: { key: string; token: Token; theme: string }[] = [];
+  for (const [key, value] of Object.entries(tokens)) {
+    if (key.startsWith('$')) continue;
+    if (!THEME_SCOPES.has(key)) { out.push({ key, token: value as Token, theme: '' }); continue; }
+    for (const [child, token] of Object.entries(value as Record<string, Token>))
+      out.push({ key: child, token, theme: key });
+  }
+  return out;
+}
+
 export function extensionProblems(
   name: string, tokens: Record<string, Token>, roles: Record<string, Token>,
 ) {
@@ -162,30 +185,31 @@ export function extensionProblems(
     );
   if (!KEBAB.test(name))
     problems.push(`${at}: "${name}" is not kebab-case, and the name becomes the class .arena-${name}`);
-  const moved = Object.keys(tokens).filter((key) => !key.startsWith('$'));
+  const moved = movedTokens(tokens);
   if (!moved.length)
     problems.push(`${at}: moves no role, and an extension that changes nothing is a class nobody can tell from its absence`);
-  for (const key of moved) {
+  for (const { key, token, theme } of moved) {
+    const where = theme ? `${at} (${theme})` : at;
     if (FS_STEP.test(key)) {
-      if (tokens[key]?.$type !== 'dimension')
-        problems.push(`${at}: --${key} is a ${tokens[key]?.$type}, and an fs step is a dimension`);
-      if (!tokens[key]?.$description)
-        problems.push(`${at}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
+      if (token?.$type !== 'dimension')
+        problems.push(`${where}: --${key} is a ${token?.$type}, and an fs step is a dimension`);
+      if (!token?.$description)
+        problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
       continue;
     }
     const role = roles[key];
     if (!role) {
       problems.push(
-        `${at}: --${key} is neither a role in contracts/design/roles.json nor an fs step. An extension re-values those only: `
+        `${where}: --${key} is neither a role in contracts/design/roles.json nor an fs step. An extension re-values those only: `
         + `a scale, a colour, a density step or a spacing step is shared by every use that wants that value, `
         + `so moving one is not an extension but a different Arena.`,
       );
       continue;
     }
-    if (tokens[key]?.$type !== role.$type)
-      problems.push(`${at}: --${key} is a ${tokens[key]?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
-    if (!tokens[key]?.$description)
-      problems.push(`${at}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
+    if (token?.$type !== role.$type)
+      problems.push(`${where}: --${key} is a ${token?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
+    if (!token?.$description)
+      problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
   }
   return problems;
 }
@@ -231,7 +255,8 @@ export function collect(dir = DESIGN_DIR, effects?: string) {
     const declared = groupingOf(tokens);
     declaredBy.set(name, declared);
     problems.push(...extensionProblems(name, tokens, roles));
-    problems.push(...principleProblems(name, declared, resolvedFor(css, name)));
+    problems.push(...principleProblems(name, declared,
+      new Map(SCOPES.map((scope) => [scope, resolvedFor(css, name, scope)]))));
   }
   problems.push(...sharedPrincipleProblems(declaredBy));
   problems.push(...declarationProblems(files.map(extensionName)));

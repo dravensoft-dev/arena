@@ -16,6 +16,7 @@ export type DtcgToken = {
   $extensions?: Record<string, any>;
   filePath?: string;
   name?: string;
+  path?: string[];
 };
 
 export type DtcgGroup = {

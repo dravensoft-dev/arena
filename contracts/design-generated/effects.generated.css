@@ -457,15 +457,22 @@
    */
   --bw-surface:0px;
   /*
-     What replaces the border. The lightest step of the elevation scale, because a page
-     of product cards each carrying a dialog's depth reads as a pile rather than a grid.
+     What replaces the border in DARK, and the reason this extension varies with the
+     theme at all. A drop shadow is a darkening, so it separates a light card from a light page and
+     does almost nothing between a dark card and a dark page.
      
-     It does most of its work in light. A warm-black shadow on a warm-black page is barely a boundary,
-     so in dark the base-100 to base-200 step is what still separates a card from the page and this
-     only deepens it. Verified by looking at intro/guidelines/design-extension.html in both themes,
-     which is the only way that could have been found.
+     The obvious alternative was measured and refused: moving the card onto a different step of the
+     surface scale. The widest step Dravensoft's base ramp offers in dark is base-300 on base-100 at
+     1.13:1, and neutral on base-100 at 1.22:1. Neither is an edge anybody sees, and the ramp belongs
+     to the consumer, so an extension cannot widen it.
+     
+     A rim light inverts the direction instead. White at 12% over base-200 reads about 1.5:1 against
+     the page, because it is light on dark rather than dark on dark. It is inset along the top edge
+     and not a ring, which matters: a ring would be a hairline drawn around a region, which is the
+     mechanism this extension traded away. An edge lit from above is a statement about an object
+     standing in light, so it is still figure and ground.
    */
-  --shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);
+  --shadow-surface-rest:inset 0px 1px 0px 0px rgba(255,255,255,.12);
   /*
      A call to action that lifts further than anything else on the page. This is where
      an expressive extension spends most of its emphasis, and it is spent on one element per view,
@@ -505,6 +512,15 @@
      it had no consumer.
    */
   --fs-hero:120px;
+}
+.arena-light.arena-expressive, .arena-light .arena-expressive, .arena-expressive .arena-light{
+  /*
+     In light a darkening is a boundary again, so the ordinary drop shadow is the
+     answer and it REPLACES the rim rather than joining it: two depth cues on one edge read as a
+     seam. The lightest step of the elevation scale, because a page of product cards each carrying a
+     dialog's depth reads as a pile rather than a grid.
+   */
+  --shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);
 }
 :root{
   /*

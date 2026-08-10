@@ -116,6 +116,35 @@ blocks in `FILES` in `scripts/generate/arena/generate-tokens.ts` for exactly tha
 generator does not emit paints nothing, and a block naming no file emits nothing, and each looks
 complete on its own.
 
+## A theme group, for the values a polarity does not share
+
+A role a voice moves the same way in both themes is written at the top level of its partial. A role
+whose right answer depends on the polarity goes in a group named after the theme:
+
+```json
+"shadow-surface-rest": { "$type": "shadow", "$value": <the rim>, "$description": "..." },
+"light": {
+  "shadow-surface-rest": { "$type": "shadow", "$value": "{shadow.1}", "$description": "..." }
+}
+```
+
+**The top-level value is the dark answer as well as the default**, because `:root` is dark and a
+theme group overrides it exactly as `.arena-light` overrides the palette. That asymmetry is in the
+CSS already, and mirroring it is cheaper than inventing a `dark` group whose selector would have to
+be a `:not()`.
+
+The group emits three selectors, not one, because the voice class and the theme class can sit in
+either order or on the same element: `.arena-light.arena-<name>`, `.arena-light .arena-<name>` and
+`.arena-<name> .arena-light`. The third is the one an author forgets. Without it a page carrying
+the voice on its root and a light region inside would take the dark answer inside that region,
+which is the failure this paragraph exists to stop being rediscovered. All three are one
+specificity step above the base block, so they win in both directions with no source-order
+question.
+
+A theme group carries no `$description` of its own. Every token inside it still carries one, which
+is what `check:extensions` asks of a decision, and a description on the group would emit a comment
+into whichever block came first.
+
 ## Grouping by elevation is polarity-dependent, and grouping by region is not
 
 A hairline is visible on any surface. A shadow is a darkening, so it separates a light card from a
@@ -123,13 +152,35 @@ light page and does almost nothing between a dark card and a dark page: Arena's 
 warm black, and warm black on `#141010` is not a boundary. Measured on the specimen card, the same
 extension reads as clearly lifted in light and as a slightly paler rectangle in dark.
 
-That is a property of figure/ground rather than a defect in the mechanism, and an extension cannot
-answer it by varying with the theme, because an extension is a scope class beside the palette and
-not inside it. `expressive` therefore leans on something a floor already guarantees: the
-`base-100` to `base-200` to `base-300` surface scale is what separates a card from the page in
-dark, and the shadow is what adds to it in light. An extension that removes `bw-surface` is
-choosing that trade, and an extension author checking their work in one theme only has not checked
-it.
+This document used to say two further things, and both were wrong. They are stated here as
+reversals rather than deleted, because the reasoning that replaced them is the reasoning a future
+extension author needs.
+
+**It said an extension leans on the surface scale in dark.** Measured, the scale cannot carry it.
+The widest step Dravensoft's base ramp offers in dark is `base-300` on `base-100` at 1.13:1, and
+`color-neutral` on `base-100` at 1.22:1, against 1.07:1 for the `base-200` a card sits on today.
+None of those is an edge anybody sees. Reassigning which step a surface uses is a real mechanism
+and it is worth having, but it is not the answer to dark: the ramp is deliberately a narrow
+progression of warm blacks, it belongs to the SKIN, and an extension cannot widen what the
+consumer owns.
+
+**It said an extension cannot vary with the theme, because it is a scope class beside the palette
+and not inside it.** That described the emission of the day rather than a principle, and the
+emission changed. An extension partial may now carry a group named after a theme, and the
+generator emits its tokens under that theme's scope as well as the base block. `expressive` pays
+for depth differently in each polarity because the polarities are not symmetrical: in light a
+darkening is a boundary, so it uses the drop shadow; in dark it uses a rim light, an inset lit
+edge, which reads about 1.5:1 against the page because it is light on dark rather than dark on
+dark.
+
+The rim is inset and along one edge on purpose. A ring of light all the way round would be a
+hairline drawn around a region, which is the mechanism this extension traded away, and
+`check:extensions` would be right to be unable to tell the two apart. An edge lit from above is a
+statement about an object standing in light, so it is still figure and ground.
+
+An extension author checking their work in one theme only has not checked it, and
+`check:extensions` no longer takes their word for it: the grouping invariant is measured once per
+scope the catalogue ships.
 
 Two surfaces exist so that check is not a matter of remembering to make it.
 `intro/guidelines/design-extension.html` renders one specimen built from the real manifests once

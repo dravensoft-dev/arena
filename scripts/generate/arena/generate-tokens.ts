@@ -55,6 +55,18 @@ export const EXTENSION_PREFIX = 'extension.';
 
 export const CATALOGUE = 'arena-extensions';
 
+export const THEME_SCOPES = new Map<string, (selector: string) => string>([
+  ['light', (s) => `.arena-light${s}, .arena-light ${s}, ${s} .arena-light`],
+]);
+
+export const themeOf = (token: { path?: string[] }) => {
+  const first = token.path?.[0] ?? '';
+  return THEME_SCOPES.has(first) ? first : '';
+};
+
+export const emittedName = (token: { name: string; path?: string[] }) =>
+  (themeOf(token) ? (token.path ?? []).slice(1).join('-') : token.name);
+
 export function extensionsIn(blocks: { selector: string; source: string }[]) {
   return blocks
     .filter((b) => b.source.startsWith(EXTENSION_PREFIX))
@@ -216,8 +228,8 @@ function comment(d: string) {
   return ['  /*', ...d.split('\n').map((l: string) => `     ${l}`), '   */'].join('\n');
 }
 
-function render(token: DtcgToken) {
-  const decl = `  --${token.name}:${serialize(token)};`;
+function render(token: StampedToken) {
+  const decl = `  --${emittedName(token)}:${serialize(token)};`;
   const d = token.$description;
   if (!d) return decl;
   if (!d.includes('\n')) return `${decl} /* ${d} */`;
@@ -251,14 +263,29 @@ function* walk({ tokens, from }: { tokens: any; from: string },
   }
 }
 
-async function block({ selector, source }: { selector: string; source: string }) {
+function renderLines(items: Emitted[]) {
   const lines = [];
-  for (const item of walk(await load(source))) {
+  for (const item of items) {
     if (isTokenItem(item)) { lines.push(render(item.token)); continue; }
     if (lines.length) lines.push('');
     lines.push(comment(item.description));
   }
-  return `${selector}{\n${lines.join('\n')}\n}`;
+  return lines;
+}
+
+async function block({ selector, source }: { selector: string; source: string }) {
+  const buckets = new Map<string, Emitted[]>([['', []]]);
+  for (const item of walk(await load(source))) {
+    const theme = isTokenItem(item) ? themeOf(item.token) : '';
+    buckets.set(theme, [...(buckets.get(theme) ?? []), item]);
+  }
+  return [...buckets]
+    .filter(([, items]) => items.length)
+    .map(([theme, items]) => {
+      const scoped = theme ? THEME_SCOPES.get(theme)?.(selector) ?? selector : selector;
+      return `${scoped}{\n${renderLines(items).join('\n')}\n}`;
+    })
+    .join('\n');
 }
 
 const CATALOGUE_NOTE = 'The extensions this build ships, as NAMES rather than as classes, because a\n'

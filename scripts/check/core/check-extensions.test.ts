@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   extensionName, extensionProblems, declarationProblems, zeroExtensionProblem, collect,
-  groupingOf, isZeroLength, paintsNothing, principleProblems, resolvedFor, sharedPrincipleProblems,
+  groupingOf, isZeroLength, movedTokens, paintsNothing, principleProblems, resolvedFor,
+  sharedPrincipleProblems,
 } from './check-extensions.ts';
 
 const LINE = '1px';
@@ -10,8 +11,10 @@ const NO_LINE = '0px';
 const NO_DEPTH = '0px 0px 0px 0px rgba(0,0,0,0)';
 const DEPTH = '0px 2px 6px -2px rgba(0,0,0,.5)';
 
-const at = (over: Record<string, string> = {}) =>
+const roles = (over: Record<string, string> = {}) =>
   new Map(Object.entries({ 'bw-surface': LINE, 'shadow-surface-rest': NO_DEPTH, ...over }));
+
+const at = (over: Record<string, string> = {}) => new Map([['dark', roles(over)]]);
 
 const ROLES = {
   'r-surface': { $type: 'dimension' },
@@ -173,4 +176,33 @@ test('a role a voice leaves alone resolves to what it inherits, and one it moves
   const resolved = resolvedFor(css, 'showcase');
   assert.equal(resolved.get('bw-surface'), '0px');
   assert.equal(resolved.get('dur-hover'), '120ms');
+});
+
+test('a theme group is flattened to the tokens it holds, each labelled with the scope it overrides in', () => {
+  const moved = movedTokens({
+    $extensions: { 'com.dravensoft.arena': { grouping: 'figure-ground' } },
+    'bw-surface': { $type: 'dimension' },
+    light: { 'shadow-surface-rest': { $type: 'shadow' } },
+  });
+  assert.deepEqual(moved.map((m) => [m.key, m.theme]),
+    [['bw-surface', ''], ['shadow-surface-rest', 'light']]);
+});
+
+test('a theme block overrides the base one, and the base one is the dark answer because :root is dark', () => {
+  const css = ':root{--shadow-surface-rest:none}\n'
+    + '.arena-showcase{--shadow-surface-rest:RIM}\n'
+    + '.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light'
+    + '{--shadow-surface-rest:DROP}';
+  assert.equal(resolvedFor(css, 'showcase', 'dark').get('shadow-surface-rest'), 'RIM');
+  assert.equal(resolvedFor(css, 'showcase', 'light').get('shadow-surface-rest'), 'DROP');
+});
+
+test('a voice is held in every scope it ships, so a cue that carries one polarity and not the other fails', () => {
+  const byScope = new Map([
+    ['dark', roles({ 'bw-surface': NO_LINE, 'shadow-surface-rest': DEPTH })],
+    ['light', roles({ 'bw-surface': NO_LINE })],
+  ]);
+  const problems = principleProblems('showcase', 'figure-ground', byScope);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /in light .*neither a line nor a depth/);
 });
