@@ -2,7 +2,7 @@
 
 | gate | fails when |
 | --- | --- |
-| `check-tailwind.ts` | a class some manifest names emits no rule, a `@theme` key resolves to no real token, **or the gate found no manifests at all**, because one iterating zero manifests finds zero violations by construction. |
+| `check-tailwind.ts` | a class some manifest names emits no rule, a `@theme` key resolves to no real token, a slot transitions `transform` while painting `translate`, `scale` or `rotate`, which v4 emits as individual properties that `transform` does not cover so the change never animates, **or the gate found no manifests at all**, because one iterating zero manifests finds zero violations by construction. |
 | `check-tailwind-generated.ts` | `Utilities.generated.css` or a `*.manifest.generated.ts` differs from a fresh compile of the preset and the `.manifest.json` sources. |
 | `check-tailwind-coverage.ts` | a token reaches no utility and is not named in `EXCLUDED` with a reason, or an `EXCLUDED` entry names a token that no longer exists. |
 | `check-arbitrary-values.ts` | a Tailwind bracket carries a raw literal instead of `var(--token)`, a `calc()`/`min()`/`max()`/`clamp()` over one, zero, or a unit the token layer does not model. It reads the hand-written tree only: `dist/` and `vendor/` are skipped by name, as three neighbouring gates already skip them, and the Angular emit by its **anchored** path rather than by the name `build`, since a walker skipping that name would also take `scripts/build/`. Until the CLI shipped as TypeScript nothing under `dist/` matched an extension it reads, so it had been scanning 414 generated copies unnoticed. |

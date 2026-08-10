@@ -222,9 +222,12 @@ paints a shadow does not also take a resting role: `ArenaMenu`'s panel floats, `
 panel is deep, `ArenaCheckbox`'s box spends its shadow on the focus ring, and
 `ArenaSegmentedControl`'s selected segment on its lift.
 
-**A transition names the property Tailwind emits, and v4 emits `translate` and `scale` rather
-than `transform`.** Those are separate animatable properties, so a transition listing `transform`
-animates neither. `ArenaButton`'s transition names `translate` for that reason.
+**A transition names the property Tailwind emits, and v4 emits `translate`, `scale` and `rotate`
+rather than `transform`.** Those are separate animatable properties, so a transition listing
+`transform` animates none of them and the change lands in one frame. Both places that had one
+were silently doing that: `ArenaButton`'s press never eased and `ArenaSwitch`'s knob jumped to its
+other end. `check:tailwind` fails a slot that transitions `transform` while painting any of the
+three, which is why the rule needs no vigilance.
 
 ## Consumption order
 

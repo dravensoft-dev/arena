@@ -1,7 +1,7 @@
 {
   "component": "ArenaButton",
   "slots": {
-    "root": "inline-flex items-center justify-center gap-2 rounded-control font-body font-semibold tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-out),translate_var(--dur-hover)_var(--ease-out),box-shadow_var(--dur-state)_var(--ease-out)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest hover:-translate-y-[var(--lift-control)]",
+    "root": "inline-flex items-center justify-center gap-2 rounded-control font-body font-semibold tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-out),translate_var(--dur-hover)_var(--ease-out),scale_var(--dur-hover)_var(--ease-out),box-shadow_var(--dur-state)_var(--ease-out)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest hover:-translate-y-[var(--lift-control)]",
     "spinner": "arena-btn-spin inline-block size-3.5 border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
   },
   "variants": {

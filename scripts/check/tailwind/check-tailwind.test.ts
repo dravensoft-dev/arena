@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { themeKeys, checkCompiled } from './check-tailwind.ts';
+import { themeKeys, checkCompiled, transitionProblems } from './check-tailwind.ts';
 
 const TOKENS = new Set(['color-primary', 'sp-1', 'sp-4', 'r-sm']);
 
@@ -62,4 +62,31 @@ test('escaped selectors count as emitted', () => {
   );
   const manifests = new Map([['X.manifest.json', { slots: { root: 'hover:bg-primary' } }]]);
   assert.deepEqual(checkCompiled(css, manifests, TOKENS), []);
+});
+
+test('a transition naming transform while the slot paints translate is reported, because v4 emits the individual property', () => {
+  const manifest = { component: 'Fixture', slots: { knob: 'transition-[transform] translate-x-full' } };
+  const problems = transitionProblems(manifest);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /Fixture:knob/);
+  assert.match(problems[0] ?? '', /translate/);
+});
+
+test('a transition naming the property the slot actually paints is not reported', () => {
+  const manifest = { component: 'Fixture', slots: { knob: 'transition-[translate] translate-x-full' } };
+  assert.deepEqual(transitionProblems(manifest), []);
+});
+
+test('a transitioned property painted only in a variant branch counts as painted', () => {
+  const manifest = {
+    component: 'Fixture',
+    slots: { root: '[transition:scale_120ms_linear]' },
+    variants: { pressed: { true: { root: 'scale-95' } } },
+  };
+  assert.deepEqual(transitionProblems(manifest), []);
+});
+
+test('a static centring transform needs no transition, so a slot that transitions nothing is not reported', () => {
+  const manifest = { component: 'Fixture', slots: { caret: '-translate-y-1/2' } };
+  assert.deepEqual(transitionProblems(manifest), []);
 });
