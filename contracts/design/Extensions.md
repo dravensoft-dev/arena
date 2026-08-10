@@ -111,7 +111,7 @@ motion.** Five roles carry motion: `dur-hover` and `ease-hover` for a response t
 for the two directions a control travels under a press. The durations were promoted first and that
 left the tier half built, because a duration cannot carry character on its own: 220ms on Arena's
 default curve is the same instant answer taking longer than it should, and 220ms on `ease.in-out`
-is an object with mass being moved. `expressive` sets both, and it sets them because a figure
+is an object with mass being moved. `showcase` sets both, and it sets them because a figure
 standing off a ground is an object; a voice that groups by drawing a region has nothing to give
 mass to.
 
@@ -128,7 +128,7 @@ extension's reach by the same construction as everything else a manifest does no
 `ArenaButton` is the shape to look at: a voice may take `press-scale` to 0.96 and
 `motion-reduce:active:scale-100` still cancels the whole gesture.
 
-**An extension raises what shouts and never moves what is read.** `expressive` lifts `fs-h1`,
+**An extension raises what shouts and never moves what is read.** `showcase` lifts `fs-h1`,
 `fs-display` and `fs-hero` and leaves everything from `fs-h2` down exactly where it was. How large
 a paragraph is set is a legibility decision that every voice shares, so widening the hierarchy is
 done by raising the top of the ladder rather than by lowering its middle. A role is a question, which is why it can be
@@ -258,7 +258,7 @@ consumer owns.
 **It said an extension cannot vary with the theme, because it is a scope class beside the palette
 and not inside it.** That described the emission of the day rather than a principle, and the
 emission changed. An extension partial may now carry a group named after a theme, and the
-generator emits its tokens under that theme's scope as well as the base block. `expressive` pays
+generator emits its tokens under that theme's scope as well as the base block. `showcase` pays
 for depth differently in each polarity because the polarities are not symmetrical: in light a
 darkening is a boundary, so it uses the drop shadow; in dark it uses a rim light, an inset lit
 edge, which reads about 1.5:1 against the page because it is light on dark rather than dark on
@@ -293,7 +293,7 @@ reach by construction, and adding it is a change to the manifest rather than to 
 
 ## The shipped catalogue
 
-`expressive`: grouping by elevation and air instead of by hairline, softer corners, a call to
+`showcase`: grouping by elevation and air instead of by hairline, softer corners, a call to
 action that lifts, and a hover that answers like an object: 220ms on the `in-out` curve, so it
 starts from rest rather than at full speed, and a press that sinks twice as far as the default,
 which is the return trip of the two pixels it rose. It removes `bw-surface` and not
@@ -302,7 +302,7 @@ and a card is not a control, and because a table that lost the rules between its
 its frame would stop being readable.
 
 `editorial`: grouping by proximity, which means grouping by nothing drawn. It takes the line off a
-surface like `expressive` does and then, unlike it, puts nothing in its place: the resting depth
+surface like `showcase` does and then, unlike it, puts nothing in its place: the resting depth
 stays neutral, `fill-surface` takes the page's own colour so a card stops being a card, and
 `pad-surface` goes to zero because a surface with no line, no depth and no fill has no inside to
 give room in. What is left is the ladder, tightened at one end and widened at the other: 8px inside

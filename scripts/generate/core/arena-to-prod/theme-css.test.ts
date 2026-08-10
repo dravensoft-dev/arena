@@ -253,7 +253,7 @@ test('without the shipped sheets a name can be held to nothing, so the run stops
 const SHEETS_WITH_EXT = {
   layers: ['css/reset.css'],
   components: ['button'],
-  extensions: { expressive: { base: ['--r-surface:22px;', '--bw-surface:0px;'],
+  extensions: { showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'],
     byPolarity: { light: ['--shadow-surface-rest:DROP;'] } } },
   roleReferences: ['--fill-surface:var(--color-base-200);'],
 };
@@ -273,26 +273,26 @@ test('"default" is an unknown extension until one is called that, rather than a 
   const problems = configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /default/);
-  assert.match(problems[0] ?? '', /expressive/);
+  assert.match(problems[0] ?? '', /showcase/);
 });
 
 test('a shipped extension is accepted by name', () => {
-  const c = config({ extension: 'expressive' });
+  const c = config({ extension: 'showcase' });
   assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
 });
 
 test('the extension field is one name and never a list, so a build carries at most one', () => {
-  const c = config({ extension: ['expressive'] });
+  const c = config({ extension: ['showcase'] });
   assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('extension')) ?? '', /one name/);
 });
 
 test('a palette may not take a shipped extension name, since both become .arena-<name>', () => {
-  const c = config({ palettes: [{ name: 'expressive', default: true, polarity: 'dark', colors: colors() }] });
-  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('expressive')) ?? '', /extension/);
+  const c = config({ palettes: [{ name: 'showcase', default: true, polarity: 'dark', colors: colors() }] });
+  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('showcase')) ?? '', /extension/);
 });
 
 test('the chosen extension reaches :root, so a consumer needs no class of their own', () => {
-  const css = themeCss(config({ extension: 'expressive' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  const css = themeCss(config({ extension: 'showcase' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
   assert.match(css, /--r-surface:22px;/);
   assert.match(css, /--bw-surface:0px;/);
 });
@@ -309,7 +309,7 @@ test('"none" emits nothing, the same as omitting the field', () => {
 
 test('a voice that answers a polarity reaches the palette of that polarity, not only the default one', () => {
   const css = themeCss(config({
-    extension: 'expressive',
+    extension: 'showcase',
     palettes: [
       { name: 'night', default: true, polarity: 'dark', colors: colors() },
       { name: 'day', polarity: 'light', colors: colors() },

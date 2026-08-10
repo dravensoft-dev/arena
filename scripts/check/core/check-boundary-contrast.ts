@@ -2,7 +2,7 @@
  * answer is the hairline, so the question never arises; a design extension that sets a control's
  * border to zero has moved the answer onto the fill difference, and this gate is where that claim
  * is measured rather than assumed. A surface is deliberately not asked about: 1.4.11 is about
- * components and a card is not one, which is why expressive may drop bw-surface and not bw-field. */
+ * components and a card is not one, which is why showcase may drop bw-surface and not bw-field. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

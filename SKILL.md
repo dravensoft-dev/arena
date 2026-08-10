@@ -56,12 +56,13 @@ Every one of these is enforced somewhere, so breaking one is a defect rather tha
 - **Two themes, dark first.** Dark is `:root`, light is the `.arena-light` class. Components
   are never rewritten per theme, because they read tokens. `.arena-compact` re-densifies
   and `.arena-comfortable` grows the controls to a 48px touch target; the two are exclusive.
-- **A design extension is a second voice, and you pick one.** Put `.arena-expressive` on a root
-  or a container and every component softens, groups by elevation instead of by hairline, takes
-  more room inside and more air around it, and answers the pointer more slowly. It composes with a
-  theme and with the compact density, because the three change different things: a voice takes the
-  surfaces and the gaps between them, and density keeps the controls and the data rows. Write no
-  extension of your own.
+- **A design extension is a second voice, and you pick one.** Two ship, each named for the job:
+  `.arena-showcase` groups by elevation and air instead of by hairline, softening every corner and
+  answering the pointer like an object with mass, for work that invites rather than scans;
+  `.arena-editorial` draws nothing at all and lets distance carry the structure, for a screen
+  somebody reads. Put one on a root or a container. It composes with a theme and with the compact
+  density, because the three change different things: a voice takes the surfaces and the gaps
+  between them, and density keeps the controls and the data rows. Write no extension of your own.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order
   is identity; the status colours are meaning. Status colours are never series colours.
 - **Copy is English, formal and direct**, concrete action verbs, no boastful adjectives.

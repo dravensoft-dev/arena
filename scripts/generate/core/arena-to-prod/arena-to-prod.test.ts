@@ -566,9 +566,9 @@ test('the extensions a package ships are read out of the effects sheet, so no li
   );
   mkdirSync(join(root, 'css'), { recursive: true });
   writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --r-surface:14px;\n}\n\n.arena-expressive{\n  /* a reason */\n  --r-surface:22px;\n  --bw-surface:0px;\n}\n');
+    ':root{\n  --r-surface:14px;\n}\n\n.arena-showcase{\n  /* a reason */\n  --r-surface:22px;\n  --bw-surface:0px;\n}\n');
   assert.deepEqual(packageSheets(root)?.extensions, {
-    expressive: { base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
+    showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
   });
   rmSync(root, { recursive: true });
 });

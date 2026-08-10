@@ -41,7 +41,7 @@ export const FILES = [
     { selector: ':root', source: 'layering.json' },
     { selector: ':root', source: 'chart.json' },
     { selector: ':root', source: 'behaviour.json' },
-    { selector: '.arena-expressive', source: 'extension.expressive.json' },
+    { selector: '.arena-showcase', source: 'extension.showcase.json' },
     { selector: '.arena-editorial', source: 'extension.editorial.json' },
   ] },
 ];
@@ -49,7 +49,7 @@ export const FILES = [
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
   'roles.json': ['effects.json', 'palette.dark.json', 'spacing.json', 'typography.json'],
-  'extension.expressive.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
+  'extension.showcase.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
   'extension.editorial.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
 };
 

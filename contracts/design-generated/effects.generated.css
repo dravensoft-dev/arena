@@ -561,7 +561,7 @@
    */
   --limit-pagination-siblings:1;
 }
-.arena-expressive{
+.arena-showcase{
   /*
      A product card is a thing you want to touch, so its corner is softer than a panel
      you want to read. One step up the scale rather than an invented number, which is the rule an
@@ -626,8 +626,8 @@
   --shadow-surface-rest:inset 0px 1px 0px 0px rgba(255,255,255,.12);
   /*
      A call to action that lifts further than anything else on the page. This is where
-     an expressive extension spends most of its emphasis, and it is spent on one element per view,
-     which is the same rule as one primary accent per view.
+     a voice whose job is to invite and convert spends most of its emphasis, and it is spent on one
+     element per view, which is the same rule as one primary accent per view.
    */
   --shadow-control-raised:0px 30px 60px -20px rgba(0,0,0,.7);
   /*
@@ -713,7 +713,7 @@
    */
   --fs-hero:120px;
 }
-.arena-light.arena-expressive, .arena-light .arena-expressive, .arena-expressive .arena-light{
+.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{
   /*
      In light a darkening is a boundary again, so the ordinary drop shadow is the
      answer and it REPLACES the rim rather than joining it: two depth cues on one edge read as a
@@ -826,5 +826,5 @@
      It carries no appearance, which is why check:coverage excludes it from the utility surface
      rather than looking for a namespace that could hold a list.
    */
-  --arena-extensions:editorial,expressive;
+  --arena-extensions:editorial,showcase;
 }

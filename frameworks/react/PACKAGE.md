@@ -237,16 +237,32 @@ sources, so ignore them in version control the way you ignore the rest of your b
 
 Arena ships one visual voice by default: hairline grouping, flat hierarchy, no resting depth, made
 for reading a lot of data at once. A **design extension** is a second voice for the work that is
-not that, a shop or a landing page, where the job is to invite rather than to scan.
+not that. Two ship today, and each is named for the job rather than for how it looks:
+
+| Class | Job | What says two things belong together |
+|---|---|---|
+| none | scan and operate: dashboards, consoles, tables, internal tooling | a hairline drawn around the region |
+| `.arena-showcase` | invite and convert: marketing, commerce, onboarding, pricing | a surface standing off the page, by depth and by air |
+| `.arena-editorial` | read: docs, reports, changelogs, prose-heavy screens | distance alone, with nothing drawn at all |
+
+No two of them group by the same mechanism, and that is enforced rather than intended: Arena's
+build fails if two voices claim one. So they differ in kind and not by degree, which is what makes
+picking one a decision rather than a preference.
 
 ```html
-<html class="arena-expressive">
+<html class="arena-showcase">
 ```
 
-`expressive` softens every corner, drops the border around a surface and lets elevation and air do
+`showcase` softens every corner, drops the border around a surface and lets elevation and air do
 the grouping instead, gives a surface more room inside it and more ground around it, lifts a
-control under the pointer, and slows the response enough to read as one. Put the class on the root,
-or on any container to scope it to part of a page.
+control under the pointer, and answers it like an object with mass rather than instantly. Put the
+class on the root, or on any container to scope it to part of a page.
+
+`editorial` goes the other way and draws nothing: no border, no resting depth, and a card that
+takes the page's own fill so it stops being a card. What carries the structure is the distance
+between things, which it opens to eight times the gap inside a group, over headings set heavier
+and prose set looser. Reach for it when the screen is something somebody reads rather than
+operates.
 
 Its depth is paid for differently in each polarity, and that is deliberate rather than an
 inconsistency. A drop shadow is a darkening, so it separates a light card from a light page and
@@ -257,8 +273,8 @@ a class.
 
 It composes with everything else, because the three things change different values: a palette
 class carries colour, a density class carries how large the controls are, and an extension carries
-the shape and the depth. `<html class="arena-light arena-comfortable arena-expressive">` is a
-light, roomy, expressive page and needs no ordering care.
+the shape and the depth. `<html class="arena-light arena-comfortable arena-showcase">` is a
+light, roomy, showcase page and needs no ordering care.
 
 Two things it deliberately does not do. It does not change control heights or row padding: that is
 the density's job, and `arena-comfortable` takes a control to a 48px touch target while
@@ -272,7 +288,7 @@ before it ships, and a hand-written scope class is a claim nobody checked.
 ### Selecting it in `arena.config.json`
 
 ```json
-{ "extension": "expressive" }
+{ "extension": "showcase" }
 ```
 
 The field is **optional and never a list**, so a build carries at most one extension and no
@@ -286,7 +302,7 @@ actually called `default`. A config that quietly resolved a name Arena does not 
 build painting something nobody chose.
 
 The value reaches `:root` in the generated theme, so with the field set you need no class of your
-own. Putting `arena-expressive` on an element is still how you scope one to part of a page.
+own. Putting `arena-showcase` on an element is still how you scope one to part of a page.
 
 A palette may not be named after an extension the package ships, since both would be the class
 `.arena-<name>`. The CLI fails that rather than letting the two silently contend.

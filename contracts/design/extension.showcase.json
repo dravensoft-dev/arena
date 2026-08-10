@@ -84,7 +84,7 @@
   "shadow-control-raised": {
     "$type": "shadow",
     "$value": "{shadow.3}",
-    "$description": "A call to action that lifts further than anything else on the page. This is where\nan expressive extension spends most of its emphasis, and it is spent on one element per view,\nwhich is the same rule as one primary accent per view."
+    "$description": "A call to action that lifts further than anything else on the page. This is where\na voice whose job is to invite and convert spends most of its emphasis, and it is spent on one\nelement per view, which is the same rule as one primary accent per view."
   },
   "lift-control": {
     "$type": "dimension",
