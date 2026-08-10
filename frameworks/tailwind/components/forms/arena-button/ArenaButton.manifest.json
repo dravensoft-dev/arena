@@ -1,12 +1,12 @@
 {
   "component": "ArenaButton",
   "slots": {
-    "root": "inline-flex items-center justify-center gap-2 rounded-sm font-body font-semibold tracking-normal border-[length:var(--bw)] cursor-pointer [transition:background_var(--dur-fast)_var(--ease-out),transform_var(--dur-fast)_var(--ease-out),box-shadow_var(--dur-mid)_var(--ease-out)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed",
+    "root": "inline-flex items-center justify-center gap-2 rounded-control font-body font-semibold tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-out),transform_var(--dur-hover)_var(--ease-out),box-shadow_var(--dur-state)_var(--ease-out)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed",
     "spinner": "arena-btn-spin inline-block size-3.5 border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
   },
   "variants": {
     "variant": {
-      "primary": { "root": "bg-primary text-primary-content border-primary hover:shadow-2" },
+      "primary": { "root": "bg-primary text-primary-content border-primary hover:shadow-control-raised" },
       "secondary": { "root": "bg-base-200 text-base-content border-neutral hover:bg-base-300" },
       "ghost": { "root": "bg-transparent text-base-content/82 border-transparent hover:bg-base-200" },
       "danger": { "root": "bg-transparent border-error text-error hover:bg-error/14" }

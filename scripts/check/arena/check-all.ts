@@ -42,6 +42,7 @@ export const GATES = [
   { name: 'check:coverage', file: 'tailwind/check-tailwind-coverage.ts' },
   { name: 'check:surface-parity', file: 'tailwind/check-surface-parity.ts' },
   { name: 'check:radius', file: 'tailwind/check-radius-tokens.ts' },
+  { name: 'check:roles', file: 'tailwind/check-role-tokens.ts' },
   { name: 'check:arbitrary', file: 'tailwind/check-arbitrary-values.ts' },
   { name: 'check:component-css', file: 'tailwind/check-component-css.ts' },
   { name: 'check:dimensions', file: 'arena/check-dimension-literals.ts' },

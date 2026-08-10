@@ -72,6 +72,7 @@
     "check:coverage": "bun scripts/check/tailwind/check-tailwind-coverage.ts",
     "check:surface-parity": "bun scripts/check/tailwind/check-surface-parity.ts",
     "check:radius": "bun scripts/check/tailwind/check-radius-tokens.ts",
+    "check:roles": "bun scripts/check/tailwind/check-role-tokens.ts",
     "check:arbitrary": "bun scripts/check/tailwind/check-arbitrary-values.ts",
     "check:component-css": "bun scripts/check/tailwind/check-component-css.ts",
     "check:docs": "bun scripts/check/arena/check-docs.ts",

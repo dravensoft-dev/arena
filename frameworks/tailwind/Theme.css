@@ -244,18 +244,23 @@
      can be answered differently by an extension. A manifest reaches for one of
      these wherever the decision is a role, which is what check:roles holds. */
   --radius-surface: var(--r-surface);
+  --radius-surface-floating: var(--r-surface-floating);
   --radius-control: var(--r-control);
+  --radius-control-sm: var(--r-control-sm);
   --radius-field: var(--r-field);
+  --radius-marker: var(--r-marker);
 
   --shadow-*: initial;
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
   --shadow-3: var(--shadow-3);
 
-  /* the depth role, for the same reason as the radius roles above: a surface
-     that rises on hover asks for its raised state, not for the second step of
+  /* the depth roles, for the same reason as the radius roles above: a surface
+     asks for the tier it sits in or for the state it rises to, not for a step of
      the elevation scale. */
-  --shadow-surface-raised: var(--shadow-surface-raised);
+  --shadow-surface-floating: var(--shadow-surface-floating);
+  --shadow-surface-deep: var(--shadow-surface-deep);
+  --shadow-control-raised: var(--shadow-control-raised);
 
   --ease-*: initial;
   --ease-out: var(--ease-out);

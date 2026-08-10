@@ -86,69 +86,122 @@
 }
 :root{
   /*
-     The corner of a SURFACE: a card, a panel, a sheet, a menu, a dialog.
-     An alias of the r scale rather than a fresh number, on the same footing as rhythm's
-     aliases of sp, so the base value cannot drift off the radius scale.
+     The corner of a SURFACE that belongs to the page: a card, a panel, a dialog, a
+     sheet, a table frame. An alias of the r scale rather than a fresh number, on the same footing
+     as rhythm's aliases of sp, so the base value cannot drift off the radius scale.
      
-     Why the role exists at all: r names how round a corner is, and this names WHICH corner
-     is being asked about. A manifest that reaches for r-lg has said a length; one that reaches
-     for r-surface has said a reason, and only the second can be answered differently by an
-     extension. Re-valuing r-lg to soften a card would soften every unrelated use of the same
-     step, which is the defect the role tier exists to prevent.
+     Why the role exists at all: r names how round a corner is, and this names WHICH corner is being
+     asked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface
+     has said a reason, and only the second can be answered differently by an extension. Re-valuing
+     r-lg to soften a card would soften every unrelated use of the same step, which is the defect the
+     role tier exists to prevent.
    */
   --r-surface:14px;
   /*
-     The corner of a CONTROL the user presses: a button, an icon button, a chip.
-     Separate from r-field although both are r.sm today, on the cut that keeps rhythm-group
-     and dz-stack apart at 12px: same length, different question. An extension that wants pill
-     buttons over rectangular inputs needs the two to be answerable one at a time.
+     The corner of a surface that floats over the page: a menu, a toast, an alert,
+     a bulk action bar. Separate from r-surface because the scale already separated them: r.md is
+     authored as "nested cards, menus" and r.lg as "cards, panels". A floating surface is smaller and
+     nearer the pointer, so it reads as a lighter object, and an extension that rounds cards without
+     rounding menus is the broken half-applied look this role exists to prevent.
+   */
+  --r-surface-floating:10px;
+  /*
+     The corner of a CONTROL the user presses: a button, an icon button, a menu item,
+     a pagination page, a navigation row. Separate from r-field although both are r.sm today, on the
+     cut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. An
+     extension that wants pill buttons over rectangular inputs needs the two answerable one at a time.
    */
   --r-control:6px;
+  /*
+     The corner of a control too small to carry the full control radius: a checkbox
+     box, a segment of a segmented control. A control whose whole body is barely larger than its own
+     corner would read as a circle at r-control, so the scale drops a step. It is still a control, so
+     it moves when an extension moves controls, which is why this is a role and not a scale use.
+   */
+  --r-control-sm:4px;
   /*
      The corner of a FIELD the user types into: an input, a select, a textarea.
      The counterpart to r-control, and separate from it for the reason stated there.
    */
   --r-field:6px;
   /*
-     The border of a surface, and therefore Arena's default grouping signal.
-     This is the single most consequential role in the tier: a hairline says 'these things are
-     one region' by drawing the region, which is cheap in pixels and correct for dense data.
+     The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code
+     chip. A marker encloses a label and nothing else. It is neither a surface, because nothing is
+     placed inside it, nor a control, because it cannot be pressed, and giving the family its own
+     role is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce
+     extension says SALE, so it earns a role rather than a frozen literal.
+   */
+  --r-marker:4px;
+  /*
+     The border that encloses a surface, and therefore Arena's default grouping
+     signal. This is the single most consequential role in the tier: a hairline says 'these things
+     are one region' by drawing the region, which is cheap in pixels and correct for dense data.
      An extension that sets it to 0px has to make elevation and air carry the grouping instead,
-     and WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated
-     rather than merely allowed.
+     and WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather
+     than merely allowed.
    */
   --bw-surface:1px;
   /*
-     The border of a pressable control. Distinct from bw-surface because a
-     button's outline is an affordance, saying where the pressable area ends, while a card's
-     is a grouping signal. An extension can drop one and keep the other.
+     The border of a pressable control. Distinct from bw-surface because a button's
+     outline is an affordance, saying where the pressable area ends, while a card's is a grouping
+     signal. An extension can drop one and keep the other.
    */
   --bw-control:1px;
   /*
-     The border of a typable field. Distinct again: this one is the boundary
-     WCAG 1.4.11 measures at 3:1, so it is the border with the least freedom of the three.
+     The border of a typable field. Distinct again: this one is the boundary WCAG
+     1.4.11 measures at 3:1, so it is the border with the least freedom of the three.
    */
   --bw-field:1px;
   /*
-     What a surface rises to when it is hovered, dragged or opened over the page.
-     An alias of the shadow scale, so the default raised state is exactly the step it
-     already used. Named for the state rather than the depth so an extension can raise a card
-     further without every other shadow.2 in the system moving with it.
+     The line that divides one thing from the next INSIDE a surface: a table row
+     from the row under it, a sheet's head from its body, a tab strip from its panel. The critical
+     distinction from bw-surface, and the reason it is a separate role rather than the same one
+     applied to an edge: an extension that groups by elevation instead of by line removes the
+     enclosure, and a table whose rows lost their rules at the same time would stop being readable.
+     A separator answers a different question, so it survives the change.
    */
-  --shadow-surface-raised:0px 12px 28px -12px rgba(0,0,0,.6);
+  --bw-separator:1px;
   /*
-     How long a hover or press response takes. An alias of dur.fast, which is
-     what every such transition already spells inline. An extension is where motion energy is
-     decided, and a duration written as a scale step cannot be re-decided; written as a role
-     it can, without touching the transitions that are fast for a different reason.
+     The border of a marker, paired with r-marker for the same family and the same
+     reason. Also the ring an avatar draws against the surface behind it, which is a marker's border
+     by every property except the name.
+   */
+  --bw-marker:1px;
+  /*
+     The depth a surface carries AT REST because it floats over the page: a menu,
+     a toast, a tooltip, a bulk action bar, a card's floating variant. Distinct from the raised role
+     below, which is a response to a pointer rather than a statement about where a thing sits.
+   */
+  --shadow-surface-floating:0px 12px 28px -12px rgba(0,0,0,.6);
+  /*
+     The depth of a surface that commands the screen, whether by covering it (a
+     dialog, a sheet, a command palette, a coachmark) or by being the only thing on it (the sign-in
+     card). Named for the tier rather than for modality, because the sign-in card is not modal and
+     carries the same depth for the same reason.
+   */
+  --shadow-surface-deep:0px 30px 60px -20px rgba(0,0,0,.7);
+  /*
+     What a control rises to under the pointer. The same step as a surface's raised
+     state today and a different question: an extension that lifts a call to action has no reason to
+     lift every card with it, and a commerce extension is mostly a statement about the call to action.
+   */
+  --shadow-control-raised:0px 12px 28px -12px rgba(0,0,0,.6);
+  /*
+     How long a hover or press response takes. An alias of dur.fast, which is what
+     every such transition already spells inline. An extension is where motion energy is decided, and
+     a duration written as a scale step cannot be re-decided; written as a role it can, without
+     touching the transitions that are fast for a different reason.
    */
   --dur-hover:120ms;
   /*
-     How long something takes to appear: a menu, a popover, a toast, a dialog.
-     An alias of dur.mid. Kept apart from dur-hover because an entrance and a hover answer to
-     different expectations, and an extension that slows one has no reason to slow the other.
+     How long a state change the user follows takes: a switch travelling to its other
+     end, a progress bar reaching a new value, an onboarding dot widening to mark the step it is on.
+     An alias of dur.mid. Kept apart from dur-hover because the eye has to TRACK this one rather than
+     merely register that it happened, which is the whole reason the scale has a second step. Named
+     for the state and not for an entrance: every entrance in Arena is a keyframe in Animations.css,
+     so no manifest spells one as a duration.
    */
-  --dur-enter:220ms;
+  --dur-state:220ms;
 }
 :root{
   /*

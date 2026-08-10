@@ -1,12 +1,12 @@
 {
   "component": "ArenaStatCard",
   "slots": {
-    "root": "flex flex-col gap-2 bg-base-200 border-[length:var(--bw)] border-base-300 rounded-lg p-5 min-h-30",
+    "root": "flex flex-col gap-2 bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-surface p-5 min-h-30",
     "head": "flex items-center justify-between gap-3",
     "label": "font-mono text-ctl-2xs tracking-label uppercase text-base-content/62",
     "icon": "inline-flex text-[length:var(--icon-sm)] text-base-content/62 opacity-60",
     "value": "font-display font-extrabold text-h2 leading-snug tabular-nums",
-    "delta": "self-start inline-flex items-center gap-1 rounded-pill px-2 py-0.5 bg-transparent border-[length:var(--bw)] font-body text-ctl-sm font-semibold",
+    "delta": "self-start inline-flex items-center gap-1 rounded-pill px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
     "sub": "font-body text-ctl-sm text-base-content/62"
   },
   "variants": {

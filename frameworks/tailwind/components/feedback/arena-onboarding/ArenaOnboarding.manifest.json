@@ -2,17 +2,17 @@
   "component": "ArenaOnboarding",
   "slots": {
     "root": "fixed inset-0 z-onboarding block bg-scrim",
-    "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-base-200 border-[length:var(--bw)] border-neutral rounded-lg shadow-3 p-5",
+    "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-base-200 border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep p-5",
     "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-2",
     "title": "font-display font-extrabold text-h4 text-base-content tracking-tight",
     "body": "font-body text-md leading-body text-base-content/82 mt-2",
     "foot": "flex items-center gap-1.5 mt-4.5",
     "dots": "flex gap-1.5 flex-1",
-    "dot": "h-2 rounded-pill transition-[width] duration-[var(--dur-mid)] ease-out",
+    "dot": "h-2 rounded-pill transition-[width] duration-[var(--dur-state)] ease-out",
     "dotOn": "w-4.5 bg-primary",
     "dotOff": "w-2 bg-neutral",
     "text": "font-mono text-ctl-xs tracking-uppercase-status uppercase font-bold bg-transparent border-none cursor-pointer text-base-content/62",
-    "next": "h-8.5 px-4 bg-primary text-primary-content border-none rounded-sm font-body font-semibold text-ctl-md cursor-pointer"
+    "next": "h-8.5 px-4 bg-primary text-primary-content border-none rounded-control font-body font-semibold text-ctl-md cursor-pointer"
   },
   "variants": {
     "placement": {

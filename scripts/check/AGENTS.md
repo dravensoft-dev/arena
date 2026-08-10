@@ -35,7 +35,7 @@ are rules a new gate holds to:
   cannot find it" stop being the same value. Resolving by constructed path is what makes the
   per-component probe silent.
 - **Make a zero-result count an explicit failure** rather than a vacuous pass. `check:tailwind`,
-  `check:radius`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
+  `check:radius`, `check:roles`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
   `check:icons`, `check:docs`, `check:playgrounds` and
   `check:script-tokens` each carry one, as an exported pure function with a suite.
 - **A gate has two existences, the file and every place that invokes it, and only the second
@@ -169,7 +169,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 | domain | gates | |
 | --- | --- | --- |
 | [`arena/`](./arena/AGENTS.md) | 29 | two or more layers at once, or the repository root |
-| [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
+| [`tailwind/`](./tailwind/AGENTS.md) | 8 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 5 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 4 | the React layer |

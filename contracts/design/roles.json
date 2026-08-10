@@ -2,46 +2,81 @@
   "r-surface": {
     "$type": "dimension",
     "$value": "{r.lg}",
-    "$description": "The corner of a SURFACE: a card, a panel, a sheet, a menu, a dialog.\nAn alias of the r scale rather than a fresh number, on the same footing as rhythm's\naliases of sp, so the base value cannot drift off the radius scale.\n\nWhy the role exists at all: r names how round a corner is, and this names WHICH corner\nis being asked about. A manifest that reaches for r-lg has said a length; one that reaches\nfor r-surface has said a reason, and only the second can be answered differently by an\nextension. Re-valuing r-lg to soften a card would soften every unrelated use of the same\nstep, which is the defect the role tier exists to prevent."
+    "$description": "The corner of a SURFACE that belongs to the page: a card, a panel, a dialog, a\nsheet, a table frame. An alias of the r scale rather than a fresh number, on the same footing\nas rhythm's aliases of sp, so the base value cannot drift off the radius scale.\n\nWhy the role exists at all: r names how round a corner is, and this names WHICH corner is being\nasked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface\nhas said a reason, and only the second can be answered differently by an extension. Re-valuing\nr-lg to soften a card would soften every unrelated use of the same step, which is the defect the\nrole tier exists to prevent."
+  },
+  "r-surface-floating": {
+    "$type": "dimension",
+    "$value": "{r.md}",
+    "$description": "The corner of a surface that floats over the page: a menu, a toast, an alert,\na bulk action bar. Separate from r-surface because the scale already separated them: r.md is\nauthored as \"nested cards, menus\" and r.lg as \"cards, panels\". A floating surface is smaller and\nnearer the pointer, so it reads as a lighter object, and an extension that rounds cards without\nrounding menus is the broken half-applied look this role exists to prevent."
   },
   "r-control": {
     "$type": "dimension",
     "$value": "{r.sm}",
-    "$description": "The corner of a CONTROL the user presses: a button, an icon button, a chip.\nSeparate from r-field although both are r.sm today, on the cut that keeps rhythm-group\nand dz-stack apart at 12px: same length, different question. An extension that wants pill\nbuttons over rectangular inputs needs the two to be answerable one at a time."
+    "$description": "The corner of a CONTROL the user presses: a button, an icon button, a menu item,\na pagination page, a navigation row. Separate from r-field although both are r.sm today, on the\ncut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. An\nextension that wants pill buttons over rectangular inputs needs the two answerable one at a time."
+  },
+  "r-control-sm": {
+    "$type": "dimension",
+    "$value": "{r.xs}",
+    "$description": "The corner of a control too small to carry the full control radius: a checkbox\nbox, a segment of a segmented control. A control whose whole body is barely larger than its own\ncorner would read as a circle at r-control, so the scale drops a step. It is still a control, so\nit moves when an extension moves controls, which is why this is a role and not a scale use."
   },
   "r-field": {
     "$type": "dimension",
     "$value": "{r.sm}",
     "$description": "The corner of a FIELD the user types into: an input, a select, a textarea.\nThe counterpart to r-control, and separate from it for the reason stated there."
   },
+  "r-marker": {
+    "$type": "dimension",
+    "$value": "{r.xs}",
+    "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw}",
-    "$description": "The border of a surface, and therefore Arena's default grouping signal.\nThis is the single most consequential role in the tier: a hairline says 'these things are\none region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn extension that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated\nrather than merely allowed."
+    "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn extension that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."
   },
   "bw-control": {
     "$type": "dimension",
     "$value": "{bw}",
-    "$description": "The border of a pressable control. Distinct from bw-surface because a\nbutton's outline is an affordance, saying where the pressable area ends, while a card's\nis a grouping signal. An extension can drop one and keep the other."
+    "$description": "The border of a pressable control. Distinct from bw-surface because a button's\noutline is an affordance, saying where the pressable area ends, while a card's is a grouping\nsignal. An extension can drop one and keep the other."
   },
   "bw-field": {
     "$type": "dimension",
     "$value": "{bw}",
-    "$description": "The border of a typable field. Distinct again: this one is the boundary\nWCAG 1.4.11 measures at 3:1, so it is the border with the least freedom of the three."
+    "$description": "The border of a typable field. Distinct again: this one is the boundary WCAG\n1.4.11 measures at 3:1, so it is the border with the least freedom of the three."
   },
-  "shadow-surface-raised": {
+  "bw-separator": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The line that divides one thing from the next INSIDE a surface: a table row\nfrom the row under it, a sheet's head from its body, a tab strip from its panel. The critical\ndistinction from bw-surface, and the reason it is a separate role rather than the same one\napplied to an edge: an extension that groups by elevation instead of by line removes the\nenclosure, and a table whose rows lost their rules at the same time would stop being readable.\nA separator answers a different question, so it survives the change."
+  },
+  "bw-marker": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a marker, paired with r-marker for the same family and the same\nreason. Also the ring an avatar draws against the surface behind it, which is a marker's border\nby every property except the name."
+  },
+  "shadow-surface-floating": {
     "$type": "shadow",
     "$value": "{shadow.2}",
-    "$description": "What a surface rises to when it is hovered, dragged or opened over the page.\nAn alias of the shadow scale, so the default raised state is exactly the step it\nalready used. Named for the state rather than the depth so an extension can raise a card\nfurther without every other shadow.2 in the system moving with it."
+    "$description": "The depth a surface carries AT REST because it floats over the page: a menu,\na toast, a tooltip, a bulk action bar, a card's floating variant. Distinct from the raised role\nbelow, which is a response to a pointer rather than a statement about where a thing sits."
+  },
+  "shadow-surface-deep": {
+    "$type": "shadow",
+    "$value": "{shadow.3}",
+    "$description": "The depth of a surface that commands the screen, whether by covering it (a\ndialog, a sheet, a command palette, a coachmark) or by being the only thing on it (the sign-in\ncard). Named for the tier rather than for modality, because the sign-in card is not modal and\ncarries the same depth for the same reason."
+  },
+  "shadow-control-raised": {
+    "$type": "shadow",
+    "$value": "{shadow.2}",
+    "$description": "What a control rises to under the pointer. The same step as a surface's raised\nstate today and a different question: an extension that lifts a call to action has no reason to\nlift every card with it, and a commerce extension is mostly a statement about the call to action."
   },
   "dur-hover": {
     "$type": "duration",
     "$value": "{dur.fast}",
-    "$description": "How long a hover or press response takes. An alias of dur.fast, which is\nwhat every such transition already spells inline. An extension is where motion energy is\ndecided, and a duration written as a scale step cannot be re-decided; written as a role\nit can, without touching the transitions that are fast for a different reason."
+    "$description": "How long a hover or press response takes. An alias of dur.fast, which is what\nevery such transition already spells inline. An extension is where motion energy is decided, and\na duration written as a scale step cannot be re-decided; written as a role it can, without\ntouching the transitions that are fast for a different reason."
   },
-  "dur-enter": {
+  "dur-state": {
     "$type": "duration",
     "$value": "{dur.mid}",
-    "$description": "How long something takes to appear: a menu, a popover, a toast, a dialog.\nAn alias of dur.mid. Kept apart from dur-hover because an entrance and a hover answer to\ndifferent expectations, and an extension that slows one has no reason to slow the other."
+    "$description": "How long a state change the user follows takes: a switch travelling to its other\nend, a progress bar reaching a new value, an onboarding dot widening to mark the step it is on.\nAn alias of dur.mid. Kept apart from dur-hover because the eye has to TRACK this one rather than\nmerely register that it happened, which is the whole reason the scale has a second step. Named\nfor the state and not for an entrance: every entrance in Arena is a keyframe in Animations.css,\nso no manifest spells one as a duration."
   }
 }

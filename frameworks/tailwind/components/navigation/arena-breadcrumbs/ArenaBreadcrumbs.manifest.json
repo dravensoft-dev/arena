@@ -2,7 +2,7 @@
   "component": "ArenaBreadcrumbs",
   "slots": {
     "root": "flex items-center flex-wrap gap-2",
-    "crumb": "font-mono text-ctl-sm tracking-mono-nav text-base-content/62 no-underline cursor-pointer transition-[color] duration-[var(--dur-fast)] ease-out hover:text-base-content/82",
+    "crumb": "font-mono text-ctl-sm tracking-mono-nav text-base-content/62 no-underline cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-out hover:text-base-content/82",
     "current": "font-mono text-ctl-sm tracking-mono-nav text-base-content font-bold",
     "separator": "font-mono text-ctl-sm text-neutral"
   }

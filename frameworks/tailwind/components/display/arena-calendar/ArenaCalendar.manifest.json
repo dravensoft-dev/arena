@@ -3,11 +3,11 @@
   "slots": {
     "root": "flex flex-col w-full font-body",
     "toolbar": "flex items-center gap-2 mb-3 flex-wrap",
-    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw)] border-base-300 rounded-sm text-base-content/82 cursor-pointer text-[length:var(--icon-md)]",
-    "today": "inline-flex items-center justify-center h-8.5 px-3 bg-transparent border-[length:var(--bw)] border-base-300 rounded-sm text-base-content/82 cursor-pointer font-body text-ctl-md font-semibold",
+    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer text-[length:var(--icon-md)]",
+    "today": "inline-flex items-center justify-center h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer font-body text-ctl-md font-semibold",
     "heading": "m-0 ml-1 text-md font-semibold text-base-content",
     "actions": "ml-auto flex gap-2 flex-wrap",
-    "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw)] border-base-300",
+    "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-base-300",
     "dayHead": "min-w-0 px-2 pt-1.5 text-center",
     "weekday": "font-mono text-ctl-2xs tracking-column-header uppercase font-bold text-base-content/62",
     "dayNumber": "font-mono text-ctl font-bold mt-0.5",
@@ -16,8 +16,8 @@
     "gutter": "w-[var(--calendar-gutter-w)] shrink-0 relative",
     "hourLabel": "absolute right-2 -mt-1 font-mono text-ctl-2xs tracking-uppercase-status uppercase font-bold text-base-content/62",
     "grid": "grid flex-1 min-w-0 relative",
-    "rule": "absolute left-0 right-0 border-t-[length:var(--bw)] border-base-300 pointer-events-none",
-    "column": "min-w-0 relative border-l-[length:var(--bw)] border-base-300",
+    "rule": "absolute left-0 right-0 border-t-[length:var(--bw-separator)] border-base-300 pointer-events-none",
+    "column": "min-w-0 relative border-l-[length:var(--bw-separator)] border-base-300",
     "cell": "absolute left-0 right-0 outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "now": "absolute left-0 right-0 border-t-[length:var(--bw-strong)] border-primary pointer-events-none",
     "nowDot": "absolute -top-1 -left-1 size-1.5 rounded-pill bg-primary",
@@ -26,7 +26,7 @@
     "title": "text-ctl-sm font-semibold text-base-content whitespace-nowrap overflow-hidden text-ellipsis",
     "time": "font-mono text-ctl-2xs text-base-content/62",
     "kebabWrap": "absolute right-0",
-    "panel": "absolute top-full right-0 flex gap-2 p-2 bg-base-200 border-[length:var(--bw)] border-base-300 rounded-sm shadow-2"
+    "panel": "absolute top-full right-0 flex gap-2 p-2 bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-sm shadow-surface-floating"
   },
   "variants": {
     "today": {

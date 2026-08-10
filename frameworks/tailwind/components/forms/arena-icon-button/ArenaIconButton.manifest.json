@@ -1,13 +1,13 @@
 {
   "component": "ArenaIconButton",
   "slots": {
-    "root": "inline-flex items-center justify-center rounded-sm cursor-pointer transition-[background] duration-[var(--dur-fast)] ease-out disabled:opacity-45 disabled:cursor-not-allowed",
+    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-out disabled:opacity-45 disabled:cursor-not-allowed",
     "label": "font-body font-semibold text-ctl leading-ctl"
   },
   "variants": {
     "variant": {
       "ghost": {
-        "root": "bg-transparent text-base-content/82 border-[length:var(--bw)] border-base-300 hover:bg-base-200"
+        "root": "bg-transparent text-base-content/82 border-[length:var(--bw-control)] border-base-300 hover:bg-base-200"
       },
       "solid": {
         "root": "bg-primary text-primary-content border-none hover:bg-primary"

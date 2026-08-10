@@ -3,14 +3,14 @@
   "slots": {
     "root": "block w-full font-body",
     "grid": "table w-full border-collapse",
-    "frame": "border-[length:var(--bw)] border-base-300 rounded-lg overflow-hidden bg-base-200",
+    "frame": "border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden bg-base-200",
     "table": "w-full border-collapse font-body",
     "headRow": "table-row bg-base-300",
-    "th": "table-cell px-row-px py-row-py text-left align-middle font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62 border-b-[length:var(--bw)] border-base-300 outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "th": "table-cell px-row-px py-row-py text-left align-middle font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62 border-b-[length:var(--bw-separator)] border-base-300 outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "thSortable": "cursor-pointer select-none hover:text-base-content",
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
-    "pager": "flex justify-end border-t-[length:var(--bw)] border-base-300 px-row-px py-row-py",
-    "row": "table-row border-t-[length:var(--bw)] border-base-300 transition-[background] duration-[var(--dur-fast)] ease-out",
+    "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-base-300 px-row-px py-row-py",
+    "row": "table-row border-t-[length:var(--bw-separator)] border-base-300 transition-[background] duration-[var(--dur-hover)] ease-out",
     "rowFirst": "border-t-0",
     "rowInteractive": "cursor-pointer hover:bg-base-300",
     "td": "table-cell px-row-px py-row-py text-left align-middle text-ctl font-body text-base-content/82 outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
@@ -19,16 +19,16 @@
     "sortBar": "flex items-center gap-2 w-full",
     "sortField": "min-w-0 flex-1",
     "cards": "flex flex-col gap-4",
-    "card": "flex flex-col gap-stack bg-base-200 border-[length:var(--bw)] border-base-300 rounded-lg p-row-px",
+    "card": "flex flex-col gap-stack bg-base-200 border-[length:var(--bw-surface)] border-base-300 rounded-surface p-row-px",
     "cardRow": "flex items-baseline justify-between gap-3",
     "cardLabel": "font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62",
     "cardValue": "min-w-0 text-right text-ctl font-body text-base-content/82",
     "cardValueMono": "min-w-0 text-right text-ctl font-mono tabular-nums text-secondary",
-    "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw)] border-base-300 pt-2"
+    "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-base-300 pt-2"
   },
   "variants": {
     "narrow": {
-      "false": { "root": "border-[length:var(--bw)] border-base-300 rounded-lg overflow-hidden bg-base-200" },
+      "false": { "root": "border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden bg-base-200" },
       "true": { "root": "flex flex-col gap-4", "grid": "contents" }
     },
     "align": {

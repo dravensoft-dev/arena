@@ -165,6 +165,46 @@ a marker naming a class the file no longer carries fails too, as a stale
 allowance. The marker is honoured in `.md` only, and found in any other
 extension it is itself a failure.
 
+## A scale where a role belongs is a build failure
+
+A scale says how round a corner is, how thick an edge is, how deep a shadow is and how long a
+transition takes. A role says WHICH corner, edge, depth or transition is being asked about. The
+roles live in `contracts/design/roles.json`, every one an alias of the scale step it names, so
+the default appearance is the same pixel it always was.
+
+A manifest writes the role, and `check:roles` fails one that writes the scale:
+`rounded-surface`, `rounded-surface-floating`, `rounded-control`, `rounded-control-sm`,
+`rounded-field` and `rounded-marker` rather than `rounded-lg` and its siblings;
+`shadow-surface-floating`, `shadow-surface-deep` and `shadow-control-raised` rather than
+`shadow-2` and its siblings; `--bw-surface`, `--bw-control`, `--bw-field`, `--bw-marker` and
+`--bw-separator` rather than `--bw`; `--dur-hover` and `--dur-state` rather than `--dur-fast`
+and `--dur-mid`.
+
+**Why it is a rule and not a preference**: a design extension is a scope class that re-values
+role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
+one. Re-valuing the scale instead is not a repair, because a step is shared by every use that
+happens to want that length, and a card and a tooltip do not stop being different things by
+agreeing on 14 pixels.
+
+**The five kinds a role names.** A SURFACE has things placed inside it. A FLOATING surface is
+one that sits over the page rather than in it. A CONTROL is pressed. A FIELD is typed into. A
+MARKER encloses a label and nothing else, so it is none of the other four. A SEPARATOR is the
+sixth and it is not a kind of thing but a kind of edge: the line dividing one thing from the
+next INSIDE a surface. It is a separate role from `--bw-surface` for the reason that matters
+most to this whole tier, which is that an extension grouping by elevation removes the enclosure
+and a table whose row rules vanished with it would stop being readable.
+
+**Radius and depth are banned by utility name; a border width and a duration by TOKEN name.**
+The first two have a Tailwind namespace and the last two do not, so they are reached as the
+token itself. Banning the token catches `border-[length:var(--bw)]` and the `var(--dur-fast)`
+buried inside an arbitrary `[transition:...]` property with one entry rather than one per
+spelling, which is the shape `ArenaButton`'s three-property transition takes.
+
+`SCALE_USES` in `scripts/check/tailwind/check-role-tokens.ts` records the places that genuinely
+mean the length: a placeholder faking the shape of what it stands in for, a tooltip whose corner
+follows its label, a `calc()` adding a hairline up rather than drawing one. Each entry names one
+case and says why, and an entry no manifest carries fails the gate as a stale allowance.
+
 ## Consumption order
 
 1. Bring Arena's tokens into scope with `@import "../../intro/styles.css";` (or the
