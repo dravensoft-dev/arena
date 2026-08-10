@@ -33,6 +33,7 @@ export const DEFAULT_OUT = 'src';
 
 export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
+export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET]);
 
 export const USAGE = [
   'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--undrawn] [--strict]',
@@ -179,6 +180,7 @@ export function sourceFiles(path: string) {
       if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
       const full = join(at, entry.name);
       if (entry.isDirectory()) { walk(full); continue; }
+      if (OUTPUT_SHEETS.has(entry.name)) continue;
       if (SOURCE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) found.push(full);
     }
   };

@@ -7,7 +7,7 @@ import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
-  COMPONENT_MAP,
+  COMPONENT_MAP, OUTPUT_SHEETS,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
@@ -577,4 +577,24 @@ test('a package whose effects sheet declares no scope class ships no extensions 
   writeFileSync(join(root, 'css', 'effects.css'), ':root{\n  --r-surface:14px;\n}\n');
   assert.deepEqual(packageSheets(root)?.extensions, {});
   rmSync(root, { recursive: true });
+});
+
+test('the walk skips the two sheets this command writes, so a scan never reads its own output', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-selfscan-'));
+  writeFileSync(join(root, 'App.tsx'), '<i className="ph-bold ph-bell" />');
+  writeFileSync(join(root, THEME_SHEET), ':root{--color-primary:#b52a20;}');
+  writeFileSync(join(root, ICONS_SHEET), '.ph-bold.ph-gear{content:"\\e000"}');
+  assert.deepEqual(sourceFiles(root), [join(root, 'App.tsx')]);
+  rmSync(root, { recursive: true });
+});
+
+test('a consumer file that merely ends in .generated.css is still a source, since only the two names are ours', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-selfscan2-'));
+  writeFileSync(join(root, 'tokens.generated.css'), '.ph-bold.ph-bell{}');
+  assert.deepEqual(sourceFiles(root), [join(root, 'tokens.generated.css')]);
+  rmSync(root, { recursive: true });
+});
+
+test('the skipped names are exactly what the command writes, derived rather than restated', () => {
+  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, THEME_SHEET].sort());
 });
