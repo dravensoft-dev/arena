@@ -10,11 +10,11 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, dirname, basename } from 'node:path';
+import nodePath, { join, dirname, basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
-import { relPosix } from '../../utils/posix-path.ts';
+import { relPosix, toPosix, type PathModule } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { fencedLines } from '../../lib/arena/markdown-prose.ts';
 import { SCRIPT_EXTENSIONS, SUITE_EXTENSIONS } from '../../lib/arena/domains.ts';
@@ -276,12 +276,13 @@ export function rootsOf(argument: string) {
   return argument.split(/\s+-[a-z]/)[0] ?? '';
 }
 
-export function searchRoots(argument: string, rel: string) {
+export function searchRoots(argument: string, rel: string, on: PathModule = nodePath) {
   const at = dirname(rel) === '.' ? '' : dirname(rel);
   return argument.trim().split(/\s+/).filter(Boolean).map((one) => {
     const literal = (one.split('$')[0] ?? '').replace(/\/+$/, '');
     if (literal === '') return null;
-    return literal.includes('/') || existsSync(join(root, literal)) ? literal : join(at, literal);
+    if (literal.includes('/') || existsSync(join(root, literal))) return literal;
+    return toPosix(on.join(at, literal), on);
   }).filter((one): one is string => one !== null);
 }
 

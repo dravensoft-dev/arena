@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, win32 } from 'node:path';
 import {
   NAMED_BUT_NOT_HERE, README_MEANS, OUT_OF_SCOPE, SKIPPED_UNDER_FRAMEWORKS, KNOWN_EXTENSIONS,
   skips, outOfScope, documents, treeFiles, unfenced, fenced, searchRoots, suffixOf, holds,
@@ -146,6 +146,13 @@ test('a search whose root is written relative to the document resolves against i
   assert.deepEqual(searchRoots('components ', 'frameworks/tailwind/AGENTS.md'),
     ['frameworks/tailwind/components']);
   assert.deepEqual(snippetProblems(base, files, files), []);
+});
+
+test('that root is posix on a host whose separator is not, since it is what the answer is read as', () => {
+  assert.deepEqual(searchRoots('components ', 'frameworks/tailwind/AGENTS.md', win32),
+    ['frameworks/tailwind/components'],
+    'the root is matched against a posix file list and printed in a problem line, and a native '
+    + 'one matches nothing under Windows while every gate stays green here');
 });
 
 test('a fence and the prose around it are read by different rules', () => {
