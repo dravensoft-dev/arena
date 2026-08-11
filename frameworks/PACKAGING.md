@@ -23,6 +23,16 @@ and the assembly copies each into its `dist/` as `README.md`. They live in the t
 than being written into `dist/` directly for one reason: `check:docs` reads them, so the
 page npm shows holds to the same size, punctuation and comment rules as everything else.
 
+**The half of that page which is the same page in both packages is written once**, in
+`scripts/generate/arena/generate-npm-pages.ts`, and emitted into four `@shared` regions per file:
+what the repository is, how a skin is declared, the voice catalogue with its prose, and the tail.
+A person places the markers, so where a section sits on the page stays the page's decision and
+only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit.
+What a layer decides stays hand-written in each: the import idiom, what the package exports, and
+how a layout is composed. The rule is the one `check:duplication` states for any pair of documents
+sharing a file name, applied to the pair a reader is most likely to meet: they are one page
+rendered per package, and a sentence said twice by hand goes stale in one of them.
+
 ## The one decision everything else follows from
 
 **A published Arena carries the language and never the skin.**

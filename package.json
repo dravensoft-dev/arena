@@ -39,6 +39,7 @@
     "generate:prompt-api": "bun scripts/generate/arena/generate-prompt-api.ts",
     "generate:skills": "bun scripts/generate/arena/generate-skills.ts",
     "generate:voices": "bun scripts/generate/arena/generate-voices.ts",
+    "generate:npm-pages": "bun scripts/generate/arena/generate-npm-pages.ts",
     "generate:kitchen-sink": "bun scripts/generate/arena/generate-kitchen-sink.ts",
     "generate:playgrounds": "bun scripts/generate/arena/generate-playgrounds.ts",
     "build:tailwind": "bun scripts/build/tailwind/build-tailwind.ts",

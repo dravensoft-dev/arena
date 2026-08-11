@@ -1,9 +1,11 @@
-/* Holds the consumer branch's index tree equal to a fresh emit: frameworks/SKILL.md and one
- * per layer. They are tracked rather than built, because the plugin is served from the git tag
- * where nothing runs a build, so a stale copy is not a stale artefact: it is a wrong answer
- * handed to every reader of that tag, with every other gate green. Tracking is this gate's to
- * assert because check:generated scans no .md and the ignore pattern over frameworks/ reaches
- * only a .generated. name, so nothing else would notice one falling out of the index. */
+/* Holds everything on the consumer branch that is emitted rather than written equal to a fresh
+ * emit: the index tree, frameworks/SKILL.md and one per layer; the router's voice catalogue; and
+ * the regions of each npm page that are the same page in both packages. All of them are tracked
+ * rather than built, because the plugin is served from the git tag where nothing runs a build, so
+ * a stale copy is not a stale artefact: it is a wrong answer handed to every reader of that tag,
+ * with every other gate green. Tracking is this gate's to assert because check:generated scans no
+ * .md and the ignore pattern over frameworks/ reaches only a .generated. name, so nothing else
+ * would notice one falling out of the index. */
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -15,13 +17,16 @@ import {
   VOICES_TARGET, renderRegion as renderVoices,
   OPEN_LINE as VOICES_OPEN, CLOSE_LINE as VOICES_CLOSE,
 } from '../../generate/arena/generate-voices.ts';
+import {
+  TARGETS as NPM_TARGETS, renderTarget as renderNpmPage,
+} from '../../generate/arena/generate-npm-pages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const node = {
   name: 'check:skills',
   reads: [
     'contracts/api/components', 'frameworks/Components.json', 'frameworks/SKILL.md',
-    'contracts/design/extension.*.json', VOICES_TARGET,
+    'contracts/design/extension.*.json', VOICES_TARGET, ...NPM_TARGETS,
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
   ],
@@ -49,6 +54,28 @@ export function voiceRegionProblems(base = root) {
     : [`${VOICES_TARGET}: its @voices region does not match contracts/design/extension.*.json, so a `
       + 'reader picks a voice from a catalogue this build does not ship. Fix the contract and run '
       + 'bun run generate:voices'];
+}
+
+export function sharedRegionProblems(base = root) {
+  const problems = [];
+  for (const target of NPM_TARGETS) {
+    const before = readFileSync(join(base, target), 'utf8');
+    let after;
+    try {
+      after = renderNpmPage(before, base);
+    } catch (error) {
+      problems.push(`${target}: ${(error as Error).message}`);
+      continue;
+    }
+    if (after !== before)
+      problems.push(
+        `${target}: a @shared region does not match a fresh emit. The half of an npm page that is `
+        + 'the same page in both packages is written once, in generate-npm-pages.ts, because it was '
+        + 'written twice by hand and the two had already drifted. Edit that script and run '
+        + 'bun run generate:npm-pages',
+      );
+  }
+  return problems;
 }
 
 
@@ -85,7 +112,11 @@ export function zeroDeclarationProblems(componentCount: number) {
 
 export function skillProblems(base = root, tracked = trackedFiles(base)) {
   const declared = Object.values(loadCategories(base)).flat().length;
-  const problems = [...zeroDeclarationProblems(declared), ...voiceRegionProblems(base)];
+  const problems = [
+    ...zeroDeclarationProblems(declared),
+    ...voiceRegionProblems(base),
+    ...sharedRegionProblems(base),
+  ];
 
   for (const target of SKILL_TARGETS) {
     problems.push(...trackingProblems(target, tracked.has(target)));
@@ -111,7 +142,10 @@ function main() {
     console.error('\nA stale index is fixed by bun run generate:skills; the others say their own fix.');
     process.exit(1);
   }
-  console.log(`check-skills: ${emitted} index page(s) match a fresh emit over ${declared} declared component(s)`);
+  console.log(
+    `check-skills: ${emitted} index page(s), the router's voice catalogue and `
+    + `${NPM_TARGETS.length} npm page(s) match a fresh emit over ${declared} declared component(s)`,
+  );
 }
 
 if (isMainModule(import.meta.url)) main();

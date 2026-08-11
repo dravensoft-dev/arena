@@ -66,18 +66,29 @@ export function classOf(voice: Voice) {
   return voice.name === RESERVED_NAME ? 'none, the default' : `\`.arena-${voice.name}\``;
 }
 
-export function renderRegion(base = root) {
-  const rows = voices(base)
-    .map((voice) => `| ${classOf(voice)} | ${escapeCell(voice.job)} | ${escapeCell(voice.says)} |`);
+export function voiceTable(base = root) {
   return [
-    openLine(),
-    '',
     '| Voice | The work it is for | What says two things belong together |',
     '|---|---|---|',
-    ...rows,
-    '',
-    CLOSE_LINE,
-  ].join('\n');
+    ...voices(base)
+      .map((voice) => `| ${classOf(voice)} | ${escapeCell(voice.job)} | ${escapeCell(voice.says)} |`),
+  ];
+}
+
+export const NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
+
+export function countWord(n: number) {
+  const word = NUMBER_WORDS[n];
+  if (word === undefined)
+    throw new Error(
+      `generate-voices: ${n} voices, and NUMBER_WORDS stops at ${NUMBER_WORDS.length - 1}. A page `
+      + 'says how many ship in words rather than digits, so the list grows with the catalogue.',
+    );
+  return word;
+}
+
+export function renderRegion(base = root) {
+  return [openLine(), '', ...voiceTable(base), '', CLOSE_LINE].join('\n');
 }
 
 export function applyRegion(source: string, region: string) {
