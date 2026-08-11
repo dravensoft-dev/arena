@@ -43,6 +43,7 @@ export const node = {
     'check:generated',
     'check:icons',
     'check:layer-independence',
+    'check:routes',
     'check:script-tokens',
     'check:skills',
   ],

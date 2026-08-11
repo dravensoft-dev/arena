@@ -84,6 +84,7 @@
     "check:generated": "bun scripts/check/arena/check-generated.ts",
     "check:skills": "bun scripts/check/arena/check-skills.ts",
     "check:prompts": "bun scripts/check/arena/check-prompts.ts",
+    "check:routes": "bun scripts/check/arena/check-routes.ts",
     "check:script-tokens": "bun scripts/check/arena/check-script-tokens.ts",
     "check:duplicate-constants": "bun scripts/check/arena/check-duplicate-constants.ts",
     "check:deadlines": "bun scripts/check/arena/check-deadlines.ts",

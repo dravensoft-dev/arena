@@ -37,6 +37,7 @@ export const node = {
     'check:layer-independence',
     'check:playgrounds',
     'check:prompts',
+    'check:routes',
     'check:script-tokens',
     'check:shared-arithmetic',
     'check:skills',
