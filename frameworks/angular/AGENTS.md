@@ -520,14 +520,14 @@ being wrong about which is undetectable by eye:
 | does not emit and stops propagation | 0 |
 
 **So a primitive declaring a `click` output stops propagation on every click it handles**, or a
-consumer's handler is called twice for one press. `arena-button`, `arena-icon-button`,
-`arena-table-row` and `arena-calendar-event` all do, in every branch, including the ones that
-deliberately do not emit, which is what turns the third row into the fourth and keeps a chip the
-consumer declared non-interactive from reporting an activation nobody made.
+consumer's handler is called twice for one press. Every primitive that declares one does, in every
+branch, including the ones that deliberately do not emit, which is what turns the third row into
+the fourth and keeps a chip the consumer declared non-interactive from reporting an activation
+nobody made. Derive the set with the command below rather than reading a list here.
 
 **And a suite counting activations through a `(click)` binding is measuring the sum**, so it
-cannot tell an emit from a bubble and would read a doubled call as a passing one. The four
-suites assert **both** numbers, the output on the component instance and what a template
+cannot tell an emit from a bubble and would read a doubled call as a passing one. Their suites
+assert **both** numbers, the output on the component instance and what a template
 binding hears, because either alone is blind: the instance count cannot see a native event
 escaping to the consumer, and the binding count cannot see the output going silent.
 `ArenaCalendarEvent.cases.test.ts` is the shape.
@@ -540,10 +540,10 @@ grep -rhoE 'readonly (blur|cancel|change|click|close|focus|input|select|submit|t
     --include='*.ts' components | sort | uniq -c
 ```
 
-Every one of them carries the same double-fire risk, and only the four `click` ones are
-measured. `change` is the widest at eight primitives, and `ArenaCheckbox.compliance.test.ts` and
-`ArenaRadioGroup.compliance.test.ts` already assert their consumer hears it exactly once, which is
-half the pair above; the other six assert nothing about it.
+Every one of them carries the same double-fire risk, and only the `click` ones are measured.
+`change` is the widest family, and `ArenaCheckbox.compliance.test.ts` and
+`ArenaRadioGroup.compliance.test.ts` assert their consumer hears it exactly once, which is half
+the pair above; the rest of that family asserts nothing about it.
 
 ## Two roots, two projections, one template
 
