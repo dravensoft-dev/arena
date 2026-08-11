@@ -1,0 +1,93 @@
+/* The gate needs a browser and both layers built, so what is covered here is everything it
+ * decides BEFORE the shutter and everything it says after: which pairs it walks out of the tree,
+ * how it tells a page that painted nothing from a page that disagrees, and what a failure names.
+ * The comparison itself belongs to png.test.ts, which can build the images it needs. */
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, pagePath, voicesIn,
+  pairProblems, sizeProblem, paintProblem, dumpDir,
+} from './check-pixel-parity.ts';
+import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
+
+const SILENT = { readyState: 'complete', elements: 900, errors: [], scripts: [] };
+
+test('both themes are compared, because a colour that only diverges in light passes in dark alone', () => {
+  assert.deepEqual(THEMES, ['dark', 'light']);
+});
+
+test('one viewport for both pages, at one device scale, or the pair is not a comparison', () => {
+  assert.equal(VIEWPORT.deviceScaleFactor, 1);
+  assert.ok(VIEWPORT.width > 0 && VIEWPORT.height > 0);
+});
+
+test('motion and focus are both removed before the shutter, and each for its own reason', () => {
+  assert.match(STILL, /animation: none !important/,
+    'reduced motion slows a spinner rather than stopping it, so emulation alone leaves it turning');
+  assert.match(STILL, /transition: none !important/);
+  assert.match(STILL, /focus-visible/,
+    'focus is one global that every open overlay claims, so the ring follows the mount order');
+  assert.match(STILL, /\.blur\(\)/);
+});
+
+test('a page is walked from the tree, and the pair points at the same file in every layer', () => {
+  assert.equal(pagePath('react', 'editorial'), `frameworks/react/kitchen-sink/editorial/${PAGE_FILE}`);
+  assert.equal(pagePath('angular', 'editorial'), `frameworks/angular/kitchen-sink/editorial/${PAGE_FILE}`);
+});
+
+test('the voices on disk are the voices walked, so an arrangement that lands is compared', () => {
+  const react = voicesIn('react');
+  assert.deepEqual(react, voicesIn('angular'),
+    'a voice one layer draws and the other does not is the pair that cannot be compared');
+  assert.ok(react.length > 0, 'a sweep over no page reports no difference exactly as a clean one does');
+});
+
+test('a voice missing from one layer is named rather than quietly skipped', () => {
+  const problems = pairProblems(new Map([['react', ['none', 'editorial']], ['angular', ['none']]]));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /editorial: angular draws no page/);
+});
+
+test('two pages of different sizes are reported as that, rather than as a box inside them', () => {
+  assert.equal(sizeProblem('none:dark', { width: 1440, height: 700 }, { width: 1440, height: 700 }), null);
+  const problem = sizeProblem('none:dark', { width: 1440, height: 700 }, { width: 1440, height: 812 });
+  assert.match(problem ?? '', /1440x700/);
+  assert.match(problem ?? '', /1440x812/);
+});
+
+test('a page that never painted says so, and says nothing about whether the layers agree', () => {
+  const problem = paintProblem('none:dark', 'angular', {
+    painted: { ready: false, waitedMs: PAINTED.ms }, settled: false, tries: 0,
+    silence: { ...SILENT, readyState: 'loading', elements: 2 },
+  });
+  assert.match(problem ?? '', /never signalled that it had painted/);
+  assert.match(problem ?? '', /says nothing about whether the two layers agree/);
+});
+
+test('a page that painted and never stopped moving is a different failure from one that never painted', () => {
+  const problem = paintProblem('none:dark', 'react', {
+    painted: { ready: true, waitedMs: 40 }, settled: false, tries: SETTLE_TRIES, silence: SILENT,
+  });
+  assert.match(problem ?? '', /never stopped changing/);
+});
+
+test('a page that raised an error is not compared, since what it painted is not what it was asked to', () => {
+  const problem = paintProblem('none:dark', 'react', {
+    painted: { ready: true, waitedMs: 40 }, settled: true, tries: 1,
+    silence: { ...SILENT, errors: ['failed to load Sink.entry.generated.js'] },
+  });
+  assert.match(problem ?? '', /raised 1 error/);
+  assert.match(problem ?? '', /Sink.entry.generated.js/);
+});
+
+test('a page that painted, settled and said nothing is compared', () => {
+  assert.equal(paintProblem('none:dark', 'react', {
+    painted: { ready: true, waitedMs: 40 }, settled: true, tries: 1, silence: SILENT,
+  }), null);
+});
+
+test('captures are written only where a reader asks for them, so the gate writes nothing by default', () => {
+  assert.equal(dumpDir({}), undefined);
+  assert.equal(dumpDir({ ARENA_PIXEL_DUMP: '/tmp/parity' }), '/tmp/parity');
+});

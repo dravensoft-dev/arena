@@ -106,8 +106,8 @@ record is `check:compliance`'s `COVERED`, partial by design.
 
 ## Audience and scope
 - **Audience of the language: general public.** Arena is meant to give identity to **every kind of Dravensoft software**, regardless of who the end user is, from consumer apps to internal tools. Its foundations (color, typography, spacing, accessibility, voice) are general-purpose and don't assume a technical profile.
-- **The example application is `frameworks/react/ui-kits/console/`**, not the language itself. It illustrates Arena applied to the **Delivery Console, a product aimed at developers/technical teams**. That's why it includes data density, domain terminology (build, deploy, p95) and keyboard accelerators specific to that audience. `intro/Arena - Overview.html` is the opposite: the framework-agnostic token language, and it deliberately shows no components.
-- **Implication for audits and evaluations:** findings observed on the example should be split into (a) those that apply to the **language** (tokens, components and patterns, all universal) and (b) those specific to the **example's technical context** (jargon, density, shortcuts). The latter are not defects of the language: in a product for a general audience they would be replaced with plain copy, comfortable density and fewer shortcuts. When evaluating Arena for another kind of software, calibrate against that general audience, not against the Console.
+- **Arena ships no example application, and the omission is the point.** An app illustrates one product's audience, and a reader calibrates the language against whatever that app happens to be: a console aimed at engineers reads as though data density, jargon and keyboard accelerators were Arena's, when each of them belongs to that product. What the tree shows instead is every component at once, once per design extension, in `frameworks/react/kitchen-sink/` and its Angular pair. Those pages carry no product and no audience, so a finding on one is a finding about the language. `intro/Arena - Overview.html` is the other end of the same idea: the framework-agnostic token language, deliberately showing no component at all.
+- **Implication for audits and evaluations:** calibrate against the general audience the first bullet names. A finding that a component is dense, terse or shortcut-heavy is a finding about a product built with Arena rather than about Arena, and a product for a general audience would answer it with plain copy, comfortable density and fewer accelerators.
 
 ## Why a language of our own (and not Material/Fluent as-is)
 Established systems (Material 3, Fluent, Carbon, Polaris) are **light-by-default, rounded and neutral in tone**. Dravensoft's identity is the opposite: **dominant warm black, crimson/gold accents, sharp geometry and a bold voice**. Forcing the brand onto Material would produce a "generic with a skin" app. Instead, Arena:
@@ -203,7 +203,7 @@ framework is added without touching the language.
 **The framework layers**
 
 - [`frameworks/react/`](../frameworks/react/AGENTS.md): the React primitives, the
-  example Console app, and the shared layer-root modules.
+  kitchen-sink page per design extension, and the shared layer-root modules.
 - [`frameworks/angular/`](../frameworks/angular/AGENTS.md): the Angular layer for an
   existing Angular 20+/Tailwind-v4 app, meaning Arena's own primitives, with `@angular/cdk`
   positioning the two that anchor an overlay to a trigger.

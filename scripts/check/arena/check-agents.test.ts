@@ -36,7 +36,6 @@ test('the declared tree is the router plus one document per domain, and nothing 
 test('SURVIVORS names every README.md kept, and says why each is not a contributor document', () => {
   assert.deepEqual([...SURVIVORS.keys()], [
     'README.md',
-    'frameworks/react/ui-kits/console/README.md',
   ]);
   for (const reason of SURVIVORS.values()) assert.ok(reason.length > 40, 'an entry states its reason');
 });

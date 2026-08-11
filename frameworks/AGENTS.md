@@ -14,6 +14,7 @@ what binds them, and every rule here binds more than one of them.
 | change how a component looks | [`tailwind/AGENTS.md`](./tailwind/AGENTS.md), because appearance is authored there and compiled into both |
 | understand what a layer holds | that layer's `AGENTS.md`: [`react/`](./react/AGENTS.md), [`angular/`](./angular/AGENTS.md), [`tailwind/`](./tailwind/AGENTS.md) |
 | seed a component's playground | [`demos/AGENTS.md`](./demos/AGENTS.md) |
+| arrange the page a design extension is compared on | [`kitchen-sink/AGENTS.md`](./kitchen-sink/AGENTS.md) |
 | publish a package | [`PACKAGING.md`](./PACKAGING.md) |
 
 ## The layers are peers, and no layer is any other's authority
@@ -21,9 +22,9 @@ what binds them, and every rule here binds more than one of them.
 A file under `frameworks/<A>` may not name layer B nor any of B's source files, by import or in
 prose. `check:layer-independence` fails one that does, judging a reference by where it **lands**,
 so a relative `../../../tailwind/` in an `href` is caught as surely as prose naming the layer.
-`ALLOWED` and `EXEMPT` are both empty, and that emptiness is the claim; `ALLOWED_SPECIFIERS`
-holds one pattern, and **the only authorised edge is a page LINKING the generated CSS under
-`frameworks/tailwind/consume/`**.
+`ALLOWED`, `ALLOWED_SPECIFIERS` and `EXEMPT` are all empty, and **that emptiness is the claim**:
+no layer takes an authorised edge to another, and a pattern authorising one nobody takes fails
+as a stale allowance rather than sitting there licensing it.
 
 Where two layers answer the same question differently, **the contract is what makes the answers
 comparable**. A cross-layer *gate* under `scripts/check/arena/` reading several layers is that
@@ -31,8 +32,8 @@ mechanism rather than an instance of the coupling, which is why `scripts/` is ou
 scope. **A fact only recorded as "matching the other layer" is a fact missing from a contract.**
 
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name
-all three. So does `Components.json`, and so does `demos/`: each is a fact about the layers that
-belongs to none of them, and a copy per layer is a copy that can disagree.
+all three. So does `Components.json`, and so do `demos/` and `kitchen-sink/`: each is a fact
+about the layers that belongs to none of them, and a copy per layer is a copy that can disagree.
 
 ## Adding a component
 

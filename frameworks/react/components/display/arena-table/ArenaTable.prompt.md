@@ -116,9 +116,9 @@ Serve the tree with `bun run demos`, open
    render suite, so this step IS the guard. It matters MORE under the compound shape
    than before: a control in a cell is now the expected way to build a status or an
    actions column, not an edge case. The demo page's own cells hold an `ArenaBadge`, which
-   is not focusable. Check this one on the Delivery Console's Deployments tab
-   (`frameworks/react/ui-kits/console/index.html`), whose actions column draws a real
-   `ArenaButton`.
+   is not focusable. Check this one on any table whose cells hold a real `ArenaButton`
+   rather than a badge, since a focusable control in a cell is what the second press
+   is about.
 3. Arrow keys move by cell and clamp at all four edges: the first column, the last
    column, the header row at the top, the last body row at the bottom. Focus never
    leaves the grid. Try it on a table whose rows carry a different number of cells

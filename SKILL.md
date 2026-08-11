@@ -1,6 +1,6 @@
 ---
 name: design
-description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Covers design tokens, colour, type, spacing, motion, iconography, the accessibility pattern each component binds, and a UI kit. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
+description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
 user-invocable: true
 ---
 
@@ -95,7 +95,7 @@ Every one of these is enforced somewhere, so breaking one is a defect rather tha
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible? | `contracts/behaviour/<pattern>.json`, and the component's own `<Name>.behaviour.json` |
 | How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) |
-| What does a finished Arena app look like? | `frameworks/react/ui-kits/console/`, the Delivery Console example |
+| What does every component look like at once, in one design extension? | `frameworks/react/kitchen-sink/<extension>/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
 
 **Do not read these to build something.** `contracts/api/AGENTS.md`,

@@ -62,7 +62,6 @@ To tell **destructive / risk actions and indicators** apart from the primary act
   A glyph rendered as a webfont is still an icon rather than type, since an icon at 15px beside a label at 15px is not the same design decision as an icon at 16px, so these stay out of the `fs` scale. Exposed in the Tailwind layer under `--size-*`, not `--text-*`: `.size-icon-md` sets both width and height, since an icon is a size, not a font size. Color: inherits `currentColor`; accent only when interactive/active.
 - **Do not** override `font-family/weight/style` on `.ph-*` classes (breaks the glyphs).
 - **No emoji.** No arbitrary unicode as an icon. The **Rotor** (`assets/rotor-*.svg`) is brand, not a UI icon: don't use it as a functional glyph, and Arena ships no component that wraps it. The lock-up is `ArenaAppLogo`, which takes the mark as its `mark` node.
-- The `console/Icon.tsx` UI kit draws its own stroke-style SVGs; the official reference for product work is Phosphor.
 
 ---
 

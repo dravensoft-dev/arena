@@ -10,6 +10,7 @@
   "include": [
     "./components/**/*.ts",
     "./playground/**/*.ts",
+    "./kitchen-sink/**/*.ts",
     "./*.ts"
   ],
   "exclude": [

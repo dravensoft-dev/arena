@@ -21,9 +21,6 @@ export const SURVIVORS = new Map([
   ['README.md',
    'Getting started, and the page GitHub and npm show. It routes to both branches and belongs '
    + 'to neither.'],
-  ['frameworks/react/ui-kits/console/README.md',
-   'the example application. It reads like a project README because it describes an app rather '
-   + 'than a level of this tree.'],
 ]);
 
 export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git']);

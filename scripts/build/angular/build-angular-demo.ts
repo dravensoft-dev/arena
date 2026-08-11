@@ -26,18 +26,19 @@ export const node = {
   name: 'build:angular-demo',
   reads: [
     `${LAYER}/components/**/*.ts`, `${LAYER}/components/**/*.html`,
-    `${LAYER}/playground/**/*.ts`,
+    `${LAYER}/playground/**/*.ts`, `${LAYER}/kitchen-sink/**/*.ts`,
     `${LAYER}/*.ts`, `${LAYER}/tsconfig*.json`, 'package.json', 'bun.lock',
   ],
   writes: [`${LAYER}/build/demo/**`],
   feeds: [
     'check:angular-demos',
     'check:focus-trap',
+    'check:pixel-parity',
     'check:playgrounds',
   ],
 };
 
-export const ENTRY_SUFFIXES = ['.demo.entry.generated.js'];
+export const ENTRY_SUFFIXES = ['.demo.entry.generated.js', '.sink.entry.generated.js'];
 
 export const isEntry = (name: string, ext = '.js') => ENTRY_SUFFIXES.some((s) => name.endsWith(s.replace('.js', ext)));
 

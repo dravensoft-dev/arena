@@ -45,8 +45,13 @@ export const UNTRACKED = {
     'a 975 KB CommonJS->ESM bundle of a devDependency, read only by the demo pages\' importmap.',
   'frameworks/react/components/**/*.generated.js':
     'the compiled sibling of a component source, read only by a demo page.',
-  'frameworks/react/ui-kits/**/*.generated.js':
-    'the same, for the Delivery Console example app.',
+  'frameworks/react/kitchen-sink/**/*.generated.js':
+    'the same, for the one page per design extension that holds every component at once.',
+  'frameworks/react/kitchen-sink/**/*.entry.generated.tsx':
+    'a kitchen-sink entry, emitted from frameworks/kitchen-sink/ into every layer so the pair of '
+    + 'pages one extension gets differs in what mounts them and nothing else. check:pixel-parity '
+    + 'captures the pair and fails on one differing pixel.',
+  'frameworks/angular/kitchen-sink/**/*.entry.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/components/**/*.demo.entry.generated.tsx':
     'a demo entry, emitted from the component\'s API contract and its frameworks/demos/ fixture. '
     + 'The page beside it loads the compiled sibling; check:playgrounds holds both to a fresh run '

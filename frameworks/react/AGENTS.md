@@ -3,7 +3,7 @@
 > **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
 > [`SKILL.md`](./SKILL.md) to find a component, and that component's `.prompt.md` to use it.
 
-The React primitives, the example Console app, and the shared modules both of them read.
+The React primitives, the kitchen-sink page one design extension gets, and the shared modules both of them read.
 Every value here comes from `contracts/design/`; this layer introduces no design decision
 of its own. For what those values mean, read
 [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md).
@@ -192,11 +192,11 @@ focus navigation, which nothing here implements and happy-dom does not have; a t
 would pass identically against a perfect trap and against none. `bun run check:focus-trap` is
 what covers it: real Chromium over each declared page, one real Tab press per stop.
 
-- `ui-kits/console/`: the Delivery Console example app (login → dashboard → project). Its
-  `index.entry.tsx` and the compiled sibling beside it keep their lowercase names by
-  inheritance: a demo page's composition script takes the stem of the page it composes, and
-  that page is `index.html`, which is the name an HTTP directory index is answered by. Renaming
-  the pair would stop serving the app at `/frameworks/react/ui-kits/console/`.
+- `kitchen-sink/<extension>/`: one page per design extension holding every component at once,
+  emitted into this layer from the fixture under `frameworks/kitchen-sink/` that every layer is
+  emitted from. Nothing here is hand-written: the pages one extension gets differ in what mounts
+  them and in nothing else, which is what lets `check:pixel-parity` capture them and fail on one
+  differing pixel. Edit the fixture, never the emitted page.
 - `vendor/`: a generated CommonJS→ESM bundle of React for the demo pages'
   importmap (`build-vendor.ts`, guarded by `check:vendor`).
 - `test/`: the harness (`Harness.tsx`, `Preload.js`, `AssertPattern.tsx`) and the suites

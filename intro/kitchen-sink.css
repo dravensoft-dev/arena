@@ -1,0 +1,114 @@
+/* The kitchen-sink pages' chrome, shared by the page every framework layer gets for a
+ * design extension.
+ *
+ * It lives here for the reason playground.css does: check:layer-independence scans both
+ * trees textually and its exemption map is empty, so a stylesheet under one layer that the
+ * other also linked would be the coupling that gate exists to kill. Outside frameworks/
+ * there is nothing to couple, and the layers then draw the same furniture from the same
+ * bytes. That matters more here than anywhere else in the tree, because check:pixel-parity
+ * captures these pages and fails on one differing pixel: a difference in the furniture
+ * would read as a difference in a component.
+ *
+ * Every rule below is plain CSS on plain elements. Nothing here is an Arena component, so
+ * the frame around a component cannot change with the component being examined.
+ *
+ * .ks-stage is the load-bearing one. A component whose surface declares `fixed` is
+ * positioned against the viewport, so a page holding several of them would stack every
+ * overlay on top of the last and show one. `transform` and `contain: paint` each make an
+ * element the containing block for its fixed descendants, and both are set rather than
+ * either: `contain` also clips the overlay to the tile, and the pair is what turns a
+ * page-covering scrim into a specimen with a measurable box. Which components get one is
+ * derived from their manifest by the generator, never listed.
+ */
+
+.ks-page {
+  position: relative;
+  margin: 0;
+  padding: var(--sp-6);
+  background: var(--bg);
+  color: var(--text-strong);
+  font-family: var(--font-body);
+  line-height: var(--lh-body);
+}
+
+/* The dock is fixed everywhere else, and it may not be here. These pages are captured whole,
+ * and a full-page capture of a document several viewports tall is composited tile by tile: a
+ * viewport-fixed element lands wherever the compositor happened to be when it drew, so the same
+ * page captured twice puts it in two places. That is a differing pixel with no difference behind
+ * it, and it would fail check:pixel-parity on the furniture rather than on a component. Anchored
+ * to the document it is drawn once, in one place, in both layers. It rides up the page on scroll
+ * as the cost, which is the right trade for a page whose theme is chosen once. */
+.ks-page .dtoggle-dock {
+  position: absolute;
+}
+
+.ks-head {
+  margin: 0 0 var(--sp-6);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.ks-voice {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-tight);
+  color: var(--text-strong);
+}
+
+.ks-note {
+  margin: var(--sp-2) 0 0;
+  max-width: 78ch;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.ks-section {
+  margin: 0 0 var(--sp-8);
+}
+
+.ks-title {
+  margin: 0 0 var(--sp-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-tight);
+  color: var(--text-strong);
+}
+
+.ks-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-5);
+}
+
+.ks-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ks-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.ks-body {
+  min-width: 0;
+}
+
+.ks-stage {
+  position: relative;
+  transform: translateZ(0);
+  contain: paint;
+  overflow: hidden;
+  width: 640px;
+  height: 420px;
+  max-width: 100%;
+  border: 1px dashed var(--border);
+}

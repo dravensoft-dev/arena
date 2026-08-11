@@ -129,7 +129,13 @@ chip's identity colour. The name matches the placement: a module a schedule grid
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
-`playground/` sits beside them and is the one directory here that never ships: the package
+`kitchen-sink/<extension>/` is emitted, never written: one page per design extension holding
+every component at once, arranged in `frameworks/kitchen-sink/` and emitted into every layer
+from there. Its whole purpose is that the pages a single extension gets differ in what mounts
+them and in nothing else, so `check:pixel-parity` can capture them and fail on one differing
+pixel. Edit the arrangement, never the page.
+
+`playground/` sits beside them and never ships either: the package
 build stages nothing under it and `index.ts` names none of it. It holds the harness every
 generated demo page mounts, `Playground.ts` for the panel and the event log and
 `PlaygroundState.ts` for the store behind them. Its classes are `intro/playground.css`'s, which
