@@ -19,7 +19,14 @@ const SETTLE: Deadline = deadline('chromium:settle', 5_000,
   'the span this suite gives a reaped tree to disappear from the process table before it '
   + 'calls the disappearance a failure rather than a delay');
 
-const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE);
+const OBSERVE: Deadline = deadline('chromium:observe', 30_000,
+  'the span a host takes to answer which processes name a profile at all. pgrep answers in '
+  + 'milliseconds and PowerShell must start a runtime and walk Win32_Process, the only thing on '
+  + 'Windows that holds a command line, so the same question costs two orders of magnitude more '
+  + 'there. A case that asks it and declares no bound of its own inherits the runner default, '
+  + 'which is a number nobody in this tree chose and which the Windows leg exceeded.');
+
+const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE, OBSERVE);
 import { createDispatcher } from './cdp.ts';
 import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
@@ -317,7 +324,8 @@ test('a host with no way to look says so, instead of reporting a browser that fo
     + 'host that cannot answer rather than a browser that did nothing wrong');
 });
 
-test('a host that can look and finds none says that, which is the answer the reap wants', () => {
+test('a host that can look and finds none says that, which is the answer the reap wants',
+  { timeout: BUDGET_MS }, () => {
   const seen = processesNaming(join(tmpdir(), 'arena-chromium-no-such-profile'));
   assert.deepEqual(seen, { looked: true, pids: [] },
     `${observerFor().probe} reports no match without failing, and reading that as a failure to `
