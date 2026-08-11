@@ -3,10 +3,11 @@
  * A match is judged only when it names a FILE, carrying an extension, since prose shortens a
  * path freely (`intro/Arena`) and a shortened one is not a claim; a leading slash is a URL
  * from a site root rather than a repo path; and a `.generated.` name is skipped, because a
- * fresh clone has none. The roots come from the tree rather than a list, so a new top-level
- * directory is covered the day it lands, and finding none of them fails rather than reporting
- * every absolute path missing. EXEMPT carries what is absent on purpose, and a stale entry
- * fails. Use `<Name>` for a metavariable: an `X.prompt.md` reads as a claim. */
+ * fresh clone has none. The roots come from the tree, so a new top-level directory is covered the
+ * day it lands, and finding none fails rather than reporting every path missing. EXEMPT carries
+ * what is absent on purpose, and a stale entry fails. Use `<Name>` for a metavariable: an
+ * `X.prompt.md` reads as a claim. The member half of a `path:member()` citation is held too,
+ * since one naming the wrong file with the right member is confident and empty. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -130,6 +131,35 @@ export function citationProblems(base = root, files = documents(base), exempt = 
   return problems;
 }
 
+export const MEMBER_CITATION = /(?<![A-Za-z0-9._/-])([A-Za-z0-9._/-]+\.[a-z]{2,4}):([A-Za-z_$][\w$]*)\(/g;
+
+export const SOURCE_SUFFIX = /\.(?:ts|tsx|mjs|js|jsx)$/;
+
+export function memberProblems(base = root, files = documents(base)) {
+  const problems = [];
+  for (const path of files) {
+    const rel = relPosix(base, path);
+    for (const [line, text] of readFileSync(path, 'utf8').split('\n').entries()) {
+      for (const [, cited, member] of text.matchAll(MEMBER_CITATION)) {
+        if (!cited || !member || !SOURCE_SUFFIX.test(cited)) continue;
+        if (cited.includes('.generated.')) continue;
+        const resolved = [cited, join(dirname(rel), cited)]
+          .map((candidate) => join(base, candidate))
+          .find((candidate) => existsSync(candidate));
+        if (!resolved) continue;
+        const source = readFileSync(resolved, 'utf8');
+        if (new RegExp(`\\b${member}\\b`).test(source)) continue;
+        problems.push(
+          `${rel}:${line + 1}: cites ${cited}:${member}(), and that file declares no ${member}. `
+          + 'The member half of a citation is the half that carries the address, so one naming a '
+          + 'file it does not live in sends a reader to the wrong file with the right confidence.',
+        );
+      }
+    }
+  }
+  return problems;
+}
+
 export function ignoredCitationProblems(base = root, files = documents(base), ignored = ignoredRoots(base)) {
   const names = [...ignored].filter((name) => !SKIPPED_ANYWHERE.has(name));
   if (names.length === 0) return [];
@@ -175,6 +205,7 @@ function main() {
     ...zeroDocumentProblems(files),
     ...citationProblems(root, files),
     ...bareDocumentProblems(root, files),
+    ...memberProblems(root, files),
   ];
   if (problems.length > 0) {
     console.error(`check-citations: ${problems.length} problem(s)\n`);
