@@ -57,11 +57,13 @@ export const ROUTES: Route[] = [
     who: 'a contributor adding or changing a component: the router, the frameworks roof, then the '
       + 'layer that binds it',
     stops: ['AGENTS.md', 'frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 99_000,
+    budget: 83_000,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
-      + 'and never by whoever uses it.',
+      + 'and never by whoever uses it. What it may not carry is one category\'s own tour: the '
+      + 'chart family is a fourth stop, frameworks/CHARTS.md, for whoever changes a chart, and '
+      + 'charging every component change for it cost a fifth of this route.',
   },
   {
     name: 'contributor-token',
