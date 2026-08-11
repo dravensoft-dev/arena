@@ -13,11 +13,10 @@ Arena support for an Angular 20+/Tailwind-v4 app. Two kinds of artifact:
 
 **It names no other framework layer and imports from none.** What a component is and
 what members it presents is `contracts/api/components/<Name>.json`; what it must do is
-`contracts/behaviour/`; what a value is, `contracts/design/`. Styling used to be the one
-exception, a `<Component>.variants.ts` reaching four directories up into `frameworks/tailwind/`
-for a manifest and a recipe. It is not one any more: the class names a component composes are
-emitted into this layer beside the component, the way the contract types and the script tokens
-are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
+`contracts/behaviour/`; what a value is, `contracts/design/`. Styling is no exception, which it
+would be if a `<Component>.variants.ts` reached four directories up into `frameworks/tailwind/`
+for a manifest and a recipe: the class names a component composes are emitted into this layer
+beside the component, the way the contract types and the script tokens are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
 
 **Bridge (foundation), to bring Arena's tokens, icons and theming into an existing Angular app:**
 - `theme/arena-tailwind.css`: one import that brings Arena's tokens (including

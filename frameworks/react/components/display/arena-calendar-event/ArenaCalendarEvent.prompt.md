@@ -125,7 +125,7 @@ implement. Serve the tree with `bun run demos`, open
 Reserving the kebab's 34px band is what stops the title being drawn underneath it, and on a
 full-width chip it costs nothing; on a chip sharing its slot (`cols: 2`, about 78px outer) it
 leaves a **36.58px** content box, which renders a title like `Client review, Northwind` as `Clien…`. **A tall
-one no longer has this problem**: at 56px or more the kebab moves to the chip's bottom-right, the
+one does not meet it**: at 56px or more the kebab moves to the chip's bottom-right, the
 reserve is dropped, and the title gets the whole **64.6px**, with truncation measured falling from 74%
 to 54% rather than to the 18% its kebab-less neighbours show, because that figure belongs to their
 shorter titles. 56px is the sum that makes title and kebab fit without overlap, so it reaches

@@ -44,13 +44,13 @@ sibling component's exported recipe, so no component depends on another's module
 `components/display/arena-calendar-event/ArenaCalendarEvent.tsx` is that shape.
 
 **Nothing here merges classes, and nothing needs to.** A variant is additive and its rule is
-emitted after the base at equal specificity, so source order decides; that is what
-`tailwind-variants` and `tailwind-merge` used to do at render time, and both left the package
-with this arrangement.
+emitted after the base at equal specificity, so source order decides. That is the work
+`tailwind-variants` and `tailwind-merge` do at render time, which is why neither travels in the
+package: the arrangement does it at build time and for nothing.
 
 Both layers compose the same names, and neither is the other's authority: the manifest is.
-Where a manifest and a component disagreed, the manifest won, which is how `ArenaCard` came to draw
-a focus ring rather than an outline. `check:appearance` holds the arrangement.
+Where a manifest and a component disagree, the manifest wins, which is why `ArenaCard` draws a
+focus ring rather than an outline. `check:appearance` holds the arrangement.
 
 **What stays an inline `style` is a value computed at runtime**, from data or from a
 measurement: a chip's position from an hour, a fill's width from a percentage, a coachmark's
@@ -60,8 +60,8 @@ belongs in the manifest; if any branch reads an identifier or an interpolation i
 computation and stays*. A hover or focus colour is never a computation, and no component here
 keeps a `useState` to paint one.
 
-**A variant key the manifest does not declare resolves to no classes at all**, where a lookup
-table used to fall back through `|| TONES.neutral`. Where a member can carry a value the
+**A variant key the manifest does not declare resolves to no classes at all**, rather than
+falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the
 manifest has never heard of, the guard that answers it is **derived from the manifest** rather
 than written out beside it; `ArenaActivityFeed`, `ArenaBadge`, `ArenaAlert`, `ArenaToast`, `ArenaAvatar`, `ArenaToastHost`
 and `ArenaGrid` all carry one.

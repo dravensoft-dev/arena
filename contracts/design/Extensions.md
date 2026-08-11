@@ -20,10 +20,9 @@ against the floors before it goes out.
 **Shipping a voice is therefore two things rather than one, the partial and the OFFER**, and
 `bun run check:docs` holds the second: each layer's `PACKAGE.md` and the root `SKILL.md` must name
 every voice this build ships, and must name no `arena-` scope class the generated sheets do not
-answer to. Both directions were defects before they were rules. `editorial` shipped and reached
-none of the three, so for a release the CLI offered two voices and every document a consumer reads
-offered one; and a renamed voice leaves its old class behind in prose, where nothing else would
-ever look at it.
+answer to. Both directions are failures a green tree carries otherwise: a voice the CLI offers and
+no document names is a voice that did not ship, whatever the catalogue says, and a renamed voice
+leaves its old class behind in prose, where nothing else would ever look at it.
 
 ## The three tiers
 
@@ -41,11 +40,11 @@ WCAG 1.4.11 asks, in both themes.
 The ramp gate needs no per-scope variant, and that is a property of the tiers rather than an
 omission: an extension cannot author a colour, and the categorical ramp is authored colour.
 
-**`check:text-contrast` did not need one either, and now does.** This document used to argue the
-point from "an extension cannot move a colour", which stopped being true when `fill-surface`
-arrived: an extension may not WRITE a colour, but it may say which of the consumer's colours a
-surface takes, and text on a surface moved from `base-200` to `base-100` sits at a different
-ratio. The gate therefore measures the text levels once per extension scope crossed with both
+**`check:text-contrast` does need one, and "an extension cannot move a colour" is not what
+settles it.** An extension may not WRITE a colour, and it may still say which of the consumer's
+colours a surface takes: text on a surface moved from `base-200` to `base-100` sits at a
+different ratio, which is a contrast question `fill-surface` opens and the ramp gate never
+faces. The gate therefore measures the text levels once per extension scope crossed with both
 themes. It skips an extension that lands on the same surfaces as no extension, and says how many
 it skipped, so a scope is never quietly dropped.
 
@@ -100,7 +99,7 @@ to a voice that draws nothing, because once the boxes are gone the distance betw
 the text under it IS the hierarchy.
 
 `lh-prose` is floored at 1.5 and `check:extensions` measures the resolved value in every scope. The
-citation matters, and this plan got it wrong once: **WCAG 1.4.12 does not require a line height of
+citation matters, and it is the one most easily got wrong: **WCAG 1.4.12 does not require a line height of
 1.5.** It requires that content survive a USER overriding spacing to 1.5 line height, 2x paragraph
 spacing, 0.12em letter spacing and 0.16em word spacing without being clipped or lost, which is a
 property of the layout and which no gate over a token file could hold. The criterion that asks an
@@ -251,11 +250,10 @@ light page and does almost nothing between a dark card and a dark page: Arena's 
 warm black, and warm black on `#141010` is not a boundary. Measured on the specimen card, the same
 extension reads as clearly lifted in light and as a slightly paler rectangle in dark.
 
-This document used to say two further things, and both were wrong. They are stated here as
-reversals rather than deleted, because the reasoning that replaced them is the reasoning a future
-extension author needs.
+Two answers to dark look right and are refused, and the reasoning each is refused by is the
+reasoning a future extension author needs.
 
-**It said an extension leans on the surface scale in dark.** Measured, the scale cannot carry it.
+**Leaning on the surface scale in dark.** Measured, the scale cannot carry it.
 The widest step Dravensoft's base ramp offers in dark is `base-300` on `base-100` at 1.13:1, and
 `color-neutral` on `base-100` at 1.22:1, against 1.07:1 for the `base-200` a card sits on today.
 None of those is an edge anybody sees. Reassigning which step a surface uses is a real mechanism
@@ -263,10 +261,10 @@ and it is worth having, but it is not the answer to dark: the ramp is deliberate
 progression of warm blacks, it belongs to the SKIN, and an extension cannot widen what the
 consumer owns.
 
-**It said an extension cannot vary with the theme, because it is a scope class beside the palette
-and not inside it.** That described the emission of the day rather than a principle, and the
-emission changed. An extension partial may now carry a group named after a theme, and the
-generator emits its tokens under that theme's scope as well as the base block. `showcase` pays
+**Reading "an extension is a scope class beside the palette rather than inside it" as a rule that
+it cannot vary with the theme.** That is a statement about an emission rather than a principle,
+and the emission answers to this document: an extension partial carries a group named after a
+theme, and the generator emits its tokens under that theme's scope as well as the base block. `showcase` pays
 for depth differently in each polarity because the polarities are not symmetrical: in light a
 darkening is a boundary, so it uses the drop shadow; in dark it uses a rim light, an inset lit
 edge, which reads about 1.5:1 against the page because it is light on dark rather than dark on
@@ -278,7 +276,7 @@ hairline drawn around a region, which is the mechanism this extension traded awa
 statement about an object standing in light, so it is still figure and ground.
 
 An extension author checking their work in one theme only has not checked it, and
-`check:extensions` no longer takes their word for it: the grouping invariant is measured once per
+`check:extensions` does not take their word for it: the grouping invariant is measured once per
 scope the catalogue ships.
 
 Two surfaces exist so that check is not a matter of remembering to make it.
@@ -325,10 +323,9 @@ what they cover rather than grouped against it, so they keep `fill-surface-float
 padding a fit constraint gives them. A voice that flattened them too would have made every overlay
 unreadable to win an argument about cards, and that is the reason both families are split in two.
 
-The half of a reading voice that lives in type used to be missing here, and this paragraph used to
-say so: weight, tracking and measure were scales, so no voice could reach them. Two of the three
-are roles now and `editorial` spends both, `fw-heading` to 900 and `lh-prose` to 1.8, which is the
-same claim as its ladder made at the scale of the sentence.
+The half of a reading voice that lives in type is reachable, because two of the three things it
+wants are roles rather than scales: `editorial` spends both, `fw-heading` to 900 and `lh-prose`
+to 1.8, which is the same claim as its ladder made at the scale of the sentence.
 
 **It leaves `ls-heading` alone, and the reason is the scale rather than the voice.** A reading voice
 does want its headings tighter, and `ls` bottoms out at `tight`, which is exactly where `ls-heading`

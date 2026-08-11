@@ -93,11 +93,10 @@ a row moves the same emphasis the pointer does, so the dimmed slices and the cen
 percentage follow the keyboard as well as the mouse.
 
 The legend column keeps `role="group"` and `aria-label="Doughnut chart legend"` and carries
-no tab stop of its own. It used to carry one, as an `overflow: auto` scroll region with
-nothing focusable inside it, which let a keyboard user scroll the legend and activate
-nothing: WCAG 2.1.1 with a real victim. Once the rows can take focus that stop is dead, and
-a focusable child scrolls its own overflow ancestor into view anyway. `role="group"` was
-chosen over the WAI scrollable-region pattern's `role="region"` because a region is meant to
+no tab stop of its own. Carrying one, as an `overflow: auto` scroll region with nothing
+focusable inside it, lets a keyboard user scroll the legend and activate nothing: WCAG 2.1.1
+with a real victim. Since the rows take focus the stop would be dead anyway, and a focusable
+child scrolls its own overflow ancestor into view. `role="group"` is chosen over the WAI scrollable-region pattern's `role="region"` because a region is meant to
 be a landmark a user jumps to directly, and this column is one row of a small chart rather
 than a page landmark; `aria-label` names it either way.
 

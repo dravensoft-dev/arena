@@ -43,10 +43,10 @@ The members are `label`, `placeholder`, `options`, `value`, `disabled`, `require
 `error`, `valid`, `icon` and `name`, plus `onChange`. There is no `multiple`: a multi-selection is a *set* of values and `onChange`
 carries one `string`, so the attribute could reach the element while the event reported only
 the first selected option. A native multi-select is a list box shown open, which is a different
-control from the styled dropdown this component is. That is the whole API: the `SelectHTMLAttributes` heritage
-clause and the `{...rest}` spread are gone, so global attributes, `id`, `className`,
-`dir`, `tabIndex`, ARIA and `data-*`, no longer reach the `<select>`, and neither does
-a consumer `style` object.
+control from the styled dropdown this component is. That is the whole API: there is no `SelectHTMLAttributes` heritage
+clause and no `{...rest}` spread, so global attributes, `id`, `className`, `dir`,
+`tabIndex`, ARIA and `data-*`, do not reach the `<select>`, and neither does a consumer
+`style` object.
 
 **Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is
 a form whose fields must report a failure the same way, or it gets validated by hand or not at

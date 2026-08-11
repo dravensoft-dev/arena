@@ -36,11 +36,11 @@ value directly (`onChange={setNotes}`); there is no `e.target` and no `preventDe
 
 The members are `label`, `id`, `hint`, `error`, `required`, `counter`, `autoResize`, `value`,
 `disabled`, `readOnly`, `placeholder`, `name`, `maxLength` and `rows`, plus `onChange`.
-That is the whole API: the `TextareaHTMLAttributes` heritage clause and the `{...rest}`
-spread are gone, so global attributes, `className`, `dir`, `tabIndex`, ARIA and
-`data-*`, no longer reach the `<textarea>`, and neither does a consumer `style` object.
+That is the whole API: there is no `TextareaHTMLAttributes` heritage clause and no
+`{...rest}` spread, so global attributes, `className`, `dir`, `tabIndex`, ARIA and
+`data-*`, do not reach the `<textarea>`, and neither does a consumer `style` object.
 
-**`id` is the one global attribute that survived as a member**, because the component
+**`id` is the one global attribute that is a member**, because the component
 generates one from `label` to wire the label's `htmlFor` and a consumer had no way to
 override it, which left an external `<label>`, an `aria-describedby` or a form library
 addressing the field by name with no path at all. Pass it and it wins; omit it and the

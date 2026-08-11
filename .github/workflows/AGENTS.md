@@ -109,8 +109,8 @@ contributed nothing and a case belonging to no domain. A reporter that quietly d
 suite would otherwise print a confident table of zeros.
 
 **It saves its build, and that is the only reason the two publish workflows are cheap.** Both of
-them fire on this workflow's success and both used to build the same commit again, so one push to
-`main` built Arena three times. The key is `arena-build-<os>-<sha>`, the commit rather than the
+them fire on this workflow's success, and each would otherwise build the same commit again, which
+is one push to `main` building Arena three times. The key is `arena-build-<os>-<sha>`, the commit rather than the
 run, because the run that reads it is not this one and does not know its number. The save sits
 directly after the idempotency check, which is the last moment the tree is known to be exactly
 what the build wrote and nothing a gate has since touched.
@@ -140,7 +140,7 @@ its four test jobs each need the one build, and `Arena main` because two publish
 what it built. `develop` is one job that runs once per merge and is read by nobody, where a cache
 saves a fraction of a run it would also have to be kept honest across.
 
-**Assembling stays, and it is no longer a step of its own.** `bun run build:release` passes
+**Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
 `--assemble`, so the two packages are part of the run the workflow already makes. Dropping the
 assembly would not skip package work: `check:packages` reads no manifest and passes while saying so,
 which is a quieter green rather than a faster one, and `check:consumer` assembles a missing `dist/`

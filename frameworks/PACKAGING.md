@@ -89,7 +89,7 @@ were told about and resents one they find.
   class name the consumer supplies and a component renders, so the font has to be installed
   and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
 
-**Tailwind is no longer one.** It is how Arena's CSS is *authored*, and it stops there: a
+**Tailwind is not one.** It is how Arena's CSS is *authored*, and it stops there: a
 manifest's class string is compiled through `@apply`, stripped of every Tailwind theme
 indirection, and emitted as plain declarations under Arena's own class names. Nothing a package
 ships names a Tailwind utility, and neither package declares a runtime dependency of any kind
@@ -230,16 +230,15 @@ directories, and it goes through that same compile, so the package exports
 `Index.generated.js` beside the declaration `tsc` emits for it.
 
 **Angular** goes through `ng-packagr` into Angular Package Format. That needs a staging tree at
-`frameworks/angular/build/package/`, and the reason is narrower than it used to be: ng-packagr
-wants its own `ng-package.json`, `tsconfig.lib.json` and `package.json` at the root it compiles
-from, and writing those into the tracked layer would leave build files beside the source.
+`frameworks/angular/build/package/`, and the reason is narrow: ng-packagr wants its own
+`ng-package.json`, `tsconfig.lib.json` and `package.json` at the root it compiles from, and
+writing those into the tracked layer would leave build files beside the source.
 
 **It stages nothing of another layer**, and that is the property to check rather than assume,
-because it was not always true: a `.variants.ts` used to import a Tailwind manifest four
-directories up, which ng-packagr refuses, since it infers `rootDir` from the entry file's
-directory. A component composes its own class names now, from a table emitted beside it, so
-nothing reaches out and the staging tree is a compiler's requirement rather than the shape of a
-coupling. `build-angular-package.ts` fails on a staging run that copies zero files, so a layer
+because the failure it prevents is silent: a `.variants.ts` importing a Tailwind manifest four
+directories up is a reach ng-packagr refuses, since it infers `rootDir` from the entry file's
+directory. A component composes its own class names from a table emitted beside it, so nothing
+reaches out and the staging tree is a compiler's requirement rather than the shape of a coupling. `build-angular-package.ts` fails on a staging run that copies zero files, so a layer
 that moved is loud rather than silently empty.
 
 ### What never ships
