@@ -11,4 +11,4 @@ The compiled siblings, the vendor bundles and the barrel are all git-ignored, so
 with no build those three gates report their subject *missing* and name the command to run.
 That is the intended signal; see [`../../build/AGENTS.md`](../../build/AGENTS.md).
 
-Every `X.test.mjs` beside a gate covers that gate.
+Every `X.test.ts` beside a gate covers that gate.

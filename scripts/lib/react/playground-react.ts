@@ -2,7 +2,11 @@
  * own attribute rather than spread, so the two layers' entries read as translations of each
  * other; Angular has no spread and this side has no reason to diverge from it. A literal
  * reaches JSX through JSON.stringify inside an expression container, which is one escaping
- * rule for every form rather than one per type. */
+ * rule for every form rather than one per type. renderNode spells a bare text node for
+ * CHILDREN position, where a container is what carries a string, and expressionNode is the
+ * same node for EXPRESSION position, where the caller has already opened one: the two list
+ * builders place their items there, so spelling it the first way nests a container in a
+ * container and the file stops parsing. */
 
 import { playgroundPage, sheetLinks, UP } from '../arena/playground-page.ts';
 import { bindingName } from '../arena/api-surface.ts';
@@ -79,8 +83,13 @@ export function keyed(rendered: string, index: number) {
   return rendered.replace(/^(<[A-Za-z][\w.]*)/, `$1 key={${index}}`);
 }
 
+export function expressionNode(node: FixtureNode, places: Places, depth: number) {
+  if (typeof node.text === 'string' && !node.element) return JSON.stringify(node.text);
+  return renderNode(node, places, depth);
+}
+
 export function inlineList(list: FixtureNode[], places: Places, depth: number) {
-  const rendered = list.map((one) => renderNode(one, places, depth).trim());
+  const rendered = list.map((one) => expressionNode(one, places, depth).trim());
   if (rendered.length === 1) return rendered[0];
   return `[${rendered.map((one, i) => keyed(one, i)).join(', ')}]`;
 }
@@ -93,7 +102,7 @@ export function slotChildren(knob: Knob, places: Places, depth: number) {
 
 export function listExpression(nodes: FixtureNode[], places: Places, depth: number) {
   const pad = '  '.repeat(depth);
-  const rendered = nodes.map((one) => renderNode(one, places, depth + 1));
+  const rendered = nodes.map((one) => expressionNode(one, places, depth + 1));
   if (rendered.length === 1) return `(\n${rendered[0]}\n${pad})`;
   return `[\n${rendered.map((one, i) => keyed(one.trimStart(), i).split('\n').map((l, n) => (n === 0 ? `${pad}  ${l}` : l)).join('\n')).join(',\n')},\n${pad}]`;
 }

@@ -78,6 +78,8 @@ export function classStringsBySlot(manifest: ManifestClassSource) {
   for (const variantGroup of Object.values(manifest.variants || {}))
     for (const branch of Object.values(variantGroup))
       for (const [slot, cls] of Object.entries(branch || {}) as [string, string][]) add(slot, cls);
+  for (const compound of manifest.compoundVariants || [])
+    for (const [slot, cls] of Object.entries(compound.class || {}) as [string, string][]) add(slot, cls);
   return bySlot;
 }
 

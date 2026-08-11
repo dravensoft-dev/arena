@@ -15,7 +15,7 @@ export const BANNER =
   + ' * for the full rationale. */\n';
 
 export const ROOTS = [
-  'frameworks/react/components', 'frameworks/react/ui-kits/console', 'frameworks/react/playground',
+  'frameworks/react/components', 'frameworks/react/kitchen-sink', 'frameworks/react/playground',
 ];
 
 export const ROOT_MODULES = [
@@ -39,6 +39,8 @@ export const node = {
   feeds: [
     'build:react-package',
     'check:appearance',
+    'check:kitchen-sink',
+    'check:pixel-parity',
     'check:behaviour',
     'check:compliance',
     'check:demos',

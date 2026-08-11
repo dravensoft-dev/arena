@@ -39,17 +39,19 @@ test('no layer reads another layer\'s SOURCE; the one authorised edge is a link,
     + 'a Tailwind manifest, and it went when a component started composing its own class names');
 });
 
-test('the compiled CSS is the one reference authorised, and the layer around it is not', () => {
-  assert.equal(ALLOWED_SPECIFIERS.size, 1);
+test('no reference across layers is authorised, and asking about one answers no', () => {
+  assert.deepEqual([...ALLOWED_SPECIFIERS.keys()], [],
+    'every page that links the compiled CSS is emitted, and an emitted file is outside what this '
+    + 'gate scans, so the pattern that used to authorise the edge authorises nothing and went');
   for (const reason of ALLOWED_SPECIFIERS.values()) assert.ok(reason.trim().length > 0, 'a reason is the whole entry');
-  assert.equal(isAllowedSpecifier('frameworks/tailwind/consume/Components.generated.css'), true);
+  assert.equal(isAllowedSpecifier('frameworks/tailwind/consume/Components.generated.css'), false);
   assert.equal(isAllowedSpecifier('frameworks/tailwind/components/display/arena-tag/ArenaTag.manifest.generated'), false);
   assert.equal(isAllowedSpecifier('frameworks/tailwind/Tv'), false);
   assert.equal(isAllowedSpecifier('frameworks/react/components/forms/arena-button/ArenaButton.jsx'), false);
 });
 
 test('a stylesheet link is judged by where it lands, so a relative path cannot slip past the tokens', () => {
-  const file = `${repoRoot}/frameworks/react/ui-kits/console/index.html`;
+  const file = `${repoRoot}/frameworks/react/kitchen-sink/editorial/index.generated.html`;
   const link = (href: string) => `<link rel="stylesheet" href="${href}">`;
   assert.deepEqual(
     escapingSpecifiers(link('../../../tailwind/consume/Components.generated.css'), file, 'react'),

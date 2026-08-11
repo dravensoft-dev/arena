@@ -14,4 +14,4 @@ stylesheet's, and the gates and the package builds all go through it.
 `Utilities.generated.css` is published nowhere and survives because the package assembly cuts
 it into the per-component sheets a package ships. `check:generated` carries a reason for each; `check:tailwind-generated` compares all of them against a fresh compile.
 
-Every `X.test.mjs` beside a script covers that script.
+Every `X.test.ts` beside a script covers that script.

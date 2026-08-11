@@ -1,0 +1,51 @@
+{
+  "$extensions": {
+    "com.dravensoft.arena": {
+      "grouping": "proximity",
+      "job": "read: documentation, reports, changelogs, release notes, any screen somebody reads top to bottom"
+    }
+  },
+  "bw-surface": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "The line goes, and unlike the figure/ground voice nothing arrives to replace it.\nThat is the whole claim: what belongs together is near, what does not is far, and the reader is\ntrusted to see distance without being shown an edge.\n\nThis alone is not proximity, which is why the gate asks for the other two as well. A voice that\nremoved the line and kept a fill, or kept a depth, would be grouping by region or by figure and\nground with the hairline turned off."
+  },
+  "fill-surface": {
+    "$type": "color",
+    "$value": "{color.base-100}",
+    "$description": "The card takes the page's own fill, so it stops being a card. A fill is a region\ndrawn however faint it is: base-200 against base-100 measures 1.07:1 in dark and 1.10:1 in light,\nwhich is nearly invisible and still reads as a container once it has a corner and padding around\nit. Nearly invisible is the wrong target here. The target is absent.\n\nfill-surface-floating is deliberately untouched. A menu, a dialog and a toast are separated from\nwhat they cover rather than grouped against it, so they keep a fill of their own; a voice that\nflattened them too would have made every overlay unreadable to win an argument about cards. That\nsplit is the reason the two fill roles exist."
+  },
+  "pad-surface": {
+    "$type": "dimension",
+    "$value": "{sp.0}",
+    "$description": "A surface with no line, no depth and no fill has no inside, so it has no room to\ngive: its content sits on the page directly and lines up with everything else that does. Padding\nhere would be an indent nobody asked for, and an indent is a weak enclosure, which is the thing\nthis voice spent its other three decisions removing.\n\nThe floating tier has no padding role at all, which is what keeps a dialog from collapsing onto\nits own edges when this value goes to zero."
+  },
+  "fw-heading": {
+    "$type": "fontWeight",
+    "$value": "{fw.black}",
+    "$description": "Once the boxes are gone the type IS the hierarchy, so a heading has to be told\nfrom the text under it by weight alone. 800 to 900, which is the last step the display face has\nand the one the wordmark already uses, so nothing here is a value Arena did not already carry."
+  },
+  "lh-prose": {
+    "$type": "number",
+    "$value": "{lh.loose}",
+    "$description": "1.6 to 1.8, which is the other half of the same decision. A voice that grouped by\ndistance between blocks and then set its paragraphs tight would be arguing with itself: the air\nbetween lines is the same claim as the air between sections, made at the scale of the sentence.\n\nWell above the 1.5 floor WCAG 1.4.8 asks and check:extensions holds. The floor is a minimum, and\nthis voice is the one with a reason to sit far from it."
+  },
+  "rhythm-group": {
+    "$type": "dimension",
+    "$value": "{sp.2}",
+    "$description": "Tighter than the default, and that is half of the mechanism. Proximity says two\nthings are one by putting them near each other, so near has to be nearer than it needs to be when\na box is doing the work as well."
+  },
+  "rhythm-component": {
+    "$type": "dimension",
+    "$value": "{sp.6}",
+    "$description": "Two peer components separated by twice the air inside one of them is not a step a\nreader sees, and this voice has no line to fall back on when the distance fails. Widened until\nthe ladder reads: 8px inside a group, 24px between peers, 64px between sections, which is 1 to 3\nto 8. The default ladder can afford to be gentler because a hairline is carrying the grouping\nbeside it."
+  },
+  "rhythm-section": {
+    "$type": "dimension",
+    "$value": "{sp.16}",
+    "$description": "The far end of the ladder. 8px inside a group against 64px between sections is a ratio of\neight, where the default is two and the figure/ground voice is a little over three. Distance is\nthe ONLY signal this voice has left, so it has to carry a hierarchy that the other two spend\nlines, fills and shadows on, and a ratio that reads as a hierarchy is what pays for the edge that\nis no longer drawn. check:extensions holds it above four for exactly that reason."
+  }
+}

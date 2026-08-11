@@ -9,7 +9,7 @@ export interface ArenaGridProps {
   /** The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it. */
   min?: string;
 
-  /** The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. The three steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections; a grid is that rhythm plus a grid, and nothing here is a number this component chose. */
+  /** The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. Its steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections, and none closes the gap entirely; a grid is that rhythm plus a grid, and nothing here is a number this component chose. */
   gap?: ArenaGridGap;
 
   /** A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for. */

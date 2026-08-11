@@ -64,8 +64,8 @@ every modifier key and add a second tab stop over the row's own link. Navigate i
   all keyed by it.
 - **Do** leave `indentStep` alone unless the rail is unusually narrow. Three is the step every
   Arena sidebar uses.
-- **Don't** put a heading, a divider or a search box in as a child. The family is three components
-  and the landmark holds nothing else.
+- **Don't** put a heading, a divider or a search box in as a child. The family is this component and its
+  three kinds of child, and the landmark holds nothing else.
 - **Don't** expect a treeview. Each collapsible is an independent disclosure, no `aria-level`, no
   roving tab stop, no arrow navigation, and that is refused rather than missing;
   `ArenaSideNavCollapsible.behaviour.json` states the cost.

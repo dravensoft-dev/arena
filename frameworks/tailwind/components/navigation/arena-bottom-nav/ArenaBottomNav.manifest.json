@@ -1,8 +1,8 @@
 {
   "component": "ArenaBottomNav",
   "slots": {
-    "root": "fixed start-0 end-0 bottom-0 z-nav flex items-stretch h-bar box-content bg-base-200 border-t-[length:var(--bw)] border-neutral pb-[var(--pad-safe-bottom)]",
-    "item": "flex flex-1 basis-0 min-w-0 flex-col items-center justify-center gap-1 px-1 bg-transparent border-none cursor-pointer no-underline font-body text-ctl-2xs font-medium text-base-content/62 transition-[color] duration-[var(--dur-fast)] ease-out hover:text-base-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary aria-disabled:opacity-45 aria-disabled:cursor-not-allowed",
+    "root": "fixed start-0 end-0 bottom-0 z-nav flex items-stretch h-bar box-content bg-surface-floating border-t-[length:var(--bw-separator)] border-neutral pb-[var(--pad-safe-bottom)]",
+    "item": "flex flex-1 basis-0 min-w-0 flex-col items-center justify-center gap-1 px-1 bg-transparent border-none cursor-pointer no-underline font-body text-ctl-2xs font-medium text-base-content/62 transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-base-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary aria-disabled:opacity-45 aria-disabled:cursor-not-allowed",
     "glyph": "relative inline-flex text-[length:var(--icon-lg)] leading-ctl",
     "label": "max-w-full truncate",
     "badge": "absolute -top-1 start-3 inline-flex items-center justify-center min-w-4 px-1 rounded-pill bg-primary text-primary-content font-mono text-ctl-2xs font-bold tracking-badge"

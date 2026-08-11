@@ -7,22 +7,24 @@
 reads, and the assembly copies it into `dist/` as the package README;
 [`../PACKAGING.md`](../PACKAGING.md) is how the package is built and what it leaves out.
 
-Arena support for an Angular 20+/Tailwind-v4 app. Two kinds of artifact:
+Arena for an Angular and Tailwind v4 app, in two kinds of artifact: the components this layer
+draws, and the files beside them that carry the theme, the icon map and the CDK bridge. The
+versions it is built and typechecked against are the ones `package.json` pins.
 
 ## This layer stands on the contracts alone
 
 **It names no other framework layer and imports from none.** What a component is and
 what members it presents is `contracts/api/components/<Name>.json`; what it must do is
-`contracts/behaviour/`; what a value is, `contracts/design/`. Styling used to be the one
-exception, a `<Component>.variants.ts` reaching four directories up into `frameworks/tailwind/`
-for a manifest and a recipe. It is not one any more: the class names a component composes are
-emitted into this layer beside the component, the way the contract types and the script tokens
-are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
+`contracts/behaviour/`; what a value is, `contracts/design/`. Styling is no exception, which it
+would be if a `<Component>.variants.ts` reached four directories up into `frameworks/tailwind/`
+for a manifest and a recipe: the class names a component composes are emitted into this layer
+beside the component, the way the contract types and the script tokens are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
 
-**Bridge (foundation), to bring Arena's tokens, icons and theming into an existing Angular app:**
-- `theme/arena-tailwind.css`: one import that brings Arena's tokens (including
-  the self-hosted fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
-  plus the shared `frameworks/tailwind/Theme.css` `@theme` preset into scope.
+**Beside the components, the files that carry the theme, the icons and the CDK bridge:**
+- `theme/arena-tailwind.css`: one import that pulls Arena's tokens (including the self-hosted
+  fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
+  plus the shared `frameworks/tailwind/Theme.css` `@theme` preset into scope. It reaches those
+  through repository paths, so its readers are here and not in a consuming project.
 - `theme/arena-cdk.css`: the `@angular/cdk` overlay's structural stylesheet, re-based onto
   Arena's `--z-*` scale, needed once the app uses a primitive that positions itself with
   `@angular/cdk/overlay`. The file states why the container's z-index is overridden and why
@@ -31,13 +33,17 @@ are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
   means and what it does not.**
 - `icons/IconManifest.ts`: the canonical Phosphor role→glyph map.
 
-**The three files under `theme/` keep their lowercase names, and they do not share one reason.**
-`arena-tailwind.css` and `arena-cdk.css` are named **inside an adopter's own source, verbatim**:
-each is an `@import` in the host app's `styles.css`, so renaming one breaks every app that has
-adopted Arena. **`no-fouc.html` is not a third instance of that**: the adopter pastes the
-`<script>`'s contents and never names the file, so renaming it breaks a documentation line
-rather than an app. **Not exempt:** `theme/ArenaThemeService.ts` and `icons/IconManifest.ts` are
-reached through `frameworks/angular/index.ts`, which no adopter writes.
+**The files under `theme/` keep their lowercase names, and they do not share one reason.**
+`arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
+`@dravensoft/arena-angular/css/arena-cdk.css`: the assembly copies it under that name and the npm
+page tells a reader to `@import` it, so the lowercase stem is load-bearing outside this tree.
+**`arena-tailwind.css` and `no-fouc.html` are not instances of that, and neither reaches an
+adopter at all**: the assembly copies neither, `arena-tailwind.css` imports this repository's own
+`intro/styles.css` and so resolves nowhere else, and the pre-paint script a consumer pastes is
+carried inline on the npm page rather than read from here. **Nothing in this tree imports
+`arena-tailwind.css` either**, which makes it a file with no reader on either side. **Not
+exempt:** `theme/ArenaThemeService.ts` and `icons/IconManifest.ts` are reached through
+`frameworks/angular/index.ts`, which no adopter writes.
 
 - `theme/ArenaThemeService.ts` and `theme/no-fouc.html`: the signal theme service and the
   pre-paint snippet. It switches between **any number of named palettes**, because a
@@ -65,7 +71,7 @@ comm -23 <(find components -mindepth 2 -maxdepth 2 -type d -printf '%f\n' | sort
          <(find components -name '*.variants.ts' -printf '%h\n' | xargs -n1 basename | sort)
 ```
 
-The three SVG charts have no recipe at all, for the reason below. **A compound family's
+A chart that draws geometry has no recipe at all, for the reason below. **A compound family's
 children have none either, because they import the parent's**: each `ArenaSideNav*` child imports
 `arenaSideNavStyles` from `side-nav/ArenaSideNav.variants`, which is the recipe mirror of the rule
 `frameworks/tailwind/AGENTS.md` states for manifests, that a manifest mirrors a *surface* and a
@@ -87,10 +93,11 @@ rather than from a list here**, because a list here rots and nothing checks it:
 `find frameworks/angular/components -mindepth 2 -maxdepth 2 -type d | sort`, and count it
 with the same command piped to `wc -l`.
 
-**The three SVG charts are the declared exception to having a MANIFEST**, and a missing chart
-manifest is a decision rather than an omission: a chart's visual identity is path data and
-attribute bindings, not class strings, so `bar-chart`, `line-chart` and `doughnut-chart` have no
-recipe of their own and none to inherit either, and they style themselves with token-valued
+**A chart that draws geometry is the declared exception to having a MANIFEST**, and a missing
+chart manifest is a decision rather than an omission: a chart's visual identity is path data and
+attribute bindings, not class strings, so it has no recipe of its own and none to inherit either.
+`HAND_DRAWN` in `scripts/lib/tailwind/manifest-surfaces.ts` is the roster, held by
+`check:appearance`, and every entry there is a chart. They style themselves with token-valued
 style **objects**, meaning the camelCase
 `[style]` form, never a kebab-case string or attribute, because that is the only shape
 `check:dimensions` can actually read. `chart-card` is not one of them: it is a bordered
@@ -124,12 +131,18 @@ rendering](#a-projected-childs-inputs-are-not-readable-while-a-sibling-is-render
 wiring between a component and its own projected child rather than anything an adopter stands
 between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisuals.ts` (the identity-or-meaning colour contract, the number writer and the
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
-its consumers are the three charts **and** `arena-calendar-event`, which reads `arenaCatColor` for a
+its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatColor` for a
 chip's identity colour. The name matches the placement: a module a schedule grid consumes is
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
-`playground/` sits beside them and is the one directory here that never ships: the package
+`kitchen-sink/<extension>/` is emitted, never written: one page per design extension holding
+every component at once, arranged in `frameworks/kitchen-sink/` and emitted into every layer
+from there. Its whole purpose is that the pages a single extension gets differ in what mounts
+them and in nothing else, so `check:pixel-parity` can capture them and fail on one differing
+pixel. Edit the arrangement, never the page.
+
+`playground/` sits beside them and never ships either: the package
 build stages nothing under it and `index.ts` names none of it. It holds the harness every
 generated demo page mounts, `Playground.ts` for the panel and the event log and
 `PlaygroundState.ts` for the store behind them. Its classes are `intro/playground.css`'s, which
@@ -268,8 +281,8 @@ primitive also has a static specimen at
 which renders the real markup
 with the real recipe and no Angular executed. A specimen therefore proves the *recipe*,
 never the *component*: it hand-builds the DOM from the manifest, so a component-logic
-bug can render correctly in the card while being broken in the primitive. The three SVG
-charts have no specimen at all, by the same exception that gives them no manifest.
+bug can render correctly in the card while being broken in the primitive. A chart drawing
+geometry has no specimen at all, by the same exception that gives it no manifest.
 
 **What proves the component is a demo page, and there is one per primitive rather than one per
 primitive that earned it.** `<Component>.demo.generated.html` beside the component runs the real
@@ -336,9 +349,10 @@ change-detection pass with it: every `[class]` binding in the parent's template 
 the component renders as bare unstyled elements. An **optional** input is worse, because it reads as
 its default and nothing says so.
 
-`ArenaCalendar` did this: `placed` mapped `chips()` through `chip.id()`, and it shipped. The first
-consumer app that wrote its events the way a list is written got a toolbar, no grid, no chips and no
-styling, from one thrown error nothing in this repository was positioned to see.
+The shape is easy to write and invisible from here. A `placed` that maps `chips()` through
+`chip.id()` reads a projected child's input from the parent, and a consumer writing their events
+the way a list is written gets a toolbar, no grid, no chips and no styling, out of one thrown
+error no fixture in this repository is positioned to see.
 
 **The child publishes; the parent never pulls.** `arenaPublished` (`ProjectedInputs.ts`) is the one
 spelling: called in the child's own injection context, its effect runs during the CHILD's change
@@ -506,14 +520,14 @@ being wrong about which is undetectable by eye:
 | does not emit and stops propagation | 0 |
 
 **So a primitive declaring a `click` output stops propagation on every click it handles**, or a
-consumer's handler is called twice for one press. `arena-button`, `arena-icon-button`,
-`arena-table-row` and `arena-calendar-event` all do, in every branch, including the ones that
-deliberately do not emit, which is what turns the third row into the fourth and keeps a chip the
-consumer declared non-interactive from reporting an activation nobody made.
+consumer's handler is called twice for one press. Every primitive that declares one does, in every
+branch, including the ones that deliberately do not emit, which is what turns the third row into
+the fourth and keeps a chip the consumer declared non-interactive from reporting an activation
+nobody made. Derive the set with the command below rather than reading a list here.
 
 **And a suite counting activations through a `(click)` binding is measuring the sum**, so it
-cannot tell an emit from a bubble and would read a doubled call as a passing one. The four
-suites assert **both** numbers, the output on the component instance and what a template
+cannot tell an emit from a bubble and would read a doubled call as a passing one. Their suites
+assert **both** numbers, the output on the component instance and what a template
 binding hears, because either alone is blind: the instance count cannot see a native event
 escaping to the consumer, and the binding count cannot see the output going silent.
 `ArenaCalendarEvent.cases.test.ts` is the shape.
@@ -526,10 +540,10 @@ grep -rhoE 'readonly (blur|cancel|change|click|close|focus|input|select|submit|t
     --include='*.ts' components | sort | uniq -c
 ```
 
-Every one of them carries the same double-fire risk, and only the four `click` ones are
-measured. `change` is the widest at eight primitives, and `ArenaCheckbox.compliance.test.ts` and
-`ArenaRadioGroup.compliance.test.ts` already assert their consumer hears it exactly once, which is
-half the pair above; the other six assert nothing about it.
+Every one of them carries the same double-fire risk, and only the `click` ones are measured.
+`change` is the widest family, and `ArenaCheckbox.compliance.test.ts` and
+`ArenaRadioGroup.compliance.test.ts` assert their consumer hears it exactly once, which is half
+the pair above; the rest of that family asserts nothing about it.
 
 ## Two roots, two projections, one template
 
@@ -563,12 +577,16 @@ card that renders nothing.
 `ArenaSideNavItem` splits on `href` too and needs none of this: it projects nothing, so its two
 branches carry only interpolated inputs.
 
-## Adopting it
+## Adopting it is the package's question and not this document's
 
-Adopt it in the order the layer is built. Import `theme/arena-tailwind.css` once from the
-app's global stylesheet for the tokens and the `@theme` preset; add `theme/arena-cdk.css`
-when you first use a primitive that positions an overlay. Wire `ArenaThemeService`, declaring
-your palettes with `provideArenaThemes` if there are more than two, and paste
-`theme/no-fouc.html`'s script contents into `index.html`, setting its two names to match. Then replace the app's own
-controls with `arena-*` primitives as you touch the files that use them, incrementally and
-never as a sweep.
+**A project adopting Arena installs `@dravensoft/arena-angular` and reads
+[`PACKAGE.md`](./PACKAGE.md)**, which is the page npm shows: the install, the config file, the
+one command, the theme surface and the script that keeps a palette from flashing on first paint.
+Nothing under `theme/` reaches them, because the assembly copies `theme/arena-cdk.css` in as
+`css/arena-cdk.css` and copies neither of the other two: `arena-tailwind.css` imports this
+repository's own `intro/styles.css`, and the FOUC script is carried inline on the npm page where
+its reader is.
+
+What belongs here is the half a contributor needs, and it is one sentence: the theme surface is
+authored in `theme/`, beside the service that reads it, so a palette rule and the service that
+switches it are one directory rather than two.

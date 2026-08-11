@@ -24,7 +24,7 @@ the shape each value arrives in.
 - **Microcopy:** concrete action verbs ("Deploy", "Approve delivery", "Roll back"). Errors are helpful and blame-free ("We couldn't connect to the server. Retry.").
 
 ## Visual foundations
-- **Color, token architecture (daisyUI structure):** the source of truth is a set of `--color-*` tokens paired with their `-content` counterpart (the legible color on top), defined per theme in `contracts/design/palette.dark.json` and `contracts/design/palette.light.json`, from which `contracts/design-generated/palette.generated.css` is generated. On top of them, a **compatibility layer** in `contracts/design/colors.css` maps Arena's legacy aliases (`--bg`, `--surface-card`, `--crimson`, `--gold`, `--danger`, `--mute`…) to the daisyUI tokens, so existing components don't break. Muted text levels (`--bone-dim`, `--mute`) and `--status-offline` are derived from `--color-base-content` with `color-mix`, not fixed hex values.
+- **Color, token architecture (daisyUI structure):** the source of truth is a set of `--color-*` tokens paired with their `-content` counterpart (the legible color on top), defined per theme in `contracts/design/palette.dark.json` and `contracts/design/palette.light.json`, from which `contracts/design-generated/palette.generated.css` is generated. On top of them, `contracts/design/colors.css` maps Arena's own aliases (`--bg`, `--surface-card`, `--crimson`, `--gold`, `--danger`, `--mute`…) onto those tokens, so a rule can name the job a colour does rather than its position in the set. Muted text levels (`--bone-dim`, `--mute`) and `--status-offline` are derived from `--color-base-content` with `color-mix`, not fixed hex values.
   - **One token breaks the pairing, on purpose: `--color-error-fill`** (alias `--danger-fill`). It has no `-content` of its own, because it *is* a second fill for `--color-error`'s content, because danger is worn two ways and one hex cannot do both. See [Danger convention](#danger-convention-destructive-actions-and-risk-indicators). Pinning it is **optional**: `--danger-fill` falls back to `color-mix(in oklab, var(--color-error) 85%, black)`, so a palette copied without it still gets a filled danger dark enough for white text. Pin it to override the derived tone (the Dravensoft skin pins `#ce3838`); `check-text-contrast.ts` gates both the pin and the fallback.
 - **The muted text scale**, every level AA on both surfaces in both themes: `--text-strong` (100%, 15.23:1 dark / 15.86:1 light on the card), `--text-body` (82%, 10.46 / 9.28), `--text-muted` (62%, 6.52 / 4.71). `--text-muted` in light is the tightest of the three: it clears AA, and it is the reason nothing fits below it. A fainter level cannot be added, because clearing AA in light needs 61% while `--text-muted` already sits at 62%.
 - **`--status-offline`** (52%, 4.93:1 dark / 3.46:1 light on the card) is **presence only**, meaning `ArenaAvatar`'s offline dot. It clears WCAG 1.4.11's 3:1 for graphical objects. It is *not* `--mute-2-disabled` (40%), which dresses disabled controls: that one is low **by design** and exempt under 1.4.3/1.4.11's inactive-component carve-out. Do not raise it, and do not reach for it to render presence.
@@ -32,7 +32,7 @@ the shape each value arrives in.
 - **Themes:** the language is **dark-first** but supports two switchable themes, **dark** (`:root`, default) and **light** (`.arena-light`, warm inverse). The same tokens change value per theme; components are never rewritten. (The Overview includes the toggle in its header.)
 - **Key values:** a warm black background (`--color-base-100`) under elevated surfaces (`--color-base-200` for cards, `--color-base-300` for panels and borders) and bone text (`--color-base-content`). A single primary accent (crimson, `--color-primary`) per view; gold (`--color-secondary`) reserved for focus, distinction and highlighted data. At most one dominant accent per screen. The literal values live in `contracts/design/palette.dark.json` and `contracts/design/palette.light.json`, from which `contracts/design-generated/palette.generated.css` is generated. See [Theming](#theming): the scale is the language, the hexes are the skin.
 - **Typography:** Archivo (display/headlines, 800–900), Familjen Grotesk (body, 400–600), Spline Sans Mono (data, labels, code). Negative tracking on display (`-0.02em`), wide tracking on mono labels (`0.22em`).
-- **Spacing, and the difference between a length and a rhythm:** the 4px grid (`sp`) is the repertoire of lengths a value may take, and it decides nothing on its own. What separates two components is `rhythm`, three named steps aliased off that grid: `--rhythm-group` (12px) inside one group of related things, `--rhythm-component` (16px) between two peers, `--rhythm-section` (24px) between two sections of a page. **Arena draws none of this itself**, because every component is an inner box with no outer margin, so the family exists for the reason `--z-nav` and `--layout-bar` do: the space between components is part of the system, and the alternative is every consumer picking a number. It is not density. `.arena-compact` re-densifies `dz` and leaves `rhythm` alone, which is why `--rhythm-group` and `--dz-stack` can share a length and not a meaning. The step table, and what each one is for, is [`Scales.md`](./Scales.md).
+- **Spacing, and the difference between a length and a rhythm:** the 4px grid (`sp`) is the repertoire of lengths a value may take, and it decides nothing on its own. What separates two components is `rhythm`, named steps aliased off that grid: `--rhythm-group` (12px) inside one group of related things, `--rhythm-component` (16px) between two peers, `--rhythm-section` (24px) between two sections of a page. **No Arena component draws this itself**, because every component is an inner box with no outer margin, so the family exists for the reason `--z-nav` and `--layout-bar` do: the space between components is part of the system, and the alternative is every consumer picking a number. What a package ships for it is `css/rhythm.css`, the one sheet whose classes go on an element the consumer wrote, documented where its reader is, on each layer's `PACKAGE.md`. It is not density. `.arena-compact` re-densifies `dz` and leaves `rhythm` alone, which is why `--rhythm-group` and `--dz-stack` can share a length and not a meaning. The step table, and what each one is for, is [`Scales.md`](./Scales.md).
 
 ### Danger convention (destructive actions and risk indicators)
 To tell **destructive / risk actions and indicators** apart from the primary action, Arena distinguishes them by **shape, not weight**: **transparent background** with the **border and all its content** (text and icons) in the semantic token **`--error`** (alias `--danger`). This way danger reads through color and never visually competes with the filled crimson primary button.
@@ -62,7 +62,6 @@ To tell **destructive / risk actions and indicators** apart from the primary act
   A glyph rendered as a webfont is still an icon rather than type, since an icon at 15px beside a label at 15px is not the same design decision as an icon at 16px, so these stay out of the `fs` scale. Exposed in the Tailwind layer under `--size-*`, not `--text-*`: `.size-icon-md` sets both width and height, since an icon is a size, not a font size. Color: inherits `currentColor`; accent only when interactive/active.
 - **Do not** override `font-family/weight/style` on `.ph-*` classes (breaks the glyphs).
 - **No emoji.** No arbitrary unicode as an icon. The **Rotor** (`assets/rotor-*.svg`) is brand, not a UI icon: don't use it as a functional glyph, and Arena ships no component that wraps it. The lock-up is `ArenaAppLogo`, which takes the mark as its `mark` node.
-- The `console/Icon.tsx` UI kit draws its own stroke-style SVGs; the official reference for product work is Phosphor.
 
 ---
 
@@ -105,28 +104,48 @@ The dividing line: **DTCG owns values; the composition layer owns how values are
 at runtime.** `contracts/design/colors.css` therefore holds no skin value, only references
 (`var(--color-primary)`) and `color-mix` compositions, and `environment.css` holds no length,
 only a token and what the device reports. The full `$type` table is
-`contracts/design/AGENTS.md`.
+[`TokenTypes.md`](./TokenTypes.md), beside this file.
 
 **A swap is not done until it is measured**, and two scripts measure it. `bun scripts/check/core/check-ramp.ts` holds the categorical ramp; `bun scripts/check/core/check-text-contrast.ts` holds the text: the levels derived from `--color-base-content`, every `--color-*` / `--color-*-content` pair (all seven, at 4.5:1, because the pair is the contract a skin defines, so an illegible one fails before a component can inherit it), and the accents painted straight onto the base surfaces (`--color-error` as the danger outline). Both read the values out of `palette.generated.css` and hardcode nothing, so a new skin is one edit and two commands away from a real answer.
 
 Two of these numbers the scripts **report without gating**: crimson as text sits at 2.80:1 on the dark card, gold as text at 2.24:1 on the light one. Both are below AA and both are deliberate: they are the brand, and a gate there would not tighten a token but repaint Dravensoft. Use them as fills or on the theme that carries them, and reach for `--text-strong` when the job is reading text.
 
-| Invariant, this *is* Arena | Skin, yours to change |
-|---|---|
-| Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | Crimson (`--color-primary`) |
-| No gradients on any surface (one exception: `ArenaSkeleton`'s shimmer) | Gold (`--color-secondary`) |
-| The `base-100`→`base-200`→`base-300` surface scale | The warm-black base values |
-| The hairline border, and the warm shadow scale | The status hues |
-| The type scale, the three families, the uppercase-microlabel rule | The 8 categorical slots |
-| Identity vs meaning; one axis in charts; the ramp is never cycled | |
+**Three tiers, and each has exactly one party who may move it.** The full statement is
+[`Extensions.md`](./Extensions.md); this is the table.
+
+| Floor, nobody moves it | Extension, Arena moves it | Skin, the consumer moves it |
+|---|---|---|
+| Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | The grouping signal: the hairline, or elevation and air instead | Crimson (`--color-primary`) |
+| No gradients on any surface (one exception: `ArenaSkeleton`'s shimmer). An extension buys its expression with shape, depth and motion, never with a fill whose contrast is a range | | The status hues |
+| WCAG contrast, and the 3:1 a control's boundary and the focus ring carry | The radius roles, and the border roles other than a control's and a field's | Gold (`--color-secondary`) |
+| An extension authors no colour | Which of the skin's colours a surface takes: `fill-surface` and `fill-surface-floating`, split so flattening a card never flattens an overlay | |
+| Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
+| | Air: `pad-surface` inside a surface, and the `rhythm` steps between two things. Density keeps the controls and the data rows, so the two compose | |
+| Prose leading never closes below 1.5, which is WCAG 1.4.8 and what `lh-root` already is | A heading's weight and tracking, and how far above the floor prose is set | |
+| The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | |
+| The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
+| The three families, and the uppercase-microlabel rule | | |
+| Identity vs meaning; one axis in charts; the ramp is never cycled | | |
+
+An extension may not lower a floor, and the floor gates run against every scope Arena ships rather
+than against `:root` alone.
+
+**Two voices differ by mechanism or they do not differ.** Every extension declares in its own file
+which Gestalt principle answers "what belongs together" for it, and `bun run check:extensions`
+holds the claim against the resolved values: `common-region` draws the region, `figure-ground`
+removes the line and arrives with the depth, `proximity` draws neither. **Two extensions declaring
+the same principle fail the build.** Without that, a second voice can only be the first one taken
+further, and a catalogue of those is one voice with a dial on it. Every other decision a voice
+makes, the corner, the air, the depth, the motion, the type, is derived from the principle rather
+than chosen beside it, which is why the principle is the thing declared and the values are not.
 
 ### The categorical ramp
 
-Eight slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
+A fixed set of slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
 
 The ramp is one system with one entry point: `arenaCatColor(slot)`, which every layer carries in its own `DataVisuals` module. `ArenaCalendar` reads it from there rather than keeping its own copy: two clamps over one ramp is how a ramp stops being a ramp.
 
-Where a component has no `tone` escape hatch, **state goes on a non-chromatic channel**, never by turning an identity-coloured entity `--danger`. An entity painted a status color while its neighbours carry identity colors makes the palette mean two things at once, and the reader cannot tell which. `ArenaCalendar` is the strict case: it draws every event chip itself, so a consumer has no chromatic channel *and* no non-chromatic one, and a cancelled class says so in its title or does not appear on the schedule. That is a real capability the API contract removed, and `ArenaCalendar.prompt.md` records it.
+Where a component has no `tone` escape hatch, **state goes on a non-chromatic channel**, never by turning an identity-coloured entity `--danger`. An entity painted a status color while its neighbours carry identity colors makes the palette mean two things at once, and the reader cannot tell which. `ArenaCalendar` is the strict case: it draws every event chip itself, so a consumer has no chromatic channel *and* no non-chromatic one, and a cancelled class says so in its title or does not appear on the schedule. That is a capability the API contract does not offer, and `ArenaCalendar.prompt.md` records it.
 
 | Slot | Name | Hue | Dark | Light |
 |---|---|---|---|---|
@@ -139,7 +158,7 @@ Where a component has no `tone` escape hatch, **state goes on a non-chromatic ch
 | 7 | teal | 184° | `#00a99a` | `#009487` |
 | 8 | orchid | 328° | `#984697` | `#7c2b7b` |
 
-It was derived by enumeration against the validator, not chosen by eye: candidate hues were filtered to those clearing the chroma floor *and* 3:1 against the real chart surface (`--color-base-200`) in both themes, the whole crimson→gold warm arc was banned, and the order was enumerated against the gates. Chroma is capped at OKLCH C ≤ 0.15 so the ramp sits in Arena's register (crimson 0.177, gold 0.100) rather than reading as neon.
+It is derived by enumeration against the validator rather than chosen by eye: a candidate hue clears the chroma floor *and* 3:1 against the real chart surface (`--color-base-200`) in both themes, the whole crimson→gold warm arc is banned, and the order is enumerated against the gates. Chroma is capped at OKLCH C ≤ 0.15 so the ramp sits in Arena's register (crimson 0.177, gold 0.100) rather than reading as neon.
 
 **Measured: both themes clear every hard gate, with no relief rule.**
 
@@ -153,7 +172,7 @@ It was derived by enumeration against the validator, not chosen by eye: candidat
 
 **Brand clearance** (ΔE to the ramp's closest slot): crimson 17.0, gold 18.0, error 19.6, warning 26.3, all above the 15 bar. That is the requirement: the ramp cannot be mistaken for the brand or for an error.
 
-**Accepted collision:** success 6.0, info 7.8. This is structural. Eight slots need ~126° of arc; banning the red family leaves green, cyan, blue and violet, which is exactly where success (156°) and info (250°) live, and guarding those as hard as the brand leaves only ~76°. **A ramp can be clear of the brand or clear of status, not both.** Clear of the brand is the right choice: brand colors carry identity everywhere, while status colors always ship with an icon and a label (`ArenaAlert`, `ArenaToast`, `ArenaBadge`) and never appear as a bare fill.
+**Accepted collision:** success 6.0, info 7.8. This is structural. The ramp needs ~126° of arc; banning the red family leaves green, cyan, blue and violet, which is exactly where success (156°) and info (250°) live, and guarding those as hard as the brand leaves only ~76°. **A ramp can be clear of the brand or clear of status, not both.** Clear of the brand is the right choice: brand colors carry identity everywhere, while status colors always ship with an icon and a label (`ArenaAlert`, `ArenaToast`, `ArenaBadge`) and never appear as a bare fill.
 
 ### Re-check after you swap
 

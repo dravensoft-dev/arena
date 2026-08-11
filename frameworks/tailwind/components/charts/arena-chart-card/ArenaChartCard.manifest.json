@@ -1,7 +1,7 @@
 {
   "component": "ArenaChartCard",
   "slots": {
-    "root": "flex flex-col gap-3 bg-base-200 border-[length:var(--bw)] border-base-300 rounded-lg p-5",
+    "root": "flex flex-col gap-3 bg-surface border-[length:var(--bw-surface)] border-base-300 rounded-surface p-surface shadow-surface-rest",
     "head": "flex flex-wrap items-center justify-between gap-3",
     "title": "font-mono text-ctl-2xs tracking-label uppercase text-base-content/62",
     "actions": "flex flex-wrap items-center gap-2"

@@ -2,7 +2,7 @@
   "component": "ArenaAvatar",
   "slots": {
     "root": "relative inline-flex shrink-0",
-    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw)] border-neutral font-display font-extrabold tracking-normal text-base-content/82",
+    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw-marker)] border-neutral font-display font-extrabold tracking-normal text-base-content/82",
     "image": "w-full h-full object-cover",
     "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200"
   },

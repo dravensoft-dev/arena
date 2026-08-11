@@ -212,3 +212,33 @@
   --dz-text-xs:10px;
   --dz-text-2xs:10px;
 }
+.arena-comfortable{
+  /*
+     Comfortable density: for touch, for a general audience, and for anything a
+     person uses occasionally rather than all day. Apply on a container:
+     <div class="arena-comfortable"> … </div>  (composes with .arena-light and with a design extension)
+     
+     The counterpart to density.compact.json, and the reason target size is density's axis and never
+     an extension's: how large a control is answers who is pointing at it, not what voice the product
+     is speaking in. A shop on a phone and a console on a desk can want the same extension and
+     opposite densities, and only separate axes let them have that.
+     
+     MUTUALLY EXCLUSIVE with .arena-compact. Both set the same keys, so a container wearing both gets
+     whichever the stylesheet emits last, which is a question nobody should have to ask.
+     
+     The text ladder deliberately does not move. Compact shrinks it because an expert reading a dense
+     table is trading legibility for how much fits; comfortable has nothing to buy with the same
+     trade, so the box grows and the words stay the size they were.
+   */
+  /*
+     48px clears WCAG 2.5.8's enhanced 44px target, which the 40px base does not,
+     and that is the whole point of this file: the base meets the 24px minimum and this meets the
+     one a thumb actually wants.
+   */
+  --dz-ctl-h:48px;
+  --dz-ctl-h-sm:40px;
+  --dz-ctl-h-lg:56px;
+  --dz-row-py:16px;
+  --dz-row-px:20px;
+  --dz-stack:16px;
+}

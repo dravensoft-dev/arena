@@ -1,6 +1,5 @@
+import { ARENA_EXT } from './dtcg-shapes.ts';
 import type { DtcgToken } from './dtcg-shapes.ts';
-
-const EXT = 'com.dravensoft.arena';
 
 const GENERIC_FAMILIES = new Set([
   'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy',
@@ -27,7 +26,7 @@ export function serialize(token: DtcgToken) {
     case 'duration':
       return `${v.value}${v.unit}`;
     case 'number': {
-      const unit = token.$extensions?.[EXT]?.cssUnit;
+      const unit = token.$extensions?.[ARENA_EXT]?.cssUnit;
       return unit ? `${v}${unit}` : String(v);
     }
     case 'fontWeight':
@@ -41,7 +40,7 @@ export function serialize(token: DtcgToken) {
         .map((f) => (GENERIC_FAMILIES.has(f) ? f : `'${f}'`))
         .join(',');
     case 'shadow':
-      return `${dim(v.offsetX)} ${dim(v.offsetY)} ${dim(v.blur)} ${dim(v.spread)} ${color(v.color)}`;
+      return `${v.inset ? 'inset ' : ''}${dim(v.offsetX)} ${dim(v.offsetY)} ${dim(v.blur)} ${dim(v.spread)} ${color(v.color)}`;
     default:
       throw new Error(`serialize: unsupported $type: ${token.$type}`);
   }

@@ -7,6 +7,8 @@
  * metadata rather than its children. `$value` is `any` because `$type` decides its shape
  * and DTCG defines a family of them; the serializers own that knowledge. */
 
+export const ARENA_EXT = 'com.dravensoft.arena';
+
 export type DtcgToken = {
   $value: any;
   $type?: string;
@@ -14,6 +16,8 @@ export type DtcgToken = {
   $extensions?: Record<string, any>;
   filePath?: string;
   name?: string;
+  path?: string[];
+  original?: { $value?: unknown };
 };
 
 export type DtcgGroup = {

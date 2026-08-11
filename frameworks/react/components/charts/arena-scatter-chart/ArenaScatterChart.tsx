@@ -147,7 +147,7 @@ export function ArenaScatterChart({
           <circle key={i} cx={mark.at.x} cy={mark.at.y} r={hover === i ? mark.r + (chartPointRHover - chartPointR) : mark.r}
             fill={colors[mark.seriesIndex]} stroke="var(--surface-card)"
             opacity={hover === null || hover === i ? 1 : 0.55}
-            style={{ strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-fast) var(--ease-out)' }} />
+            style={{ strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
         ))}
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"

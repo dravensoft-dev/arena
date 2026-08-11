@@ -61,7 +61,7 @@ export const UNPLACED: Record<string, { files: Record<string, string>; name: str
   },
 };
 
-export const STALE: Record<string, Record<string, string>> = {
+export const UNKNOWN: Record<string, Record<string, string>> = {
   react: { 'src/App.tsx': "import { Button } from '@dravensoft/arena-react';\nexport const App = () => <Button>Go</Button>;\n" },
   angular: { 'src/app.html': '<arena-nothing-at-all></arena-nothing-at-all>\n' },
 };
@@ -141,14 +141,14 @@ export function mergeProblems(layer: string, result: CliRun, base = root) {
   return problems;
 }
 
-export function renameProblems(layer: string, result: CliRun, expected: string[], base = root) {
+export function stemProblems(layer: string, result: CliRun, expected: string[], base = root) {
   const problems = [];
   const sheet = join(distDir(layer, base), 'css', 'components', 'arena-button.css');
   if (!existsSync(sheet)) {
-    problems.push(`${layer}: css/components/arena-button.css is not shipped, so the sheet stems never took the prefix`);
+    problems.push(`${layer}: css/components/arena-button.css is not shipped, so a sheet stem is not the class it defines`);
   } else if (!readFileSync(sheet, 'utf8').includes('.arena-button__root')) {
-    problems.push(`${layer}: css/components/arena-button.css defines no .arena-button__root. The stem moved and the `
-      + 'class moved with it, which is the one thing this rename promised would not happen');
+    problems.push(`${layer}: css/components/arena-button.css defines no .arena-button__root. A sheet's stem `
+      + 'and the class inside it are one name, which is what lets a consumer name a component and reach its CSS');
   }
   const drawn = importedSheets(result.theme);
   for (const name of expected) {
@@ -168,11 +168,11 @@ export function unplacedProblems(layer: string, result: CliRun, name: string) {
     + `whose sheet is simply missing, and both render with no border and no colour:\n    ${result.stderr.trim()}`];
 }
 
-export function staleNameProblems(layer: string, result: CliRun) {
+export function unknownSymbolProblems(layer: string, result: CliRun) {
   if (result.status === 0 && importedSheets(result.theme).length > 0) {
-    return [`${layer}: a source naming the pre-rename symbol still resolved `
-      + `[${importedSheets(result.theme).join(', ')}]. Nothing may answer to the old name: there is no alias `
-      + 'and no re-export, and a consumer must hear about it from the command rather than from a blank screen'];
+    return [`${layer}: a source naming a symbol this package does not export still resolved `
+      + `[${importedSheets(result.theme).join(', ')}]. Nothing answers to a name Arena does not ship: there is `
+      + 'no alias and no re-export, and a consumer hears it from the command rather than from a blank screen'];
   }
   return [];
 }
@@ -211,7 +211,7 @@ export function collect(base = root) {
     for (const { layer } of PACKAGES) {
       const sources = SOURCES[layer] ?? {};
       const auto = fixture(layer, sources, AUTO, base);
-      const stale = fixture(layer, STALE[layer] ?? {}, AUTO, base);
+      const unexported = fixture(layer, UNKNOWN[layer] ?? {}, AUTO, base);
       const { lists, names: list } = documented(readFileSync(join(distDir(layer, base), 'README.md'), 'utf8'));
       if (!list) {
         problems.push(`${layer}: the shipped README spells ${lists} stylesheet.components lists rather than one, `
@@ -222,12 +222,12 @@ export function collect(base = root) {
       const unknown = fixture(layer, sources, { components: ['button'] }, base);
       const strange = UNPLACED[layer];
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
-      dirs.push(auto, stale, named, unknown, unplaced);
+      dirs.push(auto, unexported, named, unknown, unplaced);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
-      problems.push(...renameProblems(layer, result, ['arena-button', 'arena-table'], base));
-      problems.push(...staleNameProblems(layer, runCli(layer, stale, base)));
+      problems.push(...stemProblems(layer, result, ['arena-button', 'arena-table'], base));
+      problems.push(...unknownSymbolProblems(layer, runCli(layer, unexported, base)));
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base), strange?.name ?? ''));
     }

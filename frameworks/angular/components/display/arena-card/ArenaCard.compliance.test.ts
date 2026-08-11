@@ -225,3 +225,36 @@ test('accent and floating reach the styled root, and the host itself stays out o
     marked.destroy();
   }
 });
+
+function click(el: HTMLElement): MouseEvent {
+  const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+  el.dispatchEvent(event);
+  return event;
+}
+
+test('a pointer click on a control inside the card leaves the press with the control', () => {
+  const fixture = render({ interactive: true, withAction: true });
+  try {
+    const action = rootOf(fixture).querySelector('button') as HTMLElement;
+    click(action);
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.activated, 0,
+      'one press ran the control and the card, which is what makes a card unable to hold a control');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('a pointer click on the card itself still activates it, whatever it was rendered over', () => {
+  const fixture = render({ interactive: true });
+  try {
+    const paragraph = rootOf(fixture).querySelector('p') as HTMLElement;
+    click(paragraph);
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.activated, 1,
+      'a click on the card\'s own content is the card being pressed: guarding on target !== '
+      + 'currentTarget instead would refuse every press, since a pointer never lands on the root');
+  } finally {
+    fixture.destroy();
+  }
+});

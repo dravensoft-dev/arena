@@ -3,7 +3,7 @@
 > **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
 > [`SKILL.md`](./SKILL.md) to find a component, and that component's `.prompt.md` to use it.
 
-The React primitives, the example Console app, and the shared modules both of them read.
+The React primitives, the kitchen-sink page one design extension gets, and the shared modules both of them read.
 Every value here comes from `contracts/design/`; this layer introduces no design decision
 of its own. For what those values mean, read
 [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md).
@@ -44,13 +44,13 @@ sibling component's exported recipe, so no component depends on another's module
 `components/display/arena-calendar-event/ArenaCalendarEvent.tsx` is that shape.
 
 **Nothing here merges classes, and nothing needs to.** A variant is additive and its rule is
-emitted after the base at equal specificity, so source order decides; that is what
-`tailwind-variants` and `tailwind-merge` used to do at render time, and both left the package
-with this arrangement.
+emitted after the base at equal specificity, so source order decides. That is the work
+`tailwind-variants` and `tailwind-merge` do at render time, which is why neither travels in the
+package: the arrangement does it at build time and for nothing.
 
 Both layers compose the same names, and neither is the other's authority: the manifest is.
-Where a manifest and a component disagreed, the manifest won, which is how `ArenaCard` came to draw
-a focus ring rather than an outline. `check:appearance` holds the arrangement.
+Where a manifest and a component disagree, the manifest wins, which is why `ArenaCard` draws a
+focus ring rather than an outline. `check:appearance` holds the arrangement.
 
 **What stays an inline `style` is a value computed at runtime**, from data or from a
 measurement: a chip's position from an hour, a fill's width from a percentage, a coachmark's
@@ -60,8 +60,8 @@ belongs in the manifest; if any branch reads an identifier or an interpolation i
 computation and stays*. A hover or focus colour is never a computation, and no component here
 keeps a `useState` to paint one.
 
-**A variant key the manifest does not declare resolves to no classes at all**, where a lookup
-table used to fall back through `|| TONES.neutral`. Where a member can carry a value the
+**A variant key the manifest does not declare resolves to no classes at all**, rather than
+falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the
 manifest has never heard of, the guard that answers it is **derived from the manifest** rather
 than written out beside it; `ArenaActivityFeed`, `ArenaBadge`, `ArenaAlert`, `ArenaToast`, `ArenaAvatar`, `ArenaToastHost`
 and `ArenaGrid` all carry one.
@@ -192,11 +192,11 @@ focus navigation, which nothing here implements and happy-dom does not have; a t
 would pass identically against a perfect trap and against none. `bun run check:focus-trap` is
 what covers it: real Chromium over each declared page, one real Tab press per stop.
 
-- `ui-kits/console/`: the Delivery Console example app (login → dashboard → project). Its
-  `index.entry.tsx` and the compiled sibling beside it keep their lowercase names by
-  inheritance: a demo page's composition script takes the stem of the page it composes, and
-  that page is `index.html`, which is the name an HTTP directory index is answered by. Renaming
-  the pair would stop serving the app at `/frameworks/react/ui-kits/console/`.
+- `kitchen-sink/<extension>/`: one page per design extension holding every component at once,
+  emitted into this layer from the fixture under `frameworks/kitchen-sink/` that every layer is
+  emitted from. Nothing here is hand-written: the pages one extension gets differ in what mounts
+  them and in nothing else, which is what lets `check:pixel-parity` capture them and fail on one
+  differing pixel. Edit the fixture, never the emitted page.
 - `vendor/`: a generated CommonJS→ESM bundle of React for the demo pages'
   importmap (`build-vendor.ts`, guarded by `check:vendor`).
 - `test/`: the harness (`Harness.tsx`, `Preload.js`, `AssertPattern.tsx`) and the suites
@@ -299,7 +299,7 @@ suite belongs to. Only the infix does.
 **The split reaches past this layer**, because a process-wide happy-dom also replaces Bun's own
 `fetch` and so decides which invocation `scripts/` may ride in. **The single authority for the
 whole command is `testStep()` in `scripts/check/arena/check-all.ts`**, whose header carries
-that reasoning and whose `.test.mjs` sibling asserts the args array by literal value; read it
+that reasoning and whose `.test.ts` sibling asserts the args array by literal value; read it
 there rather than reconstructing one.
 
 **The preload is not a convenience.** `react-dom` decides once, at its own module

@@ -30,8 +30,7 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
   itself.
 - The dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though
   danger is outline everywhere else, a tone dot is an identity mark, the same family as
-  `ArenaTag`'s own dot and `ArenaAvatar`'s presence dot, not a danger surface. See README's Danger
-  convention section.
+  `ArenaTag`'s own dot and `ArenaAvatar`'s presence dot, not a danger surface.
 
 **No row escape hatch**, on either layer. The API contract declares no per-item renderer,
 because Angular has no binding for per-item projection, that would need a structural

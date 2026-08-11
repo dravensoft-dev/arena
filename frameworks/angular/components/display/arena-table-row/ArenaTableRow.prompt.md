@@ -62,17 +62,19 @@ with the inner element's `stopPropagation()` removed, one pointer click reaches 
 The inner element is where that event is stopped, which is what makes both routes single and
 both refusable, and the count is asserted so it cannot drift back.
 
-### Card mode is pointer-only here, and that is a divergence
+### Card mode is a button when the row says so, and inert when it does not
 
-Below `--bp-md` the row renders as a card with **no role and no tab stop**, so a row carrying
-`(click)` is reachable by pointer and not by keyboard. The row cannot decide the shape from
-whether anything is listening, which no render may follow from, and
-`OutputEmitterRef.listeners` is private here anyway. Making every card row a button instead would
-put a dead tab stop on every row of every table that is not clickable. The binding declares
-`divergesFrom: "button"`, and the bounded consequence is that a card row with `(click)` bound
-is pointer-only below `--bp-md`. `arena-calendar-event` hit the same wall and resolved it the
-OPPOSITE way, which is the useful contrast: a chip is `tabindex="-1"` and never a page tab stop,
-so always-a-button costs no dead stop there, where always-a-div would delete Enter-into-the-chip.
+Below `--bp-md` the row renders as a card, and `interactive` decides what that card is: with it,
+a `role="button"` tab stop with an Enter and Space handler, which is the binding's
+`card-interactive` case; without it, no role and no tab stop, which is `card-inert`. The shape
+follows the member and never whether anything is listening, which no render may follow from and
+which `OutputEmitterRef.listeners` could not answer here anyway. That is the whole reason
+`interactive` is a member rather than an inference: making every card row a button would put a
+dead tab stop on every row of every table that is not clickable, and deriving it from a bound
+`(click)` would make the row's shape depend on a subscriber list the platform keeps private.
+`arena-calendar-event` answers the same question the other way, which is the useful contrast: a
+chip is `tabindex="-1"` and never a page tab stop, so always-a-button costs no dead stop there,
+where always-a-div would delete Enter-into-the-chip.
 
 ### What is shared, and therefore not yours
 

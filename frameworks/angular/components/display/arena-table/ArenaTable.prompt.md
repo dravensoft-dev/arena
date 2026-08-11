@@ -8,7 +8,7 @@ Cells are **positional**: the nth cell takes the nth column.
 ```html
 <arena-table [label]="'Recent deployments'" [columns]="columns">
   @for (d of deploys(); track d.build) {
-    <arena-table-row (click)="openDeploy(d)">
+    <arena-table-row interactive (click)="openDeploy(d)">
       <arena-table-cell>{{ d.build }}</arena-table-cell>
       <arena-table-cell>{{ d.project }}</arena-table-cell>
       <arena-table-cell><arena-badge [tone]="d.tone" dot>{{ d.status }}</arena-badge></arena-table-cell>
@@ -77,12 +77,12 @@ own place in the page Tab sequence, so nothing you own is silenced.
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
 columns, and the cursor is clamped against the row it is actually in.
 
-Card mode answers none of this: a card row here carries no role and no tab stop, so a row
-with `(click)` is pointer-only below `--bp-md`. That is not a choice: the shape cannot be
-derived from whether anything is listening, and making
-every card row a button would put a dead tab stop on every row of every table that is not
-clickable. `ArenaTableRow.behaviour.json` states it. The bounded consequence: a consumer who
-binds `(click)` on a card row gets a row a keyboard user cannot reach below `--bp-md`.
+Card mode answers none of this, and it does not have to: a card is a list item, and a list is
+traversed with Tab. A card row carrying `interactive` is a `role="button"` tab stop of its own
+with an Enter and Space handler, which is `ArenaTableRow`'s `card-interactive` case rather than a
+clause of this component's binding. A card row without it is inert, because a dead tab stop on
+every row of every table is worse than the gap it would close. The shape follows the member and
+never whether anything is listening, which is why `interactive` exists at all.
 
 ### Why the wide shape is not a `<table>` element
 
@@ -96,9 +96,9 @@ non-element table costs is `colspan`, so the empty state is a block **beside** t
 rather than a cell spanning it. That stopped being a visible cost when the empty state stopped
 drawing a grid at all: with no rows there is no header row and no `role="grid"`, only the
 block, which is what `contracts/api/components/ArenaTable.json` contracts for the state.
-The other cost stands: `display: table` on the host means the measured `contentRect` excludes the
-frame border, so the narrow threshold trips a couple of pixels earlier than the declared
-breakpoint.
+The other cost stands: the box that carries `display: table` sits inside the bordered frame, so the
+measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels
+earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
 `frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1–5 were checked in real
@@ -181,6 +181,6 @@ returns the reader to page one is yours**, and it belongs beside the criterion:
 ```ts
 setStatus(next: string): void {
   this.status.set(next);
-  this.page.set(1);
+  this.pageIndex.set(1);   // your own signal; `page` is the whole {index, size, total}
 }
 ```

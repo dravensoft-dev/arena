@@ -39,7 +39,7 @@ paragraph does not. That is the entire argument for this order:
 4. **The normative document for that layer.** A structural limit belongs where the rule it
    qualifies is stated: [`contracts/api/AGENTS.md`](./contracts/api/AGENTS.md),
    [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md),
-   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), or the layer's own README under
+   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), or the layer's own `AGENTS.md` under
    `frameworks/`.
 5. **The component's `.prompt.md`.** A measured limit of one component, and every check only a
    person can run, such as whether a name is a good name, whether motion reads as intended or
@@ -49,7 +49,7 @@ paragraph does not. That is the entire argument for this order:
    vendor's behaviour, a pinned version, a constraint of a test environment.
 
 Framework sources under `frameworks/` carry **no** comments at all, and `check:docs` enforces it,
-so a fact about one of them goes to its layer README or its prompt, never into the file.
+so a fact about one of them goes to its layer's `AGENTS.md` or its prompt, never into the file.
 
 ## What this file is not
 
@@ -70,24 +70,10 @@ takes, and the change-time greps that find them.
 
 Write what is wrong, what it costs, and the command that re-derives it. **Prefer no exemplar, or
 a command.** Both are stale-proof, and a present-tense component name is not. Then ask once more
-whether a gate, a suite or a README would hold the same claim, because one of them almost always
+whether a gate, a suite or a normative `AGENTS.md` would hold the same claim, because one of them almost always
 will.
 
 ## Filed
-
-**Nothing verifies that a component paints the same thing in every framework layer.** Each layer
-carries one playground page per component, generated from the same model, and the pages differ in
-one path segment and take the same query string precisely so that a difference between them is a
-difference in the component. Nothing compares what they paint.
-
-What it costs: a divergence in geometry, in inherited typography or in a computed colour reaches
-an adopter with every gate green, because no suite can see one. The suites render under happy-dom,
-which has no layout, so both layers pass while they draw differently, and the only thing standing
-behind the claim that they agree is a person opening the pair side by side, which is not done per
-change and covers whichever components that person thought to open.
-
-Re-derive the surface with `find frameworks -name '*.demo.generated.html'`, and serve it with
-`bun run demos`.
 
 **Nothing verifies that a component's emitted stylesheet paints what its manifest paints.** A
 manifest's class string and the per-component sheet compiled from it are two spellings of one
@@ -103,9 +89,11 @@ interleaved the way `@layer utilities` orders it.
 Re-derive the surface with `ls frameworks/tailwind/components/*/*/*.manifest.json`, and read a
 sheet against its manifest with `bun run check:component-css`.
 
-**Nothing verifies that a browsable page renders.** Every specimen, playground and demo page in
-the tree is emitted and then compared as source: against the fixture that seeds it, against a
-fresh run of its generator, against the sheets it links. None of them is opened.
+**Almost nothing verifies that a browsable page renders.** Every specimen, playground and demo
+page in the tree is emitted and then compared as source: against the fixture that seeds it,
+against a fresh run of its generator, against the sheets it links. The kitchen-sink pages are
+opened, by `check:pixel-parity`, which fails one that paints nothing or raises anything on its
+way there. Every other page in the tree is opened by nobody.
 
 What it costs: a page that compiles and mounts nothing is invisible, and so is one that throws on
 its first render, says something on the console, or draws a class no stylesheet it links defines.

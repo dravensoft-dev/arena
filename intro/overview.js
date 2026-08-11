@@ -194,7 +194,7 @@ function renderToken(token) {
   const preview = (PREVIEW[previewFor(token.group, token.$type)] ?? PREVIEW.value)(token);
   if (preview) item.append(preview);
   item.append(el('div', 'item-name', `--${token.name}`));
-  item.append(el('div', 'item-val', resolved || 'does not resolve — rebuild: bun run build:tokens'));
+  item.append(el('div', 'item-val', resolved || 'does not resolve — rebuild with bun run generate:tokens'));
   if (token.$description) item.append(el('div', 'item-desc', token.$description));
   return item;
 }

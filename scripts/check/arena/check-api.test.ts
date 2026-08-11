@@ -530,7 +530,7 @@ test('an enum member must name a declared enum, not a declared object', () => {
 
 test('the committed generated modules are what contracts/api/types/ generates', () => {
   for (const [path, expected] of buildApiModules()) {
-    assert.equal(readFileSync(join(root, path), 'utf8'), expected, `${path} is stale — run bun run build:api`);
+    assert.equal(readFileSync(join(root, path), 'utf8'), expected, `${path} is stale — run bun run generate:api`);
   }
 });
 

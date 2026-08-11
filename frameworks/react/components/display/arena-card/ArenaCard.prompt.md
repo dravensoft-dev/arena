@@ -36,8 +36,28 @@ it would close.
 
 **An interactive card is a `role="button"` div and never a `<button>` element**, because a card
 body is where you put your own controls and a control nested inside a control is reachable by
-nobody. That is also why activation ignores a key pressed on something inside: typing Enter in a
-field within the card must not open the card.
+nobody.
+
+**A press that starts on one of those controls belongs to that control, by pointer and by keyboard
+alike.** Clicking a button inside the card runs the button's handler and stops there; typing Enter
+in a field inside it never opens the card. Both paths ask the same question, and the question is
+"did this press start on a control", not "did it land on the card's own element": a click anywhere
+else on the card, its title, its body, the space between them, is the card being pressed and
+activates it.
+
+**A card can also hand the press over entirely, by leaving `interactive` off.** Then it draws no
+role, no tab stop and no handler at all: it is a surface, and the control inside it is the only
+activation target on it.
+
+```tsx
+<ArenaCard title="Acme Corp">
+  <p>Everything the client can see.</p>
+  <ArenaButton onClick={() => open('acme')}>Open</ArenaButton>
+</ArenaCard>
+```
+
+Reach for `interactive` when the whole surface is the target and a control inside it is a second
+route to the same place. Leave it off when the press means something narrower than "this card".
 
 **Don't**
 - Don't put an interactive card inside another activation target, and don't put your only route to something inside one: a card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.

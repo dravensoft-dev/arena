@@ -107,3 +107,36 @@ test('a keypress on a control inside the card does not activate the card as well
   assert.equal(clicked, 0,
     'Enter typed into a field inside the card activated the card, so no card can ever hold one');
 });
+
+function click(el: Element) {
+  const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+  act(() => { el.dispatchEvent(event); });
+  return event;
+}
+
+test('a pointer click on a control inside the card leaves the press with the control', () => {
+  let card = 0;
+  let button = 0;
+  const root = mount(
+    <ArenaCard title="checkout-api" interactive onClick={() => { card += 1; }}>
+      <button type="button" onClick={() => { button += 1; }}>Rename</button>
+    </ArenaCard>,
+  );
+  click(root.querySelector('button')!);
+  assert.equal(button, 1, "the control's own handler is the one the press was for");
+  assert.equal(card, 0,
+    'one press ran the control and the card, which is what makes a card unable to hold a control');
+});
+
+test('a pointer click on the card itself still activates it, whatever it was rendered over', () => {
+  let card = 0;
+  const root = mount(
+    <ArenaCard title="checkout-api" interactive onClick={() => { card += 1; }}>
+      <p>Everything the client can see.</p>
+    </ArenaCard>,
+  );
+  click(root.querySelector('p')!);
+  assert.equal(card, 1,
+    'a click on the card\'s own content is the card being pressed: guarding on target !== '
+    + 'currentTarget instead would refuse every press, since a pointer never lands on the root');
+});

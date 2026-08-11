@@ -120,7 +120,7 @@ export function ArenaBarChart({
                   arenaScaleValue(yScale, segment.from), segment.outer ? chartBarRadius : 0)}
                 fill={colors[segment.seriesIndex]?.[i]}
                 opacity={hover === null || hover === i ? 1 : 0.55}
-                style={{ transition: 'opacity var(--dur-fast) var(--ease-out)' }} />
+                style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
             )) : series.map((one, s) => {
               const value = one.values[i];
               if (value === undefined) return null;
@@ -129,7 +129,7 @@ export function ArenaBarChart({
               return (
                 <path key={s} d={arenaBarPath(sub.x, sub.width, y, axis.zeroY, chartBarRadius)} fill={colors[s]?.[i]}
                   opacity={hover === null || hover === i ? 1 : 0.55}
-                  style={{ transition: 'opacity var(--dur-fast) var(--ease-out)' }} />
+                  style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
               );
             })}
           </g>

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
@@ -17,10 +17,10 @@ const CI_JOBS = {
 };
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 51);
+  assert.equal(GATES.length, 59);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:dtcg', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:arbitrary', 'check:component-css', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:routes', 'check:vocabulary', 'check:duplication', 'check:dtcg', 'check:extensions', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:roles', 'check:arbitrary', 'check:component-css', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:pixel-parity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -40,6 +40,50 @@ test('the domain table in scripts/check/AGENTS.md counts what GATES holds, or it
   }
 });
 
+test('every gate has a row in its own domain table, because a gate nobody documented is one nobody finds', () => {
+  const missing = [];
+  for (const { name, file } of GATES) {
+    const [domain = '', gate = ''] = file.split('/');
+    const table = readFileSync(join(repoRoot, 'scripts', 'check', domain, 'AGENTS.md'), 'utf8');
+    if (!table.includes(`\`${gate}\``)) missing.push(`${name} (${gate} has no row in scripts/check/${domain}/AGENTS.md)`);
+  }
+  assert.deepEqual(missing, [],
+    'the domain table is the fifth registration point, and it is the one that fails silently: '
+    + 'a gate runs, passes and is documented nowhere');
+});
+
+const COVERED_ELSEWHERE = new Map([
+  ['check:graph', 'scripts/graph/graph-problems.test.ts: everything it asserts lives in '
+    + 'graph-problems.ts with the rest of the graph, and this file is a print and an exit'],
+  ['check:vendor', 'scripts/build/react/build-vendor.ts owns the bundle it compares against, and '
+    + 'the gate is that build run a second time and diffed'],
+  ['check:demos', 'scripts/build/react/build-demos.test.ts: the emit is the build\'s, and the '
+    + 'gate compares it against disk'],
+  ['check:react-barrel', 'scripts/build/react/build-react-barrel.test.ts, for the same reason'],
+  ['check:intro', 'the bundles are Bun.build\'s own output and the gate is a byte comparison, so '
+    + 'there is no logic of its own to read'],
+]);
+
+test('every gate has a paired suite beside it, or an entry saying where it is covered instead', () => {
+  const uncovered = [];
+  const met = new Set();
+  for (const { name, file } of GATES) {
+    if (existsSync(join(repoRoot, 'scripts', 'check', file.replace(/\.ts$/, '.test.ts')))) {
+      if (COVERED_ELSEWHERE.has(name)) uncovered.push(`${name} has a sibling suite AND a COVERED_ELSEWHERE entry`);
+      continue;
+    }
+    if (COVERED_ELSEWHERE.has(name)) { met.add(name); continue; }
+    uncovered.push(`${name} (no ${file.replace(/\.ts$/, '.test.ts')}, and no entry saying where it is covered)`);
+  }
+  for (const [name] of COVERED_ELSEWHERE)
+    if (!met.has(name)) uncovered.push(`COVERED_ELSEWHERE names ${name}, which is in no gate list any more`);
+  assert.deepEqual(uncovered, [],
+    'a gate is pure functions plus a main(), and a suite is what reads those functions: without '
+    + 'one, a gate that finds nothing and a gate that looks at nothing are the same run. A gate '
+    + 'whose own file is a print and an exit is covered where its logic lives, and its entry says '
+    + 'where; an entry whose gate has since grown a sibling suite fails as a stale allowance');
+});
+
 test('every gate in the array is also an npm script -- a gate a reader cannot invoke by name is the shape check:text-contrast shipped in', () => {
   const scripts = readJson(join(repoRoot, 'package.json')).scripts;
   for (const { name } of GATES) {
@@ -52,7 +96,7 @@ test('every gate sits in one of the five domains, so a new one cannot land outsi
   for (const { name, file } of GATES) {
     const [domain = '', ...tail] = file.split('/');
     assert.ok(DOMAINS.includes(domain), `${name} names the domain ${domain}, which is not one of the five`);
-    assert.equal(tail.length, 1, `${name} points at ${file}, which is not <domain>/<gate>.mjs`);
+    assert.equal(tail.length, 1, `${name} points at ${file}, which is not <domain>/<gate>.ts`);
   }
 });
 
@@ -79,7 +123,7 @@ test('a domain that does not exist is refused rather than answered with an empty
 test('the arena domain is where the cross-layer gates are, which is why the core job carries it', () => {
   const arena = gatesFor(['arena']).map((g) => g.name);
   for (const name of ['check:api', 'check:behaviour', 'check:compliance', 'check:structure',
-    'check:dimensions', 'check:layer-independence', 'check:focus-trap', 'check:shared-arithmetic',
+    'check:dimensions', 'check:layer-independence', 'check:focus-trap', 'check:pixel-parity', 'check:shared-arithmetic',
     'check:packages', 'check:playgrounds']) {
     assert.ok(arena.includes(name), `${name} is not in the arena domain`);
   }

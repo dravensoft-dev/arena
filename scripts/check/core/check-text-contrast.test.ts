@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolvePercent, structureOf, REMOVED, PALETTE, COLORS } from './check-text-contrast.ts';
+import {
+  COLORS, PALETTE, REMOVED, resolvePercent, scopesToMeasure, structureOf, surfacesUnder,
+} from './check-text-contrast.ts';
 
 const structure = structureOf([
   ':root, .arena-light {',
@@ -56,4 +58,24 @@ test('the two sheets are named once each, and they are not the same sheet', () =
   assert.match(COLORS, /^contracts\/design\//);
   assert.notEqual(PALETTE, COLORS,
     'the skin values are generated and the derivations are hand-written, and the gate needs both');
+});
+
+test('the surfaces text is measured on come from the fill roles, so a reassignment is not measured against the old one', () => {
+  const flat = new Map([['fill-surface', 'var(--color-base-100)'], ['fill-surface-floating', 'var(--color-base-200)']]);
+  assert.deepEqual(surfacesUnder(flat), ['color-base-100', 'color-base-200']);
+  const raised = new Map([['fill-surface', 'var(--color-base-300)'], ['fill-surface-floating', 'var(--color-base-200)']]);
+  assert.deepEqual(surfacesUnder(raised), ['color-base-100', 'color-base-300', 'color-base-200']);
+});
+
+test('a role that is not a reference contributes no surface, rather than a name nothing declares', () => {
+  assert.deepEqual(surfacesUnder(new Map([['fill-surface', '#1d1715']])), ['color-base-100']);
+  assert.deepEqual(surfacesUnder(new Map()), ['color-base-100']);
+});
+
+test('an extension that moves no fill adds no scope, so the run is not the same measurement twice', () => {
+  const css = ':root{--fill-surface:var(--color-base-200)}\n.arena-quiet{--r-surface:22px}\n'
+    + '.arena-loud{--fill-surface:var(--color-base-300)}';
+  const scopes = scopesToMeasure(css, 'dark', ['quiet', 'loud']);
+  assert.deepEqual(scopes.map((s) => s.label), ['no extension', '.arena-loud']);
+  assert.deepEqual(scopes[1]?.surfaces, ['color-base-100', 'color-base-300']);
 });

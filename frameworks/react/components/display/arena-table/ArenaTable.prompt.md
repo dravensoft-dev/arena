@@ -12,7 +12,7 @@ It is a **compound** component: `columns` says how each column is headed and set
     { header:'p95', align:'right', mono:true },
   ]}>
   {deploys.map((d) => (
-    <ArenaTableRow key={d.build} onClick={() => openDeploy(d)}>
+    <ArenaTableRow key={d.build} interactive onClick={() => openDeploy(d)}>
       <ArenaTableCell>{d.build}</ArenaTableCell>
       <ArenaTableCell>{d.project}</ArenaTableCell>
       <ArenaTableCell><ArenaBadge tone={d.ok ? 'success' : 'danger'} dot>{d.status}</ArenaBadge></ArenaTableCell>
@@ -87,7 +87,7 @@ The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid, 
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row, no `role="grid"`, only the `empty` block, because a column head standing over a "no results" sentence describes a table that is not there.
 
-Card mode answers none of this. A card is a list item, and a list is traversed with Tab, and a card whose row has `onClick` becomes a `role="button"` tab stop of its own, which is `ArenaTableRow`'s `card-interactive` case, not a clause of this component's binding, which carries no exception in either shape.
+Card mode answers none of this. A card is a list item, and a list is traversed with Tab, and a card whose row carries `interactive` becomes a `role="button"` tab stop of its own with an Enter and Space handler, which is `ArenaTableRow`'s `card-interactive` case, not a clause of this component's binding, which carries no exception in either shape. A card row without `interactive` is inert in both shapes.
 
 ## Verifying the grid by hand
 
@@ -116,9 +116,9 @@ Serve the tree with `bun run demos`, open
    render suite, so this step IS the guard. It matters MORE under the compound shape
    than before: a control in a cell is now the expected way to build a status or an
    actions column, not an edge case. The demo page's own cells hold an `ArenaBadge`, which
-   is not focusable. Check this one on the Delivery Console's Deployments tab
-   (`frameworks/react/ui-kits/console/index.html`), whose actions column draws a real
-   `ArenaButton`.
+   is not focusable. Check this one on any table whose cells hold a real `ArenaButton`
+   rather than a badge, since a focusable control in a cell is what the second press
+   is about.
 3. Arrow keys move by cell and clamp at all four edges: the first column, the last
    column, the header row at the top, the last body row at the bottom. Focus never
    leaves the grid. Try it on a table whose rows carry a different number of cells
@@ -130,7 +130,7 @@ Serve the tree with `bun run demos`, open
    the header row.
 6. Card mode answers none of the grid keyboard, and it is not supposed to. That page
    renders the SAME table twice, the second time in a 340px container, so card mode is
-   already on screen. Check that a card whose row has `onClick` is a single tab stop
+   already on screen. Check that a card whose row carries `interactive` is a single tab stop
    that announces itself as a button and activates on Enter and Space, and that a card
    whose row has none took no `role`, `tabindex` or key handler by accident. `interactive`
    is what decides that, never whether `onClick` was passed: Arena derives no render from a bound listener.
@@ -196,5 +196,5 @@ ten, which must move nobody, because a count is all it has. **Whether a change o
 returns the reader to page one is yours**, and it belongs beside the criterion:
 
 ```tsx
-const applyStatus = (next: string) => { setStatus(next); setPage(1); };
+const applyStatus = (next: string) => { setStatus(next); setPageIndex(1); };  // your own state; `page` is the whole {index, size, total}
 ```

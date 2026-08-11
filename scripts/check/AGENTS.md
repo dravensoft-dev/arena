@@ -8,8 +8,8 @@ literal value; a figure written here instead would rot the next time a gate land
 
 ## The shape of a gate
 
-Each is a `.mjs` under `check/<domain>/`, with an npm script whose prefix names the phase
-directory, and a `.test.mjs` sibling covering it. It exports its logic as pure functions
+Each is a `.ts` under `check/<domain>/`, with an npm script whose prefix names the phase
+directory, and a `X.test.ts` sibling covering it. It exports its logic as pure functions
 returning problem strings, and its `main()` prints them and exits non-zero. That is why the
 suites can assert on a gate's exception map by name without running the gate.
 
@@ -35,7 +35,7 @@ are rules a new gate holds to:
   cannot find it" stop being the same value. Resolving by constructed path is what makes the
   per-component probe silent.
 - **Make a zero-result count an explicit failure** rather than a vacuous pass. `check:tailwind`,
-  `check:radius`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
+  `check:radius`, `check:roles`, `check:extensions`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
   `check:icons`, `check:docs`, `check:playgrounds` and
   `check:script-tokens` each carry one, as an exported pure function with a suite.
 - **A gate has two existences, the file and every place that invokes it, and only the second
@@ -79,7 +79,7 @@ graph, not only in the gate: something it reads is not something it says it read
 
 That is the only defence against a declaration that omits a file the gate opens. `check:graph` holds
 the edges between declarations and cannot see it, and `check:graph --audit` sees it only where a
-tracer can follow the gate, which is not the twelve that spawn `tsc`, `ngc`, `ng-packagr` or a
+tracer can follow the gate, which it cannot for one that spawns `tsc`, `ngc`, `ng-packagr` or a
 browser. A plain failure of a gate the run would have executed anyway says nothing about the graph
 and is not reported here.
 
@@ -103,9 +103,10 @@ thing this runner promises.
 
 ## Exit 2 means SKIP, and a skip is never green
 
-**Three** gates need a runtime dependency that plain node does not have: `check:focus-trap`
-needs a headless browser, `check:vendor` needs `Bun.build`, `check:demos` needs
-`Bun.Transpiler`. Where the dependency is missing the gate exits **2**, `check-all` marks it
+**A gate needing a runtime dependency plain node does not have declares it rather than assuming
+it**: `check:focus-trap` and `check:pixel-parity` drive a headless browser, `check:vendor` and
+`check:intro` need `Bun.build`, `check:demos` needs `Bun.Transpiler`. Derive the set with
+`grep -rl 'cannotRun\|skipExitCode' scripts/check/*/check-*.ts` rather than reading a count. Where the dependency is missing the gate exits **2**, `check-all` marks it
 `SKIP`, and the whole run reports **INCOMPLETE** rather than passing.
 
 **The repository declares itself strict, so that is not the default here**: a gate that cannot
@@ -121,7 +122,10 @@ reason strict is the declared value rather than the opt-in one.
 ## Where the variables live
 
 `scripts/lib/arena/arena-scripts-vars.ts` declares every environment variable the scripts
-read, so a test run or a CI run needs no exports. There are four, and no gate reads any other:
+read, so a test run or a CI run needs no exports. Every variable a gate reads for its own
+behaviour is here; the one exception is a debugging outlet, `ARENA_PIXEL_DUMP`, which
+`check:pixel-parity` reads to write a failing capture somewhere a person can open it, and which
+decides nothing about whether the gate passes:
 
 | variable | what it decides |
 | --- | --- |
@@ -168,14 +172,14 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 29 | two or more layers at once, or the repository root |
-| [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
+| [`arena/`](./arena/AGENTS.md) | 34 | two or more layers at once, or the repository root |
+| [`tailwind/`](./tailwind/AGENTS.md) | 8 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
-| [`core/`](./core/AGENTS.md) | 5 | `contracts/` and `assets/` only |
+| [`core/`](./core/AGENTS.md) | 7 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 4 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at
-`<domain>/<gate>.mjs`, so a gate landing outside the grid fails rather than running unnoticed.
+`<domain>/<gate>.ts`, so a gate landing outside the grid fails rather than running unnoticed.
 
 The domain is also what a narrowed run selects on. `check-all.ts` takes `--domain=core,arena`
 and `--no-tests`, and `gatesFor()` refuses a name outside `DOMAINS` and a selection matching no
@@ -187,8 +191,14 @@ a gate cannot join `GATES` and then run in no job.
 ## Adding a gate
 
 Put it in `check/<domain>/`, add it to `GATES` with its domain in the path, give it an npm
-script, and add a row to that domain's table. `check-all.test.ts` asserts the gate list by
-literal value, so the count and the order move in the same commit.
+script, add a row to that domain's table, and write the suite beside it. Then edit
+`check-all.test.ts`, which is a step rather than a consequence: it asserts the gate list **by
+literal value**, so both the length and the array move in the same commit, and a case pins the
+last entries to the Angular domain, so a new gate is inserted rather than appended. That suite
+also holds the two registrations nothing else would notice: the row in the domain table, which is
+the one a gate can be missing while running and passing, and the sibling suite, without which a
+gate that finds nothing and a gate that looks at nothing are the same run. A gate covered
+somewhere other than beside itself says so in `COVERED_ELSEWHERE`, with where.
 
 `check-release` is the one script with no npm entry and no place in `GATES`: it is run by path
 before publishing, because it asserts what the *tag* hands out and there is nothing to assert

@@ -2,9 +2,11 @@
 
 # Arena components
 
-Every component Arena ships, by the category it is filed under. **This page is an index, not a
-manual.** It says what exists and what each one takes; what a member is called where you are
-building, and how to write one, is your own layer's index and then the component's own prompt.
+Every component Arena ships, by the category it is filed under. **This page answers one question:
+whether a component exists at all, and which layers ship it.** It is not a stop on the way to
+writing one: what a member is called where you are building, and how to write it, is your own
+layer's index and then the component's own prompt, and reading this page first buys nothing when
+you already know what you are reaching for.
 
 | Layer | Index | Package |
 |---|---|---|

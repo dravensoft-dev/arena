@@ -2,54 +2,231 @@
   "font": {
     "$type": "fontFamily",
     "$description": "Families",
-    "display": { "$value": ["Archivo", "system-ui", "sans-serif"], "$description": "impact: headlines, wordmark" },
-    "body": { "$value": ["Familjen Grotesk", "system-ui", "sans-serif"], "$description": "legible body copy" },
-    "mono": { "$value": ["Spline Sans Mono", "ui-monospace", "monospace"], "$description": "data, technical labels" }
+    "display": {
+      "$value": [
+        "Archivo",
+        "system-ui",
+        "sans-serif"
+      ],
+      "$description": "impact: headlines, wordmark"
+    },
+    "body": {
+      "$value": [
+        "Familjen Grotesk",
+        "system-ui",
+        "sans-serif"
+      ],
+      "$description": "legible body copy"
+    },
+    "mono": {
+      "$value": [
+        "Spline Sans Mono",
+        "ui-monospace",
+        "monospace"
+      ],
+      "$description": "data, technical labels"
+    }
   },
   "fw": {
     "$type": "fontWeight",
     "$description": "Weights",
-    "regular": { "$value": 400 },
-    "medium": { "$value": 500 },
-    "semibold": { "$value": 600 },
-    "bold": { "$value": 700 },
-    "extrabold": { "$value": 800 },
-    "black": { "$value": 900 }
+    "regular": {
+      "$value": 400
+    },
+    "medium": {
+      "$value": 500
+    },
+    "semibold": {
+      "$value": 600
+    },
+    "bold": {
+      "$value": 700
+    },
+    "extrabold": {
+      "$value": 800
+    },
+    "black": {
+      "$value": 900
+    }
   },
   "fs": {
     "$type": "dimension",
     "$description": "Type scale (px)",
-    "mega": { "$value": { "value": 150, "unit": "px" }, "$description": "largest display step: the brand manual's .big-glyph specimen" },
-    "hero": { "$value": { "value": 96, "unit": "px" }, "$description": "extrapolated step between display (64) and mega (150) that keeps the scale's accelerating ratio coherent through its top; added with no consumer today by design: do not delete as dead API" },
-    "display": { "$value": { "value": 64, "unit": "px" }, "$description": "large display heading" },
-    "h1": { "$value": { "value": 44, "unit": "px" } },
-    "h2": { "$value": { "value": 32, "unit": "px" } },
-    "h3": { "$value": { "value": 24, "unit": "px" } },
-    "h4": { "$value": { "value": 19, "unit": "px" } },
-    "lg": { "$value": { "value": 17, "unit": "px" } },
-    "md": { "$value": { "value": 15, "unit": "px" }, "$description": "body copy" },
-    "sm": { "$value": { "value": 13, "unit": "px" } },
-    "xs": { "$value": { "value": 11, "unit": "px" }, "$description": "mono labels / captions" }
+    "mega": {
+      "$value": {
+        "value": 150,
+        "unit": "px"
+      },
+      "$description": "largest display step: the brand manual's .big-glyph specimen"
+    },
+    "hero": {
+      "$value": {
+        "value": 96,
+        "unit": "px"
+      },
+      "$description": "extrapolated step between display (64) and mega (150) that keeps the scale's accelerating ratio coherent through its top; added with no consumer today by design: do not delete as dead API"
+    },
+    "display": {
+      "$value": {
+        "value": 64,
+        "unit": "px"
+      },
+      "$description": "large display heading"
+    },
+    "h1": {
+      "$value": {
+        "value": 44,
+        "unit": "px"
+      }
+    },
+    "h2": {
+      "$value": {
+        "value": 32,
+        "unit": "px"
+      }
+    },
+    "h3": {
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      }
+    },
+    "h4": {
+      "$value": {
+        "value": 19,
+        "unit": "px"
+      }
+    },
+    "lg": {
+      "$value": {
+        "value": 17,
+        "unit": "px"
+      }
+    },
+    "md": {
+      "$value": {
+        "value": 15,
+        "unit": "px"
+      },
+      "$description": "body copy"
+    },
+    "sm": {
+      "$value": {
+        "value": 13,
+        "unit": "px"
+      }
+    },
+    "xs": {
+      "$value": {
+        "value": 11,
+        "unit": "px"
+      },
+      "$description": "mono labels / captions"
+    }
   },
   "lh": {
     "$type": "number",
     "$description": "Line heights",
-    "root": { "$value": 1.5, "$description": "What every element inherits until something declares otherwise. It is not a role like the three below, which a component picks on purpose; it is the floor, and it exists because a floor that each platform gets from somewhere else is a floor the two do not share. Tailwind's preflight sets exactly this number, so the Angular layer already had it and React, which loads no preflight, inherited the browser's `normal` instead: the same text stood about 7% shorter there, across 94 slots in 32 components, and nothing said so. Arena declares it now, in contracts/design/reset.css, so both layers inherit one value. The number matches what was already shipping rather than being chosen afresh." },
-    "tight": { "$value": 0.98 },
-    "snug": { "$value": 1.15 },
-    "body": { "$value": 1.6 }
+    "root": {
+      "$value": 1.5,
+      "$description": "What every element inherits until something declares otherwise. It is not a role like the three below, which a component picks on purpose; it is the floor, and it exists because a floor that each platform gets from somewhere else is a floor the two do not share. Tailwind's preflight sets exactly this number, so the Angular layer already had it and React, which loads no preflight, inherited the browser's `normal` instead: the same text stood about 7% shorter there, across 94 slots in 32 components, and nothing said so. Arena declares it now, in contracts/design/reset.css, so both layers inherit one value. The number matches what was already shipping rather than being chosen afresh."
+    },
+    "tight": {
+      "$value": 0.98
+    },
+    "snug": {
+      "$value": 1.15
+    },
+    "body": {
+      "$value": 1.6
+    },
+    "loose": {
+      "$value": 1.8,
+      "$description": "Reading leading for a voice that carries its hierarchy in type rather than in boxes.\nOne step above body, which is where a page of prose stops being a panel of copy."
+    }
   },
   "ls": {
     "$type": "number",
     "$description": "Tracking. em is not a DTCG dimension unit, so tracking is a unitless number\n(a font-size multiplier) carrying an em render hint in $extensions. Sorted by\nvalue the roles form a hierarchy: tracking decreases as the text gets longer,\nfrom the shortest mono labels down through prose to the tightest display\nheadings.",
-    "tight": { "$value": -0.02, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "display: tight headings" },
-    "normal": { "$value": 0, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } } },
-    "mono-nav": { "$value": 0.04, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "mono navigation: breadcrumbs, bulk-action counts" },
-    "uppercase-status": { "$value": 0.06, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "uppercase status text: alerts, toasts, calendar hour labels" },
-    "badge": { "$value": 0.1, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "badge and pill text" },
-    "column-header": { "$value": 0.12, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "column header / micro-label" },
-    "field-label": { "$value": 0.14, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "form field label" },
-    "label": { "$value": 0.22, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "mono uppercase labels: section eyebrows" },
-    "wide": { "$value": 0.34, "$extensions": { "com.dravensoft.arena": { "cssUnit": "em" } }, "$description": "eyebrows" }
+    "tight": {
+      "$value": -0.02,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "display: tight headings"
+    },
+    "normal": {
+      "$value": 0,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      }
+    },
+    "mono-nav": {
+      "$value": 0.04,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "mono navigation: breadcrumbs, bulk-action counts"
+    },
+    "uppercase-status": {
+      "$value": 0.06,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "uppercase status text: alerts, toasts, calendar hour labels"
+    },
+    "badge": {
+      "$value": 0.1,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "badge and pill text"
+    },
+    "column-header": {
+      "$value": 0.12,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "column header / micro-label"
+    },
+    "field-label": {
+      "$value": 0.14,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "form field label"
+    },
+    "label": {
+      "$value": 0.22,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "mono uppercase labels: section eyebrows"
+    },
+    "wide": {
+      "$value": 0.34,
+      "$extensions": {
+        "com.dravensoft.arena": {
+          "cssUnit": "em"
+        }
+      },
+      "$description": "eyebrows"
+    }
   }
 }

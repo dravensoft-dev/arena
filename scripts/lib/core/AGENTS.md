@@ -18,4 +18,4 @@ by the vocabulary they speak rather than by what they touch.
 framework layers' test harnesses and is still `core`, because what it speaks is the contract
 vocabulary, not either layer's. **Never place a library by who imports it.**
 
-Every `X.test.mjs` beside a module covers that module.
+Every `X.test.ts` beside a module covers that module.

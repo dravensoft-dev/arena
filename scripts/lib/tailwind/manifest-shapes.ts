@@ -6,7 +6,7 @@
  * in exactly one key: an authored manifest may declare no `slots`. So it is derived from that
  * one rather than written twice, and the facts that live there hold here -- notably that a
  * variant value is a string in `variants` and a boolean in `defaultVariants` and in a compound
- * selector, which `tailwind-variants` does not type and `style-parity.ts` casts around once.
+ * selector, which `tailwind-variants` does not type and `frameworks/tailwind/Tv.ts` casts around once.
  * Readers wanting only class strings take the partial. */
 
 import type {

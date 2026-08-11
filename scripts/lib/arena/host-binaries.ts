@@ -31,10 +31,11 @@ export const HOST_BINARIES: Record<string, HostBinary> = {
       + 'configuration; CHROME_PATH names one anywhere else, and is terminal.',
   },
   network: {
-    probe: 'bun run generate:fonts',
+    probe: 'bun scripts/generate/core/fetch-fonts.ts',
     optional: 'once, and only to rebuild the fonts',
-    why: 'generate:fonts fetches the three webfonts from Google Fonts. Its outputs are tracked '
-      + 'precisely because a clone cannot reproduce them, so a normal build never needs this.',
+    why: 'fetch-fonts.ts fetches the three webfonts from Google Fonts. It is run by path and has '
+      + 'no npm script, the way check-release.ts is, because it is not part of a build: its '
+      + 'outputs are tracked precisely because a clone cannot reproduce them.',
   },
 };
 

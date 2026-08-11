@@ -418,7 +418,7 @@ this layer exists to remove.
 `contracts/api/types/arena-cat-slot.json` declares `ArenaCatSlot = 1 | … | 8`, and `check:script-tokens`
 (`catSlotEnumProblems()` in `scripts/check/arena/check-script-tokens.ts`) asserts that set is exactly
 1..`catSlots` **in order**: add a ninth colour to the ramp and the gate fails until the
-contract type follows. `enumLiteral()` in `build-api-types.mjs` renders a numeric set unquoted,
+contract type follows. `enumLiteral()` in `generate-api-types.ts` renders a numeric set unquoted,
 which is what lets the type render at all.
 
 So the rule survives with its test attached: a closed set that restates a token-derived value
@@ -429,7 +429,7 @@ mechanism is worth building is a question for whoever brings the second one, not
 already waiting for it.
 
 A `description` on a type or on one of its fields is carried into the generated modules
-as a doc comment, and `build-api-types.mjs` reads `contracts/api/types/` only. Group-level prose is
+as a doc comment, and `generate-api-types.ts` reads `contracts/api/types/` only. Group-level prose is
 lost in `contracts/design/`'s generator and that is recorded as debt in `AGENTS.md`; this generator
 carries descriptions on every node it emits from `contracts/api/types/`, including type-level ones,
 so that hole is not reopened here.

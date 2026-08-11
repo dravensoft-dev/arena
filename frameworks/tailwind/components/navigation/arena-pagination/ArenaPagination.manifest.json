@@ -2,8 +2,8 @@
   "component": "ArenaPagination",
   "slots": {
     "root": "inline-flex items-center gap-1.5",
-    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 bg-transparent border-[length:var(--bw)] border-base-300 rounded-sm text-[length:var(--icon-md)] cursor-pointer text-base-content/82 disabled:text-base-content/40 disabled:cursor-not-allowed",
-    "page": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 rounded-sm border-[length:var(--bw)] cursor-pointer font-mono text-ctl-md font-bold",
+    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-[length:var(--icon-md)] cursor-pointer text-base-content/82 disabled:text-base-content/40 disabled:cursor-not-allowed shadow-control-rest",
+    "page": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 rounded-control border-[length:var(--bw-control)] cursor-pointer font-mono text-ctl-md font-bold shadow-control-rest",
     "pageCurrent": "bg-primary border-primary text-primary-content",
     "pageOther": "bg-transparent border-base-300 text-base-content/82",
     "ellipsis": "px-1 font-mono text-ctl-md text-base-content/62"

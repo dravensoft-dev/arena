@@ -20,7 +20,7 @@
       "info": { "dot": "text-info" }
     },
     "divided": {
-      "true": { "item": "border-t-[length:var(--bw)] border-base-300" },
+      "true": { "item": "border-t-[length:var(--bw-separator)] border-base-300" },
       "false": { "item": "border-t-0" }
     }
   },

@@ -165,6 +165,85 @@ a marker naming a class the file no longer carries fails too, as a stale
 allowance. The marker is honoured in `.md` only, and found in any other
 extension it is itself a failure.
 
+## A scale where a role belongs is a build failure
+
+A scale says how round a corner is, how thick an edge is, how deep a shadow is and how long a
+transition takes. A role says WHICH corner, edge, depth or transition is being asked about. The
+roles live in `contracts/design/roles.json`, every one an alias of the scale step it names, so
+the default appearance is the same pixel it always was.
+
+A manifest writes the role, and `check:roles` fails one that writes the scale:
+`rounded-surface`, `rounded-surface-floating`, `rounded-control`, `rounded-control-sm`,
+`rounded-field` and `rounded-marker` rather than `rounded-lg` and its siblings;
+`shadow-surface-floating`, `shadow-surface-deep` and `shadow-control-raised` rather than
+`shadow-2` and its siblings; `--bw-surface`, `--bw-control`, `--bw-field`, `--bw-marker` and
+`--bw-separator` rather than `--bw`; `--dur-hover` and `--dur-state` rather than `--dur-fast`
+and `--dur-mid`; `ease-hover` and `ease-state` rather than `ease-out`, paired with the duration
+the same transition names, because a curve is half of what a transition feels like and a manifest
+that named a role for the length and a scale step for the shape would have answered half the
+question.
+
+**Why it is a rule and not a preference**: a design extension is a scope class that re-values
+role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
+one. Re-valuing the scale instead is not a repair, because a step is shared by every use that
+happens to want that length, and a card and a tooltip do not stop being different things by
+agreeing on 14 pixels.
+
+**The five kinds a role names.** A SURFACE has things placed inside it. A FLOATING surface is
+one that sits over the page rather than in it. A CONTROL is pressed. A FIELD is typed into. A
+MARKER encloses a label and nothing else, so it is none of the other four. A SEPARATOR is the
+sixth and it is not a kind of thing but a kind of edge: the line dividing one thing from the
+next INSIDE a surface. It is a separate role from `--bw-surface` for the reason that matters
+most to this whole tier, which is that an extension grouping by elevation removes the enclosure
+and a table whose row rules vanished with it would stop being readable.
+
+**Radius and depth are banned by utility name; a border width and a duration by TOKEN name; an
+easing by both.** The first two have a Tailwind namespace and the next two do not, so those are
+reached as the token itself. Banning the token catches `border-[length:var(--bw)]` and the
+`var(--dur-fast)` buried inside an arbitrary `[transition:...]` property with one entry rather
+than one per spelling, which is the shape `ArenaButton`'s four-property transition takes. An
+easing is the one family a manifest writes both ways, as `ease-out` beside a duration and as
+`var(--ease-out)` inside that same arbitrary property, so it is banned under both spellings and
+they cannot double-count: the utility pattern refuses a match preceded by a hyphen, which is
+every occurrence inside `var(--ease-out)`.
+
+`SCALE_USES` in `scripts/check/tailwind/check-role-tokens.ts` records the places that genuinely
+mean the length: a placeholder faking the shape of what it stands in for, a tooltip whose corner
+follows its label, a `calc()` adding a hairline up rather than drawing one. Each entry names one
+case and says why, and an entry no manifest carries fails the gate as a stale allowance.
+
+## A slot paints the expressive properties even when they are neutral
+
+A token re-values a declaration a slot already makes and cannot add one. A card that declared no
+`box-shadow` could therefore never be given depth by an extension, however that extension was
+written, so the flat surfaces and the flat controls carry `shadow-surface-rest` and
+`shadow-control-rest`, and `ArenaButton` carries `hover:-translate-y-[var(--lift-control)]`. All
+three default to nothing: the two shadows are fully transparent, because DTCG 2025.10 types a
+shadow as offsets, blur, spread and a colour and has no way to spell the absence of one, and the
+travel is `0px`.
+
+**A variant branch that restates a role as a literal un-paints it, and that is the same defect
+seen from the other end.** A root painting `shadow-surface-rest` whose `floating` variant writes
+`shadow-none` on the false branch, which is the DEFAULT, resolves every ordinary card to a
+transparent literal instead of the role: the one token authored to let an extension trade
+hairline grouping for elevation then reaches nothing on the component it was written for. A branch meaning "the value the slot already paints" says nothing at all, because the base
+rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
+with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its
+literal cancels the selected branch's inset rule rather than overriding a role.
+
+**Rest and raised compose by source order, not by merging.** A slot's resting depth sets
+`--tw-shadow` in the base rule and its hover sets the same variable in a rule emitted after it,
+which is the ordinary arrangement described above rather than anything new. A slot that already
+paints a shadow does not also take a resting role: `ArenaMenu`'s panel floats, `ArenaDialog`'s
+panel is deep, `ArenaCheckbox`'s box spends its shadow on the focus ring, and
+`ArenaSegmentedControl`'s selected segment on its lift.
+
+**A transition names the property Tailwind emits, and v4 emits `translate`, `scale` and `rotate`
+rather than `transform`.** Those are separate animatable properties, so a transition listing
+`transform` animates none of them and the change lands in one frame, silently: a press that never
+eases, a knob that jumps to its other end, and nothing anywhere reporting it. `check:tailwind` fails a slot that transitions `transform` while painting any of the
+three, which is why the rule needs no vigilance.
+
 ## Consumption order
 
 1. Bring Arena's tokens into scope with `@import "../../intro/styles.css";` (or the
@@ -196,7 +275,7 @@ a real browser is the only place that question has an answer.
 multi-word stem is `PascalCase` with hyphens removed; a secondary dotted segment stays
 `lowerCamelCase`.** List the layer root's own source rather than trusting a count here, with
 `ls frameworks/tailwind/*.ts frameworks/tailwind/*.js frameworks/tailwind/*.css | grep -v generated`.
-This file sits beside them and complies as it stands, `README` being a
+This file sits beside them and complies as it stands, `AGENTS.md` being a
 capital-initial name like any other, and a component's files sit together in one
 directory:
 
@@ -279,14 +358,13 @@ comm -13 <(find components -name '*.manifest.json' -exec basename {} .manifest.j
 ```
 
 Two reasons put a component in it. **A compound family draws one surface**, so the parent's
-manifest holds every level of it and its members have none of their own, which is `ArenaTab`,
-`ArenaTableRow`, `ArenaTableCell`, `ArenaCalendarEvent`, `ArenaRadioGroup` and the three `ArenaSideNav*` children.
-`MANIFEST_COVERS` in `scripts/check/arena/check-manifest-states.ts` is where that mapping
-is written down. **And the three SVG charts have no surface a class string can describe**:
-`ArenaBarChart`, `ArenaLineChart` and `ArenaDoughnutChart` are SVG geometry driven by measured container
-width, their identity is path data and attribute bindings, and a manifest holding it would
-be a lie about where the styling lives. `ArenaChartCard` is not one of them and does have one,
-since it is a bordered tile.
+manifest holds every level of it and its members have none of their own. `MANIFEST_COVERS` in
+`scripts/lib/tailwind/manifest-surfaces.ts` is the mapping, read it there rather than from a list
+here. **And a chart drawing geometry has no surface a class string can describe**: a chart is SVG
+geometry driven by measured container width, its identity is path data and attribute bindings, and
+a manifest holding it would be a lie about where the styling lives. `HAND_DRAWN` beside
+`MANIFEST_COVERS` is that roster. `ArenaChartCard` is in neither and does have a manifest, since
+it is a bordered tile.
 
 `Utilities.generated.css` is **generated** and **git-ignored**: `bun run build:tailwind`
 compiles the preset with the manifests as content, and `bun run check:tailwind-generated` fails
@@ -301,8 +379,8 @@ way, so a new manifest needs a `bun run build:tailwind` before the gates pass.
 **A variant name is scanned as a class name.** Tailwind reads a manifest as raw text, so
 a variant *name* that collides with a utility (`visible`, `block`, `line`, `fixed`,
 `static`…) leaks a dead rule into `Utilities.generated.css`. It is harmless per instance and
-accumulates across the set; `ArenaBulkActionBar` hit it with `visible` and the layer settled
-on `open` as the shared name for a shown/hidden boolean. Name variants with that in mind.
+accumulates across the set. `visible` is one such collision, which is why the layer's shared name
+for a shown/hidden boolean is `open`. Name variants with that in mind.
 
 **`compoundVariants` work and one manifest uses them.** `ArenaPageHead` needs a class that depends
 on two variants at once, `classesFor()` resolves them after every single-variant slot, and
@@ -471,7 +549,7 @@ nobody left to ask. A layer that realises an affordance by rendering the manifes
 no answer of its own to give, because the answer is the manifest, and both layers do that
 wherever a component renders its recipe. So that half reads `HAND_DRAWN`, in
 `scripts/lib/tailwind/manifest-surfaces.ts`, which is the set of components drawing their own
-appearance: the three SVG charts, whose geometry no class string can describe. An empty
+appearance: every chart, whose geometry no class string can describe. An empty
 `HAND_DRAWN` fails rather than passing over nothing, so retiring that half would be a decision
 somebody has to write down.
 

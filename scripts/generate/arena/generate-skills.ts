@@ -43,6 +43,7 @@ export const node = {
     'check:generated',
     'check:icons',
     'check:layer-independence',
+    'check:routes',
     'check:script-tokens',
     'check:skills',
   ],
@@ -83,9 +84,11 @@ const INDEX_HEADER = `${GENERATED}
 
 # Arena components
 
-Every component Arena ships, by the category it is filed under. **This page is an index, not a
-manual.** It says what exists and what each one takes; what a member is called where you are
-building, and how to write one, is your own layer's index and then the component's own prompt.
+Every component Arena ships, by the category it is filed under. **This page answers one question:
+whether a component exists at all, and which layers ship it.** It is not a stop on the way to
+writing one: what a member is called where you are building, and how to write it, is your own
+layer's index and then the component's own prompt, and reading this page first buys nothing when
+you already know what you are reaching for.
 
 | Layer | Index | Package |
 |---|---|---|
@@ -112,12 +115,20 @@ Import from the package root, never from a path inside it:
 
 ${LAYER_IDIOM[layer]}
 
+- **Which voice this application takes, which is decided before any component here**:
+  [\`../../SKILL.md\`](../../SKILL.md). Every component below answers to it without being told, so
+  a screen built without picking one is built in the default voice by accident rather than on
+  purpose.
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`PACKAGE.md\`](./PACKAGE.md).
-- Every component Arena ships, including any this layer does not:
+- Whether a component exists at all, including any this layer does not ship:
   [\`../SKILL.md\`](../SKILL.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
-  layer's own names. A member marked \`*\` is required; the prompt gives its type and its default.`;
+  layer's own names. A member marked \`*\` is required; the prompt gives its type and its default.
+- **A member whose type is an object or an enum takes one this package exports.** The prompt
+  names the type and says what it is for; the fields it holds are in the type declaration itself,
+  which \`import type { … } from '${PACKAGES[layer]}'\` brings in. That field list is in neither
+  the prompt nor the contract, so the type is where you read it.`;
 }
 
 export function loadCategories(base = root) {

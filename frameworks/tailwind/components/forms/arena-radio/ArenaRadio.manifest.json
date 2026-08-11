@@ -3,22 +3,33 @@
   "slots": {
     "group": "flex flex-col gap-3",
     "root": "inline-flex items-start gap-2.5",
-    "ring": "inline-flex items-center justify-center size-5 shrink-0 rounded-pill bg-base-300 border-[length:var(--bw)] transition-[border-color] duration-[var(--dur-fast)] ease-out [&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]",
+    "ring": "inline-flex items-center justify-center size-5 shrink-0 rounded-pill bg-base-300 border-[length:var(--bw-control)] transition-[border-color] duration-[var(--dur-hover)] ease-hover [&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)] shadow-control-rest",
     "dot": "size-2.5 rounded-pill bg-primary",
     "text": "flex flex-col gap-0.5",
     "label": "font-body text-ctl text-base-content/82 leading-snug",
-    "hint": "font-body text-ctl-sm text-base-content/62 leading-body",
+    "hint": "font-body text-ctl-sm text-base-content/62 leading-prose",
     "input": "absolute opacity-0 size-0"
   },
   "variants": {
     "checked": {
-      "true": { "ring": "border-primary" },
-      "false": { "ring": "border-neutral" }
+      "true": {
+        "ring": "border-primary"
+      },
+      "false": {
+        "ring": "border-neutral"
+      }
     },
     "disabled": {
-      "true": { "root": "opacity-50 cursor-not-allowed" },
-      "false": { "root": "cursor-pointer" }
+      "true": {
+        "root": "opacity-50 cursor-not-allowed"
+      },
+      "false": {
+        "root": "cursor-pointer"
+      }
     }
   },
-  "defaultVariants": { "checked": false, "disabled": false }
+  "defaultVariants": {
+    "checked": false,
+    "disabled": false
+  }
 }

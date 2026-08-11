@@ -37,6 +37,22 @@ test('an expiry reports what was not seen and why the bound is that size, never 
   assert.match(waited.why, /a cold cache is the slowest this ever is/);
 });
 
+test('a look that costs more than the bound gets exactly one, and the cost is what says so', async () => {
+  let at = 0;
+  const clock = { now: () => at, sleep: async (ms: number) => { at += ms; } };
+  let looks = 0;
+  const waited = await waitFor(() => { looks += 1; at += 6_000; return false; }, BOUND, clock);
+  assert.equal(looks, 1,
+    'the bound is spent by the same clock the look spends, so a host where asking the question '
+    + 'costs more than the whole margin buys no second look. That is the answer on such a host '
+    + 'rather than a fault, and the case that reads the Windows process table is one');
+  assert.equal(waited.seen, false);
+  if (waited.seen) return;
+  assert.ok(waited.ms >= 6_000,
+    'the cost travels, so a margin that went on looking rather than on waiting is visible in the '
+    + 'report instead of arriving as a subject that was not there');
+});
+
 test('the condition may be asynchronous, since a browser answers over a socket', async () => {
   const waited = await waitFor(async () => true, BOUND, fakeClock());
   assert.equal(waited.seen, true);

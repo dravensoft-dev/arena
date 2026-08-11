@@ -109,7 +109,7 @@ export function ArenaPyramidChart({
                 <path key={s} d={arenaBarPathH(arenaBandMark(bands, i), bands.band,
                   arenaScaleValue(xScale, away), axis.zeroX, chartBarRadius)} fill={colors[s]?.[i]}
                   opacity={hover === null || hover === i ? 1 : 0.55}
-                  style={{ transition: 'opacity var(--dur-fast) var(--ease-out)' }} />
+                  style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
               );
             })}
           </g>

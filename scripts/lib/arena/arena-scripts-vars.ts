@@ -2,12 +2,12 @@
  * needs no exports. A real environment variable wins over a value below, so a one-off override
  * stays a shell prefix rather than an edit to a versioned file. CI is recognised and never
  * declared: claiming it would tell the scripts they run on a runner. ARENA_CHECK_STRICT buys
- * the same thing and claims nothing. CHROME_PATH is recognised too, and used to be declared:
- * a default laid under the environment made every machine look like one where a person had
- * named a browser, so the candidate list behind it was unreachable and the macOS entries in
- * it were dead from the day they were written. A default is not an override. `cannotRun` is
- * the one spelling of what a gate does when its dependency is missing, because the four that
- * can skip had drifted into three of them. */
+ * the same thing and claims nothing. CHROME_PATH is recognised too, and used to be declared: a
+ * default laid under the environment made every machine look like one where a person had named
+ * a browser, leaving the candidate list unreachable and its macOS entries dead from the day they
+ * were written. A default is not an override, which is also why ARENA_PIXEL_DUMP is recognised
+ * and undeclared: a default turns a diagnostic a reader asks for into something every failing
+ * run writes. `cannotRun` is the one spelling of a gate whose dependency is missing. */
 
 export const DECLARED = {
   ARENA_CHECK_STRICT: '1',

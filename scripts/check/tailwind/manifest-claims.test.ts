@@ -80,13 +80,13 @@ export const CLAIMS = {
     { slot: 'mark', has: ['*:w-full', '*:h-full', '*:block'], why: 'the mark slot stretches its projected child rather than sizing it' },
   ],
   ArenaChartCard: [
-    { slot: 'root', has: ['flex', 'bg-base-200', 'border-[length:var(--bw)]', 'border-base-300', 'rounded-lg'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
+    { slot: 'root', has: ['flex', 'bg-surface', 'border-[length:var(--bw-surface)]', 'border-base-300', 'rounded-surface'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
     { slot: 'title', has: ['font-mono', 'uppercase', 'tracking-label'], hasNot: ['font-display', 'text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a microlabel carries neither the display font nor a heading size, which would fabricate a document outline' },
     { slot: 'head', has: ['justify-between', 'items-center', 'flex-wrap'], why: 'the head row spaces title and actions to opposite ends and wraps, since the slot projects one element per control' },
   ],
   ArenaActivityFeed: [
     { slot: 'dot', has: ['bg-current'], hasNot: ['bg-error', 'bg-success', 'bg-warning', 'bg-info', 'bg-primary', 'bg-secondary'], why: 'the dot carries the tone as a colour, never as a fill of its own' },
-    { chosen: { divided: true }, slot: 'item', has: ['border-t-[length:var(--bw)]'], why: 'divided draws the rule between rows' },
+    { chosen: { divided: true }, slot: 'item', has: ['border-t-[length:var(--bw-separator)]'], why: 'divided draws the rule between rows' },
     { chosen: { divided: false }, slot: 'item', has: ['border-t-0'], why: 'the first row carries no divider above it' },
   ],
   ArenaAvatar: [
@@ -107,11 +107,11 @@ export const CLAIMS = {
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
   ArenaCard: [
-    { slot: 'root', has: ['block', 'bg-base-200'], why: 'the card sits on the middle step of the surface scale and is never a zero-area inline box' },
+    { slot: 'root', has: ['block', 'bg-surface'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so a voice can flatten it onto the page, and it is never a zero-area inline box' },
     { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-base-300'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { accent: false }, slot: 'root', has: ['border-base-300'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
-    { chosen: { floating: true }, slot: 'root', has: ['shadow-2'], why: 'depth is the shadow and the surface scale, never a gradient' },
-    { chosen: { floating: false }, slot: 'root', has: ['shadow-none'], why: 'depth is the shadow and the surface scale, never a gradient' },
+    { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
+    { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and an extension can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
     { slot: 'eyebrow', has: ['font-mono', 'uppercase', 'text-primary'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
     { slot: 'title', has: ['font-display', 'text-h4'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
@@ -138,9 +138,9 @@ export const CLAIMS = {
       why: 'a cell draws its focus ring from the focus tokens and suppresses the UA outline, or a keyboard user cannot see where the cursor is',
     })),
     { slot: 'root', has: ['block'], why: 'a host-bound root is never the UA-default inline box' },
-    { chosen: { narrow: false }, slot: 'root', has: ['rounded-lg', 'overflow-hidden'], hasNot: ['flex-col'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet' },
+    { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-hidden'], hasNot: ['flex-col'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet' },
     { chosen: { narrow: false }, slot: 'grid', has: ['table'], why: 'the wide shape is the framed grid' },
-    { chosen: { narrow: true }, slot: 'root', has: ['flex', 'flex-col'], hasNot: ['rounded-lg', 'overflow-hidden'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
+    { chosen: { narrow: true }, slot: 'root', has: ['flex', 'flex-col'], hasNot: ['rounded-surface', 'overflow-hidden'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
     { chosen: { narrow: true }, slot: 'grid', has: ['contents'], hasNot: ['table'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
     { slot: 'headRow', has: ['table-row'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
     { slot: 'row', has: ['table-row'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
@@ -155,8 +155,8 @@ export const CLAIMS = {
     })),
   ],
   ArenaUnauthCard: [
-    { slot: 'root', has: ['block', 'shadow-3', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
-    { slot: 'panel', has: ['bg-base-200'], hasNot: ['shadow-3'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either' },
+    { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
+    { slot: 'panel', has: ['bg-surface'], hasNot: ['shadow-surface-deep'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either. It is a card the page is built around rather than an overlay, so it takes the surface fill and follows a voice that flattens one' },
   ],
   ArenaAlert: [
     ...Object.entries({ info: 'info', success: 'success', warning: 'warning', danger: 'error', neutral: 'neutral' })
@@ -218,7 +218,7 @@ export const CLAIMS = {
   ],
   ArenaOnboarding: [
     { chosen: { open: true }, slot: 'root', has: ['block'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
-    { slot: 'dot', has: ['duration-[var(--dur-mid)]'], why: 'the dot width transition rides the token duration scale, never a literal' },
+    { slot: 'dot', has: ['duration-[var(--dur-state)]'], why: 'the dot width transition rides the token duration scale, never a literal' },
   ],
   ArenaProgressBar: [
     ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', success: 'text-success', danger: 'text-error', info: 'text-info' })
@@ -246,7 +246,7 @@ export const CLAIMS = {
   ],
   ArenaTooltip: [
     ...[true, false].map((anchored) => ({ chosen: { anchored }, slot: 'bubble',
-      has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-sm', 'shadow-2', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
+      has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
       why: 'the appearance is identical in both models and only the position moves' })),
     { chosen: { anchored: false }, slot: 'root', has: ['relative', 'inline-flex'], why: 'in flow the bubble is positioned against a relative root' },
     { chosen: { anchored: true }, slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'anchored, the overlay pane owns the position and every wrapper-relative utility is gone' },
@@ -255,7 +255,7 @@ export const CLAIMS = {
     { chosen: { variant: 'danger' }, slot: 'root', has: ['border-error', 'text-error', 'bg-transparent'], why: 'danger is outline: border and text in --error, and its only error fill is a hover wash' },
     { chosen: { variant: 'primary' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'primary is the one filled variant, and it fills with the brand rather than a status colour' },
     ...['primary', 'secondary', 'ghost', 'danger'].map((variant) => ({
-      chosen: { variant }, slot: 'root', has: ['rounded-sm', 'inline-flex', 'h-ctl-h'],
+      chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex', 'h-ctl-h'],
       why: 'every variant keeps the shared control geometry through the merge',
     })),
     ...Object.entries({ sm: 'h-ctl-h-sm', md: 'h-ctl-h', lg: 'h-ctl-h-lg' })
@@ -273,7 +273,7 @@ export const CLAIMS = {
     { chosen: { disabled: false }, slot: 'root', has: ['cursor-pointer'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
     ...[true, false].map((checked) => ({
-      chosen: { checked }, slot: 'box', has: ['size-5', 'rounded-xs', 'inline-flex'],
+      chosen: { checked }, slot: 'box', has: ['size-5', 'rounded-control-sm', 'inline-flex'],
       why: 'the box keeps its geometry through the merge, in both states',
     })),
   ],
@@ -321,13 +321,13 @@ export const CLAIMS = {
     { slot: 'nav', has: ['disabled:text-base-content/40', 'disabled:cursor-not-allowed'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
     { slot: 'pageCurrent', has: ['bg-primary', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
     { slot: 'pageOther', has: ['bg-transparent'], hasNot: ['bg-primary'], why: 'the current page is the one filled control in the row' },
-    { slot: 'page', has: ['h-8.5', 'min-w-8.5', 'border-[length:var(--bw)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it' },
+    { slot: 'page', has: ['h-8.5', 'min-w-8.5', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it' },
   ],
   ArenaSegmentedControl: [
     { chosen: { selected: true }, slot: 'segment', has: ['bg-neutral', 'font-semibold', 'shadow-1'], why: 'the selected segment reads as a raised neutral chip rather than a brand fill' },
     { chosen: { selected: false }, slot: 'segment', has: ['bg-transparent', 'text-base-content/62', 'hover:text-base-content/82'], why: 'an unselected segment is muted and answers hover' },
-    { slot: 'track', has: ['inline-flex', 'rounded-sm', 'focus-within:border-secondary'], why: 'the track carries the focus ring for the group, since the native inputs are hidden' },
-    { slot: 'segment', has: ['rounded-xs'], why: 'the segment radius is one step inside the track radius' },
+    { slot: 'track', has: ['inline-flex', 'rounded-control', 'focus-within:border-secondary'], why: 'the track carries the focus ring for the group, since the native inputs are hidden' },
+    { slot: 'segment', has: ['rounded-control-sm'], why: 'the segment radius is one step inside the track radius' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
   ],
   ArenaSelect: [
@@ -344,7 +344,7 @@ export const CLAIMS = {
     })),
   ],
   ArenaSideNav: [
-    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-3', 'py-2.5', 'rounded-sm'],
+    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-3', 'py-2.5', 'rounded-control'],
       why: 'the trigger matches the item metrics, or a collapsible header will not line up with its siblings' })),
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
   ],
@@ -362,7 +362,7 @@ export const CLAIMS = {
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole control' },
   ],
   ArenaTabs: [
-    { slot: 'root', has: ['flex', 'border-b-[length:var(--bw)]', 'border-base-300'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
+    { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-base-300'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
     { chosen: { selected: true }, slot: 'tab', has: ['font-semibold', 'text-base-content', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-base-content/62', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
     { slot: 'tab', has: ['px-4', 'focus-visible:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'selection never moves the padding, and the focus ring is the recipe\'s job' },

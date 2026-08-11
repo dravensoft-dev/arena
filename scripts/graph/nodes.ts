@@ -39,6 +39,12 @@ export const NEVER_SUBSCRIBES = new Map([
    'it resolves the code path in every citation in every .md, so its subject is the whole tree'],
   ['scripts/check/arena/check-agents.ts',
    'it walks the branch for a level nobody wrote, and a level nobody wrote sits in no spec'],
+  ['scripts/check/arena/check-duplication.ts',
+   'it compares every document against every other for a concept stated twice, so its subject is '
+   + 'the whole documentation tree and any narrowing would be a narrowing of the claim'],
+  ['scripts/check/arena/check-vocabulary.ts',
+   'it holds every document to the whole tree: a convention, a bare filename or a search naming '
+   + 'a shape nothing answers to. Its subject is what is absent, and an absence sits in no spec'],
   ['scripts/check/arena/check-structure.ts',
    'it walks both framework layers for a file in the wrong place, so a file appearing anywhere is '
    + 'exactly what it exists to see'],

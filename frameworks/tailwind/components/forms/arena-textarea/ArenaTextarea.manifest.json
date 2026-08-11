@@ -4,7 +4,7 @@
     "root": "flex flex-col gap-1.5",
     "label": "font-mono text-ctl-xs tracking-field-label uppercase text-base-content/62",
     "required": "text-primary ml-1",
-    "field": "w-full px-3 py-2.5 bg-base-300 border-[length:var(--bw)] rounded-sm text-base-content font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-fast)] ease-out",
+    "field": "w-full px-3 py-2.5 bg-base-300 border-[length:var(--bw-field)] rounded-field text-base-content font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "foot": "flex justify-between gap-3",
     "hint": "font-body text-ctl-sm text-base-content/62",
     "error": "font-body text-ctl-sm text-error",
@@ -13,21 +13,38 @@
   },
   "variants": {
     "state": {
-      "neutral": { "field": "border-base-300 focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16" },
-      "error": { "field": "border-error ring-[length:var(--focus-width)] ring-error/14" }
+      "neutral": {
+        "field": "border-base-300 focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
+      },
+      "error": {
+        "field": "border-error ring-[length:var(--focus-width)] ring-error/14"
+      }
     },
     "resize": {
-      "vertical": { "field": "resize-y" },
-      "none": { "field": "resize-none" }
+      "vertical": {
+        "field": "resize-y"
+      },
+      "none": {
+        "field": "resize-none"
+      }
     },
     "disabled": {
-      "true": { "root": "opacity-50" },
+      "true": {
+        "root": "opacity-50"
+      },
       "false": {}
     },
     "readonly": {
-      "true": { "field": "bg-base-200 cursor-default" },
+      "true": {
+        "field": "bg-base-200 cursor-default"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "state": "neutral", "resize": "vertical", "disabled": false, "readonly": false }
+  "defaultVariants": {
+    "state": "neutral",
+    "resize": "vertical",
+    "disabled": false,
+    "readonly": false
+  }
 }

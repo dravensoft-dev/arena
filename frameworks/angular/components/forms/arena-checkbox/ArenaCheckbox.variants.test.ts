@@ -1,6 +1,6 @@
 /* No DOM and no TestBed: assertions about the recipe alone. The check glyph's own geometry is
  * not in the manifest -- it is the two camelCase style objects the component exports, the same
- * shape and the same reason as the three SVG charts, and they are asserted here beside it. */
+ * shape and the same reason as a chart drawing geometry, and they are asserted here beside it. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

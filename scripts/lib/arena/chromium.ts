@@ -1,13 +1,13 @@
-/* Finds and launches a headless browser for the four gates that need one, and decides for all
- * of them what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it
- * says so instead of falling back -- but it is no longer declared: laying a default under the
- * environment left the candidate list unreachable and its macOS entries dead from the day they
- * were written. The list is keyed by platform and built from the environment on Windows, where a
- * program directory is no path anyone can hardcode. `browserOrExit` is the single spelling of
- * the strict-or-skip decision, since the four gates had drifted into three. Teardown asks the
- * parent, reaps the GROUP whatever the parent did, then waits for it to empty before removing
- * the profile: the polite exit is the leaky one, leaving a zygote and a renderer, and a
- * directory one still writes to fails with EBUSY. The grace is short: TERM may go unanswered. */
+/* Finds and launches a headless browser for the gates that need one, and decides for all of them
+ * what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it says so
+ * instead of falling back -- but it is no longer declared: laying a default under the environment
+ * left the candidate list unreachable and its macOS entries dead from the day they were written.
+ * `browserOrExit` is the single spelling of the strict-or-skip decision. Text is drawn against a
+ * grey ramp and colour pinned to sRGB, because a gate comparing two renders asks about Arena and
+ * subpixel antialiasing answers about the panel: it moves with how a tree is composited, so the
+ * same text in the same place comes back fringed differently. Teardown reaps the GROUP whatever
+ * the parent did, then waits for it to empty before removing the profile: the polite exit leaves
+ * a zygote and a renderer, and a directory one still writes to fails with EBUSY. */
 
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
@@ -119,6 +119,8 @@ export function browserFlags(profile: string, on: Platform = platform) {
     '--headless',
     '--disable-gpu',
     '--hide-scrollbars',
+    '--disable-lcd-text',
+    '--force-color-profile=srgb',
     '--no-first-run',
     '--no-default-browser-check',
     '--disable-extensions',

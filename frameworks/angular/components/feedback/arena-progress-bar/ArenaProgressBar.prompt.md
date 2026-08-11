@@ -59,7 +59,8 @@ supply one for anything a user is waiting on.
 `/frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.demo.generated.html`:
 - The indeterminate sweep travels left to right, continuously, and **slows** rather than stops
   under `prefers-reduced-motion`, motion that reports work in progress must keep reporting it.
-- The determinate fill animates its width on `--dur-mid` when the value changes, and does not
+- The determinate fill animates its width on `--dur-state`/`--ease-state` when the value changes,
+  and does not
   animate on first paint.
 - Each tone inks the fill only; the track behind it stays `--color-base-300` in all five.
 - The three sizes differ in track height alone; the head row does not move with them.

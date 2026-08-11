@@ -78,13 +78,25 @@ System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`
 ## Control density type scale (`dz`)
 Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own five-step text scale, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json` (base) and `contracts/design/density.compact.json` (the `.arena-compact` override):
 
-| Token | Value | Compact (`.arena-compact`) | Role |
-|---|---|---|---|
-| `--dz-text` | 14px | 13px | control text: buttons, inputs, selects, menu items, table cells |
-| `--dz-text-md` | 13px | 12px | secondary control text: tag chips, pagination, secondary buttons |
-| `--dz-text-sm` | 12px | 11px | secondary control text: hints, validation errors, badges, legends |
-| `--dz-text-xs` | 11px | 10px | micro control text: field labels, shortcuts, eyebrow labels |
-| `--dz-text-2xs` | 10px | 10px | column headers, row micro-labels |
+| Token | Value | Compact (`.arena-compact`) | Comfortable (`.arena-comfortable`) | Role |
+|---|---|---|---|---|
+| `--dz-text` | 14px | 13px | 14px | control text: buttons, inputs, selects, menu items, table cells |
+| `--dz-text-md` | 13px | 12px | 13px | secondary control text: tag chips, pagination, secondary buttons |
+| `--dz-text-sm` | 12px | 11px | 12px | secondary control text: hints, validation errors, badges, legends |
+| `--dz-text-xs` | 11px | 10px | 11px | micro control text: field labels, shortcuts, eyebrow labels |
+| `--dz-text-2xs` | 10px | 10px | 10px | column headers, row micro-labels |
+
+**Comfortable grows the box and leaves the words alone**, and the asymmetry with compact is the
+point. Compact shrinks the text because an expert reading a dense table is trading legibility for
+how much fits on a screen; comfortable has nothing to buy with the same trade, so `--dz-ctl-h`
+goes to 48px, `--dz-ctl-h-sm` to 40px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
+`--dz-row-px` to 20px and `--dz-stack` to 16px, while every step above stays where it is.
+
+48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
+the 40px base does not. This is the whole reason target size is density's axis and never a design
+extension's, since how large a control is answers who is pointing at it rather than what voice the
+product speaks in. The two density classes are mutually exclusive with each other, because both
+set the same keys, and compose with a theme and with an extension, because those set others.
 
 `--dz-text-2xs` does not shrink further in the compact scope: −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 
@@ -93,7 +105,7 @@ Chrome text, meaning a button label, an input's value, a hint, a validation erro
 Exposed in the Tailwind layer under a `ctl` infix (`--text-ctl`, `--text-ctl-md`, `--text-ctl-sm`, `--text-ctl-xs`, `--text-ctl-2xs`) because the natural `--text-*` keys already belong to `fs`, and two collide on value as well as name (`fs.sm` / `dz.text-md` are both 13px; `fs.xs` / `dz.text-xs` are both 11px). No `dz` token wears an `fs`-shaped name: the `ctl` infix is what keeps the two namespaces distinguishable.
 
 ## Page rhythm (`rhythm`)
-The air BETWEEN two components, which Arena itself never draws: every component is an inner box carrying no outer margin, so the space between one and the next belongs to whoever places them. Three steps, authored as aliases of `sp` rather than as fresh numbers so a step cannot drift off the 4px grid, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`:
+The air BETWEEN two components, which Arena itself never draws: every component is an inner box carrying no outer margin, so the space between one and the next belongs to whoever places them. Every step is authored as an alias of `sp` rather than as fresh numbers so a step cannot drift off the 4px grid, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`:
 
 | Token | Value | Role |
 |---|---|---|
@@ -135,17 +147,19 @@ Line height splits editorial from control exactly the way `fs`/`dz` split font s
 
 | Token | Value | Role |
 |---|---|---|
+| `--lh-root` | `1.5` | what every element inherits until something declares otherwise, and the floor WCAG 1.4.8 asks of body copy. It is the baseline rather than a role, which is why nothing reaches for it by name |
 | `--lh-tight` | `0.98` | sub-1em, the tightest display headings |
 | `--lh-snug` | `1.15` | snug prose: short labels and values that still wrap on occasion (`ArenaStatCard`'s value, `ArenaRadio`'s label, `Shell`'s person block) |
 | `--lh-body` | `1.6` | prose: paragraphs, dialog and alert body copy, messages |
+| `--lh-loose` | `1.8` | reading leading, one step above body, for a voice that carries its hierarchy in type rather than in boxes. It is what `lh-prose` moves to under `editorial` and what nothing else reaches for |
 | `--dz-lh` | `1` | glyph-tight, the control reset, where the box is exactly its glyph |
 
-Three prose steps cover every wrapping site in the system, and a value within 0.05 of one is drift rather than a fourth step: it moves to the token.
+The prose steps between them cover every wrapping site in the system, and a value within 0.05 of one is drift rather than a step of its own.
 
 Exposed in the Tailwind layer as `.leading-tight` / `.leading-snug` / `.leading-body` (`frameworks/tailwind/Theme.css`, `--leading-*`). `--dz-lh` is exposed as `.leading-ctl` rather than `.leading-none`, because the `--leading-*` namespace holds three editorial steps (`tight`, `snug`, `body`) plus this one control token, and a name indistinguishable from its editorial neighbours would be a `dz` token wearing an `lh`-shaped name, which is the mistake the `fs`/`dz` split exists to prevent. The `ctl` infix keeps it visibly a density role, consistent with `--text-ctl`.
 
 ## Motion scale (`dur` / `loop`)
-Two families, one `$type: duration`, two roles that must not merge. `dur` is the transition scale: a response to an action, over in the low hundreds of milliseconds. `loop` is cyclical motion: it reports that work is *ongoing*, and is measured in seconds rather than milliseconds, because a spinner or an indeterminate progress sweep is not "responding" to anything, it is signaling that something is still running. Merging the two would repeat the mistake the `fs`/`dz` split exists to prevent: one scale asked to carry two roles at once. Both live in `contracts/design/effects.json`, generated into `contracts/design-generated/effects.generated.css`.
+Two families, one `$type: duration`, two roles that must not merge. `dur` is the transition scale: a response to an action, over in the low hundreds of milliseconds. `loop` is cyclical motion: it reports that work is *ongoing*, and is measured in seconds rather than milliseconds, because a spinner or an indeterminate progress sweep is not "responding" to anything, it is signaling that something is still running. Merging the two would repeat the mistake the `fs`/`dz` split exists to prevent: one scale asked to carry two roles at once. Both live in `contracts/design/effects.json`, generated into `contracts/design-generated/effects.generated.css`. **Moving a step here is wider than moving the role that names it**: `frameworks/tailwind/Theme.css` wires `--default-transition-duration` to `--dur-fast` and `--default-transition-timing-function` to `--ease-out`, so a bare `transition-*` utility anywhere, in Arena or in a consuming project, moves with the scale and not with `dur-hover`. Retune the role when one question should be answered differently; retune the scale when every use of that length should be.
 
 | Token | Value | Role |
 |---|---|---|
@@ -163,6 +177,10 @@ Two families, one `$type: duration`, two roles that must not merge. `dur` is the
 
 Exposed in the Tailwind layer as an arbitrary value against each token, `duration-[var(--loop-spin)]` and so on, rather than as a named utility: Tailwind v4 has no duration namespace of its own for either family to extend.
 
+**A transition names four roles and no scale step, and the easing scale is where that rule was half kept.** `dur` above says how long, `ease` (`--ease-out`, `--ease-in-out`, `--ease-emphatic`, `contracts/design/effects.json`) says on what curve, and neither says *which* transition is being asked about. The questions are in `contracts/design/roles.json`: `--dur-hover` and `--ease-hover` for a response to a pointer, `--dur-state` and `--ease-state` for a change the eye follows, plus `--press-scale` for how far a control sinks while it is held and `--lift-control` for how far it rises. A manifest writes those and `check:roles` fails one that writes `--dur-fast` or `ease-out`, because only a question can be answered differently by one voice than by another: `showcase` takes the hover to 220ms **on `ease.in-out`**, which is an object with mass being moved rather than the same instant answer taking longer.
+
+The three `ease` steps stay reachable where no voice has a question to re-answer: every entrance in `frameworks/tailwind/Animations.css` is a keyframe rather than a transition, and the rotor's `--ease-emphatic` is the brand's own gesture. Those answer the `prefers-reduced-motion` policy above, which is a floor and belongs to nobody.
+
 ## Behaviour timing (`delay` / `dismiss`)
 Two more `$type: duration` families, deliberately not part of `dur` or `loop` above. `dur` measures how long a transition takes *once it has been decided*; `delay` measures how long the system waits *before deciding*, which is pointer intent rather than motion. `dismiss` measures how long a transient notice is left alone before it withdraws itself, which is a permanence decision, not a transition either. Both live in `contracts/design/behaviour.json`, generated into `contracts/design-generated/effects.generated.css`.
 
@@ -173,7 +191,7 @@ Two more `$type: duration` families, deliberately not part of `dur` or `loop` ab
 | `--dismiss-default` | 4200ms | how long an `ArenaToast` that only has to be read stays before it auto-dismisses |
 | `--dismiss-actionable` | 7000ms | how long an `ArenaToast` carrying a button stays, per WCAG 2.2.1: it asks the reader to *decide*, not only to read |
 
-`delay` applies to the **pointer only**: a keyboard focus must reveal its tooltip immediately, and routing that path through `--delay-open` would make an already-hard-to-reach control also feel broken. `dismiss` is run by the *host*, never by `ArenaToast` itself. `ArenaToast` renders and exposes `persist`, which overrides both values and never auto-dismisses, and which is mandatory in critical/error states so they are not missed (README H1, see the danger convention above).
+`delay` applies to the **pointer only**: a keyboard focus must reveal its tooltip immediately, and routing that path through `--delay-open` would make an already-hard-to-reach control also feel broken. `dismiss` is run by the *host*, never by `ArenaToast` itself. `ArenaToast` renders and exposes `persist`, which overrides both values and never auto-dismisses, and which is mandatory in critical/error states so they are not missed (see the danger convention in [`AGENTS.md`](./AGENTS.md) beside this file).
 
 **Script-readable, not Tailwind-exposed**: both families' consumers are `setTimeout` arguments in JavaScript, not CSS properties, so neither carries a utility class. They reach React as `delayOpen`/`delayClose`/`dismissDefault`/`dismissActionable` (`frameworks/react/Tokens.generated.js`) and are named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
 

@@ -16,7 +16,7 @@
     "./vendor",
     "./node_modules",
     "./test",
-    "./ui-kits",
+    "./kitchen-sink",
     "./**/*.test.ts",
     "./**/*.test.tsx",
     "./playground",

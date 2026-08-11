@@ -1,28 +1,42 @@
 {
   "component": "ArenaBulkActionBar",
   "slots": {
-    "root": "flex items-center gap-3.5 min-h-13 pl-4 pr-3 bg-base-200 border-[length:var(--bw)] border-neutral rounded-md shadow-2",
+    "root": "flex items-center gap-3.5 min-h-13 pl-4 pr-3 bg-surface-floating border-[length:var(--bw-surface)] border-neutral rounded-surface-floating shadow-surface-floating",
     "count": "font-mono text-ctl-sm tracking-mono-nav text-base-content",
     "number": "text-secondary",
     "divider": "w-px h-5.5 bg-base-300",
     "actions": "flex items-center gap-1.5 flex-1 flex-wrap",
-    "action": "inline-flex items-center gap-2 h-8.5 px-3 bg-transparent border-[length:var(--bw)] rounded-sm cursor-pointer font-body font-semibold text-ctl-md transition-[background] duration-[var(--dur-fast)] ease-out",
+    "action": "inline-flex items-center gap-2 h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-semibold text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-hover shadow-control-rest",
     "actionIcon": "inline-flex text-[length:var(--icon-md)]",
     "clear": "bg-transparent border-none cursor-pointer text-base-content/62 font-mono text-ctl-xs tracking-badge uppercase"
   },
   "variants": {
     "destructive": {
-      "true": { "action": "border-error text-error hover:bg-error/14" },
-      "false": { "action": "border-base-300 text-base-content/82 hover:bg-base-200" }
+      "true": {
+        "action": "border-error text-error hover:bg-error/14"
+      },
+      "false": {
+        "action": "border-base-300 text-base-content/82 hover:bg-base-200"
+      }
     },
     "open": {
       "true": {},
-      "false": { "root": "hidden" }
+      "false": {
+        "root": "hidden"
+      }
     },
     "narrow": {
-      "true": { "root": "flex-col items-stretch gap-2 py-2.5 pl-3", "divider": "hidden", "clear": "text-left" },
+      "true": {
+        "root": "flex-col items-stretch gap-2 py-2.5 pl-3",
+        "divider": "hidden",
+        "clear": "text-left"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "destructive": false, "open": false, "narrow": false }
+  "defaultVariants": {
+    "destructive": false,
+    "open": false,
+    "narrow": false
+  }
 }

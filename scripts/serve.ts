@@ -10,6 +10,8 @@ const PAGES = [
   ['Overview  ', '/intro/Arena%20-%20Overview.html'],
   ['Identity  ', '/intro/Dravensoft%20Identity.dc.html'],
   ['Guidelines', '/intro/guidelines/'],
+  ['Kitchen sinks', '/frameworks/react/kitchen-sink/'],
+  ['             ', '/frameworks/angular/kitchen-sink/'],
 ];
 
 const isDir = (path: string) => { try { return statSync(path).isDirectory(); } catch { return false; } };

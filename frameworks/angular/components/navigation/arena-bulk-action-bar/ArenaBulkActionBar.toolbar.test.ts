@@ -92,12 +92,12 @@ test('an empty selection drops the role and the label, not only the contents', (
   }
 });
 
-test('the Clear output was renamed from `cleared` to `clear`, per the API contract\'s event binding', () => {
+test('the Clear output is `clear` and answers to nothing else, per the API contract\'s event binding', () => {
   const fixture = render(3);
   try {
     const instance = fixture.componentInstance;
     assert.equal(typeof instance.clear, 'object', '`clear` must exist and be an OutputEmitterRef');
-    assert.equal('cleared' in instance, false, 'the pre-contract `cleared` name must be gone, not merely aliased');
+    assert.equal('cleared' in instance, false, 'a name the contract does not declare must be absent, not merely aliased');
   } finally { fixture.destroy(); }
 });
 

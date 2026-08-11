@@ -2,16 +2,16 @@
   "component": "ArenaCommandPalette",
   "slots": {
     "root": "fixed inset-0 z-palette flex items-start justify-center pt-[12vh] bg-scrim backdrop-blur-scrim",
-    "panel": "w-140 max-w-[92vw] bg-base-200 border-[length:var(--bw)] border-neutral rounded-lg shadow-3 overflow-hidden",
-    "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw)] border-base-300",
+    "panel": "w-140 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep overflow-hidden",
+    "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-base-300",
     "searchIcon": "text-base-content/62 text-[length:var(--icon-lg)]",
     "input": "flex-1 bg-transparent border-none outline-none text-base-content font-body text-ctl",
-    "esc": "font-mono text-ctl-xs text-base-content/62 border-[length:var(--bw)] border-base-300 rounded-xs px-1.5 py-0.5",
+    "esc": "font-mono text-ctl-xs text-base-content/62 border-[length:var(--bw-marker)] border-base-300 rounded-marker px-1.5 py-0.5",
     "list": "max-h-80 overflow-auto p-1.5",
     "empty": "px-3 py-4.5 font-body text-md text-base-content/62",
     "group": "flex flex-col",
     "groupLabel": "px-3 pt-3 pb-1.5 font-mono text-ctl-2xs font-bold tracking-column-header uppercase text-base-content/62",
-    "row": "flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-sm border-none cursor-pointer no-underline",
+    "row": "flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-control border-none cursor-pointer no-underline shadow-control-rest",
     "rowDefault": "bg-transparent text-base-content/82",
     "rowActive": "bg-primary/14 text-primary",
     "rowIcon": "inline-flex text-[length:var(--icon-lg)]",
@@ -23,8 +23,12 @@
   "variants": {
     "open": {
       "true": {},
-      "false": { "root": "hidden" }
+      "false": {
+        "root": "hidden"
+      }
     }
   },
-  "defaultVariants": { "open": false }
+  "defaultVariants": {
+    "open": false
+  }
 }

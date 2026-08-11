@@ -1,0 +1,202 @@
+{
+  "r-surface": {
+    "$type": "dimension",
+    "$value": "{r.lg}",
+    "$description": "The corner of a SURFACE that belongs to the page: a card, a panel, a dialog, a\nsheet, a table frame. An alias of the r scale rather than a fresh number, on the same footing\nas rhythm's aliases of sp, so the base value cannot drift off the radius scale.\n\nWhy the role exists at all: r names how round a corner is, and this names WHICH corner is being\nasked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface\nhas said a reason, and only the second can be answered differently by an extension. Re-valuing\nr-lg to soften a card would soften every unrelated use of the same step, which is the defect the\nrole tier exists to prevent."
+  },
+  "r-surface-floating": {
+    "$type": "dimension",
+    "$value": "{r.md}",
+    "$description": "The corner of a surface that floats over the page: a menu, a toast, an alert,\na bulk action bar. Separate from r-surface because the scale already separated them: r.md is\nauthored as \"nested cards, menus\" and r.lg as \"cards, panels\". A floating surface is smaller and\nnearer the pointer, so it reads as a lighter object, and an extension that rounds cards without\nrounding menus is the broken half-applied look this role exists to prevent."
+  },
+  "r-control": {
+    "$type": "dimension",
+    "$value": "{r.sm}",
+    "$description": "The corner of a CONTROL the user presses: a button, an icon button, a menu item,\na pagination page, a navigation row. Separate from r-field although both are r.sm today, on the\ncut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. An\nextension that wants pill buttons over rectangular inputs needs the two answerable one at a time."
+  },
+  "r-control-sm": {
+    "$type": "dimension",
+    "$value": "{r.xs}",
+    "$description": "The corner of a control too small to carry the full control radius: a checkbox\nbox, a segment of a segmented control. A control whose whole body is barely larger than its own\ncorner would read as a circle at r-control, so the scale drops a step. It is still a control, so\nit moves when an extension moves controls, which is why this is a role and not a scale use."
+  },
+  "r-field": {
+    "$type": "dimension",
+    "$value": "{r.sm}",
+    "$description": "The corner of a FIELD the user types into: an input, a select, a textarea.\nThe counterpart to r-control, and separate from it for the reason stated there."
+  },
+  "r-marker": {
+    "$type": "dimension",
+    "$value": "{r.xs}",
+    "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
+  },
+  "fw-heading": {
+    "$type": "fontWeight",
+    "$value": "{fw.extrabold}",
+    "$description": "The weight of a heading set in the display face: a card's title, a dialog's title, a\npage head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold\nis 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be\nanswered differently by one voice than by another.\n\nIt matters most to a voice that draws nothing. Once the boxes are gone, the distance between a\nheading and the text under it IS the hierarchy, and weight is half of that distance."
+  },
+  "ls-heading": {
+    "$type": "number",
+    "$value": "{ls.tight}",
+    "$description": "The tracking of a heading in the display face. Authored as the tight step because\nthat is what most title slots already reached for; the five that reached for nothing were the\ninconsistency this role removes rather than a decision anybody made.\n\nSeparate from ls-label and the other ls steps, which are named by the thing that uses them and\nare already role-shaped: a heading is the one use an extension has a reason to re-answer.\n\nCarries cssUnit em like every ls step it stands beside: ls is authored unitless so JS can read it, and\nletter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid\nletter-spacing and silently resolves to normal.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "lh-prose": {
+    "$type": "number",
+    "$value": "{lh.body}",
+    "$description": "The leading of text somebody reads: a dialog's body, an empty state's message, a\npage head's subtitle, a hint under a field. lh-root's own description already calls the three\nsteps below it roles rather than scale, and this names the one an extension has a reason to move.\n\nIt is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21\nspells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is\nset to. A voice may\nopen a paragraph up and may never close it below that, and check:extensions measures the resolved\nvalue in every scope rather than trusting the author.\n\nNote what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it\ndoes not. It requires that content survive a USER overriding spacing to those values without being\nclipped or lost, which is a property of the layout and not of a token, and no gate over this file\ncould hold it."
+  },
+  "pad-surface": {
+    "$type": "dimension",
+    "$value": "{sp.5}",
+    "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA voice needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany voice. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy voice is a coherent thing to want.\n\nThe floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and\na coachmark is pinned to what it points at, so their padding is a fit constraint rather than a\nstatement about air, and giving a voice a lever there would let it push their content off the\nedge. They are recorded in SCALE_USES instead."
+  },
+  "fill-surface": {
+    "$type": "color",
+    "$value": "{color.base-200}",
+    "$description": "The fill of a surface that belongs to the page: a card, a stat card, a table's\nframe, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a\nregion is told from the page by its edge and by its fill together.\n\nEmitted as a reference and not as a resolved colour, which is the one place the emitter departs\nfrom every other role: a radius resolved to 14px is right in both themes, and a colour resolved\nto a hex would freeze the dark palette into the light one. A role that names WHICH step is asked\nabout has to keep pointing at the step rather than at what the step happens to be.\n\nWhat it buys: a voice that groups by proximity draws nothing at all, and a fill is something\ndrawn. Without this role a card keeps a region the voice just said was not there, and the gate\nholding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a\nvalue: an extension may say which of the consumer's 27 colours a surface takes, and may not\nauthor one."
+  },
+  "fill-surface-floating": {
+    "$type": "color",
+    "$value": "{color.base-200}",
+    "$description": "The fill of a surface that floats over the page: a menu, a dialog, a toast, a\nsheet, a command palette, a bulk action bar. The same step as fill-surface today and a different\nquestion, which is the cut r-surface and r-surface-floating already make one tier up.\n\nThis is the role that makes flattening the other one safe. A voice that takes a card down to the\npage's own fill has said its regions are carried by air; a menu that did the same would be an\nunreadable overlay, because a floating surface is separated from what it covers rather than\ngrouped against it. Split so a voice can answer the two one at a time."
+  },
+  "bw-surface": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn extension that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."
+  },
+  "bw-control": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a pressable control. Distinct from bw-surface because a button's\noutline is an affordance, saying where the pressable area ends, while a card's is a grouping\nsignal. An extension can drop one and keep the other."
+  },
+  "bw-field": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a typable field. Distinct again: this one is the boundary WCAG\n1.4.11 measures at 3:1, so it is the border with the least freedom of the three."
+  },
+  "bw-separator": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The line that divides one thing from the next INSIDE a surface: a table row\nfrom the row under it, a sheet's head from its body, a tab strip from its panel. The critical\ndistinction from bw-surface, and the reason it is a separate role rather than the same one\napplied to an edge: an extension that groups by elevation instead of by line removes the\nenclosure, and a table whose rows lost their rules at the same time would stop being readable.\nA separator answers a different question, so it survives the change."
+  },
+  "bw-marker": {
+    "$type": "dimension",
+    "$value": "{bw}",
+    "$description": "The border of a marker, paired with r-marker for the same family and the same\nreason. Also the ring an avatar draws against the surface behind it, which is a marker's border\nby every property except the name."
+  },
+  "shadow-surface-floating": {
+    "$type": "shadow",
+    "$value": "{shadow.2}",
+    "$description": "The depth a surface carries AT REST because it floats over the page: a menu,\na toast, a tooltip, a bulk action bar, a card's floating variant. Distinct from the raised role\nbelow, which is a response to a pointer rather than a statement about where a thing sits."
+  },
+  "shadow-surface-rest": {
+    "$type": "shadow",
+    "$value": {
+      "offsetX": {
+        "value": 0,
+        "unit": "px"
+      },
+      "offsetY": {
+        "value": 0,
+        "unit": "px"
+      },
+      "blur": {
+        "value": 0,
+        "unit": "px"
+      },
+      "spread": {
+        "value": 0,
+        "unit": "px"
+      },
+      "color": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "alpha": 0
+      }
+    },
+    "$description": "The depth a surface carries at rest when it is part of the page rather than floating\nover it, which by default is none. Authored as a fully transparent shadow because DTCG 2025.10\ntypes a shadow as offsets, blur, spread and a colour, and has no way to spell the absence of\none; a zero-size shadow at zero alpha is the same pixels and a real token.\n\nIt exists so the property is PAINTED. A token can re-value a declaration a slot already makes\nand cannot add one, so a card that declared no box-shadow could never be given depth by an\nextension, however the extension was written. This is the role that lets an extension trade\nArena's hairline grouping for grouping by elevation, which is the single change that separates\na console panel from a product card."
+  },
+  "shadow-surface-deep": {
+    "$type": "shadow",
+    "$value": "{shadow.3}",
+    "$description": "The depth of a surface that commands the screen, whether by covering it (a\ndialog, a sheet, a command palette, a coachmark) or by being the only thing on it (the sign-in\ncard). Named for the tier rather than for modality, because the sign-in card is not modal and\ncarries the same depth for the same reason."
+  },
+  "shadow-control-raised": {
+    "$type": "shadow",
+    "$value": "{shadow.2}",
+    "$description": "What a control rises to under the pointer. The same step as a surface's raised\nstate today and a different question: an extension that lifts a call to action has no reason to\nlift every card with it, and a commerce extension is mostly a statement about the call to action."
+  },
+  "shadow-control-rest": {
+    "$type": "shadow",
+    "$value": {
+      "offsetX": {
+        "value": 0,
+        "unit": "px"
+      },
+      "offsetY": {
+        "value": 0,
+        "unit": "px"
+      },
+      "blur": {
+        "value": 0,
+        "unit": "px"
+      },
+      "spread": {
+        "value": 0,
+        "unit": "px"
+      },
+      "color": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "alpha": 0
+      }
+    },
+    "$description": "The depth a control carries at rest, which by default is none, for the reason given at\nshadow-surface-rest: the property has to be painted before a value can move it. A commerce\nextension that gives its call to action a resting lift sets this one."
+  },
+  "lift-control": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "How far a control rises under the pointer, which by default is nowhere. Declared on the\none slot that already transitions transform, so the base appearance is unchanged and an\nextension has somewhere to put the gesture. Not a scale: it is a travel distance, and the\nonly length in the tier whose default is its own neutral rather than an alias."
+  },
+  "dur-hover": {
+    "$type": "duration",
+    "$value": "{dur.fast}",
+    "$description": "How long a hover or press response takes. An alias of dur.fast, which is what\nevery such transition already spells inline. An extension is where motion energy is decided, and\na duration written as a scale step cannot be re-decided; written as a role it can, without\ntouching the transitions that are fast for a different reason."
+  },
+  "dur-state": {
+    "$type": "duration",
+    "$value": "{dur.mid}",
+    "$description": "How long a state change the user follows takes: a switch travelling to its other\nend, a progress bar reaching a new value, an onboarding dot widening to mark the step it is on.\nAn alias of dur.mid. Kept apart from dur-hover because the eye has to TRACK this one rather than\nmerely register that it happened, which is the whole reason the scale has a second step. Named\nfor the state and not for an entrance: every entrance in Arena is a keyframe in Animations.css,\nso no manifest spells one as a duration."
+  },
+  "ease-hover": {
+    "$type": "cubicBezier",
+    "$value": "{ease.out}",
+    "$description": "The curve a hover or press response travels, and the other half of dur-hover: one\nsays how long the answer takes and this says what it feels like on the way. An alias of ease.out,\nwhich is what every such transition already spells inline.\n\nA duration on its own cannot carry motion character, which is why promoting only the durations\nleft the tier half built. Arena's default curve leaves at full speed and settles, and that reads\nas an interface acknowledging a pointer the instant it arrives. A curve that starts slowly reads\nas an object with mass being moved instead. Those are two voices making the same transition, and\nonly a role lets one of them be re-answered without dragging every entrance and every loop along\nwith it, which is exactly what re-valuing ease.out would do."
+  },
+  "ease-state": {
+    "$type": "cubicBezier",
+    "$value": "{ease.out}",
+    "$description": "The curve of a state change the user follows, paired with dur-state the way ease-hover\nis paired with dur-hover. Kept apart from that one for the reason the two durations are kept apart:\nthe eye has to TRACK a switch travelling to its other end, and merely registers that a hover\nhappened.\n\nNo voice in the shipped catalogue moves it, which is the footing dur-state has stood on since the\nrole tier was built. It is not there in anticipation of a voice: it is there so a manifest that\nnames a state transition names a role at BOTH ends rather than a role for the duration and a scale\nstep for the curve, which is the split check:roles exists to refuse."
+  },
+  "press-scale": {
+    "$type": "number",
+    "$value": 0.98,
+    "$description": "How far a control sinks under the pointer while it is held, and the other half of\nlift-control: that one says how far a control rises, this says how far it goes down. A voice that\ngives a control mass has a reason to answer both, and until this moved out of effects.json it could\nanswer neither, because a scale is shared by every use that wants that value.\n\nAuthored as a literal rather than as an alias, for the reason lift-control is: neither has a scale\nto alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those\ntwo are the only numbers in this tier whose value is its own.\n\nUnitless on purpose: it is a transform scale, not a length, so it carries no dimension type and\ndoes not re-densify. Both layers press by the same amount and each used to spell it as its own\nliteral -- 0.98 inline in React, scale-98 in the Tailwind manifest -- which is one design decision\nwritten twice with nothing holding the copies in step. NOT script-readable: nothing does arithmetic\non it, both layers reference the custom property directly, and the flag is only for a value JS must\nconsume to produce a position."
+  }
+}

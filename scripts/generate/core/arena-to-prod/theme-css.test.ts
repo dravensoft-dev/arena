@@ -249,3 +249,90 @@ test('without the shipped sheets a name can be held to nothing, so the run stops
   const [problem] = configProblems(config({ stylesheet: { components: ['arena-button'] } }), null);
   assert.match(problem ?? '', /^stylesheet: the sheets this package ships cannot be read/);
 });
+
+const SHEETS_WITH_EXT = {
+  layers: ['css/reset.css'],
+  components: ['button'],
+  extensions: { showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'],
+    byPolarity: { light: ['--shadow-surface-rest:DROP;'] } } },
+  roleReferences: ['--fill-surface:var(--color-base-200);'],
+};
+
+test('the extension field is optional, and a config without one asks for no extension', () => {
+  const c = config();
+  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+});
+
+test('"none" is how a config says it wants no extension, and it is not an unknown name', () => {
+  const c = config({ extension: 'none' });
+  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+});
+
+test('"default" is an unknown extension until one is called that, rather than a word meaning none', () => {
+  const c = config({ extension: 'default' });
+  const problems = configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /default/);
+  assert.match(problems[0] ?? '', /showcase/);
+});
+
+test('a shipped extension is accepted by name', () => {
+  const c = config({ extension: 'showcase' });
+  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+});
+
+test('the extension field is one name and never a list, so a build carries at most one', () => {
+  const c = config({ extension: ['showcase'] });
+  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('extension')) ?? '', /one name/);
+});
+
+test('a palette may not take a shipped extension name, since both become .arena-<name>', () => {
+  const c = config({ palettes: [{ name: 'showcase', default: true, polarity: 'dark', colors: colors() }] });
+  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('showcase')) ?? '', /extension/);
+});
+
+test('the chosen extension reaches :root, so a consumer needs no class of their own', () => {
+  const css = themeCss(config({ extension: 'showcase' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  assert.match(css, /--r-surface:22px;/);
+  assert.match(css, /--bw-surface:0px;/);
+});
+
+test('no extension means nothing extra reaches :root', () => {
+  const css = themeCss(config(), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  assert.ok(!css.includes('--r-surface'));
+});
+
+test('"none" emits nothing, the same as omitting the field', () => {
+  const css = themeCss(config({ extension: 'none' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  assert.ok(!css.includes('--r-surface'));
+});
+
+test('a voice that answers a polarity reaches the palette of that polarity, not only the default one', () => {
+  const css = themeCss(config({
+    extension: 'showcase',
+    palettes: [
+      { name: 'night', default: true, polarity: 'dark', colors: colors() },
+      { name: 'day', polarity: 'light', colors: colors() },
+    ],
+  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+
+  const dayBlock = css.slice(css.indexOf('.arena-day'));
+  assert.match(dayBlock, /--shadow-surface-rest:DROP;/,
+    'the light half of the voice never reached the light palette, so a consumer would take the dark '
+    + 'answer in their light theme -- the defect the theme group exists to remove');
+  assert.doesNotMatch(css.slice(0, css.indexOf('.arena-day')), /--shadow-surface-rest:DROP;/,
+    'the light half reached :root, where the dark palette would take it too');
+});
+
+test('a colour reference is restated inside every palette, because a var() computes where it is declared', () => {
+  const css = themeCss(config({
+    palettes: [
+      { name: 'night', default: true, polarity: 'dark', colors: colors() },
+      { name: 'day', polarity: 'light', colors: colors() },
+    ],
+  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+
+  assert.match(css.slice(css.indexOf('.arena-day')), /--fill-surface:var\(--color-base-200\);/,
+    'left on :root alone the role computes against the default palette and inherits that colour '
+    + 'into every other one, so a second palette keeps the first one\'s card fill');
+});

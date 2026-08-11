@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateTree, zeroSourceProblems } from './check-dtcg.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
+import { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const ok = (tree: DtcgNode) => assert.deepEqual(validateTree(tree, 'f.json'), []);
 const fails = (tree: DtcgNode, re: RegExp) => {
@@ -69,4 +72,17 @@ test('zero source files is a named failure', () => {
 
 test('a populated source directory has no zero problem', () => {
   assert.deepEqual(zeroSourceProblems(11), []);
+});
+
+test('every rhythm step is an alias of sp, so a step cannot drift off the 4px grid', () => {
+  const spacing = readJson(join(repoRoot, 'contracts', 'design', 'spacing.json'));
+  const rhythm = (spacing as Record<string, Record<string, { $value?: unknown }>>).rhythm ?? {};
+  const steps = Object.entries(rhythm).filter(([key]) => !key.startsWith('$'));
+  assert.ok(steps.length > 0, 'found no rhythm step at all, which is a walk that read the wrong group');
+  for (const [name, token] of steps) {
+    assert.match(String(token.$value), /^\{sp\.\d+\}$/,
+      `rhythm.${name} is ${JSON.stringify(token.$value)}: a step is an alias of sp and never a `
+      + 'length of its own, because a length authored here is a length off the 4px grid the '
+      + 'moment somebody rounds it');
+  }
 });

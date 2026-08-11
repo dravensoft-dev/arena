@@ -68,13 +68,24 @@ refused outright whatever a repository-size argument says.
 
 **Two branches, and a fact belongs to exactly one.** `SKILL.md` roots the *consumer* branch the
 way this file roots the contributor one. The cost of the consumer branch is paid on every build:
-an agent building with Arena reads the router, then `frameworks/SKILL.md`, then its own layer's
+an agent building with Arena reads the router, where it picks the voice, then its own layer's
 `SKILL.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only for
 the reasoning behind a member. **Everything on that route after the router is under
 `frameworks/`**, and each stop narrows. It reads no `AGENTS.md`, which is why the router names
-them and says not to.
+them and says not to. `frameworks/SKILL.md` sits beside that route rather than on it: it answers
+whether a component exists at all and which layers ship it, which is a question a builder who
+knows what they are reaching for never asks. **`check:routes` is what holds the route to a
+budget**, and `ROUTES` in `scripts/check/arena/check-routes.ts` is where the stops are declared;
+no document carries the figure.
 
-**A rule written into both branches goes stale in one of them.**
+**A rule written into both branches goes stale in one of them.** The design rules a builder has to
+obey are the one place that reads like an exception and is not: those are DECIDED in
+`contracts/design/AGENTS.md` and HANDED OVER in `SKILL.md`, which are two different acts and two
+different readers. A third statement, restating either, is what goes stale. **Most of the
+specification is not handed over at all**, because most of it decides values rather than binding a
+builder: a scale a component reads and a consumer never names has one home, and `SKILL.md` is not
+it. What a consumer has to know about a value reaches them through the layer's `PACKAGE.md`, which
+is where a shipped stylesheet like `css/rhythm.css` is documented.
 
 **The question that decides the branch is who has to act on the fact**, never which directory the
 code sits in. A helper under `frameworks/react/` that a consumer imports is a consumer fact; a
@@ -129,7 +140,11 @@ two copies and never reads either for meaning. Verify with
   upgrade costs or which release moved it: a reader on this tree cannot act on any of it, and a
   reader arriving from an older one is served by the version number and by the commit log, which
   is dated and is where the history already is. A retired token, a fixed defect, a former
-  directory layout and a batch number belong in that log. The reason a rule exists is not history
+  directory layout and a batch number belong in that log. **The npm page is not an exception**,
+  though it is the one place the argument for an exception can be made, since its reader has
+  neither this tree nor that log: what they get instead is a build that refuses a name this
+  version does not ship and says what it does, which is the whole of what a migration note would
+  have told them and is delivered where they are rather than where they are not. The reason a rule exists is not history
   and stays: state it as a property of the thing, not as an incident.
 - **A debt is written in the present tense as well, and it goes to [`DOUBTS.md`](./DOUBTS.md).**
   Anything tracked, ambiguous, or implemented only in part is stated there as what the tree
@@ -138,9 +153,11 @@ two copies and never reads either for meaning. Verify with
   that fails the day it stops being true.
 - **A document cites code as `path/to/file:member(parameters)` and never by line number.** A line
   moves under the next edit and takes every citation with it in silence, while a member carries
-  its own address: `scripts/lib/arena/layers.ts:kebab(name)` still resolves after the file is
-  reordered around it. `check:citations` holds the path half of that citation to a file that is
-  there, which is the half a rename breaks.
+  its own address: `scripts/utils/case.ts:kebab(name)` still resolves after the file is reordered
+  around it. `check:citations` holds both halves, the path to a file that is there and the member
+  to that file declaring it. **The member half is the one that goes wrong quietly**: a citation
+  naming the wrong file with the right member sends a reader somewhere confident and empty, and
+  nothing about the sentence carrying it looks wrong.
 - **The best comment is the one not written.** A method carries its own context through its name.
   The only exception is `scripts/` and test files, which may carry **one** comment, inline or
   block, as a file header, **at most 10 lines**. Files a script generates are outside the rule
@@ -173,20 +190,20 @@ the one that opened it. `bun run check:citations` holds every path a document na
   drop the suffix when the plan lands. **They are deleted once executed**, which is why debt filed
   in one dies with it, and why a document citing one is a citation that was condemned when it was
   written.
-- **No gradients** on any surface, the sole exception being `ArenaSkeleton`'s neutral shimmer. Depth
-  comes from the `base-100` to `base-200` to `base-300` surface scale, the hairline border and
-  the warm shadow.
-- **No emoji**, in product or docs.
-- **Danger is outline, never filled**: transparent background, border and content in
-  `--error`/`--danger`. The only filled danger surface in the whole system is the final
-  irreversible confirmation inside `ArenaConfirmDialog`.
+- **The design rules themselves are not here.** No gradients, no emoji, danger as an outline, one
+  primary accent, a chart carrying identity or meaning: every one of them is decided in
+  [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md) and handed to a builder by
+  [`SKILL.md`](./SKILL.md). A third copy on this page is the one with no owner, and it is the copy
+  that goes stale: the two that are left each fail something, the contract through
+  `check:extensions` and the router through `check:docs`, while a router's restatement fails
+  nothing at all. **The one rule about them that IS this page's**, because it binds a contributor
+  and no consumer: a rule binding more than one component is stated once and never copied into a
+  second document that happens to be nearby.
 - **A commit message containing a backtick is written with a quoted here-doc**, never
   `git commit -m "…"`. A backtick inside a double-quoted shell string opens command substitution
   and is silently spliced away: the message lands with the name it was quoting missing, and
   nothing errors. Use `git commit -q -F - <<'MSG' … MSG` and verify with `git log -1 --format=%B`.
   **`git merge` does not accept `-F -`**, so use `--no-commit`, then commit.
-- **Charts** carry identity, the `--color-cat-*` ramp in order and never cycled, or meaning, the
-  status colours, never both in one chart. Status colours are never series colours. One axis.
 - Responsive branches are JS, not media queries, and measure the **container**: a media query can
   only ask about the viewport.
 - **A wait is for a condition, and the span beside it is a deadline rather than a schedule.** A

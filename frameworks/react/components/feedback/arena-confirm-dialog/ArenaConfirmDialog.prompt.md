@@ -27,7 +27,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 <!-- @api end -->
 
-`destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline; see the danger convention in the README.
+`destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline.
 
 `title` is **required** and throws when missing. It is what names the dialog for
 assistive technology, the panel's `aria-labelledby` points at it, and nothing can

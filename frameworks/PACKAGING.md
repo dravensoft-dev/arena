@@ -23,6 +23,16 @@ and the assembly copies each into its `dist/` as `README.md`. They live in the t
 than being written into `dist/` directly for one reason: `check:docs` reads them, so the
 page npm shows holds to the same size, punctuation and comment rules as everything else.
 
+**The half of that page which is the same page in both packages is written once**, in
+`scripts/generate/arena/generate-npm-pages.ts`, and emitted into four `@shared` regions per file:
+what the repository is, how a skin is declared, the voice catalogue with its prose, and the tail.
+A person places the markers, so where a section sits on the page stays the page's decision and
+only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit.
+What a layer decides stays hand-written in each: the import idiom, what the package exports, and
+how a layout is composed. The rule is the one `check:duplication` states for any pair of documents
+sharing a file name, applied to the pair a reader is most likely to meet: they are one page
+rendered per package, and a sentence said twice by hand goes stale in one of them.
+
 ## The one decision everything else follows from
 
 **A published Arena carries the language and never the skin.**
@@ -55,7 +65,7 @@ It does the two jobs a project always did together, and a failure in the first s
   from rather than from a copy of them that could age. `"components": "auto"` resolves that list
   from their own sources against `components.json`, which each package carries and
   [`scripts/lib/arena/component-map.ts`](../scripts/lib/arena/component-map.ts) derives from the
-  layer: what a consumer writes is not what dresses it, since 43 sheets dress 55 components, and
+  layer: what a consumer writes is not what dresses it, since there are fewer sheets than components, and
   the closure matters more than the mapping because Arena draws components nobody named.
 - **The icons** write the Phosphor subset a project draws, `icons.generated.css`, reading the
   consumer's sources and the package it ships in, since a component renders icons the consumer
@@ -79,7 +89,7 @@ were told about and resents one they find.
   class name the consumer supplies and a component renders, so the font has to be installed
   and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
 
-**Tailwind is no longer one.** It is how Arena's CSS is *authored*, and it stops there: a
+**Tailwind is not one.** It is how Arena's CSS is *authored*, and it stops there: a
 manifest's class string is compiled through `@apply`, stripped of every Tailwind theme
 indirection, and emitted as plain declarations under Arena's own class names. Nothing a package
 ships names a Tailwind utility, and neither package declares a runtime dependency of any kind
@@ -220,16 +230,15 @@ directories, and it goes through that same compile, so the package exports
 `Index.generated.js` beside the declaration `tsc` emits for it.
 
 **Angular** goes through `ng-packagr` into Angular Package Format. That needs a staging tree at
-`frameworks/angular/build/package/`, and the reason is narrower than it used to be: ng-packagr
-wants its own `ng-package.json`, `tsconfig.lib.json` and `package.json` at the root it compiles
-from, and writing those into the tracked layer would leave build files beside the source.
+`frameworks/angular/build/package/`, and the reason is narrow: ng-packagr wants its own
+`ng-package.json`, `tsconfig.lib.json` and `package.json` at the root it compiles from, and
+writing those into the tracked layer would leave build files beside the source.
 
 **It stages nothing of another layer**, and that is the property to check rather than assume,
-because it was not always true: a `.variants.ts` used to import a Tailwind manifest four
-directories up, which ng-packagr refuses, since it infers `rootDir` from the entry file's
-directory. A component composes its own class names now, from a table emitted beside it, so
-nothing reaches out and the staging tree is a compiler's requirement rather than the shape of a
-coupling. `build-angular-package.ts` fails on a staging run that copies zero files, so a layer
+because the failure it prevents is silent: a `.variants.ts` importing a Tailwind manifest four
+directories up is a reach ng-packagr refuses, since it infers `rootDir` from the entry file's
+directory. A component composes its own class names from a table emitted beside it, so nothing
+reaches out and the staging tree is a compiler's requirement rather than the shape of a coupling. `build-angular-package.ts` fails on a staging run that copies zero files, so a layer
 that moved is loud rather than silently empty.
 
 ### What never ships
@@ -253,8 +262,8 @@ from `contracts/design-generated/`, and the difference is audience: the plugin i
 The consequence is the one real hazard here: `dist/` puts a copy of each layer inside the
 tree several gates walk, and a gate reading that copy as source sees duplicate constants, a
 second declaration of every script token, and components whose dimensions were judged once
-already. Six gates skip a directory named `dist`, and each asserts the exclusion in its own
-suite against a fixture holding exactly the file that would otherwise fail:
+already. A gate that walks the tree skips a directory named `dist`, and these assert the exclusion in
+their own suite against a fixture holding exactly the file that would otherwise fail:
 `check:docs`, `check:dimensions`, `check:duplicate-constants`, `check:script-tokens`,
 `check:layer-independence` and `check:generated`.
 

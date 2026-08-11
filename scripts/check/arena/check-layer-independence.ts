@@ -57,13 +57,7 @@ export const FORBIDDEN: Record<string, string[]> = {
 
 export const ALLOWED = new Map<string, string>([]);
 
-export const ALLOWED_SPECIFIERS = new Map([
-  [/^frameworks\/tailwind\/consume\//,
-    'the compiled CSS every layer renders, which exists once rather than as a byte-identical '
-    + 'copy per layer. A page LINKS it and nothing else: no source of another layer is read, no '
-    + 'behaviour is derived, and the whole directory is generated, so there is nothing there to '
-    + 'make one layer normative for another.'],
-]);
+export const ALLOWED_SPECIFIERS = new Map<RegExp, string>([]);
 
 export const EXEMPT = new Map<string, string>([]);
 

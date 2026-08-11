@@ -31,6 +31,11 @@
   --lh-tight:0.98;
   --lh-snug:1.15;
   --lh-body:1.6;
+  /*
+     Reading leading for a voice that carries its hierarchy in type rather than in boxes.
+     One step above body, which is where a page of prose stops being a panel of copy.
+   */
+  --lh-loose:1.8;
 
   /*
      Tracking. em is not a DTCG dimension unit, so tracking is a unitless number

@@ -48,16 +48,6 @@
   --loop-brand:8000ms; /* Rotor: slow enough to read as presence rather than progress */
   --loop-reduced:2400ms; /* What a working loop slows to under prefers-reduced-motion. Motion that reports work slows rather than stopping: a frozen spinner reads as a hung process. */
   --loop-brand-reduced:24000ms; /* Rotor's reduced step: the brand mark is three times slower again, because it is decoration that happens to also mean 'alive' */
-  /*
-     How far a control sinks under the pointer while it is held. Unitless on purpose:
-     it is a transform scale, not a length, so it carries no dimension type and does
-     not re-densify. Both layers press by the same amount and each used to spell it
-     as its own literal -- 0.98 inline in React, scale-98 in the Tailwind manifest --
-     which is one design decision written twice with nothing holding the copies in step.
-     NOT script-readable: nothing does arithmetic on it, both layers reference the custom
-     property directly, and the flag is only for a value JS must consume to produce a position.
-   */
-  --press-scale:0.98;
 
   /*
      How much of a colour a tinted surface keeps, as the percentage a color-mix()
@@ -83,6 +73,312 @@
   --ease-out:cubic-bezier(.2,.7,.3,1);
   --ease-in-out:cubic-bezier(.4,0,.2,1);
   --ease-emphatic:cubic-bezier(.2,.9,.1,1); /* the "rotor" flourish */
+}
+:root{
+  /*
+     The corner of a SURFACE that belongs to the page: a card, a panel, a dialog, a
+     sheet, a table frame. An alias of the r scale rather than a fresh number, on the same footing
+     as rhythm's aliases of sp, so the base value cannot drift off the radius scale.
+     
+     Why the role exists at all: r names how round a corner is, and this names WHICH corner is being
+     asked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface
+     has said a reason, and only the second can be answered differently by an extension. Re-valuing
+     r-lg to soften a card would soften every unrelated use of the same step, which is the defect the
+     role tier exists to prevent.
+   */
+  --r-surface:14px;
+  /*
+     The corner of a surface that floats over the page: a menu, a toast, an alert,
+     a bulk action bar. Separate from r-surface because the scale already separated them: r.md is
+     authored as "nested cards, menus" and r.lg as "cards, panels". A floating surface is smaller and
+     nearer the pointer, so it reads as a lighter object, and an extension that rounds cards without
+     rounding menus is the broken half-applied look this role exists to prevent.
+   */
+  --r-surface-floating:10px;
+  /*
+     The corner of a CONTROL the user presses: a button, an icon button, a menu item,
+     a pagination page, a navigation row. Separate from r-field although both are r.sm today, on the
+     cut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. An
+     extension that wants pill buttons over rectangular inputs needs the two answerable one at a time.
+   */
+  --r-control:6px;
+  /*
+     The corner of a control too small to carry the full control radius: a checkbox
+     box, a segment of a segmented control. A control whose whole body is barely larger than its own
+     corner would read as a circle at r-control, so the scale drops a step. It is still a control, so
+     it moves when an extension moves controls, which is why this is a role and not a scale use.
+   */
+  --r-control-sm:4px;
+  /*
+     The corner of a FIELD the user types into: an input, a select, a textarea.
+     The counterpart to r-control, and separate from it for the reason stated there.
+   */
+  --r-field:6px;
+  /*
+     The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code
+     chip. A marker encloses a label and nothing else. It is neither a surface, because nothing is
+     placed inside it, nor a control, because it cannot be pressed, and giving the family its own
+     role is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce
+     extension says SALE, so it earns a role rather than a frozen literal.
+   */
+  --r-marker:4px;
+  /*
+     The weight of a heading set in the display face: a card's title, a dialog's title, a
+     page head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold
+     is 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be
+     answered differently by one voice than by another.
+     
+     It matters most to a voice that draws nothing. Once the boxes are gone, the distance between a
+     heading and the text under it IS the hierarchy, and weight is half of that distance.
+   */
+  --fw-heading:800;
+  /*
+     The tracking of a heading in the display face. Authored as the tight step because
+     that is what most title slots already reached for; the five that reached for nothing were the
+     inconsistency this role removes rather than a decision anybody made.
+     
+     Separate from ls-label and the other ls steps, which are named by the thing that uses them and
+     are already role-shaped: a heading is the one use an extension has a reason to re-answer.
+     
+     Carries cssUnit em like every ls step it stands beside: ls is authored unitless so JS can read it, and
+     letter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid
+     letter-spacing and silently resolves to normal.
+   */
+  --ls-heading:-0.02em;
+  /*
+     The leading of text somebody reads: a dialog's body, an empty state's message, a
+     page head's subtitle, a hint under a field. lh-root's own description already calls the three
+     steps below it roles rather than scale, and this names the one an extension has a reason to move.
+     
+     It is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21
+     spells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is
+     set to. A voice may
+     open a paragraph up and may never close it below that, and check:extensions measures the resolved
+     value in every scope rather than trusting the author.
+     
+     Note what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it
+     does not. It requires that content survive a USER overriding spacing to those values without being
+     clipped or lost, which is a property of the layout and not of a token, and no gate over this file
+     could hold it.
+   */
+  --lh-prose:1.6;
+  /*
+     The room a surface gives its own content: a card's head and body, a stat card, a
+     chart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base
+     value cannot drift off the spacing grid.
+     
+     The cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which
+     Arena never draws and a page applies, and this is the air a component gives its own contents.
+     A voice needs both, because a card with room inside it and none around it reads as a stripe.
+     
+     The cut against density is who is being asked about. Density says how dense the CONTROLS and the
+     DATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in
+     any voice. This says how generous a surface is, which is a statement about the page's register.
+     The two compose: .arena-compact and a roomy voice is a coherent thing to want.
+     
+     The floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and
+     a coachmark is pinned to what it points at, so their padding is a fit constraint rather than a
+     statement about air, and giving a voice a lever there would let it push their content off the
+     edge. They are recorded in SCALE_USES instead.
+   */
+  --pad-surface:20px;
+  /*
+     The fill of a surface that belongs to the page: a card, a stat card, a table's
+     frame, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a
+     region is told from the page by its edge and by its fill together.
+     
+     Emitted as a reference and not as a resolved colour, which is the one place the emitter departs
+     from every other role: a radius resolved to 14px is right in both themes, and a colour resolved
+     to a hex would freeze the dark palette into the light one. A role that names WHICH step is asked
+     about has to keep pointing at the step rather than at what the step happens to be.
+     
+     What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
+     drawn. Without this role a card keeps a region the voice just said was not there, and the gate
+     holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
+     value: an extension may say which of the consumer's 27 colours a surface takes, and may not
+     author one.
+   */
+  --fill-surface:var(--color-base-200);
+  /*
+     The fill of a surface that floats over the page: a menu, a dialog, a toast, a
+     sheet, a command palette, a bulk action bar. The same step as fill-surface today and a different
+     question, which is the cut r-surface and r-surface-floating already make one tier up.
+     
+     This is the role that makes flattening the other one safe. A voice that takes a card down to the
+     page's own fill has said its regions are carried by air; a menu that did the same would be an
+     unreadable overlay, because a floating surface is separated from what it covers rather than
+     grouped against it. Split so a voice can answer the two one at a time.
+   */
+  --fill-surface-floating:var(--color-base-200);
+  /*
+     The border that encloses a surface, and therefore Arena's default grouping
+     signal. This is the single most consequential role in the tier: a hairline says 'these things
+     are one region' by drawing the region, which is cheap in pixels and correct for dense data.
+     An extension that sets it to 0px has to make elevation and air carry the grouping instead,
+     and WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather
+     than merely allowed.
+   */
+  --bw-surface:1px;
+  /*
+     The border of a pressable control. Distinct from bw-surface because a button's
+     outline is an affordance, saying where the pressable area ends, while a card's is a grouping
+     signal. An extension can drop one and keep the other.
+   */
+  --bw-control:1px;
+  /*
+     The border of a typable field. Distinct again: this one is the boundary WCAG
+     1.4.11 measures at 3:1, so it is the border with the least freedom of the three.
+   */
+  --bw-field:1px;
+  /*
+     The line that divides one thing from the next INSIDE a surface: a table row
+     from the row under it, a sheet's head from its body, a tab strip from its panel. The critical
+     distinction from bw-surface, and the reason it is a separate role rather than the same one
+     applied to an edge: an extension that groups by elevation instead of by line removes the
+     enclosure, and a table whose rows lost their rules at the same time would stop being readable.
+     A separator answers a different question, so it survives the change.
+   */
+  --bw-separator:1px;
+  /*
+     The border of a marker, paired with r-marker for the same family and the same
+     reason. Also the ring an avatar draws against the surface behind it, which is a marker's border
+     by every property except the name.
+   */
+  --bw-marker:1px;
+  /*
+     The depth a surface carries AT REST because it floats over the page: a menu,
+     a toast, a tooltip, a bulk action bar, a card's floating variant. Distinct from the raised role
+     below, which is a response to a pointer rather than a statement about where a thing sits.
+   */
+  --shadow-surface-floating:0px 12px 28px -12px rgba(0,0,0,.6);
+  /*
+     The depth a surface carries at rest when it is part of the page rather than floating
+     over it, which by default is none. Authored as a fully transparent shadow because DTCG 2025.10
+     types a shadow as offsets, blur, spread and a colour, and has no way to spell the absence of
+     one; a zero-size shadow at zero alpha is the same pixels and a real token.
+     
+     It exists so the property is PAINTED. A token can re-value a declaration a slot already makes
+     and cannot add one, so a card that declared no box-shadow could never be given depth by an
+     extension, however the extension was written. This is the role that lets an extension trade
+     Arena's hairline grouping for grouping by elevation, which is the single change that separates
+     a console panel from a product card.
+   */
+  --shadow-surface-rest:0px 0px 0px 0px rgba(0,0,0,0);
+  /*
+     The depth of a surface that commands the screen, whether by covering it (a
+     dialog, a sheet, a command palette, a coachmark) or by being the only thing on it (the sign-in
+     card). Named for the tier rather than for modality, because the sign-in card is not modal and
+     carries the same depth for the same reason.
+   */
+  --shadow-surface-deep:0px 30px 60px -20px rgba(0,0,0,.7);
+  /*
+     What a control rises to under the pointer. The same step as a surface's raised
+     state today and a different question: an extension that lifts a call to action has no reason to
+     lift every card with it, and a commerce extension is mostly a statement about the call to action.
+   */
+  --shadow-control-raised:0px 12px 28px -12px rgba(0,0,0,.6);
+  /*
+     The depth a control carries at rest, which by default is none, for the reason given at
+     shadow-surface-rest: the property has to be painted before a value can move it. A commerce
+     extension that gives its call to action a resting lift sets this one.
+   */
+  --shadow-control-rest:0px 0px 0px 0px rgba(0,0,0,0);
+  /*
+     How far a control rises under the pointer, which by default is nowhere. Declared on the
+     one slot that already transitions transform, so the base appearance is unchanged and an
+     extension has somewhere to put the gesture. Not a scale: it is a travel distance, and the
+     only length in the tier whose default is its own neutral rather than an alias.
+   */
+  --lift-control:0px;
+  /*
+     How long a hover or press response takes. An alias of dur.fast, which is what
+     every such transition already spells inline. An extension is where motion energy is decided, and
+     a duration written as a scale step cannot be re-decided; written as a role it can, without
+     touching the transitions that are fast for a different reason.
+   */
+  --dur-hover:120ms;
+  /*
+     How long a state change the user follows takes: a switch travelling to its other
+     end, a progress bar reaching a new value, an onboarding dot widening to mark the step it is on.
+     An alias of dur.mid. Kept apart from dur-hover because the eye has to TRACK this one rather than
+     merely register that it happened, which is the whole reason the scale has a second step. Named
+     for the state and not for an entrance: every entrance in Arena is a keyframe in Animations.css,
+     so no manifest spells one as a duration.
+   */
+  --dur-state:220ms;
+  /*
+     The curve a hover or press response travels, and the other half of dur-hover: one
+     says how long the answer takes and this says what it feels like on the way. An alias of ease.out,
+     which is what every such transition already spells inline.
+     
+     A duration on its own cannot carry motion character, which is why promoting only the durations
+     left the tier half built. Arena's default curve leaves at full speed and settles, and that reads
+     as an interface acknowledging a pointer the instant it arrives. A curve that starts slowly reads
+     as an object with mass being moved instead. Those are two voices making the same transition, and
+     only a role lets one of them be re-answered without dragging every entrance and every loop along
+     with it, which is exactly what re-valuing ease.out would do.
+   */
+  --ease-hover:cubic-bezier(.2,.7,.3,1);
+  /*
+     The curve of a state change the user follows, paired with dur-state the way ease-hover
+     is paired with dur-hover. Kept apart from that one for the reason the two durations are kept apart:
+     the eye has to TRACK a switch travelling to its other end, and merely registers that a hover
+     happened.
+     
+     No voice in the shipped catalogue moves it, which is the footing dur-state has stood on since the
+     role tier was built. It is not there in anticipation of a voice: it is there so a manifest that
+     names a state transition names a role at BOTH ends rather than a role for the duration and a scale
+     step for the curve, which is the split check:roles exists to refuse.
+   */
+  --ease-state:cubic-bezier(.2,.7,.3,1);
+  /*
+     How far a control sinks under the pointer while it is held, and the other half of
+     lift-control: that one says how far a control rises, this says how far it goes down. A voice that
+     gives a control mass has a reason to answer both, and until this moved out of effects.json it could
+     answer neither, because a scale is shared by every use that wants that value.
+     
+     Authored as a literal rather than as an alias, for the reason lift-control is: neither has a scale
+     to alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those
+     two are the only numbers in this tier whose value is its own.
+     
+     Unitless on purpose: it is a transform scale, not a length, so it carries no dimension type and
+     does not re-densify. Both layers press by the same amount and each used to spell it as its own
+     literal -- 0.98 inline in React, scale-98 in the Tailwind manifest -- which is one design decision
+     written twice with nothing holding the copies in step. NOT script-readable: nothing does arithmetic
+     on it, both layers reference the custom property directly, and the flag is only for a value JS must
+     consume to produce a position.
+   */
+  --press-scale:0.98;
+}
+.arena-light{
+  /*
+     The fill of a surface that belongs to the page: a card, a stat card, a table's
+     frame, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a
+     region is told from the page by its edge and by its fill together.
+     
+     Emitted as a reference and not as a resolved colour, which is the one place the emitter departs
+     from every other role: a radius resolved to 14px is right in both themes, and a colour resolved
+     to a hex would freeze the dark palette into the light one. A role that names WHICH step is asked
+     about has to keep pointing at the step rather than at what the step happens to be.
+     
+     What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
+     drawn. Without this role a card keeps a region the voice just said was not there, and the gate
+     holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
+     value: an extension may say which of the consumer's 27 colours a surface takes, and may not
+     author one.
+   */
+  --fill-surface:var(--color-base-200);
+  /*
+     The fill of a surface that floats over the page: a menu, a dialog, a toast, a
+     sheet, a command palette, a bulk action bar. The same step as fill-surface today and a different
+     question, which is the cut r-surface and r-surface-floating already make one tier up.
+     
+     This is the role that makes flattening the other one safe. A voice that takes a card down to the
+     page's own fill has said its regions are carried by air; a menu that did the same would be an
+     unreadable overlay, because a floating surface is separated from what it covers rather than
+     grouped against it. Split so a voice can answer the two one at a time.
+   */
+  --fill-surface-floating:var(--color-base-200);
 }
 :root{
   /*
@@ -264,4 +560,271 @@
      authored: first + last + (2 * siblings + 1) + two ellipses.
    */
   --limit-pagination-siblings:1;
+}
+.arena-showcase{
+  /*
+     A product card is a thing you want to touch, so its corner is softer than a panel
+     you want to read. One step up the scale rather than an invented number, which is the rule an
+     extension holds to everywhere: it re-values a role, and the value it moves to is still Arena's.
+   */
+  --r-surface:22px;
+  /*
+     The floating tier moves with the surface tier and stays one step below it, so a menu
+     still reads as lighter than the card it opens over. Moving one without the other is the
+     half-applied look the two roles exist to prevent.
+   */
+  --r-surface-floating:14px;
+  /*
+     A softer button. Not a pill: a pill reads as a tag or a filter chip, and a call to
+     action that looks like a filter is a call to action nobody presses.
+   */
+  --r-control:10px;
+  /*
+     A checkbox box and a segment move with the buttons, one step below them, which is
+     the relationship roles.json authored and not a second decision taken here. Left behind, a 4px
+     checkbox beside a 10px button reads as a control the extension forgot rather than as a small
+     one, and it is the same half-applied look r-surface-floating exists to prevent one tier up.
+   */
+  --r-control-sm:6px;
+  /*
+     Fields follow controls, because a form reads as one object when its inputs and its
+     submit button share a corner.
+   */
+  --r-field:10px;
+  /*
+     A price badge sits on a rounder card, so a square-cornered marker would read as
+     stuck on rather than part of it.
+   */
+  --r-marker:6px;
+  /*
+     The change this extension is actually about. Arena groups by drawing the region,
+     which is cheap in pixels and right for dense data; here the grouping is carried by elevation
+     and air instead, which is the Gestalt trade between common region and figure/ground.
+     
+     Safe to remove because a surface is not a user interface component: WCAG 1.4.11 asks 3:1 of a
+     CONTROL's boundary and of a meaningful graphic, and a card is neither. bw-control and bw-field
+     are therefore untouched below, and bw-separator with them, because a table that lost the rules
+     between its rows when its frame went would stop being readable.
+   */
+  --bw-surface:0px;
+  /*
+     What replaces the border in DARK, and the reason this extension varies with the
+     theme at all. A drop shadow is a darkening, so it separates a light card from a light page and
+     does almost nothing between a dark card and a dark page.
+     
+     The obvious alternative was measured and refused: moving the card onto a different step of the
+     surface scale. The widest step Dravensoft's base ramp offers in dark is base-300 on base-100 at
+     1.13:1, and neutral on base-100 at 1.22:1. Neither is an edge anybody sees, and the ramp belongs
+     to the consumer, so an extension cannot widen it.
+     
+     A rim light inverts the direction instead. White at 12% over base-200 reads about 1.5:1 against
+     the page, because it is light on dark rather than dark on dark. It is inset along the top edge
+     and not a ring, which matters: a ring would be a hairline drawn around a region, which is the
+     mechanism this extension traded away. An edge lit from above is a statement about an object
+     standing in light, so it is still figure and ground.
+   */
+  --shadow-surface-rest:inset 0px 1px 0px 0px rgba(255,255,255,.12);
+  /*
+     A call to action that lifts further than anything else on the page. This is where
+     a voice whose job is to invite and convert spends most of its emphasis, and it is spent on one
+     element per view, which is the same rule as one primary accent per view.
+   */
+  --shadow-control-raised:0px 30px 60px -20px rgba(0,0,0,.7);
+  /*
+     Two pixels, and no more: the travel has to read as an answer to the pointer rather
+     than as the layout moving. It is a length rather than an alias because the base value is 0 and
+     there is no scale step for a distance a control travels.
+   */
+  --lift-control:2px;
+  /*
+     20px to 32px, which is the other half of the air this voice spends. Ground around
+     a figure and room inside it are one decision made twice: a card given more space on the page and
+     none inside it reads as a crowded object standing alone, which is worse than either.
+     
+     The floating tier is untouched, and that is the point of the split: a dialog roomed up by the
+     same ratio would start pushing its own buttons past the fold.
+   */
+  --pad-surface:32px;
+  /*
+     The ground a figure needs around it. This voice took the line off a surface and
+     asked elevation and air to carry the grouping, and air is half of that sentence: a card with no
+     border and no room around it reads as a stripe of a longer surface rather than as an object.
+     
+     rhythm-group is deliberately left alone. The air INSIDE a group is what makes a label and its
+     field read as one thing, and widening it would loosen the figure while the ground grew, which is
+     the opposite of what figure and ground means.
+   */
+  --rhythm-component:24px;
+  /*
+     Section air grows further than component air, so the ladder stays a ladder: group
+     is 12, component becomes 24 and section becomes 40, which reads 1 to 2 to 3.3 where the default
+     reads 1 to 1.33 to 2. A voice that widened one step without the other would flatten the very
+     hierarchy the steps exist to state.
+   */
+  --rhythm-section:40px;
+  /*
+     Slower than Arena's default, which is the whole difference between an interface
+     that acknowledges a pointer and one that responds to it. Still inside the transition range, so
+     nothing here becomes motion a person waits on.
+   */
+  --dur-hover:220ms;
+  /*
+     The other half of the same decision, and the half a duration cannot make. Arena's
+     default curve leaves at full speed and settles, which is an interface answering the instant the
+     pointer lands. This one starts from rest, which is what a thing with mass does: 220ms on that
+     curve reads as an object being moved, where 220ms on the default reads as the same instant answer
+     taking longer than it should.
+     
+     Derived from the principle rather than chosen beside it. A figure standing off a ground is an
+     OBJECT, and an object has inertia; a voice that grouped by drawing a region has nothing to give
+     mass to, which is why the default curve is right there and wrong here. Still one of Arena's three
+     steps, because the value a role moves to is the language's and not the voice's.
+   */
+  --ease-hover:cubic-bezier(.4,0,.2,1);
+  /*
+     0.98 to 0.96, which is the return trip of the two pixels lift-control spends. A
+     control that rises under the pointer and then sinks under the press has completed a gesture; one
+     that rises and then barely moves has started one.
+     
+     Twice the default and no further. Past about 0.95 a button reads as a soft thing being squashed
+     rather than a solid one being pressed, and this voice is about objects standing on a floor rather
+     than about toys.
+   */
+  --press-scale:0.96;
+  /*
+     A page heading that carries a page rather than titling a panel. The base ladder
+     accelerates gently because a console has many peers on screen at once; a landing has few, so the
+     jump from the body it sits over is wider here.
+     
+     The reading sizes below h2 do not move, in this extension or in any other. Body and chrome text
+     is the one thing every voice shares, because how large a paragraph is set is a legibility
+     decision and not an expressive one. An extension widens the hierarchy by raising what shouts,
+     never by shrinking what is read.
+   */
+  --fs-h1:52px;
+  /*
+     The step a hero headline is set at. 80 over 64 is a fifth again, which reads as a
+     different kind of page rather than as the same page with bigger type.
+   */
+  --fs-display:80px;
+  /*
+     The largest step anything is actually set at, and the reason fs-hero was kept when
+     it had no consumer.
+   */
+  --fs-hero:120px;
+}
+.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{
+  /*
+     In light a darkening is a boundary again, so the ordinary drop shadow is the
+     answer and it REPLACES the rim rather than joining it: two depth cues on one edge read as a
+     seam. The lightest step of the elevation scale, because a page of product cards each carrying a
+     dialog's depth reads as a pile rather than a grid.
+   */
+  --shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);
+}
+.arena-editorial{
+  /*
+     The line goes, and unlike the figure/ground voice nothing arrives to replace it.
+     That is the whole claim: what belongs together is near, what does not is far, and the reader is
+     trusted to see distance without being shown an edge.
+     
+     This alone is not proximity, which is why the gate asks for the other two as well. A voice that
+     removed the line and kept a fill, or kept a depth, would be grouping by region or by figure and
+     ground with the hairline turned off.
+   */
+  --bw-surface:0px;
+  /*
+     The card takes the page's own fill, so it stops being a card. A fill is a region
+     drawn however faint it is: base-200 against base-100 measures 1.07:1 in dark and 1.10:1 in light,
+     which is nearly invisible and still reads as a container once it has a corner and padding around
+     it. Nearly invisible is the wrong target here. The target is absent.
+     
+     fill-surface-floating is deliberately untouched. A menu, a dialog and a toast are separated from
+     what they cover rather than grouped against it, so they keep a fill of their own; a voice that
+     flattened them too would have made every overlay unreadable to win an argument about cards. That
+     split is the reason the two fill roles exist.
+   */
+  --fill-surface:var(--color-base-100);
+  /*
+     A surface with no line, no depth and no fill has no inside, so it has no room to
+     give: its content sits on the page directly and lines up with everything else that does. Padding
+     here would be an indent nobody asked for, and an indent is a weak enclosure, which is the thing
+     this voice spent its other three decisions removing.
+     
+     The floating tier has no padding role at all, which is what keeps a dialog from collapsing onto
+     its own edges when this value goes to zero.
+   */
+  --pad-surface:0px;
+  /*
+     Once the boxes are gone the type IS the hierarchy, so a heading has to be told
+     from the text under it by weight alone. 800 to 900, which is the last step the display face has
+     and the one the wordmark already uses, so nothing here is a value Arena did not already carry.
+   */
+  --fw-heading:900;
+  /*
+     1.6 to 1.8, which is the other half of the same decision. A voice that grouped by
+     distance between blocks and then set its paragraphs tight would be arguing with itself: the air
+     between lines is the same claim as the air between sections, made at the scale of the sentence.
+     
+     Well above the 1.5 floor WCAG 1.4.8 asks and check:extensions holds. The floor is a minimum, and
+     this voice is the one with a reason to sit far from it.
+   */
+  --lh-prose:1.8;
+  /*
+     Tighter than the default, and that is half of the mechanism. Proximity says two
+     things are one by putting them near each other, so near has to be nearer than it needs to be when
+     a box is doing the work as well.
+   */
+  --rhythm-group:8px;
+  /*
+     Two peer components separated by twice the air inside one of them is not a step a
+     reader sees, and this voice has no line to fall back on when the distance fails. Widened until
+     the ladder reads: 8px inside a group, 24px between peers, 64px between sections, which is 1 to 3
+     to 8. The default ladder can afford to be gentler because a hairline is carrying the grouping
+     beside it.
+   */
+  --rhythm-component:24px;
+  /*
+     The far end of the ladder. 8px inside a group against 64px between sections is a ratio of
+     eight, where the default is two and the figure/ground voice is a little over three. Distance is
+     the ONLY signal this voice has left, so it has to carry a hierarchy that the other two spend
+     lines, fills and shadows on, and a ratio that reads as a hierarchy is what pays for the edge that
+     is no longer drawn. check:extensions holds it above four for exactly that reason.
+   */
+  --rhythm-section:64px;
+}
+.arena-light.arena-editorial, .arena-light .arena-editorial, .arena-editorial .arena-light{
+  /*
+     The card takes the page's own fill, so it stops being a card. A fill is a region
+     drawn however faint it is: base-200 against base-100 measures 1.07:1 in dark and 1.10:1 in light,
+     which is nearly invisible and still reads as a container once it has a corner and padding around
+     it. Nearly invisible is the wrong target here. The target is absent.
+     
+     fill-surface-floating is deliberately untouched. A menu, a dialog and a toast are separated from
+     what they cover rather than grouped against it, so they keep a fill of their own; a voice that
+     flattened them too would have made every overlay unreadable to win an argument about cards. That
+     split is the reason the two fill roles exist.
+   */
+  --fill-surface:var(--color-base-100);
+}
+:root{
+  /*
+     The extensions this build ships, as NAMES rather than as classes, because a
+     consumer names one in arena.config.json and only a page composes the class from it. Derived
+     from FILES in scripts/generate/arena/generate-tokens.ts rather than authored anywhere, so it
+     can neither name an extension that paints nothing nor miss one that does; the name is read
+     off the selector because the selector is what a page applies, and check:extensions is what
+     holds the selector and the file to each other.
+     
+     A token and not a list in a script: every surface that draws Arena already loads this sheet,
+     so the catalogue is readable at any page depth with no fetch, and the control that cycles
+     voices never has to be taught to tell an extension class from a palette one, which is a rule
+     that would then exist twice. "none" is absent because it is the ABSENCE of an extension
+     rather than one this build ships, and a reader prepends it for the same reason
+     arena.config.json spells it out instead of omitting the field.
+     
+     It carries no appearance, which is why check:coverage excludes it from the utility surface
+     rather than looking for a namespace that could hold a list.
+   */
+  --arena-extensions:editorial,showcase;
 }

@@ -1,21 +1,35 @@
 {
   "component": "ArenaToast",
   "slots": {
-    "root": "flex gap-3 items-start w-85 px-4 py-3.5 z-toast bg-base-200 border-t-[length:var(--bw)] border-r-[length:var(--bw)] border-b-[length:var(--bw)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-md shadow-2",
+    "root": "flex gap-3 items-start w-85 px-4 py-3.5 z-toast bg-surface-floating border-t-[length:var(--bw-surface)] border-r-[length:var(--bw-surface)] border-b-[length:var(--bw-surface)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-surface-floating shadow-surface-floating",
     "body": "flex-1",
     "title": "flex items-center gap-2 font-body font-semibold text-ctl text-base-content",
-    "pinned": "font-mono text-ctl-2xs tracking-column-header uppercase text-base-content/62 border-[length:var(--bw)] border-base-300 rounded-xs px-1",
+    "pinned": "font-mono text-ctl-2xs tracking-column-header uppercase text-base-content/62 border-[length:var(--bw-marker)] border-base-300 rounded-marker px-1",
     "message": "font-body text-sm text-base-content/62 mt-0.5",
     "action": "mt-2.5 bg-transparent border-none p-0 cursor-pointer font-mono text-ctl-sm font-bold tracking-uppercase-status uppercase",
     "close": "inline-flex items-center bg-transparent border-none cursor-pointer text-base-content/62 text-[length:var(--icon-md)] leading-ctl"
   },
   "variants": {
     "tone": {
-      "neutral": { "root": "border-l-neutral", "action": "text-primary" },
-      "success": { "root": "border-l-success", "action": "text-primary" },
-      "danger": { "root": "border-l-error", "action": "text-secondary" },
-      "gold": { "root": "border-l-secondary", "action": "text-primary" }
+      "neutral": {
+        "root": "border-l-neutral",
+        "action": "text-primary"
+      },
+      "success": {
+        "root": "border-l-success",
+        "action": "text-primary"
+      },
+      "danger": {
+        "root": "border-l-error",
+        "action": "text-secondary"
+      },
+      "gold": {
+        "root": "border-l-secondary",
+        "action": "text-primary"
+      }
     }
   },
-  "defaultVariants": { "tone": "neutral" }
+  "defaultVariants": {
+    "tone": "neutral"
+  }
 }

@@ -35,7 +35,7 @@ const TICK_LABEL_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies R
 
 const CATEGORY_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readonly<Record<string, string>>;
 
-const BAR_STYLE = { transition: 'opacity var(--dur-fast) var(--ease-out)' } as const satisfies Readonly<Record<string, string>>;
+const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } as const satisfies Readonly<Record<string, string>>;
 
 
 

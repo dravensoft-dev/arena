@@ -45,6 +45,7 @@ body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--fo
     <div class="dtoggle-dock">
       <button class="dtoggle themebtn" type="button" data-light="0" aria-label="ArenaSwitch theme"><span class="tlabel">Dark</span><span class="knob"></span></button>
       <button class="dtoggle" type="button" id="density" data-compact="0" aria-label="ArenaSwitch density"><span class="tlabel">Comfortable</span><span class="knob"></span></button>
+      <button class="dtoggle" type="button" id="extension" data-extension="none" aria-label="Design extension"><span class="tlabel">No extension</span><span class="cycle"></span></button>
     </div>
     <div class="brandrow">
       <img src="../assets/rotor-crimson.svg" width="56" height="56" alt="Rotor">
@@ -91,7 +92,7 @@ body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--fo
     drifting implementation — which is exactly what this page replaced.</p>
     <ul class="note">
       <li><code>frameworks/react/components/**/*.card.html</code> — live React demos, either inside a component's own directory or beside the directories at its category level.</li>
-      <li><code>frameworks/react/ui-kits/console/index.html</code> — the Delivery Console example application.</li>
+      <li><code>frameworks/react/kitchen-sink/&lt;extension&gt;/</code> — every component at once, one page per design extension, with the same page in the Angular layer.</li>
       <li><code>frameworks/angular/</code> — the Angular layer and its adoption guide.</li>
       <li><code>guidelines/*.html</code> — specimen cards for embedding.</li>
     </ul>
@@ -99,6 +100,7 @@ body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--fo
 </div>
 <script src="theme.js"></script>
 <script src="density.js"></script>
+<script src="extension.js"></script>
 <script type="module" src="overview.generated.js"></script>
 </body>
 </html>

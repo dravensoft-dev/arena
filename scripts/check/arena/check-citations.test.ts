@@ -1,6 +1,6 @@
 /* The gate reads the real tree, which is correct by construction once it passes, so these
- * drive its pure functions with the shapes the two defects it was written for actually had:
- * a spec deleted by charter, and a build step renamed. EXEMPT is asserted by name. */
+ * drive its pure functions with the two shapes a broken citation takes: a path deleted by
+ * charter, and one naming a build step nothing answers to. EXEMPT is asserted by name. */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +11,7 @@ import {
   EXEMPT, SKIPPED_ANYWHERE, SKIPPED_UNDER_FRAMEWORKS, skips, repoRoots, pathPattern,
   documents, namesAFile, citationProblems, zeroDocumentProblems, zeroRootProblems,
   ignoredCitationProblems,
-  BARE_DOCUMENT, basenames, bareDocumentProblems,
+  BARE_DOCUMENT, basenames, bareDocumentProblems, MEMBER_CITATION, memberProblems,
 } from './check-citations.ts';
 
 function tree(files: Record<string, string>) {
@@ -174,4 +174,32 @@ test('the walk does not descend into an ignored root, so the document set is the
     assert.ok(!basenames(dir, new Set(['docs'])).has('a-plan.md'),
       'a bare citation resolving to a scratch file would pass here and fail on every clone');
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the member half of a citation is held to the file declaring it', () => {
+  const base = tree({
+    'AGENTS.md': 'It is `scripts/utils/case.ts:kebab(name)` and `scripts/lib/layers.ts:kebab(name)`.',
+    'scripts/utils/case.ts': 'export function kebab(name: string) { return name; }',
+    'scripts/lib/layers.ts': 'export const LAYERS = [];',
+  });
+  const problems = memberProblems(base, documents(base));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /cites scripts\/lib\/layers\.ts:kebab\(\), and that file declares no kebab/);
+  assert.match(problems[0] ?? '', /the wrong file with the right confidence/);
+});
+
+test('a member citation resolves relative to the document as well as to the root', () => {
+  const base = tree({
+    'scripts/AGENTS.md': 'See `graph/nodes.ts:allNodes()`.',
+    'scripts/graph/nodes.ts': 'export async function allNodes() { return []; }',
+  });
+  assert.deepEqual(memberProblems(base, documents(base)), []);
+});
+
+test('a citation naming no file, and one naming a document, are not member citations', () => {
+  assert.deepEqual([...'a `README.md:section()` and `x.ts:member(` here'.matchAll(MEMBER_CITATION)]
+    .map((m) => m[1]), ['README.md', 'x.ts']);
+  const base = tree({ 'AGENTS.md': 'See `docs/notes.md:heading()`.', 'docs/notes.md': '# heading' });
+  assert.deepEqual(memberProblems(base, documents(base)), [],
+    'only a source file carries a member, so a .md citation is left to the path half');
 });

@@ -8,7 +8,7 @@ in its directory.
 |---|---|---|
 | [`api/`](api/AGENTS.md) | the members a component's API presents | `api/AGENTS.md`, plus [`api/MemberForms.md`](api/MemberForms.md) |
 | [`behaviour/`](behaviour/AGENTS.md) | what a kind of component must do: roles, keys, focus, dismissal | `behaviour/AGENTS.md` |
-| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md) and [`design/TokenTypes.md`](design/TokenTypes.md) |
+| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md), [`design/TokenTypes.md`](design/TokenTypes.md) and [`design/Extensions.md`](design/Extensions.md) |
 
 **A level's statement is one file or several, and where it is several the split is by AUDIENCE
 rather than by topic.** The `AGENTS.md` is always the half that **decides**, and a sibling is
@@ -18,7 +18,8 @@ what a reader **consults** while doing the work:
   can hold; `api/MemberForms.md` is the vocabulary you write it in, the nine forms, the six
   derived rules, the binding table and the file format.
 - `design/AGENTS.md` says what a value MEANS; `design/Scales.md` is every scale step by step and
-  which role each step plays; `design/TokenTypes.md` says what DTCG `$type` it carries and what
+  which role each step plays; `design/Extensions.md` says which of those values a design
+  extension may re-decide and which it may not; `design/TokenTypes.md` says what DTCG `$type` it carries and what
   shape it is authored in, which only somebody authoring a token or targeting a new platform
   needs.
 - `behaviour/` is one file, because it has no second audience to separate: nobody reads a
@@ -105,8 +106,8 @@ record is `check:compliance`'s `COVERED`, partial by design.
 
 ## Audience and scope
 - **Audience of the language: general public.** Arena is meant to give identity to **every kind of Dravensoft software**, regardless of who the end user is, from consumer apps to internal tools. Its foundations (color, typography, spacing, accessibility, voice) are general-purpose and don't assume a technical profile.
-- **The example application is `frameworks/react/ui-kits/console/`**, not the language itself. It illustrates Arena applied to the **Delivery Console, a product aimed at developers/technical teams**. That's why it includes data density, domain terminology (build, deploy, p95) and keyboard accelerators specific to that audience. `intro/Arena - Overview.html` is the opposite: the framework-agnostic token language, and it deliberately shows no components.
-- **Implication for audits and evaluations:** findings observed on the example should be split into (a) those that apply to the **language** (tokens, components and patterns, all universal) and (b) those specific to the **example's technical context** (jargon, density, shortcuts). The latter are not defects of the language: in a product for a general audience they would be replaced with plain copy, comfortable density and fewer shortcuts. When evaluating Arena for another kind of software, calibrate against that general audience, not against the Console.
+- **Arena ships no example application, and the omission is the point.** An app illustrates one product's audience, and a reader calibrates the language against whatever that app happens to be: a console aimed at engineers reads as though data density, jargon and keyboard accelerators were Arena's, when each of them belongs to that product. What the tree shows instead is every component at once, once per design extension, in `frameworks/react/kitchen-sink/` and its Angular pair. Those pages carry no product and no audience, so a finding on one is a finding about the language. `intro/Arena - Overview.html` is the other end of the same idea: the framework-agnostic token language, deliberately showing no component at all.
+- **Implication for audits and evaluations:** calibrate against the general audience the first bullet names. A finding that a component is dense, terse or shortcut-heavy is a finding about a product built with Arena rather than about Arena, and a product for a general audience would answer it with plain copy, comfortable density and fewer accelerators.
 
 ## Why a language of our own (and not Material/Fluent as-is)
 Established systems (Material 3, Fluent, Carbon, Polaris) are **light-by-default, rounded and neutral in tone**. Dravensoft's identity is the opposite: **dominant warm black, crimson/gold accents, sharp geometry and a bold voice**. Forcing the brand onto Material would produce a "generic with a skin" app. Instead, Arena:
@@ -141,7 +142,7 @@ waiting to be applied to the other two. `contracts/api-generated/` would be empt
 `api/` keeps `components/` and `types/`; `behaviour/` and `design/` are flat. An inner
 directory earns its place when it separates two different vocabularies: a component
 contract and a shared type are different things, and `check:api` reads them as two sets.
-`behaviour/` is flat because a pattern file and the README describing patterns are one
+`behaviour/` is flat because a pattern file and the `AGENTS.md` describing patterns are one
 vocabulary, not two. `design/` is flat because the job an inner directory would do, keeping
 the DTCG sources apart from Style Dictionary's output, is done at the top level by the
 `design/` / `design-generated/` split instead.
@@ -157,7 +158,7 @@ a different name: `check:dtcg` walks `contracts/design/` itself and fails the sa
 token files.
 
 **`check:tokens` alone walks no directory**, so it has no result set discovery could find empty.
-It compares the committed generated CSS against what `build-tokens.mjs`'s hardcoded file list
+It compares the committed generated CSS against what `generate-tokens.ts`'s hardcoded file list
 builds, and a source file gone missing still fails it, just not silently: the build it depends
 on has nothing to read and stops rather than reporting a clean pass.
 
@@ -182,7 +183,7 @@ framework is added without touching the language.
   belongs to each platform's own idiom.
 - `contracts/design-generated/`: the five built CSS files, `fonts.generated.css` (from
   `fetch-fonts.ts`), plus `palette.generated.css`, `typography.generated.css`, `spacing.generated.css` and
-  `effects.generated.css` (from `build-tokens.mjs`). Never edit any of them.
+  `effects.generated.css` (from `generate-tokens.ts`). Never edit any of them.
 - `assets/`: `rotor-crimson/bone/ink.svg`, `app-icon.svg`, and `fonts/` (the bundled
   self-hosted `.woff2` binaries).
 - `intro/guidelines/`: specimen cards (`@dsCard`) for typography (`type-display`, `type-body`,
@@ -190,7 +191,7 @@ framework is added without touching the language.
   `colors-categorical`), spacing (`spacing-scale`, `spacing-density`), effects
   (`effects-radius`, `effects-shadow`), iconography (`icons`), brand (`brand-logo`) and
   the **danger convention** (`components-danger`).
-- `scripts/`: the build steps and the gates. `build-tokens.mjs` generates the four token
+- `scripts/`: the build steps and the gates. `generate-tokens.ts` generates the four token
   CSS files from `contracts/design/`; `check-dtcg.ts` asserts the source conforms to
   2025.10; `check-tokens-generated.ts` asserts the committed CSS matches the source;
   `check-ramp.ts` asserts the shipped ramp clears every gate in both themes;
@@ -202,7 +203,7 @@ framework is added without touching the language.
 **The framework layers**
 
 - [`frameworks/react/`](../frameworks/react/AGENTS.md): the React primitives, the
-  example Console app, and the shared layer-root modules.
+  kitchen-sink page per design extension, and the shared layer-root modules.
 - [`frameworks/angular/`](../frameworks/angular/AGENTS.md): the Angular layer for an
   existing Angular 20+/Tailwind-v4 app, meaning Arena's own primitives, with `@angular/cdk`
   positioning the two that anchor an overlay to a trigger.

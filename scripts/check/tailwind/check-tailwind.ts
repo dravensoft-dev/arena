@@ -26,6 +26,41 @@ export function themeKeys(css: string) {
   return out;
 }
 
+const TRANSFORM_PROPS = ['translate', 'scale', 'rotate'];
+
+export function transitionProblems(manifest: ManifestClassSource) {
+  const bySlot = new Map<string, string[]>();
+  const add = (slot: string, cls: unknown) => {
+    if (typeof cls !== 'string') return;
+    if (!bySlot.has(slot)) bySlot.set(slot, []);
+    bySlot.get(slot)?.push(cls);
+  };
+  for (const [slot, cls] of Object.entries(manifest.slots || {})) add(slot, cls);
+  for (const group of Object.values(manifest.variants || {}))
+    for (const branch of Object.values(group || {}))
+      for (const [slot, cls] of Object.entries(branch || {})) add(slot, cls);
+
+  const problems = [];
+  for (const [slot, classList] of bySlot) {
+    const all = classList.join(' ');
+    if (!/(?<![\w-])transition[-[:]/.test(all)) continue;
+    const transitioned = /(?<![\w-])transition-\[([^\]]*)\]|\[transition:([^\]]*)\]/.exec(all);
+    if (!transitioned) continue;
+    const named = `${transitioned[1] ?? ''}${transitioned[2] ?? ''}`;
+    if (!/(?<![\w-])transform(?![\w-])/.test(named)) continue;
+    const painted = TRANSFORM_PROPS.filter(
+      (p) => new RegExp(`(?<![\\w-])-?${p}-[\\w[\\]/.%-]+`).test(all),
+    );
+    if (painted.length)
+      problems.push(
+        `${manifest.component}:${slot} transitions transform while it paints ${painted.join(' and ')}. `
+        + `Tailwind v4 emits the individual property, which transform does not cover, so the change does not animate: `
+        + `name ${painted.join(' and ')} in the transition instead.`,
+      );
+  }
+  return problems;
+}
+
 export function checkCompiled(css: string, manifests: Map<string, ManifestClassSource>, tokens: Set<string>) {
   const errs = [];
 
@@ -53,6 +88,7 @@ export function checkCompiled(css: string, manifests: Map<string, ManifestClassS
 function main() {
   const { css, manifests } = compileLayer();
   const errs = checkCompiled(css, manifests, arenaTokens());
+  for (const m of manifests.values()) errs.push(...transitionProblems(m));
   if (errs.length) {
     console.error(`check-tailwind: ${errs.length} violation(s) in the compiled Tailwind layer\n`);
     for (const e of errs) console.error(`  ${e}`);

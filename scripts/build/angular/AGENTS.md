@@ -22,4 +22,4 @@ so a comparison of timestamps alone would skip a tree that no longer holds what 
 `build-angular-package.ts` is part of `bun run build:packages` rather than `bun run build`,
 since a package is for publishing and nothing in this repository reads one.
 
-Every `X.test.mjs` beside a script covers that script.
+Every `X.test.ts` beside a script covers that script.
