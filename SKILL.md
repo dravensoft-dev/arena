@@ -99,6 +99,11 @@ these hold because you hold them: breaking one is a defect that nothing will rep
   are the browser's: they open the `href` themselves and report nothing. **Never wrap an Arena
   component in your router's own link**, which nests an anchor inside an anchor, and in Angular
   does not bind at all. `ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href` and `ArenaSideNavItem.href`.
+- **A press that starts on a control keeps to that control.** Where Arena draws an activation
+  target around content you write, a card or a table row, a click or an Enter that begins on a
+  button, a link or a field inside it runs that control and nothing else; a press anywhere else on
+  the surface activates the surface. So a card or a row may hold your own controls, and it may also
+  hand the press over entirely by not being interactive at all.
 - **A required member absent is a caller bug**, not a state to render. Every layer fails hard
   rather than drawing something empty, so an absent one is loud on the first render.
 - **No render follows from whether you bound a listener or filled a slot.** A member decides,

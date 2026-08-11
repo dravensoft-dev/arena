@@ -1,5 +1,5 @@
 import React from 'react';
-import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
+import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCard.classes.generated.ts';
 
@@ -45,9 +45,17 @@ export function ArenaCard({
     if (acts && !disabled) onClick?.();
   };
 
+  const own = (event: React.MouseEvent<Element> | React.KeyboardEvent<Element>) =>
+    isArenaOwnActivation(event.target, event.currentTarget);
+
+  const onPointer = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!own(event)) return;
+    activate();
+  };
+
   const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
-    if (event.target !== event.currentTarget) return;
+    if (!own(event)) return;
     event.preventDefault();
     activate();
   };
@@ -77,6 +85,7 @@ export function ArenaCard({
       <a href={href} {...shared}
         onClick={(event) => {
           if (disabled) { event.preventDefault(); return; }
+          if (!own(event)) return;
           if (!isArenaPrimaryActivation(event)) return;
           event.preventDefault();
           activate();
@@ -88,7 +97,7 @@ export function ArenaCard({
 
   return (
     <div role={interactive ? 'button' : undefined} tabIndex={interactive ? 0 : undefined}
-      onClick={interactive ? activate : undefined} onKeyDown={interactive ? onKeyDown : undefined}
+      onClick={interactive ? onPointer : undefined} onKeyDown={interactive ? onKeyDown : undefined}
       {...shared}>
       {body}
     </div>

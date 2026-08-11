@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, contentChild, input, output,
 } from '@angular/core';
-import { isArenaPrimaryActivation } from '../../../AnchorActivation';
+import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaCardStyles } from './ArenaCard.variants';
 
@@ -84,6 +84,7 @@ export class ArenaCard {
   protected onAnchorClick(event: MouseEvent): void {
     event.stopPropagation();
     if (this.disabled()) { event.preventDefault(); return; }
+    if (!this.ownActivation(event)) return;
     if (!isArenaPrimaryActivation(event)) return;
     event.preventDefault();
     this.click.emit();
@@ -92,15 +93,21 @@ export class ArenaCard {
   protected onClick(event: MouseEvent): void {
     if (!this.interactive()) return;
     event.stopPropagation();
+    if (!this.ownActivation(event)) return;
     this.emit();
   }
 
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive() || (event.key !== 'Enter' && event.key !== ' ')) return;
-    if (event.target !== event.currentTarget) return;
     event.preventDefault();
     event.stopPropagation();
+    if (!this.ownActivation(event)) return;
     this.emit();
+  }
+
+  private ownActivation(event: Event): boolean {
+    const container = event.currentTarget;
+    return !(container instanceof Element) || isArenaOwnActivation(event.target, container);
   }
 
   private emit(): void {

@@ -36,19 +36,18 @@ it would close.
 
 **An interactive card is a `role="button"` div and never a `<button>` element**, because a card
 body is where you put your own controls and a control nested inside a control is reachable by
-nobody. The keyboard follows from that: activation ignores a key pressed on something inside, so
-typing Enter in a field within the card never opens the card.
+nobody.
 
-**The pointer does not, and that is the one asymmetry to know.** A click that lands on a button, a
-link or a field inside an interactive card runs that control's own handler and then reaches the
-card's, because the click bubbles and the card's handler asks only whether the card is
-interactive. Both fire, in that order, from one press.
+**A press that starts on one of those controls belongs to that control, by pointer and by keyboard
+alike.** Clicking a button inside the card runs the button's handler and stops there; typing Enter
+in a field inside it never opens the card. Both paths ask the same question, and the question is
+"did this press start on a control", not "did it land on the card's own element": a click anywhere
+else on the card, its title, its body, the space between them, is the card being pressed and
+activates it.
 
-**So a card holding a control decides which of the two acts, and it decides by leaving
-`interactive` off.** Without it the card draws no role, no tab stop and no handler at all: it is a
-surface, and the control inside it is the only activation target on it, reached by pointer and by
-keyboard alike with nothing of the card's competing. That is the shape a card full of controls
-wants, and it costs nothing to say so.
+**A card can also hand the press over entirely, by leaving `interactive` off.** Then it draws no
+role, no tab stop and no handler at all: it is a surface, and the control inside it is the only
+activation target on it.
 
 ```tsx
 <ArenaCard title="Acme Corp">
@@ -57,13 +56,11 @@ wants, and it costs nothing to say so.
 </ArenaCard>
 ```
 
-Reach for `interactive` when the whole surface is the target and anything inside it is decoration
-or a second route to the same place. Reach for a control inside a plain card when the press means
-something narrower than "this card".
+Reach for `interactive` when the whole surface is the target and a control inside it is a second
+route to the same place. Leave it off when the press means something narrower than "this card".
 
 **Don't**
 - Don't put an interactive card inside another activation target, and don't put your only route to something inside one: a card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.
-- Don't give a card `interactive` and then expect a control inside it to keep the press to itself. One pointer press runs the control's handler and the card's. If only the control should act, the card is a plain surface and the control carries `onClick`.
 - Don't pass `style` or stray DOM attributes. ArenaCard declares its `content` and `action` slots plus `title`, `eyebrow`, `floating`, `accent`, `interactive` and `disabled`, and renders nothing else. To size, constrain or shadow a card differently, wrap it in your own element (a fixed-width `<div>`, a `maxWidth` box) rather than reaching through the card.
 
 ### A card that navigates
