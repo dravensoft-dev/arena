@@ -279,24 +279,25 @@ each layer's knob model to the other's. It opens none of them.
 | **the two layers paint the same thing** | **nothing. The paired playground pages exist for a person to compare** |
 | **whether a category is the right category** | **nothing. It is editorial judgement** |
 
-## Anti-patterns this repository has actually paid for
+## Anti-patterns, and what each one costs
 
 **A manifest written by reading the neighbouring manifest instead of the contract.** It is how a
-state nobody declared enters the layer, and `check:states` now fails that one slice. Everything
+state nobody declared enters the layer, and `check:states` fails that one slice. Everything
 else a copy brings with it, the colors, the sizes, the slot structure, is caught by nobody and
 stays until someone reads both side by side.
 
-**Reasoning about a box model from what a source does not say.** "No `box-sizing` is declared,
-therefore content-box" was wrong in both directions at once, because a UA stylesheet had already
-made some elements border-box. It claimed divergences that did not exist and missed a real 26px
-overrun. **Measure the rendered box.**
+**Reasoning about a box model from what a source does not say.** A UA stylesheet has already made
+some elements border-box, so the reasoning is wrong in both directions at once: it invents
+divergences and it misses real overruns. **Measure the rendered box.** The layer that owns the
+box model states what it is and where it comes from, in
+[`tailwind/AGENTS.md`](./tailwind/AGENTS.md).
 
 **A guard that counts what the render path does not.** `React.Children.count()` counts a bare
 `false` as one child where `toArray()` drops it, so a `count()`-based "this must not be empty"
 guard passes `{isAdmin && <Item/>}` with the condition false, straight through to the empty
 render the guard exists to refuse.
 
-**A citation of the other layer, in prose.** The import graph was already clean while 88
-sentences made one layer normative for another. That is why `check:layer-independence` reads
+**A citation of the other layer, in prose.** An import graph stays clean while prose makes one
+layer normative for another, a sentence at a time. That is why `check:layer-independence` reads
 prose as well as imports, and why a reference is judged by where it lands rather than by how it
 is spelled.

@@ -223,11 +223,10 @@ shadow as offsets, blur, spread and a colour and has no way to spell the absence
 travel is `0px`.
 
 **A variant branch that restates a role as a literal un-paints it, and that is the same defect
-seen from the other end.** `ArenaCard`'s root painted `shadow-surface-rest`, and its `floating`
-variant then wrote `shadow-none` on the false branch, which is the DEFAULT: every ordinary card
-resolved to a transparent literal instead of the role, so the one token authored to let an
-extension trade hairline grouping for elevation reached nothing on the component it was written
-for. A branch meaning "the value the slot already paints" says nothing at all, because the base
+seen from the other end.** A root painting `shadow-surface-rest` whose `floating` variant writes
+`shadow-none` on the false branch, which is the DEFAULT, resolves every ordinary card to a
+transparent literal instead of the role: the one token authored to let an extension trade
+hairline grouping for elevation then reaches nothing on the component it was written for. A branch meaning "the value the slot already paints" says nothing at all, because the base
 rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
 with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its
 literal cancels the selected branch's inset rule rather than overriding a role.
@@ -241,9 +240,8 @@ panel is deep, `ArenaCheckbox`'s box spends its shadow on the focus ring, and
 
 **A transition names the property Tailwind emits, and v4 emits `translate`, `scale` and `rotate`
 rather than `transform`.** Those are separate animatable properties, so a transition listing
-`transform` animates none of them and the change lands in one frame. Both places that had one
-were silently doing that: `ArenaButton`'s press never eased and `ArenaSwitch`'s knob jumped to its
-other end. `check:tailwind` fails a slot that transitions `transform` while painting any of the
+`transform` animates none of them and the change lands in one frame, silently: a press that never
+eases, a knob that jumps to its other end, and nothing anywhere reporting it. `check:tailwind` fails a slot that transitions `transform` while painting any of the
 three, which is why the rule needs no vigilance.
 
 ## Consumption order
@@ -360,14 +358,13 @@ comm -13 <(find components -name '*.manifest.json' -exec basename {} .manifest.j
 ```
 
 Two reasons put a component in it. **A compound family draws one surface**, so the parent's
-manifest holds every level of it and its members have none of their own, which is `ArenaTab`,
-`ArenaTableRow`, `ArenaTableCell`, `ArenaCalendarEvent`, `ArenaRadioGroup` and the three `ArenaSideNav*` children.
-`MANIFEST_COVERS` in `scripts/check/arena/check-manifest-states.ts` is where that mapping
-is written down. **And a chart drawing geometry has no surface a class string can describe**:
-`ArenaBarChart`, `ArenaLineChart` and `ArenaDoughnutChart` are SVG geometry driven by measured container
-width, their identity is path data and attribute bindings, and a manifest holding it would
-be a lie about where the styling lives. `ArenaChartCard` is not one of them and does have one,
-since it is a bordered tile.
+manifest holds every level of it and its members have none of their own. `MANIFEST_COVERS` in
+`scripts/lib/tailwind/manifest-surfaces.ts` is the mapping, read it there rather than from a list
+here. **And a chart drawing geometry has no surface a class string can describe**: a chart is SVG
+geometry driven by measured container width, its identity is path data and attribute bindings, and
+a manifest holding it would be a lie about where the styling lives. `HAND_DRAWN` beside
+`MANIFEST_COVERS` is that roster. `ArenaChartCard` is in neither and does have a manifest, since
+it is a bordered tile.
 
 `Utilities.generated.css` is **generated** and **git-ignored**: `bun run build:tailwind`
 compiles the preset with the manifests as content, and `bun run check:tailwind-generated` fails
@@ -382,8 +379,8 @@ way, so a new manifest needs a `bun run build:tailwind` before the gates pass.
 **A variant name is scanned as a class name.** Tailwind reads a manifest as raw text, so
 a variant *name* that collides with a utility (`visible`, `block`, `line`, `fixed`,
 `static`…) leaks a dead rule into `Utilities.generated.css`. It is harmless per instance and
-accumulates across the set; `ArenaBulkActionBar` hit it with `visible` and the layer settled
-on `open` as the shared name for a shown/hidden boolean. Name variants with that in mind.
+accumulates across the set. `visible` is one such collision, which is why the layer's shared name
+for a shown/hidden boolean is `open`. Name variants with that in mind.
 
 **`compoundVariants` work and one manifest uses them.** `ArenaPageHead` needs a class that depends
 on two variants at once, `classesFor()` resolves them after every single-variant slot, and
