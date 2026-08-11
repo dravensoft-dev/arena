@@ -68,13 +68,20 @@ refused outright whatever a repository-size argument says.
 
 **Two branches, and a fact belongs to exactly one.** `SKILL.md` roots the *consumer* branch the
 way this file roots the contributor one. The cost of the consumer branch is paid on every build:
-an agent building with Arena reads the router, then `frameworks/SKILL.md`, then its own layer's
+an agent building with Arena reads the router, where it picks the voice, then its own layer's
 `SKILL.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only for
 the reasoning behind a member. **Everything on that route after the router is under
 `frameworks/`**, and each stop narrows. It reads no `AGENTS.md`, which is why the router names
-them and says not to.
+them and says not to. `frameworks/SKILL.md` sits beside that route rather than on it: it answers
+whether a component exists at all and which layers ship it, which is a question a builder who
+knows what they are reaching for never asks. **`check:routes` is what holds the route to a
+budget**, and `ROUTES` in `scripts/check/arena/check-routes.ts` is where the stops are declared;
+no document carries the figure.
 
-**A rule written into both branches goes stale in one of them.**
+**A rule written into both branches goes stale in one of them.** The design rules are the one
+place that reads like an exception and is not: they are DECIDED in `contracts/design/AGENTS.md`
+and HANDED OVER in `SKILL.md`, which are two different acts and two different readers. A third
+statement, restating either, is what goes stale.
 
 **The question that decides the branch is who has to act on the fact**, never which directory the
 code sits in. A helper under `frameworks/react/` that a consumer imports is a consumer fact; a

@@ -29,23 +29,28 @@ export type Route = {
 export const ROUTES: Route[] = [
   {
     name: 'consumer-component',
-    who: 'an agent writing a screen: the router, then the index of the layer it builds in, then '
-      + 'the prompt of the one component it writes',
-    stops: ['SKILL.md', 'frameworks/SKILL.md', 'frameworks/*/SKILL.md', 'frameworks/*/components/**/*.prompt.md'],
-    budget: 76_000,
+    who: 'an agent writing a screen: the router, where it picks the voice, then the index of the '
+      + 'layer it builds in, then the prompt of the one component it writes',
+    stops: ['SKILL.md', 'frameworks/*/SKILL.md', 'frameworks/*/components/**/*.prompt.md'],
+    budget: 55_000,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
-      + 'number is what the stops measure today with room for one component to grow, and it is the '
-      + 'ceiling a new rule on the consumer branch is argued against.',
+      + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
+      + 'all, which is a question a builder who knows what they are reaching for never asks, and '
+      + 'charging every build for it cost half again what the route costs now. The number is what '
+      + 'the stops measure today with room for one component to grow, and it is the ceiling a new '
+      + 'rule on the consumer branch is argued against.',
   },
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 38_000,
+    budget: 40_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
-      + 'the config file, the command, the theme surface and the two measurements.',
+      + 'the config file, the command, the theme surface and the two measurements. It shares the '
+      + 'router with the build route, which is where the voice catalogue sits, so the two move '
+      + 'together whenever that page does.',
   },
   {
     name: 'contributor-component',
@@ -74,10 +79,12 @@ export const ROUTES: Route[] = [
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 83_000,
+    budget: 88_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
-      + 'and the one whose last stop grows every time a gate lands.',
+      + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
+      + 'claim in one table row. The headroom is deliberately a few gates wide: a budget a single '
+      + 'new row breaks reports the row rather than the growth it is there to report.',
   },
 ];
 

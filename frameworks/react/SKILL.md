@@ -14,9 +14,13 @@ import { ArenaButton, ArenaTag } from '@dravensoft/arena-react';
 A member is a prop. The main slot is `children`, a named slot is a prop taking a node, and an
 event is an `on`-prefixed handler. An icon is a Phosphor class-name string, never an element.
 
+- **Which voice this application takes, which is decided before any component here**:
+  [`../../SKILL.md`](../../SKILL.md). Every component below answers to it without being told, so
+  a screen built without picking one is built in the default voice by accident rather than on
+  purpose.
 - Installing the package, declaring your skin, and what it exports besides components:
   [`PACKAGE.md`](./PACKAGE.md).
-- Every component Arena ships, including any this layer does not:
+- Whether a component exists at all, including any this layer does not ship:
   [`../SKILL.md`](../SKILL.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked `*` is required; the prompt gives its type and its default.

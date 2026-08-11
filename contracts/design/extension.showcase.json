@@ -1,7 +1,8 @@
 {
   "$extensions": {
     "com.dravensoft.arena": {
-      "grouping": "figure-ground"
+      "grouping": "figure-ground",
+      "job": "invite and convert: marketing, commerce, onboarding, pricing, a landing page somebody arrives on"
     }
   },
   "r-surface": {

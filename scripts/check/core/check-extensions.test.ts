@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   extensionName, extensionProblems, declarationProblems, zeroExtensionProblem, collect,
   fillsLikeThePage, floorProblems, groupingOf, isZeroLength, movedTokens, paintsNothing,
-  principleProblems,
+  principleProblems, jobOf, jobProblems,
   proximityRatio, resolvedFor, sharedPrincipleProblems,
 } from './check-extensions.ts';
 
@@ -259,4 +259,13 @@ test('the reading floor is measured, not trusted, and a voice may sit far above 
   assert.match(floorProblems(new Map([['lh-prose', '1.15']]), 'dark', 'x')[0] ?? '',
     /--lh-prose is 1\.15 in dark, under the 1\.5/);
   assert.match(floorProblems(new Map(), 'light', 'x')[0] ?? '', /does not resolve to a number in light/);
+});
+
+test('a voice declares the work it is for, because that is the question a reader picks it by', () => {
+  assert.deepEqual(jobOf({ $extensions: { 'com.dravensoft.arena': { job: 'read: documentation and reports' } } }),
+    'read: documentation and reports');
+  assert.equal(jobOf({ $extensions: { 'com.dravensoft.arena': { grouping: 'proximity' } } }), undefined);
+  assert.deepEqual(jobProblems('editorial', 'read: documentation, reports and changelogs'), []);
+  assert.match(jobProblems('editorial', undefined)[0] ?? '', /declares no job a reader can pick it by/);
+  assert.match(jobProblems('editorial', 'read')[0] ?? '', /naming the WORK the voice is for/);
 });

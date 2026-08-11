@@ -17,9 +17,13 @@ gives it, and the main slot is content projection. A named slot is a marker dire
 in `imports` as well, because a component cannot tell an un-imported marker from an unfilled
 slot. An icon is a Phosphor class-name string, never an element.
 
+- **Which voice this application takes, which is decided before any component here**:
+  [`../../SKILL.md`](../../SKILL.md). Every component below answers to it without being told, so
+  a screen built without picking one is built in the default voice by accident rather than on
+  purpose.
 - Installing the package, declaring your skin, and what it exports besides components:
   [`PACKAGE.md`](./PACKAGE.md).
-- Every component Arena ships, including any this layer does not:
+- Whether a component exists at all, including any this layer does not ship:
   [`../SKILL.md`](../SKILL.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked `*` is required; the prompt gives its type and its default.

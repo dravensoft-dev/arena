@@ -1,7 +1,8 @@
 {
   "$extensions": {
     "com.dravensoft.arena": {
-      "grouping": "proximity"
+      "grouping": "proximity",
+      "job": "read: documentation, reports, changelogs, release notes, any screen somebody reads top to bottom"
     }
   },
   "bw-surface": {

@@ -1,6 +1,6 @@
 ---
 name: design
-description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
+description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Starts by picking the voice the application takes, one of the design extensions, and then covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
 user-invocable: true
 ---
 
@@ -20,17 +20,44 @@ here, and follow the table below.
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
 read [`AGENTS.md`](./AGENTS.md) instead. It is the root of that branch and this file is not.
 
-## Start here, in this order
+## First, which voice is this application?
 
-**Everything you need to build is under `frameworks/`, and each level of it narrows.**
+**Arena has more than one voice, and picking one is the first decision, before any component.**
+It is a decision about the *work the screen does*, not about taste: the three group things
+differently, so a screen that scans and a screen that invites are told apart by the mechanism
+rather than by a dial. Pick from the job, not from the description of the look.
 
-1. **[`frameworks/SKILL.md`](./frameworks/SKILL.md)**: every component Arena ships, by the
-   category it is filed under, with what each one is and what it takes. One read tells you what
-   exists and what to reach for.
-2. **`frameworks/<layer>/SKILL.md`**, linked from there: the same components under the names
-   your framework binds them to, each linking its own prompt. Read your layer's, and no other.
-3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
+<!-- @voices GENERATED from contracts/design/extension.*.json. Edit the contract, not this table. -->
+
+| Voice | The work it is for | What says two things belong together |
+|---|---|---|
+| none, the default | scan and operate: dashboards, consoles, tables, admin and internal tooling, anything read a screenful at a time | a line drawn around a region says the things inside it are one thing |
+| `.arena-editorial` | read: documentation, reports, changelogs, release notes, any screen somebody reads top to bottom | what belongs together is near and what does not is far, and nothing is drawn at all |
+| `.arena-showcase` | invite and convert: marketing, commerce, onboarding, pricing, a landing page somebody arrives on | a surface is an object standing off a floor, so depth separates it and no line has to |
+
+<!-- @voices end -->
+
+**Ask the user what the application is for if you do not know**, then take the row that answers
+it. The class goes on the root, or on any container to scope it to part of a page; a project that
+has already decided writes `"extension": "showcase"` in its `arena.config.json` and gets it
+everywhere. **One voice per page, and write none of your own.** A voice composes with a theme and
+with the density classes because the three change different things: a voice takes the surfaces and
+the gaps between them, a theme takes the colour, and density keeps the controls and the data rows.
+
+**Everything after this is one component at a time**, and none of it changes what you picked here.
+
+## Then, in this order
+
+1. **`frameworks/<layer>/SKILL.md`**: every component your framework ships, under the names it
+   binds them to, with what each one is and what it takes, each linking its own prompt. Read your
+   layer's, and no other.
+2. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
+
+[`frameworks/SKILL.md`](./frameworks/SKILL.md) is the layer-neutral index beside those two, and it
+answers one question the layer index cannot: whether a component exists at all, and which layers
+ship it. Read it when you are looking for something you are not sure Arena has, and skip it when
+you already know what you are reaching for.
 
 A prompt states every member's type and default, so `contracts/api/components/<Name>.json` is
 only for the reasoning behind one, and you will rarely need it.
@@ -56,13 +83,9 @@ Every one of these is enforced somewhere, so breaking one is a defect rather tha
 - **Two themes, dark first.** Dark is `:root`, light is the `.arena-light` class. Components
   are never rewritten per theme, because they read tokens. `.arena-compact` re-densifies
   and `.arena-comfortable` grows the controls to a 48px touch target; the two are exclusive.
-- **A design extension is a second voice, and you pick one.** Two ship, each named for the job:
-  `.arena-showcase` groups by elevation and air instead of by hairline, softening every corner and
-  answering the pointer like an object with mass, for work that invites rather than scans;
-  `.arena-editorial` draws nothing at all and lets distance carry the structure, for a screen
-  somebody reads. Put one on a root or a container. It composes with a theme and with the compact
-  density, because the three change different things: a voice takes the surfaces and the gaps
-  between them, and density keeps the controls and the data rows. Write no extension of your own.
+- **One voice per page, picked before anything else**, from the table at the top of this file. It
+  is a decision about the work the screen does, and every component answers to it without being
+  told.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order
   is identity; the status colours are meaning. Status colours are never series colours.
 - **Copy is English, formal and direct**, concrete action verbs, no boastful adjectives.
@@ -84,8 +107,9 @@ Every one of these is enforced somewhere, so breaking one is a defect rather tha
 
 | Question | Read |
 |---|---|
-| Which component do I need? Does one exist? | [`frameworks/SKILL.md`](./frameworks/SKILL.md) |
-| What is it called in my framework, and where is its prompt? | `frameworks/<layer>/SKILL.md` |
+| Which voice does this application take? | the table at the top of this file, and nothing else: it is the whole of the decision |
+| Does a component like this exist at all, and which layers ship it? | [`frameworks/SKILL.md`](./frameworks/SKILL.md) |
+| Which component do I need, what is it called in my framework, and where is its prompt? | `frameworks/<layer>/SKILL.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
@@ -121,6 +145,8 @@ what it is for. Content you draw yourself is yours, styled through the same toke
 
 ## Invoked with no other guidance
 
-Ask what the user wants to build, ask a few questions about audience and surface, then act as
-an expert in the Arena language and produce either an HTML artifact or production code,
-whichever the answer calls for.
+**Ask what kind of application this is before you ask anything else**, and take the voice from the
+answer: a screen that is scanned, one that is read, and one that invites are three different jobs
+and Arena draws them differently. Then ask what the user wants to build, and a few questions about
+audience and surface. Then act as an expert in the Arena language and produce either an HTML
+artifact or production code, whichever the answer calls for.

@@ -144,6 +144,26 @@ export function groupingOf(tokens: Record<string, unknown>) {
   return typeof meta?.[GROUPING] === 'string' ? meta[GROUPING] : undefined;
 }
 
+export const JOB = 'job';
+export const MIN_JOB_CHARS = 20;
+
+export function jobOf(tokens: Record<string, unknown>) {
+  const meta = (tokens as { $extensions?: Record<string, { job?: unknown }> })
+    .$extensions?.[ARENA_EXT];
+  return typeof meta?.[JOB] === 'string' ? meta[JOB] : undefined;
+}
+
+export function jobProblems(name: string, declared: string | undefined) {
+  if (declared !== undefined && declared.length >= MIN_JOB_CHARS) return [];
+  return [
+    `extension.${name}.json: declares no job a reader can pick it by. Write `
+    + `$extensions["${ARENA_EXT}"].${JOB}, naming the WORK the voice is for rather than how it `
+    + 'looks, the way compact and comfortable are named. It is the first question an agent asks '
+    + 'before it writes a screen, and a voice that cannot answer it is a voice nobody chooses on '
+    + 'purpose: the router hands the catalogue to a reader who has no other way to tell them apart.',
+  ];
+}
+
 export const SCOPES = ['dark', ...THEME_SCOPES.keys()];
 
 export function resolvedFor(css: string, name: string, scope = 'dark') {
@@ -307,6 +327,7 @@ export function collect(dir = DESIGN_DIR, effects?: string) {
     const declared = groupingOf(tokens);
     declaredBy.set(name, declared);
     problems.push(...extensionProblems(name, tokens, roles));
+    problems.push(...jobProblems(name, jobOf(tokens)));
     problems.push(...principleProblems(name, declared,
       new Map(SCOPES.map((scope) => [scope, resolvedFor(css, name, scope)]))));
     for (const scope of SCOPES)
