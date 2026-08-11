@@ -48,7 +48,7 @@ toolchains expect.
 
 ```bash
 for d in angular arena core react tailwind; do
-  printf '%-9s %s\n' "$d" "$(find scripts/lib/$d -name '*.mjs' ! -name '*.test.mjs' | wc -l)"
+  printf '%-9s %s\n' "$d" "$(find scripts/lib/$d -name '*.ts' ! -name '*.test.ts' -o -name '*.mjs' | wc -l)"
 done
 ```
 

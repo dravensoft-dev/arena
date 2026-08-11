@@ -30,6 +30,6 @@ a presence dot.
   offline tone is a muted grey by design and reads as "not here", not as "disabled".
 - The presence dot is filled (`bg-success`/`bg-warning`/`bg-error`/`bg-base-content/52`)
   even though danger is outline everywhere else, presence is its own semantic
-  family, not a danger surface. See README's Danger convention section.
+  family, not a danger surface. convention section.
 - Don't put an avatar in place of an icon. It represents a person or an entity; a
   role or an action is an icon.

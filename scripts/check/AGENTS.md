@@ -8,8 +8,8 @@ literal value; a figure written here instead would rot the next time a gate land
 
 ## The shape of a gate
 
-Each is a `.mjs` under `check/<domain>/`, with an npm script whose prefix names the phase
-directory, and a `.test.mjs` sibling covering it. It exports its logic as pure functions
+Each is a `.ts` under `check/<domain>/`, with an npm script whose prefix names the phase
+directory, and a `X.test.ts` sibling covering it. It exports its logic as pure functions
 returning problem strings, and its `main()` prints them and exits non-zero. That is why the
 suites can assert on a gate's exception map by name without running the gate.
 
@@ -168,7 +168,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 32 | two or more layers at once, or the repository root |
+| [`arena/`](./arena/AGENTS.md) | 33 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 8 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 7 | `contracts/` and `assets/` only |

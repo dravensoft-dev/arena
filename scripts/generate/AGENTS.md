@@ -34,7 +34,7 @@ which file each command runs.
 
 ```bash
 for d in angular arena core react tailwind; do
-  printf '%-9s %s\n' "$d" "$(find scripts/generate/$d -maxdepth 1 -name '*.mjs' ! -name '*.test.mjs' | wc -l)"
+  printf '%-9s %s\n' "$d" "$(find scripts/generate/$d -maxdepth 1 -name '*.ts' ! -name '*.test.ts' | wc -l)"
 done
 ```
 

@@ -39,7 +39,7 @@ paragraph does not. That is the entire argument for this order:
 4. **The normative document for that layer.** A structural limit belongs where the rule it
    qualifies is stated: [`contracts/api/AGENTS.md`](./contracts/api/AGENTS.md),
    [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md),
-   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), or the layer's own README under
+   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), or the layer's own `AGENTS.md` under
    `frameworks/`.
 5. **The component's `.prompt.md`.** A measured limit of one component, and every check only a
    person can run, such as whether a name is a good name, whether motion reads as intended or
@@ -49,7 +49,7 @@ paragraph does not. That is the entire argument for this order:
    vendor's behaviour, a pinned version, a constraint of a test environment.
 
 Framework sources under `frameworks/` carry **no** comments at all, and `check:docs` enforces it,
-so a fact about one of them goes to its layer README or its prompt, never into the file.
+so a fact about one of them goes to its layer's `AGENTS.md` or its prompt, never into the file.
 
 ## What this file is not
 
@@ -70,7 +70,7 @@ takes, and the change-time greps that find them.
 
 Write what is wrong, what it costs, and the command that re-derives it. **Prefer no exemplar, or
 a command.** Both are stale-proof, and a present-tense component name is not. Then ask once more
-whether a gate, a suite or a README would hold the same claim, because one of them almost always
+whether a gate, a suite or a normative `AGENTS.md` would hold the same claim, because one of them almost always
 will.
 
 ## Filed

@@ -30,7 +30,7 @@ Arena-drawn dismiss `×` that emits `remove` on click.
 - The leading dot is filled (`bg-current`, coloured by `tone`) even for
   `tone="danger"`, though the pill itself is outline, a tone dot is an
   identity mark, the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s
-  presence dot, not a danger surface. See README's Danger convention section.
+  presence dot, not a danger surface. convention section.
 - Use `removable` only when removing the tag is a real user action (applied
   filters), not on informational tags, and handle `(remove)`, or the × has
   nothing wired to it.

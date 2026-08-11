@@ -299,7 +299,7 @@ suite belongs to. Only the infix does.
 **The split reaches past this layer**, because a process-wide happy-dom also replaces Bun's own
 `fetch` and so decides which invocation `scripts/` may ride in. **The single authority for the
 whole command is `testStep()` in `scripts/check/arena/check-all.ts`**, whose header carries
-that reasoning and whose `.test.mjs` sibling asserts the args array by literal value; read it
+that reasoning and whose `.test.ts` sibling asserts the args array by literal value; read it
 there rather than reconstructing one.
 
 **The preload is not a convenience.** `react-dom` decides once, at its own module

@@ -21,4 +21,4 @@ these scripts write under `frameworks/` is git-ignored and rebuilt by `bun run b
 `check:tokens`, `check:script-tokens`, `check:api`, `check:skills` and `check:prompts` compare
 what is on disk against a fresh emit.
 
-Every `X.test.mjs` beside a script covers that script.
+Every `X.test.ts` beside a script covers that script.

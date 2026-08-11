@@ -142,7 +142,7 @@ waiting to be applied to the other two. `contracts/api-generated/` would be empt
 `api/` keeps `components/` and `types/`; `behaviour/` and `design/` are flat. An inner
 directory earns its place when it separates two different vocabularies: a component
 contract and a shared type are different things, and `check:api` reads them as two sets.
-`behaviour/` is flat because a pattern file and the README describing patterns are one
+`behaviour/` is flat because a pattern file and the `AGENTS.md` describing patterns are one
 vocabulary, not two. `design/` is flat because the job an inner directory would do, keeping
 the DTCG sources apart from Style Dictionary's output, is done at the top level by the
 `design/` / `design-generated/` split instead.
@@ -158,7 +158,7 @@ a different name: `check:dtcg` walks `contracts/design/` itself and fails the sa
 token files.
 
 **`check:tokens` alone walks no directory**, so it has no result set discovery could find empty.
-It compares the committed generated CSS against what `build-tokens.mjs`'s hardcoded file list
+It compares the committed generated CSS against what `generate-tokens.ts`'s hardcoded file list
 builds, and a source file gone missing still fails it, just not silently: the build it depends
 on has nothing to read and stops rather than reporting a clean pass.
 
@@ -183,7 +183,7 @@ framework is added without touching the language.
   belongs to each platform's own idiom.
 - `contracts/design-generated/`: the five built CSS files, `fonts.generated.css` (from
   `fetch-fonts.ts`), plus `palette.generated.css`, `typography.generated.css`, `spacing.generated.css` and
-  `effects.generated.css` (from `build-tokens.mjs`). Never edit any of them.
+  `effects.generated.css` (from `generate-tokens.ts`). Never edit any of them.
 - `assets/`: `rotor-crimson/bone/ink.svg`, `app-icon.svg`, and `fonts/` (the bundled
   self-hosted `.woff2` binaries).
 - `intro/guidelines/`: specimen cards (`@dsCard`) for typography (`type-display`, `type-body`,
@@ -191,7 +191,7 @@ framework is added without touching the language.
   `colors-categorical`), spacing (`spacing-scale`, `spacing-density`), effects
   (`effects-radius`, `effects-shadow`), iconography (`icons`), brand (`brand-logo`) and
   the **danger convention** (`components-danger`).
-- `scripts/`: the build steps and the gates. `build-tokens.mjs` generates the four token
+- `scripts/`: the build steps and the gates. `generate-tokens.ts` generates the four token
   CSS files from `contracts/design/`; `check-dtcg.ts` asserts the source conforms to
   2025.10; `check-tokens-generated.ts` asserts the committed CSS matches the source;
   `check-ramp.ts` asserts the shipped ramp clears every gate in both themes;

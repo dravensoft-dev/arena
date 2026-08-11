@@ -18,4 +18,4 @@ DOM suites import the `.tsx` directly, so every test stays green with the `.gene
 sibling stale, and the demo pages load the sibling, so `bun run demos` would show the
 pre-fix component while the suites prove the fix.
 
-Every `X.test.mjs` beside a script covers that script.
+Every `X.test.ts` beside a script covers that script.

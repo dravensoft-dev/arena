@@ -39,4 +39,4 @@ the binaries already on disk. `check:fonts` asserts every declared family has a 
 `arena-to-prod.ts` is not part of it either, and for the opposite reason: nothing in this
 repository is its input. It runs in a consumer's project, against the files that project wrote.
 
-Every `X.test.mjs` beside a script covers that script.
+Every `X.test.ts` beside a script covers that script.

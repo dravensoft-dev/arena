@@ -277,7 +277,7 @@ a real browser is the only place that question has an answer.
 multi-word stem is `PascalCase` with hyphens removed; a secondary dotted segment stays
 `lowerCamelCase`.** List the layer root's own source rather than trusting a count here, with
 `ls frameworks/tailwind/*.ts frameworks/tailwind/*.js frameworks/tailwind/*.css | grep -v generated`.
-This file sits beside them and complies as it stands, `README` being a
+This file sits beside them and complies as it stands, `AGENTS.md` being a
 capital-initial name like any other, and a component's files sit together in one
 directory:
 
