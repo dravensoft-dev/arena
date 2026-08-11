@@ -281,8 +281,8 @@ primitive also has a static specimen at
 which renders the real markup
 with the real recipe and no Angular executed. A specimen therefore proves the *recipe*,
 never the *component*: it hand-builds the DOM from the manifest, so a component-logic
-bug can render correctly in the card while being broken in the primitive. The three SVG
-charts have no specimen at all, by the same exception that gives them no manifest.
+bug can render correctly in the card while being broken in the primitive. A chart drawing
+geometry has no specimen at all, by the same exception that gives it no manifest.
 
 **What proves the component is a demo page, and there is one per primitive rather than one per
 primitive that earned it.** `<Component>.demo.generated.html` beside the component runs the real
@@ -349,9 +349,10 @@ change-detection pass with it: every `[class]` binding in the parent's template 
 the component renders as bare unstyled elements. An **optional** input is worse, because it reads as
 its default and nothing says so.
 
-`ArenaCalendar` did this: `placed` mapped `chips()` through `chip.id()`, and it shipped. The first
-consumer app that wrote its events the way a list is written got a toolbar, no grid, no chips and no
-styling, from one thrown error nothing in this repository was positioned to see.
+The shape is easy to write and invisible from here. A `placed` that maps `chips()` through
+`chip.id()` reads a projected child's input from the parent, and a consumer writing their events
+the way a list is written gets a toolbar, no grid, no chips and no styling, out of one thrown
+error no fixture in this repository is positioned to see.
 
 **The child publishes; the parent never pulls.** `arenaPublished` (`ProjectedInputs.ts`) is the one
 spelling: called in the child's own injection context, its effect runs during the CHILD's change

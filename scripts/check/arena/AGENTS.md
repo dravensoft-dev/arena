@@ -61,8 +61,8 @@ under `frameworks/tailwind/` are the one family of unscanned pages that stays cl
 structurally: every class they render comes from the manifest through `classesFor()`.
 
 **Two blind spots are known and neither is fixed**: a kebab-case SVG attribute, and Angular's
-`[style.x]` binding form, which sits outside all four scanners. This is why the three SVG
-charts write their static styling as camelCase `[style]` **objects**: in that shape
+`[style.x]` binding form, which sits outside all four scanners. This is why a chart drawing geometry
+writes its static styling as camelCase `[style]` **objects**: in that shape
 `strokeWidth` and `fontSize` are judged as themselves, which is strictly more coverage than an
 attribute.
 
