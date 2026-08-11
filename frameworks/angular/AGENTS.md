@@ -568,12 +568,16 @@ card that renders nothing.
 `ArenaSideNavItem` splits on `href` too and needs none of this: it projects nothing, so its two
 branches carry only interpolated inputs.
 
-## Adopting it
+## Adopting it is the package's question and not this document's
 
-Adopt it in the order the layer is built. Import `theme/arena-tailwind.css` once from the
-app's global stylesheet for the tokens and the `@theme` preset; add `theme/arena-cdk.css`
-when you first use a primitive that positions an overlay. Wire `ArenaThemeService`, declaring
-your palettes with `provideArenaThemes` if there are more than two, and paste
-`theme/no-fouc.html`'s script contents into `index.html`, setting its two names to match. Then replace the app's own
-controls with `arena-*` primitives as you touch the files that use them, incrementally and
-never as a sweep.
+**A project adopting Arena installs `@dravensoft/arena-angular` and reads
+[`PACKAGE.md`](./PACKAGE.md)**, which is the page npm shows: the install, the config file, the
+one command, the theme surface and the script that keeps a palette from flashing on first paint.
+Nothing under `theme/` reaches them, because the assembly copies `theme/arena-cdk.css` in as
+`css/arena-cdk.css` and copies neither of the other two: `arena-tailwind.css` imports this
+repository's own `intro/styles.css`, and the FOUC script is carried inline on the npm page where
+its reader is.
+
+What belongs here is the half a contributor needs, and it is one sentence: the theme surface is
+authored in `theme/`, beside the service that reads it, so a palette rule and the service that
+switches it are one directory rather than two.

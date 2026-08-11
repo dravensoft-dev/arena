@@ -102,8 +102,9 @@ export const UNTRACKED = {
     + 'hold, since its condition takes no var(). Theme.css imports it and an adopter compiles '
     + 'their own utilities from that preset, so nothing outside this repository reads the file.',
   'frameworks/tailwind/Utilities.generated.css':
-    'the compiled utility layer, read only by the specimen pages. An adopter imports '
-    + 'frameworks/angular/theme/arena-tailwind.css and compiles their own.',
+    'the compiled utility layer, read only by the specimen pages. A package ships no utility '
+    + 'at all: a manifest is compiled through @apply and stripped, so an adopter links the '
+    + 'component CSS and never a preset of this repository\'s.',
   'frameworks/tailwind/consume/components/**/*.styles.generated.css':
     'the CSS one component renders, compiled from its manifest through @apply and stripped of '
     + 'every Tailwind theme indirection, so no adopter property can reach in. It sits under '
