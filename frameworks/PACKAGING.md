@@ -65,7 +65,7 @@ It does the two jobs a project always did together, and a failure in the first s
   from rather than from a copy of them that could age. `"components": "auto"` resolves that list
   from their own sources against `components.json`, which each package carries and
   [`scripts/lib/arena/component-map.ts`](../scripts/lib/arena/component-map.ts) derives from the
-  layer: what a consumer writes is not what dresses it, since 43 sheets dress 55 components, and
+  layer: what a consumer writes is not what dresses it, since there are fewer sheets than components, and
   the closure matters more than the mapping because Arena draws components nobody named.
 - **The icons** write the Phosphor subset a project draws, `icons.generated.css`, reading the
   consumer's sources and the package it ships in, since a component renders icons the consumer
@@ -262,8 +262,8 @@ from `contracts/design-generated/`, and the difference is audience: the plugin i
 The consequence is the one real hazard here: `dist/` puts a copy of each layer inside the
 tree several gates walk, and a gate reading that copy as source sees duplicate constants, a
 second declaration of every script token, and components whose dimensions were judged once
-already. Six gates skip a directory named `dist`, and each asserts the exclusion in its own
-suite against a fixture holding exactly the file that would otherwise fail:
+already. A gate that walks the tree skips a directory named `dist`, and these assert the exclusion in
+their own suite against a fixture holding exactly the file that would otherwise fail:
 `check:docs`, `check:dimensions`, `check:duplicate-constants`, `check:script-tokens`,
 `check:layer-independence` and `check:generated`.
 

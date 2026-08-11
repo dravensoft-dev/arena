@@ -246,7 +246,7 @@ question to answer rather than a flag to set. `actions/setup-node` from v6 cache
 only when `packageManager` names npm, and this repository's names bun, so a jump to v5 rather than
 past it would have switched on a cache nobody asked for.
 
-**Chromium.** Four gates drive a real browser, and `CHROME_PATH` is terminal: set and pointing
+**Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal: set and pointing
 at nothing, they report that rather than falling back to the candidate list. **Only `main.yml`
 sets it**, to `/usr/bin/google-chrome`, which the image documents. `pr.yml` and `develop.yml`
 name no browser on purpose, so every pull request proves the candidate list finds one, and the
