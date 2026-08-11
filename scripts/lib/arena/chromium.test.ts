@@ -14,6 +14,7 @@ import {
   candidates, findChromium, launchChromium,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
+import { waitFor } from './wait-for.ts';
 
 const SETTLE: Deadline = deadline('chromium:settle', 5_000,
   'the span this suite gives a reaped tree to disappear from the process table before it '
@@ -110,15 +111,6 @@ const NEEDS_A_SIGNAL = platform === 'win32'
   ? 'the stand-in is a shell script and Windows has no TERM to ignore: the escalation there is '
     + 'taskkill /T /F, which the reap cases above exercise against a real browser'
   : false;
-
-async function waitUntil(predicate: () => boolean, { timeoutMs = SETTLE.ms, intervalMs = 100 } = {}) {
-  const deadline = Date.now() + timeoutMs;
-  for (;;) {
-    if (predicate()) return true;
-    if (Date.now() >= deadline) return false;
-    await new Promise((r) => setTimeout(r, intervalMs));
-  }
-}
 
 test('CHROME_PATH wins over the candidate list when it exists', () => {
   const found = findChromium({ CHROME_PATH: '/opt/my-chrome' }, (p) => p === '/opt/my-chrome');
@@ -346,9 +338,12 @@ test('kill() reaps the whole tree: no descendant survives it and no temp profile
 
   await kill();
 
-  const settled = await waitUntil(() => !existsSync(profilePath) && pidsNaming(profilePath).length === 0);
-  assert.ok(settled,
-    `outlived kill(): dir exists=${existsSync(profilePath)}, processes=${JSON.stringify(pidsNaming(profilePath))}`);
+  const settled = await waitFor(
+    () => !existsSync(profilePath) && pidsNaming(profilePath).length === 0, SETTLE);
+  const onDisk = existsSync(profilePath);
+  assert.ok(settled.seen, settled.seen ? '' : `${settled.why} The profile directory `
+    + `${onDisk ? 'is still on disk' : 'is gone'}, so what outlived kill() is `
+    + `${onDisk ? 'the directory' : 'a process that still names it'}.`);
 });
 
 test('the container flags are linux only, since --no-sandbox is a real weakening elsewhere', () => {
