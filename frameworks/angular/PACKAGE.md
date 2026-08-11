@@ -283,6 +283,16 @@ No two of them group by the same mechanism, and that is enforced rather than int
 build fails if two voices claim one. So they differ in kind and not by degree, which is what makes
 picking one a decision rather than a preference.
 
+**Coming from 8.x: `showcase` is the voice that was called `expressive`.** It is the same voice
+with the same values; only the name moved, because a voice should say the job it does the way
+`compact` and `comfortable` do, and the old name said neither the job nor the mechanism. If your
+`arena.config.json` selects `"expressive"`, write `"showcase"` instead, and if you put the old
+class on an element by hand, write `arena-showcase` there. Nothing else changes.
+
+There is no alias, on purpose: a name kept alive after it stopped being the name is a second thing
+to learn. What you get instead is a build that stops and tells you what this package does ship,
+which is the whole of the migration.
+
 ```html
 <html class="arena-showcase">
 ```
