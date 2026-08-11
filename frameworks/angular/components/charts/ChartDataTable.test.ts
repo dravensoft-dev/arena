@@ -1,4 +1,4 @@
-/* The three charts answer figure-with-data-table the same way, so the shared
+/* Every chart answers figure-with-data-table the same way, so the shared
  * body is `assertFigure` and each test only supplies its own fixture: a loop over
  * the component classes does not typecheck, since TestBed.createComponent cannot
  * unify two unrelated component types. */

@@ -363,7 +363,7 @@ Two reasons put a component in it. **A compound family draws one surface**, so t
 manifest holds every level of it and its members have none of their own, which is `ArenaTab`,
 `ArenaTableRow`, `ArenaTableCell`, `ArenaCalendarEvent`, `ArenaRadioGroup` and the three `ArenaSideNav*` children.
 `MANIFEST_COVERS` in `scripts/check/arena/check-manifest-states.ts` is where that mapping
-is written down. **And the three SVG charts have no surface a class string can describe**:
+is written down. **And a chart drawing geometry has no surface a class string can describe**:
 `ArenaBarChart`, `ArenaLineChart` and `ArenaDoughnutChart` are SVG geometry driven by measured container
 width, their identity is path data and attribute bindings, and a manifest holding it would
 be a lie about where the styling lives. `ArenaChartCard` is not one of them and does have one,
@@ -552,7 +552,7 @@ nobody left to ask. A layer that realises an affordance by rendering the manifes
 no answer of its own to give, because the answer is the manifest, and both layers do that
 wherever a component renders its recipe. So that half reads `HAND_DRAWN`, in
 `scripts/lib/tailwind/manifest-surfaces.ts`, which is the set of components drawing their own
-appearance: the three SVG charts, whose geometry no class string can describe. An empty
+appearance: every chart, whose geometry no class string can describe. An empty
 `HAND_DRAWN` fails rather than passing over nothing, so retiring that half would be a decision
 somebody has to write down.
 

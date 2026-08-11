@@ -11,8 +11,8 @@ kind of component, and the roof is read by whoever changes any component at all.
 layer is there; what binds the eight charts is here, and the route to it is one link.
 
 `components/charts/` carries the worked example, and the rule that goes with it. Three modules
-sit there rather than inside a chart or at the layer root, because bar, line and doughnut all
-read them and nothing outside the category does: `ChartScales.ts` maps a datum to a number,
+sit there rather than inside a chart or at the layer root, because every chart reads them and
+nothing outside the category does: `ChartScales.ts` maps a datum to a number,
 `ChartAxis.ts` lays out the plot frame, `ChartMarks.ts` turns numbers into an SVG path string.
 
 Two shapes inside them are decisions rather than taste. **A scale is plain data and the mapping

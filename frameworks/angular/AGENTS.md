@@ -7,7 +7,9 @@
 reads, and the assembly copies it into `dist/` as the package README;
 [`../PACKAGING.md`](../PACKAGING.md) is how the package is built and what it leaves out.
 
-Arena support for an Angular 20+/Tailwind-v4 app. Two kinds of artifact:
+Arena for an Angular and Tailwind v4 app, in two kinds of artifact: the components this layer
+draws, and the files beside them that carry the theme, the icon map and the CDK bridge. The
+versions it is built and typechecked against are the ones `package.json` pins.
 
 ## This layer stands on the contracts alone
 
@@ -18,10 +20,11 @@ would be if a `<Component>.variants.ts` reached four directories up into `framew
 for a manifest and a recipe: the class names a component composes are emitted into this layer
 beside the component, the way the contract types and the script tokens are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
 
-**Bridge (foundation), to bring Arena's tokens, icons and theming into an existing Angular app:**
-- `theme/arena-tailwind.css`: one import that brings Arena's tokens (including
-  the self-hosted fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
-  plus the shared `frameworks/tailwind/Theme.css` `@theme` preset into scope.
+**Beside the components, the files that carry the theme, the icons and the CDK bridge:**
+- `theme/arena-tailwind.css`: one import that pulls Arena's tokens (including the self-hosted
+  fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
+  plus the shared `frameworks/tailwind/Theme.css` `@theme` preset into scope. It reaches those
+  through repository paths, so its readers are here and not in a consuming project.
 - `theme/arena-cdk.css`: the `@angular/cdk` overlay's structural stylesheet, re-based onto
   Arena's `--z-*` scale, needed once the app uses a primitive that positions itself with
   `@angular/cdk/overlay`. The file states why the container's z-index is overridden and why
@@ -30,13 +33,17 @@ beside the component, the way the contract types and the script tokens are. `bun
   means and what it does not.**
 - `icons/IconManifest.ts`: the canonical Phosphor role→glyph map.
 
-**The three files under `theme/` keep their lowercase names, and they do not share one reason.**
-`arena-tailwind.css` and `arena-cdk.css` are named **inside an adopter's own source, verbatim**:
-each is an `@import` in the host app's `styles.css`, so renaming one breaks every app that has
-adopted Arena. **`no-fouc.html` is not a third instance of that**: the adopter pastes the
-`<script>`'s contents and never names the file, so renaming it breaks a documentation line
-rather than an app. **Not exempt:** `theme/ArenaThemeService.ts` and `icons/IconManifest.ts` are
-reached through `frameworks/angular/index.ts`, which no adopter writes.
+**The files under `theme/` keep their lowercase names, and they do not share one reason.**
+`arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
+`@dravensoft/arena-angular/css/arena-cdk.css`: the assembly copies it under that name and the npm
+page tells a reader to `@import` it, so the lowercase stem is load-bearing outside this tree.
+**`arena-tailwind.css` and `no-fouc.html` are not instances of that, and neither reaches an
+adopter at all**: the assembly copies neither, `arena-tailwind.css` imports this repository's own
+`intro/styles.css` and so resolves nowhere else, and the pre-paint script a consumer pastes is
+carried inline on the npm page rather than read from here. **Nothing in this tree imports
+`arena-tailwind.css` either**, which makes it a file with no reader on either side. **Not
+exempt:** `theme/ArenaThemeService.ts` and `icons/IconManifest.ts` are reached through
+`frameworks/angular/index.ts`, which no adopter writes.
 
 - `theme/ArenaThemeService.ts` and `theme/no-fouc.html`: the signal theme service and the
   pre-paint snippet. It switches between **any number of named palettes**, because a
@@ -64,7 +71,7 @@ comm -23 <(find components -mindepth 2 -maxdepth 2 -type d -printf '%f\n' | sort
          <(find components -name '*.variants.ts' -printf '%h\n' | xargs -n1 basename | sort)
 ```
 
-The three SVG charts have no recipe at all, for the reason below. **A compound family's
+A chart that draws geometry has no recipe at all, for the reason below. **A compound family's
 children have none either, because they import the parent's**: each `ArenaSideNav*` child imports
 `arenaSideNavStyles` from `side-nav/ArenaSideNav.variants`, which is the recipe mirror of the rule
 `frameworks/tailwind/AGENTS.md` states for manifests, that a manifest mirrors a *surface* and a
@@ -86,10 +93,11 @@ rather than from a list here**, because a list here rots and nothing checks it:
 `find frameworks/angular/components -mindepth 2 -maxdepth 2 -type d | sort`, and count it
 with the same command piped to `wc -l`.
 
-**The three SVG charts are the declared exception to having a MANIFEST**, and a missing chart
-manifest is a decision rather than an omission: a chart's visual identity is path data and
-attribute bindings, not class strings, so `bar-chart`, `line-chart` and `doughnut-chart` have no
-recipe of their own and none to inherit either, and they style themselves with token-valued
+**A chart that draws geometry is the declared exception to having a MANIFEST**, and a missing
+chart manifest is a decision rather than an omission: a chart's visual identity is path data and
+attribute bindings, not class strings, so it has no recipe of its own and none to inherit either.
+`HAND_DRAWN` in `scripts/lib/tailwind/manifest-surfaces.ts` is the roster, held by
+`check:appearance`, and every entry there is a chart. They style themselves with token-valued
 style **objects**, meaning the camelCase
 `[style]` form, never a kebab-case string or attribute, because that is the only shape
 `check:dimensions` can actually read. `chart-card` is not one of them: it is a bordered
@@ -123,7 +131,7 @@ rendering](#a-projected-childs-inputs-are-not-readable-while-a-sibling-is-render
 wiring between a component and its own projected child rather than anything an adopter stands
 between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisuals.ts` (the identity-or-meaning colour contract, the number writer and the
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
-its consumers are the three charts **and** `arena-calendar-event`, which reads `arenaCatColor` for a
+its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatColor` for a
 chip's identity colour. The name matches the placement: a module a schedule grid consumes is
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.

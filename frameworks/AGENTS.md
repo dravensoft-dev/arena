@@ -50,7 +50,7 @@ a gate with nothing to check rather than something to fail.
    pattern `contracts/behaviour/` declares.
 4. **Implement it in each layer**, to that layer's shape: React's trio, Angular's quartet.
 5. **Author its appearance** as a Tailwind manifest, unless it draws geometry rather than a
-   surface, which is what puts the three SVG charts outside.
+   surface, which is what puts every chart drawing geometry outside.
 6. **Seed its playground fixture** in `demos/`, or `check:playgrounds` fails the contract that
    has none.
 7. **Run the generators**, `bun run build`, which writes the demo pages, the API types, the
@@ -223,7 +223,7 @@ rather than as the category.
 
 `components/charts/` carries the worked example of that rule, and the largest body of cross-layer
 arithmetic in the tree: three modules sit in the category rather than inside a chart or at the
-layer root, because bar, line and doughnut all read them and nothing outside the category does.
+layer root, because every chart reads them and nothing outside the category does.
 What each one holds, what a scale may not do, why a curve is monotone and why a bubble maps onto
 area are [`CHARTS.md`](./CHARTS.md), beside this page and for the same reason this page is not
 inside a layer.
