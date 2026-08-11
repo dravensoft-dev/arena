@@ -141,7 +141,7 @@ than chosen beside it, which is why the principle is the thing declared and the 
 
 ### The categorical ramp
 
-Eight slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
+A fixed set of slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
 
 The ramp is one system with one entry point: `arenaCatColor(slot)`, which every layer carries in its own `DataVisuals` module. `ArenaCalendar` reads it from there rather than keeping its own copy: two clamps over one ramp is how a ramp stops being a ramp.
 
@@ -172,7 +172,7 @@ It is derived by enumeration against the validator rather than chosen by eye: a 
 
 **Brand clearance** (ΔE to the ramp's closest slot): crimson 17.0, gold 18.0, error 19.6, warning 26.3, all above the 15 bar. That is the requirement: the ramp cannot be mistaken for the brand or for an error.
 
-**Accepted collision:** success 6.0, info 7.8. This is structural. Eight slots need ~126° of arc; banning the red family leaves green, cyan, blue and violet, which is exactly where success (156°) and info (250°) live, and guarding those as hard as the brand leaves only ~76°. **A ramp can be clear of the brand or clear of status, not both.** Clear of the brand is the right choice: brand colors carry identity everywhere, while status colors always ship with an icon and a label (`ArenaAlert`, `ArenaToast`, `ArenaBadge`) and never appear as a bare fill.
+**Accepted collision:** success 6.0, info 7.8. This is structural. The ramp needs ~126° of arc; banning the red family leaves green, cyan, blue and violet, which is exactly where success (156°) and info (250°) live, and guarding those as hard as the brand leaves only ~76°. **A ramp can be clear of the brand or clear of status, not both.** Clear of the brand is the right choice: brand colors carry identity everywhere, while status colors always ship with an icon and a label (`ArenaAlert`, `ArenaToast`, `ArenaBadge`) and never appear as a bare fill.
 
 ### Re-check after you swap
 

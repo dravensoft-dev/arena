@@ -79,7 +79,7 @@ graph, not only in the gate: something it reads is not something it says it read
 
 That is the only defence against a declaration that omits a file the gate opens. `check:graph` holds
 the edges between declarations and cannot see it, and `check:graph --audit` sees it only where a
-tracer can follow the gate, which is not the twelve that spawn `tsc`, `ngc`, `ng-packagr` or a
+tracer can follow the gate, which it cannot for one that spawns `tsc`, `ngc`, `ng-packagr` or a
 browser. A plain failure of a gate the run would have executed anyway says nothing about the graph
 and is not reported here.
 
@@ -179,7 +179,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 | [`react/`](./react/AGENTS.md) | 4 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at
-`<domain>/<gate>.mjs`, so a gate landing outside the grid fails rather than running unnoticed.
+`<domain>/<gate>.ts`, so a gate landing outside the grid fails rather than running unnoticed.
 
 The domain is also what a narrowed run selects on. `check-all.ts` takes `--domain=core,arena`
 and `--no-tests`, and `gatesFor()` refuses a name outside `DOMAINS` and a selection matching no

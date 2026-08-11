@@ -13,7 +13,7 @@ are yours, declared in one JSON file, and the `arena-to-prod` command that ships
 that file into the stylesheets Arena reads.
 
 **What comes down with it.** `@angular/core`, `@angular/common` and `@angular/platform-browser`,
-which you already have; `@angular/cdk`, because `arena-tooltip` and `arena-menu` use its overlay
+which you already have; `@angular/cdk`, because a primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` its roving-focus key manager
 to position themselves, and for position only, since the roles, the keys and the focus are
 Arena's own; and `@phosphor-icons/web`, which you may not have: Arena's icons are Phosphor class
 names a component renders, never SVGs it bundles, so the font is installed alongside the package
@@ -219,19 +219,25 @@ Import both from `src/styles.css`, and import them **last**:
 ```css
 @import './icons.generated.css';
 @import './arena.generated.css';
-@import '@dravensoft/arena-angular/css/arena-cdk.css';
 ```
 
-Add that third line when you first use `arena-tooltip` or `arena-menu`: it re-bases the CDK
-overlay onto Arena's `--z-*` scale, without which a menu opened inside a dialog paints behind it.
+**The CDK overlay sheet comes with them.** `arena.css` imports `css/arena-cdk.css` itself, and a
+`stylesheet` block carries it too, so there is no third line to add: it re-bases the CDK overlay
+onto Arena's `--z-*` scale, without which a menu opened inside a dialog paints behind it. Write it
+yourself only under `--no-import`, where you are importing the package sheet by hand.
 
 | flag | what it does |
 | --- | --- |
-| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
-| a projection marker you write and do not import | Reported by name. A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a template that writes the attribute without listing `ArenaFooter` in its own `imports` renders nothing there, and neither the build nor `ngc --strictTemplates` says a word. This is the one defect a component cannot report about itself. |
+| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. | Reported by name. A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a template that writes the attribute without listing `ArenaFooter` in its own `imports` renders nothing there, and neither the build nor `ngc --strictTemplates` says a word. This is the one defect a component cannot report about itself. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |
+
+**One report needs no flag, because it runs on every pass: a projection marker you write and do
+not import.** A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a
+template that writes the attribute without listing `ArenaFooter` in its own `imports` renders
+nothing there, and neither the build nor `ngc --strictTemplates` says a word. It is named on
+stderr. This is the one defect a component cannot report about itself.
 
 **It reports rather than refuses.** If a text colour lands under 4.5:1, if two ramp slots are
 too close to tell apart with a common colour vision deficiency, or if you name a glyph Phosphor
@@ -248,7 +254,7 @@ naming the key.
 
 It counts a component as drawn when its element appears in a template, and it adds what Arena
 draws on your behalf, because `<arena-table>` renders a pagination and a select you never wrote.
-It tells you both counts on stderr, and names any `arena-` element it saw and could not place.
+It prints both counts, and names on stderr any `arena-` element it saw and could not place.
 `preflight: false` is separate: set it when your project already ships an equivalent browser
 reset.
 
@@ -388,9 +394,11 @@ To avoid a flash on first paint, apply the class in `index.html` before your sty
 ```html
 <script>
   (function () {
-    var DEFAULT = 'dark';   // the palette your arena.config.json marks default: it wears no class
+    var DEFAULT = 'dark';          // the palette your arena.config.json marks default
+    var PREFERS_LIGHT = 'light';   // the palette to wear when the device asks for light
     try {
       var name = localStorage.getItem('arena-theme');
+      if (!name && window.matchMedia('(prefers-color-scheme: light)').matches) name = PREFERS_LIGHT;
       if (name && name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
         document.documentElement.classList.add('arena-' + name);
       }
@@ -399,9 +407,12 @@ To avoid a flash on first paint, apply the class in `index.html` before your sty
 </script>
 ```
 
-Set `DEFAULT` to the name of your own default palette. It reaches `:root` and wears no class, so
-a snippet naming the wrong one puts a class on the very palette that must not have it, which is
-the flash it exists to prevent.
+Set both names to your own palettes. The default reaches `:root` and wears no class, so a snippet
+naming the wrong one puts a class on the very palette that must not have it. **The media query is
+the half a stored-value-only snippet gets wrong**: on a first visit nothing is stored, the theme
+surface falls back to the first palette whose polarity matches the device, and a snippet that
+reads only storage paints the default first and is corrected after the app boots, which is the
+flash it exists to prevent.
 
 ## What the package ships besides the components
 

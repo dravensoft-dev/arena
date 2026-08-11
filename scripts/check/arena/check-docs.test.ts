@@ -16,6 +16,7 @@ import {
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   VOICE_PAGE_CLAIM, NOT_A_VOICE, scopeClassesNamed, voiceCatalogueProblems,
+  COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -712,4 +713,13 @@ test('every page on the record carries a reason, because an entry with none cann
     assert.ok(why.length > 40, `${rel} is on the record with no reason worth reading: "${why}"`);
   for (const [name, why] of NOT_A_VOICE)
     assert.ok(why.length > 40, `${name} is excused with no reason worth reading: "${why}"`);
+});
+
+test('the comment rule skips the two extensions whose comments carry a reason nothing else can', () => {
+  assert.deepEqual([...COMMENT_RULE_SKIPS.keys()], ['.css', '.html']);
+  for (const [ext, why] of COMMENT_RULE_SKIPS)
+    assert.ok(why.length > 80, `${ext} says why the rule does not reach it`);
+  for (const ext of COMMENT_RULE_SKIPS.keys())
+    assert.ok(!SOURCE_EXTENSIONS.includes(ext),
+      `${ext} is excluded by decision, so the scan must not carry it as well`);
 });

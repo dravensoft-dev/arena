@@ -21,6 +21,7 @@ export const UNTRACEABLE = new Map([
   ['check:angular', 'it spawns ngc once per project, and the compiler opens the layer in there'],
   ['check:angular-demos', 'it reads what ngc emitted, and ngc ran elsewhere'],
   ['check:focus-trap', 'it drives a browser, which fetches over a socket rather than opening a file'],
+  ['check:pixel-parity', 'it drives a browser too, and captures over the same socket'],
   ['check:consumer', 'it runs the shipped CLI in a scratch project, in another process'],
   ['check:packages', 'it reads dist/, which ng-packagr and the React emit wrote in other processes'],
   ['build:tailwind', 'it compiles through Tailwind, which resolves its own imports'],

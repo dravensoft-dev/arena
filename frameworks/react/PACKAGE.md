@@ -216,7 +216,7 @@ naming the key.
 
 It counts a component as drawn when you import it from this package or open its tag, and it adds
 what Arena draws on your behalf, because an `ArenaTable` renders an `ArenaPagination` and an `ArenaSelect` you
-never wrote. It tells you both counts on stderr, and names anything it saw and could not place.
+never wrote. It prints both counts, and names on stderr anything it saw and could not place.
 `preflight: false` is separate: set it when your project already ships an equivalent browser
 reset.
 
@@ -357,9 +357,11 @@ To avoid a flash on first paint, apply the class before your stylesheet loads:
 ```html
 <script>
   (function () {
-    var DEFAULT = 'dark';   // the palette your arena.config.json marks default: it wears no class
+    var DEFAULT = 'dark';          // the palette your arena.config.json marks default
+    var PREFERS_LIGHT = 'light';   // the palette to wear when the device asks for light
     try {
       var name = localStorage.getItem('arena-theme');
+      if (!name && window.matchMedia('(prefers-color-scheme: light)').matches) name = PREFERS_LIGHT;
       if (name && name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
         document.documentElement.classList.add('arena-' + name);
       }
@@ -368,9 +370,12 @@ To avoid a flash on first paint, apply the class before your stylesheet loads:
 </script>
 ```
 
-Set `DEFAULT` to the name of your own default palette. It reaches `:root` and wears no class, so
-a snippet naming the wrong one puts a class on the very palette that must not have it, which is
-the flash it exists to prevent.
+Set both names to your own palettes. The default reaches `:root` and wears no class, so a snippet
+naming the wrong one puts a class on the very palette that must not have it. **The media query is
+the half a stored-value-only snippet gets wrong**: on a first visit nothing is stored, the theme
+surface falls back to the first palette whose polarity matches the device, and a snippet that
+reads only storage paints the default first and is corrected after the app boots, which is the
+flash it exists to prevent.
 
 ## What the package ships besides the components
 

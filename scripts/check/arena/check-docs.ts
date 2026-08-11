@@ -47,7 +47,18 @@ export function limitFor(rel: string) {
 
 export const BANNED_PUNCTUATION = [['—', 'an em dash']];
 
-const SOURCE_EXTENSIONS = ['.mjs', '.jsx', '.tsx', '.ts', '.js'];
+export const SOURCE_EXTENSIONS = ['.mjs', '.jsx', '.tsx', '.ts', '.js'];
+
+export const COMMENT_RULE_SKIPS = new Map([
+  ['.css',
+   'a stylesheet, where a comment is the only place a declaration\'s reason can sit: a rule '
+   + 'carries no name to say it through, and the alternative is a token whose why lives in a '
+   + 'document the reader of the rule never opens. Animations.css is the case that decides it, '
+   + 'since its header is the normative list of what rides each keyframe'],
+  ['.html',
+   'a page or a specimen, whose comment is markup a browser reads: the @dsCard marker is one, '
+   + 'and stripping it would take the specimen out of the pages that render it'],
+]);
 export const SCANNED_TREES = ['scripts', 'frameworks', '.github'];
 const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git', 'dist']);
 

@@ -56,7 +56,12 @@ voice with a dial rather than as a second answer. So the thing a voice declares 
 but its **mechanism**, in its own file:
 
 ```json
-"$extensions": { "com.dravensoft.arena": { "grouping": "figure-ground" } }
+"$extensions": {
+  "com.dravensoft.arena": {
+    "grouping": "figure-ground",
+    "job": "invite and convert: marketing, commerce, onboarding, pricing"
+  }
+}
 ```
 
 `PRINCIPLES` in `scripts/check/core/check-extensions.ts` is the register, and they are the Gestalt principles a flat surface can actually spend:
@@ -129,9 +134,11 @@ refuses. A question nobody has re-answered yet is still a question that has been
 
 What no voice may touch is what reduced motion means. `prefers-reduced-motion` is answered per
 animation and per meaning: motion that reports work slows rather than stopping, decoration stops,
-an entrance keeps its fade and drops its travel. Every one of those answers is a keyframe or a
-media query in `frameworks/tailwind/Animations.css` rather than a token, so it is outside an
-extension's reach by the same construction as everything else a manifest does not paint.
+an entrance keeps its fade and drops its travel. A fourth meaning is that motion reporting a
+SETTING rather than progress stops outright, which is `ArenaSwitch`'s knob. Every one of those
+answers is a keyframe, a media query or a `motion-reduce:` class in a manifest rather than a
+token, so all of them are outside an extension's reach by the same construction as everything
+else a manifest paints and a voice does not.
 `ArenaButton` is the shape to look at: a voice may take `press-scale` to 0.96 and
 `motion-reduce:active:scale-100` still cancels the whole gesture.
 
@@ -315,7 +322,7 @@ give room in. What is left is the ladder, tightened at one end and widened at th
 a group, 24px between peers, 64px between sections, a ratio of eight where the default is two.
 
 That ratio is not decoration, it is the whole mechanism, which is why `check:extensions` holds it
-above four. The other two voices can afford a gentler ladder because a hairline or a depth is
+at four or above. The other two voices can afford a gentler ladder because a hairline or a depth is
 carrying the grouping beside it; this one has nothing else.
 
 Its floating surfaces are deliberately untouched. A menu, a dialog and a toast are separated from

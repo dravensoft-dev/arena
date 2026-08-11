@@ -128,8 +128,10 @@ thing to hold true:
 - **A directory link is `linkDir`**, a junction on Windows, which needs neither Developer Mode
   nor elevation where a symlink needs both.
 - **A gate that cannot run FAILS, in one spelling.** `cannotRun` in `lib/arena/arena-scripts-vars.ts`.
-  The four skippable gates had drifted into three readings of that, so on this repository's own
-  declared strictness three failed and the fourth skipped.
+  A rule spelled once per gate is a rule that holds for some of them: with each gate spelling its
+  own answer, the same missing dependency fails one and skips the next on identical settings.
+  Derive the set that can skip with
+  `grep -rl 'cannotRun\|skipExitCode' scripts/check/*/check-*.ts` rather than counting here.
 - **A case a host cannot run declares its skip and never calls one**: `{ skip: WHY_NOT }` beside
   the timeout, where `WHY_NOT` is `false` or the sentence. Bun answers `t.skip()` with
   `NotImplementedError`, so the machine lacking the browser, the symlink or the signal is the one
@@ -208,9 +210,9 @@ one sweep reports every problem rather than the first.
 commit.** The individual gates are cheap and stay available per commit, `check:dimensions` after
 touching a framework layer, `check:tokens` after a rebuild, and a task that widens a gate should
 still watch that gate fail and then pass. But the full sweep is a **completion** gate, not a
-per-commit toll. Stating that is what lets a gate be expensive enough to be worth having: the
-`@dsCard` viewport check needs a browser and a real render, which no repository can afford once
-per commit.
+per-commit toll. Stating that is what lets a gate be expensive enough to be worth having: `check:pixel-parity`
+opens two real pages per component per voice in Chromium and compares them pixel for pixel, which
+no repository can afford once per commit.
 
 **Some gates are not runtime-portable**, needing a headless browser, `Bun.build` or
 `Bun.Transpiler`. Where the dependency is missing the gate exits 2 and is reported `SKIP`,

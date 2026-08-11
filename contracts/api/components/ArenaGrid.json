@@ -3,13 +3,26 @@
   "description": "A grid that decides its own column count from the room it is given, rather than from a breakpoint anyone had to pick. Cells are as wide as they can be at or above a minimum, and the count falls as the room does, all the way to one.",
   "affordances": [],
   "api": {
-    "min": { "form": "primitive", "type": "string", "default": "calc(var(--sp-1) * 50)",
-             "description": "The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it." },
-    "gap": { "form": "enum", "type": "ArenaGridGap", "default": "md",
-             "description": "The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. The three steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections; a grid is that rhythm plus a grid, and nothing here is a number this component chose." },
-    "maxWidth": { "form": "primitive", "type": "string",
-                  "description": "A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for." },
-    "content": { "form": "slot",
-                 "description": "The cells, one per child. Nothing is wrapped and nothing is measured: a child is a grid item exactly as it was written, so a card, a chart or a definition list all lay out the same way." }
+    "min": {
+      "form": "primitive",
+      "type": "string",
+      "default": "calc(var(--sp-1) * 50)",
+      "description": "The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it."
+    },
+    "gap": {
+      "form": "enum",
+      "type": "ArenaGridGap",
+      "default": "md",
+      "description": "The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. Its steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections, and none closes the gap entirely; a grid is that rhythm plus a grid, and nothing here is a number this component chose."
+    },
+    "maxWidth": {
+      "form": "primitive",
+      "type": "string",
+      "description": "A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for."
+    },
+    "content": {
+      "form": "slot",
+      "description": "The cells, one per child. Nothing is wrapped and nothing is measured: a child is a grid item exactly as it was written, so a card, a chart or a definition list all lay out the same way."
+    }
   }
 }

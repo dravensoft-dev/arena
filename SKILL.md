@@ -41,8 +41,9 @@ rather than by a dial. Pick from the job, not from the description of the look.
 it. The class goes on the root, or on any container to scope it to part of a page; a project that
 has already decided writes `"extension": "showcase"` in its `arena.config.json` and gets it
 everywhere. **One voice per page, and write none of your own.** A voice composes with a theme and
-with the density classes because the three change different things: a voice takes the surfaces and
-the gaps between them, a theme takes the colour, and density keeps the controls and the data rows.
+with the density classes because the three change different things: a voice takes the surfaces, the
+gaps between them, the weight and leading of type and how much energy a response has; a theme takes
+the colour; and density keeps the controls and the data rows.
 
 **Everything after this is one component at a time**, and none of it changes what you picked here.
 
@@ -64,7 +65,9 @@ only for the reasoning behind one, and you will rarely need it.
 
 ## The rules, and they are not style preferences
 
-Every one of these is enforced somewhere, so breaking one is a defect rather than a variation.
+Every one of these is a rule of the language rather than a preference, and most are enforced
+inside Arena by a gate over Arena's own tree. **No gate reads your application**, so in your code
+these hold because you hold them: breaking one is a defect that nothing will report.
 
 - **Tokens are the only styling layer.** A raw hex, or a bare `16px`, is a bug. Read a value
   through its custom property (`var(--crimson)`, `var(--sp-4)`) or derive it with

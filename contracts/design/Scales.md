@@ -147,17 +147,19 @@ Line height splits editorial from control exactly the way `fs`/`dz` split font s
 
 | Token | Value | Role |
 |---|---|---|
+| `--lh-root` | `1.5` | what every element inherits until something declares otherwise, and the floor WCAG 1.4.8 asks of body copy. It is the baseline rather than a role, which is why nothing reaches for it by name |
 | `--lh-tight` | `0.98` | sub-1em, the tightest display headings |
 | `--lh-snug` | `1.15` | snug prose: short labels and values that still wrap on occasion (`ArenaStatCard`'s value, `ArenaRadio`'s label, `Shell`'s person block) |
 | `--lh-body` | `1.6` | prose: paragraphs, dialog and alert body copy, messages |
+| `--lh-loose` | `1.8` | reading leading, one step above body, for a voice that carries its hierarchy in type rather than in boxes. It is what `lh-prose` moves to under `editorial` and what nothing else reaches for |
 | `--dz-lh` | `1` | glyph-tight, the control reset, where the box is exactly its glyph |
 
-Three prose steps cover every wrapping site in the system, and a value within 0.05 of one is drift rather than a fourth step: it moves to the token.
+The prose steps between them cover every wrapping site in the system, and a value within 0.05 of one is drift rather than a step of its own.
 
 Exposed in the Tailwind layer as `.leading-tight` / `.leading-snug` / `.leading-body` (`frameworks/tailwind/Theme.css`, `--leading-*`). `--dz-lh` is exposed as `.leading-ctl` rather than `.leading-none`, because the `--leading-*` namespace holds three editorial steps (`tight`, `snug`, `body`) plus this one control token, and a name indistinguishable from its editorial neighbours would be a `dz` token wearing an `lh`-shaped name, which is the mistake the `fs`/`dz` split exists to prevent. The `ctl` infix keeps it visibly a density role, consistent with `--text-ctl`.
 
 ## Motion scale (`dur` / `loop`)
-Two families, one `$type: duration`, two roles that must not merge. `dur` is the transition scale: a response to an action, over in the low hundreds of milliseconds. `loop` is cyclical motion: it reports that work is *ongoing*, and is measured in seconds rather than milliseconds, because a spinner or an indeterminate progress sweep is not "responding" to anything, it is signaling that something is still running. Merging the two would repeat the mistake the `fs`/`dz` split exists to prevent: one scale asked to carry two roles at once. Both live in `contracts/design/effects.json`, generated into `contracts/design-generated/effects.generated.css`.
+Two families, one `$type: duration`, two roles that must not merge. `dur` is the transition scale: a response to an action, over in the low hundreds of milliseconds. `loop` is cyclical motion: it reports that work is *ongoing*, and is measured in seconds rather than milliseconds, because a spinner or an indeterminate progress sweep is not "responding" to anything, it is signaling that something is still running. Merging the two would repeat the mistake the `fs`/`dz` split exists to prevent: one scale asked to carry two roles at once. Both live in `contracts/design/effects.json`, generated into `contracts/design-generated/effects.generated.css`. **Moving a step here is wider than moving the role that names it**: `frameworks/tailwind/Theme.css` wires `--default-transition-duration` to `--dur-fast` and `--default-transition-timing-function` to `--ease-out`, so a bare `transition-*` utility anywhere, in Arena or in a consuming project, moves with the scale and not with `dur-hover`. Retune the role when one question should be answered differently; retune the scale when every use of that length should be.
 
 | Token | Value | Role |
 |---|---|---|
