@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
@@ -38,6 +38,50 @@ test('the domain table in scripts/check/AGENTS.md counts what GATES holds, or it
     assert.equal(Number(found[1]), n,
       `the table says ${domain}/ holds ${found[1]} gate(s) and GATES holds ${n}`);
   }
+});
+
+test('every gate has a row in its own domain table, because a gate nobody documented is one nobody finds', () => {
+  const missing = [];
+  for (const { name, file } of GATES) {
+    const [domain = '', gate = ''] = file.split('/');
+    const table = readFileSync(join(repoRoot, 'scripts', 'check', domain, 'AGENTS.md'), 'utf8');
+    if (!table.includes(`\`${gate}\``)) missing.push(`${name} (${gate} has no row in scripts/check/${domain}/AGENTS.md)`);
+  }
+  assert.deepEqual(missing, [],
+    'the domain table is the fifth registration point, and it is the one that fails silently: '
+    + 'a gate runs, passes and is documented nowhere');
+});
+
+const COVERED_ELSEWHERE = new Map([
+  ['check:graph', 'scripts/graph/graph-problems.test.ts: everything it asserts lives in '
+    + 'graph-problems.ts with the rest of the graph, and this file is a print and an exit'],
+  ['check:vendor', 'scripts/build/react/build-vendor.ts owns the bundle it compares against, and '
+    + 'the gate is that build run a second time and diffed'],
+  ['check:demos', 'scripts/build/react/build-demos.test.ts: the emit is the build\'s, and the '
+    + 'gate compares it against disk'],
+  ['check:react-barrel', 'scripts/build/react/build-react-barrel.test.ts, for the same reason'],
+  ['check:intro', 'the bundles are Bun.build\'s own output and the gate is a byte comparison, so '
+    + 'there is no logic of its own to read'],
+]);
+
+test('every gate has a paired suite beside it, or an entry saying where it is covered instead', () => {
+  const uncovered = [];
+  const met = new Set();
+  for (const { name, file } of GATES) {
+    if (existsSync(join(repoRoot, 'scripts', 'check', file.replace(/\.ts$/, '.test.ts')))) {
+      if (COVERED_ELSEWHERE.has(name)) uncovered.push(`${name} has a sibling suite AND a COVERED_ELSEWHERE entry`);
+      continue;
+    }
+    if (COVERED_ELSEWHERE.has(name)) { met.add(name); continue; }
+    uncovered.push(`${name} (no ${file.replace(/\.ts$/, '.test.ts')}, and no entry saying where it is covered)`);
+  }
+  for (const [name] of COVERED_ELSEWHERE)
+    if (!met.has(name)) uncovered.push(`COVERED_ELSEWHERE names ${name}, which is in no gate list any more`);
+  assert.deepEqual(uncovered, [],
+    'a gate is pure functions plus a main(), and a suite is what reads those functions: without '
+    + 'one, a gate that finds nothing and a gate that looks at nothing are the same run. A gate '
+    + 'whose own file is a print and an exit is covered where its logic lives, and its entry says '
+    + 'where; an entry whose gate has since grown a sibling suite fails as a stale allowance');
 });
 
 test('every gate in the array is also an npm script -- a gate a reader cannot invoke by name is the shape check:text-contrast shipped in', () => {

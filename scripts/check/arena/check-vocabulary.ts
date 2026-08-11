@@ -202,19 +202,41 @@ export function filenameProblems(
   return problems;
 }
 
-export const BUN_RUN = /\bbun run ([a-z][a-z0-9:-]*)/g;
+export const BUN_RUN = /\bbun run ([a-z][a-z0-9-]*(?::[a-z0-9-]+)*)(?![:\w-])/g;
+
+export const COMMAND_BEARING = ['.ts', '.tsx', '.mjs', '.js'];
+
+export const MODELS_A_FAILURE = new Map([
+  ['scripts/check/arena/check-vocabulary.test.ts',
+   'this gate\'s own suite, which has to name a script package.json does not declare in order to '
+   + 'prove the gate reports one. It is the single file whose command strings are fixtures rather '
+   + 'than instructions, and any other suite naming a missing script is naming one for real'],
+]);
+
+export function sources(base = root, files = treeFiles(base)) {
+  return files.filter((rel) => COMMAND_BEARING.some((ext) => rel.endsWith(ext))
+    && !outOfScope(rel) && !MODELS_A_FAILURE.has(rel));
+}
+
+export function fixtureProblems(base = root, files = treeFiles(base), excused = MODELS_A_FAILURE) {
+  return [...excused].filter(([rel]) => !files.includes(rel)).map(([rel, why]) =>
+    `MODELS_A_FAILURE names ${rel}, which is not in the tree, so the allowance outlived the `
+    + `fixture it was written for: ${why}`);
+}
 
 export function commandProblems(base = root, files = treeFiles(base)) {
   const declared = new Set(Object.keys(readJson(join(base, 'package.json')).scripts ?? {}));
   const problems = [];
-  for (const rel of documents(base, files)) {
+  for (const rel of [...documents(base, files), ...sources(base, files)]) {
     const text = readFileSync(join(base, rel), 'utf8');
     const named = new Set([...text.matchAll(BUN_RUN)].map((m) => m[1] ?? ''));
     for (const name of named) {
       if (declared.has(name)) continue;
       problems.push(
-        `${rel}: tells a reader to run bun run ${name}, and package.json declares no such script, `
-        + 'so the instruction answers "Script not found" to whoever follows it',
+        `${rel}: names bun run ${name}, and package.json declares no such script, so the `
+        + 'instruction answers "Script not found" to whoever follows it. A gate\'s failure '
+        + 'message is read by somebody who has just been stopped, which is the worst moment to '
+        + 'hand them a command that does not exist',
       );
     }
   }
@@ -304,6 +326,7 @@ export function vocabularyProblems(base = root) {
       ...conventionProblems(base, files, present),
       ...filenameProblems(base, files, present),
       ...commandProblems(base, files),
+      ...fixtureProblems(base, files),
       ...readmeProblems(base, files),
       ...snippetProblems(base, files, present),
     ],

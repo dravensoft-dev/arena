@@ -49,7 +49,7 @@ bun add @dravensoft/arena-angular
 ```
 
 That is the whole install. Angular, the CDK and `@phosphor-icons/web` are peer dependencies, so
-your package manager brings down whichever of them the project does not already have.
+your package manager brings down whichever of them the project does not already have. **The package declares `engines: { node: ">=26" }`**, which the command below needs rather than the components: a project on an older Node installs cleanly and fails at `arena-to-prod`.
 
 **An icon is a class name, not an element.** Every `icon` input takes a Phosphor class list,
 `"ph-bold ph-bell"`, and the component renders it. The stylesheet that turns those classes into
@@ -150,6 +150,7 @@ three fonts served by Google Fonts, and it is enough to start:
         "warning-content": "#141010",
         "error": "#e85151",
         "error-content": "#ffffff",
+        "error-fill": "#ce3838",
         "cat-1": "#3c7b0a",
         "cat-2": "#3b63be",
         "cat-3": "#0a924b",
@@ -201,8 +202,11 @@ One command, no arguments. It reads `arena.config.json` and your `src` tree, and
 files into `src`:
 
 - **`arena.generated.css`**, your palettes and your `@font-face` rules, led by an `@import` of
-  the package's own stylesheet. Both declare into `:root` at equal specificity, so source order
-  decides and your values win.
+  the package's own stylesheet. **This file is where every colour comes from**: the package
+  declares no `--color-*` of its own, only the rules that read them, so the config and this
+  command are how Arena gets a palette at all rather than a way to override one. The font roles
+  are the half that is an override: the package declares them and your file, coming later at
+  equal specificity in `:root`, wins.
 - **`icons.generated.css`**, the Phosphor subset in `woff2` alone: every glyph your sources draw
   and every glyph Arena draws for you. It exists because a whole Phosphor weight carries every
   icon Phosphor has and a screen draws a handful, which makes it the largest thing an Arena
@@ -223,7 +227,7 @@ overlay onto Arena's `--z-*` scale, without which a menu opened inside a dialog 
 
 | flag | what it does |
 | --- | --- |
-| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it costs nothing extra: the command already reads your sources to resolve `"components": "auto"`. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
+| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | a projection marker you write and do not import | Reported by name. A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a template that writes the attribute without listing `ArenaFooter` in its own `imports` renders nothing there, and neither the build nor `ngc --strictTemplates` says a word. This is the one defect a component cannot report about itself. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
@@ -384,15 +388,20 @@ To avoid a flash on first paint, apply the class in `index.html` before your sty
 ```html
 <script>
   (function () {
+    var DEFAULT = 'dark';   // the palette your arena.config.json marks default: it wears no class
     try {
       var name = localStorage.getItem('arena-theme');
-      if (name && name !== 'dark' && /^[a-z][a-z0-9-]*$/.test(name)) {
+      if (name && name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
         document.documentElement.classList.add('arena-' + name);
       }
     } catch (e) {}
   })();
 </script>
 ```
+
+Set `DEFAULT` to the name of your own default palette. It reaches `:root` and wears no class, so
+a snippet naming the wrong one puts a class on the very palette that must not have it, which is
+the flash it exists to prevent.
 
 ## What the package ships besides the components
 

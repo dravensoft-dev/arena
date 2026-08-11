@@ -18,7 +18,7 @@ export const node = {
 
 export function fileDrift(name: string, css: string, committed: string | null) {
   const expected = parseDecls(css);
-  if (committed === null) return [`contracts/design-generated/${name}: missing — run bun run build:tokens`];
+  if (committed === null) return [`contracts/design-generated/${name}: missing — run bun run generate:tokens`];
 
   const actual = parseDecls(committed);
   const drift = [];

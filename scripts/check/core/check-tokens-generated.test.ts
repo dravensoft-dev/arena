@@ -10,7 +10,7 @@ test('a file that matches what the generator emits drifts in nothing', () => {
 
 test('a file that is not there names the command that writes it', () => {
   assert.deepEqual(fileDrift('spacing.generated.css', GENERATED, null),
-    ['contracts/design-generated/spacing.generated.css: missing — run bun run build:tokens']);
+    ['contracts/design-generated/spacing.generated.css: missing — run bun run generate:tokens']);
 });
 
 test('drift is reported in both directions, because a stale file loses and gains', () => {

@@ -108,7 +108,7 @@ test('cssDiscoveryProblems: no prior problems, populated directory -- continue',
 });
 
 test('cssDiscoveryProblems: a prior drift problem, populated directory -- still continue, not gated by an unrelated finding', () => {
-  assert.deepEqual(cssDiscoveryProblems(['frameworks/react/Tokens.generated.js: stale — run bun run build:tokens'], 5), []);
+  assert.deepEqual(cssDiscoveryProblems(['frameworks/react/Tokens.generated.js: stale — run bun run generate:tokens'], 5), []);
 });
 
 test('cssDiscoveryProblems: no prior problems, empty directory -- the CSS-discovery line alone', () => {
@@ -119,7 +119,7 @@ test('cssDiscoveryProblems: no prior problems, empty directory -- the CSS-discov
 });
 
 test('cssDiscoveryProblems: a prior drift problem AND an empty directory -- both are reported, not just the CSS-discovery line', () => {
-  const drift = 'frameworks/react/Tokens.generated.js: stale — run bun run build:tokens';
+  const drift = 'frameworks/react/Tokens.generated.js: stale — run bun run generate:tokens';
   const result = cssDiscoveryProblems([drift], 0);
   assert.equal(result.length, 2);
   assert.equal(result[0], drift);

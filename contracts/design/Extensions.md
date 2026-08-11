@@ -30,7 +30,7 @@ prose that no sheet emits is one nothing else would ever look at.
 |---|---|---|
 | Floor | WCAG contrast, the non-text contrast of a control's boundary and of the focus ring, focus appearance, target size, the reduced-motion policy, danger recognisable without colour | Nobody |
 | Extension | The grouping signal, the radius roles, the border roles, the surface FILL roles as an assignment, resting and raised depth, the air a surface gives its content and the air between two things, a heading's weight and tracking, the leading of prose above its floor, the motion roles, and the `fs` steps that shout | Arena, in a DTCG partial |
-| Skin | The 27 palette colours and the three font roles | The consumer, in `arena.config.json` |
+| Skin | The palette colours and the font roles, every key `arena.config.json` declares | The consumer, in `arena.config.json` |
 
 An extension may not lower a floor. `bun run check:boundary-contrast` is the one floor this
 feature had to build: an extension that sets a control's or a field's border to zero has moved the
@@ -59,7 +59,7 @@ but its **mechanism**, in its own file:
 "$extensions": { "com.dravensoft.arena": { "grouping": "figure-ground" } }
 ```
 
-Three are known, and they are the Gestalt principles a flat surface can actually spend:
+`PRINCIPLES` in `scripts/check/core/check-extensions.ts` is the register, and they are the Gestalt principles a flat surface can actually spend:
 
 | Principle | What says two things belong together | The invariant `check:extensions` holds |
 |---|---|---|
@@ -113,7 +113,7 @@ units, and DTCG 2025.10 admits `px` and `rem` only. Widening that would trade a 
 for one token, and the two components that set a measure today do it with an arbitrary literal.
 
 **An extension answers how a control responds, and cannot touch what a response means under reduced
-motion.** Five roles carry motion: `dur-hover` and `ease-hover` for a response to a pointer,
+motion.** The motion roles are `dur-hover` and `ease-hover` for a response to a pointer,
 `dur-state` and `ease-state` for a change the eye follows, and `press-scale` beside `lift-control`
 for the two directions a control travels under a press. The durations were promoted first and that
 left the tier half built, because a duration cannot carry character on its own: 220ms on Arena's

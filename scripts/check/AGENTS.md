@@ -103,9 +103,10 @@ thing this runner promises.
 
 ## Exit 2 means SKIP, and a skip is never green
 
-**Three** gates need a runtime dependency that plain node does not have: `check:focus-trap`
-needs a headless browser, `check:vendor` needs `Bun.build`, `check:demos` needs
-`Bun.Transpiler`. Where the dependency is missing the gate exits **2**, `check-all` marks it
+**A gate needing a runtime dependency plain node does not have declares it rather than assuming
+it**: `check:focus-trap` and `check:pixel-parity` drive a headless browser, `check:vendor` and
+`check:intro` need `Bun.build`, `check:demos` needs `Bun.Transpiler`. Derive the set with
+`grep -rl 'cannotRun\|skipExitCode' scripts/check/*/check-*.ts` rather than reading a count. Where the dependency is missing the gate exits **2**, `check-all` marks it
 `SKIP`, and the whole run reports **INCOMPLETE** rather than passing.
 
 **The repository declares itself strict, so that is not the default here**: a gate that cannot
@@ -121,7 +122,10 @@ reason strict is the declared value rather than the opt-in one.
 ## Where the variables live
 
 `scripts/lib/arena/arena-scripts-vars.ts` declares every environment variable the scripts
-read, so a test run or a CI run needs no exports. There are four, and no gate reads any other:
+read, so a test run or a CI run needs no exports. Every variable a gate reads for its own
+behaviour is here; the one exception is a debugging outlet, `ARENA_PIXEL_DUMP`, which
+`check:pixel-parity` reads to write a failing capture somewhere a person can open it, and which
+decides nothing about whether the gate passes:
 
 | variable | what it decides |
 | --- | --- |
@@ -187,8 +191,14 @@ a gate cannot join `GATES` and then run in no job.
 ## Adding a gate
 
 Put it in `check/<domain>/`, add it to `GATES` with its domain in the path, give it an npm
-script, and add a row to that domain's table. `check-all.test.ts` asserts the gate list by
-literal value, so the count and the order move in the same commit.
+script, add a row to that domain's table, and write the suite beside it. Then edit
+`check-all.test.ts`, which is a step rather than a consequence: it asserts the gate list **by
+literal value**, so both the length and the array move in the same commit, and a case pins the
+last entries to the Angular domain, so a new gate is inserted rather than appended. That suite
+also holds the two registrations nothing else would notice: the row in the domain table, which is
+the one a gate can be missing while running and passing, and the sibling suite, without which a
+gate that finds nothing and a gate that looks at nothing are the same run. A gate covered
+somewhere other than beside itself says so in `COVERED_ELSEWHERE`, with where.
 
 `check-release` is the one script with no npm entry and no place in `GATES`: it is run by path
 before publishing, because it asserts what the *tag* hands out and there is nothing to assert

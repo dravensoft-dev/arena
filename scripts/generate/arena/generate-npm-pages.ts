@@ -96,6 +96,7 @@ three fonts served by Google Fonts, and it is enough to start:
         "warning-content": "#141010",
         "error": "#e85151",
         "error-content": "#ffffff",
+        "error-fill": "#ce3838",
         "cat-1": "#3c7b0a",
         "cat-2": "#3b63be",
         "cat-3": "#0a924b",

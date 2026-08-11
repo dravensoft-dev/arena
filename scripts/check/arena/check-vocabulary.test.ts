@@ -12,7 +12,7 @@ import {
   NAMED_BUT_NOT_HERE, README_MEANS, OUT_OF_SCOPE, SKIPPED_UNDER_FRAMEWORKS, KNOWN_EXTENSIONS,
   skips, outOfScope, documents, treeFiles, unfenced, fenced, searchRoots, suffixOf, holds,
   conventionProblems, filenameProblems, commandProblems, readmeProblems, snippetProblems,
-  zeroScanProblems, vocabularyProblems,
+  zeroScanProblems, vocabularyProblems, MODELS_A_FAILURE, fixtureProblems,
 } from './check-vocabulary.ts';
 
 function tree(files: Record<string, string>) {
@@ -173,4 +173,24 @@ test('the repository names no convention, command, README or search the tree can
   assert.deepEqual(problems, []);
   assert.ok(scanned > 100, 'the walk reaches the whole documentation tree');
   assert.ok(documents().length === scanned);
+});
+
+test('a command is held in a source string too, since a gate message is read at the worst moment', () => {
+  const base = tree({
+    'package.json': JSON.stringify({ scripts: { build: 'x' } }),
+    'scripts/check/one.ts': 'const message = `stale — run bun run generate:tokens`;',
+    'scripts/check/two.ts': 'const message = `run bun run build: the page is emitted`;',
+  });
+  const problems = commandProblems(base, treeFiles(base));
+  assert.equal(problems.length, 1, 'a trailing colon is prose punctuation and not part of the name');
+  assert.match(problems[0] ?? '', /one\.ts: names bun run generate:tokens/);
+});
+
+test('the one suite that models a failure is excused by name, and a stale excuse fails', () => {
+  assert.deepEqual([...MODELS_A_FAILURE.keys()], ['scripts/check/arena/check-vocabulary.test.ts']);
+  for (const why of MODELS_A_FAILURE.values()) assert.ok(why.length > 60, 'it says why it is one');
+  assert.deepEqual(fixtureProblems(process.cwd(), ['scripts/check/arena/check-vocabulary.test.ts']), []);
+  const stale = fixtureProblems(process.cwd(), []);
+  assert.equal(stale.length, 1);
+  assert.match(stale[0] ?? '', /outlived the fixture it was written for/);
 });

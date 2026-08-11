@@ -27,6 +27,10 @@ slot. An icon is a Phosphor class-name string, never an element.
   [`../SKILL.md`](../SKILL.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked `*` is required; the prompt gives its type and its default.
+- **A member whose type is an object or an enum takes one this package exports.** The prompt
+  names the type and says what it is for; the fields it holds are in the type declaration itself,
+  which `import type { … } from '@dravensoft/arena-angular'` brings in. That field list is in neither
+  the prompt nor the contract, so the type is where you read it.
 
 ## brand
 

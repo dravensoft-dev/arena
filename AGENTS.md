@@ -78,10 +78,14 @@ knows what they are reaching for never asks. **`check:routes` is what holds the 
 budget**, and `ROUTES` in `scripts/check/arena/check-routes.ts` is where the stops are declared;
 no document carries the figure.
 
-**A rule written into both branches goes stale in one of them.** The design rules are the one
-place that reads like an exception and is not: they are DECIDED in `contracts/design/AGENTS.md`
-and HANDED OVER in `SKILL.md`, which are two different acts and two different readers. A third
-statement, restating either, is what goes stale.
+**A rule written into both branches goes stale in one of them.** The design rules a builder has to
+obey are the one place that reads like an exception and is not: those are DECIDED in
+`contracts/design/AGENTS.md` and HANDED OVER in `SKILL.md`, which are two different acts and two
+different readers. A third statement, restating either, is what goes stale. **Most of the
+specification is not handed over at all**, because most of it decides values rather than binding a
+builder: a scale a component reads and a consumer never names has one home, and `SKILL.md` is not
+it. What a consumer has to know about a value reaches them through the layer's `PACKAGE.md`, which
+is where a shipped stylesheet like `css/rhythm.css` is documented.
 
 **The question that decides the branch is who has to act on the fact**, never which directory the
 code sits in. A helper under `frameworks/react/` that a consumer imports is a consumer fact; a
