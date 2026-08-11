@@ -1,6 +1,6 @@
 /* The gate reads the real tree, which is correct by construction once it passes, so these
- * drive its pure functions with the shapes the two defects it was written for actually had:
- * a spec deleted by charter, and a build step renamed. EXEMPT is asserted by name. */
+ * drive its pure functions with the two shapes a broken citation takes: a path deleted by
+ * charter, and one naming a build step nothing answers to. EXEMPT is asserted by name. */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

@@ -21,8 +21,8 @@ against the floors before it goes out.
 `bun run check:docs` holds the second: each layer's `PACKAGE.md` and the root `SKILL.md` must name
 every voice this build ships, and must name no `arena-` scope class the generated sheets do not
 answer to. Both directions are failures a green tree carries otherwise: a voice the CLI offers and
-no document names is a voice that did not ship, whatever the catalogue says, and a renamed voice
-leaves its old class behind in prose, where nothing else would ever look at it.
+no document names is a voice that did not ship, whatever the catalogue says, and a class named in
+prose that no sheet emits is one nothing else would ever look at.
 
 ## The three tiers
 

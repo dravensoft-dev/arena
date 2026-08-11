@@ -136,7 +136,11 @@ two copies and never reads either for meaning. Verify with
   upgrade costs or which release moved it: a reader on this tree cannot act on any of it, and a
   reader arriving from an older one is served by the version number and by the commit log, which
   is dated and is where the history already is. A retired token, a fixed defect, a former
-  directory layout and a batch number belong in that log. The reason a rule exists is not history
+  directory layout and a batch number belong in that log. **The npm page is not an exception**,
+  though it is the one place the argument for an exception can be made, since its reader has
+  neither this tree nor that log: what they get instead is a build that refuses a name this
+  version does not ship and says what it does, which is the whole of what a migration note would
+  have told them and is delivered where they are rather than where they are not. The reason a rule exists is not history
   and stays: state it as a property of the thing, not as an incident.
 - **A debt is written in the present tense as well, and it goes to [`DOUBTS.md`](./DOUBTS.md).**
   Anything tracked, ambiguous, or implemented only in part is stated there as what the tree

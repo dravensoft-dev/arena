@@ -459,8 +459,8 @@ export function voiceCatalogueProblems(root = ROOT, pages = VOICE_PAGE_CLAIM, ex
     for (const cls of named)
       if (!allowed.has(cls))
         problems.push(
-          `${rel}: offers .${cls}, and Arena answers to no such scope class. A renamed voice `
-          + `leaves exactly this behind, and the page keeps offering a class the cascade ignores. `
+          `${rel}: offers .${cls}, and Arena answers to no such scope class, so the page offers `
+          + `one the cascade ignores and a reader writes it into a root that does nothing. `
           + `The voices this build ships are ${catalogue}; if it is not a voice at all, record it `
           + 'in NOT_A_VOICE with what it is',
         );

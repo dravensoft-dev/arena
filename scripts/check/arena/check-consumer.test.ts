@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  importedSheets, staleNameProblems, listProblems, assembled, documented, SOURCES, STALE,
+  importedSheets, unknownSymbolProblems, listProblems, assembled, documented, SOURCES, UNKNOWN,
 } from './check-consumer.ts';
 
 const ok: { status: number; stderr: string; theme: string | null; icons: string | null } =
@@ -24,16 +24,16 @@ test('the emitted sheet list is read from the imports the command wrote, not fro
     'a layer sheet is not a component sheet, or preflight would read as a component');
 });
 
-test('a source naming the pre-rename symbol must resolve nothing, because no alias survives', () => {
-  assert.deepEqual(staleNameProblems('react', { ...ok, theme: null }), []);
-  assert.equal(staleNameProblems('react', { ...ok, status: 1 }).length, 0,
+test('a source naming a symbol the package does not export must resolve nothing, since no alias exists', () => {
+  assert.deepEqual(unknownSymbolProblems('react', { ...ok, theme: null }), []);
+  assert.equal(unknownSymbolProblems('react', { ...ok, status: 1 }).length, 0,
     'a refusal is the honest answer and not a problem of its own');
-  const kept = staleNameProblems('react', sheetImports('button'));
+  const kept = unknownSymbolProblems('react', sheetImports('button'));
   assert.equal(kept.length, 1);
   assert.match(kept[0] ?? '', /no alias/);
 });
 
-test('the documented sheet list must pass and a pre-rename one must fail, naming what ships', () => {
+test('the documented sheet list must pass and an unknown one must fail, naming what ships', () => {
   const shipped = { ...ok, status: 1, stderr: 'is not a sheet this package ships, which are arena-button, arena-table' };
   assert.deepEqual(listProblems('react', ok, shipped), []);
 
@@ -57,9 +57,11 @@ test('assembly is judged by the package manifest, so a half-written dist is not 
 test('the React fixture names the package, because the symbol scan reads the import as well as the tag', () => {
   assert.match(SOURCES['react']?.['src/App.tsx'] ?? '', /from '@dravensoft\/arena-react'/);
   assert.match(SOURCES['react']?.['src/App.tsx'] ?? '', /<ArenaButton/);
-  assert.match(STALE['react']?.['src/App.tsx'] ?? '', /\{ Button \}/, 'the negative fixture must spell the old name exactly');
+  assert.match(UNKNOWN['react']?.['src/App.tsx'] ?? '', /\{ Button \}/, 'the negative fixture must spell a name the package does not export exactly');
   assert.match(SOURCES['angular']?.['src/app.html'] ?? '', /<arena-button/,
-    'the Angular element is unchanged by the rename, and this fixture is what holds that');
+    'the Angular element is the name the package ships, and this fixture is what holds that');
+  assert.match(UNKNOWN['angular']?.['src/app.html'] ?? '', /arena-nothing-at-all/,
+    'and the negative one names an element no package ships');
 });
 
 test('the documented list is read from the shipped README, and a second one shadows rather than adds', () => {

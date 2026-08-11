@@ -645,13 +645,13 @@ test('a voice the build ships and the page never names fails, and the message ca
   rmSync(root, { recursive: true });
 });
 
-test('a page still offering a renamed voice fails, which is the defect a rename leaves behind', () => {
+test('a page offering a scope class no sheet emits fails, because the cascade ignores it', () => {
   const root = voiceTree({
-    'PAGE.md': 'Put `.arena-showcase` or `.arena-editorial` on a root; `.arena-expressive` is older.\n',
+    'PAGE.md': 'Put `.arena-showcase` or `.arena-editorial` on a root; `.arena-invented` is neither.\n',
   });
   const { problems } = voiceCatalogueProblems(root, ONE_PAGE, new Map());
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /offers \.arena-expressive/);
+  assert.match(problems[0] ?? '', /offers \.arena-invented/);
   assert.match(problems[0] ?? '', /no such scope class/);
   rmSync(root, { recursive: true });
 });
