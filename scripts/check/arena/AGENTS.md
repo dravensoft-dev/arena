@@ -71,7 +71,7 @@ rather than a count. A stale exemption fails the gate itself, and a change to `E
 `PASSTHROUGH` is a change to `check-dimension-literals.test.ts` too, since that suite asserts
 on both maps by name.
 
-Every `X.test.mjs` beside a gate covers that gate. Three suites here name no gate:
+Every `X.test.ts` beside a gate covers that gate. Three suites here name no gate:
 `browser-modules.test.ts` covers the `intro/` runtime modules and the two `scripts/`
 modules they reach,
 `components-categories.test.ts` covers `frameworks/Components.json`, and
