@@ -32,7 +32,7 @@ export const ROUTES: Route[] = [
     who: 'an agent writing a screen: the router, where it picks the voice, then the index of the '
       + 'layer it builds in, then the prompt of the one component it writes',
     stops: ['SKILL.md', 'frameworks/*/SKILL.md', 'frameworks/*/components/**/*.prompt.md'],
-    budget: 55_000,
+    budget: 57_000,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -45,12 +45,14 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 40_000,
+    budget: 43_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
       + 'router with the build route, which is where the voice catalogue sits, so the two move '
-      + 'together whenever that page does.',
+      + 'together whenever that page does. The number is argued up rather than held down when a '
+      + 'correction lands on the npm page: a pre-paint script that answers the device as well as '
+      + 'storage is longer than one that does not, and being right is what the page is for.',
   },
   {
     name: 'contributor-component',
