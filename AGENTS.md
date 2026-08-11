@@ -173,20 +173,20 @@ the one that opened it. `bun run check:citations` holds every path a document na
   drop the suffix when the plan lands. **They are deleted once executed**, which is why debt filed
   in one dies with it, and why a document citing one is a citation that was condemned when it was
   written.
-- **No gradients** on any surface, the sole exception being `ArenaSkeleton`'s neutral shimmer. Depth
-  comes from the `base-100` to `base-200` to `base-300` surface scale, the hairline border and
-  the warm shadow.
-- **No emoji**, in product or docs.
-- **Danger is outline, never filled**: transparent background, border and content in
-  `--error`/`--danger`. The only filled danger surface in the whole system is the final
-  irreversible confirmation inside `ArenaConfirmDialog`.
+- **The design rules themselves are not here.** No gradients, no emoji, danger as an outline, one
+  primary accent, a chart carrying identity or meaning: every one of them is decided in
+  [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md) and handed to a builder by
+  [`SKILL.md`](./SKILL.md). A third copy on this page is the one with no owner, and it is the copy
+  that goes stale: the two that are left each fail something, the contract through
+  `check:extensions` and the router through `check:docs`, while a router's restatement fails
+  nothing at all. **The one rule about them that IS this page's**, because it binds a contributor
+  and no consumer: a rule binding more than one component is stated once and never copied into a
+  second document that happens to be nearby.
 - **A commit message containing a backtick is written with a quoted here-doc**, never
   `git commit -m "…"`. A backtick inside a double-quoted shell string opens command substitution
   and is silently spliced away: the message lands with the name it was quoting missing, and
   nothing errors. Use `git commit -q -F - <<'MSG' … MSG` and verify with `git log -1 --format=%B`.
   **`git merge` does not accept `-F -`**, so use `--no-commit`, then commit.
-- **Charts** carry identity, the `--color-cat-*` ramp in order and never cycled, or meaning, the
-  status colours, never both in one chart. Status colours are never series colours. One axis.
 - Responsive branches are JS, not media queries, and measure the **container**: a media query can
   only ask about the viewport.
 - **A wait is for a condition, and the span beside it is a deadline rather than a schedule.** A
