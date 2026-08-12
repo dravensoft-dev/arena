@@ -1,13 +1,13 @@
-/* Cuts a Phosphor weight sheet down to the glyphs a project draws. A weight ships 1531 icon
- * rules and a project draws a few dozen, so the whole sheet is the largest single thing an
- * Arena consumer sends that nothing on screen reads. This module reads no file: the sheet
- * arrives as text and the font path arrives already resolved, because only the command
- * around it knows where a consumer's node_modules is. The rules a sheet holds are flat, one
- * selector and one body with no nesting, which is why a brace scan is enough here and would
- * not be for CSS in general. * An IconScan is what a scan of the consumer's sources found: the glyphs each weight
- * draws, plus the ones named with no weight, which every weight in use must carry.
- * WeightRules is one weight sheet parsed: its @font-face, its shared base rule and
- * one declaration list per glyph. */
+/* Cuts a Phosphor weight sheet down to the glyphs a project draws, the whole sheet being the
+ * largest single thing an Arena consumer sends that nothing on screen reads. This module reads
+ * no file: the sheet arrives as text and the font path already resolved, because only the
+ * command around it knows where a consumer's node_modules is. A sheet's rules are flat, one
+ * selector and one body with no nesting, which is why a brace scan is enough here and would not
+ * be for CSS in general. An IconScan is what a scan of the sources found: the glyphs each weight
+ * draws, plus the ones named beside no weight, which every weight in use carries. The fill
+ * weight carries every glyph named anywhere, whatever weight it was written beside, because the
+ * navigation components swap their active destination to fill on their own and the sheet has to
+ * hold what a component can ask for. WeightRules is one sheet parsed, per glyph. */
 
 
 export const WEIGHT_CLASSES = {
@@ -59,8 +59,17 @@ export function scan(source: string,
   return found;
 }
 
+export function glyphNames(found: IconScan) {
+  const names = new Set(found.loose);
+  for (const glyphs of found.pairs.values()) for (const glyph of glyphs) names.add(glyph);
+  return names;
+}
+
 export function drawn(found: IconScan) {
+  if (found.pairs.size === 0) return [];
+  const filled = glyphNames(found);
   return ARENA_WEIGHTS.flatMap((weight) => {
+    if (weight === 'fill') return [{ weight, glyphs: filled }];
     const pair = found.pairs.get(weight);
     return pair ? [{ weight, glyphs: new Set([...pair, ...found.loose]) }] : [];
   });

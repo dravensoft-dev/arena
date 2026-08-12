@@ -17,7 +17,7 @@ import { configProblems, paletteReports, themeCss } from './theme-css.ts';
 import type { ArenaConfig, PackageSheets, ShippedExtension } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
-import { scan, drawn, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
+import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
@@ -435,12 +435,6 @@ export function iconsStep(options: ResolvedOptions,
     wrote: `${out} (${kept} glyph(s), ${glyphNames(yours).size} named by your sources and `
       + `${glyphNames(ours).size} by Arena's own components, ${sheets.length} weight(s), `
       + `${css.length} bytes)` };
-}
-
-export function glyphNames(scan: IconScan) {
-  const names = new Set(scan.loose);
-  for (const glyphs of scan.pairs.values()) for (const glyph of glyphs) names.add(glyph);
-  return names;
 }
 
 export type ThemeEnvironment = {

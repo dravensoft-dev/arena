@@ -28,13 +28,23 @@ ${extra}`;
 
 const list = (found: IconScan) => drawn(found).map(({ weight, glyphs }) => [weight, [...glyphs].sort()]);
 
-test('a weight and a glyph in one class list are read as that pair and no other', () => {
-  assert.deepEqual(list(scan('<i class="ph-bold ph-bell"></i>')), [['bold', ['ph-bell']]]);
+test('a weight and a glyph in one class list are read as that pair, and no weight but fill gains it', () => {
+  assert.deepEqual(list(scan('<i class="ph-bold ph-bell"></i>')), [['bold', ['ph-bell']], ['fill', ['ph-bell']]]);
+});
+
+test('fill carries every glyph named anywhere, since the navigation swaps its active destination to that weight and no member says so', () => {
+  const found = scan('<i class="ph-bold ph-receipt"></i>');
+  scan('<i class="ph-thin ph-gear"></i>', found);
+  assert.deepEqual(list(found), [
+    ['thin', ['ph-gear']],
+    ['bold', ['ph-receipt']],
+    ['fill', ['ph-gear', 'ph-receipt']],
+  ]);
 });
 
 test('the regular weight is read only when a glyph sits beside it', () => {
   assert.deepEqual(list(scan('const ph = 1;')), []);
-  assert.deepEqual(list(scan('<i class="ph ph-bell"></i>')), [['regular', ['ph-bell']]]);
+  assert.deepEqual(list(scan('<i class="ph ph-bell"></i>')), [['regular', ['ph-bell']], ['fill', ['ph-bell']]]);
 });
 
 test('a weight named on its own ships nothing, because a list of weights is not a rendering', () => {
@@ -48,17 +58,20 @@ test('a word merely ending in ph is not a class list', () => {
 test('a glyph with no weight beside it reaches every weight, because the weight is decided elsewhere', () => {
   const found = scan('<i class="ph-bold ph-bell"></i>');
   scan("icon: 'ph-rocket-launch'", found);
-  assert.deepEqual(list(found), [['bold', ['ph-bell', 'ph-rocket-launch']]]);
+  assert.deepEqual(list(found), [
+    ['bold', ['ph-bell', 'ph-rocket-launch']],
+    ['fill', ['ph-bell', 'ph-rocket-launch']],
+  ]);
 });
 
-test('a loose glyph alone ships nothing, because no weight names a font to draw it with', () => {
+test('a loose glyph alone ships nothing, not even a fill sheet, because no weight names a font to draw it with', () => {
   assert.deepEqual(list(scan("icon: 'ph-rocket-launch'")), []);
 });
 
 test('one scan accumulates across sources, which is how two trees become one set', () => {
   const found = scan('<i class="ph-bold ph-bell"></i>');
   scan('<i class="ph-fill ph-moon"></i>', found);
-  assert.deepEqual(list(found), [['bold', ['ph-bell']], ['fill', ['ph-moon']]]);
+  assert.deepEqual(list(found), [['bold', ['ph-bell']], ['fill', ['ph-bell', 'ph-moon']]]);
 });
 
 test('a sheet is read as its font face, its base rule and one entry per glyph', () => {
