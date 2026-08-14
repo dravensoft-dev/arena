@@ -34,3 +34,9 @@ One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside 
 ### What is injected, and therefore not yours
 
 `rowIndex`, `columns`, `layout`, `cursorCol`, `gridFocused` and `onCellFocus` arrive from `ArenaTable` through `cloneElement`. They are not part of this component's API, are not in `contracts/api/components/ArenaTableRow.json`, and a consumer never writes one, in the same shape as `ArenaRadioGroup` injecting `name`/`checked`/`onSelect` into each `ArenaRadio`.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

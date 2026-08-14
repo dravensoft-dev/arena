@@ -43,3 +43,9 @@ control order is identical in the two shapes.
 - Mark `destructive` on irreversible actions and chain it with `ArenaConfirmDialog`.
 - Don't fire bulk actions without confirmation or without leaving `onClear` to undo the selection.
 - Don't reach for `clearable={false}` casually: a selection whose edges the user cannot see is one they act on by accident.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

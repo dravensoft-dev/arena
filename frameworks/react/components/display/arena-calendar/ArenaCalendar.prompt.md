@@ -98,3 +98,9 @@ difference between them stops being a difference in the DOM. Two things follow. 
 be equal for a chip to land on its own day. And a click on a chip does not reach its day, so it
 reports no date: activate the day from its header or its background. Anything projected that is
 not a chip is still silently skipped by the placement lookup.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

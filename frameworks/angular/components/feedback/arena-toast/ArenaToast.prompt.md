@@ -72,3 +72,9 @@ this page shows is the rest. Run `bun run demos` and open
 - The action and the × are two separate controls, both reachable by Tab, and the × sits outside
   the body column rather than inside it.
 - Stacked against an open dialog, a toast paints above it.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

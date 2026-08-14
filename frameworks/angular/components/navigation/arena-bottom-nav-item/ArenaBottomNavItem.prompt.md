@@ -54,3 +54,9 @@ attribute, so a reader still hears that it exists.
 - Tab reaches every destination once, in source order, and the disabled one announces itself as
   disabled rather than being skipped.
 - A five-word label truncates with an ellipsis instead of pushing its neighbours out of line.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

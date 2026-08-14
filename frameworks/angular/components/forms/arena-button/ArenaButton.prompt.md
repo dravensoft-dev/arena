@@ -75,3 +75,9 @@ open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generat
 - `full` spans the row. The host is bare, so it carries `display: contents` to stay out of
   layout; without that it blockifies to shrink-to-fit as a flex item and `w-full` measures the
   shrunk host instead of the row. That defect shipped in batch 1 and this page is what found it.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

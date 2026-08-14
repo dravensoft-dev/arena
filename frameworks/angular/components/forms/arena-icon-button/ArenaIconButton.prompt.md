@@ -79,3 +79,9 @@ open `/frameworks/angular/components/forms/arena-icon-button/ArenaIconButton.dem
 - Hovering shows the `title`, and setting `showLabel` stops it appearing at all.
 - `disabled` dims to 45% and the cursor turns to not-allowed; both come from `:disabled`
   variants, so they prove the native attribute is really set.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

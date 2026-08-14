@@ -37,3 +37,9 @@ because Angular has no binding for per-item projection, that would need a struct
 directive and `ngTemplateOutlet`, which Arena does not ask a consumer to write. A consumer
 needing a different row imports the exported `arenaActivityFeedStyles` and composes the slots
 themselves.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

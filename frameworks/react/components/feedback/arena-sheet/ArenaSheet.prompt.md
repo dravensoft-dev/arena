@@ -54,3 +54,9 @@ swallowed Escape from across the page would break the dialog a reader has open s
   other; a second surface at the same time is a sign the first should have been an `ArenaDialog`.
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
   is the whole point of a non-modal panel and the whole reason a confirmation is not one.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

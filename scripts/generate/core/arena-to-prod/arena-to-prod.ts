@@ -21,6 +21,7 @@ import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from '
 import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
+import { auditText } from './audit.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -37,19 +38,23 @@ export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.an
 export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET]);
 
 export const USAGE = [
-  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--undrawn] [--strict]',
+  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict]',
   '',
   `  --config        the palettes and fonts this project declares; defaults to ${DEFAULT_CONFIG}`,
   `  --src           a source tree to scan for Phosphor class names; repeatable, defaults to ${DEFAULT_SOURCE}`,
   `  -o, --out       where both stylesheets go; defaults to ${DEFAULT_OUT}`,
   `                  it writes ${THEME_SHEET} and ${ICONS_SHEET}, and you import them last`,
+  '  --audit         report where your sources break a rule of the language: a class of your own',
+  '                  on an Arena component, one wrapped in your router\'s link, a raw value where',
+  '                  a token belongs, an icon as an element, an emoji',
   '  --undrawn       name the components this package ships that your sources draw nowhere',
-  '  --strict        exit 1 on a contrast, ramp or missing-glyph report, not only on a config problem',
+  '  --strict        exit 1 on a contrast, ramp, missing-glyph or audit report, not only on a config problem',
   '  --no-import     omit the @import of the package stylesheet from the theme output',
 ].join('\n');
 
 export type ResolvedOptions = {
   strict: boolean;
+  audit: boolean;
   undrawn: boolean;
   importHeader: boolean;
   paths: string[];
@@ -67,6 +72,7 @@ export function resolved(options: CliOptions): ResolvedOptions {
   }
   return {
     strict: Boolean(options.strict),
+    audit: Boolean(options.audit),
     undrawn: Boolean(options.undrawn),
     importHeader: options.importHeader !== false,
     paths,
@@ -77,12 +83,13 @@ export function resolved(options: CliOptions): ResolvedOptions {
 
 export function parseArgs(argv: string[]): CliOptions {
   const paths: string[] = [];
-  const options: CliOptions = { strict: false, undrawn: false, importHeader: true, paths };
+  const options: CliOptions = { strict: false, audit: false, undrawn: false, importHeader: true, paths };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === undefined) continue;
     if (arg === '--help' || arg === '-h') return { help: true };
     if (arg === '--strict') { options.strict = true; continue; }
+    if (arg === '--audit') { options.audit = true; continue; }
     if (arg === '--undrawn') { options.undrawn = true; continue; }
     if (arg === '--no-import') { options.importHeader = false; continue; }
     if (arg === '--config') {
@@ -287,6 +294,19 @@ export function readSources(paths: string[]) {
   return sources;
 }
 
+export function auditStep(options: ResolvedOptions) {
+  if (!options.audit) return { reports: [] as string[], scanned: 0 };
+  const reports = [];
+  let scanned = 0;
+  for (const path of options.paths) {
+    for (const file of sourceFiles(path) ?? []) {
+      scanned += 1;
+      reports.push(...auditText(file, readFileSync(file, 'utf8')));
+    }
+  }
+  return { reports, scanned };
+}
+
 export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
   if (!map?.markers) return { reports: [] as string[] };
   const files = [];
@@ -479,6 +499,13 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
+  const audit = auditStep(options);
+  for (const line of audit.reports) console.error(`arena-to-prod: ${line}`);
+  if (options.audit)
+    console.log(`arena-to-prod: audited ${audit.scanned} file(s), `
+      + `${audit.reports.length || 'no'} finding(s). No gate reads your application, so these hold `
+      + 'because you hold them');
+
   const markers = markersStep(options, map);
   for (const line of markers.reports) console.error(`arena-to-prod: ${line}`);
 
@@ -488,7 +515,8 @@ export function main(argv: string[], environment: Environment = {}) {
   if (icons.code !== 0) return icons.code;
   console.log(`arena-to-prod: wrote ${icons.wrote}`);
 
-  return options.strict && theme.reports.length + markers.reports.length + icons.reports.length ? 1 : 0;
+  const reported = theme.reports.length + audit.reports.length + markers.reports.length + icons.reports.length;
+  return options.strict && reported ? 1 : 0;
 }
 
 export function isProgram(entry: string | undefined, self: string) {

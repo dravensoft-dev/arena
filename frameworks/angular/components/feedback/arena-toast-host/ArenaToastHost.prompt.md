@@ -58,3 +58,9 @@ from `ARENA_TOAST_DISMISS`, exported beside `arena-toast`:
 - With the browser emulating a device that reports a bottom inset, the bottom stack moves up by it
   and the top one does not move at all.
 - A notice raised while a dialog is open paints over the dialog.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

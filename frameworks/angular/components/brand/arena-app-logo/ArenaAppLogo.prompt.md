@@ -39,3 +39,9 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
   MIT and a default mark would be someone else's trademark travelling in your build.
 - Don't reach for a fifth size. Four steps are the repertoire; a size between them is a
   token question, not a call-site one.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

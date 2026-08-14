@@ -97,3 +97,9 @@ below is provable by a suite. Run `bun run demos` and open
 - The focus ring is Arena's `--focus-width` in `--color-secondary`, and the platform outline is
   gone.
 - Disabled dims the whole column, label included, and the control refuses the pointer.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

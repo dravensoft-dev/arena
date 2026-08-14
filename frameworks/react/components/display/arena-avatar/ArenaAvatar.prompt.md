@@ -24,3 +24,9 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 - `circle` for people, `rounded` for teams/organizations.
 - Always pass `name` (accessible name + fallback initials), even when there's a `src`.
 - It's the only element, along with the switches, that can be fully round.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

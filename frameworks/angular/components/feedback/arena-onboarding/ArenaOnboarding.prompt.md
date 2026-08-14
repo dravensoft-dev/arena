@@ -45,3 +45,9 @@ tour closes, Tab and Shift+Tab cycle inside the panel, and Escape reports `skip`
   mean true, and the one literal string `"false"` means false. Every *other* string is
   true, `"0"`, `"off"` and `"no"` all leave the tour open. Bind the expression
   (`[open]="touring()"`) rather than relying on the literal.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

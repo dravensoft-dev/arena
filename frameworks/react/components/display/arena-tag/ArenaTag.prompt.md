@@ -46,3 +46,9 @@ ArenaToast.
   explicit button (Cancel), not with the ph-x icon.
 - Don't add a `tone` outside the taxonomy: `neutral`, `primary`, `success`,
   `warning`, `danger` are the whole set.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

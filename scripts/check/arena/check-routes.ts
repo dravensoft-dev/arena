@@ -29,17 +29,27 @@ export type Route = {
 export const ROUTES: Route[] = [
   {
     name: 'consumer-component',
-    who: 'an agent writing a screen: the router, where it picks the voice, then the index of the '
-      + 'layer it builds in, then the prompt of the one component it writes',
-    stops: ['SKILL.md', 'frameworks/*/SKILL.md', 'frameworks/*/components/**/*.prompt.md'],
-    budget: 57_000,
+    who: 'an agent writing a screen: the router, where it picks the voice, then its layer\'s '
+      + 'directory, then the index of the one category it reaches into, then the prompt of the one '
+      + 'component it writes',
+    stops: [
+      'SKILL.md',
+      'frameworks/*/SKILL.md',
+      'frameworks/*/components/*/SKILL.md',
+      'frameworks/*/components/**/*.prompt.md',
+    ],
+    budget: 44_000,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
       + 'all, which is a question a builder who knows what they are reaching for never asks, and '
-      + 'charging every build for it cost half again what the route costs now. The number is what '
-      + 'the stops measure today with room for one component to grow, and it is the ceiling a new '
-      + 'rule on the consumer branch is argued against.',
+      + 'charging every build for it cost half again what the route costs now. The layer stop is a '
+      + 'directory naming every component under its category rather than one index describing all '
+      + 'fifty-nine, so a build is charged the one category it reaches into: splitting it took a '
+      + 'quarter off this number, and naming the components in the directory is what keeps the '
+      + 'extra stop from costing a guess. The number is what the stops measure today with room for '
+      + 'one component to grow, and it is the ceiling a new rule on the consumer branch is argued '
+      + 'against.',
   },
   {
     name: 'consumer-install',

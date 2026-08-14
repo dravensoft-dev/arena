@@ -14,6 +14,7 @@ import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
 import { byCodeUnit, byKey } from '../../utils/compare.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { UNMODELLED_UNITS } from '../../generate/core/arena-to-prod/audit.ts';
 
 export const node = {
   name: 'check:dimensions',
@@ -71,7 +72,7 @@ export const EXEMPT = new Map([
    'the same idiom\'s negative pull, which must cancel exactly the 1px box above so the hidden table shifts no sibling — it is bound to that literal, not to Arena\'s spacing scale, and a token here would break the cancellation'],
 ]);
 
-export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
+export { UNMODELLED_UNITS };
 const FREE_UNITS = [...UNMODELLED_UNITS, 's', 'ms'];
 const FREE_UNIT = new RegExp(`^\\s*'?-?\\d*\\.?\\d+(${FREE_UNITS.join('|')})'?\\s*$`);
 

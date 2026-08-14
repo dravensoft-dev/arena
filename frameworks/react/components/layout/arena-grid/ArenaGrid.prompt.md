@@ -47,3 +47,9 @@ is the page's own reading width.
   out, so a minimum nobody meets pins the grid at one column forever.
 - **Don't** nest one to make a two-level layout. Two grids nested pick their counts independently
   and the cells stop lining up; give the outer one the cells it actually has.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

@@ -63,6 +63,44 @@ export const UNPLACED: Record<string, { files: Record<string, string>; name: str
   },
 };
 
+export const BREAKING: Record<string, { files: Record<string, string>; rules: string[] }> = {
+  react: {
+    files: {
+      'src/App.tsx': "import { ArenaButton, ArenaCard } from '@dravensoft/arena-react';\n"
+        + "import { Link } from 'react-router-dom';\n"
+        + 'export const App = () => (<div style={{ padding: \'16px\', color: \'#b52a20\' }}>\n'
+        + '  <ArenaButton\n'
+        + '    onClick={() => go()}\n'
+        + '    className="mine"\n'
+        + '    icon={<Plus />}\n'
+        + '  >\n'
+        + '    Go \u{1F680}\n'
+        + '  </ArenaButton>\n'
+        + '  <Link to="/x">\n'
+        + '    <ArenaCard>c</ArenaCard>\n'
+        + '  </Link>\n'
+        + '</div>);\n',
+      'src/app.css': '.arena-button__label { color: #fff; }\n',
+    },
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'emoji'],
+  },
+  angular: {
+    files: {
+      'src/app.html': '<arena-button\n'
+        + '  class="mine"\n'
+        + '  icon="ph-bold ph-bell"\n'
+        + '>Go \u{1F680}</arena-button>\n'
+        + '<a\n'
+        + '  routerLink="/x"\n'
+        + '>\n'
+        + '  <arena-card></arena-card>\n'
+        + '</a>\n',
+      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
+    },
+    rules: ['own-class', 'router-link', 'raw-value', 'emoji'],
+  },
+};
+
 export const UNKNOWN: Record<string, Record<string, string>> = {
   react: { 'src/App.tsx': "import { Button } from '@dravensoft/arena-react';\nexport const App = () => <Button>Go</Button>;\n" },
   angular: { 'src/app.html': '<arena-nothing-at-all></arena-nothing-at-all>\n' },
@@ -107,15 +145,38 @@ export function installed(layer: string, dir: string, base = root) {
   return join(at, CLI);
 }
 
-export function runCli(layer: string, dir: string, base = root) {
+export function runCli(layer: string, dir: string, base = root, extra: string[] = []) {
   const node = hostBinary('node', 'to run the CLI a consumer installs, the way a consumer runs it');
-  const run = spawnSync(node, [installed(layer, dir, base), '--src', 'src', '--out', 'out'],
+  const run = spawnSync(node, [installed(layer, dir, base), '--src', 'src', '--out', 'out', ...extra],
     { cwd: dir, encoding: 'utf8' });
   const read = (name: string) => {
     const at = join(dir, 'out', name);
     return readIfExists(at);
   };
   return { status: run.status, stderr: run.stderr ?? '', theme: read(THEME_SHEET), icons: read(ICONS_SHEET) };
+}
+
+export function auditProblems(layer: string, reported: CliRun, strict: CliRun, rules: string[]) {
+  const problems = [];
+  for (const rule of rules)
+    if (!reported.stderr.includes(`(${rule})`))
+      problems.push(`${layer}: --audit read a source breaking the ${rule} rule and reported nothing, `
+        + 'so the one signal a consumer gets is silent about it');
+  if (reported.status !== 0)
+    problems.push(`${layer}: --audit exited ${reported.status} without --strict, and a finding is a `
+      + 'report rather than a broken build until a project asks for one');
+  if (strict.status !== 1)
+    problems.push(`${layer}: --audit --strict exited ${strict.status} over a source breaking `
+      + `${rules.length} rule(s), so a project that asked for a hard failure did not get one`);
+  return problems;
+}
+
+export function cleanAuditProblems(layer: string, clean: CliRun) {
+  const found = clean.stderr.split('\n').filter((line) => /\((own-class|router-link|raw-value|icon-element|emoji)\)/.test(line));
+  return found.length === 0
+    ? []
+    : [`${layer}: --audit reported ${found.length} finding(s) over sources that break no rule, and a `
+      + `gate a consumer cannot trust is worse than none: ${found[0]}`];
 }
 
 export function importedSheets(css: string | null) {
@@ -235,7 +296,9 @@ export function collect(base = root) {
       const unknown = fixture(layer, sources, { components: ['button'] }, base);
       const strange = UNPLACED[layer];
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
-      dirs.push(auto, unexported, named, unknown, unplaced);
+      const breaking = BREAKING[layer];
+      const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
+      dirs.push(auto, unexported, named, unknown, unplaced, broken);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -243,6 +306,13 @@ export function collect(base = root) {
       problems.push(...unknownSymbolProblems(layer, runCli(layer, unexported, base)));
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base), strange?.name ?? ''));
+      problems.push(...auditProblems(
+        layer,
+        runCli(layer, broken, base, ['--audit']),
+        runCli(layer, broken, base, ['--audit', '--strict']),
+        breaking?.rules ?? [],
+      ));
+      problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['--audit'])));
     }
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });

@@ -64,3 +64,9 @@ supply one for anything a user is waiting on.
   animate on first paint.
 - Each tone inks the fill only; the track behind it stays `--color-base-300` in all five.
 - The three sizes differ in track height alone; the head row does not move with them.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

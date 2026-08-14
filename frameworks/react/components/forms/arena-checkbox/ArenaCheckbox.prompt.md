@@ -27,3 +27,9 @@ A single checkbox. Checked shows a crimson fill with a check. `onChange` carries
 - Use `name` and `value` together when the checkbox is submitted by a real form: `value` is the string sent under `name` while the box is ticked, and it is not the checked state.
 - To toggle a setting that takes effect immediately, prefer `ArenaSwitch`; an ArenaCheckbox states a choice a form will submit.
 - Don't pass `style` or stray DOM attributes. ArenaCheckbox declares `checked`, `label`, `disabled`, `required`, `name` and `value`, and renders nothing else. To place or size it, style the container you put it in.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

@@ -12,7 +12,7 @@ import { spawnSync } from 'node:child_process';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
-import { renderTarget, SKILL_TARGETS, loadCategories } from '../../generate/arena/generate-skills.ts';
+import { renderTarget, skillTargets, loadCategories } from '../../generate/arena/generate-skills.ts';
 import {
   VOICES_TARGET, renderRegion as renderVoices,
   OPEN_LINE as VOICES_OPEN, CLOSE_LINE as VOICES_CLOSE,
@@ -87,9 +87,9 @@ export function trackingProblems(target: string, tracked: boolean) {
       + 'because it scans no .md.'];
 }
 
-function trackedFiles(base: string) {
+function trackedFiles(base: string, targets = skillTargets(base)) {
   const git = hostBinary('git', 'to read what the tree tracks, which is a question only git can answer');
-  const { stdout } = spawnSync(git, ['ls-files', ...SKILL_TARGETS], { cwd: base, encoding: 'utf8' });
+  const { stdout } = spawnSync(git, ['ls-files', ...targets], { cwd: base, encoding: 'utf8' });
   return new Set((stdout ?? '').split('\n').filter(Boolean));
 }
 
@@ -111,6 +111,7 @@ export function zeroDeclarationProblems(componentCount: number) {
 }
 
 export function skillProblems(base = root, tracked = trackedFiles(base)) {
+  const targets = skillTargets(base);
   const declared = Object.values(loadCategories(base)).flat().length;
   const problems = [
     ...zeroDeclarationProblems(declared),
@@ -118,7 +119,7 @@ export function skillProblems(base = root, tracked = trackedFiles(base)) {
     ...sharedRegionProblems(base),
   ];
 
-  for (const target of SKILL_TARGETS) {
+  for (const target of targets) {
     problems.push(...trackingProblems(target, tracked.has(target)));
 
     const expected = renderTarget(target, base);
@@ -132,7 +133,7 @@ export function skillProblems(base = root, tracked = trackedFiles(base)) {
     if (expected !== actual) problems.push(`${target}: stale, ${firstDifference(expected, actual)}`);
   }
 
-  return { problems, declared, emitted: SKILL_TARGETS.length };
+  return { problems, declared, emitted: targets.length };
 }
 
 function main() {

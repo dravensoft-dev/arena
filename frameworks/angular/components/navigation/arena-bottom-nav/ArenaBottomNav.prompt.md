@@ -62,3 +62,9 @@ share a page and each needs its own name.
 - With the browser emulating a device inset, the row lifts by it and the bar grows rather than the
   labels moving under the home indicator.
 - A `ArenaMenu` opened from the page paints over the bar, and an `ArenaSheet` does too.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

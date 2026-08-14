@@ -39,3 +39,9 @@ or it does not belong in this component.
   what they mean everywhere else in the system.
 - **Don't** put an action button in the row. A feed reports; it does not operate. If a
   row needs an affordance: that is an `ArenaTable`.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

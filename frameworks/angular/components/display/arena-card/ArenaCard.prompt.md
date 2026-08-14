@@ -155,3 +155,9 @@ their own `<ng-content>`. Both projections live in one `<ng-template>` that whic
 renders stamps out with `ngTemplateOutlet`. Toggling `href` at runtime in either direction
 keeps the content, once, inside the new root, and that is asserted rather than assumed. Nothing in Angular's documentation settles that, and an empty card would
 be a silent failure.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

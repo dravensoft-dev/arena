@@ -75,3 +75,9 @@ Run `bun run demos` and open
 - The crimson underline sits flush on the strip's own hairline rule rather than floating above it.
 - The panel's top gap does not change when switching tabs, the layout must not shift.
 - Two strips on the page switch independently, which is the generated id base working.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

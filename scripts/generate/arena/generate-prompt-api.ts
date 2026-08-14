@@ -1,9 +1,13 @@
-/* Writes every contracted member into the component's own prompt as a table, under the names
- * the layer binds them to, between markers this script owns. A prompt's prose stays
- * hand-written: this region is the one part of it a contract can hold to, the way
- * generate-member-docs.ts holds a member's doc comment. check:prompts then holds every region
- * equal to a fresh emit, so the table a consumer reads cannot drift from the API it describes,
- * and a wrong cell is fixed in the contract rather than here. */
+/* Writes two regions into the component's own prompt, between markers this script owns. @api is
+ * every contracted member as a table, under the names the layer binds them to, so a wrong cell is
+ * fixed in the contract rather than here. @rules is a foot note pointing back at the router: a
+ * prompt is the file an agent rereads deepest into a session, when the router carrying the rules
+ * has long left its context, so the drift it answers is distance and it re-anchors and points
+ * rather than restating a rule that would then live in 118 places. It is owed to every prompt,
+ * uncontracted ones included, and all of them sit at one depth, so ROUTER_FROM_PROMPT is a
+ * constant rather than a computation. The prose between the two stays hand-written, the way
+ * generate-member-docs.ts holds a member's doc comment, and check:prompts holds both equal to a
+ * fresh emit. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -52,6 +56,31 @@ export const CLOSE_LINE = '<!-- @api end -->';
 
 export const openLine = (component: string) => `<!-- @api GENERATED from contracts/api/components/${component}.json.`
   + ' Edit the contract, not this table. -->';
+
+export const RULES_OPEN_LINE = /^<!-- @rules GENERATED[^\n]*-->$/m;
+export const RULES_CLOSE_LINE = '<!-- @rules end -->';
+
+export const RULES_OPEN = '<!-- @rules GENERATED for every prompt from one source.'
+  + ' Edit it there, not here. -->';
+
+export const ROUTER_FROM_PROMPT = '../../../../../SKILL.md';
+
+export const OWN_CLASS_ATTR: Record<string, string> = { react: 'className', angular: 'class' };
+
+export function renderRulesRegion(layer: string) {
+  return [
+    RULES_OPEN,
+    '',
+    '**The rules of the language hold in the code you write from this page, and no gate reads your '
+    + `application to enforce them.** An Arena component is not a styling surface: put no \`${
+      OWN_CLASS_ATTR[layer] ?? 'class'}\` of your own on it, read every value through its token `
+    + 'rather than a raw hex or a bare `16px`, and never wrap it in your router\'s own link. The '
+    + `rest of the rules, and the voice they answer to, are in [\`${ROUTER_FROM_PROMPT}\`](${
+      ROUTER_FROM_PROMPT}).`,
+    '',
+    RULES_CLOSE_LINE,
+  ].join('\n');
+}
 
 const OPENS_FENCE = /^ {0,3}(`{3,}|~{3,})/;
 const CLOSES_FENCE = /^ {0,3}(`+|~+)[ \t]*$/;
@@ -133,6 +162,19 @@ export function applyRegion(source: string, region: string) {
   return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
 }
 
+export function applyRulesRegion(source: string, region: string) {
+  const lines = source.split('\n');
+  const opensAt = lines.findIndex((line) => RULES_OPEN_LINE.test(line));
+
+  if (opensAt !== -1) {
+    const closesAt = lines.indexOf(RULES_CLOSE_LINE, opensAt);
+    if (closesAt === -1) throw new Error('generate-prompt-api: a @rules region opens and never closes');
+    return [...lines.slice(0, opensAt), ...region.split('\n'), ...lines.slice(closesAt + 1)].join('\n');
+  }
+
+  return `${source.replace(/\s*$/, '')}\n\n${region}\n`;
+}
+
 export function promptPaths(base = root) {
   const categories = loadCategories(base);
   const found = [];
@@ -153,9 +195,9 @@ export function writePromptApis({
   const written = [];
   for (const { component, layer, path } of prompts) {
     const contract = loadContract(component, base);
-    if (!contract) continue;
     const before = read(join(base, path), 'utf8');
-    const after = applyRegion(before, renderRegion(contract, layer));
+    const withApi = contract ? applyRegion(before, renderRegion(contract, layer)) : before;
+    const after = applyRulesRegion(withApi, renderRulesRegion(layer));
     if (after !== before) { write(join(base, path), after); written.push(path); }
   }
   return written;

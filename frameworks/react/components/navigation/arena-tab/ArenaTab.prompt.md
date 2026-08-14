@@ -29,3 +29,9 @@ panel `ArenaTabs` renders below the strip.
 - Don't render the panel yourself. `ArenaTabs` draws exactly one, wired to the selected tab; a second
   one would be a panel no tab controls.
 - Don't reach for `style`. It takes none.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

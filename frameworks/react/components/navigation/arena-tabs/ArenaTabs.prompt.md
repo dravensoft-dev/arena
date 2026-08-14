@@ -43,3 +43,9 @@ A row of tabs and the one panel they switch between. The active tab has a crimso
 so nothing asserts that Tab from a tab reaches the panel rather than the next tab. Serve the tree
 with `bun run demos`, open `frameworks/react/components/navigation/arena-tabs/ArenaTabs.demo.generated.html`,
 and check it in a real browser.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

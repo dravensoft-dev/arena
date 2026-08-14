@@ -95,3 +95,9 @@ function completeSale() {
 They are a handle rather than props because no member is imperative, and an `autoFocus` prop
 would answer a different question: it fires once at mount, and chaining sales needs focus back
 after **every** completion. These two are the whole handle; `ArenaInput` exposes nothing else.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->
