@@ -197,6 +197,16 @@ export function version(root = repoRoot) {
   return readJson(join(root, '.claude-plugin', 'plugin.json')).version;
 }
 
+export const SHARED_KEYWORDS = [
+  'design-system', 'ui', 'ui-components', 'component-library', 'arena', 'dravensoft',
+  'design-tokens', 'dtcg', 'css-variables', 'tailwindcss', 'themeable',
+  'accessibility', 'a11y', 'wcag', 'claude-code', 'agent-skills', 'ai-agents',
+];
+
+export function keywords(...layer: string[]) {
+  return [...layer, ...SHARED_KEYWORDS];
+}
+
 export function baseManifest(root = repoRoot) {
   const plugin = readJson(join(root, '.claude-plugin', 'plugin.json'));
   return {
@@ -204,6 +214,7 @@ export function baseManifest(root = repoRoot) {
     license: plugin.license,
     homepage: plugin.homepage,
     repository: { type: 'git', url: `git+${plugin.repository}.git` },
+    bugs: { url: `${plugin.repository}/issues` },
     author: plugin.author,
     publishConfig: { access: 'public' },
     bin: { ...CLI_BINS },

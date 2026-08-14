@@ -17,7 +17,7 @@ import { nodeBin } from '../../lib/arena/node-bin.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
-  writeComponentMap, CLI_BINS,
+  writeComponentMap, CLI_BINS, keywords,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
@@ -49,10 +49,9 @@ export const node = {
 export function manifest(root = repoRoot) {
   return {
     name: NAME,
-    description: 'Arena, the Dravensoft design system: standalone Angular components on a shared Tailwind recipe layer.',
-    keywords: ['design-system', 'angular', 'ui', 'ui-components', 'arena', 'dravensoft',
-      'design-tokens', 'dtcg', 'tailwindcss', 'themeable', 'accessibility', 'claude-code',
-      'agent-skills', 'ai-agents'],
+    description: 'Arena by Dravensoft: standalone Angular components styled entirely by design '
+      + 'tokens, and the same design system React gets. Built to be operated by an AI agent.',
+    keywords: keywords('angular'),
     sideEffects: false,
     ...baseManifest(root),
     peerDependencies: {

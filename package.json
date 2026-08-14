@@ -106,6 +106,7 @@
     "check:playgrounds": "bun scripts/check/arena/check-playgrounds.ts",
     "check:citations": "bun scripts/check/arena/check-citations.ts",
     "check:agents": "bun scripts/check/arena/check-agents.ts",
+    "check:community": "bun scripts/check/arena/check-community.ts",
     "check:icons": "bun scripts/check/arena/check-icons.ts",
     "check:focus-trap": "bun scripts/check/arena/check-focus-trap.ts",
     "check:shared-arithmetic": "bun scripts/check/arena/check-shared-arithmetic.ts",

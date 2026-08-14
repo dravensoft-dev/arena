@@ -1,0 +1,39 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Arena by Dravensoft",
+  "description": "One design system, in React and in Angular, built to be operated by an AI agent. Components styled entirely by design tokens, with the consuming project's palette and fonts declared in arena.config.json. Every component API and every accessibility pattern it binds is a contract file, and a gate holds the code, the documentation and the published packages to those contracts.",
+  "branch": "main",
+  "folders": [],
+  "excludeFolders": [
+    "scripts",
+    "contracts",
+    "intro",
+    "assets",
+    "docs",
+    "node_modules"
+  ],
+  "excludeFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "DOUBTS.md",
+    "PACKAGING.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "rules": [
+    "Tokens are the only styling layer.",
+    "Put no class of your own on an Arena component",
+    "Re-skin through `arena.config.json`",
+    "One voice per page, picked before anything else",
+    "Danger is outline, never filled",
+    "One primary accent per view.",
+    "No gradients",
+    "No emoji",
+    "Icons are Phosphor class-name strings, never elements and never SVG",
+    "Two themes, dark first.",
+    "A chart carries identity or meaning, never both.",
+    "Never wrap an Arena component in your router's own link",
+    "A required member absent is a caller bug",
+    "No render follows from whether you bound a listener or filled a slot."
+  ]
+}
