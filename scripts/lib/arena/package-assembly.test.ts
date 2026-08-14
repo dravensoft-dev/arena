@@ -116,7 +116,10 @@ test('the manifest takes its version and its identity from plugin.json, never fr
 test('a reader of the npm page is told where a defect goes, from the one place the repository is named', () => {
   const base = baseManifest(repoRoot);
   assert.match(base.bugs.url, /^https:\/\/github\.com\/.+\/issues$/);
-  assert.equal(base.bugs.url, `${base.homepage}/issues`);
+  assert.equal(base.bugs.url, `${base.repository.url.replace(/^git\+/, '').replace(/\.git$/, '')}/issues`,
+    'an issue goes to the repository, which is where the tracker is');
+  assert.notEqual(base.bugs.url, `${base.homepage}/issues`,
+    'and never to the homepage, which is the documentation site and hosts no tracker');
 });
 
 test('both packages carry every shared keyword, and each names its own framework first', () => {

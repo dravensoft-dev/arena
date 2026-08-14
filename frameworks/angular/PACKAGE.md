@@ -28,7 +28,9 @@ were authored and nothing more, so a `--spacing` of your own moves nothing here.
 
 ## It works with the repository, and that is the point
 
-Source, guidelines and full documentation: **https://github.com/dravensoft-dev/arena**
+See it before you install it: **https://arena.dravensoft.org** has the guidelines, a kitchen sink per voice
+and a playground for every component. Source and full documentation:
+**https://github.com/dravensoft-dev/arena**
 
 That repository is not just where the code comes from. It ships as a **Claude Code plugin**
 and as an **Agent Skill**, and installing either hands an agent the whole design language:
