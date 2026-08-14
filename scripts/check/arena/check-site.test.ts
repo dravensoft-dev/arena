@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   REFERENCE, OFF_SITE, AUTHORED, FORBIDDEN, referenced, resolves, htmlFiles,
-  brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems,
+  brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems, tokenProblems,
 } from './check-site.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
 
@@ -87,6 +87,31 @@ test('an address that resolves on the build machine and nowhere a reader is fail
     const base = out({ 'page.html': `<a href="x">${forbidden}</a>` });
     assert.equal(localhostProblems(base).length, 1, `${forbidden} is caught`);
   }
+});
+
+test('a custom property nothing defines renders unstyled while every link still answers 200', () => {
+  const base = out({
+    'index.html': '<main style="padding:var(--sp-6)">x</main>',
+    'tokens.css': ':root{--sp-6: 24px}',
+  });
+  assert.deepEqual(tokenProblems(base), [], 'a property the output defines is fine');
+
+  const bad = out({
+    'index.html': '<main style="padding:var(--sp-7)">x</main>',
+    'tokens.css': ':root{--sp-6: 24px}',
+  });
+  const problems = tokenProblems(bad);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /renders unstyled/);
+});
+
+test('the token check reads the pages this build authors, and not the ones it copies', () => {
+  const base = out({
+    'copied/page.html': '<main style="color:var(--invented)">x</main>',
+    'tokens.css': ':root{--real: 1px}',
+  });
+  assert.deepEqual(tokenProblems(base), [],
+    'a page Arena generated elsewhere is held by the gate that generated it');
 });
 
 test('the pages this gate authors are the ones nothing else declares', () => {
