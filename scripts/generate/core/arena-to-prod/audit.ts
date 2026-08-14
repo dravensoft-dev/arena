@@ -108,13 +108,7 @@ export function scanFile(relPath: string, text: string) {
 
 export const STYLE_EXTENSIONS = ['.css', '.scss', '.sass', '.less'];
 
-const OWN_CLASS_JSX = /<(Arena[A-Za-z0-9]*)\b[^>]*?\s(className|class)\s*=/;
-const OWN_CLASS_TEMPLATE = /<(arena-[a-z0-9-]+)\b[^>]*?\s(?:\[?class\]?|\[ngClass\])\s*=/;
 const OWN_RULE = /(^|[\s,{}])\.arena-[a-z0-9-]+/;
-
-const ROUTER_WRAP_JSX = /<(a|Link|NavLink)\b[^>]*>\s*<(Arena[A-Za-z0-9]*)\b/;
-const ROUTER_WRAP_TEMPLATE = /<(a|[a-z][a-z0-9-]*)\b[^>]*\brouterLink\b[^>]*>\s*<(arena-[a-z0-9-]+)\b/;
-const ANCHOR_WRAP_TEMPLATE = /<a\b[^>]*>\s*<(arena-[a-z0-9-]+)\b/;
 
 const RAW_HEX = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3}(?:[0-9a-fA-F]{2})?)?\b/;
 const BARE_PIXELS = /(?<![\w.-])-?\d*\.?\d+px\b/;
@@ -125,28 +119,73 @@ const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
 
+const OPEN_TAG = /<([A-Za-z][A-Za-z0-9._-]*)/g;
+const ARENA_TAG = /^(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)$/;
+const LINK_TAG = /^(?:a|Link|NavLink)$/;
+const OWN_CLASS_ATTRIBUTE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[class\.[a-z0-9-]+\])\s*=/;
+const ROUTER_ATTRIBUTE = /(?:^|\s)(?:routerLink|\[routerLink\]|to|href)\s*=/;
+
+export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws. Arena renders its '
+  + 'own slot names and no contract names them, so a rule of yours reaches one by specificity '
+  + 'and breaks in any release. Re-skin through arena.config.json';
+
+export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your own, which nests '
+  + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
+  + 'component and route from the event it reports';
+
 export type Finding = { line: number; rule: string; message: string };
 
 function at(line: number, rule: string, message: string): Finding {
   return { line, rule, message };
 }
 
+export function tagEnd(text: string, from: number) {
+  let depth = 0;
+  let quote = '';
+  for (let i = from; i < text.length; i++) {
+    const c = text[i];
+    if (quote) { if (c === quote) quote = ''; continue; }
+    if (c === '"' || c === "'" || c === '`') { quote = c; continue; }
+    if (c === '{') { depth += 1; continue; }
+    if (c === '}') { depth -= 1; continue; }
+    if (c === '>' && depth <= 0) return i + 1;
+  }
+  return -1;
+}
+
+export function lineAt(text: string, index: number) {
+  let line = 1;
+  for (let i = 0; i < index && i < text.length; i++) if (text[i] === '\n') line += 1;
+  return line;
+}
+
+export function structuralFindings(text: string): Finding[] {
+  const found: Finding[] = [];
+  for (const m of text.matchAll(OPEN_TAG)) {
+    const name = m[1] ?? '';
+    const start = m.index ?? 0;
+    const ends = tagEnd(text, start);
+    if (ends === -1) continue;
+    const attributes = text.slice(start + name.length + 1, ends - 1);
+
+    if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
+      found.push(at(lineAt(text, start), 'own-class', OWN_CLASS_MESSAGE));
+
+    const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
+    if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
+    const inside = text.slice(ends).replace(/^\s*(?:\{\s*\/\*[\s\S]*?\*\/\s*\}\s*|<!--[\s\S]*?-->\s*)*/, '');
+    if (/^<(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.test(inside))
+      found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
+  }
+  return found;
+}
+
 export function lineFindings(line: string, isStylesheet: boolean): Finding[] {
   const found: Finding[] = [];
-
-  if (OWN_CLASS_JSX.test(line) || OWN_CLASS_TEMPLATE.test(line))
-    found.push(at(0, 'own-class', 'a class of your own on a component Arena draws. Arena renders its '
-      + 'own slot names and no contract names them, so a rule of yours reaches one by specificity '
-      + 'and breaks in any release. Re-skin through arena.config.json'));
 
   if (isStylesheet && OWN_RULE.test(line))
     found.push(at(0, 'own-class', 'a rule targeting an arena- class. That name is compiler output '
       + 'rather than a surface somebody meant you to target, and a slot may be renamed in any release'));
-
-  if (ROUTER_WRAP_JSX.test(line) || ROUTER_WRAP_TEMPLATE.test(line) || ANCHOR_WRAP_TEMPLATE.test(line))
-    found.push(at(0, 'router-link', 'an Arena component wrapped in a link of your own, which nests '
-      + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
-      + 'component and route from the event it reports'));
 
   const styled = isStylesheet || INLINE_STYLE.test(line);
   if (styled && RAW_HEX.test(line))
@@ -169,24 +208,42 @@ export function lineFindings(line: string, isStylesheet: boolean): Finding[] {
   return found;
 }
 
-export function auditText(relPath: string, text: string): string[] {
-  const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
-  const problems: string[] = [];
+export function bracketFindings(text: string, lines: string[]): Finding[] {
+  return scanText(text).map(({ cls }) => {
+    const where = lines.findIndex((line) => line.includes(cls ?? ''));
+    return at(where === -1 ? 1 : where + 1, 'raw-value', `\`${cls}\` is a raw value, not a token`);
+  });
+}
 
-  text.split('\n').forEach((line, index) => {
-    const allowed = ALLOW_MARKER.test(line);
-    const found = lineFindings(line, isStylesheet);
-    if (allowed && found.length === 0) {
-      problems.push(`${relPath}:${index + 1}: stale arena-audit allowance, and nothing on the line `
-        + 'to exempt');
+export function findings(relPath: string, text: string): Finding[] {
+  const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
+  const lines = text.split('\n');
+  const perLine = lines.flatMap((line, index) =>
+    lineFindings(line, isStylesheet).map((one) => at(index + 1, one.rule, one.message)));
+  return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
+    .sort((a, b) => a.line - b.line);
+}
+
+export function auditText(relPath: string, text: string): string[] {
+  const lines = text.split('\n');
+  const byLine = new Map<number, Finding[]>();
+  for (const one of findings(relPath, text)) {
+    if (!byLine.has(one.line)) byLine.set(one.line, []);
+    (byLine.get(one.line) ?? []).push(one);
+  }
+
+  const problems: string[] = [];
+  lines.forEach((line, index) => {
+    const number = index + 1;
+    const found = byLine.get(number) ?? [];
+    if (ALLOW_MARKER.test(line)) {
+      if (found.length === 0)
+        problems.push(`${relPath}:${number}: stale arena-audit allowance, and nothing on the line `
+          + 'to exempt');
       return;
     }
-    if (allowed) return;
-    for (const one of found) problems.push(`${relPath}:${index + 1}: ${one.message} (${one.rule})`);
+    for (const one of found) problems.push(`${relPath}:${number}: ${one.message} (${one.rule})`);
   });
-
-  for (const one of scanText(text))
-    problems.push(`${relPath}: \`${one.cls}\` is a raw value, not a token (raw-value)`);
 
   return problems;
 }

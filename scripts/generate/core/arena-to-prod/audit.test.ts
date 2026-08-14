@@ -58,6 +58,41 @@ test('a finding names the line it is on, so the reader goes straight there', () 
   assert.match(found[0] ?? '', /^src\/App\.tsx:3: /);
 });
 
+test('a tag broken across lines is the same defect, and it is how a formatter writes one', () => {
+  const wrapped = '<Link to="/x">\n  <ArenaCard>c</ArenaCard>\n</Link>\n';
+  assert.match(rules(wrapped), /router-link/);
+  assert.match(rules(wrapped), /^src\/App\.tsx:1: /);
+
+  const spread = '<ArenaButton\n  className="mine"\n  variant="primary"\n>\n  Go\n</ArenaButton>\n';
+  assert.match(rules(spread), /own-class/);
+
+  const template = '<a\n  routerLink="/x"\n>\n  <arena-card></arena-card>\n</a>\n';
+  assert.match(auditText('src/a.html', template).join('\n'), /router-link/);
+});
+
+test('an attribute holding an arrow or a comparison does not end the tag early', () => {
+  const arrow = '<ArenaButton\n  onClick={() => go()}\n  className="mine"\n>Go</ArenaButton>';
+  assert.match(rules(arrow), /own-class/);
+  const guarded = '<Link\n  to="/x"\n  onMouseOver={() => a > b}\n>\n  <ArenaCard>c</ArenaCard>\n</Link>';
+  assert.match(rules(guarded), /router-link/);
+});
+
+test('a link holding anything but an Arena component is left alone', () => {
+  assert.equal(rules('<Link to="/x">\n  <span>plain</span>\n</Link>'), '');
+  assert.equal(rules('<a href="/x">\n  read more\n</a>'), '');
+  assert.equal(rules('<ArenaCard>\n  <Link to="/x">inside is fine</Link>\n</ArenaCard>'), '');
+});
+
+test('a comment between the link and the component does not hide the nesting', () => {
+  assert.match(rules('<Link to="/x">\n  {/* a note */}\n  <ArenaCard>c</ArenaCard>\n</Link>'), /router-link/);
+});
+
+test('a raw value keeps the line it is on once the findings are merged', () => {
+  const found = auditText('src/App.tsx', '<div className="bg-[#ff0000]" />\n<p>ok</p>\n');
+  assert.equal(found.length, 1);
+  assert.match(found[0] ?? '', /^src\/App\.tsx:1: /);
+});
+
 test('lineFindings decides a stylesheet rule only when it is reading a stylesheet', () => {
   assert.equal(lineFindings('.arena-tag { color: #fff; }', false).length, 0);
   assert.equal(lineFindings('.arena-tag { color: #fff; }', true).length, 2);

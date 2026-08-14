@@ -69,8 +69,16 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
       'src/App.tsx': "import { ArenaButton, ArenaCard } from '@dravensoft/arena-react';\n"
         + "import { Link } from 'react-router-dom';\n"
         + 'export const App = () => (<div style={{ padding: \'16px\', color: \'#b52a20\' }}>\n'
-        + '  <ArenaButton className="mine" icon={<Plus />}>Go \u{1F680}</ArenaButton>\n'
-        + '  <Link to="/x"><ArenaCard>c</ArenaCard></Link>\n'
+        + '  <ArenaButton\n'
+        + '    onClick={() => go()}\n'
+        + '    className="mine"\n'
+        + '    icon={<Plus />}\n'
+        + '  >\n'
+        + '    Go \u{1F680}\n'
+        + '  </ArenaButton>\n'
+        + '  <Link to="/x">\n'
+        + '    <ArenaCard>c</ArenaCard>\n'
+        + '  </Link>\n'
         + '</div>);\n',
       'src/app.css': '.arena-button__label { color: #fff; }\n',
     },
@@ -78,8 +86,15 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
   },
   angular: {
     files: {
-      'src/app.html': '<arena-button class="mine" icon="ph-bold ph-bell">Go \u{1F680}</arena-button>\n'
-        + '<a routerLink="/x"><arena-card></arena-card></a>\n',
+      'src/app.html': '<arena-button\n'
+        + '  class="mine"\n'
+        + '  icon="ph-bold ph-bell"\n'
+        + '>Go \u{1F680}</arena-button>\n'
+        + '<a\n'
+        + '  routerLink="/x"\n'
+        + '>\n'
+        + '  <arena-card></arena-card>\n'
+        + '</a>\n',
       'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
     },
     rules: ['own-class', 'router-link', 'raw-value', 'emoji'],
