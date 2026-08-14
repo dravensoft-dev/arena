@@ -77,11 +77,13 @@ Arena" into a task it finishes on its own.
 
 ## See it
 
-Clone the repository and run `bun run demos`. That serves the design
+**[arena.dravensoft.org](https://arena.dravensoft.org)** carries the design
 guidelines, a kitchen sink page per design extension, and a playground page for
-every component.
+every component, with no clone and nothing to install.
+
+The same pages come up locally with `bun run demos`, from the same list, and
 [`scripts/build/AGENTS.md`](./scripts/build/AGENTS.md) says what a fresh clone
-has to build first.
+has to build before they mean anything.
 
 ## Dependencies
 

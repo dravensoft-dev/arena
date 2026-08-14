@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { DOMAIN } from '../../lib/arena/site-pages.ts';
 
 const read = (p: string) => readFileSync(join(root, p), 'utf8');
 const readJSON = (p: string) => readJson(join(root, p));
@@ -56,6 +57,13 @@ function main() {
   }
 
   check('marketplace version', entry.version === version, `${entry.version ?? '(unset)'} — plugin.json says ${version}`);
+
+  const site = `https://${DOMAIN}`;
+  check('the homepage is the site, in both places', plugin.homepage === site && entry.homepage === site,
+    plugin.homepage === entry.homepage
+      ? `${plugin.homepage} — the site this build is assembled for is ${site}`
+      : `plugin.json says ${plugin.homepage}, marketplace.json says ${entry.homepage}, and a reader `
+        + 'arrives at whichever one their route happened to read');
 
   const HEADING = 'Latest project artifacts';
   const LABEL = 'Repo/Claude Code plugin';
