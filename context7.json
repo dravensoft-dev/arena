@@ -9,7 +9,6 @@
     "contracts",
     "intro",
     "assets",
-    "docs",
     "node_modules"
   ],
   "excludeFiles": [
