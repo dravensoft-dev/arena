@@ -22,10 +22,13 @@ import {
   playgroundsOnDisk, titleOf, url,
 } from '../../lib/arena/site-pages.ts';
 import { renderOgImage, OG_WIDTH, OG_HEIGHT } from '../../lib/arena/og-image.ts';
+import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
 
 export const node = {
   name: 'build:site',
   reads: [
+    'SKILL.md', 'frameworks/**/SKILL.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
+    '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
@@ -231,6 +234,11 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
       : indexPage(titleFor(directory), linksFor(directory, base), depth);
     written.push(write(out, rel, page));
   }
+
+  for (const rel of servedDocs(base)) written.push(copy(join(base, rel), out, rel));
+
+  written.push(write(out, LLMS_INDEX, index(base)));
+  for (const layer of LAYERS) written.push(write(out, layerFile(layer), corpus(layer, base)));
 
   written.push(write(out, OG_SOURCE, ogPage()));
   written.push(write(out, '404.html', notFoundPage()));
