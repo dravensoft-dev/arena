@@ -32,6 +32,7 @@ export const node = {
     `${LAYER}/**`, '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
+    'scripts/generate/core/arena-to-prod/**', '!scripts/generate/core/arena-to-prod/*.test.ts',
   ],
   writes: [`${LAYER}/dist/**`, `${STAGING}/**`],
   feeds: [
