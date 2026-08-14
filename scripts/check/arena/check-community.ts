@@ -17,6 +17,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { skips } from './check-agents.ts';
+import { ignoredRoots } from './check-citations.ts';
 
 export const node = {
   name: 'check:community',
@@ -139,9 +140,11 @@ export type Context7 = {
   excludeFolders?: string[];
   excludeFiles?: string[];
   rules?: string[];
+  url?: string;
+  public_key?: string;
 };
 
-export function context7Problems(base = root) {
+export function context7Problems(base = root, ignored = ignoredRoots(base)) {
   const path = join(base, CONTEXT7);
   if (!existsSync(path)) return [];
   const config = readJson(path) as Context7;
@@ -153,7 +156,24 @@ export function context7Problems(base = root) {
         `${CONTEXT7} excludes the folder ${folder}, and it is not in this tree. An exclusion for a `
         + 'directory nobody has is an exclusion that stopped covering anything',
       );
+      continue;
     }
+    if (ignored.has(folder.split('/')[0] ?? folder)) {
+      problems.push(
+        `${CONTEXT7} excludes ${folder}, and git ignores it, so it is not in the repository `
+        + 'Context7 parses. Asked of this disk the exclusion looks live and asked of a clone it '
+        + 'covers nothing, which makes the gate answer differently by machine and the entry read '
+        + 'as coverage it never had',
+      );
+    }
+  }
+
+  const ownership = ['url', 'public_key'].filter((key) => (config as Record<string, unknown>)[key]);
+  if (ownership.length === 1) {
+    problems.push(
+      `${CONTEXT7} carries ${ownership[0]} and not the other of url and public_key. Ownership is `
+      + 'verified by the pair, so one alone claims nothing and reads as a claim that was made',
+    );
   }
 
   const excluded = new Set(config.excludeFiles ?? []);
