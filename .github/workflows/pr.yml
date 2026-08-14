@@ -63,6 +63,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
 
   test-core:
@@ -87,6 +88,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
@@ -119,6 +121,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
@@ -154,6 +157,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 
@@ -186,6 +190,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           fail-on-cache-miss: true
 

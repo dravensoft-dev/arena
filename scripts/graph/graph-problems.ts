@@ -1,13 +1,13 @@
-/* Everything check:graph asserts, so the gate itself is a print and an exit. Two authorities are
- * joined: the scripts, which declare, and package.json, which says what is invocable. A `reads`
- * reaching no file is a typo or a spec written ahead of the tree, and the directory tells them
- * apart: no directory fails, a directory holding no match yet is reported and allowed, because
- * refusing it would let a declaration describe only today's tree. A `writes` gets neither test,
- * because it names what the node CREATES: a tree without it is the step not having run, and a gate
- * judging the shape must not answer one way where a step ran and another where it did not. It is
- * reported even so, so a typo has a witness once a full build has left it unreached. Nothing here
- * is cached: a gate judging the shape cannot read it from a fingerprint of the last shape. One
- * question is asked of one spec list once, since resolving is what this gate spends its time on. */
+/* Everything check:graph asserts, so the gate itself is a print and an exit. Three authorities are
+ * joined: the scripts, which declare, package.json, which says what is invocable, and pr.yml,
+ * which says what one job hands another. A `reads` reaching no file is a typo or a spec written
+ * ahead of the tree, and the directory tells them apart: no directory fails, one holding no match
+ * yet is reported and allowed, since refusing it would let a declaration describe only today's
+ * tree. A `writes` gets neither test: it names what the node CREATES, so a tree without it is the
+ * step not having run, and a gate judging the shape must not answer one way where a step ran and
+ * another where it did not. It is reported even so, so a typo has a witness once a full build has
+ * left it unreached. Nothing here is cached: a gate judging the shape cannot read it from a
+ * fingerprint of the last shape. One spec list is asked once, resolving being this gate's cost. */
 
 import { readJson } from '../utils/read-file.ts';
 import { join } from 'node:path';
@@ -18,6 +18,7 @@ import { reachesNoDirectory, resolveSpecs, unreachedSpecs } from './pathspecs.ts
 import { cyclePath, duplicateWriters, selfFeeds, subscriptionProblems, unknownFeeds } from './graph.ts';
 import type { GraphNode } from './graph.ts';
 import { ALIASES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, neverSubscribesReason } from './nodes.ts';
+import { handoffProblems, trackedPaths, workflowText } from './handoff.ts';
 
 export function remembering<T>(answer: (specs: string[]) => T) {
   const said = new Map<string, T>();
@@ -168,6 +169,7 @@ export async function graphProblems(base = repoRoot) {
     ...writingGateProblems(nodes),
     ...outsideBuildProblems(nodes),
     ...emptySpecProblems(nodes, paths, resolve, unreached),
+    ...handoffProblems(nodes, workflowText(base), trackedPaths(base)),
   ];
 
   return {

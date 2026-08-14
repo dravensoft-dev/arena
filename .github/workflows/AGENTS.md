@@ -50,7 +50,10 @@ that did nothing satisfies that by doing nothing. `build:release` passes `--forc
 so every step runs and a run that kept anything fails on its own.
 
 **`.cache/` is not in the paths `actions/cache` restores, and that is the load-bearing part.** The
-list is `frameworks/**/*.generated.*`, the two `dist/` trees and `frameworks/angular/build`. Adding
+list is `frameworks/**/*.generated.*`, the two package `dist/` trees, `frameworks/angular/build`
+and `dist/site`, and `check:graph` holds it to every artifact a clone does not carry:
+[`../../scripts/graph/AGENTS.md`](../../scripts/graph/AGENTS.md) says how. It was a list nothing
+held until `check:site` ran here over a `dist/site` no job had handed it. Adding
 `.cache` there would hand the next job the graph's recorded state and turn the whole gate from a
 full run into an incremental one, in silence. `--assert-full` is what would catch it; this
 paragraph is what explains the failure to whoever added the path. **Caching a build's inputs is a
