@@ -56,6 +56,7 @@ export const node = {
     'check:react-types',
     'check:script-tokens',
     'check:skills',
+    'build:site',
   ],
 };
 

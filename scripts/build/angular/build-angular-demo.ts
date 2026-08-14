@@ -35,6 +35,7 @@ export const node = {
     'check:focus-trap',
     'check:pixel-parity',
     'check:playgrounds',
+    'build:site',
   ],
 };
 

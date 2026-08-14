@@ -1,13 +1,13 @@
 /* Captures the kitchen-sink page every layer draws for one design extension and fails on one
- * differing pixel. Every other cross-layer gate makes a claim about text, and the render suites
- * go through happy-dom, which has no layout: a geometry, an inherited typography or a computed
- * colour that moved in one layer alone passes all of them. No baseline and no tolerance, because
- * the question is whether the layers agree with EACH OTHER and one browser renders both pages,
- * so a threshold would license exactly the move this catches. Motion is removed and focus
- * dropped before the shutter: reduced motion SLOWS a spinner by design rather than stopping it,
- * and focus is one global every open overlay claims in mount order. A page is captured until two
- * in a row agree, since a chart redraws from a measurement that arrives after the layout that
- * provoked it. Pairs are walked from the tree, and a sweep finding none fails. */
+ * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an
+ * inherited typography or a computed colour that moved in one layer alone passes every other gate.
+ * No baseline and no tolerance: one browser renders both pages, so the question is whether they
+ * agree with EACH OTHER, and a threshold would license the move this catches. Motion, focus and
+ * MEASUREMENT are stopped before the shutter, the third because the shutter resizes the page to
+ * reach past the viewport and hands width 0 to every live ResizeObserver partway through: a chart
+ * redraws collapsed and the compositor takes the rest of its tiles from that frame, so a layer is
+ * reported as diverging from one it agrees with. A page is captured until two in a row agree, and
+ * pairs are walked from the tree, where a sweep finding none fails. */
 
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -70,6 +70,25 @@ export const STILL = `(() => {
   document.head.append(style);
   if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
   return true;
+})()`;
+
+export const WATCH = `(() => {
+  const Native = window.ResizeObserver;
+  if (!Native) return;
+  const live = new Set();
+  window.__arenaMeasuring = live;
+  window.ResizeObserver = class extends Native {
+    constructor(callback) { super(callback); live.add(this); }
+  };
+})()`;
+
+export const FROZEN = `(() => {
+  const live = window.__arenaMeasuring;
+  if (!live) return 0;
+  const all = [...live];
+  live.clear();
+  for (const one of all) one.disconnect();
+  return all.length;
 })()`;
 
 export function stableHeightExpression(bound: Deadline) {
@@ -193,6 +212,7 @@ async function capture(cdp: Cdp, url: string) {
     }, sessionId);
     await cdp.send('Page.enable', {}, sessionId);
     await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: WATCH }, sessionId);
     const settled = loaded(cdp, sessionId);
     await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
       `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
@@ -208,6 +228,7 @@ async function capture(cdp: Cdp, url: string) {
 
     await ev(STILL);
     await ev(stableHeightExpression(PAINTED));
+    await ev(FROZEN);
 
     const once = async () => {
       const shot = await withTimeout(

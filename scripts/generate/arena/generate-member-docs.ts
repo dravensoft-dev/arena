@@ -54,6 +54,7 @@ export const node = {
     'check:skills',
     'check:states',
     'generate:playgrounds',
+    'build:site',
   ],
 };
 

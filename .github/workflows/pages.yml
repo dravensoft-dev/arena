@@ -1,0 +1,91 @@
+name: Publish the site
+
+# Follows Arena main and reads the build it saved, the same hand-off the two publish workflows
+# use. Publishing from a branch is not an option: the kitchen sinks and every playground are
+# build products, and .gitignore keeps them out of the tree on purpose.
+
+on:
+  workflow_run:
+    workflows: ["Arena main"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: 1.3.14
+
+jobs:
+  build:
+    name: assemble the site
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+
+      # The card a link preview reads is rendered rather than exported, so this job needs a
+      # browser. CHROME_PATH is deliberately not exported: check:portability fails when a second
+      # workflow names it, and Arena main is the one that may, so this exercises the PATH branch.
+      - name: a browser, and CHROME_PATH is deliberately not exported
+        uses: browser-actions/setup-chrome@v1
+
+      # Arena main built this exact commit and saved the result under this key. There are no
+      # restore-keys: a prefix fallback would publish the assembled tree of another commit.
+      - name: the build Arena main already made for this commit
+        id: build
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            frameworks/**/*.generated.*
+            frameworks/react/dist
+            frameworks/angular/dist
+            frameworks/angular/build
+          key: arena-build-${{ runner.os }}-${{ github.event.workflow_run.head_sha || github.sha }}
+
+      # A miss is expected rather than exceptional: a cache is evicted after seven days unread,
+      # and a hand dispatch can ask about a commit whose run is long past.
+      - name: build the sources, if that cache was not there
+        if: steps.build.outputs.cache-hit != 'true'
+        run: bun run build:release
+
+      - name: assemble what gets served
+        run: bun run build:site
+
+      - name: hold every link, every declared page and the domain it is built for
+        run: bun run check:site
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist/site
+
+  deploy:
+    name: serve it
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

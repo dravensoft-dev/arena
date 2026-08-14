@@ -5,8 +5,9 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
-  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, pagePath, voicesIn,
+  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, voicesIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
 } from './check-pixel-parity.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
@@ -29,6 +30,24 @@ test('motion and focus are both removed before the shutter, and each for its own
   assert.match(STILL, /focus-visible/,
     'focus is one global that every open overlay claims, so the ring follows the mount order');
   assert.match(STILL, /\.blur\(\)/);
+});
+
+test('measurement is stopped before the shutter, because the shutter is what moves it', () => {
+  assert.match(WATCH, /window\.ResizeObserver = class/,
+    'an observer can only be reached later if the constructor that made it was wrapped first, and '
+    + 'components construct theirs on mount, so the wrap has to be a new-document script');
+  assert.match(FROZEN, /\.disconnect\(\)/,
+    'reaching past the viewport resizes the page, and the resize hands width 0 to every live '
+    + 'observer: a measured component redraws collapsed into tiles the compositor has not taken yet');
+});
+
+test('the freeze runs after the page has settled, or it pins the width nothing had measured yet', () => {
+  const source = readFileSync(new URL('./check-pixel-parity.ts', import.meta.url), 'utf8');
+  const body = source.slice(source.indexOf('async function capture('));
+  assert.ok(body.indexOf('ev(FROZEN)') > body.indexOf('stableHeightExpression'),
+    'frozen before the last measurement lands, every chart on the page draws at its assumed width');
+  assert.ok(body.indexOf('ev(FROZEN)') < body.indexOf('Page.captureScreenshot'),
+    'frozen after the first capture, that capture is the one this gate exists to stop reporting');
 });
 
 test('a page is walked from the tree, and the pair points at the same file in every layer', () => {
