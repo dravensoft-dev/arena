@@ -212,10 +212,7 @@ files into `src`:
   icon Phosphor has and a screen draws a handful, which makes it the largest thing an Arena
   project would send that nothing on it reads. Counting what Arena draws is the part you cannot
   do by hand: a component renders icons you never wrote, and leaving those out is an empty box
-  in a menu you did not know had one. **Every glyph you name also reaches the filled weight**,
-  whichever weight you wrote it beside, because a navigation item draws its active destination
-  filled and asks for a rule you never wrote: name the glyph the way its member documents it,
-  `icon="ph-bold ph-receipt"`, and the sheet has both.
+  in a menu you did not know had one.
 
 Import both from `src/styles.css`, and import them **last**:
 

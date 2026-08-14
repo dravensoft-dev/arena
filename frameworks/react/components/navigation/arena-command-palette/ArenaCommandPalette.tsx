@@ -72,7 +72,6 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
   const [i, setI] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
   const uid = useRef<string | null>(null);
   if (uid.current === null) uid.current = `arena-command-palette-${nextId++}`;
   const listboxId = `${uid.current}-listbox`;
@@ -84,10 +83,6 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
   const groups = arenaCommandGroups(filtered);
   useEffect(() => { if (open) { setQ(''); setI(0); setTimeout(() => inputRef.current && inputRef.current.focus(), 0); } }, [open]);
   useEffect(() => { setI(0); }, [q]);
-  useEffect(() => {
-    const row = listRef.current?.querySelectorAll('[role="option"]').item(i);
-    if (row instanceof HTMLElement) row.scrollIntoView({ block: 'nearest' });
-  }, [i, q, open]);
   if (!open) return null;
   const run = (c: ArenaCommand | undefined) => { onClose && onClose(); c && onRun && onRun(c); };
   const onKey = (e: React.KeyboardEvent) => {
@@ -114,7 +109,7 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
             className={styles.input()} />
           <span className={styles.esc()}>ESC</span>
         </div>
-        <div ref={listRef} id={listboxId} role="listbox" aria-label="Commands" className={styles.list()}>
+        <div id={listboxId} role="listbox" aria-label="Commands" className={styles.list()}>
           {filtered.length === 0 && <div className={styles.empty()}>No results for "{q}".</div>}
           {groups.map((group) => (
             <div key={group.name ?? ''} className={styles.group()}

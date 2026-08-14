@@ -223,7 +223,7 @@ test('"auto" writes the sheets the sources draw and the ones Arena draws for the
 });
 
 test('an element Arena does not ship is reported, and --strict is what makes it fatal', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project(auto, { 'app.html': '<arena-widget /><arena-button icon="ph-bold ph-bell" />' });
   const environment: Environment & ThemeEnvironment = {
     packageName: '@dravensoft/arena-react', sheets: SHEETS, map: MAP, phosphor: web, arena: null,
@@ -287,33 +287,14 @@ test('the icons step writes one file holding every weight in use and nothing els
   assert.match(css, /\.ph-bold\.ph-bell:before\{content:"\\e0ce"\}/);
   assert.match(css, /\.ph-fill\.ph-moon:before\{content:"\\e330"\}/);
   assert.doesNotMatch(css, /ph-sun/, 'a glyph nothing draws is the whole reason this command exists');
-  assert.doesNotMatch(css, /\.ph-bold\.ph-moon/, 'a weight gains no glyph the sources did not name beside it');
-  assert.match(css, /\.ph-fill\.ph-bell:before/,
-    'fill is the exception: the navigation asks for it on its own, so the sheet carries every named glyph in it');
   assert.match(step.wrote ?? '', /2 glyph\(s\), 2 named by your sources and 0 by Arena's own components, 2 weight\(s\)/);
 
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
 });
 
-test('a project that names one weight and never fill still gets the fill rule the active navigation item asks for', () => {
-  const { root: phosphorRootDir, web } = phosphor();
-  const root = project(readable, { 'app.html': '<arena-side-nav-item icon="ph-bold ph-bell"></arena-side-nav-item>' });
-
-  const step = iconsStep(options(root), { phosphor: web, arena: null });
-  assert.equal(step.code, 0);
-  const css = readFileSync(join(root, 'src', ICONS_SHEET), 'utf8');
-  assert.match(css, /\.ph-bold\.ph-bell:before/);
-  assert.match(css, /\.ph-fill\.ph-bell:before/,
-    'without it the icon of the item the user just pressed is the one that disappears');
-  assert.match(css, /Phosphor-Fill\.woff2/, 'and the face it needs comes with it');
-
-  rmSync(root, { recursive: true });
-  rmSync(phosphorRootDir, { recursive: true });
-});
-
 test('the font path is written relative to the stylesheet, so a bundler resolves it', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project();
   iconsStep(options(root), { phosphor: web, arena: null });
   const src = /url\('([^']+)'\)/.exec(readFileSync(join(root, 'src', ICONS_SHEET), 'utf8'));
@@ -326,7 +307,7 @@ test('the font path is written relative to the stylesheet, so a bundler resolves
 });
 
 test('the icons Arena draws itself are counted, because a consumer never names them', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const arena = mkdtempSync(join(tmpdir(), 'arena-package-'));
   writeFileSync(join(arena, 'index.js'), "const caret = 'ph-bold ph-sun';");
   const root = project();
@@ -340,7 +321,7 @@ test('the icons Arena draws itself are counted, because a consumer never names t
 });
 
 test('running outside a package says so, because the icons Arena draws went uncounted', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project();
   const step = iconsStep(options(root), { phosphor: web, arena: null });
   assert.ok(step.reports.some((m) => m.includes('not running from inside an Arena package')));
@@ -349,7 +330,7 @@ test('running outside a package says so, because the icons Arena draws went unco
 });
 
 test('a glyph Phosphor does not draw is reported and still writes', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project(readable, { 'app.html': '<i class="ph-bold ph-nope"></i><i class="ph-bold ph-bell"></i>' });
 
   const step = iconsStep(options(root), { phosphor: web, arena: null });
@@ -362,7 +343,7 @@ test('a glyph Phosphor does not draw is reported and still writes', () => {
 });
 
 test('a project naming a glyph and no weight is stopped, because no rule could be written', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project(readable, { 'app.html': '<i class="ph-bell"></i>' });
   const step = iconsStep(options(root), { phosphor: web, arena: null });
   assert.equal(step.code, 1);
@@ -377,7 +358,7 @@ test('no Phosphor and no path are both fatal, and neither writes', () => {
   assert.equal(missing.code, 2);
   assert.ok(missing.fatal.some((m) => m.includes('cannot find @phosphor-icons/web')));
 
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const nowhere = iconsStep({ ...options(root), paths: [join(root, 'nope')] }, { phosphor: web, arena: null });
   assert.equal(nowhere.code, 2);
   assert.equal(existsSync(join(root, 'src', ICONS_SHEET)), false);
@@ -387,7 +368,7 @@ test('no Phosphor and no path are both fatal, and neither writes', () => {
 });
 
 test('one run writes both files, which is the whole point of one command', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project();
   const argv = ['--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src')];
 
@@ -401,7 +382,7 @@ test('one run writes both files, which is the whole point of one command', () =>
 });
 
 test('a config that does not parse stops the run before the subset, which it has no theme for', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const root = project(null);
   writeFileSync(join(root, 'arena.config.json'), '{ not json');
   const argv = ['--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src')];
@@ -415,7 +396,7 @@ test('a config that does not parse stops the run before the subset, which it has
 });
 
 test('--strict promotes a report from either step, and neither is fatal without it', () => {
-  const { root: phosphorRootDir, web } = phosphor();
+  const { root: phosphorRootDir, web } = phosphor({ bold: 'Phosphor-Bold' });
   const dim = structuredClone(readable);
   const [firstPalette] = dim.palettes;
   assert.ok(firstPalette, 'the readable fixture declares no palette to dim');
@@ -481,7 +462,7 @@ test('a path that is not there reads as nothing rather than as an empty tree', (
 });
 
 test('Phosphor is looked for upwards, which is where a package manager puts it', () => {
-  const { root, web } = phosphor();
+  const { root, web } = phosphor({ bold: 'Phosphor-Bold' });
   const deep = join(root, 'apps', 'web', 'src');
   mkdirSync(deep, { recursive: true });
   assert.equal(phosphorRoot(deep, deep), web);

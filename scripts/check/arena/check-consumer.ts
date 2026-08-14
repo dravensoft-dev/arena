@@ -23,7 +23,6 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { THEME_SHEET, ICONS_SHEET } from '../../generate/core/arena-to-prod/arena-to-prod.ts';
-import { WEIGHT_CLASSES } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { captured } from '../../utils/captures.ts';
 
 export const node = {
@@ -36,7 +35,6 @@ export const node = {
 
 export const CLI = 'bin/arena-to-prod.mjs';
 export const GLYPH = 'ph-bell';
-export const FILL = `.${WEIGHT_CLASSES.fill}`;
 
 export const SOURCES: Record<string, Record<string, string>> = {
   react: {
@@ -135,22 +133,11 @@ export function mergeProblems(layer: string, result: CliRun, base = root) {
     return problems;
   }
   if (!result.theme) problems.push(`${layer}: one invocation wrote no ${THEME_SHEET}`);
-  problems.push(...iconProblems(layer, result.icons));
-  if (bins.length === 0) problems.push(`${layer}: bin/ ships no command`);
-  return problems;
-}
-
-export function iconProblems(layer: string, icons: string | null) {
-  if (!icons) return [`${layer}: one invocation wrote no ${ICONS_SHEET}, so the icon half of the merge is gone`];
-  const problems = [];
-  if (!icons.includes(GLYPH)) {
+  if (!result.icons) problems.push(`${layer}: one invocation wrote no ${ICONS_SHEET}, so the icon half of the merge is gone`);
+  if (result.icons && !result.icons.includes(GLYPH)) {
     problems.push(`${layer}: ${ICONS_SHEET} names no ${GLYPH}, so the icon scan stopped reading consumer sources`);
   }
-  if (!icons.includes(`${FILL}.${GLYPH}`)) {
-    problems.push(`${layer}: the source names ${GLYPH} beside the bold weight alone and ${ICONS_SHEET} carries `
-      + `no ${FILL}.${GLYPH} rule. The navigation swaps its active destination to the filled weight with no `
-      + 'member for it, so a sheet without that rule loses the icon of the item the user just pressed');
-  }
+  if (bins.length === 0) problems.push(`${layer}: bin/ ships no command`);
   return problems;
 }
 
