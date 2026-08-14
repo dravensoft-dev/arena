@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   skillProblems, firstDifference, zeroDeclarationProblems, trackingProblems,
 } from './check-skills.ts';
-import { SKILL_TARGETS } from '../../generate/arena/generate-skills.ts';
+import { skillTargets } from '../../generate/arena/generate-skills.ts';
 
 test('every committed index matches a fresh emit', () => {
   const { problems } = skillProblems();
@@ -13,7 +13,7 @@ test('every committed index matches a fresh emit', () => {
 test('the gate compared a real result set rather than an empty one', () => {
   const { declared, emitted } = skillProblems();
   assert.ok(declared > 0, 'no component was declared, so a clean pass says nothing');
-  assert.equal(emitted, SKILL_TARGETS.length);
+  assert.equal(emitted, skillTargets().length);
 });
 
 test('an untracked index is a problem, because it would reach no clone and no tag', () => {
@@ -43,5 +43,5 @@ test('two identical documents differ nowhere', () => {
 
 test('an untracked tree fails once per index rather than only for the first', () => {
   const { problems } = skillProblems(undefined, new Set());
-  assert.equal(problems.filter((p) => p.includes('reaches no clone')).length, SKILL_TARGETS.length);
+  assert.equal(problems.filter((p) => p.includes('reaches no clone')).length, skillTargets().length);
 });

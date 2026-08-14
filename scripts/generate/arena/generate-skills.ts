@@ -24,7 +24,8 @@ export const INDEX_TARGET = 'frameworks/SKILL.md';
 
 export const layerTarget = (layer: string) => `frameworks/${layer}/SKILL.md`;
 
-export const SKILL_TARGETS = [INDEX_TARGET, ...CONSUMER_LAYERS.map(layerTarget)];
+export const categoryTarget = (layer: string, category: string) =>
+  `frameworks/${layer}/components/${category}/SKILL.md`;
 
 export const node = {
   name: 'generate:skills',
@@ -33,19 +34,30 @@ export const node = {
     'contracts/api/components',
     ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.behaviour.json`),
   ],
-  writes: SKILL_TARGETS,
+  writes: [
+    INDEX_TARGET,
+    ...CONSUMER_LAYERS.map(layerTarget),
+    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/SKILL.md`),
+  ],
   feeds: [
     'build:angular-package',
     'build:react-package',
+    'check:appearance',
     'check:arbitrary',
+    'check:behaviour',
+    'check:compliance',
     'check:dimensions',
     'check:duplicate-constants',
+    'check:focus-trap',
     'check:generated',
     'check:icons',
     'check:layer-independence',
+    'check:playgrounds',
     'check:routes',
     'check:script-tokens',
+    'check:shared-arithmetic',
     'check:skills',
+    'check:states',
   ],
 };
 
@@ -90,6 +102,11 @@ writing one: what a member is called where you are building, and how to write it
 layer's index and then the component's own prompt, and reading this page first buys nothing when
 you already know what you are reaching for.
 
+**The voice this application takes, and the rules of the language every component below answers
+to, are decided in [\`../SKILL.md\`](../SKILL.md) before any component on this page.** Nothing
+here restates them, so a screen built from this page alone is built in the default voice by
+accident and breaks the rules where nothing will report it.
+
 | Layer | Index | Package |
 |---|---|---|
 ${CONSUMER_LAYERS
@@ -108,21 +125,44 @@ export function layerHeader(layer: string) {
 
 # Arena components, the ${LAYER_TITLE[layer]} layer
 
-Every component this layer ships, by category, under the names it binds them to. **This page is
-an index, not a manual.** How to write one is its own prompt, linked in the last column.
+Every component this layer ships, under the category it is filed under. **This page is a
+directory, not an index.** Find the name you are reaching for in the middle column, open that
+category's index for what the component takes, and its own prompt for how to write it. The
+components are named here rather than described so that finding yours costs one page instead of
+a guess.
+
+**Read [\`../../SKILL.md\`](../../SKILL.md) before you write anything from here.** It carries the
+two things no page below it does: the voice the application takes, which is decided before any
+component, and the rules of the language, which hold in your code because you hold them and which
+no gate reads your application to enforce. Every component answers to the voice without being told,
+so a screen built from this tree alone is built in the default voice by accident rather than on
+purpose, and breaks the rules where nothing will report it.
+
+- Installing the package, declaring your skin, and what it exports besides components:
+  [\`PACKAGE.md\`](./PACKAGE.md).
+- Whether a component exists at all, including any this layer does not ship:
+  [\`../SKILL.md\`](../SKILL.md).`;
+}
+
+export function categoryHeader(layer: string, category: string) {
+  return `${GENERATED}
+
+# Arena ${category} components, the ${LAYER_TITLE[layer]} layer
+
+Every ${category} component this layer ships, under the names it binds them to. **This page is an
+index, not a manual.** How to write one is its own prompt, linked in the last column.
+
+**The voice this application takes, and the rules every component below answers to, are decided in
+[\`../../../../SKILL.md\`](../../../../SKILL.md) before any component here**, and nothing on this
+page restates them.
 
 Import from the package root, never from a path inside it:
 
 ${LAYER_IDIOM[layer]}
 
-- **Which voice this application takes, which is decided before any component here**:
-  [\`../../SKILL.md\`](../../SKILL.md). Every component below answers to it without being told, so
-  a screen built without picking one is built in the default voice by accident rather than on
-  purpose.
+- Every other category this layer ships: [\`../../SKILL.md\`](../../SKILL.md).
 - Installing the package, declaring your skin, and what it exports besides components:
-  [\`PACKAGE.md\`](./PACKAGE.md).
-- Whether a component exists at all, including any this layer does not ship:
-  [\`../SKILL.md\`](../SKILL.md).
+  [\`../../PACKAGE.md\`](../../PACKAGE.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked \`*\` is required; the prompt gives its type and its default.
 - **A member whose type is an object or an enum takes one this package exports.** The prompt
@@ -150,7 +190,25 @@ export function layersFor(category: string, component: string, base = root) {
 }
 
 export function promptPath(category: string, component: string) {
-  return `./components/${category}/${kebab(component)}/${component}.prompt.md`;
+  return `./${kebab(component)}/${component}.prompt.md`;
+}
+
+export function layerCategories(layer: string, base = root) {
+  return Object.entries(loadCategories(base) as Record<string, string[]>)
+    .filter(([category, components]) =>
+      components.some((component) => existsSync(join(base, componentDir(layer, category, component)))))
+    .map(([category]) => category)
+    .sort();
+}
+
+export function skillTargets(base = root) {
+  return [
+    INDEX_TARGET,
+    ...CONSUMER_LAYERS.flatMap((layer) => [
+      layerTarget(layer),
+      ...layerCategories(layer, base).map((category) => categoryTarget(layer, category)),
+    ]),
+  ];
 }
 
 export function memberList(contract: ContractCandidate | null, layer?: string) {
@@ -258,43 +316,63 @@ export function renderIndex(base = root) {
   return out.join('\n');
 }
 
-export function renderLayerIndex(layer: string, base = root) {
+export function layerRowsIn(layer: string, category: string, base = root) {
   const categories = loadCategories(base);
-  const out = [layerHeader(layer)];
-  let count = 0;
-  let sections = 0;
+  return rowsFor(category, [...(categories[category] ?? [])].sort(), base)
+    .filter((row) => row.layers.includes(layer));
+}
 
-  for (const category of Object.keys(categories).sort()) {
-    const rows = rowsFor(category, [...categories[category]].sort(), base)
-      .filter((row) => row.layers.includes(layer));
-    if (rows.length === 0) continue;
+export function renderLayerIndex(layer: string, base = root) {
+  const out = [layerHeader(layer)];
+  const categories = layerCategories(layer, base);
+  let count = 0;
+
+  out.push('');
+  out.push('| Category | The components it holds | Index |');
+  out.push('|---|---|---|');
+  for (const category of categories) {
+    const rows = layerRowsIn(layer, category, base);
     count += rows.length;
-    sections += 1;
-    out.push('');
-    out.push(`## ${category}`);
-    out.push('');
-    out.push('| Component | What it is | Takes | Usage |');
-    out.push('|---|---|---|---|');
-    for (const row of rows) out.push(renderLayerRow(row, layer));
+    const held = rows.map((row) => `\`${row.component}\``).join(' ');
+    out.push(`| \`${category}\` | ${held} | [\`components/${category}/SKILL.md\`](./components/${
+      category}/SKILL.md) |`);
   }
 
   if (count === 0) indexOfNothing(`the ${layer} layer holds no declared component`);
 
   out.push('');
-  out.push(`${count} components across ${sections} categories in this layer.`);
+  out.push(`${count} components across ${categories.length} categories in this layer.`);
+  out.push('');
+  return out.join('\n');
+}
+
+export function renderCategoryIndex(layer: string, category: string, base = root) {
+  const rows = layerRowsIn(layer, category, base);
+  if (rows.length === 0) indexOfNothing(`the ${layer} layer holds no ${category} component`);
+
+  const out = [categoryHeader(layer, category)];
+  out.push('');
+  out.push('| Component | What it is | Takes | Usage |');
+  out.push('|---|---|---|---|');
+  for (const row of rows) out.push(renderLayerRow(row, layer));
+  out.push('');
+  out.push(`${rows.length} ${category} components in this layer.`);
   out.push('');
   return out.join('\n');
 }
 
 export function renderTarget(target: string, base = root) {
   if (target === INDEX_TARGET) return renderIndex(base);
-  const layer = CONSUMER_LAYERS.find((one) => layerTarget(one) === target);
-  if (!layer) throw new Error(`generate-skills: nothing emits ${target}`);
-  return renderLayerIndex(layer, base);
+  const roof = CONSUMER_LAYERS.find((one) => layerTarget(one) === target);
+  if (roof) return renderLayerIndex(roof, base);
+  for (const layer of CONSUMER_LAYERS)
+    for (const category of layerCategories(layer, base))
+      if (categoryTarget(layer, category) === target) return renderCategoryIndex(layer, category, base);
+  throw new Error(`generate-skills: nothing emits ${target}`);
 }
 
 function main() {
-  for (const target of SKILL_TARGETS) {
+  for (const target of skillTargets()) {
     writeFileSync(join(root, target), renderTarget(target));
     console.log(`generate-skills: wrote ${target}`);
   }

@@ -6,8 +6,8 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   renderIndex, renderLayerIndex, renderTarget, renderRow, renderLayerRow, renderPatterns,
-  memberList, escapeCell, promptPath, layersFor, layerTarget,
-  SKILL_TARGETS, INDEX_TARGET, CONSUMER_LAYERS,
+  memberList, escapeCell, promptPath, layersFor, layerTarget, categoryTarget,
+  renderCategoryIndex, layerCategories, skillTargets, INDEX_TARGET, CONSUMER_LAYERS,
 } from './generate-skills.ts';
 
 test('a required member is starred and an optional one is not', () => {
@@ -53,14 +53,21 @@ test('a newline in a description becomes a space, because a table cell is one li
   assert.equal(escapeCell('a\nb'), 'a b');
 });
 
-test('a prompt path is relative to the layer root, which is where a layer index sits', () => {
-  assert.equal(promptPath('forms', 'ArenaButton'), './components/forms/arena-button/ArenaButton.prompt.md');
+test('a prompt path is relative to the category index, which is where the link sits', () => {
+  assert.equal(promptPath('forms', 'ArenaButton'), './arena-button/ArenaButton.prompt.md');
 });
 
 test('the tailwind layer holds no index: it ships manifests, not components', () => {
   assert.ok(!CONSUMER_LAYERS.includes('tailwind'));
   assert.deepEqual([...CONSUMER_LAYERS].sort(), ['angular', 'react']);
-  assert.deepEqual(SKILL_TARGETS, [INDEX_TARGET, 'frameworks/angular/SKILL.md', 'frameworks/react/SKILL.md']);
+  const targets = skillTargets();
+  assert.ok(!targets.some((one) => one.includes('/tailwind/')));
+  assert.equal(targets[0], INDEX_TARGET);
+  for (const layer of CONSUMER_LAYERS) {
+    assert.ok(targets.includes(layerTarget(layer)));
+    for (const category of layerCategories(layer))
+      assert.ok(targets.includes(categoryTarget(layer, category)));
+  }
 });
 
 test('layersFor reports only the layers that actually hold the directory', () => {
@@ -91,12 +98,12 @@ test('a layer row links the prompt beside the component rather than naming a pat
   assert.equal(
     row,
     '| `ArenaBadge` | Status label. | `children` `dot` | '
-    + '[`ArenaBadge.prompt.md`](./components/display/arena-badge/ArenaBadge.prompt.md) |',
+    + '[`ArenaBadge.prompt.md`](./arena-badge/ArenaBadge.prompt.md) |',
   );
 });
 
 test('every emitted index is what is committed, so a reader of the tag reads the truth', () => {
-  for (const target of SKILL_TARGETS) {
+  for (const target of skillTargets()) {
     assert.equal(renderTarget(target), readFileSync(join(repoRoot, target), 'utf8'), `${target} is stale`);
   }
 });
@@ -112,11 +119,43 @@ test('the index names every component and stays clear of the punctuation rule', 
 
 test("a layer index names no other layer, because no layer is another layer's authority", () => {
   for (const layer of CONSUMER_LAYERS) {
-    const out = renderLayerIndex(layer);
-    for (const other of CONSUMER_LAYERS.filter((one) => one !== layer)) {
-      assert.ok(!out.includes(other), `the ${layer} index names ${other}`);
+    const pages = [
+      renderLayerIndex(layer),
+      ...layerCategories(layer).map((category) => renderCategoryIndex(layer, category)),
+    ];
+    for (const out of pages) {
+      for (const other of CONSUMER_LAYERS.filter((one) => one !== layer)) {
+        assert.ok(!out.includes(other), `a ${layer} page names ${other}`);
+      }
+      assert.ok(!out.includes('—'), `a ${layer} page carries an em dash`);
     }
-    assert.ok(!out.includes('—'), `the ${layer} index carries an em dash`);
+  }
+});
+
+test('the directory names every component the layer ships, so no category has to be guessed', () => {
+  for (const layer of CONSUMER_LAYERS) {
+    const roof = renderLayerIndex(layer);
+    for (const category of layerCategories(layer)) {
+      assert.ok(roof.includes(`components/${category}/SKILL.md`), `the roof drops ${category}`);
+      for (const row of renderCategoryIndex(layer, category).split('\n')) {
+        const named = /^\| `(Arena[A-Za-z0-9]*)` \|/.exec(row);
+        if (named) assert.ok(roof.includes(`\`${named[1]}\``), `${named[1]} is in no roof row`);
+      }
+    }
+  }
+});
+
+test('no index is an entry point, so every one names the router above it', () => {
+  assert.ok(
+    renderIndex().includes('](../SKILL.md)'),
+    'the layer-neutral index does not name the router, so a reader landing here has no path to the '
+      + 'voice or the rules',
+  );
+  for (const layer of CONSUMER_LAYERS) {
+    assert.ok(
+      renderLayerIndex(layer).includes('](../../SKILL.md)'),
+      `the ${layer} index does not name the router`,
+    );
   }
 });
 

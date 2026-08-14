@@ -49,14 +49,17 @@ the colour; and density keeps the controls and the data rows.
 
 ## Then, in this order
 
-1. **`frameworks/<layer>/SKILL.md`**: every component your framework ships, under the names it
-   binds them to, with what each one is and what it takes, each linking its own prompt. Read your
-   layer's, and no other.
-2. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
+1. **`frameworks/<layer>/SKILL.md`**: the directory of your framework's components, naming every
+   one under the category it is filed under. Read your layer's, and no other. It is short because
+   it describes nothing: it tells you which category holds the name you are reaching for.
+2. **`frameworks/<layer>/components/<category>/SKILL.md`**, linked from there: every component in
+   that category under the names the layer binds them to, with what each one is and what it takes,
+   each linking its own prompt. Read the one category you are reaching into, and no other.
+3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
 
-[`frameworks/SKILL.md`](./frameworks/SKILL.md) is the layer-neutral index beside those two, and it
-answers one question the layer index cannot: whether a component exists at all, and which layers
+[`frameworks/SKILL.md`](./frameworks/SKILL.md) is the layer-neutral index beside those three, and
+it answers one question your layer's cannot: whether a component exists at all, and which layers
 ship it. Read it when you are looking for something you are not sure Arena has, and skip it when
 you already know what you are reaching for.
 
@@ -117,7 +120,8 @@ these hold because you hold them: breaking one is a defect that nothing will rep
 |---|---|
 | Which voice does this application take? | the table at the top of this file, and nothing else: it is the whole of the decision |
 | Does a component like this exist at all, and which layers ship it? | [`frameworks/SKILL.md`](./frameworks/SKILL.md) |
-| Which component do I need, what is it called in my framework, and where is its prompt? | `frameworks/<layer>/SKILL.md` |
+| Which category holds the component I am reaching for? | `frameworks/<layer>/SKILL.md`, which names every one of them and describes none |
+| What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/SKILL.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
