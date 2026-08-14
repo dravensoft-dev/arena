@@ -48,6 +48,10 @@ export function copyAll(from: string, out: string, rel: string) {
   return written;
 }
 
+export const BODY = 'body{margin:0;background:var(--bg);color:var(--text-strong);'
+  + 'font-family:var(--font-body);line-height:1.55}'
+  + 'a{color:var(--crimson)}code,pre{font-family:var(--font-mono)}';
+
 const escape = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -69,6 +73,7 @@ const head = (title: string, description: string, canonical: string, depth: numb
 <link rel="icon" href="${up}assets/app-icon.svg">
 <link rel="stylesheet" href="${up}intro/styles.css">
 <link rel="stylesheet" href="${up}intro/toggle.css">
+<style>${BODY}</style>
 </head><body>`;
 };
 
@@ -97,8 +102,8 @@ export function landingPage(base = repoRoot) {
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
     .join('\n');
   return `${head('Arena by Dravensoft', TAGLINE, `https://${DOMAIN}/`, 0)}
-<main style="max-width:64rem;margin:0 auto;padding:var(--sp-7) var(--sp-6)">
-<h1 style="font-family:var(--font-display);font-size:var(--fs-3xl);margin:0">Arena by Dravensoft</h1>
+<main style="max-width:64rem;margin:0 auto;padding:var(--sp-8) var(--sp-6)">
+<h1 style="font-family:var(--font-display);font-size:var(--fs-hero);margin:0">Arena by Dravensoft</h1>
 <p style="font-size:var(--fs-lg);color:var(--mute);max-width:44rem">${escape(TAGLINE)}</p>
 
 <p style="max-width:44rem">Every value traces to a design token, every component's API and every
@@ -111,7 +116,7 @@ the gate tells it when it got it wrong.</p>
 ${drawn} components ship under both framework names, rendering the same pixels, and your palettes
 and fonts arrive in an <code>arena.config.json</code> your project writes.</p>
 
-<pre style="background:var(--surface);padding:var(--sp-4);border-radius:var(--r-lg);overflow-x:auto"><code>bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
+<pre style="background:var(--surface-card);padding:var(--sp-4);border-radius:var(--r-lg);overflow-x:auto"><code>bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 bun add @phosphor-icons/web</code></pre>
 
 <h2 style="font-family:var(--font-display)">See it</h2>
@@ -153,7 +158,7 @@ p{font-family:var(--font-body);font-size:34px;margin:0;color:var(--mute);max-wid
 
 export function notFoundPage() {
   return `${head('Not found, Arena by Dravensoft', 'That page is not here.', `https://${DOMAIN}/`, 0)}
-<main style="max-width:40rem;margin:0 auto;padding:var(--sp-7) var(--sp-6)">
+<main style="max-width:40rem;margin:0 auto;padding:var(--sp-8) var(--sp-6)">
 <h1 style="font-family:var(--font-display)">That page is not here</h1>
 <p><a href="/">Back to the start</a></p>
 </main>

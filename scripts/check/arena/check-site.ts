@@ -29,6 +29,37 @@ export const REFERENCE = /(?:href|src)="([^"]+)"/g;
 export const OFF_SITE = /^(?:https?:|mailto:|data:|#|\/\/)/;
 export const AUTHORED = ['index.html', '404.html', 'og.html'];
 export const FORBIDDEN = ['file://', 'localhost', '127.0.0.1'];
+export const VAR_USED = /var\((--[a-z0-9-]+)/g;
+export const VAR_DEFINED = /(--[a-z0-9-]+)\s*:/g;
+
+export function definedTokens(out: string) {
+  const names = new Set<string>();
+  if (!existsSync(out)) return names;
+  for (const path of walkFiles(out)) {
+    if (!path.endsWith('.css')) continue;
+    for (const match of readFileSync(path, 'utf8').matchAll(VAR_DEFINED)) names.add(match[1] ?? '');
+  }
+  return names;
+}
+
+export function tokenProblems(out: string, files = htmlFiles(out), defined = definedTokens(out)) {
+  const problems = [];
+  for (const page of files) {
+    const rel = relPosix(out, page);
+    if (!AUTHORED.includes(rel) && !rel.endsWith('/index.html')) continue;
+    for (const match of readFileSync(page, 'utf8').matchAll(VAR_USED)) {
+      const name = match[1] ?? '';
+      if (!defined.has(name)) {
+        problems.push(
+          `${rel} reads ${name}, and no stylesheet in the output defines it. A custom property `
+          + 'nothing declares resolves to nothing at all, so the page renders unstyled and every '
+          + 'link on it still answers 200',
+        );
+      }
+    }
+  }
+  return problems;
+}
 
 export function htmlFiles(out: string) {
   if (!existsSync(out)) return [];
@@ -136,6 +167,7 @@ function main() {
     ...domainProblems(out),
     ...sitemapProblems(out),
     ...localhostProblems(out, files),
+    ...tokenProblems(out, files),
   ];
   if (problems.length > 0) {
     console.error(`check-site: ${problems.length} problem(s)\n`);
