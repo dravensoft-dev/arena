@@ -1,13 +1,13 @@
 /* The kitchen-sink page every layer serves, built in one place so the two differ in exactly the
  * two lines they have to: what mounts the app, and what it is loaded from. A sibling of
- * playground-page.ts rather than a caller, because the two answer opposite questions: that page
- * offers a control that cycles the design extension, and this page IS one, spelled as the scope
- * class on <html>, which is what lets check:pixel-parity navigate to a URL and know what it is
- * looking at. The theme button is the one control drawn and is load-bearing: intro/theme.js
- * retries until it finds a .themebtn and applies nothing before it does, so a page without one
- * ignores ?theme=light and only one theme could be compared. The whole component barrel is
- * linked rather than the list a playground computes, since a page holding everything names every
- * sheet and an order computed twice is an order that can differ. */
+ * playground-page.ts rather than a caller: that page offers a control that cycles the design
+ * extension, and this page IS one, spelled as the scope class on <html>, which is what lets
+ * check:pixel-parity navigate to a URL and know what it is looking at. The theme button is
+ * load-bearing: intro/theme.js applies nothing until it finds a .themebtn, so a page without one
+ * ignores ?theme=light and one theme alone could be compared. The whole barrel is linked rather
+ * than the list a playground computes, an order computed twice being one that can differ. Ready
+ * re-asks after the frames: document.fonts.ready answers for the loads in flight when it is read
+ * and mounting starts the rest, so a first resolution is a snapshot taken before the question. */
 
 import { BARREL } from '../../build/tailwind/build-tailwind.ts';
 import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
@@ -64,8 +64,14 @@ ${mount}
 `;
 }
 
-export const READY_SIGNAL = `document.fonts.ready.then(() => requestAnimationFrame(
-  () => requestAnimationFrame(() => document.documentElement.setAttribute('${READY}', ''))))`;
+export const READY_SIGNAL = `(async () => {
+  for (;;) {
+    await document.fonts.ready;
+    await new Promise((frame) => requestAnimationFrame(() => requestAnimationFrame(frame)));
+    if (document.fonts.status === 'loaded') break;
+  }
+  document.documentElement.setAttribute('${READY}', '');
+})()`;
 
 export const KS = {
   head: 'ks-head',

@@ -4,7 +4,9 @@
  * component here and the same component on its playground would be a difference in this file
  * rather than in the component, and it would be invisible. The furniture around each instance is
  * plain markup on the shared class names, since a frame built from Arena would change appearance
- * with the change being examined. */
+ * with the change being examined. The ready signal hangs off an effect on Sink rather than the
+ * line after render(), which only SCHEDULES a commit: an effect on the root component runs after
+ * every descendant's, putting this where bootstrapApplication().then() already puts Angular's. */
 
 import { kitchenSinkPage, KS, bodyClass, MOUNT_ID, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
 import { UP as COMPONENT_UP } from '../arena/playground-page.ts';
@@ -59,6 +61,7 @@ import { createRoot } from 'react-dom/client';
 ${imports.join('\n')}
 
 function Sink() {
+  React.useEffect(() => { void ${READY_SIGNAL}; }, []);
   return (
     <React.Fragment>
 ${header(model, 3)}
@@ -68,7 +71,6 @@ ${model.sections.map((one) => section(one, places, 3)).join('\n')}
 }
 
 createRoot(document.getElementById('${MOUNT_ID}')!).render(<Sink />);
-${READY_SIGNAL};
 `;
 }
 
