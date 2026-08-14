@@ -4,6 +4,7 @@ ensureDom();
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { ArenaCommand } from '../../../Api.generated';
+import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import {
   arenaActiveOptionId,
   arenaFilterCommands,
@@ -98,7 +99,8 @@ test('the element scrolled is the row aria-selected names, which groups nest a l
   arenaScrollRowIntoView(list, 1);
 
   assert.equal(scrolled.length, 1);
-  assert.equal(scrolled[0]?.element, list.querySelector('[aria-selected="true"]'));
+  assertSameNode(scrolled[0]?.element, list.querySelector('[aria-selected="true"]'),
+    'the element scrolled is not the row aria-selected names');
   assert.deepEqual(scrolled[0]?.options, { block: 'nearest' });
 });
 
@@ -108,20 +110,23 @@ test('a row in the second group scrolls itself rather than the group, which is w
 
   arenaScrollRowIntoView(list, 2);
 
-  assert.deepEqual(scrolled.map((one) => one.element), [rows[2]]);
+  assert.equal(scrolled.length, 1);
+  assertSameNode(scrolled[0]?.element, rows[2], 'a row in the second group did not scroll itself');
   assert.equal(scrolled.some((one) => groups.includes(one.element)), false);
 });
 
 test('a listbox drawing one unnamed group is read the same way, so every index past the first still finds its row', () => {
   const { list, rows, scrolled } = listbox([3]);
   arenaScrollRowIntoView(list, 2);
-  assert.deepEqual(scrolled.map((one) => one.element), [rows[2]]);
+  assert.equal(scrolled.length, 1);
+  assertSameNode(scrolled[0]?.element, rows[2],
+    'a listbox with one unnamed group did not reach the row at index 2');
 });
 
 test('arenaScrollRowIntoView does nothing when no row exists at the given index', () => {
   const { list, scrolled } = listbox([2]);
   assert.doesNotThrow(() => arenaScrollRowIntoView(list, 5));
-  assert.deepEqual(scrolled, []);
+  assertNoNode(scrolled[0]?.element, 'an index past the last row still scrolled something');
 });
 
 test('arenaOptionRowId formats a row id from the instance prefix and the row index', () => {
