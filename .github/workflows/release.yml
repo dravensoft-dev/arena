@@ -1,0 +1,75 @@
+name: Release notes
+
+# Unlike the two publish workflows, this file's name is nobody's identity and renaming it
+# revokes nothing. It follows the tag rather than "Arena main" because a release page describes
+# a tag, and a tag can be pushed at a commit whose main run is long past.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: the tag to describe, as in v9.0.3
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  BUN_VERSION: 1.3.14
+
+jobs:
+  notes:
+    name: describe the tag
+    runs-on: ubuntu-latest
+    steps:
+      # The whole history, and every tag: the page is the commit log between this tag and the
+      # one below it in version order, and a shallow clone has neither.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - id: tag
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          if ! git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
+            echo "$TAG is not a tag in this repository."
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: the tag is pinned, and the plugin.json it serves hands out its version
+        run: bun scripts/check/arena/check-release.ts
+
+      - name: write the page from the commit log
+        run: |
+          set -euo pipefail
+          bun scripts/ci/arena/release-notes.ts "${{ steps.tag.outputs.tag }}" > release-notes.md
+          cat release-notes.md >> "$GITHUB_STEP_SUMMARY"
+
+      # Editing rather than failing, so a re-run repairs a page instead of refusing to touch it.
+      - name: publish the page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file release-notes.md --title "Arena $TAG"
+            echo "$TAG already had a page, and it now says what the commit log says."
+          else
+            gh release create "$TAG" --verify-tag --notes-file release-notes.md --title "Arena $TAG"
+            echo "$TAG has a page."
+          fi

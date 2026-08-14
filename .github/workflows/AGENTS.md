@@ -1,9 +1,10 @@
 # .github/workflows/
 
-Five workflows: one guards a pull request, one guards `main`, one guards `develop`, and two
-publish a package. That count was right and this directory held six: `portability.yml` ran the
+One guards a pull request, one guards `main`, one guards `develop`, two publish a package, and
+one writes a release page. `ls .github/workflows/*.yml` is what says how many, and this page
+carried the figure instead until the count and the directory disagreed: `portability.yml` ran the
 operating system matrix, was named in no diagram here, and is now a job of `Arena PR`, which is
-the same omission read twice.
+the same omission read twice. A number no assertion holds is the defect that rule exists to stop.
 
 ```
 pull_request -> main          Arena PR
@@ -12,6 +13,8 @@ push to main                  Arena main            builds, and saves that build
    |
    +-- on success             Publish arena-react      restores it
    +-- on success             Publish arena-angular    restores it
+
+push of a tag                 Release notes         follows the tag, not a build
 ```
 
 ## Arena PR
@@ -205,6 +208,28 @@ The one error tolerated is `cannot publish over the previously published version
 registry read path the guard uses lags a successful publish by several minutes, so a re-run
 inside that window sees a version that is published and reports it as absent. Any other
 failure is red.
+
+## Release notes
+
+**The only workflow that follows a tag rather than a build**, because a release page describes a
+tag, and a tag can be pushed at a commit whose `Arena main` run is long past. It checks out the
+whole history and every tag, since the page is the commit log between this tag and the one below
+it in version order, and a shallow clone carries neither.
+
+`../../scripts/ci/arena/release-notes.ts` writes the page. **GitHub's own `--generate-notes` is
+what it replaces**, and the reason is the shape of this history: every release arrives on `main`
+as one merge of `develop`, so the generated page would say `Merge pull request #19` and stop.
+What carries a release here is the commit subjects, which are written as a sentence naming the
+defect, so the script groups them by the area each one names and prints them as they were
+written. An em dash becomes a comma on the way out, because prose here punctuates without one
+and a release page is read by more people than any document in the tree.
+
+**A page that exists is edited rather than refused**, so a re-run repairs a release whose notes
+were written before a subject was corrected. `workflow_dispatch` takes the tag as an input, which
+is how the releases older than this workflow got their pages.
+
+It names no `CHROME_PATH`. `check:portability` fails when more than one workflow does, and
+`Arena main` is the one that may.
 
 ## Why are the published package versions not identical?
 
