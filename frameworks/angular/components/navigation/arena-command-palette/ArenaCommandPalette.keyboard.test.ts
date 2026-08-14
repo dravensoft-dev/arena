@@ -4,6 +4,7 @@ ensureDom();
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { ArenaCommand } from '../../../Api.generated';
+import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import {
   arenaActiveOptionId,
   arenaFilterCommands,
@@ -63,26 +64,69 @@ test('an empty result list always answers index 0, in either direction', () => {
   assert.equal(arenaNextActiveIndex(0, 'ArrowUp', 0), 0);
 });
 
-test('arenaScrollRowIntoView asks the row at the given index to scroll itself into view', () => {
+function listbox(sizes: number[]) {
   const list = document.createElement('div');
-  const rows = [0, 1, 2].map(() => document.createElement('button'));
-  list.append(...rows);
+  list.setAttribute('role', 'listbox');
+  const groups: HTMLElement[] = [];
+  const rows: HTMLElement[] = [];
+  const scrolled: { element: HTMLElement; options: ScrollIntoViewOptions | undefined }[] = [];
+  for (const size of sizes) {
+    const group = document.createElement('div');
+    group.setAttribute('role', 'group');
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('button');
+      row.setAttribute('role', 'option');
+      row.setAttribute('aria-selected', 'false');
+      group.appendChild(row);
+      rows.push(row);
+    }
+    list.appendChild(group);
+    groups.push(group);
+  }
+  for (const element of [...groups, ...rows]) {
+    element.scrollIntoView = (options?: boolean | ScrollIntoViewOptions) => {
+      scrolled.push({ element, options: options as ScrollIntoViewOptions });
+    };
+  }
   document.body.appendChild(list);
+  return { list, groups, rows, scrolled };
+}
 
-  let calledWith: ScrollIntoViewOptions | undefined;
-  rows[1].scrollIntoView = (options?: boolean | ScrollIntoViewOptions) => {
-    calledWith = options as ScrollIntoViewOptions;
-  };
+test('the element scrolled is the row aria-selected names, which groups nest a level below the listbox', () => {
+  const { list, rows, scrolled } = listbox([2, 2]);
+  rows[1].setAttribute('aria-selected', 'true');
 
   arenaScrollRowIntoView(list, 1);
 
-  assert.deepEqual(calledWith, { block: 'nearest' });
+  assert.equal(scrolled.length, 1);
+  assertSameNode(scrolled[0]?.element, list.querySelector('[aria-selected="true"]'),
+    'the element scrolled is not the row aria-selected names');
+  assert.deepEqual(scrolled[0]?.options, { block: 'nearest' });
+});
+
+test('a row in the second group scrolls itself rather than the group, which is what a child lookup would reach', () => {
+  const { list, groups, rows, scrolled } = listbox([2, 2]);
+  rows[2].setAttribute('aria-selected', 'true');
+
+  arenaScrollRowIntoView(list, 2);
+
+  assert.equal(scrolled.length, 1);
+  assertSameNode(scrolled[0]?.element, rows[2], 'a row in the second group did not scroll itself');
+  assert.equal(scrolled.some((one) => groups.includes(one.element)), false);
+});
+
+test('a listbox drawing one unnamed group is read the same way, so every index past the first still finds its row', () => {
+  const { list, rows, scrolled } = listbox([3]);
+  arenaScrollRowIntoView(list, 2);
+  assert.equal(scrolled.length, 1);
+  assertSameNode(scrolled[0]?.element, rows[2],
+    'a listbox with one unnamed group did not reach the row at index 2');
 });
 
 test('arenaScrollRowIntoView does nothing when no row exists at the given index', () => {
-  const list = document.createElement('div');
-  document.body.appendChild(list);
-  assert.doesNotThrow(() => arenaScrollRowIntoView(list, 0));
+  const { list, scrolled } = listbox([2]);
+  assert.doesNotThrow(() => arenaScrollRowIntoView(list, 5));
+  assertNoNode(scrolled[0]?.element, 'an index past the last row still scrolled something');
 });
 
 test('arenaOptionRowId formats a row id from the instance prefix and the row index', () => {

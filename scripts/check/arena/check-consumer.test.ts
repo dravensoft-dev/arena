@@ -6,7 +6,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, assembled, documented, SOURCES, UNKNOWN,
+  importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented,
+  SOURCES, UNKNOWN, FILL, GLYPH,
 } from './check-consumer.ts';
 
 const ok: { status: number; stderr: string; theme: string | null; icons: string | null } =
@@ -48,6 +49,22 @@ test('the documented sheet list must pass and an unknown one must fail, naming w
   const silentRefusal = listProblems('react', ok, { ...ok, status: 1, stderr: 'no' });
   assert.equal(silentRefusal.length, 1);
   assert.match(silentRefusal[0] ?? '', /does not list the sheets/);
+});
+
+test('the subset must carry the fixture glyph in the weight it was named beside and in the filled one', () => {
+  const both = `.ph-bold.${GLYPH}:before{content:"\\e0ce"}\n${FILL}.${GLYPH}:before{content:"\\e0ce"}`;
+  assert.deepEqual(iconProblems('angular', both), []);
+
+  const boldAlone = iconProblems('angular', `.ph-bold.${GLYPH}:before{content:"\\e0ce"}`);
+  assert.equal(boldAlone.length, 1);
+  assert.match(boldAlone[0] ?? '', /the item the user just pressed/);
+
+  const empty = iconProblems('angular', '');
+  assert.equal(empty.length, 1, 'a sheet that was never written is one problem rather than three');
+  assert.match(empty[0] ?? '', /wrote no/);
+
+  const neither = iconProblems('angular', '.ph-bold.ph-moon:before{content:"\\e330"}');
+  assert.equal(neither.length, 2);
 });
 
 test('assembly is judged by the package manifest, so a half-written dist is not mistaken for one', () => {

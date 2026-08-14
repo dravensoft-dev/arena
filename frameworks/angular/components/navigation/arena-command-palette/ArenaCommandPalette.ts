@@ -69,7 +69,7 @@ export function arenaNextActiveIndex(current: number, key: 'ArrowDown' | 'ArrowU
 }
 
 export function arenaScrollRowIntoView(list: HTMLElement, index: number): void {
-  const row = list.children.item(index);
+  const row = list.querySelectorAll('[role="option"]').item(index);
   if (row instanceof HTMLElement) row.scrollIntoView({ block: 'nearest' });
 }
 
