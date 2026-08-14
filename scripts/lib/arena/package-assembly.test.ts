@@ -7,7 +7,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
-  writeComponentMap,
+  writeComponentMap, keywords, SHARED_KEYWORDS,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MAP_FILE } from './component-map.ts';
@@ -111,6 +111,21 @@ test('the manifest takes its version and its identity from plugin.json, never fr
   assert.equal(base.publishConfig.access, 'public');
   assert.match(base.repository.url, /^git\+https:\/\/github\.com\//);
   assert.deepEqual(base.bin, CLI_BINS);
+});
+
+test('a reader of the npm page is told where a defect goes, from the one place the repository is named', () => {
+  const base = baseManifest(repoRoot);
+  assert.match(base.bugs.url, /^https:\/\/github\.com\/.+\/issues$/);
+  assert.equal(base.bugs.url, `${base.homepage}/issues`);
+});
+
+test('both packages carry every shared keyword, and each names its own framework first', () => {
+  for (const layer of ['react', 'angular']) {
+    const named = keywords(layer);
+    assert.equal(named[0], layer, `${layer} does not lead its own keyword list`);
+    for (const shared of SHARED_KEYWORDS) assert.ok(named.includes(shared), `${layer} drops ${shared}`);
+    assert.equal(new Set(named).size, named.length, `${layer} repeats a keyword`);
+  }
 });
 
 test('no command ships as TypeScript, because node_modules is where node refuses to strip it', () => {

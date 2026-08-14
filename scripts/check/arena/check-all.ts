@@ -63,6 +63,7 @@ export const GATES = [
   { name: 'check:kitchen-sink', file: 'arena/check-kitchen-sink.ts' },
   { name: 'check:citations', file: 'arena/check-citations.ts' },
   { name: 'check:agents', file: 'arena/check-agents.ts' },
+  { name: 'check:community', file: 'arena/check-community.ts' },
   { name: 'check:icons', file: 'arena/check-icons.ts' },
   { name: 'check:fonts', file: 'core/check-fonts-generated.ts' },
   { name: 'check:intro', file: 'arena/check-intro-generated.ts' },

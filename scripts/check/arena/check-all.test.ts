@@ -17,10 +17,10 @@ const CI_JOBS = {
 };
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 59);
+  assert.equal(GATES.length, 60);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:routes', 'check:vocabulary', 'check:duplication', 'check:dtcg', 'check:extensions', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:roles', 'check:arbitrary', 'check:component-css', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:pixel-parity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:generated', 'check:skills', 'check:prompts', 'check:routes', 'check:vocabulary', 'check:duplication', 'check:dtcg', 'check:extensions', 'check:tokens', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:surface-parity', 'check:radius', 'check:roles', 'check:arbitrary', 'check:component-css', 'check:dimensions', 'check:states', 'check:appearance', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:community', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:pixel-parity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 

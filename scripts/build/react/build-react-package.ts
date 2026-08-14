@@ -19,7 +19,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
-  writeComponentMap,
+  writeComponentMap, keywords,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
@@ -146,10 +146,9 @@ export function assembleModules(root: string, dir: string) {
 export function manifest(root = repoRoot) {
   return {
     name: NAME,
-    description: 'Arena, the Dravensoft design system: React components styled entirely by design tokens.',
-    keywords: ['design-system', 'react', 'ui', 'ui-components', 'arena', 'dravensoft',
-      'design-tokens', 'dtcg', 'tailwindcss', 'themeable', 'accessibility', 'claude-code',
-      'agent-skills', 'ai-agents'],
+    description: 'Arena by Dravensoft: React components styled entirely by design tokens, and the '
+      + 'same design system Angular gets. Built to be operated by an AI agent.',
+    keywords: keywords('react'),
     type: 'module',
     sideEffects: ['*.css'],
     ...baseManifest(root),

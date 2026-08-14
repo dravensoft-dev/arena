@@ -1,0 +1,62 @@
+name: Bug report
+description: Something in Arena does not do what its contract says.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Arena takes issues and does not take external pull requests.
+        [CONTRIBUTING.md](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md)
+        says why, and what makes a report usable.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The Arena version you are on. `README.md` names the current one.
+      placeholder: 9.0.2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where
+      options:
+        - React package
+        - Angular package
+        - Tailwind layer
+        - Design tokens or contracts
+        - arena-to-prod command
+        - Documentation
+        - Claude Code plugin or Agent Skill
+        - Somewhere else
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened
+      description: Name the contract, the document, or the rule you read it from, if there is one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Smallest thing that shows it
+      description: >
+        Markup, a component invocation, an arena.config.json, or the output of the gate
+        involved. The smallest version that still fails is worth more than a complete app.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Framework version, package manager, operating system, browser if it renders.
+    validations:
+      required: false

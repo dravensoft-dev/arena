@@ -1,0 +1,35 @@
+name: Question
+description: The documentation did not answer something.
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A question Arena's documentation should have answered is a defect in the documentation,
+        and this form is the report.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What you are trying to do
+      description: The task, not only the blocked step. The answer is often a different route.
+    validations:
+      required: true
+
+  - type: textarea
+    id: read
+    attributes:
+      label: What you read
+      description: >
+        Which documents you went through. `SKILL.md` is the router for building with Arena,
+        and naming where you entered it is what makes a documentation defect findable.
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 9.0.2
+    validations:
+      required: false
