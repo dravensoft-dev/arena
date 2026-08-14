@@ -70,7 +70,11 @@ only for the reasoning behind one, and you will rarely need it.
 
 Every one of these is a rule of the language rather than a preference, and most are enforced
 inside Arena by a gate over Arena's own tree. **No gate reads your application**, so in your code
-these hold because you hold them: breaking one is a defect that nothing will report.
+these hold because you hold them. What comes closest is `bunx arena-to-prod --audit`, which reads
+your sources for the five of these that source text can show: a class of your own on an Arena
+component, one wrapped in your router's link, a raw value where a token belongs, an icon as an
+element, an emoji. It reports rather than fails unless you add `--strict`, and it decides nothing
+about the rest, so breaking one of those is still a defect nothing will report.
 
 - **Tokens are the only styling layer.** A raw hex, or a bare `16px`, is a bug. Read a value
   through its custom property (`var(--crimson)`, `var(--sp-4)`) or derive it with

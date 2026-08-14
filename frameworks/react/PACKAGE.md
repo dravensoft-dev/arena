@@ -199,6 +199,7 @@ import './arena.generated.css';
 
 | flag | what it does |
 | --- | --- |
+| `--audit` | Report where your own sources break a rule of the language: a class of yours on a component Arena draws, or a stylesheet rule reaching an `arena-` slot; an Arena component wrapped in your router's own link; a raw hex, a bare pixel length or a gradient where a token belongs; an icon passed as an element; an emoji. **No gate reads your application**, so this is the only automatic signal there is, and it is a report rather than a failure until you pass `--strict`. It decides only what source text shows, so it never claims to have checked one primary per view or a filled danger surface. Exempt a line it is wrong about with an `arena-audit allow` comment on that line, and it reports the allowance once there is nothing left on the line to exempt. |
 | `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a contrast report, a ramp report or a glyph Phosphor does not have, rather than writing anyway. Use it in CI if you want that discipline. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-react/arena.css` yourself. |
