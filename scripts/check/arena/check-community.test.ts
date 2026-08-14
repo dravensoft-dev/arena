@@ -130,6 +130,29 @@ test('a rule the router does not carry has drifted, and rewrapping the router ha
   assert.deepEqual(context7Problems(wrapped), [], 'a line break is formatting and never a drift');
 });
 
+test('excluding a folder git ignores is coverage the parser never had, since Context7 reads the repository', () => {
+  const base = tree({ [CONTEXT7]: JSON.stringify({ excludeFolders: ['docs'] }), 'SKILL.md': '' });
+  mkdirSync(join(base, 'docs'), { recursive: true });
+  const problems = context7Problems(base, new Set(['docs']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /git ignores it/);
+  assert.deepEqual(context7Problems(base, new Set()), [], 'a tracked folder of that name is fine');
+});
+
+test('one half of the ownership pair claims nothing and reads as a claim that was made', () => {
+  const half = tree({ [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r' }), 'SKILL.md': '' });
+  assert.equal(context7Problems(half, new Set()).length, 1);
+
+  const both = tree({
+    [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r', public_key: 'pk_x' }),
+    'SKILL.md': '',
+  });
+  assert.deepEqual(context7Problems(both, new Set()), []);
+
+  const neither = tree({ [CONTEXT7]: JSON.stringify({}), 'SKILL.md': '' });
+  assert.deepEqual(context7Problems(neither, new Set()), []);
+});
+
 test('every contributor basename the gate guards is one the repository actually uses', () => {
   assert.ok(CONTRIBUTOR_BASENAMES.includes('AGENTS.md'));
   assert.ok(CONTRIBUTOR_BASENAMES.includes('DOUBTS.md'));

@@ -34,5 +34,7 @@
     "Never wrap an Arena component in your router's own link",
     "A required member absent is a caller bug",
     "No render follows from whether you bound a listener or filled a slot."
-  ]
+  ],
+  "url": "https://context7.com/dravensoft-dev/arena",
+  "public_key": "pk_sZOtwnXNXJie3fkblOX4F"
 }
