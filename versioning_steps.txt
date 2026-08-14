@@ -17,14 +17,18 @@ which after any component work is not what the tree says. check:packages reads b
 stamp and whether every component Components.json declares is in the emitted .d.ts, so a skipped
 rebuild reports itself rather than shipping.
 
-2. Change version docs:
+2. Change version docs, four places. Each is named by what it says rather than by a line
+number, because a line moves under the next edit and takes the pointer with it in silence:
 
-.claude-plugin/plugin.json:4
-.claude-plugin/marketplace.json:16
-.claude-plugin/marketplace.json:13
-README.md:8
+.claude-plugin/plugin.json          the "version" member
+.claude-plugin/marketplace.json     the "version" member
+.claude-plugin/marketplace.json     the "ref" member, which names the tag as vx.x.x
+README.md                           the "- **Repo/Claude Code plugin**: x.x.x" line under
+                                    the "## Latest project artifacts" heading. check-release.ts
+                                    finds both by exact regex, so the heading and the label
+                                    are the parts that must not be reworded.
 
-verify with: 
+verify with:
 bun scripts/check/arena/check-release.ts 
 (expected: every other check PASS, and "tag exists" FAIL with the git tag -a line,
  because the tag is the next step. A clean pass here would mean the gate is not
