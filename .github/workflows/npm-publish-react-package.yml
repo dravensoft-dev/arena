@@ -96,7 +96,7 @@ jobs:
             echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "Nothing $PACKAGE carries has moved since v$PUBLISHED, so it keeps that version"
             echo "while Arena moves to $VERSION. That divergence is expected and documented in"
-            echo ".github/workflows/README.md."
+            echo ".github/workflows/AGENTS.md."
             decision "no publish" "Nothing $PACKAGE carries has moved since v$PUBLISHED, so it keeps that version while Arena moves to $VERSION."
           else
             echo "publish=true" >> "$GITHUB_OUTPUT"
