@@ -19,7 +19,7 @@ governs what it is about to write, and the gate tells it when it got it wrong.
 Code plugin, and a standalone Agent Skill in [`SKILL.md`](./SKILL.md) that any agent can read.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 9.0.0
+- **Repo/Claude Code plugin**: 9.0.1
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 
