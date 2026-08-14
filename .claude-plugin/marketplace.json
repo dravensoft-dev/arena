@@ -10,10 +10,10 @@
       "source": {
         "source": "github",
         "repo": "dravensoft-dev/arena",
-        "ref": "v9.0.2"
+        "ref": "v9.0.3"
       },
       "description": "Arena, Dravensoft's design system, as an Agent Skill: design tokens, React and Angular primitives, a shared Tailwind layer, guidelines, and design extensions. It carries the design language and not the skin, so any project brings its own palette and fonts.",
-      "version": "9.0.2",
+      "version": "9.0.3",
       "author": {
         "name": "Dravensoft"
       },

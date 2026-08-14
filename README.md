@@ -105,7 +105,7 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 9.0.2
+- **Repo/Claude Code plugin**: 9.0.3
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 
