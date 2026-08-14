@@ -60,6 +60,15 @@ export const OUTWARD = new Map([
 
 export const CONTRIBUTOR_BASENAMES = ['AGENTS.md', 'CLAUDE.md', 'DOUBTS.md', 'PACKAGING.md'];
 
+export const LIMITS = new Map([
+  ['projectTitle', 100],
+  ['description', 200],
+  ['url', 500],
+  ['public_key', 100],
+]);
+
+export const EXCLUDE_FILE_IS_A_BASENAME = /^[^/\\]+$/;
+
 export const REPO_BLOB = /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\/[^/]+\/(.+)$/;
 
 export function unwrapped(text: string) {
@@ -164,6 +173,28 @@ export function context7Problems(base = root, ignored = ignoredRoots(base)) {
         + 'Context7 parses. Asked of this disk the exclusion looks live and asked of a clone it '
         + 'covers nothing, which makes the gate answer differently by machine and the entry read '
         + 'as coverage it never had',
+      );
+    }
+  }
+
+  const fields = config as Record<string, unknown>;
+  for (const [key, limit] of LIMITS) {
+    const value = fields[key];
+    if (typeof value === 'string' && value.length > limit) {
+      problems.push(
+        `${CONTEXT7} gives ${key} ${value.length} characters and its schema allows ${limit}. The `
+        + 'document declares additionalProperties: false, so one field over its limit fails the '
+        + 'whole of it, and ownership verification reports that as a complaint about unknown '
+        + 'fields, which names neither this field nor this limit',
+      );
+    }
+  }
+
+  for (const name of config.excludeFiles ?? []) {
+    if (!EXCLUDE_FILE_IS_A_BASENAME.test(name)) {
+      problems.push(
+        `${CONTEXT7} excludes ${name}, and excludeFiles takes a file name rather than a path. A `
+        + 'path there matches nothing, so the document it was meant to keep out is indexed',
       );
     }
   }

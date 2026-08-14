@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import {
   OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, CONTRIBUTOR_BASENAMES, unwrapped,
   missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
-  context7Problems, zeroScanProblems, markdown,
+  context7Problems, zeroScanProblems, markdown, LIMITS,
 } from './check-community.ts';
 
 function tree(files: Record<string, string>) {
@@ -137,6 +137,36 @@ test('excluding a folder git ignores is coverage the parser never had, since Con
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /git ignores it/);
   assert.deepEqual(context7Problems(base, new Set()), [], 'a tracked folder of that name is fine');
+});
+
+test('a field over its schema limit fails the whole document, and the claim reports it as something else', () => {
+  const over = tree({
+    [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(201) }),
+    'SKILL.md': '',
+  });
+  const problems = context7Problems(over, new Set());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /schema allows 200/);
+
+  const inside = tree({ [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(200) }), 'SKILL.md': '' });
+  assert.deepEqual(context7Problems(inside, new Set()), [], 'the limit itself is allowed');
+});
+
+test('every limit the gate holds is one the published schema declares', () => {
+  for (const [field, limit] of LIMITS) {
+    assert.ok(limit > 0, `${field} carries no limit worth checking`);
+  }
+  assert.equal(LIMITS.get('description'), 200);
+  assert.equal(LIMITS.get('projectTitle'), 100);
+});
+
+test('a path in excludeFiles matches nothing, since that field takes a file name', () => {
+  const base = tree({
+    [CONTEXT7]: JSON.stringify({ excludeFiles: ['contracts/AGENTS.md'] }),
+    'SKILL.md': '',
+  });
+  const problems = context7Problems(base, new Set());
+  assert.ok(problems.some((p) => /file name rather than a path/.test(p)));
 });
 
 test('one half of the ownership pair claims nothing and reads as a claim that was made', () => {
