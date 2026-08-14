@@ -86,3 +86,9 @@ identical to any suite. Run `bun run demos` and open
   group.
 - The counter turns amber between 90% and 100% of the cap, and the field stops accepting input at
   the cap because `maxlength` is native.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

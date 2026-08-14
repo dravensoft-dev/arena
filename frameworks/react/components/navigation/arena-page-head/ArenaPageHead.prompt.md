@@ -42,3 +42,9 @@ that spacing, the way `Shell.tsx`'s header owns its own padding.
 **Don't**
 - Don't use it as a section header inside a page: that is a heading, not a page head, and it would emit a second `h1`.
 - Don't pass a destructive action as the visual lead. Danger stays outline (`variant="danger"`), never the filled primary.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

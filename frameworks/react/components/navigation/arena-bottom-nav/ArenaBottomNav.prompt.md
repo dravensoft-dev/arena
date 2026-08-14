@@ -49,3 +49,9 @@ own name.
   truncate before anyone has read them.
 - **Don't** reach for it above a phone width. It covers the bottom of the viewport, and a wide screen
   has a sidebar's room.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

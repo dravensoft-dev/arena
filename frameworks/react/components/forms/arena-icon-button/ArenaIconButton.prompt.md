@@ -33,3 +33,9 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 - **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end: a screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
 - Pass `icon` as a Phosphor class name: `icon="ph-bold ph-plus"`. Arena draws the `<i>` and hides it; `label` is what a screen reader announces.
 - Don't pass an element as the icon. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

@@ -50,3 +50,9 @@ are two decisions and not three:
 - **Don't** mix the variants. A crimson mark beside an undivided `DRAVENSOFT` is half
   of Primary and half of Monochrome, no variant at all, and precisely the defect that
   existed in the console before this component held the rule.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

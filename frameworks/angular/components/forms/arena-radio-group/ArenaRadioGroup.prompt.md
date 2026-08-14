@@ -62,3 +62,9 @@ so this is the only place it is checked at all. Run `bun run demos` and open
   `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling, so the
   input must stay after the ring in the template, and moving it removes the ring silently.
   `arena-checkbox` draws the identical ring the identical way.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

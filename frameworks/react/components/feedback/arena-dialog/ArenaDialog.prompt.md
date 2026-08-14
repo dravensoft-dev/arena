@@ -78,3 +78,9 @@ Serve the tree with `bun run demos`, open
 If you drive this through CDP rather than by hand, one gotcha costs an afternoon:
 a `rawKeyDown` does not activate a button. Enter must be dispatched as `keyDown`
 carrying `text: '\r'`. Tab and Escape are fine as `rawKeyDown`.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

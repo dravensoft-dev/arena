@@ -66,3 +66,9 @@ screen reader gets no "list, N items" orientation cue that the WAI-ARIA APG's br
 structure would otherwise give. `nav[aria-label="Breadcrumb"]` and `aria-current="page"`
 are what make the trail operable and named; the list semantics were judged a secondary
 nicety, not an operability gap, and left out on that basis rather than by oversight.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

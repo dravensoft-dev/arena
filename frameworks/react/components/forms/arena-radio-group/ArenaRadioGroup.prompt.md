@@ -34,3 +34,9 @@ omit it.
 - Use ArenaRadio when it helps to see all the options (2–5) and they're mutually exclusive.
 - For more than ~6 options or limited space, use `ArenaSelect`.
 - Don't pass `style` or stray DOM attributes. ArenaRadioGroup declares its `content` slot plus `ariaLabel`, `value`, `name` and `onChange`, and renders nothing else. To space or constrain the group differently, wrap it in your own element rather than reaching through it.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

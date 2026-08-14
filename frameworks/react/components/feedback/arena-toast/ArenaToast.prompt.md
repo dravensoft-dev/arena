@@ -51,3 +51,9 @@ them stays in step with a release that moves one; a host that retypes 4200 does 
 - `persist` on every error/critical toast; the close uses the standard `ph-x` icon (H4).
 - Don't cram long messages into all caps, and don't use the ArenaToast for destructive confirmations (that's `ArenaConfirmDialog`).
 - Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` but no `position` of its own; CSS only honors `z-index` on a positioned box or a flex/grid item, so on plain static flow the token does nothing and the one thing that must float above everything quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

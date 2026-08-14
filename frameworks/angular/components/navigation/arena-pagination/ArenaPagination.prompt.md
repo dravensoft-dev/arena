@@ -59,3 +59,9 @@ served with `bun run demos`:
   alone: it is the only filled surface in the row.
 - With a screen reader, move by landmark: the two strips on the card announce as *Environments*
   and *Deployments*, never as two identical ones.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

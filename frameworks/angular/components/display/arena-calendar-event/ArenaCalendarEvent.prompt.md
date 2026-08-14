@@ -69,3 +69,9 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 - Don't use `disabled` to make a chip inert. In this layer nothing does (see the divergence above), and `disabled` means "a button that announces it cannot be pressed right now", which reads differently to a screen reader.
 - Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle.
 - Don't reach for `style` or `class` to place it. Its geometry is the calendar's, and a `class` on the host lands on an element that declares `display: contents`.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

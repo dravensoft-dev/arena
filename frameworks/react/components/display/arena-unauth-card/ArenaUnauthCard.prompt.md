@@ -60,3 +60,9 @@ and writing them is what keeps a split layout beside an illustration possible:
 - **Don't** pass `style` or other DOM attributes to `ArenaUnauthCard`; it accepts no escape
   hatch. Wrap it in your own `<div>` for outer layout, the way the three-line centring
   wrapper above already does.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

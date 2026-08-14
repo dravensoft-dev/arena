@@ -89,3 +89,9 @@ because its POSITION was measured.
 largest size in the data. Reach for it whenever `r` is doing real work: area is the one encoding
 nobody reads off a scale by eye, so without a key a reader can see that one blot is bigger and
 cannot say by how much. It costs plot height, like the series strip and for the same reason.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

@@ -55,3 +55,9 @@ is the page's own reading width.
 - At the narrowest, one column fills the width; the minimum is clamped rather than honoured.
 - The four gaps are visibly four steps, and both axes get the same one.
 - With a `maxWidth` set, the grid centres and stops growing; without one, it fills.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

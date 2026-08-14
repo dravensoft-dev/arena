@@ -25,3 +25,9 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 - Don't use `accent` to communicate a status (use a status tone); reserve `accent`'s crimson for "new/featured".
 - Don't put full sentences inside an ArenaBadge, and don't use `dot` on emphasis tones.
 - Don't pass `style` or stray DOM attributes. ArenaBadge declares three members (its label content, `tone` and `dot`) and renders nothing else; wrap it in your own element if you need to position it.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

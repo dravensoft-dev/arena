@@ -140,3 +140,9 @@ Serve the tree with `bun run demos`, open
 **Verified in Chromium 150 on 2026-07-26**, all six. Steps 2 through 5 were additionally
 driven through CDP with real `ArenaInput.dispatchKeyEvent` key events, and the observed
 sequences are exactly the ones written above.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

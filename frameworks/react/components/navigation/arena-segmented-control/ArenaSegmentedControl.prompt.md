@@ -39,3 +39,9 @@ A compact inline filter over mutually exclusive options: a scope, a range, a den
 - Don't add an accent to the selected segment to make it "pop". The raised thumb is the signal; crimson here competes with the view's primary action.
 - Don't pass bare strings as options. An option is an object with a `value` and a `label`, so the key `onChange` carries can stay stable while the label is translated.
 - Don't reach for `style` or a stray global attribute. It takes neither; wrap it in a `<div>` that owns the layout.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

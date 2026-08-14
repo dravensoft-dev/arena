@@ -47,3 +47,9 @@ Single metric on the card surface: uppercase label, one big tabular-nums value, 
 - Don't fill the delta pill. Both signs are outline: filled red is reserved for `ArenaConfirmDialog`'s final irreversible confirmation, and a data pill has no business spending that signal.
 - Don't put a sentence in `sub`: it is a short context fragment ("vs last week"), not a paragraph.
 - Don't use the card's `tone` to restate the delta. If the pill already says the movement was bad, coloring the value red says it twice and leaves you nothing to say when the *state* turns bad too.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

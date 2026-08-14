@@ -58,3 +58,9 @@ is active, the indent step and the handler that reports `nav`, is injected by
   unavailable, is what tells them it exists: a feature behind a plan they do not have is worth
   showing. The anchor keeps its `href`, so the shape does not change; what changes is that the
   click is prevented and `onActivate` never fires.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

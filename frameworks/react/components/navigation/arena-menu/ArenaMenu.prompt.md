@@ -46,3 +46,9 @@ saying "no entries right now" and renders.
 - Destructive actions go last and are marked `destructive`.
 - To choose a value from a form, use `ArenaSelect`, not an ArenaMenu.
 - Don't reach for a per-entry callback -- there is none. Read `onSelect`'s item.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

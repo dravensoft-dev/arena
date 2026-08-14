@@ -40,3 +40,9 @@ The card's own inner padding is not something a chart inside it needs to know. A
 overflows scrolls in its own rail rather than in the card's box, so `minPointSpacing` needs no
 cooperation from here, and there is no member for the padding because nothing outside has to
 reproduce it.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->

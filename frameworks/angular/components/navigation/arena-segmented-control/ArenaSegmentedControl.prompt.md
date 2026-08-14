@@ -71,3 +71,9 @@ asserts the role by name rather than by pattern so that a regression reads as wh
 - The selected segment's shadow reads as a lift against the track's own surface at `sm` as well as
   `md`, `sm` is the size that decides whether the lift is visible at all.
 - Two tracks on the page select independently, which is the generated `name` working.
+
+<!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
+
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+
+<!-- @rules end -->
