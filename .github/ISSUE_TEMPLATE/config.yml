@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How Arena takes contributions
+    url: https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md
+    about: What an issue is for, and why external pull requests are not accepted.
+  - name: Reporting a vulnerability
+    url: https://github.com/dravensoft-dev/arena/blob/main/SECURITY.md
+    about: A vulnerability goes through private reporting and never through an issue.
+  - name: Building something with Arena
+    url: https://github.com/dravensoft-dev/arena/blob/main/SKILL.md
+    about: The router an agent or a developer reads first, before asking.
