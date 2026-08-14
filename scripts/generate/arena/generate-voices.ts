@@ -39,7 +39,7 @@ export const node = {
   name: 'generate:voices',
   reads: ['contracts/design/extension.*.json'],
   writes: [VOICES_TARGET],
-  feeds: ['check:routes', 'check:skills', 'check:community'],
+  feeds: ['check:routes', 'check:skills', 'check:community', 'build:site'],
 };
 
 export type Voice = { name: string; job: string; grouping: string; says: string };

@@ -15,8 +15,9 @@ import { relPosix, isInside } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
-  DOMAIN, SITE_DIR, pages, indexedDirectories, missingPlaygrounds, url,
+  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds, url,
 } from '../../lib/arena/site-pages.ts';
+import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
 export const node = {
   name: 'check:site',
@@ -145,6 +146,49 @@ export function localhostProblems(out: string, files = htmlFiles(out)) {
   return problems;
 }
 
+export const LLMS_LINK = /\]\((https:\/\/[^)]+)\)/g;
+
+export function llmsProblems(out: string, base = root) {
+  const path = join(out, LLMS_INDEX);
+  if (!existsSync(path)) return [`the output carries no ${LLMS_INDEX}, which is what an agent reads before it fetches anything`];
+  const text = readFileSync(path, 'utf8');
+  const problems = [];
+
+  const site = `https://${DOMAIN}/`;
+  for (const match of text.matchAll(LLMS_LINK)) {
+    const target = match[1] ?? '';
+    if (!target.startsWith(site)) continue;
+    const rel = decodeURIComponent(target.slice(site.length));
+    if (!existsSync(join(out, rel))) {
+      problems.push(`${LLMS_INDEX} names ${target}, and the output carries no ${rel}. An agent follows that link and is handed a 404 by a file written to stop exactly that`);
+    }
+  }
+
+  const stated = /^> (.+)$/m.exec(text)?.[1]?.trim();
+  if (stated !== summary(base)) {
+    problems.push(`${LLMS_INDEX} summarises Arena as something ${ROUTER}'s own frontmatter does not say, so the two describe different projects`);
+  }
+
+  for (const layer of LAYERS) {
+    const file = join(out, layerFile(layer));
+    if (!existsSync(file)) {
+      problems.push(`the output carries no ${layerFile(layer)}, and ${LLMS_INDEX} names it`);
+      continue;
+    }
+    const body = readFileSync(file, 'utf8');
+    for (const rel of prompts(layer, base)) {
+      const marker = `<!-- ${rel} -->`;
+      const at = body.split(marker).length - 1;
+      if (at !== 1) problems.push(`${layerFile(layer)} carries ${rel} ${at} time(s), and a corpus is every document of its layer exactly once`);
+    }
+    const other = LAYERS.find((name) => name !== layer);
+    if (other && body.includes(`frameworks/${other}/components/`)) {
+      problems.push(`${layerFile(layer)} carries a document from ${other}. A component ships under both names and the two are not interchangeable, so one corpus holding both hands an agent the idiom it was told not to read`);
+    }
+  }
+  return problems;
+}
+
 export function zeroScanProblems(files: unknown[]) {
   return files.length === 0
     ? ['found 0 pages; an empty walk reports every link resolved and every page present, which is '
@@ -168,6 +212,7 @@ function main() {
     ...sitemapProblems(out),
     ...localhostProblems(out, files),
     ...tokenProblems(out, files),
+    ...llmsProblems(out),
   ];
   if (problems.length > 0) {
     console.error(`check-site: ${problems.length} problem(s)\n`);
