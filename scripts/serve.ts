@@ -3,16 +3,9 @@ import { join } from 'node:path';
 import { repoRoot as root } from './lib/arena/repo-root.ts';
 import { arenaEnv } from './lib/arena/arena-scripts-vars.ts';
 import { resolveInRoot } from './lib/arena/static-server.ts';
+import { entryPoints } from './lib/arena/site-pages.ts';
 
 const port = Number(arenaEnv().PORT) || 8000;
-
-const PAGES = [
-  ['Overview  ', '/intro/Arena%20-%20Overview.html'],
-  ['Identity  ', '/intro/Dravensoft%20Identity.dc.html'],
-  ['Guidelines', '/intro/guidelines/'],
-  ['Kitchen sinks', '/frameworks/react/kitchen-sink/'],
-  ['             ', '/frameworks/angular/kitchen-sink/'],
-];
 
 const isDir = (path: string) => { try { return statSync(path).isDirectory(); } catch { return false; } };
 
@@ -52,4 +45,6 @@ Bun.serve({
 });
 
 console.log(`Arena demos on http://localhost:${port}`);
-for (const [label, path] of PAGES) console.log(`  ${label} -> ${path}`);
+const entries = entryPoints();
+const width = Math.max(...entries.map(({ label }) => label.length));
+for (const { label, path } of entries) console.log(`  ${label.padEnd(width)} -> ${path}`);

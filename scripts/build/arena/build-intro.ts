@@ -26,6 +26,7 @@ export const node = {
     'check:generated',
     'check:icons',
     'check:intro',
+    'build:site',
   ],
 };
 

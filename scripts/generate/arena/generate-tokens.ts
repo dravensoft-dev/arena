@@ -133,6 +133,7 @@ export const node = {
     'check:tailwind-generated',
     'check:text-contrast',
     'check:tokens',
+    'build:site',
   ],
 };
 

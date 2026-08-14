@@ -62,6 +62,7 @@ export const node = {
     'check:shared-arithmetic',
     'check:skills',
     'check:states',
+    'build:site',
   ],
 };
 

@@ -1,8 +1,8 @@
 # .github/workflows/
 
-One guards a pull request, one guards `main`, one guards `develop`, two publish a package, and
-one writes a release page. `ls .github/workflows/*.yml` is what says how many, and this page
-carried the figure instead until the count and the directory disagreed: `portability.yml` ran the
+One guards a pull request, one guards `main`, one guards `develop`, two publish a package, one
+writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
+many, and this page carried the figure instead until the count and the directory disagreed: `portability.yml` ran the
 operating system matrix, was named in no diagram here, and is now a job of `Arena PR`, which is
 the same omission read twice. A number no assertion holds is the defect that rule exists to stop.
 
@@ -13,6 +13,7 @@ push to main                  Arena main            builds, and saves that build
    |
    +-- on success             Publish arena-react      restores it
    +-- on success             Publish arena-angular    restores it
+   +-- on success             Publish the site         restores it
 
 push of a tag                 Release notes         follows the tag, not a build
 ```
@@ -208,6 +209,20 @@ The one error tolerated is `cannot publish over the previously published version
 registry read path the guard uses lags a successful publish by several minutes, so a re-run
 inside that window sees a version that is published and reports it as absent. Any other
 failure is red.
+
+## Publish the site
+
+**The site is build output, so publishing from a branch is not an option**: the kitchen sinks and
+every playground are what `.gitignore` keeps out of the tree on purpose. It restores what
+`Arena main` saved for the same commit, the same hand-off the two package workflows use, and
+falls back to a build of its own on a miss.
+
+`bun run build:site` copies rather than rewrites, so a page served from the domain is the page a
+clone serves, and `bun run check:site` holds every href and src in the output to a file that is
+there. **It needs a browser**, because the card a link preview reads is rendered from the site's
+own tokens rather than exported by hand, and it takes the one `pr.yml` already takes:
+`browser-actions/setup-chrome` with `CHROME_PATH` deliberately unexported, since
+`check:portability` fails when a second workflow names it.
 
 ## Release notes
 
