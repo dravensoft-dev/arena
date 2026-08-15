@@ -35,6 +35,7 @@ export const GATES = [
   { name: 'check:duplication', file: 'arena/check-duplication.ts' },
   { name: 'check:dtcg', file: 'core/check-dtcg.ts' },
   { name: 'check:style-plugin', file: 'core/check-style-plugin.ts' },
+  { name: 'check:style-plugin-coverage', file: 'core/check-style-plugin-coverage.ts' },
   { name: 'check:role-contract', file: 'core/check-role-contract.ts' },
   { name: 'check:tokens', file: 'core/check-tokens-generated.ts' },
   { name: 'check:token-collisions', file: 'core/check-token-collisions.ts' },
