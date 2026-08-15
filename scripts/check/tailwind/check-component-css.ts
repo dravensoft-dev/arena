@@ -43,6 +43,11 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'because a row lays its items out at one width and cannot reach inside them to set it. It is a component\'s '
     + 'own channel to its children rather than a design value, which is why no token defines it and why its '
     + 'default, the grid-min role, is resolved by the component and not by this sheet'],
+  ['arena-tag-cat', 'written by ArenaTag onto its own root from the colorId member, in both layers, because '
+    + 'the ramp slot a tag carries is data rather than a design value and a class string cannot name which '
+    + 'of the eight it is. It is set only while colorId names one, so the identity arm is the only rule that '
+    + 'reads it and an unset property reaches no declaration. A style plugin reads it too, which is how an '
+    + 'appearance fills the pill with the identity colour without a member for it'],
 ]);
 
 export function selectorsIn(css: string) {

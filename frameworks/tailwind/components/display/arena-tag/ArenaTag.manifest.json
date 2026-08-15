@@ -11,7 +11,8 @@
       "primary": { "root": "border-primary text-primary" },
       "success": { "root": "border-success text-success" },
       "warning": { "root": "border-warning text-warning" },
-      "danger":  { "root": "border-error text-error" }
+      "danger":  { "root": "border-error text-error" },
+      "identity": { "root": "border-[color:var(--arena-tag-cat)] text-[color:var(--arena-tag-cat)]" }
     },
     "disabled": {
       "true": { "close": "cursor-not-allowed text-ink-muted/40" },
