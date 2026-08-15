@@ -134,7 +134,12 @@ What each part means:
   every role Arena declares, and the command refuses one that does not: a custom property with no
   value is invalid at computed-value time, so an unanswered role is a missing border rather than
   a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
-  same way the preflight can already be dropped.`,
+  same way the preflight can already be dropped.
+
+**A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
+you import it beside the other two. It declares the cascade layer order itself and then opens
+the reserved layer, so where your bundler places it among your other stylesheets cannot change
+what wins.`,
 
   tail: () => `## Why might this package's latest version not match Arena's latest version?
 

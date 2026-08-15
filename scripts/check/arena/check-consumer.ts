@@ -24,7 +24,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import {
-  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER,
+  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
 } from '../../generate/core/arena-to-prod/arena-to-prod.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
@@ -216,7 +216,13 @@ export function layerProblems(layer: string, valid: CliRun) {
       + 'half of a plugin reaches no page at all');
     return problems;
   }
-  if (!sheet.startsWith(`@layer ${PLUGIN_LAYER} {`)) {
+  if (!sheet.startsWith(PLUGIN_LAYER_ORDER)) {
+    problems.push(`${layer}: ${PLUGIN_SHEET} does not lead with the layer order. A bare @layer `
+      + `${PLUGIN_LAYER} block met before the order is declared registers that name as the LOWEST `
+      + 'layer, and every plugin rule contesting a component rule then loses with nothing to report '
+      + `it:\n    ${sheet.slice(0, 80)}`);
+  }
+  if (!sheet.includes(`@layer ${PLUGIN_LAYER} {`)) {
     problems.push(`${layer}: ${PLUGIN_SHEET} does not open the reserved layer. Every compiled component `
       + 'rule sits in @layer utilities at one class of specificity, so an unlayered plugin rule would '
       + `need !important to reach anything:\n    ${sheet.slice(0, 80)}`);

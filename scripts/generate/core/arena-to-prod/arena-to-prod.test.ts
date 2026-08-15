@@ -8,9 +8,10 @@ import {
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
-  pluginCss,
+  pluginCss, PLUGIN_LAYER_ORDER,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
+import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import type { ComponentMap } from './components.ts';
@@ -636,16 +637,33 @@ test('the shipped catalogue is the one this build actually assembles, not only a
 test('the root plugin\'s stylesheet is wrapped and its author never spells the layer', () => {
   assert.equal(
     pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }', root: true }]),
-    '@layer arena-plugin {\n[data-arena-part="card"] { border-radius: 0 }\n}\n',
+    `${PLUGIN_LAYER_ORDER}\n@layer arena-plugin {\n[data-arena-part="card"] { border-radius: 0 }\n}\n`,
     'the layer is the build\'s to declare, because a plugin author writing it could get it wrong '
     + 'in a way nothing reports',
+  );
+});
+
+test('the sheet declares the layer order itself, so where a bundler puts it cannot matter', () => {
+  const css = pluginCss([{ name: 'shop', css: '.x{}', root: true }]) ?? '';
+  assert.ok(css.startsWith(PLUGIN_LAYER_ORDER), 'the order leads the file');
+  assert.ok(
+    css.indexOf('@layer theme, base, components, utilities, arena-plugin;')
+    < css.indexOf('@layer arena-plugin {'),
+    'a bare @layer arena-plugin block met before the order statement registers that name as the '
+    + 'LOWEST layer, and every plugin rule contesting a component rule then loses in silence',
+  );
+  assert.equal(
+    PLUGIN_LAYER_ORDER,
+    LAYER_ORDER,
+    'the consumer sheet and the prelude declare one order, or the two disagree about where the '
+    + 'plugin layer sits',
   );
 });
 
 test('a plugin that is not the root is nested under its own class', () => {
   assert.equal(
     pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }' }]),
-    '@layer arena-plugin {\n.arena-shop {\n[data-arena-part="card"] { border-radius: 0 }\n}\n}\n',
+    `${PLUGIN_LAYER_ORDER}\n@layer arena-plugin {\n.arena-shop {\n[data-arena-part="card"] { border-radius: 0 }\n}\n}\n`,
     'a later plugin is a difference and paints where its class is, or it would paint the pages '
     + 'the root plugin is what looks like',
   );

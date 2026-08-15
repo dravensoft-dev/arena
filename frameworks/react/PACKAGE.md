@@ -174,6 +174,11 @@ What each part means:
   a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 
+**A plugin carrying a `plugin.css` gets a third generated file**, `plugin.generated.css`, and
+you import it beside the other two. It declares the cascade layer order itself and then opens
+the reserved layer, so where your bundler places it among your other stylesheets cannot change
+what wins.
+
 <!-- @shared skin end -->
 
 # Build to production
@@ -201,11 +206,17 @@ files into `src`:
   filled and asks for a rule you never wrote: name the glyph the way its member documents it,
   `icon="ph-bold ph-receipt"`, and the sheet has both.
 
-Import both, and import them **last**:
+A style plugin carrying a `plugin.css` gets a third file, **`plugin.generated.css`**, holding
+that CSS wrapped in the reserved cascade layer. It leads with the layer order itself, so a
+bundler that emits one `<link>` per stylesheet and does not keep your import order cannot
+change what wins.
+
+Import them **last**:
 
 ```js
 import './icons.generated.css';
 import './arena.generated.css';
+import './plugin.generated.css';   // only when a style plugin of yours carries CSS
 ```
 
 | flag | what it does |

@@ -70,6 +70,15 @@ application is the last word. It is also why the audit keeps reporting applicati
 reaches into Arena. Reaching in works, and working is exactly what makes it silent debt rather
 than an error.
 
+**A plugin's sheet declares the order itself and then opens the layer.** A `@layer arena-plugin`
+block met before the order statement registers that name as the LOWEST layer of the document, so
+every plugin rule contesting a component rule loses, and nothing reports it: the audit counts the
+part as painted, because it reads the source text. That is not hypothetical. A bundler emitting
+one stylesheet per import does not have to keep the order the entry module wrote them in, and a
+plugin sheet parsed before the sheet carrying the prelude is exactly the case. Repeating the order
+declaration is the same treatment a component sheet already gets when it imports its own prelude,
+and for the same reason: the file carries what it depends on rather than documenting it.
+
 ## Which floors a gate still holds, and which became reports
 
 This is the half that has to be written down rather than discovered.

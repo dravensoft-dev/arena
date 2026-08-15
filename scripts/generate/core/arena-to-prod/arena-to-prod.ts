@@ -32,6 +32,7 @@ export const ICONS_SHEET = 'icons.generated.css';
 export const PLUGIN_SHEET = 'plugin.generated.css';
 export const PLUGIN_CSS = 'plugin.css';
 export const PLUGIN_LAYER = 'arena-plugin';
+export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
@@ -193,7 +194,7 @@ export function pluginCss(sheets: { name: string; css: string; root?: boolean }[
   if (carried.length === 0) return null;
   const scoped = ({ name, css, root }: { name: string; css: string; root?: boolean }) =>
     (root ? css.trim() : `.arena-${name} {\n${css.trim()}\n}`);
-  return `@layer ${PLUGIN_LAYER} {\n${carried.map(scoped).join('\n')}\n}\n`;
+  return `${PLUGIN_LAYER_ORDER}\n@layer ${PLUGIN_LAYER} {\n${carried.map(scoped).join('\n')}\n}\n`;
 }
 
 export function pluginSheets(config: ArenaConfig, from: string) {
