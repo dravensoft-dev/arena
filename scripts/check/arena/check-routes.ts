@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 39_000,
+    budget: 40_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -69,7 +69,10 @@ export const ROUTES: Route[] = [
       + 'about where it stops applying is one nobody can act on. Raised again when the third '
       + 'generated file gained a name on the page: a file nobody is told to import is a plugin '
       + 'whose CSS reaches no page, and the failure is silent, so naming it is worth more than the '
-      + 'lines it costs.',
+      + 'lines it costs. Raised again when the page stated which register the library is for: what '
+      + 'this route decides is whether to adopt Arena at all, and a consumer whose product is a '
+      + 'media or a consumer one otherwise learns that the components run out by building the '
+      + 'screen, which costs more than every stop on this route put together.',
   },
   {
     name: 'contributor-component',

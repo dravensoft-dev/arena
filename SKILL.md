@@ -10,6 +10,12 @@ Arena is Dravensoft's design language: a token layer, React and Angular componen
 built on it, and a shared Tailwind layer. Its identity is dark-first, warm black under bone
 text, crimson as the voice and gold as distinction, sharp geometry, no gradients.
 
+**Arena is a product-application library**: tables, forms, navigation, dialogs, charts, cards and
+the states around them, the furniture of an application somebody works in. A media or a consumer
+product is a different register, so a photo wall, a feed of posts, a document editor or a game
+map is markup you write yourself; the skin travels either way, because a style plugin answers
+every role whatever the product is.
+
 **This file routes. Read only what your task needs.**
 
 ## Which job is this?

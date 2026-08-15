@@ -40,6 +40,18 @@ export const closeLine = (key: string) => `<!-- @shared ${key} end -->`;
 export const opensAt = (key: string) => new RegExp(`^<!-- @shared ${key} GENERATED `);
 
 export const REGIONS: Record<string, (base?: string) => string> = {
+  register: () => `## The screens it is for
+
+Arena is a **product-application library**: its components are the furniture of an application
+somebody works in, tables and their rows, forms and their fields, navigation, dialogs, charts,
+cards and the empty, loading and error states around them. A media or a consumer product is a
+different register, so a photo wall, a story ring, a feed of posts, a slideshow, a document
+editor and a game map are markup you write yourself.
+
+**The skin travels either way.** A style plugin answers every role whatever the product is, so
+what Arena does draw wears your appearance rather than Arena's. What runs out first is the
+component list.`,
+
   repository: () => `## It works with the repository, and that is the point
 
 See it before you install it: **https://arena.dravensoft.org** has the guidelines, a kitchen sink
