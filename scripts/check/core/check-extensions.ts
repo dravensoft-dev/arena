@@ -16,9 +16,21 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
-import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import { POLARITIES } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import {
+  ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
+  MIN_PROSE_MEASURE, MIN_PROXIMITY_RATIO, PAGE_FILL, PRINCIPLES, RESERVED_NAME, RHYTHM_STEP,
+  fillsLikeThePage, floorProblems, isZeroLength, keyProblems, nameProblems, paintsNothing,
+  proximityRatio, valueProblems,
+} from '../../generate/core/arena-to-prod/extension-rules.ts';
+
+export {
+  ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
+  MIN_PROSE_MEASURE, MIN_PROXIMITY_RATIO, PAGE_FILL, PRINCIPLES, RESERVED_NAME, RHYTHM_STEP,
+  fillsLikeThePage, floorProblems, isZeroLength, keyProblems, nameProblems, paintsNothing,
+  proximityRatio, valueProblems,
+};
 
 const EFFECTS = 'contracts/design-generated/effects.generated.css';
 
@@ -31,14 +43,6 @@ export const node = {
 
 const DESIGN_DIR = join(repoRoot, 'contracts/design');
 export const PREFIX = 'extension.';
-const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
-
-const FS_STEP = /^fs-[a-z0-9]+$/;
-
-export const RHYTHM_STEP = /^rhythm-[a-z]+$/;
-
-export const RESERVED_NAME = 'none';
-
 export const GROUPING = 'grouping';
 
 type Token = { $type?: string; $value?: unknown; $description?: string };
@@ -50,93 +54,6 @@ export function extensionName(file: string) {
 export function extensionFiles(dir = DESIGN_DIR) {
   return readdirSync(dir).filter((f) => f.startsWith(PREFIX) && f.endsWith('.json')).sort();
 }
-
-export function isZeroLength(value: string | undefined) {
-  return value !== undefined && /^0(\.0+)?[a-z%]*$/.test(value.trim());
-}
-
-export function paintsNothing(shadow: string | undefined) {
-  if (shadow === undefined) return true;
-  const rgba = shadow.match(/rgba?\(([^)]*)\)/);
-  if (!rgba) return false;
-  const parts = (rgba[1] ?? '').split(',').map((p) => p.trim());
-  return parts.length === 4 && Number(parts[3]) === 0;
-}
-
-export const PAGE_FILL = 'color-base-100';
-
-export const MIN_PROXIMITY_RATIO = 4;
-
-export const MIN_PROSE_LEADING = 1.5;
-
-export function floorProblems(at: Map<string, string>, scope: string, where: string) {
-  const leading = Number.parseFloat(at.get('lh-prose') ?? '');
-  if (!Number.isFinite(leading))
-    return [`${where}: --lh-prose does not resolve to a number in ${scope}, so the reading floor cannot be measured`];
-  if (leading < MIN_PROSE_LEADING)
-    return [`${where}: --lh-prose is ${leading} in ${scope}, under the ${MIN_PROSE_LEADING} WCAG 1.4.8 asks of `
-      + `line spacing within a paragraph. A voice may open a paragraph up and may never close it below the `
-      + `floor every element already inherits from --lh-root.`];
-  return [];
-}
-
-const REFERENCE = /^var\(\s*--([\w-]+)\s*\)$/;
-
-export const fillsLikeThePage = (at: Map<string, string>) =>
-  REFERENCE.exec(at.get('fill-surface')?.trim() ?? '')?.[1] === PAGE_FILL;
-
-const px = (value: string | undefined) => Number.parseFloat(value ?? '');
-
-export function proximityRatio(at: Map<string, string>) {
-  const near = px(at.get('rhythm-group'));
-  const far = px(at.get('rhythm-section'));
-  return Number.isFinite(near) && Number.isFinite(far) && near > 0 ? far / near : null;
-}
-
-export const PRINCIPLES = new Map<string, {
-  says: string;
-  holds: (at: Map<string, string>) => string | null;
-}>([
-  ['common-region', {
-    says: 'a line drawn around a region says the things inside it are one thing',
-    holds: (at) => (isZeroLength(at.get('bw-surface'))
-      ? 'it sets --bw-surface to zero, and a voice that groups by drawing the region has to draw it'
-      : null),
-  }],
-  ['figure-ground', {
-    says: 'a surface is an object standing off a floor, so depth separates it and no line has to',
-    holds: (at) => {
-      if (!isZeroLength(at.get('bw-surface')))
-        return 'it still draws --bw-surface, so the depth is decoration over the default voice '
-          + 'rather than the thing carrying the grouping';
-      if (paintsNothing(at.get('shadow-surface-rest')) && fillsLikeThePage(at))
-        return 'it removed --bw-surface and then gave the surface neither a depth nor a fill of its '
-          + 'own, so a figure is told from its ground by nothing at all';
-      return null;
-    },
-  }],
-  ['proximity', {
-    says: 'what belongs together is near and what does not is far, and nothing is drawn at all',
-    holds: (at) => {
-      if (!isZeroLength(at.get('bw-surface')))
-        return 'it draws --bw-surface, which is grouping by common region under another name';
-      if (!paintsNothing(at.get('shadow-surface-rest')))
-        return 'it paints --shadow-surface-rest, which is grouping by figure and ground under another name';
-      if (!fillsLikeThePage(at))
-        return `it leaves --fill-surface off --${PAGE_FILL}, and a fill is a region drawn however faint `
-          + 'it is, so the surface still encloses what a voice said only distance would group';
-      const ratio = proximityRatio(at);
-      if (ratio === null)
-        return 'its rhythm steps do not resolve to lengths this gate can compare, so the one signal it '
-          + 'has left cannot be measured';
-      if (ratio < MIN_PROXIMITY_RATIO)
-        return `--rhythm-section is only ${ratio.toFixed(1)} times --rhythm-group, and distance is the `
-          + `only signal left once nothing is drawn: under ${MIN_PROXIMITY_RATIO} it cannot carry both `
-          + 'what belongs together and what does not';
-      return null;
-    },
-  }],
-]);
 
 export function groupingOf(tokens: Record<string, unknown>) {
   const meta = (tokens as { $extensions?: Record<string, { grouping?: unknown }> })
@@ -240,49 +157,13 @@ export function movedTokens(tokens: Record<string, unknown>) {
 export function extensionProblems(
   name: string, tokens: Record<string, Token>, roles: Record<string, Token>,
 ) {
-  const problems = [];
   const at = `extension.${name}.json`;
-  if (name === RESERVED_NAME)
-    problems.push(
-      `${at}: "${RESERVED_NAME}" is how a consumer says it wants no extension, so an extension `
-      + `answering to that name could never be selected`,
-    );
-  if (POLARITIES.includes(name))
-    problems.push(
-      `${at}: "${name}" is a theme polarity, and .arena-${name} is already the class a palette of `
-      + `that polarity answers to. An extension named after one would be indistinguishable from the `
-      + `theme's own scope, both to the cascade and to the consumer CLI reading the catalogue out of `
-      + `the shipped CSS.`,
-    );
-  if (!KEBAB.test(name))
-    problems.push(`${at}: "${name}" is not kebab-case, and the name becomes the class .arena-${name}`);
+  const problems = nameProblems(name, POLARITIES, at);
   const moved = movedTokens(tokens);
   if (!moved.length)
     problems.push(`${at}: moves no role, and an extension that changes nothing is a class nobody can tell from its absence`);
-  for (const { key, token, theme } of moved) {
-    const where = theme ? `${at} (${theme})` : at;
-    const named = FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null;
-    if (named) {
-      if (token?.$type !== 'dimension')
-        problems.push(`${where}: --${key} is a ${token?.$type}, and ${named} is a dimension`);
-      if (!token?.$description)
-        problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
-      continue;
-    }
-    const role = roles[key];
-    if (!role) {
-      problems.push(
-        `${where}: --${key} is neither a role in contracts/design/roles.json nor an fs or rhythm step. An extension re-values those only: `
-        + `a scale, a colour, a density step or a spacing step is shared by every use that wants that value, `
-        + `so moving one is not an extension but a different Arena.`,
-      );
-      continue;
-    }
-    if (token?.$type !== role.$type)
-      problems.push(`${where}: --${key} is a ${token?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
-    if (!token?.$description)
-      problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
-  }
+  for (const { key, token, theme } of moved)
+    problems.push(...keyProblems(theme ? `${at} (${theme})` : at, key, token, roles[key]));
   return problems;
 }
 

@@ -1,0 +1,85 @@
+{
+  "$extensions": {
+    "com.dravensoft.arena": {
+      "grouping": "similarity",
+      "job": "show: a visual catalogue, a portfolio, a product gallery, any screen where the image leads and the text follows"
+    }
+  },
+  "bw-surface": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "No line, for the reason the other two undrawn voices remove it: a hairline says\nTHIS region, one card at a time, and this voice needs the twelve cards to read as one wall before\nany of them reads as itself.\n\nWhat separates it from proximity is what arrives instead. Proximity removes the line and puts\nnothing back, so distance carries the grouping. This puts a shared fill back, so identical\ntreatment carries it, and the cards can sit as close together as the grid allows."
+  },
+  "shadow-surface-rest": {
+    "$type": "shadow",
+    "$value": {
+      "offsetX": { "value": 0, "unit": "px" },
+      "offsetY": { "value": 0, "unit": "px" },
+      "blur": { "value": 0, "unit": "px" },
+      "spread": { "value": 0, "unit": "px" },
+      "color": { "colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0 }
+    },
+    "$description": "Nothing lifted either, and this is the decision that separates this voice from\nfigure and ground rather than from the default. A depth makes each card an object standing on its\nown, which is the opposite of what a catalogue is for: twelve objects at twelve depths read as\ntwelve things, and a wall of images has to read as one thing made of twelve.\n\nA fully transparent shadow rather than an absent one, because DTCG types a shadow as offsets, a\nblur, a spread and a colour and has no way to spell the absence of one. paintsNothing() in\ncheck:extensions reads the zero alpha and that is what the invariant measures."
+  },
+  "fill-surface": {
+    "$type": "color",
+    "$value": "{color.base-200}",
+    "$description": "The marking, and the whole mechanism in one value. Every card takes the same fill\nand the fill is not the page's, so what says the twelve belong together is that they are treated\nidentically, not that they are enclosed and not that they are lifted.\n\nThis is the value check:extensions measures for the similarity invariant, and it is why that\nmechanism was an open slot until the role tier reached it: before fill-surface existed as a role,\nnothing a voice could move painted a shared treatment at all.\n\nIt is the default value, kept deliberately rather than inherited by accident. A voice that claims\nmarking has to name what the marking is, or the claim rests on whatever the tier happens to be\nset to on the day somebody reads it."
+  },
+  "pad-surface": {
+    "$type": "dimension",
+    "$value": "{sp.3}",
+    "$description": "Barely a frame. The image goes to the card's edge and the caption sits under it,\nso the padding is the gutter around a caption rather than the room a panel gives a form. Down\nfrom the default rather than up: air inside a card here would push the images apart and the wall\nis the subject."
+  },
+  "step-title-surface": {
+    "$type": "dimension",
+    "$value": "{fs.md}",
+    "$description": "The typography steps back, and this is the bet the whole voice makes. Every other\nvoice in the catalogue raises or holds the title of a surface; this one lowers it below the\nheading tier entirely, to the size body text is set at.\n\nA gallery's subject is the client's image. A title set at h4 competes with it, and a title set at\nbody size names it. It is the one voice where the system deliberately says less than it could."
+  },
+  "ff-eyebrow": {
+    "$type": "fontFamily",
+    "$value": "{font.body}",
+    "$description": "Out of the console register for the reason the reading voice leaves it: a caption\nabove an image is a caption, and the mono face would make it the loudest text on a card whose\ntitle was just taken down to body size."
+  },
+  "tt-eyebrow": {
+    "$type": "keyword",
+    "$value": "none",
+    "$description": "Capitals leave with the mono face, as they do in every voice that leaves it. A\nline in capitals under an image reads as a stock-photo watermark."
+  },
+  "track-eyebrow": {
+    "$type": "number",
+    "$value": "{ls.normal}",
+    "$description": "The third of the same decision: tracking pays for capitals and costs legibility\nwithout them.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "fw-control": {
+    "$type": "fontWeight",
+    "$value": "{fw.medium}",
+    "$description": "Controls lightened a step, for the same reason the title came down. A gallery's\ncontrols are filters and view switches sitting beside the wall, and at semibold they compete with\nit. Medium is still a step above the body text around them, which is what a control needs to read\nas pressable."
+  },
+  "rhythm-group": {
+    "$type": "dimension",
+    "$value": "{sp.2}",
+    "$description": "A dense wall. The grid is the subject, so the air between two cards is the mortar\nrather than the point: tight enough that the eye reads a field of images and not a list of them.\n\nNote what this does NOT trigger. The proximity invariant asks rhythm-section to be at least four\ntimes rhythm-group, because there distance is the only signal. Here it is not a signal at all,\nwhich is exactly what declaring similarity says, so the ladder is free to be tight at both ends."
+  },
+  "lift-control": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "A gallery does not bounce. Travel under a pointer is how a voice says a control\nis an object with mass, which is the figure-and-ground claim borrowed at the scale of a button;\na voice that groups by treating everything the same has no object to give mass to. The press\nscale is left alone, so a control still answers a press, and it answers without moving the wall."
+  },
+  "dur-hover": {
+    "$type": "duration",
+    "$value": "{dur.fast}",
+    "$description": "Fast, because there is nothing to travel. A slow response is the other half of an\nobject with mass being moved, and this voice removed the object: at 220ms with no lift the page\nfeels lagged rather than considered. The state duration is untouched, since a change the eye\nfollows is not a response to a pointer."
+  }
+}

@@ -125,6 +125,61 @@
     "$value": 0.96,
     "$description": "0.98 to 0.96, which is the return trip of the two pixels lift-control spends. A\ncontrol that rises under the pointer and then sinks under the press has completed a gesture; one\nthat rises and then barely moves has started one.\n\nTwice the default and no further. Past about 0.95 a button reads as a soft thing being squashed\nrather than a solid one being pressed, and this voice is about objects standing on a floor rather\nthan about toys."
   },
+  "ff-eyebrow": {
+    "$type": "fontFamily",
+    "$value": "{font.display}",
+    "$description": "The single most visible thing this voice does, and the one that was unreachable\nbefore the role tier grew. On a shop's card the eyebrow reads \"Single origin, Huehuetenango\": it\nis marketing copy, the first thing said about the product, and it belongs in the face the brand\nspeaks in.\n\nSet in mono it reads as telemetry. That is what this voice looked like everywhere outside its\ngeometry: the same eyebrow, the same capitals, the same ink as a console, with rounder corners.\nA voice that invites and one that reports cannot share a register and still be told apart."
+  },
+  "tt-eyebrow": {
+    "$type": "keyword",
+    "$value": "none",
+    "$description": "Capitals travel with the mono face and leave with it. A product name's antetitle\nset in the display face and still shouting would read as a label somebody forgot to restyle,\nwhich is the half-applied look the role tier exists to prevent."
+  },
+  "track-eyebrow": {
+    "$type": "number",
+    "$value": "{ls.normal}",
+    "$description": "The third of the same decision. Open tracking pays for capitals and costs\nlegibility without them.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "ink-eyebrow": {
+    "$type": "color",
+    "$value": "{color.secondary}",
+    "$description": "The primary accent is what a page spends on its one primary action, and the\nSKILL.md rule that a view carries a single primary accent is what makes that action findable. An\neyebrow on every card in a grid spends it twelve times before the reader reaches the button.\n\nSecondary is the assignment, not a colour: which of the consumer's two brand hues an antetitle\ntakes. A shop that swapped its palette gets its own secondary here and the rule still holds."
+  },
+  "step-title-surface": {
+    "$type": "dimension",
+    "$value": "{fs.h3}",
+    "$description": "A product name leads its card. At h4 it sits at the same weight as the note under\nit and the card reads as a paragraph with a bold first line; at h3 it is the thing the eye lands\non and everything else is support.\n\nOne step, and only on a SURFACE title. step-title-section is untouched, so raising the card does\nnot raise the section head above it and flatten the page into one size."
+  },
+  "lh-heading": {
+    "$type": "number",
+    "$value": "{lh.snug}",
+    "$description": "A title raised a step needs its lines pulled in, or a two-line product name reads\nas two products. 1.15 rather than the 1.5 every heading inherits, which is the leading of prose\nand was never chosen for a title.\n\nNot lh.tight: 0.98 puts a display face's own lines through each other, and check:extensions holds\nthe floor at 1."
+  },
+  "track-heading": {
+    "$type": "number",
+    "$value": -0.03,
+    "$description": "Large type needs negative tracking or it falls apart: the space designed for a\n19px title is a gap at 52px, and this voice raises fs-h1 to 52 and fs-display to 80. Tighter than\nls.tight, which is the last step the scale has, so it is authored as a length rather than aliased.\n\nA rare case of a role authored outright, and the reason is that the scale stops where the type\nsizes this voice reaches begin.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "gap-items": {
+    "$type": "dimension",
+    "$value": "{sp.4}",
+    "$description": "The members of a group given a step more air, which is the inside half of the\nsame decision rhythm-section makes on the page. A voice that separates its sections generously\nand then packs the cards inside them has spent the air where nobody reads it."
+  },
+  "fill-page": {
+    "$type": "color",
+    "$value": "{color.base-100}",
+    "$description": "Declared for completeness rather than for effect, and the distinction is worth\nkeeping honest. This voice claims figure and ground, and before this role it could name the figure\nand not the ground. It names both now.\n\nWhat it does NOT do is fix the separation. The fill step available above the page measures 1.13:1\nin Dravensoft's dark palette, which is invisible, and the ramp belongs to the consumer rather than\nto this voice. The rim light is still the signal that works. Declaring the floor lets a consumer\nwith a wider ramp get a figure that stands on a fill, and leaves this palette exactly where it was."
+  },
   "fs-h1": {
     "$type": "dimension",
     "$value": {

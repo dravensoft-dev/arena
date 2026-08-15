@@ -17,6 +17,9 @@ import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
+import { parseDecls } from './css-decls.ts';
+import { CSS_TARGETS, EXTENSION_PREFIX, FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
+import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 
 export const EXCLUDED_NAMES = new Set(['node_modules', 'dist', 'vendor', 'test', 'build']);
 
@@ -138,11 +141,51 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   return [
     { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${base}` },
     { to: 'css/numerals.css', content: readFileSync(join(dir, 'Numerals.css'), 'utf8') },
+    { to: 'css/prose.css', content: readFileSync(join(dir, 'Prose.css'), 'utf8') },
     { to: 'css/rhythm.css', content: readFileSync(join(dir, 'Rhythm.css'), 'utf8') },
     { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
   ];
+}
+
+export const CATALOGUE_FILE = 'arena.tokens.json';
+
+export function tokenCatalogue(root = repoRoot) {
+  const decls = new Map<string, Map<string, string>>();
+  for (const target of CSS_TARGETS) {
+    for (const [selector, pairs] of parseDecls(readFileSync(join(root, target), 'utf8')))
+      decls.set(selector, new Map([...(decls.get(selector) ?? []), ...pairs]));
+  }
+  const tokens = Object.fromEntries(decls.get(':root') ?? []);
+
+  const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
+  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, {
+    type: role.$type,
+    ...(role.$extensions?.[ARENA_EXT]?.values ? { values: role.$extensions[ARENA_EXT].values } : {}),
+  }]));
+
+  const asBlock = (selector: string) =>
+    [...(decls.get(selector) ?? [])].map(([k, v]) => `--${k}:${v};`);
+
+  const extensions: Record<string, unknown> = {};
+  for (const { selector, source } of FILES.flatMap((f) => f.blocks)) {
+    if (!source.startsWith(EXTENSION_PREFIX)) continue;
+    const name = selector.replace('.arena-', '');
+    const contract = readJson(join(root, 'contracts', 'design', source)) as Record<string, any>;
+    const byPolarity: Record<string, string[]> = {};
+    for (const [polarity, scope] of THEME_SCOPES) {
+      const block = asBlock(scope(selector));
+      if (block.length) byPolarity[polarity] = block;
+    }
+    extensions[name] = {
+      grouping: contract.$extensions?.[ARENA_EXT]?.grouping,
+      base: asBlock(selector),
+      byPolarity,
+    };
+  }
+
+  return { tokens, roles, extensions };
 }
 
 export const CLI_BINS = { 'arena-to-prod': './bin/arena-to-prod.mjs' };

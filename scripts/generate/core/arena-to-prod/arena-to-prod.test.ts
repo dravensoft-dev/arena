@@ -7,10 +7,12 @@ import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
-  COMPONENT_MAP, OUTPUT_SHEETS,
+  COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS, POLARITIES } from './palette-keys.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
+import { PRINCIPLES } from './extension-rules.ts';
 import type { ComponentMap } from './components.ts';
 import type { Environment, ThemeEnvironment } from './arena-to-prod.ts';
 
@@ -465,6 +467,7 @@ test('the sheets a package ships are read from beside the command, so no copy of
     components: ['button', 'table'],
     extensions: {},
     roleReferences: [],
+    catalogue: undefined,
   });
   rmSync(root, { recursive: true });
 });
@@ -578,26 +581,48 @@ test('it takes the union both ways, which is the half the shipped copy had lost'
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('the extensions a package ships are read out of the effects sheet, so no list is written twice', () => {
-  const root = installed(
-    "@import './css/reset.css';\n@import './css/effects.css';\n",
-    ['button'],
-  );
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --r-surface:14px;\n}\n\n.arena-showcase{\n  /* a reason */\n  --r-surface:22px;\n  --bw-surface:0px;\n}\n');
+test('the voices a package ships are read from the catalogue it carries, not parsed back out of CSS', () => {
+  const root = installed("@import './css/reset.css';\n@import './css/effects.css';\n", ['button']);
+  writeFileSync(join(root, CATALOGUE_FILE), JSON.stringify({
+    tokens: { 'r-surface': '14px', 'fill-surface': 'var(--color-base-200)' },
+    roles: { 'r-surface': { type: 'dimension' } },
+    extensions: {
+      showcase: {
+        grouping: 'figure-ground',
+        base: ['--r-surface:22px;', '--bw-surface:0px;'],
+        byPolarity: {},
+      },
+    },
+  }));
   assert.deepEqual(packageSheets(root)?.extensions, {
-    showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
-  });
+    showcase: { grouping: 'figure-ground', base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
+  }, 'the catalogue is written where the sources are and read where they are not, which is what a '
+   + 'regex over the shipped CSS was standing in for. It carries the grouping too, and that is why '
+   + 'the regex could not stay: a selector says which class a voice answers to and never which '
+   + 'mechanism it groups by, and a local voice deriving from one has to inherit that');
   rmSync(root, { recursive: true });
 });
 
-test('a package whose effects sheet declares no scope class ships no extensions rather than failing', () => {
+test('a package carrying no catalogue ships no voices rather than failing', () => {
   const root = installed("@import './css/reset.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'), ':root{\n  --r-surface:14px;\n}\n');
   assert.deepEqual(packageSheets(root)?.extensions, {});
+  assert.deepEqual(packageSheets(root)?.roleReferences, []);
   rmSync(root, { recursive: true });
+});
+
+test('a colour reference is derived from the catalogue, because a consumer palette has to restate it', () => {
+  assert.deepEqual(roleReferencesIn({
+    tokens: {
+      'fill-surface': 'var(--color-base-200)',
+      'r-surface': '14px',
+      'step-eyebrow': 'var(--dz-text-xs)',
+    },
+    roles: {},
+    extensions: {},
+  }), ['--fill-surface:var(--color-base-200);'],
+  'only a colour reference is restated per palette. A dz reference is restated per DENSITY, which '
+  + 'is another axis and another block, and a resolved length is right in every scope there is');
+  assert.deepEqual(roleReferencesIn(null), []);
 });
 
 test('the walk skips the two sheets this command writes, so a scan never reads its own output', () => {
@@ -620,55 +645,27 @@ test('the skipped names are exactly what the command writes, derived rather than
   assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, THEME_SHEET].sort());
 });
 
-test('a theme-scoped block is the extension it names, never an extension called after the polarity', () => {
-  const root = installed("@import './css/effects.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --fill-surface:var(--color-base-200);\n}\n'
-    + '.arena-light{\n  --fill-surface:var(--color-base-200);\n}\n'
-    + '.arena-showcase{\n  --bw-surface:0px;\n}\n'
-    + '.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{\n'
-    + '  --shadow-surface-rest:DROP;\n}\n');
-  const shipped = packageSheets(root)?.extensions ?? {};
-  assert.deepEqual(Object.keys(shipped), ['showcase'],
-    'a bare .arena-light block is the theme restating its own roles, and a descendant selector is '
-    + 'a voice scoped to a polarity; reading either as an extension offers a consumer a voice nobody wrote');
-  assert.deepEqual(shipped.showcase, {
-    base: ['--bw-surface:0px;'],
-    byPolarity: { light: ['--shadow-surface-rest:DROP;'] },
-  });
-  rmSync(root, { recursive: true });
-});
 
-test('a colour reference is read off :root, because a consumer palette has to restate it', () => {
-  const root = installed("@import './css/effects.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --fill-surface:var(--color-base-200);\n  --r-surface:14px;\n  --scrim:rgba(0,0,0,.5);\n}\n');
-  assert.deepEqual(packageSheets(root)?.roleReferences, ['--fill-surface:var(--color-base-200);'],
-    'a resolved length and a literal colour are not references and must not be restated');
-  rmSync(root, { recursive: true });
-});
 
-test('the shipped discovery is run against the CSS this build actually emits, not only a fixture', () => {
-  const root = installed("@import './css/effects.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    readFileSync(join(repoRoot, 'contracts/design-generated/effects.generated.css'), 'utf8'));
-
-  const shipped = packageSheets(root)?.extensions ?? {};
-  const names = Object.keys(shipped).sort();
-  assert.ok(names.length > 0, 'found 0 extensions in the real sheet -- an empty result is a failure, not a pass');
+test('the shipped catalogue is the one this build actually assembles, not only a fixture', () => {
+  const catalogue = tokenCatalogue(repoRoot);
+  const names = Object.keys(catalogue.extensions).sort();
+  assert.ok(names.length > 0, 'found 0 voices in the real catalogue -- an empty result is a failure, not a pass');
+  assert.ok(Object.keys(catalogue.roles).length > 0, 'found 0 roles, so a local voice could name nothing');
+  assert.ok(Object.keys(catalogue.tokens).length > 0, 'found 0 tokens, so no alias could resolve');
   for (const polarity of POLARITIES) {
     assert.ok(!names.includes(polarity),
-      `discovery offered a voice called ${polarity}, which is a theme scope rather than an extension`);
+      `the catalogue offers a voice called ${polarity}, which is a theme scope rather than an extension`);
   }
-  for (const [name, { base, byPolarity }] of Object.entries(shipped)) {
+  for (const [name, voice] of Object.entries(catalogue.extensions)) {
+    const { grouping, base, byPolarity } = voice as { grouping?: string; base: string[]; byPolarity: Record<string, string[]> };
     assert.ok(base.length > 0, `${name} ships an empty base block`);
+    assert.ok(grouping && PRINCIPLES.has(grouping),
+      `${name} carries no grouping Arena knows, and a local voice extending it would inherit nothing to hold`);
     for (const [polarity, declarations] of Object.entries(byPolarity)) {
       assert.ok(POLARITIES.includes(polarity), `${name} carries a scope called ${polarity}`);
-      assert.ok(declarations.length > 0, `${name} ships an empty ${polarity} block`);
+      assert.ok((declarations as string[]).length > 0, `${name} ships an empty ${polarity} block`);
     }
   }
-  rmSync(root, { recursive: true });
 });
+

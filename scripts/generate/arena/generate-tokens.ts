@@ -3,7 +3,11 @@
  * glob, where a backslash escapes rather than separates, so the path goes in posix or it matches
  * no file at all on Windows; and it stamps each token's filePath with glob's posix answer, which
  * writes a Windows drive as //?/D:/ and therefore equals nothing any join produces. Comparing two
- * spellings of one file is the defect both halves of that caused, and a name has only one. */
+ * spellings of one file is the defect both halves of that caused, and a name has only one.
+ * An alias resolves to its value EXCEPT where the token it points at is redeclared in another
+ * scope, which REDECLARED_GROUPS names: a role resolved at build time freezes whichever scope the
+ * generator read and then inherits it everywhere. That is the palette and the density axis, and
+ * contracts/design/Extensions.md carries the rendering that found it. */
 
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
@@ -43,6 +47,7 @@ export const FILES = [
     { selector: ':root', source: 'behaviour.json' },
     { selector: '.arena-showcase', source: 'extension.showcase.json' },
     { selector: '.arena-editorial', source: 'extension.editorial.json' },
+    { selector: '.arena-gallery', source: 'extension.gallery.json' },
   ] },
 ];
 
@@ -51,16 +56,30 @@ export const RESOLVES_AGAINST = {
   'roles.json': ['effects.json', 'palette.dark.json', 'spacing.json', 'typography.json'],
   'extension.showcase.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
   'extension.editorial.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
+  'extension.gallery.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
 };
 
 export const EXTENSION_PREFIX = 'extension.';
 
 export const CATALOGUE = 'arena-extensions';
 
+const scopeOn = (className: string) => (s: string) => (s === ':root'
+  ? className
+  : `${className}${s}, ${className} ${s}, ${s} ${className}`);
+
 export const THEME_SCOPES = new Map<string, (selector: string) => string>([
-  ['light', (s) => (s === ':root'
-    ? '.arena-light'
-    : `.arena-light${s}, .arena-light ${s}, ${s} .arena-light`)],
+  ['light', scopeOn('.arena-light')],
+]);
+
+export const SCOPE_SELECTORS = new Map<string, (selector: string) => string>([
+  ...THEME_SCOPES,
+  ['compact', scopeOn('.arena-compact')],
+  ['comfortable', scopeOn('.arena-comfortable')],
+]);
+
+export const REDECLARED_GROUPS = new Map<string, string[]>([
+  ['color', ['light']],
+  ['dz', ['compact', 'comfortable']],
 ]);
 
 export const themeOf = (token: { path?: string[] }) => {
@@ -73,12 +92,22 @@ export const emittedName = (token: { name: string; path?: string[] }) =>
 
 const ALIAS = /^\{([^}]+)\}$/;
 
-export function referenceOf(token: DtcgToken) {
-  if (token.$type !== 'color') return null;
+export function aliasOf(token: DtcgToken) {
   const authored = token.original?.$value;
   if (typeof authored !== 'string') return null;
-  const alias = ALIAS.exec(authored.trim());
-  return alias ? `var(--${(alias[1] ?? '').replace(/\./g, '-')})` : null;
+  return ALIAS.exec(authored.trim())?.[1]?.trim() ?? null;
+}
+
+export function scopesRedeclaring(token: DtcgToken) {
+  const alias = aliasOf(token);
+  if (!alias) return [];
+  return REDECLARED_GROUPS.get(alias.split('.')[0] ?? '') ?? [];
+}
+
+export function referenceOf(token: DtcgToken) {
+  const alias = aliasOf(token);
+  if (!alias || !scopesRedeclaring(token).length) return null;
+  return `var(--${alias.replace(/\./g, '-')})`;
 }
 
 export function extensionsIn(blocks: { selector: string; source: string }[]) {
@@ -132,6 +161,7 @@ export const node = {
     'check:tailwind',
     'check:tailwind-generated',
     'check:text-contrast',
+    'check:token-collisions',
     'check:tokens',
     'build:site',
   ],
@@ -297,16 +327,24 @@ async function block({ selector, source }: { selector: string; source: string })
     buckets.set(theme, [...(buckets.get(theme) ?? []), item]);
   }
   const base = buckets.get('') ?? [];
-  const references = base.filter((item) => isTokenItem(item) && referenceOf(item.token));
+  const restatedIn = (name: string) => base.filter((item) =>
+    isTokenItem(item) && scopesRedeclaring(item.token).includes(name));
   const out = base.length ? [`${selector}{\n${renderLines(base).join('\n')}\n}`] : [];
 
   for (const [theme, scope] of THEME_SCOPES) {
+    const references = restatedIn(theme);
     const restated = references.length
       ? [`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`] : [];
     const themed = buckets.get(theme) ?? [];
     const overrides = themed.length
       ? [`${scope(selector)}{\n${renderLines(themed).join('\n')}\n}`] : [];
     out.push(...restated, ...overrides);
+  }
+
+  for (const [name, scope] of SCOPE_SELECTORS) {
+    if (THEME_SCOPES.has(name)) continue;
+    const references = restatedIn(name);
+    if (references.length) out.push(`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`);
   }
   return out.join('\n');
 }

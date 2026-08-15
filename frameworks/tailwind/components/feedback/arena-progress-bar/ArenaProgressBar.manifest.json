@@ -2,9 +2,9 @@
   "component": "ArenaProgressBar",
   "slots": {
     "root": "block w-full",
-    "head": "flex items-baseline justify-between gap-3 mb-2",
-    "label": "font-body text-ctl-md text-base-content/82",
-    "value": "font-mono text-ctl-sm text-base-content/62",
+    "head": "flex items-baseline justify-between gap-items mb-2",
+    "label": "font-body text-ctl-md text-ink-body/82",
+    "value": "font-mono text-ctl-sm text-ink-muted/62",
     "track": "relative rounded-pill bg-base-300 overflow-hidden",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",

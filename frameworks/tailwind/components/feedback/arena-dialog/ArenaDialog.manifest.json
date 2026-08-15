@@ -2,11 +2,11 @@
   "component": "ArenaDialog",
   "slots": {
     "scrim": "fixed inset-0 z-modal flex items-center justify-center bg-scrim backdrop-blur-scrim",
-    "panel": "arena-pop w-120 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-neutral rounded-surface shadow-surface-deep overflow-hidden",
+    "panel": "arena-pop w-120 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
     "head": "px-6 pt-5.5",
-    "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-2",
-    "title": "font-display font-heading text-h3 text-base-content tracking-heading",
-    "body": "px-6 py-4 font-body text-md leading-prose text-base-content/82",
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
+    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/82",
     "foot": "flex flex-wrap justify-end gap-2.5 px-6 pb-5.5"
   },
   "variants": {

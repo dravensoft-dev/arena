@@ -1,13 +1,13 @@
-/* Fails on a scale utility standing where a role belongs. A scale says how round a corner is or
- * how deep a shadow is; a role says WHICH corner or depth is being asked about, and only a
- * question can be answered differently by a design extension. Radius and depth are banned by
- * utility name because they have a Tailwind namespace; a border width and a duration are banned
- * by TOKEN name, which catches border-[length:var(--bw)] and the var(--dur-fast) buried in an
- * arbitrary [transition:...] property with one entry rather than one per spelling. An easing is
- * the one family banned BOTH ways, because it is the one with a namespace that a manifest also
- * spells as a token inside that same arbitrary property, and the two spellings never collide:
- * the utility entry cannot match inside var(--ease-out), where a hyphen precedes it. SCALE_USES
- * records the places that genuinely mean the length, one entry per case with its reason. */
+/* Fails on a scale utility standing where a role belongs. A scale says how round a corner is; a
+ * role says WHICH corner is being asked about, and only a question can be answered differently by
+ * a design extension. The ban covers ink, edges, faces, case and internal air as well as geometry,
+ * since the role tier grew to reach them. A family with a Tailwind namespace is banned by utility
+ * name; a border width and a duration are banned by TOKEN name, which catches
+ * border-[length:var(--bw)] and the var(--dur-fast) buried in an arbitrary [transition:...] with
+ * one entry rather than one per spelling. An easing is banned BOTH ways and the two never collide,
+ * since the utility entry cannot match inside var(--ease-out) where a hyphen precedes it.
+ * SCALE_USES records the places that genuinely mean the value, one entry per case with its reason,
+ * and its largest group is the mono face standing for figures rather than for a register. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -43,6 +43,14 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['tracking-tight', 'tracking-heading, for the same reason'],
   ['leading-body', 'leading-prose, when the slot is text somebody reads'],
   ['ease-out', 'ease-hover or ease-state, whichever duration the same transition names'],
+  ['text-base-content', 'text-ink-heading, text-ink-body or text-ink-muted, whichever text this is'],
+  ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
+  ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
+  ['uppercase', 'case-eyebrow or case-label, so a voice can set the register in sentence case'],
+  ['font-mono', 'font-face-eyebrow or font-face-label, when the slot is a register rather than a figure'],
+  ['font-display', 'font-face-heading, when the slot is a heading rather than the brand itself'],
+  ['tracking-label', 'tracking-eyebrow, when the slot IS an eyebrow'],
+  ['tracking-field-label', 'tracking-label-role, the tracking of the label register'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -66,6 +74,39 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no voice'],
   ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading voice would reflow a form field under somebody mid-sentence'],
   ['ArenaOnboarding:panel:p-5', 'a coachmark is pinned to the element it points at and sized against the viewport in JS, so its padding is a fit constraint for the same reason a sheet\'s is'],
+
+  ['ArenaActivityFeed:time:font-mono', 'a timestamp, read as a figure. This entry and the twenty-three under it are the mono face standing for FIGURES or CODE rather than for a register: a column of digits aligns by digit and a string read character by character has to be monospaced whatever the page sounds like, so a voice that sets its labels in the display face has said nothing about any of them. It is the half .arena-num ships for a figure a consumer draws themselves'],
+  ['ArenaCalendar:dayNumber:font-mono', 'a day of the month, read as a figure'],
+  ['ArenaCalendar:time:font-mono', 'a clock time, read as a figure'],
+  ['ArenaTable:tdMono:font-mono', 'the mono column of a table, which is what the face is for'],
+  ['ArenaTable:cardValueMono:font-mono', 'the same column in the card layout the table falls back to'],
+  ['ArenaProgressBar:value:font-mono', 'a percentage that must not jitter as it counts'],
+  ['ArenaTextarea:counter:font-mono', 'a character count that must not jitter as it counts'],
+  ['ArenaTextarea:counterNear:font-mono', 'the same count at its warning threshold'],
+  ['ArenaBulkActionBar:count:font-mono', 'a selection count that must not jitter as it counts'],
+  ['ArenaPagination:page:font-mono', 'a page number, and the row of them has to align'],
+  ['ArenaPagination:ellipsis:font-mono', 'the gap between two page numbers, which sits on their grid'],
+  ['ArenaBottomNav:badge:font-mono', 'a count on a badge'],
+  ['ArenaSideNav:badge:font-mono', 'the same count in the side navigation'],
+  ['ArenaErrorState:code:font-mono', 'an error code, read character by character'],
+  ['ArenaConfirmDialog:input:font-mono', 'the field a user retypes a name into, where every character has to be distinguishable from the one it looks like'],
+  ['ArenaInput:prefix:font-mono', 'a unit or a currency sitting on the field\'s own baseline grid'],
+  ['ArenaCommandPalette:shortcut:font-mono', 'a keyboard shortcut, which is a key cap rather than a label'],
+  ['ArenaCommandPalette:esc:font-mono', 'the same, for the escape cap'],
+  ['ArenaMenu:shortcut:font-mono', 'the same, in a menu'],
+  ['ArenaTooltip:bubble:font-mono', 'a tooltip carries a shortcut or a value often enough that the bubble is set in mono outright'],
+  ['ArenaBreadcrumbs:crumb:font-mono', 'a breadcrumb is a path segment, which is a system string rather than prose'],
+  ['ArenaBreadcrumbs:current:font-mono', 'the same path, at its last segment'],
+  ['ArenaBreadcrumbs:separator:font-mono', 'the slash between two segments of that path'],
+  ['ArenaActivityFeed:target:font-mono', 'the object an activity happened to, which is an identifier rather than a name'],
+
+  ['ArenaAppLogo:name:font-display', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It follows the mark beside it and no voice'],
+  ['ArenaAppLogo:name:uppercase', 'the same wordmark: its capitals are how the brand is drawn, and a voice that sets its eyebrows in sentence case has not renamed the company'],
+  ['ArenaAvatar:box:font-display', 'a monogram: two letters standing in for a face, which is the same reason the slot keeps font-extrabold'],
+  ['ArenaSheet:trigger:font-display', 'the trigger repeats the title of the sheet it opens, so it follows that title rather than the heading tier'],
+
+  ['ArenaChartCard:title:tracking-label', 'a chart tile\'s title is set in the label register at the label step, which is one step open of where track-label is born. Binding it would have tightened it, so it keeps the step until a role names the difference'],
+  ['ArenaStatCard:label:tracking-label', 'the same step for the same reason, on a stat card\'s label'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {
@@ -138,7 +179,7 @@ function main() {
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth, duration and easing decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth, duration, easing, ink, edge, face, case and internal-air decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();

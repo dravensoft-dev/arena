@@ -2,19 +2,19 @@
   "component": "ArenaTextarea",
   "slots": {
     "root": "flex flex-col gap-1.5",
-    "label": "font-mono text-ctl-xs tracking-field-label uppercase text-base-content/62",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/62",
     "required": "text-primary ml-1",
-    "field": "w-full px-3 py-2.5 bg-base-300 border-[length:var(--bw-field)] rounded-field text-base-content font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
-    "foot": "flex justify-between gap-3",
-    "hint": "font-body text-ctl-sm text-base-content/62",
+    "field": "w-full px-control-x py-2.5 bg-base-300 border-[length:var(--bw-field)] rounded-field text-ink-body font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
+    "foot": "flex justify-between gap-items",
+    "hint": "font-body text-ctl-sm text-ink-muted/62",
     "error": "font-body text-ctl-sm text-error",
-    "counter": "font-mono text-ctl-xs text-base-content/62",
+    "counter": "font-mono text-ctl-xs text-ink-muted/62",
     "counterNear": "font-mono text-ctl-xs text-warning"
   },
   "variants": {
     "state": {
       "neutral": {
-        "field": "border-base-300 focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
+        "field": "border-edge-field focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
       },
       "error": {
         "field": "border-error ring-[length:var(--focus-width)] ring-error/14"

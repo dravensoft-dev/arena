@@ -1,0 +1,55 @@
+{
+  "extension": "gallery",
+  "note": "Ordered by how much of the shared treatment a component carries, since gallery groups by similarity: the wall of identically treated surfaces first, because that IS the mechanism and it has to be seen repeating before anything else; then what a cell holds, then the text that names it, then the controls that filter it, then the marks, and the overlays that leave the wall entirely last.",
+  "sections": [
+    {
+      "title": "The wall, where the treatment repeats",
+      "items": [
+        "ArenaGrid", "ArenaCard", "ArenaStatCard", "ArenaChartCard", "ArenaUnauthCard"
+      ]
+    },
+    {
+      "title": "What a cell holds",
+      "items": [
+        "ArenaAvatar", "ArenaSkeleton", "ArenaProgressBar", "ArenaSpinner",
+        "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart", "ArenaDoughnutChart",
+        "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
+      ]
+    },
+    {
+      "title": "The text that names it",
+      "items": [
+        "ArenaAppLogo", "ArenaPageHead", "ArenaBadge", "ArenaTag", "ArenaTooltip"
+      ]
+    },
+    {
+      "title": "Controls beside the wall",
+      "items": [
+        "ArenaButton", "ArenaIconButton", "ArenaSegmentedControl", "ArenaTabs", "ArenaTab",
+        "ArenaPagination", "ArenaBreadcrumbs", "ArenaInput", "ArenaSelect", "ArenaTextarea",
+        "ArenaCheckbox", "ArenaRadioGroup", "ArenaRadio", "ArenaSwitch", "ArenaBulkActionBar"
+      ]
+    },
+    {
+      "title": "Rows and lists, where the same treatment runs the other way",
+      "items": [
+        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed",
+        "ArenaCalendar", "ArenaCalendarEvent", "ArenaMenu",
+        "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem", "ArenaSideNavCollapsible"
+      ]
+    },
+    {
+      "title": "When there is nothing to show",
+      "items": [
+        "ArenaEmptyState", "ArenaErrorState", "ArenaAlert"
+      ]
+    },
+    {
+      "title": "Off the wall",
+      "items": [
+        "ArenaToast", "ArenaToastHost", "ArenaDialog", "ArenaConfirmDialog", "ArenaSheet",
+        "ArenaCommandPalette", "ArenaOnboarding", "ArenaBottomNav", "ArenaBottomNavItem"
+      ]
+    }
+  ]
+}

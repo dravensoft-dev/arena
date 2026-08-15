@@ -55,14 +55,17 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 43_000,
+    budget: 45_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
       + 'router with the build route, which is where the voice catalogue sits, so the two move '
       + 'together whenever that page does. The number is argued up rather than held down when a '
       + 'correction lands on the npm page: a pre-paint script that answers the device as well as '
-      + 'storage is longer than one that does not, and being right is what the page is for.',
+      + 'storage is longer than one that does not, and being right is what the page is for. '
+      + 'Raised from 43,000 when the catalogue went from three voices to four and the packages '
+      + 'began shipping css/prose.css: a reader choosing a voice has one more row to read and one '
+      + 'more sheet to know about, and both are the page doing its job rather than growing.',
   },
   {
     name: 'contributor-component',
@@ -82,11 +85,15 @@ export const ROUTES: Route[] = [
     who: 'a contributor moving a value: the router, the contracts roof, the design specification '
       + 'and the shape a token is authored in',
     stops: ['AGENTS.md', 'contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 72_000,
+    budget: 76_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
-      + 'can afford.',
+      + 'can afford. Raised from 72,000 when the role tier went from 28 roles to 63 and grew a '
+      + 'ninth token type: TokenTypes.md has to state what a keyword is and why it is the one '
+      + 'departure from 2025.10, and the design specification has to say why an extension now '
+      + 'reaches type, ink and internal air. The route is longer because the thing it describes is '
+      + 'bigger, which is the one reason a budget should ever move.',
   },
   {
     name: 'contributor-gate',

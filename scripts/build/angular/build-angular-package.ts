@@ -17,6 +17,7 @@ import { nodeBin } from '../../lib/arena/node-bin.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
+  CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, CLI_BINS, keywords,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -172,6 +173,7 @@ export function buildAngularPackage(root = repoRoot) {
 
   written.push(writeComponentMap(dist, 'angular', root));
   written.push(write(dist, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
+  written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 
@@ -196,6 +198,7 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
+      './arena.tokens.json': { default: './arena.tokens.json' },
     },
     bin: { ...CLI_BINS },
     sideEffects: emitted.sideEffects ?? false,

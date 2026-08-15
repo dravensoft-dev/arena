@@ -55,6 +55,7 @@
     "build:site": "bun scripts/build/arena/build-site.ts",
     "check:dtcg": "bun scripts/check/core/check-dtcg.ts",
     "check:extensions": "bun scripts/check/core/check-extensions.ts",
+    "check:token-collisions": "bun scripts/check/core/check-token-collisions.ts",
     "check:tokens": "bun scripts/check/core/check-tokens-generated.ts",
     "check:fonts": "bun scripts/check/core/check-fonts-generated.ts",
     "check:ramp": "bun scripts/check/core/check-ramp.ts",

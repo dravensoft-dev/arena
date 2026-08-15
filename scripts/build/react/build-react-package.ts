@@ -19,6 +19,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
+  CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, keywords,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -159,6 +160,7 @@ export function manifest(root = repoRoot) {
       './css/*': './css/*',
       './css/components/*': './css/components/*',
       './arena.config.example.json': './arena.config.example.json',
+      './arena.tokens.json': './arena.tokens.json',
       './package.json': './package.json',
     },
     peerDependencies: {
@@ -190,6 +192,7 @@ export async function buildReactPackage(root = repoRoot) {
 
   written.push(writeComponentMap(dir, 'react', root));
   written.push(write(dir, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
+  written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
   written.push(write(dir, 'package.json', `${JSON.stringify(manifest(root), null, 2)}\n`));

@@ -31,6 +31,8 @@ export function serialize(token: DtcgToken) {
     }
     case 'fontWeight':
       return String(v);
+    case 'keyword':
+      return String(v);
     case 'cubicBezier':
       return `cubic-bezier(${v.map(trim).join(',')})`;
     case 'color':

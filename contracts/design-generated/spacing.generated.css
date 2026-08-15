@@ -31,8 +31,6 @@
   --rhythm-group:12px; /* Inside one group of related things: a label and its field, a card's own stacked children, a row of chips. Both sides read as one unit. */
   --rhythm-component:16px; /* Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing. */
   --rhythm-section:24px; /* Between two sections of a page. The two sides answer different questions, and this gap is what says so. */
-  --container-max:1240px; /* Container / layout */
-  --gutter:88px;
 
   /*
      Application frame. Example code, and therefore the numbers a consumer

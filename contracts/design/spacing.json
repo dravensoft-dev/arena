@@ -39,8 +39,6 @@
     "component": { "$value": "{sp.4}", "$description": "Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing." },
     "section": { "$value": "{sp.6}", "$description": "Between two sections of a page. The two sides answer different questions, and this gap is what says so." }
   },
-  "container-max": { "$type": "dimension", "$value": { "value": 1240, "unit": "px" }, "$description": "Container / layout" },
-  "gutter": { "$type": "dimension", "$value": { "value": 88, "unit": "px" } },
   "layout": {
     "$type": "dimension",
     "$description": "Application frame. Example code, and therefore the numbers a consumer\ncopies. Arena draws neither of these itself: the sidebar is the console shell's\nand the bar is a phone shell's, and they are declared for the same reason --z-nav\nis, because the frame a consumer builds is part of the system and every one of\nthem otherwise invents its own number.",

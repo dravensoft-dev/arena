@@ -3,8 +3,8 @@
   "slots": {
     "root": "inline-flex items-center",
     "mark": "inline-flex flex-none *:block *:w-full *:h-full",
-    "name": "font-display font-black tracking-tight uppercase text-base-content",
-    "dim": "text-base-content/62"
+    "name": "font-display font-black tracking-tight uppercase text-ink-body",
+    "dim": "text-ink-muted/62"
   },
   "variants": {
     "size": {
@@ -15,7 +15,7 @@
     },
     "orientation": {
       "horizontal": { "root": "flex-row gap-2.5" },
-      "vertical": { "root": "flex-col gap-3" }
+      "vertical": { "root": "flex-col gap-items" }
     }
   },
   "defaultVariants": { "size": "md", "orientation": "horizontal" }

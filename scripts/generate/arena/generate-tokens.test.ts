@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { FILES, RESOLVES_AGAINST, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom } from './generate-tokens.ts';
+import { FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const DESIGN = join(repoRoot, 'contracts/design');
@@ -94,6 +94,45 @@ test('a source that references another file names it, and one that references no
         + 'the reference would silently emit unresolved');
     }
   }
+});
+
+const aliasing = (value: string, $type = 'dimension') =>
+  ({ $type, $value: 0, original: { $value: value } });
+
+test('an alias stays a reference when the token it points at is redeclared somewhere else', () => {
+  assert.equal(referenceOf(aliasing('{color.base-200}', 'color')), 'var(--color-base-200)');
+  assert.equal(referenceOf(aliasing('{dz.text-xs}')), 'var(--dz-text-xs)',
+    'a role resolved at build time freezes the scope the generator happened to read, and .arena-compact '
+    + 'redeclares every dz step, so a role aliasing one would keep the base size inside a compact region');
+});
+
+test('an alias to a token nobody redeclares resolves, because 14px is 14px in every scope', () => {
+  assert.equal(referenceOf(aliasing('{r.lg}')), null);
+  assert.equal(referenceOf(aliasing('{sp.4}')), null);
+  assert.equal(referenceOf(aliasing('{fs.h4}')), null);
+  assert.equal(referenceOf({ $type: 'dimension', $value: { value: 14, unit: 'px' } }), null);
+});
+
+test('every group that is redeclared names scopes this build actually emits', () => {
+  const emitted = new Set(FILES.flatMap((file) => file.blocks.map((b) => b.selector)));
+  for (const [group, scopes] of REDECLARED_GROUPS) {
+    assert.ok(scopes.length > 0, `${group} claims to be redeclared and names no scope`);
+    for (const scope of scopes) {
+      const selector = SCOPE_SELECTORS.get(scope);
+      assert.ok(selector, `${group} names the scope "${scope}", which has no selector`);
+      assert.ok(emitted.has(selector(':root')),
+        `${group} names the scope "${scope}", which no block in FILES writes: a reference restated `
+        + 'into a selector nothing else declares would sit alone and answer nothing');
+    }
+  }
+});
+
+test('a reference is restated under the scopes that redeclare it, and under no others', () => {
+  assert.deepEqual(scopesRedeclaring(aliasing('{color.base-200}', 'color')), ['light']);
+  assert.deepEqual(scopesRedeclaring(aliasing('{dz.text-xs}')), ['compact', 'comfortable'],
+    'the density axis has two scopes and a reference has to land in both, because a token restated '
+    + 'into one of them still inherits the base value into the other');
+  assert.deepEqual(scopesRedeclaring(aliasing('{r.lg}')), []);
 });
 
 test('a declared resolution source shares no top-level group with the file that reads it', () => {

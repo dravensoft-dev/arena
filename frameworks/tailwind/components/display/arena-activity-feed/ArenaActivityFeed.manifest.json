@@ -2,16 +2,16 @@
   "component": "ArenaActivityFeed",
   "slots": {
     "root": "flex flex-col list-none m-0 p-0",
-    "item": "flex items-center gap-3 py-3.5",
+    "item": "flex items-center gap-items py-3.5",
     "dot": "flex-none size-2 rounded-pill bg-current",
-    "text": "font-body text-ctl text-base-content/82",
-    "actor": "font-bold text-base-content",
+    "text": "font-body text-ctl text-ink-body/82",
+    "actor": "font-bold text-ink-body",
     "target": "font-mono text-ctl-md text-secondary",
-    "time": "ml-auto font-mono text-ctl-sm text-base-content/62"
+    "time": "ml-auto font-mono text-ctl-sm text-ink-muted/62"
   },
   "variants": {
     "tone": {
-      "neutral": { "dot": "text-base-content/82" },
+      "neutral": { "dot": "text-ink-body/82" },
       "accent": { "dot": "text-primary" },
       "gold": { "dot": "text-secondary" },
       "success": { "dot": "text-success" },
@@ -20,7 +20,7 @@
       "info": { "dot": "text-info" }
     },
     "divided": {
-      "true": { "item": "border-t-[length:var(--bw-separator)] border-base-300" },
+      "true": { "item": "border-t-[length:var(--bw-separator)] border-edge-separator" },
       "false": { "item": "border-t-0" }
     }
   },

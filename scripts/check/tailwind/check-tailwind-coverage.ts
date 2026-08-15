@@ -31,6 +31,13 @@ export const EXCLUDED = new Map([
   ['loop-brand', 'v4 has no duration namespace; reached as duration-[var(--loop-brand)]'],
   ['loop-reduced', 'v4 has no duration namespace; the reduced-motion step, set inside a media query rather than by a utility'],
   ['loop-brand-reduced', 'v4 has no duration namespace; the reduced-motion step, set inside a media query rather than by a utility'],
+  ['tt-eyebrow', 'v4 has no text-transform namespace, and its uppercase/lowercase/capitalize are static '
+    + 'utilities naming a value, which is the shape of a scale rather than of a role. Reached through '
+    + '.case-eyebrow in frameworks/tailwind/Case.css, hand-authored for exactly that reason'],
+  ['tt-label', 'the same, through .case-label'],
+  ['grid-min', 'the narrowest column of an auto-fitting grid, which lands inside a repeat(auto-fit, '
+    + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached as '
+    + 'grid-cols-[repeat(auto-fit,minmax(min(var(--grid-min),100%),1fr))]'],
   ['bw', 'v4 has no border-width namespace; reached as border-[length:var(--bw)]'],
   ['bw-strong', 'v4 has no border-width namespace; no consumer today, available as border-[length:var(--bw-strong)]'],
   ['bw-surface', 'v4 has no border-width namespace, so a border role cannot become a named utility the way a radius role does; reached as border-[length:var(--bw-surface)]'],

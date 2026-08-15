@@ -1,0 +1,18 @@
+/* frameworks/tailwind/Prose.css
+   The reading column, for a document a consumer writes. Imported by Theme.css, so
+   `bun run build:tailwind` compiles it into Utilities.generated.css with everything else, and
+   copied into both packages as css/prose.css the way rhythm.css and numerals.css are.
+
+   It is hand-authored rather than a manifest slot because Arena ships no prose component and
+   should not: the thing that wants a measure is a documentation page's own markup, an article,
+   a changelog, a release note. A voice for reading is the one voice in the catalogue whose whole
+   job is that markup, and before this class it could set the leading of a paragraph and not how
+   long the line was, which is the half that decides whether prose is readable.
+
+   `max-width` and not `width`, so a narrow viewport keeps the whole column and only a wide one
+   is held back. Every value is a var() into a token, and --measure-prose is a role, so a voice
+   re-answers it and check:extensions holds the answer between 45 and 90ch. */
+
+.arena-prose {
+  max-width: var(--measure-prose);
+}

@@ -36,6 +36,7 @@ export const GATES = [
   { name: 'check:dtcg', file: 'core/check-dtcg.ts' },
   { name: 'check:extensions', file: 'core/check-extensions.ts' },
   { name: 'check:tokens', file: 'core/check-tokens-generated.ts' },
+  { name: 'check:token-collisions', file: 'core/check-token-collisions.ts' },
   { name: 'check:script-tokens', file: 'arena/check-script-tokens.ts' },
   { name: 'check:duplicate-constants', file: 'arena/check-duplicate-constants.ts' },
   { name: 'check:deadlines', file: 'arena/check-deadlines.ts' },

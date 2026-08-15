@@ -76,12 +76,12 @@ export const CLAIMS = {
       { chosen: { size: s }, slot: 'name', has: [`text-logo-${s}`], why: 'each size step pairs a mark box with its wordmark step' },
     ]),
     { chosen: { orientation: 'horizontal' }, slot: 'root', has: ['flex-row', 'gap-2.5'], why: 'orientation changes the axis and the gap, nothing else' },
-    { chosen: { orientation: 'vertical' }, slot: 'root', has: ['flex-col', 'gap-3'], why: 'orientation changes the axis and the gap, nothing else' },
+    { chosen: { orientation: 'vertical' }, slot: 'root', has: ['flex-col', 'gap-items'], why: 'orientation changes the axis and the gap, nothing else' },
     { slot: 'mark', has: ['*:w-full', '*:h-full', '*:block'], why: 'the mark slot stretches its projected child rather than sizing it' },
   ],
   ArenaChartCard: [
-    { slot: 'root', has: ['flex', 'bg-surface', 'border-[length:var(--bw-surface)]', 'border-base-300', 'rounded-surface'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
-    { slot: 'title', has: ['font-mono', 'uppercase', 'tracking-label'], hasNot: ['font-display', 'text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a microlabel carries neither the display font nor a heading size, which would fabricate a document outline' },
+    { slot: 'root', has: ['flex', 'bg-surface', 'border-[length:var(--bw-surface)]', 'border-edge-surface', 'rounded-surface'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
+    { slot: 'title', has: ['font-face-label', 'case-label', 'tracking-label'], hasNot: ['font-display', 'text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a microlabel carries neither the display font nor a heading size, which would fabricate a document outline' },
     { slot: 'head', has: ['justify-between', 'items-center', 'flex-wrap'], why: 'the head row spaces title and actions to opposite ends and wraps, since the slot projects one element per control' },
   ],
   ArenaActivityFeed: [
@@ -108,12 +108,12 @@ export const CLAIMS = {
   ],
   ArenaCard: [
     { slot: 'root', has: ['block', 'bg-surface'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so a voice can flatten it onto the page, and it is never a zero-area inline box' },
-    { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-base-300'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
-    { chosen: { accent: false }, slot: 'root', has: ['border-base-300'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
+    { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-edge-surface'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
+    { chosen: { accent: false }, slot: 'root', has: ['border-edge-surface'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
     { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and an extension can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
-    { slot: 'eyebrow', has: ['font-mono', 'uppercase', 'text-primary'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
-    { slot: 'title', has: ['font-display', 'text-h4'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
+    { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', 'text-ink-eyebrow'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
+    { slot: 'title', has: ['font-face-heading', 'text-title-surface'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
   ArenaSkeleton: [
     { chosen: { variant: 'text' }, slot: 'root', has: ['arena-shimmer'], hasNot: ['hidden'], why: 'the text variant carries no root override; the host reads stack() for it, not root()' },
@@ -122,10 +122,10 @@ export const CLAIMS = {
     { slot: 'lastLine', has: ['w-[62%]'], why: 'the last line is narrower than the rest, the way a paragraph ends' },
   ],
   ArenaStatCard: [
-    ...Object.entries({ neutral: 'text-base-content', accent: 'text-primary', gold: 'text-secondary',
+    ...Object.entries({ neutral: 'text-ink-body', accent: 'text-primary', gold: 'text-secondary',
       success: 'text-success', warning: 'text-warning', danger: 'text-error', info: 'text-info' })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'value', has: [cls], why: 'every value tone maps to its own text colour and no other survives beside it' })),
-    { slot: 'value', has: ['text-base-content'], why: 'the default value tone is neutral' },
+    { slot: 'value', has: ['text-ink-body'], why: 'the default value tone is neutral' },
     { chosen: { tone: 'danger' }, slot: 'value', has: ['text-error'], why: 'a danger value tone colours text only, so the value slot carries no background' },
     { chosen: { tone: 'danger', deltaTone: 'positive' }, slot: 'delta', has: ['border-success', 'text-success'], why: 'tone and deltaTone are independent, which is why the contract declares them separately' },
     { chosen: { deltaTone: 'negative' }, slot: 'delta', has: ['border-error', 'text-error', 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta is outline: border and text in --error, never a filled background' },
@@ -161,7 +161,7 @@ export const CLAIMS = {
   ArenaAlert: [
     ...Object.entries({ info: 'info', success: 'success', warning: 'warning', danger: 'error', neutral: 'neutral' })
       .flatMap(([tone, family]) => [
-        { chosen: { tone }, slot: 'root', has: [`border-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family' },
+        { chosen: { tone }, slot: 'root', has: [family === 'neutral' ? 'border-edge-surface-floating' : `border-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family; the neutral tone is the absence of one, so its edge is the floating surface role rather than a status colour' },
         { chosen: { tone }, slot: 'icon', has: [`text-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family' },
         { chosen: { tone }, slot: 'action', has: [`text-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family' },
       ]),
@@ -177,8 +177,8 @@ export const CLAIMS = {
   ],
   ArenaBreadcrumbs: [
     { slot: 'root', has: ['flex'], why: 'a host-bound breadcrumbs trail has no other way to lay out' },
-    { slot: 'current', has: ['font-bold', 'text-base-content'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
-    { slot: 'crumb', has: ['text-base-content/62', 'no-underline', 'cursor-pointer', 'hover:text-base-content/82'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
+    { slot: 'current', has: ['font-bold', 'text-ink-body'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
+    { slot: 'crumb', has: ['text-ink-muted/62', 'no-underline', 'cursor-pointer', 'hover:text-ink-body/82'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
     { slot: 'separator', has: ['text-neutral'], why: 'the separator is muted, distinct from both crumb slots' },
     { slot: 'crumb', has: ['font-mono', 'text-ctl-sm', 'tracking-mono-nav'], why: 'every slot shares the mono, wide-tracked control type' },
     { slot: 'current', has: ['font-mono', 'text-ctl-sm', 'tracking-mono-nav'], why: 'every slot shares the mono, wide-tracked control type' },
@@ -193,8 +193,8 @@ export const CLAIMS = {
   ArenaConfirmDialog: [
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
-    { chosen: { invalid: true }, slot: 'input', has: ['border-error'], hasNot: ['border-base-300'], why: 'invalid borders the require-text input in --error and drops the neutral border' },
-    { chosen: { invalid: false }, slot: 'input', has: ['border-base-300'], why: 'a valid require-text input keeps the neutral border' },
+    { chosen: { invalid: true }, slot: 'input', has: ['border-error'], hasNot: ['border-edge-field'], why: 'invalid borders the require-text input in --error and drops the neutral border' },
+    { chosen: { invalid: false }, slot: 'input', has: ['border-edge-field'], why: 'a valid require-text input keeps the neutral border' },
   ],
   ArenaDialog: [
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps because the consumer projects one control per element rather than a wrapper of their own' },
@@ -232,7 +232,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['block', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline' },
   ],
   ArenaSpinner: [
-    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-base-content/62', 'on-accent': 'text-primary-content' })
+    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/62', 'on-accent': 'text-primary-content' })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'root', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
     ...Object.entries({ sm: 'size-icon-sm', md: 'size-5', lg: 'size-8' })
       .map(([s, cls]) => ({ chosen: { size: s }, slot: 'circle', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
@@ -267,7 +267,7 @@ export const CLAIMS = {
   ArenaCheckbox: [
     { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives' },
     { chosen: { checked: true }, slot: 'box', has: ['bg-primary', 'border-primary'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
-    { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-neutral'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
+    { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-edge-control'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: true }, slot: 'check', has: ['text-primary-content'], why: 'the tick reads on the filled box, which is the one pairing that has to hold' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50', 'cursor-not-allowed'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
     { chosen: { disabled: false }, slot: 'root', has: ['cursor-pointer'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
@@ -280,9 +280,9 @@ export const CLAIMS = {
   ArenaIconButton: [
     ...Object.entries({ sm: ['h-ctl-h-sm', 'min-w-ctl-h-sm'], md: ['h-ctl-h', 'min-w-ctl-h'], lg: ['h-ctl-h-lg', 'min-w-ctl-h-lg'] })
       .map(([size, has]) => ({ chosen: { size }, slot: 'root', has, why: 'each size keeps its own density height and a matching minimum width, so the box stays square' })),
-    { chosen: { variant: 'ghost' }, slot: 'root', has: ['bg-transparent', 'border-base-300'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
+    { chosen: { variant: 'ghost' }, slot: 'root', has: ['bg-transparent', 'border-edge-control-quiet'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
     { chosen: { variant: 'solid' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
-    { chosen: { showLabel: true }, slot: 'root', has: ['w-auto', 'gap-2'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
+    { chosen: { showLabel: true }, slot: 'root', has: ['w-auto', 'gap-control'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
     { slot: 'root', has: ['disabled:opacity-45', 'disabled:cursor-not-allowed'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
   ],
@@ -299,7 +299,7 @@ export const CLAIMS = {
   ],
   ArenaRadio: [
     { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives' },
-    { slot: 'group', has: ['flex', 'flex-col', 'gap-3'], why: 'the group is a column, and it is a display utility because the host binds it' },
+    { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
@@ -318,14 +318,14 @@ export const CLAIMS = {
   ],
   ArenaPagination: [
     { slot: 'root', has: ['inline-flex', 'items-center'], why: 'a host-bound root is never the UA-default inline box' },
-    { slot: 'nav', has: ['disabled:text-base-content/40', 'disabled:cursor-not-allowed'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
+    { slot: 'nav', has: ['disabled:text-ink-muted/40', 'disabled:cursor-not-allowed'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
     { slot: 'pageCurrent', has: ['bg-primary', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
     { slot: 'pageOther', has: ['bg-transparent'], hasNot: ['bg-primary'], why: 'the current page is the one filled control in the row' },
     { slot: 'page', has: ['h-8.5', 'min-w-8.5', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it' },
   ],
   ArenaSegmentedControl: [
-    { chosen: { selected: true }, slot: 'segment', has: ['bg-neutral', 'font-semibold', 'shadow-1'], why: 'the selected segment reads as a raised neutral chip rather than a brand fill' },
-    { chosen: { selected: false }, slot: 'segment', has: ['bg-transparent', 'text-base-content/62', 'hover:text-base-content/82'], why: 'an unselected segment is muted and answers hover' },
+    { chosen: { selected: true }, slot: 'segment', has: ['bg-neutral', 'font-control', 'shadow-1'], why: 'the selected segment reads as a raised neutral chip rather than a brand fill' },
+    { chosen: { selected: false }, slot: 'segment', has: ['bg-transparent', 'text-ink-muted/62', 'hover:text-ink-body/82'], why: 'an unselected segment is muted and answers hover' },
     { slot: 'track', has: ['inline-flex', 'rounded-control', 'focus-within:border-secondary'], why: 'the track carries the focus ring for the group, since the native inputs are hidden' },
     { slot: 'segment', has: ['rounded-control-sm'], why: 'the segment radius is one step inside the track radius' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
@@ -344,7 +344,7 @@ export const CLAIMS = {
     })),
   ],
   ArenaSideNav: [
-    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-3', 'py-2.5', 'rounded-control'],
+    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-items', 'py-2.5', 'rounded-control'],
       why: 'the trigger matches the item metrics, or a collapsible header will not line up with its siblings' })),
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
   ],
@@ -362,9 +362,9 @@ export const CLAIMS = {
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole control' },
   ],
   ArenaTabs: [
-    { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-base-300'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
-    { chosen: { selected: true }, slot: 'tab', has: ['font-semibold', 'text-base-content', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
-    { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-base-content/62', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
+    { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
+    { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
+    { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/62', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
     { slot: 'tab', has: ['px-4', 'focus-visible:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'selection never moves the padding, and the focus ring is the recipe\'s job' },
     { chosen: { selected: true }, slot: 'panel', has: ['block'], hasNot: ['hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
     { chosen: { selected: false }, slot: 'panel', has: ['hidden'], hasNot: ['block'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
@@ -377,14 +377,14 @@ export const CLAIMS = {
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group' },
     { chosen: { readonly: true }, slot: 'field', has: ['bg-base-200', 'cursor-default'], why: 'readonly changes the surface, not the border' },
-    { slot: 'counter', has: ['font-mono', 'text-base-content/62'], why: 'the counter is a muted mono readout' },
+    { slot: 'counter', has: ['font-mono', 'text-ink-muted/62'], why: 'the counter is a muted mono readout' },
     { slot: 'counterNear', has: ['text-warning'], why: 'the counter warns before it refuses, which is a status colour and not a danger one' },
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],
   ArenaBadge: [
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
     ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({
-      chosen: { tone }, slot: 'root', has: ['rounded-pill', 'font-mono', 'uppercase', 'text-ctl-xs', 'tracking-badge'],
+      chosen: { tone }, slot: 'root', has: ['rounded-pill', 'font-face-label', 'case-label', 'text-ctl-xs', 'tracking-badge'],
       why: 'every tone keeps the shared chip base, the pill radius and the mono uppercase micro-label',
     })),
   ],

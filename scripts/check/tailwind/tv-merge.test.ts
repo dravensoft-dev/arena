@@ -140,7 +140,7 @@ test('every Arena-defined namespace with 2+ keys dedupes its own keys pairwise, 
 
 test('the single-Arena-key namespaces are exactly the ones with hand-written stock-pairing cases below', () => {
   const singleKey = [...namespaces].filter(([ns, keys]) => !SKIP.has(ns) && keys.length === 1).map(([ns]) => ns).sort();
-  assert.deepEqual(singleKey, ['blur', 'container'].sort());
+  assert.deepEqual(singleKey, ['blur']);
 });
 
 test('blur-scrim (the only Arena blur key) dedupes against a stock Tailwind blur size, in both directions', () => {

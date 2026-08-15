@@ -1,26 +1,41 @@
-/* Turns a consumer's arena.config.json into the one stylesheet Arena cannot ship: the
- * palette blocks, the @font-face rules and the import that pulls the package's own sheet
- * in. Everything else about a token travels inside the package. It runs in the repository,
- * where check-packages.ts holds its output equivalent to Style Dictionary's, and inside
- * both npm packages, where it is the only emitter there is. It reads no file and touches
- * no network, so a path in the config is emitted, never resolved. Every field of an
- * ArenaConfig is optional because a CONSUMER writes it: an invalid one must reach
- * configProblems, which decides usable, rather than be refused by a type nobody there can
- * read. PackageSheets is what the package this command ships inside can offer. */
+/* Turns a consumer's arena.config.json into the one stylesheet Arena cannot ship: the palette
+ * blocks, the @font-face rules and the import that pulls the package's own sheet in. Everything
+ * else about a token travels inside the package. It runs in the repository, where
+ * check-packages.ts holds its output equivalent to Style Dictionary's, and inside both npm
+ * packages, where it is the only emitter there is. It reads no file and touches no network, so a
+ * path in the config is emitted, never resolved. Every field of an ArenaConfig is optional because
+ * a CONSUMER writes it: an invalid one must reach configProblems rather than be refused by a type
+ * nobody there can read. A local voice is checked here and not only shaped, through the same
+ * extension-rules.ts Arena's own gate runs, so a derived voice is held to the mechanism it extends
+ * in the PROJECT's build. */
 
 import {
   PALETTE_KEYS, POLARITIES, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
   catKeys, requiredKeys,
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
+import {
+  FS_STEP, PRINCIPLES, RHYTHM_STEP, floorProblems, nameProblems,
+} from './extension-rules.ts';
 
-export type ShippedExtension = { base: string[]; byPolarity: Record<string, string[]> };
+export type ShippedExtension = {
+  grouping?: string;
+  base: string[];
+  byPolarity: Record<string, string[]>;
+};
+
+export type TokenCatalogue = {
+  tokens: Record<string, string>;
+  roles: Record<string, { type?: string; values?: string[] }>;
+  extensions: Record<string, ShippedExtension>;
+};
 
 export type CheckedSheets = {
   layers: string[];
   components: string[];
   extensions?: Record<string, ShippedExtension>;
   roleReferences?: string[];
+  catalogue?: TokenCatalogue;
 };
 
 export type PackageSheets = CheckedSheets | null;
@@ -180,10 +195,158 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
 
 export const NO_EXTENSION = 'none';
 
-export function extensionProblems(value: unknown, sheets: PackageSheets) {
+export type LocalExtension = {
+  name?: unknown;
+  extends?: unknown;
+  tokens?: unknown;
+  light?: unknown;
+};
+
+const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)+)\}$/;
+
+export function localValue(raw: unknown, catalogue: TokenCatalogue | null) {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  const value = raw.trim();
+  const alias = ALIAS.exec(value)?.[1];
+  if (!alias) return value;
+  const flat = alias.replace(/\./g, '-');
+  return catalogue?.tokens?.[flat] ?? null;
+}
+
+function declarationsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue | null) {
+  return Object.entries(tokens).map(([key, raw]) => `--${key}:${localValue(raw, catalogue)};`);
+}
+
+export function resolvedLocal(
+  local: LocalExtension, parent: ShippedExtension | undefined, catalogue: TokenCatalogue | null,
+  polarity = 'dark',
+) {
+  const at = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+  const take = (declarations: string[]) => {
+    for (const d of declarations) {
+      const body = d.replace(/;$/, '');
+      const i = body.indexOf(':');
+      if (i > 0 && body.startsWith('--')) at.set(body.slice(2, i).trim(), body.slice(i + 1).trim());
+    }
+  };
+  if (parent) take([...parent.base, ...(parent.byPolarity[polarity] ?? [])]);
+  for (const [key, raw] of Object.entries((local.tokens ?? {}) as Record<string, unknown>)) {
+    const value = localValue(raw, catalogue);
+    if (value !== null) at.set(key, value);
+  }
+  if (polarity !== 'dark') {
+    for (const [key, raw] of Object.entries((local.light ?? {}) as Record<string, unknown>)) {
+      const value = localValue(raw, catalogue);
+      if (value !== null) at.set(key, value);
+    }
+  }
+  return at;
+}
+
+export function localBlocks(
+  local: LocalExtension, parent: ShippedExtension | undefined, catalogue: TokenCatalogue | null,
+  polarity: string,
+) {
+  const tokens = (local.tokens ?? {}) as Record<string, unknown>;
+  const themed = (local.light ?? {}) as Record<string, unknown>;
+  return [
+    ...(parent ? [...parent.base, ...(parent.byPolarity[polarity] ?? [])] : []),
+    ...declarationsOf(tokens, catalogue),
+    ...(polarity === 'light' ? declarationsOf(themed, catalogue) : []),
+  ];
+}
+
+function localTokenProblems(
+  group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue,
+) {
+  const problems = [];
+  for (const [key, raw] of Object.entries(tokens)) {
+    const where = `extension.${group}`;
+    const role = catalogue.roles?.[key];
+    if (!role && !FS_STEP.test(key) && !RHYTHM_STEP.test(key)) {
+      problems.push(`${where}: "${key}" is neither a role this package ships nor an fs or rhythm step. `
+        + 'A voice re-values those only: a scale, a colour or a spacing step is shared by every use that '
+        + 'wants that value, so moving one is not a voice but a different Arena.');
+      continue;
+    }
+    if (localValue(raw, catalogue) === null) {
+      problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, which resolves to nothing this package `
+        + 'ships. Write a value outright, or an alias like {fs.h3} or {color.base-200} naming a token '
+        + 'Arena emits.');
+      continue;
+    }
+    if (role?.type === 'color' && !/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()))
+      problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
+        + 'only. A voice assigns one of your 27 colours to a role and never authors a colour of its own.');
+    if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(String(raw)))
+      problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
+  }
+  return problems;
+}
+
+export function localExtensionProblems(
+  value: LocalExtension, sheets: PackageSheets, paletteNames: string[] = [],
+) {
+  const shipped = sheets?.extensions ?? {};
+  const catalogue = sheets?.catalogue;
+  const name = value.name;
+  if (typeof name !== 'string' || !name)
+    return ['extension: a local voice declares a name, which becomes the class .arena-<name>'];
+
+  const problems = nameProblems(name, POLARITIES, 'extension');
+  if (Object.hasOwn(shipped, name))
+    problems.push(`extension: "${name}" is the name of a voice this package already ships, and both would `
+      + `be the class .arena-${name}. Name yours something else and extend that one instead.`);
+  if (paletteNames.includes(name))
+    problems.push(`extension: "${name}" is also the name of a palette, and both would be the class `
+      + `.arena-${name}; rename one of them`);
+
+  const parentName = value.extends;
+  let parent: ShippedExtension | undefined;
+  if (parentName !== undefined) {
+    if (typeof parentName !== 'string' || !Object.hasOwn(shipped, parentName))
+      problems.push(`extension: extends "${String(parentName)}", which is not a voice this package ships. `
+        + `The voices are ${Object.keys(shipped).sort().join(', ')}.`);
+    else parent = shipped[parentName];
+  }
+
+  const tokens = value.tokens;
+  if (!isObject(tokens) || Object.keys(tokens).length === 0)
+    problems.push('extension: a local voice moves at least one role, or it is a class nobody can tell from '
+      + 'its absence. Write "extension": "<name>" to take a shipped voice unchanged.');
+  if (value.light !== undefined && !isObject(value.light))
+    problems.push('extension: "light" is a group of tokens that differ in the light theme, so it is an object');
+
+  if (!catalogue)
+    return [...problems, 'extension: the role catalogue this package ships cannot be read from beside this '
+      + 'command, so a local voice cannot be checked against it'];
+
+  if (isObject(tokens)) problems.push(...localTokenProblems(name, tokens, catalogue));
+  if (isObject(value.light)) problems.push(...localTokenProblems(`${name}.light`, value.light, catalogue));
+  if (problems.length) return problems;
+
+  const grouping = parent?.grouping;
+  if (grouping) {
+    const principle = PRINCIPLES.get(grouping);
+    for (const polarity of ['dark', 'light']) {
+      const at = resolvedLocal(value, parent, catalogue, polarity);
+      const broken = principle?.holds(at);
+      if (broken)
+        problems.push(`extension: "${name}" extends "${String(parentName)}", which groups by ${grouping}: `
+          + `${PRINCIPLES.get(grouping)?.says}. In the ${polarity} theme ${broken}. A voice derived from `
+          + 'another inherits the mechanism it groups by, and the values it writes have to keep it true.');
+      problems.push(...floorProblems(at, polarity, `extension: "${name}"`));
+    }
+  }
+  return problems;
+}
+
+export function extensionProblems(value: unknown, sheets: PackageSheets, paletteNames: string[] = []) {
   if (value === undefined) return [];
+  if (isObject(value)) return localExtensionProblems(value as LocalExtension, sheets, paletteNames);
   if (typeof value !== 'string')
-    return [`extension: one name and never a list, so a build carries at most one extension`];
+    return ['extension: one name, or one object deriving a voice of your own, and never a list, '
+      + 'so a build carries at most one extension'];
   if (value === NO_EXTENSION) return [];
   const shipped = sheets?.extensions;
   if (!shipped)
@@ -215,7 +378,9 @@ export function configProblems(config: ArenaConfig, sheets: PackageSheets = null
     }
   }
 
-  problems.push(...extensionProblems(config.extension, sheets));
+  const paletteNames = (Array.isArray(config.palettes) ? config.palettes : [])
+    .filter(isObject).map((p) => String((p as ArenaPalette).name ?? ''));
+  problems.push(...extensionProblems(config.extension, sheets, paletteNames));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));
   return problems;
@@ -347,9 +512,23 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
   ]));
 
+  const local = isObject(config.extension) ? config.extension as LocalExtension : undefined;
+  const parent = local && typeof local.extends === 'string'
+    ? sheets?.extensions?.[local.extends] : undefined;
+  const catalogue = sheets?.catalogue ?? null;
+
   const chosen = typeof config.extension === 'string' && config.extension !== NO_EXTENSION
     ? sheets?.extensions?.[config.extension] : undefined;
-  if (chosen) parts.push(block(':root', [...chosen.base, ...(chosen.byPolarity[fallback.polarity] ?? [])]));
+
+  const wholeVoice = local
+    ? localBlocks(local, parent, catalogue, fallback.polarity)
+    : (chosen ? [...chosen.base, ...(chosen.byPolarity[fallback.polarity] ?? [])] : []);
+  if (wholeVoice.length) parts.push(block(':root', wholeVoice));
+
+  const restated = (polarity: string) => (local
+    ? localBlocks(local, parent, catalogue, polarity).filter((d) => d.includes('var(--color-')
+      || (parent?.byPolarity[polarity] ?? []).includes(d))
+    : (chosen?.byPolarity[polarity] ?? []));
 
   for (const palette of config.palettes) {
     if (palette === fallback) continue;
@@ -357,7 +536,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
       ...colourDeclarations(palette),
       `--picker-invert:${palette.polarity === 'light' ? 0 : 1};`,
       ...(sheets?.roleReferences ?? []),
-      ...(chosen?.byPolarity[palette.polarity] ?? []),
+      ...restated(palette.polarity),
     ]));
   }
 

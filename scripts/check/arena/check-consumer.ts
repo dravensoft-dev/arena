@@ -136,6 +136,45 @@ export function fixture(
   return dir;
 }
 
+export const LOCAL_VOICE = {
+  name: 'probe',
+  extends: 'showcase',
+  tokens: { 'ff-eyebrow': '{font.display}', 'tt-eyebrow': 'none' },
+};
+
+export const BROKEN_VOICE = { ...LOCAL_VOICE, tokens: { 'bw-surface': '1px' } };
+
+export function voiceFixture(layer: string, extension: unknown, base = root) {
+  const dir = mkdtempSync(join(tmpdir(), `arena-consumer-voice-${layer}-`));
+  const example = readJson(join(distDir(layer, base), 'arena.config.example.json'));
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...example, extension }, null, 2));
+  mkdirSync(join(dir, 'src'), { recursive: true });
+  writeFileSync(join(dir, 'src', 'App.txt'), '');
+  return dir;
+}
+
+export function localVoiceProblems(layer: string, valid: CliRun, broken: CliRun) {
+  const problems = [];
+  if (valid.status !== 0)
+    problems.push(`${layer}: a local voice deriving from a shipped one failed the build, and deriving one `
+      + `is what arena.config.json offers a project that wants a voice of its own: ${valid.stderr.trim()}`);
+  else if (!valid.theme?.includes('--tt-eyebrow:none'))
+    problems.push(`${layer}: a local voice built clean and its tokens are not in the sheet, so the config `
+      + 'was read, accepted and then dropped');
+  else if (!valid.theme?.includes('--bw-surface:0px'))
+    problems.push(`${layer}: a local voice emitted its own tokens and not the ones it extends, so a voice `
+      + 'derived from another arrives as a fragment of one');
+
+  if (broken.status === 0)
+    problems.push(`${layer}: a local voice that draws a line while extending a voice grouping by figure and `
+      + 'ground built clean, so the mechanism a derived voice inherits is held by nothing at the one place '
+      + 'it can be broken');
+  else if (!broken.stderr.includes('figure-ground'))
+    problems.push(`${layer}: a broken local voice failed without naming the mechanism it broke, and the `
+      + `message is the only thing a consumer has: ${broken.stderr.trim()}`);
+  return problems;
+}
+
 export function installed(layer: string, dir: string, base = root) {
   const name = PACKAGES.find((p) => p.layer === layer)?.name;
   if (!name) throw new Error(`check-consumer: no package is declared for a layer called "${layer}"`);
@@ -298,7 +337,9 @@ export function collect(base = root) {
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
       const breaking = BREAKING[layer];
       const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
-      dirs.push(auto, unexported, named, unknown, unplaced, broken);
+      const localVoice = voiceFixture(layer, LOCAL_VOICE, base);
+      const brokenVoice = voiceFixture(layer, BROKEN_VOICE, base);
+      dirs.push(auto, unexported, named, unknown, unplaced, broken, localVoice, brokenVoice);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -313,6 +354,9 @@ export function collect(base = root) {
         breaking?.rules ?? [],
       ));
       problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['--audit'])));
+      problems.push(...localVoiceProblems(
+        layer, runCli(layer, localVoice, base), runCli(layer, brokenVoice, base),
+      ));
     }
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });

@@ -72,6 +72,14 @@ test('shadow renders the four dimensions then the color', () => {
     + 'whether the value it is composing came from a shadow component or from a standalone token');
 });
 
+test('keyword emits the bare word, because a CSS keyword is already its own spelling', () => {
+  assert.equal(serialize({ $type: 'keyword', $value: 'uppercase' }), 'uppercase');
+  assert.equal(serialize({ $type: 'keyword', $value: 'none' }), 'none',
+    'none is a text-transform value here and never an absent token: a keyword role that emitted '
+    + 'nothing would leave the property to whatever the cascade last said, which is the one thing '
+    + 'a role exists to stop');
+});
+
 test('an unknown type is a hard error, never a silent passthrough', () => {
   assert.throws(() => serialize({ $type: 'gradient', $value: {} }), /unsupported \$type: gradient/);
   assert.throws(() => serialize({ $value: 1 }), /unsupported \$type: undefined/);

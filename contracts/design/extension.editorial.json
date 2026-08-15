@@ -33,6 +33,46 @@
     "$value": "{lh.loose}",
     "$description": "1.6 to 1.8, which is the other half of the same decision. A voice that grouped by\ndistance between blocks and then set its paragraphs tight would be arguing with itself: the air\nbetween lines is the same claim as the air between sections, made at the scale of the sentence.\n\nWell above the 1.5 floor WCAG 1.4.8 asks and check:extensions holds. The floor is a minimum, and\nthis voice is the one with a reason to sit far from it."
   },
+  "measure-prose": {
+    "$type": "number",
+    "$value": 68,
+    "$description": "The one thing this voice was missing and could not say. A voice for reading that\nsets the leading of a paragraph and not the length of its lines has answered half of legibility:\na line long enough to lose the return sweep is unreadable at any leading, and documentation runs\nto the full width of whatever contains it until something stops it.\n\n68 rather than the 72 the role is born at, because this voice also opens the leading to 1.8. A\nlooser line wants a shorter measure, since the eye travels further down between one line and the\nnext and needs less to travel across.\n\nIt reaches a page through .arena-prose in css/prose.css, which a consumer puts on the article\nthey wrote. Arena ships no prose component, and this is the one voice whose whole job is markup\nArena does not own.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "ch"
+      }
+    }
+  },
+  "lh-heading": {
+    "$type": "number",
+    "$value": "{lh.snug}",
+    "$description": "Titles packed against paragraphs opened up, which is the contrast this voice\ncarries its hierarchy in once it has no lines to draw one with. 1.15 against 1.8 is a difference\na reader sees without being able to name.\n\nNot lh.tight, which is 0.98 and would put a two-line title's own lines through each other. The\nfloor check:extensions holds at 1 is what caught that, and it is worth recording that the first\ndraft of this voice reached for tight before the gate existed."
+  },
+  "ff-eyebrow": {
+    "$type": "fontFamily",
+    "$value": "{font.body}",
+    "$description": "In a document an eyebrow is an antetitle, the line that says which chapter this\nis. It is prose about prose. The mono face reads as a system tag, which is the register of a\nconsole rather than of a page somebody sits down with, so this voice takes it into the body face\nwith everything else it expects to be read."
+  },
+  "tt-eyebrow": {
+    "$type": "keyword",
+    "$value": "none",
+    "$description": "Capitals are the other half of that register, and they cost reading speed: a word\nin capitals loses the ascender and descender pattern a reader recognises it by. A voice for\nreading has the least reason of any to spend that."
+  },
+  "track-eyebrow": {
+    "$type": "number",
+    "$value": "{ls.normal}",
+    "$description": "The open tracking exists to make capitals legible, and this voice just dropped\nthe capitals. Left where it was it would read as a line somebody spaced out on purpose, which is\nthe look of a caption in a fashion magazine and not of a heading in a changelog. The three move\ntogether or none of them should.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "ink-muted": {
+    "$type": "color",
+    "$value": "{color.neutral-content}",
+    "$description": "A colour that is genuinely held back, rather than the page's own ink at a\npercentage. The difference matters most in this voice: with no card behind it, muted text sits\ndirectly on the page, and base-content at 62 percent over base-100 is the same hue thinned rather\nthan a second voice speaking quietly.\n\nIt is an assignment, like every colour role: the value is the consumer's neutral-content, and\ncheck:text-contrast measures the level it lands at once per theme."
+  },
   "rhythm-group": {
     "$type": "dimension",
     "$value": "{sp.2}",

@@ -259,12 +259,13 @@ sources, so ignore them in version control the way you ignore the rest of your b
 
 Arena ships one visual voice by default: hairline grouping, flat hierarchy, no resting depth, made
 for reading a lot of data at once. A **design extension** is a second voice for the work that is
-not that. Two ship today, and each is named for the job rather than for how it looks:
+not that. Three ship today, and each is named for the job rather than for how it looks:
 
 | Voice | The work it is for | What says two things belong together |
 |---|---|---|
 | none, the default | scan and operate: dashboards, consoles, tables, admin and internal tooling, anything read a screenful at a time | a line drawn around a region says the things inside it are one thing |
 | `.arena-editorial` | read: documentation, reports, changelogs, release notes, any screen somebody reads top to bottom | what belongs together is near and what does not is far, and nothing is drawn at all |
+| `.arena-gallery` | show: a visual catalogue, a portfolio, a product gallery, any screen where the image leads and the text follows | a group is marked rather than enclosed or lifted, so identical treatment is what says the things are a set |
 | `.arena-showcase` | invite and convert: marketing, commerce, onboarding, pricing, a landing page somebody arrives on | a surface is an object standing off a floor, so depth separates it and no line has to |
 
 No two of them group by the same mechanism, and that is enforced rather than intended: Arena's
@@ -415,6 +416,7 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/numerals.css` | `.arena-num`, the mono face and `tabular-nums` and no colour. Put it on a figure you draw yourself and a column of them aligns by digit the way a table's does |
+| `css/prose.css` | `.arena-prose`, the width of a reading column as a measure in `ch` rather than a pixel width, so it tracks the font size the way a measure has to. Put it on an article or a section you wrote; a voice for reading narrows it and every page you already shipped follows |
 | `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. Put one on a container of your own, which is where your layout goes anyway |
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to

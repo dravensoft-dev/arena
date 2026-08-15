@@ -258,6 +258,116 @@ const SHEETS_WITH_EXT = {
   roleReferences: ['--fill-surface:var(--color-base-200);'],
 };
 
+const SHEETS_LOCAL = {
+  ...SHEETS_WITH_EXT,
+  extensions: {
+    showcase: {
+      grouping: 'figure-ground',
+      base: ['--bw-surface:0px;', '--shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);'],
+      byPolarity: { light: ['--shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);'] },
+    },
+  },
+  catalogue: {
+    tokens: {
+      'fs-h3': '24px', 'font-display': "'Archivo',system-ui,sans-serif",
+      'color-base-200': 'var(--color-base-200)', 'color-secondary': 'var(--color-secondary)',
+      'bw-surface': '1px', 'shadow-surface-rest': '0px 0px 0px 0px rgba(0,0,0,0)',
+      'fill-surface': 'var(--color-base-200)', 'fill-page': 'var(--color-base-100)',
+      'lh-prose': '1.6', 'lh-heading': '1.5', 'measure-prose': '72ch',
+      'rhythm-group': '12px', 'rhythm-section': '24px',
+    },
+    roles: {
+      'ff-eyebrow': { type: 'fontFamily' },
+      'tt-eyebrow': { type: 'keyword', values: ['none', 'uppercase', 'lowercase', 'capitalize'] },
+      'step-title-surface': { type: 'dimension' },
+      'ink-eyebrow': { type: 'color' },
+      'fill-surface': { type: 'color' },
+      'bw-surface': { type: 'dimension' },
+      'lh-heading': { type: 'number' },
+      'measure-prose': { type: 'number' },
+    },
+    extensions: {},
+  },
+};
+
+const local = (over: Record<string, any> = {}) => config({
+  extension: {
+    name: 'meridian',
+    extends: 'showcase',
+    tokens: { 'ff-eyebrow': '{font.display}', 'tt-eyebrow': 'none', 'step-title-surface': '{fs.h3}' },
+    ...over,
+  },
+});
+
+const localProblems = (c: any) => configProblems(c, SHEETS_LOCAL).filter((p) => p.includes('extension'));
+
+test('a local voice deriving from a shipped one is accepted, which is the whole point of the field', () => {
+  assert.deepEqual(localProblems(local()), []);
+});
+
+test('a local voice emits its parent whole and then its own tokens over it', () => {
+  const css = themeCss(local(), { sheets: SHEETS_LOCAL, importHeader: false });
+  const root = parseDecls(css).get(':root');
+  assert.equal(root.get('bw-surface'), '0px', 'inherited from the voice it extends');
+  assert.equal(root.get('ff-eyebrow'), "'Archivo',system-ui,sans-serif", 'an alias resolved against the catalogue');
+  assert.equal(root.get('step-title-surface'), '24px');
+  assert.equal(root.get('tt-eyebrow'), 'none', 'a keyword travels as the word it is');
+});
+
+test('a local voice that breaks its parent mechanism fails the CONSUMER build, naming the mechanism', () => {
+  const problems = localProblems(local({ tokens: { 'bw-surface': '1px' } }));
+  assert.equal(problems.length, 2, 'once per theme, because a voice is measured in both');
+  assert.match(problems[0] ?? '', /groups by figure-ground/);
+  assert.match(problems[0] ?? '', /still draws --bw-surface/);
+});
+
+test('a local voice is held to the same floors a shipped one is', () => {
+  assert.match(localProblems(local({ tokens: { 'lh-heading': '0.8' } }))[0] ?? '', /--lh-heading is 0.8/);
+  assert.match(localProblems(local({ tokens: { 'measure-prose': '120ch' } }))[0] ?? '', /outside 45 to 90/);
+});
+
+test('a local voice may not name a role the package does not ship', () => {
+  const problems = localProblems(local({ tokens: { 'r-lg': '22px' } }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /neither a role this package ships nor an fs or rhythm step/);
+});
+
+test('a local voice may not author a colour, only assign one', () => {
+  assert.match(localProblems(local({ tokens: { 'ink-eyebrow': '#b52a20' } }))[0] ?? '',
+    /takes a \{color\.\*\} alias only/);
+  assert.deepEqual(localProblems(local({ tokens: { 'ink-eyebrow': '{color.secondary}' } })), []);
+});
+
+test('a keyword outside its set fails in a consumer build with the set named', () => {
+  assert.match(localProblems(local({ tokens: { 'tt-eyebrow': 'smallcaps' } }))[0] ?? '',
+    /not one of none, uppercase, lowercase, capitalize/);
+});
+
+test('an alias that points at nothing shipped fails rather than emitting the word null', () => {
+  assert.match(localProblems(local({ tokens: { 'step-title-surface': '{fs.nonesuch}' } }))[0] ?? '',
+    /resolves to nothing this package ships/);
+});
+
+test('a local voice may not take a name the package already ships, or a palette name', () => {
+  assert.match(localProblems(local({ name: 'showcase' }))[0] ?? '', /already ships/);
+  assert.match(localProblems(config({
+    extension: { name: 'dark', extends: 'showcase', tokens: { 'tt-eyebrow': 'none' } },
+  }))[0] ?? '', /theme polarity/);
+});
+
+test('a local voice extending nothing Arena ships names what it could have extended', () => {
+  assert.match(localProblems(local({ extends: 'nonesuch' }))[0] ?? '', /which is not a voice this package ships/);
+});
+
+test('a local voice that moves nothing is a class nobody can tell from its absence', () => {
+  assert.match(localProblems(local({ tokens: {} }))[0] ?? '', /moves at least one role/);
+});
+
+test('a local voice with no catalogue beside it is refused rather than emitted unchecked', () => {
+  const problems = configProblems(local(), SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
+  assert.match(problems.at(-1) ?? '', /role catalogue this package ships cannot be read/);
+});
+
 test('the extension field is optional, and a config without one asks for no extension', () => {
   const c = config();
   assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);

@@ -34,10 +34,10 @@
     "$value": "{fw.extrabold}",
     "$description": "The weight of a heading set in the display face: a card's title, a dialog's title, a\npage head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold\nis 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be\nanswered differently by one voice than by another.\n\nIt matters most to a voice that draws nothing. Once the boxes are gone, the distance between a\nheading and the text under it IS the hierarchy, and weight is half of that distance."
   },
-  "ls-heading": {
+  "track-heading": {
     "$type": "number",
     "$value": "{ls.tight}",
-    "$description": "The tracking of a heading in the display face. Authored as the tight step because\nthat is what most title slots already reached for; the five that reached for nothing were the\ninconsistency this role removes rather than a decision anybody made.\n\nSeparate from ls-label and the other ls steps, which are named by the thing that uses them and\nare already role-shaped: a heading is the one use an extension has a reason to re-answer.\n\nCarries cssUnit em like every ls step it stands beside: ls is authored unitless so JS can read it, and\nletter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid\nletter-spacing and silently resolves to normal.",
+    "$description": "The tracking of a heading in the display face. Authored as the tight step because\nthat is what most title slots already reached for; the five that reached for nothing were the\ninconsistency this role removes rather than a decision anybody made.\n\nSeparate from the ls steps, which are named by the thing that uses them and\nare already role-shaped: a heading is the one use an extension has a reason to re-answer.\n\nCarries cssUnit em like every ls step it points at: ls is authored unitless so JS can read it, and\nletter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid\nletter-spacing and silently resolves to normal.",
     "$extensions": {
       "com.dravensoft.arena": {
         "cssUnit": "em"
@@ -48,6 +48,141 @@
     "$type": "number",
     "$value": "{lh.body}",
     "$description": "The leading of text somebody reads: a dialog's body, an empty state's message, a\npage head's subtitle, a hint under a field. lh-root's own description already calls the three\nsteps below it roles rather than scale, and this names the one an extension has a reason to move.\n\nIt is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21\nspells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is\nset to. A voice may\nopen a paragraph up and may never close it below that, and check:extensions measures the resolved\nvalue in every scope rather than trusting the author.\n\nNote what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it\ndoes not. It requires that content survive a USER overriding spacing to those values without being\nclipped or lost, which is a property of the layout and not of a token, and no gate over this file\ncould hold it."
+  },
+  "lh-heading": {
+    "$type": "number",
+    "$value": "{lh.root}",
+    "$description": "The leading of a heading in the display face, standing opposite lh-prose: one\nvoice wants a title packed and its paragraphs open, another wants both even, and the contrast\nbetween the two IS the hierarchy on a screen where nothing is drawn.\n\nAuthored as lh.root and not as lh.snug, and the difference is the whole reason this role is safe\nto add. Eight title slots reach for font-heading and exactly ONE of them declares a leading, so\nseven inherit lh-root's 1.5. A role born at snug would have tightened those seven by a third of a\nline the day it landed, which is a redesign wearing a refactor's clothes. It is born at what they\nalready compute to, and a voice is what moves it.\n\nNo floor, unlike lh-prose. A heading is not the text WCAG 1.4.8 is about: it is a line or two\nread as a shape, and a display face set at 1.5 reads as two unrelated lines rather than as one\ntitle."
+  },
+  "measure-prose": {
+    "$type": "number",
+    "$value": 72,
+    "$description": "How wide a column of prose is allowed to get, in ch, which is the only unit that\nmeans anything here: a measure that does not track the font size is not a measure at all.\n\nCarries cssUnit ch by the same mechanism ls uses for em. DTCG 2025.10 admits px and rem for a\ndimension and nothing else, which is why a prose measure was once refused; the exit was that a\nmeasure was never obliged to be a dimension. It is a number with a render hint, it widens no\nconformance claim, and the refusal is recorded in Extensions.md beside the reason it no longer\nbinds.\n\nIt reaches a page through a class a consumer applies rather than through a component slot, in\nProse.css beside Numerals.css and Rhythm.css, because the thing that wants a measure is a\ndocument's own markup and Arena ships no prose component to hang it on. The two components that\nset a measure today set 42ch and 46ch on an empty state and an error state, and those are the\nwidth of a short blurb rather than of a reading column, so they keep their literals.\n\n72 is where the base body size lands a line at roughly the 45 to 75 characters typography has\nagreed on for a century, and check:extensions holds a voice inside that range.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "ch"
+      }
+    }
+  },
+  "ff-heading": {
+    "$type": "fontFamily",
+    "$value": "{font.display}",
+    "$description": "Which of the three faces a heading takes. font names the family, which is what\nmakes the three of them the consumer's to choose; this names WHICH text is being set, so a voice\ncan answer it without owning a typeface.\n\nEvery title slot in the system reaches for the display face today, so this is born saying exactly\nthat. It exists because a voice that wanted its headings in the body face had no way to say so\nwithout the consumer changing what the display face IS, which is a different decision entirely."
+  },
+  "ff-eyebrow": {
+    "$type": "fontFamily",
+    "$value": "{font.mono}",
+    "$description": "Which face an eyebrow takes: the small line above a title that says what kind of\nthing this is. All five eyebrow slots are set in the mono face, and that is a register choice\nrather than a technical one, which is exactly what makes it a role.\n\nIt is the single most visible thing a voice can move. A console's eyebrow is a monospaced tag\nreading STATUS or REGION; a shop's eyebrow reads \"Single origin, Huehuetenango\" and belongs in\nthe display face. Same slot, same size, opposite register, and before this role the difference\nwas unreachable from any extension."
+  },
+  "ff-label": {
+    "$type": "fontFamily",
+    "$value": "{font.mono}",
+    "$description": "Which face the LABEL register takes: a field's label, a column header, a section\nlabel, a group header, a badge, a keyboard cap. Born in the mono face, and that is a measurement\nrather than a guess: every slot in this register is set in mono and in capitals, without one\nexception across the whole system.\n\nSplit from ff-eyebrow although the two are the same face today, and the split IS the point. The\nlabel register is a console's register and reads as the machine talking; an eyebrow is the line\nabove a title and reads as the page talking. A voice for a shop takes the eyebrow out of that\nregister and leaves its column headers exactly where they are, which is not expressible while\none role answers for both."
+  },
+  "fw-eyebrow": {
+    "$type": "fontWeight",
+    "$value": "{fw.regular}",
+    "$description": "The weight of an eyebrow. Born at fw.regular because no eyebrow slot declares a\nweight at all and every one of them therefore inherits 400: the role is born at what they already\ncompute to, not at what would look better.\n\nSeparate from fw-control, which weights the text a user presses. An eyebrow is read and not\npressed, and a voice that sets its eyebrows in the display face usually wants them lighter at the\nsame moment it wants them larger."
+  },
+  "fw-control": {
+    "$type": "fontWeight",
+    "$value": "{fw.semibold}",
+    "$description": "The weight of the text on a control the user presses: a button's label, a tab, a\nmenu item, a chip. Born at fw.semibold, which eighteen slots already spell out by name.\n\nThe fifteen slots spelling fw.bold are a second question rather than a louder answer to this one,\nand they stay where they are until a voice asks for them: a bold slot is usually a value or a\ncount rather than a control, and folding the two together would make a voice unable to move\neither without moving both."
+  },
+  "tt-eyebrow": {
+    "$type": "keyword",
+    "$value": "uppercase",
+    "$description": "Whether an eyebrow is set in capitals. All five eyebrow slots are, and none of\nthem could say otherwise before this role, which is why every voice's eyebrow read like a console\nlabel however different everything around it looked.\n\nThe first keyword role in the system, and the reason the type exists: text-transform takes a word\nrather than a measurement, DTCG 2025.10 types no word, and leaving it out of the token tier meant\nfreezing it into every manifest that paints it. The closed set is what earns the type. See\nTokenTypes.md.\n\nCapitals and tracking travel together, so a voice moving this almost always moves track-eyebrow with\nit: the open tracking that makes capitals legible makes lowercase look sprayed.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": ["none", "uppercase", "lowercase", "capitalize"]
+      }
+    }
+  },
+  "tt-label": {
+    "$type": "keyword",
+    "$value": "uppercase",
+    "$description": "Whether the label register is set in capitals. Born at uppercase, which every\nslot in the register already is. The first draft of this role guessed `none` from the shape of\nthe word `label`, and the census said otherwise: a label here is a system label, and the capitals\nare what say so.\n\nSeparate from tt-eyebrow for the reason ff-label is separate from ff-eyebrow, and it is the\nclearest place two voices disagree: a ledger keeps its column headers in capitals as a register\nof record and sets its eyebrows in sentence case, and a shop does exactly the reverse.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": ["none", "uppercase", "lowercase", "capitalize"]
+      }
+    }
+  },
+  "track-eyebrow": {
+    "$type": "number",
+    "$value": "{ls.label}",
+    "$description": "The tracking of an eyebrow. Born at ls.label, the step all five eyebrow slots\nalready name.\n\nIt exists because tt-eyebrow exists and neither is much use alone. Capitals need the open\ntracking to stay legible and lowercase does not want it, so a voice that drops the capitals and\nleaves the tracking has made the line look sprayed rather than set. The pair is the decision.\n\nCarries cssUnit em like every ls step, for the reason track-heading spells out: a bare number is not\na valid letter-spacing and resolves to normal in silence.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "track-label": {
+    "$type": "number",
+    "$value": "{ls.field-label}",
+    "$description": "The tracking of a label, born at the step the field-label slots already name.\nPaired with tt-label exactly as track-eyebrow is paired with tt-eyebrow, and separate from it for\nthe same reason: the two slots take opposite answers in the same voice.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "step-eyebrow": {
+    "$type": "dimension",
+    "$value": "{dz.text-xs}",
+    "$description": "Which step on the ladder an eyebrow takes. Named step and not fs because FS_STEP\nalready claims that prefix for the scale's own steps, and an extension may move those directly.\n\nIt aliases a dz step rather than an fs one, because an eyebrow is control-sized text today and\nre-densifies with everything else. That alias is the reason REDECLARED_GROUPS exists in the\nemitter: .arena-compact redeclares every dz step, and a role resolved at build time would have\nfrozen the base 11px and carried it into a compact region. It is emitted as a reference and\nrestated beside the density blocks, which is the same treatment a fill role gets for the same\nreason one axis over.\n\nA voice that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which\nis a coherent thing to want on a page whose eyebrow is a headline rather than a tag."
+  },
+  "step-title-surface": {
+    "$type": "dimension",
+    "$value": "{fs.h4}",
+    "$description": "Which step the title of a SURFACE takes: a card, a panel, a tile. Born at fs.h4,\nwhich four title slots name outright.\n\nSeparate from step-title-section because the two are the hierarchy. A voice for a shop wants the\nproduct name to lead its card and can raise this one alone; a voice for a gallery wants the title\nto get out of the image's way and can lower it alone. Moving the fs ladder would have moved every\nunrelated use of the same step, which is the defect the whole role tier exists to prevent."
+  },
+  "step-title-section": {
+    "$type": "dimension",
+    "$value": "{fs.h3}",
+    "$description": "Which step the title of a SECTION takes: the head of a region on a page, above\nthe surfaces inside it. Born at fs.h3, which the section-level title slots name today.\n\nThe cut against step-title-surface is what the title is titling, not how big it is. They happen\nto be one step apart at rest, and a voice that widens the gap is saying the page has sections;\none that closes it is saying the page is a wall of equals."
+  },
+  "pad-control-x": {
+    "$type": "dimension",
+    "$value": "{sp.3}",
+    "$description": "The room a CONTROL gives its content across: a button, a chip, a menu item, a tab.\nBorn at sp.3, the step the majority of control slots name.\n\nThe cut against dz-row-px is who is being asked about, the same cut pad-surface makes. Density\nsays how tight a DATA ROW is, which is target size and the same answer on a phone in any voice.\nThis says how generous a control is, which is register. A voice may spend it and .arena-compact\nstill decides the row."
+  },
+  "pad-control-y": {
+    "$type": "dimension",
+    "$value": "{sp.2}",
+    "$description": "The room a control gives its content down. Split from pad-control-x rather than\nfolded into one padding role because a control's two axes are not one decision: a voice widens a\nbutton without making it taller, since height is where density and target size live and width is\nwhere air does."
+  },
+  "gap-control": {
+    "$type": "dimension",
+    "$value": "{sp.2}",
+    "$description": "The gap between the parts of one control: an icon and its label, a checkbox and\nits text, a chip and its dismiss. Born at sp.2, which nineteen slots name.\n\nThe smallest of the three air roles and the one a voice moves least, because it is the distance\ninside a thing rather than between two things. It is here so that a voice which opens everything\nelse up does not leave its icons welded to their labels."
+  },
+  "gap-inline": {
+    "$type": "dimension",
+    "$value": "{sp.2}",
+    "$description": "The gap between siblings sitting on one line: the actions in a toolbar, the chips\nin a filter row, the items in a breadcrumb. Born at sp.2 beside gap-control, and separate from it\nbecause the two are the difference between one control and several: a voice that pulls its\ncontrols apart on a line has not said anything about what is inside them."
+  },
+  "gap-items": {
+    "$type": "dimension",
+    "$value": "{sp.3}",
+    "$description": "The gap between the members of one group: the fields of a fieldset, the rows of a\nlist, the cards of a grid. Born at sp.3, which eighteen slots name.\n\nNamed items and not group, because --spacing-group is already the rhythm step. The cut is\nthat rhythm is air a PAGE applies between two components and\nArena never draws it, while this is air a component gives the children it lays out itself. A\nvoice usually moves both together and has to be able to move them apart, because a dense wall of\ncards inside a page with generous sections is a coherent thing to want."
+  },
+  "grid-min": {
+    "$type": "dimension",
+    "$value": { "value": 200, "unit": "px" },
+    "$description": "The narrowest a column of an auto-fitting grid may get before the grid drops one.\nAuthored as a literal because it is one: ArenaGrid defaults it today to a calc of sp.1 times 50,\nwhich is a length spelled as arithmetic rather than a step on any ladder, and 200px is what that\narithmetic produces. The card demo beside the manifest passes 136px of its own, which is a demo\nchoosing a narrower column and not the component default it was mistaken for once.\n\nIt is a role rather than a scale because it is the single number that decides how many cards a\nviewport shows, and a gallery and a ledger want opposite answers to that from the same markup."
+  },
+  "container-max": {
+    "$type": "dimension",
+    "$value": { "value": 1240, "unit": "px" },
+    "$description": "The widest the page's content column gets. Promoted here from spacing.json, where\nit sat among the scales without being one: nothing else steps off it and no second use shares it,\nso it was already a role wearing a scale's file.\n\nIt keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what\nchanges is that an extension may now re-answer it. A voice for reading wants a narrower page than\na voice for a dashboard, and that was unreachable before.\n\nEmitted into effects.generated.css beside the other roles rather than into spacing.generated.css,\nbecause arena-tokens.ts reads a fixed list of four generated files and the roles all live in one\nof them."
+  },
+  "gutter": {
+    "$type": "dimension",
+    "$value": { "value": 88, "unit": "px" },
+    "$description": "The air between the page's content column and the viewport edge. Promoted from\nspacing.json with container-max and for the same reason: the two are one decision about how a\npage sits, and neither is a step on a ladder anything else uses.\n\nA voice moves them together. Narrowing the column while keeping the gutter says the page is a\ndocument; widening both says it is a console."
   },
   "pad-surface": {
     "$type": "dimension",
@@ -63,6 +198,71 @@
     "$type": "color",
     "$value": "{color.base-200}",
     "$description": "The fill of a surface that floats over the page: a menu, a dialog, a toast, a\nsheet, a command palette, a bulk action bar. The same step as fill-surface today and a different\nquestion, which is the cut r-surface and r-surface-floating already make one tier up.\n\nThis is the role that makes flattening the other one safe. A voice that takes a card down to the\npage's own fill has said its regions are carried by air; a menu that did the same would be an\nunreadable overlay, because a floating surface is separated from what it covers rather than\ngrouped against it. Split so a voice can answer the two one at a time."
+  },
+  "fill-page": {
+    "$type": "color",
+    "$value": "{color.base-100}",
+    "$description": "The fill of the page itself, the floor everything else stands on. It was dropped\nonce rather than deferred, with the reason written down: no voice in the catalogue asked for one.\nThe catalogue grew and three now do, so this is a decision revisited on new evidence rather than\nreversed.\n\nWhat asks for it: a voice that groups by marking needs to say its surfaces differ from the floor,\nand a voice that makes its surfaces vanish needs to say they equal it. Neither sentence can be\nwritten while the floor is a constant inside a gate instead of a role in this file.\n\nIt also fixes a gate rather than only enabling one. fillsLikeThePage in check-extensions.ts\ncompared fill-surface against the literal color-base-100, so a voice that moved the page's floor\nwould have failed the proximity invariant for having moved the thing the invariant is about. The\ncomparison is against this role now."
+  },
+  "fill-surface-sunken": {
+    "$type": "color",
+    "$value": "{color.base-100}",
+    "$description": "The fill of a region that reads as recessed INTO a surface: a code block inside a\ncard, a preview well, the track a value sits in. Born at base-100, the step the one slot painting\na sunken region already names.\n\nThe third fill and the least used, and it is here because the other two cannot express it. A\nsunken region is not a floating surface and not the page, and a voice that inverted its ramp\nwould otherwise have had a well that stood proud of the card containing it."
+  },
+  "ink-heading": {
+    "$type": "color",
+    "$value": "{color.base-content}",
+    "$description": "The colour of a heading. One of a hundred and twenty-two slots that pointed at\nbase-content directly, which is the measurement that says why the ink roles exist: a voice could\nchange every shape on the page and not one word's colour.\n\nSplit from ink-body although both are born on the same step, because that is the split a voice\nspends. A page whose headings sit a shade above its prose reads as edited; one where they match\nreads as printed, and neither is reachable while both name the palette.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never\nwhat that colour is."
+  },
+  "ink-body": {
+    "$type": "color",
+    "$value": "{color.base-content}",
+    "$description": "The colour of text somebody reads. The default answer for any slot that is not a\nheading, a label or muted, and the largest single group of the hundred and twenty-two.\n\nIt is where the contrast floor is enforced rather than chosen: check:text-contrast measures the\nresolved level once per voice crossed with both themes, so a voice that assigns this to a step\nthat fails against its surface fails the build rather than the reader."
+  },
+  "ink-eyebrow": {
+    "$type": "color",
+    "$value": "{color.primary}",
+    "$description": "The colour of an eyebrow. Born at primary, which four of the five eyebrow slots\nname.\n\nIt is the role that lets a voice honour the one-primary-accent rule the SKILL.md already states.\nAn accent spent on every eyebrow on the page is an accent spent, and the single primary action is\nwhat it was being saved for, so several voices move this to secondary for exactly that reason.\nBefore the role there was no way to say it."
+  },
+  "ink-muted": {
+    "$type": "color",
+    "$value": "{color.base-content}",
+    "$description": "The colour of text held back: a caption, a hint, a timestamp, a secondary line.\nBorn at base-content, which is what every muted slot points at today.\n\nWhat it does NOT carry is the level. Fifty-nine slots write base-content at 62 percent and\nthirty-one at 82, and those percentages stay in the manifests: a role names WHICH colour and the\nopacity modifier is a second decision that Tailwind composes on top. So a voice re-points muted\ntext at a genuinely muted colour, and the level it is held at is unchanged.\n\nThe alternative was a role per level, which is three roles saying one thing and a voice unable to\nmove any of them without moving all three."
+  },
+  "edge-surface": {
+    "$type": "color",
+    "$value": "{color.base-300}",
+    "$description": "The colour of the line that encloses a surface. Standing to bw-surface exactly as\nfill-surface stands to it: one says how thick the enclosure is, this says what colour it is, and\na voice needs both because a hairline in the page's own ramp and a hairline in neutral are two\ndifferent statements about how hard the region is.\n\nBorn at base-300, which thirty-four slots name outright. It was dropped once with the stroke\nroles for want of a voice that asked, and those thirty-four uses are the measurement of what not\nhaving it cost."
+  },
+  "edge-surface-floating": {
+    "$type": "color",
+    "$value": "{color.neutral}",
+    "$description": "The colour of the line around a surface that floats over the page. Born at\nneutral, and the split from edge-surface was measured rather than designed: ten slots draw a\nfloating panel in neutral and ten draw a page surface in base-300, and nothing named the\ndifference. A floating surface sits over content rather than beside it, so its edge has to hold\nagainst whatever is behind it.\n\nThe same cut fill-surface-floating and r-surface-floating already make, which is what says it is\na question rather than an accident. An empty state takes this edge although it does not float,\nbecause it is a surface with nothing behind it and was already drawn at the floating strength."
+  },
+  "edge-control-quiet": {
+    "$type": "color",
+    "$value": "{color.base-300}",
+    "$description": "The colour of the line around a control that is present but not offering itself:\na ghost icon button, an unselected page in a pager, the track behind a segmented control, a\ncalendar's nav arrows. Born at base-300, which all seven such slots name.\n\nSeparate from edge-control because the difference is not a state of one control but a different\nquestion: a quiet control's edge says where a target is without asking to be pressed. A voice\nthat wants its quiet affordances to disappear entirely, or to be exactly as hard as its active\nones, has to be able to say so without touching the boundary WCAG measures."
+  },
+  "edge-marker": {
+    "$type": "color",
+    "$value": "{color.neutral}",
+    "$description": "The colour of the ring around a MARKER: an avatar, a delta badge. Born at\nneutral, which both slots name. The counterpart to bw-marker, and it exists for the reason that\nrole does: a marker is neither a surface nor a control, and without its own role a dozen\nidentical exceptions collect in check:roles.\n\nA tag takes edge-surface rather than this, although a tag is a marker by radius. It is drawn as\na small panel rather than as a ring, at base-300, and it is recorded here rather than folded in\nso the difference stays visible."
+  },
+  "edge-control": {
+    "$type": "color",
+    "$value": "{color.neutral}",
+    "$description": "The colour of the line around a control the user presses. Born at neutral, which\nfifteen slots name, and separate from edge-surface because it is the boundary WCAG 1.4.11\nmeasures at 3:1 against what sits behind it.\n\nThat is also its limit. check:boundary-contrast already measures the step behind a control whose\nborder a voice set to zero; assigning this role moves the same question onto the colour, and the\nsame gate answers it."
+  },
+  "edge-field": {
+    "$type": "color",
+    "$value": "{color.base-300}",
+    "$description": "The colour of the line around a typable field. Split from edge-control for the\nreason bw-field is split from bw-control: a field is the boundary with the least freedom in the\nsystem, because it is the one a user has to find before they can type into it."
+  },
+  "edge-separator": {
+    "$type": "color",
+    "$value": "{color.base-300}",
+    "$description": "The colour of the rule that divides one thing from the next inside a surface.\nBorn at base-300 beside edge-surface, and separate for the reason bw-separator is separate from\nbw-surface: a voice that removes the enclosure keeps the rules, because a table whose rows lost\ntheir lines at the same moment stops being readable.\n\nIt is the ornament a voice grouping by CONTINUITY would spend, if such a voice is ever written:\nthe line that runs across is the only thing saying the rows are a series."
   },
   "bw-surface": {
     "$type": "dimension",

@@ -1,14 +1,14 @@
 {
   "component": "ArenaTabs",
   "slots": {
-    "root": "flex gap-1 border-b-[length:var(--bw-separator)] border-base-300",
+    "root": "flex gap-1 border-b-[length:var(--bw-separator)] border-edge-separator",
     "tab": "relative px-4 py-2.5 bg-transparent border-none cursor-pointer font-body text-ctl transition-[color] duration-[var(--dur-hover)] ease-hover focus-visible:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]",
     "panel": "block pt-[calc(var(--sp-1)*5.5)]"
   },
   "variants": {
     "selected": {
-      "true": { "tab": "font-semibold text-base-content shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]" },
-      "false": { "tab": "font-medium text-base-content/62 shadow-none", "panel": "hidden" }
+      "true": { "tab": "font-control text-ink-body shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]" },
+      "false": { "tab": "font-medium text-ink-muted/62 shadow-none", "panel": "hidden" }
     }
   },
   "defaultVariants": { "selected": false }

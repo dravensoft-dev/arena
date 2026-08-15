@@ -118,10 +118,12 @@ Two of these numbers the scripts **report without gating**: crimson as text sits
 | Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | The grouping signal: the hairline, or elevation and air instead | Crimson (`--color-primary`) |
 | No gradients on any surface (one exception: `ArenaSkeleton`'s shimmer). An extension buys its expression with shape, depth and motion, never with a fill whose contrast is a range | | The status hues |
 | WCAG contrast, and the 3:1 a control's boundary and the focus ring carry | The radius roles, and the border roles other than a control's and a field's | Gold (`--color-secondary`) |
-| An extension authors no colour | Which of the skin's colours a surface takes: `fill-surface` and `fill-surface-floating`, split so flattening a card never flattens an overlay | |
+| An extension authors no colour | Which of the skin's colours a surface takes: `fill-surface`, `fill-surface-floating`, `fill-surface-sunken` and `fill-page`, split so flattening a card never flattens an overlay | |
 | Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
-| | Air: `pad-surface` inside a surface, and the `rhythm` steps between two things. Density keeps the controls and the data rows, so the two compose | |
+| | Air: `pad-surface` inside a surface, `pad-control-*` inside a control, the three `gap` roles between things a component lays out, and the `rhythm` steps between two components. Density keeps the controls and the data rows, so the two compose | |
 | Prose leading never closes below 1.5, which is WCAG 1.4.8 and what `lh-root` already is | A heading's weight and tracking, and how far above the floor prose is set | |
+| A heading's leading never closes below 1, and a prose measure stays between 45 and 90 characters | Which face, case, tracking and step a heading, an eyebrow and a label take, and the width of a reading column | |
+| | Which of the skin's colours each kind of text takes: `ink-heading`, `ink-body`, `ink-eyebrow` and `ink-muted`, and which each of the six edges takes | |
 | The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | |
 | The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
 | The three families, and the uppercase-microlabel rule | | |
@@ -133,8 +135,9 @@ than against `:root` alone.
 **Two voices differ by mechanism or they do not differ.** Every extension declares in its own file
 which Gestalt principle answers "what belongs together" for it, and `bun run check:extensions`
 holds the claim against the resolved values: `common-region` draws the region, `figure-ground`
-removes the line and arrives with the depth, `proximity` draws neither. **Two extensions declaring
-the same principle fail the build.** Without that, a second voice can only be the first one taken
+removes the line and arrives with the depth, `proximity` draws neither, and `similarity` draws
+neither and marks the surface instead, which is the same three measurements as `proximity` with
+the last one inverted. **Two extensions declaring the same principle fail the build.** Without that, a second voice can only be the first one taken
 further, and a catalogue of those is one voice with a dial on it. Every other decision a voice
 makes, the corner, the air, the depth, the motion, the type, is derived from the principle rather
 than chosen beside it, which is why the principle is the thing declared and the values are not.

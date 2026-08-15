@@ -1,7 +1,7 @@
 {
   "component": "ArenaToastHost",
   "slots": {
-    "root": "fixed flex flex-col gap-3 z-toast"
+    "root": "fixed flex flex-col gap-items z-toast"
   },
   "variants": {
     "placement": {

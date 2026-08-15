@@ -2,12 +2,12 @@
   "component": "ArenaIconButton",
   "slots": {
     "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest",
-    "label": "font-body font-semibold text-ctl leading-ctl"
+    "label": "font-body font-control text-ctl leading-ctl"
   },
   "variants": {
     "variant": {
       "ghost": {
-        "root": "bg-transparent text-base-content/82 border-[length:var(--bw-control)] border-base-300 hover:bg-base-200"
+        "root": "bg-transparent text-ink-body/82 border-[length:var(--bw-control)] border-edge-control-quiet hover:bg-base-200"
       },
       "solid": {
         "root": "bg-primary text-primary-content border-none hover:bg-primary"
@@ -26,7 +26,7 @@
     },
     "showLabel": {
       "true": {
-        "root": "w-auto gap-2 pl-3 pr-3.5"
+        "root": "w-auto gap-control pl-3 pr-3.5"
       },
       "false": {
         "root": "p-0 gap-0"

@@ -54,6 +54,24 @@ test('validates a shadow composite down to its parts', () => {
   fails({ s: { $type: 'shadow', a: { $value: { offsetX: px(0), offsetY: px(2), blur: px(6) } } } }, /spread/);
 });
 
+test('keyword holds its value to the closed set the token itself declares', () => {
+  const values = { $extensions: { 'com.dravensoft.arena': { values: ['none', 'uppercase', 'lowercase', 'capitalize'] } } };
+  ok({ tt: { $type: 'keyword', eyebrow: { $value: 'uppercase', ...values } } });
+  fails({ tt: { $type: 'keyword', eyebrow: { $value: 'smallcaps', ...values } } }, /not one of/);
+});
+
+test('keyword refuses anything that is not a bare CSS word', () => {
+  fails({ tt: { $type: 'keyword', a: { $value: '' } } }, /keyword/);
+  fails({ tt: { $type: 'keyword', a: { $value: 12 } } }, /keyword/);
+  fails({ tt: { $type: 'keyword', a: { $value: 'upper case' } } }, /keyword/);
+});
+
+test('a keyword may omit its values, because an extension re-values a role it did not declare', () => {
+  ok({ tt: { $type: 'keyword', eyebrow: { $value: 'none' } } });
+  fails({ tt: { $type: 'keyword', a: { $value: 'none', $extensions: { 'com.dravensoft.arena': { values: [] } } } } },
+    /values/);
+});
+
 test('rejects a non reverse-DNS $extensions key', () => {
   fails({ n: { $type: 'number', a: { $value: 1, $extensions: { cssUnit: 'em' } } } }, /reverse-DNS/);
   ok({ n: { $type: 'number', a: { $value: 1, $extensions: { 'com.dravensoft.arena': { cssUnit: 'em' } } } } });

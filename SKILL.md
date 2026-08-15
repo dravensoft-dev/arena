@@ -33,6 +33,7 @@ rather than by a dial. Pick from the job, not from the description of the look.
 |---|---|---|
 | none, the default | scan and operate: dashboards, consoles, tables, admin and internal tooling, anything read a screenful at a time | a line drawn around a region says the things inside it are one thing |
 | `.arena-editorial` | read: documentation, reports, changelogs, release notes, any screen somebody reads top to bottom | what belongs together is near and what does not is far, and nothing is drawn at all |
+| `.arena-gallery` | show: a visual catalogue, a portfolio, a product gallery, any screen where the image leads and the text follows | a group is marked rather than enclosed or lifted, so identical treatment is what says the things are a set |
 | `.arena-showcase` | invite and convert: marketing, commerce, onboarding, pricing, a landing page somebody arrives on | a surface is an object standing off a floor, so depth separates it and no line has to |
 
 <!-- @voices end -->

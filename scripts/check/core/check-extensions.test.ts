@@ -21,6 +21,9 @@ const roles = (over: Record<string, string> = {}) => new Map(Object.entries({
   'fill-surface': PAGE_LIKE,
   'rhythm-group': '8px',
   'rhythm-section': '64px',
+  'lh-prose': '1.6',
+  'lh-heading': '1.15',
+  'measure-prose': '72ch',
   ...over,
 }));
 
@@ -175,6 +178,72 @@ test('common region has to draw the region it claims to group by', () => {
     /has to draw it/);
 });
 
+test('similarity marks its group, so a line or a depth is another principle wearing its name', () => {
+  assert.deepEqual(principleProblems('gallery', 'similarity',
+    at({ 'bw-surface': NO_LINE, 'fill-surface': OWN_FILL })), [],
+  'a fill of its own, with nothing drawn and nothing lifted, IS the shared treatment');
+  assert.match(principleProblems('gallery', 'similarity', at({ 'fill-surface': OWN_FILL }))[0] ?? '',
+    /draws --bw-surface/);
+  assert.match(principleProblems('gallery', 'similarity',
+    at({ 'bw-surface': NO_LINE, 'fill-surface': OWN_FILL, 'shadow-surface-rest': DEPTH }))[0] ?? '',
+  /figure and ground under another name/);
+  assert.match(principleProblems('gallery', 'similarity', at({ 'bw-surface': NO_LINE }))[0] ?? '',
+    /nothing to tell it from the page/,
+    'a surface that takes the page own fill is marked by nothing, which is proximity rather than similarity');
+});
+
+test('the page fill is a role now, so a voice that moves the floor is measured against it', () => {
+  assert.ok(fillsLikeThePage(roles({ 'fill-surface': PAGE_LIKE })));
+  assert.ok(!fillsLikeThePage(roles({ 'fill-surface': OWN_FILL })));
+  assert.ok(fillsLikeThePage(roles({ 'fill-surface': OWN_FILL, 'fill-page': OWN_FILL })),
+    'a voice that takes the page to base-200 and the surface with it has flattened one onto the '
+    + 'other, and measuring against the constant would have called that a difference');
+  assert.ok(!fillsLikeThePage(roles({ 'fill-surface': PAGE_LIKE, 'fill-page': OWN_FILL })),
+    'and the reverse: matching the old constant is not matching the page once the page can move');
+});
+
+test('a colour role admits a reference and never a literal, because a voice assigns and never authors', () => {
+  assert.deepEqual(extensionProblems('v', {
+    'fill-surface': { $type: 'color', $value: '{color.base-300}', $description: 'why' },
+  }, { 'fill-surface': { $type: 'color' } }), []);
+  const problems = extensionProblems('v', {
+    'fill-surface': { $type: 'color', $value: { colorSpace: 'srgb', components: [0, 0, 0] }, $description: 'why' },
+  }, { 'fill-surface': { $type: 'color' } });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /assigns a colour and never authors one/);
+});
+
+test('a colour role may not point outside the palette, since only a colour alias is re-emitted per theme', () => {
+  const problems = extensionProblems('v', {
+    'fill-surface': { $type: 'color', $value: '{scrim}', $description: 'why' },
+  }, { 'fill-surface': { $type: 'color' } });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /\{color\./);
+});
+
+test('a keyword role is held to the set its own role declares', () => {
+  const roleSet = { 'tt-eyebrow': { $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none', 'uppercase'] } } } };
+  assert.deepEqual(extensionProblems('v', {
+    'tt-eyebrow': { $type: 'keyword', $value: 'none', $description: 'why' },
+  }, roleSet), []);
+  const problems = extensionProblems('v', {
+    'tt-eyebrow': { $type: 'keyword', $value: 'smallcaps', $description: 'why' },
+  }, roleSet);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /not one of none, uppercase/);
+});
+
+test('a heading leading under 1 is a heading whose lines overlap', () => {
+  assert.deepEqual(floorProblems(roles({ 'lh-heading': '1.15' }), 'dark', 'v'), []);
+  assert.match(floorProblems(roles({ 'lh-heading': '0.8' }), 'dark', 'v')[0] ?? '', /--lh-heading is 0.8/);
+});
+
+test('a prose measure outside 45 to 90 characters stops being a measure', () => {
+  assert.deepEqual(floorProblems(roles({ 'measure-prose': '68ch' }), 'dark', 'v'), []);
+  assert.match(floorProblems(roles({ 'measure-prose': '30ch' }), 'dark', 'v')[0] ?? '', /45/);
+  assert.match(floorProblems(roles({ 'measure-prose': '120ch' }), 'dark', 'v')[0] ?? '', /90/);
+});
+
 test('two voices claiming one principle fail, which is the whole point of declaring it', () => {
   const problems = sharedPrincipleProblems(new Map([
     ['showcase', 'figure-ground'], ['glossy', 'figure-ground'], ['editorial', 'proximity'],
@@ -254,11 +323,18 @@ test('a fill counts as the page only when it references the page colour, never w
 });
 
 test('the reading floor is measured, not trusted, and a voice may sit far above it', () => {
-  assert.deepEqual(floorProblems(new Map([['lh-prose', '1.8']]), 'dark', 'x'), []);
-  assert.deepEqual(floorProblems(new Map([['lh-prose', '1.5']]), 'dark', 'x'), []);
-  assert.match(floorProblems(new Map([['lh-prose', '1.15']]), 'dark', 'x')[0] ?? '',
+  assert.deepEqual(floorProblems(roles({ 'lh-prose': '1.8' }), 'dark', 'x'), []);
+  assert.deepEqual(floorProblems(roles({ 'lh-prose': '1.5' }), 'dark', 'x'), []);
+  assert.match(floorProblems(roles({ 'lh-prose': '1.15' }), 'dark', 'x')[0] ?? '',
     /--lh-prose is 1\.15 in dark, under the 1\.5/);
-  assert.match(floorProblems(new Map(), 'light', 'x')[0] ?? '', /does not resolve to a number in light/);
+  assert.match(floorProblems(new Map(), 'light', 'x').join('\n'), /--lh-prose does not resolve to a number in light/);
+});
+
+test('a floor that does not resolve is reported per floor, so one missing token hides no other', () => {
+  const problems = floorProblems(new Map(), 'dark', 'x');
+  assert.equal(problems.length, 3, 'prose leading, heading leading and prose measure, each named');
+  assert.match(problems.join('\n'), /--lh-heading does not resolve/);
+  assert.match(problems.join('\n'), /--measure-prose does not resolve/);
 });
 
 test('a voice declares the work it is for, because that is the question a reader picks it by', () => {

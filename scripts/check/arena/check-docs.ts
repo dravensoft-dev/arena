@@ -421,6 +421,10 @@ export const NOT_A_VOICE = new Map<string, string>([
    + 'written per element'],
   ['arena-stack', 'the same, from css/rhythm.css: the air between two components, which a page applies and Arena never draws'],
   ['arena-row', 'the same sheet and the same reason, laid the other way'],
+  ['arena-prose',
+   'the same, from css/prose.css: the width of a reading column, which a consumer puts on the '
+   + 'article or the section they wrote. A voice re-values --measure-prose behind it, which is '
+   + 'exactly the split between a scope class and a utility'],
 ]);
 
 export const CLASS_ATTRIBUTE = /class(?:Name)?="([^"]*)"/g;

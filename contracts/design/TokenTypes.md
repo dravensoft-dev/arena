@@ -1,8 +1,12 @@
-# Arena token type map (DTCG 2025.10)
+# Arena token type map (DTCG 2025.10, plus `keyword`)
 
 **Normative, and for whoever authors a token or targets a new platform.** What the values
 MEAN is [`AGENTS.md`](./AGENTS.md) beside this file; this document states what shape they
 arrive in. A consumer reading a value out of the JSON needs neither: the JSON is the value.
+
+Every type here is a 2025.10 type but one. `keyword` is Arena's single addition, it is stated
+below with the reason it was worth making, and nothing else in this repository departs from the
+specification.
 
 The table states the DTCG `$type` of every token group in `contracts/design/`. Consume these
 values; do not re-derive them.
@@ -37,7 +41,7 @@ values; do not re-derive them.
 | Component geometry (`calendar-*`, `onboarding-width`) | `component.json` | `dimension` | px; **script-readable**. Named after a component rather than a role, like `avatar-*` and `logo-*`. Count them rather than trusting a list here, with `grep -c '"script": true' contracts/design/component.json`. Two of them also replace a value the component rendered as a `calc()`, so it existed in two idioms with nothing holding them in step: `onboarding-width` and `calendar-gutter-w` |
 | Behaviour (`delay-*`, `dismiss-*`, `limit-*`) | `behaviour.json` | `duration`, except `limit-*` | ms, and `limit-*` is a bare `number` like `z-*`. **Script-readable**, since the consumer is a `setTimeout` argument or an array bound, so these are read as numbers in JS as well as emitted to CSS. Behaviour VALUES only; the behaviour CONTRACT (which keys, which roles, where focus goes) is not a token and lives outside `contracts/design/` and `contracts/design-generated/` |
 
-### Value formats are strict 2025.10
+### Value formats are strict
 
 - Every `color`, including each `shadow`'s color slot and `scrim`, is a
   structured object: `{ "colorSpace": "srgb", "components": [r,g,b], "alpha"?: a,
@@ -60,6 +64,40 @@ values; do not re-derive them.
   is a darkening on an already dark page and separates nothing. Note that a colour carrying both
   `hex` and an `alpha` below 1 loses the alpha on the way out, so an `rgba` shadow colour is
   authored as `components` with no `hex`, the way every shadow in `effects.json` already is.
+
+### `keyword`, the one type Arena adds
+
+A `keyword` is a single bare CSS word, and it carries the set of words it may take:
+
+```json
+"tt-eyebrow": {
+  "$type": "keyword",
+  "$value": "uppercase",
+  "$extensions": { "com.dravensoft.arena": { "values": ["none", "uppercase", "lowercase", "capitalize"] } }
+}
+```
+
+**Why it exists.** Some CSS properties take a word rather than a measurement, and `text-transform`
+is the one that asked: whether a label is set in capitals is a decision about register, so a voice
+for a shop and a voice for a console want opposite answers. 2025.10 types a length, a colour, a
+weight, a duration and a curve, and has no type for a word. The alternative to adding one was to
+leave the property out of the token tier, which freezes it into every manifest that paints it, and
+that is exactly the defect the role tier exists to prevent.
+
+**Why not `string`.** A `string` type would have carried the same value and given up the property
+that makes a type worth having: with no closed set, `smallcaps` is as valid as `uppercase` and no
+gate can tell them apart. A keyword names its words, so `check:dtcg` refuses any other, and the
+error names the set.
+
+**Where the set is declared, and where it is enforced.** Once, on the role in
+[`roles.json`](./roles.json). An extension re-values a role it did not declare and repeats nothing,
+so `values` is optional on a token in an `extension.*.json` partial and
+`scripts/check/core/check-extensions.ts` is what holds a moved keyword to its role's set. Two gates,
+one set: the alternative is a copy of the enum in every voice, which is a copy that can drift.
+
+**What it does not buy.** A keyword is a word, so it cannot alias a scale and cannot carry a
+`cssUnit`. A value that is a measurement stays a `dimension` or a `number`, and a value that is a
+list of words, which is to say a shorthand, is not a token at all.
 
 ### Script-readable tokens
 
