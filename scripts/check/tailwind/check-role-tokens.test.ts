@@ -30,7 +30,7 @@ test('the motion roles are not scale uses, at either end of the transition', () 
   assert.deepEqual(scaleUsesIn('duration-[var(--dur-state)] ease-state'), []);
 });
 
-test('the easings a voice never answers are left alone, because an entrance and the brand gesture are not a hover', () => {
+test('the easings no role answers are left alone, because an entrance and the brand gesture are not a hover', () => {
   assert.deepEqual(scaleUsesIn('ease-in-out ease-emphatic'), []);
 });
 

@@ -40,7 +40,7 @@ export const EXCLUDED = new Map([
     + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],
   ['aspect-media', 'the shape of a media frame, which a member carries and ArenaFigure writes inline the '
     + 'way ArenaGrid writes its track list, because a consumer pinning a video to sixteen by nine is '
-    + 'answering about one figure and not about the voice. A theme key would also have collided with '
+    + 'answering about one figure and not about the appearance. A theme key would also have collided with '
     + 'the token: v4 emits aspect-<key> from --aspect-*, and the role is already spelt --aspect-media'],
   ['grid-min', 'the narrowest column of an auto-fitting grid, which lands inside a repeat(auto-fit, '
     + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached as '

@@ -86,7 +86,7 @@ export function index(base = root) {
     '',
     '## Start here',
     '',
-    `- [The router](${docUrl(ROUTER)}): pick the voice the application takes, then the rules of the language. Every other document is reached from here.`,
+    `- [The router](${docUrl(ROUTER)}): the rules of the language. Every other document is reached from here.`,
     `- [Every component in one read](${docUrl(LAYER_INDEX)}): which components exist and which layers ship them.`,
     '',
   ];

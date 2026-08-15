@@ -29,7 +29,7 @@ export type Route = {
 export const ROUTES: Route[] = [
   {
     name: 'consumer-component',
-    who: 'an agent writing a screen: the router, where it picks the voice, then its layer\'s '
+    who: 'an agent writing a screen: the router, where it takes the rules, then its layer\'s '
       + 'directory, then the index of the one category it reaches into, then the prompt of the one '
       + 'component it writes',
     stops: [
@@ -55,17 +55,15 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 45_000,
+    budget: 36_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
-      + 'router with the build route, which is where the voice catalogue sits, so the two move '
-      + 'together whenever that page does. The number is argued up rather than held down when a '
-      + 'correction lands on the npm page: a pre-paint script that answers the device as well as '
-      + 'storage is longer than one that does not, and being right is what the page is for. '
-      + 'Raised from 43,000 when the catalogue went from three voices to four and the packages '
-      + 'began shipping css/prose.css: a reader choosing a voice has one more row to read and one '
-      + 'more sheet to know about, and both are the page doing its job rather than growing.',
+      + 'router with the build route, so the two move together whenever that page does. The number '
+      + 'is argued up rather than held down when a correction lands on the npm page: a pre-paint '
+      + 'script that answers the device as well as storage is longer than one that does not, and '
+      + 'being right is what the page is for. It is what the stops measure once the appearance a '
+      + 'project adopts stopped being picked from a page rather than written in a directory.',
   },
   {
     name: 'contributor-component',

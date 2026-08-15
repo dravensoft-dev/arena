@@ -254,7 +254,7 @@ function titleFor(directory: string) {
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) return `Kitchen sinks, ${sink[1]}`;
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
-  if (one) return `${one[2]} voice, ${one[1]}`;
+  if (one) return `${one[2]}, ${one[1]}`;
   return directory;
 }
 

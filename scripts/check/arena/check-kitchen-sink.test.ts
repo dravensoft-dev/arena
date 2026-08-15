@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PINNED, coverageProblems, voiceProblems, pinnedProblems, emissionProblems,
+  PINNED, coverageProblems, pinnedProblems, emissionProblems,
 } from './check-kitchen-sink.ts';
 import type { SinkFixture } from '../../lib/arena/kitchen-sink-model.ts';
 
@@ -17,12 +17,12 @@ const full = (extension: string): [string, SinkFixture] => [extension, {
 }];
 
 test('an arrangement holding every component the registry names reports nothing', () => {
-  assert.deepEqual(coverageProblems(new Map([full('none')]), REGISTRY), []);
+  assert.deepEqual(coverageProblems(new Map([full('default')]), REGISTRY), []);
 });
 
 test('a component no arrangement places is named, because nothing would compare it', () => {
   const problems = coverageProblems(
-    new Map([['none', { extension: 'none', sections: [{ title: 'All', items: ['ArenaBadge'] }] }]]),
+    new Map([['default', { extension: 'default', sections: [{ title: 'All', items: ['ArenaBadge'] }] }]]),
     REGISTRY,
   );
   assert.equal(problems.length, 1);
@@ -31,7 +31,7 @@ test('a component no arrangement places is named, because nothing would compare 
 
 test('an empty arrangement fails rather than comparing two empty documents', () => {
   const problems = coverageProblems(
-    new Map([['none', { extension: 'none', sections: [] }]]), REGISTRY,
+    new Map([['default', { extension: 'default', sections: [] }]]), REGISTRY,
   );
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /no component at all/);
@@ -39,7 +39,7 @@ test('an empty arrangement fails rather than comparing two empty documents', () 
 
 test('a name the registry does not carry fails, since a typo silently drops a component', () => {
   const problems = coverageProblems(
-    new Map([['none', { extension: 'none', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaBaged'] }] }]]),
+    new Map([['default', { extension: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaBaged'] }] }]]),
     REGISTRY,
   );
   assert.equal(problems.length, 1);
@@ -48,23 +48,11 @@ test('a name the registry does not carry fails, since a typo silently drops a co
 
 test('a component placed twice fails, because the second copy is a section that lost its subject', () => {
   const problems = coverageProblems(
-    new Map([['none', { extension: 'none', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaCard'] }] }]]),
+    new Map([['default', { extension: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaCard'] }] }]]),
     REGISTRY,
   );
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /more than once/);
-});
-
-test('a voice the build ships with no arrangement fails, and so does one arranged but not shipped', () => {
-  assert.deepEqual(voiceProblems(new Map([full('none'), full('editorial')]), ['none', 'editorial']), []);
-
-  const unarranged = voiceProblems(new Map([full('none')]), ['none', 'showcase']);
-  assert.equal(unarranged.length, 1);
-  assert.match(unarranged[0] ?? '', /ships the showcase voice/);
-
-  const unshipped = voiceProblems(new Map([full('none'), full('ghost')]), ['none']);
-  assert.equal(unshipped.length, 1);
-  assert.match(unshipped[0] ?? '', /the cascade ignores/);
 });
 
 test('PINNED names a real fixture, and an entry whose component stopped needing it goes stale loudly', () => {

@@ -83,7 +83,7 @@ test('the page carries the theme control the query parameter needs, and the scop
   assert.match(page, /<html lang="en" class="arena-editorial">/);
 });
 
-test('an entry file is named for its voice and its layer, so one page never loads the other\'s', () => {
+test('an entry file is named for its arrangement and its layer, so one page never loads the other\'s', () => {
   assert.equal(entryFile('editorial', 'tsx'), 'editorial.sink.entry.generated.tsx');
   assert.equal(entryFile('editorial', 'ts'), 'editorial.sink.entry.generated.ts');
 });

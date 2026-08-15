@@ -1,9 +1,8 @@
 /* Holds what check:pixel-parity is pointed at. That gate reports the two layers agreeing over a
  * page holding everything exactly as it does over a page holding nothing, so the arrangement is
  * the thing to hold and this is where. Each claim closes a way the surface silently shrinks:
- * every component the registry names appears in every arrangement, so no voice is compared over
- * less than its siblings; every voice the build ships has one, so an extension cannot land
- * painted by nobody; nothing names what does not exist, since a typo drops a component and reads
+ * every component the registry names appears in every arrangement, so no page is compared over
+ * less than its siblings; nothing names what does not exist, since a typo drops a component and reads
  * as a choice; a fixture keeps pinning the members its component would otherwise take off the
  * clock or the host's own zone, which would move the page between two runs; and every emitted
  * file matches a fresh run, so a page edited by hand fails rather than becoming the thing
@@ -14,16 +13,14 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { everyComponent } from '../../lib/tailwind/manifest-surfaces.ts';
-import {
-  buildKitchenSink, loadFixtures, shippedExtensions, FIXTURES,
-} from '../../generate/arena/generate-kitchen-sink.ts';
+import { buildKitchenSink, loadFixtures, FIXTURES } from '../../generate/arena/generate-kitchen-sink.ts';
 import type { SinkFixture } from '../../lib/arena/kitchen-sink-model.ts';
 
 export const node = {
   name: 'check:kitchen-sink',
   reads: [
     `${FIXTURES}/*.sink.json`, 'frameworks/demos/*.demo.json', 'frameworks/Components.json',
-    'contracts/design/extension.*.json', 'contracts/api/components',
+    'contracts/api/components',
     'frameworks/react/kitchen-sink/**', 'frameworks/angular/kitchen-sink/**',
     'frameworks/angular/ProjectionMarkers.ts', 'frameworks/tailwind/components/**/*.manifest.json',
   ],
@@ -43,45 +40,30 @@ export const PINNED: Record<string, { members: string[]; reason: string }> = {
 export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: string[]) {
   const problems = [];
   const known = new Set(registry);
-  for (const [extension, fixture] of fixtures) {
+  for (const [sink, fixture] of fixtures) {
     const items = fixture.sections.flatMap((section) => section.items);
     if (items.length === 0) {
-      problems.push(`${extension}: the arrangement holds no component at all, so its pair of pages `
+      problems.push(`${sink}: the arrangement holds no component at all, so its pair of pages `
         + 'compares two empty documents and passes');
       continue;
     }
     const seen = new Set(items);
     const missing = registry.filter((name) => !seen.has(name));
     if (missing.length > 0) {
-      problems.push(`${extension}: ${missing.length} component(s) the registry names appear nowhere in `
-        + `this arrangement, so nothing compares them in this voice: ${missing.join(', ')}`);
+      problems.push(`${sink}: ${missing.length} component(s) the registry names appear nowhere in `
+        + `this arrangement, so nothing compares them here: ${missing.join(', ')}`);
     }
     const unknown = [...seen].filter((name) => !known.has(name)).sort();
     if (unknown.length > 0) {
-      problems.push(`${extension}: names ${unknown.join(', ')}, which frameworks/Components.json does `
+      problems.push(`${sink}: names ${unknown.join(', ')}, which frameworks/Components.json does `
         + 'not, so the name reaches no component and the arrangement silently holds one fewer');
     }
     const twice = [...seen].filter((name) => items.filter((one) => one === name).length > 1).sort();
     if (twice.length > 0) {
-      problems.push(`${extension}: places ${twice.join(', ')} more than once. A page is not made more `
+      problems.push(`${sink}: places ${twice.join(', ')} more than once. A page is not made more `
         + 'comparable by holding the same component twice, and the second copy is a section that lost '
         + 'track of what it was for');
     }
-  }
-  return problems;
-}
-
-export function voiceProblems(fixtures: Map<string, SinkFixture>, shipped: string[]) {
-  const problems = [];
-  for (const extension of shipped) {
-    if (fixtures.has(extension)) continue;
-    problems.push(`the build ships the ${extension} voice and no ${extension}.sink.json arranges it, `
-      + 'so it reaches an adopter with nothing having compared the layers under it');
-  }
-  for (const extension of fixtures.keys()) {
-    if (shipped.includes(extension)) continue;
-    problems.push(`${extension}.sink.json arranges a voice the build does not ship, so its page paints `
-      + 'a scope class the cascade ignores and the pair agrees by drawing the plain voice twice');
   }
   return problems;
 }
@@ -134,7 +116,7 @@ function main() {
   const fixtures = loadFixtures();
   if (fixtures.size === 0) {
     console.error(`check-kitchen-sink: found 0 arrangement(s) under ${FIXTURES}. An empty walk reports `
-      + 'every voice covered and every component placed, which is a clean-looking pass over a '
+      + 'every component placed, which is a clean-looking pass over a '
       + 'directory it never opened.');
     process.exit(1);
   }
@@ -147,7 +129,6 @@ function main() {
 
   const { files, problems: emitted } = buildKitchenSink();
   const problems = [
-    ...voiceProblems(fixtures, shippedExtensions()),
     ...coverageProblems(fixtures, registry),
     ...pinnedProblems(loadDemoSeeds()),
     ...emitted,
@@ -160,8 +141,7 @@ function main() {
     process.exit(1);
   }
   console.log(`check-kitchen-sink: ${fixtures.size} arrangement(s) place all ${registry.length} `
-    + `component(s) each, one per voice the build ships, and the ${files.size} emitted file(s) match `
-    + 'a fresh run of the generator');
+    + `component(s) each, and the ${files.size} emitted file(s) match a fresh run of the generator`);
 }
 
 if (isMainModule(import.meta.url)) main();

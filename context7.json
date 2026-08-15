@@ -23,7 +23,6 @@
     "Tokens are the only styling layer.",
     "Put no class of your own on an Arena component",
     "Re-skin through `arena.config.json`",
-    "One voice per page, picked before anything else",
     "Danger is outline, never filled",
     "One primary accent per view.",
     "No gradients",

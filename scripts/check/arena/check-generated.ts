@@ -46,10 +46,10 @@ export const UNTRACKED = {
   'frameworks/react/components/**/*.generated.js':
     'the compiled sibling of a component source, read only by a demo page.',
   'frameworks/react/kitchen-sink/**/*.generated.js':
-    'the same, for the one page per design extension that holds every component at once.',
+    'the same, for the page that holds every component at once.',
   'frameworks/react/kitchen-sink/**/*.entry.generated.tsx':
     'a kitchen-sink entry, emitted from frameworks/kitchen-sink/ into every layer so the pair of '
-    + 'pages one extension gets differs in what mounts them and nothing else. check:pixel-parity '
+    + 'pages one arrangement gets differs in what mounts them and nothing else. check:pixel-parity '
     + 'captures the pair and fails on one differing pixel.',
   'frameworks/angular/kitchen-sink/**/*.entry.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/components/**/*.demo.entry.generated.tsx':

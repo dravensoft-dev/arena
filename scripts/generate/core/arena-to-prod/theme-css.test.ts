@@ -301,31 +301,31 @@ const local = (over: Record<string, any> = {}) => config({
 
 const localProblems = (c: any) => configProblems(c, SHEETS_LOCAL).filter((p) => p.includes('extension'));
 
-test('a local voice deriving from a shipped one is accepted, which is the whole point of the field', () => {
+test('a local extension deriving from a shipped one is accepted, which is the point of the field', () => {
   assert.deepEqual(localProblems(local()), []);
 });
 
-test('a local voice emits its parent whole and then its own tokens over it', () => {
+test('a local extension emits its parent whole and then its own tokens over it', () => {
   const css = themeCss(local(), { sheets: SHEETS_LOCAL, importHeader: false });
   const root = parseDecls(css).get(':root');
-  assert.equal(root.get('bw-surface'), '0px', 'inherited from the voice it extends');
+  assert.equal(root.get('bw-surface'), '0px', 'inherited from what it extends');
   assert.equal(root.get('ff-eyebrow'), "'Archivo',system-ui,sans-serif", 'an alias resolved against the catalogue');
   assert.equal(root.get('step-title-surface'), '24px');
   assert.equal(root.get('tt-eyebrow'), 'none', 'a keyword travels as the word it is');
 });
 
-test('a local voice is held to the same floors a shipped one is', () => {
+test('a local extension is held to the same floors a shipped one is', () => {
   assert.match(localProblems(local({ tokens: { 'lh-heading': '0.8' } }))[0] ?? '', /--lh-heading is 0.8/);
   assert.match(localProblems(local({ tokens: { 'measure-prose': '120ch' } }))[0] ?? '', /outside 45 to 90/);
 });
 
-test('a local voice may not name a role the package does not ship', () => {
+test('a local extension may not name a role the package does not ship', () => {
   const problems = localProblems(local({ tokens: { 'r-lg': '22px' } }));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /neither a role this package ships nor an fs or rhythm step/);
 });
 
-test('a local voice may not author a colour, only assign one', () => {
+test('a local extension may not author a colour, only assign one', () => {
   assert.match(localProblems(local({ tokens: { 'ink-eyebrow': '#b52a20' } }))[0] ?? '',
     /takes a \{color\.\*\} alias only/);
   assert.deepEqual(localProblems(local({ tokens: { 'ink-eyebrow': '{color.secondary}' } })), []);
@@ -341,22 +341,22 @@ test('an alias that points at nothing shipped fails rather than emitting the wor
     /resolves to nothing this package ships/);
 });
 
-test('a local voice may not take a name the package already ships, or a palette name', () => {
+test('a local extension may not take a name the package already ships, or a palette name', () => {
   assert.match(localProblems(local({ name: 'showcase' }))[0] ?? '', /already ships/);
   assert.match(localProblems(config({
     extension: { name: 'dark', extends: 'showcase', tokens: { 'tt-eyebrow': 'none' } },
   }))[0] ?? '', /theme polarity/);
 });
 
-test('a local voice extending nothing Arena ships names what it could have extended', () => {
-  assert.match(localProblems(local({ extends: 'nonesuch' }))[0] ?? '', /which is not a voice this package ships/);
+test('a local extension extending nothing Arena ships names what it could have extended', () => {
+  assert.match(localProblems(local({ extends: 'nonesuch' }))[0] ?? '', /which this package does not ship/);
 });
 
-test('a local voice that moves nothing is a class nobody can tell from its absence', () => {
+test('a local extension that moves nothing is a class nobody can tell from its absence', () => {
   assert.match(localProblems(local({ tokens: {} }))[0] ?? '', /moves at least one role/);
 });
 
-test('a local voice with no catalogue beside it is refused rather than emitted unchecked', () => {
+test('a local extension with no catalogue beside it is refused rather than emitted unchecked', () => {
   const problems = configProblems(local(), SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
   assert.match(problems.at(-1) ?? '', /role catalogue this package ships cannot be read/);
 });
@@ -410,7 +410,7 @@ test('"none" emits nothing, the same as omitting the field', () => {
   assert.ok(!css.includes('--r-surface'));
 });
 
-test('a voice that answers a polarity reaches the palette of that polarity, not only the default one', () => {
+test('an extension that answers a polarity reaches the palette of that polarity, not only the default one', () => {
   const css = themeCss(config({
     extension: 'showcase',
     palettes: [
@@ -421,7 +421,7 @@ test('a voice that answers a polarity reaches the palette of that polarity, not 
 
   const dayBlock = css.slice(css.indexOf('.arena-day'));
   assert.match(dayBlock, /--shadow-surface-rest:DROP;/,
-    'the light half of the voice never reached the light palette, so a consumer would take the dark '
+    'the light half never reached the light palette, so a consumer would take the dark '
     + 'answer in their light theme -- the defect the theme group exists to remove');
   assert.doesNotMatch(css.slice(0, css.indexOf('.arena-day')), /--shadow-surface-rest:DROP;/,
     'the light half reached :root, where the dark palette would take it too');

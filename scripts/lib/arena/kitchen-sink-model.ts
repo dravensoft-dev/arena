@@ -33,7 +33,7 @@ export type SinkFixture = {
   sections: { title: string; items: string[] }[];
 };
 
-export const NONE = 'none';
+export const ROOT_SINK = 'default';
 
 export const FIXED = /(?:^|\s)(?:[\w-]+:)*fixed(?=\s|$)/;
 
@@ -169,5 +169,5 @@ export function placesFor(model: SinkModel, all: Map<string, Place>): Places {
 }
 
 export function scopeClass(extension: string) {
-  return extension === NONE ? '' : `arena-${extension}`;
+  return extension === ROOT_SINK ? '' : `arena-${extension}`;
 }

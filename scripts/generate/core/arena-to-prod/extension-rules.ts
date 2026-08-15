@@ -34,7 +34,7 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
     problems.push(`${where}: --lh-prose does not resolve to a number in ${scope}, so the reading floor cannot be measured`);
   else if (leading < MIN_PROSE_LEADING)
     problems.push(`${where}: --lh-prose is ${leading} in ${scope}, under the ${MIN_PROSE_LEADING} WCAG 1.4.8 asks of `
-      + `line spacing within a paragraph. A voice may open a paragraph up and may never close it below the `
+      + `line spacing within a paragraph. An answer may open a paragraph up and may never close it below the `
       + `floor every element already inherits from --lh-root.`);
 
   const heading = Number.parseFloat(at.get('lh-heading') ?? '');
@@ -62,7 +62,7 @@ export function valueProblems(where: string, key: string, token: MovedToken, rol
     const value = token?.$value;
     if (typeof value !== 'string')
       return [`${where}: --${key} authors a colour outright. An extension assigns a colour and never authors one: `
-        + 'the 27 values are the consumer\'s, and what a voice may say is WHICH of them a surface takes.'];
+        + 'the palette is the consumer\'s, and what an extension may say is WHICH of them a surface takes.'];
     if (!COLOUR_ALIAS.test(value.trim()))
       return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias only. It is mechanical `
         + 'as well as doctrinal: the emitter turns a bare colour alias into a var() it restates under every '
@@ -76,7 +76,7 @@ export function valueProblems(where: string, key: string, token: MovedToken, rol
     if (typeof value !== 'string' || !allowed.includes(value))
       return [`${where}: --${key} is ${JSON.stringify(value)}, not one of ${allowed.join(', ')}. `
         + 'The closed set is what makes a keyword a type rather than a string, and roles.json is where '
-        + 'it is declared: a voice re-answers the question and does not widen it.'];
+        + 'it is declared: an extension re-answers the question and does not widen it.'];
   }
   return [];
 }

@@ -25,7 +25,7 @@ export const GENERATED = 'design-generated';
 export const SHAPE = new Map<string, { dirs: string[]; files: string[]; ext: string | null }>([
   ['api', { dirs: ['components', 'types'], files: ['AGENTS.md', 'MemberForms.md'], ext: null }],
   ['behaviour', { dirs: [], files: ['AGENTS.md'], ext: '.json' }],
-  ['design', { dirs: [], files: ['AGENTS.md', 'Extensions.md', 'Scales.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css'], ext: '.json' }],
+  ['design', { dirs: [], files: ['AGENTS.md', 'Scales.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css'], ext: '.json' }],
 ]);
 
 export function rootProblems(entries: string[]) {

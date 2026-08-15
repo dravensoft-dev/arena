@@ -18,7 +18,7 @@ export const TARGETS = [
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [],
+  reads: [...TARGETS],
   writes: TARGETS,
   feeds: [
     'build:angular-package',

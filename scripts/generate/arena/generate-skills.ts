@@ -103,10 +103,9 @@ writing one: what a member is called where you are building, and how to write it
 layer's index and then the component's own prompt, and reading this page first buys nothing when
 you already know what you are reaching for.
 
-**The voice this application takes, and the rules of the language every component below answers
-to, are decided in [\`../SKILL.md\`](../SKILL.md) before any component on this page.** Nothing
-here restates them, so a screen built from this page alone is built in the default voice by
-accident and breaks the rules where nothing will report it.
+**The rules of the language every component below answers to are stated in
+[\`../SKILL.md\`](../SKILL.md) before any component on this page.** Nothing here restates them, so
+a screen built from this page alone breaks the rules where nothing will report it.
 
 | Layer | Index | Package |
 |---|---|---|
@@ -133,11 +132,9 @@ components are named here rather than described so that finding yours costs one 
 a guess.
 
 **Read [\`../../SKILL.md\`](../../SKILL.md) before you write anything from here.** It carries the
-two things no page below it does: the voice the application takes, which is decided before any
-component, and the rules of the language, which hold in your code because you hold them and which
-no gate reads your application to enforce. Every component answers to the voice without being told,
-so a screen built from this tree alone is built in the default voice by accident rather than on
-purpose, and breaks the rules where nothing will report it.
+one thing no page below it does: the rules of the language, which hold in your code because you
+hold them and which no gate reads your application to enforce. A screen built from this tree alone
+breaks them where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`PACKAGE.md\`](./PACKAGE.md).
@@ -153,7 +150,7 @@ export function categoryHeader(layer: string, category: string) {
 Every ${category} component this layer ships, under the names it binds them to. **This page is an
 index, not a manual.** How to write one is its own prompt, linked in the last column.
 
-**The voice this application takes, and the rules every component below answers to, are decided in
+**The rules every component below answers to are stated in
 [\`../../../../SKILL.md\`](../../../../SKILL.md) before any component here**, and nothing on this
 page restates them.
 

@@ -7,14 +7,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   FIXED, classStrings, drawsFixed, stagedComponents, substitute, instanceNode, componentsIn,
-  rebase, rebaseNode, sinkModel, scopeClass, NONE,
+  rebase, rebaseNode, sinkModel, scopeClass, ROOT_SINK,
 } from './kitchen-sink-model.ts';
 
 const DEPTH = { from: '../../../../../', to: '../../../../' };
 
-test('a scope class is the voice, and the plain voice is the absence of one', () => {
+test('a scope class names the appearance, and the root one is the absence of a class', () => {
   assert.equal(scopeClass('editorial'), 'arena-editorial');
-  assert.equal(scopeClass(NONE), '');
+  assert.equal(scopeClass(ROOT_SINK), '');
 });
 
 test('the fixed utility is matched as a utility, so a class merely containing the word is not one', () => {

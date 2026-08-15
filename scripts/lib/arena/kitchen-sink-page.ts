@@ -1,8 +1,8 @@
 /* The kitchen-sink page every layer serves, built in one place so the two differ in exactly the
  * two lines they have to: what mounts the app, and what it is loaded from. A sibling of
- * playground-page.ts rather than a caller: that page offers a control that cycles the design
- * extension, and this page IS one, spelled as the scope class on <html>, which is what lets
- * check:pixel-parity navigate to a URL and know what it is looking at. The theme button is
+ * playground-page.ts rather than a caller: that page carries a scope class on <html> naming the
+ * appearance it is drawn in, which is what lets check:pixel-parity navigate to a URL and know
+ * what it is looking at. The theme button is
  * load-bearing: intro/theme.js applies nothing until it finds a .themebtn, so a page without one
  * ignores ?theme=light and one theme alone could be compared. The whole barrel is linked rather
  * than the list a playground computes, an order computed twice being one that can differ. Ready
@@ -75,7 +75,7 @@ export const READY_SIGNAL = `(async () => {
 
 export const KS = {
   head: 'ks-head',
-  voice: 'ks-voice',
+  sink: 'ks-sink',
   note: 'ks-note',
   section: 'ks-section',
   title: 'ks-title',

@@ -5,8 +5,8 @@
  * packages, where it is the only emitter there is. It reads no file and touches no network, so a
  * path in the config is emitted, never resolved. Every field of an ArenaConfig is optional because
  * a CONSUMER writes it: an invalid one must reach configProblems rather than be refused by a type
- * nobody there can read. A local voice is checked here and not only shaped, through the same
- * extension-rules.ts Arena's own gate runs, so a derived voice is held to the mechanism it extends
+ * nobody there can read. A local extension is checked here and not only shaped, through the same
+ * extension-rules.ts Arena's own gate runs, so what a consumer writes is held to the same floors
  * in the PROJECT's build. */
 
 import {
@@ -265,8 +265,8 @@ function localTokenProblems(
     const role = catalogue.roles?.[key];
     if (!role && !FS_STEP.test(key) && !RHYTHM_STEP.test(key)) {
       problems.push(`${where}: "${key}" is neither a role this package ships nor an fs or rhythm step. `
-        + 'A voice re-values those only: a scale, a colour or a spacing step is shared by every use that '
-        + 'wants that value, so moving one is not a voice but a different Arena.');
+        + 'An extension re-values those only: a scale, a colour or a spacing step is shared by every use '
+        + 'that wants that value, so moving one is not an extension but a different Arena.');
       continue;
     }
     if (localValue(raw, catalogue) === null) {
@@ -277,7 +277,7 @@ function localTokenProblems(
     }
     if (role?.type === 'color' && !/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
-        + 'only. A voice assigns one of your 27 colours to a role and never authors a colour of its own.');
+        + 'only. An extension assigns one of your colours to a role and never authors one of its own.');
     if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(String(raw)))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
@@ -291,11 +291,11 @@ export function localExtensionProblems(
   const catalogue = sheets?.catalogue;
   const name = value.name;
   if (typeof name !== 'string' || !name)
-    return ['extension: a local voice declares a name, which becomes the class .arena-<name>'];
+    return ['extension: a local extension declares a name, which becomes the class .arena-<name>'];
 
   const problems = nameProblems(name, POLARITIES, 'extension');
   if (Object.hasOwn(shipped, name))
-    problems.push(`extension: "${name}" is the name of a voice this package already ships, and both would `
+    problems.push(`extension: "${name}" is a name this package already ships, and both would `
       + `be the class .arena-${name}. Name yours something else and extend that one instead.`);
   if (paletteNames.includes(name))
     problems.push(`extension: "${name}" is also the name of a palette, and both would be the class `
@@ -305,21 +305,21 @@ export function localExtensionProblems(
   let parent: ShippedExtension | undefined;
   if (parentName !== undefined) {
     if (typeof parentName !== 'string' || !Object.hasOwn(shipped, parentName))
-      problems.push(`extension: extends "${String(parentName)}", which is not a voice this package ships. `
-        + `The voices are ${Object.keys(shipped).sort().join(', ')}.`);
+      problems.push(`extension: extends "${String(parentName)}", which this package does not ship. `
+        + `The names are ${Object.keys(shipped).sort().join(', ')}.`);
     else parent = shipped[parentName];
   }
 
   const tokens = value.tokens;
   if (!isObject(tokens) || Object.keys(tokens).length === 0)
-    problems.push('extension: a local voice moves at least one role, or it is a class nobody can tell from '
-      + 'its absence. Write "extension": "<name>" to take a shipped voice unchanged.');
+    problems.push('extension: a local extension moves at least one role, or it is a class nobody can tell '
+      + 'from its absence. Write "extension": "<name>" to take a shipped one unchanged.');
   if (value.light !== undefined && !isObject(value.light))
     problems.push('extension: "light" is a group of tokens that differ in the light theme, so it is an object');
 
   if (!catalogue)
     return [...problems, 'extension: the role catalogue this package ships cannot be read from beside this '
-      + 'command, so a local voice cannot be checked against it'];
+      + 'command, so a local extension cannot be checked against it'];
 
   if (isObject(tokens)) problems.push(...localTokenProblems(name, tokens, catalogue));
   if (isObject(value.light)) problems.push(...localTokenProblems(`${name}.light`, value.light, catalogue));
@@ -336,7 +336,7 @@ export function extensionProblems(value: unknown, sheets: PackageSheets, palette
   if (value === undefined) return [];
   if (isObject(value)) return localExtensionProblems(value as LocalExtension, sheets, paletteNames);
   if (typeof value !== 'string')
-    return ['extension: one name, or one object deriving a voice of your own, and never a list, '
+    return ['extension: one name, or one object deriving one of your own, and never a list, '
       + 'so a build carries at most one extension'];
   if (value === NO_EXTENSION) return [];
   const shipped = sheets?.extensions;

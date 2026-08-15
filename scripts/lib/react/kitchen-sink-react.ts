@@ -44,7 +44,7 @@ export function section(one: SinkModel['sections'][number], places: Places, dept
 export function header(model: SinkModel, depth: number) {
   const pad = '  '.repeat(depth);
   return `${pad}<header className="${KS.head}">\n`
-    + `${pad}  <h1 className="${KS.voice}">${model.extension}</h1>\n`
+    + `${pad}  <h1 className="${KS.sink}">${model.extension}</h1>\n`
     + (model.note ? `${pad}  <p className="${KS.note}">{${JSON.stringify(model.note)}}</p>\n` : '')
     + `${pad}</header>`;
 }

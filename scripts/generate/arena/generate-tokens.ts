@@ -131,6 +131,7 @@ export const node = {
     'check:coverage',
     'check:dimensions',
     'check:duplicate-constants',
+    'check:extensions',
     'check:generated',
     'check:icons',
     'check:layer-independence',

@@ -76,8 +76,7 @@ export function renderRulesRegion(layer: string) {
     + `application to enforce them.** An Arena component is not a styling surface: put no \`${
       OWN_CLASS_ATTR[layer] ?? 'class'}\` of your own on it, read every value through its token `
     + 'rather than a raw hex or a bare `16px`, and never wrap it in your router\'s own link. The '
-    + `rest of the rules, and the voice they answer to, are in [\`${ROUTER_FROM_PROMPT}\`](${
-      ROUTER_FROM_PROMPT}).`,
+    + `rest of the rules are in [\`${ROUTER_FROM_PROMPT}\`](${ROUTER_FROM_PROMPT}).`,
     '',
     RULES_CLOSE_LINE,
   ].join('\n');

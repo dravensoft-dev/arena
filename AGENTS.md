@@ -68,7 +68,7 @@ refused outright whatever a repository-size argument says.
 
 **Two branches, and a fact belongs to exactly one.** `SKILL.md` roots the *consumer* branch the
 way this file roots the contributor one. The cost of the consumer branch is paid on every build:
-an agent building with Arena reads the router, where it picks the voice, then its own layer's
+an agent building with Arena reads the router, where it takes the rules, then its own layer's
 `SKILL.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only for
 the reasoning behind a member. **Everything on that route after the router is under
 `frameworks/`**, and each stop narrows. It reads no `AGENTS.md`, which is why the router names

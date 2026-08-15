@@ -5,7 +5,7 @@
 Every charts component this layer ships, under the names it binds them to. **This page is an
 index, not a manual.** How to write one is its own prompt, linked in the last column.
 
-**The voice this application takes, and the rules every component below answers to, are decided in
+**The rules every component below answers to are stated in
 [`../../../../SKILL.md`](../../../../SKILL.md) before any component here**, and nothing on this
 page restates them.
 

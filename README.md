@@ -78,8 +78,8 @@ Arena" into a task it finishes on its own.
 ## See it
 
 **[arena.dravensoft.org](https://arena.dravensoft.org)** carries the design
-guidelines, a kitchen sink page per design extension, and a playground page for
-every component, with no clone and nothing to install.
+guidelines, the kitchen sink, and a playground page for every component, with no
+clone and nothing to install.
 
 The same pages come up locally with `bun run demos`, from the same list, and
 [`scripts/build/AGENTS.md`](./scripts/build/AGENTS.md) says what a fresh clone

@@ -1,6 +1,6 @@
 {
-  "extension": "none",
-  "note": "Grouped by the category each component is registered under, one bordered region per group, because the voice with no extension groups by common region and the box is the grouping.",
+  "extension": "default",
+  "note": "Grouped by the category each component is registered under, one bordered region per group, because the default appearance draws the region and the box is the grouping.",
   "sections": [
     { "title": "Brand", "items": ["ArenaAppLogo"] },
     {

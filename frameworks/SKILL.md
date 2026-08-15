@@ -8,10 +8,9 @@ writing one: what a member is called where you are building, and how to write it
 layer's index and then the component's own prompt, and reading this page first buys nothing when
 you already know what you are reaching for.
 
-**The voice this application takes, and the rules of the language every component below answers
-to, are decided in [`../SKILL.md`](../SKILL.md) before any component on this page.** Nothing
-here restates them, so a screen built from this page alone is built in the default voice by
-accident and breaks the rules where nothing will report it.
+**The rules of the language every component below answers to are stated in
+[`../SKILL.md`](../SKILL.md) before any component on this page.** Nothing here restates them, so
+a screen built from this page alone breaks the rules where nothing will report it.
 
 | Layer | Index | Package |
 |---|---|---|

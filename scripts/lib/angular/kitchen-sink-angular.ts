@@ -71,7 +71,7 @@ ${tiles}
   );
 
   const header = `      <header class="${KS.head}">
-        <h1 class="${KS.voice}">${model.extension}</h1>${model.note ? `
+        <h1 class="${KS.sink}">${model.extension}</h1>${model.note ? `
         <p class="${KS.note}">${escapeTitle(model.note)}</p>` : ''}
       </header>`;
 

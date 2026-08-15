@@ -211,7 +211,7 @@ commit.** The individual gates are cheap and stay available per commit, `check:d
 touching a framework layer, `check:tokens` after a rebuild, and a task that widens a gate should
 still watch that gate fail and then pass. But the full sweep is a **completion** gate, not a
 per-commit toll. Stating that is what lets a gate be expensive enough to be worth having: `check:pixel-parity`
-opens two real pages per component per voice in Chromium and compares them pixel for pixel, which
+opens two real pages per component per arrangement in Chromium and compares them pixel for pixel, which
 no repository can afford once per commit.
 
 **Some gates are not runtime-portable**, needing a headless browser, `Bun.build` or

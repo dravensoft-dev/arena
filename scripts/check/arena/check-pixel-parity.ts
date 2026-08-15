@@ -1,4 +1,4 @@
-/* Captures the kitchen-sink page every layer draws for one design extension and fails on one
+/* Captures the kitchen-sink page every layer draws for one appearance and fails on one
  * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an
  * inherited typography or a computed colour that moved in one layer alone passes every other gate.
  * No baseline and no tolerance: one browser renders both pages, so the question is whether they
@@ -126,7 +126,7 @@ export function sinkDir(layer: string) {
   return join(root, 'frameworks', layer, 'kitchen-sink');
 }
 
-export function voicesIn(layer: string) {
+export function sinksIn(layer: string) {
   const dir = sinkDir(layer);
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
@@ -135,19 +135,19 @@ export function voicesIn(layer: string) {
     .sort();
 }
 
-export function pagePath(layer: string, extension: string) {
-  return `frameworks/${layer}/kitchen-sink/${extension}/${PAGE_FILE}`;
+export function pagePath(layer: string, sink: string) {
+  return `frameworks/${layer}/kitchen-sink/${sink}/${PAGE_FILE}`;
 }
 
 export function pairProblems(byLayer: Map<string, string[]>) {
   const problems = [];
   const layers = [...byLayer.keys()];
   const union = [...new Set(layers.flatMap((layer) => byLayer.get(layer) ?? []))].sort();
-  for (const extension of union) {
-    const missing = layers.filter((layer) => !(byLayer.get(layer) ?? []).includes(extension));
+  for (const sink of union) {
+    const missing = layers.filter((layer) => !(byLayer.get(layer) ?? []).includes(sink));
     if (missing.length === 0) continue;
-    problems.push(`${extension}: ${missing.join(' and ')} draws no page for this voice, so there is `
-      + 'no pair to compare and the voice ships compared in one layer only');
+    problems.push(`${sink}: ${missing.join(' and ')} draws no page for this arrangement, so there is `
+      + 'no pair to compare and it ships compared in one layer only');
   }
   return problems;
 }
@@ -279,11 +279,11 @@ export function paintProblem(name: string, layer: string,
 const skip: (reason: string) => never = (reason) => cannotRun('check-pixel-parity', reason);
 
 async function main() {
-  const byLayer = new Map(SINK_LAYERS.map((layer) => [layer, voicesIn(layer)]));
+  const byLayer = new Map(SINK_LAYERS.map((layer) => [layer, sinksIn(layer)]));
   const shared = pairProblems(byLayer);
-  const voices = (byLayer.get('react') ?? []).filter((one) => (byLayer.get('angular') ?? []).includes(one));
+  const sinks = (byLayer.get('react') ?? []).filter((one) => (byLayer.get('angular') ?? []).includes(one));
 
-  if (voices.length === 0) {
+  if (sinks.length === 0) {
     console.error('check-pixel-parity: found 0 kitchen-sink pair(s). An empty sweep is a failure '
       + 'rather than a clean pass: run bun run build, which emits the pages and bundles both layers.');
     process.exit(1);
@@ -299,11 +299,11 @@ async function main() {
   let compared = 0;
   let slowest = 0;
   try {
-    for (const extension of voices) {
+    for (const sink of sinks) {
       for (const theme of THEMES) {
-        const name = `${extension}:${theme}`;
+        const name = `${sink}:${theme}`;
         const url = (layer: string) =>
-          `http://127.0.0.1:${server.port}/${pagePath(layer, extension)}?theme=${theme}`;
+          `http://127.0.0.1:${server.port}/${pagePath(layer, sink)}?theme=${theme}`;
         const react = await capture(cdp, url('react'));
         const angular = await capture(cdp, url('angular'));
         slowest = Math.max(slowest, react.painted.waitedMs, angular.painted.waitedMs);
@@ -333,7 +333,7 @@ async function main() {
     process.exit(1);
   }
   console.log(`check-pixel-parity: ${compared} pair(s) captured in a real browser across `
-    + `${voices.length} voice(s) and ${THEMES.length} theme(s), and every one of them is identical `
+    + `${sinks.length} sink(s) and ${THEMES.length} theme(s), and every one of them is identical `
     + `byte for byte. The slowest page painted after ${slowest}ms of the ${PAINTED.ms}ms allowed`);
 }
 

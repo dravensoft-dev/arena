@@ -1,6 +1,6 @@
 ---
 name: design
-description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Starts by picking the voice the application takes, one of the design extensions, and then covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
+description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
 user-invocable: true
 ---
 
@@ -20,35 +20,9 @@ here, and follow the table below.
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
 read [`AGENTS.md`](./AGENTS.md) instead. It is the root of that branch and this file is not.
 
-## First, which voice is this application?
+**Everything here is one component at a time.**
 
-**Arena has more than one voice, and picking one is the first decision, before any component.**
-It is a decision about the *work the screen does*, not about taste: the three group things
-differently, so a screen that scans and a screen that invites are told apart by the mechanism
-rather than by a dial. Pick from the job, not from the description of the look.
-
-<!-- @voices GENERATED from contracts/design/extension.*.json. Edit the contract, not this table. -->
-
-| Voice | The work it is for | What says two things belong together |
-|---|---|---|
-| none, the default | scan and operate: dashboards, consoles, tables, admin and internal tooling, anything read a screenful at a time | a line drawn around a region says the things inside it are one thing |
-| `.arena-editorial` | read: documentation, reports, changelogs, release notes, any screen somebody reads top to bottom | what belongs together is near and what does not is far, and nothing is drawn at all |
-| `.arena-gallery` | show: a visual catalogue, a portfolio, a product gallery, any screen where the image leads and the text follows | a group is marked rather than enclosed or lifted, so identical treatment is what says the things are a set |
-| `.arena-showcase` | invite and convert: marketing, commerce, onboarding, pricing, a landing page somebody arrives on | a surface is an object standing off a floor, so depth separates it and no line has to |
-
-<!-- @voices end -->
-
-**Ask the user what the application is for if you do not know**, then take the row that answers
-it. The class goes on the root, or on any container to scope it to part of a page; a project that
-has already decided writes `"extension": "showcase"` in its `arena.config.json` and gets it
-everywhere. **One voice per page, and write none of your own.** A voice composes with a theme and
-with the density classes because the three change different things: a voice takes the surfaces, the
-gaps between them, the weight and leading of type and how much energy a response has; a theme takes
-the colour; and density keeps the controls and the data rows.
-
-**Everything after this is one component at a time**, and none of it changes what you picked here.
-
-## Then, in this order
+## In this order
 
 1. **`frameworks/<layer>/SKILL.md`**: the directory of your framework's components, naming every
    one under the category it is filed under. Read your layer's, and no other. It is short because
@@ -94,9 +68,6 @@ about the rest, so breaking one of those is still a defect nothing will report.
 - **Two themes, dark first.** Dark is `:root`, light is the `.arena-light` class. Components
   are never rewritten per theme, because they read tokens. `.arena-compact` re-densifies
   and `.arena-comfortable` grows the controls to a 48px touch target; the two are exclusive.
-- **One voice per page, picked before anything else**, from the table at the top of this file. It
-  is a decision about the work the screen does, and every component answers to it without being
-  told.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order
   is identity; the status colours are meaning. Status colours are never series colours.
 - **Copy is English, formal and direct**, concrete action verbs, no boastful adjectives.
@@ -123,7 +94,6 @@ about the rest, so breaking one of those is still a defect nothing will report.
 
 | Question | Read |
 |---|---|
-| Which voice does this application take? | the table at the top of this file, and nothing else: it is the whole of the decision |
 | Does a component like this exist at all, and which layers ship it? | [`frameworks/SKILL.md`](./frameworks/SKILL.md) |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/SKILL.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/SKILL.md` |
@@ -136,7 +106,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible? | `contracts/behaviour/<pattern>.json`, and the component's own `<Name>.behaviour.json` |
 | How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) |
-| What does every component look like at once, in one design extension? | `frameworks/react/kitchen-sink/<extension>/`, and the same page in `frameworks/angular/` |
+| What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
 
 **Do not read these to build something.** `contracts/api/AGENTS.md`,
@@ -162,8 +132,5 @@ what it is for. Content you draw yourself is yours, styled through the same toke
 
 ## Invoked with no other guidance
 
-**Ask what kind of application this is before you ask anything else**, and take the voice from the
-answer: a screen that is scanned, one that is read, and one that invites are three different jobs
-and Arena draws them differently. Then ask what the user wants to build, and a few questions about
-audience and surface. Then act as an expert in the Arena language and produce either an HTML
+**Ask what the user wants to build**, and a few questions about audience and surface. Then act as an expert in the Arena language and produce either an HTML
 artifact or production code, whichever the answer calls for.

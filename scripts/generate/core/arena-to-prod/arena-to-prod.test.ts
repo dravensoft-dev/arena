@@ -580,31 +580,8 @@ test('it takes the union both ways, which is the half the shipped copy had lost'
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('the voices a package ships are read from the catalogue it carries, not parsed back out of CSS', () => {
-  const root = installed("@import './css/reset.css';\n@import './css/effects.css';\n", ['button']);
-  writeFileSync(join(root, CATALOGUE_FILE), JSON.stringify({
-    tokens: { 'r-surface': '14px', 'fill-surface': 'var(--color-base-200)' },
-    roles: { 'r-surface': { type: 'dimension' } },
-    extensions: {
-      showcase: {
-        grouping: 'figure-ground',
-        base: ['--r-surface:22px;', '--bw-surface:0px;'],
-        byPolarity: {},
-      },
-    },
-  }));
-  assert.deepEqual(packageSheets(root)?.extensions, {
-    showcase: { grouping: 'figure-ground', base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
-  }, 'the catalogue is written where the sources are and read where they are not, which is what a '
-   + 'regex over the shipped CSS was standing in for. It carries the grouping too, and that is why '
-   + 'the regex could not stay: a selector says which class a voice answers to and never which '
-   + 'mechanism it groups by, and a local voice deriving from one has to inherit that');
-  rmSync(root, { recursive: true });
-});
-
-test('a package carrying no catalogue ships no voices rather than failing', () => {
+test('a package carrying no catalogue reads as empty rather than failing', () => {
   const root = installed("@import './css/reset.css';\n", ['button']);
-  assert.deepEqual(packageSheets(root)?.extensions, {});
   assert.deepEqual(packageSheets(root)?.roleReferences, []);
   rmSync(root, { recursive: true });
 });

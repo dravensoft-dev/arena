@@ -149,7 +149,7 @@ test('no index is an entry point, so every one names the router above it', () =>
   assert.ok(
     renderIndex().includes('](../SKILL.md)'),
     'the layer-neutral index does not name the router, so a reader landing here has no path to the '
-      + 'voice or the rules',
+      + 'the rules',
   );
   for (const layer of CONSUMER_LAYERS) {
     assert.ok(
