@@ -8,7 +8,7 @@ import { contrast } from '../../lib/core/validate-palette.mjs';
 import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { extensionFiles, extensionName, resolvedFor } from './check-extensions.ts';
+import { resolvedFor } from './check-extensions.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
@@ -151,7 +151,7 @@ function main() {
   const palette = readFileSync(join(root, PALETTE), 'utf8');
   const structure = structureOf(readFileSync(join(root, COLORS), 'utf8'));
   const effects = readFileSync(join(root, EFFECTS), 'utf8');
-  const extensions = extensionFiles().map(extensionName);
+  const scoped: string[] = [];
   let ok = true;
 
   for (const { token, use } of REMOVED) {
@@ -162,7 +162,7 @@ function main() {
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
-    for (const scope of scopesToMeasure(effects, t.name, extensions)) {
+    for (const scope of scopesToMeasure(effects, t.name, scoped)) {
       const surfaces: [string, string][] = scope.surfaces
         .map((name) => [name.replace(/^color-/, ''), readHex(body, name)]);
       console.log(`\n${t.name}, ${scope.label} — --color-base-content ${content} over ${surfaces.map(([n, h]) => `${n} ${h}`).join(', ')}`);
@@ -203,10 +203,6 @@ function main() {
       }
 
     }
-    const quiet = extensions.length + 1 - scopesToMeasure(effects, t.name, extensions).length;
-    if (quiet > 0)
-      console.log(`\n  ${quiet} extension(s) put text on the same surfaces as no extension in ${t.name}, so the run above measured them too`);
-
     console.log(`\n${t.name} — fill/content pairs`);
     for (const { fill, content, gate, deriveFrom, keep, note } of PAIRS) {
       let fillHex = tryHex(body, `color-${fill}`);

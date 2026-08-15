@@ -1,17 +1,15 @@
 /* The property that makes this safe to have written at all is that a region is placed by a person
  * and only filled by the script, so these hold both halves: a page with no markers is refused
  * rather than rewritten, and a page with them comes back byte-identical once it is current. The
- * voice region is the one that is not verbatim, so its two derived parts, the catalogue and the
- * count in its opening sentence, are asserted against the contracts. */
+ * every region is verbatim, so a page that is current comes back unchanged. */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { voiceTable, voices } from './generate-voices.ts';
 import {
-  TARGETS, REGIONS, openLine, closeLine, shipped, renderRegion, applyRegion, renderTarget,
+  TARGETS, REGIONS, openLine, closeLine, renderRegion, applyRegion, renderTarget,
 } from './generate-npm-pages.ts';
 
 test('both npm pages carry every shared region, and each is byte-identical between them', () => {
@@ -47,11 +45,3 @@ test('a region replaces what is between its markers and leaves the page around i
   assert.doesNotMatch(after, /old/);
 });
 
-test('the voice region carries the catalogue and says how many ship, both from the contracts', () => {
-  const region = renderRegion('voices');
-  for (const row of voiceTable()) assert.ok(region.includes(row), 'every catalogue row is emitted');
-  const { extensions, capitalized } = shipped();
-  assert.equal(extensions, voices().length - 1, 'the base voice is not an extension');
-  assert.ok(region.includes(`${capitalized} ship today`),
-    'the count is a word derived from the catalogue rather than a number somebody typed');
-});

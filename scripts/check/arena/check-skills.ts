@@ -1,6 +1,6 @@
 /* Holds everything on the consumer branch that is emitted rather than written equal to a fresh
- * emit: the index tree, frameworks/SKILL.md and one per layer; the router's voice catalogue; and
- * the regions of each npm page that are the same page in both packages. All of them are tracked
+ * emit: the index tree, frameworks/SKILL.md and one per layer, and the regions of each npm page
+ * that are the same page in both packages. All of them are tracked
  * rather than built, because the plugin is served from the git tag where nothing runs a build, so
  * a stale copy is not a stale artefact: it is a wrong answer handed to every reader of that tag,
  * with every other gate green. Tracking is this gate's to assert because check:generated scans no
@@ -14,10 +14,6 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { renderTarget, skillTargets, loadCategories } from '../../generate/arena/generate-skills.ts';
 import {
-  VOICES_TARGET, renderRegion as renderVoices,
-  OPEN_LINE as VOICES_OPEN, CLOSE_LINE as VOICES_CLOSE,
-} from '../../generate/arena/generate-voices.ts';
-import {
   TARGETS as NPM_TARGETS, renderTarget as renderNpmPage,
 } from '../../generate/arena/generate-npm-pages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -26,35 +22,13 @@ export const node = {
   name: 'check:skills',
   reads: [
     'contracts/api/components', 'frameworks/Components.json', 'frameworks/SKILL.md',
-    'contracts/design/extension.*.json', VOICES_TARGET, ...NPM_TARGETS,
+    ...NPM_TARGETS,
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
   ],
   writes: [],
   feeds: [],
 };
-
-export function voicesRegionOf(source: string) {
-  const lines = source.split('\n');
-  const opensAt = lines.findIndex((line) => VOICES_OPEN.test(line));
-  if (opensAt === -1) return null;
-  const closesAt = lines.indexOf(VOICES_CLOSE, opensAt);
-  if (closesAt === -1) return null;
-  return lines.slice(opensAt, closesAt + 1).join('\n');
-}
-
-export function voiceRegionProblems(base = root) {
-  const found = voicesRegionOf(readFileSync(join(base, VOICES_TARGET), 'utf8'));
-  if (found === null)
-    return [`${VOICES_TARGET}: carries no @voices region, so the first decision on the consumer `
-      + 'route is made from a catalogue nothing holds to the contracts. Run bun run generate:voices'];
-  const expected = renderVoices(base);
-  return found === expected
-    ? []
-    : [`${VOICES_TARGET}: its @voices region does not match contracts/design/extension.*.json, so a `
-      + 'reader picks a voice from a catalogue this build does not ship. Fix the contract and run '
-      + 'bun run generate:voices'];
-}
 
 export function sharedRegionProblems(base = root) {
   const problems = [];
@@ -115,7 +89,6 @@ export function skillProblems(base = root, tracked = trackedFiles(base)) {
   const declared = Object.values(loadCategories(base)).flat().length;
   const problems = [
     ...zeroDeclarationProblems(declared),
-    ...voiceRegionProblems(base),
     ...sharedRegionProblems(base),
   ];
 
@@ -144,8 +117,8 @@ function main() {
     process.exit(1);
   }
   console.log(
-    `check-skills: ${emitted} index page(s), the router's voice catalogue and `
-    + `${NPM_TARGETS.length} npm page(s) match a fresh emit over ${declared} declared component(s)`,
+    `check-skills: ${emitted} index page(s) and ${NPM_TARGETS.length} npm page(s) match a fresh `
+    + `emit over ${declared} declared component(s)`,
   );
 }
 

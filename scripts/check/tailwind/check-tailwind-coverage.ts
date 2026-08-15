@@ -93,7 +93,6 @@ export const EXCLUDED = new Map([
   ['dismiss-default', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
-  ['arena-extensions', 'not a value but a CATALOGUE: the comma-separated names of the extensions the build ships, derived from FILES in scripts/generate/arena/generate-tokens.ts and read by intro/extension.js to populate the voice control. No utility could carry a list, and nothing paints with it, so a namespace would be a place to put it rather than a use for it'],
 ]);
 
 export function presetTokens(css: string) {

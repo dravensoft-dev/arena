@@ -314,13 +314,6 @@ test('a local voice emits its parent whole and then its own tokens over it', () 
   assert.equal(root.get('tt-eyebrow'), 'none', 'a keyword travels as the word it is');
 });
 
-test('a local voice that breaks its parent mechanism fails the CONSUMER build, naming the mechanism', () => {
-  const problems = localProblems(local({ tokens: { 'bw-surface': '1px' } }));
-  assert.equal(problems.length, 2, 'once per theme, because a voice is measured in both');
-  assert.match(problems[0] ?? '', /groups by figure-ground/);
-  assert.match(problems[0] ?? '', /still draws --bw-surface/);
-});
-
 test('a local voice is held to the same floors a shipped one is', () => {
   assert.match(localProblems(local({ tokens: { 'lh-heading': '0.8' } }))[0] ?? '', /--lh-heading is 0.8/);
   assert.match(localProblems(local({ tokens: { 'measure-prose': '120ch' } }))[0] ?? '', /outside 45 to 90/);

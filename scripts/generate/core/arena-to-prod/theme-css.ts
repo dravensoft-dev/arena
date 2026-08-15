@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, PRINCIPLES, RHYTHM_STEP, floorProblems, nameProblems,
+  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems,
 } from './extension-rules.ts';
 
 export type ShippedExtension = {
@@ -325,18 +325,9 @@ export function localExtensionProblems(
   if (isObject(value.light)) problems.push(...localTokenProblems(`${name}.light`, value.light, catalogue));
   if (problems.length) return problems;
 
-  const grouping = parent?.grouping;
-  if (grouping) {
-    const principle = PRINCIPLES.get(grouping);
-    for (const polarity of ['dark', 'light']) {
-      const at = resolvedLocal(value, parent, catalogue, polarity);
-      const broken = principle?.holds(at);
-      if (broken)
-        problems.push(`extension: "${name}" extends "${String(parentName)}", which groups by ${grouping}: `
-          + `${PRINCIPLES.get(grouping)?.says}. In the ${polarity} theme ${broken}. A voice derived from `
-          + 'another inherits the mechanism it groups by, and the values it writes have to keep it true.');
-      problems.push(...floorProblems(at, polarity, `extension: "${name}"`));
-    }
+  for (const polarity of ['dark', 'light']) {
+    const at = resolvedLocal(value, parent, catalogue, polarity);
+    problems.push(...floorProblems(at, polarity, `extension: "${name}"`));
   }
   return problems;
 }

@@ -4,9 +4,7 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
-import {
-  CATALOGUE, FILES, THEME_SCOPES, extensionsIn,
-} from '../../generate/arena/generate-tokens.ts';
+import { FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
   const out = flattenTokens({
@@ -87,14 +85,12 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
       if (!bySelector.has(selector)) bySelector.set(selector, []);
       bySelector.get(selector).push(`contracts/design/${source}`);
     }
-    const catalogued = selectorHoldingTheCatalogue(file);
     const css = `contracts/design-generated/${file.out}`;
     for (const [selector, sources] of bySelector) {
       const tokens: { name: string; path?: string[] }[] =
         sources.flatMap((s: string) => flattenTokens(readJson(s)));
       cases.push([
-        tokens.filter((t) => !themeOf(t)).map((t) => t.name)
-          .concat(selector === catalogued ? [CATALOGUE] : []),
+        tokens.filter((t) => !themeOf(t)).map((t) => t.name),
         css, selector, sources,
       ]);
       const references = colourReferencesIn(sources);
@@ -109,10 +105,6 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
   return cases;
 }
 
-function selectorHoldingTheCatalogue(file: { blocks: { selector: string; source: string }[] }) {
-  return extensionsIn(file.blocks).length ? ':root' : null;
-}
-
 test('derived names match the custom properties the build actually emits, in every scope a block carries', () => {
   const cases = deriveCases(FILES);
   assert.ok(cases.length >= 4, 'expected at least one case per output file');
@@ -125,10 +117,3 @@ test('derived names match the custom properties the build actually emits, in eve
   }
 });
 
-test('the catalogue is the one emitted property no token file declares, and it names every extension', () => {
-  const effects = FILES.find((f) => extensionsIn(f.blocks).length);
-  assert.ok(effects, 'no output file carries an extension block, so the catalogue has nowhere to live');
-  const emitted = parseDecls(readFileSync(`contracts/design-generated/${effects.out}`, 'utf8'));
-  assert.equal(emitted.get(':root').get(CATALOGUE), extensionsIn(effects.blocks).join(','));
-  for (const name of extensionsIn(effects.blocks)) assert.ok(emitted.has(`.arena-${name}`));
-});

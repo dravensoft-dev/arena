@@ -1,25 +1,19 @@
-/* What makes a voice a voice, stated once and run in two places. Arena runs it over the catalogue
- * it ships; a consumer's build runs it over the voice they derived in arena.config.json, and the
- * two have to agree or a local voice would be held to a weaker rule than a published one. It lives
- * inside the command's own directory because that is the only tree a package carries: a module
- * under scripts/ is a specifier that resolves here and to nothing beside a consumer's node_modules,
- * so the shared half goes in and the gates import upward, which is what audit.ts and palette-keys.ts
- * already do. Everything here is a function of plain data, reads no file and knows no path, since
- * the repository hands it CSS off disk and the CLI hands it CSS out of a package. */
+/* The floors a reader is owed and the shape a moved token takes, stated once and run in two
+ * places. Arena runs it over what it ships; a consumer's build runs it over what they wrote, and
+ * the two have to agree or one would be held to a weaker rule than the other. It lives inside the
+ * command's own directory because that is the only tree a package carries: a module under scripts/
+ * is a specifier that resolves here and to nothing beside a consumer's node_modules, so the shared
+ * half goes in and the gates import upward, which is what audit.ts and palette-keys.ts already do.
+ * Everything here is a function of plain data, reads no file and knows no path, since the
+ * repository hands it CSS off disk and the CLI hands it CSS out of a package. */
 
 export const ARENA_EXT = 'com.dravensoft.arena';
-
-export const RESERVED_NAME = 'none';
 
 export const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 export const FS_STEP = /^fs-[a-z0-9]+$/;
 
 export const RHYTHM_STEP = /^rhythm-[a-z]+$/;
-
-export const PAGE_FILL = 'color-base-100';
-
-export const MIN_PROXIMITY_RATIO = 4;
 
 export const MIN_PROSE_LEADING = 1.5;
 
@@ -32,36 +26,6 @@ export const MAX_PROSE_MEASURE = 90;
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 
 export type MovedToken = { $type?: string; $value?: unknown; $description?: string };
-
-export function isZeroLength(value: string | undefined) {
-  return value !== undefined && /^0(\.0+)?[a-z%]*$/.test(value.trim());
-}
-
-export function paintsNothing(shadow: string | undefined) {
-  if (shadow === undefined) return true;
-  const rgba = shadow.match(/rgba?\(([^)]*)\)/);
-  if (!rgba) return false;
-  const parts = (rgba[1] ?? '').split(',').map((p) => p.trim());
-  return parts.length === 4 && Number(parts[3]) === 0;
-}
-
-const REFERENCE = /^var\(\s*--([\w-]+)\s*\)$/;
-
-const pointsAt = (at: Map<string, string>, role: string) =>
-  REFERENCE.exec(at.get(role)?.trim() ?? '')?.[1];
-
-export const fillsLikeThePage = (at: Map<string, string>) => {
-  const surface = pointsAt(at, 'fill-surface');
-  return surface !== undefined && surface === (pointsAt(at, 'fill-page') ?? PAGE_FILL);
-};
-
-const px = (value: string | undefined) => Number.parseFloat(value ?? '');
-
-export function proximityRatio(at: Map<string, string>) {
-  const near = px(at.get('rhythm-group'));
-  const far = px(at.get('rhythm-section'));
-  return Number.isFinite(near) && Number.isFinite(far) && near > 0 ? far / near : null;
-}
 
 export function floorProblems(at: Map<string, string>, scope: string, where: string) {
   const problems = [];
@@ -91,64 +55,6 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
   return problems;
 }
 
-export const PRINCIPLES = new Map<string, {
-  says: string;
-  holds: (at: Map<string, string>) => string | null;
-}>([
-  ['common-region', {
-    says: 'a line drawn around a region says the things inside it are one thing',
-    holds: (at) => (isZeroLength(at.get('bw-surface'))
-      ? 'it sets --bw-surface to zero, and a voice that groups by drawing the region has to draw it'
-      : null),
-  }],
-  ['figure-ground', {
-    says: 'a surface is an object standing off a floor, so depth separates it and no line has to',
-    holds: (at) => {
-      if (!isZeroLength(at.get('bw-surface')))
-        return 'it still draws --bw-surface, so the depth is decoration over the default voice '
-          + 'rather than the thing carrying the grouping';
-      if (paintsNothing(at.get('shadow-surface-rest')) && fillsLikeThePage(at))
-        return 'it removed --bw-surface and then gave the surface neither a depth nor a fill of its '
-          + 'own, so a figure is told from its ground by nothing at all';
-      return null;
-    },
-  }],
-  ['proximity', {
-    says: 'what belongs together is near and what does not is far, and nothing is drawn at all',
-    holds: (at) => {
-      if (!isZeroLength(at.get('bw-surface')))
-        return 'it draws --bw-surface, which is grouping by common region under another name';
-      if (!paintsNothing(at.get('shadow-surface-rest')))
-        return 'it paints --shadow-surface-rest, which is grouping by figure and ground under another name';
-      if (!fillsLikeThePage(at))
-        return `it leaves --fill-surface off --${PAGE_FILL}, and a fill is a region drawn however faint `
-          + 'it is, so the surface still encloses what a voice said only distance would group';
-      const ratio = proximityRatio(at);
-      if (ratio === null)
-        return 'its rhythm steps do not resolve to lengths this gate can compare, so the one signal it '
-          + 'has left cannot be measured';
-      if (ratio < MIN_PROXIMITY_RATIO)
-        return `--rhythm-section is only ${ratio.toFixed(1)} times --rhythm-group, and distance is the `
-          + `only signal left once nothing is drawn: under ${MIN_PROXIMITY_RATIO} it cannot carry both `
-          + 'what belongs together and what does not';
-      return null;
-    },
-  }],
-  ['similarity', {
-    says: 'a group is marked rather than enclosed or lifted, so identical treatment is what says the things are a set',
-    holds: (at) => {
-      if (!isZeroLength(at.get('bw-surface')))
-        return 'it draws --bw-surface, which is grouping by common region under another name';
-      if (!paintsNothing(at.get('shadow-surface-rest')))
-        return 'it paints --shadow-surface-rest, which is grouping by figure and ground under another name';
-      if (fillsLikeThePage(at))
-        return 'its --fill-surface is the page own fill, so there is nothing to tell it from the page '
-          + 'and the marking a voice said would group is not painted at all, which is proximity';
-      return null;
-    },
-  }],
-]);
-
 const COLOUR_ALIAS = /^\{color\.[a-z0-9-]+\}$/;
 
 export function valueProblems(where: string, key: string, token: MovedToken, role: RoleShape) {
@@ -175,11 +81,8 @@ export function valueProblems(where: string, key: string, token: MovedToken, rol
   return [];
 }
 
-export function nameProblems(name: string, polarities: readonly string[], where = `extension.${name}.json`) {
+export function nameProblems(name: string, polarities: readonly string[], where: string) {
   const problems = [];
-  if (name === RESERVED_NAME)
-    problems.push(`${where}: "${RESERVED_NAME}" is how a consumer says it wants no extension, so an extension `
-      + 'answering to that name could never be selected');
   if (polarities.includes(name))
     problems.push(`${where}: "${name}" is a theme polarity, and .arena-${name} is already the class a palette of `
       + `that polarity answers to. An extension named after one would be indistinguishable from the `

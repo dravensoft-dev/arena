@@ -18,7 +18,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE, PLAYGROUND_SUFFIX,
-  entryPoints, extensions, components, pages, indexedDirectories, phosphorFiles,
+  entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, titleOf, url,
 } from '../../lib/arena/site-pages.ts';
 import { renderOgImage, OG_WIDTH, OG_HEIGHT } from '../../lib/arena/og-image.ts';
@@ -99,7 +99,6 @@ export const TAGLINE = 'One design system, in React and in Angular, built to be 
 
 export function landingPage(base = repoRoot) {
   const drawn = components('react', base).length;
-  const voices = extensions(base).length;
   const links = entryPoints(base).filter((entry) => entry.public);
   const cards = links
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
@@ -126,9 +125,6 @@ bun add @phosphor-icons/web</code></pre>
 <ul style="line-height:2">
 ${cards}
 </ul>
-<p style="color:var(--mute)">Each kitchen sink is drawn once per voice, and this build ships
-${voices} of them.</p>
-
 <h2 style="font-family:var(--font-display)">Take it</h2>
 <ul style="line-height:2">
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-react">@dravensoft/arena-react</a></li>
@@ -189,7 +185,7 @@ function linksFor(directory: string, base: string) {
   }
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) {
-    return extensions(base).map((e) => ({ href: `${e}/`, label: `${e} voice` }));
+    return sinkNames(base).map((name) => ({ href: `${name}/`, label: name }));
   }
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
   if (one) return [{ href: SINK_PAGE, label: titleOf(`${directory}/${SINK_PAGE}`, base) }];
