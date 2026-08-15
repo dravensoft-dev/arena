@@ -16,6 +16,7 @@ import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu.tsx';
 import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo.tsx';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
+import { ArenaBoard } from '../components/layout/arena-board/ArenaBoard.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
@@ -32,6 +33,7 @@ const WITHOUT_THE_SLOT = new Map([
   ['ArenaSideNavSection', () => <ArenaSideNavSection label="Projects" />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaScroller', () => <ArenaScroller label="Recently landed lots" />],
+  ['ArenaBoard', () => <ArenaBoard label="Sprint 32 tasks by status">{null}</ArenaBoard>],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaSection', () => <ArenaSection title="Landed recently" />],
 ]);

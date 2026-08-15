@@ -1,0 +1,5 @@
+{
+  "pattern": "scrollable-region",
+  "reason": "A board holds more columns than fit and scrolls sideways, so WCAG 2.1.1 asks that a keyboard be able to reach and move it: the board is one tab stop carrying a group role and a name, and the arrow keys scroll it once focus lands. Nothing moves on its own, so no pause control is owed under WCAG 2.2.2 and prefers-reduced-motion has nothing to answer. The columns are groups of their own with their own names, which is what lets a reader account for where the scroll took them.",
+  "exceptions": []
+}

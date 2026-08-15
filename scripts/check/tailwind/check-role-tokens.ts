@@ -84,6 +84,8 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaCalendar:time:font-mono', 'a clock time, read as a figure'],
   ['ArenaTable:tdMono:font-mono', 'the mono column of a table, which is what the face is for'],
   ['ArenaTable:cardValueMono:font-mono', 'the same column in the card layout the table falls back to'],
+  ['ArenaBoard:count:font-mono', 'how many cards a column holds, read as a figure beside its name, and a row of columns whose counts do not align by digit reads as a jumble'],
+  ['ArenaBoard:summary:font-mono', 'the total a column adds up to, read as a figure under its name rather than as a register'],
   ['ArenaPeopleList:rank:font-mono', 'a position in a standings list, read as a figure, and a column of them has to align by digit or the list stops reading as a ranking'],
   ['ArenaPeopleList:figure:font-mono', 'the quantity a row of people is sorted by, read as a figure beside the name rather than as a register'],
   ['ArenaProgressBar:value:font-mono', 'a percentage that must not jitter as it counts'],

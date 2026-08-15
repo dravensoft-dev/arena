@@ -43,6 +43,14 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'because a row lays its items out at one width and cannot reach inside them to set it. It is a component\'s '
     + 'own channel to its children rather than a design value, which is why no token defines it and why its '
     + 'default, the grid-min role, is resolved by the component and not by this sheet'],
+  ['arena-board-column', 'written by ArenaBoard onto its own root from the minColumn member, in both layers, because '
+    + 'a board lays its columns out at one minimum width and cannot reach inside them to set it. It is the same '
+    + 'channel ArenaScroller opens for the same reason, and its default is the grid-min role resolved by the '
+    + 'component rather than by this sheet'],
+  ['arena-board-column-cat', 'written by ArenaBoardColumn onto its own section from the colorId member, in both '
+    + 'layers, for the reason ArenaTag writes its own: a ramp slot is data rather than a design value and a class '
+    + 'string cannot name which of the eight it is. It is set only while colorId names one, and a style plugin '
+    + 'reads it to fill the whole head with the identity colour'],
   ['arena-tag-cat', 'written by ArenaTag onto its own root from the colorId member, in both layers, because '
     + 'the ramp slot a tag carries is data rather than a design value and a class string cannot name which '
     + 'of the eight it is. It is set only while colorId names one, so the identity arm is the only rule that '

@@ -99,6 +99,8 @@ a screen built from this page alone breaks the rules where nothing will report i
 
 | Component | What it is | Takes | Behaviour | Layers |
 |---|---|---|---|---|
+| `ArenaBoard` | The frame of a board: columns side by side, as wide as the room allows and never narrower than one column's minimum, scrolling sideways when they no longer fit. It is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all. It draws no card and moves nothing: what a column holds is the consumer's, and reordering is theirs too. | `label*` `content*` `minColumn` | scrollable-region | angular, react |
+| `ArenaBoardColumn` | One column of an ArenaBoard: a named head with a count and a control, a stack of whatever the consumer puts in it, and a footer for the one action that adds to it. The cards are the consumer's own, because a card on a board carries that product's fields and nothing general is left once they are removed. | `title*` `count` `summary` `colorId` `action` `content` `footer` | none | angular, react |
 | `ArenaFigure` | A framed piece of media with an optional caption: an image, a video, or a stand-in for the one that has not arrived. The frame is a shape and a corner a style plugin answers, and it clips whatever is put in it, so a wall of figures reads as a wall rather than as whatever sizes the pictures happened to be. | `media` `fallback` `overlay` `caption` `ratio` | none | angular, react |
 | `ArenaGrid` | A grid that decides its own column count from the room it is given, rather than from a breakpoint anyone had to pick. Cells are as wide as they can be at or above a minimum, and the count falls as the room does, all the way to one. | `min` `gap` `maxWidth` `content` | none | angular, react |
 | `ArenaHero` | The opening of a landing page: one line the page is built around, what sits above and below it, the actions it asks for, and a figure beside or behind it. Its title takes the hero register, which is the top rung of the title ladder and the only one above the page head. | `title*` `eyebrow` `lede` `actions` `figure` `layout` `align` | none | angular, react |
@@ -128,4 +130,4 @@ a screen built from this page alone breaks the rules where nothing will report i
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-69 components across 7 categories.
+71 components across 7 categories.

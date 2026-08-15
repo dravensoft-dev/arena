@@ -1,0 +1,24 @@
+{
+  "component": "ArenaBoard",
+  "seed": {
+    "label": "Sprint 32 tasks by status"
+  },
+  "slots": {
+    "content": [
+      { "component": "ArenaBoardColumn",
+        "members": { "title": "To do", "count": 2, "colorId": 7, "summary": "19 pts" },
+        "slots": { "content": [
+          { "component": "ArenaCard", "members": { "title": "Audit the preferences screen" } },
+          { "component": "ArenaCard", "members": { "title": "Reduce cold start on mobile" } }
+        ] } },
+      { "component": "ArenaBoardColumn",
+        "members": { "title": "In progress", "count": 1, "colorId": 1, "summary": "8 pts" },
+        "slots": { "content": [
+          { "component": "ArenaCard", "members": { "title": "Rebuild the onboarding checklist" } }
+        ] } },
+      { "component": "ArenaBoardColumn",
+        "members": { "title": "Done", "count": 0, "colorId": 5 } }
+    ]
+  },
+  "note": "The board draws the frame and the columns; every card in them is the consumer's own."
+}

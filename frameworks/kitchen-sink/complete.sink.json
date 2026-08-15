@@ -98,6 +98,8 @@
       "title": "Layout",
       "items": [
         "ArenaGrid",
+        "ArenaBoard",
+        "ArenaBoardColumn",
         "ArenaSiteFooter",
         "ArenaFigure",
         "ArenaHero",

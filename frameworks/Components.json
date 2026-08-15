@@ -56,6 +56,8 @@
     "ArenaTextarea"
   ],
   "layout": [
+    "ArenaBoard",
+    "ArenaBoardColumn",
     "ArenaFigure",
     "ArenaGrid",
     "ArenaHero",
