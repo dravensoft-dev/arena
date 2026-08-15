@@ -21,11 +21,18 @@ export {
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, valueProblems,
 };
 
-const EFFECTS = 'contracts/design-generated/effects.generated.css';
+export const ROOT_PLUGIN = 'plugin-style-store/default/plugin.tokens.json';
+
+export const RESOLVED = [
+  'contracts/design-generated/effects.generated.css',
+  'contracts/design-generated/typography.generated.css',
+  'contracts/design-generated/spacing.generated.css',
+  'contracts/design-generated/style-plugin.default.generated.css',
+];
 
 export const node = {
   name: 'check:style-plugin',
-  reads: ['contracts/design', 'scripts/generate/arena/generate-tokens.ts', EFFECTS],
+  reads: ['contracts/design', ROOT_PLUGIN, 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
   writes: [],
   feeds: [],
 };
@@ -61,11 +68,11 @@ export function zeroScopeProblems(count: number) {
     + 'discovery path'];
 }
 
-export function collect(effects?: string) {
-  const css = effects ?? readFileSync(join(repoRoot, EFFECTS), 'utf8');
+export function collect(sheets?: string) {
+  const css = sheets ?? RESOLVED.map((f) => readFileSync(join(repoRoot, f), 'utf8')).join('\n');
   const problems = [];
   for (const scope of SCOPES)
-    problems.push(...floorProblems(resolvedFor(css, '', scope), scope, 'contracts/design/roles.json'));
+    problems.push(...floorProblems(resolvedFor(css, '', scope), scope, ROOT_PLUGIN));
   return problems;
 }
 

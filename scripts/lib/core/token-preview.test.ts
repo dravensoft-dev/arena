@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
-import { FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
+import { DESIGN_DIR, FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
   const out = flattenTokens({
@@ -77,13 +77,13 @@ function colourReferencesIn(sources: string[]) {
   return names;
 }
 
-function deriveCases(files: { out: string; blocks: { selector: string; source: string }[] }[]) {
+function deriveCases(files: { out: string; blocks: { selector: string; source: string; dir?: string }[] }[]) {
   const cases = [];
   for (const file of files) {
     const bySelector = new Map();
-    for (const { selector, source } of file.blocks) {
+    for (const { selector, source, dir = DESIGN_DIR } of file.blocks) {
       if (!bySelector.has(selector)) bySelector.set(selector, []);
-      bySelector.get(selector).push(`contracts/design/${source}`);
+      bySelector.get(selector).push(`${dir}/${source}`);
     }
     const css = `contracts/design-generated/${file.out}`;
     for (const [selector, sources] of bySelector) {

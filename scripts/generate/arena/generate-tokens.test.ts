@@ -7,20 +7,24 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
+import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
-const DESIGN = join(repoRoot, 'contracts/design');
-const SOURCES = [...new Set(FILES.flatMap((f) => f.blocks.map((b) => b.source)))];
+const DESIGN = join(repoRoot, DESIGN_DIR);
+const BLOCKS = FILES.flatMap((f) => f.blocks) as { source: string; dir?: string }[];
+const DIR_OF = new Map(BLOCKS.map((b) => [b.source, b.dir ?? DESIGN_DIR]));
+const SOURCES = [...DIR_OF.keys()];
 const REFERENCE = /"\$value"\s*:\s*"\{([^}]+)\}"/g;
 
+const pathOf = (source: string) => join(repoRoot, DIR_OF.get(source) ?? DESIGN_DIR, source);
+
 function referencedGroups(source: string) {
-  const text = readFileSync(join(DESIGN, source), 'utf8');
+  const text = readFileSync(pathOf(source), 'utf8');
   return [...text.matchAll(REFERENCE)].map((m) => m[1]?.split('.')[0]);
 }
 
 function topLevelGroups(source: string) {
-  return Object.keys(readJson(join(DESIGN, source)));
+  return Object.keys(readJson(pathOf(source)));
 }
 
 const SCRIPT_FLAG = /"script"\s*:\s*true/g;
@@ -36,7 +40,7 @@ test('FILES declares no block outside a theme or a density', () => {
 test('a design source path carries no host separator, on the platform whose separator is one', () => {
   for (const [name, on] of [['the host', nodePath], ['win32', win32]] as const) {
     for (const source of SOURCES) {
-      const spelled = designPath(source, on);
+      const spelled = designPath(source, DIR_OF.get(source), on);
       assert.ok(!spelled.includes('\\'),
         `designPath("${source}") is "${spelled}" on ${name}. Style Dictionary hands this to glob, where a `
         + 'backslash escapes the character after it rather than separating two of them, so the pattern matches '
@@ -64,7 +68,7 @@ test('a token belongs to the source whose name it carries, in every spelling glo
 
 test('every token flagged script-readable survives the walk, which compares the path Style Dictionary reports back', async () => {
   const declared = SOURCES.reduce((n, source) =>
-    n + [...readFileSync(join(DESIGN, source), 'utf8').matchAll(SCRIPT_FLAG)].length, 0);
+    n + [...readFileSync(pathOf(source), 'utf8').matchAll(SCRIPT_FLAG)].length, 0);
   const collected = await collectScriptTokens();
 
   assert.equal(collected.length, declared,
@@ -153,4 +157,12 @@ test('a declared resolution source shares no top-level group with the file that 
         + "fills one file's missing descriptions from the other -- which is the defect the opt-in map avoids.");
     }
   }
+});
+
+test('the default plugin answers every declared role', () => {
+  const declared = Object.keys(readJson(join(repoRoot, 'contracts/design/roles.json')));
+  const css = readFileSync(join(repoRoot, 'contracts/design-generated/style-plugin.default.generated.css'), 'utf8');
+  assert.deepEqual(declared.filter((role) => !css.includes(`--${role}:`)), [],
+    'a role the root plugin leaves unanswered is a custom property with no value, which is invalid '
+    + 'at computed-value time: the declaration reading it is dropped and the property disappears');
 });

@@ -5,4 +5,5 @@
 @import "../contracts/design-generated/typography.generated.css";
 @import "../contracts/design-generated/spacing.generated.css";
 @import "../contracts/design-generated/effects.generated.css";
+@import "../contracts/design-generated/style-plugin.default.generated.css";
 @import "../contracts/design/environment.css";

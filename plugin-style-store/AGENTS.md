@@ -7,9 +7,8 @@ that says it did not. That is why the store is a directory of the repository rat
 beside a gate or a template a command copies into a project: a template is a copy the moment it is
 used, and a copy is a second answer to a question the kernel asks once.
 
-A plugin is a directory holding `plugin.tokens.json`, which answers roles, and optionally
-`plugin.css`, which is CSS of its own written against the part hooks and wrapped in the reserved
-layer by the build.
+A plugin is a directory holding [`default/plugin.tokens.json`](./default/plugin.tokens.json),
+which answers roles.
 
 ## The two that live here
 
@@ -19,10 +18,10 @@ list emits on `:root` and a custom property with no value is invalid at computed
 declaration reading it is dropped and the property disappears, so an unanswered role is a missing
 border rather than a plainer appearance.
 
-**`complete`** is assembled by no package. It answers every role differently and paints through
-every part hook, so a gate can ask whether the surface the kernel advertises is the surface it
-exposes. It is not coherent as a design and does not try to be: a role nothing can reach is a role
-that does not exist, and `complete` is the witness that says otherwise.
+**`complete`** is assembled by no package. It answers every role differently, so a gate can ask
+whether the surface the kernel advertises is the surface it exposes. It is not coherent as a design
+and does not try to be: a role nothing can reach is a role that does not exist, and `complete` is
+the witness that says otherwise.
 
 ## What a plugin may answer with
 

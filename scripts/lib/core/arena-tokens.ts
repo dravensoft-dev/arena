@@ -3,16 +3,18 @@
  * They sit in lib rather than in any one gate because check-cdk, check-tailwind,
  * check-tailwind-coverage and check-docs all read them, and a library must not reach up into a
  * gate to do it. The last one is read off the SELECTORS rather than the declarations, and it is
- * the same four files because a scope class only means anything where a token is re-valued
- * under it. */
+ * the same files because a scope class only means anything where a token is re-valued under it.
+ * The list is derived from the generator's own targets rather than restated, so a sheet it gains
+ * cannot go unread here. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseDecls } from '../arena/css-decls.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { captured } from '../../utils/captures.ts';
+import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 
-const GENERATED = ['palette.generated.css', 'typography.generated.css', 'spacing.generated.css', 'effects.generated.css'];
+const GENERATED = CSS_TARGETS.map((target) => target.split('/').at(-1) as string);
 
 export function arenaTokens(root = repoRoot) {
   const names = new Set<string>();
