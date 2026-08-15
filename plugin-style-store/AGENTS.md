@@ -7,8 +7,14 @@ that says it did not. That is why the store is a directory of the repository rat
 beside a gate or a template a command copies into a project: a template is a copy the moment it is
 used, and a copy is a second answer to a question the kernel asks once.
 
-A plugin is a directory holding [`default/plugin.tokens.json`](./default/plugin.tokens.json),
-which answers roles.
+A plugin is a directory holding two files. [`default/plugin.tokens.json`](./default/plugin.tokens.json)
+answers roles. `plugin.css` beside it is CSS of the plugin's own, written against the
+`data-arena-part` hook every slot carries, and the build wraps it in the reserved cascade layer:
+its author never spells `@layer arena-plugin`, because a layer somebody types by hand is one they
+can get wrong in a way nothing reports. The layer is declared after `utilities`, where every
+compiled component rule sits at one class of specificity, so a plugin rule wins without an
+`!important` anywhere. Unlayered application CSS still beats it, which is the right order and is
+why the audit keeps reporting an application that reaches in.
 
 ## The two that live here
 

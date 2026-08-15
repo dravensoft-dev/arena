@@ -111,8 +111,10 @@ export function preludeProblems(base = root) {
   if (!/@property --tw-border-style/.test(css)) problems.push(`${PRELUDE}: no --tw-border-style registration, so every border disappears`);
   if (!/@property --tw-shadow\b/.test(css)) problems.push(`${PRELUDE}: no --tw-shadow registration, so every shadow and the focus ring disappear`);
   if (!/@keyframes/.test(css)) problems.push(`${PRELUDE}: no @keyframes, so every animation the component CSS names does not play`);
-  if (!/^@layer theme, base, components, utilities;$/m.test(css)) {
-    problems.push(`${PRELUDE}: no layer order declaration, so Tailwind's own property fallbacks sort above everything`);
+  if (!/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) {
+    problems.push(`${PRELUDE}: no layer order declaration ending in the reserved plugin layer, so `
+      + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
+      + 'compiled component rule outranks it');
   }
   for (const directive of ['@apply', '@utility', '@reference', '@source', '@theme']) {
     if (css.includes(directive)) problems.push(`${PRELUDE}: carries ${directive}, a compile-time directive a browser cannot read`);

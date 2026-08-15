@@ -5,12 +5,12 @@
  * split rather than assigned: Tailwind merges every `motion-reduce:` variant in the library
  * into ONE `@media` block. The prelude is not a recommendation. Without the `@property --tw-*`
  * registrations `border-style: var(--tw-border-style)` is invalid at computed-value time, so
- * every border disappears, and the `box-shadow` chain goes with the focus ring. Each component
- * file imports it, because a stylesheet that renders nothing and reports nothing is the
- * failure this layer keeps having. */
+ * every border disappears. Each component file imports it. `arena-plugin` is declared after
+ * `utilities` and holds nothing here: every compiled rule lands in `utilities` at one class of
+ * specificity, so a style plugin declared earlier would need `!important` to reach anything. */
 
 const LAYER_UTILITIES = '@layer utilities {';
-export const LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities;\n';
+export const LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const SLOT_CLASS = /\.([a-z0-9-]+?)__/g;
 
 export function matchingBrace(css: string, open: number) {
