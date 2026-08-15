@@ -225,6 +225,7 @@ function tailwindTree(names: string[]) {
     'frameworks/tailwind/Page.css': '.arena-band{}',
     'frameworks/tailwind/Prose.css': '.arena-prose{}',
     'frameworks/tailwind/Rhythm.css': '.arena-stack{}',
+    'frameworks/tailwind/SrOnly.css': '.arena-sr-only{}',
     'frameworks/tailwind/consume/Prelude.generated.css': ':root{}',
   };
   for (const name of names) {

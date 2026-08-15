@@ -6,20 +6,42 @@
   },
   "variants": {
     "variant": {
-      "primary": { "root": "bg-primary text-primary-content border-primary hover:shadow-control-raised" },
-      "secondary": { "root": "bg-base-200 text-ink-body border-edge-control hover:bg-base-300" },
-      "ghost": { "root": "bg-transparent text-ink-body/82 border-transparent hover:bg-base-200" },
-      "danger": { "root": "bg-transparent border-error text-error hover:bg-error/14" }
+      "primary": {
+        "root": "bg-primary text-primary-content border-primary hover:shadow-control-raised"
+      },
+      "secondary": {
+        "root": "bg-base-200 text-ink-body border-edge-control hover:bg-hover"
+      },
+      "ghost": {
+        "root": "bg-transparent text-ink-body/82 border-transparent hover:bg-base-200"
+      },
+      "danger": {
+        "root": "bg-transparent border-error text-error hover:bg-error/14"
+      }
     },
     "size": {
-      "sm": { "root": "h-ctl-h-sm px-control-x text-ctl-md" },
-      "md": { "root": "h-ctl-h px-4.5 text-ctl" },
-      "lg": { "root": "h-ctl-h-lg px-6.5 text-ctl" }
+      "sm": {
+        "root": "h-ctl-h-sm px-control-x text-ctl-md"
+      },
+      "md": {
+        "root": "h-ctl-h px-4.5 text-ctl"
+      },
+      "lg": {
+        "root": "h-ctl-h-lg px-6.5 text-ctl"
+      }
     },
     "full": {
-      "true": { "root": "w-full" },
-      "false": { "root": "w-auto" }
+      "true": {
+        "root": "w-full"
+      },
+      "false": {
+        "root": "w-auto"
+      }
     }
   },
-  "defaultVariants": { "variant": "primary", "size": "md", "full": false }
+  "defaultVariants": {
+    "variant": "primary",
+    "size": "md",
+    "full": false
+  }
 }

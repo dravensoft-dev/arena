@@ -196,6 +196,14 @@
     "$type": "color",
     "$value": "{color.base-100}"
   },
+  "fill-field": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
+  "fill-hover": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.base-content}"

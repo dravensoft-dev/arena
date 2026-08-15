@@ -196,6 +196,14 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-field": {
+    "$type": "color",
+    "$value": "{color.base-200}"
+  },
+  "fill-hover": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.secondary}"

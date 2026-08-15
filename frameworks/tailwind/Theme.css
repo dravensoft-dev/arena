@@ -54,6 +54,8 @@
   --color-surface-floating: var(--fill-surface-floating);
   --color-page: var(--fill-page);
   --color-surface-sunken: var(--fill-surface-sunken);
+  --color-field: var(--fill-field);
+  --color-hover: var(--fill-hover);
 
   /* The wash a media frame draws under anything laid over it. A colour key rather than one of
      its own, because bg-* is the namespace that paints it; the OPACITY stays in the manifest,

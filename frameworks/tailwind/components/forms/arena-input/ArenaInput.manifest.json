@@ -4,7 +4,7 @@
     "root": "flex flex-col gap-1.5",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/62",
     "required": "text-primary ml-1",
-    "field": "flex items-center gap-control h-ctl-h px-control-x bg-base-300 border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
+    "field": "flex items-center gap-control h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "icon": "inline-flex text-ink-muted/62 text-[length:var(--icon-md)]",
     "prefix": "font-mono text-ctl-md text-ink-muted/62",
     "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-ink-body font-body text-ctl [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:[filter:invert(var(--picker-invert))] [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:duration-[var(--dur-hover)] hover:[&::-webkit-calendar-picker-indicator]:opacity-100",
@@ -14,18 +14,35 @@
   },
   "variants": {
     "state": {
-      "neutral": { "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16" },
-      "error": { "field": "border-error ring-[length:var(--focus-width)] ring-error/14", "statusIcon": "text-error" },
-      "valid": { "field": "border-success ring-[length:var(--focus-width)] ring-success/16 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16", "statusIcon": "text-success" }
+      "neutral": {
+        "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16"
+      },
+      "error": {
+        "field": "border-error ring-[length:var(--focus-width)] ring-error/14",
+        "statusIcon": "text-error"
+      },
+      "valid": {
+        "field": "border-success ring-[length:var(--focus-width)] ring-success/16 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
+        "statusIcon": "text-success"
+      }
     },
     "disabled": {
-      "true": { "root": "opacity-50" },
+      "true": {
+        "root": "opacity-50"
+      },
       "false": {}
     },
     "readonly": {
-      "true": { "field": "bg-base-200", "input": "cursor-default" },
+      "true": {
+        "field": "bg-base-200",
+        "input": "cursor-default"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "state": "neutral", "disabled": false, "readonly": false }
+  "defaultVariants": {
+    "state": "neutral",
+    "disabled": false,
+    "readonly": false
+  }
 }

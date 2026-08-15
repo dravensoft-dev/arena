@@ -42,6 +42,8 @@
   --fill-surface-floating:var(--color-base-200);
   --fill-page:var(--color-base-100);
   --fill-surface-sunken:var(--color-base-100);
+  --fill-field:var(--color-base-300);
+  --fill-hover:var(--color-base-300);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
@@ -76,6 +78,8 @@
   --fill-surface-floating:var(--color-base-200);
   --fill-page:var(--color-base-100);
   --fill-surface-sunken:var(--color-base-100);
+  --fill-field:var(--color-base-300);
+  --fill-hover:var(--color-base-300);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
