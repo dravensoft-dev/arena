@@ -1,14 +1,13 @@
 /* Captures the kitchen-sink page every layer draws for one appearance and fails on one
  * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an
  * inherited typography or a computed colour that moved in one layer alone passes every other gate.
- * No baseline and no tolerance: one browser renders both pages, so the question is whether they
- * agree with EACH OTHER, and a threshold would license the move this catches. Motion, focus and
- * MEASUREMENT are stopped before the shutter, the third because the shutter resizes the page to
- * reach past the viewport and hands width 0 to every live ResizeObserver partway through: a chart
- * redraws collapsed and the compositor takes the rest of its tiles from that frame, so a layer is
- * reported as diverging from one it agrees with. A page is captured until two in a row agree, and
- * pairs are walked from the tree, where a sweep finding none fails. */
-
+ * No baseline: one browser renders both pages, so the question is whether they agree with EACH
+ * OTHER. ALLOWED is the one relief, declared per sink and carrying the measurement behind it,
+ * because a blanket threshold would license the move this catches; an allowance nothing spends is
+ * stale and reported. Motion, focus and MEASUREMENT are stopped before the shutter, the third
+ * because the shutter resizes the page past the viewport and hands width 0 to every live
+ * ResizeObserver partway through: a chart redraws collapsed and the compositor takes the rest of
+ * its tiles from that frame. Pairs are walked from the tree, where a sweep finding none fails. */
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -161,21 +160,67 @@ export function sizeProblem(name: string, a: { width: number; height: number },
     + 'box below could describe';
 }
 
-export function differenceProblem(name: string, png: { react: Buffer; angular: Buffer }) {
+export type Allowance = { pixels: number; delta: number; why: string };
+
+export const ALLOWED = new Map<string, Allowance>([
+  ['complete', {
+    pixels: 400,
+    delta: 64,
+    why: 'the two layers quantise a shrink-to-fit flex item to a different 1/64 of a pixel, measured '
+      + 'at textarea.counter as x=819.359375 w=39.625 against x=819.375 w=39.609375 with identical '
+      + 'markup, text, font and parent box. Neither layer can close it: it is Chromium resolving a '
+      + 'LayoutUnit, and the element carrying the difference is the component itself in Angular and a '
+      + 'div in React. It shows here and not under default because the difference is in the coverage '
+      + 'an edge antialiases with, and only some colours round it to a different byte',
+  }],
+]);
+
+export function within(allowance: Allowance | undefined, pixels: number, maxDelta: number) {
+  return allowance !== undefined && pixels <= allowance.pixels && maxDelta <= allowance.delta;
+}
+
+export function staleAllowanceProblems(measured: Map<string, number>, allowed = ALLOWED) {
+  const problems = [];
+  for (const [sink, allowance] of allowed) {
+    const seen = measured.get(sink);
+    if (seen === undefined) {
+      problems.push(`${sink}: an allowance of ${allowance.pixels} pixel(s) is declared and no pair by `
+        + 'that name was compared, so it is an allowance for something that is not here');
+      continue;
+    }
+    if (seen === 0) {
+      problems.push(`${sink}: an allowance of ${allowance.pixels} pixel(s) is declared and every pair `
+        + 'is identical. An allowance is not an exemption: take it out, and the next divergence is '
+        + 'reported rather than absorbed');
+    }
+  }
+  return problems;
+}
+
+export function differenceProblem(name: string, sink: string, png: { react: Buffer; angular: Buffer },
+  allowed = ALLOWED) {
   const a = decode(png.react);
   const b = decode(png.angular);
   const size = sizeProblem(name, a, b);
   const diff = difference(a, b);
   if (!diff) {
-    return size ?? `${name}: the two files differ as bytes and every pixel they share is equal, `
-      + 'which means the difference is in the encoding rather than the image; the capture options moved';
+    return { problem: size ?? `${name}: the two files differ as bytes and every pixel they share is equal, `
+      + 'which means the difference is in the encoding rather than the image; the capture options moved',
+    pixels: 0 };
   }
   const { pixels, box, maxDelta, channel } = diff;
+  const allowance = allowed.get(sink);
+  if (size === null && within(allowance, pixels, maxDelta)) return { problem: null, pixels };
   const where = `x=${box.left}..${box.right} y=${box.top}..${box.bottom}`;
-  return `${name}: ${pixels} pixel(s) differ, inside ${where}, the largest by ${maxDelta} on the `
-    + `${CHANNEL_NAMES[channel] ?? channel} channel${size ? `. ${size}` : ''}. Open both pages at that `
-    + `scroll offset with bun run demos, or set ARENA_PIXEL_DUMP to a directory to have this run `
-    + 'write the two captures out';
+  const over = allowance
+    ? `. Its allowance is ${allowance.pixels} pixel(s) at a channel delta of ${allowance.delta}, `
+      + `which this is past, and the allowance is there because ${allowance.why}`
+    : '';
+  return { problem: `${name}: ${pixels} pixel(s) differ, inside ${where}, the largest by ${maxDelta} on the `
+    + `${CHANNEL_NAMES[channel] ?? channel} channel${size ? `. ${size}` : ''}${over}. Open both pages at `
+    + 'that scroll offset with bun run demos, or set ARENA_PIXEL_DUMP to a directory to have this run '
+    + 'write the two captures out',
+  pixels };
 }
 
 export function dumpDir(env = arenaEnv()) {
@@ -296,6 +341,8 @@ async function main() {
   const cdp = await connect(chrome.wsUrl);
   const problems = [...shared];
   const dumped = [];
+  const measured = new Map<string, number>();
+  const absorbed: string[] = [];
   let compared = 0;
   let slowest = 0;
   try {
@@ -314,8 +361,11 @@ async function main() {
         if (!react.png || !angular.png) continue;
 
         compared += 1;
-        if (react.png.equals(angular.png)) continue;
-        problems.push(differenceProblem(name, { react: react.png, angular: angular.png }));
+        if (react.png.equals(angular.png)) { measured.set(sink, measured.get(sink) ?? 0); continue; }
+        const { problem, pixels } = differenceProblem(name, sink, { react: react.png, angular: angular.png });
+        measured.set(sink, Math.max(measured.get(sink) ?? 0, pixels));
+        if (problem === null) { absorbed.push(`${name}: ${pixels} pixel(s), inside its allowance`); continue; }
+        problems.push(problem);
         if (into) dumped.push(...dump(into, name, { react: react.png, angular: angular.png }));
       }
     }
@@ -323,6 +373,8 @@ async function main() {
     await chrome.kill?.();
     server.close?.();
   }
+
+  problems.push(...staleAllowanceProblems(measured));
 
   if (problems.length) {
     console.error(`check-pixel-parity: ${problems.length} problem(s)\n`);
@@ -334,7 +386,9 @@ async function main() {
   }
   console.log(`check-pixel-parity: ${compared} pair(s) captured in a real browser across `
     + `${sinks.length} sink(s) and ${THEMES.length} theme(s), and every one of them is identical `
-    + `byte for byte. The slowest page painted after ${slowest}ms of the ${PAINTED.ms}ms allowed`);
+    + `byte for byte${absorbed.length ? ` bar ${absorbed.length} inside a declared allowance` : ''}. `
+    + `The slowest page painted after ${slowest}ms of the ${PAINTED.ms}ms allowed`);
+  for (const one of absorbed) console.log(`  ${one}`);
 }
 
 if (isMainModule(import.meta.url)) {

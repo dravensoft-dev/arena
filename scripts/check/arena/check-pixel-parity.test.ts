@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import {
   THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
+  ALLOWED, staleAllowanceProblems, within,
 } from './check-pixel-parity.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 
@@ -109,4 +110,28 @@ test('a page that painted, settled and said nothing is compared', () => {
 test('captures are written only where a reader asks for them, so the gate writes nothing by default', () => {
   assert.equal(dumpDir({}), undefined);
   assert.equal(dumpDir({ ARENA_PIXEL_DUMP: '/tmp/parity' }), '/tmp/parity');
+});
+
+test('an allowance is bounded on both axes, so a wider move is not absorbed by a narrow one', () => {
+  const allowance = { pixels: 400, delta: 64, why: 'measured' };
+  assert.equal(within(allowance, 150, 35), true);
+  assert.equal(within(allowance, 401, 35), false, 'past the count');
+  assert.equal(within(allowance, 150, 65), false, 'past the channel delta');
+  assert.equal(within(undefined, 1, 1), false, 'a sink with no allowance takes none');
+});
+
+test('an allowance nothing spends is stale, and one for a pair nobody compared is worse', () => {
+  const declared = new Map([['complete', { pixels: 400, delta: 64, why: 'measured' }]]);
+  assert.deepEqual(staleAllowanceProblems(new Map([['complete', 149]]), declared), []);
+  assert.match(staleAllowanceProblems(new Map([['complete', 0]]), declared)[0] ?? '',
+    /not an exemption/);
+  assert.match(staleAllowanceProblems(new Map(), declared)[0] ?? '', /not here/);
+});
+
+test('the appearance arena ships carries no allowance at all', () => {
+  assert.equal(ALLOWED.has('default'), false,
+    'default is what a consumer installs, and the two layers agree on it to the pixel');
+  for (const [sink, allowance] of ALLOWED) {
+    assert.ok(allowance.why.length > 80, `${sink}: an allowance carries the measurement behind it`);
+  }
 });
