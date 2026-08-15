@@ -220,8 +220,8 @@ Neither half compiles anything, because the two layers need different compilers.
 each declaration is EMITTED by `tsc` rather than copied, so it cannot disagree with the
 implementation it describes. There is exactly one rewrite, and it normalises every relative
 specifier to `.js`: one carrying `.ts`, `.tsx`, `.jsx` or `.js` is retargeted, and one carrying
-no style plugin gains it. Inside the package only the compiled `.js` resolves, and a consumer on
-`node16` infers no style plugin from a declaration, where this layer's own `bundler` resolution
+no file extension gains it. Inside the package only the compiled `.js` resolves, and a consumer
+on `node16` infers no file extension from a declaration, where this layer's own `bundler` resolution
 makes it optional. Neither half is taken on trust: `unresolvedProblems` resolves every specifier
 in every emitted module and declaration against what the package holds, so one naming nothing
 fails the build rather than the consumer's editor. The entry point is
@@ -243,7 +243,7 @@ that moved is loud rather than silently empty.
 
 ### What never ships
 
-Tests in any style plugin, demo pages, `.card.html` specimens, `.demo.` playgrounds, behaviour
+Tests in any file extension, demo pages, `.card.html` specimens, `.demo.` playgrounds, behaviour
 bindings, component prompts, the vendored React bundles, the test harnesses, the tsconfigs,
 and the font binaries. `EXCLUDED_NAMES` and `EXCLUDED_PATTERNS` are the record, and the
 suite beside them asserts both by name.

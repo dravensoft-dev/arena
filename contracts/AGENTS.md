@@ -26,7 +26,7 @@ what a reader **consults** while doing the work:
 
 **Every one of those files is named in `SHAPE`**, in `scripts/check/arena/check-contracts.ts`,
 so a sibling nobody declared fails rather than sitting invisible to every gate that reads a
-level by style plugin. **Splitting a level is therefore a two-file change**, the document and the
+level by file extension. **Splitting a level is therefore a two-file change**, the document and the
 declaration, and the gate is what makes it one.
 
 Read the one for the level you are implementing. None of the three is a summary of
@@ -202,7 +202,7 @@ framework is added without touching the language.
 **The framework layers**
 
 - [`frameworks/react/`](../frameworks/react/AGENTS.md): the React primitives, the
-  kitchen-sink page per style plugin, and the shared layer-root modules.
+  kitchen-sink page, and the shared layer-root modules.
 - [`frameworks/angular/`](../frameworks/angular/AGENTS.md): the Angular layer for an
   existing Angular 20+/Tailwind-v4 app, meaning Arena's own primitives, with `@angular/cdk`
   positioning the two that anchor an overlay to a trigger.
