@@ -12,7 +12,7 @@ export interface ArenaSectionProps {
   /** What the region holds. Required, and guarded at runtime: a section renders a heading naming a group, so a childless one renders a label for nothing. The guard counts the way the render path counts, so a child that is a false conditional counts as absent rather than as one. */
   children: React.ReactNode;
 
-  /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them. */
+  /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */
   eyebrow?: string;
 
   /** A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen. */

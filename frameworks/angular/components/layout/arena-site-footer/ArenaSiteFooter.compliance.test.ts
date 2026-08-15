@@ -61,7 +61,7 @@ test('the column count comes from the room, off the same role a grid reads', () 
   try {
     const columns = footerOf(fixture).querySelector('div > div') as HTMLElement;
     assert.match(columns.style.getPropertyValue('grid-template-columns'), /var\(--grid-min\)/,
-      'a voice that widens a card must widen a footer column with it');
+      'a style plugin that widens a card must widen a footer column with it');
   } finally { fixture.destroy(); }
 });
 

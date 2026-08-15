@@ -19,7 +19,7 @@ test('the bar is the banner landmark, which the element names rather than a role
 test('the band stops at the page width while the bar spans, and the width is a role', () => {
   const html = render(<ArenaAppBar brand={<span />} />);
   assert.match(html, /style="max-width:var\(--container-max\)"/,
-    'the width has to arrive as a role, or a voice cannot re-answer how wide a page is');
+    'the width has to arrive as a role, or a style plugin cannot re-answer how wide a page is');
   assert.doesNotMatch(html.slice(0, html.indexOf('<div')), /max-width/,
     'the bar itself must span, or the fill and the hairline stop short of the viewport');
 });

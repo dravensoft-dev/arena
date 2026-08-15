@@ -15,11 +15,11 @@ because a `<figcaption>` outside a `<figure>` is associated with nothing.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `media` | slot |  |  | The picture itself, as the element you wrote: an img, a video, a canvas. It is clipped to the frame and meets its edges the way the voice says, which is why nothing here takes a source or an alternative text. Those belong to your element, and an image's alternative is editorial in a way nothing can derive. |
+| `media` | slot |  |  | The picture itself, as the element you wrote: an img, a video, a canvas. It is clipped to the frame and meets its edges the way the style plugin says, which is why nothing here takes a source or an alternative text. Those belong to your element, and an image's alternative is editorial in a way nothing can derive. |
 | `fallback` | slot |  |  | What the frame shows when there is no media, drawn centred and at rest rather than as an error: an icon standing for a category, a monogram, a shape. Absent along with media, the frame is an empty box of the right shape, which is what a loading wall wants. |
 | `overlay` | slot |  |  | Content laid over the media, on the wash the overlay role paints, so a mark or a line of text stays readable against a picture nobody chose. It is inside the frame and the caption is under it, which is the whole difference between the two. |
 | `caption` | primitive | `string` |  | A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one. |
-| `ratio` | primitive | `string` | `"var(--aspect-media)"` | The shape of the frame, as a CSS aspect ratio. The default is the role, so a voice answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the voice's to decide: a video is sixteen by nine whatever the page sounds like. |
+| `ratio` | primitive | `string` | `"var(--aspect-media)"` | The shape of the frame, as a CSS aspect ratio. The default is the role, so a style plugin answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the plugin's to decide: a video is sixteen by nine whatever the page sounds like. |
 
 <!-- @api end -->
 
@@ -31,9 +31,9 @@ element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platfo
 them. An image's alternative is editorial: it says what the picture means on this page, which
 nothing can derive from a file name.
 
-**`ratio` defaults to the role.** A voice answers the shape of every figure at once, so a shop
+**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once, so a shop
 crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
-only for the figure whose shape is not the voice's to decide, such as a video.
+only for the figure whose shape is not the plugin's to decide, such as a video.
 
 **`fallback` is a state and not an error.** It draws centred and at rest when there is no media.
 With neither media nor fallback the frame is an empty box of the right shape, which is what a

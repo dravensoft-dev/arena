@@ -25,7 +25,7 @@ import { arenaSectionStyles } from './ArenaSection.variants';
 export class ArenaSection {
   /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   readonly title = input.required<string>();
-  /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them. */
+  /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */
   readonly eyebrow = input<string>();
   /** A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen. */
   readonly description = input<string>();

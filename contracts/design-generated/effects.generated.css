@@ -124,23 +124,23 @@
   /*
      The corner of a MEDIA frame: the box an image, a video or a stand-in glyph is clipped to. Born at the value r-surface carries, because nothing paints a media frame until ArenaFigure does and a sibling's answer is the honest place to start from.
      
-     Separate from r-surface because the two are different questions about the same page. A card is a container the reader looks past; a figure is the thing being looked at, and a voice for a gallery wants its images square-cornered while its panels stay round.
+     Separate from r-surface because the two are different questions about the same page. A card is a container the reader looks past; a figure is the thing being looked at, and a style plugin for a gallery wants its images square-cornered while its panels stay round.
    */
   --r-media:14px;
   /*
      The shape of a media frame, as the ratio of its width to its height. A number rather than a keyword, because a keyword is one bare word and a ratio is two numbers: 0.8 is the same shape as four by five, and aspect-ratio takes it. The description carries the fraction a reader recognises and the token carries the value CSS reads.
      
-     Born square, which is what the only media box in the system paints today. A voice for a shop wants a portrait crop, 0.8, so a product fills more of a column; a voice for a gallery wants the square back so a wall of them tiles.
+     Born square, which is what the only media box in the system paints today. A style plugin for a shop wants a portrait crop, 0.8, so a product fills more of a column; a style plugin for a gallery wants the square back so a wall of them tiles.
    */
   --aspect-media:1;
   /*
-     How the image inside a media frame meets the frame's edges. The second keyword role, and it exists for the reason the first one does: object-fit takes a word, and a manifest that writes cover has said an answer where only a question can be answered differently by one voice than by another.
+     How the image inside a media frame meets the frame's edges. The second keyword role, and it exists for the reason the first one does: object-fit takes a word, and a manifest that writes cover has said an answer where only a question can be answered differently by one style plugin than by another.
      
-     Cover by default, which fills the frame and crops what does not fit. A voice that letterboxes instead is saying the whole of the image matters more than the shape of the grid, which is a coherent thing for a catalogue of artwork to say and the wrong thing for a shop.
+     Cover by default, which fills the frame and crops what does not fit. A style plugin that letterboxes instead is saying the whole of the image matters more than the shape of the grid, which is a coherent thing for a catalogue of artwork to say and the wrong thing for a shop.
    */
   --fit-media:cover;
   /*
-     The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a voice says which of the consumer's colours the wash takes and may not author one.
+     The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a style plugin says which of the consumer's colours the wash takes and may not author one.
      
      The page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The manifest carries the opacity, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.
    */
@@ -149,9 +149,9 @@
      The weight of a heading set in the display face: a card's title, a dialog's title, a
      page head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold
      is 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be
-     answered differently by one voice than by another.
+     answered differently by one style plugin than by another.
      
-     It matters most to a voice that draws nothing. Once the boxes are gone, the distance between a
+     It matters most to a style plugin that draws nothing. Once the boxes are gone, the distance between a
      heading and the text under it IS the hierarchy, and weight is half of that distance.
    */
   --fw-heading:800;
@@ -187,14 +187,14 @@
   --lh-prose:1.6;
   /*
      The leading of a heading in the display face, standing opposite lh-prose: one
-     voice wants a title packed and its paragraphs open, another wants both even, and the contrast
+     plugin wants a title packed and its paragraphs open, another wants both even, and the contrast
      between the two IS the hierarchy on a screen where nothing is drawn.
      
      Authored as lh.root and not as lh.snug, and the difference is the whole reason this role is safe
      to add. Eight title slots reach for font-heading and exactly ONE of them declares a leading, so
      seven inherit lh-root's 1.5. A role born at snug would have tightened those seven by a third of a
      line the day it landed, which is a redesign wearing a refactor's clothes. It is born at what they
-     already compute to, and a voice is what moves it.
+     already compute to, and a style plugin is what moves it.
      
      No floor, unlike lh-prose. A heading is not the text WCAG 1.4.8 is about: it is a line or two
      read as a shape, and a display face set at 1.5 reads as two unrelated lines rather than as one
@@ -223,11 +223,11 @@
   --measure-prose:72ch;
   /*
      Which of the three faces a heading takes. font names the family, which is what
-     makes the three of them the consumer's to choose; this names WHICH text is being set, so a voice
+     makes the three of them the consumer's to choose; this names WHICH text is being set, so a style plugin
      can answer it without owning a typeface.
      
      Every title slot in the system reaches for the display face today, so this is born saying exactly
-     that. It exists because a voice that wanted its headings in the body face had no way to say so
+     that. It exists because a style plugin that wanted its headings in the body face had no way to say so
      without the consumer changing what the display face IS, which is a different decision entirely.
    */
   --ff-heading:'Archivo',system-ui,sans-serif;
@@ -236,7 +236,7 @@
      thing this is. All five eyebrow slots are set in the mono face, and that is a register choice
      rather than a technical one, which is exactly what makes it a role.
      
-     It is the single most visible thing a voice can move. A console's eyebrow is a monospaced tag
+     It is the single most visible thing a style plugin can move. A console's eyebrow is a monospaced tag
      reading STATUS or REGION; a shop's eyebrow reads "Single origin, Huehuetenango" and belongs in
      the display face. Same slot, same size, opposite register, and before this role the difference
      was unreachable from any style plugin.
@@ -250,7 +250,7 @@
      
      Split from ff-eyebrow although the two are the same face today, and the split IS the point. The
      label register is a console's register and reads as the machine talking; an eyebrow is the line
-     above a title and reads as the page talking. A voice for a shop takes the eyebrow out of that
+     above a title and reads as the page talking. A style plugin for a shop takes the eyebrow out of that
      register and leaves its column headers exactly where they are, which is not expressible while
      one role answers for both.
    */
@@ -261,7 +261,7 @@
      compute to, not at what would look better.
      
      Separate from fw-control, which weights the text a user presses. An eyebrow is read and not
-     pressed, and a voice that sets its eyebrows in the display face usually wants them lighter at the
+     pressed, and a style plugin that sets its eyebrows in the display face usually wants them lighter at the
      same moment it wants them larger.
    */
   --fw-eyebrow:400;
@@ -270,14 +270,14 @@
      menu item, a chip. Born at fw.semibold, which eighteen slots already spell out by name.
      
      The fifteen slots spelling fw.bold are a second question rather than a louder answer to this one,
-     and they stay where they are until a voice asks for them: a bold slot is usually a value or a
-     count rather than a control, and folding the two together would make a voice unable to move
+     and they stay where they are until a style plugin asks for them: a bold slot is usually a value or a
+     count rather than a control, and folding the two together would make a style plugin unable to move
      either without moving both.
    */
   --fw-control:600;
   /*
      Whether an eyebrow is set in capitals. All five eyebrow slots are, and none of
-     them could say otherwise before this role, which is why every voice's eyebrow read like a console
+     them could say otherwise before this role, which is why every plugin's eyebrow read like a console
      label however different everything around it looked.
      
      The first keyword role in the system, and the reason the type exists: text-transform takes a word
@@ -285,7 +285,7 @@
      freezing it into every manifest that paints it. The closed set is what earns the type. See
      TokenTypes.md.
      
-     Capitals and tracking travel together, so a voice moving this almost always moves track-eyebrow with
+     Capitals and tracking travel together, so a style plugin moving this almost always moves track-eyebrow with
      it: the open tracking that makes capitals legible makes lowercase look sprayed.
    */
   --tt-eyebrow:uppercase;
@@ -296,7 +296,7 @@
      are what say so.
      
      Separate from tt-eyebrow for the reason ff-label is separate from ff-eyebrow, and it is the
-     clearest place two voices disagree: a ledger keeps its column headers in capitals as a register
+     clearest place two style plugins disagree: a ledger keeps its column headers in capitals as a register
      of record and sets its eyebrows in sentence case, and a shop does exactly the reverse.
    */
   --tt-label:uppercase;
@@ -305,7 +305,7 @@
      already name.
      
      It exists because tt-eyebrow exists and neither is much use alone. Capitals need the open
-     tracking to stay legible and lowercase does not want it, so a voice that drops the capitals and
+     tracking to stay legible and lowercase does not want it, so a style plugin that drops the capitals and
      leaves the tracking has made the line look sprayed rather than set. The pair is the decision.
      
      Carries cssUnit em like every ls step, for the reason track-heading spells out: a bare number is not
@@ -315,7 +315,7 @@
   /*
      The tracking of a label, born at the step the field-label slots already name.
      Paired with tt-label exactly as track-eyebrow is paired with tt-eyebrow, and separate from it for
-     the same reason: the two slots take opposite answers in the same voice.
+     the same reason: the two slots take opposite answers in the same style plugin.
    */
   --track-label:0.14em;
   /*
@@ -329,7 +329,7 @@
      restated beside the density blocks, which is the same treatment a fill role gets for the same
      reason one axis over.
      
-     A voice that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which
+     A style plugin that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which
      is a coherent thing to want on a page whose eyebrow is a headline rather than a tag.
    */
   --step-eyebrow:var(--dz-text-xs);
@@ -337,8 +337,8 @@
      Which step the title of a SURFACE takes: a card, a panel, a tile. Born at fs.h4,
      which four title slots name outright.
      
-     Separate from step-title-section because the two are the hierarchy. A voice for a shop wants the
-     product name to lead its card and can raise this one alone; a voice for a gallery wants the title
+     Separate from step-title-section because the two are the hierarchy. A style plugin for a shop wants the
+     product name to lead its card and can raise this one alone; a style plugin for a gallery wants the title
      to get out of the image's way and can lower it alone. Moving the fs ladder would have moved every
      unrelated use of the same step, which is the defect the whole role tier exists to prevent.
    */
@@ -348,7 +348,7 @@
      the surfaces inside it. Born at fs.h3, which the section-level title slots name today.
      
      The cut against step-title-surface is what the title is titling, not how big it is. They happen
-     to be one step apart at rest, and a voice that widens the gap is saying the page has sections;
+     to be one step apart at rest, and a style plugin that widens the gap is saying the page has sections;
      one that closes it is saying the page is a wall of equals.
    */
   --step-title-section:24px;
@@ -358,8 +358,8 @@
      
      It completes the ladder rather than starting one. A card's title, a section's title and a page's
      title were three answers to one question, and two of them were roles while the third was a step,
-     so a voice could re-pitch a card and a section and then found the page head immovable above them.
-     The hierarchy a voice writes is the DISTANCE between these, and a rung nailed down is a hierarchy
+     so a style plugin could re-pitch a card and a section and then found the page head immovable above them.
+     The hierarchy a style plugin writes is the DISTANCE between these, and a rung nailed down is a hierarchy
      it can only bend.
      
      What it is not is a size for anything large. A hero's line is set by its own role, because a
@@ -370,7 +370,7 @@
   /*
      Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.
      
-     Born at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a voice that wants one has the step to reach for. Being able to reach it is the point of the role.
+     Born at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a style plugin that wants one has the step to reach for. Being able to reach it is the point of the role.
    */
   --step-title-hero:64px;
   /*
@@ -378,14 +378,14 @@
      Born at sp.3, the step the majority of control slots name.
      
      The cut against dz-row-px is who is being asked about, the same cut pad-surface makes. Density
-     says how tight a DATA ROW is, which is target size and the same answer on a phone in any voice.
-     This says how generous a control is, which is register. A voice may spend it and .arena-compact
+     says how tight a DATA ROW is, which is target size and the same answer on a phone in any style plugin.
+     This says how generous a control is, which is register. A style plugin may spend it and .arena-compact
      still decides the row.
    */
   --pad-control-x:12px;
   /*
      The room a control gives its content down. Split from pad-control-x rather than
-     folded into one padding role because a control's two axes are not one decision: a voice widens a
+     folded into one padding role because a control's two axes are not one decision: a style plugin widens a
      button without making it taller, since height is where density and target size live and width is
      where air does.
    */
@@ -394,15 +394,15 @@
      The gap between the parts of one control: an icon and its label, a checkbox and
      its text, a chip and its dismiss. Born at sp.2, which nineteen slots name.
      
-     The smallest of the three air roles and the one a voice moves least, because it is the distance
-     inside a thing rather than between two things. It is here so that a voice which opens everything
+     The smallest of the three air roles and the one a style plugin moves least, because it is the distance
+     inside a thing rather than between two things. It is here so that a style plugin which opens everything
      else up does not leave its icons welded to their labels.
    */
   --gap-control:8px;
   /*
      The gap between siblings sitting on one line: the actions in a toolbar, the chips
      in a filter row, the items in a breadcrumb. Born at sp.2 beside gap-control, and separate from it
-     because the two are the difference between one control and several: a voice that pulls its
+     because the two are the difference between one control and several: a style plugin that pulls its
      controls apart on a line has not said anything about what is inside them.
    */
   --gap-inline:8px;
@@ -412,8 +412,8 @@
      
      Named items and not group, because --spacing-group is already the rhythm step. The cut is
      that rhythm is air a PAGE applies between two components and
-     Arena never draws it, while this is air a component gives the children it lays out itself. A
-     voice usually moves both together and has to be able to move them apart, because a dense wall of
+     Arena never draws it, while this is air a component gives the children it lays out itself. A style
+     plugin usually moves both together and has to be able to move them apart, because a dense wall of
      cards inside a page with generous sections is a coherent thing to want.
    */
   --gap-items:12px;
@@ -434,8 +434,8 @@
      so it was already a role wearing a scale's file.
      
      It keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what
-     changes is that a style plugin may now re-answer it. A voice for reading wants a narrower page than
-     a voice for a dashboard, and that was unreachable before.
+     changes is that a style plugin may now re-answer it. A style plugin for reading wants a narrower page than
+     a style plugin for a dashboard, and that was unreachable before.
      
      Emitted into effects.generated.css beside the other roles rather than into spacing.generated.css,
      because arena-tokens.ts reads a fixed list of four generated files and the roles all live in one
@@ -447,7 +447,7 @@
      spacing.json with container-max and for the same reason: the two are one decision about how a
      page sits, and neither is a step on a ladder anything else uses.
      
-     A voice moves them together. Narrowing the column while keeping the gutter says the page is a
+     A style plugin moves them together. Narrowing the column while keeping the gutter says the page is a
      document; widening both says it is a console.
    */
   --gutter:88px;
@@ -458,16 +458,16 @@
      
      The cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which
      Arena never draws and a page applies, and this is the air a component gives its own contents.
-     A voice needs both, because a card with room inside it and none around it reads as a stripe.
+     A style plugin needs both, because a card with room inside it and none around it reads as a stripe.
      
      The cut against density is who is being asked about. Density says how dense the CONTROLS and the
      DATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in
-     any voice. This says how generous a surface is, which is a statement about the page's register.
-     The two compose: .arena-compact and a roomy voice is a coherent thing to want.
+     any style plugin. This says how generous a surface is, which is a statement about the page's register.
+     The two compose: .arena-compact and a roomy style plugin is a coherent thing to want.
      
      The floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and
      a coachmark is pinned to what it points at, so their padding is a fit constraint rather than a
-     statement about air, and giving a voice a lever there would let it push their content off the
+     statement about air, and giving a style plugin a lever there would let it push their content off the
      edge. They are recorded in SCALE_USES instead.
    */
   --pad-surface:20px;
@@ -481,9 +481,9 @@
      to a hex would freeze the dark palette into the light one. A role that names WHICH step is asked
      about has to keep pointing at the step rather than at what the step happens to be.
      
-     What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
-     drawn. Without this role a card keeps a region the voice just said was not there, and the gate
-     holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
+     What it buys: a style plugin that groups by proximity draws nothing at all, and a fill is something
+     drawn. Without this role a card keeps a region the style plugin just said was not there, and the gate
+     holding that style plugin to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
      value: a style plugin may say which of the consumer's 27 colours a surface takes, and may not
      author one.
    */
@@ -493,10 +493,10 @@
      sheet, a command palette, a bulk action bar. The same step as fill-surface today and a different
      question, which is the cut r-surface and r-surface-floating already make one tier up.
      
-     This is the role that makes flattening the other one safe. A voice that takes a card down to the
+     This is the role that makes flattening the other one safe. A style plugin that takes a card down to the
      page's own fill has said its regions are carried by air; a menu that did the same would be an
      unreadable overlay, because a floating surface is separated from what it covers rather than
-     grouped against it. Split so a voice can answer the two one at a time.
+     grouped against it. Split so a style plugin can answer the two one at a time.
    */
   --fill-surface-floating:var(--color-base-200);
   /*
@@ -512,16 +512,16 @@
      a sunken region already names.
      
      The third fill and the least used, and it is here because the other two cannot express it. A
-     sunken region is not a floating surface and not the page, and a voice that inverted its ramp
+     sunken region is not a floating surface and not the page, and a style plugin that inverted its ramp
      would otherwise have had a well that stood proud of the card containing it.
    */
   --fill-surface-sunken:var(--color-base-100);
   /*
      The colour of a heading. One of a hundred and twenty-two slots that pointed at
-     base-content directly, which is the measurement that says why the ink roles exist: a voice could
+     base-content directly, which is the measurement that says why the ink roles exist: a style plugin could
      change every shape on the page and not one word's colour.
      
-     Split from ink-body although both are born on the same step, because that is the split a voice
+     Split from ink-body although both are born on the same step, because that is the split a style plugin
      spends. A page whose headings sit a shade above its prose reads as edited; one where they match
      reads as printed, and neither is reachable while both name the palette.
      
@@ -534,7 +534,7 @@
      heading, a label or muted, and the largest single group of the hundred and twenty-two.
      
      It is where the contrast floor is enforced rather than chosen: check:text-contrast measures the
-     resolved level once per voice crossed with both themes, so a voice that assigns this to a step
+     resolved level once per style plugin crossed with both themes, so a style plugin that assigns this to a step
      that fails against its surface fails the build rather than the reader.
    */
   --ink-body:var(--color-base-content);
@@ -542,9 +542,9 @@
      The colour of an eyebrow. Born at primary, which four of the five eyebrow slots
      name.
      
-     It is the role that lets a voice honour the one-primary-accent rule the SKILL.md already states.
+     It is the role that lets a style plugin honour the one-primary-accent rule the SKILL.md already states.
      An accent spent on every eyebrow on the page is an accent spent, and the single primary action is
-     what it was being saved for, so several voices move this to secondary for exactly that reason.
+     what it was being saved for, so several style plugins move this to secondary for exactly that reason.
      Before the role there was no way to say it.
    */
   --ink-eyebrow:var(--color-primary);
@@ -554,21 +554,21 @@
      
      What it does NOT carry is the level. Fifty-nine slots write base-content at 62 percent and
      thirty-one at 82, and those percentages stay in the manifests: a role names WHICH colour and the
-     opacity modifier is a second decision that Tailwind composes on top. So a voice re-points muted
+     opacity modifier is a second decision that Tailwind composes on top. So a style plugin re-points muted
      text at a genuinely muted colour, and the level it is held at is unchanged.
      
-     The alternative was a role per level, which is three roles saying one thing and a voice unable to
+     The alternative was a role per level, which is three roles saying one thing and a style plugin unable to
      move any of them without moving all three.
    */
   --ink-muted:var(--color-base-content);
   /*
      The colour of the line that encloses a surface. Standing to bw-surface exactly as
      fill-surface stands to it: one says how thick the enclosure is, this says what colour it is, and
-     a voice needs both because a hairline in the page's own ramp and a hairline in neutral are two
+     a style plugin needs both because a hairline in the page's own ramp and a hairline in neutral are two
      different statements about how hard the region is.
      
      Born at base-300, which thirty-four slots name outright. It was dropped once with the stroke
-     roles for want of a voice that asked, and those thirty-four uses are the measurement of what not
+     roles for want of a style plugin that asked, and those thirty-four uses are the measurement of what not
      having it cost.
    */
   --edge-surface:var(--color-base-300);
@@ -590,7 +590,7 @@
      calendar's nav arrows. Born at base-300, which all seven such slots name.
      
      Separate from edge-control because the difference is not a state of one control but a different
-     question: a quiet control's edge says where a target is without asking to be pressed. A voice
+     question: a quiet control's edge says where a target is without asking to be pressed. A style plugin
      that wants its quiet affordances to disappear entirely, or to be exactly as hard as its active
      ones, has to be able to say so without touching the boundary WCAG measures.
    */
@@ -612,7 +612,7 @@
      measures at 3:1 against what sits behind it.
      
      That is also its limit. check:boundary-contrast already measures the step behind a control whose
-     border a voice set to zero; assigning this role moves the same question onto the colour, and the
+     border a style plugin set to zero; assigning this role moves the same question onto the colour, and the
      same gate answers it.
    */
   --edge-control:var(--color-neutral);
@@ -625,10 +625,10 @@
   /*
      The colour of the rule that divides one thing from the next inside a surface.
      Born at base-300 beside edge-surface, and separate for the reason bw-separator is separate from
-     bw-surface: a voice that removes the enclosure keeps the rules, because a table whose rows lost
+     bw-surface: a style plugin that removes the enclosure keeps the rules, because a table whose rows lost
      their lines at the same moment stops being readable.
      
-     It is the ornament a voice grouping by CONTINUITY would spend, if such a voice is ever written:
+     It is the ornament a style plugin grouping by CONTINUITY would spend, if such a style plugin is ever written:
      the line that runs across is the only thing saying the rows are a series.
    */
   --edge-separator:var(--color-base-300);
@@ -736,7 +736,7 @@
      A duration on its own cannot carry motion character, which is why promoting only the durations
      left the tier half built. Arena's default curve leaves at full speed and settles, and that reads
      as an interface acknowledging a pointer the instant it arrives. A curve that starts slowly reads
-     as an object with mass being moved instead. Those are two voices making the same transition, and
+     as an object with mass being moved instead. Those are two style plugins making the same transition, and
      only a role lets one of them be re-answered without dragging every entrance and every loop along
      with it, which is exactly what re-valuing ease.out would do.
    */
@@ -747,15 +747,15 @@
      the eye has to TRACK a switch travelling to its other end, and merely registers that a hover
      happened.
      
-     No voice in the shipped catalogue moves it, which is the footing dur-state has stood on since the
-     role tier was built. It is not there in anticipation of a voice: it is there so a manifest that
+     No style plugin in the shipped catalogue moves it, which is the footing dur-state has stood on since the
+     role tier was built. It is not there in anticipation of a style plugin: it is there so a manifest that
      names a state transition names a role at BOTH ends rather than a role for the duration and a scale
      step for the curve, which is the split check:roles exists to refuse.
    */
   --ease-state:cubic-bezier(.2,.7,.3,1);
   /*
      How far a control sinks under the pointer while it is held, and the other half of
-     lift-control: that one says how far a control rises, this says how far it goes down. A voice that
+     lift-control: that one says how far a control rises, this says how far it goes down. A style plugin that
      gives a control mass has a reason to answer both, and until this moved out of effects.json it could
      answer neither, because a scale is shared by every use that wants that value.
      
@@ -774,7 +774,7 @@
 }
 .arena-light{
   /*
-     The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a voice says which of the consumer's colours the wash takes and may not author one.
+     The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a style plugin says which of the consumer's colours the wash takes and may not author one.
      
      The page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The manifest carries the opacity, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.
    */
@@ -789,9 +789,9 @@
      to a hex would freeze the dark palette into the light one. A role that names WHICH step is asked
      about has to keep pointing at the step rather than at what the step happens to be.
      
-     What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
-     drawn. Without this role a card keeps a region the voice just said was not there, and the gate
-     holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
+     What it buys: a style plugin that groups by proximity draws nothing at all, and a fill is something
+     drawn. Without this role a card keeps a region the style plugin just said was not there, and the gate
+     holding that style plugin to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
      value: a style plugin may say which of the consumer's 27 colours a surface takes, and may not
      author one.
    */
@@ -801,10 +801,10 @@
      sheet, a command palette, a bulk action bar. The same step as fill-surface today and a different
      question, which is the cut r-surface and r-surface-floating already make one tier up.
      
-     This is the role that makes flattening the other one safe. A voice that takes a card down to the
+     This is the role that makes flattening the other one safe. A style plugin that takes a card down to the
      page's own fill has said its regions are carried by air; a menu that did the same would be an
      unreadable overlay, because a floating surface is separated from what it covers rather than
-     grouped against it. Split so a voice can answer the two one at a time.
+     grouped against it. Split so a style plugin can answer the two one at a time.
    */
   --fill-surface-floating:var(--color-base-200);
   /*
@@ -820,16 +820,16 @@
      a sunken region already names.
      
      The third fill and the least used, and it is here because the other two cannot express it. A
-     sunken region is not a floating surface and not the page, and a voice that inverted its ramp
+     sunken region is not a floating surface and not the page, and a style plugin that inverted its ramp
      would otherwise have had a well that stood proud of the card containing it.
    */
   --fill-surface-sunken:var(--color-base-100);
   /*
      The colour of a heading. One of a hundred and twenty-two slots that pointed at
-     base-content directly, which is the measurement that says why the ink roles exist: a voice could
+     base-content directly, which is the measurement that says why the ink roles exist: a style plugin could
      change every shape on the page and not one word's colour.
      
-     Split from ink-body although both are born on the same step, because that is the split a voice
+     Split from ink-body although both are born on the same step, because that is the split a style plugin
      spends. A page whose headings sit a shade above its prose reads as edited; one where they match
      reads as printed, and neither is reachable while both name the palette.
      
@@ -842,7 +842,7 @@
      heading, a label or muted, and the largest single group of the hundred and twenty-two.
      
      It is where the contrast floor is enforced rather than chosen: check:text-contrast measures the
-     resolved level once per voice crossed with both themes, so a voice that assigns this to a step
+     resolved level once per style plugin crossed with both themes, so a style plugin that assigns this to a step
      that fails against its surface fails the build rather than the reader.
    */
   --ink-body:var(--color-base-content);
@@ -850,9 +850,9 @@
      The colour of an eyebrow. Born at primary, which four of the five eyebrow slots
      name.
      
-     It is the role that lets a voice honour the one-primary-accent rule the SKILL.md already states.
+     It is the role that lets a style plugin honour the one-primary-accent rule the SKILL.md already states.
      An accent spent on every eyebrow on the page is an accent spent, and the single primary action is
-     what it was being saved for, so several voices move this to secondary for exactly that reason.
+     what it was being saved for, so several style plugins move this to secondary for exactly that reason.
      Before the role there was no way to say it.
    */
   --ink-eyebrow:var(--color-primary);
@@ -862,21 +862,21 @@
      
      What it does NOT carry is the level. Fifty-nine slots write base-content at 62 percent and
      thirty-one at 82, and those percentages stay in the manifests: a role names WHICH colour and the
-     opacity modifier is a second decision that Tailwind composes on top. So a voice re-points muted
+     opacity modifier is a second decision that Tailwind composes on top. So a style plugin re-points muted
      text at a genuinely muted colour, and the level it is held at is unchanged.
      
-     The alternative was a role per level, which is three roles saying one thing and a voice unable to
+     The alternative was a role per level, which is three roles saying one thing and a style plugin unable to
      move any of them without moving all three.
    */
   --ink-muted:var(--color-base-content);
   /*
      The colour of the line that encloses a surface. Standing to bw-surface exactly as
      fill-surface stands to it: one says how thick the enclosure is, this says what colour it is, and
-     a voice needs both because a hairline in the page's own ramp and a hairline in neutral are two
+     a style plugin needs both because a hairline in the page's own ramp and a hairline in neutral are two
      different statements about how hard the region is.
      
      Born at base-300, which thirty-four slots name outright. It was dropped once with the stroke
-     roles for want of a voice that asked, and those thirty-four uses are the measurement of what not
+     roles for want of a style plugin that asked, and those thirty-four uses are the measurement of what not
      having it cost.
    */
   --edge-surface:var(--color-base-300);
@@ -898,7 +898,7 @@
      calendar's nav arrows. Born at base-300, which all seven such slots name.
      
      Separate from edge-control because the difference is not a state of one control but a different
-     question: a quiet control's edge says where a target is without asking to be pressed. A voice
+     question: a quiet control's edge says where a target is without asking to be pressed. A style plugin
      that wants its quiet affordances to disappear entirely, or to be exactly as hard as its active
      ones, has to be able to say so without touching the boundary WCAG measures.
    */
@@ -920,7 +920,7 @@
      measures at 3:1 against what sits behind it.
      
      That is also its limit. check:boundary-contrast already measures the step behind a control whose
-     border a voice set to zero; assigning this role moves the same question onto the colour, and the
+     border a style plugin set to zero; assigning this role moves the same question onto the colour, and the
      same gate answers it.
    */
   --edge-control:var(--color-neutral);
@@ -933,10 +933,10 @@
   /*
      The colour of the rule that divides one thing from the next inside a surface.
      Born at base-300 beside edge-surface, and separate for the reason bw-separator is separate from
-     bw-surface: a voice that removes the enclosure keeps the rules, because a table whose rows lost
+     bw-surface: a style plugin that removes the enclosure keeps the rules, because a table whose rows lost
      their lines at the same moment stops being readable.
      
-     It is the ornament a voice grouping by CONTINUITY would spend, if such a voice is ever written:
+     It is the ornament a style plugin grouping by CONTINUITY would spend, if such a style plugin is ever written:
      the line that runs across is the only thing saying the rows are a series.
    */
   --edge-separator:var(--color-base-300);
@@ -953,7 +953,7 @@
      restated beside the density blocks, which is the same treatment a fill role gets for the same
      reason one axis over.
      
-     A voice that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which
+     A style plugin that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which
      is a coherent thing to want on a page whose eyebrow is a headline rather than a tag.
    */
   --step-eyebrow:var(--dz-text-xs);
@@ -970,7 +970,7 @@
      restated beside the density blocks, which is the same treatment a fill role gets for the same
      reason one axis over.
      
-     A voice that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which
+     A style plugin that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which
      is a coherent thing to want on a page whose eyebrow is a headline rather than a tag.
    */
   --step-eyebrow:var(--dz-text-xs);

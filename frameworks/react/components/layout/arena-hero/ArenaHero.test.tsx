@@ -42,7 +42,7 @@ test('the split threshold is derived from a role, never from a literal', () => {
   assert.match(tracks ?? '', /^repeat\(auto-fit, minmax\(min\(.+, 100%\), 1fr\)\)$/,
     'the column count must come from the room, and the minimum must be clamped or it overflows');
   assert.match(tracks ?? '', /var\(--grid-min\)/,
-    'a voice that widens the grid minimum must widen when a hero splits');
+    'a style plugin that widens the grid minimum must widen when a hero splits');
 });
 
 test('only the split layout lays a track list, because the other two are one column', () => {

@@ -18,7 +18,7 @@ test('the footer is the contentinfo landmark, which the element names rather tha
 test('the column count comes from the room, off the same role a grid reads', () => {
   const html = render(<ArenaSiteFooter><div /><div /></ArenaSiteFooter>);
   assert.match(html, /grid-template-columns:repeat\(auto-fit, ?minmax\(min\(var\(--grid-min\), ?100%\), ?1fr\)\)/,
-    'a voice that widens a card must widen a footer column with it');
+    'a style plugin that widens a card must widen a footer column with it');
 });
 
 test('the band stops at the page width while the footer spans', () => {

@@ -28,7 +28,7 @@ pause control is owed under WCAG 2.2.2 and why `prefers-reduced-motion` has noth
 **`itemWidth` reaches the children as a custom property on the host**, because a row sets its
 items' width and cannot reach inside them. Every child is laid out at that width exactly as it was
 written; nothing is wrapped. Its default is `--grid-min`, the same role `arena-grid` reads, so a
-wall of cards and a row of the same cards agree about how wide a card is and a voice re-answers
+wall of cards and a row of the same cards agree about how wide a card is and a style plugin re-answers
 both at once.
 
 **`label` is required and guarded after trimming.** Focus lands on the row itself, and a group

@@ -1,6 +1,6 @@
 # frameworks/kitchen-sink/
 
-**One fixture per style plugin, layer-neutral, carrying an arrangement and nothing else.**
+**One fixture per arrangement, layer-neutral, carrying an arrangement and nothing else.**
 Each names the sections a page is divided into and which components land in each, in order. What
 a component is seeded with, what fills its slots and what it has to be nested inside are not
 here: those come from that component's fixture in [`../demos/`](../demos/AGENTS.md), which is
@@ -13,26 +13,27 @@ about the layers that belongs to none of them, and a copy per layer is a copy th
 
 ## What the pages are for
 
-Every layer gets one page per style plugin, at `frameworks/<layer>/kitchen-sink/<style plugin>/`,
-emitted from the fixture here by `bun run generate:kitchen-sink`. The pages a single style plugin
-gets differ in what mounts them and in nothing else, which is the whole point:
-`check:pixel-parity` opens each pair in a real browser, in both themes, captures them and fails
-on one differing pixel. Without that, a divergence in geometry, in inherited typography or in a
-computed colour reaches an adopter with every gate green, because the render suites run under
-happy-dom, which has no layout and so cannot see one.
+Every layer gets one page per fixture, at `frameworks/<layer>/kitchen-sink/<name>/`, emitted from
+the fixture here by `bun run generate:kitchen-sink`. The pages a single fixture gets differ in what
+mounts them and in nothing else, which is the whole point: `check:pixel-parity` opens each pair in
+a real browser, in both themes, captures them and fails on one differing pixel. Without that, a
+divergence in geometry, in inherited typography or in a computed colour reaches an adopter with
+every gate green, because the render suites run under happy-dom, which has no layout and so cannot
+see one.
 
 `check:kitchen-sink` holds the fixtures: every component the registry names appears in every
-fixture, every style plugin the build ships has a fixture, no fixture names a component or an
-style plugin that does not exist, and every emitted file matches a fresh run of the generator.
+fixture, no fixture names a component that does not exist, no fixture places one twice, and every
+emitted file matches a fresh run of the generator.
 
 ## The schema
 
 ```jsonc
 {
-  // Which voice the page is painted in. It becomes the scope class on <html>, so the
-  // page IS one style plugin rather than offering a control that switches between them.
-  // A name the build does not ship fails the gate rather than painting nothing.
-  "style plugin": "editorial",
+  // The name of the arrangement, which is also the directory each layer emits into.
+  // `default` is the root one and takes no class; every other name becomes the scope
+  // class on <html>, so the page IS one appearance rather than offering a control
+  // that switches between them.
+  "sink": "default",
 
   // One line saying why this arrangement is the arrangement. Optional, and read by
   // nobody but the next person to open the file.
@@ -52,11 +53,10 @@ exists to catch.
 
 ## The arrangements differ on purpose
 
-The order and grouping are free to differ between style plugins, and they do. Each style plugin
-declares its own Gestalt mechanism in `contracts/design/style plugin.*.json`, and an arrangement
-that ignores it shows the voice doing its work on a layout built for a different one. What may
-**not** differ is the set: every fixture holds every component, so no style plugin is compared over
-a smaller surface than its siblings.
+The order and grouping are free to differ between arrangements, and an arrangement built for one
+appearance shows it doing its work on a layout that argues for it. What may **not** differ is the
+set: every fixture holds every component, so no page is compared over a smaller surface than its
+siblings.
 
 ## A component that cannot stand alone
 
@@ -67,6 +67,5 @@ reads it from there, so a component that gains or loses a host says so once.
 ## Adding one
 
 A new component needs its name in every fixture in the same commit, or `check:kitchen-sink` fails
-on the registry entry no fixture covers. A new style plugin needs a fixture of its own for the same
-reason, and it fails on the shipped voice no fixture paints. Put the name where the arrangement
-argues it goes, run `bun run build`, and open the pair with `bun run demos`.
+on the registry entry no fixture covers. Put the name where the arrangement argues it goes, run
+`bun run build`, and open the pair with `bun run demos`.

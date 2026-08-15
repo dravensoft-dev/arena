@@ -27,7 +27,7 @@ const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
 export class ArenaHero {
   /** The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   readonly title = input.required<string>();
-  /** A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them. */
+  /** A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */
   readonly eyebrow = input<string>();
   /** The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading. */
   readonly lede = input<string>();

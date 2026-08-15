@@ -24,8 +24,8 @@ than being written into `dist/` directly for one reason: `check:docs` reads them
 page npm shows holds to the same size, punctuation and comment rules as everything else.
 
 **The half of that page which is the same page in both packages is written once**, in
-`scripts/generate/arena/generate-npm-pages.ts`, and emitted into four `@shared` regions per file:
-what the repository is, how a skin is declared, the voice catalogue with its prose, and the tail.
+`scripts/generate/arena/generate-npm-pages.ts`, and emitted into the `@shared` regions per file:
+what the repository is, how a skin is declared, and the tail.
 A person places the markers, so where a section sits on the page stays the page's decision and
 only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit.
 What a layer decides stays hand-written in each: the import idiom, what the package exports, and

@@ -1,6 +1,6 @@
 {
   "component": "ArenaSection",
-  "description": "A named region of a page: a heading, optionally an eyebrow above it, a line under it and an action beside it, over whatever the region holds. It wraps what the consumer wrote and never replaces it. The title register is the section one, a step above a card's and a step below a page's, so a voice re-pitching the hierarchy moves this with the other two rather than leaving a page with three heads that disagree.",
+  "description": "A named region of a page: a heading, optionally an eyebrow above it, a line under it and an action beside it, over whatever the region holds. It wraps what the consumer wrote and never replaces it. The title register is the section one, a step above a card's and a step below a page's, so a style plugin re-pitching the hierarchy moves this with the other two rather than leaving a page with three heads that disagree.",
   "affordances": [],
   "api": {
     "title": { "form": "primitive", "type": "string", "required": true,
@@ -8,7 +8,7 @@
     "content": { "form": "slot", "required": true,
                  "description": "What the region holds. Required, and guarded at runtime: a section renders a heading naming a group, so a childless one renders a label for nothing. The guard counts the way the render path counts, so a child that is a false conditional counts as absent rather than as one." },
     "eyebrow": { "form": "primitive", "type": "string",
-                 "description": "A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them." },
+                 "description": "A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them." },
     "description": { "form": "primitive", "type": "string",
                      "description": "A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen." },
     "action": { "form": "slot",

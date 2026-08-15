@@ -30,7 +30,7 @@ test('no caption renders no caption element at all, rather than an empty one', (
   assert.doesNotMatch(render(<ArenaFigure />), /figcaption/);
 });
 
-test('the shape defaults to the role, so a voice answers every figure at once', () => {
+test('the shape defaults to the role, so a style plugin answers every figure at once', () => {
   assert.equal(declarations(render(<ArenaFigure />))['aspect-ratio'], 'var(--aspect-media)');
   assert.equal(declarations(render(<ArenaFigure ratio="16 / 9" />))['aspect-ratio'], '16 / 9');
 });

@@ -85,7 +85,7 @@ test('only the split layout lays a track list, because the other two are one col
       const tracks = heroOf(fixture).style.getPropertyValue('grid-template-columns');
       if (layout === 'split') {
         assert.match(tracks, /var\(--grid-min\)/,
-          'a voice that widens the grid minimum must widen when a hero splits');
+          'a style plugin that widens the grid minimum must widen when a hero splits');
       } else {
         assert.equal(tracks, '', `${layout} lays a track list it does not use`);
       }

@@ -23,7 +23,7 @@ import { arenaFigureStyles } from './ArenaFigure.variants';
 export class ArenaFigure {
   /** A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one. */
   readonly caption = input<string>();
-  /** The shape of the frame, as a CSS aspect ratio. The default is the role, so a voice answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the voice's to decide: a video is sixteen by nine whatever the page sounds like. */
+  /** The shape of the frame, as a CSS aspect ratio. The default is the role, so a style plugin answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the plugin's to decide: a video is sixteen by nine whatever the page sounds like. */
   readonly ratio = input<string, string | undefined>(
     'var(--aspect-media)', { transform: (value) => value ?? 'var(--aspect-media)' },
   );

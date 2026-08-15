@@ -85,7 +85,7 @@ test('the band stops at the page width while the bar spans', () => {
   try {
     const band = headerOf(fixture).firstElementChild as HTMLElement;
     assert.equal(band.style.getPropertyValue('max-width'), 'var(--container-max)',
-      'the width has to arrive as a role, or a voice cannot re-answer how wide a page is');
+      'the width has to arrive as a role, or a style plugin cannot re-answer how wide a page is');
     assert.equal(headerOf(fixture).style.getPropertyValue('max-width'), '',
       'the bar itself must span, or the fill and the hairline stop short of the viewport');
   } finally { fixture.destroy(); }

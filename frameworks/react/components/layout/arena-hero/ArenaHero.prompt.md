@@ -21,7 +21,7 @@ top rung of the title ladder and the only one above a page head.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `title*` | primitive | `string` |  | The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. |
-| `eyebrow` | primitive | `string` |  | A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them. |
+| `eyebrow` | primitive | `string` |  | A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. |
 | `lede` | primitive | `string` |  | The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading. |
 | `actions` | slot |  |  | What the page asks the reader to do, in a wrapping row under the lede. Arena draws the row; the consumer draws what sits in it, and one primary action beside one secondary is the shape this is sized for. |
 | `figure` | slot |  |  | The picture, the mark or the shape beside the words, or behind them under the bleed layout. It is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way. |
@@ -31,7 +31,7 @@ top rung of the title ladder and the only one above a page head.
 <!-- @api end -->
 
 **`split` falls to one column with no breakpoint deciding when.** The threshold is derived from
-`--grid-min`, the role that already answers how narrow a card may get, so a voice that widens the
+`--grid-min`, the role that already answers how narrow a card may get, so a style plugin that widens the
 grid minimum widens when a hero splits: one decision about how dense a page is rather than two
 that can disagree.
 
