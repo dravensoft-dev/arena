@@ -84,3 +84,15 @@ test('an unknown type is a hard error, never a silent passthrough', () => {
   assert.throws(() => serialize({ $type: 'gradient', $value: {} }), /unsupported \$type: gradient/);
   assert.throws(() => serialize({ $value: 1 }), /unsupported \$type: undefined/);
 });
+
+test('a length that is not a value and a unit is a hard error too', () => {
+  assert.throws(() => serialize({ $type: 'dimension', $value: 'clamp(2.5rem,8.5vw,6rem)' }),
+    /dimension: .* is not a \{value, unit\} length/,
+    'reading .value and .unit off a string produced the literal text undefinedundefined, which is '
+    + 'an invalid custom property that takes its whole declaration with it at computed-value time. '
+    + 'Throwing is what lets the caller decide, and dtcgValue decides to pass the author literal '
+    + 'through, so a role answered with a css function keeps working.');
+  assert.throws(() => serialize({ $type: 'dimension', $value: { value: 12 } }), /is not a \{value, unit\} length/);
+  assert.throws(() => serialize({ $type: 'dimension', $value: { unit: 'px' } }), /is not a \{value, unit\} length/);
+  assert.throws(() => serialize({ $type: 'duration', $value: '250ms' }), /duration: .* is not a \{value, unit\} length/);
+});

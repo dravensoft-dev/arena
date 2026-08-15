@@ -339,6 +339,23 @@ test('a bare colour alias becomes the var() a palette scope can restate', () => 
   assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
 });
 
+test('a length role answered with a css function keeps the function', () => {
+  const read = readPlugin('meridian', {
+    'step-title-surface': { $type: 'dimension', $value: 'clamp(2.5rem,8.5vw,6rem)' },
+  });
+  assert.equal(read.tokens['step-title-surface'], 'clamp(2.5rem,8.5vw,6rem)',
+    'a scale has no fluid step, so a title that has to shrink with its column is exactly the '
+    + 'literal the norm sanctions. What it may never do is reach the sheet as undefinedundefined, '
+    + 'which is an invalid custom property and takes its whole declaration with it.');
+});
+
+test('a length role answered with half a length is reported rather than emitted', () => {
+  const problems = pluginProblems(listed(['./design/console']), [total({
+    'step-title-surface': { $type: 'dimension', $value: { value: 12 } },
+  })]);
+  assert.match(problems.join('\n'), /"step-title-surface" is .*resolves to nothing/);
+});
+
 test('a plugin file is read as DTCG, and an alias survives while a literal is spelled as CSS', () => {
   const read = readPlugin('meridian', {
     $description: 'a group key of its own is not an answer',
