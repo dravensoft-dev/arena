@@ -32,6 +32,8 @@
         "ArenaBadge",
         "ArenaTag",
         "ArenaAvatar",
+        "ArenaPeopleList",
+        "ArenaPersonRow",
         "ArenaSkeleton",
         "ArenaTable",
         "ArenaTableRow",

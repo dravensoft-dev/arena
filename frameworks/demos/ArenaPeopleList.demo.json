@@ -1,0 +1,18 @@
+{
+  "component": "ArenaPeopleList",
+  "seed": {
+    "label": "Ruby league standings",
+    "ordered": true
+  },
+  "slots": {
+    "content": [
+      { "component": "ArenaPersonRow",
+        "members": { "rank": 1, "name": "Ines Marchetti", "figure": "2480 XP" } },
+      { "component": "ArenaPersonRow",
+        "members": { "rank": 2, "name": "Kofi Mensah", "secondary": "Promoted last week", "figure": "2210 XP" } },
+      { "component": "ArenaPersonRow",
+        "members": { "rank": 3, "name": "Lena Ruzicka", "current": true, "figure": "1970 XP" } }
+    ]
+  },
+  "note": "The list owns the size and the semantics; each row says who and how much."
+}

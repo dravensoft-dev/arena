@@ -22,10 +22,10 @@ breaks them where nothing will report it.
 |---|---|---|
 | `brand` | `ArenaAppLogo` | [`components/brand/SKILL.md`](./components/brand/SKILL.md) |
 | `charts` | `ArenaBarChart` `ArenaChartCard` `ArenaDoughnutChart` `ArenaHorizontalBarChart` `ArenaLineChart` `ArenaPyramidChart` `ArenaRadarChart` `ArenaScatterChart` | [`components/charts/SKILL.md`](./components/charts/SKILL.md) |
-| `display` | `ArenaActivityFeed` `ArenaAvatar` `ArenaBadge` `ArenaCalendar` `ArenaCalendarEvent` `ArenaCard` `ArenaKeyValue` `ArenaSkeleton` `ArenaStatCard` `ArenaTable` `ArenaTableCell` `ArenaTableRow` `ArenaTag` `ArenaUnauthCard` | [`components/display/SKILL.md`](./components/display/SKILL.md) |
+| `display` | `ArenaActivityFeed` `ArenaAvatar` `ArenaBadge` `ArenaCalendar` `ArenaCalendarEvent` `ArenaCard` `ArenaKeyValue` `ArenaPeopleList` `ArenaPersonRow` `ArenaSkeleton` `ArenaStatCard` `ArenaTable` `ArenaTableCell` `ArenaTableRow` `ArenaTag` `ArenaUnauthCard` | [`components/display/SKILL.md`](./components/display/SKILL.md) |
 | `feedback` | `ArenaAlert` `ArenaConfirmDialog` `ArenaDialog` `ArenaEmptyState` `ArenaErrorState` `ArenaOnboarding` `ArenaProgressBar` `ArenaSheet` `ArenaSpinner` `ArenaToast` `ArenaToastHost` `ArenaTooltip` | [`components/feedback/SKILL.md`](./components/feedback/SKILL.md) |
 | `forms` | `ArenaButton` `ArenaCheckbox` `ArenaIconButton` `ArenaInput` `ArenaRadio` `ArenaRadioGroup` `ArenaSelect` `ArenaSwitch` `ArenaTextarea` | [`components/forms/SKILL.md`](./components/forms/SKILL.md) |
 | `layout` | `ArenaFigure` `ArenaGrid` `ArenaHero` `ArenaScroller` `ArenaScrollerItem` `ArenaSection` `ArenaSiteFooter` | [`components/layout/SKILL.md`](./components/layout/SKILL.md) |
 | `navigation` | `ArenaAppBar` `ArenaBottomNav` `ArenaBottomNavItem` `ArenaBreadcrumbs` `ArenaBulkActionBar` `ArenaCommandPalette` `ArenaMenu` `ArenaPageHead` `ArenaPagination` `ArenaSegmentedControl` `ArenaSideNav` `ArenaSideNavCollapsible` `ArenaSideNavItem` `ArenaSideNavSection` `ArenaTab` `ArenaTabs` | [`components/navigation/SKILL.md`](./components/navigation/SKILL.md) |
 
-67 components across 7 categories in this layer.
+69 components across 7 categories in this layer.

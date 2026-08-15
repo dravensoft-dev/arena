@@ -20,6 +20,8 @@
     "ArenaCalendarEvent",
     "ArenaCard",
     "ArenaKeyValue",
+    "ArenaPeopleList",
+    "ArenaPersonRow",
     "ArenaSkeleton",
     "ArenaStatCard",
     "ArenaTable",

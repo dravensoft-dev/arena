@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
-Arena is Dravensoft's design system. This package is its React layer: 67 components whose every
+Arena is Dravensoft's design system. This package is its React layer: 69 components whose every
 value traces to a design token, with one stylesheet to import and no theme provider to wrap
 your tree in.
 

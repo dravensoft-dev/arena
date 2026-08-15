@@ -15,6 +15,8 @@ import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-sec
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed.tsx';
+import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList.tsx';
+import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPersonRow.tsx';
 import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
@@ -33,6 +35,8 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
   ['ArenaBreadcrumbs', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
   ['ArenaActivityFeed', () => <ArenaActivityFeed label={BLANK} items={[]} />],
+  ['ArenaPeopleList', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],
+  ['ArenaPersonRow', () => <ArenaPersonRow name={BLANK} />],
   ['ArenaTable', () => <ArenaTable label={BLANK} columns={[{ header: 'A' }]} />],
   ['ArenaScroller', () => <ArenaScroller label={BLANK}><span>One</span></ArenaScroller>],
   ['ArenaSection', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],

@@ -41,6 +41,12 @@ export const MANIFEST_COVERS = new Map([
     reason: 'The grid and its chips are one surface: a chip is positioned as a share of the grid, '
       + 'so its slots cannot live in a manifest of their own.',
   }],
+  ['ArenaPeopleList', {
+    covers: ['ArenaPeopleList', 'ArenaPersonRow'],
+    reason: 'One manifest draws the whole list: the list is the rows\' rhythm and the row is a line '
+      + 'set against it, so the size the list hands down reaches the face, the name and the figure '
+      + 'through one recipe rather than through two that could disagree about a step.',
+  }],
   ['ArenaRadio', {
     covers: ['ArenaRadio', 'ArenaRadioGroup'],
     reason: 'One manifest draws the whole group -- the fieldset and the legend naming it are '

@@ -1,0 +1,46 @@
+<!-- @dsCard group="Tailwind" viewport="640x260" name="ArenaPeopleList" subtitle="The three sizes and the reader's own row, rendered from ArenaPeopleList.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-people-list/ArenaPeopleList.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-avatar/ArenaAvatar.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaPeopleList.manifest.json')).json();
+const avatar = await (await fetch('../arena-avatar/ArenaAvatar.manifest.json')).json();
+
+const FACE = { sm: 'xs', md: 'sm', lg: 'md' };
+
+function face(name, size) {
+  const a = arenaClassesFor(avatar, { size: FACE[size] });
+  const initials = name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
+  return el('span', { class: a.root }, el('span', { class: a.box }, initials));
+}
+
+function row(size, current, rank, name, secondary, figure) {
+  const c = arenaClassesFor(manifest, { size, current });
+  return el('li', { class: c.row },
+    el('span', { class: c.rank }, String(rank)),
+    face(name, size),
+    el('span', { class: c.text },
+      el('span', { class: c.name }, name),
+      el('span', { class: c.secondary }, secondary)),
+    el('span', { class: c.figure }, figure));
+}
+
+function list(size) {
+  const c = arenaClassesFor(manifest, { size });
+  return el('ol', { class: c.root },
+    row(size, false, 1, 'Ines Marchetti', 'Promoted last week', '2480 XP'),
+    row(size, true, 2, 'Kofi Mensah', 'You', '2210 XP'));
+}
+
+mountSpecimen({ sections: [
+  section('Small', [list('sm')]),
+  section('Medium', [list('md')]),
+  section('Large', [list('lg')]),
+]});
+</script></body></html>

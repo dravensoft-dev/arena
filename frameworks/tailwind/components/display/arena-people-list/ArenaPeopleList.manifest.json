@@ -1,0 +1,46 @@
+{
+  "component": "ArenaPeopleList",
+  "slots": {
+    "root": "grid list-none m-0 p-0 font-body",
+    "row": "flex items-center min-w-0 rounded-control",
+    "rank": "shrink-0 text-center font-mono tabular-nums font-bold text-ink-muted/62",
+    "text": "grid min-w-0 flex-1",
+    "name": "min-w-0 truncate text-ink-heading font-medium",
+    "secondary": "min-w-0 truncate text-ink-muted/62",
+    "figure": "shrink-0 font-mono tabular-nums text-ink-muted/62",
+    "action": "shrink-0 flex items-center"
+  },
+  "variants": {
+    "size": {
+      "sm": {
+        "root": "gap-1",
+        "row": "gap-2 px-1.5 py-1",
+        "rank": "w-4 text-ctl-2xs",
+        "name": "text-ctl-sm",
+        "secondary": "text-ctl-2xs",
+        "figure": "text-ctl-2xs"
+      },
+      "md": {
+        "root": "gap-2",
+        "row": "gap-3 px-2 py-2",
+        "rank": "w-6 text-ctl-xs",
+        "name": "text-ctl-md",
+        "secondary": "text-ctl-xs",
+        "figure": "text-ctl-sm"
+      },
+      "lg": {
+        "root": "gap-3",
+        "row": "gap-4 px-3 py-3",
+        "rank": "w-8 text-ctl-sm",
+        "name": "text-ctl-lg",
+        "secondary": "text-ctl-sm",
+        "figure": "text-ctl-md"
+      }
+    },
+    "current": {
+      "true": { "row": "bg-surface-sunken" },
+      "false": {}
+    }
+  },
+  "defaultVariants": { "size": "md", "current": false }
+}

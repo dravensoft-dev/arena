@@ -10,9 +10,9 @@ import {
   hasOwnManifest, inScope, manifestFor, surfaceProblems,
 } from './manifest-surfaces.ts';
 
-test('MANIFEST_COVERS names the eight manifests that draw more than their own component', () => {
+test('MANIFEST_COVERS names the manifests that draw more than their own component', () => {
   assert.deepEqual([...MANIFEST_COVERS.keys()].sort(), [
-    'ArenaBottomNav', 'ArenaCalendar', 'ArenaConfirmDialog', 'ArenaErrorState', 'ArenaRadio', 'ArenaSideNav', 'ArenaTable', 'ArenaTabs',
+    'ArenaBottomNav', 'ArenaCalendar', 'ArenaConfirmDialog', 'ArenaErrorState', 'ArenaPeopleList', 'ArenaRadio', 'ArenaSideNav', 'ArenaTable', 'ArenaTabs',
   ]);
 });
 
@@ -48,8 +48,8 @@ test('every component in scope resolves to a manifest, so no name is left with n
 });
 
 test('the scope is every component but the ones that draw by hand', () => {
-  assert.equal(everyComponent().length, 67);
-  assert.equal(inScope().length, 60);
+  assert.equal(everyComponent().length, 69);
+  assert.equal(inScope().length, 62);
   assert.equal(inScope().some((n) => HAND_DRAWN.has(n)), false);
 });
 
