@@ -165,9 +165,6 @@ export const NAMED_BUT_NOT_HERE = new Map([
   ['index.html', THE_CONSUMER_WRITES],
   ['Shell.tsx', THE_CONSUMER_WRITES],
   ['fullcalendar-overrides.css', THE_CONSUMER_WRITES],
-  ['plugin.css', 'the stylesheet a style plugin carries beside its answers, written against the '
-    + 'part hooks and wrapped in the reserved layer by the build. The store holds one plugin and '
-    + 'it answers roles alone, so today the only tree with one is a consumer\'s'],
 ]);
 
 export function filenameProblems(

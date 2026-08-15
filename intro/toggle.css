@@ -68,7 +68,8 @@
 }
 
 .dtoggle[data-light="1"] .knob::before,
-.dtoggle[data-compact="1"] .knob::before {
+.dtoggle[data-compact="1"] .knob::before,
+.dtoggle[data-plugin="1"] .knob::before {
   transform: translateX(16px);
   background: var(--gold);
 }

@@ -65,6 +65,18 @@ To tell **destructive / risk actions and indicators** apart from the primary act
 
 ---
 
+## Three tiers, and the kernel is the smallest of them
+
+| Tier | What it holds | Who owns it |
+|---|---|---|
+| The kernel | the floors, the role declaration, the scale repertoire, the part hooks and the reserved cascade layer. No value of appearance | this directory |
+| The style plugin | an answer to every role, and CSS of its own written against the part hooks | [`plugin-style-store/`](../../plugin-style-store/AGENTS.md) for the two Arena authors, a directory of their own for anybody else |
+| The skin | the palettes and the fonts, declared in `arena.config.json` | the consuming project |
+
+[`StylePlugins.md`](./StylePlugins.md) is the normative statement of the middle tier: what the
+kernel exposes, what a plugin may answer with, which floors a gate still holds and which became
+reports, and the rule the role tier grows by. Read it before writing one.
+
 ## Theming
 
 Arena's identity lives in **shape**, not in its hexes. Crimson and gold are Dravensoft's skin; a different product can wear a different one and still be unmistakably Arena.
@@ -155,14 +167,19 @@ bun scripts/check/core/check-ramp.ts
 
 It reads the ramp straight out of `palette.generated.css`, which the build regenerates from the DTCG source, measures both themes against their real surfaces, and exits non-zero on any failure, **including** the warnings the upstream validator tolerates, because Arena's shipped ramp needs no relief rule and neither should yours. Do not trust your eye here; nobody's eye simulates deuteranopia.
 
-## Two documents live beside this one, and the split is by audience
+## Three documents live beside this one, and the split is by audience
 
-All three are normative, and none is a summary of another.
+All four are normative, and none is a summary of another.
 
 **[`Scales.md`](./Scales.md)** carries every scale step by step: type, layering, quantity
 invariants, control density, tracking, line height, motion and behaviour timing. What a table
 there adds to the JSON is **which role a step plays**, which is what a reader choosing between
 two steps needs and the one thing the JSON cannot say.
+
+**[`StylePlugins.md`](./StylePlugins.md)** carries the middle tier: what the kernel exposes, what
+a plugin may say, which floors survive as gates and which became reports, and the rule a role is
+promoted by. It is what a consumer replacing the appearance reads, and the one document that
+admits where a gate stops reaching.
 
 **[`TokenTypes.md`](./TokenTypes.md)** carries the DTCG `$type` of every group, the strict
 2025.10 value formats, the `script: true` flag and what the map deliberately leaves out. It is
@@ -171,4 +188,4 @@ the second thing a new platform target reads.
 **This document states what a value MEANS**, which is what anyone choosing a colour needs; that
 one states what shape it arrives in, which only somebody authoring a token or targeting a new
 platform needs. **And the values themselves are the DTCG JSON in this directory**, which is
-machine-readable and cheaper to read than any of the three.
+machine-readable and cheaper to read than any of the four.

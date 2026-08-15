@@ -12,11 +12,17 @@ import { resolvedFor } from './check-style-plugin.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
-export const EFFECTS = 'contracts/design-generated/effects.generated.css';
+export const ROLE_SHEETS = [
+  'contracts/design-generated/effects.generated.css',
+  'contracts/design-generated/style-plugin.default.generated.css',
+  'contracts/design-generated/style-plugin.complete.generated.css',
+];
+
+export const SCOPED_PLUGINS = ['complete'];
 
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS, EFFECTS],
+  reads: [PALETTE, COLORS, ...ROLE_SHEETS],
   writes: [],
   feeds: [],
 };
@@ -150,8 +156,8 @@ export function scopesToMeasure(effects: string, theme: string, plugins: string[
 function main() {
   const palette = readFileSync(join(root, PALETTE), 'utf8');
   const structure = structureOf(readFileSync(join(root, COLORS), 'utf8'));
-  const effects = readFileSync(join(root, EFFECTS), 'utf8');
-  const scoped: string[] = [];
+  const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(root, sheet), 'utf8')).join('\n');
+  const scoped = SCOPED_PLUGINS;
   let ok = true;
 
   for (const { token, use } of REMOVED) {

@@ -1,0 +1,129 @@
+# Style plugins
+
+**Arena keeps the questions and a repertoire of values. Every answer is a style plugin, and the
+appearance Arena installs with is one of them.** This document states what the kernel exposes,
+what a plugin may say, which floors a gate still holds and which became reports, and the rule the
+role tier grows by.
+
+## What the kernel exposes
+
+Not one value of appearance.
+
+| Surface | What it is |
+|---|---|
+| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline |
+| The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json). No value |
+| The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
+| The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
+| The cascade | `arena-plugin`, a layer declared after `utilities` |
+
+[`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
+with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
+`scripts/check/core/check-role-contract.ts` holds it instead: a type, a description, a closed set
+for a keyword, and no value. That is the statement rather than a side effect. **The question
+belongs to the kernel and the answer never does.**
+
+The scales stay, and they stay with values, because a manifest never names one. They reach a page
+only through a role, so what they are is a shared repertoire a plugin picks from. A plugin answers
+a role with a scale alias or with a literal where the scale has nothing it wants.
+
+## What a style plugin is
+
+A directory holding two files, described in
+[`plugin-style-store/AGENTS.md`](../../plugin-style-store/AGENTS.md).
+
+`plugin.tokens.json` answers roles, and may re-value the type and rhythm ladders, whose steps
+reach a page through classes a consumer applies rather than through any role. `plugin.css` is CSS
+of the plugin's own, written against the part hooks; the build wraps it in the reserved layer, so
+its author never spells `@layer arena-plugin`.
+
+**Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
+palette colours as a `{color.*}` alias, and a plugin writing a hex would be authoring a skin it
+does not own. It is mechanical as well as doctrinal: the emitter turns a bare colour alias into a
+`var()` it restates under every palette, and anything else resolves to one theme's hex and
+inherits it into the other.
+
+## The first plugin in the list is total
+
+`stylePlugins` takes a list, because a build can carry more than one register. The first entry is
+the root plugin: it is what a page with no class on it looks like, it emits on `:root`, and **it
+answers every declared role**. `scripts/check/core/check-style-plugin.ts` fails one that leaves a
+question unanswered, and the reason is sharper than tidiness: a custom property with no value is
+invalid at computed-value time, so the declaration reading it is dropped and the whole property
+disappears. A partial root plugin is not a poorer appearance. It is a page with no borders.
+
+Every later entry emits under `.arena-<name>`, taken from the directory that holds it, and is a
+difference. Those sit over the root plugin in the cascade, so totality would be a demand with
+nothing behind it. A polarity group emits three compound selectors rather than one, because the
+plugin class and the theme class sit in either order or on the same element.
+
+An empty list is not a configuration. Removable means replaceable.
+
+## Why the plugin layer sits after `utilities`
+
+Every compiled component rule lands in `@layer utilities` at single-class specificity. A plugin
+that had to out-specify that with `!important` or with selector chains is not an escape hatch.
+Declared after, it wins at any specificity and its author writes ordinary CSS.
+
+Unlayered application CSS still beats the plugin layer, and that is the right order: the
+application is the last word. It is also why the audit keeps reporting application CSS that
+reaches into Arena. Reaching in works, and working is exactly what makes it silent debt rather
+than an error.
+
+## Which floors a gate still holds, and which became reports
+
+This is the half that has to be written down rather than discovered.
+
+**A floor expressed as a token value is a floor over the token half only.** With plugin CSS open,
+the prohibition on gradients is the clear case: it is a floor because a fill whose colour is a
+range turns contrast into a range, and **a plugin paints the gradient from its own stylesheet
+whatever the token tier says**. It stops being a floor and becomes a report. `--audit` names it in
+an application source and says nothing about it inside a declared plugin directory, because
+`--strict` may not refuse what this document permits.
+
+| Claim | Held by | Over |
+|---|---|---|
+| prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
+| a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
+| text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
+| the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, bar one declared allowance carrying its measurement |
+| the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
+| a raw hex or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
+| no gradient | `--audit`, in the application scope only | a consumer's sources |
+
+A floor nothing measures is a sentence, and a sentence that reads like a guarantee is worse than
+an admitted limit.
+
+## A part is one contract across both layers
+
+A part hook is what a style plugin selects, so a part one layer reaches and the other does not
+would make two pages out of one manifest. `scripts/check/arena/check-parts.ts` holds both halves:
+every element carrying a slot class carries its hook, and the two layers reach the same parts. That
+is why a manifest carries no slot for an action a component composes rather than draws: an
+`ArenaButton` inside a dialog is an `ArenaButton` in both layers, and a slot typed out beside it in
+one of them would be a part only that layer could paint.
+
+Below the parts the two layers still quantise a shrink-to-fit box to a different 1/64 of a pixel,
+where the element carrying the difference is the component itself in Angular and a `div` in React.
+Neither layer can close it, so `check:pixel-parity` carries one declared allowance for the sink that
+reveals it, bounded on the pixel count and on the channel delta and carrying the measurement. The
+appearance Arena installs with carries none.
+
+## A slot name is contract
+
+A manifest's slot names leave the repository as the part hook, so **renaming one is a break**.
+That is the price of the escape hatch, and it is recorded in
+[`frameworks/tailwind/AGENTS.md`](../../frameworks/tailwind/AGENTS.md), where slots are defined,
+rather than left to be discovered at a consumer's build.
+`scripts/check/arena/check-parts.ts` fails an element that carries a slot class and no hook.
+
+## The rule the role tier grows by
+
+> The escape hatch is the instrument that measures the role tier. A role is added when several
+> style plugins are measured painting the same decision by hand through the same part. What one
+> plugin paints is its own.
+
+This is how the current tier was derived, by counting the slots that named a palette step, a face
+or a case directly. What changes is that the count now has a source that keeps producing: the
+audit reports which parts a plugin paints, and that note is where the evidence for promoting one
+comes from.

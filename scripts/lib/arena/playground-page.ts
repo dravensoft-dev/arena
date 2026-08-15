@@ -48,6 +48,8 @@ export function toggleDock() {
     + '<span class="tlabel">Dark</span><span class="knob"></span></button>',
     '<button class="dtoggle" type="button" id="density" data-compact="0" aria-label="ArenaSwitch density">'
     + '<span class="tlabel">Comfortable</span><span class="knob"></span></button>',
+    '<button class="dtoggle" type="button" id="style-plugin" data-plugin="0" aria-label="ArenaSwitch style plugin">'
+    + '<span class="tlabel">default</span><span class="knob"></span></button>',
     '</div>',
   ].join('\n');
 }
@@ -77,6 +79,7 @@ ${toggleDock()}
 ${mount}
 <script src="${UP}intro/theme.js"></script>
 <script src="${UP}intro/density.js"></script>
+<script src="${UP}intro/style-plugin.js"></script>
 <script type="module" src="${script}"></script>
 </body>
 </html>

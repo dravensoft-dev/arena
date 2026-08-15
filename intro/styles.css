@@ -6,4 +6,6 @@
 @import "../contracts/design-generated/spacing.generated.css";
 @import "../contracts/design-generated/effects.generated.css";
 @import "../contracts/design-generated/style-plugin.default.generated.css";
+@import "../contracts/design-generated/style-plugin.complete.generated.css";
+@import "../plugin-style-store/complete/plugin.css" layer(arena-plugin);
 @import "../contracts/design/environment.css";

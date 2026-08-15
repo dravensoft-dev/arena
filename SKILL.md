@@ -127,8 +127,15 @@ of your own on an Arena component**, and write no rule targeting one. A componen
 `arena-<component>__<slot>` class names, so a rule of yours can reach one by specificity;
 nothing stops you and nothing supports you either. The name reads like a BEM surface somebody
 meant you to target and it is not one: it is compiler output, no contract names it, and a slot
-may be renamed in any release. Re-skin through `arena.config.json`, which is
-what it is for. Content you draw yourself is yours, styled through the same tokens.
+may be renamed in any release. Content you draw yourself is yours, styled through the same tokens.
+
+**Arena arrives with the style plugin `default` plugged in**, which is the appearance it installs
+with and the one entry a project replaces. Re-skin through `arena.config.json`: the palettes and
+the fonts are the skin, and a project wanting a different appearance writes a style plugin of its
+own, a directory holding an answer to every role and CSS written against the
+`data-arena-part` hook every slot carries, named in `stylePlugins`. What that costs, what a
+plugin may say, and which of Arena's floors a gate still holds once one is open are stated in
+[`contracts/design/StylePlugins.md`](./contracts/design/StylePlugins.md).
 
 ## Invoked with no other guidance
 

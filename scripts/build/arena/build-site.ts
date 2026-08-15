@@ -30,6 +30,7 @@ export const node = {
     'SKILL.md', 'frameworks/**/SKILL.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
+    'plugin-style-store/**/plugin.css',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
     'frameworks/angular/build/demo/**',

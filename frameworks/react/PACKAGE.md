@@ -164,6 +164,15 @@ What each part means:
   `{ "family": "Archivo", "src": "/fonts/archivo.woff2", "weight": "400 900" }`.
 - **`stylesheet`** is optional and names what you render, so you send nothing else. See
   Build to production, below.
+- **`stylePlugins`** is optional and names the appearance. It is a list, because a build can
+  carry more than one register, and the first entry is what a page with no class on it looks
+  like; every later one emits under `.arena-<name>` and is a difference. An entry is the word
+  `default`, which is the appearance this package installs with, or a path to a directory of
+  your own holding `plugin.tokens.json` and optionally `plugin.css`. The first entry answers
+  every role Arena declares, and the command refuses one that does not: a custom property with no
+  value is invalid at computed-value time, so an unanswered role is a missing border rather than
+  a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
+  same way the preflight can already be dropped.
 
 <!-- @shared skin end -->
 

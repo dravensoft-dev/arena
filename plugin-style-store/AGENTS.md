@@ -24,10 +24,16 @@ list emits on `:root` and a custom property with no value is invalid at computed
 declaration reading it is dropped and the property disappears, so an unanswered role is a missing
 border rather than a plainer appearance.
 
-**`complete`** is assembled by no package. It answers every role differently, so a gate can ask
-whether the surface the kernel advertises is the surface it exposes. It is not coherent as a design
-and does not try to be: a role nothing can reach is a role that does not exist, and `complete` is
-the witness that says otherwise.
+**`complete`** is assembled by no package. It answers every role differently and paints through
+every part hook, so `check:style-plugin-coverage` can ask whether the surface the kernel advertises
+is the surface it exposes. It is not coherent as a design and does not try to be: a role nothing
+can reach is a role that does not exist, and `complete` is the witness that says otherwise.
+
+**Its stylesheet carries `.arena-complete` on every selector, and a root plugin's would not.** No
+package assembles this one, so it is always a difference sitting over a root plugin, and the site
+loads it beside `default`: an unscoped rule here would paint the page `default` is what looks like.
+A consumer never writes that class, because the build nests a non-root plugin's stylesheet under it
+and leaves a root plugin's alone.
 
 ## What a plugin may answer with
 
