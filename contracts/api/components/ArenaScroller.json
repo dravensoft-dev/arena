@@ -1,0 +1,15 @@
+{
+  "component": "ArenaScroller",
+  "description": "A row that scrolls sideways because it holds more than fits, with no arrows pretending to be a slideshow. It is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all: without it, everything past the right edge belongs to the pointer alone. Each child is laid out at one width so the row reads as a rail rather than as a line of whatever the children happened to measure.",
+  "affordances": ["focus"],
+  "api": {
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names the row to assistive technology, and nothing else supplies it: a group announced as a group tells a reader that focus moved and nothing about where it landed. Required, and guarded at runtime after trimming, the shape ArenaTable.label carries for the same reason, since the value the guard exists to catch is a present and useless one." },
+    "content": { "form": "slot", "required": true,
+                 "description": "The items in the row, one per child. Nothing is wrapped: a child is laid out exactly as it was written, at the width itemWidth names. Required, and guarded at runtime: an empty row is a tab stop over nothing, which is the dead stop a component with a group role must not ship." },
+    "itemWidth": { "form": "primitive", "type": "string", "default": "var(--grid-min)",
+                   "description": "How wide each item is laid out, which a rail has to answer and a grid answers with the same role: the width of a card is one decision, and a wall of them and a row of them should not disagree about it. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one, and it reaches the children as a custom property because a row sets its items' width and cannot reach inside them." },
+    "behaviour": { "form": "enum", "type": "ArenaScrollerBehaviour", "default": "snap",
+                   "description": "Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling by hand. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed." }
+  }
+}

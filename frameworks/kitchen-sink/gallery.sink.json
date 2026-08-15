@@ -5,7 +5,8 @@
     {
       "title": "The wall, where the treatment repeats",
       "items": [
-        "ArenaGrid", "ArenaCard", "ArenaStatCard", "ArenaChartCard", "ArenaUnauthCard"
+        "ArenaGrid", "ArenaScroller", "ArenaScrollerItem", "ArenaCard", "ArenaStatCard", "ArenaChartCard",
+        "ArenaUnauthCard"
       ]
     },
     {
@@ -19,7 +20,8 @@
     {
       "title": "The text that names it",
       "items": [
-        "ArenaAppLogo", "ArenaPageHead", "ArenaBadge", "ArenaTag", "ArenaTooltip"
+        "ArenaAppLogo", "ArenaPageHead", "ArenaSection", "ArenaBadge", "ArenaTag",
+        "ArenaTooltip"
       ]
     },
     {

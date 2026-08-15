@@ -1,0 +1,43 @@
+<!-- @dsCard group="Tailwind" viewport="820x420" name="ArenaScroller" subtitle="Both scroll behaviours, rendered from ArenaScroller.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-scroller/ArenaScroller.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaScroller.manifest.json')).json();
+
+const LOTS = ['Finca El Injerto', 'Kochere Lot 4', 'La Esperanza', 'Kiangoi AA', 'Gicherori', 'Buku Sayo'];
+
+function row(behaviour) {
+  const box = el('div', {
+    class: arenaClassesFor(manifest, { behaviour }).root,
+    style: { '--arena-scroller-item': 'calc(var(--sp-1) * 62)' },
+  });
+  box.setAttribute('role', 'group');
+  box.setAttribute('aria-label', `Recently landed lots, ${behaviour}`);
+  box.setAttribute('tabindex', '0');
+  for (const name of LOTS) {
+    box.append(el('div', {
+      class: 'bg-base-300 border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2.5 '
+        + 'font-mono text-ctl-sm text-base-content/82',
+      text: name,
+    }));
+  }
+  return box;
+}
+
+mountSpecimen({ sections: [
+  section('behaviour="snap" — the default', [row('snap')], { stack: true }),
+  section('behaviour="flow"', [row('flow')], { stack: true }),
+  section('Nothing moves on its own', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'Both words describe where a scroll SETTLES, not anything that animates, so no pause control '
+      + 'is owed and prefers-reduced-motion has nothing to answer. The row is one tab stop with a '
+      + 'group role and a name; the item width reaches the children as a custom property.'),
+  ]),
+]});
+</script></body></html>

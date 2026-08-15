@@ -24,6 +24,8 @@ import { ArenaChartCard } from './charts/arena-chart-card/ArenaChartCard.tsx';
 import { ArenaEmptyState } from './feedback/arena-empty-state/ArenaEmptyState.tsx';
 import { ArenaToastHost } from './feedback/arena-toast-host/ArenaToastHost.tsx';
 import { ArenaGrid } from './layout/arena-grid/ArenaGrid.tsx';
+import { ArenaScrollerItem } from './layout/arena-scroller-item/ArenaScrollerItem.tsx';
+import { ArenaSection } from './layout/arena-section/ArenaSection.tsx';
 import { ArenaPageHead } from './navigation/arena-page-head/ArenaPageHead.tsx';
 import { ArenaSideNavSection } from './navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
 
@@ -49,6 +51,10 @@ const INERT: [string, string, React.ReactElement][] = [
   ['ArenaEmptyState', 'feedback/arena-empty-state/ArenaEmptyState.behaviour.json', <ArenaEmptyState title="Nothing here yet" />],
   ['ArenaToastHost', 'feedback/arena-toast-host/ArenaToastHost.behaviour.json', <ArenaToastHost />],
   ['ArenaGrid', 'layout/arena-grid/ArenaGrid.behaviour.json', <ArenaGrid><InertChild /></ArenaGrid>],
+  ['ArenaScrollerItem', 'layout/arena-scroller-item/ArenaScrollerItem.behaviour.json',
+    <ArenaScrollerItem><InertChild /></ArenaScrollerItem>],
+  ['ArenaSection', 'layout/arena-section/ArenaSection.behaviour.json',
+    <ArenaSection title="Landed recently"><InertChild /></ArenaSection>],
   ['ArenaPageHead', 'navigation/arena-page-head/ArenaPageHead.behaviour.json', <ArenaPageHead title="Projects" />],
   ['ArenaSideNavSection', 'navigation/arena-side-nav-section/ArenaSideNavSection.behaviour.json',
     <ArenaSideNavSection label="Workspace"><InertChild /></ArenaSideNavSection>],

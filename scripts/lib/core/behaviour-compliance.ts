@@ -65,6 +65,7 @@ export const ELEMENT_ROLE: Record<string, string> = {
   'menu-button': 'button',
   navigation: 'navigation',
   progressbar: 'progressbar',
+  'scrollable-region': 'group',
   select: 'combobox',
   status: 'status',
   switch: 'switch',
@@ -204,6 +205,7 @@ export const DECIDABLE = new Set([
 export const BEHAVIOURAL = new Set([
 
   'focus.unaffected', 'focus.onOpen', 'focus.onClose', 'focus.trap', 'focus.roving', 'focus.never',
+  'focus.stop',
 
   'keyboard.Space', 'keyboard.Enter', 'keyboard.Escape',
   'keyboard.ArrowKeys', 'keyboard.ArrowUp', 'keyboard.ArrowDown',

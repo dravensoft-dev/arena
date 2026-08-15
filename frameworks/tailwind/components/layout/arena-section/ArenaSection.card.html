@@ -1,0 +1,50 @@
+<!-- @dsCard group="Tailwind" viewport="820x520" name="ArenaSection" subtitle="The four rhythm steps and the three registers, rendered from ArenaSection.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-section/ArenaSection.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaSection.manifest.json')).json();
+
+function block(rhythm, { eyebrow, description, action } = {}) {
+  const c = arenaClassesFor(manifest, { rhythm });
+  const titles = el('div', { class: c.titles });
+  if (eyebrow) titles.append(el('div', { class: c.eyebrow, text: eyebrow }));
+  titles.append(el('div', { class: c.title, text: 'Landed recently' }));
+  if (description) titles.append(el('p', { class: c.description, text: description }));
+
+  const head = el('div', { class: c.head });
+  head.append(titles);
+  if (action) head.append(el('div', { class: c.action, text: 'See all' }));
+
+  const body = el('div', { class: c.body });
+  body.append(el('div', {
+    class: 'bg-base-300 border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2.5 '
+      + 'font-mono text-ctl-sm text-base-content/82',
+    text: 'The group the heading names',
+  }));
+
+  const root = el('div', { class: c.root });
+  root.append(head, body);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('rhythm="none"', [block('none')], { stack: true }),
+  section('rhythm="sm"', [block('sm')], { stack: true }),
+  section('rhythm="md" — the default', [block('md')], { stack: true }),
+  section('rhythm="lg"', [block('lg')], { stack: true }),
+  section('The head, in full', [
+    block('md', { eyebrow: 'This week', description: 'Everything that cleared customs since Monday.', action: true }),
+  ], { stack: true }),
+  section('Three registers, not three sizes', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'The eyebrow, the title and the description each name a register a voice can move on its own. '
+      + 'The title is the section step, one rung under a page head and one over a card.'),
+  ]),
+]});
+</script></body></html>

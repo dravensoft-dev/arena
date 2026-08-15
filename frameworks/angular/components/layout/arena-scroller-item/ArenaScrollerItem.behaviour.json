@@ -1,0 +1,6 @@
+{
+  "component": "ArenaScrollerItem",
+  "pattern": "none",
+  "reason": "ArenaScrollerItem draws a box and nothing else: no role, no state, no control, no surface. It exists so that the row around it has something with a box to size and to settle on, which is the one thing a rule aimed at the row's own children cannot guarantee, since a child that is an Arena component may render no box at all. Everything focusable inside a cell came from the content slot and carries its own binding.",
+  "exceptions": []
+}

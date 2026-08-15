@@ -21,7 +21,8 @@
       "items": [
         "ArenaAppLogo", "ArenaPageHead", "ArenaTable", "ArenaTableRow", "ArenaTableCell",
         "ArenaActivityFeed", "ArenaCalendar", "ArenaCalendarEvent", "ArenaGrid", "ArenaSideNav",
-        "ArenaSideNavSection", "ArenaSideNavItem", "ArenaSideNavCollapsible"
+        "ArenaSideNavSection", "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaSection",
+        "ArenaScroller", "ArenaScrollerItem"
       ]
     },
     {

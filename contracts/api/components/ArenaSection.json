@@ -1,0 +1,19 @@
+{
+  "component": "ArenaSection",
+  "description": "A named region of a page: a heading, optionally an eyebrow above it, a line under it and an action beside it, over whatever the region holds. It wraps what the consumer wrote and never replaces it. The title register is the section one, a step above a card's and a step below a page's, so a voice re-pitching the hierarchy moves this with the other two rather than leaving a page with three heads that disagree.",
+  "affordances": [],
+  "api": {
+    "title": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses." },
+    "content": { "form": "slot", "required": true,
+                 "description": "What the region holds. Required, and guarded at runtime: a section renders a heading naming a group, so a childless one renders a label for nothing. The guard counts the way the render path counts, so a child that is a false conditional counts as absent rather than as one." },
+    "eyebrow": { "form": "primitive", "type": "string",
+                 "description": "A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them." },
+    "description": { "form": "primitive", "type": "string",
+                     "description": "A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen." },
+    "action": { "form": "slot",
+                "description": "Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case." },
+    "rhythm": { "form": "enum", "type": "ArenaSectionRhythm", "default": "md",
+                "description": "How far the head stands from the body. The steps are the page rhythm scale itself, so sm reads as one unit, md as a head over its own content and lg as a head over a region of the page, and none closes the distance entirely for a section whose body carries its own top edge. Nothing here is a number this component chose." }
+  }
+}

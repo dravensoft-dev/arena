@@ -1,0 +1,10 @@
+{
+  "name": "scrollable-region",
+  "source": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+  "description": "A region that scrolls because its content overflows the box it is given, and that a keyboard must therefore be able to reach and move. APG has no pattern page for it, confirmed against the pattern index rather than assumed, because scrolling is a behaviour of a box and not a widget; WCAG 2.1.1 is the pattern's source instead, on the plainest reading of it there is. Content that only a pointer can bring into view is content a keyboard user cannot reach at all, and a row of cards that runs past its right edge is exactly that. The group role and its name are the other half: a tab stop that announces nothing is a landing a reader cannot account for.",
+  "requires": {
+    "roles.element": "group -- the region is one thing containing several, and group is what says so without claiming a structure a reader can walk",
+    "roles.label": "an aria-label or aria-labelledby naming what the region holds, since a group announced as a group alone tells a reader that focus moved and nothing about where",
+    "focus.stop": "the container is itself in the tab order, so the arrow keys scroll it once focus lands. A scrollable box that is not focusable is the failure this pattern exists to name, and it is invisible to everyone who tests with a pointer"
+  }
+}

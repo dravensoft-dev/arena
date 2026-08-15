@@ -70,6 +70,25 @@ test('no ArenaSideNav slot hard-codes an indent bracket, because a static utilit
 });
 
 export const CLAIMS = {
+  ArenaSection: [
+    { slot: 'title', has: ['text-title-section'], hasNot: ['text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a scale step here is a title no voice can re-pitch, which is the defect the role tier exists to prevent' },
+    { slot: 'head', has: ['flex-wrap', 'items-baseline', 'justify-between'], why: 'the head puts its action at the far end on the title\'s own baseline, and wraps rather than squeezing' },
+    { chosen: { rhythm: 'none' }, slot: 'root', has: ['gap-0'], why: 'none closes the distance for a body that carries its own top edge' },
+    { chosen: { rhythm: 'sm' }, slot: 'root', has: ['gap-group'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
+    { chosen: { rhythm: 'md' }, slot: 'root', has: ['gap-component'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
+    { chosen: { rhythm: 'lg' }, slot: 'root', has: ['gap-section'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
+  ],
+  ArenaScroller: [
+    { slot: 'root', has: ['overflow-x-auto'], hasNot: ['overflow-y-auto', 'overflow-y-scroll'], why: 'a row that scrolls downwards as well is a grid nobody asked for' },
+    { slot: 'root', hasNot: ['*:basis-[var(--arena-scroller-item)]', '*:shrink-0', '*:snap-start'], why: 'a rule aimed at the row\'s own children lands on an element with no box wherever that child takes its host out of layout, so the width and the snap point sit on ArenaScrollerItem, which has one in both layers' },
+    { chosen: { behaviour: 'snap' }, slot: 'root', has: ['snap-x'], why: 'snap lands on an item, and the axis is the half the row owns' },
+    { chosen: { behaviour: 'flow' }, slot: 'root', hasNot: ['snap-x'], why: 'flow lands wherever the reader left it, which is the whole difference between the two' },
+    { chosen: { behaviour: 'snap' }, slot: 'root', hasNot: ['animate-spin', 'animate-pulse'], why: 'a row that moved on its own would owe a pause control under WCAG 2.2.2, and neither behaviour moves' },
+  ],
+  ArenaScrollerItem: [
+    { slot: 'root', has: ['basis-[var(--arena-scroller-item)]', 'shrink-0', 'grow-0', 'snap-start'], why: 'the cell is the box the row sizes and settles on, and it carries both on itself rather than inheriting either from a rule aimed at somebody else\'s children' },
+    { slot: 'root', hasNot: ['bg-surface', 'border-edge-surface', 'p-surface'], why: 'the cell draws no surface, no line and no padding: everything visible in it is what was put inside' },
+  ],
   ArenaAppLogo: [
     ...['sm', 'md', 'lg', 'xl'].flatMap((s) => [
       { chosen: { size: s }, slot: 'mark', has: [`size-logo-mark-${s}`], why: 'each size step pairs a mark box with its wordmark step' },

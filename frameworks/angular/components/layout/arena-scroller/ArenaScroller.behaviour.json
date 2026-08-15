@@ -1,0 +1,6 @@
+{
+  "component": "ArenaScroller",
+  "pattern": "scrollable-region",
+  "reason": "The row holds more than fits and scrolls sideways, so WCAG 2.1.1 asks that a keyboard be able to reach and move it: the container is one tab stop carrying a group role and a name, and the arrow keys scroll it once focus lands. Nothing here moves on its own under either behaviour, since snap and flow both describe where a scroll SETTLES, so no pause control is owed under WCAG 2.2.2 and prefers-reduced-motion has nothing to answer.",
+  "exceptions": []
+}

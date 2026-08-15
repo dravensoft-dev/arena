@@ -39,6 +39,10 @@ export const THEME_NAMESPACES = [
 
 export const EXTERNAL_PROPERTIES = new Map([
   ['picker-invert', 'written by arena-to-prod into the consuming project\'s own stylesheet, never by the package'],
+  ['arena-scroller-item', 'written by ArenaScroller onto its own root from the itemWidth member, in both layers, '
+    + 'because a row lays its items out at one width and cannot reach inside them to set it. It is a component\'s '
+    + 'own channel to its children rather than a design value, which is why no token defines it and why its '
+    + 'default, the grid-min role, is resolved by the component and not by this sheet'],
 ]);
 
 export function selectorsIn(css: string) {
