@@ -50,7 +50,7 @@ test("the Angular suites run from the emit, and the emit is still the Angular la
 
 test('an absolute path is classified, because a junit report names the files a runner wrote', () => {
   assert.equal(domainOfTestPath('/runner/work/arena/arena/frameworks/react/a.test.tsx'), 'react');
-  assert.equal(domainOfTestPath('/runner/work/arena/arena/scripts/lib/core/serialize-token.test.ts'), 'core');
+  assert.equal(domainOfTestPath('/runner/work/arena/arena/scripts/generate/core/arena-to-prod/serialize-token.test.ts'), 'core');
 });
 
 test('a checkout under a directory of an anchor name does not decide every path in the run', () => {

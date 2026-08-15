@@ -1,11 +1,18 @@
-import { ARENA_EXT } from './dtcg-shapes.ts';
-import type { DtcgToken } from './dtcg-shapes.ts';
+/* One spelling of a DTCG value as CSS, in the command's own tree because both readers need it:
+ * the generator, which emits the sheets this repository ships, and the shipped CLI, which reads
+ * the plugin.tokens.json a consumer's own style plugin holds. A package carries no scripts/, so a
+ * module up there is a specifier that resolves here and to nothing beside a consumer's
+ * node_modules. `$value` is `any` because `$type` decides its shape, and this is the file that
+ * owns that knowledge. */
 
-const GENERIC_FAMILIES = new Set([
-  'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy',
-  'system-ui', 'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded',
-  'math', 'emoji', 'fangsong',
-]);
+import { ARENA_EXT } from './style-plugin-rules.ts';
+import { GENERIC_FAMILIES } from './palette-keys.ts';
+
+export type SerializableToken = {
+  $value: any;
+  $type?: string;
+  $extensions?: Record<string, any>;
+};
 
 const trim = (n: number | string) => String(n).replace(/^(-?)0\./, '$1.');
 
@@ -18,7 +25,7 @@ const color = (c: { hex?: string; components: number[]; alpha?: number }) => {
   return a === 1 ? `rgb(${r},${g},${b})` : `rgba(${r},${g},${b},${trim(a)})`;
 };
 
-export function serialize(token: DtcgToken) {
+export function serialize(token: SerializableToken) {
   const v = token.$value;
   switch (token.$type) {
     case 'dimension':

@@ -16,7 +16,8 @@ import { toPosix } from '../../utils/posix-path.ts';
 import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
-import { serialize } from '../../lib/core/serialize-token.ts';
+import { serialize } from '../core/arena-to-prod/serialize-token.ts';
+import { scopeOn } from '../core/arena-to-prod/style-plugin-rules.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
@@ -58,10 +59,6 @@ export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
   'plugin.tokens.json': ['effects.json', 'palette.dark.json', 'spacing.json', 'typography.json'],
 };
-
-const scopeOn = (className: string) => (s: string) => (s === ':root'
-  ? className
-  : `${className}${s}, ${className} ${s}, ${s} ${className}`);
 
 export const THEME_SCOPES = new Map<string, (selector: string) => string>([
   ['light', scopeOn('.arena-light')],
