@@ -1,4 +1,5 @@
 export type ArenaSlotClasses = Record<string, string>;
+export type ArenaSlotParts = Record<string, string>;
 export type ArenaVariantGroups = Record<string, Record<string, Partial<ArenaSlotClasses>>>;
 export type ArenaChoice = string | boolean | undefined;
 
@@ -10,6 +11,7 @@ export interface ArenaCompoundVariant {
 export interface ArenaClassManifest {
   readonly component: string;
   readonly slots: ArenaSlotClasses;
+  readonly parts?: ArenaSlotParts;
   readonly variants?: ArenaVariantGroups;
   readonly defaultVariants?: Record<string, ArenaChoice>;
   readonly compoundVariants?: readonly ArenaCompoundVariant[];

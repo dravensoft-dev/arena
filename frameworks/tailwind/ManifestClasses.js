@@ -11,6 +11,11 @@ export const variantClass = (manifest, slot, group, value) =>
 
 export const compoundClass = (manifest, slot, index) => `${slotClass(manifest, slot)}--cv${index + 1}`;
 
+export function slotPart(manifest, slot) {
+  const base = classBase(manifest).replace(/^arena-/, '');
+  return slot === 'root' ? base : `${base}.${kebab(slot)}`;
+}
+
 export function classesManifest(manifest) {
   const named = (map, name) => Object.fromEntries(
     Object.keys(map ?? {}).filter((slot) => String(map[slot] ?? '').trim()).map((slot) => [slot, name(slot)]),
@@ -19,7 +24,11 @@ export function classesManifest(manifest) {
     Object.keys(manifest.slots ?? {}).map((slot) => [slot, slotClass(manifest.component, slot)]),
   );
 
-  const out = { component: manifest.component, slots: everySlot };
+  const everyPart = Object.fromEntries(
+    Object.keys(manifest.slots ?? {}).map((slot) => [slot, slotPart(manifest.component, slot)]),
+  );
+
+  const out = { component: manifest.component, slots: everySlot, parts: everyPart };
 
   if (manifest.variants) {
     out.variants = Object.fromEntries(Object.entries(manifest.variants).map(([group, values]) => [
