@@ -18,7 +18,7 @@ import { componentMap, MAP_FILE } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { parseDecls } from './css-decls.ts';
-import { CSS_TARGETS, EXTENSION_PREFIX, FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
+import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 
 export const EXCLUDED_NAMES = new Set(['node_modules', 'dist', 'vendor', 'test', 'build']);
@@ -166,27 +166,7 @@ export function tokenCatalogue(root = repoRoot) {
     ...(role.$extensions?.[ARENA_EXT]?.values ? { values: role.$extensions[ARENA_EXT].values } : {}),
   }]));
 
-  const asBlock = (selector: string) =>
-    [...(decls.get(selector) ?? [])].map(([k, v]) => `--${k}:${v};`);
-
-  const extensions: Record<string, unknown> = {};
-  for (const { selector, source } of FILES.flatMap((f) => f.blocks)) {
-    if (!source.startsWith(EXTENSION_PREFIX)) continue;
-    const name = selector.replace('.arena-', '');
-    const contract = readJson(join(root, 'contracts', 'design', source)) as Record<string, any>;
-    const byPolarity: Record<string, string[]> = {};
-    for (const [polarity, scope] of THEME_SCOPES) {
-      const block = asBlock(scope(selector));
-      if (block.length) byPolarity[polarity] = block;
-    }
-    extensions[name] = {
-      grouping: contract.$extensions?.[ARENA_EXT]?.grouping,
-      base: asBlock(selector),
-      byPolarity,
-    };
-  }
-
-  return { tokens, roles, extensions };
+  return { tokens, roles };
 }
 
 export const CLI_BINS = { 'arena-to-prod': './bin/arena-to-prod.mjs' };

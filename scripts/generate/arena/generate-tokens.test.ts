@@ -25,6 +25,14 @@ function topLevelGroups(source: string) {
 
 const SCRIPT_FLAG = /"script"\s*:\s*true/g;
 
+test('FILES declares no extension block', () => {
+  const selectors = FILES.flatMap((f) => f.blocks.map((b) => b.selector));
+  const scopes = [...new Set(selectors.filter((s) => s !== ':root'))].sort();
+  assert.deepEqual(scopes, ['.arena-comfortable', '.arena-compact', '.arena-light'],
+    'a scope this generator emits is a theme or a density, and every other selector is an answer '
+    + 'Arena curated for somebody else');
+});
+
 test('a design source path carries no host separator, on the platform whose separator is one', () => {
   for (const [name, on] of [['the host', nodePath], ['win32', win32]] as const) {
     for (const source of SOURCES) {

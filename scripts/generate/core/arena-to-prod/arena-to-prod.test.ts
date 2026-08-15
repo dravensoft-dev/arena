@@ -9,10 +9,9 @@ import {
   relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn,
 } from './arena-to-prod.ts';
-import { PALETTE_KEYS, POLARITIES } from './palette-keys.ts';
+import { PALETTE_KEYS } from './palette-keys.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
-import { PRINCIPLES } from './extension-rules.ts';
 import type { ComponentMap } from './components.ts';
 import type { Environment, ThemeEnvironment } from './arena-to-prod.ts';
 
@@ -649,23 +648,11 @@ test('the skipped names are exactly what the command writes, derived rather than
 
 test('the shipped catalogue is the one this build actually assembles, not only a fixture', () => {
   const catalogue = tokenCatalogue(repoRoot);
-  const names = Object.keys(catalogue.extensions).sort();
-  assert.ok(names.length > 0, 'found 0 voices in the real catalogue -- an empty result is a failure, not a pass');
-  assert.ok(Object.keys(catalogue.roles).length > 0, 'found 0 roles, so a local voice could name nothing');
+  assert.ok(Object.keys(catalogue.roles).length > 0, 'found 0 roles, so nothing could be answered');
   assert.ok(Object.keys(catalogue.tokens).length > 0, 'found 0 tokens, so no alias could resolve');
-  for (const polarity of POLARITIES) {
-    assert.ok(!names.includes(polarity),
-      `the catalogue offers a voice called ${polarity}, which is a theme scope rather than an extension`);
-  }
-  for (const [name, voice] of Object.entries(catalogue.extensions)) {
-    const { grouping, base, byPolarity } = voice as { grouping?: string; base: string[]; byPolarity: Record<string, string[]> };
-    assert.ok(base.length > 0, `${name} ships an empty base block`);
-    assert.ok(grouping && PRINCIPLES.has(grouping),
-      `${name} carries no grouping Arena knows, and a local voice extending it would inherit nothing to hold`);
-    for (const [polarity, declarations] of Object.entries(byPolarity)) {
-      assert.ok(POLARITIES.includes(polarity), `${name} carries a scope called ${polarity}`);
-      assert.ok((declarations as string[]).length > 0, `${name} ships an empty ${polarity} block`);
-    }
+  for (const [name, role] of Object.entries(catalogue.roles)) {
+    const { type } = role as { type?: string };
+    assert.ok(type, `${name} reaches a consumer with no type, so nothing can check an answer to it`);
   }
 });
 

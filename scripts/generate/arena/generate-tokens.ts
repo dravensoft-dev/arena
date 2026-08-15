@@ -7,7 +7,7 @@
  * An alias resolves to its value EXCEPT where the token it points at is redeclared in another
  * scope, which REDECLARED_GROUPS names: a role resolved at build time freezes whichever scope the
  * generator read and then inherits it everywhere. That is the palette and the density axis, and
- * contracts/design/Extensions.md carries the rendering that found it. */
+ * a reference restated into each of their scopes is what keeps a role answering inside one. */
 
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
@@ -45,23 +45,13 @@ export const FILES = [
     { selector: ':root', source: 'layering.json' },
     { selector: ':root', source: 'chart.json' },
     { selector: ':root', source: 'behaviour.json' },
-    { selector: '.arena-showcase', source: 'extension.showcase.json' },
-    { selector: '.arena-editorial', source: 'extension.editorial.json' },
-    { selector: '.arena-gallery', source: 'extension.gallery.json' },
   ] },
 ];
 
 export const RESOLVES_AGAINST = {
   'chart.json': ['spacing.json'],
   'roles.json': ['effects.json', 'palette.dark.json', 'spacing.json', 'typography.json'],
-  'extension.showcase.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
-  'extension.editorial.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
-  'extension.gallery.json': ['effects.json', 'typography.json', 'palette.dark.json', 'spacing.json'],
 };
-
-export const EXTENSION_PREFIX = 'extension.';
-
-export const CATALOGUE = 'arena-extensions';
 
 const scopeOn = (className: string) => (s: string) => (s === ':root'
   ? className
@@ -110,13 +100,6 @@ export function referenceOf(token: DtcgToken) {
   return `var(--${alias.replace(/\./g, '-')})`;
 }
 
-export function extensionsIn(blocks: { selector: string; source: string }[]) {
-  return blocks
-    .filter((b) => b.source.startsWith(EXTENSION_PREFIX))
-    .map((b) => b.selector.replace(/^\.arena-/, ''))
-    .sort();
-}
-
 export const SCRIPT_TARGETS = [
   'frameworks/react/Tokens.generated.js',
   'frameworks/angular/Tokens.generated.ts',
@@ -148,7 +131,6 @@ export const node = {
     'check:coverage',
     'check:dimensions',
     'check:duplicate-constants',
-    'check:extensions',
     'check:generated',
     'check:icons',
     'check:layer-independence',
@@ -349,34 +331,11 @@ async function block({ selector, source }: { selector: string; source: string })
   return out.join('\n');
 }
 
-const CATALOGUE_NOTE = 'The extensions this build ships, as NAMES rather than as classes, because a\n'
-  + 'consumer names one in arena.config.json and only a page composes the class from it. Derived\n'
-  + 'from FILES in scripts/generate/arena/generate-tokens.ts rather than authored anywhere, so it\n'
-  + 'can neither name an extension that paints nothing nor miss one that does; the name is read\n'
-  + 'off the selector because the selector is what a page applies, and check:extensions is what\n'
-  + 'holds the selector and the file to each other.\n'
-  + '\n'
-  + 'A token and not a list in a script: every surface that draws Arena already loads this sheet,\n'
-  + 'so the catalogue is readable at any page depth with no fetch, and the control that cycles\n'
-  + 'voices never has to be taught to tell an extension class from a palette one, which is a rule\n'
-  + 'that would then exist twice. "none" is absent because it is the ABSENCE of an extension\n'
-  + 'rather than one this build ships, and a reader prepends it for the same reason\n'
-  + 'arena.config.json spells it out instead of omitting the field.\n'
-  + '\n'
-  + 'It carries no appearance, which is why check:coverage excludes it from the utility surface\n'
-  + 'rather than looking for a namespace that could hold a list.';
-
-function catalogueBlock(names: string[]) {
-  return `:root{\n${comment(CATALOGUE_NOTE)}\n  --${CATALOGUE}:${names.join(',')};\n}`;
-}
-
 export async function buildAll() {
   const out = new Map();
   for (const file of FILES) {
     const blocks = [];
     for (const b of file.blocks) blocks.push(await block(b));
-    const names = extensionsIn(file.blocks);
-    if (names.length) blocks.push(catalogueBlock(names));
     out.set(file.out, `${HEADER}\n${blocks.join('\n')}\n`);
   }
   return out;

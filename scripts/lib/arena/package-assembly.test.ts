@@ -7,7 +7,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
-  writeComponentMap, keywords, SHARED_KEYWORDS,
+  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MAP_FILE } from './component-map.ts';
@@ -268,4 +268,10 @@ test('a component sheet is reached through the barrel alone, never named twice i
     'an unlinked sheet is still written, because ./css/components/* is an exported subpath');
   rmSync(root, { recursive: true });
   rmSync(dir, { recursive: true });
+});
+
+test('the token catalogue offers roles and no catalogue of appearances', () => {
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['roles', 'tokens'],
+    'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
+    + 'appearances is a decision Arena took for somebody else');
 });
