@@ -14,12 +14,14 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
-  MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, valueProblems,
+  MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
+  valueProblems,
 } from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 
 export {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
-  MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, valueProblems,
+  MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
+  valueProblems,
 };
 
 export const ROOT_PLUGIN = 'plugin-style-store/default/plugin.tokens.json';
@@ -63,14 +65,6 @@ export function movedTokens(tokens: Record<string, unknown>) {
       out.push({ key: child, token, theme: key });
   }
   return out;
-}
-
-export function totalityProblems(declared: string[], answered: string[]) {
-  const given = new Set(answered);
-  return declared.filter((role) => !given.has(role)).map((role) =>
-    `the root style plugin does not answer ${role}. A custom property with no value is invalid at `
-    + 'computed-value time, so the declaration reading it is dropped and the property disappears: '
-    + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
 
 export function zeroScopeProblems(count: number) {

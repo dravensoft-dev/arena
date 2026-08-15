@@ -188,7 +188,9 @@ the one that opened it. `bun run check:citations` holds every path a document na
   the Claude Code plugin this repository ships in `.claude-plugin/plugin.json`, and `extension` is
   the DTCG vendor key `$extensions` in every token file, so both are spoken for. The config key is
   `stylePlugins` and it takes a list, because a build can carry more than one register and the
-  first of them is what a page with no class on it looks like.
+  first of them is what a page with no class on it looks like. An entry is the word `default`,
+  meaning the sheet each package assembles, or a path to a directory of the project's own holding
+  `plugin.tokens.json`, and a plugin is named by that directory.
 - **Specs and implementation plans live under `docs/superpowers/`** (`specs/`, `plans/`), dated
   `YYYY-MM-DD-<name>.md`. **A spec written ahead of its plan carries a `-pending-N` suffix until
   that plan exists**, because an unsuffixed spec sitting in `specs/` reads as work in flight;

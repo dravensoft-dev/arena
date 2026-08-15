@@ -3,11 +3,11 @@
  * else about a token travels inside the package. It runs in the repository, where
  * check-packages.ts holds its output equivalent to Style Dictionary's, and inside both npm
  * packages, where it is the only emitter there is. It reads no file and touches no network, so a
- * path in the config is emitted, never resolved. Every field of an ArenaConfig is optional because
- * a CONSUMER writes it: an invalid one must reach configProblems rather than be refused by a type
- * nobody there can read. A style plugin is checked here and not only shaped, through the same
- * style-plugin-rules.ts Arena's own gate runs, so what a consumer writes is held to the same
- * floors in the PROJECT's build. */
+ * path in the config is emitted rather than resolved and a style plugin arrives already read.
+ * Every field of an ArenaConfig is optional because a CONSUMER writes it: an invalid one must
+ * reach configProblems rather than be refused by a type nobody there can read. A style plugin is
+ * checked here and not only shaped, through the same style-plugin-rules.ts Arena's own gate runs,
+ * so what a consumer writes is held to the same floors in the PROJECT's build. */
 
 import {
   PALETTE_KEYS, POLARITIES, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
@@ -15,8 +15,10 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems,
+  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, scopeOn, totalityProblems,
 } from './style-plugin-rules.ts';
+import { serialize } from './serialize-token.ts';
+import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
@@ -186,12 +188,34 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
 }
 
 export type StylePlugin = {
-  name?: unknown;
-  tokens?: unknown;
-  light?: unknown;
+  name: string;
+  tokens: Record<string, unknown>;
+  light: Record<string, unknown>;
 };
 
+export type ResolvedPlugins = (StylePlugin | null)[] | null;
+
+export const DEFAULT_PLUGIN = 'default';
+
+export const PLUGIN_SHEET = 'css/style-plugin-default.css';
+
+export const PLUGIN_TOKENS = 'plugin.tokens.json';
+
+export const THEME_GROUP = 'light';
+
+export function pluginName(entry: string) {
+  return entry.trim().replace(/[\\/]+$/, '').split(/[\\/]/).pop() ?? '';
+}
+
+export function rootIsDefault(config: ArenaConfig) {
+  const declared = config.stylePlugins;
+  if (!Array.isArray(declared)) return true;
+  return declared[0] === DEFAULT_PLUGIN;
+}
+
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)+)\}$/;
+
+const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
 
 export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   if (typeof raw !== 'string' || !raw.trim()) return null;
@@ -199,7 +223,33 @@ export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   const alias = ALIAS.exec(value)?.[1];
   if (!alias) return value;
   const flat = alias.replace(/\./g, '-');
-  return catalogue?.tokens?.[flat] ?? null;
+  if (catalogue?.tokens?.[flat] === undefined) return null;
+  return COLOUR_ALIAS.test(alias) ? `var(--${flat})` : catalogue.tokens[flat];
+}
+
+export function dtcgValue(node: unknown) {
+  if (!isObject(node) || !('$value' in node)) return null;
+  const raw = node.$value;
+  if (typeof raw === 'string' && ALIAS.test(raw.trim())) return raw.trim();
+  try {
+    return serialize(node as SerializableToken);
+  } catch {
+    return raw;
+  }
+}
+
+export function readPlugin(name: string, source: unknown): StylePlugin {
+  const tokens: Record<string, unknown> = {};
+  const light: Record<string, unknown> = {};
+  for (const [key, node] of Object.entries(isObject(source) ? source : {})) {
+    if (key.startsWith('$')) continue;
+    if (key === THEME_GROUP && isObject(node) && !('$value' in node)) {
+      for (const [role, token] of Object.entries(node)) light[role] = dtcgValue(token);
+      continue;
+    }
+    tokens[key] = dtcgValue(node);
+  }
+  return { name, tokens, light };
 }
 
 function declarationsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue | null) {
@@ -210,12 +260,12 @@ export function resolvedPlugin(
   plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity = 'dark',
 ) {
   const at = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-  for (const [key, raw] of Object.entries((plugin.tokens ?? {}) as Record<string, unknown>)) {
+  for (const [key, raw] of Object.entries(plugin.tokens)) {
     const value = pluginValue(raw, catalogue);
     if (value !== null) at.set(key, value);
   }
   if (polarity !== 'dark') {
-    for (const [key, raw] of Object.entries((plugin.light ?? {}) as Record<string, unknown>)) {
+    for (const [key, raw] of Object.entries(plugin.light)) {
       const value = pluginValue(raw, catalogue);
       if (value !== null) at.set(key, value);
     }
@@ -226,11 +276,9 @@ export function resolvedPlugin(
 export function pluginBlocks(
   plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string,
 ) {
-  const tokens = (plugin.tokens ?? {}) as Record<string, unknown>;
-  const themed = (plugin.light ?? {}) as Record<string, unknown>;
   return [
-    ...declarationsOf(tokens, catalogue),
-    ...(polarity === 'light' ? declarationsOf(themed, catalogue) : []),
+    ...declarationsOf(plugin.tokens, catalogue),
+    ...(polarity === 'light' ? declarationsOf(plugin.light, catalogue) : []),
   ];
 }
 
@@ -263,40 +311,66 @@ export function pluginTokenProblems(
 }
 
 function entryProblems(
-  value: StylePlugin, at: string, sheets: PackageSheets, paletteNames: string[],
+  entry: unknown, at: string, index: number, paletteNames: string[], seen: Set<string>,
 ) {
-  const catalogue = sheets?.catalogue;
-  const name = value.name;
-  if (typeof name !== 'string' || !name)
-    return [`${at}: a style plugin declares a name, which becomes the class .arena-<name>`];
+  if (typeof entry !== 'string' || !entry.trim()) {
+    return [`${at}: ${JSON.stringify(entry)} is not a style plugin. An entry is the word `
+      + `"${DEFAULT_PLUGIN}", which is the sheet this package assembles, or a path to a directory `
+      + `holding ${PLUGIN_TOKENS}`];
+  }
+  const value = entry.trim();
+  if (value === DEFAULT_PLUGIN) {
+    if (index === 0) return [];
+    return [`${at}: "${DEFAULT_PLUGIN}" is the sheet this package assembles on :root, so it is the `
+      + 'first entry of the list or none of it. A later entry emits under its own class, and a sheet '
+      + 'compiled ahead of your build cannot be moved into one'];
+  }
 
+  const name = pluginName(value);
   const problems = nameProblems(name, POLARITIES, at);
-  if (paletteNames.includes(name))
+  if (paletteNames.includes(name)) {
     problems.push(`${at}: "${name}" is also the name of a palette, and both would be the class `
       + `.arena-${name}; rename one of them`);
+  }
+  if (seen.has(name)) {
+    problems.push(`${at}: "${name}" is the directory name of another entry, and the two would be one `
+      + `class .arena-${name}; a plugin is named by the directory that holds it`);
+  }
+  seen.add(name);
+  return problems;
+}
 
-  const tokens = value.tokens;
-  if (!isObject(tokens) || Object.keys(tokens).length === 0)
+function resolvedProblems(
+  plugin: StylePlugin, at: string, isRoot: boolean, sheets: PackageSheets,
+) {
+  const catalogue = sheets?.catalogue;
+  const problems = [];
+  if (Object.keys(plugin.tokens).length === 0) {
     problems.push(`${at}: a style plugin answers at least one role, or it is a class nobody can tell `
       + 'from its absence');
-  if (value.light !== undefined && !isObject(value.light))
-    problems.push(`${at}: "light" is a group of tokens that differ in the light theme, so it is an object`);
-
-  if (!catalogue)
+  }
+  if (!catalogue) {
     return [...problems, `${at}: the role catalogue this package ships cannot be read from beside this `
       + 'command, so a style plugin cannot be checked against it'];
+  }
 
-  if (isObject(tokens)) problems.push(...pluginTokenProblems(name, tokens, catalogue));
-  if (isObject(value.light)) problems.push(...pluginTokenProblems(`${name}.light`, value.light, catalogue));
+  problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
+  problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
+  if (isRoot) {
+    problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(plugin.tokens))
+      .map((problem) => `${at}: ${problem}`));
+  }
   if (problems.length) return problems;
 
-  for (const polarity of ['dark', 'light']) {
-    problems.push(...floorProblems(resolvedPlugin(value, catalogue, polarity), polarity, `${at}: "${name}"`));
+  for (const polarity of POLARITIES) {
+    problems.push(...floorProblems(resolvedPlugin(plugin, catalogue, polarity), polarity, `${at}: "${plugin.name}"`));
   }
   return problems;
 }
 
-export function stylePluginProblems(config: ArenaConfig, sheets: PackageSheets) {
+export function stylePluginProblems(
+  config: ArenaConfig, sheets: PackageSheets, plugins: ResolvedPlugins = null,
+) {
   const declared = config.stylePlugins;
   if ((config as Record<string, unknown>).extension !== undefined) {
     return ['stylePlugins: "extension" is not a field Arena reads. The axis is stylePlugins, it takes '
@@ -314,12 +388,19 @@ export function stylePluginProblems(config: ArenaConfig, sheets: PackageSheets) 
 
   const paletteNames = (Array.isArray(config.palettes) ? config.palettes : [])
     .filter(isObject).map((p) => String((p as ArenaPalette).name ?? ''));
-  return declared.flatMap((entry, i) => (isObject(entry)
-    ? entryProblems(entry as StylePlugin, `stylePlugins[${i}]`, sheets, paletteNames)
-    : [`stylePlugins[${i}]: ${JSON.stringify(entry)} is not a style plugin`]));
+  const seen = new Set<string>();
+  const problems = declared
+    .flatMap((entry, i) => entryProblems(entry, `stylePlugins[${i}]`, i, paletteNames, seen));
+  if (problems.length || !plugins) return problems;
+
+  return plugins.flatMap((plugin, i) => (plugin
+    ? resolvedProblems(plugin, `stylePlugins[${i}]`, i === 0, sheets)
+    : []));
 }
 
-export function configProblems(config: ArenaConfig, sheets: PackageSheets = null) {
+export function configProblems(
+  config: ArenaConfig, sheets: PackageSheets = null, plugins: ResolvedPlugins = null,
+) {
   if (!isObject(config)) return ['the configuration is not an object'];
   const problems = [];
 
@@ -334,7 +415,7 @@ export function configProblems(config: ArenaConfig, sheets: PackageSheets = null
     }
   }
 
-  problems.push(...stylePluginProblems(config, sheets));
+  problems.push(...stylePluginProblems(config, sheets, plugins));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));
   return problems;
@@ -411,10 +492,13 @@ function colourDeclarations(palette: CheckedPalette) {
     });
 }
 
-export function scopedImports(packageName: string, stylesheet: CheckedStylesheet, sheets: CheckedSheets) {
+export function scopedImports(
+  packageName: string, stylesheet: CheckedStylesheet, sheets: CheckedSheets, withDefault = true,
+) {
   const lines = [];
   for (const layer of sheets.layers) {
     if (layer === PREFLIGHT_SHEET && stylesheet.preflight === false) continue;
+    if (layer === PLUGIN_SHEET && !withDefault) continue;
     if (layer === COMPONENTS_SHEET) {
       for (const name of stylesheet.components as string[]) lines.push(`@import '${packageName}/css/components/${name}.css';`);
       continue;
@@ -429,10 +513,14 @@ export type ThemeOptions = {
   importHeader?: boolean;
   source?: string;
   sheets?: PackageSheets;
+  plugins?: ResolvedPlugins;
 };
 
 export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
-  const { packageName = '@dravensoft/arena-react', importHeader = true, source = 'arena.config.json', sheets = null } = options;
+  const {
+    packageName = '@dravensoft/arena-react', importHeader = true,
+    source = 'arena.config.json', sheets = null, plugins = null,
+  } = options;
   const fonts = config.fonts ?? {};
   const fontFor = (role: string) => {
     const font = fonts[role];
@@ -441,14 +529,17 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   };
   const fallbackFor = (role: string) => fontFor(role).fallback ?? (FONT_ROLES as Record<string, string[]>)[role];
 
+  const withDefault = rootIsDefault(config);
   const parts = [`/* GENERATED by arena-to-prod from ${source}. Edit that, not this file. */`];
   if (importHeader) {
-    if (!config.stylesheet) parts.push(`@import '${packageName}/arena.css';`);
+    if (!config.stylesheet && withDefault) parts.push(`@import '${packageName}/arena.css';`);
     else if (!sheets) {
-      throw new Error('themeCss: the config names component sheets and the package\'s own sheets '
-        + 'were never read, which configProblems refuses; emitting here would import nothing');
+      throw new Error('themeCss: the config names component sheets or a root style plugin of its own '
+        + 'and the package\'s own sheets were never read, which configProblems refuses; emitting here '
+        + 'would import nothing or import an appearance the config replaced');
     } else {
-      parts.push(scopedImports(packageName, config.stylesheet, sheets).join('\n'));
+      const stylesheet = config.stylesheet ?? { components: sheets.components };
+      parts.push(scopedImports(packageName, stylesheet, sheets, withDefault).join('\n'));
     }
   }
 
@@ -467,24 +558,32 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   ]));
 
   const catalogue = sheets?.catalogue ?? null;
-  const plugins = (Array.isArray(config.stylePlugins) ? config.stylePlugins : [])
-    .filter(isObject) as StylePlugin[];
+  const declared = (plugins ?? []).flatMap((plugin, i) =>
+    (plugin ? [{ plugin, at: i === 0 ? ':root' : `.arena-${plugin.name}` }] : []));
+  const root = declared.find(({ at }) => at === ':root')?.plugin;
 
-  const whole = plugins.flatMap((plugin) => pluginBlocks(plugin, catalogue, fallback.polarity));
-  if (whole.length) parts.push(block(':root', whole));
+  for (const { plugin, at } of declared) {
+    const answers = pluginBlocks(plugin, catalogue, fallback.polarity);
+    if (answers.length) parts.push(block(at, answers));
+  }
 
-  const restated = (polarity: string) => plugins
-    .flatMap((plugin) => pluginBlocks(plugin, catalogue, polarity))
-    .filter((d) => d.includes('var(--color-'));
+  const restated = (plugin: StylePlugin, polarity: string) =>
+    pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
 
   for (const palette of config.palettes) {
     if (palette === fallback) continue;
+    const cross = scopeOn(`.arena-${palette.name}`);
     parts.push(block(`.arena-${palette.name}`, [
       ...colourDeclarations(palette),
       `--picker-invert:${palette.polarity === 'light' ? 0 : 1};`,
       ...(sheets?.roleReferences ?? []),
-      ...restated(palette.polarity),
+      ...(root ? restated(root, palette.polarity) : []),
     ]));
+    for (const { plugin, at } of declared) {
+      if (at === ':root') continue;
+      const answers = restated(plugin, palette.polarity);
+      if (answers.length) parts.push(block(cross(at), answers));
+    }
   }
 
   return `${parts.join('\n\n')}\n`;

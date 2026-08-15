@@ -5,7 +5,9 @@
  * is a specifier that resolves here and to nothing beside a consumer's node_modules, so the shared
  * half goes in and the gates import upward, which is what audit.ts and palette-keys.ts already do.
  * Everything here is a function of plain data, reads no file and knows no path, since the
- * repository hands it CSS off disk and the CLI hands it CSS out of a package. */
+ * repository hands it CSS off disk and the CLI hands it CSS out of a package. scopeOn spells how
+ * a scope class crosses a selector, and it is here for the same reason: the generator and the
+ * emitter both write that selector, and two spellings of one cascade rule drift. */
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -22,6 +24,10 @@ export const MIN_HEADING_LEADING = 1;
 export const MIN_PROSE_MEASURE = 45;
 
 export const MAX_PROSE_MEASURE = 90;
+
+export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
+  ? className
+  : `${className}${selector}, ${className} ${selector}, ${selector} ${className}`);
 
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 
@@ -79,6 +85,14 @@ export function valueProblems(where: string, key: string, token: MovedToken, rol
         + 'it is declared: a style plugin re-answers the question and does not widen it.'];
   }
   return [];
+}
+
+export function totalityProblems(declared: string[], answered: string[]) {
+  const given = new Set(answered);
+  return declared.filter((role) => !given.has(role)).map((role) =>
+    `the root style plugin does not answer ${role}. A custom property with no value is invalid at `
+    + 'computed-value time, so the declaration reading it is dropped and the property disappears: '
+    + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
 
 export function nameProblems(name: string, polarities: readonly string[], where: string) {

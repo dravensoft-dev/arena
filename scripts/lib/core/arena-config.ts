@@ -1,7 +1,7 @@
-/* Arena's own skin, expressed as the arena.config.json a consumer writes. Two things read
- * it: check-packages.ts, which runs the CLI over it and holds the result equivalent to the
- * Style Dictionary output, and the assembly, which writes it into each package as the
- * example a consumer starts from. Deriving it beats writing it twice, because the example
+/* Arena's own skin and the plugin it plugs in, expressed as the arena.config.json a consumer
+ * writes. Two things read it: check-packages.ts, which runs the CLI over it and holds the result
+ * equivalent to the Style Dictionary output, and the assembly, which writes it into each package
+ * as the example a consumer starts from. Deriving it beats writing it twice, because the example
  * a reader copies is then the palette the gate proved.
  * A weight query is a list and never a `min..max` range: Google serves a range only when it
  * lies inside that family's own wght axis and answers 400 otherwise, and Arena declares
@@ -51,6 +51,7 @@ export function fontEntries(root: string) {
 
 export function arenaConfig(root: string, themes = ['dark', 'light']) {
   return {
+    stylePlugins: ['default'],
     palettes: themes.map((theme, i) => ({
       name: theme,
       ...(i === 0 ? { default: true } : {}),

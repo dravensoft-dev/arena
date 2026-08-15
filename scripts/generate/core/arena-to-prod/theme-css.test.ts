@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports } from './theme-css.ts';
+import {
+  configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
+  pluginName, pluginValue, readPlugin,
+} from './theme-css.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
 
@@ -303,69 +306,157 @@ const SHEETS_FULL = {
   },
 };
 
-const plugin = (over: Record<string, any> = {}) => config({
-  stylePlugins: [{
-    name: 'meridian',
-    tokens: { 'ff-eyebrow': '{font.display}', 'tt-eyebrow': 'none', 'step-title-surface': '{fs.h3}' },
-    ...over,
-  }],
+const ARENA = 'com.dravensoft.arena';
+
+const ROOT_ANSWERS: Record<string, any> = {
+  'ff-eyebrow': { $type: 'fontFamily', $value: '{font.display}' },
+  'tt-eyebrow': { $type: 'keyword', $value: 'none' },
+  'step-title-surface': { $type: 'dimension', $value: '{fs.h3}' },
+  'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' },
+  'fill-surface': { $type: 'color', $value: '{color.base-200}' },
+  'bw-surface': { $type: 'dimension', $value: { value: 1, unit: 'px' } },
+  'lh-heading': { $type: 'number', $value: 1.5 },
+  'measure-prose': { $type: 'number', $value: 72, $extensions: { [ARENA]: { cssUnit: 'ch' } } },
+};
+
+const total = (over: Record<string, any> = {}) => readPlugin('console', { ...ROOT_ANSWERS, ...over });
+
+const scoped = (over: Record<string, any> = {}) => readPlugin('marketing', {
+  'bw-surface': { $type: 'dimension', $value: { value: 0, unit: 'px' } },
+  ...over,
 });
 
-const pluginProblems = (c: any) => configProblems(c, SHEETS_FULL).filter((p) => p.includes('stylePlugin'));
+const listed = (names: string[], over: Record<string, any> = {}) =>
+  config({ stylePlugins: names.map((name) => (name === 'default' ? name : `./design/${name}`)), ...over });
+
+const pluginProblems = (c: any, plugins: any[] = []) =>
+  configProblems(c, SHEETS_FULL, plugins).filter((p) => p.includes('stylePlugin'));
+
+test('a bare colour alias becomes the var() a palette scope can restate', () => {
+  assert.equal(pluginValue('{color.secondary}', SHEETS_FULL.catalogue), 'var(--color-secondary)');
+  assert.equal(pluginValue('{fs.h3}', SHEETS_FULL.catalogue), '24px',
+    'only a colour is deferred, because only a colour is redeclared under a palette');
+  assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
+});
+
+test('a plugin file is read as DTCG, and an alias survives while a literal is spelled as CSS', () => {
+  const read = readPlugin('meridian', {
+    $description: 'a group key of its own is not an answer',
+    'r-surface': { $type: 'dimension', $value: '{r.lg}' },
+    'grid-min': { $type: 'dimension', $value: { value: 200, unit: 'px' } },
+    'measure-prose': { $type: 'number', $value: 72, $extensions: { [ARENA]: { cssUnit: 'ch' } } },
+    light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } },
+  });
+  assert.deepEqual(read.tokens, { 'r-surface': '{r.lg}', 'grid-min': '200px', 'measure-prose': '72ch' });
+  assert.deepEqual(read.light, { 'ink-eyebrow': '{color.secondary}' });
+  assert.equal(read.name, 'meridian');
+});
+
+test('a plugin is named by the directory that holds it', () => {
+  assert.equal(pluginName('./design/marketing'), 'marketing');
+  assert.equal(pluginName('../shared/design/marketing/'), 'marketing');
+  assert.equal(pluginName('default'), 'default');
+});
 
 test('a style plugin a consumer wrote is accepted, which is the point of the field', () => {
-  assert.deepEqual(pluginProblems(plugin()), []);
+  assert.deepEqual(pluginProblems(listed(['console']), [total()]), []);
 });
 
-test('a style plugin emits its answers on the root', () => {
-  const css = themeCss(plugin(), { sheets: SHEETS_FULL, importHeader: false });
-  const root = parseDecls(css).get(':root');
-  assert.equal(root.get('ff-eyebrow'), "'Archivo',system-ui,sans-serif", 'an alias resolved against the catalogue');
-  assert.equal(root.get('step-title-surface'), '24px');
-  assert.equal(root.get('tt-eyebrow'), 'none', 'a keyword travels as the word it is');
+test('the first plugin lands on :root and the rest on their own class', () => {
+  const css = themeCss(listed(['console', 'marketing']), {
+    sheets: SHEETS_FULL, importHeader: false, plugins: [total(), scoped()],
+  });
+  assert.match(css, /:root\{[^}]*--bw-surface:1px;/);
+  assert.match(css, /\.arena-marketing\{[^}]*--bw-surface:0px;/);
+  assert.doesNotMatch(css, /\.arena-console\{/,
+    'the first plugin is what a page with no class on it looks like, so it has no class of its own');
+});
+
+test('a polarity group emits all three compound selectors', () => {
+  const css = themeCss(listed(['console', 'marketing'], {
+    palettes: [
+      { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+      { name: 'light', polarity: 'light', colors: colors() },
+    ],
+  }), {
+    sheets: SHEETS_FULL,
+    importHeader: false,
+    plugins: [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })],
+  });
+  assert.ok(css.includes('.arena-light.arena-marketing'));
+  assert.ok(css.includes('.arena-light .arena-marketing'));
+  assert.ok(css.includes('.arena-marketing .arena-light'),
+    'the plugin class and the theme class sit in either order or on one element, and this is the one '
+    + 'an author forgets: without it a light region inside a scoped root takes the dark answer');
+});
+
+test('only the root plugin is held to totality', () => {
+  assert.match(pluginProblems(listed(['marketing', 'console']), [scoped(), total()])[0] ?? '',
+    /does not answer/);
+  assert.deepEqual(pluginProblems(listed(['console', 'marketing']), [total(), scoped()]), []);
 });
 
 test('a style plugin is held to the floors the repository holds its own to', () => {
-  assert.match(pluginProblems(plugin({ tokens: { 'lh-heading': '0.8' } }))[0] ?? '', /--lh-heading is 0.8/);
-  assert.match(pluginProblems(plugin({ tokens: { 'measure-prose': '120ch' } }))[0] ?? '', /outside 45 to 90/);
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'lh-heading': { $type: 'number', $value: 0.8 } })])[0] ?? '', /--lh-heading is 0.8/);
+  assert.match(pluginProblems(listed(['console']), [total({
+    'measure-prose': { $type: 'number', $value: 120, $extensions: { [ARENA]: { cssUnit: 'ch' } } },
+  })])[0] ?? '', /outside 45 to 90/);
 });
 
 test('a style plugin may not name a role the package does not ship', () => {
-  const problems = pluginProblems(plugin({ tokens: { 'r-lg': '22px' } }));
+  const problems = pluginProblems(listed(['console']),
+    [total({ 'r-lg': { $type: 'dimension', $value: { value: 22, unit: 'px' } } })]);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /neither a role this package ships nor an fs or rhythm step/);
 });
 
 test('a style plugin may not author a colour, only assign one', () => {
-  assert.match(pluginProblems(plugin({ tokens: { 'ink-eyebrow': '#b52a20' } }))[0] ?? '',
-    /takes a \{color\.\*\} alias only/);
-  assert.deepEqual(pluginProblems(plugin({ tokens: { 'ink-eyebrow': '{color.secondary}' } })), []);
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'ink-eyebrow': { $type: 'color', $value: '#b52a20' } })])[0] ?? '',
+  /takes a \{color\.\*\} alias only/);
+  assert.deepEqual(pluginProblems(listed(['console']),
+    [total({ 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } })]), []);
 });
 
 test('a keyword outside its set fails in a consumer build with the set named', () => {
-  assert.match(pluginProblems(plugin({ tokens: { 'tt-eyebrow': 'smallcaps' } }))[0] ?? '',
-    /not one of none, uppercase, lowercase, capitalize/);
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'tt-eyebrow': { $type: 'keyword', $value: 'smallcaps' } })])[0] ?? '',
+  /not one of none, uppercase, lowercase, capitalize/);
 });
 
 test('an alias that points at nothing shipped fails rather than emitting the word null', () => {
-  assert.match(pluginProblems(plugin({ tokens: { 'step-title-surface': '{fs.nonesuch}' } }))[0] ?? '',
-    /resolves to nothing this package ships/);
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'step-title-surface': { $type: 'dimension', $value: '{fs.nonesuch}' } })])[0] ?? '',
+  /resolves to nothing this package ships/);
 });
 
 test('a style plugin may not take a theme polarity or a palette name', () => {
-  assert.match(pluginProblems(plugin({ name: 'dark' }))[0] ?? '', /theme polarity/);
-  assert.match(pluginProblems(config({
+  assert.match(pluginProblems(listed(['dark']))[0] ?? '', /theme polarity/);
+  assert.match(pluginProblems(listed(['meridian'], {
     palettes: [{ name: 'meridian', default: true, polarity: 'dark', colors: colors() }],
-    stylePlugins: [{ name: 'meridian', tokens: { 'tt-eyebrow': 'none' } }],
   }))[0] ?? '', /also the name of a palette/);
 });
 
+test('two entries under one directory name would be one class, so the second is refused', () => {
+  assert.match(pluginProblems(config({
+    stylePlugins: ['./design/marketing', './vendor/marketing'],
+  }))[0] ?? '', /is the directory name of another entry/);
+});
+
+test('the sheet the package assembles is the first entry of the list or none of it', () => {
+  assert.deepEqual(pluginProblems(listed(['default', 'marketing']), [null, scoped()]), []);
+  assert.match(pluginProblems(listed(['marketing', 'default']), [scoped(), null])[0] ?? '',
+    /first entry of the list or none of it/);
+});
+
 test('a style plugin that answers nothing is a class nobody can tell from its absence', () => {
-  assert.match(pluginProblems(plugin({ tokens: {} }))[0] ?? '', /answers at least one role/);
+  assert.match(pluginProblems(listed(['console', 'empty']),
+    [total(), readPlugin('empty', {})])[0] ?? '', /answers at least one role/);
 });
 
 test('a style plugin with no catalogue beside it is refused rather than emitted unchecked', () => {
-  const problems = configProblems(plugin(), SHEETS).filter((p) => p.includes('stylePlugin'));
+  const problems = configProblems(listed(['console']), SHEETS, [total()]).filter((p) => p.includes('stylePlugin'));
   assert.match(problems.at(-1) ?? '', /role catalogue this package ships cannot be read/);
 });
 
@@ -373,15 +464,29 @@ test('the field is optional, and a config without one declares no style plugin',
   assert.deepEqual(configProblems(config(), SHEETS).filter((p) => p.includes('stylePlugin')), []);
 });
 
-test('an entry that is not an object is named by its index', () => {
-  const problems = configProblems(config({ stylePlugins: ['default'] }), SHEETS_FULL);
+test('a path is a spelling this module checks and never opens', () => {
+  assert.deepEqual(configProblems(listed(['console']), SHEETS_FULL), [],
+    'the command reads the directory and hands the answers in, because emitting a theme opens no file');
+});
+
+test('an entry that is not a path is named by its index', () => {
+  const problems = configProblems(config({ stylePlugins: [{ name: 'meridian' }] }), SHEETS_FULL);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /stylePlugins\[0\]/);
 });
 
-test('every declared plugin reaches :root, so a consumer needs no class of their own', () => {
-  const css = themeCss(plugin(), { sheets: SHEETS_FULL, importHeader: false });
-  assert.match(css, /--step-title-surface:24px;/);
+test('a root plugin of a consumer\'s own drops the package\'s appearance from the import chain', () => {
+  const css = themeCss(listed(['console']), { sheets: shipped, plugins: [total()] });
+  assert.doesNotMatch(css, /arena\.css/,
+    'the barrel carries the sheet the package assembles, and a build that answered every role itself '
+    + 'would take both');
+  assert.doesNotMatch(css, /style-plugin-default\.css/);
+  assert.match(css, /css\/components\/arena-button\.css/);
+});
+
+test('the sheet the package assembles stays in the chain while it is the root plugin', () => {
+  const css = themeCss(listed(['default']), { sheets: shipped });
+  assert.match(css, /@import '@dravensoft\/arena-react\/arena\.css';/);
 });
 
 test('no declared plugin means nothing extra reaches :root', () => {
@@ -390,13 +495,12 @@ test('no declared plugin means nothing extra reaches :root', () => {
 });
 
 test('a colour a plugin assigns is restated inside every palette, not left on :root alone', () => {
-  const css = themeCss(config({
-    stylePlugins: [{ name: 'meridian', tokens: { 'ink-eyebrow': '{color.secondary}' } }],
+  const css = themeCss(listed(['console'], {
     palettes: [
       { name: 'night', default: true, polarity: 'dark', colors: colors() },
       { name: 'day', polarity: 'light', colors: colors() },
     ],
-  }), { sheets: SHEETS_FULL, importHeader: false });
+  }), { sheets: SHEETS_FULL, importHeader: false, plugins: [total()] });
 
   assert.match(css.slice(css.indexOf('.arena-day')), /--ink-eyebrow:var\(--color-secondary\);/,
     'left on :root alone the role computes against the default palette and inherits that colour '

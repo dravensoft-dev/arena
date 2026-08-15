@@ -13,8 +13,10 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, relative, resolve, sep } from 'node:path';
-import { configProblems, paletteReports, themeCss } from './theme-css.ts';
-import type { ArenaConfig, PackageSheets, TokenCatalogue } from './theme-css.ts';
+import {
+  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, readPlugin, themeCss,
+} from './theme-css.ts';
+import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
@@ -183,6 +185,25 @@ export function packageSheets(root: string): PackageSheets {
   }
 }
 
+export function readPlugins(config: ArenaConfig, from: string) {
+  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
+  const plugins: ResolvedPlugins = [];
+  const fatal: string[] = [];
+  declared.forEach((entry, i) => {
+    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) { plugins.push(null); return; }
+    const dir = resolve(from, entry.trim());
+    const file = join(dir, PLUGIN_TOKENS);
+    try {
+      plugins.push(readPlugin(pluginName(entry), JSON.parse(readFileSync(file, 'utf8'))));
+    } catch (error) {
+      plugins.push(null);
+      fatal.push(`stylePlugins[${i}]: cannot read ${file}: ${(error as Error).message}. An entry is `
+        + `the word "${DEFAULT_PLUGIN}" or a directory of your own holding ${PLUGIN_TOKENS}`);
+    }
+  });
+  return { plugins, fatal };
+}
+
 export function componentMap(root: string): ComponentMap | null {
   try {
     const map = JSON.parse(readFileSync(join(root, COMPONENT_MAP), 'utf8'));
@@ -340,13 +361,16 @@ export function themeStep(
     auto.notes.push(resolved.note);
   }
 
-  const problems = configProblems(config, sheets);
+  const { plugins, fatal } = readPlugins(config, dirname(resolve(options.config)));
+  if (fatal.length) return { code: 1, reports: [] as string[], fatal };
+
+  const problems = configProblems(config, sheets, plugins);
   if (problems.length) return { code: 1, reports: [], fatal: problems };
 
   const reports = [...auto.reports, ...reportLines(paletteReports(config))];
   const out = join(options.out, THEME_SHEET);
   const css = themeCss(config, {
-    packageName, importHeader: options.importHeader, source: basename(options.config), sheets,
+    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins,
   });
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, css);
