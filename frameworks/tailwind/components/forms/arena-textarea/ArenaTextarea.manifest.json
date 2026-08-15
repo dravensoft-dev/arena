@@ -11,6 +11,9 @@
     "counter": "font-mono text-ctl-xs text-ink-muted/62",
     "counterNear": "font-mono text-ctl-xs text-warning"
   },
+  "partOf": {
+    "counterNear": "counter"
+  },
   "variants": {
     "state": {
       "neutral": {

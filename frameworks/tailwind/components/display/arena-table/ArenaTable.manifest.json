@@ -23,6 +23,13 @@
     "cardValueMono": "min-w-0 text-right text-ctl font-mono tabular-nums text-secondary",
     "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-edge-separator pt-2"
   },
+  "partOf": {
+    "cardValueMono": "cardValue",
+    "rowFirst": "row",
+    "rowInteractive": "row",
+    "tdMono": "td",
+    "thSortable": "th"
+  },
   "variants": {
     "narrow": {
       "false": {

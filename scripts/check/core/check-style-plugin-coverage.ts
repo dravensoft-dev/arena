@@ -51,6 +51,16 @@ export function unpaintedParts(all: string[], painted: string[]) {
     + 'to nothing, so a style plugin has reach this repository advertises and never demonstrates.');
 }
 
+export function phantomParts(all: string[], painted: string[]) {
+  const emitted = new Set(all);
+  return painted.filter((part) => !emitted.has(part)).map((part) =>
+    `${COMPLETE_CSS} paints [data-arena-part="${part}"] and no manifest emits that hook, so the `
+    + 'selector matches nothing on any page. The witness is what says the advertised surface is '
+    + 'real, and a rule that paints nothing says the opposite while counting as coverage: name the '
+    + 'part a manifest emits, or declare the slot in its manifest\'s partOf when the element it '
+    + 'draws already carries another slot\'s hook.');
+}
+
 export function zeroCoverageProblems(count: number) {
   if (count > 0) return [];
   return ['walked 0 role(s) -- an empty result set is a failure, not a clean pass; check the '
@@ -68,6 +78,7 @@ export function collect(base = repoRoot) {
     problems: [
       ...unreachedRoles(declared, movedRoles(root, complete)),
       ...unpaintedParts(parts, painted),
+      ...phantomParts(parts, painted),
     ],
     roles: declared.length,
     parts: parts.length,

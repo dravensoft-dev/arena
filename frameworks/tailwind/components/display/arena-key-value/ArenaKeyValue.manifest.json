@@ -11,6 +11,10 @@
     "totalValue": "text-ink-heading text-end m-0",
     "totalValueNumeric": "text-ink-heading text-end m-0 tabular-nums"
   },
+  "partOf": {
+    "totalValueNumeric": "totalValue",
+    "valueNumeric": "value"
+  },
   "variants": {},
   "defaultVariants": {}
 }

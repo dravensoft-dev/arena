@@ -14,6 +14,12 @@
     "divider": "h-px my-1 bg-base-300",
     "header": "font-face-label text-ctl-2xs tracking-label-role case-label text-ink-muted/62 px-2.5 pt-2 pb-1"
   },
+  "partOf": {
+    "itemDefault": "item",
+    "itemDestructive": "item",
+    "itemDisabled": "item",
+    "panelEnd": "panel"
+  },
   "variants": {
     "anchored": {
       "false": {

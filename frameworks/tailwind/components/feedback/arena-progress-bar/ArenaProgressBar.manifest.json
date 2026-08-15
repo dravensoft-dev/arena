@@ -10,19 +10,41 @@
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
     "indeterminate": "arena-prog-indeterminate"
   },
+  "partOf": {
+    "indeterminate": "track"
+  },
   "variants": {
     "tone": {
-      "accent": { "track": "text-primary" },
-      "gold": { "track": "text-secondary" },
-      "success": { "track": "text-success" },
-      "danger": { "track": "text-error" },
-      "info": { "track": "text-info" }
+      "accent": {
+        "track": "text-primary"
+      },
+      "gold": {
+        "track": "text-secondary"
+      },
+      "success": {
+        "track": "text-success"
+      },
+      "danger": {
+        "track": "text-error"
+      },
+      "info": {
+        "track": "text-info"
+      }
     },
     "size": {
-      "sm": { "track": "h-1" },
-      "md": { "track": "h-1.5" },
-      "lg": { "track": "h-2.5" }
+      "sm": {
+        "track": "h-1"
+      },
+      "md": {
+        "track": "h-1.5"
+      },
+      "lg": {
+        "track": "h-2.5"
+      }
     }
   },
-  "defaultVariants": { "tone": "accent", "size": "md" }
+  "defaultVariants": {
+    "tone": "accent",
+    "size": "md"
+  }
 }

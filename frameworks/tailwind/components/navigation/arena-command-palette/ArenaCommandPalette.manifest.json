@@ -20,6 +20,12 @@
     "rowLabelActive": "font-control",
     "shortcut": "font-mono text-ctl-xs text-ink-muted/62"
   },
+  "partOf": {
+    "rowActive": "row",
+    "rowDefault": "row",
+    "rowLabelActive": "rowLabel",
+    "rowLabelDefault": "rowLabel"
+  },
   "variants": {
     "open": {
       "true": {},

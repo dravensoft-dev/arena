@@ -402,6 +402,22 @@ spells the class, from one module, because the generator and the browser specime
 read it. [`check:parts`](../../scripts/check/arena/check-parts.ts) fails an element that carries a
 slot class and no hook, in either layer.
 
+**A slot that is a second class on another slot's element declares that in `partOf`.** Some slots
+are not a part of the DOM at all: `tdMono` is the `td` element set in the mono face, `pageCurrent`
+is the `page` a pager marks as current, `indeterminate` is the `track` while it sweeps. A
+component composes those classes onto the base slot's element, so the element carries the base
+slot's hook and there is nothing for a hook of the variant's own to sit on. `partOf` maps the
+variant to its base and `classesManifest` resolves the part through it, so what the kernel
+advertises is what an element carries.
+
+**Without it the surface over-claims and nothing notices**, which is the failure this key exists
+to close: `check:parts` sees a hook on the element and passes, and a plugin's rule against the
+variant's name matches nothing on any page while still reading as coverage.
+[`check:style-plugin-coverage`](../../scripts/check/core/check-style-plugin-coverage.ts) now asks
+the question both ways, so a part painted and never emitted fails as loudly as one emitted and
+never painted. The cut is which decision a state is: a variant painted through a `variants` block
+needs no entry, because a variant class already belongs to the slot it modifies.
+
 ## What a manifest is compiled into
 
 A manifest is authored as Tailwind and never shipped as Tailwind. `bun run build:tailwind`

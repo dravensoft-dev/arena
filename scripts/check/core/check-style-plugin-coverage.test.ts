@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  COMPLETE, collect, movedRoles, unpaintedParts, unreachedRoles, zeroCoverageProblems,
+  COMPLETE, collect, movedRoles, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems,
 } from './check-style-plugin-coverage.ts';
 
 test('a role complete does not move is a role nothing can reach', () => {
@@ -19,6 +19,18 @@ test('a part complete does not paint is a hook nothing can reach', () => {
   const problems = unpaintedParts(['card.body', 'hero.title'], ['card.body']);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /hero\.title/);
+});
+
+test('a rule naming a hook no manifest emits paints nothing and still counted as coverage', () => {
+  const problems = phantomParts(['table.td'], ['table.td', 'table.td-mono']);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /table\.td-mono/);
+});
+
+test('the witness is asked both ways, so neither half can be true on its own', () => {
+  assert.deepEqual(phantomParts(['card.body'], ['card.body']), [],
+    'a plugin painting exactly what the manifests emit has nothing to report');
+  assert.deepEqual(unpaintedParts(['card.body'], ['card.body']), []);
 });
 
 test('a zero walk is a failure and not a clean pass', () => {

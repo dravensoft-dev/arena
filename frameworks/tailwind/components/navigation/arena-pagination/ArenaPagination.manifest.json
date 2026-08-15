@@ -7,5 +7,9 @@
     "pageCurrent": "bg-primary border-primary text-primary-content",
     "pageOther": "bg-transparent border-edge-control-quiet text-ink-body/82",
     "ellipsis": "px-1 font-mono text-ctl-md text-ink-muted/62"
+  },
+  "partOf": {
+    "pageCurrent": "page",
+    "pageOther": "page"
   }
 }

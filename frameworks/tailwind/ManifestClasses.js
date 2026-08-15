@@ -24,8 +24,10 @@ export function classesManifest(manifest) {
     Object.keys(manifest.slots ?? {}).map((slot) => [slot, slotClass(manifest.component, slot)]),
   );
 
+  const partOf = manifest.partOf ?? {};
   const everyPart = Object.fromEntries(
-    Object.keys(manifest.slots ?? {}).map((slot) => [slot, slotPart(manifest.component, slot)]),
+    Object.keys(manifest.slots ?? {})
+      .map((slot) => [slot, slotPart(manifest.component, partOf[slot] ?? slot)]),
   );
 
   const out = { component: manifest.component, slots: everySlot, parts: everyPart };
