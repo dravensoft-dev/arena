@@ -97,3 +97,53 @@ test('ArenaProgressBar drops a consumer attribute -- no {...rest} spread reaches
   const html = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" progressPercentage={50} data-stray="x" />);
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
 });
+
+test('a radial meter draws a ring whose arc is the percentage, and the figure sits inside it', () => {
+  const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" label="Lesson 4" progressPercentage={64} />);
+  assert.match(html, /aria-valuenow="64"/);
+  assert.match(html, /\barena-progress-bar__ring\b/);
+  assert.match(html, /role="progressbar"[^>]*>\s*<circle/,
+    'the role sits on the drawing, so a control projected into the middle is a sibling of the meter rather than a presentational child of it');
+  assert.match(html, /pathLength="100"/, 'the arc is measured in hundredths of the path, so the radius is free');
+  assert.match(html, /stroke-dashoffset:36/, 'the arc was not swept to the given percentage');
+  assert.doesNotMatch(html, /\barena-progress-bar__track\b/, 'a ring drew the bar as well');
+  assert.doesNotMatch(html, /\barena-progress-bar__head\b/, 'a ring drew the bar head, so the figure is not inside the ring');
+});
+
+test('a radial meter keeps the accessible name and the announcement the bar carries', () => {
+  const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" label="Lesson 4" progressPercentage={64} showPercentage={false} />);
+  assert.match(html, /aria-label="Lesson 4"/);
+  assert.match(html, /\barena-progress-bar__announcement\b/,
+    'the live region is what a screen reader hears, and hiding the figure is a decision about what is drawn');
+});
+
+test('an indeterminate ring turns a fixed arc and reports no value', () => {
+  const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" indeterminate label="Connecting" progressPercentage={64} />);
+  assert.doesNotMatch(html, /aria-valuenow/);
+  assert.match(html, /\barena-progress-bar__ring-indeterminate\b/,
+    'the turn is the shared utility, whose reduced-motion clause slows it rather than stopping it');
+  assert.match(html, /stroke-dashoffset:75/, 'the arc a wait turns is a fixed quarter and never the percentage');
+});
+
+test('the tone reaches the ring the way it reaches the track, and the arc reads it off the ring', () => {
+  const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" tone="success" label="Sync" progressPercentage={50} />);
+  assert.match(html, /\barena-progress-bar__ring--tone-success\b/);
+  assert.match(html, /\barena-progress-bar__ring-fill\b/);
+});
+
+test('a ring projects its middle without deriving anything from what arrived there', () => {
+  const html = renderToStaticMarkup(
+    <ArenaProgressBar shape="radial" label="Lesson 4" progressPercentage={40} showPercentage={false}>
+      <button type="button">Start</button>
+    </ArenaProgressBar>,
+  );
+  assert.match(html, /\barena-progress-bar__ring-content\b/);
+  assert.match(html, /<button type="button">Start<\/button>/);
+  assert.doesNotMatch(html, /\barena-progress-bar__value\b/,
+    'showPercentage is what turns the figure off, never the presence of content');
+
+  const empty = renderToStaticMarkup(<ArenaProgressBar shape="radial" label="Lesson 4" progressPercentage={40} />);
+  assert.match(empty, /\barena-progress-bar__ring-content\b/,
+    'the middle is drawn whether or not anything was projected into it, because one layer cannot see that it was');
+  assert.match(empty, /\barena-progress-bar__value\b/);
+});

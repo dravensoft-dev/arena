@@ -258,7 +258,13 @@ export const CLAIMS = {
     { chosen: { tone: 'danger' }, slot: 'track', has: ['text-error', 'bg-base-300'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone' },
     { slot: 'indeterminate', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
     { slot: 'track', has: ['overflow-hidden', 'rounded-pill'], hasNot: ['rounded-full'], why: 'the track clips its own fill and takes the pill radius' },
-    { slot: 'root', has: ['block', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline' },
+    { slot: 'root', has: ['grid', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline, and the bar stacks its head over its track' },
+    { chosen: { shape: 'radial' }, slot: 'root', has: ['grid', 'w-fit'], hasNot: ['w-full'], why: 'a ring is as wide as it is tall, so the root shrinks to it rather than filling the row the way a bar does' },
+    ...Object.entries({ sm: 'size-12', md: 'size-16', lg: 'size-24' })
+      .map(([s, cls]) => ({ chosen: { shape: 'radial', size: s }, slot: 'ring', has: [cls], why: 'size sets the ring diameter the way it sets the track height' })),
+    { chosen: { tone: 'danger' }, slot: 'ring', has: ['text-error'], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
+    { slot: 'ringFill', has: ['stroke-current', '[stroke-dasharray:100]'], why: 'the arc reads the tone the ring inks, and its length is hundredths of the path, so the percentage is the offset and the radius is free' },
+    { slot: 'ringIndeterminate', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
   ],
   ArenaSpinner: [
     ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/62', 'on-accent': 'text-primary-content' })

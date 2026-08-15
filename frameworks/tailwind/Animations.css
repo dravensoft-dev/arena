@@ -98,6 +98,22 @@
   }
 }
 
+@keyframes arena-prog-ring {
+  to { transform: rotate(360deg); }
+}
+
+/* A ring with no percentage turns, where a bar sweeps, and for the reason the bar states:
+   a meter that stops reads as a hung process, so this slows rather than freezing. The arc
+   it turns is the dash the manifest holds; only the rotation is here. */
+@utility arena-prog-ring {
+  transform-origin: 50% 50%;
+  animation: arena-prog-ring var(--loop-spin) linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: var(--loop-reduced);
+  }
+}
+
 @keyframes arena-btn-spin {
   to { transform: rotate(360deg); }
 }
