@@ -53,6 +53,9 @@ export const FILES = [
   { out: 'style-plugin.default.generated.css', blocks: [
     { selector: ':root', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/default` },
   ] },
+  { out: 'style-plugin.complete.generated.css', blocks: [
+    { selector: '.arena-complete', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/complete` },
+  ] },
 ];
 
 export const RESOLVES_AGAINST = {
