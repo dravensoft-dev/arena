@@ -11,8 +11,8 @@ import type { SinkFixture } from '../../lib/arena/kitchen-sink-model.ts';
 
 const REGISTRY = ['ArenaBadge', 'ArenaButton', 'ArenaCard'];
 
-const full = (extension: string): [string, SinkFixture] => [extension, {
-  extension,
+const full = (sink: string): [string, SinkFixture] => [sink, {
+  sink,
   sections: [{ title: 'All', items: [...REGISTRY] }],
 }];
 
@@ -22,7 +22,7 @@ test('an arrangement holding every component the registry names reports nothing'
 
 test('a component no arrangement places is named, because nothing would compare it', () => {
   const problems = coverageProblems(
-    new Map([['default', { extension: 'default', sections: [{ title: 'All', items: ['ArenaBadge'] }] }]]),
+    new Map([['default', { sink: 'default', sections: [{ title: 'All', items: ['ArenaBadge'] }] }]]),
     REGISTRY,
   );
   assert.equal(problems.length, 1);
@@ -31,7 +31,7 @@ test('a component no arrangement places is named, because nothing would compare 
 
 test('an empty arrangement fails rather than comparing two empty documents', () => {
   const problems = coverageProblems(
-    new Map([['default', { extension: 'default', sections: [] }]]), REGISTRY,
+    new Map([['default', { sink: 'default', sections: [] }]]), REGISTRY,
   );
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /no component at all/);
@@ -39,7 +39,7 @@ test('an empty arrangement fails rather than comparing two empty documents', () 
 
 test('a name the registry does not carry fails, since a typo silently drops a component', () => {
   const problems = coverageProblems(
-    new Map([['default', { extension: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaBaged'] }] }]]),
+    new Map([['default', { sink: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaBaged'] }] }]]),
     REGISTRY,
   );
   assert.equal(problems.length, 1);
@@ -48,7 +48,7 @@ test('a name the registry does not carry fails, since a typo silently drops a co
 
 test('a component placed twice fails, because the second copy is a section that lost its subject', () => {
   const problems = coverageProblems(
-    new Map([['default', { extension: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaCard'] }] }]]),
+    new Map([['default', { sink: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaCard'] }] }]]),
     REGISTRY,
   );
   assert.equal(problems.length, 1);

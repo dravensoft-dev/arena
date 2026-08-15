@@ -228,7 +228,7 @@ by it.
 Exactly two things are checked, and they are the two that keep the eighth form from becoming
 the escape R4 closed:
 
-- **The R1 extension.** A predefined object may not carry a consumer-data field.
+- **The R1 style plugin.** A predefined object may not carry a consumer-data field.
   `validateTypes` reports one by type and field name.
 - **A consumer-data member must have a consumer.** A contract that takes consumer data in and
   declares no route back out, with no slot parameter and no event payload of `consumerData`, is

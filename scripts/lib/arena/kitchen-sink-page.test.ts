@@ -75,7 +75,7 @@ test('the signal is an expression, because both layers embed it inside one', () 
 
 test('the page carries the theme control the query parameter needs, and the scope class it is named for', () => {
   const page = kitchenSinkPage({
-    extension: 'editorial', up: '../../../../', banner: '', mount: '<div id="root"></div>',
+    sink: 'editorial', up: '../../../../', banner: '', mount: '<div id="root"></div>',
     script: './editorial.sink.entry.generated.js',
   });
   assert.match(page, /class="dtoggle themebtn"/,

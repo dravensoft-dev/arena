@@ -58,6 +58,5 @@ export function arenaConfig(root: string, themes = ['dark', 'light']) {
       colors: paletteColors(root, theme),
     })),
     fonts: fontEntries(root),
-    extension: 'none',
   };
 }

@@ -19,8 +19,8 @@ export const MOUNT_ID = 'root';
 
 export const PAGE_FILE = 'index.generated.html';
 
-export function entryFile(extension: string, ext: string) {
-  return `${extension}.sink.entry.generated.${ext}`;
+export function entryFile(sink: string, ext: string) {
+  return `${sink}.sink.entry.generated.${ext}`;
 }
 
 export function themeDock() {
@@ -32,8 +32,8 @@ export function themeDock() {
   ].join('\n');
 }
 
-export function kitchenSinkPage({ extension, up, banner, mount, head = '', script }: {
-  extension: string; up: string; banner: string; mount: string; head?: string; script: string;
+export function kitchenSinkPage({ sink, up, banner, mount, head = '', script }: {
+  sink: string; up: string; banner: string; mount: string; head?: string; script: string;
 }) {
   const styles = [
     `<link rel="stylesheet" href="${up}intro/styles.css">`,
@@ -44,14 +44,14 @@ export function kitchenSinkPage({ extension, up, banner, mount, head = '', scrip
       (weight) => `<link rel="stylesheet" href="${up}node_modules/@phosphor-icons/web/src/${weight}/style.css">`,
     ),
   ];
-  const scope = scopeClass(extension);
+  const scope = scopeClass(sink);
 
   return `${banner}<!doctype html>
 <html lang="en"${scope ? ` class="${scope}"` : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${extension} · Arena kitchen sink</title>
+<title>${sink} · Arena kitchen sink</title>
 ${styles.join('\n')}
 ${head}</head>
 <body class="ks-page">

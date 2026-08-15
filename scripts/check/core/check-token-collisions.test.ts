@@ -32,7 +32,7 @@ test('a property declared twice inside one file is that file\'s own business', (
   assert.deepEqual(collisionProblems(files(
     ['effects.generated.css', ':root{--r-surface:14px;}\n:root{--r-surface:14px;}'],
   )), [],
-  'source order inside one generated file is decided by FILES, which check:extensions already '
+  'source order inside one generated file is decided by FILES, which check:style-plugin already '
   + 'holds; this gate is about two files that do not know about each other');
 });
 

@@ -25,7 +25,7 @@ function topLevelGroups(source: string) {
 
 const SCRIPT_FLAG = /"script"\s*:\s*true/g;
 
-test('FILES declares no extension block', () => {
+test('FILES declares no block outside a theme or a density', () => {
   const selectors = FILES.flatMap((f) => f.blocks.map((b) => b.selector));
   const scopes = [...new Set(selectors.filter((s) => s !== ':root'))].sort();
   assert.deepEqual(scopes, ['.arena-comfortable', '.arena-compact', '.arena-light'],

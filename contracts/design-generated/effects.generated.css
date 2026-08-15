@@ -82,7 +82,7 @@
      
      Why the role exists at all: r names how round a corner is, and this names WHICH corner is being
      asked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface
-     has said a reason, and only the second can be answered differently by an extension. Re-valuing
+     has said a reason, and only the second can be answered differently by a style plugin. Re-valuing
      r-lg to soften a card would soften every unrelated use of the same step, which is the defect the
      role tier exists to prevent.
    */
@@ -91,22 +91,21 @@
      The corner of a surface that floats over the page: a menu, a toast, an alert,
      a bulk action bar. Separate from r-surface because the scale already separated them: r.md is
      authored as "nested cards, menus" and r.lg as "cards, panels". A floating surface is smaller and
-     nearer the pointer, so it reads as a lighter object, and an extension that rounds cards without
+     nearer the pointer, so it reads as a lighter object, and a style plugin that rounds cards without
      rounding menus is the broken half-applied look this role exists to prevent.
    */
   --r-surface-floating:10px;
   /*
      The corner of a CONTROL the user presses: a button, an icon button, a menu item,
      a pagination page, a navigation row. Separate from r-field although both are r.sm today, on the
-     cut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. An
-     extension that wants pill buttons over rectangular inputs needs the two answerable one at a time.
+     cut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. A style plugin that wants pill buttons over rectangular inputs needs the two answerable one at a time.
    */
   --r-control:6px;
   /*
      The corner of a control too small to carry the full control radius: a checkbox
      box, a segment of a segmented control. A control whose whole body is barely larger than its own
      corner would read as a circle at r-control, so the scale drops a step. It is still a control, so
-     it moves when an extension moves controls, which is why this is a role and not a scale use.
+     it moves when a style plugin moves controls, which is why this is a role and not a scale use.
    */
   --r-control-sm:4px;
   /*
@@ -119,7 +118,7 @@
      chip. A marker encloses a label and nothing else. It is neither a surface, because nothing is
      placed inside it, nor a control, because it cannot be pressed, and giving the family its own
      role is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce
-     extension says SALE, so it earns a role rather than a frozen literal.
+     style plugin says SALE, so it earns a role rather than a frozen literal.
    */
   --r-marker:4px;
   /*
@@ -162,7 +161,7 @@
      inconsistency this role removes rather than a decision anybody made.
      
      Separate from the ls steps, which are named by the thing that uses them and
-     are already role-shaped: a heading is the one use an extension has a reason to re-answer.
+     are already role-shaped: a heading is the one use a style plugin has a reason to re-answer.
      
      Carries cssUnit em like every ls step it points at: ls is authored unitless so JS can read it, and
      letter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid
@@ -172,13 +171,13 @@
   /*
      The leading of text somebody reads: a dialog's body, an empty state's message, a
      page head's subtitle, a hint under a field. lh-root's own description already calls the three
-     steps below it roles rather than scale, and this names the one an extension has a reason to move.
+     steps below it roles rather than scale, and this names the one a style plugin has a reason to move.
      
      It is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21
      spells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is
-     set to. A voice may
-     open a paragraph up and may never close it below that, and check:extensions measures the resolved
-     value in every scope rather than trusting the author.
+     set to. A style plugin
+     may open a paragraph up and may never close it below that, and check:style-plugin measures the
+     resolved value in every scope rather than trusting the author.
      
      Note what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it
      does not. It requires that content survive a USER overriding spacing to those values without being
@@ -209,8 +208,8 @@
      Carries cssUnit ch by the same mechanism ls uses for em. DTCG 2025.10 admits px and rem for a
      dimension and nothing else, which is why a prose measure was once refused; the exit was that a
      measure was never obliged to be a dimension. It is a number with a render hint, it widens no
-     conformance claim, and the refusal is recorded in Extensions.md beside the reason it no longer
-     binds.
+     conformance claim, and the reason it no longer binds is that a measure was never obliged to be
+     a dimension.
      
      It reaches a page through a class a consumer applies rather than through a component slot, in
      Prose.css beside Numerals.css and Rhythm.css, because the thing that wants a measure is a
@@ -219,7 +218,7 @@
      width of a short blurb rather than of a reading column, so they keep their literals.
      
      72 is where the base body size lands a line at roughly the 45 to 75 characters typography has
-     agreed on for a century, and check:extensions holds a voice inside that range.
+     agreed on for a century, and check:style-plugin holds an answer inside that range.
    */
   --measure-prose:72ch;
   /*
@@ -240,7 +239,7 @@
      It is the single most visible thing a voice can move. A console's eyebrow is a monospaced tag
      reading STATUS or REGION; a shop's eyebrow reads "Single origin, Huehuetenango" and belongs in
      the display face. Same slot, same size, opposite register, and before this role the difference
-     was unreachable from any extension.
+     was unreachable from any style plugin.
    */
   --ff-eyebrow:'Spline Sans Mono',ui-monospace,monospace;
   /*
@@ -321,7 +320,7 @@
   --track-label:0.14em;
   /*
      Which step on the ladder an eyebrow takes. Named step and not fs because FS_STEP
-     already claims that prefix for the scale's own steps, and an extension may move those directly.
+     already claims that prefix for the scale's own steps, and a style plugin may move those directly.
      
      It aliases a dz step rather than an fs one, because an eyebrow is control-sized text today and
      re-densifies with everything else. That alias is the reason REDECLARED_GROUPS exists in the
@@ -435,7 +434,7 @@
      so it was already a role wearing a scale's file.
      
      It keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what
-     changes is that an extension may now re-answer it. A voice for reading wants a narrower page than
+     changes is that a style plugin may now re-answer it. A voice for reading wants a narrower page than
      a voice for a dashboard, and that was unreachable before.
      
      Emitted into effects.generated.css beside the other roles rather than into spacing.generated.css,
@@ -485,7 +484,7 @@
      What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
      drawn. Without this role a card keeps a region the voice just said was not there, and the gate
      holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
-     value: an extension may say which of the consumer's 27 colours a surface takes, and may not
+     value: a style plugin may say which of the consumer's 27 colours a surface takes, and may not
      author one.
    */
   --fill-surface:var(--color-base-200);
@@ -501,19 +500,10 @@
    */
   --fill-surface-floating:var(--color-base-200);
   /*
-     The fill of the page itself, the floor everything else stands on. It was dropped
-     once rather than deferred, with the reason written down: no voice in the catalogue asked for one.
-     The catalogue grew and three now do, so this is a decision revisited on new evidence rather than
-     reversed.
-     
-     What asks for it: a voice that groups by marking needs to say its surfaces differ from the floor,
-     and a voice that makes its surfaces vanish needs to say they equal it. Neither sentence can be
-     written while the floor is a constant inside a gate instead of a role in this file.
-     
-     It also fixes a gate rather than only enabling one. fillsLikeThePage in check-extensions.ts
-     compared fill-surface against the literal color-base-100, so a voice that moved the page's floor
-     would have failed the proximity invariant for having moved the thing the invariant is about. The
-     comparison is against this role now.
+     The fill of the page itself, the floor everything else stands on. What asks for it: a style
+     plugin that groups by marking needs to say its surfaces differ from the floor, and one that makes
+     its surfaces vanish needs to say they equal it. Neither sentence can be written while the floor is
+     a constant inside a gate instead of a role in this file.
    */
   --fill-page:var(--color-base-100);
   /*
@@ -646,7 +636,7 @@
      The border that encloses a surface, and therefore Arena's default grouping
      signal. This is the single most consequential role in the tier: a hairline says 'these things
      are one region' by drawing the region, which is cheap in pixels and correct for dense data.
-     An extension that sets it to 0px has to make elevation and air carry the grouping instead,
+     An style plugin that sets it to 0px has to make elevation and air carry the grouping instead,
      and WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather
      than merely allowed.
    */
@@ -654,7 +644,7 @@
   /*
      The border of a pressable control. Distinct from bw-surface because a button's
      outline is an affordance, saying where the pressable area ends, while a card's is a grouping
-     signal. An extension can drop one and keep the other.
+     signal. A style plugin can drop one and keep the other.
    */
   --bw-control:1px;
   /*
@@ -666,7 +656,7 @@
      The line that divides one thing from the next INSIDE a surface: a table row
      from the row under it, a sheet's head from its body, a tab strip from its panel. The critical
      distinction from bw-surface, and the reason it is a separate role rather than the same one
-     applied to an edge: an extension that groups by elevation instead of by line removes the
+     applied to an edge: a style plugin that groups by elevation instead of by line removes the
      enclosure, and a table whose rows lost their rules at the same time would stop being readable.
      A separator answers a different question, so it survives the change.
    */
@@ -691,7 +681,7 @@
      
      It exists so the property is PAINTED. A token can re-value a declaration a slot already makes
      and cannot add one, so a card that declared no box-shadow could never be given depth by an
-     extension, however the extension was written. This is the role that lets an extension trade
+     extension, however the style plugin was written. This is the role that lets a style plugin trade
      Arena's hairline grouping for grouping by elevation, which is the single change that separates
      a console panel from a product card.
    */
@@ -705,8 +695,8 @@
   --shadow-surface-deep:0px 30px 60px -20px rgba(0,0,0,.7);
   /*
      What a control rises to under the pointer. The same step as a surface's raised
-     state today and a different question: an extension that lifts a call to action has no reason to
-     lift every card with it, and a commerce extension is mostly a statement about the call to action.
+     state today and a different question: a style plugin that lifts a call to action has no reason to
+     lift every card with it, and a commerce style plugin is mostly a statement about the call to action.
    */
   --shadow-control-raised:0px 12px 28px -12px rgba(0,0,0,.6);
   /*
@@ -724,7 +714,7 @@
   --lift-control:0px;
   /*
      How long a hover or press response takes. An alias of dur.fast, which is what
-     every such transition already spells inline. An extension is where motion energy is decided, and
+     every such transition already spells inline. A style plugin is where motion energy is decided, and
      a duration written as a scale step cannot be re-decided; written as a role it can, without
      touching the transitions that are fast for a different reason.
    */
@@ -802,7 +792,7 @@
      What it buys: a voice that groups by proximity draws nothing at all, and a fill is something
      drawn. Without this role a card keeps a region the voice just said was not there, and the gate
      holding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a
-     value: an extension may say which of the consumer's 27 colours a surface takes, and may not
+     value: a style plugin may say which of the consumer's 27 colours a surface takes, and may not
      author one.
    */
   --fill-surface:var(--color-base-200);
@@ -818,19 +808,10 @@
    */
   --fill-surface-floating:var(--color-base-200);
   /*
-     The fill of the page itself, the floor everything else stands on. It was dropped
-     once rather than deferred, with the reason written down: no voice in the catalogue asked for one.
-     The catalogue grew and three now do, so this is a decision revisited on new evidence rather than
-     reversed.
-     
-     What asks for it: a voice that groups by marking needs to say its surfaces differ from the floor,
-     and a voice that makes its surfaces vanish needs to say they equal it. Neither sentence can be
-     written while the floor is a constant inside a gate instead of a role in this file.
-     
-     It also fixes a gate rather than only enabling one. fillsLikeThePage in check-extensions.ts
-     compared fill-surface against the literal color-base-100, so a voice that moved the page's floor
-     would have failed the proximity invariant for having moved the thing the invariant is about. The
-     comparison is against this role now.
+     The fill of the page itself, the floor everything else stands on. What asks for it: a style
+     plugin that groups by marking needs to say its surfaces differ from the floor, and one that makes
+     its surfaces vanish needs to say they equal it. Neither sentence can be written while the floor is
+     a constant inside a gate instead of a role in this file.
    */
   --fill-page:var(--color-base-100);
   /*
@@ -963,7 +944,7 @@
 .arena-compact{
   /*
      Which step on the ladder an eyebrow takes. Named step and not fs because FS_STEP
-     already claims that prefix for the scale's own steps, and an extension may move those directly.
+     already claims that prefix for the scale's own steps, and a style plugin may move those directly.
      
      It aliases a dz step rather than an fs one, because an eyebrow is control-sized text today and
      re-densifies with everything else. That alias is the reason REDECLARED_GROUPS exists in the
@@ -980,7 +961,7 @@
 .arena-comfortable{
   /*
      Which step on the ladder an eyebrow takes. Named step and not fs because FS_STEP
-     already claims that prefix for the scale's own steps, and an extension may move those directly.
+     already claims that prefix for the scale's own steps, and a style plugin may move those directly.
      
      It aliases a dz step rather than an fs one, because an eyebrow is control-sized text today and
      re-densifies with everything else. That alias is the reason REDECLARED_GROUPS exists in the

@@ -184,6 +184,11 @@ the one that opened it. `bun run check:citations` holds every path a document na
 ## Conventions
 
 - **English only.** All code, comments, docs and UI copy are in English.
+- **The style layer is a `style plugin`, and prose always qualifies the word.** `plugin` alone is
+  the Claude Code plugin this repository ships in `.claude-plugin/plugin.json`, and `extension` is
+  the DTCG vendor key `$extensions` in every token file, so both are spoken for. The config key is
+  `stylePlugins` and it takes a list, because a build can carry more than one register and the
+  first of them is what a page with no class on it looks like.
 - **Specs and implementation plans live under `docs/superpowers/`** (`specs/`, `plans/`), dated
   `YYYY-MM-DD-<name>.md`. **A spec written ahead of its plan carries a `-pending-N` suffix until
   that plan exists**, because an unsuffixed spec sitting in `specs/` reads as work in flight;
@@ -195,7 +200,7 @@ the one that opened it. `bun run check:citations` holds every path a document na
   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md) and handed to a builder by
   [`SKILL.md`](./SKILL.md). A third copy on this page is the one with no owner, and it is the copy
   that goes stale: the two that are left each fail something, the contract through
-  `check:extensions` and the router through `check:docs`, while a router's restatement fails
+  `check:style-plugin` and the router through `check:docs`, while a router's restatement fails
   nothing at all. **The one rule about them that IS this page's**, because it binds a contributor
   and no consumer: a rule binding more than one component is stated once and never copied into a
   second document that happens to be nearby.

@@ -66,7 +66,7 @@ test('keyword refuses anything that is not a bare CSS word', () => {
   fails({ tt: { $type: 'keyword', a: { $value: 'upper case' } } }, /keyword/);
 });
 
-test('a keyword may omit its values, because an extension re-values a role it did not declare', () => {
+test('a keyword may omit its values, because a style plugin re-values a role it did not declare', () => {
   ok({ tt: { $type: 'keyword', eyebrow: { $value: 'none' } } });
   fails({ tt: { $type: 'keyword', a: { $value: 'none', $extensions: { 'com.dravensoft.arena': { values: [] } } } } },
     /values/);

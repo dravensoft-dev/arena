@@ -4,8 +4,8 @@
  * what earns it: a bare `string` would carry the same value and give up the only thing a type
  * buys, since with no set `smallcaps` is as valid as `uppercase` and no gate can tell them apart.
  * A keyword therefore names the words it may take and this gate refuses the rest. The set is
- * declared once, on the role in `roles.json`; an extension re-values a role it did not declare and
- * repeats nothing, so `values` is optional here and `check:extensions` is what holds a moved
+ * declared once, on the role in `roles.json`; a style plugin re-values a role it did not declare and
+ * repeats nothing, so `values` is optional here and `check:style-plugin` is what holds a moved
  * keyword to its role's set. The reasoning in full is in `contracts/design/TokenTypes.md`. */
 
 import { readdirSync } from 'node:fs';

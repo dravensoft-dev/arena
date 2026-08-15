@@ -71,7 +71,7 @@ ${tiles}
   );
 
   const header = `      <header class="${KS.head}">
-        <h1 class="${KS.sink}">${model.extension}</h1>${model.note ? `
+        <h1 class="${KS.sink}">${model.sink}</h1>${model.note ? `
         <p class="${KS.note}">${escapeTitle(model.note)}</p>` : ''}
       </header>`;
 
@@ -106,10 +106,10 @@ bootstrapApplication(Sink, { providers: [provideZonelessChangeDetection()] })
 
 export function angularSinkPage(model: SinkModel, banner: string) {
   return kitchenSinkPage({
-    extension: model.extension,
+    sink: model.sink,
     up: UP,
     banner,
     mount: `<${MOUNT}></${MOUNT}>`,
-    script: `${UP}frameworks/angular/build/demo/js/${entryFile(model.extension, 'js')}`,
+    script: `${UP}frameworks/angular/build/demo/js/${entryFile(model.sink, 'js')}`,
   });
 }

@@ -8,7 +8,7 @@ in its directory.
 |---|---|---|
 | [`api/`](api/AGENTS.md) | the members a component's API presents | `api/AGENTS.md`, plus [`api/MemberForms.md`](api/MemberForms.md) |
 | [`behaviour/`](behaviour/AGENTS.md) | what a kind of component must do: roles, keys, focus, dismissal | `behaviour/AGENTS.md` |
-| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md), [`design/TokenTypes.md`](design/TokenTypes.md) and [`design/Extensions.md`](design/Extensions.md) |
+| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md) and [`design/TokenTypes.md`](design/TokenTypes.md) |
 
 **A level's statement is one file or several, and where it is several the split is by AUDIENCE
 rather than by topic.** The `AGENTS.md` is always the half that **decides**, and a sibling is
@@ -18,8 +18,7 @@ what a reader **consults** while doing the work:
   can hold; `api/MemberForms.md` is the vocabulary you write it in, the nine forms, the six
   derived rules, the binding table and the file format.
 - `design/AGENTS.md` says what a value MEANS; `design/Scales.md` is every scale step by step and
-  which role each step plays; `design/Extensions.md` says which of those values a design
-  extension may re-decide and which it may not; `design/TokenTypes.md` says what DTCG `$type` it carries and what
+  which role each step plays; `design/TokenTypes.md` says what DTCG `$type` it carries and what
   shape it is authored in, which only somebody authoring a token or targeting a new platform
   needs.
 - `behaviour/` is one file, because it has no second audience to separate: nobody reads a
@@ -27,7 +26,7 @@ what a reader **consults** while doing the work:
 
 **Every one of those files is named in `SHAPE`**, in `scripts/check/arena/check-contracts.ts`,
 so a sibling nobody declared fails rather than sitting invisible to every gate that reads a
-level by extension. **Splitting a level is therefore a two-file change**, the document and the
+level by style plugin. **Splitting a level is therefore a two-file change**, the document and the
 declaration, and the gate is what makes it one.
 
 Read the one for the level you are implementing. None of the three is a summary of
@@ -106,7 +105,7 @@ record is `check:compliance`'s `COVERED`, partial by design.
 
 ## Audience and scope
 - **Audience of the language: general public.** Arena is meant to give identity to **every kind of Dravensoft software**, regardless of who the end user is, from consumer apps to internal tools. Its foundations (color, typography, spacing, accessibility, voice) are general-purpose and don't assume a technical profile.
-- **Arena ships no example application, and the omission is the point.** An app illustrates one product's audience, and a reader calibrates the language against whatever that app happens to be: a console aimed at engineers reads as though data density, jargon and keyboard accelerators were Arena's, when each of them belongs to that product. What the tree shows instead is every component at once, once per design extension, in `frameworks/react/kitchen-sink/` and its Angular pair. Those pages carry no product and no audience, so a finding on one is a finding about the language. `intro/Arena - Overview.html` is the other end of the same idea: the framework-agnostic token language, deliberately showing no component at all.
+- **Arena ships no example application, and the omission is the point.** An app illustrates one product's audience, and a reader calibrates the language against whatever that app happens to be: a console aimed at engineers reads as though data density, jargon and keyboard accelerators were Arena's, when each of them belongs to that product. What the tree shows instead is every component at once, once per style plugin, in `frameworks/react/kitchen-sink/` and its Angular pair. Those pages carry no product and no audience, so a finding on one is a finding about the language. `intro/Arena - Overview.html` is the other end of the same idea: the framework-agnostic token language, deliberately showing no component at all.
 - **Implication for audits and evaluations:** calibrate against the general audience the first bullet names. A finding that a component is dense, terse or shortcut-heavy is a finding about a product built with Arena rather than about Arena, and a product for a general audience would answer it with plain copy, comfortable density and fewer accelerators.
 
 ## Why a language of our own (and not Material/Fluent as-is)
@@ -203,7 +202,7 @@ framework is added without touching the language.
 **The framework layers**
 
 - [`frameworks/react/`](../frameworks/react/AGENTS.md): the React primitives, the
-  kitchen-sink page per design extension, and the shared layer-root modules.
+  kitchen-sink page per style plugin, and the shared layer-root modules.
 - [`frameworks/angular/`](../frameworks/angular/AGENTS.md): the Angular layer for an
   existing Angular 20+/Tailwind-v4 app, meaning Arena's own primitives, with `@angular/cdk`
   positioning the two that anchor an overlay to a trigger.

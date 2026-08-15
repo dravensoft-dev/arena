@@ -214,11 +214,11 @@
   /*
      Comfortable density: for touch, for a general audience, and for anything a
      person uses occasionally rather than all day. Apply on a container:
-     <div class="arena-comfortable"> … </div>  (composes with .arena-light and with a design extension)
+     <div class="arena-comfortable"> … </div>  (composes with .arena-light and with a style plugin)
      
      The counterpart to density.compact.json, and the reason target size is density's axis and never
-     an extension's: how large a control is answers who is pointing at it, not what voice the product
-     is speaking in. A shop on a phone and a console on a desk can want the same extension and
+     a style plugin's: how large a control is answers who is pointing at it, not what register the product
+     is speaking in. A shop on a phone and a console on a desk can want the same style plugin and
      opposite densities, and only separate axes let them have that.
      
      MUTUALLY EXCLUSIVE with .arena-compact. Both set the same keys, so a container wearing both gets

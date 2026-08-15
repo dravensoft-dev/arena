@@ -5,9 +5,9 @@
  * packages, where it is the only emitter there is. It reads no file and touches no network, so a
  * path in the config is emitted, never resolved. Every field of an ArenaConfig is optional because
  * a CONSUMER writes it: an invalid one must reach configProblems rather than be refused by a type
- * nobody there can read. A local extension is checked here and not only shaped, through the same
- * extension-rules.ts Arena's own gate runs, so what a consumer writes is held to the same floors
- * in the PROJECT's build. */
+ * nobody there can read. A style plugin is checked here and not only shaped, through the same
+ * style-plugin-rules.ts Arena's own gate runs, so what a consumer writes is held to the same
+ * floors in the PROJECT's build. */
 
 import {
   PALETTE_KEYS, POLARITIES, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
@@ -16,24 +16,16 @@ import {
 import { validate, contrast } from './validate-palette.mjs';
 import {
   FS_STEP, RHYTHM_STEP, floorProblems, nameProblems,
-} from './extension-rules.ts';
-
-export type ShippedExtension = {
-  grouping?: string;
-  base: string[];
-  byPolarity: Record<string, string[]>;
-};
+} from './style-plugin-rules.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
   roles: Record<string, { type?: string; values?: string[] }>;
-  extensions: Record<string, ShippedExtension>;
 };
 
 export type CheckedSheets = {
   layers: string[];
   components: string[];
-  extensions?: Record<string, ShippedExtension>;
   roleReferences?: string[];
   catalogue?: TokenCatalogue;
 };
@@ -59,7 +51,7 @@ export type ArenaFont = {
 export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 
 export type ArenaConfig = {
-  extension?: unknown;
+  stylePlugins?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
   stylesheet?: ArenaStylesheet;
@@ -193,18 +185,15 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
   return problems;
 }
 
-export const NO_EXTENSION = 'none';
-
-export type LocalExtension = {
+export type StylePlugin = {
   name?: unknown;
-  extends?: unknown;
   tokens?: unknown;
   light?: unknown;
 };
 
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)+)\}$/;
 
-export function localValue(raw: unknown, catalogue: TokenCatalogue | null) {
+export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   if (typeof raw !== 'string' || !raw.trim()) return null;
   const value = raw.trim();
   const alias = ALIAS.exec(value)?.[1];
@@ -214,62 +203,51 @@ export function localValue(raw: unknown, catalogue: TokenCatalogue | null) {
 }
 
 function declarationsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue | null) {
-  return Object.entries(tokens).map(([key, raw]) => `--${key}:${localValue(raw, catalogue)};`);
+  return Object.entries(tokens).map(([key, raw]) => `--${key}:${pluginValue(raw, catalogue)};`);
 }
 
-export function resolvedLocal(
-  local: LocalExtension, parent: ShippedExtension | undefined, catalogue: TokenCatalogue | null,
-  polarity = 'dark',
+export function resolvedPlugin(
+  plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity = 'dark',
 ) {
   const at = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-  const take = (declarations: string[]) => {
-    for (const d of declarations) {
-      const body = d.replace(/;$/, '');
-      const i = body.indexOf(':');
-      if (i > 0 && body.startsWith('--')) at.set(body.slice(2, i).trim(), body.slice(i + 1).trim());
-    }
-  };
-  if (parent) take([...parent.base, ...(parent.byPolarity[polarity] ?? [])]);
-  for (const [key, raw] of Object.entries((local.tokens ?? {}) as Record<string, unknown>)) {
-    const value = localValue(raw, catalogue);
+  for (const [key, raw] of Object.entries((plugin.tokens ?? {}) as Record<string, unknown>)) {
+    const value = pluginValue(raw, catalogue);
     if (value !== null) at.set(key, value);
   }
   if (polarity !== 'dark') {
-    for (const [key, raw] of Object.entries((local.light ?? {}) as Record<string, unknown>)) {
-      const value = localValue(raw, catalogue);
+    for (const [key, raw] of Object.entries((plugin.light ?? {}) as Record<string, unknown>)) {
+      const value = pluginValue(raw, catalogue);
       if (value !== null) at.set(key, value);
     }
   }
   return at;
 }
 
-export function localBlocks(
-  local: LocalExtension, parent: ShippedExtension | undefined, catalogue: TokenCatalogue | null,
-  polarity: string,
+export function pluginBlocks(
+  plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string,
 ) {
-  const tokens = (local.tokens ?? {}) as Record<string, unknown>;
-  const themed = (local.light ?? {}) as Record<string, unknown>;
+  const tokens = (plugin.tokens ?? {}) as Record<string, unknown>;
+  const themed = (plugin.light ?? {}) as Record<string, unknown>;
   return [
-    ...(parent ? [...parent.base, ...(parent.byPolarity[polarity] ?? [])] : []),
     ...declarationsOf(tokens, catalogue),
     ...(polarity === 'light' ? declarationsOf(themed, catalogue) : []),
   ];
 }
 
-function localTokenProblems(
+export function pluginTokenProblems(
   group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue,
 ) {
   const problems = [];
   for (const [key, raw] of Object.entries(tokens)) {
-    const where = `extension.${group}`;
+    const where = `stylePlugins.${group}`;
     const role = catalogue.roles?.[key];
     if (!role && !FS_STEP.test(key) && !RHYTHM_STEP.test(key)) {
       problems.push(`${where}: "${key}" is neither a role this package ships nor an fs or rhythm step. `
-        + 'An extension re-values those only: a scale, a colour or a spacing step is shared by every use '
-        + 'that wants that value, so moving one is not an extension but a different Arena.');
+        + 'A style plugin re-values those only: a scale, a colour or a spacing step is shared by every '
+        + 'use that wants that value, so moving one is not a style plugin but a different Arena.');
       continue;
     }
-    if (localValue(raw, catalogue) === null) {
+    if (pluginValue(raw, catalogue) === null) {
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, which resolves to nothing this package `
         + 'ships. Write a value outright, or an alias like {fs.h3} or {color.base-200} naming a token '
         + 'Arena emits.');
@@ -277,77 +255,68 @@ function localTokenProblems(
     }
     if (role?.type === 'color' && !/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
-        + 'only. An extension assigns one of your colours to a role and never authors one of its own.');
+        + 'only. A style plugin assigns one of your colours to a role and never authors one of its own.');
     if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(String(raw)))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
   return problems;
 }
 
-export function localExtensionProblems(
-  value: LocalExtension, sheets: PackageSheets, paletteNames: string[] = [],
+function entryProblems(
+  value: StylePlugin, at: string, sheets: PackageSheets, paletteNames: string[],
 ) {
-  const shipped = sheets?.extensions ?? {};
   const catalogue = sheets?.catalogue;
   const name = value.name;
   if (typeof name !== 'string' || !name)
-    return ['extension: a local extension declares a name, which becomes the class .arena-<name>'];
+    return [`${at}: a style plugin declares a name, which becomes the class .arena-<name>`];
 
-  const problems = nameProblems(name, POLARITIES, 'extension');
-  if (Object.hasOwn(shipped, name))
-    problems.push(`extension: "${name}" is a name this package already ships, and both would `
-      + `be the class .arena-${name}. Name yours something else and extend that one instead.`);
+  const problems = nameProblems(name, POLARITIES, at);
   if (paletteNames.includes(name))
-    problems.push(`extension: "${name}" is also the name of a palette, and both would be the class `
+    problems.push(`${at}: "${name}" is also the name of a palette, and both would be the class `
       + `.arena-${name}; rename one of them`);
-
-  const parentName = value.extends;
-  let parent: ShippedExtension | undefined;
-  if (parentName !== undefined) {
-    if (typeof parentName !== 'string' || !Object.hasOwn(shipped, parentName))
-      problems.push(`extension: extends "${String(parentName)}", which this package does not ship. `
-        + `The names are ${Object.keys(shipped).sort().join(', ')}.`);
-    else parent = shipped[parentName];
-  }
 
   const tokens = value.tokens;
   if (!isObject(tokens) || Object.keys(tokens).length === 0)
-    problems.push('extension: a local extension moves at least one role, or it is a class nobody can tell '
-      + 'from its absence. Write "extension": "<name>" to take a shipped one unchanged.');
+    problems.push(`${at}: a style plugin answers at least one role, or it is a class nobody can tell `
+      + 'from its absence');
   if (value.light !== undefined && !isObject(value.light))
-    problems.push('extension: "light" is a group of tokens that differ in the light theme, so it is an object');
+    problems.push(`${at}: "light" is a group of tokens that differ in the light theme, so it is an object`);
 
   if (!catalogue)
-    return [...problems, 'extension: the role catalogue this package ships cannot be read from beside this '
-      + 'command, so a local extension cannot be checked against it'];
+    return [...problems, `${at}: the role catalogue this package ships cannot be read from beside this `
+      + 'command, so a style plugin cannot be checked against it'];
 
-  if (isObject(tokens)) problems.push(...localTokenProblems(name, tokens, catalogue));
-  if (isObject(value.light)) problems.push(...localTokenProblems(`${name}.light`, value.light, catalogue));
+  if (isObject(tokens)) problems.push(...pluginTokenProblems(name, tokens, catalogue));
+  if (isObject(value.light)) problems.push(...pluginTokenProblems(`${name}.light`, value.light, catalogue));
   if (problems.length) return problems;
 
   for (const polarity of ['dark', 'light']) {
-    const at = resolvedLocal(value, parent, catalogue, polarity);
-    problems.push(...floorProblems(at, polarity, `extension: "${name}"`));
+    problems.push(...floorProblems(resolvedPlugin(value, catalogue, polarity), polarity, `${at}: "${name}"`));
   }
   return problems;
 }
 
-export function extensionProblems(value: unknown, sheets: PackageSheets, paletteNames: string[] = []) {
-  if (value === undefined) return [];
-  if (isObject(value)) return localExtensionProblems(value as LocalExtension, sheets, paletteNames);
-  if (typeof value !== 'string')
-    return ['extension: one name, or one object deriving one of your own, and never a list, '
-      + 'so a build carries at most one extension'];
-  if (value === NO_EXTENSION) return [];
-  const shipped = sheets?.extensions;
-  if (!shipped)
-    return ['extension: the extensions this package ships cannot be read from beside this command, '
-      + 'so the name cannot be checked against them'];
-  const names = Object.keys(shipped).sort();
-  if (!names.includes(value))
-    return [`extension: "${value}" is not an extension this package ships, which are `
-      + `${names.join(', ')}. Omit the field or write "${NO_EXTENSION}" for no extension.`];
-  return [];
+export function stylePluginProblems(config: ArenaConfig, sheets: PackageSheets) {
+  const declared = config.stylePlugins;
+  if ((config as Record<string, unknown>).extension !== undefined) {
+    return ['stylePlugins: "extension" is not a field Arena reads. The axis is stylePlugins, it takes '
+      + 'a list, and the word extension is spoken for twice over: by the DTCG vendor key and by the '
+      + 'Claude Code plugin the repository ships.'];
+  }
+  if (declared === undefined) return [];
+  if (!Array.isArray(declared))
+    return ['stylePlugins: a list, because a build can carry more than one register and the first of '
+      + 'them is what a page with no class on it looks like'];
+  if (declared.length === 0)
+    return ['stylePlugins: name at least one style plugin, or drop the field. An empty list answers no '
+      + 'role at all, and a custom property with no value is invalid at computed-value time: the '
+      + 'declaration reading it is dropped and the property disappears'];
+
+  const paletteNames = (Array.isArray(config.palettes) ? config.palettes : [])
+    .filter(isObject).map((p) => String((p as ArenaPalette).name ?? ''));
+  return declared.flatMap((entry, i) => (isObject(entry)
+    ? entryProblems(entry as StylePlugin, `stylePlugins[${i}]`, sheets, paletteNames)
+    : [`stylePlugins[${i}]: ${JSON.stringify(entry)} is not a style plugin`]));
 }
 
 export function configProblems(config: ArenaConfig, sheets: PackageSheets = null) {
@@ -359,19 +328,13 @@ export function configProblems(config: ArenaConfig, sheets: PackageSheets = null
   } else {
     const seen = new Set<string>();
     (config.palettes as ArenaPalette[]).forEach((p, i) => problems.push(...paletteProblems(p, i, seen)));
-    for (const name of Object.keys(sheets?.extensions ?? {}))
-      if ((config.palettes as ArenaPalette[]).some((p) => isObject(p) && p.name === name))
-        problems.push(`palettes: "${name}" is the name of an extension this package ships, and both `
-          + `would be the class .arena-${name}; rename the palette`);
     const defaults = config.palettes.filter((p) => isObject(p) && p.default === true);
     if (defaults.length > 1) {
       problems.push(`palettes: ${defaults.length} palettes declare default; exactly one reaches :root`);
     }
   }
 
-  const paletteNames = (Array.isArray(config.palettes) ? config.palettes : [])
-    .filter(isObject).map((p) => String((p as ArenaPalette).name ?? ''));
-  problems.push(...extensionProblems(config.extension, sheets, paletteNames));
+  problems.push(...stylePluginProblems(config, sheets));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));
   return problems;
@@ -503,23 +466,16 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
   ]));
 
-  const local = isObject(config.extension) ? config.extension as LocalExtension : undefined;
-  const parent = local && typeof local.extends === 'string'
-    ? sheets?.extensions?.[local.extends] : undefined;
   const catalogue = sheets?.catalogue ?? null;
+  const plugins = (Array.isArray(config.stylePlugins) ? config.stylePlugins : [])
+    .filter(isObject) as StylePlugin[];
 
-  const chosen = typeof config.extension === 'string' && config.extension !== NO_EXTENSION
-    ? sheets?.extensions?.[config.extension] : undefined;
+  const whole = plugins.flatMap((plugin) => pluginBlocks(plugin, catalogue, fallback.polarity));
+  if (whole.length) parts.push(block(':root', whole));
 
-  const wholeVoice = local
-    ? localBlocks(local, parent, catalogue, fallback.polarity)
-    : (chosen ? [...chosen.base, ...(chosen.byPolarity[fallback.polarity] ?? [])] : []);
-  if (wholeVoice.length) parts.push(block(':root', wholeVoice));
-
-  const restated = (polarity: string) => (local
-    ? localBlocks(local, parent, catalogue, polarity).filter((d) => d.includes('var(--color-')
-      || (parent?.byPolarity[polarity] ?? []).includes(d))
-    : (chosen?.byPolarity[polarity] ?? []));
+  const restated = (polarity: string) => plugins
+    .flatMap((plugin) => pluginBlocks(plugin, catalogue, polarity))
+    .filter((d) => d.includes('var(--color-'));
 
   for (const palette of config.palettes) {
     if (palette === fallback) continue;

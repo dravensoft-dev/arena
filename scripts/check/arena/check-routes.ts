@@ -89,7 +89,7 @@ export const ROUTES: Route[] = [
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
       + 'can afford. Raised from 72,000 when the role tier went from 28 roles to 63 and grew a '
       + 'ninth token type: TokenTypes.md has to state what a keyword is and why it is the one '
-      + 'departure from 2025.10, and the design specification has to say why an extension now '
+      + 'departure from 2025.10, and the design specification has to say why a style plugin now '
       + 'reaches type, ink and internal air. The route is longer because the thing it describes is '
       + 'bigger, which is the one reason a budget should ever move.',
   },

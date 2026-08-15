@@ -72,10 +72,10 @@ test('a role that is not a reference contributes no surface, rather than a name 
   assert.deepEqual(surfacesUnder(new Map()), ['color-base-100']);
 });
 
-test('an extension that moves no fill adds no scope, so the run is not the same measurement twice', () => {
+test('a style plugin that moves no fill adds no scope, so the run is not the same measurement twice', () => {
   const css = ':root{--fill-surface:var(--color-base-200)}\n.arena-quiet{--r-surface:22px}\n'
     + '.arena-loud{--fill-surface:var(--color-base-300)}';
   const scopes = scopesToMeasure(css, 'dark', ['quiet', 'loud']);
-  assert.deepEqual(scopes.map((s) => s.label), ['no extension', '.arena-loud']);
+  assert.deepEqual(scopes.map((s) => s.label), ['the root plugin', '.arena-loud']);
   assert.deepEqual(scopes[1]?.surfaces, ['color-base-100', 'color-base-300']);
 });

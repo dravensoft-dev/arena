@@ -102,7 +102,7 @@ test('rebasing reaches an attribute nested in a slot, which is where the one rea
 
 test('an arrangement naming a component with no demo fixture fails rather than emitting nothing for it', () => {
   assert.throws(
-    () => sinkModel({ extension: 'none', sections: [{ title: 'Forms', items: ['ArenaGhost'] }] },
+    () => sinkModel({ sink: 'none', sections: [{ title: 'Forms', items: ['ArenaGhost'] }] },
       new Map(), new Set(), DEPTH),
     /nothing says how to seed it/,
   );
@@ -114,10 +114,10 @@ test('the model carries the staging flag and the components every section reache
     ['ArenaBadge', { component: 'ArenaBadge', slots: { content: [{ text: 'Live' }] } }],
   ]);
   const model = sinkModel(
-    { extension: 'editorial', note: 'a note', sections: [{ title: 'Both', items: ['ArenaDialog', 'ArenaBadge'] }] },
+    { sink: 'editorial', note: 'a note', sections: [{ title: 'Both', items: ['ArenaDialog', 'ArenaBadge'] }] },
     demos, new Set(['ArenaDialog']), DEPTH,
   );
-  assert.equal(model.extension, 'editorial');
+  assert.equal(model.sink, 'editorial');
   assert.equal(model.note, 'a note');
   assert.deepEqual(model.uses, ['ArenaBadge', 'ArenaDialog']);
   assert.deepEqual(model.sections[0]?.items.map((one) => [one.component, one.staged]),

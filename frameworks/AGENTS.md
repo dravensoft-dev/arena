@@ -14,7 +14,7 @@ what binds them, and every rule here binds more than one of them.
 | change how a component looks | [`tailwind/AGENTS.md`](./tailwind/AGENTS.md), because appearance is authored there and compiled into both |
 | understand what a layer holds | that layer's `AGENTS.md`: [`react/`](./react/AGENTS.md), [`angular/`](./angular/AGENTS.md), [`tailwind/`](./tailwind/AGENTS.md) |
 | seed a component's playground | [`demos/AGENTS.md`](./demos/AGENTS.md) |
-| arrange the page a design extension is compared on | [`kitchen-sink/AGENTS.md`](./kitchen-sink/AGENTS.md) |
+| arrange the page a style plugin is compared on | [`kitchen-sink/AGENTS.md`](./kitchen-sink/AGENTS.md) |
 | change a chart | [`CHARTS.md`](./CHARTS.md), beside this page, because a chart's arithmetic is one thing both layers hold byte for byte |
 | publish a package | [`PACKAGING.md`](./PACKAGING.md) |
 

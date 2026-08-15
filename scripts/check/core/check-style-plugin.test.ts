@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as rules from '../../generate/core/arena-to-prod/extension-rules.ts';
+import * as rules from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 import {
   collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, valueProblems,
   zeroScopeProblems,
-} from './check-extensions.ts';
+} from './check-style-plugin.ts';
 
 const roles = (over: Record<string, string> = {}) => new Map(Object.entries({
   'bw-surface': '1px',

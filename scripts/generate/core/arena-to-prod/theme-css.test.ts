@@ -24,6 +24,29 @@ test('a well-formed configuration has no problems', () => {
   assert.deepEqual(configProblems(config()), []);
 });
 
+test('an extension key is not a configuration', () => {
+  const problems = configProblems(config({ extension: 'showcase' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /stylePlugins/,
+    'the axis has one name, and the other one is taken twice over: by the DTCG vendor key in this '
+    + 'tree and by the Claude Code plugin the repository ships');
+});
+
+test('stylePlugins takes a list and never a bare name', () => {
+  const problems = configProblems(config({ stylePlugins: 'default' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /a list/,
+    'a build can carry more than one register, so the field is a list from the first day rather '
+    + 'than a name that grows into one');
+});
+
+test('an empty list is not a configuration', () => {
+  const problems = configProblems(config({ stylePlugins: [] }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /at least one/,
+    'removable means replaceable: a build with no style plugin has no answer to any role');
+});
+
 test('a missing colour is named by its key', () => {
   const broken = config();
   delete broken.palettes[0].colors.primary;
@@ -229,7 +252,7 @@ test('a component the package does not ship is fatal and the message lists what 
 });
 
 test('an empty list is a problem, because it reads as a project that renders nothing', () => {
-  assert.deepEqual(configProblems(config({ stylesheet: { components: [] } }), shipped),
+  assert.deepEqual(configProblems(config({ stylesheet: { components: [] } }), SHEETS),
     ['stylesheet.components: name at least one component sheet, or drop stylesheet to import them all']);
 });
 
@@ -250,23 +273,14 @@ test('without the shipped sheets a name can be held to nothing, so the run stops
   assert.match(problem ?? '', /^stylesheet: the sheets this package ships cannot be read/);
 });
 
-const SHEETS_WITH_EXT = {
+const SHEETS = {
   layers: ['css/reset.css'],
   components: ['button'],
-  extensions: { showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'],
-    byPolarity: { light: ['--shadow-surface-rest:DROP;'] } } },
   roleReferences: ['--fill-surface:var(--color-base-200);'],
 };
 
-const SHEETS_LOCAL = {
-  ...SHEETS_WITH_EXT,
-  extensions: {
-    showcase: {
-      grouping: 'figure-ground',
-      base: ['--bw-surface:0px;', '--shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);'],
-      byPolarity: { light: ['--shadow-surface-rest:0px 2px 6px -2px rgba(0,0,0,.5);'] },
-    },
-  },
+const SHEETS_FULL = {
+  ...SHEETS,
   catalogue: {
     tokens: {
       'fs-h3': '24px', 'font-display': "'Archivo',system-ui,sans-serif",
@@ -286,145 +300,107 @@ const SHEETS_LOCAL = {
       'lh-heading': { type: 'number' },
       'measure-prose': { type: 'number' },
     },
-    extensions: {},
   },
 };
 
-const local = (over: Record<string, any> = {}) => config({
-  extension: {
+const plugin = (over: Record<string, any> = {}) => config({
+  stylePlugins: [{
     name: 'meridian',
-    extends: 'showcase',
     tokens: { 'ff-eyebrow': '{font.display}', 'tt-eyebrow': 'none', 'step-title-surface': '{fs.h3}' },
     ...over,
-  },
+  }],
 });
 
-const localProblems = (c: any) => configProblems(c, SHEETS_LOCAL).filter((p) => p.includes('extension'));
+const pluginProblems = (c: any) => configProblems(c, SHEETS_FULL).filter((p) => p.includes('stylePlugin'));
 
-test('a local extension deriving from a shipped one is accepted, which is the point of the field', () => {
-  assert.deepEqual(localProblems(local()), []);
+test('a style plugin a consumer wrote is accepted, which is the point of the field', () => {
+  assert.deepEqual(pluginProblems(plugin()), []);
 });
 
-test('a local extension emits its parent whole and then its own tokens over it', () => {
-  const css = themeCss(local(), { sheets: SHEETS_LOCAL, importHeader: false });
+test('a style plugin emits its answers on the root', () => {
+  const css = themeCss(plugin(), { sheets: SHEETS_FULL, importHeader: false });
   const root = parseDecls(css).get(':root');
-  assert.equal(root.get('bw-surface'), '0px', 'inherited from what it extends');
   assert.equal(root.get('ff-eyebrow'), "'Archivo',system-ui,sans-serif", 'an alias resolved against the catalogue');
   assert.equal(root.get('step-title-surface'), '24px');
   assert.equal(root.get('tt-eyebrow'), 'none', 'a keyword travels as the word it is');
 });
 
-test('a local extension is held to the same floors a shipped one is', () => {
-  assert.match(localProblems(local({ tokens: { 'lh-heading': '0.8' } }))[0] ?? '', /--lh-heading is 0.8/);
-  assert.match(localProblems(local({ tokens: { 'measure-prose': '120ch' } }))[0] ?? '', /outside 45 to 90/);
+test('a style plugin is held to the floors the repository holds its own to', () => {
+  assert.match(pluginProblems(plugin({ tokens: { 'lh-heading': '0.8' } }))[0] ?? '', /--lh-heading is 0.8/);
+  assert.match(pluginProblems(plugin({ tokens: { 'measure-prose': '120ch' } }))[0] ?? '', /outside 45 to 90/);
 });
 
-test('a local extension may not name a role the package does not ship', () => {
-  const problems = localProblems(local({ tokens: { 'r-lg': '22px' } }));
+test('a style plugin may not name a role the package does not ship', () => {
+  const problems = pluginProblems(plugin({ tokens: { 'r-lg': '22px' } }));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /neither a role this package ships nor an fs or rhythm step/);
 });
 
-test('a local extension may not author a colour, only assign one', () => {
-  assert.match(localProblems(local({ tokens: { 'ink-eyebrow': '#b52a20' } }))[0] ?? '',
+test('a style plugin may not author a colour, only assign one', () => {
+  assert.match(pluginProblems(plugin({ tokens: { 'ink-eyebrow': '#b52a20' } }))[0] ?? '',
     /takes a \{color\.\*\} alias only/);
-  assert.deepEqual(localProblems(local({ tokens: { 'ink-eyebrow': '{color.secondary}' } })), []);
+  assert.deepEqual(pluginProblems(plugin({ tokens: { 'ink-eyebrow': '{color.secondary}' } })), []);
 });
 
 test('a keyword outside its set fails in a consumer build with the set named', () => {
-  assert.match(localProblems(local({ tokens: { 'tt-eyebrow': 'smallcaps' } }))[0] ?? '',
+  assert.match(pluginProblems(plugin({ tokens: { 'tt-eyebrow': 'smallcaps' } }))[0] ?? '',
     /not one of none, uppercase, lowercase, capitalize/);
 });
 
 test('an alias that points at nothing shipped fails rather than emitting the word null', () => {
-  assert.match(localProblems(local({ tokens: { 'step-title-surface': '{fs.nonesuch}' } }))[0] ?? '',
+  assert.match(pluginProblems(plugin({ tokens: { 'step-title-surface': '{fs.nonesuch}' } }))[0] ?? '',
     /resolves to nothing this package ships/);
 });
 
-test('a local extension may not take a name the package already ships, or a palette name', () => {
-  assert.match(localProblems(local({ name: 'showcase' }))[0] ?? '', /already ships/);
-  assert.match(localProblems(config({
-    extension: { name: 'dark', extends: 'showcase', tokens: { 'tt-eyebrow': 'none' } },
-  }))[0] ?? '', /theme polarity/);
+test('a style plugin may not take a theme polarity or a palette name', () => {
+  assert.match(pluginProblems(plugin({ name: 'dark' }))[0] ?? '', /theme polarity/);
+  assert.match(pluginProblems(config({
+    palettes: [{ name: 'meridian', default: true, polarity: 'dark', colors: colors() }],
+    stylePlugins: [{ name: 'meridian', tokens: { 'tt-eyebrow': 'none' } }],
+  }))[0] ?? '', /also the name of a palette/);
 });
 
-test('a local extension extending nothing Arena ships names what it could have extended', () => {
-  assert.match(localProblems(local({ extends: 'nonesuch' }))[0] ?? '', /which this package does not ship/);
+test('a style plugin that answers nothing is a class nobody can tell from its absence', () => {
+  assert.match(pluginProblems(plugin({ tokens: {} }))[0] ?? '', /answers at least one role/);
 });
 
-test('a local extension that moves nothing is a class nobody can tell from its absence', () => {
-  assert.match(localProblems(local({ tokens: {} }))[0] ?? '', /moves at least one role/);
-});
-
-test('a local extension with no catalogue beside it is refused rather than emitted unchecked', () => {
-  const problems = configProblems(local(), SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
+test('a style plugin with no catalogue beside it is refused rather than emitted unchecked', () => {
+  const problems = configProblems(plugin(), SHEETS).filter((p) => p.includes('stylePlugin'));
   assert.match(problems.at(-1) ?? '', /role catalogue this package ships cannot be read/);
 });
 
-test('the extension field is optional, and a config without one asks for no extension', () => {
-  const c = config();
-  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+test('the field is optional, and a config without one declares no style plugin', () => {
+  assert.deepEqual(configProblems(config(), SHEETS).filter((p) => p.includes('stylePlugin')), []);
 });
 
-test('"none" is how a config says it wants no extension, and it is not an unknown name', () => {
-  const c = config({ extension: 'none' });
-  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
-});
-
-test('"default" is an unknown extension until one is called that, rather than a word meaning none', () => {
-  const c = config({ extension: 'default' });
-  const problems = configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
+test('an entry that is not an object is named by its index', () => {
+  const problems = configProblems(config({ stylePlugins: ['default'] }), SHEETS_FULL);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /default/);
-  assert.match(problems[0] ?? '', /showcase/);
+  assert.match(problems[0] ?? '', /stylePlugins\[0\]/);
 });
 
-test('a shipped extension is accepted by name', () => {
-  const c = config({ extension: 'showcase' });
-  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+test('every declared plugin reaches :root, so a consumer needs no class of their own', () => {
+  const css = themeCss(plugin(), { sheets: SHEETS_FULL, importHeader: false });
+  assert.match(css, /--step-title-surface:24px;/);
 });
 
-test('the extension field is one name and never a list, so a build carries at most one', () => {
-  const c = config({ extension: ['showcase'] });
-  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('extension')) ?? '', /one name/);
+test('no declared plugin means nothing extra reaches :root', () => {
+  const css = themeCss(config(), { sheets: SHEETS_FULL, importHeader: false });
+  assert.ok(!css.includes('--step-title-surface'));
 });
 
-test('a palette may not take a shipped extension name, since both become .arena-<name>', () => {
-  const c = config({ palettes: [{ name: 'showcase', default: true, polarity: 'dark', colors: colors() }] });
-  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('showcase')) ?? '', /extension/);
-});
-
-test('the chosen extension reaches :root, so a consumer needs no class of their own', () => {
-  const css = themeCss(config({ extension: 'showcase' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
-  assert.match(css, /--r-surface:22px;/);
-  assert.match(css, /--bw-surface:0px;/);
-});
-
-test('no extension means nothing extra reaches :root', () => {
-  const css = themeCss(config(), { sheets: SHEETS_WITH_EXT, importHeader: false });
-  assert.ok(!css.includes('--r-surface'));
-});
-
-test('"none" emits nothing, the same as omitting the field', () => {
-  const css = themeCss(config({ extension: 'none' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
-  assert.ok(!css.includes('--r-surface'));
-});
-
-test('an extension that answers a polarity reaches the palette of that polarity, not only the default one', () => {
+test('a colour a plugin assigns is restated inside every palette, not left on :root alone', () => {
   const css = themeCss(config({
-    extension: 'showcase',
+    stylePlugins: [{ name: 'meridian', tokens: { 'ink-eyebrow': '{color.secondary}' } }],
     palettes: [
       { name: 'night', default: true, polarity: 'dark', colors: colors() },
       { name: 'day', polarity: 'light', colors: colors() },
     ],
-  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  }), { sheets: SHEETS_FULL, importHeader: false });
 
-  const dayBlock = css.slice(css.indexOf('.arena-day'));
-  assert.match(dayBlock, /--shadow-surface-rest:DROP;/,
-    'the light half never reached the light palette, so a consumer would take the dark '
-    + 'answer in their light theme -- the defect the theme group exists to remove');
-  assert.doesNotMatch(css.slice(0, css.indexOf('.arena-day')), /--shadow-surface-rest:DROP;/,
-    'the light half reached :root, where the dark palette would take it too');
+  assert.match(css.slice(css.indexOf('.arena-day')), /--ink-eyebrow:var\(--color-secondary\);/,
+    'left on :root alone the role computes against the default palette and inherits that colour '
+    + 'into every other one, so a second palette keeps the first one\'s eyebrow');
 });
 
 test('a colour reference is restated inside every palette, because a var() computes where it is declared', () => {
@@ -433,7 +409,7 @@ test('a colour reference is restated inside every palette, because a var() compu
       { name: 'night', default: true, polarity: 'dark', colors: colors() },
       { name: 'day', polarity: 'light', colors: colors() },
     ],
-  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  }), { sheets: SHEETS, importHeader: false });
 
   assert.match(css.slice(css.indexOf('.arena-day')), /--fill-surface:var\(--color-base-200\);/,
     'left on :root alone the role computes against the default palette and inherits that colour '

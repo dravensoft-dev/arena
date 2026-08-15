@@ -464,7 +464,6 @@ test('the sheets a package ships are read from beside the command, so no copy of
   assert.deepEqual(packageSheets(root), {
     layers: ['css/reset.css', 'css/components.css'],
     components: ['button', 'table'],
-    extensions: {},
     roleReferences: [],
     catalogue: undefined,
   });
@@ -594,7 +593,6 @@ test('a colour reference is derived from the catalogue, because a consumer palet
       'step-eyebrow': 'var(--dz-text-xs)',
     },
     roles: {},
-    extensions: {},
   }), ['--fill-surface:var(--color-base-200);'],
   'only a colour reference is restated per palette. A dz reference is restated per DENSITY, which '
   + 'is another axis and another block, and a resolved length is right in every scope there is');

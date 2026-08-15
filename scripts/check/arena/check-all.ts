@@ -34,7 +34,7 @@ export const GATES = [
   { name: 'check:vocabulary', file: 'arena/check-vocabulary.ts' },
   { name: 'check:duplication', file: 'arena/check-duplication.ts' },
   { name: 'check:dtcg', file: 'core/check-dtcg.ts' },
-  { name: 'check:extensions', file: 'core/check-extensions.ts' },
+  { name: 'check:style-plugin', file: 'core/check-style-plugin.ts' },
   { name: 'check:tokens', file: 'core/check-tokens-generated.ts' },
   { name: 'check:token-collisions', file: 'core/check-token-collisions.ts' },
   { name: 'check:script-tokens', file: 'arena/check-script-tokens.ts' },

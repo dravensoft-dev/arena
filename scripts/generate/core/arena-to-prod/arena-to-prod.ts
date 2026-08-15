@@ -175,7 +175,6 @@ export function packageSheets(root: string): PackageSheets {
     return {
       layers,
       components,
-      extensions: catalogue?.extensions ?? {},
       roleReferences: roleReferencesIn(catalogue),
       catalogue: catalogue ?? undefined,
     };

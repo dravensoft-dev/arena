@@ -8,7 +8,7 @@ import { contrast } from '../../lib/core/validate-palette.mjs';
 import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { resolvedFor } from './check-extensions.ts';
+import { resolvedFor } from './check-style-plugin.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
@@ -136,10 +136,10 @@ export function surfacesUnder(resolved: Map<string, string>) {
   return names;
 }
 
-export function scopesToMeasure(effects: string, theme: string, extensions: string[]) {
+export function scopesToMeasure(effects: string, theme: string, plugins: string[]) {
   const base = surfacesUnder(resolvedFor(effects, '', theme));
-  const out = [{ label: 'no extension', surfaces: base }];
-  for (const name of extensions) {
+  const out = [{ label: 'the root plugin', surfaces: base }];
+  for (const name of plugins) {
     const surfaces = surfacesUnder(resolvedFor(effects, name, theme));
     if (surfaces.join() === base.join()) continue;
     out.push({ label: `.arena-${name}`, surfaces });

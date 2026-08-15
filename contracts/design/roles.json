@@ -2,22 +2,22 @@
   "r-surface": {
     "$type": "dimension",
     "$value": "{r.lg}",
-    "$description": "The corner of a SURFACE that belongs to the page: a card, a panel, a dialog, a\nsheet, a table frame. An alias of the r scale rather than a fresh number, on the same footing\nas rhythm's aliases of sp, so the base value cannot drift off the radius scale.\n\nWhy the role exists at all: r names how round a corner is, and this names WHICH corner is being\nasked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface\nhas said a reason, and only the second can be answered differently by an extension. Re-valuing\nr-lg to soften a card would soften every unrelated use of the same step, which is the defect the\nrole tier exists to prevent."
+    "$description": "The corner of a SURFACE that belongs to the page: a card, a panel, a dialog, a\nsheet, a table frame. An alias of the r scale rather than a fresh number, on the same footing\nas rhythm's aliases of sp, so the base value cannot drift off the radius scale.\n\nWhy the role exists at all: r names how round a corner is, and this names WHICH corner is being\nasked about. A manifest that reaches for r-lg has said a length; one that reaches for r-surface\nhas said a reason, and only the second can be answered differently by a style plugin. Re-valuing\nr-lg to soften a card would soften every unrelated use of the same step, which is the defect the\nrole tier exists to prevent."
   },
   "r-surface-floating": {
     "$type": "dimension",
     "$value": "{r.md}",
-    "$description": "The corner of a surface that floats over the page: a menu, a toast, an alert,\na bulk action bar. Separate from r-surface because the scale already separated them: r.md is\nauthored as \"nested cards, menus\" and r.lg as \"cards, panels\". A floating surface is smaller and\nnearer the pointer, so it reads as a lighter object, and an extension that rounds cards without\nrounding menus is the broken half-applied look this role exists to prevent."
+    "$description": "The corner of a surface that floats over the page: a menu, a toast, an alert,\na bulk action bar. Separate from r-surface because the scale already separated them: r.md is\nauthored as \"nested cards, menus\" and r.lg as \"cards, panels\". A floating surface is smaller and\nnearer the pointer, so it reads as a lighter object, and a style plugin that rounds cards without\nrounding menus is the broken half-applied look this role exists to prevent."
   },
   "r-control": {
     "$type": "dimension",
     "$value": "{r.sm}",
-    "$description": "The corner of a CONTROL the user presses: a button, an icon button, a menu item,\na pagination page, a navigation row. Separate from r-field although both are r.sm today, on the\ncut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. An\nextension that wants pill buttons over rectangular inputs needs the two answerable one at a time."
+    "$description": "The corner of a CONTROL the user presses: a button, an icon button, a menu item,\na pagination page, a navigation row. Separate from r-field although both are r.sm today, on the\ncut that keeps rhythm-group and dz-stack apart at 12px: same length, different question. A style plugin that wants pill buttons over rectangular inputs needs the two answerable one at a time."
   },
   "r-control-sm": {
     "$type": "dimension",
     "$value": "{r.xs}",
-    "$description": "The corner of a control too small to carry the full control radius: a checkbox\nbox, a segment of a segmented control. A control whose whole body is barely larger than its own\ncorner would read as a circle at r-control, so the scale drops a step. It is still a control, so\nit moves when an extension moves controls, which is why this is a role and not a scale use."
+    "$description": "The corner of a control too small to carry the full control radius: a checkbox\nbox, a segment of a segmented control. A control whose whole body is barely larger than its own\ncorner would read as a circle at r-control, so the scale drops a step. It is still a control, so\nit moves when a style plugin moves controls, which is why this is a role and not a scale use."
   },
   "r-field": {
     "$type": "dimension",
@@ -27,7 +27,7 @@
   "r-marker": {
     "$type": "dimension",
     "$value": "{r.xs}",
-    "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
+    "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nstyle plugin says SALE, so it earns a role rather than a frozen literal."
   },
   "r-media": {
     "$type": "dimension",
@@ -68,7 +68,7 @@
   "track-heading": {
     "$type": "number",
     "$value": "{ls.tight}",
-    "$description": "The tracking of a heading in the display face. Authored as the tight step because\nthat is what most title slots already reached for; the five that reached for nothing were the\ninconsistency this role removes rather than a decision anybody made.\n\nSeparate from the ls steps, which are named by the thing that uses them and\nare already role-shaped: a heading is the one use an extension has a reason to re-answer.\n\nCarries cssUnit em like every ls step it points at: ls is authored unitless so JS can read it, and\nletter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid\nletter-spacing and silently resolves to normal.",
+    "$description": "The tracking of a heading in the display face. Authored as the tight step because\nthat is what most title slots already reached for; the five that reached for nothing were the\ninconsistency this role removes rather than a decision anybody made.\n\nSeparate from the ls steps, which are named by the thing that uses them and\nare already role-shaped: a heading is the one use a style plugin has a reason to re-answer.\n\nCarries cssUnit em like every ls step it points at: ls is authored unitless so JS can read it, and\nletter-spacing needs a length. A role that forgot the unit emits a bare number, which is not a valid\nletter-spacing and silently resolves to normal.",
     "$extensions": {
       "com.dravensoft.arena": {
         "cssUnit": "em"
@@ -78,7 +78,7 @@
   "lh-prose": {
     "$type": "number",
     "$value": "{lh.body}",
-    "$description": "The leading of text somebody reads: a dialog's body, an empty state's message, a\npage head's subtitle, a hint under a field. lh-root's own description already calls the three\nsteps below it roles rather than scale, and this names the one an extension has a reason to move.\n\nIt is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21\nspells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is\nset to. A voice may\nopen a paragraph up and may never close it below that, and check:extensions measures the resolved\nvalue in every scope rather than trusting the author.\n\nNote what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it\ndoes not. It requires that content survive a USER overriding spacing to those values without being\nclipped or lost, which is a property of the layout and not of a token, and no gate over this file\ncould hold it."
+    "$description": "The leading of text somebody reads: a dialog's body, an empty state's message, a\npage head's subtitle, a hint under a field. lh-root's own description already calls the three\nsteps below it roles rather than scale, and this names the one a style plugin has a reason to move.\n\nIt is FLOORED and not free. WCAG 1.4.8 asks 1.5 line spacing within a paragraph and technique C21\nspells it out as a line-height of 1.5 on the body element, which is also exactly what lh-root is\nset to. A style plugin\nmay open a paragraph up and may never close it below that, and check:style-plugin measures the\nresolved value in every scope rather than trusting the author.\n\nNote what is NOT the floor here: WCAG 1.4.12 is often quoted as requiring 1.5 line height, and it\ndoes not. It requires that content survive a USER overriding spacing to those values without being\nclipped or lost, which is a property of the layout and not of a token, and no gate over this file\ncould hold it."
   },
   "lh-heading": {
     "$type": "number",
@@ -88,7 +88,7 @@
   "measure-prose": {
     "$type": "number",
     "$value": 72,
-    "$description": "How wide a column of prose is allowed to get, in ch, which is the only unit that\nmeans anything here: a measure that does not track the font size is not a measure at all.\n\nCarries cssUnit ch by the same mechanism ls uses for em. DTCG 2025.10 admits px and rem for a\ndimension and nothing else, which is why a prose measure was once refused; the exit was that a\nmeasure was never obliged to be a dimension. It is a number with a render hint, it widens no\nconformance claim, and the refusal is recorded in Extensions.md beside the reason it no longer\nbinds.\n\nIt reaches a page through a class a consumer applies rather than through a component slot, in\nProse.css beside Numerals.css and Rhythm.css, because the thing that wants a measure is a\ndocument's own markup and Arena ships no prose component to hang it on. The two components that\nset a measure today set 42ch and 46ch on an empty state and an error state, and those are the\nwidth of a short blurb rather than of a reading column, so they keep their literals.\n\n72 is where the base body size lands a line at roughly the 45 to 75 characters typography has\nagreed on for a century, and check:extensions holds a voice inside that range.",
+    "$description": "How wide a column of prose is allowed to get, in ch, which is the only unit that\nmeans anything here: a measure that does not track the font size is not a measure at all.\n\nCarries cssUnit ch by the same mechanism ls uses for em. DTCG 2025.10 admits px and rem for a\ndimension and nothing else, which is why a prose measure was once refused; the exit was that a\nmeasure was never obliged to be a dimension. It is a number with a render hint, it widens no\nconformance claim, and the reason it no longer binds is that a measure was never obliged to be\na dimension.\n\nIt reaches a page through a class a consumer applies rather than through a component slot, in\nProse.css beside Numerals.css and Rhythm.css, because the thing that wants a measure is a\ndocument's own markup and Arena ships no prose component to hang it on. The two components that\nset a measure today set 42ch and 46ch on an empty state and an error state, and those are the\nwidth of a short blurb rather than of a reading column, so they keep their literals.\n\n72 is where the base body size lands a line at roughly the 45 to 75 characters typography has\nagreed on for a century, and check:style-plugin holds an answer inside that range.",
     "$extensions": {
       "com.dravensoft.arena": {
         "cssUnit": "ch"
@@ -103,7 +103,7 @@
   "ff-eyebrow": {
     "$type": "fontFamily",
     "$value": "{font.mono}",
-    "$description": "Which face an eyebrow takes: the small line above a title that says what kind of\nthing this is. All five eyebrow slots are set in the mono face, and that is a register choice\nrather than a technical one, which is exactly what makes it a role.\n\nIt is the single most visible thing a voice can move. A console's eyebrow is a monospaced tag\nreading STATUS or REGION; a shop's eyebrow reads \"Single origin, Huehuetenango\" and belongs in\nthe display face. Same slot, same size, opposite register, and before this role the difference\nwas unreachable from any extension."
+    "$description": "Which face an eyebrow takes: the small line above a title that says what kind of\nthing this is. All five eyebrow slots are set in the mono face, and that is a register choice\nrather than a technical one, which is exactly what makes it a role.\n\nIt is the single most visible thing a voice can move. A console's eyebrow is a monospaced tag\nreading STATUS or REGION; a shop's eyebrow reads \"Single origin, Huehuetenango\" and belongs in\nthe display face. Same slot, same size, opposite register, and before this role the difference\nwas unreachable from any style plugin."
   },
   "ff-label": {
     "$type": "fontFamily",
@@ -163,7 +163,7 @@
   "step-eyebrow": {
     "$type": "dimension",
     "$value": "{dz.text-xs}",
-    "$description": "Which step on the ladder an eyebrow takes. Named step and not fs because FS_STEP\nalready claims that prefix for the scale's own steps, and an extension may move those directly.\n\nIt aliases a dz step rather than an fs one, because an eyebrow is control-sized text today and\nre-densifies with everything else. That alias is the reason REDECLARED_GROUPS exists in the\nemitter: .arena-compact redeclares every dz step, and a role resolved at build time would have\nfrozen the base 11px and carried it into a compact region. It is emitted as a reference and\nrestated beside the density blocks, which is the same treatment a fill role gets for the same\nreason one axis over.\n\nA voice that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which\nis a coherent thing to want on a page whose eyebrow is a headline rather than a tag."
+    "$description": "Which step on the ladder an eyebrow takes. Named step and not fs because FS_STEP\nalready claims that prefix for the scale's own steps, and a style plugin may move those directly.\n\nIt aliases a dz step rather than an fs one, because an eyebrow is control-sized text today and\nre-densifies with everything else. That alias is the reason REDECLARED_GROUPS exists in the\nemitter: .arena-compact redeclares every dz step, and a role resolved at build time would have\nfrozen the base 11px and carried it into a compact region. It is emitted as a reference and\nrestated beside the density blocks, which is the same treatment a fill role gets for the same\nreason one axis over.\n\nA voice that moves this to an fs step takes the eyebrow OFF the density axis deliberately, which\nis a coherent thing to want on a page whose eyebrow is a headline rather than a tag."
   },
   "step-title-surface": {
     "$type": "dimension",
@@ -218,7 +218,7 @@
   "container-max": {
     "$type": "dimension",
     "$value": { "value": 1240, "unit": "px" },
-    "$description": "The widest the page's content column gets. Promoted here from spacing.json, where\nit sat among the scales without being one: nothing else steps off it and no second use shares it,\nso it was already a role wearing a scale's file.\n\nIt keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what\nchanges is that an extension may now re-answer it. A voice for reading wants a narrower page than\na voice for a dashboard, and that was unreachable before.\n\nEmitted into effects.generated.css beside the other roles rather than into spacing.generated.css,\nbecause arena-tokens.ts reads a fixed list of four generated files and the roles all live in one\nof them."
+    "$description": "The widest the page's content column gets. Promoted here from spacing.json, where\nit sat among the scales without being one: nothing else steps off it and no second use shares it,\nso it was already a role wearing a scale's file.\n\nIt keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what\nchanges is that a style plugin may now re-answer it. A voice for reading wants a narrower page than\na voice for a dashboard, and that was unreachable before.\n\nEmitted into effects.generated.css beside the other roles rather than into spacing.generated.css,\nbecause arena-tokens.ts reads a fixed list of four generated files and the roles all live in one\nof them."
   },
   "gutter": {
     "$type": "dimension",
@@ -233,7 +233,7 @@
   "fill-surface": {
     "$type": "color",
     "$value": "{color.base-200}",
-    "$description": "The fill of a surface that belongs to the page: a card, a stat card, a table's\nframe, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a\nregion is told from the page by its edge and by its fill together.\n\nEmitted as a reference and not as a resolved colour, which is the one place the emitter departs\nfrom every other role: a radius resolved to 14px is right in both themes, and a colour resolved\nto a hex would freeze the dark palette into the light one. A role that names WHICH step is asked\nabout has to keep pointing at the step rather than at what the step happens to be.\n\nWhat it buys: a voice that groups by proximity draws nothing at all, and a fill is something\ndrawn. Without this role a card keeps a region the voice just said was not there, and the gate\nholding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a\nvalue: an extension may say which of the consumer's 27 colours a surface takes, and may not\nauthor one."
+    "$description": "The fill of a surface that belongs to the page: a card, a stat card, a table's\nframe, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a\nregion is told from the page by its edge and by its fill together.\n\nEmitted as a reference and not as a resolved colour, which is the one place the emitter departs\nfrom every other role: a radius resolved to 14px is right in both themes, and a colour resolved\nto a hex would freeze the dark palette into the light one. A role that names WHICH step is asked\nabout has to keep pointing at the step rather than at what the step happens to be.\n\nWhat it buys: a voice that groups by proximity draws nothing at all, and a fill is something\ndrawn. Without this role a card keeps a region the voice just said was not there, and the gate\nholding that voice to its claim cannot see the fill to object. It is an ASSIGNMENT and never a\nvalue: a style plugin may say which of the consumer's 27 colours a surface takes, and may not\nauthor one."
   },
   "fill-surface-floating": {
     "$type": "color",
@@ -243,7 +243,7 @@
   "fill-page": {
     "$type": "color",
     "$value": "{color.base-100}",
-    "$description": "The fill of the page itself, the floor everything else stands on. It was dropped\nonce rather than deferred, with the reason written down: no voice in the catalogue asked for one.\nThe catalogue grew and three now do, so this is a decision revisited on new evidence rather than\nreversed.\n\nWhat asks for it: a voice that groups by marking needs to say its surfaces differ from the floor,\nand a voice that makes its surfaces vanish needs to say they equal it. Neither sentence can be\nwritten while the floor is a constant inside a gate instead of a role in this file.\n\nIt also fixes a gate rather than only enabling one. fillsLikeThePage in check-extensions.ts\ncompared fill-surface against the literal color-base-100, so a voice that moved the page's floor\nwould have failed the proximity invariant for having moved the thing the invariant is about. The\ncomparison is against this role now."
+    "$description": "The fill of the page itself, the floor everything else stands on. What asks for it: a style\nplugin that groups by marking needs to say its surfaces differ from the floor, and one that makes\nits surfaces vanish needs to say they equal it. Neither sentence can be written while the floor is\na constant inside a gate instead of a role in this file."
   },
   "fill-surface-sunken": {
     "$type": "color",
@@ -308,12 +308,12 @@
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw}",
-    "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn extension that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."
+    "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn style plugin that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."
   },
   "bw-control": {
     "$type": "dimension",
     "$value": "{bw}",
-    "$description": "The border of a pressable control. Distinct from bw-surface because a button's\noutline is an affordance, saying where the pressable area ends, while a card's is a grouping\nsignal. An extension can drop one and keep the other."
+    "$description": "The border of a pressable control. Distinct from bw-surface because a button's\noutline is an affordance, saying where the pressable area ends, while a card's is a grouping\nsignal. A style plugin can drop one and keep the other."
   },
   "bw-field": {
     "$type": "dimension",
@@ -323,7 +323,7 @@
   "bw-separator": {
     "$type": "dimension",
     "$value": "{bw}",
-    "$description": "The line that divides one thing from the next INSIDE a surface: a table row\nfrom the row under it, a sheet's head from its body, a tab strip from its panel. The critical\ndistinction from bw-surface, and the reason it is a separate role rather than the same one\napplied to an edge: an extension that groups by elevation instead of by line removes the\nenclosure, and a table whose rows lost their rules at the same time would stop being readable.\nA separator answers a different question, so it survives the change."
+    "$description": "The line that divides one thing from the next INSIDE a surface: a table row\nfrom the row under it, a sheet's head from its body, a tab strip from its panel. The critical\ndistinction from bw-surface, and the reason it is a separate role rather than the same one\napplied to an edge: a style plugin that groups by elevation instead of by line removes the\nenclosure, and a table whose rows lost their rules at the same time would stop being readable.\nA separator answers a different question, so it survives the change."
   },
   "bw-marker": {
     "$type": "dimension",
@@ -364,7 +364,7 @@
         "alpha": 0
       }
     },
-    "$description": "The depth a surface carries at rest when it is part of the page rather than floating\nover it, which by default is none. Authored as a fully transparent shadow because DTCG 2025.10\ntypes a shadow as offsets, blur, spread and a colour, and has no way to spell the absence of\none; a zero-size shadow at zero alpha is the same pixels and a real token.\n\nIt exists so the property is PAINTED. A token can re-value a declaration a slot already makes\nand cannot add one, so a card that declared no box-shadow could never be given depth by an\nextension, however the extension was written. This is the role that lets an extension trade\nArena's hairline grouping for grouping by elevation, which is the single change that separates\na console panel from a product card."
+    "$description": "The depth a surface carries at rest when it is part of the page rather than floating\nover it, which by default is none. Authored as a fully transparent shadow because DTCG 2025.10\ntypes a shadow as offsets, blur, spread and a colour, and has no way to spell the absence of\none; a zero-size shadow at zero alpha is the same pixels and a real token.\n\nIt exists so the property is PAINTED. A token can re-value a declaration a slot already makes\nand cannot add one, so a card that declared no box-shadow could never be given depth by an\nextension, however the style plugin was written. This is the role that lets a style plugin trade\nArena's hairline grouping for grouping by elevation, which is the single change that separates\na console panel from a product card."
   },
   "shadow-surface-deep": {
     "$type": "shadow",
@@ -374,7 +374,7 @@
   "shadow-control-raised": {
     "$type": "shadow",
     "$value": "{shadow.2}",
-    "$description": "What a control rises to under the pointer. The same step as a surface's raised\nstate today and a different question: an extension that lifts a call to action has no reason to\nlift every card with it, and a commerce extension is mostly a statement about the call to action."
+    "$description": "What a control rises to under the pointer. The same step as a surface's raised\nstate today and a different question: a style plugin that lifts a call to action has no reason to\nlift every card with it, and a commerce style plugin is mostly a statement about the call to action."
   },
   "shadow-control-rest": {
     "$type": "shadow",
@@ -418,7 +418,7 @@
   "dur-hover": {
     "$type": "duration",
     "$value": "{dur.fast}",
-    "$description": "How long a hover or press response takes. An alias of dur.fast, which is what\nevery such transition already spells inline. An extension is where motion energy is decided, and\na duration written as a scale step cannot be re-decided; written as a role it can, without\ntouching the transitions that are fast for a different reason."
+    "$description": "How long a hover or press response takes. An alias of dur.fast, which is what\nevery such transition already spells inline. A style plugin is where motion energy is decided, and\na duration written as a scale step cannot be re-decided; written as a role it can, without\ntouching the transitions that are fast for a different reason."
   },
   "dur-state": {
     "$type": "duration",

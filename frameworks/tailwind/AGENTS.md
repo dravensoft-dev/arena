@@ -163,7 +163,7 @@ exempts: `text-[13px]`, `bg-[#b52a20]`, `duration-[200ms]` and
 this file carries that no marker names still fails;
 a marker naming a class the file no longer carries fails too, as a stale
 allowance. The marker is honoured in `.md` only, and found in any other
-extension it is itself a failure.
+style plugin it is itself a failure.
 
 ## A scale where a role belongs is a build failure
 
@@ -183,7 +183,7 @@ the same transition names, because a curve is half of what a transition feels li
 that named a role for the length and a scale step for the shape would have answered half the
 question.
 
-**Why it is a rule and not a preference**: a design extension is a scope class that re-values
+**Why it is a rule and not a preference**: a style plugin is a scope class that re-values
 role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
 one. Re-valuing the scale instead is not a repair, because a step is shared by every use that
 happens to want that length, and a card and a tooltip do not stop being different things by
@@ -194,7 +194,7 @@ one that sits over the page rather than in it. A CONTROL is pressed. A FIELD is 
 MARKER encloses a label and nothing else, so it is none of the other four. A SEPARATOR is the
 sixth and it is not a kind of thing but a kind of edge: the line dividing one thing from the
 next INSIDE a surface. It is a separate role from `--bw-surface` for the reason that matters
-most to this whole tier, which is that an extension grouping by elevation removes the enclosure
+most to this whole tier, which is that a style plugin grouping by elevation removes the enclosure
 and a table whose row rules vanished with it would stop being readable.
 
 **Radius and depth are banned by utility name; a border width and a duration by TOKEN name; an
@@ -215,7 +215,7 @@ case and says why, and an entry no manifest carries fails the gate as a stale al
 ## A slot paints the expressive properties even when they are neutral
 
 A token re-values a declaration a slot already makes and cannot add one. A card that declared no
-`box-shadow` could therefore never be given depth by an extension, however that extension was
+`box-shadow` could therefore never be given depth by a style plugin, however that style plugin was
 written, so the flat surfaces and the flat controls carry `shadow-surface-rest` and
 `shadow-control-rest`, and `ArenaButton` carries `hover:-translate-y-[var(--lift-control)]`. All
 three default to nothing: the two shadows are fully transparent, because DTCG 2025.10 types a
@@ -225,7 +225,7 @@ travel is `0px`.
 **A variant branch that restates a role as a literal un-paints it, and that is the same defect
 seen from the other end.** A root painting `shadow-surface-rest` whose `floating` variant writes
 `shadow-none` on the false branch, which is the DEFAULT, resolves every ordinary card to a
-transparent literal instead of the role: the one token authored to let an extension trade
+transparent literal instead of the role: the one token authored to let a style plugin trade
 hairline grouping for elevation then reaches nothing on the component it was written for. A branch meaning "the value the slot already paints" says nothing at all, because the base
 rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
 with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its

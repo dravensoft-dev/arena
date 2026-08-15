@@ -71,7 +71,7 @@ test('no ArenaSideNav slot hard-codes an indent bracket, because a static utilit
 
 export const CLAIMS = {
   ArenaSection: [
-    { slot: 'title', has: ['text-title-section'], hasNot: ['text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a scale step here is a title no extension can re-pitch, which is the defect the role tier exists to prevent' },
+    { slot: 'title', has: ['text-title-section'], hasNot: ['text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a scale step here is a title no style plugin can re-pitch, which is the defect the role tier exists to prevent' },
     { slot: 'head', has: ['flex-wrap', 'items-baseline', 'justify-between'], why: 'the head puts its action at the far end on the title\'s own baseline, and wraps rather than squeezing' },
     { chosen: { rhythm: 'none' }, slot: 'root', has: ['gap-0'], why: 'none closes the distance for a body that carries its own top edge' },
     { chosen: { rhythm: 'sm' }, slot: 'root', has: ['gap-group'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
@@ -92,7 +92,7 @@ export const CLAIMS = {
     { slot: 'frame', hasNot: ['aspect-square', 'aspect-video'], why: 'the shape is a member the component writes inline, because a consumer pinning a video is answering about one figure and not about the appearance' },
   ],
   ArenaHero: [
-    { chosen: { layout: 'split', align: 'start' }, slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so an extension re-pitches a hero with the three registers under it rather than around them' },
+    { chosen: { layout: 'split', align: 'start' }, slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
     { chosen: { layout: 'split', align: 'start' }, slot: 'lede', has: ['max-w-prose'], why: 'a line that runs the whole width of a hero loses its return sweep, and the reading width is the role that already answers how long a line may be' },
     { chosen: { layout: 'bleed', align: 'center' }, slot: 'words', has: ['col-start-1', 'row-start-1', 'items-center'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and centring is the alignment that arrangement usually wants' },
     { chosen: { layout: 'split', align: 'start' }, slot: 'root', hasNot: ['grid-cols-1'], why: 'split is the only layout whose track list comes from the room, so it is the only one the recipe leaves alone' },
@@ -138,11 +138,11 @@ export const CLAIMS = {
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
   ArenaCard: [
-    { slot: 'root', has: ['block', 'bg-surface'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so an extension can flatten it onto the page, and it is never a zero-area inline box' },
+    { slot: 'root', has: ['block', 'bg-surface'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so a style plugin can flatten it onto the page, and it is never a zero-area inline box' },
     { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-edge-surface'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { accent: false }, slot: 'root', has: ['border-edge-surface'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
-    { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and an extension can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
+    { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and a style plugin can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
     { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', 'text-ink-eyebrow'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
     { slot: 'title', has: ['font-face-heading', 'text-title-surface'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
@@ -187,7 +187,7 @@ export const CLAIMS = {
   ],
   ArenaUnauthCard: [
     { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
-    { slot: 'panel', has: ['bg-surface'], hasNot: ['shadow-surface-deep'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either. It is a card the page is built around rather than an overlay, so it takes the surface fill and follows an extension that flattens one' },
+    { slot: 'panel', has: ['bg-surface'], hasNot: ['shadow-surface-deep'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either. It is a card the page is built around rather than an overlay, so it takes the surface fill and follows a style plugin that flattens one' },
   ],
   ArenaAlert: [
     ...Object.entries({ info: 'info', success: 'success', warning: 'warning', danger: 'error', neutral: 'neutral' })

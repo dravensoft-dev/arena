@@ -35,7 +35,7 @@ are rules a new gate holds to:
   cannot find it" stop being the same value. Resolving by constructed path is what makes the
   per-component probe silent.
 - **Make a zero-result count an explicit failure** rather than a vacuous pass. `check:tailwind`,
-  `check:radius`, `check:roles`, `check:extensions`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
+  `check:radius`, `check:roles`, `check:style-plugin`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
   `check:icons`, `check:docs`, `check:playgrounds` and
   `check:script-tokens` each carry one, as an exported pure function with a suite.
 - **A gate has two existences, the file and every place that invokes it, and only the second

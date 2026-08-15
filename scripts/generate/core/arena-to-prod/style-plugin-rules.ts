@@ -61,8 +61,8 @@ export function valueProblems(where: string, key: string, token: MovedToken, rol
   if (role.$type === 'color') {
     const value = token?.$value;
     if (typeof value !== 'string')
-      return [`${where}: --${key} authors a colour outright. An extension assigns a colour and never authors one: `
-        + 'the palette is the consumer\'s, and what an extension may say is WHICH of them a surface takes.'];
+      return [`${where}: --${key} authors a colour outright. A style plugin assigns a colour and never authors one: `
+        + 'the palette is the consumer\'s, and what a style plugin may say is WHICH of them a surface takes.'];
     if (!COLOUR_ALIAS.test(value.trim()))
       return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias only. It is mechanical `
         + 'as well as doctrinal: the emitter turns a bare colour alias into a var() it restates under every '
@@ -76,7 +76,7 @@ export function valueProblems(where: string, key: string, token: MovedToken, rol
     if (typeof value !== 'string' || !allowed.includes(value))
       return [`${where}: --${key} is ${JSON.stringify(value)}, not one of ${allowed.join(', ')}. `
         + 'The closed set is what makes a keyword a type rather than a string, and roles.json is where '
-        + 'it is declared: an extension re-answers the question and does not widen it.'];
+        + 'it is declared: a style plugin re-answers the question and does not widen it.'];
   }
   return [];
 }
@@ -85,7 +85,7 @@ export function nameProblems(name: string, polarities: readonly string[], where:
   const problems = [];
   if (polarities.includes(name))
     problems.push(`${where}: "${name}" is a theme polarity, and .arena-${name} is already the class a palette of `
-      + `that polarity answers to. An extension named after one would be indistinguishable from the `
+      + `that polarity answers to. A style plugin named after one would be indistinguishable from the `
       + `theme's own scope, both to the cascade and to the consumer CLI reading the catalogue out of `
       + `the shipped CSS.`);
   if (!KEBAB.test(name))
@@ -100,19 +100,19 @@ export function keyProblems(where: string, key: string, token: MovedToken, role:
     if (token?.$type !== 'dimension')
       problems.push(`${where}: --${key} is a ${token?.$type}, and ${named} is a dimension`);
     if (!token?.$description)
-      problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
+      problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
     return problems;
   }
   if (!role) {
     problems.push(`${where}: --${key} is neither a role in contracts/design/roles.json nor an fs or rhythm step. `
-      + 'An extension re-values those only: a scale, a colour, a density step or a spacing step is shared by '
-      + 'every use that wants that value, so moving one is not an extension but a different Arena.');
+      + 'A style plugin re-values those only: a scale, a colour, a density step or a spacing step is shared by '
+      + 'every use that wants that value, so moving one is not a style plugin but a different Arena.');
     return problems;
   }
   if (token?.$type !== role.$type)
     problems.push(`${where}: --${key} is a ${token?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
   if (!token?.$description)
-    problems.push(`${where}: --${key} carries no $description, and an extension is a set of decisions rather than a set of values`);
+    problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
   problems.push(...valueProblems(where, key, token, role));
   return problems;
 }

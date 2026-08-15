@@ -78,8 +78,8 @@ A `keyword` is a single bare CSS word, and it carries the set of words it may ta
 ```
 
 **Why it exists.** Some CSS properties take a word rather than a measurement, and `text-transform`
-is the one that asked: whether a label is set in capitals is a decision about register, so a voice
-for a shop and a voice for a console want opposite answers. 2025.10 types a length, a colour, a
+is the one that asked: whether a label is set in capitals is a decision about register, so a style
+plugin for a shop and one for a console want opposite answers. 2025.10 types a length, a colour, a
 weight, a duration and a curve, and has no type for a word. The alternative to adding one was to
 leave the property out of the token tier, which freezes it into every manifest that paints it, and
 that is exactly the defect the role tier exists to prevent.
@@ -90,10 +90,11 @@ gate can tell them apart. A keyword names its words, so `check:dtcg` refuses any
 error names the set.
 
 **Where the set is declared, and where it is enforced.** Once, on the role in
-[`roles.json`](./roles.json). An extension re-values a role it did not declare and repeats nothing,
-so `values` is optional on a token in an `extension.*.json` partial and
-`scripts/check/core/check-extensions.ts` is what holds a moved keyword to its role's set. Two gates,
-one set: the alternative is a copy of the enum in every voice, which is a copy that can drift.
+[`roles.json`](./roles.json). A style plugin re-values a role it did not declare and repeats
+nothing, so `values` is optional on the answer and
+`scripts/generate/core/arena-to-prod/style-plugin-rules.ts:valueProblems(where, key, token, role)`
+is what holds a moved keyword to its role's set. Two gates, one set: the alternative is a copy of
+the enum in every plugin, which is a copy that can drift.
 
 **What it does not buy.** A keyword is a word, so it cannot alias a scale and cannot carry a
 `cssUnit`. A value that is a measurement stays a `dimension` or a `number`, and a value that is a

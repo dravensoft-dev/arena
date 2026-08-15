@@ -14,7 +14,7 @@ import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, valueProblems,
-} from '../../generate/core/arena-to-prod/extension-rules.ts';
+} from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 
 export {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
@@ -24,7 +24,7 @@ export {
 const EFFECTS = 'contracts/design-generated/effects.generated.css';
 
 export const node = {
-  name: 'check:extensions',
+  name: 'check:style-plugin',
   reads: ['contracts/design', 'scripts/generate/arena/generate-tokens.ts', EFFECTS],
   writes: [],
   feeds: [],
@@ -73,11 +73,11 @@ function main() {
   const zero = zeroScopeProblems(SCOPES.length);
   const problems = [...zero, ...(zero.length ? [] : collect())];
   if (problems.length) {
-    console.error(`check-extensions: ${problems.length} problem(s)\n`);
+    console.error(`check-style-plugin: ${problems.length} problem(s)\n`);
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-extensions: the reading floors hold in ${SCOPES.length} scope(s)`);
+  console.log(`check-style-plugin: the reading floors hold in ${SCOPES.length} scope(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();
