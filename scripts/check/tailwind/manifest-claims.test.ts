@@ -85,6 +85,18 @@ export const CLAIMS = {
     { chosen: { behaviour: 'flow' }, slot: 'root', hasNot: ['snap-x'], why: 'flow lands wherever the reader left it, which is the whole difference between the two' },
     { chosen: { behaviour: 'snap' }, slot: 'root', hasNot: ['animate-spin', 'animate-pulse'], why: 'a row that moved on its own would owe a pause control under WCAG 2.2.2, and neither behaviour moves' },
   ],
+  ArenaFigure: [
+    { slot: 'frame', has: ['rounded-media', 'overflow-hidden', 'bg-surface-sunken'], hasNot: ['rounded-surface', 'rounded-lg'], why: 'a figure is the thing being looked at rather than a container the reader looks past, so its corner is its own role and not the surface one' },
+    { slot: 'media', has: ['[&>img]:fit-media', '[&>video]:fit-media'], why: 'how the picture meets the frame is a role, and it is scoped to the media box so an image in the overlay or the fallback is not cropped with it' },
+    { slot: 'overlay', has: ['bg-overlay-media/72'], why: 'the wash is a colour role with the opacity in the manifest, so which colour and how held back stay two decisions and the contrast is measurable' },
+    { slot: 'frame', hasNot: ['aspect-square', 'aspect-video'], why: 'the shape is a member the component writes inline, because a consumer pinning a video is answering about one figure and not about the voice' },
+  ],
+  ArenaHero: [
+    { chosen: { layout: 'split', align: 'start' }, slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a voice re-pitches a hero with the three registers under it rather than around them' },
+    { chosen: { layout: 'split', align: 'start' }, slot: 'lede', has: ['max-w-prose'], why: 'a line that runs the whole width of a hero loses its return sweep, and the reading width is the role that already answers how long a line may be' },
+    { chosen: { layout: 'bleed', align: 'center' }, slot: 'words', has: ['col-start-1', 'row-start-1', 'items-center'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and centring is the alignment that arrangement usually wants' },
+    { chosen: { layout: 'split', align: 'start' }, slot: 'root', hasNot: ['grid-cols-1'], why: 'split is the only layout whose track list comes from the room, so it is the only one the recipe leaves alone' },
+  ],
   ArenaScrollerItem: [
     { slot: 'root', has: ['basis-[var(--arena-scroller-item)]', 'shrink-0', 'grow-0', 'snap-start'], why: 'the cell is the box the row sizes and settles on, and it carries both on itself rather than inheriting either from a rule aimed at somebody else\'s children' },
     { slot: 'root', hasNot: ['bg-surface', 'border-edge-surface', 'p-surface'], why: 'the cell draws no surface, no line and no padding: everything visible in it is what was put inside' },

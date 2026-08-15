@@ -48,8 +48,8 @@ test('every component in scope resolves to a manifest, so no name is left with n
 });
 
 test('the scope is every component but the ones that draw by hand', () => {
-  assert.equal(everyComponent().length, 62);
-  assert.equal(inScope().length, 55);
+  assert.equal(everyComponent().length, 64);
+  assert.equal(inScope().length, 57);
   assert.equal(inScope().some((n) => HAND_DRAWN.has(n)), false);
 });
 

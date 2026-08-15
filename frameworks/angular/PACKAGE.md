@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-angular)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
-Arena is Dravensoft's design system. This package is its Angular layer: 62 components, standalone
+Arena is Dravensoft's design system. This package is its Angular layer: 64 components, standalone
 and `OnPush`, with signal inputs and outputs, styled by a shared Tailwind recipe per
 component, and shipped in Angular Package Format.
 

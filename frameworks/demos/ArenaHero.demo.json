@@ -1,0 +1,66 @@
+{
+  "component": "ArenaHero",
+  "seed": {
+    "eyebrow": "Single origin",
+    "title": "Coffee that tells you where it grew",
+    "lede": "Every lot is traceable to the farm, the altitude and the week it was picked."
+  },
+  "slots": {
+    "actions": [
+      {
+        "component": "ArenaButton",
+        "members": {
+          "variant": "primary",
+          "size": "lg",
+          "icon": "ph-bold ph-storefront"
+        },
+        "slots": {
+          "content": [
+            {
+              "text": "Shop the lots"
+            }
+          ]
+        }
+      },
+      {
+        "component": "ArenaButton",
+        "members": {
+          "variant": "ghost",
+          "size": "lg",
+          "iconRight": "ph-bold ph-arrow-right"
+        },
+        "slots": {
+          "content": [
+            {
+              "text": "How we buy"
+            }
+          ]
+        }
+      }
+    ],
+    "figure": [
+      {
+        "component": "ArenaFigure",
+        "members": {
+          "caption": "Kochere, 2050 m"
+        },
+        "slots": {
+          "fallback": [
+            {
+              "component": "ArenaBadge",
+              "members": {},
+              "slots": {
+                "content": [
+                  {
+                    "text": "Yirgacheffe"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "note": "The top rung of the title ladder, and the only one above a page head. Split falls to one column when the room runs out, with no breakpoint deciding when."
+}

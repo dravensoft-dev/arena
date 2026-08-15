@@ -4,7 +4,7 @@
   "sections": [
     {
       "title": "Masthead",
-      "items": ["ArenaAppLogo", "ArenaPageHead", "ArenaBreadcrumbs", "ArenaAvatar", "ArenaSection"]
+      "items": ["ArenaAppLogo", "ArenaHero", "ArenaPageHead", "ArenaBreadcrumbs", "ArenaAvatar", "ArenaSection"]
     },
     {
       "title": "What it says",
@@ -26,7 +26,7 @@
         "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaCalendar",
         "ArenaCalendarEvent", "ArenaGrid", "ArenaChartCard", "ArenaLineChart", "ArenaBarChart",
         "ArenaHorizontalBarChart", "ArenaDoughnutChart", "ArenaRadarChart", "ArenaScatterChart",
-        "ArenaPyramidChart", "ArenaScroller", "ArenaScrollerItem"
+        "ArenaPyramidChart", "ArenaScroller", "ArenaScrollerItem", "ArenaFigure"
       ]
     },
     {

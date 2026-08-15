@@ -29,6 +29,37 @@
     "$value": "{r.xs}",
     "$description": "The corner of a MARKER: a tag, a delta badge, a keyboard cap, an inline code\nchip. A marker encloses a label and nothing else. It is neither a surface, because nothing is\nplaced inside it, nor a control, because it cannot be pressed, and giving the family its own\nrole is what keeps a dozen identical exceptions out of check:roles. A marker is where a commerce\nextension says SALE, so it earns a role rather than a frozen literal."
   },
+  "r-media": {
+    "$type": "dimension",
+    "$value": "{r.lg}",
+    "$description": "The corner of a MEDIA frame: the box an image, a video or a stand-in glyph is clipped to. Born at the value r-surface carries, because nothing paints a media frame until ArenaFigure does and a sibling's answer is the honest place to start from.\n\nSeparate from r-surface because the two are different questions about the same page. A card is a container the reader looks past; a figure is the thing being looked at, and a voice for a gallery wants its images square-cornered while its panels stay round."
+  },
+  "aspect-media": {
+    "$type": "number",
+    "$value": 1,
+    "$description": "The shape of a media frame, as the ratio of its width to its height. A number rather than a keyword, because a keyword is one bare word and a ratio is two numbers: 0.8 is the same shape as four by five, and aspect-ratio takes it. The description carries the fraction a reader recognises and the token carries the value CSS reads.\n\nBorn square, which is what the only media box in the system paints today. A voice for a shop wants a portrait crop, 0.8, so a product fills more of a column; a voice for a gallery wants the square back so a wall of them tiles."
+  },
+  "fit-media": {
+    "$type": "keyword",
+    "$value": "cover",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": [
+          "cover",
+          "contain",
+          "fill",
+          "none",
+          "scale-down"
+        ]
+      }
+    },
+    "$description": "How the image inside a media frame meets the frame's edges. The second keyword role, and it exists for the reason the first one does: object-fit takes a word, and a manifest that writes cover has said an answer where only a question can be answered differently by one voice than by another.\n\nCover by default, which fills the frame and crops what does not fit. A voice that letterboxes instead is saying the whole of the image matters more than the shape of the grid, which is a coherent thing for a catalogue of artwork to say and the wrong thing for a shop."
+  },
+  "overlay-media": {
+    "$type": "color",
+    "$value": "{color.base-100}",
+    "$description": "The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a voice says which of the consumer's colours the wash takes and may not author one.\n\nThe page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The manifest carries the opacity, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it."
+  },
   "fw-heading": {
     "$type": "fontWeight",
     "$value": "{fw.extrabold}",
@@ -148,6 +179,11 @@
     "$type": "dimension",
     "$value": "{fs.h1}",
     "$description": "Which step the title of a PAGE takes: the one heading that names the screen a\nreader is on. Born at fs.h1, which is the step the page head names outright today.\n\nIt completes the ladder rather than starting one. A card's title, a section's title and a page's\ntitle were three answers to one question, and two of them were roles while the third was a step,\nso a voice could re-pitch a card and a section and then found the page head immovable above them.\nThe hierarchy a voice writes is the DISTANCE between these, and a rung nailed down is a hierarchy\nit can only bend.\n\nWhat it is not is a size for anything large. A hero's line is set by its own role, because a\nlanding page's opening line and the heading of a settings screen are different jobs that happen\nto both be big."
+  },
+  "step-title-hero": {
+    "$type": "dimension",
+    "$value": "{fs.display}",
+    "$description": "Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.\n\nBorn at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a voice that wants one has the step to reach for. Being able to reach it is the point of the role."
   },
   "pad-control-x": {
     "$type": "dimension",

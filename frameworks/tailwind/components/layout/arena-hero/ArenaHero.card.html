@@ -1,0 +1,52 @@
+<!-- @dsCard group="Tailwind" viewport="820x700" name="ArenaHero" subtitle="The three layouts and both alignments, rendered from ArenaHero.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-hero/ArenaHero.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaHero.manifest.json')).json();
+
+const TRACKS = 'repeat(auto-fit, minmax(min(calc(var(--grid-min) * 1.5), 100%), 1fr))';
+
+function hero(layout, align) {
+  const c = arenaClassesFor(manifest, { layout, align });
+
+  const words = el('div', { class: c.words });
+  words.append(el('p', { class: c.eyebrow, text: 'Single origin' }));
+  words.append(el('h1', { class: c.title, text: 'Coffee that tells you where it grew' }));
+  words.append(el('p', { class: c.lede,
+    text: 'Every lot is traceable to the farm, the altitude and the week it was picked.' }));
+  const actions = el('div', { class: c.actions });
+  actions.append(el('span', {
+    class: 'bg-primary text-primary-content rounded-control px-4 py-2.5 font-body text-ctl-sm',
+    text: 'Shop the lots',
+  }));
+  words.append(actions);
+
+  const figure = el('div', { class: c.figure });
+  figure.append(el('div', {
+    class: 'grid place-items-center bg-base-300 rounded-media aspect-square text-primary',
+    style: { minHeight: 'calc(var(--sp-1) * 40)' },
+  }, el('i', { class: 'ph-bold ph-mountains text-[length:var(--fs-display)]' })));
+
+  const root = el('section', { class: c.root, style: layout === 'split' ? { gridTemplateColumns: TRACKS } : {} });
+  root.append(words, figure);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('layout="split" — the default, and it falls to one column on its own', [hero('split', 'start')], { stack: true }),
+  section('layout="stacked"', [hero('stacked', 'start')], { stack: true }),
+  section('layout="bleed", align="center"', [hero('bleed', 'center')], { stack: true }),
+  section('One rung above a page head', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'The title takes step-title-hero, the top rung of the ladder whose other three are the page, '
+      + 'the section and the surface. The split threshold is derived from --grid-min rather than '
+      + 'from a number this component invented, so one decision about density moves both.'),
+  ]),
+]});
+</script></body></html>

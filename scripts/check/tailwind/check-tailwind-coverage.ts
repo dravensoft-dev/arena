@@ -35,6 +35,13 @@ export const EXCLUDED = new Map([
     + 'utilities naming a value, which is the shape of a scale rather than of a role. Reached through '
     + '.case-eyebrow in frameworks/tailwind/Case.css, hand-authored for exactly that reason'],
   ['tt-label', 'the same, through .case-label'],
+  ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '
+    + 'static utilities naming a value, which is the shape of a scale rather than of a role. Reached '
+    + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],
+  ['aspect-media', 'the shape of a media frame, which a member carries and ArenaFigure writes inline the '
+    + 'way ArenaGrid writes its track list, because a consumer pinning a video to sixteen by nine is '
+    + 'answering about one figure and not about the voice. A theme key would also have collided with '
+    + 'the token: v4 emits aspect-<key> from --aspect-*, and the role is already spelt --aspect-media'],
   ['grid-min', 'the narrowest column of an auto-fitting grid, which lands inside a repeat(auto-fit, '
     + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached as '
     + 'grid-cols-[repeat(auto-fit,minmax(min(var(--grid-min),100%),1fr))]'],

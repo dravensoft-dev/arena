@@ -41,8 +41,8 @@ function mergeClassGroup(existingEntries: ClassGroupEntries[] | undefined, gener
 
 const handWritten: Record<string, ClassGroupEntries[]> = {
   shadow: [{ shadow: ['1', '2', '3', 'surface-rest', 'surface-floating', 'surface-deep', 'control-rest', 'control-raised'] }],
-  'font-size': [{ text: ['mega', 'hero', 'display', 'h1', 'h2', 'h3', 'h4', 'ctl-lg', 'ctl', 'ctl-md', 'ctl-sm', 'ctl-xs', 'ctl-2xs', 'logo-sm', 'logo-md', 'logo-lg', 'logo-xl', 'eyebrow', 'title-surface', 'title-section', 'title-page'] }],
-  rounded: [{ rounded: ['pill', 'surface', 'surface-floating', 'control', 'control-sm', 'field', 'marker'] }],
+  'font-size': [{ text: ['mega', 'hero', 'display', 'h1', 'h2', 'h3', 'h4', 'ctl-lg', 'ctl', 'ctl-md', 'ctl-sm', 'ctl-xs', 'ctl-2xs', 'logo-sm', 'logo-md', 'logo-lg', 'logo-xl', 'eyebrow', 'title-surface', 'title-section', 'title-page', 'title-hero'] }],
+  rounded: [{ rounded: ['pill', 'surface', 'surface-floating', 'control', 'control-sm', 'field', 'marker', 'media'] }],
   z: [{ z: ['nav', 'sheet', 'dropdown', 'tooltip', 'modal', 'modal-nested', 'palette', 'onboarding', 'toast'] }],
   tracking: [{ tracking: ['label', 'label-role', 'field-label', 'column-header', 'badge', 'uppercase-status', 'mono-nav', 'heading', 'eyebrow'] }],
   leading: [{ leading: ['body', 'ctl', 'loose', 'prose', 'heading'] }],

@@ -18,6 +18,7 @@ import { ArenaActivityFeed } from '../components/display/arena-activity-feed/Are
 import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
+import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet.tsx';
@@ -35,6 +36,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaTable', () => <ArenaTable label={BLANK} columns={[{ header: 'A' }]} />],
   ['ArenaScroller', () => <ArenaScroller label={BLANK}><span>One</span></ArenaScroller>],
   ['ArenaSection', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],
+  ['ArenaHero', () => <ArenaHero title={BLANK} />],
   ['ArenaPagination', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
   ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
   ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],

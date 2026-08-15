@@ -1,0 +1,21 @@
+{
+  "component": "ArenaHero",
+  "description": "The opening of a landing page: one line the page is built around, what sits above and below it, the actions it asks for, and a figure beside or behind it. Its title takes the hero register, which is the top rung of the title ladder and the only one above the page head.",
+  "affordances": [],
+  "api": {
+    "title": { "form": "primitive", "type": "string", "required": true,
+               "description": "The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses." },
+    "eyebrow": { "form": "primitive", "type": "string",
+                 "description": "A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a voice that takes them out of the console's mono capitals takes this one with them." },
+    "lede": { "form": "primitive", "type": "string",
+              "description": "The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading." },
+    "actions": { "form": "slot",
+                 "description": "What the page asks the reader to do, in a wrapping row under the lede. Arena draws the row; the consumer draws what sits in it, and one primary action beside one secondary is the shape this is sized for." },
+    "figure": { "form": "slot",
+                "description": "The picture, the mark or the shape beside the words, or behind them under the bleed layout. It is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way." },
+    "layout": { "form": "enum", "type": "ArenaHeroLayout", "default": "split",
+                "description": "How the words sit against the figure. Split puts them side by side and falls to one column when the room runs out, with no breakpoint deciding when; stacked keeps them in one column at every width, for a hero whose figure is a band rather than a partner; bleed lays the words on the figure, over the wash the media overlay role paints, which is the arrangement that needs that role to be readable." },
+    "align": { "form": "enum", "type": "ArenaHeroAlign", "default": "start",
+               "description": "Whether the words run from the start edge or are centred in their column. Centred is what a bleed hero usually wants and a split one usually does not, and it is a separate decision from the layout because a stacked hero can want either." }
+  }
+}

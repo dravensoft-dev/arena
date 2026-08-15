@@ -1,0 +1,6 @@
+{
+  "name": "ArenaHeroAlign",
+  "kind": "enum",
+  "description": "Whether a hero's words run from the start edge or sit centred in their column. ArenaPageHeadAlign carries this exact set for a different subject: that one aligns an actions block against a title across a row, and this aligns a whole column of text within itself. Sharing the name would have put a page head in the type of a member no page head is involved in, and the near miss is worth stating rather than leaving for a later reader to find.",
+  "values": ["start", "center"]
+}

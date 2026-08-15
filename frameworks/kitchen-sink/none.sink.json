@@ -42,6 +42,6 @@
         "ArenaDoughnutChart", "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
       ]
     },
-    { "title": "Layout", "items": ["ArenaGrid", "ArenaScroller", "ArenaScrollerItem", "ArenaSection"] }
+    { "title": "Layout", "items": ["ArenaGrid", "ArenaFigure", "ArenaHero", "ArenaScroller", "ArenaScrollerItem", "ArenaSection"] }
   ]
 }

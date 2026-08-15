@@ -1,0 +1,5 @@
+{
+  "pattern": "none",
+  "reason": "ArenaFigure draws a frame and puts what it was given inside it: no role, no state, no control. It claims neither `img` nor `figure-with-data-table`, and the second is worth naming because a figure looks like the near miss. That pattern is the charts', and it requires a visually-hidden table standing in for a graphic Arena itself drew, which a frame around somebody else's picture has nothing to build from. The alternative text of an image is editorial, so it stays on the element the consumer wrote, where the platform already asks for it.",
+  "exceptions": []
+}

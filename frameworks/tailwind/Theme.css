@@ -29,6 +29,7 @@
 @import 'tailwindcss';
 @import './Animations.css';
 @import './Case.css';
+@import './Media.css';
 @import './Numerals.css';
 @import './Page.css';
 @import './Prose.css';
@@ -52,6 +53,12 @@
   --color-surface-floating: var(--fill-surface-floating);
   --color-page: var(--fill-page);
   --color-surface-sunken: var(--fill-surface-sunken);
+
+  /* The wash a media frame draws under anything laid over it. A colour key rather than one of
+     its own, because bg-* is the namespace that paints it; the OPACITY stays in the manifest,
+     so which colour and how held back are two decisions rather than one baked into a token
+     nothing could measure the contrast of. */
+  --color-overlay-media: var(--overlay-media);
 
   /* Ink ROLES, so text-* asks which text is being coloured rather than which palette step it
      takes. A hundred and twenty-two slots pointed at base-content directly, which is why a voice
@@ -143,6 +150,7 @@
   --text-title-surface: var(--step-title-surface);
   --text-title-section: var(--step-title-section);
   --text-title-page: var(--step-title-page);
+  --text-title-hero: var(--step-title-hero);
   --text-lg: var(--fs-lg);
   --text-md: var(--fs-md);
   --text-sm: var(--fs-sm);
@@ -345,6 +353,7 @@
   --radius-control-sm: var(--r-control-sm);
   --radius-field: var(--r-field);
   --radius-marker: var(--r-marker);
+  --radius-media: var(--r-media);
 
   --shadow-*: initial;
   --shadow-1: var(--shadow-1);

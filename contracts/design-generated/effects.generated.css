@@ -123,6 +123,30 @@
    */
   --r-marker:4px;
   /*
+     The corner of a MEDIA frame: the box an image, a video or a stand-in glyph is clipped to. Born at the value r-surface carries, because nothing paints a media frame until ArenaFigure does and a sibling's answer is the honest place to start from.
+     
+     Separate from r-surface because the two are different questions about the same page. A card is a container the reader looks past; a figure is the thing being looked at, and a voice for a gallery wants its images square-cornered while its panels stay round.
+   */
+  --r-media:14px;
+  /*
+     The shape of a media frame, as the ratio of its width to its height. A number rather than a keyword, because a keyword is one bare word and a ratio is two numbers: 0.8 is the same shape as four by five, and aspect-ratio takes it. The description carries the fraction a reader recognises and the token carries the value CSS reads.
+     
+     Born square, which is what the only media box in the system paints today. A voice for a shop wants a portrait crop, 0.8, so a product fills more of a column; a voice for a gallery wants the square back so a wall of them tiles.
+   */
+  --aspect-media:1;
+  /*
+     How the image inside a media frame meets the frame's edges. The second keyword role, and it exists for the reason the first one does: object-fit takes a word, and a manifest that writes cover has said an answer where only a question can be answered differently by one voice than by another.
+     
+     Cover by default, which fills the frame and crops what does not fit. A voice that letterboxes instead is saying the whole of the image matters more than the shape of the grid, which is a coherent thing for a catalogue of artwork to say and the wrong thing for a shop.
+   */
+  --fit-media:cover;
+  /*
+     The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a voice says which of the consumer's colours the wash takes and may not author one.
+     
+     The page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The manifest carries the opacity, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.
+   */
+  --overlay-media:var(--color-base-100);
+  /*
      The weight of a heading set in the display face: a card's title, a dialog's title, a
      page head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold
      is 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be
@@ -344,6 +368,12 @@
      to both be big.
    */
   --step-title-page:44px;
+  /*
+     Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.
+     
+     Born at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a voice that wants one has the step to reach for. Being able to reach it is the point of the role.
+   */
+  --step-title-hero:64px;
   /*
      The room a CONTROL gives its content across: a button, a chip, a menu item, a tab.
      Born at sp.3, the step the majority of control slots name.
@@ -753,6 +783,12 @@
   --press-scale:0.98;
 }
 .arena-light{
+  /*
+     The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a voice says which of the consumer's colours the wash takes and may not author one.
+     
+     The page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The manifest carries the opacity, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.
+   */
+  --overlay-media:var(--color-base-100);
   /*
      The fill of a surface that belongs to the page: a card, a stat card, a table's
      frame, an empty state. Arena's SECOND grouping signal and the quieter half of it, because a

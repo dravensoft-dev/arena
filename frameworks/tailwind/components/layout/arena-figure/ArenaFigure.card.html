@@ -1,0 +1,53 @@
+<!-- @dsCard group="Tailwind" viewport="820x520" name="ArenaFigure" subtitle="The frame, the fallback, the wash and the caption, rendered from ArenaFigure.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-figure/ArenaFigure.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaFigure.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+
+function figure({ ratio, fallback, overlay, caption }) {
+  const frame = el('div', { class: c.frame, style: { aspectRatio: ratio ?? 'var(--aspect-media)' } });
+  if (fallback) {
+    const box = el('div', { class: c.fallback });
+    box.append(el('i', { class: 'ph-bold ph-coffee-bean text-[length:var(--fs-display)]' }));
+    frame.append(box);
+  }
+  if (overlay) frame.append(el('div', { class: c.overlay, text: 'In stock' }));
+
+  const root = el('figure', { class: c.root });
+  root.append(frame);
+  if (caption) root.append(el('figcaption', { class: c.caption, text: caption }));
+  return root;
+}
+
+const rail = (...kids) => {
+  const row = el('div', { class: 'grid grid-cols-3 gap-component items-start' });
+  for (const k of kids) row.append(k);
+  return row;
+};
+
+mountSpecimen({ sections: [
+  section('The frame the voice shapes', [rail(
+    figure({ fallback: true, caption: 'The role, square at rest' }),
+    figure({ ratio: '4 / 5', fallback: true, caption: 'ratio="4 / 5"' }),
+    figure({ ratio: '16 / 9', fallback: true, caption: 'ratio="16 / 9"' }),
+  )], { stack: true }),
+  section('The wash under what is laid over it', [rail(
+    figure({ fallback: true, overlay: true, caption: 'overlay, on bg-overlay-media' }),
+    figure({ fallback: true }),
+    figure({ caption: 'Neither media nor fallback' }),
+  )], { stack: true }),
+  section('What the frame does not own', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'No source and no alternative text: the picture is the element the consumer wrote, so alt '
+      + 'stays where the platform already asks for it. The frame owns the shape, the corner and '
+      + 'how the picture meets its edges, and all three are roles.'),
+  ]),
+]});
+</script></body></html>

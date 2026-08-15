@@ -35,5 +35,5 @@ test('each category lists its components sorted, so a diff shows only what moved
 
 test('the file declares every component, once', () => {
   const total = (Object.values(categories) as string[][]).reduce((n, names) => n + names.length, 0);
-  assert.equal(total, 62);
+  assert.equal(total, 64);
 });

@@ -53,7 +53,9 @@
     "ArenaTextarea"
   ],
   "layout": [
+    "ArenaFigure",
     "ArenaGrid",
+    "ArenaHero",
     "ArenaScroller",
     "ArenaScrollerItem",
     "ArenaSection"

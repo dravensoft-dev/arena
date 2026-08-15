@@ -1,0 +1,6 @@
+{
+  "component": "ArenaHero",
+  "pattern": "none",
+  "reason": "ArenaHero draws a heading, the lines around it and two slots the consumer fills: no role, no state, no control of its own. Every focusable thing in a hero came from the actions slot or the figure one, each carrying its own binding. What it deliberately does NOT claim is a `banner` landmark: banner is the site header, one per page, and a hero is content inside the main region rather than the furniture around it.",
+  "exceptions": []
+}

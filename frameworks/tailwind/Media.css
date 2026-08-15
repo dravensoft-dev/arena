@@ -1,0 +1,22 @@
+/* How the picture inside a media frame meets that frame's edges, as a utility rather than a
+ * theme key.
+ *
+ * `object-fit` is not a Tailwind v4 namespace, so there is no --something-* key that would make
+ * a role reachable the way --radius-media makes rounded-media reachable. The built-in
+ * `object-cover`, `object-contain` and the rest are static utilities naming a value, which is
+ * the same shape as a scale: a manifest that writes object-cover has said an answer, and only a
+ * question can be answered differently by one voice than by another.
+ *
+ * This is the question. `@utility` and not a plain class, for the reason Case.css states about
+ * the pair beside it, and it is hand-written for the reason both of those are. Like Case.css and
+ * unlike Rhythm.css, it is NOT copied into the packages: a manifest names it rather than a
+ * consumer, so it compiles through into the component sheets.
+ *
+ * The shape of the frame is not here. An aspect ratio is a value a member carries and a
+ * component writes inline, the way ArenaGrid writes its track list, because a consumer pinning a
+ * video to sixteen by nine is answering about one figure and not about the voice.
+ */
+
+@utility fit-media {
+  object-fit: var(--fit-media);
+}
