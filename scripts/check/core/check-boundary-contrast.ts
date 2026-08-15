@@ -1,8 +1,9 @@
 /* WCAG 1.4.11 asks 3:1 of the visual boundary of a user interface component. The hairline is one
  * answer, so where a border is drawn the question never arises; an answer that sets a control's
  * border to zero has moved it onto the fill difference, and this gate is where that claim is
- * measured rather than assumed. A surface is deliberately not asked about: 1.4.11 is about
- * components and a card is not one, so bw-surface may go to zero where bw-field may not. */
+ * measured rather than assumed. It reads the style plugin, because a border width is an answer
+ * and the role declaration carries none. A surface is deliberately not asked about: 1.4.11 is
+ * about components and a card is not one, so bw-surface may go to zero where bw-field may not. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,13 +15,17 @@ import { readJson } from '../../utils/read-file.ts';
 
 export const node = {
   name: 'check:boundary-contrast',
-  reads: ['contracts/design', 'contracts/design-generated/palette.generated.css'],
+  reads: [
+    'plugin-style-store/default/plugin.tokens.json',
+    'contracts/design-generated/palette.generated.css',
+  ],
   writes: [],
   feeds: [],
 };
 
-const DESIGN_DIR = join(repoRoot, 'contracts/design');
-export const ANSWERS = 'roles.json';
+export const PLUGIN_DIR = 'plugin-style-store/default';
+const ANSWER_DIR = join(repoRoot, PLUGIN_DIR);
+export const ANSWERS = 'plugin.tokens.json';
 const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const MIN_RATIO = 3;
 
@@ -74,7 +79,7 @@ export function zeroBoundaryProblems(count: number) {
     + 'discovery path'];
 }
 
-export function collect(dir = DESIGN_DIR, file = ANSWERS) {
+export function collect(dir = ANSWER_DIR, file = ANSWERS) {
   const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
   const removed = removedBorders(readJson(join(dir, file)));
   if (!removed.length) return [];
@@ -84,7 +89,7 @@ export function collect(dir = DESIGN_DIR, file = ANSWERS) {
     const hexes = Object.fromEntries(
       [...new Set(BOUNDARIES.flatMap((b) => [b.fill, b.surround]))].map((k) => [k, readHex(body, k)]),
     );
-    problems.push(...boundaryProblems(`contracts/design/${file}`, removed, theme.name, hexes));
+    problems.push(...boundaryProblems(`${PLUGIN_DIR}/${file}`, removed, theme.name, hexes));
   }
   return problems;
 }
@@ -98,7 +103,7 @@ function main() {
     process.exit(1);
   }
   console.log(`check-boundary-contrast: ${BOUNDARIES.length} control boundary(ies) in `
-    + `contracts/design/${ANSWERS}, measured in both themes`);
+    + `${PLUGIN_DIR}/${ANSWERS}, measured in both themes`);
 }
 
 if (isMainModule(import.meta.url)) main();
