@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, contentChild, input, output } from '@angular/core';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { ArenaSecondaryAction } from '../../../ProjectionMarkers';
 import { arenaErrorStateStyles } from './ArenaErrorState.variants';
 import manifest from './ArenaErrorState.classes.generated';
@@ -13,6 +14,7 @@ import manifest from './ArenaErrorState.classes.generated';
     role: 'alert',
     '[attr.title]': 'null',
   },
+  imports: [ArenaButton],
   template: `
     @if (icon(); as glyph) {
       <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><i [class]="glyph" aria-hidden="true"></i></div>
@@ -27,7 +29,7 @@ import manifest from './ArenaErrorState.classes.generated';
     @if (retryLabel() || secondaryAction()) {
       <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions">
         @if (retryLabel(); as label) {
-          <button type="button" [class]="styles().retry()" [attr.data-arena-part]="parts.retry" (click)="retry.emit()">{{ label }}</button>
+          <arena-button variant="primary" (click)="retry.emit()">{{ label }}</arena-button>
         }
         <ng-content select="[secondaryAction]" />
       </div>

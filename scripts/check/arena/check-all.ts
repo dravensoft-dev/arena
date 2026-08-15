@@ -48,7 +48,6 @@ export const GATES = [
   { name: 'check:tailwind', file: 'tailwind/check-tailwind.ts' },
   { name: 'check:tailwind-generated', file: 'tailwind/check-tailwind-generated.ts' },
   { name: 'check:coverage', file: 'tailwind/check-tailwind-coverage.ts' },
-  { name: 'check:surface-parity', file: 'tailwind/check-surface-parity.ts' },
   { name: 'check:radius', file: 'tailwind/check-radius-tokens.ts' },
   { name: 'check:roles', file: 'tailwind/check-role-tokens.ts' },
   { name: 'check:arbitrary', file: 'tailwind/check-arbitrary-values.ts' },

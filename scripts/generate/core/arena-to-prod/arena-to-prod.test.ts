@@ -633,17 +633,26 @@ test('the shipped catalogue is the one this build actually assembles, not only a
 });
 
 
-test('a plugin stylesheet is wrapped and its author never spells the layer', () => {
+test('the root plugin\'s stylesheet is wrapped and its author never spells the layer', () => {
   assert.equal(
-    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }' }]),
+    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }', root: true }]),
     '@layer arena-plugin {\n[data-arena-part="card"] { border-radius: 0 }\n}\n',
     'the layer is the build\'s to declare, because a plugin author writing it could get it wrong '
     + 'in a way nothing reports',
   );
 });
 
+test('a plugin that is not the root is nested under its own class', () => {
+  assert.equal(
+    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }' }]),
+    '@layer arena-plugin {\n.arena-shop {\n[data-arena-part="card"] { border-radius: 0 }\n}\n}\n',
+    'a later plugin is a difference and paints where its class is, or it would paint the pages '
+    + 'the root plugin is what looks like',
+  );
+});
+
 test('several plugins concatenate in list order, so a later one wins by source order', () => {
-  const css = pluginCss([{ name: 'a', css: '.x{}' }, { name: 'b', css: '.y{}' }]);
+  const css = pluginCss([{ name: 'a', css: '.x{}', root: true }, { name: 'b', css: '.y{}', root: true }]);
   assert.ok((css ?? '').indexOf('.x{}') < (css ?? '').indexOf('.y{}'));
 });
 

@@ -686,8 +686,8 @@ test('arena-error-state: retryLabel draws a real retry button carrying the manif
   const button = host.querySelector('button');
   assert.notEqual(button, null, 'retryLabel was supplied, so a retry button must render');
   assert.equal(button!.textContent, 'Retry');
-  const retryClass = arenaErrorStateStyles().retry().split(/\s+/)[0];
-  assert.ok(button!.classList.contains(retryClass), `retry button is missing recipe class "${retryClass}"`);
+  assert.ok(button!.closest('arena-button'), 'the retry action IS an ArenaButton, composed rather '
+    + 'than typed out, so both layers reach the same part');
   fixture.destroy();
 });
 
@@ -1186,9 +1186,9 @@ test('arena-unauth-card: the brand and footer wrappers are both absent from the 
     'the footer wrapper div must not render when the [footer] slot is empty',
   );
 
-  const panelClass = arenaUnauthCardStyles().panel().split(/\s+/)[0];
   const bodyClass = arenaUnauthCardStyles().body().split(/\s+/)[0];
-  assert.ok(host.querySelector(`.${panelClass}`), 'the panel must always render -- it is not gated');
+  assert.ok(host.querySelector('arena-card'), 'the panel IS an ArenaCard, composed rather than typed '
+    + 'out a second time, so both layers reach the same part');
   assert.ok(host.querySelector(`.${bodyClass}`), 'the body wrapper must always render -- it is not gated');
-  assert.equal(host.children.length, 1, 'the host renders only the panel div, unconditionally');
+  assert.equal(host.children.length, 1, 'the host renders only the card, unconditionally');
 });

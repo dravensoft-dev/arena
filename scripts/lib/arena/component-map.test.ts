@@ -64,11 +64,13 @@ test('a component wears its parent\'s sheet, because 43 sheets dress 55 componen
   assert.equal(react.draws.ArenaTableRow, 'arena-table');
 });
 
-test('the two layers differ in fact rather than in spelling, which is why each carries its own map', () => {
+test('a map is derived per layer, and the two agree where the two layers compose the same thing', () => {
   const angular = componentMap('angular', repoRoot);
   const react = componentMap('react', repoRoot);
-  assert.deepEqual(react.needs['arena-confirm-dialog'], ['arena-button'], 'React renders an ArenaButton inside it');
-  assert.equal(angular.needs['arena-confirm-dialog'], undefined, 'Angular draws its own, out of its own manifest');
+  for (const map of [react, angular]) {
+    assert.deepEqual(map.needs['arena-confirm-dialog'], ['arena-button'],
+      'the cancel action IS an ArenaButton, so both layers render one and the sheet follows');
+  }
 });
 
 test('a layer nothing assembles is refused rather than answered with an empty map', () => {

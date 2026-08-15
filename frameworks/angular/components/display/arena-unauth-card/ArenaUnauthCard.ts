@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, contentChild, input } from '@angular/core';
+import { ArenaCard } from '../arena-card/ArenaCard';
 import { ArenaBrand, ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaUnauthCardStyles } from './ArenaUnauthCard.variants';
 import manifest from './ArenaUnauthCard.classes.generated';
@@ -12,8 +13,9 @@ import manifest from './ArenaUnauthCard.classes.generated';
     '[attr.data-arena-part]': 'parts.root',
     '[attr.title]': 'null',
   },
+  imports: [ArenaCard],
   template: `
-    <div [class]="styles().panel()" [attr.data-arena-part]="parts.panel">
+    <arena-card>
       <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
         @if (brand()) {
           <div [class]="styles().brand()" [attr.data-arena-part]="parts.brand"><ng-content select="[brand]" /></div>
@@ -29,7 +31,7 @@ import manifest from './ArenaUnauthCard.classes.generated';
           <div [class]="styles().footer()" [attr.data-arena-part]="parts.footer"><ng-content select="[footer]" /></div>
         }
       </div>
-    </div>
+    </arena-card>
   `,
 })
 export class ArenaUnauthCard {

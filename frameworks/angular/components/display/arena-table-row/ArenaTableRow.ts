@@ -16,7 +16,7 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
   providers: [ArenaTableRowState],
   host: { style: 'display: contents' },
   template: `
-    <div [class]="rowClass()" [attr.data-arena-part]="parts.row" [attr.role]="role()" [attr.aria-disabled]="inert()"
+    <div [class]="rowClass()" [attr.data-arena-part]="narrow() ? parts.card : parts.row" [attr.role]="role()" [attr.aria-disabled]="inert()"
          [attr.tabindex]="cardStop()" (keydown)="onKeydown($event)"
          (click)="onClick($event)">
       <ng-content />
@@ -47,6 +47,8 @@ export class ArenaTableRow {
   protected readonly cardStop = computed(() => (this.table.narrow() && this.interactive() ? 0 : null));
 
   protected readonly inert = computed(() => (this.disabled() ? 'true' : null));
+
+  protected readonly narrow = computed(() => this.table.narrow());
 
   protected readonly rowClass = computed(() => {
     const narrow = this.table.narrow();

@@ -187,7 +187,6 @@ export const CLAIMS = {
   ],
   ArenaUnauthCard: [
     { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
-    { slot: 'panel', has: ['bg-surface'], hasNot: ['shadow-surface-deep'], why: 'the panel is the surface and the elevation is the box around it, split so both layers can reach either. It is a card the page is built around rather than an overlay, so it takes the surface fill and follows a style plugin that flattens one' },
   ],
   ArenaAlert: [
     ...Object.entries({ info: 'info', success: 'success', warning: 'warning', danger: 'error', neutral: 'neutral' })
@@ -245,7 +244,6 @@ export const CLAIMS = {
   ArenaErrorState: [
     { slot: 'root', has: ['flex', 'border-error', 'bg-error/14'], hasNot: ['border-dashed', 'bg-error', 'bg-error-fill'], why: 'danger stays a soft resting tint here: this is a non-interactive status surface, not a risk trigger' },
     { slot: 'actions', has: ['mt-1.5'], why: 'the actions slot carries the token spacing that separates the row from the copy above it' },
-    { slot: 'retry', has: ['bg-primary', 'text-primary-content', 'border-primary'], why: 'Arena draws this button under the contract, so it carries the same primary classes as the non-destructive confirm' },
   ],
   ArenaOnboarding: [
     { chosen: { open: true }, slot: 'root', has: ['block'], why: 'the root carries a display utility in its own base string, independent of the open variant' },

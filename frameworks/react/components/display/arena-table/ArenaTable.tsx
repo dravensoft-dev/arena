@@ -191,12 +191,16 @@ export function ArenaTable({
 
   return (
     <div ref={ref} className={arenaTableStyles({ narrow }).root()} data-arena-part={manifest.parts.root}>
-      {narrow ? (
-        <div className={arenaTableStyles({ narrow: true }).grid()} data-arena-part={manifest.parts.grid}>
-          {sortBar && (
+      {narrow && sortBar && (
+        <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
+          <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>
             <ArenaSelect label="Sort by" options={sortOptions} value={sortValue}
               onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
-          )}
+          </div>
+        </div>
+      )}
+      {narrow ? (
+        <div className={arenaTableStyles({ narrow: true }).grid()} data-arena-part={manifest.parts.grid}>
           {bare && (
             <div className={arenaTableStyles({ narrow: true }).empty()} data-arena-part={manifest.parts.empty}>{empty}</div>
           )}
@@ -210,7 +214,7 @@ export function ArenaTable({
         <>
           <table role="grid" aria-label={label} ref={gridRef}
             onKeyDown={onGridKeyDown}
-            className={arenaTableStyles({ narrow: false }).table()} data-arena-part={manifest.parts.table}>
+            className={arenaTableStyles({ narrow: false }).grid()} data-arena-part={manifest.parts.grid}>
             <thead>
               <tr role="row" className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
                 {columns.map((c, ci) => (

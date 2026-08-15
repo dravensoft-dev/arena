@@ -2,9 +2,11 @@
  * is what a style plugin selects, so a slot that reaches the DOM without one is a decision no
  * appearance outside this repository can touch. It reads both layers as text rather than
  * rendering, the way check-appearance.ts does, and it reads the covering manifest's sources so a
- * family drawn from one manifest is measured whole. One blind spot, declared rather than
- * discovered: a class string assembled inside a helper names its slot in the helper and not on
- * the element, so a site reading one asks for nothing here. */
+ * family drawn from one manifest is measured whole, and holds the two layers to reaching the SAME
+ * parts, because a part is one contract and a plugin painting one both layers do not draw makes
+ * two pages out of one manifest. One blind spot, declared rather than discovered: a class string
+ * assembled inside a helper names its slot in the helper and not on the element, so a site reading
+ * one asks for nothing here. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -44,7 +46,9 @@ const CLASS_SITE = {
 
 const SLOT_CALL = /\.([A-Za-z0-9_$]+)\(\)/g;
 
-const HOOK = new RegExp(`${ATTRIBUTE}[^\\n]*?parts\\.([A-Za-z0-9_$]+)`, 'g');
+const HOOK = new RegExp(`${ATTRIBUTE}[^\\n]*`, 'g');
+
+const NAMED = /parts\.([A-Za-z0-9_$]+)/g;
 
 function skipString(text: string, i: number, quote: string) {
   for (let j = i + 1; j < text.length; j++) {
@@ -122,7 +126,8 @@ export function slotsIn(expr: string, slots: string[]) {
 }
 
 export function hooksIn(span: string) {
-  return [...span.matchAll(HOOK)].map((m) => m[1] as string);
+  return [...span.matchAll(HOOK)]
+    .flatMap((m) => [...(m[0] as string).matchAll(NAMED)].map((one) => one[1] as string));
 }
 
 function siteProblems(text: string, parts: Record<string, string>, name: string, layer: Layer) {
@@ -175,6 +180,28 @@ export function layerSources(name: string, layer: Layer) {
   return found;
 }
 
+export function layerParts(name: string, layer: Layer) {
+  const parts = partsOf(name);
+  const reached = new Set<string>();
+  for (const file of layerSources(name, layer)) {
+    for (const slot of hooksIn(readFileSync(file, 'utf8'))) if (parts[slot]) reached.add(parts[slot]);
+  }
+  return reached;
+}
+
+export function symmetryProblems(name: string, react: Set<string>, angular: Set<string>) {
+  const only = (a: Set<string>, b: Set<string>) => [...a].filter((part) => !b.has(part)).sort();
+  const problems = [];
+  for (const [layer, alone] of [['react', only(react, angular)], ['angular', only(angular, react)]] as const) {
+    for (const part of alone) {
+      problems.push(`${name}: the ${layer} layer reaches ${part} and the other does not. A part is one `
+        + 'contract across both layers, so a style plugin painting this one would draw two different '
+        + 'pages from one manifest. Draw the same element in both, or take the slot out of the manifest.');
+    }
+  }
+  return problems;
+}
+
 export function partProblems(name: string) {
   const parts = partsOf(name);
   const problems = [];
@@ -184,19 +211,15 @@ export function partProblems(name: string) {
         problems.push(`${relPosix(repoRoot, file)}: ${problem}`);
     }
   }
+  const drawn = { react: layerParts(name, 'react'), angular: layerParts(name, 'angular') };
+  const implemented = (Object.keys(LAYERS) as Layer[]).filter((layer) => layerSources(name, layer).length > 0);
+  if (implemented.length === 2) problems.push(...symmetryProblems(name, drawn.react, drawn.angular));
   return problems;
 }
 
 export function reachedParts(name: string) {
-  const parts = partsOf(name);
-  const reached = new Set<string>();
-  for (const layer of Object.keys(LAYERS) as Layer[]) {
-    for (const file of layerSources(name, layer)) {
-      for (const slot of hooksIn(readFileSync(file, 'utf8')))
-        if (parts[slot]) reached.add(parts[slot]);
-    }
-  }
-  return [...reached].sort();
+  const reached = (Object.keys(LAYERS) as Layer[]).flatMap((layer) => [...layerParts(name, layer)]);
+  return [...new Set(reached)].sort();
 }
 
 export function zeroPartProblems(count: number) {
@@ -228,7 +251,8 @@ function main() {
     process.exit(1);
   }
   console.log(`check-parts: every element drawing a slot across ${manifests} manifest(s) says which part `
-    + `it is; ${reached} of ${declared} declared part(s) reach the DOM in one layer or both`);
+    + `it is, and the two layers reach the same parts; ${reached} of ${declared} declared part(s) reach `
+    + 'the DOM');
 }
 
 if (isMainModule(import.meta.url)) main();

@@ -14,7 +14,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'cellClass()',
-    '[attr.data-arena-part]': 'parts.td',
+    '[attr.data-arena-part]': 'narrow() ? (blocked() ? parts.cardBlock : parts.cardRow) : parts.td',
     '[attr.role]': 'role()',
     '[attr.tabindex]': 'tabIndex()',
     '[style.width]': 'width()',
@@ -57,6 +57,8 @@ export class ArenaTableCell {
     if (this.narrow()) return null;
     return this.table.isStop(this.row.index(), this.columnIndex()) ? 0 : -1;
   });
+
+  protected readonly blocked = computed(() => this.column().mobileLayout === 'block');
 
   protected readonly cellClass = computed(() => {
     const column = this.column();

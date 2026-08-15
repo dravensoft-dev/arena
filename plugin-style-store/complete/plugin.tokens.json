@@ -182,7 +182,7 @@
   },
   "fill-surface": {
     "$type": "color",
-    "$value": "{color.base-300}"
+    "$value": "{color.base-100}"
   },
   "fill-surface-floating": {
     "$type": "color",

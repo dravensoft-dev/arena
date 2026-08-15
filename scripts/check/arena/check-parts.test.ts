@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   MANIFESTS, angularPartProblems, classSites, collect, partProblems, reactPartProblems,
-  zeroPartProblems,
+  symmetryProblems, zeroPartProblems,
 } from './check-parts.ts';
 
 const CARD = { root: 'card', body: 'card.body' };
@@ -68,4 +68,11 @@ test('the whole tree holds', () => {
 test('a zero walk is a failure and not a clean pass', () => {
   assert.equal(zeroPartProblems(0).length, 1);
   assert.deepEqual(zeroPartProblems(MANIFESTS().length), []);
+});
+
+test('a part one layer reaches and the other does not is not one contract', () => {
+  const problems = symmetryProblems('ArenaCard', new Set(['card', 'card.body']), new Set(['card']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /react layer reaches card\.body/);
+  assert.deepEqual(symmetryProblems('ArenaCard', new Set(['card']), new Set(['card'])), []);
 });

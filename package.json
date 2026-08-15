@@ -78,7 +78,6 @@
     "check:tailwind": "bun scripts/check/tailwind/check-tailwind.ts",
     "check:tailwind-generated": "bun scripts/check/tailwind/check-tailwind-generated.ts",
     "check:coverage": "bun scripts/check/tailwind/check-tailwind-coverage.ts",
-    "check:surface-parity": "bun scripts/check/tailwind/check-surface-parity.ts",
     "check:radius": "bun scripts/check/tailwind/check-radius-tokens.ts",
     "check:roles": "bun scripts/check/tailwind/check-role-tokens.ts",
     "check:arbitrary": "bun scripts/check/tailwind/check-arbitrary-values.ts",

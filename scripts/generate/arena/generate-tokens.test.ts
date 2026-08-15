@@ -29,12 +29,12 @@ function topLevelGroups(source: string) {
 
 const SCRIPT_FLAG = /"script"\s*:\s*true/g;
 
-test('FILES declares no block outside a theme or a density', () => {
+test('FILES declares no block outside a theme, a density or a plugin in the store', () => {
   const selectors = FILES.flatMap((f) => f.blocks.map((b) => b.selector));
   const scopes = [...new Set(selectors.filter((s) => s !== ':root'))].sort();
-  assert.deepEqual(scopes, ['.arena-comfortable', '.arena-compact', '.arena-light'],
-    'a scope this generator emits is a theme or a density, and every other selector is an answer '
-    + 'Arena curated for somebody else');
+  assert.deepEqual(scopes, ['.arena-comfortable', '.arena-compact', '.arena-complete', '.arena-light'],
+    'a scope this generator emits is a theme, a density or a plugin the store holds, and every other '
+    + 'selector would be an answer Arena curated for somebody else');
 });
 
 test('a design source path carries no host separator, on the platform whose separator is one', () => {

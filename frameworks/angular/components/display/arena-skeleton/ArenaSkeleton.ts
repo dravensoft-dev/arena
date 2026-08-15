@@ -13,7 +13,7 @@ export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'last
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'hostClass()',
-    '[attr.data-arena-part]': 'parts.root',
+    '[attr.data-arena-part]': 'stacked() ? parts.stack : parts.root',
     '[style.width]': 'hostWidth()',
     '[style.height]': 'hostHeight()',
     '[style.borderRadius]': 'hostRadius()',

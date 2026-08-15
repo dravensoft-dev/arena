@@ -21,7 +21,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
          [attr.aria-current]="current()" [attr.aria-disabled]="off()"
          (click)="activateAnchor($event)">
         @if (glyphClass(); as glyph) {
-          <i [class]="glyph" aria-hidden="true"></i>
+          <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
         {{ name() }}
         @if (count(); as tally) {
@@ -33,7 +33,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
               [attr.aria-current]="current()" [attr.aria-disabled]="off()"
               (click)="activate($event)">
         @if (glyphClass(); as glyph) {
-          <i [class]="glyph" aria-hidden="true"></i>
+          <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
         {{ name() }}
         @if (count(); as tally) {

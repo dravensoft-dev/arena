@@ -38,7 +38,7 @@
   --container-max:1080px;
   --gutter:40px;
   --pad-surface:24px;
-  --fill-surface:var(--color-base-300);
+  --fill-surface:var(--color-base-100);
   --fill-surface-floating:var(--color-base-100);
   --fill-page:var(--color-base-200);
   --fill-surface-sunken:var(--color-base-300);
@@ -72,7 +72,7 @@
 }
 .arena-light.arena-complete, .arena-light .arena-complete, .arena-complete .arena-light{
   --overlay-media:var(--color-neutral);
-  --fill-surface:var(--color-base-300);
+  --fill-surface:var(--color-base-100);
   --fill-surface-floating:var(--color-base-100);
   --fill-page:var(--color-base-200);
   --fill-surface-sunken:var(--color-base-300);

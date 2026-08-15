@@ -13,6 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { arenaConfirmDialogStyles } from './ArenaConfirmDialog.variants';
 import manifest from './ArenaConfirmDialog.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
@@ -33,6 +34,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
   },
+  imports: [ArenaButton],
   template: `
     @if (open()) {
       <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="alertdialog" aria-modal="true" tabindex="-1"
@@ -51,7 +53,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
           }
         </div>
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
-          <button type="button" [class]="styles().cancel()" [attr.data-arena-part]="parts.cancel" (click)="cancel.emit()">{{ cancelLabel() }}</button>
+          <arena-button variant="ghost" (click)="cancel.emit()">{{ cancelLabel() }}</arena-button>
           <button type="button" [class]="styles().confirm()" [attr.data-arena-part]="parts.confirm" [disabled]="locked()" (click)="confirm.emit()">{{ confirmLabel() }}</button>
         </div>
       </div>

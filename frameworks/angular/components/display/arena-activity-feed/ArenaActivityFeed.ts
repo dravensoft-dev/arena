@@ -31,9 +31,9 @@ export function arenaResolveActivityFeedRows(items: readonly ArenaActivityItem[]
     <ul [class]="base().root()" [attr.data-arena-part]="parts.root" role="feed" [attr.aria-label]="labelText()"
         [attr.aria-busy]="busy() ? 'true' : 'false'">
       @for (row of rows(); track row.item.id ?? $index; let i = $index) {
-        <li [class]="row.itemClass" role="article" tabindex="0"
+        <li [class]="row.itemClass" [attr.data-arena-part]="parts.item" role="article" tabindex="0"
             [attr.aria-posinset]="i + 1" [attr.aria-setsize]="rows().length">
-          <span [class]="row.dotClass" aria-hidden="true"></span>
+          <span [class]="row.dotClass" [attr.data-arena-part]="parts.dot" aria-hidden="true"></span>
           <span [class]="base().text()" [attr.data-arena-part]="parts.text">
             <b [class]="base().actor()" [attr.data-arena-part]="parts.actor">{{ row.item.actor }}</b> {{ row.item.action }}
             @if (row.item.target) {

@@ -188,21 +188,23 @@ export function packageSheets(root: string): PackageSheets {
   }
 }
 
-export function pluginCss(sheets: { name: string; css: string }[]) {
+export function pluginCss(sheets: { name: string; css: string; root?: boolean }[]) {
   const carried = sheets.filter(({ css }) => css.trim() !== '');
   if (carried.length === 0) return null;
-  return `@layer ${PLUGIN_LAYER} {\n${carried.map(({ css }) => css.trim()).join('\n')}\n}\n`;
+  const scoped = ({ name, css, root }: { name: string; css: string; root?: boolean }) =>
+    (root ? css.trim() : `.arena-${name} {\n${css.trim()}\n}`);
+  return `@layer ${PLUGIN_LAYER} {\n${carried.map(scoped).join('\n')}\n}\n`;
 }
 
 export function pluginSheets(config: ArenaConfig, from: string) {
   const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
-  const out: { name: string; css: string }[] = [];
-  for (const entry of declared) {
-    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) continue;
+  const out: { name: string; css: string; root: boolean }[] = [];
+  declared.forEach((entry, i) => {
+    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) return;
     const at = join(resolve(from, entry.trim()), PLUGIN_CSS);
-    if (!existsSync(at)) continue;
-    out.push({ name: pluginName(entry), css: readFileSync(at, 'utf8') });
-  }
+    if (!existsSync(at)) return;
+    out.push({ name: pluginName(entry), css: readFileSync(at, 'utf8'), root: i === 0 });
+  });
   return out;
 }
 
