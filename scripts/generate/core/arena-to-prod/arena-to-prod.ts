@@ -23,12 +23,15 @@ import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from '
 import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
-import { auditText } from './audit.ts';
+import { auditText, paintedParts, sourceScope } from './audit.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
 export const THEME_SHEET = 'arena.generated.css';
 export const ICONS_SHEET = 'icons.generated.css';
+export const PLUGIN_SHEET = 'plugin.generated.css';
+export const PLUGIN_CSS = 'plugin.css';
+export const PLUGIN_LAYER = 'arena-plugin';
 export const COMPONENT_MAP = 'components.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
@@ -37,7 +40,7 @@ export const DEFAULT_OUT = 'src';
 
 export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
-export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET]);
+export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET]);
 
 export const USAGE = [
   'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict]',
@@ -185,6 +188,24 @@ export function packageSheets(root: string): PackageSheets {
   }
 }
 
+export function pluginCss(sheets: { name: string; css: string }[]) {
+  const carried = sheets.filter(({ css }) => css.trim() !== '');
+  if (carried.length === 0) return null;
+  return `@layer ${PLUGIN_LAYER} {\n${carried.map(({ css }) => css.trim()).join('\n')}\n}\n`;
+}
+
+export function pluginSheets(config: ArenaConfig, from: string) {
+  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
+  const out: { name: string; css: string }[] = [];
+  for (const entry of declared) {
+    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) continue;
+    const at = join(resolve(from, entry.trim()), PLUGIN_CSS);
+    if (!existsSync(at)) continue;
+    out.push({ name: pluginName(entry), css: readFileSync(at, 'utf8') });
+  }
+  return out;
+}
+
 export function readPlugins(config: ArenaConfig, from: string) {
   const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
   const plugins: ResolvedPlugins = [];
@@ -287,17 +308,35 @@ export function readSources(paths: string[]) {
   return sources;
 }
 
+export function pluginDirs(options: ResolvedOptions) {
+  let config;
+  try {
+    config = JSON.parse(readFileSync(options.config, 'utf8'));
+  } catch {
+    return [] as string[];
+  }
+  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
+  return declared
+    .filter((entry: unknown): entry is string => typeof entry === 'string' && entry.trim() !== DEFAULT_PLUGIN)
+    .map((entry: string) => resolve(dirname(resolve(options.config)), entry.trim()));
+}
+
 export function auditStep(options: ResolvedOptions) {
-  if (!options.audit) return { reports: [] as string[], scanned: 0 };
+  if (!options.audit) return { reports: [] as string[], scanned: 0, painted: [] as string[] };
+  const dirs = pluginDirs(options);
   const reports = [];
+  const painted = new Set<string>();
   let scanned = 0;
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
       scanned += 1;
-      reports.push(...auditText(file, readFileSync(file, 'utf8')));
+      const text = readFileSync(file, 'utf8');
+      const scope = sourceScope(resolve(file), dirs);
+      reports.push(...auditText(file, text, scope));
+      if (scope === 'plugin') for (const part of paintedParts(text)) painted.add(part);
     }
   }
-  return { reports, scanned };
+  return { reports, scanned, painted: [...painted].sort() };
 }
 
 export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
@@ -375,7 +414,15 @@ export function themeStep(
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, css);
 
-  return { code: 0, reports, fatal: [] as string[], notes: auto.notes, wrote: `${out} (${css.length} bytes)` };
+  const wrote = [`${out} (${css.length} bytes)`];
+  const layered = pluginCss(pluginSheets(config, dirname(resolve(options.config))));
+  if (layered !== null) {
+    const at = join(options.out, PLUGIN_SHEET);
+    writeFileSync(at, layered);
+    wrote.push(`${at} (${layered.length} bytes, wrapped in @layer ${PLUGIN_LAYER})`);
+  }
+
+  return { code: 0, reports, fatal: [] as string[], notes: auto.notes, wrote: wrote.join(' and ') };
 }
 
 export function iconsStep(options: ResolvedOptions,
@@ -497,10 +544,15 @@ export function main(argv: string[], environment: Environment = {}) {
 
   const audit = auditStep(options);
   for (const line of audit.reports) console.error(`arena-to-prod: ${line}`);
-  if (options.audit)
+  if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `
       + `${audit.reports.length || 'no'} finding(s). No gate reads your application, so these hold `
       + 'because you hold them');
+    const named = audit.painted.length ? `: ${audit.painted.join(', ')}` : '';
+    console.log(`arena-to-prod: your style plugin(s) paint ${audit.painted.length || 'no'} part(s)${named}. `
+      + 'A role is added to Arena when several style plugins are measured painting the same decision '
+      + 'by hand through the same part, so this note is where the evidence for one comes from');
+  }
 
   const markers = markersStep(options, map);
   for (const line of markers.reports) console.error(`arena-to-prod: ${line}`);

@@ -3,10 +3,11 @@
  * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here
  * rather than holding a second copy that would drift. It depends on nothing but its own siblings,
  * because inside a package scripts/ does not exist. It decides what source text shows and nothing
- * else, and the omissions are the point: one primary per view needs a view and a file is not one,
- * and filled danger and the render rules are not visible from outside. A line carrying an allow
- * marker is exempt, and a marker over a line with nothing to exempt is stale and reported, so an
- * allowance cannot outlive what it was written for. */
+ * else: filled danger and the render rules are not visible from outside. A line carrying an allow
+ * marker is exempt, and a marker over a line with nothing to exempt is stale. Every rule is read
+ * in a SCOPE, because an audit that cannot say where a project's appearance lives has given up
+ * half of what it reports: a declared style plugin directory may select a part hook and may paint
+ * a gradient, and an application source may do neither. */
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
@@ -113,7 +114,29 @@ const OWN_RULE = /(^|[\s,{}])\.arena-[a-z0-9-]+/;
 const RAW_HEX = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3}(?:[0-9a-fA-F]{2})?)?\b/;
 const BARE_PIXELS = /(?<![\w.-])-?\d*\.?\d+px\b/;
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
+const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
+
+export const PAINTED_PART = /\[data-arena-part\s*=\s*"([^"]+)"\]/g;
+
+export type Scope = 'app' | 'plugin';
+
+export const SEGMENT = /[^/\\]+/g;
+
+const segments = (path: string) => path.match(SEGMENT) ?? [];
+
+export function sourceScope(relPath: string, pluginDirs: string[]): Scope {
+  const path = segments(relPath);
+  const inside = (dir: string) => {
+    const at = segments(dir);
+    return at.length > 0 && at.every((part, i) => path[i] === part);
+  };
+  return pluginDirs.some(inside) ? 'plugin' : 'app';
+}
+
+export function paintedParts(css: string) {
+  return [...new Set([...css.matchAll(PAINTED_PART)].map((m) => group(m)))].sort();
+}
 
 const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
@@ -122,7 +145,7 @@ const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
 const OPEN_TAG = /<([A-Za-z][A-Za-z0-9._-]*)/g;
 const ARENA_TAG = /^(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)$/;
 const LINK_TAG = /^(?:a|Link|NavLink)$/;
-const OWN_CLASS_ATTRIBUTE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[class\.[a-z0-9-]+\])\s*=/;
+export const OWN_CLASS_ATTRIBUTE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[class\.[a-z0-9-]+\])\s*=/;
 const ROUTER_ATTRIBUTE = /(?:^|\s)(?:routerLink|\[routerLink\]|to|href)\s*=/;
 
 export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws. Arena renders its '
@@ -180,12 +203,18 @@ export function structuralFindings(text: string): Finding[] {
   return found;
 }
 
-export function lineFindings(line: string, isStylesheet: boolean): Finding[] {
+export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app'): Finding[] {
   const found: Finding[] = [];
 
   if (isStylesheet && OWN_RULE.test(line))
     found.push(at(0, 'own-class', 'a rule targeting an arena- class. That name is compiler output '
       + 'rather than a surface somebody meant you to target, and a slot may be renamed in any release'));
+
+  if (scope === 'app' && PART_SELECTOR.test(line))
+    found.push(at(0, 'own-class', 'a rule targeting a data-arena-part hook from outside a style '
+      + 'plugin. The hook is where a project\'s appearance is allowed to live, and a rule reaching '
+      + 'it from anywhere else is appearance nobody can find; move it into a directory the config '
+      + 'declares in stylePlugins'));
 
   const styled = isStylesheet || INLINE_STYLE.test(line);
   if (styled && RAW_HEX.test(line))
@@ -194,7 +223,7 @@ export function lineFindings(line: string, isStylesheet: boolean): Finding[] {
   if (styled && BARE_PIXELS.test(line))
     found.push(at(0, 'raw-value', 'a bare pixel length. Read it through the spacing scale, as '
       + 'var(--sp-4), or derive it with calc() over one'));
-  if (styled && GRADIENT.test(line))
+  if (styled && scope === 'app' && GRADIENT.test(line))
     found.push(at(0, 'raw-value', 'a gradient. Depth comes from the base-100 to base-300 surface '
       + 'scale, the hairline border and the warm shadow'));
 
@@ -215,19 +244,19 @@ export function bracketFindings(text: string, lines: string[]): Finding[] {
   });
 }
 
-export function findings(relPath: string, text: string): Finding[] {
+export function findings(relPath: string, text: string, scope: Scope = 'app'): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
   const perLine = lines.flatMap((line, index) =>
-    lineFindings(line, isStylesheet).map((one) => at(index + 1, one.rule, one.message)));
+    lineFindings(line, isStylesheet, scope).map((one) => at(index + 1, one.rule, one.message)));
   return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 
-export function auditText(relPath: string, text: string): string[] {
+export function auditText(relPath: string, text: string, scope: Scope = 'app'): string[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text)) {
+  for (const one of findings(relPath, text, scope)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }

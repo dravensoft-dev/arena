@@ -7,7 +7,8 @@ import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
-  COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn,
+  COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
+  pluginCss,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
@@ -616,7 +617,7 @@ test('a consumer file that merely ends in .generated.css is still a source, sinc
 });
 
 test('the skipped names are exactly what the command writes, derived rather than restated', () => {
-  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, THEME_SHEET].sort());
+  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, PLUGIN_SHEET, THEME_SHEET].sort());
 });
 
 
@@ -631,3 +632,26 @@ test('the shipped catalogue is the one this build actually assembles, not only a
   }
 });
 
+
+test('a plugin stylesheet is wrapped and its author never spells the layer', () => {
+  assert.equal(
+    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }' }]),
+    '@layer arena-plugin {\n[data-arena-part="card"] { border-radius: 0 }\n}\n',
+    'the layer is the build\'s to declare, because a plugin author writing it could get it wrong '
+    + 'in a way nothing reports',
+  );
+});
+
+test('several plugins concatenate in list order, so a later one wins by source order', () => {
+  const css = pluginCss([{ name: 'a', css: '.x{}' }, { name: 'b', css: '.y{}' }]);
+  assert.ok((css ?? '').indexOf('.x{}') < (css ?? '').indexOf('.y{}'));
+});
+
+test('no plugin carrying css writes no sheet at all', () => {
+  assert.equal(pluginCss([]), null, 'an empty layer is a file a consumer imports for nothing');
+});
+
+test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {
+  assert.ok(OUTPUT_SHEETS.has(PLUGIN_SHEET));
+  assert.equal(PLUGIN_CSS, 'plugin.css');
+});

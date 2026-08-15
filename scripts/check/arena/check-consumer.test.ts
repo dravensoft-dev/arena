@@ -9,9 +9,9 @@ import {
   importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented,
   SOURCES, UNKNOWN, FILL, GLYPH,
 } from './check-consumer.ts';
+import type { CliRun } from './check-consumer.ts';
 
-const ok: { status: number; stderr: string; theme: string | null; icons: string | null } =
-  { status: 0, stderr: '', theme: null, icons: null };
+const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
 
 const sheetImports = (...names: string[]) => ({
   ...ok,

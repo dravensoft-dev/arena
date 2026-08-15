@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 36_000,
+    budget: 38_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -63,7 +63,10 @@ export const ROUTES: Route[] = [
       + 'is argued up rather than held down when a correction lands on the npm page: a pre-paint '
       + 'script that answers the device as well as storage is longer than one that does not, and '
       + 'being right is what the page is for. It is what the stops measure once the appearance a '
-      + 'project adopts stopped being picked from a page rather than written in a directory.',
+      + 'project adopts stopped being picked from a page rather than written in a directory. '
+      + 'Raised from 36,000 when the audit gained a scope: a consumer has to be told which rule '
+      + 'relaxes inside a style plugin directory and which does not, and a report that is silent '
+      + 'about where it stops applying is one nobody can act on.',
   },
   {
     name: 'contributor-component',

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  auditText, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist, UNMODELLED_UNITS,
+  auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
+  paintedParts, sourceScope, OWN_CLASS_ATTRIBUTE, UNMODELLED_UNITS,
 } from './audit.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -118,4 +119,58 @@ test('the markdown allowance the gate relies on still reads from this module', (
 test('the unit list the dimension gate reads is the one stated here', () => {
   assert.ok(UNMODELLED_UNITS.includes('vh'));
   assert.ok(!UNMODELLED_UNITS.includes('px'));
+});
+
+test('a part selector is sanctioned in a plugin and reported in the app', () => {
+  const rule = '[data-arena-part="card.body"] { color: var(--ink-body) }';
+  assert.deepEqual(findings('p.css', rule, 'plugin'), [],
+    'the plugin directory is the one place a project\'s appearance lives, and the hook is how it '
+    + 'reaches a component');
+  const app = findings('a.css', rule, 'app');
+  assert.equal(app.length, 1);
+  assert.equal(app[0]?.rule, 'own-class');
+});
+
+test('a compiler class is reported in both scopes', () => {
+  const rule = '.arena-card__root { color: var(--ink-body) }';
+  assert.equal(findings('p.css', rule, 'plugin').length, 1,
+    'the part hook is the contract and the compiled class name is output, so reaching for the '
+    + 'class is a defect even inside a plugin');
+  assert.equal(findings('a.css', rule, 'app').length, 1);
+});
+
+test('a raw value is reported in both scopes and a gradient only in the app', () => {
+  assert.equal(findings('p.css', '.x { color: #fff }', 'plugin')[0]?.rule, 'raw-value');
+  assert.deepEqual(findings('p.css', '.x { background: linear-gradient(red, blue) }', 'plugin'), [],
+    'a plugin paints a gradient from its own stylesheet whatever the token tier says, so the norm '
+    + 'records it as a report rather than a floor and --strict may not refuse what the norm permits');
+  assert.equal(findings('a.css', '.x { background: linear-gradient(red, blue) }', 'app')[0]?.rule,
+    'raw-value');
+});
+
+test('the scope defaults to the application, so no caller changes meaning by accident', () => {
+  assert.equal(findings('a.css', '[data-arena-part="card"] { color: red }').length,
+    findings('a.css', '[data-arena-part="card"] { color: red }', 'app').length);
+});
+
+test('a source inside a declared plugin directory is plugin scope and nothing else is', () => {
+  const dirs = ['design/shop', 'vendor/house'];
+  assert.equal(sourceScope('design/shop/plugin.css', dirs), 'plugin');
+  assert.equal(sourceScope('design/shop/deep/more.css', dirs), 'plugin');
+  assert.equal(sourceScope('design/shopfront/plugin.css', dirs), 'app',
+    'a prefix that stops mid-segment is a different directory');
+  assert.equal(sourceScope('src/app.css', dirs), 'app');
+  assert.equal(sourceScope('design/shop/plugin.css', []), 'app');
+});
+
+test('the audit reports which parts a plugin paints', () => {
+  assert.deepEqual(paintedParts('[data-arena-part="card.body"]{}[data-arena-part="hero.title"]{}'),
+    ['card.body', 'hero.title']);
+  assert.deepEqual(paintedParts('[data-arena-part="card"]{}[data-arena-part="card"]{}'), ['card'],
+    'it answers which parts rather than how many rules, because it is what the role tier grows by');
+});
+
+test('the own-class attribute pattern is exported, so its suite can assert on it', () => {
+  assert.ok(OWN_CLASS_ATTRIBUTE.test(' className='));
+  assert.ok(OWN_CLASS_ATTRIBUTE.test(' [class]='));
 });

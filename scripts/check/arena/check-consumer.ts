@@ -23,7 +23,9 @@ import { linkDir } from '../../lib/arena/platform.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
-import { THEME_SHEET, ICONS_SHEET } from '../../generate/core/arena-to-prod/arena-to-prod.ts';
+import {
+  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER,
+} from '../../generate/core/arena-to-prod/arena-to-prod.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { WEIGHT_CLASSES } from '../../generate/core/arena-to-prod/icon-css.ts';
@@ -124,7 +126,10 @@ export function assemble(base = root) {
   return { built: true, missing };
 }
 
-export type CliRun = { status: number | null; stderr: string; theme: string | null; icons: string | null };
+export type CliRun = {
+  status: number | null; stdout: string; stderr: string;
+  theme: string | null; icons: string | null; plugin: string | null;
+};
 
 export function fixture(
   layer: string, files: Record<string, string>, stylesheet: Record<string, unknown>, base = root,
@@ -146,6 +151,13 @@ export const PARTIAL_ANSWERS = {
   'fill-surface': { $type: 'color', $value: '{color.base-300}' },
 };
 
+export const PAINTED = 'card.body';
+
+export const PLUGIN_PAINT = `[data-arena-part="${PAINTED}"] {\n`
+  + '  background: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));\n}\n';
+
+export const REACHING_IN = 'src/reach.css';
+
 export function pluginFixture(layer: string, plugins: string[], base = root) {
   const dir = fixture(layer, SOURCES[layer] ?? {}, AUTO, base);
   const written = readJson(join(dir, 'arena.config.json'));
@@ -159,7 +171,9 @@ export function pluginFixture(layer: string, plugins: string[], base = root) {
       continue;
     }
     writeFileSync(join(at, PLUGIN_TOKENS), `${JSON.stringify(PARTIAL_ANSWERS, null, 2)}\n`);
+    writeFileSync(join(at, PLUGIN_CSS), PLUGIN_PAINT);
   }
+  writeFileSync(join(dir, ...REACHING_IN.split('/')), PLUGIN_PAINT);
   return dir;
 }
 
@@ -194,6 +208,49 @@ export function stylePluginProblems(layer: string, valid: CliRun, partial: CliRu
   return problems;
 }
 
+export function layerProblems(layer: string, valid: CliRun) {
+  const problems = [];
+  const sheet = valid.plugin;
+  if (!sheet) {
+    problems.push(`${layer}: a style plugin carrying ${PLUGIN_CSS} produced no ${PLUGIN_SHEET}, so the CSS `
+      + 'half of a plugin reaches no page at all');
+    return problems;
+  }
+  if (!sheet.startsWith(`@layer ${PLUGIN_LAYER} {`)) {
+    problems.push(`${layer}: ${PLUGIN_SHEET} does not open the reserved layer. Every compiled component `
+      + 'rule sits in @layer utilities at one class of specificity, so an unlayered plugin rule would '
+      + `need !important to reach anything:\n    ${sheet.slice(0, 80)}`);
+  }
+  if (!sheet.includes(PAINTED)) {
+    problems.push(`${layer}: ${PLUGIN_SHEET} carries no rule the plugin wrote, so the wrap is empty`);
+  }
+  return problems;
+}
+
+export function scopeProblems(layer: string, audited: CliRun) {
+  const problems = [];
+  const reported = audited.stderr.split('\n').filter((line) => line.includes('(own-class)'));
+  if (reported.some((line) => line.includes(PLUGIN_CSS))) {
+    problems.push(`${layer}: --audit reported a part selector inside a directory the config declares in `
+      + 'stylePlugins. That directory is the one place a project\'s appearance is allowed to live, and '
+      + `a gate a consumer cannot trust is worse than none:\n    ${reported[0]}`);
+  }
+  if (!reported.some((line) => line.includes(REACHING_IN))) {
+    problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit no longer says `
+      + 'where a project\'s appearance lives, which is half of what it reports');
+  }
+  if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {
+    problems.push(`${layer}: --audit reported a gradient inside a style plugin. A plugin paints one from its `
+      + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
+      + 'floor and --strict may not refuse what the norm permits');
+  }
+  if (!audited.stdout.includes(`paint 1 part(s): ${PAINTED}`)) {
+    problems.push(`${layer}: the run does not name the parts the plugin paints, and that note is where the `
+      + `evidence for promoting a role comes from:\n    ${audited.stdout.trim()}`);
+  }
+  return problems;
+}
+
 export function installed(layer: string, dir: string, base = root) {
   const name = PACKAGES.find((p) => p.layer === layer)?.name;
   if (!name) throw new Error(`check-consumer: no package is declared for a layer called "${layer}"`);
@@ -211,7 +268,14 @@ export function runCli(layer: string, dir: string, base = root, extra: string[] 
     const at = join(dir, 'out', name);
     return readIfExists(at);
   };
-  return { status: run.status, stderr: run.stderr ?? '', theme: read(THEME_SHEET), icons: read(ICONS_SHEET) };
+  return {
+    status: run.status,
+    stdout: run.stdout ?? '',
+    stderr: run.stderr ?? '',
+    theme: read(THEME_SHEET),
+    icons: read(ICONS_SHEET),
+    plugin: read(PLUGIN_SHEET),
+  };
 }
 
 export function auditProblems(layer: string, reported: CliRun, strict: CliRun, rules: string[]) {
@@ -373,11 +437,10 @@ export function collect(base = root) {
         breaking?.rules ?? [],
       ));
       problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['--audit'])));
-      problems.push(...stylePluginProblems(
-        layer,
-        runCli(layer, plugged, base, ['--strict']),
-        runCli(layer, partialRoot, base, ['--strict']),
-      ));
+      const valid = runCli(layer, plugged, base, ['--strict']);
+      problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base, ['--strict'])));
+      problems.push(...layerProblems(layer, valid));
+      problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['--src', 'design', '--audit'])));
     }
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
