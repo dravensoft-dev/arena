@@ -330,6 +330,21 @@
    */
   --step-title-section:24px;
   /*
+     Which step the title of a PAGE takes: the one heading that names the screen a
+     reader is on. Born at fs.h1, which is the step the page head names outright today.
+     
+     It completes the ladder rather than starting one. A card's title, a section's title and a page's
+     title were three answers to one question, and two of them were roles while the third was a step,
+     so a voice could re-pitch a card and a section and then found the page head immovable above them.
+     The hierarchy a voice writes is the DISTANCE between these, and a rung nailed down is a hierarchy
+     it can only bend.
+     
+     What it is not is a size for anything large. A hero's line is set by its own role, because a
+     landing page's opening line and the heading of a settings screen are different jobs that happen
+     to both be big.
+   */
+  --step-title-page:44px;
+  /*
      The room a CONTROL gives its content across: a button, a chip, a menu item, a tab.
      Born at sp.3, the step the majority of control slots name.
      

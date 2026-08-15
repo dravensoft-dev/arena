@@ -142,6 +142,7 @@
   --text-eyebrow: var(--step-eyebrow);
   --text-title-surface: var(--step-title-surface);
   --text-title-section: var(--step-title-section);
+  --text-title-page: var(--step-title-page);
   --text-lg: var(--fs-lg);
   --text-md: var(--fs-md);
   --text-sm: var(--fs-sm);

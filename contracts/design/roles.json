@@ -144,6 +144,11 @@
     "$value": "{fs.h3}",
     "$description": "Which step the title of a SECTION takes: the head of a region on a page, above\nthe surfaces inside it. Born at fs.h3, which the section-level title slots name today.\n\nThe cut against step-title-surface is what the title is titling, not how big it is. They happen\nto be one step apart at rest, and a voice that widens the gap is saying the page has sections;\none that closes it is saying the page is a wall of equals."
   },
+  "step-title-page": {
+    "$type": "dimension",
+    "$value": "{fs.h1}",
+    "$description": "Which step the title of a PAGE takes: the one heading that names the screen a\nreader is on. Born at fs.h1, which is the step the page head names outright today.\n\nIt completes the ladder rather than starting one. A card's title, a section's title and a page's\ntitle were three answers to one question, and two of them were roles while the third was a step,\nso a voice could re-pitch a card and a section and then found the page head immovable above them.\nThe hierarchy a voice writes is the DISTANCE between these, and a rung nailed down is a hierarchy\nit can only bend.\n\nWhat it is not is a size for anything large. A hero's line is set by its own role, because a\nlanding page's opening line and the heading of a settings screen are different jobs that happen\nto both be big."
+  },
   "pad-control-x": {
     "$type": "dimension",
     "$value": "{sp.3}",
