@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateTree, zeroSourceProblems } from './check-dtcg.ts';
+import { EXCLUDED, validateTree, zeroSourceProblems } from './check-dtcg.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
@@ -103,4 +103,11 @@ test('every rhythm step is an alias of sp, so a step cannot drift off the 4px gr
       + 'length of its own, because a length authored here is a length off the 4px grid the '
       + 'moment somebody rounds it');
   }
+});
+
+test('the role declaration is excluded by name and says why', () => {
+  const why = EXCLUDED.get('roles.json') ?? '';
+  assert.match(why, /carries no value/,
+    'a DTCG token without $value is not a DTCG token, so the file leaves this gate by name rather '
+    + 'than by an accident of what the walk happens to accept');
 });

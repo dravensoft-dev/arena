@@ -4,9 +4,9 @@
  * what earns it: a bare `string` would carry the same value and give up the only thing a type
  * buys, since with no set `smallcaps` is as valid as `uppercase` and no gate can tell them apart.
  * A keyword therefore names the words it may take and this gate refuses the rest. The set is
- * declared once, on the role in `roles.json`; a style plugin re-values a role it did not declare and
- * repeats nothing, so `values` is optional here and `check:style-plugin` is what holds a moved
- * keyword to its role's set. The reasoning in full is in `contracts/design/TokenTypes.md`. */
+ * declared once, on the role in `roles.json`, which EXCLUDED keeps out of this walk by name: a
+ * role states a question and carries no value, and a DTCG token without one is not a DTCG token.
+ * The reasoning in full is in `contracts/design/TokenTypes.md`. */
 
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -137,6 +137,12 @@ export function validateTree(tree: DtcgNode, file: string) {
   return errs;
 }
 
+export const EXCLUDED = new Map([
+  ['roles.json',
+   'it declares the questions the kernel asks and carries no value, so it is not a token file. '
+   + 'A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead.'],
+]);
+
 export function zeroSourceProblems(count: number) {
   if (count > 0) return [];
   return ['found 0 token files in contracts/design — an empty result set is a failure, not a clean pass; check the discovery path'];
@@ -144,7 +150,7 @@ export function zeroSourceProblems(count: number) {
 
 function main() {
   const src = join(root, 'contracts/design');
-  const files = readdirSync(src).filter((f) => f.endsWith('.json')).sort();
+  const files = readdirSync(src).filter((f) => f.endsWith('.json') && !EXCLUDED.has(f)).sort();
   const zero = zeroSourceProblems(files.length);
   if (zero.length) { for (const z of zero) console.error(`check-dtcg: ${z}`); process.exit(1); }
   let errs: string[] = [];
