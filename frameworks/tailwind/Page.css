@@ -1,0 +1,35 @@
+/* frameworks/tailwind/Page.css
+   The column a page sits in, as classes a consumer puts on their own markup. Imported by
+   Theme.css, so `bun run build:tailwind` compiles it into Utilities.generated.css with everything
+   else, and copied into both packages as css/page.css the way rhythm.css and prose.css are.
+
+   The cut against Rhythm.css beside it is what each one measures. Rhythm is the air between two
+   components, in three named steps. This is the geometry of the page those components sit on:
+   how wide the content column gets, how far it stands off the viewport edge, and that a short
+   page still fills the window so its footer does not float halfway up one.
+
+   Both lengths are roles, so a voice re-answers them together, and neither is a number this file
+   chose. Narrowing the column while keeping the gutter says the page is a document; widening both
+   says it is a console.
+
+   The growing child carries a class rather than the shell distributing the slack, because a shell
+   with a header, a main and a footer has exactly one child that should grow and no rule here can
+   know which of the three it is. */
+
+.arena-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.arena-shell__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.arena-band {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}

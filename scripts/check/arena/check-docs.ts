@@ -425,6 +425,14 @@ export const NOT_A_VOICE = new Map<string, string>([
    'the same, from css/prose.css: the width of a reading column, which a consumer puts on the '
    + 'article or the section they wrote. A voice re-values --measure-prose behind it, which is '
    + 'exactly the split between a scope class and a utility'],
+  ['arena-shell',
+   'the same, from css/page.css: the column a page sits in, which a consumer puts on the element '
+   + 'wrapping their header, main and footer. It is written once per page, which is what makes it '
+   + 'read like a scope class, and it still is not one: it carries a box rather than a set of '
+   + 'values, and a page carries it and a voice at the same time'],
+  ['arena-band',
+   'the same sheet: the content column itself, at --container-max with --gutter either side. A '
+   + 'voice re-values both roles behind it, the way it re-values the measure behind .arena-prose'],
 ]);
 
 export const CLASS_ATTRIBUTE = /class(?:Name)?="([^"]*)"/g;

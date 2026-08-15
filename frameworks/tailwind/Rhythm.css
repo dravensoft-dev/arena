@@ -17,7 +17,12 @@
    target. See frameworks/PACKAGING.md, which owns that statement.
 
    Every value is a var() into a token, and none of them re-densifies: .arena-compact tightens
-   controls, not the page they sit on. */
+   controls, not the page they sit on.
+
+   The alignment modifiers carry no length at all, which is why they sit here rather than raising
+   a question for a voice to answer: where a row's items line up against each other is decided by
+   what is in the row, a trailing price against a wrapping name, and a voice that moved it would
+   be answering a question about content it cannot see. Only the gap is the system's. */
 
 .arena-stack {
   display: flex;
@@ -33,6 +38,14 @@
   gap: var(--rhythm-section);
 }
 
+.arena-stack--start {
+  align-items: flex-start;
+}
+
+.arena-stack--end {
+  align-items: flex-end;
+}
+
 .arena-row {
   display: flex;
   flex-wrap: wrap;
@@ -42,4 +55,16 @@
 
 .arena-row--component {
   gap: var(--rhythm-component);
+}
+
+.arena-row--start {
+  align-items: flex-start;
+}
+
+.arena-row--baseline {
+  align-items: baseline;
+}
+
+.arena-row--between {
+  justify-content: space-between;
 }
