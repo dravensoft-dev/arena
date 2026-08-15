@@ -46,27 +46,27 @@ export function ArenaConfirmDialog({ open, onCancel, onConfirm, title, eyebrow =
   const locked = requireText ? typed.trim() !== requireText : false;
   const styles = confirmStyles({ destructive, invalid: locked && typed !== '', open: true });
   return (
-    <div className={styles.root()}>
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
       <div role="alertdialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
-        className={styles.panel()}>
-        <div className={styles.head()}>
-          <div className={styles.eyebrow()}>{eyebrow}</div>
-          <div id={titleId} className={styles.title()}>{title}</div>
+        className={styles.panel()} data-arena-part={manifest.parts.panel}>
+        <div className={styles.head()} data-arena-part={manifest.parts.head}>
+          <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>
+          <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
         </div>
-        <div className={styles.body()}>
+        <div className={styles.body()} data-arena-part={manifest.parts.body}>
           {children}
           {requireText && (
-            <div className={styles.requireBlock()}>
-              <div className={styles.requireLabel()}>Type "{requireText}" to confirm</div>
+            <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock}>
+              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel}>Type "{requireText}" to confirm</div>
               <input value={typed} onChange={(e) => setTyped(e.target.value)}
-                className={styles.input()} />
+                className={styles.input()} data-arena-part={manifest.parts.input} />
             </div>
           )}
         </div>
-        <div className={styles.foot()}>
+        <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
           <ArenaButton variant="ghost" onClick={onCancel}>{cancelLabel}</ArenaButton>
-          <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()}>
+          <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()} data-arena-part={manifest.parts.confirm}>
             {confirmLabel}
           </button>
         </div>

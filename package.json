@@ -97,6 +97,7 @@
     "check:dimensions": "bun scripts/check/arena/check-dimension-literals.ts",
     "check:states": "bun scripts/check/arena/check-manifest-states.ts",
     "check:appearance": "bun scripts/check/arena/check-appearance.ts",
+    "check:parts": "bun scripts/check/arena/check-parts.ts",
     "check:layer-independence": "bun scripts/check/arena/check-layer-independence.ts",
     "check:structure": "bun scripts/check/arena/check-structure.ts",
     "check:contracts": "bun scripts/check/arena/check-contracts.ts",

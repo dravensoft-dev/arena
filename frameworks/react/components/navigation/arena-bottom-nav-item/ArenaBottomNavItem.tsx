@@ -52,15 +52,16 @@ export function ArenaBottomNavItem({
       if (onActivate) onActivate(id);
     },
     className: styles.item(),
+    'data-arena-part': manifest.parts.item,
   };
 
   const body = (
     <React.Fragment>
-      <span className={styles.glyph()}>
+      <span className={styles.glyph()} data-arena-part={manifest.parts.glyph}>
         <i className={on ? arenaActiveWeight(icon) : icon} aria-hidden="true" />
-        {tally !== null && <span className={styles.badge()}>{tally}</span>}
+        {tally !== null && <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{tally}</span>}
       </span>
-      <span className={styles.label()}>{label}</span>
+      <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
     </React.Fragment>
   );
 

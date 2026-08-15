@@ -26,12 +26,12 @@ const errorStyles = arenaStyles(manifest);
 export function ArenaErrorState({ icon, title = 'Something went wrong', message, code, retryLabel, onRetry, secondaryAction }: ArenaErrorStateProps) {
   const styles = errorStyles();
   return (
-    <div role="alert" className={styles.root()}>
-      {icon && <div className={styles.icon()}><i className={icon} aria-hidden="true" /></div>}
-      <div className={styles.title()}>{title}</div>
-      {message && <div className={styles.message()}>{message}</div>}
-      {code && <code className={styles.code()}>{code}</code>}
-      <div className={styles.actions()}>
+    <div role="alert" className={styles.root()} data-arena-part={manifest.parts.root}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
+      <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
+      {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
+      {code && <code className={styles.code()} data-arena-part={manifest.parts.code}>{code}</code>}
+      <div className={styles.actions()} data-arena-part={manifest.parts.actions}>
         {retryLabel && <ArenaButton variant="primary" onClick={onRetry}>{retryLabel}</ArenaButton>}
         {secondaryAction}
       </div>

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, contentChild, input } fro
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import { ArenaActions } from '../../../ProjectionMarkers';
 import { arenaPageHeadStyles } from './ArenaPageHead.variants';
+import manifest from './ArenaPageHead.classes.generated';
 import type { ArenaPageHeadAlign } from '../../../Api.generated';
 
 @Component({
@@ -10,21 +11,24 @@ import type { ArenaPageHeadAlign } from '../../../Api.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.title]': 'null',
   },
   template: `
-    <div [class]="styles().titles()">
-      <h1 [class]="styles().title()">{{ title() }}</h1>
+    <div [class]="styles().titles()" [attr.data-arena-part]="parts.titles">
+      <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</h1>
       @if (subtitle(); as caption) {
-        <p [class]="styles().subtitle()">{{ caption }}</p>
+        <p [class]="styles().subtitle()" [attr.data-arena-part]="parts.subtitle">{{ caption }}</p>
       }
     </div>
     @if (actions()) {
-      <div [class]="styles().actions()"><ng-content select="[actions]" /></div>
+      <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
     }
   `,
 })
 export class ArenaPageHead {
+  protected readonly parts = manifest.parts;
+
   /** The page title. Required: a page head with no title is a bug, not a state. */
   readonly title = input.required<string>();
   /** A muted line under the title. */

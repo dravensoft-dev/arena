@@ -4,6 +4,7 @@ import type { ArenaTableColumn } from '../../../Api.generated';
 import { ArenaTableState } from '../arena-table/ArenaTableState';
 import { ArenaTableRowState } from '../arena-table-row/ArenaTableRowState';
 import { arenaTableCellStyles } from './ArenaTableCell.variants';
+import manifest from '../arena-table/ArenaTable.classes.generated';
 
 const PLAIN: ArenaTableColumn = { header: '' };
 
@@ -13,6 +14,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'cellClass()',
+    '[attr.data-arena-part]': 'parts.td',
     '[attr.role]': 'role()',
     '[attr.tabindex]': 'tabIndex()',
     '[style.width]': 'width()',
@@ -23,15 +25,17 @@ const PLAIN: ArenaTableColumn = { header: '' };
     <ng-template #value><ng-content /></ng-template>
     @if (narrow()) {
       @if (labelled()) {
-        <span [class]="styles().cardLabel()">{{ column().header }}</span>
+        <span [class]="styles().cardLabel()" [attr.data-arena-part]="parts.cardLabel">{{ column().header }}</span>
       }
-      <span [class]="valueClass()"><ng-container *ngTemplateOutlet="value" /></span>
+      <span [class]="valueClass()" [attr.data-arena-part]="parts.cardValue"><ng-container *ngTemplateOutlet="value" /></span>
     } @else {
       <ng-container *ngTemplateOutlet="value" />
     }
   `,
 })
 export class ArenaTableCell {
+  protected readonly parts = manifest.parts;
+
   private readonly table = inject(ArenaTableState);
   private readonly row = inject(ArenaTableRowState);
 

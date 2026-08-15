@@ -62,19 +62,19 @@ export function ArenaActivityFeed({ items, label, busy = false }: ArenaActivityF
   return (
     <ul ref={feedRef} role="feed" aria-label={label} aria-busy={busy ? 'true' : 'false'}
       onKeyDown={onKeyDown}
-      className={feedStyles({}).root()}>
+      className={feedStyles({}).root()} data-arena-part={manifest.parts.root}>
       {items.map((item, i) => (
         <li key={item.id != null ? item.id : i}
           role="article" tabIndex={0}
           aria-posinset={i + 1} aria-setsize={items.length}
-          className={feedStyles({ tone: toneOf(item.tone), divided: i > 0 }).item()}>
-          <span aria-hidden="true" className={feedStyles({ tone: toneOf(item.tone) }).dot()} />
-          <span className={feedStyles({}).text()}>
-            <b className={feedStyles({}).actor()}>{item.actor}</b>
+          className={feedStyles({ tone: toneOf(item.tone), divided: i > 0 }).item()} data-arena-part={manifest.parts.item}>
+          <span aria-hidden="true" className={feedStyles({ tone: toneOf(item.tone) }).dot()} data-arena-part={manifest.parts.dot} />
+          <span className={feedStyles({}).text()} data-arena-part={manifest.parts.text}>
+            <b className={feedStyles({}).actor()} data-arena-part={manifest.parts.actor}>{item.actor}</b>
             {` ${item.action}${item.target ? ' ' : ''}`}
-            {item.target && <span className={feedStyles({}).target()}>{item.target}</span>}
+            {item.target && <span className={feedStyles({}).target()} data-arena-part={manifest.parts.target}>{item.target}</span>}
           </span>
-          {item.time && <span className={feedStyles({}).time()}>{item.time}</span>}
+          {item.time && <span className={feedStyles({}).time()} data-arena-part={manifest.parts.time}>{item.time}</span>}
         </li>
       ))}
     </ul>

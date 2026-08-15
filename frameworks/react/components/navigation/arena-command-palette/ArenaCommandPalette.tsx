@@ -101,26 +101,26 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
   };
   const styles = paletteStyles({ open: true });
   return (
-    <div onClick={onClose} className={styles.root()}>
+    <div onClick={onClose} className={styles.root()} data-arena-part={manifest.parts.root}>
       <div ref={panelRef} onKeyDown={onPanelKeyDown}
         onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="ArenaCommand palette"
-        className={styles.panel()}>
-        <div className={styles.search()}>
-          <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} aria-hidden="true" />
+        className={styles.panel()} data-arena-part={manifest.parts.panel}>
+        <div className={styles.search()} data-arena-part={manifest.parts.search}>
+          <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} aria-hidden="true" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={placeholder}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
             aria-controls={listboxId} aria-label={placeholder || 'Search commands'}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
-            className={styles.input()} />
-          <span className={styles.esc()}>ESC</span>
+            className={styles.input()} data-arena-part={manifest.parts.input} />
+          <span className={styles.esc()} data-arena-part={manifest.parts.esc}>ESC</span>
         </div>
-        <div ref={listRef} id={listboxId} role="listbox" aria-label="Commands" className={styles.list()}>
-          {filtered.length === 0 && <div className={styles.empty()}>No results for "{q}".</div>}
+        <div ref={listRef} id={listboxId} role="listbox" aria-label="Commands" className={styles.list()} data-arena-part={manifest.parts.list}>
+          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty}>No results for "{q}".</div>}
           {groups.map((group) => (
-            <div key={group.name ?? ''} className={styles.group()}
+            <div key={group.name ?? ''} className={styles.group()} data-arena-part={manifest.parts.group}
               role={group.name ? 'group' : undefined} aria-label={group.name ?? undefined}>
               {group.name && (
-                <span aria-hidden="true" className={styles.groupLabel()}>{group.name}</span>
+                <span aria-hidden="true" className={styles.groupLabel()} data-arena-part={manifest.parts.groupLabel}>{group.name}</span>
               )}
               {group.rows.map(({ command: c, index: idx }) => {
                 const on = idx === i;
@@ -138,12 +138,14 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
                     run(c);
                   },
                   className: `${styles.row()} ${on ? styles.rowActive() : styles.rowDefault()}`,
+                  'data-arena-part': manifest.parts.row,
                 };
                 const body = (
                   <>
-                    {c.icon && <span className={styles.rowIcon()}><i className={c.icon} aria-hidden="true" /></span>}
-                    <span className={`${styles.rowLabel()} ${on ? styles.rowLabelActive() : styles.rowLabelDefault()}`}>{c.label}</span>
-                    {c.shortcut && <span className={styles.shortcut()}>{c.shortcut}</span>}
+                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon}><i className={c.icon} aria-hidden="true" /></span>}
+                    <span className={`${styles.rowLabel()} ${on ? styles.rowLabelActive() : styles.rowLabelDefault()}`}
+                      data-arena-part={manifest.parts.rowLabel}>{c.label}</span>
+                    {c.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{c.shortcut}</span>}
                   </>
                 );
                 return c.route

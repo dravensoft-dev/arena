@@ -28,13 +28,13 @@ export function ArenaFigure({
   const styles = arenaFigureStyles();
 
   return (
-    <figure className={styles.root()}>
-      <div className={styles.frame()} style={{ aspectRatio: ratio }}>
-        {media && <div className={styles.media()}>{media}</div>}
-        {!media && fallback && <div className={styles.fallback()}>{fallback}</div>}
-        {overlay && <div className={styles.overlay()}>{overlay}</div>}
+    <figure className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.frame()} data-arena-part={manifest.parts.frame} style={{ aspectRatio: ratio }}>
+        {media && <div className={styles.media()} data-arena-part={manifest.parts.media}>{media}</div>}
+        {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback}>{fallback}</div>}
+        {overlay && <div className={styles.overlay()} data-arena-part={manifest.parts.overlay}>{overlay}</div>}
       </div>
-      {caption && <figcaption className={styles.caption()}>{caption}</figcaption>}
+      {caption && <figcaption className={styles.caption()} data-arena-part={manifest.parts.caption}>{caption}</figcaption>}
     </figure>
   );
 }

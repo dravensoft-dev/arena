@@ -80,22 +80,23 @@ export function ArenaTextarea({
     if (autoResize) arenaFitToContent(boxRef.current);
   }, [autoResize, value, rows]);
   return (
-    <div className={styles.root()}>
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
       {label && (
-        <label htmlFor={taId} className={styles.label()}>
-          {label}{required && <span className={styles.required()}>*</span>}
+        <label htmlFor={taId} className={styles.label()} data-arena-part={manifest.parts.label}>
+          {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required}>*</span>}
         </label>
       )}
       <textarea ref={boxRef} id={taId} rows={rows} maxLength={maxLength} disabled={disabled} required={required}
         readOnly={readOnly} placeholder={placeholder} name={name}
         aria-invalid={!!error} value={value}
         onChange={(e) => { if (autoResize) arenaFitToContent(e.target); onChange && onChange(e.target.value); }}
-        className={styles.field()} />
-      <div className={styles.foot()}>
-        {error ? <span className={styles.error()}>{error}</span>
-          : hint ? <span className={styles.hint()}>{hint}</span> : <span />}
+        className={styles.field()} data-arena-part={manifest.parts.field} />
+      <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
+        {error ? <span className={styles.error()} data-arena-part={manifest.parts.error}>{error}</span>
+          : hint ? <span className={styles.hint()} data-arena-part={manifest.parts.hint}>{hint}</span> : <span />}
         {counter && maxLength && (
-          <span className={len > maxLength * 0.9 ? styles.counterNear() : styles.counter()}>{len}/{maxLength}</span>
+          <span className={len > maxLength * 0.9 ? styles.counterNear() : styles.counter()}
+            data-arena-part={manifest.parts.counter}>{len}/{maxLength}</span>
         )}
       </div>
     </div>

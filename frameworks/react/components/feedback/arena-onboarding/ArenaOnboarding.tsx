@@ -66,22 +66,23 @@ export function ArenaOnboarding({ open, steps, index = 0, onNext, onBack, onSkip
 
   const styles = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true });
   return (
-    <div onClick={onSkip} className={styles.root()}>
+    <div onClick={onSkip} className={styles.root()} data-arena-part={manifest.parts.root}>
       <div role="dialog" aria-modal="true" aria-label={label}
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()}
-        className={styles.panel()} style={pos}>
-        {step.eyebrow && <div className={styles.eyebrow()}>{step.eyebrow}</div>}
-        {step.title && <div className={styles.title()}>{step.title}</div>}
-        {step.body && <div className={styles.body()}>{step.body}</div>}
-        <div className={styles.foot()}>
-          <div className={styles.dots()} aria-label={'Progress: step ' + (index + 1) + ' of ' + steps.length}>
+        className={styles.panel()} data-arena-part={manifest.parts.panel} style={pos}>
+        {step.eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{step.eyebrow}</div>}
+        {step.title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{step.title}</div>}
+        {step.body && <div className={styles.body()} data-arena-part={manifest.parts.body}>{step.body}</div>}
+        <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
+          <div className={styles.dots()} data-arena-part={manifest.parts.dots} aria-label={'Progress: step ' + (index + 1) + ' of ' + steps.length}>
             {steps.map((_, i) => (
-              <span key={i} className={`${styles.dot()} ${i === index ? styles.dotOn() : styles.dotOff()}`} />
+              <span key={i} className={`${styles.dot()} ${i === index ? styles.dotOn() : styles.dotOff()}`}
+                data-arena-part={manifest.parts.dot} />
             ))}
           </div>
-          {index > 0 && <button onClick={onBack} className={styles.text()}>Back</button>}
-          {!last && <button onClick={onSkip} className={styles.text()}>Skip</button>}
-          <button onClick={last ? onDone : onNext} className={styles.next()}>
+          {index > 0 && <button onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text}>Back</button>}
+          {!last && <button onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text}>Skip</button>}
+          <button onClick={last ? onDone : onNext} className={styles.next()} data-arena-part={manifest.parts.next}>
             {last ? 'Got it' : 'Next'}
           </button>
         </div>

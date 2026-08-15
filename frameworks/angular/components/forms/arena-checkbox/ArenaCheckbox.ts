@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output,
 } from '@angular/core';
 import { arenaCheckboxStyles } from './ArenaCheckbox.variants';
+import manifest from './ArenaCheckbox.classes.generated';
 
 export const ARENA_CHECK_GLYPH_STYLE = { width: 'var(--sp-3)', height: 'var(--sp-3)' };
 export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
@@ -15,25 +16,27 @@ export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
     '[attr.name]': 'null',
   },
   template: `
-    <label [class]="styles().root()">
-      <span [class]="styles().box()">
+    <label [class]="styles().root()" [attr.data-arena-part]="parts.root">
+      <span [class]="styles().box()" [attr.data-arena-part]="parts.box">
         @if (checked()) {
-          <svg [class]="styles().check()" viewBox="0 0 12 12" fill="none" [style]="glyph">
+          <svg [class]="styles().check()" [attr.data-arena-part]="parts.check" viewBox="0 0 12 12" fill="none" [style]="glyph">
             <path d="M2 6l3 3 5-6" stroke="currentColor" stroke-linecap="round"
                   stroke-linejoin="round" [style]="glyphStroke"></path>
           </svg>
         }
       </span>
       @if (label(); as text) {
-        <span [class]="styles().label()">{{ text }}</span>
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ text }}</span>
       }
-      <input type="checkbox" [class]="styles().input()" [checked]="checked()"
+      <input type="checkbox" [class]="styles().input()" [attr.data-arena-part]="parts.input" [checked]="checked()"
              [attr.name]="name()" [attr.value]="value()" [required]="required()"
              [disabled]="disabled()" (change)="onChange($event)" />
     </label>
   `,
 })
 export class ArenaCheckbox {
+  protected readonly parts = manifest.parts;
+
   /** Whether it is ticked. */
   readonly checked = input(false, { transform: booleanAttribute });
   /** Text beside the box. */

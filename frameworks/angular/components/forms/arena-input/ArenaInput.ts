@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import type { ArenaInputType, ArenaValidateOn } from '../../../Api.generated';
 import { arenaInputStyles } from './ArenaInput.variants';
+import manifest from './ArenaInput.classes.generated';
 
 export function arenaInputIdFor(id: string | undefined, label: string | undefined): string | null {
   if (id) return id;
@@ -16,23 +17,24 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
     '[attr.id]': 'null',
   },
   template: `
     @if (label(); as text) {
-      <label [class]="styles().label()" [attr.for]="controlId()">{{ text }}@if (required()) {
-        <span [class]="styles().required()">*</span>
+      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="controlId()">{{ text }}@if (required()) {
+        <span [class]="styles().required()" [attr.data-arena-part]="parts.required">*</span>
       }</label>
     }
-    <div [class]="styles().field()">
+    <div [class]="styles().field()" [attr.data-arena-part]="parts.field">
       @if (icon()) {
-        <i [class]="iconClass()" aria-hidden="true"></i>
+        <i [class]="iconClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
       }
       @if (prefix(); as text) {
-        <span [class]="styles().prefix()">{{ text }}</span>
+        <span [class]="styles().prefix()" [attr.data-arena-part]="parts.prefix">{{ text }}</span>
       }
-      <input #control [class]="styles().input()" [attr.id]="controlId()" [attr.type]="type()"
+      <input #control [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.id]="controlId()" [attr.type]="type()"
              [value]="value() ?? ''" [disabled]="disabled()" [readOnly]="readOnly()"
              [required]="required()" [attr.aria-invalid]="hasError()"
              [attr.placeholder]="placeholder()" [attr.name]="name()"
@@ -40,19 +42,21 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
              [attr.step]="step()" [attr.maxlength]="maxLength()" [attr.pattern]="pattern()"
              (input)="onInput($event)" (change)="onNativeChange($event)" (blur)="onBlur($event)" />
       @if (hasError()) {
-        <i [class]="statusIconClass('ph-fill ph-warning-circle')" aria-hidden="true"></i>
+        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
       } @else if (isValid()) {
-        <i [class]="statusIconClass('ph-fill ph-check-circle')" aria-hidden="true"></i>
+        <i [class]="statusIconClass('ph-fill ph-check-circle')" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
       }
     </div>
     @if (shownError(); as message) {
-      <span [class]="styles().error()">{{ message }}</span>
+      <span [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()">{{ text }}</span>
+      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })
 export class ArenaInput {
+  protected readonly parts = manifest.parts;
+
   /** Field label above the control. */
   readonly label = input<string>();
   /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. */

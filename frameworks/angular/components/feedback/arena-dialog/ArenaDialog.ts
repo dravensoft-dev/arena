@@ -17,6 +17,7 @@ import {
 import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaDialogStyles } from './ArenaDialog.variants';
+import manifest from './ArenaDialog.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 
 let nextId = 0;
@@ -27,30 +28,33 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().scrim()',
+    '[attr.data-arena-part]': 'parts.scrim',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
   },
   template: `
     @if (open()) {
-      <div #panel [class]="styles().panel()" role="dialog" aria-modal="true" tabindex="-1"
+      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
            [attr.aria-labelledby]="titleId" [style.width]="width()"
            (click)="$event.stopPropagation()">
-        <div [class]="styles().head()">
+        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
           @if (eyebrow(); as label) {
-            <div [class]="styles().eyebrow()">{{ label }}</div>
+            <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
           }
-          <div [id]="titleId" [class]="styles().title()">{{ title() }}</div>
+          <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [class]="styles().body()"><ng-content /></div>
+        <div [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
         @if (footer()) {
-          <div [class]="styles().foot()"><ng-content select="[footer]" /></div>
+          <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot"><ng-content select="[footer]" /></div>
         }
       </div>
     }
   `,
 })
 export class ArenaDialog {
+  protected readonly parts = manifest.parts;
+
   /** Whether the dialog is shown. The host owns it. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
 

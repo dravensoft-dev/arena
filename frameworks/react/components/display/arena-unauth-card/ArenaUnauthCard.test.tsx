@@ -63,7 +63,7 @@ test('it renders ArenaCard rather than a second panel definition', () => {
 
   assert.match(
     html,
-    /class="[^"]*\barena-card__root\b[^"]*"><div class="arena-card__body">/,
+    /class="[^"]*\barena-card__root\b[^"]*"[^>]*><div class="arena-card__body"/,
     'the panel inside is ArenaCard\'s own root and body, drawn from ArenaCard\'s manifest rather than typed out here',
   );
 });

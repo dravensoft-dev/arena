@@ -67,7 +67,7 @@ export function ArenaTableRow({
           e.preventDefault();
           activate(e);
         } : undefined}
-        className={rowStyles({ narrow: true }).card()}>
+        className={rowStyles({ narrow: true }).card()} data-arena-part={manifest.parts.card}>
         {cells}
       </div>
     );
@@ -83,7 +83,7 @@ export function ArenaTableRow({
     <tr role="row" onClick={activate}
       aria-disabled={onClick && disabled ? 'true' : undefined}
 
-      className={rowClass}>
+      className={rowClass} data-arena-part={manifest.parts.row}>
       {cells}
     </tr>
   );

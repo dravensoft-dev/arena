@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
+import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 
 let nextId = 0;
 
@@ -13,15 +14,18 @@ let nextId = 0;
   providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().section()',
+    '[attr.data-arena-part]': 'parts.section',
     role: 'group',
     '[attr.aria-labelledby]': 'labelId',
   },
   template: `
-    <div [id]="labelId" [class]="styles().sectionLabel()" [style.paddingInlineStart]="indent()">{{ heading() }}</div>
+    <div [id]="labelId" [class]="styles().sectionLabel()" [attr.data-arena-part]="parts.sectionLabel" [style.paddingInlineStart]="indent()">{{ heading() }}</div>
     <ng-content />
   `,
 })
 export class ArenaSideNavSection {
+  protected readonly parts = manifest.parts;
+
   /** Names the group, both on screen and to assistive technology. Required, and guarded at runtime: a blank label leaves the group with no accessible name, which is the defect the guard exists to prevent arriving through a value that is present, so the guard trims before it decides. */
   readonly label = input.required<string>();
 

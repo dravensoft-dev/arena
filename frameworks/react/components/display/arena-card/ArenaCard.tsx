@@ -63,20 +63,21 @@ export function ArenaCard({
   const shared = {
     'aria-disabled': acts && disabled ? true as const : undefined,
     className: styles.root(),
+    'data-arena-part': manifest.parts.root,
   };
 
   const body = (
     <>
       {(title || eyebrow || action) && (
-        <div className={styles.head()}>
+        <div className={styles.head()} data-arena-part={manifest.parts.head}>
           <div>
-            {eyebrow && <div className={styles.eyebrow()}>{eyebrow}</div>}
-            {title && <div className={styles.title()}>{title}</div>}
+            {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
+            {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
           </div>
           {action}
         </div>
       )}
-      <div className={styles.body()}>{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
     </>
   );
 

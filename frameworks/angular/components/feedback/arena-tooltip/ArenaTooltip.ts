@@ -9,6 +9,7 @@ import {
 import { TemplatePortal } from '@angular/cdk/portal';
 import { delayClose, delayOpen, sp2 } from '../../../Tokens.generated';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
+import manifest from './ArenaTooltip.classes.generated';
 
 let nextId = 0;
 
@@ -33,6 +34,7 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '(pointerenter)': 'scheduleOpen()',
     '(pointerleave)': 'scheduleClose()',
     '(focusin)': 'openNow()',
@@ -41,11 +43,13 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   template: `
     <ng-content />
     <ng-template #bubble>
-      <span [class]="styles().bubble()" role="tooltip" [id]="bubbleId">{{ label() }}</span>
+      <span [class]="styles().bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">{{ label() }}</span>
     </ng-template>
   `,
 })
 export class ArenaTooltip {
+  protected readonly parts = manifest.parts;
+
   /** The bubble's text. Arena draws the bubble; the consumer names it. */
   readonly label = input.required<string>();
 

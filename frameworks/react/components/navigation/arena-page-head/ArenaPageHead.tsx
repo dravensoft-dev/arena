@@ -30,12 +30,12 @@ export function ArenaPageHead({ title, subtitle, actions, align = 'start' }: Are
   const styles = arenaPageHeadStyles({ narrow, align });
 
   return (
-    <div ref={ref} className={styles.root()}>
-      <div className={styles.titles()}>
-        <h1 className={styles.title()}>{title}</h1>
-        {subtitle && <p className={styles.subtitle()}>{subtitle}</p>}
+    <div ref={ref} className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
+        <h1 className={styles.title()} data-arena-part={manifest.parts.title}>{title}</h1>
+        {subtitle && <p className={styles.subtitle()} data-arena-part={manifest.parts.subtitle}>{subtitle}</p>}
       </div>
-      {actions && <div className={styles.actions()}>{actions}</div>}
+      {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
     </div>
   );
 }

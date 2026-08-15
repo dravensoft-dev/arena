@@ -388,6 +388,20 @@ on two variants at once, `classesFor()` resolves them after every single-variant
 `--cv<n>` class in declaration order. Prefer a plain boolean variant where one will do: a
 compound is harder to read and the emitted name says less.
 
+## A slot name is a public contract
+
+A manifest's slot names leave the repository twice: as the `arena-<manifest>__<slot>` class the
+compiler writes, and as the `data-arena-part="<component>.<slot>"` attribute every element drawing
+that slot carries. The attribute is what a style plugin selects, so **renaming a slot is a break**,
+in the same sense that renaming a component's input is one. The name is the whole cost of the
+escape hatch, and it is stated here, where slots are defined, rather than discovered at a
+consumer's build.
+
+`slotPart` in [`ManifestClasses.js`](./ManifestClasses.js) spells the part the way `slotClass`
+spells the class, from one module, because the generator and the browser specimen harness both
+read it. [`check:parts`](../../scripts/check/arena/check-parts.ts) fails an element that carries a
+slot class and no hook, in either layer.
+
 ## What a manifest is compiled into
 
 A manifest is authored as Tailwind and never shipped as Tailwind. `bun run build:tailwind`

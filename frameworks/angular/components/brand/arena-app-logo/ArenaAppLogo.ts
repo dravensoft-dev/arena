@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { arenaAppLogoStyles } from './ArenaAppLogo.variants';
+import manifest from './ArenaAppLogo.classes.generated';
 import type { ArenaLogoSize, ArenaOrientation } from '../../../Api.generated';
 
 @Component({
@@ -8,14 +9,17 @@ import type { ArenaLogoSize, ArenaOrientation } from '../../../Api.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
   template: `
-    <span [class]="styles().mark()"><ng-content select="[mark]" /></span>
-    <span [class]="styles().name()">{{ name() }}@if (dim(); as tail) {<span [class]="styles().dim()">{{ tail }}</span>}</span>
+    <span [class]="styles().mark()" [attr.data-arena-part]="parts.mark"><ng-content select="[mark]" /></span>
+    <span [class]="styles().name()" [attr.data-arena-part]="parts.name">{{ name() }}@if (dim(); as tail) {<span [class]="styles().dim()" [attr.data-arena-part]="parts.dim">{{ tail }}</span>}</span>
   `,
 })
 export class ArenaAppLogo {
+  protected readonly parts = manifest.parts;
+
   /** The product name, or its first half when `dim` carries the second. */
   readonly name = input.required<string>();
   /** The wordmark's second half, drawn muted. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */

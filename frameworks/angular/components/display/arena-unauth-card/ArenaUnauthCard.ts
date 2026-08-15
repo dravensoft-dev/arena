@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, contentChild, input } from '@angular/core';
 import { ArenaBrand, ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaUnauthCardStyles } from './ArenaUnauthCard.variants';
+import manifest from './ArenaUnauthCard.classes.generated';
 
 @Component({
   selector: 'arena-unauth-card',
@@ -8,29 +9,32 @@ import { arenaUnauthCardStyles } from './ArenaUnauthCard.variants';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.title]': 'null',
   },
   template: `
-    <div [class]="styles().panel()">
-      <div [class]="styles().body()">
+    <div [class]="styles().panel()" [attr.data-arena-part]="parts.panel">
+      <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
         @if (brand()) {
-          <div [class]="styles().brand()"><ng-content select="[brand]" /></div>
+          <div [class]="styles().brand()" [attr.data-arena-part]="parts.brand"><ng-content select="[brand]" /></div>
         }
         @if (eyebrow(); as label) {
-          <div [class]="styles().eyebrow()">{{ label }}</div>
+          <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
         }
         @if (title(); as heading) {
-          <div [class]="styles().title()">{{ heading }}</div>
+          <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
         }
         <ng-content />
         @if (footer()) {
-          <div [class]="styles().footer()"><ng-content select="[footer]" /></div>
+          <div [class]="styles().footer()" [attr.data-arena-part]="parts.footer"><ng-content select="[footer]" /></div>
         }
       </div>
     </div>
   `,
 })
 export class ArenaUnauthCard {
+  protected readonly parts = manifest.parts;
+
   /** Mono crimson microlabel: the product, not the task. */
   readonly eyebrow = input<string>();
   /** The task. "Welcome back", "Check your inbox". */

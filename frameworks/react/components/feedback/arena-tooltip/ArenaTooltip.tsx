@@ -54,14 +54,14 @@ export function ArenaTooltip({ children, label }: ArenaTooltipProps) {
   }, [describedBy]);
   const styles = arenaTooltipStyles();
   return (
-    <span ref={wrapRef} className={styles.root()}
+    <span ref={wrapRef} className={styles.root()} data-arena-part={manifest.parts.root}
       onMouseEnter={() => schedule(true, delayOpen)}
       onMouseLeave={() => schedule(false, delayClose)}
       onFocus={() => now(true)}
       onBlur={() => now(false)}>
       {described}
       {show && (
-        <span role="tooltip" id={bubbleId} className={styles.bubble()}>
+        <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble}>
           {label}
         </span>
       )}

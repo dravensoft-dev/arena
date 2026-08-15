@@ -39,6 +39,7 @@ export const node = {
   feeds: [
     'build:react-package',
     'check:appearance',
+    'check:parts',
     'check:kitchen-sink',
     'check:pixel-parity',
     'check:behaviour',

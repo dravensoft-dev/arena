@@ -42,16 +42,16 @@ export function ArenaSection({
   const styles = arenaSectionStyles({ rhythm: rhythmOf(rhythm) });
 
   return (
-    <section className={styles.root()}>
-      <div className={styles.head()}>
-        <div className={styles.titles()}>
-          {eyebrow && <div className={styles.eyebrow()}>{eyebrow}</div>}
-          <h2 className={styles.title()}>{title}</h2>
-          {description && <p className={styles.description()}>{description}</p>}
+    <section className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head}>
+        <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
+          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
+          <h2 className={styles.title()} data-arena-part={manifest.parts.title}>{title}</h2>
+          {description && <p className={styles.description()} data-arena-part={manifest.parts.description}>{description}</p>}
         </div>
-        {action && <div className={styles.action()}>{action}</div>}
+        {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}
       </div>
-      <div className={styles.body()}>{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
     </section>
   );
 }

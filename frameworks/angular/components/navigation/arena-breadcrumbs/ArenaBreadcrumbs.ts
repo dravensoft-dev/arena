@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import type { ArenaCrumb } from '../../../Api.generated';
 import { arenaBreadcrumbsStyles } from './ArenaBreadcrumbs.variants';
+import manifest from './ArenaBreadcrumbs.classes.generated';
 
 @Component({
   selector: 'arena-breadcrumbs',
@@ -9,19 +10,21 @@ import { arenaBreadcrumbsStyles } from './ArenaBreadcrumbs.variants';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <nav [class]="styles().root()" [attr.aria-label]="label()">
+    <nav [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="label()">
       @for (crumb of items(); track crumb.label; let last = $last) {
         @if (last) {
-          <span [class]="styles().current()" aria-current="page">{{ crumb.label }}</span>
+          <span [class]="styles().current()" [attr.data-arena-part]="parts.current" aria-current="page">{{ crumb.label }}</span>
         } @else {
-          <a [class]="styles().crumb()" [attr.href]="crumb.href ?? '#'" (click)="onCrumbClick(crumb, $event)">{{ crumb.label }}</a>
-          <span [class]="styles().separator()" aria-hidden="true">{{ separator() }}</span>
+          <a [class]="styles().crumb()" [attr.data-arena-part]="parts.crumb" [attr.href]="crumb.href ?? '#'" (click)="onCrumbClick(crumb, $event)">{{ crumb.label }}</a>
+          <span [class]="styles().separator()" [attr.data-arena-part]="parts.separator" aria-hidden="true">{{ separator() }}</span>
         }
       }
     </nav>
   `,
 })
 export class ArenaBreadcrumbs {
+  protected readonly parts = manifest.parts;
+
   /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
   readonly ariaLabel = input.required<string>();
   /** The trail, root first. The last entry is the current location and is never a link. */

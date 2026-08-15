@@ -98,12 +98,14 @@ export const ROUTES: Route[] = [
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 88_000,
+    budget: 92_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
       + 'claim in one table row. The headroom is deliberately a few gates wide: a budget a single '
-      + 'new row breaks reports the row rather than the growth it is there to report.',
+      + 'new row breaks reports the row rather than the growth it is there to report. Raised from '
+      + '88,000 when check:parts landed and one row spent the last of it, which is the case that '
+      + 'clause describes.',
   },
 ];
 

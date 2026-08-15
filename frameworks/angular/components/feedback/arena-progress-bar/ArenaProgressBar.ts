@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, numberAttribute } from '@angular/core';
 import type { ArenaControlSize, ArenaProgressTone } from '../../../Api.generated';
 import { arenaProgressBarStyles } from './ArenaProgressBar.variants';
+import manifest from './ArenaProgressBar.classes.generated';
 
 export function arenaClampPercentage(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
@@ -12,26 +13,29 @@ export function arenaClampPercentage(value: number): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
   },
   template: `
-    <div [class]="styles().head()">
-      <span [class]="styles().label()">{{ label() }}</span>
+    <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+      <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
       @if (showsValue()) {
-        <span [class]="styles().value()">{{ percentage() }}%</span>
+        <span [class]="styles().value()" [attr.data-arena-part]="parts.value">{{ percentage() }}%</span>
       }
     </div>
-    <div [class]="trackClass()" role="progressbar" aria-live="polite"
+    <div [class]="trackClass()" [attr.data-arena-part]="parts.track" role="progressbar" aria-live="polite"
          [attr.aria-valuenow]="indeterminate() ? null : percentage()"
          aria-valuemin="0" aria-valuemax="100"
          [attr.aria-label]="label()">
       @if (!indeterminate()) {
-        <span [class]="styles().announcement()">{{ percentage() }}%</span>
-        <span [class]="styles().fill()" [style.width.%]="percentage()"></span>
+        <span [class]="styles().announcement()" [attr.data-arena-part]="parts.announcement">{{ percentage() }}%</span>
+        <span [class]="styles().fill()" [attr.data-arena-part]="parts.fill" [style.width.%]="percentage()"></span>
       }
     </div>
   `,
 })
 export class ArenaProgressBar {
+  protected readonly parts = manifest.parts;
+
   /** How far along, 0-100. Clamped and rounded. Ignored when `indeterminate`. */
   readonly progressPercentage = input(0, { transform: numberAttribute });
   /** A wait with no percentage; the bar sweeps instead of filling. */

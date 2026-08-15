@@ -29,13 +29,13 @@ export function ArenaBreadcrumbs({ items, ariaLabel, separator = '/', onNavigate
   if (!items) throw new Error('ArenaBreadcrumbs: `items` is required');
   const styles = breadcrumbStyles();
   return (
-    <nav aria-label={ariaLabel} className={styles.root()}>
+    <nav aria-label={ariaLabel} className={styles.root()} data-arena-part={manifest.parts.root}>
       {items.map((it, i) => {
         const last = i === items.length - 1;
         return (
           <React.Fragment key={i}>
             {last ? (
-              <span aria-current="page" className={styles.current()}>{it.label}</span>
+              <span aria-current="page" className={styles.current()} data-arena-part={manifest.parts.current}>{it.label}</span>
             ) : (
               <a href={it.href || '#'}
                 onClick={(e) => {
@@ -43,11 +43,11 @@ export function ArenaBreadcrumbs({ items, ariaLabel, separator = '/', onNavigate
                   e.preventDefault();
                   onNavigate?.(it);
                 }}
-                className={styles.crumb()}>
+                className={styles.crumb()} data-arena-part={manifest.parts.crumb}>
                 {it.label}
               </a>
             )}
-            {!last && <span aria-hidden="true" className={styles.separator()}>{separator}</span>}
+            {!last && <span aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator}>{separator}</span>}
           </React.Fragment>
         );
       })}

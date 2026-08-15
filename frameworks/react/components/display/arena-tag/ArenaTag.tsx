@@ -23,10 +23,10 @@ const arenaTagStyles = arenaStyles(manifest);
 export function ArenaTag({ children, tone = 'neutral', removable = false, disabled = false, onRemove }: ArenaTagProps) {
   const styles = arenaTagStyles({ tone, disabled });
   return (
-    <span className={styles.root()}>
-      <span aria-hidden="true" className={styles.dot()} />
+    <span className={styles.root()} data-arena-part={manifest.parts.root}>
+      <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
       {children}
-      {removable && <button type="button" className={styles.close()} aria-label="Remove"
+      {removable && <button type="button" className={styles.close()} data-arena-part={manifest.parts.close} aria-label="Remove"
         aria-disabled={disabled ? 'true' : undefined}
         onClick={disabled ? undefined : onRemove}><i className="ph-bold ph-x" aria-hidden="true" /></button>}
     </span>

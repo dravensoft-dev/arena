@@ -1,17 +1,19 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output } from '@angular/core';
 import type { ArenaTagTone } from '../../../Api.generated';
 import { arenaTagStyles } from './ArenaTag.variants';
+import manifest from './ArenaTag.classes.generated';
 
 @Component({
   selector: 'arena-tag',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()' },
+  host: { '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root', },
   template: `
-    <span [class]="styles().dot()"></span>
+    <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
     <ng-content />
     @if (removable()) {
-      <button type="button" [class]="styles().close()" aria-label="Remove"
+      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Remove"
               [attr.aria-disabled]="disabled() ? 'true' : null" (click)="onRemove()">
         <i class="ph-bold ph-x" aria-hidden="true"></i>
       </button>
@@ -19,6 +21,8 @@ import { arenaTagStyles } from './ArenaTag.variants';
   `,
 })
 export class ArenaTag {
+  protected readonly parts = manifest.parts;
+
   /** The tag's emphasis colour. */
   readonly tone = input<ArenaTagTone, ArenaTagTone | undefined>(
     'neutral',

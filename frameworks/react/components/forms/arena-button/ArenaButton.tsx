@@ -61,7 +61,7 @@ export function ArenaButton({
 
   return (
     <button
-      className={styles.root()}
+      className={styles.root()} data-arena-part={manifest.parts.root}
       type={type}
       name={name}
       value={value}
@@ -72,7 +72,7 @@ export function ArenaButton({
       disabled={disabled || loading}
     >
       {loading
-        ? <span className={styles.spinner()} aria-hidden="true" />
+        ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} aria-hidden="true" />
         : icon && <i className={icon} aria-hidden="true" />}
       {children}
       {iconRight && <i className={iconRight} aria-hidden="true" />}

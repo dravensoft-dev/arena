@@ -60,16 +60,16 @@ export function ArenaDialog({ open, onClose, title, eyebrow, children, footer, w
   if (!open) return null;
   const styles = arenaDialogStyles({ open: true });
   return (
-    <div onClick={onClose} className={styles.scrim()}>
+    <div onClick={onClose} className={styles.scrim()} data-arena-part={manifest.parts.scrim}>
       <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
-        className={styles.panel()} style={{ width }}>
-        <div className={styles.head()}>
-          {eyebrow && <div className={styles.eyebrow()}>{eyebrow}</div>}
-          <div id={titleId} className={styles.title()}>{title}</div>
+        className={styles.panel()} data-arena-part={manifest.parts.panel} style={{ width }}>
+        <div className={styles.head()} data-arena-part={manifest.parts.head}>
+          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
+          <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
         </div>
-        <div className={styles.body()}>{children}</div>
-        {footer && <div className={styles.foot()}>{footer}</div>}
+        <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
+        {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot}>{footer}</div>}
       </div>
     </div>
   );

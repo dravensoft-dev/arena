@@ -33,17 +33,18 @@ export function ArenaProgressBar({ progressPercentage = 0, indeterminate = false
   const styles = progressStyles({ tone, size });
   const pct = Math.max(0, Math.min(100, Math.round(progressPercentage)));
   return (
-    <div className={styles.root()}>
-      <div className={styles.head()}>
-        <span className={styles.label()}>{label}</span>
-        {showPercentage && !indeterminate && <span className={styles.value()}>{pct}%</span>}
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head}>
+        <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
+        {showPercentage && !indeterminate && <span className={styles.value()} data-arena-part={manifest.parts.value}>{pct}%</span>}
       </div>
       <div role="progressbar" aria-live="polite" aria-valuenow={indeterminate ? undefined : pct} aria-valuemin={0} aria-valuemax={100} aria-label={label}
-        className={indeterminate ? `${styles.track()} ${styles.indeterminate()}` : styles.track()}>
+        className={indeterminate ? `${styles.track()} ${styles.indeterminate()}` : styles.track()}
+        data-arena-part={manifest.parts.track}>
         {!indeterminate && (
           <>
-            <span className={styles.announcement()}>{pct}%</span>
-            <span className={styles.fill()} style={{ width: `${pct}%` }} />
+            <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{pct}%</span>
+            <span className={styles.fill()} data-arena-part={manifest.parts.fill} style={{ width: `${pct}%` }} />
           </>
         )}
       </div>

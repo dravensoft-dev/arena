@@ -97,14 +97,15 @@ export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMe
   const styles = arenaMenuStyles();
 
   return (
-    <div ref={ref} className={styles.root()}>
+    <div ref={ref} className={styles.root()} data-arena-part={manifest.parts.root}>
       {decoratedTrigger}
       {open && (
         <div role="menu" ref={panelRef}
-          className={align === 'end' ? `${styles.panel()} ${styles.panelEnd()}` : styles.panel()}>
+          className={align === 'end' ? `${styles.panel()} ${styles.panelEnd()}` : styles.panel()}
+          data-arena-part={manifest.parts.panel}>
           {items.map((it, i) => {
-            if (it.divider) return <div key={i} className={styles.divider()} />;
-            if (it.header) return <div key={i} className={styles.header()}>{it.header}</div>;
+            if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} />;
+            if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header}>{it.header}</div>;
             return (
               <MenuRow key={i} item={it} onRun={() => run(it)} />
             );
@@ -122,10 +123,10 @@ function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
     : item.destructive ? styles.itemDestructive() : styles.itemDefault();
   return (
     <button role="menuitem" onClick={onRun} disabled={item.disabled}
-      className={`${styles.item()} ${state}`}>
-      {item.icon && <i className={`${item.icon} ${styles.icon()}`} aria-hidden="true" />}
-      <span className={styles.label()}>{item.label}</span>
-      {item.shortcut && <span className={styles.shortcut()}>{item.shortcut}</span>}
+      className={`${styles.item()} ${state}`} data-arena-part={manifest.parts.item}>
+      {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />}
+      <span className={styles.label()} data-arena-part={manifest.parts.label}>{item.label}</span>
+      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{item.shortcut}</span>}
     </button>
   );
 }

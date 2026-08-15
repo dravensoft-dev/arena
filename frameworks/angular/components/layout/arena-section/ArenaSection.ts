@@ -4,25 +4,29 @@ import {
 import type { ArenaSectionRhythm } from '../../../Api.generated';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaSectionStyles } from './ArenaSection.variants';
+import manifest from './ArenaSection.classes.generated';
 
 @Component({
   selector: 'arena-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()', '[attr.title]': 'null' },
+  host: { '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root', '[attr.title]': 'null' },
   template: `
-    <div [class]="styles().head()">
-      <div [class]="styles().titles()">
-        @if (eyebrow(); as label) { <div [class]="styles().eyebrow()">{{ label }}</div> }
-        <h2 [class]="styles().title()">{{ heading() }}</h2>
-        @if (description(); as line) { <p [class]="styles().description()">{{ line }}</p> }
+    <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+      <div [class]="styles().titles()" [attr.data-arena-part]="parts.titles">
+        @if (eyebrow(); as label) { <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div> }
+        <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h2>
+        @if (description(); as line) { <p [class]="styles().description()" [attr.data-arena-part]="parts.description">{{ line }}</p> }
       </div>
-      @if (action()) { <div [class]="styles().action()"><ng-content select="[action]" /></div> }
+      @if (action()) { <div [class]="styles().action()" [attr.data-arena-part]="parts.action"><ng-content select="[action]" /></div> }
     </div>
-    <div #body [class]="styles().body()"><ng-content /></div>
+    <div #body [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
   `,
 })
 export class ArenaSection {
+  protected readonly parts = manifest.parts;
+
   /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   readonly title = input.required<string>();
   /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */

@@ -12,6 +12,7 @@ import type { ArenaMenuAlign, ArenaMenuItem } from '../../../Api.generated';
 import { sp1 } from '../../../Tokens.generated';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaMenuStyles } from './ArenaMenu.variants';
+import manifest from './ArenaMenu.classes.generated';
 
 const TRIGGER_SELECTOR =
   'button:not([tabindex="-1"]), a[href]:not([tabindex="-1"]), [role="button"]:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
@@ -42,25 +43,26 @@ export function arenaRowState(item: ArenaMenuItem): 'disabled' | 'destructive' |
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
   },
   template: `
     <ng-content select="[trigger]" />
     <ng-template #panel>
-      <div role="menu" [class]="styles().panel()">
+      <div role="menu" [class]="styles().panel()" [attr.data-arena-part]="parts.panel">
         @for (item of items(); track $index) {
           @if (item.divider) {
-            <div [class]="styles().divider()"></div>
+            <div [class]="styles().divider()" [attr.data-arena-part]="parts.divider"></div>
           } @else if (item.header; as heading) {
-            <div [class]="styles().header()">{{ heading }}</div>
+            <div [class]="styles().header()" [attr.data-arena-part]="parts.header">{{ heading }}</div>
           } @else {
-            <button type="button" role="menuitem" [class]="rowClass(item)" [disabled]="item.disabled"
+            <button type="button" role="menuitem" [class]="rowClass(item)" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
                     (click)="run(item)">
               @if (item.icon; as glyph) {
-                <i [class]="styles().icon() + ' ' + glyph" aria-hidden="true"></i>
+                <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
               }
-              <span [class]="styles().label()">{{ item.label }}</span>
+              <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
               @if (item.shortcut; as keys) {
-                <span [class]="styles().shortcut()">{{ keys }}</span>
+                <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</span>
               }
             </button>
           }
@@ -70,6 +72,8 @@ export function arenaRowState(item: ArenaMenuItem): 'disabled' | 'destructive' |
   `,
 })
 export class ArenaMenu {
+  protected readonly parts = manifest.parts;
+
   /** The entries, in order: activatable rows, dividers and group headers. */
   readonly items = input.required<readonly ArenaMenuItem[]>();
   /** Which edge of the trigger the panel lines up with. */

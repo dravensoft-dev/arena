@@ -5,6 +5,7 @@ import {
 import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaCardStyles } from './ArenaCard.variants';
+import manifest from './ArenaCard.classes.generated';
 
 @Component({
   selector: 'arena-card',
@@ -18,28 +19,28 @@ import { arenaCardStyles } from './ArenaCard.variants';
   template: `
     <ng-template #body>
       @if (headed()) {
-        <div [class]="styles().head()">
+        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
           <div>
             @if (eyebrow(); as label) {
-              <div [class]="styles().eyebrow()">{{ label }}</div>
+              <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
             }
             @if (title(); as heading) {
-              <div [class]="styles().title()">{{ heading }}</div>
+              <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
             }
           </div>
           <ng-content select="[action]" />
         </div>
       }
-      <div [class]="styles().body()"><ng-content /></div>
+      <div [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
     </ng-template>
 
     @if (href(); as url) {
-      <a [class]="styles().root()" [href]="url" [attr.aria-disabled]="inert()"
+      <a [class]="styles().root()" [attr.data-arena-part]="parts.root" [href]="url" [attr.aria-disabled]="inert()"
          (click)="onAnchorClick($event)">
         <ng-container *ngTemplateOutlet="body" />
       </a>
     } @else {
-      <div [class]="styles().root()" [attr.role]="role()" [attr.tabindex]="stop()"
+      <div [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.role]="role()" [attr.tabindex]="stop()"
            [attr.aria-disabled]="inert()" (click)="onClick($event)" (keydown)="onKeydown($event)">
         <ng-container *ngTemplateOutlet="body" />
       </div>
@@ -47,6 +48,8 @@ import { arenaCardStyles } from './ArenaCard.variants';
   `,
 })
 export class ArenaCard {
+  protected readonly parts = manifest.parts;
+
   /** Header title. Absent, along with eyebrow and action, renders no header block at all. */
   readonly title = input<string>();
   /** Mono uppercase label above the title, in the accent colour. */

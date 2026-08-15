@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ArenaRadioGroupState } from './ArenaRadioGroupState';
 import { arenaRadioGroupStyles } from './ArenaRadioGroup.variants';
+import manifest from '../arena-radio/ArenaRadio.classes.generated';
 
 let nextId = 0;
 
@@ -13,6 +14,7 @@ let nextId = 0;
   providers: [ArenaRadioGroupState],
   host: {
     '[class]': 'styles().group()',
+    '[attr.data-arena-part]': 'parts.group',
     role: 'radiogroup',
     '[attr.aria-label]': 'label()',
     '[attr.name]': 'null',
@@ -20,6 +22,8 @@ let nextId = 0;
   template: `<ng-content />`,
 })
 export class ArenaRadioGroup {
+  protected readonly parts = manifest.parts;
+
   /** Names the group: what is being chosen, not that it is a choice. Required, and guarded at runtime: a radiogroup with no accessible name is announced unlabelled, and each option's own label says what that option is, never what the set is for. "Deployment target", not "Options". Distinct from `name`, which is the radios' shared form name and never reaches a screen reader. */
   readonly ariaLabel = input.required<string>();
   /** The selected option's value. */

@@ -43,6 +43,7 @@ export const node = {
     'build:angular-package',
     'build:react-package',
     'check:appearance',
+    'check:parts',
     'check:arbitrary',
     'check:behaviour',
     'check:compliance',

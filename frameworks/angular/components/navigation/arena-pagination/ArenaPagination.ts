@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { arenaPageWindow } from './PaginationWindow';
 import { arenaPaginationStyles } from './ArenaPagination.variants';
+import manifest from './ArenaPagination.classes.generated';
 
 @Component({
   selector: 'arena-pagination',
@@ -8,21 +9,21 @@ import { arenaPaginationStyles } from './ArenaPagination.variants';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <nav [class]="styles().root()" [attr.aria-label]="label()">
-      <button type="button" [class]="styles().nav()" [disabled]="page() <= 1"
+    <nav [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="label()">
+      <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [disabled]="page() <= 1"
               aria-label="Previous" (click)="go(page() - 1)">
         <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
       </button>
       @for (slot of slots(); track $index) {
         @if (slot === '…') {
-          <span [class]="styles().ellipsis()">{{ slot }}</span>
+          <span [class]="styles().ellipsis()" [attr.data-arena-part]="parts.ellipsis">{{ slot }}</span>
         } @else {
-          <button type="button" [class]="pageClass(slot)"
+          <button type="button" [class]="pageClass(slot)" [attr.data-arena-part]="parts.page"
                   [attr.aria-current]="slot === page() ? 'page' : null"
                   (click)="go(slot)">{{ slot }}</button>
         }
       }
-      <button type="button" [class]="styles().nav()" [disabled]="page() >= pageCount()"
+      <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [disabled]="page() >= pageCount()"
               aria-label="Next" (click)="go(page() + 1)">
         <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
       </button>
@@ -30,6 +31,8 @@ import { arenaPaginationStyles } from './ArenaPagination.variants';
   `,
 })
 export class ArenaPagination {
+  protected readonly parts = manifest.parts;
+
   /** The current page, 1-based. */
   readonly page = input.required<number>();
   /** How many pages there are. Required, and guarded at runtime: an ArenaPagination with no page count renders a window over nothing. */

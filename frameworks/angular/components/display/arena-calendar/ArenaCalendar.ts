@@ -13,6 +13,7 @@ import {
   arenaRangeTitle, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf,
 } from './CalendarInternals';
 import { arenaCalendarStyles } from './ArenaCalendar.variants';
+import manifest from './ArenaCalendar.classes.generated';
 
 const MINUTE = 60000;
 
@@ -23,57 +24,57 @@ const MINUTE = 60000;
   providers: [ArenaCalendarState],
   host: { style: 'display: contents' },
   template: `
-    <section #frame [class]="styles().root()" [attr.aria-label]="'Schedule, ' + title()">
-      <div [class]="styles().toolbar()">
-        <button type="button" [class]="styles().nav()" aria-label="Previous" (click)="step(-1)">
+    <section #frame [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="'Schedule, ' + title()">
+      <div [class]="styles().toolbar()" [attr.data-arena-part]="parts.toolbar">
+        <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" aria-label="Previous" (click)="step(-1)">
           <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
         </button>
-        <button type="button" [class]="styles().today()" (click)="goto(today())">Today</button>
-        <button type="button" [class]="styles().nav()" aria-label="Next" (click)="step(1)">
+        <button type="button" [class]="styles().today()" [attr.data-arena-part]="parts.today" (click)="goto(today())">Today</button>
+        <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" aria-label="Next" (click)="step(1)">
           <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
         </button>
-        <h2 [class]="styles().heading()">{{ title() }}</h2>
+        <h2 [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</h2>
         @if (actionsSlot()) {
-          <div [class]="styles().actions()"><ng-content select="[actions]" /></div>
+          <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
         }
       </div>
 
-      <div [class]="styles().headStrip()" [style.gridTemplateColumns]="tracks()">
+      <div [class]="styles().headStrip()" [attr.data-arena-part]="parts.headStrip" [style.gridTemplateColumns]="tracks()">
         @for (day of days(); track day) {
           @if (dayInteractive()) {
-            <button type="button" [class]="dayHeadClass()" [attr.aria-label]="dayLabel(day)"
+            <button type="button" [class]="dayHeadClass()" [attr.data-arena-part]="parts.dayHead" [attr.aria-label]="dayLabel(day)"
                     (click)="onDateClick(day)">
-              <div [class]="styles().weekday()">{{ arenaWeekdayOf(day) }}</div>
-              <div [class]="dayNumberClass(day)">{{ dayNumberOf(day) }}</div>
+              <div [class]="styles().weekday()" [attr.data-arena-part]="parts.weekday">{{ arenaWeekdayOf(day) }}</div>
+              <div [class]="dayNumberClass(day)" [attr.data-arena-part]="parts.dayNumber">{{ dayNumberOf(day) }}</div>
             </button>
           } @else {
-            <div [class]="dayHeadClass()">
-              <div [class]="styles().weekday()">{{ arenaWeekdayOf(day) }}</div>
-              <div [class]="dayNumberClass(day)">{{ dayNumberOf(day) }}</div>
+            <div [class]="dayHeadClass()" [attr.data-arena-part]="parts.dayHead">
+              <div [class]="styles().weekday()" [attr.data-arena-part]="parts.weekday">{{ arenaWeekdayOf(day) }}</div>
+              <div [class]="dayNumberClass(day)" [attr.data-arena-part]="parts.dayNumber">{{ dayNumberOf(day) }}</div>
             </div>
           }
         }
       </div>
 
-      <div [class]="styles().scroll()">
-        <div [class]="styles().body()" [style.height.px]="bodyHeight()">
-          <div [class]="styles().gutter()">
+      <div [class]="styles().scroll()" [attr.data-arena-part]="parts.scroll">
+        <div [class]="styles().body()" [attr.data-arena-part]="parts.body" [style.height.px]="bodyHeight()">
+          <div [class]="styles().gutter()" [attr.data-arena-part]="parts.gutter">
             @for (hour of hours(); track hour) {
-              <div [class]="styles().hourLabel()" [style.top.px]="state.y(hour)">{{ hm(hour) }}</div>
+              <div [class]="styles().hourLabel()" [attr.data-arena-part]="parts.hourLabel" [style.top.px]="state.y(hour)">{{ hm(hour) }}</div>
             }
           </div>
 
-          <div role="grid" [class]="styles().grid()" [style.gridTemplateColumns]="tracks()"
+          <div role="grid" [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [style.gridTemplateColumns]="tracks()"
                [attr.aria-label]="'Schedule grid, ' + title()" (keydown)="onKeydown($event)">
             @for (hour of hours(); track hour) {
-              <div aria-hidden="true" [class]="styles().rule()" [style.top.px]="state.y(hour)"></div>
+              <div aria-hidden="true" [class]="styles().rule()" [attr.data-arena-part]="parts.rule" [style.top.px]="state.y(hour)"></div>
             }
 
             @for (day of days(); track day; let di = $index) {
-              <div role="row" [class]="columnClass(di)" [attr.aria-label]="dayLabel(day)"
+              <div role="row" [class]="columnClass(di)" [attr.data-arena-part]="parts.column" [attr.aria-label]="dayLabel(day)"
                    [attr.aria-owns]="state.ownedIds(day)" (click)="onDateClick(day)">
                 @for (slot of slots(); track slot.start; let si = $index) {
-                  <div role="gridcell" [class]="styles().cell()" [attr.aria-label]="hm(slot.start)"
+                  <div role="gridcell" [class]="styles().cell()" [attr.data-arena-part]="parts.cell" [attr.aria-label]="hm(slot.start)"
                        [attr.tabindex]="state.isStop(di, si) ? 0 : -1"
                        [style.top.px]="state.y(slot.start)"
                        [style.height.px]="state.y(slot.end) - state.y(slot.start)"
@@ -85,8 +86,8 @@ const MINUTE = 60000;
             <ng-content />
 
             @if (showNow()) {
-              <div aria-hidden="true" [class]="styles().now()" [style.top.px]="state.y(nowMin())">
-                <span [class]="styles().nowDot()"></span>
+              <div aria-hidden="true" [class]="styles().now()" [attr.data-arena-part]="parts.now" [style.top.px]="state.y(nowMin())">
+                <span [class]="styles().nowDot()" [attr.data-arena-part]="parts.nowDot"></span>
               </div>
             }
           </div>
@@ -96,6 +97,8 @@ const MINUTE = 60000;
   `,
 })
 export class ArenaCalendar {
+  protected readonly parts = manifest.parts;
+
   /** IANA zone name. Defaults to the reader's own resolved zone, which is right whenever the schedule belongs to the person looking at it. Pass it when the calendar has a zone of its own that differs (a Madrid timetable read from Tokyo), and when server-rendering, where the reader's zone is not knowable. */
   readonly timeZone = input<string>();
   /** ISO date the view opens on. Defaults to today in `timeZone`; pass and change it to drive the date yourself. */

@@ -29,8 +29,8 @@ export function ArenaSideNavSection({
   const labelId = useId();
   const styles = arenaSideNavStyles();
   return (
-    <div role="group" aria-labelledby={labelId} className={styles.section()}>
-      <div id={labelId} className={styles.sectionLabel()}
+    <div role="group" aria-labelledby={labelId} className={styles.section()} data-arena-part={manifest.parts.section}>
+      <div id={labelId} className={styles.sectionLabel()} data-arena-part={manifest.parts.sectionLabel}
         style={{ paddingInlineStart: arenaIndentFor(indentStep, depth) }}>{label}</div>
       {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate })}
     </div>

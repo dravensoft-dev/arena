@@ -47,7 +47,7 @@ test('the fallback draws only when there is no media, because it is a state and 
 
 test('with neither media nor fallback the frame is an empty box of the right shape', () => {
   const html = render(<ArenaFigure />);
-  assert.match(html, /^<figure class="[^"]*"><div class="[^"]*" style="aspect-ratio:var\(--aspect-media\)"><\/div><\/figure>$/);
+  assert.match(html, /^<figure class="[^"]*"[^>]*><div class="[^"]*"[^>]*style="aspect-ratio:var\(--aspect-media\)"><\/div><\/figure>$/);
 });
 
 test('the overlay is inside the frame and the caption is under it', () => {

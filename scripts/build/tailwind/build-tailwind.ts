@@ -89,6 +89,7 @@ export const node = {
     'check:angular',
     'check:api',
     'check:appearance',
+    'check:parts',
     'check:arbitrary',
     'check:behaviour',
     'check:compliance',

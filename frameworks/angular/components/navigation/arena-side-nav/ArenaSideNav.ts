@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ArenaSideNavState } from './ArenaSideNavState';
 import { arenaSideNavStyles } from './ArenaSideNav.variants';
+import manifest from './ArenaSideNav.classes.generated';
 
 @Component({
   selector: 'arena-side-nav',
@@ -11,12 +12,15 @@ import { arenaSideNavStyles } from './ArenaSideNav.variants';
   providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     role: 'navigation',
     '[attr.aria-label]': 'label()',
   },
   template: `<ng-content />`,
 })
 export class ArenaSideNav {
+  protected readonly parts = manifest.parts;
+
   /** The id of the current destination. The ArenaSideNavItem whose id matches is marked aria-current="page", and no item is marked when it names none of them. */
   readonly active = input<string>();
   /** Names this navigation landmark. Required, and guarded at runtime: the guard trims before it decides, so a blank name is refused as well as an absent one, because ariaLabel="" renders a landmark with no accessible name, which is the defect arriving through a value that is present. Guarded rather than defaulted: the navigation pattern asks each landmark on a page for a UNIQUE name, and a constant default satisfies the existence half while two sidebars on one page stay indistinguishable. Nothing can derive it either; what a nav is FOR is editorial. Say what it navigates -- "Primary", "Project settings" -- the ArenaTable.label and ArenaSegmentedControl.ariaLabel shape. */

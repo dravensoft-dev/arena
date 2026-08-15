@@ -36,7 +36,7 @@ export function ArenaScroller({
 
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root()}
+      className={arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root()} data-arena-part={manifest.parts.root}
       style={{ '--arena-scroller-item': itemWidth } as React.CSSProperties}>
       {children}
     </div>

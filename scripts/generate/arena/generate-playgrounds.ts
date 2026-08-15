@@ -46,6 +46,7 @@ export const node = {
     'check:angular-demos',
     'check:api',
     'check:appearance',
+    'check:parts',
     'check:arbitrary',
     'check:behaviour',
     'check:compliance',

@@ -27,14 +27,14 @@ const unauthStyles = arenaStyles(manifest);
 export function ArenaUnauthCard({ brand, eyebrow, title, footer, children }: ArenaUnauthCardProps) {
   const styles = unauthStyles();
   return (
-    <div className={styles.root()}>
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
       <ArenaCard>
-        <div className={styles.body()}>
-          {brand && <div className={styles.brand()}>{brand}</div>}
-          {eyebrow && <div className={styles.eyebrow()}>{eyebrow}</div>}
-          {title && <div className={styles.title()}>{title}</div>}
+        <div className={styles.body()} data-arena-part={manifest.parts.body}>
+          {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand}>{brand}</div>}
+          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
+          {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
           {children}
-          {footer && <div className={styles.footer()}>{footer}</div>}
+          {footer && <div className={styles.footer()} data-arena-part={manifest.parts.footer}>{footer}</div>}
         </div>
       </ArenaCard>
     </div>

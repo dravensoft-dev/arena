@@ -52,14 +52,14 @@ export function ArenaHero({
     : undefined;
 
   return (
-    <section className={styles.root()} style={{ gridTemplateColumns: tracks }}>
-      <div className={styles.words()}>
-        {eyebrow && <p className={styles.eyebrow()}>{eyebrow}</p>}
-        <h1 className={styles.title()}>{title}</h1>
-        {lede && <p className={styles.lede()}>{lede}</p>}
-        {actions && <div className={styles.actions()}>{actions}</div>}
+    <section className={styles.root()} data-arena-part={manifest.parts.root} style={{ gridTemplateColumns: tracks }}>
+      <div className={styles.words()} data-arena-part={manifest.parts.words}>
+        {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</p>}
+        <h1 className={styles.title()} data-arena-part={manifest.parts.title}>{title}</h1>
+        {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede}>{lede}</p>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
       </div>
-      {figure && <div className={styles.figure()}>{figure}</div>}
+      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure}>{figure}</div>}
     </section>
   );
 }

@@ -27,11 +27,11 @@ export function ArenaAvatar({ src, name = '', size = 'md', shape = 'circle', sta
   const initials = name.trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase();
   const styles = arenaAvatarStyles({ size, shape, status: status ? statusOf(status) : 'none' });
   return (
-    <span className={styles.root()}>
-      <span className={styles.box()}>
-        {src ? <img src={src} alt={name} className={styles.image()} /> : initials}
+    <span className={styles.root()} data-arena-part={manifest.parts.root}>
+      <span className={styles.box()} data-arena-part={manifest.parts.box}>
+        {src ? <img src={src} alt={name} className={styles.image()} data-arena-part={manifest.parts.image} /> : initials}
       </span>
-      {status && <span aria-label={status} title={status} className={styles.status()} />}
+      {status && <span aria-label={status} title={status} className={styles.status()} data-arena-part={manifest.parts.status} />}
     </span>
   );
 }

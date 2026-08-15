@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, computed, content
 import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaSheetStyles } from './ArenaSheet.variants';
+import manifest from './ArenaSheet.classes.generated';
 
 let nextId = 0;
 
@@ -11,35 +12,38 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
   },
   template: `
     @if (open()) {
-      <div [class]="styles().head()">
-        <button type="button" [id]="triggerId" [class]="styles().trigger()"
+      <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+        <button type="button" [id]="triggerId" [class]="styles().trigger()" [attr.data-arena-part]="parts.trigger"
                 [attr.aria-expanded]="!collapsed()" [attr.aria-controls]="bodyId"
                 (click)="fold()" (keydown)="onTriggerKeydown($event)">
           <span>{{ heading() }}</span>
-          <i [class]="styles().caret() + ' ' + caretGlyph()" aria-hidden="true"></i>
+          <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
         </button>
         @if (dismissible()) {
-          <button type="button" [class]="styles().close()" aria-label="Close" (click)="close.emit()">
+          <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Close" (click)="close.emit()">
             <i class="ph-bold ph-x" aria-hidden="true"></i>
           </button>
         }
       </div>
-      <div [id]="bodyId" [class]="styles().body()" role="group"
+      <div [id]="bodyId" [class]="styles().body()" [attr.data-arena-part]="parts.body" role="group"
            [attr.aria-labelledby]="triggerId" [hidden]="collapsed()">
         <ng-content />
       </div>
       @if (footer()) {
-        <div [class]="styles().foot()"><ng-content select="[footer]" /></div>
+        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot"><ng-content select="[footer]" /></div>
       }
     }
   `,
 })
 export class ArenaSheet {
+  protected readonly parts = manifest.parts;
+
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
   /** The edge the panel is anchored to. It spans that edge and stands off the device's own inset there, so a bottom sheet on a phone clears the home indicator. */

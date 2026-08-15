@@ -32,18 +32,18 @@ const arenaCheckboxStyles = arenaStyles(manifest);
 export function ArenaCheckbox({ checked = false, onChange, label, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
   const styles = arenaCheckboxStyles({ checked, disabled });
   return (
-    <label className={styles.root()}>
-      <span className={styles.box()}>
+    <label className={styles.root()} data-arena-part={manifest.parts.root}>
+      <span className={styles.box()} data-arena-part={manifest.parts.box}>
         {checked && (
-          <svg className={styles.check()} viewBox="0 0 12 12" fill="none">
+          <svg className={styles.check()} data-arena-part={manifest.parts.check} viewBox="0 0 12 12" fill="none">
             <path d="M2 6l3 3 5-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </span>
-      {label && <span className={styles.label()}>{label}</span>}
+      {label && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
       <input type="checkbox" checked={checked} name={name} value={value} required={required}
         onChange={(e) => onChange && onChange(e.target.checked)} disabled={disabled}
-        className={styles.input()} />
+        className={styles.input()} data-arena-part={manifest.parts.input} />
     </label>
   );
 }

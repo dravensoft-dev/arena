@@ -13,6 +13,7 @@ import { ArenaSelect } from '../../forms/arena-select/ArenaSelect';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
 import { arenaTableStyles } from './ArenaTable.variants';
+import manifest from './ArenaTable.classes.generated';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -31,26 +32,27 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableState],
   imports: [ArenaPagination, ArenaSelect],
-  host: { '[class]': 'styles().root()' },
+  host: { '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (sortBar()) {
-      <div [class]="styles().sortBar()">
-        <div [class]="styles().sortField()">
+      <div [class]="styles().sortBar()" [attr.data-arena-part]="parts.sortBar">
+        <div [class]="styles().sortField()" [attr.data-arena-part]="parts.sortField">
           <arena-select [label]="sortLabel" [options]="sortOptions()" [value]="sortValue()"
                         (change)="onSortPick($event)" />
         </div>
       </div>
     }
-    <div [class]="styles().grid()" [attr.role]="gridRole()"
+    <div [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
          [attr.aria-label]="empty() ? null : gridLabel()" (keydown)="onKeydown($event)">
       @if (!narrow() && !empty()) {
-        <div role="row" [class]="styles().headRow()">
+        <div role="row" [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow">
           @for (column of columns(); track $index; let i = $index) {
-            <div role="columnheader" [class]="headerClass(column)" [style.width]="column.width"
+            <div role="columnheader" [class]="headerClass(column)" [attr.data-arena-part]="parts.th" [style.width]="column.width"
                  [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
                  [attr.aria-sort]="sortStateOf(i)"
                  (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
-              <i [class]="styles().sortCaret() + ' ' + caretOf(i)" aria-hidden="true"></i>
+              <i [class]="styles().sortCaret() + ' ' + caretOf(i)" [attr.data-arena-part]="parts.sortCaret" aria-hidden="true"></i>
             }</div>
           }
         </div>
@@ -58,9 +60,9 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
       <ng-content />
     </div>
     @if (empty()) {
-      <div [class]="styles().empty()"><ng-content select="[empty]">No data.</ng-content></div>
+      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty"><ng-content select="[empty]">No data.</ng-content></div>
     } @else if (pager(); as paging) {
-      <div [class]="styles().pager()">
+      <div [class]="styles().pager()" [attr.data-arena-part]="parts.pager">
         <arena-pagination [page]="paging.index" [pageCount]="pageCount()"
                           [ariaLabel]="gridLabel()" (change)="pageChange.emit($event)" />
       </div>
@@ -68,6 +70,8 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   `,
 })
 export class ArenaTable {
+  protected readonly parts = manifest.parts;
+
   /** Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". */
   readonly label = input.required<string>();
   /** The columns, in order. A column heads and sets its cells; it never says what goes in them. */

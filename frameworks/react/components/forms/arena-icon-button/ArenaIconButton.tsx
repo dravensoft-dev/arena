@@ -61,9 +61,9 @@ export function ArenaIconButton({
 
       tabIndex={tabStop ? undefined : -1}
       aria-label={label} aria-pressed={pressed} title={showLabel ? undefined : label} disabled={disabled}
-      className={styles.root()}>
+      className={styles.root()} data-arena-part={manifest.parts.root}>
       <i className={icon} aria-hidden="true" />
-      {showLabel && <span className={styles.label()}>{label}</span>}
+      {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
     </button>
   );
 }

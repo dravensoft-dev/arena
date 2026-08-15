@@ -11,6 +11,7 @@ import {
   type EventTimes, arenaFormatDate, arenaFormatHM, arenaShowsTime, arenaStacksActions,
 } from '../arena-calendar/CalendarInternals';
 import { arenaCalendarEventStyles } from './ArenaCalendarEvent.variants';
+import manifest from '../arena-calendar/ArenaCalendar.classes.generated';
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -25,56 +26,56 @@ let seq = 0;
   template: `
     @if (across(); as across) {
       @if (hasPanel()) {
-        <div [id]="domId" [class]="chipClass()" [style]="across"
+        <div [id]="domId" [class]="chipClass()" [attr.data-arena-part]="parts.chip" [style]="across"
              [style.top.px]="topPx()" [style.height.px]="heightPx()"
              [style.background]="tint()" [style.borderLeftColor]="ink()"
              (keydown)="onKeydown($event)">
           @if (interactive()) {
-            <button #focusable type="button" tabindex="-1" [class]="bodyClass()"
+            <button #focusable type="button" tabindex="-1" [class]="bodyClass()" [attr.data-arena-part]="parts.chipBody"
                     [attr.aria-label]="label()" [attr.aria-disabled]="inert()"
                     (click)="onActivate($event)">
-              <span [class]="styles().title()">{{ heading() }}</span>
+              <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
               @if (showTime()) {
-                <span [class]="styles().time()">{{ timeLabel() }}</span>
+                <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
               }
             </button>
           } @else {
-            <span #focusable tabindex="-1" [class]="bodyClass()" (click)="onActivate($event)">
-              <span [class]="styles().title()">{{ heading() }}</span>
+            <span #focusable tabindex="-1" [class]="bodyClass()" [attr.data-arena-part]="parts.chipBody" (click)="onActivate($event)">
+              <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
               @if (showTime()) {
-                <span [class]="styles().time()">{{ timeLabel() }}</span>
+                <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
               }
             </span>
           }
-          <span #kebabWrap [class]="kebabClass()">
+          <span #kebabWrap [class]="kebabClass()" [attr.data-arena-part]="parts.kebabWrap">
             <arena-icon-button icon="ph-bold ph-dots-three-vertical" label="Actions" size="sm"
                                [tabStop]="false" (click)="togglePanel()" />
             @if (panelOpen()) {
-              <span #panel [class]="styles().panel()" [style.zIndex]="1">
+              <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" [style.zIndex]="1">
                 <ng-content select="[actions]" />
               </span>
             }
           </span>
         </div>
       } @else if (interactive()) {
-        <button #focusable [id]="domId" type="button" tabindex="-1" [class]="chipClass()"
+        <button #focusable [id]="domId" type="button" tabindex="-1" [class]="chipClass()" [attr.data-arena-part]="parts.chip"
                 [style]="across" [style.top.px]="topPx()" [style.height.px]="heightPx()"
                 [style.background]="tint()" [style.borderLeftColor]="ink()"
                 [attr.aria-label]="label()" [attr.aria-disabled]="inert()"
                 (click)="onActivate($event)">
-          <span [class]="styles().title()">{{ heading() }}</span>
+          <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
           @if (showTime()) {
-            <span [class]="styles().time()">{{ timeLabel() }}</span>
+            <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
           }
         </button>
       } @else {
-        <div #focusable [id]="domId" tabindex="-1" [class]="chipClass()"
+        <div #focusable [id]="domId" tabindex="-1" [class]="chipClass()" [attr.data-arena-part]="parts.chip"
              [style]="across" [style.top.px]="topPx()" [style.height.px]="heightPx()"
              [style.background]="tint()" [style.borderLeftColor]="ink()"
              (click)="onActivate($event)">
-          <span [class]="styles().title()">{{ heading() }}</span>
+          <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
           @if (showTime()) {
-            <span [class]="styles().time()">{{ timeLabel() }}</span>
+            <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
           }
         </div>
       }
@@ -82,6 +83,8 @@ let seq = 0;
   `,
 })
 export class ArenaCalendarEvent {
+  protected readonly parts = manifest.parts;
+
   /** Stable identity, so a host can switch on it rather than on the title. */
   readonly id = input.required<string>();
   /** What the chip reads. */

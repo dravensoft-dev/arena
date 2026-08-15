@@ -19,5 +19,5 @@ const placementOf = (placement: string | undefined): ArenaToastPlacement | undef
   (placement && PLACEMENTS.includes(placement) ? placement as ArenaToastPlacement : undefined);
 
 export function ArenaToastHost({ placement = 'bottom-end', children }: ArenaToastHostProps) {
-  return <div className={arenaToastHostStyles({ placement: placementOf(placement) }).root()}>{children}</div>;
+  return <div className={arenaToastHostStyles({ placement: placementOf(placement) }).root()} data-arena-part={manifest.parts.root}>{children}</div>;
 }

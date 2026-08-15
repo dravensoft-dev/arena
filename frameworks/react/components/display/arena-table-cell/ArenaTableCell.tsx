@@ -30,16 +30,17 @@ export function ArenaTableCell({
     if (c.mobileLayout === 'block') {
 
       return (
-        <div className={cellStyles({ narrow: true }).cardBlock()}>
+        <div className={cellStyles({ narrow: true }).cardBlock()} data-arena-part={manifest.parts.cardBlock}>
           {children}
         </div>
       );
     }
     const card = cellStyles({ narrow: true });
     return (
-      <div className={card.cardRow()}>
-        <span className={card.cardLabel()}>{c.header}</span>
-        <span className={c.mono ? card.cardValueMono() : card.cardValue()}>
+      <div className={card.cardRow()} data-arena-part={manifest.parts.cardRow}>
+        <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel}>{c.header}</span>
+        <span className={c.mono ? card.cardValueMono() : card.cardValue()}
+          data-arena-part={manifest.parts.cardValue}>
           {children}
         </span>
       </div>
@@ -52,7 +53,8 @@ export function ArenaTableCell({
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
       className={c.mono
         ? cellStyles({ narrow: false, align: c.align || 'left' }).tdMono()
-        : cellStyles({ narrow: false, align: c.align || 'left' }).td()}>
+        : cellStyles({ narrow: false, align: c.align || 'left' }).td()}
+      data-arena-part={manifest.parts.td}>
       {children}
     </td>
   );

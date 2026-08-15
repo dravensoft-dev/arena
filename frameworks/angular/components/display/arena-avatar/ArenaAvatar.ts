@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { arenaAvatarStyles } from './ArenaAvatar.variants';
+import manifest from './ArenaAvatar.classes.generated';
 import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../../../Api.generated';
 
 @Component({
@@ -8,22 +9,25 @@ import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../..
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
   template: `
-    <span [class]="styles().box()">
+    <span [class]="styles().box()" [attr.data-arena-part]="parts.box">
       @if (src(); as source) {
-        <img [src]="source" [alt]="name()" [class]="styles().image()" />
+        <img [src]="source" [alt]="name()" [class]="styles().image()" [attr.data-arena-part]="parts.image" />
       } @else {
         {{ initials() }}
       }
     </span>
     @if (status(); as presence) {
-      <span [class]="styles().status()" [attr.aria-label]="presence" [title]="presence"></span>
+      <span [class]="styles().status()" [attr.data-arena-part]="parts.status" [attr.aria-label]="presence" [title]="presence"></span>
     }
   `,
 })
 export class ArenaAvatar {
+  protected readonly parts = manifest.parts;
+
   /** Image URL. Absent renders initials from `name`. */
   readonly src = input<string>();
   /** The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. */

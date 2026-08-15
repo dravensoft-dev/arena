@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, contentChild, input } fro
 import type { ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
 import { ArenaActions, ArenaFigureSlot } from '../../../ProjectionMarkers';
 import { arenaHeroStyles } from './ArenaHero.variants';
+import manifest from './ArenaHero.classes.generated';
 
 const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
 
@@ -11,20 +12,23 @@ const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[style.gridTemplateColumns]': 'tracks()',
     '[attr.title]': 'null',
   },
   template: `
-    <div [class]="styles().words()">
-      @if (eyebrow(); as label) { <p [class]="styles().eyebrow()">{{ label }}</p> }
-      <h1 [class]="styles().title()">{{ heading() }}</h1>
-      @if (lede(); as line) { <p [class]="styles().lede()">{{ line }}</p> }
-      @if (actions()) { <div [class]="styles().actions()"><ng-content select="[actions]" /></div> }
+    <div [class]="styles().words()" [attr.data-arena-part]="parts.words">
+      @if (eyebrow(); as label) { <p [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</p> }
+      <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h1>
+      @if (lede(); as line) { <p [class]="styles().lede()" [attr.data-arena-part]="parts.lede">{{ line }}</p> }
+      @if (actions()) { <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div> }
     </div>
-    @if (figure()) { <div [class]="styles().figure()"><ng-content select="[figure]" /></div> }
+    @if (figure()) { <div [class]="styles().figure()" [attr.data-arena-part]="parts.figure"><ng-content select="[figure]" /></div> }
   `,
 })
 export class ArenaHero {
+  protected readonly parts = manifest.parts;
+
   /** The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   readonly title = input.required<string>();
   /** A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */

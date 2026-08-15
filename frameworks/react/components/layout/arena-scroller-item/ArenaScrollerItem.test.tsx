@@ -11,7 +11,7 @@ const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 
 test('the cell is one real element, which is the whole reason it exists', () => {
   const html = render(<ArenaScrollerItem><span id="a">One</span></ArenaScrollerItem>);
-  assert.match(html, /^<div class="[^"]+"><span id="a">One<\/span><\/div>$/,
+  assert.match(html, /^<div class="[^"]+"[^>]*><span id="a">One<\/span><\/div>$/,
     'a cell that rendered no box, or two, would be back to the hazard it was built to close');
 });
 

@@ -19,11 +19,11 @@ const arenaChartCardStyles = arenaStyles(manifest);
 export function ArenaChartCard({ title, actions, children }: ArenaChartCardProps) {
   const styles = arenaChartCardStyles();
   return (
-    <div className={styles.root()}>
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
       {(title || actions) && (
-        <div className={styles.head()}>
-          {title && <span className={styles.title()}>{title}</span>}
-          {actions && <div className={styles.actions()}>{actions}</div>}
+        <div className={styles.head()} data-arena-part={manifest.parts.head}>
+          {title && <span className={styles.title()} data-arena-part={manifest.parts.title}>{title}</span>}
+          {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
         </div>
       )}
       {children}

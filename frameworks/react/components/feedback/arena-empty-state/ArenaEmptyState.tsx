@@ -22,11 +22,11 @@ export function ArenaEmptyState({ icon, title, message, action }: ArenaEmptyStat
   if (!title) throw new Error('ArenaEmptyState: `title` is required');
   const styles = emptyStyles();
   return (
-    <div className={styles.root()}>
-      {icon && <div className={styles.icon()}><i className={icon} aria-hidden="true" /></div>}
-      {title && <div className={styles.title()}>{title}</div>}
-      {message && <div className={styles.message()}>{message}</div>}
-      {action && <div className={styles.action()}>{action}</div>}
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
+      {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
+      {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
+      {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}
     </div>
   );
 }

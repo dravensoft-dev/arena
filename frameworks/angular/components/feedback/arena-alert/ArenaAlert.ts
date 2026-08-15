@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output } from '@angular/core';
 import { arenaAlertStyles } from './ArenaAlert.variants';
+import manifest from './ArenaAlert.classes.generated';
 import type { ArenaAlertTone } from '../../../Api.generated';
 
 const TONE_ICONS: Record<ArenaAlertTone, string> = {
@@ -16,28 +17,31 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "tone() === 'danger' ? 'alert' : 'status'",
     '[attr.title]': 'null',
   },
   template: `
-    <i [class]="styles().icon() + ' ' + (icon() ?? toneIcon())" aria-hidden="true"></i>
-    <div [class]="styles().body()">
+    <i [class]="styles().icon() + ' ' + (icon() ?? toneIcon())" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+    <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
       @if (title(); as heading) {
-        <div [class]="styles().title()">{{ heading }}</div>
+        <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
       }
-      <div [class]="styles().message()"><ng-content /></div>
+      <div [class]="styles().message()" [attr.data-arena-part]="parts.message"><ng-content /></div>
       @if (actionLabel(); as label) {
-        <button type="button" [class]="styles().action()" (click)="action.emit()">{{ label }}</button>
+        <button type="button" [class]="styles().action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
       }
     </div>
     @if (dismissible()) {
-      <button type="button" [class]="styles().close()" aria-label="Dismiss" (click)="close.emit()">
+      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Dismiss" (click)="close.emit()">
         <i class="ph-bold ph-x" aria-hidden="true"></i>
       </button>
     }
   `,
 })
 export class ArenaAlert {
+  protected readonly parts = manifest.parts;
+
   /** The severity: colour, default icon, and (for danger) the alert role. */
   readonly tone = input<ArenaAlertTone, ArenaAlertTone | undefined>(
     'info',

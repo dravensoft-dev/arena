@@ -22,8 +22,8 @@ const arenaSpinnerStyles = arenaStyles(manifest);
 export function ArenaSpinner({ size = 'md', tone = 'accent', label = 'Loading' }: ArenaSpinnerProps) {
   const styles = arenaSpinnerStyles({ size, tone });
   return (
-    <span role="progressbar" aria-live="polite" aria-label={label} className={styles.root()}>
-      <span className={styles.circle()} aria-hidden="true" />
+    <span role="progressbar" aria-live="polite" aria-label={label} className={styles.root()} data-arena-part={manifest.parts.root}>
+      <span className={styles.circle()} data-arena-part={manifest.parts.circle} aria-hidden="true" />
     </span>
   );
 }
