@@ -210,8 +210,8 @@ export const CLAIMS = {
     { slot: 'current', has: ['font-bold', 'text-ink-body'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
     { slot: 'crumb', has: ['text-ink-muted/62', 'no-underline', 'cursor-pointer', 'hover:text-ink-body/82'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
     { slot: 'separator', has: ['text-neutral'], why: 'the separator is muted, distinct from both crumb slots' },
-    { slot: 'crumb', has: ['font-mono', 'text-ctl-sm', 'tracking-mono-nav'], why: 'every slot shares the mono, wide-tracked control type' },
-    { slot: 'current', has: ['font-mono', 'text-ctl-sm', 'tracking-mono-nav'], why: 'every slot shares the mono, wide-tracked control type' },
+    { slot: 'crumb', has: ['font-face-label', 'text-ctl-sm', 'tracking-mono-nav'], why: 'the label register, which default answers as the mono face, at the narrow nav tracking' },
+    { slot: 'current', has: ['font-face-label', 'text-ctl-sm', 'tracking-mono-nav'], why: 'the same register at the last segment, which is the one drawn bold' },
   ],
   ArenaBulkActionBar: [
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
