@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as rules from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 import {
-  collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, valueProblems,
-  zeroScopeProblems,
+  collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
 const roles = (over: Record<string, string> = {}) => new Map(Object.entries({
@@ -196,4 +196,14 @@ test('a zero walk is a failure and not a clean pass', () => {
 
 test('the real tree holds: every scope this build emits clears the reading floors', () => {
   assert.deepEqual(collect(), []);
+});
+
+test('a root plugin that leaves a question unanswered fails', () => {
+  const problems = totalityProblems(['r-surface', 'bw-surface'], ['r-surface']);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /bw-surface/);
+});
+
+test('a total root plugin passes', () => {
+  assert.deepEqual(totalityProblems(['r-surface'], ['r-surface']), []);
 });

@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
+import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
@@ -23,6 +24,8 @@ export {
 
 export const ROOT_PLUGIN = 'plugin-style-store/default/plugin.tokens.json';
 
+export const ROLES = 'contracts/design/roles.json';
+
 export const RESOLVED = [
   'contracts/design-generated/effects.generated.css',
   'contracts/design-generated/typography.generated.css',
@@ -32,7 +35,7 @@ export const RESOLVED = [
 
 export const node = {
   name: 'check:style-plugin',
-  reads: ['contracts/design', ROOT_PLUGIN, 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
+  reads: [ROLES, ROOT_PLUGIN, 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
   writes: [],
   feeds: [],
 };
@@ -62,6 +65,14 @@ export function movedTokens(tokens: Record<string, unknown>) {
   return out;
 }
 
+export function totalityProblems(declared: string[], answered: string[]) {
+  const given = new Set(answered);
+  return declared.filter((role) => !given.has(role)).map((role) =>
+    `the root style plugin does not answer ${role}. A custom property with no value is invalid at `
+    + 'computed-value time, so the declaration reading it is dropped and the property disappears: '
+    + 'an unanswered role is not a plainer appearance, it is a missing border.');
+}
+
 export function zeroScopeProblems(count: number) {
   if (count > 0) return [];
   return ['measured 0 scope(s) -- an empty result set is a failure, not a clean pass; check the '
@@ -73,6 +84,10 @@ export function collect(sheets?: string) {
   const problems = [];
   for (const scope of SCOPES)
     problems.push(...floorProblems(resolvedFor(css, '', scope), scope, ROOT_PLUGIN));
+  problems.push(...totalityProblems(
+    Object.keys(readJson(join(repoRoot, ROLES))),
+    Object.keys(readJson(join(repoRoot, ROOT_PLUGIN))),
+  ));
   return problems;
 }
 
@@ -84,7 +99,8 @@ function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-style-plugin: the reading floors hold in ${SCOPES.length} scope(s)`);
+  console.log(`check-style-plugin: the root plugin answers every role the kernel declares, and the `
+    + `reading floors hold in ${SCOPES.length} scope(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();
