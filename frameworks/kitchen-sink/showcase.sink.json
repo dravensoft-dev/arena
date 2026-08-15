@@ -5,7 +5,7 @@
     {
       "title": "Floating surfaces",
       "items": [
-        "ArenaCard", "ArenaFigure", "ArenaStatCard", "ArenaUnauthCard", "ArenaChartCard", "ArenaMenu",
+        "ArenaCard", "ArenaKeyValue", "ArenaFigure", "ArenaStatCard", "ArenaUnauthCard", "ArenaChartCard", "ArenaMenu",
         "ArenaTooltip"
       ]
     },
@@ -19,7 +19,7 @@
     {
       "title": "Standing on the page",
       "items": [
-        "ArenaAppLogo", "ArenaHero", "ArenaPageHead", "ArenaTable", "ArenaTableRow", "ArenaTableCell",
+        "ArenaAppLogo", "ArenaAppBar", "ArenaSiteFooter", "ArenaHero", "ArenaPageHead", "ArenaTable", "ArenaTableRow", "ArenaTableCell",
         "ArenaActivityFeed", "ArenaCalendar", "ArenaCalendarEvent", "ArenaGrid", "ArenaSideNav",
         "ArenaSideNavSection", "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaSection",
         "ArenaScroller", "ArenaScrollerItem"

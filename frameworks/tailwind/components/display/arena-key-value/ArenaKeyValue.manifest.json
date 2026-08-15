@@ -1,0 +1,16 @@
+{
+  "component": "ArenaKeyValue",
+  "slots": {
+    "root": "flex flex-col gap-items m-0",
+    "row": "flex flex-wrap items-baseline justify-between gap-inline font-body text-sm",
+    "term": "text-ink-muted/62 m-0",
+    "value": "text-ink-body text-end m-0",
+    "valueNumeric": "text-ink-body text-end m-0 font-mono tabular-nums",
+    "total": "flex flex-wrap items-baseline justify-between gap-inline pt-3 border-t-[length:var(--bw-separator)] border-edge-separator font-face-heading font-heading text-title-surface",
+    "totalTerm": "text-ink-heading m-0",
+    "totalValue": "text-ink-heading text-end m-0",
+    "totalValueNumeric": "text-ink-heading text-end m-0 tabular-nums"
+  },
+  "variants": {},
+  "defaultVariants": {}
+}

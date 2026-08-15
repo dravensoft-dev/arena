@@ -19,6 +19,7 @@
     "ArenaCalendar",
     "ArenaCalendarEvent",
     "ArenaCard",
+    "ArenaKeyValue",
     "ArenaSkeleton",
     "ArenaStatCard",
     "ArenaTable",
@@ -58,9 +59,11 @@
     "ArenaHero",
     "ArenaScroller",
     "ArenaScrollerItem",
-    "ArenaSection"
+    "ArenaSection",
+    "ArenaSiteFooter"
   ],
   "navigation": [
+    "ArenaAppBar",
     "ArenaBottomNav",
     "ArenaBottomNavItem",
     "ArenaBreadcrumbs",

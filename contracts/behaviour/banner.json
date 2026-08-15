@@ -1,0 +1,8 @@
+{
+  "name": "banner",
+  "source": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+  "description": "The landmark holding a page's own furniture: the site identity and whatever sits beside it at the top of every screen. There is no APG pattern page for it, since landmarks are a practice and not a widget, so the landmark-regions practice page is the pattern's source, the way it is for navigation. One per page, which is why no name is required: a reader jumping by landmark reaches it by its role.",
+  "requires": {
+    "roles.element": "banner (native header at the top level of the document, or role=banner when header cannot be used)"
+  }
+}

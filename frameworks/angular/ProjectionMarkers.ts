@@ -26,3 +26,6 @@ export class ArenaFallback {}
 
 @Directive({ selector: '[overlay]', standalone: true })
 export class ArenaOverlay {}
+
+@Directive({ selector: '[nav]', standalone: true })
+export class ArenaNav {}

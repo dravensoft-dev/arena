@@ -13,7 +13,7 @@
     {
       "title": "Display",
       "items": [
-        "ArenaCard", "ArenaStatCard", "ArenaUnauthCard", "ArenaBadge", "ArenaTag", "ArenaAvatar",
+        "ArenaCard", "ArenaKeyValue", "ArenaStatCard", "ArenaUnauthCard", "ArenaBadge", "ArenaTag", "ArenaAvatar",
         "ArenaSkeleton", "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed",
         "ArenaCalendar", "ArenaCalendarEvent"
       ]
@@ -21,7 +21,7 @@
     {
       "title": "Navigation",
       "items": [
-        "ArenaPageHead", "ArenaBreadcrumbs", "ArenaTabs", "ArenaTab", "ArenaSegmentedControl",
+        "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaTabs", "ArenaTab", "ArenaSegmentedControl",
         "ArenaPagination", "ArenaMenu", "ArenaBulkActionBar", "ArenaSideNav", "ArenaSideNavSection",
         "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem",
         "ArenaCommandPalette"
@@ -42,6 +42,6 @@
         "ArenaDoughnutChart", "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
       ]
     },
-    { "title": "Layout", "items": ["ArenaGrid", "ArenaFigure", "ArenaHero", "ArenaScroller", "ArenaScrollerItem", "ArenaSection"] }
+    { "title": "Layout", "items": ["ArenaGrid", "ArenaSiteFooter", "ArenaFigure", "ArenaHero", "ArenaScroller", "ArenaScrollerItem", "ArenaSection"] }
   ]
 }

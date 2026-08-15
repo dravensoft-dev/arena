@@ -59,6 +59,8 @@ export const ELEMENT_ROLE: Record<string, string> = {
   button: 'button',
   checkbox: 'checkbox',
   combobox: 'combobox',
+  banner: 'banner',
+  contentinfo: 'contentinfo',
   'dialog-modal': 'dialog',
   disclosure: 'button',
   listbox: 'listbox',

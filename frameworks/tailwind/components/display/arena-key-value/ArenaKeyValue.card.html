@@ -1,0 +1,45 @@
+<!-- @dsCard group="Tailwind" viewport="820x360" name="ArenaKeyValue" subtitle="The rows, the figures and the total, rendered from ArenaKeyValue.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-key-value/ArenaKeyValue.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaKeyValue.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+
+const ROWS = [
+  ['Delivering to', 'A. Okonkwo, Gran Via 4, 48001 Bilbao', false],
+  ['Method', 'Standard, 2 to 3 days', false],
+  ['Subtotal', '42.00', true],
+  ['Delivery', '4.50', true],
+];
+
+function list() {
+  const root = el('dl', { class: c.root });
+  for (const [term, value, numeric] of ROWS) {
+    const row = el('div', { class: c.row });
+    row.append(el('dt', { class: c.term, text: term }));
+    row.append(el('dd', { class: numeric ? c.valueNumeric : c.value, text: value }));
+    root.append(row);
+  }
+  const total = el('div', { class: c.total });
+  total.append(el('dt', { class: c.totalTerm, text: 'Total' }));
+  total.append(el('dd', { class: c.totalValueNumeric, text: '46.50' }));
+  root.append(total);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('A summary, with the total ruled off', [list()], { stack: true }),
+  section('Why numeric is per row', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'A summary mixes an address with a price, and only one of them is a figure. A figure takes '
+      + 'the mono face and tabular numerals so a column of them aligns by digit and stops jittering '
+      + 'as the basket changes; an address in that face would read as a system string.'),
+  ]),
+]});
+</script></body></html>

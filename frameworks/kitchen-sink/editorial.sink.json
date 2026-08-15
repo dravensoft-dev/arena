@@ -4,12 +4,12 @@
   "sections": [
     {
       "title": "Masthead",
-      "items": ["ArenaAppLogo", "ArenaHero", "ArenaPageHead", "ArenaBreadcrumbs", "ArenaAvatar", "ArenaSection"]
+      "items": ["ArenaAppLogo", "ArenaAppBar", "ArenaHero", "ArenaPageHead", "ArenaBreadcrumbs", "ArenaAvatar", "ArenaSection"]
     },
     {
       "title": "What it says",
       "items": [
-        "ArenaCard", "ArenaStatCard", "ArenaBadge", "ArenaTag", "ArenaAlert", "ArenaProgressBar",
+        "ArenaCard", "ArenaKeyValue", "ArenaStatCard", "ArenaBadge", "ArenaTag", "ArenaAlert", "ArenaProgressBar",
         "ArenaSpinner", "ArenaSkeleton", "ArenaTooltip"
       ]
     },
@@ -40,7 +40,7 @@
     {
       "title": "What interrupts",
       "items": [
-        "ArenaEmptyState", "ArenaErrorState", "ArenaToast", "ArenaToastHost", "ArenaDialog",
+        "ArenaEmptyState", "ArenaSiteFooter", "ArenaErrorState", "ArenaToast", "ArenaToastHost", "ArenaDialog",
         "ArenaConfirmDialog", "ArenaSheet", "ArenaCommandPalette", "ArenaOnboarding"
       ]
     }

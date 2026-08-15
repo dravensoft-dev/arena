@@ -24,6 +24,7 @@ import { ArenaChartCard } from './charts/arena-chart-card/ArenaChartCard.tsx';
 import { ArenaEmptyState } from './feedback/arena-empty-state/ArenaEmptyState.tsx';
 import { ArenaToastHost } from './feedback/arena-toast-host/ArenaToastHost.tsx';
 import { ArenaGrid } from './layout/arena-grid/ArenaGrid.tsx';
+import { ArenaKeyValue } from './display/arena-key-value/ArenaKeyValue.tsx';
 import { ArenaFigure } from './layout/arena-figure/ArenaFigure.tsx';
 import { ArenaHero } from './layout/arena-hero/ArenaHero.tsx';
 import { ArenaScrollerItem } from './layout/arena-scroller-item/ArenaScrollerItem.tsx';
@@ -53,6 +54,8 @@ const INERT: [string, string, React.ReactElement][] = [
   ['ArenaEmptyState', 'feedback/arena-empty-state/ArenaEmptyState.behaviour.json', <ArenaEmptyState title="Nothing here yet" />],
   ['ArenaToastHost', 'feedback/arena-toast-host/ArenaToastHost.behaviour.json', <ArenaToastHost />],
   ['ArenaGrid', 'layout/arena-grid/ArenaGrid.behaviour.json', <ArenaGrid><InertChild /></ArenaGrid>],
+  ['ArenaKeyValue', 'display/arena-key-value/ArenaKeyValue.behaviour.json',
+    <ArenaKeyValue rows={[{ term: 'Method', value: 'Standard' }]} />],
   ['ArenaFigure', 'layout/arena-figure/ArenaFigure.behaviour.json',
     <ArenaFigure caption="Kochere, 2050 m" />],
   ['ArenaHero', 'layout/arena-hero/ArenaHero.behaviour.json',

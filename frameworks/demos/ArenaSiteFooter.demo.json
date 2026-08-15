@@ -1,0 +1,55 @@
+{
+  "component": "ArenaSiteFooter",
+  "seed": {
+    "note": "Roasted in Bilbao. Every lot traceable to the farm."
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaAppLogo",
+        "members": {
+          "size": "sm",
+          "name": "Meridian",
+          "dim": " Roasters"
+        },
+        "slots": {
+          "mark": [
+            {
+              "element": "svg",
+              "attrs": {
+                "aria-hidden": "true"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "component": "ArenaCard",
+        "members": {
+          "title": "Shop"
+        },
+        "slots": {
+          "content": [
+            {
+              "text": "Single origin, blends, equipment"
+            }
+          ]
+        }
+      },
+      {
+        "component": "ArenaCard",
+        "members": {
+          "title": "Company"
+        },
+        "slots": {
+          "content": [
+            {
+              "text": "How we buy, roasting, contact"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "note": "The contentinfo landmark. One child is one column, and the count comes from the room rather than from a breakpoint anyone picked."
+}

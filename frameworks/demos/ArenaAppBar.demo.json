@@ -1,0 +1,49 @@
+{
+  "component": "ArenaAppBar",
+  "seed": {},
+  "slots": {
+    "brand": [
+      {
+        "component": "ArenaAppLogo",
+        "members": {
+          "size": "sm",
+          "name": "Meridian",
+          "dim": " Roasters"
+        },
+        "slots": {
+          "mark": [
+            {
+              "element": "svg",
+              "attrs": {
+                "aria-hidden": "true"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "nav": [
+      {
+        "component": "ArenaTag",
+        "slots": {
+          "content": [
+            {
+              "text": "Single origin"
+            }
+          ]
+        }
+      }
+    ],
+    "actions": [
+      {
+        "component": "ArenaIconButton",
+        "members": {
+          "icon": "ph-bold ph-basket",
+          "variant": "solid",
+          "label": "Basket, 2 items"
+        }
+      }
+    ]
+  },
+  "note": "The banner landmark. The bar spans the viewport and the band inside it stops at the page width, so its contents line up with everything under them."
+}

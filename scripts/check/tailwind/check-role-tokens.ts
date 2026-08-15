@@ -103,6 +103,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaBreadcrumbs:current:font-mono', 'the same path, at its last segment'],
   ['ArenaBreadcrumbs:separator:font-mono', 'the slash between two segments of that path'],
   ['ArenaActivityFeed:target:font-mono', 'the object an activity happened to, which is an identifier rather than a name'],
+  ['ArenaKeyValue:valueNumeric:font-mono', 'a figure in a summary, and a column of them has to align by digit or it jitters as the basket changes. It is the same claim .arena-num ships for a figure a consumer draws themselves, made once here for the figures this component draws'],
 
   ['ArenaAppLogo:name:font-display', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It follows the mark beside it and no voice'],
   ['ArenaAppLogo:name:uppercase', 'the same wordmark: its capitals are how the brand is drawn, and a voice that sets its eyebrows in sentence case has not renamed the company'],

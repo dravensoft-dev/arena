@@ -4,6 +4,7 @@ export * from './arena-badge';
 export * from './arena-calendar';
 export * from './arena-calendar-event';
 export * from './arena-card';
+export * from './arena-key-value';
 export * from './arena-skeleton';
 export * from './arena-stat-card';
 export * from './arena-table';

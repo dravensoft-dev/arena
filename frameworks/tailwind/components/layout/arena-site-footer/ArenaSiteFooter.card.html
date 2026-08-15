@@ -1,0 +1,49 @@
+<!-- @dsCard group="Tailwind" viewport="820x380" name="ArenaSiteFooter" subtitle="The columns and the note, rendered from ArenaSiteFooter.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-site-footer/ArenaSiteFooter.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaSiteFooter.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+const TRACKS = 'repeat(auto-fit, minmax(min(var(--grid-min), 100%), 1fr))';
+
+function column(title, links) {
+  const box = el('div', { class: 'flex flex-col gap-2' });
+  box.append(el('div', {
+    class: 'font-face-label case-label tracking-label text-ctl-xs text-base-content', text: title,
+  }));
+  for (const link of links) {
+    box.append(el('div', { class: 'font-body text-sm text-base-content/62', text: link }));
+  }
+  return box;
+}
+
+function footer() {
+  const columns = el('div', { class: c.columns, style: { gridTemplateColumns: TRACKS } });
+  columns.append(column('Shop', ['Single origin', 'Blends', 'Equipment']));
+  columns.append(column('Company', ['How we buy', 'Roasting', 'Contact']));
+  columns.append(column('Help', ['Delivery', 'Returns', 'Brewing guides']));
+
+  const band = el('div', { class: c.band, style: { maxWidth: 'var(--container-max)' } });
+  band.append(columns);
+  band.append(el('p', { class: c.note, text: 'Roasted in Bilbao. Every lot traceable to the farm.' }));
+
+  const root = el('footer', { class: c.root });
+  root.append(band);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('One child is one column', [footer()], { stack: true }),
+  section('The count comes from the room', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'The same auto-fitting track list ArenaGrid uses, off the same --grid-min role, so a voice '
+      + 'that widens a card widens a footer column with it. The note sits under the columns.'),
+  ]),
+]});
+</script></body></html>

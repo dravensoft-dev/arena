@@ -50,7 +50,7 @@ test('entryStylesheet disables automatic content detection on the preset import 
 test('manifestFiles walks the nested component tree and finds every manifest', () => {
   const dir = join(repoRoot, 'frameworks/tailwind/components');
   const found = manifestFiles(dir);
-  assert.equal(found.length, 48);
+  assert.equal(found.length, 51);
   for (const p of found)
     assert.match(relPosix(repoRoot, p),
       /^frameworks\/tailwind\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/,
@@ -66,7 +66,7 @@ test('manifestFiles finds nothing at the old flat level, so a stale file cannot 
 
 test('compileLayer keys its manifests by repo-relative path, not by basename', () => {
   const { manifests } = compileLayer();
-  assert.equal(manifests.size, 48);
+  assert.equal(manifests.size, 51);
   for (const key of manifests.keys())
     assert.match(key, /^frameworks\/tailwind\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/);
 });

@@ -20,7 +20,7 @@
     {
       "title": "The text that names it",
       "items": [
-        "ArenaAppLogo", "ArenaHero", "ArenaPageHead", "ArenaSection", "ArenaBadge", "ArenaTag",
+        "ArenaAppLogo", "ArenaAppBar", "ArenaHero", "ArenaPageHead", "ArenaSection", "ArenaBadge", "ArenaTag",
         "ArenaTooltip"
       ]
     },
@@ -35,7 +35,7 @@
     {
       "title": "Rows and lists, where the same treatment runs the other way",
       "items": [
-        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed",
+        "ArenaTable", "ArenaKeyValue", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed",
         "ArenaCalendar", "ArenaCalendarEvent", "ArenaMenu",
         "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem", "ArenaSideNavCollapsible"
       ]
@@ -49,7 +49,7 @@
     {
       "title": "Off the wall",
       "items": [
-        "ArenaToast", "ArenaToastHost", "ArenaDialog", "ArenaConfirmDialog", "ArenaSheet",
+        "ArenaToast", "ArenaSiteFooter", "ArenaToastHost", "ArenaDialog", "ArenaConfirmDialog", "ArenaSheet",
         "ArenaCommandPalette", "ArenaOnboarding", "ArenaBottomNav", "ArenaBottomNavItem"
       ]
     }

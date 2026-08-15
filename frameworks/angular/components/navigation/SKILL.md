@@ -33,6 +33,7 @@ slot. An icon is a Phosphor class-name string, never an element.
 
 | Component | What it is | Takes | Usage |
 |---|---|---|---|
+| `ArenaAppBar` | The band across the top of every screen: the site's identity, the way through it, and the controls that follow the reader everywhere. It is the banner landmark, so there is one per page, and its contents line up with the page under it because the bar spans the viewport and the band inside it does not. | `brand` `nav` `actions` `sticky` | [`ArenaAppBar.prompt.md`](./arena-app-bar/ArenaAppBar.prompt.md) |
 | `ArenaBottomNav` | The bar of destinations pinned to the bottom edge of a phone screen. A compound component: the consumer writes one ArenaBottomNavItem per destination, and the coordination that tells each child which id is active and how to report `nav` is the parent's. That coordination is a member of no contract and each layer wires it in its own idiom. It is a row of equal columns with the glyph above the label, which is what separates it from a sidebar's stack of indented rows. | `active` `ariaLabel*` `content` `nav` | [`ArenaBottomNav.prompt.md`](./arena-bottom-nav/ArenaBottomNav.prompt.md) |
 | `ArenaBottomNavItem` | One destination in an ArenaBottomNav. The consumer writes one per destination; which id is currently active and how it reports `nav` are settled between it and its parent, and none of that is a member of this contract, the same shape and the same reason as ArenaSideNavItem and as the name an ArenaRadioGroup settles with each ArenaRadio. It draws its glyph above its label and takes an equal share of the bar's width, however many destinations there are. | `id*` `label*` `icon*` `badge` `href` `disabled` | [`ArenaBottomNavItem.prompt.md`](./arena-bottom-nav-item/ArenaBottomNavItem.prompt.md) |
 | `ArenaBreadcrumbs` | A trail of ancestor locations ending at the current one. An explicit return path for hierarchies deeper than tabs. | `ariaLabel*` `items*` `separator` `navigate` | [`ArenaBreadcrumbs.prompt.md`](./arena-breadcrumbs/ArenaBreadcrumbs.prompt.md) |
@@ -49,4 +50,4 @@ slot. An icon is a Phosphor class-name string, never an element.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | [`ArenaTab.prompt.md`](./arena-tab/ArenaTab.prompt.md) |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | [`ArenaTabs.prompt.md`](./arena-tabs/ArenaTabs.prompt.md) |
 
-15 navigation components in this layer.
+16 navigation components in this layer.
