@@ -303,6 +303,24 @@ blocks in `FILES` in `scripts/generate/arena/generate-tokens.ts` for exactly tha
 generator does not emit paints nothing, and a block naming no file emits nothing, and each looks
 complete on its own.
 
+## A role that aliases a step, in a voice that also moves that step
+
+A role's own value is resolved at build time unless its group is one another SCOPE redeclares,
+which `REDECLARED_GROUPS` names and which is the palette and the density scale. An extension is
+not one of those scopes, and it cannot be: any voice may move any `fs` or rhythm step, including
+one a consumer derives, so there is no fixed list of selectors to restate a reference under.
+
+The consequence is worth stating once rather than rediscovering. A role authored as `{fs.hero}`
+resolves to the base scale's answer, so a voice that raises `fs-hero` AND leaves that role alone
+gets the base value, not its own. Writing the role as `{fs.hero}` inside that same voice changes
+nothing at all, because the alias resolves the same way there.
+
+So a voice that has moved a step and wants a role to follow it writes the value outright. The
+duplication is real and it is the cheaper of the two costs: the alternative is emitting every
+`fs`-aliasing role as a reference, which would make a voice that moves a step move every role
+pointing at it whether or not it meant to, and the roles exist precisely so that those two
+questions can be answered apart.
+
 ## A theme group, for the values a polarity does not share
 
 A role a voice moves the same way in both themes is written at the top level of its partial. A role

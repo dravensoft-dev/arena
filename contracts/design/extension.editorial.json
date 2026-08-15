@@ -87,5 +87,28 @@
     "$type": "dimension",
     "$value": "{sp.16}",
     "$description": "The far end of the ladder. 8px inside a group against 64px between sections is a ratio of\neight, where the default is two and the figure/ground voice is a little over three. Distance is\nthe ONLY signal this voice has left, so it has to carry a hierarchy that the other two spend\nlines, fills and shadows on, and a ratio that reads as a hierarchy is what pays for the edge that\nis no longer drawn. check:extensions holds it above four for exactly that reason."
+  },
+  "step-title-page": {
+    "$type": "dimension",
+    "$value": "{fs.display}",
+    "$description": "A document's own title, set as one. With no lines and no fills the ladder IS the\nhierarchy, so the rung a page opens on has to be further from the section under it than a voice\nwith boxes needs it to be: 64 over 24 is the same argument the rhythm ladder makes at 8 to 64.\n\nIt moves alone. The section and the surface rungs stay where they are, because widening the gap\nat the top is what says a page has a title, and widening every gap would just enlarge the page."
+  },
+  "r-media": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    },
+    "$description": "A figure in a document is not enclosed either. This voice spent bw-surface,\nfill-surface and pad-surface removing the box from around a card, and a rounded corner on a\nscreenshot is the same box drawn one more time. Square, so a diagram sits on the page the way a\nparagraph does.\n\nAuthored outright rather than aliased, because the radius scale starts at 4 and the claim here is\nnot a smaller corner but no corner."
+  },
+  "fit-media": {
+    "$type": "keyword",
+    "$value": "contain",
+    "$description": "A figure in a document is a diagram, a screenshot or a chart, and the whole of it\nis the point. Cropping the edges off a screenshot to fill a frame loses the part that was being\npointed at, which is a different failure from a product photograph losing its background.\n\nIt pairs with the ratio below: a contained image inside a frame that is not its shape letterboxes\nrather than crops, and a document would rather show the whole thing than the right rectangle."
+  },
+  "aspect-media": {
+    "$type": "number",
+    "$value": 1.6,
+    "$description": "Sixteen by ten, which is the shape of the thing a document usually shows: a\nwindow, a screen, a chart wider than it is tall. The square this is born at is the shape of a\nproduct in a grid, and a screenshot cropped to one is a screenshot with its sides cut off."
   }
 }

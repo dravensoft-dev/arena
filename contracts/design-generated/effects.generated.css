@@ -1401,6 +1401,47 @@
      it had no consumer.
    */
   --fs-hero:120px;
+  /*
+     The one voice with a reason to reach the top of the scale. fs.hero had no
+     consumer by design until a hero existed, and a landing page somebody ARRIVES on is what it was
+     waiting for: the line has to carry the page before the reader has read anything else on it.
+     
+     Written outright rather than as an alias of the hero step, and that is not a preference. A role's value resolves
+     at build time against the BASE scale, because the only scopes a reference is restated under are
+     the ones REDECLARED_GROUPS names and a voice is not one of them. This voice raises fs.hero to 120
+     itself, so the alias would have frozen the rung at 96 and the entry would have said nothing at
+     all. Extensions.md carries the general form of that.
+   */
+  --step-title-hero:120px;
+  /*
+     A product's picture takes the corner a product's card takes. This voice rounds
+     every surface to r.xl, and a square image inside a round card is the one hard edge left on the
+     page, which reads as a mistake rather than as a decision.
+     
+     The figure/ground mechanism is why they have to match: a picture that does not share the card's
+     shape stops being part of the same object.
+   */
+  --r-media:22px;
+  /*
+     Four by five, the portrait crop a shop wants: a product fills more of the column
+     it is in, so a wall of them reads as merchandise rather than as thumbnails. The square this is
+     born at is a compromise between a photograph and a grid, and a voice whose job is to invite and
+     convert has a reason to stop compromising.
+     
+     Spelt as the ratio rather than as the fraction because aspect-ratio takes a number and the token
+     layer models one; the fraction is here, in the sentence a reader recognises it by.
+   */
+  --aspect-media:0.8;
+  /*
+     The surface fill, not the page's. A wash the colour of the page would say the
+     page closes over the picture, and this voice's whole claim is that a surface is TOLD FROM the
+     page: a badge sitting on a product's image belongs to the product, so the wash under it is the
+     fill every other surface takes.
+     
+     An assignment like every colour role: one of the consumer's twenty-seven, never a colour this
+     file authored.
+   */
+  --overlay-media:var(--color-base-200);
 }
 .arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{
   /*
@@ -1423,6 +1464,16 @@
      with a wider ramp get a figure that stands on a fill, and leaves this palette exactly where it was.
    */
   --fill-page:var(--color-base-100);
+  /*
+     The surface fill, not the page's. A wash the colour of the page would say the
+     page closes over the picture, and this voice's whole claim is that a surface is TOLD FROM the
+     page: a badge sitting on a product's image belongs to the product, so the wash under it is the
+     fill every other surface takes.
+     
+     An assignment like every colour role: one of the consumer's twenty-seven, never a colour this
+     file authored.
+   */
+  --overlay-media:var(--color-base-200);
 }
 .arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{
   /*
@@ -1558,6 +1609,40 @@
      is no longer drawn. check:extensions holds it above four for exactly that reason.
    */
   --rhythm-section:64px;
+  /*
+     A document's own title, set as one. With no lines and no fills the ladder IS the
+     hierarchy, so the rung a page opens on has to be further from the section under it than a voice
+     with boxes needs it to be: 64 over 24 is the same argument the rhythm ladder makes at 8 to 64.
+     
+     It moves alone. The section and the surface rungs stay where they are, because widening the gap
+     at the top is what says a page has a title, and widening every gap would just enlarge the page.
+   */
+  --step-title-page:64px;
+  /*
+     A figure in a document is not enclosed either. This voice spent bw-surface,
+     fill-surface and pad-surface removing the box from around a card, and a rounded corner on a
+     screenshot is the same box drawn one more time. Square, so a diagram sits on the page the way a
+     paragraph does.
+     
+     Authored outright rather than aliased, because the radius scale starts at 4 and the claim here is
+     not a smaller corner but no corner.
+   */
+  --r-media:0px;
+  /*
+     A figure in a document is a diagram, a screenshot or a chart, and the whole of it
+     is the point. Cropping the edges off a screenshot to fill a frame loses the part that was being
+     pointed at, which is a different failure from a product photograph losing its background.
+     
+     It pairs with the ratio below: a contained image inside a frame that is not its shape letterboxes
+     rather than crops, and a document would rather show the whole thing than the right rectangle.
+   */
+  --fit-media:contain;
+  /*
+     Sixteen by ten, which is the shape of the thing a document usually shows: a
+     window, a screen, a chart wider than it is tall. The square this is born at is the shape of a
+     product in a grid, and a screenshot cropped to one is a screenshot with its sides cut off.
+   */
+  --aspect-media:1.6;
 }
 .arena-light.arena-editorial, .arena-light .arena-editorial, .arena-editorial .arena-light{
   /*
@@ -1681,6 +1766,33 @@
      follows is not a response to a pointer.
    */
   --dur-hover:120ms;
+  /*
+     The image is the mark, and a mark that repeats is what this voice groups by. A
+     heavy corner reads as a container around the picture, which puts a second shape between the
+     reader and the thing they came to look at; the smallest step on the scale keeps the tile a tile
+     without letting it become a card.
+     
+     This voice already took the line and the depth off its surfaces for the same reason.
+   */
+  --r-media:4px;
+  /*
+     The wash a caption sits on, held back rather than taken from the page. A gallery
+     labels over the image far more often than a page of text does, so this role is load-bearing here
+     and the page's own fill would make every overlay read as a hole cut in the picture.
+     
+     Neutral is the one colour in the palette whose job is to be quiet without being the page, which
+     is exactly what a wash under a caption has to be.
+   */
+  --overlay-media:var(--color-neutral);
+  /*
+     A hero on a page whose job is to show gets out of the image's way. This voice
+     already dropped the surface title to fs.md for the same reason: the text follows the picture, so
+     the one line at the top says what this is and then stops competing.
+     
+     It is the opposite move to the shop voice's, from the same role, which is the clearest evidence
+     the rung was worth having.
+   */
+  --step-title-hero:44px;
 }
 .arena-light.arena-gallery, .arena-light .arena-gallery, .arena-gallery .arena-light{
   /*
@@ -1697,6 +1809,15 @@
      set to on the day somebody reads it.
    */
   --fill-surface:var(--color-base-200);
+  /*
+     The wash a caption sits on, held back rather than taken from the page. A gallery
+     labels over the image far more often than a page of text does, so this role is load-bearing here
+     and the page's own fill would make every overlay read as a hole cut in the picture.
+     
+     Neutral is the one colour in the palette whose job is to be quiet without being the page, which
+     is exactly what a wash under a caption has to be.
+   */
+  --overlay-media:var(--color-neutral);
 }
 :root{
   /*

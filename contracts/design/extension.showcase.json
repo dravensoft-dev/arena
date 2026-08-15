@@ -203,5 +203,25 @@
       "unit": "px"
     },
     "$description": "The largest step anything is actually set at, and the reason fs-hero was kept when\nit had no consumer."
+  },
+  "step-title-hero": {
+    "$type": "dimension",
+    "$value": { "value": 120, "unit": "px" },
+    "$description": "The one voice with a reason to reach the top of the scale. fs.hero had no\nconsumer by design until a hero existed, and a landing page somebody ARRIVES on is what it was\nwaiting for: the line has to carry the page before the reader has read anything else on it.\n\nWritten outright rather than as an alias of the hero step, and that is not a preference. A role's value resolves\nat build time against the BASE scale, because the only scopes a reference is restated under are\nthe ones REDECLARED_GROUPS names and a voice is not one of them. This voice raises fs.hero to 120\nitself, so the alias would have frozen the rung at 96 and the entry would have said nothing at\nall. Extensions.md carries the general form of that."
+  },
+  "r-media": {
+    "$type": "dimension",
+    "$value": "{r.xl}",
+    "$description": "A product's picture takes the corner a product's card takes. This voice rounds\nevery surface to r.xl, and a square image inside a round card is the one hard edge left on the\npage, which reads as a mistake rather than as a decision.\n\nThe figure/ground mechanism is why they have to match: a picture that does not share the card's\nshape stops being part of the same object."
+  },
+  "aspect-media": {
+    "$type": "number",
+    "$value": 0.8,
+    "$description": "Four by five, the portrait crop a shop wants: a product fills more of the column\nit is in, so a wall of them reads as merchandise rather than as thumbnails. The square this is\nborn at is a compromise between a photograph and a grid, and a voice whose job is to invite and\nconvert has a reason to stop compromising.\n\nSpelt as the ratio rather than as the fraction because aspect-ratio takes a number and the token\nlayer models one; the fraction is here, in the sentence a reader recognises it by."
+  },
+  "overlay-media": {
+    "$type": "color",
+    "$value": "{color.base-200}",
+    "$description": "The surface fill, not the page's. A wash the colour of the page would say the\npage closes over the picture, and this voice's whole claim is that a surface is TOLD FROM the\npage: a badge sitting on a product's image belongs to the product, so the wash under it is the\nfill every other surface takes.\n\nAn assignment like every colour role: one of the consumer's twenty-seven, never a colour this\nfile authored."
   }
 }

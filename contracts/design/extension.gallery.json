@@ -81,5 +81,20 @@
     "$type": "duration",
     "$value": "{dur.fast}",
     "$description": "Fast, because there is nothing to travel. A slow response is the other half of an\nobject with mass being moved, and this voice removed the object: at 220ms with no lift the page\nfeels lagged rather than considered. The state duration is untouched, since a change the eye\nfollows is not a response to a pointer."
+  },
+  "r-media": {
+    "$type": "dimension",
+    "$value": "{r.xs}",
+    "$description": "The image is the mark, and a mark that repeats is what this voice groups by. A\nheavy corner reads as a container around the picture, which puts a second shape between the\nreader and the thing they came to look at; the smallest step on the scale keeps the tile a tile\nwithout letting it become a card.\n\nThis voice already took the line and the depth off its surfaces for the same reason."
+  },
+  "overlay-media": {
+    "$type": "color",
+    "$value": "{color.neutral}",
+    "$description": "The wash a caption sits on, held back rather than taken from the page. A gallery\nlabels over the image far more often than a page of text does, so this role is load-bearing here\nand the page's own fill would make every overlay read as a hole cut in the picture.\n\nNeutral is the one colour in the palette whose job is to be quiet without being the page, which\nis exactly what a wash under a caption has to be."
+  },
+  "step-title-hero": {
+    "$type": "dimension",
+    "$value": "{fs.h1}",
+    "$description": "A hero on a page whose job is to show gets out of the image's way. This voice\nalready dropped the surface title to fs.md for the same reason: the text follows the picture, so\nthe one line at the top says what this is and then stops competing.\n\nIt is the opposite move to the shop voice's, from the same role, which is the clearest evidence\nthe rung was worth having."
   }
 }

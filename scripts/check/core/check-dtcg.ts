@@ -113,6 +113,12 @@ export function validateTree(tree: DtcgNode, file: string) {
       else for (const k of Object.keys(node.$extensions))
         if (!DNS.test(k)) errs.push(`${file}:${path.join('.')}: $extensions key "${k}" must be reverse-DNS`);
     }
+    if (typeof node.$description === 'string' && /\{[^{}]*\}/.test(node.$description)) {
+      errs.push(`${file}:${path.join('.')}: $description contains ${(/\{[^{}]*\}/.exec(node.$description) ?? [''])[0]}, `
+        + 'which Style Dictionary resolves as a token reference wherever it appears, so the prose is '
+        + 'replaced by that token\'s value and the description stops being a string. Name the token '
+        + 'without braces');
+    }
     if (node.$value !== undefined) {
       const at = `${file}:${path.join('.')}`;
       if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) return;
