@@ -43,6 +43,7 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design-generated/typography.generated.css', to: 'css/typography.css' },
   { from: 'contracts/design-generated/spacing.generated.css', to: 'css/spacing.css' },
   { from: 'contracts/design-generated/effects.generated.css', to: 'css/effects.css' },
+  { from: 'contracts/design-generated/style-plugin.default.generated.css', to: 'css/style-plugin-default.css' },
   { from: 'contracts/design/colors.css', to: 'css/colors.css' },
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
@@ -53,7 +54,9 @@ export const arenaCssHeader = (name: string) => [
   '   whose palette and font values are meant to win. reset.css leads so anything can',
   '   override it, and colors.css derives its muted levels from --color-base-content,',
   '   so it follows the palette rather than defining one. environment.css composes the',
-  "   device's safe-area insets with the spacing scale and defines no length of its own. */",
+  "   device's safe-area insets with the spacing scale and defines no length of its own.",
+  '   style-plugin-default.css is the appearance rather than the language, and it is the one',
+  '   entry a project replaces: write your own style plugin and it takes this one\'s place. */',
 ].join('\n');
 
 export function excluded(name: string) {

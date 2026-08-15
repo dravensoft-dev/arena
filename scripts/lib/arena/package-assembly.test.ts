@@ -275,3 +275,12 @@ test('the token catalogue offers roles and no catalogue of appearances', () => {
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
 });
+
+test('the package stylesheet imports the default plugin between the scales and the palette', () => {
+  const names = CSS_CHAIN.map((entry) => entry.to);
+  assert.ok(names.includes('css/style-plugin-default.css'));
+  assert.ok(names.indexOf('css/style-plugin-default.css') > names.indexOf('css/effects.css'),
+    'a role answers with a scale alias, so the scales are declared before anything resolves against them');
+  assert.ok(names.indexOf('css/style-plugin-default.css') < names.indexOf('css/colors.css'),
+    'and ahead of the palette, so a colour reference is substituted in the scope that declares it');
+});
