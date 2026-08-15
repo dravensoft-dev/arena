@@ -60,7 +60,7 @@ export const MANIFESTS = 'frameworks/**/*.manifest.json';
 
 export const PRESET = [
   'frameworks/tailwind/Theme.css', 'frameworks/tailwind/Animations.css',
-  'frameworks/tailwind/Case.css', 'frameworks/tailwind/Numerals.css',
+  'frameworks/tailwind/Case.css', 'frameworks/tailwind/Numerals.css', 'frameworks/tailwind/SrOnly.css',
   'frameworks/tailwind/Prose.css', 'frameworks/tailwind/Rhythm.css',
   'frameworks/tailwind/Breakpoints.generated.css', 'contracts/design-generated',
 ];
