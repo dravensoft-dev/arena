@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-angular)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
-Arena is Dravensoft's design system. This package is its Angular layer: 71 components, standalone
+Arena is Dravensoft's design system. This package is its Angular layer: 73 components, standalone
 and `OnPush`, with signal inputs and outputs, styled by a shared Tailwind recipe per
 component, and shipped in Angular Package Format.
 
@@ -421,6 +421,7 @@ un-imported marker from an unfilled slot, so nothing can warn you.
 | `ARENA_ICONS` | the role-to-Phosphor map Arena's own components draw from, as `{ role, phosphor, weight }`. Read it when you want your icon for a role to match Arena's |
 | `arenaFocusableElements(root)`, `arenaFocusFirstFocusable(root)`, `arenaTrapTabKey(event, root)`, `arenaHandleOpenTransition(host, open)` | the modal contract, for an overlay Arena does not ship. Arena's own dialogs run on these, so a lightbox or a viewer of yours traps Tab, takes focus on open and restores the invoker on close by the same code rather than by a second one written from memory. This is the surface to reach for whenever the answer is that the markup is yours |
 | `arenaToneColor(tone)` | the colour a status tone resolves to, for a shape you draw yourself and want to keep meaning what the components mean by it. Status colours are meaning and the chart ramp is identity, so this is never a series colour |
+| `ARENA_MAIN_ID` | the id `arena-main` writes on its landmark and `arena-skip-link` points at, as a string. A page has one main region, so the id is a constant rather than something coordinated at the call site: read it when you write a second route into the content, an anchor of your own or a test that has to find the region |
 | `ARENA_SR_ONLY` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. `css/sr-only.css` is the same thing as a class |
 
 Call either measurement from an injection context, a field initializer or the constructor:

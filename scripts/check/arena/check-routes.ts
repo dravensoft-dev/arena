@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 46_000,
+    budget: 46_600,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -97,6 +97,10 @@ export const ROUTES: Route[] = [
       + 'symbols in that same shape, the modal contract among them: Arena tells a consumer a '
       + 'lightbox is theirs to write, ships the tested focus trap its own dialogs run on, and the '
       + 'page disclaimed it by omission, so a cold walk planned a second trap written from memory. '
+      + 'Raised again to 46,600 when the main landmark and its skip link shipped as a pair joined '
+      + 'by a constant id: the id is the one thing a consumer needs in order to write a second '
+      + 'route into the content or an anchor of their own, and a pair whose id is undocumented is '
+      + 'a pair a consumer coordinates by reading the source of a package they installed. '
       + 'What buys a raise here is always the same argument, that being right is what the page is '
       + 'for, and what makes this one binding is that a gate fails the page now rather than a '
       + 'reader discovering it.',

@@ -395,6 +395,7 @@
      rather than guessing at a magic number. */
   --z-index-*: initial;
   --z-index-nav: var(--z-nav);
+  --z-index-skip: var(--z-skip);
   --z-index-sheet: var(--z-sheet);
   --z-index-dropdown: var(--z-dropdown);
   --z-index-tooltip: var(--z-tooltip);

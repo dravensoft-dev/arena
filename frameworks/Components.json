@@ -61,10 +61,12 @@
     "ArenaFigure",
     "ArenaGrid",
     "ArenaHero",
+    "ArenaMain",
     "ArenaScroller",
     "ArenaScrollerItem",
     "ArenaSection",
-    "ArenaSiteFooter"
+    "ArenaSiteFooter",
+    "ArenaSkipLink"
   ],
   "navigation": [
     "ArenaAppBar",

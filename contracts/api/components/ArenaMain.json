@@ -1,0 +1,9 @@
+{
+  "component": "ArenaMain",
+  "description": "The page's main landmark, and nothing else. Arena requires a name on both of its nav bars because what a nav is FOR is editorial, and then shipped no way to say where the content itself begins, which is the one region of a page it had not kept its own decision about. This draws no box: no display of its own beyond the block a landmark already is, no width, no grid, no padding. Where things go stays the container the consumer owns, and this says only what the region IS. It is also the target an ArenaSkipLink jumps to, so it is focusable programmatically: an anchor pointing at a container the platform will not focus scrolls the page and leaves focus behind, which is the failure that makes most skip links look like they work.",
+  "affordances": [],
+  "api": {
+    "content": { "form": "slot",
+                 "description": "What the page is for, once the furniture around it is taken away. It is optional and unguarded rather than required: a router that has not resolved its route yet renders nothing, and a landmark that threw during that frame would fail on the ordinary case rather than on a mistake." }
+  }
+}

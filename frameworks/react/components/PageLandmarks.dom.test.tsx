@@ -1,9 +1,11 @@
-/* The two landmarks a page has one of, and the pair is why they sit in one suite: banner and
- * contentinfo are the same claim at the two ends of a page, both named by the element rather
- * than by a role, and both requiring nothing else because a page carries one of each. What a
- * single render cannot show is what the components DO NOT add, which is where the assertions
- * beyond the wrapper go: no anchor the consumer's router would have to fight, and no second
- * landmark either component would then have to name. */
+/* The three landmarks a page has one of, and the set is why they sit in one suite: banner,
+ * contentinfo and main are the same claim at three points of a page, each named by the element
+ * rather than by a role, and none requiring a name because a page carries one of each. Main
+ * carries the one requirement the other two do not, that the region is focusable
+ * programmatically, and it is the one worth a suite because it is invisible in every way a
+ * person tests by hand. What a single render cannot show is what the components DO NOT add,
+ * which is where the assertions beyond the wrapper go: no anchor the consumer's router would
+ * have to fight, and no second landmark either component would then have to name. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
@@ -12,6 +14,7 @@ import { mount, cleanup } from '../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../test/AssertPattern.tsx';
 import { ArenaAppBar } from './navigation/arena-app-bar/ArenaAppBar.tsx';
 import { ArenaSiteFooter } from './layout/arena-site-footer/ArenaSiteFooter.tsx';
+import { ArenaMain, ARENA_MAIN_ID } from './layout/arena-main/ArenaMain.tsx';
 
 afterEach(cleanup);
 
@@ -51,6 +54,32 @@ test('ArenaSiteFooter is the contentinfo landmark, named by the element and not 
     bindingPath: join(REACT_COMPONENTS, 'layout/arena-site-footer/ArenaSiteFooter.behaviour.json'),
     subjects: { default: footer },
   });
+});
+
+test('ArenaMain is the main landmark, named by the element and not by a role', () => {
+  const root = mount(<ArenaMain><p>Everything the page is for.</p></ArenaMain>);
+  const main = root.querySelector<HTMLElement>('main');
+  assert.ok(main, 'the component renders no main element at all');
+  assert.equal(main?.getAttribute('role'), null);
+
+  assertPattern({
+    root: main as Element,
+    bindingPath: join(REACT_COMPONENTS, 'layout/arena-main/ArenaMain.behaviour.json'),
+    subjects: { default: main },
+  });
+});
+
+test('the main landmark is focusable programmatically, at the id its link is written against', () => {
+  const root = mount(<ArenaMain><p>Everything the page is for.</p></ArenaMain>);
+  const main = root.querySelector<HTMLElement>('main');
+
+  assert.equal(main?.getAttribute('tabindex'), '-1',
+    'without it an anchor pointing here scrolls the page and leaves focus in the nav the reader '
+    + 'was trying to escape, which is the failure that makes a skip link look like it worked');
+  assert.equal(main?.getAttribute('id'), ARENA_MAIN_ID,
+    'the link that points here reads the same constant, so a page coordinates no id at all');
+  assert.equal(main?.getAttribute('style'), null,
+    'a landmark that writes an inline style has started doing layout, which is the container\'s');
 });
 
 test('neither landmark adds a tab stop, because everything reachable came from a slot', () => {

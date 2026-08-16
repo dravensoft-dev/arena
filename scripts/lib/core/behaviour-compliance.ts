@@ -61,6 +61,7 @@ export const ELEMENT_ROLE: Record<string, string> = {
   combobox: 'combobox',
   banner: 'banner',
   contentinfo: 'contentinfo',
+  main: 'main',
   'dialog-modal': 'dialog',
   disclosure: 'button',
   listbox: 'listbox',
@@ -197,6 +198,7 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
 export const DECIDABLE = new Set([
   'roles.element',
   'roles.label',
+  'focus.target',
   ...Object.keys(ATTRIBUTE_FOR),
   ...Object.keys(ROLE_NAMED_BY_KEY),
   'states.checked',
@@ -266,6 +268,11 @@ export function evaluate(
     return Array.isArray(wanted) ? actual != null && wanted.includes(actual) : actual === wanted;
   }
 
+  if (key === 'focus.target') {
+    const ti = el.getAttribute('tabindex');
+    if (ti !== null) return Number.isFinite(Number(ti));
+    return NATIVELY_FOCUSABLE.has(el.tagName.toUpperCase());
+  }
   if (key === 'states.checked') {
 
     if (el.getAttribute('aria-checked') !== null) return true;

@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
-Arena is Dravensoft's design system. This package is its React layer: 71 components whose every
+Arena is Dravensoft's design system. This package is its React layer: 73 components whose every
 value traces to a design token, with one stylesheet to import and no theme provider to wrap
 your tree in.
 
@@ -370,6 +370,7 @@ in the table below, each answering a question a consumer cannot answer from outs
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
 | `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it: the predicate that lets a clickable row hold a checkbox and a row action without taking their presses |
 | `useArenaDialogModal(options)`, `arenaFocusableElements(root)`, `arenaFocusFirstFocusable(root)`, `arenaTrapTabKey(event, root)` | the modal contract, for an overlay Arena does not ship. Arena's own dialogs run on these, so a lightbox or a viewer of yours traps Tab, takes focus on open and restores the invoker on close by the same code rather than by a second one written from memory. This is the surface to reach for whenever the answer is that the markup is yours |
+| `ARENA_MAIN_ID` | the id `ArenaMain` writes on its landmark and `ArenaSkipLink` points at, as a string. A page has one main region, so the id is a constant rather than something coordinated at the call site: read it when you write a second route into the content, an anchor of your own or a test that has to find the region |
 | `arenaToneColor(tone)` | the colour a status tone resolves to, for a shape you draw yourself and want to keep meaning what the components mean by it. Status colours are meaning and the chart ramp is identity, so this is never a series colour |
 | `arenaSrOnly` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. `css/sr-only.css` is the same thing as a class |
 

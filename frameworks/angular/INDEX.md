@@ -25,7 +25,7 @@ built from this tree alone breaks them where nothing will report it.
 | `display` | `ArenaActivityFeed` `ArenaAvatar` `ArenaBadge` `ArenaCalendar` `ArenaCalendarEvent` `ArenaCard` `ArenaKeyValue` `ArenaPeopleList` `ArenaPersonRow` `ArenaSkeleton` `ArenaStatCard` `ArenaTable` `ArenaTableCell` `ArenaTableRow` `ArenaTag` `ArenaUnauthCard` | [`components/display/INDEX.md`](./components/display/INDEX.md) |
 | `feedback` | `ArenaAlert` `ArenaConfirmDialog` `ArenaDialog` `ArenaEmptyState` `ArenaErrorState` `ArenaOnboarding` `ArenaProgressBar` `ArenaSheet` `ArenaSpinner` `ArenaToast` `ArenaToastHost` `ArenaTooltip` | [`components/feedback/INDEX.md`](./components/feedback/INDEX.md) |
 | `forms` | `ArenaButton` `ArenaCheckbox` `ArenaIconButton` `ArenaInput` `ArenaRadio` `ArenaRadioGroup` `ArenaSelect` `ArenaSwitch` `ArenaTextarea` | [`components/forms/INDEX.md`](./components/forms/INDEX.md) |
-| `layout` | `ArenaBoard` `ArenaBoardColumn` `ArenaFigure` `ArenaGrid` `ArenaHero` `ArenaScroller` `ArenaScrollerItem` `ArenaSection` `ArenaSiteFooter` | [`components/layout/INDEX.md`](./components/layout/INDEX.md) |
+| `layout` | `ArenaBoard` `ArenaBoardColumn` `ArenaFigure` `ArenaGrid` `ArenaHero` `ArenaMain` `ArenaScroller` `ArenaScrollerItem` `ArenaSection` `ArenaSiteFooter` `ArenaSkipLink` | [`components/layout/INDEX.md`](./components/layout/INDEX.md) |
 | `navigation` | `ArenaAppBar` `ArenaBottomNav` `ArenaBottomNavItem` `ArenaBreadcrumbs` `ArenaBulkActionBar` `ArenaCommandPalette` `ArenaMenu` `ArenaPageHead` `ArenaPagination` `ArenaSegmentedControl` `ArenaSideNav` `ArenaSideNavCollapsible` `ArenaSideNavItem` `ArenaSideNavSection` `ArenaTab` `ArenaTabs` | [`components/navigation/INDEX.md`](./components/navigation/INDEX.md) |
 
-71 components across 7 categories in this layer.
+73 components across 7 categories in this layer.

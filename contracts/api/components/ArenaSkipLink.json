@@ -1,0 +1,9 @@
+{
+  "component": "ArenaSkipLink",
+  "description": "The link that lets a keyboard reader step over everything repeated on every screen and land in the content. It is four details and almost nobody gets all four: it has to be the first focusable thing in the document, invisible until it takes focus and visible the moment it does, and its target has to be focusable programmatically or focus never moves. Arena owns all four, and the consumer owns only the words. It points at the ArenaMain on the page, by an id Arena writes on both sides, so nothing is coordinated at the call site: a page has one main landmark, which is what makes a fixed id right here and wrong almost everywhere else. Place it first in the shell, above the header and the nav bars it exists to skip, which is the one thing it cannot do for itself.",
+  "affordances": ["focus"],
+  "api": {
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "The words a reader reads when the link appears. Required, and guarded at runtime after trimming, the shape ArenaSideNav.ariaLabel carries for the same reason: this is text a person reads and nothing can derive it, and the guard trims first because the value it exists to catch is a present and useless one rather than an absent one, which the type already refuses. There is a defensible default in English and it is deliberately not given, because a default in one language is a wrong answer everywhere else and it is wrong silently." }
+  }
+}

@@ -751,6 +751,12 @@
   text-wrap: balance;
 }
 
+.arena-complete [data-arena-part="main"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
 .arena-complete [data-arena-part="menu"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);
@@ -1173,6 +1179,12 @@
 .arena-complete [data-arena-part="skeleton.stack"] {
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="skip-link"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
 }
 
 .arena-complete [data-arena-part="spinner"] {

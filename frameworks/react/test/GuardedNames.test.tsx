@@ -22,6 +22,7 @@ import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPers
 import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
+import { ArenaSkipLink } from '../components/layout/arena-skip-link/ArenaSkipLink.tsx';
 import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
@@ -48,6 +49,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaPagination', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
   ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
   ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],
+  ['ArenaSkipLink', () => <ArenaSkipLink label={BLANK} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {

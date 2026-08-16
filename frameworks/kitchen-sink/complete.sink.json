@@ -97,6 +97,8 @@
     {
       "title": "Layout",
       "items": [
+        "ArenaMain",
+        "ArenaSkipLink",
         "ArenaGrid",
         "ArenaBoard",
         "ArenaBoardColumn",
