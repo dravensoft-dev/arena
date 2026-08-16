@@ -38,7 +38,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 44_000,
+    budget: 44_600,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -49,13 +49,18 @@ export const ROUTES: Route[] = [
       + 'quarter off this number, and naming the components in the directory is what keeps the '
       + 'extra stop from costing a guess. The number is what the stops measure today with room for '
       + 'one component to grow, and it is the ceiling a new rule on the consumer branch is argued '
-      + 'against.',
+      + 'against. Raised to 44,600 when the router gained the third decision a project takes before '
+      + 'its first screen, whether anybody outside the product has to find it. The router is a stop '
+      + 'on five consumer routes now, so a question added to it is charged five times and this is '
+      + 'the one that pays per screen; what makes it worth the build route is that the answer is a '
+      + 'peer dependency and a layer rather than a component, and a build that starts before it is '
+      + 'settled is a build that has already chosen.',
   },
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 49_400,
+    budget: 52_300,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -110,7 +115,18 @@ export const ROUTES: Route[] = [
       + 'entry point and belongs to frameworks/PACKAGING.md, on the branch whose reader can act on it. '
       + 'What buys a raise here is always the same argument, that being right is what the page is '
       + 'for, and what makes this one binding is that a gate fails the page now rather than a '
-      + 'reader discovering it.',
+      + 'reader discovering it. Raised again to 49,900 when the router started asking whether the '
+      + 'product has to be found at all: this route is where the answer is acted on, since a yes '
+      + 'names an entry point to import and a peer to install and a no leaves both alone, and the '
+      + 'question reaching a project only through the page it is answered on is the shape that put '
+      + 'the provider out of reach in the first place. Raised again to 52,300 when the page opened '
+      + 'on what a project is adopting rather than on what to install: the components carry an API '
+      + 'declared once for both layers, a behaviour pattern each of them binds, a kernel whose '
+      + 'answers are the appearance, and a head a product that has to be found asks for and no '
+      + 'other pays. A reader arriving from the registry has read nothing else, and one who learns '
+      + 'those four by reaching the section that details each has already decided against three of '
+      + 'them; the section is shared between both pages, so what it says is said once and charged '
+      + 'to the larger.',
   },
   {
     name: 'consumer-skin',
@@ -169,6 +185,28 @@ export const ROUTES: Route[] = [
       + 'not. It also lost a claim it should never have made: the page said Arena ships the hard '
       + 'parts of both patterns it names, and Arena ships the modal one and binds the feed one '
       + 'inside a component nobody can reuse, so the page says that instead.',
+  },
+  {
+    name: 'consumer-seo',
+    who: 'a project deciding whether what it builds has to be found from outside it: the router, '
+      + 'then the page that says what Arena writes into the head and which layer writes it',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/seo.md'],
+    budget: 18_600,
+    reason:
+      'paid once per project like the skin and the register routes, and taken before the first '
+      + 'screen for the same reason they are: the answer reaches the layer and the install rather '
+      + 'than a component, so a project that settles it afterwards settles it against code it has '
+      + 'already written. What it buys is that the metadata entry point stops being reachable only '
+      + 'from the install route, four hundred lines into the longest page on the consumer branch, '
+      + 'by a reader who has no reason to be looking for it. Every default it exists to surface is '
+      + 'silent in the direction that costs: a route is born unindexed and says nothing about it, '
+      + 'and an application with no origin publishes no canonical rather than a wrong one, so both '
+      + 'are correct until a screen is missing from a result nobody thought to check. The page '
+      + 'carries the question, the three properties and the asymmetry between the layers, and it '
+      + 'carries no export table, because the layer\'s own page is where anything a package ships '
+      + 'is documented. The number is what the stops measure with room for one section, and it '
+      + 'grows when Arena gains something to write into the head rather than when the page gains a '
+      + 'paragraph.',
   },
   {
     name: 'contributor-component',

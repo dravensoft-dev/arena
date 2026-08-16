@@ -18,7 +18,11 @@ export const LLMS_INDEX = 'llms.txt';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const ROUTER = 'skills/design/SKILL.md';
 export const INDEX = 'INDEX.md';
-export const KERNEL = 'skills/design/references/style-kernel.md';
+export const REFERENCE_DIR = 'skills/design/references';
+export const REFERENCE_LINK = /\.\/references\/([A-Za-z0-9-]+\.md)/g;
+export const HEADLINE = /^#\s+(.+)$/m;
+export const OPENING = /^#\s+.+\n+([\s\S]*?)(?:\n\n|$)/;
+export const WHEN = /Read this [^.]*\./;
 export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
 export const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
@@ -69,8 +73,34 @@ export function layerDocs(layer: string, base = root) {
   ].filter((rel) => existsSync(join(base, rel)));
 }
 
+export function references(base = root) {
+  const linked = readFileSync(join(base, ROUTER), 'utf8').matchAll(REFERENCE_LINK);
+  return [...new Set([...linked].map((hit) => `${REFERENCE_DIR}/${hit[1]}`))]
+    .filter((rel) => existsSync(join(base, rel)));
+}
+
+export function headline(rel: string, base = root) {
+  return HEADLINE.exec(readFileSync(join(base, rel), 'utf8'))?.[1]?.trim() ?? nameOf(rel);
+}
+
+export function opening(rel: string, base = root) {
+  const paragraph = OPENING.exec(readFileSync(join(base, rel), 'utf8'))?.[1] ?? '';
+  const flat = paragraph.replace(/\s+/g, ' ').trim();
+  const stop = flat.search(/\.(?:\s|$)/);
+  return stop < 0 ? flat : flat.slice(0, stop + 1);
+}
+
+export function when(rel: string, base = root) {
+  const flat = readFileSync(join(base, rel), 'utf8').replace(/\s+/g, ' ');
+  return WHEN.exec(flat)?.[0] ?? '';
+}
+
+export function blurb(rel: string, base = root) {
+  return [opening(rel, base), when(rel, base)].filter(Boolean).join(' ');
+}
+
 export function servedDocs(base = root) {
-  return [ROUTER, KERNEL, LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
+  return [ROUTER, ...references(base), LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
     .filter((rel) => existsSync(join(base, rel)));
 }
 
@@ -95,7 +125,8 @@ export function index(base = root) {
     '## Start here',
     '',
     `- [The router](${docUrl(ROUTER)}): the rules of the language. Every other document is reached from here.`,
-    `- [Make it look like your product](${docUrl(KERNEL)}): the questions the kernel asks, and which answers carry the difference. Read once per project, before the first screen.`,
+    ...references(base).map((rel) =>
+      `- [${headline(rel, base)}](${docUrl(rel)}): ${blurb(rel, base)}`),
     `- [Every component in one read](${docUrl(LAYER_INDEX)}): which components exist and which layers ship them.`,
     '',
   ];
@@ -137,7 +168,7 @@ export function corpus(layer: string, base = root) {
     'under both names and the two documents are not interchangeable.',
     '',
   ];
-  for (const rel of [ROUTER, KERNEL, LAYER_INDEX, ...layerDocs(layer, base)]) {
+  for (const rel of [ROUTER, ...references(base), LAYER_INDEX, ...layerDocs(layer, base)]) {
     parts.push('', `<!-- ${rel} -->`, '', readFileSync(join(base, rel), 'utf8').trim(), '');
   }
   return `${parts.join('\n')}\n`;

@@ -40,6 +40,32 @@ export const closeLine = (key: string) => `<!-- @shared ${key} end -->`;
 export const opensAt = (key: string) => new RegExp(`^<!-- @shared ${key} GENERATED `);
 
 export const REGIONS: Record<string, (base?: string) => string> = {
+  offer: () => `## What Arena gives a project
+
+**Components whose API is a contract.** Every member of every component is declared once, in one
+place both layers are generated from and held to, so a name, a type, a default and what it means
+are the same under either framework, and the table documenting a component is emitted from that
+declaration rather than written beside it.
+
+**Behaviour each component binds rather than an audit somebody runs.** A component names the
+accessibility pattern it implements, most of them a
+[WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/) one: the roles it
+carries, the keys it answers, where focus goes and what dismisses it. The pattern is recorded per
+component, and so is anything a component does not yet meet, with its reason.
+
+**A style kernel, which is how Arena stops looking like Arena.** Arena keeps the questions about
+shape, space, weight and depth and ships one set of answers; a project writes its own as a style
+plugin, which is the ordinary case rather than an escape hatch. A palette is not an appearance,
+so the config below is the smaller half of that decision.
+
+**A \`<head>\` for a product that has to be found from outside it, and it is optional.** Arena
+writes it in the Angular layer, at \`@dravensoft/arena-angular/metadata\`: a title composed with
+Angular's own, a description, a canonical and the \`og:*\` pair, and every route private until it
+says otherwise. It sits behind a second entry point because reaching it means reaching
+the router, an optional peer nothing else here asks for. \`@dravensoft/arena-react\` writes no
+\`<head>\`, so a React project keeps that with whatever its own framework offers;
+\`ArenaBreadcrumbs\` describes the trail it draws in \`schema.org\` terms under both.`,
+
   register: () => `## The screens it is for
 
 Arena is a **product-application library**: its components are the furniture of an application

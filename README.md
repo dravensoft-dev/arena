@@ -11,22 +11,45 @@ MIT License · Token-driven design system for React, Angular and Tailwind.
 
 ## What you get
 
-The same components under both framework names, rendering the same pixels, with
-one shared Tailwind layer underneath. Every value they draw resolves through a
-design token, so there is no hex and no bare pixel anywhere in a component.
+**Components with a contracted API.** The same components under both framework
+names, rendering the same pixels, over one shared Tailwind layer. What a member
+is called, what it takes, what it defaults to and what it means are written in
+[`contracts/api/`](./contracts/api/AGENTS.md), and each layer's types and tables
+are generated from there, so the two layers cannot drift apart quietly. Every
+value a component draws resolves through a design token, so no hex and no bare
+pixel sits anywhere inside one.
 
-**Arena carries the language and not the skin.** Your palettes and your fonts
-arrive in an `arena.config.json` your project writes, and the `arena-to-prod`
-command each package ships turns it into the one stylesheet a package cannot
-carry. Nothing about Arena's own colours reaches your build.
+**Accessibility bound per component instead of audited per release.** Each
+component declares which pattern it implements, most of them from the
+[WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/): the
+roles it carries, the keys it answers, where focus lands, what dismisses it. A
+requirement it does not meet yet is recorded beside it with its reason, and
+`bun run check:behaviour` fails on the day a component stops answering the
+pattern it named.
+
+**A style kernel, which is what a project answers to look like itself.** The
+questions about shape, space, weight and depth are Arena's; the answers are a
+style plugin the project writes, and the appearance Arena installs with is one
+such plugin rather than a floor under them. Palettes and fonts sit in an
+`arena.config.json`, which the `arena-to-prod` command each package ships turns
+into the one stylesheet a package cannot carry: **Arena carries the language and
+never the skin**, and none of its own colours reach your build.
+
+**Metadata for a product that has to be found, which most products do not.** The
+Angular layer writes the document `<head>` from the routes it is handed, at
+`@dravensoft/arena-angular/metadata`: title composition, a description, a
+canonical and the `og:*` pair, with no route indexed until it says so. That
+import path is a second entry point, so a project that never asks for metadata
+never installs the router behind it. React writes no `<head>` at all, and both
+layers publish the breadcrumb trail they draw in `schema.org` terms.
 
 ## Why an agent can operate it
 
-Every component's API and every accessibility pattern it binds is a contract
-file rather than a paragraph, and a gate holds the code, the documentation and
-the published packages to those contracts. An agent handed this repository does
-not guess at Arena: it reads the contract that governs what it is about to
-write, and the gate tells it when it got it wrong.
+An API is a contract file rather than a paragraph, and so is the pattern a
+component binds and the role a style plugin answers; a gate holds the code, the
+documentation and the published packages to them. An agent handed this
+repository does not guess at Arena: it reads the contract that governs what it is
+about to write, and the gate tells it when it got it wrong.
 
 That is also what makes the rules enforceable rather than aspirational. Tokens
 are the only styling layer, danger is an outline, one primary accent per view,
