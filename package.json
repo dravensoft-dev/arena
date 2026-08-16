@@ -111,6 +111,7 @@
     "check:playgrounds": "bun scripts/check/arena/check-playgrounds.ts",
     "check:citations": "bun scripts/check/arena/check-citations.ts",
     "check:agents": "bun scripts/check/arena/check-agents.ts",
+    "check:agents-spec": "bun scripts/check/arena/check-agents-spec.ts",
     "check:community": "bun scripts/check/arena/check-community.ts",
     "check:site": "bun scripts/check/arena/check-site.ts",
     "check:icons": "bun scripts/check/arena/check-icons.ts",

@@ -36,8 +36,8 @@ export const KNOWN_EXTENSIONS = [
 export const BUILT_INFIX = '.generated.';
 
 export const README_MEANS = new Map([
-  ['AGENTS.md', 'the root README.md, which routes to both branches and belongs to neither. It is '
-    + 'named for its artifact list, which a release moves'],
+  ['.github/workflows/AGENTS.md', 'the root README.md, which routes to both branches and belongs '
+    + 'to neither. It is named for its artifact list, which a release moves'],
   ['frameworks/PACKAGING.md', 'the README.md each package hands npm, which is what this document '
     + 'is about: it is authored as PACKAGE.md and copied into dist/ under the name npm expects'],
   ['frameworks/react/AGENTS.md', 'the same copy, named at the line where the layer says what the '

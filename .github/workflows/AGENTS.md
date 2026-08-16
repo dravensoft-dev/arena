@@ -155,7 +155,16 @@ itself. Assembling nothing is not publishing nothing, and nothing here publishes
 
 ## Publish arena-react, Publish arena-angular
 
-Each fires on a green `Arena main`, guards, and usually does nothing.
+**A release moves the version in several places and the tag is the one the rest are pinned to.**
+It lives in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and the README's
+artifact list; because the plugin is served from the tag, `source.ref` must name it and the tag
+must exist on the release commit. **Forgetting the `ref` fails silently**: the marketplace
+advertises a new version while Claude Code keeps fetching the old tag and resolves the old
+version, so nothing errors and the update is never offered.
+`bun scripts/check/arena/check-release.ts` is what refuses that combination, and
+`versioning_steps.txt` is the order the moves are made in.
+
+Each workflow fires on a green `Arena main`, guards, and usually does nothing.
 
 **Each is also dispatchable by hand**, and that path exists because the automatic one has a
 gap nothing in this repository can close: `workflow_run` reaches only a workflow already

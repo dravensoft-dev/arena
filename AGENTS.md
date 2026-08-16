@@ -35,6 +35,14 @@ this file is not, and the two are almost disjoint by design.
 exist and every gate that reads it reports its subject missing.
 [`scripts/build/AGENTS.md`](./scripts/build/AGENTS.md) is the first-compile document.
 
+**The commands that run this repository are the scripts whose name carries no colon**, and an
+agent runs the ones a page names for it: `bun run build` compiles and generates, `bun run demos`
+serves the playgrounds against a built tree, `bun run test` runs the suites alone, and
+`bun run check` runs every gate and the suites together. A colon narrows one of those to a single
+phase, so `bun run check:docs` is one gate of that sweep. **One `bun run check` at a time**, and
+[`scripts/AGENTS.md`](./scripts/AGENTS.md) says when each is expected, which of them need a
+browser, and how a long run is narrowed.
+
 ## What this repo ships
 
 Three things at once, from the same tree:
@@ -54,15 +62,10 @@ iconography, and Tailwind, whose compiled sheet both packages carry inside `aren
 **`dist/` is git-ignored, and several gates skip a directory of that name**, because it puts a
 copy of each layer inside the tree they walk; each asserts that exclusion in its own suite.
 
-**A release moves five things, and the tag is the one the other four are pinned to.** The version
-lives in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and the README's
-artifact list; because the plugin is served from the tag, `source.ref` must name it and the tag
-must exist on the release commit. **Forgetting the `ref` fails silently**: the marketplace
-advertises a new version while Claude Code keeps fetching the old tag and resolves the old
-version, so nothing errors and the update is never offered. `bun scripts/check/arena/check-release.ts`
-is what refuses that combination. **Because a published tag is a promise about the tree it
-resolves to, history is never rewritten**, and `git filter-repo` and every equivalent are
-refused outright whatever a repository-size argument says.
+**Because a published tag is a promise about the tree it resolves to, history is never
+rewritten**, and `git filter-repo` and every equivalent are refused outright whatever a
+repository-size argument says. What a release moves, and which of those moves fails in silence
+when it is forgotten, is [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md).
 
 ## Where a new document goes
 
@@ -72,34 +75,42 @@ consumer branch is **one Agent Skill**, and the specification it conforms to is 
 document it reaches is a reference rather than a skill: a file carrying the reserved name and no
 frontmatter is not a lesser skill but a broken one, since a scanner globbing for the name reads it
 as a skill that fails to parse, and globbing for a `SKILL.md` a level inside a `skills` directory
-is how the npm convention finds one at all. The contributor branch is **AGENTS.md**, one per
-declared domain. The site publishes **llms.txt** and one corpus per layer, in the order that
-specification fixes. `check:skill-spec` holds the first of those and `skills-ref validate` is the
-standard's own second opinion, which is worth running by hand: it found two defects this gate did
-not, and the gate grew both.
+is how the npm convention finds one at all. **The contributor branch is `AGENTS.md`, and it
+answers [the convention published for that name](https://agents.md)**, which fixes a file at the root of the
+repository, that name exactly, plain Markdown with no required field and no schema, a page per
+level resolved by proximity so the closest to the file being edited wins, and a command an agent
+runs because a page listed it and only because it did. **It publishes no validator and no schema**,
+so `check:agents-spec` is the whole of what holds this branch to it, and `npx agents-lint` is a
+third party's second opinion rather than the standard's. The site publishes **llms.txt** and one
+corpus per layer, in the order that specification fixes. `check:skill-spec` holds the consumer
+branch and `skills-ref validate` is that standard's own second opinion, which is worth running by
+hand: it found two defects this gate did not, and the gate grew both.
 
-**Where Arena departs from the specification, it departs in writing.** Two departures, each with
-the measurement that pays for it, because a departure nobody recorded is one the next reader
-repairs:
+**Where Arena departs from a specification, it departs in writing**, each with the measurement
+that pays for it, because a departure nobody recorded is one the next reader repairs:
 
-- **The route is four stops deep where the specification recommends one.** `check:routes` reports
-  what the build route costs as four stops, and it cost half again as a flat one. The depth is the
-  saving and the budget is the instrument.
+- **The consumer route is four stops deep where its specification recommends one.** `check:routes`
+  reports what the build route costs as four stops, and it cost half again as a flat one. The
+  depth is the saving and the budget is the instrument.
 - **The reference tree lives beside the code it is generated from rather than inside
   `references/`.** A prompt is emitted from its component's contract next to that component, and a
   copy inside the skill directory would be a second answer to a question the contracts answer once.
+- **This page routes where the convention's own example instructs.** A contributor route is three
+  and four stops, and `check:routes` is what says what carrying the whole of it here would cost on
+  every task. What stays is what an agent acts on, which is the commands.
+- **`CLAUDE.md` is a real file where the migration answer is a symlink.** A symlink would answer a
+  builder with the contributor branch. `DEPARTURES` in `check-agents-spec.ts` carries the reason
+  and fails the day the tree stops departing that way.
+- **A level is reachable by a link and not only by being nearest**, which is stricter than the
+  convention rather than different from it: proximity hands an agent the closest page and hands a
+  reader nothing, so `check:agents` holds every level here to a chain of links from this one.
 
 **Two branches, and a fact belongs to exactly one.** `skills/design/SKILL.md` roots the *consumer*
-branch the way this file roots the contributor one. The cost of the consumer branch is paid on
-every build: an agent building with Arena reads the router, where it takes the rules, then its own
-layer's `INDEX.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only
-for the reasoning behind a member. **Everything on that route after the router is under
-`frameworks/`**, and each stop narrows. It reads no `AGENTS.md`, which is why the router names
-them and says not to. `frameworks/INDEX.md` sits beside that route rather than on it: it answers
-whether a component exists at all and which layers ship it, which is a question a builder who
-knows what they are reaching for never asks. **`check:routes` is what holds the route to a
-budget**, and `ROUTES` in `scripts/check/arena/check-routes.ts` is where the stops are declared;
-no document carries the figure.
+branch the way this file roots the contributor one, its own route is stated there, and everything
+on that route after its router is under `frameworks/`. **It reads no `AGENTS.md`**, which is why
+this page names them and says not to. **`check:routes` is what holds every route to a budget**,
+and `ROUTES` in `scripts/check/arena/check-routes.ts` is where the stops are declared; no document
+carries the figure.
 
 **A rule written into both branches goes stale in one of them.** The design rules a builder has to
 obey are the one place that reads like an exception and is not: those are DECIDED in
@@ -138,16 +149,14 @@ two copies and never reads either for meaning. Verify with
 
 ## Documentation rules
 
-- **Every `.md` file stays under 60,000 characters.** `SIZE_EXEMPT` in `check-docs.ts` names
-  what is exempt by charter, and `SIZE_ALLOWANCE` beside it names what holds to a **higher**
-  limit instead, with its reason. **An allowance is not an exemption**: the document is still
-  measured, and one that falls back inside the shared limit **fails as a stale allowance**, so
-  the pressure to decompose it returns rather than ending. Measure the way the gate does, with
-  `node -e "console.log(require('fs').readFileSync('X','utf8').length)"`, and never with `wc -m`,
-  which counts bytes: a file of multi-byte characters reads hundreds over a limit it is
-  comfortably under. **The way a budget is bought back is always the same**: move a level's own
-  tour into that level's `AGENTS.md` and leave the cross-level rule with a pointer. What spends
-  the budget is a new **rule**, not a new component.
+- **Every `.md` file stays under 60,000 characters**, and **an allowance is not an exemption**: a
+  document holding a raised limit is still measured against it, and one that falls back inside
+  the shared limit **fails as a stale allowance**, so the pressure to decompose it returns rather
+  than ending. **The way a budget is bought back is always the same**: move a level's own tour
+  into that level's `AGENTS.md` and leave the cross-level rule with a pointer. What spends the
+  budget is a new **rule**, not a new component.
+  [`scripts/check/arena/AGENTS.md`](./scripts/check/arena/AGENTS.md) says how the gate measures,
+  and a document measured any other way is measured against a different number.
 - **No document on this branch carries a literal count of anything**, only the command that
   produces it, with **one** exception: the gate table in `scripts/check/AGENTS.md`, whose numbers
   `check-all.test.ts` derives from `GATES` and fails when they disagree. A number an assertion
@@ -197,12 +206,9 @@ two copies and never reads either for meaning. Verify with
   are allowed, in a gate's own reason string, or in the component's `.prompt.md`. **Somewhere a
   stale copy of it fails something.**
 
-`bun run check:docs` holds the size rule, the punctuation rule and the comment rule, reading both
-by **lexing** rather than by matching: a `//` inside a string, a regex or a template literal is
-never mistaken for a comment, a `@ts-`/`eslint-` directive is a directive rather than the file's
-one allowance, and a Markdown fence closes only on a run of its own character at least as long as
-the one that opened it. `bun run check:citations` holds every path a document names to existing.
-**The present-tense rule is the one no gate holds**, because nothing mechanical can judge it.
+`bun run check:docs` holds the size rule, the punctuation rule and the comment rule, and
+`bun run check:citations` holds every path a document names to existing. **The present-tense rule
+is the one no gate holds**, because nothing mechanical can judge it.
 
 ## Conventions
 
@@ -254,32 +260,7 @@ what counts as one and where the records that are not prose live: a reason-carry
 its gate, a suite assertion, a normative `AGENTS.md`, a component's `.prompt.md`. Prefer any of
 those to a paragraph: each of them fails when it stops being true, and a paragraph does not.
 
-**A claim about a file you have not READ is how a document goes quietly false.** "I grepped it"
-is not sufficient evidence, because a query answers where a name appears and never what the file
-around it says. Three shapes recur, and none is findable by a keyword query:
-
-- **A document describing ITSELF**: one naming its own directory layout, a clause excluding a
-  path that a move has since merged into the path two sentences above it. Only an end-to-end read
-  finds these.
-- **A component name written into ANOTHER file's prose**, which rots while every gate stays
-  green. A *structural* reference is fine and should not be hunted, meaning this component's own
-  render naming what it draws. What rots is a citation asserting **another** component's current
-  state.
-- **A sibling cited by its bare filename**, which a refactor rewrites in every import specifier
-  and nowhere in a sentence.
-
-When you change component `X`, read every hit of:
-
-```bash
-X=ArenaSkeleton   # the component you just changed
-grep -rn --binary-files=without-match "\b$X\b" \
-    --include='*.md' --include='*.json' --include='*.mjs' --include='*.tsx' --include='*.ts' \
-    AGENTS.md DOUBTS.md contracts/ docs/ frameworks/ scripts/
-```
-
-Drop by hand the hits under `X`'s **own** files. **Scope a worklist by its path list and never by
-piping `grep -n` through `grep -v`**: `-n` prints `path:line:CONTENT`, so a filter after it drops
-hits by their *text*, which silently excludes any directory whose name the filter happens to
-match.
-
-**Prefer no exemplar, or a command.** Both are stale-proof, and a component name in prose is not.
+**A claim about a file you have not READ is how a document goes quietly false**, and "I grepped
+it" is not sufficient evidence, because a query answers where a name appears and never what the
+file around it says. [`DOUBTS.md`](./DOUBTS.md) has the three shapes that recur, none of them
+findable by a keyword query, and the change-time greps that surface them.

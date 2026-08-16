@@ -1,6 +1,6 @@
-/* The gates worth running on a second operating system, each with the reason it is here. The
- * full sweep is 52 gates and most of them judge text no platform can change, so a second machine
- * running those proves nothing it did not already know. What is left is the set whose ANSWER can
+/* The gates worth running on a second operating system, each with the reason it is here. Most of
+ * the full sweep judges text no platform can change, so a second machine running those proves
+ * nothing it did not already know. What is left is the set whose ANSWER can
  * differ by platform: a spawn, a link, a path, a line ending, a Bun API, a real browser. That is
  * a selection argument rather than a cost one, which is why it survived the nightly run being
  * deleted. Declared in TypeScript because a list living in YAML is a list nothing tests, and
