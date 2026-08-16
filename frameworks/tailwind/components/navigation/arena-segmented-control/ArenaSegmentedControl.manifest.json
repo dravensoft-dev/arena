@@ -1,7 +1,7 @@
 {
   "component": "ArenaSegmentedControl",
   "slots": {
-    "track": "inline-flex items-center gap-0.5 p-1 bg-base-300 border-[length:var(--bw-control)] border-edge-control-quiet rounded-control transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16 shadow-control-rest",
+    "track": "inline-flex items-center gap-0.5 p-1 bg-track border-[length:var(--bw-control)] border-edge-control-quiet rounded-control transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16 shadow-control-rest",
     "segment": "relative inline-flex items-center justify-center rounded-control-sm font-body cursor-pointer select-none whitespace-nowrap transition-[background,color] duration-[var(--dur-hover)] ease-hover",
     "input": "absolute opacity-0 size-0"
   },

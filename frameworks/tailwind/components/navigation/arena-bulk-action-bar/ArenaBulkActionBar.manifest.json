@@ -4,7 +4,7 @@
     "root": "flex items-center gap-3.5 min-h-13 pl-4 pr-3 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
     "count": "font-mono text-ctl-sm tracking-mono-nav text-ink-body",
     "number": "text-secondary",
-    "divider": "w-px h-5.5 bg-base-300",
+    "divider": "w-px h-5.5 bg-edge-separator",
     "actions": "flex items-center gap-1.5 flex-1 flex-wrap",
     "action": "inline-flex items-center gap-control h-8.5 px-control-x bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-control text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-hover shadow-control-rest",
     "actionIcon": "inline-flex text-[length:var(--icon-md)]",

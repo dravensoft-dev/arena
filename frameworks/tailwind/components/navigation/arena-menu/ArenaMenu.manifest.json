@@ -11,7 +11,7 @@
     "icon": "inline-flex text-[length:var(--icon-md)]",
     "label": "flex-1",
     "shortcut": "font-mono text-ctl-xs text-ink-muted/62",
-    "divider": "h-px my-1 bg-base-300",
+    "divider": "h-px my-1 bg-edge-separator",
     "header": "font-face-label text-ctl-2xs tracking-label-role case-label text-ink-muted/62 px-2.5 pt-2 pb-1"
   },
   "partOf": {

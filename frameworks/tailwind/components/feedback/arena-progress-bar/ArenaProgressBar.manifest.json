@@ -5,7 +5,7 @@
     "head": "flex items-baseline justify-between gap-items mb-2",
     "label": "font-body text-ctl-md text-ink-body/82",
     "value": "font-mono text-ctl-sm text-ink-muted/62",
-    "track": "relative rounded-pill bg-base-300 overflow-hidden",
+    "track": "relative rounded-pill bg-track overflow-hidden",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
     "indeterminate": "arena-prog-indeterminate",
