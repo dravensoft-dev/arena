@@ -255,7 +255,7 @@ export const CLAIMS = {
     ...Object.entries({ sm: 'h-1', md: 'h-1.5', lg: 'h-2.5' })
       .map(([s, cls]) => ({ chosen: { size: s }, slot: 'track', has: [cls], why: 'size sets the track height and nothing else' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
-    { chosen: { tone: 'danger' }, slot: 'track', has: ['text-error', 'bg-base-300'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone' },
+    { chosen: { tone: 'danger' }, slot: 'track', has: ['text-error', 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
     { slot: 'indeterminate', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
     { slot: 'track', has: ['overflow-hidden', 'rounded-pill'], hasNot: ['rounded-full'], why: 'the track clips its own fill and takes the pill radius' },
     { slot: 'root', has: ['grid', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline, and the bar stacks its head over its track' },
