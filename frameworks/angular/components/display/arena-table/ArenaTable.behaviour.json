@@ -3,22 +3,22 @@
   "cases": [
     {
       "name": "wide",
-      "when": "responsive is false, or the container is at least --bp-md -- the default shape, a real role=\"grid\" the arrow keys walk",
+      "when": "responsive is false, or the container is at least --bp-md -- the default shape, a real <table role=\"grid\"> the arrow keys walk",
       "pattern": "grid",
       "exceptions": []
     },
     {
       "name": "card",
-      "when": "responsive is true and the container is below --bp-md -- one card per row, no grid, row or cell role anywhere",
+      "when": "responsive is true and the container is below --bp-md -- one card per row, drawn out of the same table elements with their roles stripped",
       "pattern": "none",
-      "reason": "Below the breakpoint there is no grid: the rows become stacked cards and nothing carries a grid, row or cell role. The grid pattern's requirements do not go unmet in this shape, they do not APPLY to it -- there is no grid for a roving tab stop to live in. The sort control this shape draws instead is an ArenaSelect, which carries ArenaSelect's own binding and not a clause of this one, and it is what keeps a sortable column reachable where there is no header row to activate. Whether a card a consumer made clickable is reachable by keyboard is ArenaTableRow's question, not a clause of this one, and that binding records where this layer stands on it.",
+      "reason": "Below the breakpoint there is no grid: the rows become stacked cards and nothing carries a grid, row or cell role. The elements are still a real table -- one set of elements is authored and the width that decides the shape changes at runtime, so the markup cannot change with it -- and role=\"presentation\" is what takes the native table mapping back off them, which is why this case still binds `none` rather than a table of its own. The name goes with it: an aria-label would make the element ineligible for the presentation role and bring the whole table back. The grid pattern's requirements do not go unmet in this shape, they do not APPLY to it -- there is no grid for a roving tab stop to live in. The sort control this shape draws instead is an ArenaSelect, which carries ArenaSelect's own binding and not a clause of this one, and it is what keeps a sortable column reachable where there is no header row to activate. Whether a card a consumer made clickable is reachable by keyboard is ArenaTableRow's question, not a clause of this one, and that binding records where this layer stands on it.",
       "exceptions": []
     },
     {
       "name": "empty",
       "when": "no ArenaTableRow is written -- the [empty] slot alone, with no grid drawn at all",
       "pattern": "none",
-      "reason": "There is no grid in this shape, so the grid pattern's requirements do not go unmet, they do not APPLY. A role=\"grid\" holding neither a header row nor a data row is a degenerate render, the same judgement ArenaTabs makes when it draws no tabpanel for a tab that does not exist, and a column head standing over a \"no results\" sentence describes a table that is not there. The measurement that settled it: across sixteen tables in a real consumer the slot had zero uses and was replaced every time by an @if that removed the table entirely.",
+      "reason": "There is no grid in this shape, so the grid pattern's requirements do not go unmet, they do not APPLY. A role=\"grid\" holding neither a header row nor a data row is a degenerate render, the same judgement ArenaTabs makes when it draws no tabpanel for a tab that does not exist, and a column head standing over a \"no results\" sentence describes a table that is not there. The <table> element is still written, because it is the one element the projected rows have to land inside and a shape that appears and disappears under them cannot survive being serialized and re-parsed; role=\"presentation\" is what leaves nothing of it in the accessibility tree. The measurement that settled the slot itself: across sixteen tables in a real consumer it had zero uses and was replaced every time by a condition that removed the table entirely.",
       "exceptions": []
     }
   ]

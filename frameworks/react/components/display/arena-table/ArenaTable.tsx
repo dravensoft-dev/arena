@@ -77,6 +77,7 @@ export function ArenaTable({
 
   const rowEls = React.Children.toArray(children);
   const bare = rowEls.length === 0;
+  const flat = narrow || bare;
 
   const pageCount = page ? Math.max(1, Math.ceil(page.total / Math.max(1, page.size))) : 1;
 
@@ -121,22 +122,21 @@ export function ArenaTable({
 
   useEffect(() => {
     const g = gridRef.current;
-    if (!g) return;
+    if (!g || flat) return;
     const active = g.ownerDocument.activeElement;
     if (!active || !g.contains(active)) return;
 
-    const activeRole = active.getAttribute('role');
-    if (activeRole !== 'gridcell' && activeRole !== 'columnheader') return;
-    const cell = g.querySelector<HTMLElement>('[role="gridcell"][tabindex="0"], [role="columnheader"][tabindex="0"]');
+    if (active.tagName !== 'TD' && active.tagName !== 'TH') return;
+    const cell = g.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
     if (cell && cell !== active) cell.focus();
   }, [curRow, curCol]);
 
   const onGridKeyDown = (e: React.KeyboardEvent) => {
+    if (flat) return;
     const t = e.target;
     if (!(t instanceof Element)) return;
-    const role = t.getAttribute('role');
 
-    if (role !== 'gridcell' && role !== 'columnheader') return;
+    if (t.tagName !== 'TD' && t.tagName !== 'TH') return;
 
     let row = curRow;
     let col = curCol;
@@ -199,49 +199,40 @@ export function ArenaTable({
           </div>
         </div>
       )}
-      {narrow ? (
-        <div className={arenaTableStyles({ narrow: true }).grid()} data-arena-part={manifest.parts.grid}>
-          {bare && (
-            <div className={arenaTableStyles({ narrow: true }).empty()} data-arena-part={manifest.parts.empty}>{empty}</div>
-          )}
+      <table role={flat ? 'presentation' : 'grid'} aria-label={flat ? undefined : label} ref={gridRef}
+        onKeyDown={onGridKeyDown}
+        className={arenaTableStyles({ narrow }).grid()} data-arena-part={manifest.parts.grid}>
+        {!flat && (
+          <thead>
+            <tr className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
+              {columns.map((c, ci) => (
+                <th key={ci} scope="col" {...headerNav(ci)}
+                  aria-sort={sortStateOf(ci)}
+                  onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
+                  className={headerClass(c)} data-arena-part={manifest.parts.th}
+                  style={{ width: c.width }}>{c.header}{sortStateOf(ci) && sortStateOf(ci) !== 'none' && (
+                      <i aria-hidden="true"
+                        className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} />
+                    )}</th>
+              ))}
+            </tr>
+          </thead>
+        )}
+        <tbody role={flat ? 'presentation' : undefined}
+          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body}>
           {rowEls.map((row, ri) => (React.isValidElement(row)
-            ? React.cloneElement(row, { rowIndex: ri + 1, columns, layout: 'card' })
+            ? React.cloneElement(row, {
+              rowIndex: ri + 1,
+              columns,
+              layout: narrow ? 'card' : 'table',
+              cursorCol: narrow || curRow !== ri + 1 ? null : curCol,
+              onCellFocus: narrow ? undefined : onCellFocus,
+            })
             : row))}
-        </div>
-      ) : bare ? (
-        <div className={arenaTableStyles({ narrow: false }).empty()} data-arena-part={manifest.parts.empty}>{empty}</div>
-      ) : (
-        <>
-          <table role="grid" aria-label={label} ref={gridRef}
-            onKeyDown={onGridKeyDown}
-            className={arenaTableStyles({ narrow: false }).grid()} data-arena-part={manifest.parts.grid}>
-            <thead>
-              <tr role="row" className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
-                {columns.map((c, ci) => (
-                  <th key={ci} role="columnheader" {...headerNav(ci)}
-                    aria-sort={sortStateOf(ci)}
-                    onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
-                    className={headerClass(c)} data-arena-part={manifest.parts.th}
-                    style={{ width: c.width }}>{c.header}{sortStateOf(ci) && sortStateOf(ci) !== 'none' && (
-                        <i aria-hidden="true"
-                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} />
-                      )}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rowEls.map((row, ri) => (React.isValidElement(row)
-                ? React.cloneElement(row, {
-                  rowIndex: ri + 1,
-                  columns,
-                  layout: 'table',
-                  cursorCol: curRow === ri + 1 ? curCol : null,
-                  onCellFocus,
-                })
-                : row))}
-            </tbody>
-          </table>
-        </>
+        </tbody>
+      </table>
+      {bare && (
+        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty}>{empty}</div>
       )}
       {!bare && page && pageControl !== 'none' && (
         <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager}>

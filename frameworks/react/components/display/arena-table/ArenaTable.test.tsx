@@ -54,16 +54,19 @@ test('the wide layout is a role="grid" carrying a non-empty name', () => {
   assert.equal(name[1], LABEL, 'the grid name is not the `label` member');
 });
 
-test('every row, header cell and data cell carries its grid role', () => {
+test('every row, header cell and data cell takes its grid role from the element it is', () => {
   const html = render();
   const count = (re: RegExp) => (html.match(re) || []).length;
 
-  assert.equal(count(/<tr[^>]*role="row"/g), 3, 'not every <tr> is a row');
   assert.equal(count(/<tr\b/g), 3, 'the fixture no longer renders three rows');
-  assert.equal(count(/<th[^>]*role="columnheader"/g), 2, 'not every <th> is a columnheader');
   assert.equal(count(/<th\b/g), 2, 'the fixture no longer renders two header cells');
-  assert.equal(count(/<td[^>]*role="gridcell"/g), 4, 'not every <td> is a gridcell');
   assert.equal(count(/<td\b/g), 4, 'the fixture no longer renders four data cells');
+
+  assert.equal(count(/<tr[^>]*role="row"/g), 0,
+    'a <tr> already maps to a row, so writing the role back onto it is the hand-rebuild the contract refuses');
+  assert.equal(count(/<th[^>]*role="columnheader"/g), 0, 'and a <th scope="col"> already maps to a columnheader');
+  assert.equal(count(/<td[^>]*role="gridcell"/g), 0, 'and a <td> inside a role="grid" already maps to a gridcell');
+  assert.equal(count(/<th[^>]*scope="col"/g), 2, 'a header cell says which way it heads, which is what carries the mapping');
 });
 
 test('ArenaTable throws when `label` is absent', () => {
@@ -113,8 +116,8 @@ test('an Arena component inside an ArenaTableCell renders', () => {
   )));
   assert.match(html, /Deployed/, 'an ArenaBadge inside an ArenaTableCell did not render');
 
-  assert.match(html, /<td[^>]*role="gridcell"[^>]*>(?:(?!<\/td>).)*Deployed/s,
-    'the ArenaBadge rendered outside the gridcell it was written in');
+  assert.match(html, /<td[^>]*>(?:(?!<\/td>).)*Deployed/s,
+    'the ArenaBadge rendered outside the cell it was written in');
 });
 
 test('a column carrying a `render` function reaches nothing', () => {

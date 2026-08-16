@@ -9,7 +9,7 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
 const PLAIN: ArenaTableColumn = { header: '' };
 
 @Component({
-  selector: 'arena-table-cell',
+  selector: 'td[arena-table-cell]',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -49,7 +49,7 @@ export class ArenaTableCell {
 
   protected readonly labelled = computed(() => this.narrow() && this.column().mobileLayout !== 'block');
 
-  protected readonly role = computed(() => (this.narrow() ? null : 'gridcell'));
+  protected readonly role = computed(() => (this.narrow() ? 'presentation' : null));
 
   protected readonly width = computed(() => (this.narrow() ? null : this.column().width ?? null));
 

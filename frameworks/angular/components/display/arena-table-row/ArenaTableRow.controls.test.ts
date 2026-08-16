@@ -24,15 +24,15 @@ const COLUMNS: ArenaTableColumn[] = [{ header: 'Pick' }, { header: 'Service' }, 
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Recent deployments" [columns]="columns" [responsive]="false">
-      <arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
-        <arena-table-cell>
+      <tr arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
+        <td arena-table-cell>
           <input type="checkbox" (change)="ticked = ticked + 1" />
-        </arena-table-cell>
-        <arena-table-cell>checkout-api</arena-table-cell>
-        <arena-table-cell>
+        </td>
+        <td arena-table-cell>checkout-api</td>
+        <td arena-table-cell>
           <button type="button" (click)="ran = ran + 1">Retry</button>
-        </arena-table-cell>
-      </arena-table-row>
+        </td>
+      </tr>
     </arena-table>
   `,
 })
@@ -84,7 +84,7 @@ test('a checkbox in the first column ticks without navigating the reader away', 
 test('the row still activates from a cell that holds no control', () => {
   const fixture = render();
   try {
-    const cells = (fixture.nativeElement as HTMLElement).querySelectorAll('arena-table-cell');
+    const cells = (fixture.nativeElement as HTMLElement).querySelectorAll('td[arena-table-cell]');
     click(cells[1] as Element);
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.activated, 1, 'a plain cell no longer activates its row');
@@ -96,7 +96,7 @@ test('the row still activates from a cell that holds no control', () => {
 test('a row that was never marked interactive activates from nothing at all', () => {
   const fixture = render({ interactive: false });
   try {
-    const cells = (fixture.nativeElement as HTMLElement).querySelectorAll('arena-table-cell');
+    const cells = (fixture.nativeElement as HTMLElement).querySelectorAll('td[arena-table-cell]');
     click(cells[1] as Element);
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.activated, 0,

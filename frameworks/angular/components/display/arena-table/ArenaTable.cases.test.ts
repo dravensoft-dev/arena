@@ -38,14 +38,14 @@ const NARROW_WIDTH = 400;
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table [label]="label" [columns]="columns" [responsive]="responsive">
-      <arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
-        <arena-table-cell>checkout-api</arena-table-cell>
-        <arena-table-cell>Healthy</arena-table-cell>
-      </arena-table-row>
-      <arena-table-row [interactive]="interactive" [disabled]="disabled" (click)="activated = activated + 1">
-        <arena-table-cell>billing-worker</arena-table-cell>
-        <arena-table-cell>Degraded</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
+        <td arena-table-cell>checkout-api</td>
+        <td arena-table-cell>Healthy</td>
+      </tr>
+      <tr arena-table-row [interactive]="interactive" [disabled]="disabled" (click)="activated = activated + 1">
+        <td arena-table-cell>billing-worker</td>
+        <td arena-table-cell>Degraded</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -112,7 +112,7 @@ function tableOf(fixture: ComponentFixture<unknown>): HTMLElement {
 }
 
 function cellsOf(row: Element): HTMLElement[] {
-  return [...row.querySelectorAll<HTMLElement>('[role="gridcell"], [role="columnheader"]')];
+  return [...row.querySelectorAll<HTMLElement>('td, th')];
 }
 
 async function press(fixture: ComponentFixture<unknown>, key: string): Promise<void> {
@@ -148,7 +148,7 @@ test('arena-table meets both of its declared shapes', async () => {
     assert.ok(grid, 'the wide shape must render a real grid');
     assert.equal(grid.getAttribute('aria-label'), LABEL, 'the grid name is not the `label` member');
 
-    const rows = [...grid.querySelectorAll<HTMLElement>('[role="row"]')];
+    const rows = [...grid.querySelectorAll<HTMLElement>('tr')];
     assert.equal(rows.length, 3, 'one header row plus one row per record');
     const cells = rows.map(cellsOf);
     for (const [index, row] of cells.entries()) {
@@ -207,7 +207,7 @@ test('arena-table meets both of its declared shapes', async () => {
           subjects: {
             default: grid,
             'roles.row': rows[0],
-            'roles.cell': grid.querySelector('[role="gridcell"]'),
+            'roles.cell': grid.querySelector('td'),
           },
           behavioural: {
             'focus.roving': true,
@@ -222,6 +222,13 @@ test('arena-table meets both of its declared shapes', async () => {
           assertNoNode(cardTable.querySelector('[role="row"]'), 'the card shape renders no row role');
           assert.equal(cardTable.querySelectorAll('[role="gridcell"]').length, 0,
             'no cells means no roving tab stop to claim -- the requirement does not apply rather than going unmet');
+          const flattened = [...cardTable.querySelectorAll('table, tbody, tr, td')];
+          assert.ok(flattened.length > 0, 'the card shape is still made of table elements, so there is something to strip');
+          for (const one of flattened) {
+            assert.equal(one.getAttribute('role'), 'presentation',
+              `the card shape leaves a <${one.tagName.toLowerCase()}> carrying its native table role, which the reader `
+              + 'would hear as a table while the screen shows a stack of cards');
+          }
           assert.equal(cardTable.querySelectorAll('[tabindex]').length, 0,
             'a card row that is not `interactive` claims no tab stop -- which is what keeps a dead stop off '
             + 'every row of every table that is not clickable');
@@ -231,7 +238,7 @@ test('arena-table meets both of its declared shapes', async () => {
           const emptyTable = tableOf(bare!);
           assertNoNode(emptyTable.querySelector('[role="grid"]'),
             'with no rows there is no grid at all, which is why this case binds `none`');
-          assertNoNode(emptyTable.querySelector('[role="columnheader"]'),
+          assertNoNode(emptyTable.querySelector('th'),
             'and no orphan header standing over the sentence that says there is nothing');
           assert.equal(emptyTable.querySelectorAll('[tabindex]').length, 0,
             'nothing to rove over means no tab stop to claim');
@@ -252,7 +259,7 @@ test('arena-table-cell owns none of the grid it sits in -- the row has its own c
   const fixture = await render();
   try {
     const table = tableOf(fixture);
-    const cell = table.querySelector('[role="gridcell"]') as HTMLElement;
+    const cell = table.querySelector('td') as HTMLElement;
 
     assertPattern({ root: table, bindingPath: CELL_BINDING, subjects: { default: cell } });
   } finally {
@@ -264,7 +271,7 @@ test('a pointer click on a row reaches the consumer exactly once -- twice would 
   const fixture = await render({ interactive: true });
   try {
     const table = tableOf(fixture);
-    const row = table.querySelectorAll('[role="row"]')[1] as HTMLElement;
+    const row = table.querySelectorAll('tr')[1] as HTMLElement;
 
     const emitted = emissionsOf(fixture);
     row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -281,7 +288,7 @@ test('Enter on a cell activates the row it belongs to, and no other', async () =
   const fixture = await render({ interactive: true });
   try {
     const table = tableOf(fixture);
-    const rows = [...table.querySelectorAll<HTMLElement>('[role="row"]')];
+    const rows = [...table.querySelectorAll<HTMLElement>('tr')];
 
     const emitted = emissionsOf(fixture);
     await focusCell(fixture, cellsOf(rows[2])[0]);
@@ -303,7 +310,7 @@ test('a disabled row announces itself and refuses both routes -- the pointer and
   const fixture = await render({ disabled: true });
   try {
     const table = tableOf(fixture);
-    const rows = [...table.querySelectorAll<HTMLElement>('[role="row"]')];
+    const rows = [...table.querySelectorAll<HTMLElement>('tr')];
     const locked = rows[2];
 
     assert.equal(locked.getAttribute('aria-disabled'), 'true',
@@ -331,7 +338,7 @@ test('the cursor is clamped against the cells that are really there, not against
   const fixture = await render({ columns: [{ header: 'Service' }, { header: 'Status' }, { header: 'Owner' }] });
   try {
     const table = tableOf(fixture);
-    const rows = [...table.querySelectorAll<HTMLElement>('[role="row"]')];
+    const rows = [...table.querySelectorAll<HTMLElement>('tr')];
     const header = cellsOf(rows[0]);
     assert.equal(header.length, 3, 'the header draws one cell per column');
     assert.equal(cellsOf(rows[1]).length, 2, 'the fixture rows carry fewer cells than there are columns');
@@ -354,11 +361,11 @@ test('an empty table draws its [empty] slot and NO grid at all', async () => {
     assertNoNode(table.querySelector('[role="grid"]'),
       'a grid holding neither a header row nor a data row is a degenerate render, the same '
       + 'judgement ArenaTabs makes when it draws no panel for a tab that does not exist');
-    assertNoNode(table.querySelector('[role="columnheader"]'),
+    assertNoNode(table.querySelector('th'),
       'a column head over a "no results" sentence describes a table that is not there, which is '
       + 'why 16 tables in a real consumer replaced the slot with an @if that removed the table');
-    assert.equal(table.querySelectorAll('[role="gridcell"]').length, 0, 'an empty table renders no data cell');
-    assert.equal(table.querySelectorAll('[role="row"]').length, 0, 'and no row either');
+    assert.equal(table.querySelectorAll('td').length, 0, 'an empty table renders no data cell');
+    assert.equal(table.querySelectorAll('tr').length, 0, 'and no row either');
     assert.match(table.textContent ?? '', /No deployments in this range\./,
       'the [empty] slot did not project');
   } finally {

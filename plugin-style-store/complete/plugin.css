@@ -1258,6 +1258,10 @@
   outline: var(--bw-surface) dashed var(--edge-surface);
   outline-offset: calc(var(--sp-1) * -1);
 }
+.arena-complete [data-arena-part="table.body"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
 .arena-complete [data-arena-part="table.card"] {
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);

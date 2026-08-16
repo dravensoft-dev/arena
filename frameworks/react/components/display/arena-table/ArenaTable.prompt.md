@@ -89,6 +89,15 @@ The grid is **not assumed rectangular**. A row may carry fewer or more cells tha
 
 Card mode answers none of this. A card is a list item, and a list is traversed with Tab, and a card whose row carries `interactive` becomes a `role="button"` tab stop of its own with an Enter and Space handler, which is `ArenaTableRow`'s `card-interactive` case, not a clause of this component's binding, which carries no exception in either shape. A card row without `interactive` is inert in both shapes.
 
+### The markup, at both widths
+
+There is always a real `<table>`, and card mode restyles the same `<tr>`s and `<td>`s rather than
+drawing a second tree of divs, so a crawler reads a table at every width. `role="grid"` is written,
+because the roving tab stop is what makes it a grid rather than a table; the row, columnheader and
+gridcell under it are not, because the elements mean them already. Below `--bp-md`, and with no
+rows, it declares `role="presentation"` and drops its name, which leaves nothing of it in a
+reader's ear.
+
 ## Verifying the grid by hand
 
 `ArenaTable` has render suites: one walks the grid cell by cell and renders both declared shapes,

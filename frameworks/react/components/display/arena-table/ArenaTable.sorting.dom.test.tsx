@@ -34,7 +34,7 @@ function press(key: string) {
 }
 
 function headers(root: Element) {
-  return [...root.querySelectorAll<HTMLElement>('[role="columnheader"]')];
+  return [...root.querySelectorAll<HTMLElement>('th')];
 }
 
 test('with no `sort` no header is a target, however many columns declare sortable', () => {
@@ -108,7 +108,7 @@ test('Enter on a DATA row still activates the row, not a sort', () => {
       </ArenaTableRow>
     </ArenaTable>,
   );
-  const cell = root.querySelector<HTMLElement>('[role="gridcell"]')!;
+  const cell = root.querySelector<HTMLElement>('td')!;
   act(() => { cell.focus(); });
   press('Enter');
   assert.equal(activated, 1, 'Enter on a data row must reach that row');

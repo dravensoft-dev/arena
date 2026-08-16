@@ -175,7 +175,7 @@ export const ROUTES: Route[] = [
     who: 'a contributor adding or changing a component: the router, the frameworks roof, then the '
       + 'layer that binds it',
     stops: ['AGENTS.md', 'frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 84_500,
+    budget: 86_000,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
@@ -184,7 +184,15 @@ export const ROUTES: Route[] = [
       + 'charging every component change for it cost a fifth of this route. Raised from 83,000 '
       + 'when the branch named the convention it answers to and the two places it departs from '
       + 'one: a contributor who does not know the consumer branch is a skill adds an eighteenth '
-      + 'file under the reserved name, and the cost of that is paid by every reader of the tag.',
+      + 'file under the reserved name, and the cost of that is paid by every reader of the tag. '
+      + 'Raised from 84,500 when the Angular stop gained the rule deciding which primitives are an '
+      + 'attribute on a native element rather than an element of their own. That is not one '
+      + 'family\'s tour: the question it answers -- would wrapping this element break what the '
+      + 'element means -- is asked of every primitive, and the two consequences it carries, that an '
+      + 'output named after a DOM event cannot be listened to from the host block and that the demo '
+      + 'emitters read the declared selector, are ones a contributor hits by writing the component '
+      + 'and not by reading about the table. Left out of the roof and out of a family page for the '
+      + 'same reason: only one layer authors elements a consumer nests, so only that layer decides.',
   },
   {
     name: 'contributor-authoring',

@@ -3,6 +3,7 @@
   "slots": {
     "root": "block w-full font-body shadow-surface-rest",
     "grid": "table w-full border-collapse",
+    "body": "table-row-group",
     "headRow": "table-row bg-track",
     "th": "table-cell px-row-px py-row-py text-left align-middle font-face-label text-ctl-2xs font-bold tracking-column-header case-label text-ink-muted/62 border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "thSortable": "cursor-pointer select-none hover:text-ink-body",
@@ -37,7 +38,8 @@
       },
       "true": {
         "root": "flex flex-col gap-4",
-        "grid": "contents"
+        "grid": "contents",
+        "body": "contents"
       }
     },
     "align": {

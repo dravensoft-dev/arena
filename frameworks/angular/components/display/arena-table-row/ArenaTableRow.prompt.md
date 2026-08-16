@@ -1,13 +1,14 @@
-One row of an `arena-table`. Write one per row, with one `arena-table-cell` inside it per
-cell. It only makes sense inside a table: it injects the shared `ArenaTableState`, and outside one
-that is a DI error rather than a silently inert row.
+One row of an `arena-table`. It is an **attribute on a real `<tr>`**, not an element of its own,
+and its cells are attributes on real `<td>`s. Write one per row. It only makes sense inside a table:
+it injects the shared `ArenaTableState`, and outside one that is a DI error rather than a silently
+inert row.
 
 ```html
-<arena-table-row interactive (click)="openDeploy(d)">
-  <arena-table-cell>{{ d.build }}</arena-table-cell>
-  <arena-table-cell>{{ d.project }}</arena-table-cell>
-  <arena-table-cell><arena-badge tone="success" dot>Deployed</arena-badge></arena-table-cell>
-</arena-table-row>
+<tr arena-table-row interactive (click)="openDeploy(d)">
+  <td arena-table-cell>{{ d.build }}</td>
+  <td arena-table-cell>{{ d.project }}</td>
+  <td arena-table-cell><arena-badge tone="success" dot>Deployed</arena-badge></td>
+</tr>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaTableRow.json. Edit the contract, not this table. -->
@@ -28,9 +29,9 @@ that is a DI error rather than a silently inert row.
   hold the row it is about; a payload would hand you back what you just had.
 - Cells are **positional**: the nth `arena-table-cell` reads the nth entry of the table's
   `columns`. Keep them in the same order.
-- Don't write a bare element as a child. A row's cells are read as `arena-table-cell`
-  components, and anything else renders but takes no column, no alignment and no place in
-  the keyboard order.
+- Don't write a bare `<td>` as a child. A row's cells are read as `arena-table-cell`
+  components, and a `<td>` without the attribute renders but takes no column, no alignment and no
+  place in the keyboard order.
 - Don't reach for the row to style a cell: alignment, width and the mono/gold treatment are
   the **column's**, so they stay the same all the way down.
 - `disabled` draws the row and refuses to activate it, by either route: the pointer and the
@@ -51,23 +52,36 @@ that is a DI error rather than a silently inert row.
   the checkbox ticks and the reader stays where they are, and the action fires once rather
   than twice. Only a press that lands on the row itself activates it.
 
-### Why this one is not host-bound
+### Why it is an attribute on a `<tr>` and not an element of its own
 
-Every other primitive in this family binds its root slot onto the host. This one renders a
-real element inside a bare host, for the same reason `arena-button` does: an Angular output
-named after a native DOM event is delivered **twice**: once as the output and once as the
-bubbled DOM event Angular also listens for. Measured on this component rather than inherited:
-with the inner element's `stopPropagation()` removed, one pointer click reaches the consumer
-**2** times, and a `disabled` row activates, because the native path never passes the guard.
-The inner element is where that event is stopped, which is what makes both routes single and
-both refusable, and the count is asserted so it cannot drift back.
+A `<tr>` is a row without being told so, and the shape that keeps that is the one where the element
+you write IS the row. An `<arena-table-row>` wrapping a `<tr>` does not work, and the reason is worth
+having before you reach for it: `display: contents` fixes the **box** tree, not the **DOM** tree, so
+a `<tr>` that is not a DOM child of `<tbody>` never forms the native mapping at all -- and under
+server rendering it is worse, because the markup is serialized and re-parsed and the HTML parser
+foster-parents a non-table element straight out of the table.
 
-### Card mode is a button when the row says so, and inert when it does not
+### Why the pointer handler is not in the host block
 
-Below `--bp-md` the row renders as a card, and `interactive` decides what that card is: with it,
-a `role="button"` tab stop with an Enter and Space handler, which is the binding's
-`card-interactive` case; without it, no role and no tab stop, which is `card-inert`. The shape
-follows the member and never whether anything is listening, which no render may follow from and
+An Angular output named after a native DOM event collides with a host listener for that event, and
+the collision was measured here rather than guessed: with `'(click)'` in the `host` block, the
+listener is wired to this component's own `click` **output**, so `emit()` re-enters the handler. The
+listener is therefore added to the host element directly, in the constructor, which also puts it
+**before** the one Angular adds for the consumer's own `(click)`. That order is what makes
+`stopImmediatePropagation()` work: it is what stops a native click on a cell being delivered a second
+time alongside the output, and what keeps a press that started on a control inside the row from
+reaching the row at all. One is the only passing number and two is the defect, and the count is
+asserted so it cannot drift back.
+
+### Card mode is a button when the row says so, and presentational when it does not
+
+Below `--bp-md` the row is still a `<tr>` -- one set of elements is authored and the width that
+decides the shape changes at runtime, so the markup cannot change with it -- and CSS restyles it into
+a card. `interactive` decides what that card is: with it, a `role="button"` tab stop with an Enter and
+Space handler, which is the binding's `card-interactive` case; without it, `role="presentation"` and
+no tab stop, which is `card-inert`. The presentation role is a removal rather than an affordance: it
+takes back the row mapping the element carries natively, so nothing describes a stack of cards as a
+table. The shape follows the member and never whether anything is listening, which no render may follow from and
 which `OutputEmitterRef.listeners` could not answer here anyway. That is the whole reason
 `interactive` is a member rather than an inference: making every card row a button would put a
 dead tab stop on every row of every table that is not clickable, and deriving it from a bound

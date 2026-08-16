@@ -27,10 +27,10 @@ const COLUMNS: ArenaTableColumn[] = [{ header: 'Service' }, { header: 'Status' }
     <arena-table [label]="label" [columns]="columns" [responsive]="false" [page]="page()"
                  (pageChange)="asked.push($event)">
       @if (withRows) {
-        <arena-table-row>
-          <arena-table-cell>checkout</arena-table-cell>
-          <arena-table-cell>Healthy</arena-table-cell>
-        </arena-table-row>
+        <tr arena-table-row>
+          <td arena-table-cell>checkout</td>
+          <td arena-table-cell>Healthy</td>
+        </tr>
       }
     </arena-table>
   `,

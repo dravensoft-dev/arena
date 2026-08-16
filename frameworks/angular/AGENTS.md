@@ -80,6 +80,22 @@ family draws one. The category is the one
 `frameworks/AGENTS.md` states: directories kebab-case, file names capital-initial. Each component's
 own tests sit in that same directory as `<Component>.<facet>.test.ts`.
 
+**A primitive whose native element carries the semantics is an attribute on that element, not an
+element of its own.** The default is an element selector, `arena-x`; the exception is decided by one
+question and not by taste: would wrapping the native element in `<arena-x>` break what the element
+means? It does whenever the element is only itself as a **DOM child** of a particular parent, which
+is every internal table element -- `display: contents` fixes the box tree and not the DOM tree, and a
+server render makes it worse rather than better, because the markup is serialized and re-parsed and
+the HTML parser foster-parents a non-table element straight out of the table. So `ArenaTableRow` is
+`tr[arena-table-row]` and `ArenaTableCell` is `td[arena-table-cell]`, the prefix is unchanged, and the
+role the element already maps to is not written back onto it. Two consequences travel with the shape.
+An **output named after a native DOM event cannot be listened to from the `host` block**: the listener
+is wired to that output and `emit()` re-enters its own handler, so the listener is added to the host
+element in the constructor, which also puts it ahead of the one Angular adds for the consumer's
+binding and lets `stopImmediatePropagation()` refuse the duplicate. And **the demo emitters read the
+declared selector** from the layer's own source, so a tag opens with its element and its hook and
+closes with the element alone, with nothing to list anywhere.
+
 **A compound family pushes nothing, so its recursive case costs no helper.** `ArenaSideNav` nests to
 any depth because each container re-provides `ArenaSideNavState` at `depth + 1` and a row **pulls**
 the nearest, which is the whole mechanism: an item reads its own indent from the injector rather

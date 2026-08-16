@@ -1,6 +1,6 @@
 import {
-  ChangeDetectionStrategy, Component, DestroyRef, booleanAttribute, computed, contentChildren,
-  inject, input, output,
+  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, booleanAttribute, computed,
+  contentChildren, inject, input, output,
 } from '@angular/core';
 import { isArenaOwnActivation } from '../../../AnchorActivation';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
@@ -10,18 +10,19 @@ import { arenaTableRowStyles } from './ArenaTableRow.variants';
 import manifest from '../arena-table/ArenaTable.classes.generated';
 
 @Component({
-  selector: 'arena-table-row',
+  selector: 'tr[arena-table-row]',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableRowState],
-  host: { style: 'display: contents' },
-  template: `
-    <div [class]="rowClass()" [attr.data-arena-part]="narrow() ? parts.card : parts.row" [attr.role]="role()" [attr.aria-disabled]="inert()"
-         [attr.tabindex]="cardStop()" (keydown)="onKeydown($event)"
-         (click)="onClick($event)">
-      <ng-content />
-    </div>
-  `,
+  host: {
+    '[class]': 'rowClass()',
+    '[attr.data-arena-part]': 'narrow() ? parts.card : parts.row',
+    '[attr.role]': 'role()',
+    '[attr.aria-disabled]': 'inert()',
+    '[attr.tabindex]': 'cardStop()',
+    '(keydown)': 'onKeydown($event)',
+  },
+  template: `<ng-content />`,
 })
 export class ArenaTableRow {
   protected readonly parts = manifest.parts;
@@ -36,12 +37,13 @@ export class ArenaTableRow {
   private readonly table = inject(ArenaTableState);
   private readonly arenaRowState = inject(ArenaTableRowState);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly cells = contentChildren(ArenaTableCell);
 
   protected readonly role = computed(() => {
-    if (!this.table.narrow()) return 'row';
-    return this.interactive() ? 'button' : null;
+    if (!this.table.narrow()) return null;
+    return this.interactive() ? 'button' : 'presentation';
   });
 
   protected readonly cardStop = computed(() => (this.table.narrow() && this.interactive() ? 0 : null));
@@ -54,7 +56,8 @@ export class ArenaTableRow {
     const narrow = this.table.narrow();
     const styles = arenaTableRowStyles({ narrow });
     if (narrow) return styles.card();
-    return this.table.rowIndexOf(this) === 1 ? `${styles.row()} ${styles.rowFirst()}` : styles.row();
+    const base = this.table.rowIndexOf(this) === 1 ? `${styles.row()} ${styles.rowFirst()}` : styles.row();
+    return this.interactive() && !this.disabled() ? `${base} ${styles.rowInteractive()}` : base;
   });
 
   constructor() {
@@ -65,10 +68,15 @@ export class ArenaTableRow {
       activate: () => this.emit(),
     });
     this.destroyRef.onDestroy(() => this.table.releaseRow(this));
+
+    const row = this.host.nativeElement;
+    const press = (event: Event) => this.onClick(event);
+    row.addEventListener('click', press);
+    this.destroyRef.onDestroy(() => row.removeEventListener('click', press));
   }
 
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
+  private onClick(event: Event): void {
+    event.stopImmediatePropagation();
     if (!this.ownActivation(event)) return;
     this.emit();
   }

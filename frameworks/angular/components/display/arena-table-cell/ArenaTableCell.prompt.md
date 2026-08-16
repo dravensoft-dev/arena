@@ -1,11 +1,12 @@
-One cell of an `arena-table-row`. It draws the cell box, the padding, the alignment and the
-mono/gold treatment its column asks for, and in card mode either a label/value pair or a
-full-width block, and shows whatever you put in it.
+One cell of an `arena-table-row`. It is an **attribute on a real `<td>`**, not an element of its
+own. It draws the cell box, the padding, the alignment and the mono/gold treatment its column asks
+for, and in card mode either a label/value pair or a full-width block, and shows whatever you put in
+it.
 
 ```html
-<arena-table-cell>{{ d.p95 }}</arena-table-cell>
-<arena-table-cell><arena-badge tone="danger" dot>Failed</arena-badge></arena-table-cell>
-<arena-table-cell><arena-button variant="ghost" size="sm">Details</arena-button></arena-table-cell>
+<td arena-table-cell>{{ d.p95 }}</td>
+<td arena-table-cell><arena-badge tone="danger" dot>Failed</arena-badge></td>
+<td arena-table-cell><arena-button variant="ghost" size="sm">Details</arena-button></td>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaTableCell.json. Edit the contract, not this table. -->
@@ -25,9 +26,9 @@ full-width block, and shows whatever you put in it.
   a cell **you** instantiate is just an element you wrote.
 - Don't set alignment, width or the mono face here. Those are the column's, so a column stays
   consistent down its whole length; a cell that styled itself would drift from its header.
-- Don't add a `role` or a `tabindex`. `role="gridcell"` and the roving tab stop belong to the
-  enclosing grid and are read from the shared state; adding your own would put a second tab
-  stop inside a composite that must have exactly one.
+- Don't add a `role` or a `tabindex`. A `<td>` inside the grid already maps to a gridcell, and
+  the roving tab stop belongs to the enclosing grid and is read from the shared state; adding your
+  own would put a second tab stop inside a composite that must have exactly one.
 - A control you put in a cell **is** a page-level tab stop, and that is deliberate. Arena
   cannot silence markup it does not own, and silencing it would take away a route a keyboard
   user has. Reaching it must cost exactly one Tab; step 2 of the by-hand checklist in
