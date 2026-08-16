@@ -132,8 +132,12 @@ test('the trail publishes itself as a BreadcrumbList a machine can read', () => 
   assert.deepEqual(data.itemListElement, [
     { '@type': 'ListItem', position: 1, name: 'Projects', item: '/projects' },
     { '@type': 'ListItem', position: 2, name: 'Checkout', item: '/projects/checkout' },
-  ], 'the current location carries no href and is not a destination, so schema.org omits it, '
-   + 'and the positions stay contiguous rather than leaving a hole where it was');
+    { '@type': 'ListItem', position: 3, name: 'Deployment #482' },
+  ], 'the current location IS a rung of the hierarchy and is published as one, carrying its name '
+   + 'and no `item`: the consumer of a trail is told to omit that property on the last entry so the '
+   + 'containing page supplies the url. Dropping the entry instead published one rung for a trail of '
+   + 'two, under the documented minimum of two, so the block was refused by the very reader it was '
+   + 'written for');
 });
 
 test('origin turns the published hrefs absolute without touching what is drawn', () => {
@@ -158,7 +162,7 @@ test('the published trail follows the items it is given', () => {
   fixture.detectChanges();
 
   assert.deepEqual(JSON.parse(jsonLdOf(fixture)).itemListElement.map((e: { name: string }) => e.name),
-    ['Clients', 'Acme'],
+    ['Clients', 'Acme', 'Here'],
     'the whole point of emitting this from the component is that one hierarchy is maintained '
     + 'rather than two, so a stale block would be the duplication this was meant to remove');
 });
