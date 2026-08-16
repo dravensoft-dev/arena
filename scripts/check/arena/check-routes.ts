@@ -106,7 +106,7 @@ export const ROUTES: Route[] = [
     who: 'a project deciding what Arena looks like in their product: the router, then the kernel '
       + 'document that says what the questions are and which answers carry the difference',
     stops: ['skills/design/SKILL.md', 'skills/design/references/style-kernel.md'],
-    budget: 29_500,
+    budget: 30_500,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -127,7 +127,14 @@ export const ROUTES: Route[] = [
       + 'both reported reaching it by reading the table top to bottom rather than by being sent, '
       + 'which is luck of format. The router is a stop on four consumer routes, so that fix is '
       + 'charged four times and this is one of them; the paragraph saying the same thing a second '
-      + 'time is what was bought back first.',
+      + 'time is what was bought back first. Raised again to 30,500 when the router stated that how '
+      + 'a screen is composed belongs to the project: Arena ships the pieces and no shape they must '
+      + 'make, which is a decision about the product rather than a paragraph, and a skeleton handed '
+      + 'down instead would have made the first impression of the kernel Arena\'s rather than the '
+      + 'project\'s. Three buy-backs paid for it, the last of them an identity sentence restating '
+      + 'two rules that have their own bullets. What the raise itself buys is that the route stopped '
+      + 'sitting one character under its ceiling, where the next correction is refused by arithmetic '
+      + 'rather than by judgement.',
   },
   {
     name: 'consumer-register',

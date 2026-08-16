@@ -9,8 +9,8 @@ metadata:
 # Arena
 
 Arena is Dravensoft's design language: a token layer, React and Angular component libraries
-built on it, and a shared Tailwind layer. Its identity is dark-first, warm black under bone
-text, crimson as the voice and gold as distinction, sharp geometry, no gradients.
+built on it, and a shared Tailwind layer. Its identity is warm black under bone text, crimson as
+the voice and gold as distinction.
 
 **Arena is a product-application library**: tables, forms, navigation, dialogs, charts, cards and
 the states around them, the furniture of an application somebody works in. A media or a consumer
@@ -158,9 +158,13 @@ nothing stops you and nothing supports you either. The name reads like a BEM sur
 meant you to target and it is not one: it is compiler output, no contract names it, and a slot
 may be renamed in any release. Content you draw yourself is yours, styled through the same tokens.
 
-Arena keeps the questions and every answer is a style plugin, so the appearance it installs with
-is the one entry a project replaces, which is why that decision is the first of the two above.
-The reasoning underneath is
+**How a screen is composed is yours, and the silence is deliberate.** Arena ships the pieces,
+`css/page.css` for the column and the components, and no shape they must make: a console and a
+reading view are different pages before they are different components. Start from what the
+application is.
+
+Arena keeps the questions and every answer is a style plugin. The reasoning under the appearance
+decision above is
 [`contracts/design/StylePlugins.md`](../../contracts/design/StylePlugins.md).
 
 ## Ask before you build
