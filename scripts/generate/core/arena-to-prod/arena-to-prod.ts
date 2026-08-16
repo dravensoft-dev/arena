@@ -287,8 +287,17 @@ export function phosphorRoot(from = process.cwd(), fallback = here) {
   return null;
 }
 
+/* The one spelling of a separator conversion inside the CLI tree, which is copied whole into
+ * bin/ and so cannot climb out of itself to reach scripts/utils/posix-path.ts. The walk answers
+ * in the host separator because that is a path to hand back to node, and every string that
+ * LEAVES this command goes through here: an @import a browser resolves, and a citation a reader
+ * greps for. The separator is a parameter so a backslash is a case rather than a machine. */
+export function toPosix(path: string, separator = sep) {
+  return path.split(separator).join('/');
+}
+
 export function relativeFrom(outDir: string, target: string) {
-  const path = relative(outDir, target).split(sep).join('/');
+  const path = toPosix(relative(outDir, target));
   return path.startsWith('.') ? path : `./${path}`;
 }
 
@@ -366,14 +375,15 @@ export function auditStep(options: ResolvedOptions, arena: string | null = null)
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
       scanned += 1;
+      const cited = toPosix(file);
       const text = readFileSync(file, 'utf8');
       const scope = sourceScope(resolve(file), dirs);
-      reports.push(...auditText(file, text, scope, declaredMark).map((line) => report('audit', line)));
+      reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
       if (scope !== 'plugin') continue;
       for (const part of paintedParts(text)) painted.add(part);
       if (!file.endsWith('.css')) continue;
       for (const one of restatedFindings(text, sheetOf)) {
-        reports.push(report('restated', `${file}: ${one.property} on [data-arena-part="${one.part}"] `
+        reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
           + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
           + 'counts a part as painted by reading source text, and a role is grown from that count, '
           + 'so a restatement is evidence for a question nobody asked'));
@@ -389,7 +399,7 @@ export function markersStep(options: ResolvedOptions, map: ComponentMap | null) 
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
       if (!file.endsWith('.ts')) continue;
-      files.push({ path: file, source: readFileSync(file, 'utf8') });
+      files.push({ path: toPosix(file), source: readFileSync(file, 'utf8') });
     }
   }
   return { reports: markerProblems(files, map.markers, map.markerDirectives ?? {})

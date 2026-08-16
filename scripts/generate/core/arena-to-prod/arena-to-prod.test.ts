@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
-  relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
+  relativeFrom, toPosix, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
   pluginCss, PLUGIN_LAYER_ORDER,
 } from './arena-to-prod.ts';
@@ -519,6 +519,12 @@ test('Phosphor is looked for upwards, which is where a package manager puts it',
 test('a path already leaving the directory keeps its shape, and a sibling gains one', () => {
   assert.equal(relativeFrom(join('a', 'b'), join('a', 'b', 'c.woff2')), './c.woff2');
   assert.equal(relativeFrom(join('a', 'b'), join('a', 'd.woff2')), '../d.woff2');
+});
+
+test('a path the walk answers is cited in one separator, whichever one the host walked with', () => {
+  assert.equal(toPosix('src\\reach.css', '\\'), 'src/reach.css');
+  assert.equal(toPosix('design\\console\\plugin.css', '\\'), 'design/console/plugin.css');
+  assert.equal(toPosix('src/reach.css', '/'), 'src/reach.css');
 });
 
 test('--undrawn names the shipped components a project draws nowhere', () => {
