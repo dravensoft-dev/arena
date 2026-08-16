@@ -216,7 +216,7 @@ export function rootIsDefault(config: ArenaConfig) {
   return declared[0] === DEFAULT_PLUGIN;
 }
 
-const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)+)\}$/;
+const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
 

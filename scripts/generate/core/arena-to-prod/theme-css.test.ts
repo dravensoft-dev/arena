@@ -289,7 +289,7 @@ const SHEETS_FULL = {
     tokens: {
       'fs-h3': '24px', 'font-display': "'Archivo',system-ui,sans-serif",
       'color-base-200': 'var(--color-base-200)', 'color-secondary': 'var(--color-secondary)',
-      'bw-surface': '1px', 'shadow-surface-rest': '0px 0px 0px 0px rgba(0,0,0,0)',
+      bw: '1px', 'bw-surface': '1px', 'shadow-surface-rest': '0px 0px 0px 0px rgba(0,0,0,0)',
       'fill-surface': 'var(--color-base-200)', 'fill-page': 'var(--color-base-100)',
       'lh-prose': '1.6', 'lh-heading': '1.5', 'measure-prose': '72ch',
       'rhythm-group': '12px', 'rhythm-section': '24px',
@@ -338,6 +338,16 @@ test('a bare colour alias becomes the var() a palette scope can restate', () => 
   assert.equal(pluginValue('{fs.h3}', SHEETS_FULL.catalogue), '24px',
     'only a colour is deferred, because only a colour is redeclared under a palette');
   assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
+});
+
+test('a token at the top of the tree is reachable by the alias that names it', () => {
+  assert.equal(pluginValue('{bw}', SHEETS_FULL.catalogue), '1px',
+    'bw and scrim-blur are leaves beside the color and fs groups, so the alias naming one '
+    + 'carries no dot. An alias pattern that demanded one did not report the reference, it '
+    + 'stopped seeing it, and the raw {bw} reached the sheet as a declaration the browser drops.');
+  assert.equal(pluginValue('{nonesuch}', SHEETS_FULL.catalogue), null,
+    'and a dotless alias naming nothing resolves to null like any other, so the audit reports '
+    + 'it instead of writing it out');
 });
 
 test('a length role answered with a css function keeps the function', () => {
