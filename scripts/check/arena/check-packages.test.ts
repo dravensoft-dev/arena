@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
+  discoveryProblems,
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -329,4 +330,26 @@ test('every component the tree declares is one this gate would look for', () => 
   const declared = declaredComponents();
   assert.ok(declared.length > 40, `only ${declared.length} components declared, which is not the whole library`);
   assert.deepEqual([...declared].sort(), declared, 'the list is sorted, so a diff of it reads');
+});
+
+test('a package shipping no discovery stub is one no agent can find Arena through', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const empty = assembled({ 'package.json': '{}' });
+  const problems = discoveryProblems(pkg, empty);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no skills\/arena\/SKILL\.md/);
+  rmSync(empty, { recursive: true });
+});
+
+test('a stub that carries no frontmatter, no package name or no route is not a stub', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const bare = assembled({ 'skills/arena/SKILL.md': '# Arena\n' });
+  assert.equal(discoveryProblems(pkg, bare).length, 3, 'each of the three is its own finding');
+  rmSync(bare, { recursive: true });
+
+  const whole = assembled({
+    'skills/arena/SKILL.md': '---\nname: arena\n---\n@dravensoft/arena-react and skills/design/SKILL.md\n',
+  });
+  assert.deepEqual(discoveryProblems(pkg, whole), []);
+  rmSync(whole, { recursive: true });
 });

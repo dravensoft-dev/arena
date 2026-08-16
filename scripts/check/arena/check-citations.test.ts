@@ -27,7 +27,8 @@ function tree(files: Record<string, string>) {
 const NONE = new Map();
 
 test('EXEMPT names what is absent on purpose, and nothing else', () => {
-  assert.deepEqual([...EXEMPT.keys()], ['frameworks/angular/BehaviourDelegated.json']);
+  assert.deepEqual([...EXEMPT.keys()],
+    ['skills/arena/SKILL.md', 'frameworks/angular/BehaviourDelegated.json']);
   for (const reason of EXEMPT.values()) assert.ok(reason.length > 40, 'an entry states its reason');
 });
 
@@ -85,7 +86,8 @@ test('an EXEMPT entry no document cites any more fails as a stale allowance', ()
   const base = tree({ 'a.md': 'nothing cited here' });
   const problems = citationProblems(base);
   assert.equal(problems.length, EXEMPT.size);
-  assert.match(problems[0] ?? '', /EXEMPT names frameworks\/angular\/BehaviourDelegated\.json, which no document cites/);
+  assert.ok(problems.every((one) => /^EXEMPT names /.test(one)), 'every entry reports itself stale');
+  assert.ok(problems.some((one) => one.includes('frameworks/angular/BehaviourDelegated.json')));
 });
 
 test('the roots come from the tree, so a new top-level directory is covered the day it lands', () => {

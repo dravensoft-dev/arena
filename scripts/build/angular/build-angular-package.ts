@@ -19,6 +19,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, CLI_BINS, keywords,
+  NPM_SKILL, npmSkill,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
@@ -175,6 +176,7 @@ export function buildAngularPackage(root = repoRoot) {
   written.push(write(dist, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
+  written.push(write(dist, NPM_SKILL, npmSkill(NAME)));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 
   const emitted = readJson(join(dist, 'package.json'));

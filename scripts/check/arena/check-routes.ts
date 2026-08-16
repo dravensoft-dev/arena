@@ -138,7 +138,7 @@ export const ROUTES: Route[] = [
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 93_500,
+    budget: 96_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -146,7 +146,9 @@ export const ROUTES: Route[] = [
       + 'new row breaks reports the row rather than the growth it is there to report. Raised from '
       + '88,000 when check:parts landed and one row spent the last of it, and again when '
       + 'check:skill-spec landed and spent the next of it: that is the clause above happening '
-      + 'twice, and it is what the headroom is for.',
+      + 'twice, and it is what the headroom is for. Raised to 96,000 rather than to the next row, '
+      + 'because two rows landed in one session and a headroom spent the day it is granted is not '
+      + 'headroom: the number is what restores the few gates of room the clause above claims.',
   },
 ];
 

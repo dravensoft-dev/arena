@@ -21,6 +21,8 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { themeCss } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
+import { NPM_SKILL } from '../../lib/arena/package-assembly.ts';
+import { ROUTER } from '../../lib/arena/llms-index.ts';
 
 export const node = {
   name: 'check:packages',
@@ -191,6 +193,24 @@ export function componentMapProblems(pkg: { layer: string; name: string }, dir: 
   return problems;
 }
 
+export function discoveryProblems(pkg: { layer: string; name: string }, dir: string) {
+  const at = join(dir, NPM_SKILL);
+  if (!existsSync(at)) {
+    return [`${pkg.name}: no ${NPM_SKILL}, so the glob the npm skills convention discovers a `
+      + 'package by matches nothing here and an agent working in a project that already depends on '
+      + 'Arena has no way to learn the language exists'];
+  }
+  const text = readFileSync(at, 'utf8');
+  const problems = [];
+  if (!text.startsWith('---\n')) problems.push(`${pkg.name}: ${NPM_SKILL} carries no frontmatter, so it is discovered by nothing`);
+  if (!text.includes(pkg.name)) problems.push(`${pkg.name}: ${NPM_SKILL} does not name its own package`);
+  if (!text.includes(ROUTER)) {
+    problems.push(`${pkg.name}: ${NPM_SKILL} does not name ${ROUTER}, and pointing at the route is `
+      + 'the whole of what a stub is for');
+  }
+  return problems;
+}
+
 const RELATIVE_IMPORT = /@import\s+(?:url\(\s*)?['"](\.[^'"]*)['"]/g;
 
 export function importsIn(css: string) {
@@ -264,6 +284,7 @@ export function collect(base = root) {
     problems.push(...exportProblems(pkg, manifest, dir));
     problems.push(...componentMapProblems(pkg, dir));
     problems.push(...componentReachProblems(pkg, dir, declared));
+    problems.push(...discoveryProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
   }
 

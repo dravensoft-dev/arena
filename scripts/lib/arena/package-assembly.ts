@@ -17,6 +17,8 @@ import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
+import { DOMAIN } from './site-pages.ts';
+import { LLMS_INDEX } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
@@ -152,6 +154,38 @@ export function componentSheets(css: string, split: (css: string) => { base: str
     ...named,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
   ];
+}
+
+export const NPM_SKILL = 'skills/arena/SKILL.md';
+
+export const NPM_SKILL_NAME = 'arena';
+
+export function npmSkill(name: string) {
+  return `---
+name: ${NPM_SKILL_NAME}
+license: MIT
+description: "Arena by Dravensoft, a token-driven design system with React and Angular component
+ libraries on a shared Tailwind layer. Use when a project depends on ${name} and you are about to
+ write or restyle a screen with it. This file is the discovery record only: the rules, the
+ component documents and the style kernel are in the repository, and this says how to reach them."
+---
+
+# Arena is installed here, and its language is not
+
+**${name} ships the components and not the language.** The rules every component answers to, the
+usage document of each one, and the style kernel a project answers to make Arena look like its own
+product are in the repository. None of them is in this package, and this file is not a copy of
+them: a copy inside a tarball is a second router that goes stale on its own schedule.
+
+**Reach them before you write a screen.** Either install the Claude Code plugin from
+\`https://github.com/dravensoft-dev/arena\`, or clone that repository and read
+\`skills/design/SKILL.md\`. Working over HTTP instead, start at
+\`https://${DOMAIN}/${LLMS_INDEX}\`, which indexes the same route and has one corpus per framework.
+
+**Without them an agent guesses, and nothing reports it.** No gate reads a consumer's application,
+so a screen written against half the language renders exactly as well as one written against all
+of it. What differs is a reader.
+`;
 }
 
 export const CATALOGUE_FILE = 'arena.tokens.json';
