@@ -44,6 +44,13 @@ Two things this default is not. It is not a `'UTC'` fallback, which would be arb
 
 The anchor is internal, so prev/Today/next work with nothing wired. `onRangeChange` reports the new anchor date; take it as the cue to refetch. Pass `anchorDate` only when you want to drive the date yourself; it wins whenever it changes.
 
+**The range in the toolbar is a label, not a heading.** It says which dates are on screen and is
+rewritten every time the reader steps a week, so a document outline built on it would carry
+"13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
+an `aria-label` composed from the same range, which is what a reader arriving by name lands on.
+The heading that says what this calendar IS belongs outside it, on the `ArenaSection` or the page
+head that holds it.
+
 **Keyboard.** The grid is one tab stop, not one per event (`dayInteractive` adds the header strip's, above it). Tab lands on a single hour cell; a *row is a day*, so Left/Right move a day and Up/Down move an hour, Home/End jump to the first/last hour of the focused day, and focus clamps at every edge. Enter steps into the first event overlapping the focused hour, Escape steps back out to the cell.
 
 **A day is activable only if you say so.** `onDateClick` reports the ISO date of the day a reader picked, and it fires for nothing unless `dayInteractive` is also set. The boolean is not ceremony: what a component draws may never be derived from whether a listener is bound, because at least one platform cannot ask that question, so the day's cursor, which is a render, follows the boolean and not your handler. Bind one without the other and you get exactly half of what you asked for, in every layer alike.

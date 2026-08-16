@@ -215,9 +215,9 @@ export function ArenaCalendar({
         <button type="button" onClick={() => goto(today)}
           className={styles.today()} data-arena-part={manifest.parts.today}>Today</button>
         {navBtn(1)}
-        <h2 className={styles.heading()} data-arena-part={manifest.parts.heading}>
+        <div className={styles.heading()} data-arena-part={manifest.parts.heading}>
           {arenaRangeTitle(days)}
-        </h2>
+        </div>
         {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
       </div>
 

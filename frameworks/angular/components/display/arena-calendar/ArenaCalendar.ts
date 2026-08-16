@@ -33,7 +33,7 @@ const MINUTE = 60000;
         <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" aria-label="Next" (click)="step(1)">
           <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
         </button>
-        <h2 [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</h2>
+        <div [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</div>
         @if (actionsSlot()) {
           <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
         }
