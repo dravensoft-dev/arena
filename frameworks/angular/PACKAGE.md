@@ -47,9 +47,7 @@ so the config below is the smaller half of that decision.
 **A `<head>` for a product that has to be found from outside it, and it is optional.** Arena
 writes it in the Angular layer, at `@dravensoft/arena-angular/metadata`: a title composed with
 Angular's own, a description, a canonical and the `og:*` pair, and every route private until it
-says otherwise. It sits behind a second entry point because reaching it means reaching
-the router, an optional peer nothing else here asks for. `@dravensoft/arena-react` writes no
-`<head>`, so a React project keeps that with whatever its own framework offers;
+says otherwise.
 `ArenaBreadcrumbs` describes the trail it draws in `schema.org` terms under both.
 
 <!-- @shared offer end -->
