@@ -64,7 +64,7 @@ the normative colour and spacing guidelines, the API contract of every component
 accessibility pattern each one binds, and a usage document per component with its Do and its
 Don't. An agent that has read those does not guess at Arena; it builds with it. So the fastest
 way to adopt this package is to install the plugin, or point your agent at the repository's
-\`SKILL.md\`, and then ask for the screen you want.
+\`skills/design/SKILL.md\`, and then ask for the screen you want.
 
 The package is the code. The repository is the criterion.`,
 

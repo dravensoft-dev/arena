@@ -32,7 +32,7 @@ That is also what makes the rules enforceable rather than aspirational. Tokens
 are the only styling layer, danger is an outline, one primary accent per view,
 no gradients, no emoji, and icons are class-name strings. Each of those is
 decided in [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md) and
-handed to a builder by [`SKILL.md`](./SKILL.md).
+handed to a builder by [`skills/design/SKILL.md`](./skills/design/SKILL.md).
 
 ## Install
 
@@ -67,7 +67,8 @@ the marketplace entry pinning `source.ref` to `vX.Y.Z`.
 
 ### As a standalone Agent Skill
 
-Hand any agent [`SKILL.md`](./SKILL.md). It is the router, and it answers each
+Hand any agent [`skills/design/SKILL.md`](./skills/design/SKILL.md). It is the router, and it
+answers each
 question with one file.
 
 **The packages work with this repository rather than instead of it.** Install
@@ -117,7 +118,8 @@ that means for an upgrade.
 files, and starting on the wrong branch is how a short question turns into a
 long read.
 
-**Building something with Arena.** [`SKILL.md`](./SKILL.md) is the router. From
+**Building something with Arena.** [`skills/design/SKILL.md`](./skills/design/SKILL.md) is the
+router. From
 it: [`frameworks/INDEX.md`](./frameworks/INDEX.md) is every component in one
 read and `frameworks/<layer>/INDEX.md` is the same list under your own
 framework's names, each component's `.prompt.md` is how to use that one, and

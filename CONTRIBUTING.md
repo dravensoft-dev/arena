@@ -51,7 +51,8 @@ and those run against this tree.
 
 [`AGENTS.md`](./AGENTS.md) roots that branch and everything below is reached
 through it. Read it before anything else, and read
-[`SKILL.md`](./SKILL.md) instead if what you are doing is building something
+[`skills/design/SKILL.md`](./skills/design/SKILL.md) instead if what you are doing is building
+something
 *with* Arena rather than changing it.
 
 ## Security

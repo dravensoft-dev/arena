@@ -2,7 +2,7 @@
 
 **Two branches, and this file is neither. Pick one before you read anything else.**
 
-- **Building something with Arena**, a screen, a prototype, an integration: [`SKILL.md`](./SKILL.md).
+- **Building something with Arena**, a screen, a prototype, an integration: [`skills/design/SKILL.md`](./skills/design/SKILL.md).
 - **Changing Arena itself**, a component, a token, a contract, a gate: [`AGENTS.md`](./AGENTS.md).
 
 This file carries no rule of its own. It exists because a harness that loads `CLAUDE.md` and

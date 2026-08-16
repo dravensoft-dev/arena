@@ -365,7 +365,7 @@ test('an index under frameworks/ is a consumer document, and the root router is 
   assert.equal(isConsumerDocument('frameworks/INDEX.md'), true);
   assert.equal(isConsumerDocument('frameworks/react/INDEX.md'), true);
   assert.equal(isConsumerDocument('frameworks/react/components/a/A.prompt.md'), true);
-  assert.equal(isConsumerDocument('SKILL.md'), false,
+  assert.equal(isConsumerDocument('skills/design/SKILL.md'), false,
     'the root router names the contributor branch to send a contributor away');
   assert.equal(isConsumerDocument('frameworks/react/README.md'), false);
   assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
@@ -385,7 +385,7 @@ test('an index citing a contributor path fails the same way a prompt does', () =
 
 test('the root router may name the contributor branch, because naming it is how it redirects', () => {
   const root = tree({
-    'SKILL.md': 'Do not read `frameworks/PACKAGING.md` to build something.\n',
+    'skills/design/SKILL.md': 'Do not read `frameworks/PACKAGING.md` to build something.\n',
     'frameworks/react/components/a/A.prompt.md': 'Import from `@dravensoft/arena-react`.\n',
   });
   const { problems } = consumerBranchProblems(root);
@@ -403,7 +403,7 @@ test('an exemption naming a file that is not there is stale, and says so', () =>
 test('the boundary reads two file names and a reason-carrying list, all by name', () => {
   assert.equal(CONSUMER_LAST_STOP, '.prompt.md');
   assert.equal(CONSUMER_INDEX, 'INDEX.md');
-  assert.deepEqual(Object.keys(BRANCH_SWITCH), ['SKILL.md']);
+  assert.deepEqual(Object.keys(BRANCH_SWITCH), ['skills/design/SKILL.md']);
   for (const reason of Object.values(BRANCH_SWITCH)) assert.match(reason, /\w/);
   assert.equal(CONTRIBUTOR_PATHS.length, 9);
   for (const [pattern, reason] of CONTRIBUTOR_PATHS as [RegExp, string][]) {

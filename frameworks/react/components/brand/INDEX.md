@@ -6,8 +6,8 @@ Every brand component this layer ships, under the names it binds them to. **This
 index, not a manual.** How to write one is its own prompt, linked in the last column.
 
 **The rules every component below answers to are stated in
-[`../../../../SKILL.md`](../../../../SKILL.md) before any component here**, and nothing on this
-page restates them.
+[`../../../../skills/design/SKILL.md`](../../../../skills/design/SKILL.md) before any component
+here**, and nothing on this page restates them.
 
 Import from the package root, never from a path inside it:
 

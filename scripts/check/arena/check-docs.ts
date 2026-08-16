@@ -96,7 +96,7 @@ export const CONSUMER_INDEX = 'INDEX.md';
 export const CONSUMER_TREE = 'frameworks/';
 
 export const BRANCH_SWITCH = {
-  'SKILL.md':
+  'skills/design/SKILL.md':
     'the root router is the switch between the two branches, and naming the contributor one is '
     + 'how it sends a contributor away. Every consumer document below it is downstream of that '
     + 'choice and has nobody left to redirect.',

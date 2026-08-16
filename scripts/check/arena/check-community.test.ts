@@ -99,7 +99,7 @@ test('a contact link naming a path the branch does not carry answers 404 to the 
 test('an exclusion covering nothing is stale, whether it names a folder or a file', () => {
   const base = tree({
     [CONTEXT7]: JSON.stringify({ excludeFolders: ['scripts'], excludeFiles: ['AGENTS.md'] }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(base);
   assert.equal(problems.length, 2, 'the missing folder and the absent document are both reported');
@@ -109,7 +109,7 @@ test('a contributor document Context7 would index is the failure this gate exist
   const base = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: [] }),
     'AGENTS.md': 'contributor reasoning',
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(base);
   assert.equal(problems.length, 1);
@@ -119,19 +119,19 @@ test('a contributor document Context7 would index is the failure this gate exist
 test('a rule the router does not carry has drifted, and rewrapping the router has not', () => {
   const drifted = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Gradients are fine'] }),
-    'SKILL.md': '**No gradients** on any surface.',
+    [ROUTER]: '**No gradients** on any surface.',
   });
   assert.equal(context7Problems(drifted).length, 1);
 
   const wrapped = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Icons are Phosphor class-name strings'] }),
-    'SKILL.md': '**Icons are Phosphor\nclass-name strings**, never elements.',
+    [ROUTER]: '**Icons are Phosphor\nclass-name strings**, never elements.',
   });
   assert.deepEqual(context7Problems(wrapped), [], 'a line break is formatting and never a drift');
 });
 
 test('excluding a folder git ignores is coverage the parser never had, since Context7 reads the repository', () => {
-  const base = tree({ [CONTEXT7]: JSON.stringify({ excludeFolders: ['docs'] }), 'SKILL.md': '' });
+  const base = tree({ [CONTEXT7]: JSON.stringify({ excludeFolders: ['docs'] }), [ROUTER]: '' });
   mkdirSync(join(base, 'docs'), { recursive: true });
   const problems = context7Problems(base, new Set(['docs']));
   assert.equal(problems.length, 1);
@@ -142,13 +142,13 @@ test('excluding a folder git ignores is coverage the parser never had, since Con
 test('a field over its schema limit fails the whole document, and the claim reports it as something else', () => {
   const over = tree({
     [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(201) }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(over, new Set());
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /schema allows 200/);
 
-  const inside = tree({ [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(200) }), 'SKILL.md': '' });
+  const inside = tree({ [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(200) }), [ROUTER]: '' });
   assert.deepEqual(context7Problems(inside, new Set()), [], 'the limit itself is allowed');
 });
 
@@ -163,23 +163,23 @@ test('every limit the gate holds is one the published schema declares', () => {
 test('a path in excludeFiles matches nothing, since that field takes a file name', () => {
   const base = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: ['contracts/AGENTS.md'] }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(base, new Set());
   assert.ok(problems.some((p) => /file name rather than a path/.test(p)));
 });
 
 test('one half of the ownership pair claims nothing and reads as a claim that was made', () => {
-  const half = tree({ [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r' }), 'SKILL.md': '' });
+  const half = tree({ [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r' }), [ROUTER]: '' });
   assert.equal(context7Problems(half, new Set()).length, 1);
 
   const both = tree({
     [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r', public_key: 'pk_x' }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   assert.deepEqual(context7Problems(both, new Set()), []);
 
-  const neither = tree({ [CONTEXT7]: JSON.stringify({}), 'SKILL.md': '' });
+  const neither = tree({ [CONTEXT7]: JSON.stringify({}), [ROUTER]: '' });
   assert.deepEqual(context7Problems(neither, new Set()), []);
 });
 

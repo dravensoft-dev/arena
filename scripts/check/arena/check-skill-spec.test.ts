@@ -2,8 +2,8 @@ import { test } from 'bun:test';
 import assert from 'node:assert/strict';
 import {
   HARNESS_KEYS, MAX_DESCRIPTION, MAX_BODY_LINES, bodyProblems, collect, descriptionProblems,
-  frontmatterOf, frontmatterProblems, keyProblems, nameProblems, soleSkillProblems,
-  staleHarnessProblems, trackedSkills, zeroSkillProblems,
+  frontmatterOf, frontmatterProblems, keyProblems, nameProblems, scalarProblems,
+  soleSkillProblems, staleHarnessProblems, trackedSkills, zeroSkillProblems,
 } from './check-skill-spec.ts';
 
 test('a name must match the directory that holds it', () => {
@@ -29,13 +29,23 @@ test('a description is present and inside the length the standard fixes', () => 
 
 test('a frontmatter key is one the standard defines or one HARNESS_KEYS declares', () => {
   assert.deepEqual(keyProblems('a/SKILL.md', ['name', 'description', 'license', 'metadata']), []);
-  assert.deepEqual(keyProblems('a/SKILL.md', ['name', 'description', 'user-invocable']), []);
   assert.equal(keyProblems('a/SKILL.md', ['name', 'description', 'colour']).length, 1);
+  assert.equal(keyProblems('a/SKILL.md', ['name', 'description', 'user-invocable']).length, 1,
+    'the field the standard refuses sets a value it already defaults to, so it buys nothing');
 });
 
-test('a declared departure the skill has stopped carrying fails as a stale entry', () => {
-  assert.equal(staleHarnessProblems(['name', 'description']).length, HARNESS_KEYS.size);
-  assert.deepEqual(staleHarnessProblems([...HARNESS_KEYS.keys()]), []);
+test('HARNESS_KEYS is empty, and the emptiness is the claim', () => {
+  assert.deepEqual([...HARNESS_KEYS.keys()], []);
+  assert.deepEqual(staleHarnessProblems(['name', 'description']), []);
+});
+
+test('an unquoted value carrying a colon and a space does not parse as YAML', () => {
+  const bad = new Map([['description', 'the language and not the skin: it ships a palette']]);
+  assert.equal(scalarProblems('a/SKILL.md', bad).length, 1);
+  const quoted = new Map([['description', '"the language and not the skin: it ships a palette"']]);
+  assert.deepEqual(scalarProblems('a/SKILL.md', quoted), []);
+  const plain = new Map([['name', 'design']]);
+  assert.deepEqual(scalarProblems('a/SKILL.md', plain), []);
 });
 
 test('a body over the ceiling the standard recommends is a finding', () => {

@@ -65,7 +65,7 @@ export const RULES_CLOSE_LINE = '<!-- @rules end -->';
 export const RULES_OPEN = '<!-- @rules GENERATED for every prompt from one source.'
   + ' Edit it there, not here. -->';
 
-export const ROUTER_FROM_PROMPT = '../../../../../SKILL.md';
+export const ROUTER_FROM_PROMPT = '../../../../../skills/design/SKILL.md';
 
 export const OWN_CLASS_ATTR: Record<string, string> = { react: 'className', angular: 'class' };
 

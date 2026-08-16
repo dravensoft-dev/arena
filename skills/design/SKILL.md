@@ -1,7 +1,9 @@
 ---
 name: design
-description: Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json.
-user-invocable: true
+license: MIT
+description: "Use this skill to build user interfaces with Arena, a token-driven design system with React and Angular component libraries on a shared Tailwind layer, for production screens or for throwaway prototypes and mocks. Covers design tokens, colour, type, spacing, motion, iconography, and the accessibility pattern each component binds. Arena carries the design language and not the skin: it ships Dravensoft's palette and fonts, and any project declares its own in arena.config.json and answers the kernel's style roles with a style plugin of its own."
+metadata:
+  homepage: https://arena.dravensoft.org
 ---
 
 # Arena
@@ -24,7 +26,7 @@ every role whatever the product is.
 here, and follow the table below.
 
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
-read [`AGENTS.md`](./AGENTS.md) instead. It is the root of that branch and this file is not.
+read [`AGENTS.md`](../../AGENTS.md) instead. It is the root of that branch and this file is not.
 
 **Everything here is one component at a time.**
 
@@ -39,7 +41,7 @@ read [`AGENTS.md`](./AGENTS.md) instead. It is the root of that branch and this 
 3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
 
-[`frameworks/INDEX.md`](./frameworks/INDEX.md) is the layer-neutral index beside those three, and
+[`frameworks/INDEX.md`](../../frameworks/INDEX.md) is the layer-neutral index beside those three, and
 it answers one question your layer's cannot: whether a component exists at all, and which layers
 ship it. Read it when you are looking for something you are not sure Arena has, and skip it when
 you already know what you are reaching for.
@@ -101,7 +103,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 
 | Question | Read |
 |---|---|
-| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](./frameworks/INDEX.md) |
+| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md) |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
@@ -110,9 +112,9 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | What else does the package export, besides components? | the layer's `PACKAGE.md`: the theme surface, the two measurements, the chart ramp helpers, and Angular's projection markers |
 | How do I size a page layout, or fit a panel to its own box? | the same section: `useArenaViewportBelow` / `arenaViewportBelow` for a page, `useArenaContainerWidth` / `arenaContainerWidth` for a box |
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` (the aliases such as `--crimson`, and the muted text levels) and `contracts/design/environment.css` (`--pad-safe-*`, the device's own insets composed with the spacing scale, for a shell you draw around Arena) |
-| What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), the normative design specification |
+| What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible? | `contracts/behaviour/<pattern>.json`, and the component's own `<Name>.behaviour.json` |
-| How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) |
+| How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](../../frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](../../frameworks/angular/PACKAGE.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
 
@@ -142,7 +144,7 @@ the fonts are the skin, and a project wanting a different appearance writes a st
 own, a directory holding an answer to every role and CSS written against the
 `data-arena-part` hook every slot carries, named in `stylePlugins`. What that costs, what a
 plugin may say, and which of Arena's floors a gate still holds once one is open are stated in
-[`contracts/design/StylePlugins.md`](./contracts/design/StylePlugins.md).
+[`contracts/design/StylePlugins.md`](../../contracts/design/StylePlugins.md).
 
 ## Invoked with no other guidance
 

@@ -33,7 +33,7 @@ export const ROUTES: Route[] = [
       + 'directory, then the index of the one category it reaches into, then the prompt of the one '
       + 'component it writes',
     stops: [
-      'SKILL.md',
+      'skills/design/SKILL.md',
       'frameworks/*/INDEX.md',
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
@@ -54,8 +54,8 @@ export const ROUTES: Route[] = [
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
-    stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 41_100,
+    stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
+    budget: 41_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -78,7 +78,10 @@ export const ROUTES: Route[] = [
       + 'one nobody can type. Raised again when the config gained a key for a brand whose mark is '
       + 'a gradient: what the key buys is that --strict=audit stops failing over the most '
       + 'recognisable thing about a product, and a key nobody is told about is one nobody '
-      + 'declares, so the report it silences goes on being suppressed a line at a time.',
+      + 'declares, so the report it silences goes on being suppressed a line at a time. Raised '
+      + 'again when the router\'s description named the style kernel: the description is the whole '
+      + 'of what an agent reads before it decides whether to load Arena at all, and one that stops '
+      + 'at the palette describes a system that cannot be reskinned.',
   },
   {
     name: 'contributor-component',

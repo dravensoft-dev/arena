@@ -9,8 +9,8 @@ on it, and a shared Tailwind layer. **The repository itself is not an npm packag
 ## Which job is this?
 
 **Building something with Arena** (a screen, a prototype, an integration): read
-[`SKILL.md`](./SKILL.md) instead. It is the root of that branch and this file is not, and the
-two are almost disjoint by design.
+[`skills/design/SKILL.md`](./skills/design/SKILL.md) instead. It is the root of that branch and
+this file is not, and the two are almost disjoint by design.
 
 **Changing Arena itself**: stay here. Everything below is reached through this page.
 
@@ -39,11 +39,11 @@ exist and every gate that reads it reports its subject missing.
 
 Three things at once, from the same tree:
 
-- a **Claude Code plugin**, `.claude-plugin/`, registering the `design` skill the root
-  `SKILL.md` defines, **served from the git tag**;
+- a **Claude Code plugin**, `.claude-plugin/`, registering the `design` skill that
+  `skills/design/SKILL.md` defines, **served from the git tag**;
 - two **npm packages**, `@dravensoft/arena-react` and `@dravensoft/arena-angular`, assembled by
   `bun run build:packages` into `frameworks/<layer>/dist/`;
-- a standalone **Agent Skill**, `SKILL.md`.
+- a standalone **Agent Skill**, `skills/design/SKILL.md`.
 
 **A published Arena carries the language and never the skin**, which is the decision the whole
 npm channel follows from: the palettes and the fonts arrive as an `arena.config.json` the
@@ -66,11 +66,11 @@ refused outright whatever a repository-size argument says.
 
 ## Where a new document goes
 
-**Two branches, and a fact belongs to exactly one.** `SKILL.md` roots the *consumer* branch the
-way this file roots the contributor one. The cost of the consumer branch is paid on every build:
-an agent building with Arena reads the router, where it takes the rules, then its own layer's
-`SKILL.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only for
-the reasoning behind a member. **Everything on that route after the router is under
+**Two branches, and a fact belongs to exactly one.** `skills/design/SKILL.md` roots the *consumer*
+branch the way this file roots the contributor one. The cost of the consumer branch is paid on
+every build: an agent building with Arena reads the router, where it takes the rules, then its own
+layer's `INDEX.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only
+for the reasoning behind a member. **Everything on that route after the router is under
 `frameworks/`**, and each stop narrows. It reads no `AGENTS.md`, which is why the router names
 them and says not to. `frameworks/INDEX.md` sits beside that route rather than on it: it answers
 whether a component exists at all and which layers ship it, which is a question a builder who
@@ -80,10 +80,10 @@ no document carries the figure.
 
 **A rule written into both branches goes stale in one of them.** The design rules a builder has to
 obey are the one place that reads like an exception and is not: those are DECIDED in
-`contracts/design/AGENTS.md` and HANDED OVER in `SKILL.md`, which are two different acts and two
+`contracts/design/AGENTS.md` and HANDED OVER in `skills/design/SKILL.md`, which are two different acts and two
 different readers. A third statement, restating either, is what goes stale. **Most of the
 specification is not handed over at all**, because most of it decides values rather than binding a
-builder: a scale a component reads and a consumer never names has one home, and `SKILL.md` is not
+builder: a scale a component reads and a consumer never names has one home, and `skills/design/SKILL.md` is not
 it. What a consumer has to know about a value reaches them through the layer's `PACKAGE.md`, which
 is where a shipped stylesheet like `css/rhythm.css` is documented.
 
@@ -103,8 +103,8 @@ documented only there is a thing nobody can find. Derive what ships rather than 
 component is that component's `.prompt.md`, in each layer's own idiom. **A consumer document
 cites no contributor one**: `check:docs` fails a prompt, or an `INDEX.md` under `frameworks/`,
 naming a path under `scripts/`, an `AGENTS.md` under `contracts/` or `frameworks/`, or
-`frameworks/PACKAGING.md`. The root `SKILL.md` is the one carve-out, since naming this branch is
-how it redirects. **Telling a consumer to import something names the package, never a path.**
+`frameworks/PACKAGING.md`. The router is the one carve-out, since naming this branch is how it
+redirects. **Telling a consumer to import something names the package, never a path.**
 
 **A `description` in `contracts/api/` is layer-neutral prose that reaches every layer's generated
 types.** One naming a class, a package path or a single layer's idiom is emitted into the other
@@ -200,8 +200,8 @@ the one that opened it. `bun run check:citations` holds every path a document na
 - **The design rules themselves are not here.** No gradients, no emoji, danger as an outline, one
   primary accent, a chart carrying identity or meaning: every one of them is decided in
   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md) and handed to a builder by
-  [`SKILL.md`](./SKILL.md). A third copy on this page is the one with no owner, and it is the copy
-  that goes stale: the two that are left each fail something, the contract through
+  [`skills/design/SKILL.md`](./skills/design/SKILL.md). A third copy on this page is the one with
+  no owner, and it is the copy that goes stale: the two that are left each fail something, the contract through
   `check:style-plugin` and the router through `check:docs`, while a router's restatement fails
   nothing at all. **The one rule about them that IS this page's**, because it binds a contributor
   and no consumer: a rule binding more than one component is stated once and never copied into a

@@ -108,8 +108,9 @@ layer's index and then the component's own prompt, and reading this page first b
 you already know what you are reaching for.
 
 **The rules of the language every component below answers to are stated in
-[\`../SKILL.md\`](../SKILL.md) before any component on this page.** Nothing here restates them, so
-a screen built from this page alone breaks the rules where nothing will report it.
+[\`../skills/design/SKILL.md\`](../skills/design/SKILL.md) before any component on this page.**
+Nothing here restates them, so a screen built from this page alone breaks the rules where nothing
+will report it.
 
 | Layer | Index | Package |
 |---|---|---|
@@ -135,10 +136,10 @@ category's index for what the component takes, and its own prompt for how to wri
 components are named here rather than described so that finding yours costs one page instead of
 a guess.
 
-**Read [\`../../SKILL.md\`](../../SKILL.md) before you write anything from here.** It carries the
-one thing no page below it does: the rules of the language, which hold in your code because you
-hold them and which no gate reads your application to enforce. A screen built from this tree alone
-breaks them where nothing will report it.
+**Read [\`../../skills/design/SKILL.md\`](../../skills/design/SKILL.md) before you write anything
+from here.** It carries the one thing no page below it does: the rules of the language, which hold
+in your code because you hold them and which no gate reads your application to enforce. A screen
+built from this tree alone breaks them where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`PACKAGE.md\`](./PACKAGE.md).
@@ -155,8 +156,8 @@ Every ${category} component this layer ships, under the names it binds them to. 
 index, not a manual.** How to write one is its own prompt, linked in the last column.
 
 **The rules every component below answers to are stated in
-[\`../../../../SKILL.md\`](../../../../SKILL.md) before any component here**, and nothing on this
-page restates them.
+[\`../../../../skills/design/SKILL.md\`](../../../../skills/design/SKILL.md) before any component
+here**, and nothing on this page restates them.
 
 Import from the package root, never from a path inside it:
 

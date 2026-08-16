@@ -147,13 +147,13 @@ test('the directory names every component the layer ships, so no category has to
 
 test('no index is an entry point, so every one names the router above it', () => {
   assert.ok(
-    renderIndex().includes('](../SKILL.md)'),
+    renderIndex().includes('](../skills/design/SKILL.md)'),
     'the layer-neutral index does not name the router, so a reader landing here has no path to the '
       + 'the rules',
   );
   for (const layer of CONSUMER_LAYERS) {
     assert.ok(
-      renderLayerIndex(layer).includes('](../../SKILL.md)'),
+      renderLayerIndex(layer).includes('](../../skills/design/SKILL.md)'),
       `the ${layer} index does not name the router`,
     );
   }

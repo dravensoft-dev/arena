@@ -9,8 +9,9 @@ layer's index and then the component's own prompt, and reading this page first b
 you already know what you are reaching for.
 
 **The rules of the language every component below answers to are stated in
-[`../SKILL.md`](../SKILL.md) before any component on this page.** Nothing here restates them, so
-a screen built from this page alone breaks the rules where nothing will report it.
+[`../skills/design/SKILL.md`](../skills/design/SKILL.md) before any component on this page.**
+Nothing here restates them, so a screen built from this page alone breaks the rules where nothing
+will report it.
 
 | Layer | Index | Package |
 |---|---|---|

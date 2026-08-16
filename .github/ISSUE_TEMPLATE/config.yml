@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/dravensoft-dev/arena/blob/main/SECURITY.md
     about: A vulnerability goes through private reporting and never through an issue.
   - name: Building something with Arena
-    url: https://github.com/dravensoft-dev/arena/blob/main/SKILL.md
+    url: https://github.com/dravensoft-dev/arena/blob/main/skills/design/SKILL.md
     about: The router an agent or a developer reads first, before asking.

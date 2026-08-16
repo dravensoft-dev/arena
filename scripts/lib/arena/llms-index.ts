@@ -16,7 +16,7 @@ import { DOMAIN, LAYERS } from './site-pages.ts';
 
 export const LLMS_INDEX = 'llms.txt';
 export const PROMPT_SUFFIX = '.prompt.md';
-export const ROUTER = 'SKILL.md';
+export const ROUTER = 'skills/design/SKILL.md';
 export const INDEX = 'INDEX.md';
 export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
@@ -29,10 +29,16 @@ export function docUrl(rel: string) {
   return `https://${DOMAIN}/${rel.split('/').map(encodeURIComponent).join('/')}`;
 }
 
+export const QUOTED = /^(["'])([\s\S]*)\1$/;
+
+export function unquote(value: string) {
+  return QUOTED.exec(value)?.[2] ?? value;
+}
+
 export function summary(base = root) {
   const text = readFileSync(join(base, ROUTER), 'utf8');
   const front = FRONTMATTER.exec(text)?.[1] ?? '';
-  return DESCRIPTION.exec(front)?.[1]?.trim() ?? '';
+  return unquote(DESCRIPTION.exec(front)?.[1]?.trim() ?? '');
 }
 
 export function under(layer: string, base: string, keep: (rel: string) => boolean) {
@@ -95,7 +101,7 @@ export function index(base = root) {
   for (const layer of LAYERS) {
     const title = layer.charAt(0).toUpperCase() + layer.slice(1);
     lines.push(`## ${title}`, '');
-    lines.push(`- [Layer index](${docUrl(`frameworks/${layer}/${ROUTER}`)}): every component under this framework's own names.`);
+    lines.push(`- [Layer index](${docUrl(`frameworks/${layer}/${INDEX}`)}): every component under this framework's own names.`);
     lines.push(`- [Install and configure](${docUrl(`frameworks/${layer}/PACKAGE.md`)}): the package, \`arena.config.json\`, and what the CLI writes.`);
     lines.push(`- [Everything above and every component document, in one file](https://${DOMAIN}/${layerFile(layer)}): the whole ${title} corpus, and nothing from the other layer.`);
     for (const rel of categoryIndexes(layer, base)) {

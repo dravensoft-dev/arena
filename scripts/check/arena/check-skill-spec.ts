@@ -5,9 +5,9 @@
  * skill: it is a broken one to every scanner that globs for the name, and the npm convention
  * globs for one a level inside a skills directory anywhere under a dependency tree. The subject
  * is what git tracks, since the plugin is served from the tag where nothing runs a build and a
- * file outside the index reaches no reader. HARNESS_KEYS carries every key
- * the standard does not define, with its reason, and a stale entry fails the way every
- * reason-carrying map here does. */
+ * file outside the index reaches no reader. HARNESS_KEYS is empty, and the emptiness is the
+ * claim: a key the harness reads and the standard refuses costs every client that validates, and
+ * the one this skill carried set a field to the value it already defaults to. */
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -15,7 +15,7 @@ import { basename, dirname, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { FRONTMATTER } from '../../lib/arena/llms-index.ts';
+import { FRONTMATTER, unquote } from '../../lib/arena/llms-index.ts';
 
 export const SKILL = 'SKILL.md';
 
@@ -23,12 +23,7 @@ export const SPEC_KEYS = [
   'name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools',
 ];
 
-export const HARNESS_KEYS = new Map([
-  ['user-invocable',
-   'what makes the skill reachable as a slash command in the harness that installs this repository '
-   + 'as a plugin. The standard defines no field for it, and moving it under metadata loses it, '
-   + 'since a client reads metadata as opaque strings it does not act on.'],
-]);
+export const HARNESS_KEYS = new Map<string, string>([]);
 
 export const MAX_NAME = 64;
 export const MAX_DESCRIPTION = 1024;
@@ -105,6 +100,15 @@ export function descriptionProblems(path: string, description: string) {
     : [];
 }
 
+export function scalarProblems(path: string, values: Map<string, string>) {
+  return [...values]
+    .filter(([, value]) => value.length > 0 && unquote(value) === value && value.includes(': '))
+    .map(([key]) => `${path}: ${JSON.stringify(key)} is an unquoted value carrying a colon and a `
+      + 'space, which ends a plain scalar and reads the rest as a mapping. The frontmatter does '
+      + 'not parse as YAML, and a client that validates it refuses the whole file rather than the '
+      + 'one field: quote the value');
+}
+
 export function keyProblems(path: string, keys: string[]) {
   return keys
     .filter((key) => !SPEC_KEYS.includes(key) && !HARNESS_KEYS.has(key))
@@ -139,9 +143,10 @@ export function collect(base = root, paths = trackedSkills(base)) {
   if (front === null) return problems;
   return [
     ...problems,
-    ...nameProblems(path, front.values.get('name') ?? ''),
-    ...descriptionProblems(path, front.values.get('description') ?? ''),
+    ...nameProblems(path, unquote(front.values.get('name') ?? '')),
+    ...descriptionProblems(path, unquote(front.values.get('description') ?? '')),
     ...keyProblems(path, front.keys),
+    ...scalarProblems(path, front.values),
     ...staleHarnessProblems(front.keys),
     ...bodyProblems(path, front.body),
   ];

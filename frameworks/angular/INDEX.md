@@ -8,10 +8,10 @@ category's index for what the component takes, and its own prompt for how to wri
 components are named here rather than described so that finding yours costs one page instead of
 a guess.
 
-**Read [`../../SKILL.md`](../../SKILL.md) before you write anything from here.** It carries the
-one thing no page below it does: the rules of the language, which hold in your code because you
-hold them and which no gate reads your application to enforce. A screen built from this tree alone
-breaks them where nothing will report it.
+**Read [`../../skills/design/SKILL.md`](../../skills/design/SKILL.md) before you write anything
+from here.** It carries the one thing no page below it does: the rules of the language, which hold
+in your code because you hold them and which no gate reads your application to enforce. A screen
+built from this tree alone breaks them where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
   [`PACKAGE.md`](./PACKAGE.md).

@@ -27,7 +27,7 @@ import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/aren
 export const node = {
   name: 'build:site',
   reads: [
-    'SKILL.md', 'frameworks/**/INDEX.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
+    'skills/design/SKILL.md', 'frameworks/**/INDEX.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'plugin-style-store/**/plugin.css',

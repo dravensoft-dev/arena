@@ -21,7 +21,7 @@ import { ignoredRoots } from './check-citations.ts';
 
 export const node = {
   name: 'check:community',
-  reads: ['CONTRIBUTING.md', 'SECURITY.md', 'SKILL.md', 'context7.json', '.github/**'],
+  reads: ['CONTRIBUTING.md', 'SECURITY.md', 'skills/design/SKILL.md', 'context7.json', '.github/**'],
   writes: [],
   feeds: [],
 };
@@ -32,7 +32,7 @@ export const CONFIG = '.github/ISSUE_TEMPLATE/config.yml';
 export const CONTRIBUTING = 'CONTRIBUTING.md';
 export const SECURITY = 'SECURITY.md';
 export const CONTEXT7 = 'context7.json';
-export const ROUTER = 'SKILL.md';
+export const ROUTER = 'skills/design/SKILL.md';
 
 export const OUTWARD = new Map([
   [CONTRIBUTING,

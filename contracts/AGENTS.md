@@ -231,6 +231,6 @@ top.
 
 **At the root**
 
-- `SKILL.md`: the plugin-root Agent Skill, also usable standalone.
+- `skills/design/`: the Agent Skill the plugin registers, also usable standalone.
 - `.claude-plugin/`: the Claude Code plugin manifest and marketplace catalog.
 - `DOUBTS.md`: what counts as a debt in Arena, and where the records live.
