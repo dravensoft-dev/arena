@@ -69,16 +69,41 @@ through your dark theme.
 ## What an answer may be
 
 - **A scale alias**, `{r.xs}`, `{sp.4}`, `{fw.bold}`, `{dur.fast}`, `{ease.out}`. This is the
-  ordinary answer. The scales are the shared repertoire, catalogued in
-  [`../../../contracts/design/Scales.md`](../../../contracts/design/Scales.md).
+  ordinary answer.
 - **A `{color.*}` alias**, for every colour role.
 - **A literal**, where the scale has nothing you want: `{ "value": 920, "unit": "px" }`, or a bare
-  number for a ratio such as `press-scale`.
-- **A unit the type does not carry**, through `$extensions`:
+  number for a ratio such as `press-scale`. **Two of the loudest decisions need one**, because the
+  scale has no step for them: a square corner is `{ "value": 0, "unit": "px" }`, and no shadow at
+  all is a shadow object whose every length is zero and whose colour is fully transparent.
+- **A unit the type does not carry**, through `$extensions`. Four roles need it and the rest do
+  not: `track-heading`, `track-eyebrow` and `track-label` take `em`, and `measure-prose` takes
+  `ch`. A tracking role that forgets it emits a bare number, which is not a valid letter spacing,
+  and the declaration silently resolves to `normal`.
   ```json
   "measure-prose": { "$type": "number", "$value": 86,
     "$extensions": { "com.dravensoft.arena": { "cssUnit": "ch" } } }
   ```
+
+**The type of a role does not tell you which scale its answer comes from**, so here is the map. A
+`dimension` role draws from four different places depending on what it is for:
+
+| Roles | Scale | Where the steps are |
+|---|---|---|
+| `r-*` | `r` | [`effects.json`](../../../contracts/design/effects.json) |
+| `bw-*` | `bw` and `bw-strong`, a pair rather than a ladder, so the alias carries no step | the same |
+| `shadow-*` | `shadow` | the same |
+| `dur-*`, `ease-*` | `dur`, `ease` | the same |
+| `pad-*`, `gap-*`, `gutter` | `sp` | [`spacing.json`](../../../contracts/design/spacing.json) |
+| `step-eyebrow` | `dz` | the same |
+| `fw-*` | `fw` | [`typography.json`](../../../contracts/design/typography.json) |
+| `ff-*` | `font`, which resolves to the families your config declares | the same |
+| `track-*` | `ls` | the same |
+| `lh-*` | `lh` | the same |
+| `step-title-*` | `fs` | the same |
+| `container-max`, `grid-min`, `measure-prose`, `lift-control`, `press-scale`, `aspect-media` | none | a literal is the only answer |
+
+[`Scales.md`](../../../contracts/design/Scales.md) beside them is the reasoning for the ladders
+that have one, which is not all of them.
 
 **What an answer may never be is a scale itself.** A scale step is shared by every use that wants
 that value, so moving one is not a style plugin but a different Arena. The type and page-rhythm
@@ -103,11 +128,17 @@ identically**, and a plugin that spends its first day on them spends it on nothi
 | `ink-eyebrow` | `{color.neutral-content}` |
 | every `edge-*` role | `{color.base-300}` |
 | `ff-heading`, `ff-eyebrow`, `ff-label` | the three fonts the config declares |
-| `lh-heading`, `shadow-surface-rest`, `dur-hover`, `ease-hover` | the same step each time |
+| `lh-heading`, `dur-hover`, `ease-hover` | one step each, the same one every time |
+| `shadow-surface-rest` | no shadow, written as the all-zero literal |
 
 **Colour assignment is very nearly a constant.** The products look nothing like each other, and
-almost none of that difference is which colour a surface takes. Take the defaults, and let your
-palette do the work a palette does.
+almost none of that difference is which colour a surface takes. **Start from the answers in this
+table**, which is what four brands independently converged on, and let your palette do the work a
+palette does.
+
+Those are not the answers the appearance Arena installs with gives. That one is a design of its
+own and assigns several of these differently, so it is a plugin to read rather than a baseline to
+inherit: a plugin you write answers every role itself, and nothing is inherited from it.
 
 **These are where a product lives.** Each of the four gave a different answer:
 
@@ -130,7 +161,12 @@ colours changes the least and costs the most to undo.
 ## The part hooks
 
 Every element drawing a slot carries `data-arena-part="<component>.<slot>"`, and that is what your
-`plugin.css` selects. **You never write `@layer`**: the build wraps your sheet in a reserved layer
+`plugin.css` selects. **The hook is an attribute on the element, so the page you are looking at is
+the list**: serve the application, inspect the element you want to paint, and take the value.
+Nothing enumerates the hooks in prose, and a name guessed from a component's member list is a
+selector that matches nothing and reports nothing.
+
+**You never write `@layer`**: the build wraps your sheet in a reserved layer
 declared after the compiled component rules, so an ordinary selector wins with no `!important`
 anywhere, and the sheet restates the layer order at its own head so a bundler cannot reorder it
 into losing every contest silently.
@@ -182,8 +218,19 @@ Stated so you can plan around it rather than discover it.
 
 ## The loop
 
-No gate reads your application, so this is the whole of the automatic signal, and the last step is
-the one that checks the thing you care about.
+**Some of this is refused rather than reported, and knowing which is which saves you an
+afternoon.** A role left unanswered by the root plugin, a value of the wrong type, a colour role
+answered with anything but a `{color.*}` alias, an alias that resolves to nothing, and a broken
+reading floor are all **hard failures of the plain command**: it writes nothing and exits non-zero.
+Everything the audit says is a **report**, and stays one until you pass `--strict`.
+
+The reading floors are the trap in that list, because an ordinary-looking scale step can break one.
+Prose leading holds at 1.5 or more, heading leading at 1 or more, and the prose measure between 45
+and 90. `{lh.tight}` is a perfectly normal step of the leading scale and it is under the heading
+floor, so answering `lh-heading` with it refuses the build.
+
+Beyond those, no gate reads your application, so the last step is the only one that checks the
+thing you care about.
 
 - [ ] Answer every role in `plugin.tokens.json`, starting with the shapes.
 - [ ] Run `bunx arena-to-prod --src src --src design --audit`. Passing your plugin directory as a

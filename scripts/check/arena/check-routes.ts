@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 42_000,
+    budget: 43_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -85,14 +85,18 @@ export const ROUTES: Route[] = [
       + 'question table gained the three rows the kernel answers: this route and the build route '
       + 'share the router, so a project that has to decide its appearance before the first screen '
       + 'pays for those rows here too. Most of what they cost was bought back out of the paragraph '
-      + 'that used to describe a style plugin on the router, which the kernel document owns now.',
+      + 'that used to describe a style plugin on the router, which the kernel document owns now. '
+      + 'Raised again when a cold agent walked this route and reported that the page taught it the '
+      + 'skin is a palette and three fonts: it would have shipped somebody else\'s appearance with '
+      + 'its own colours in it and believed that was the job, so the section says what a palette '
+      + 'is not and names where the decision is made.',
   },
   {
     name: 'consumer-skin',
     who: 'a project deciding what Arena looks like in their product: the router, then the kernel '
       + 'document that says what the questions are and which answers carry the difference',
     stops: ['skills/design/SKILL.md', 'skills/design/references/style-kernel.md'],
-    budget: 24_000,
+    budget: 27_500,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -100,7 +104,13 @@ export const ROUTES: Route[] = [
       + 'gates and links a contributor roof, which is where four products learned it. The number is '
       + 'what the stops measure with room for the kernel to grow a section, and it moves when the '
       + 'kernel grows a question rather than when the document grows a paragraph: the differentiation '
-      + 'table is a measurement over consumer benches, so it grows by remeasuring and not by writing.',
+      + 'table is a measurement over consumer benches, so it grows by remeasuring and not by '
+      + 'writing. Raised from 24,000 by what a cold agent could not answer from it: which scale '
+      + 'each role draws from, since the type does not say and one type covers four scales; that '
+      + 'a reading floor refuses the build rather than reporting; and that the loudest two '
+      + 'decisions a brand makes, a square corner and no shadow, have no step to alias. Every one '
+      + 'of those was a guess it had to make, and a route that costs less by leaving them out '
+      + 'costs more the first time somebody walks it.',
   },
   {
     name: 'contributor-component',

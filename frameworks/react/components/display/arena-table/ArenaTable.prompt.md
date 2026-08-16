@@ -140,10 +140,10 @@ Serve the tree with `bun run demos`, open
 Both are **controlled**, and for the same reason: `ArenaTable` does not hold the rows, so it
 cannot order them and cannot cut them. It draws the affordance and tells you what was asked.
 
-```html
-<ArenaTable label="Recent deployments" [columns]="columns"
-             [sort]="sort()" (sortChange)="sort.set($event)"
-             [page]="page()" (pageChange)="goTo($event)">
+```tsx
+<ArenaTable label="Recent deployments" columns={columns}
+            sort={sort} onSortChange={setSort}
+            page={page} onPageChange={goTo}>
 ```
 
 Mark a column `sortable: true` and pass `sort`. Without `sort` no header is a target however
@@ -155,7 +155,7 @@ column and which way.
 
 **Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort`
 bound and at least one `sortable` column, card mode draws one compact select above the cards,
-listing every sortable column in each direction, and it reports through the same `sortChange`
+listing every sortable column in each direction, and it reports through the same `onSortChange`
 the header does. Set it to `none` for a table whose order is the document's rather than the
 reader's. The header row does **not** come back below the breakpoint: card mode exists for the
 one reason a grid does not fit.
@@ -184,7 +184,7 @@ because the rows you project are one page and nothing about the whole list can b
 them. ArenaTable draws its own `ArenaPagination` below the grid and names it from `label`, which is
 what makes two paged tables on one dashboard tellable apart.
 
-The one thing ArenaTable emits on its own is `pageChange` with 1, when the total drops far enough
+The one thing ArenaTable emits on its own is `onPageChange` with 1, when the total drops far enough
 that the current page is **past the end**. It is bounded: a filter that leaves the page valid is
 silent, so nothing loops.
 

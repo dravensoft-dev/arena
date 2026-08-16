@@ -114,6 +114,12 @@ that renders none owes you no warning, because that element was never something 
 
 ## Declare your skin
 
+**A palette is not an appearance.** Arena keeps 72 questions about shape, space, weight and depth,
+and the answers are a style plugin your project writes: the config below decides which colours a
+surface takes and none of how round, how tight or how heavy the product is. That decision is paid
+once per project and belongs before the first screen, and
+`skills/design/references/style-kernel.md` in the repository is where it is made.
+
 Write `arena.config.json` in your project root. This is the whole file, with one palette and
 three fonts served by Google Fonts, and it is enough to start:
 
@@ -182,8 +188,8 @@ What each part means:
   `{ "family": "Archivo", "src": "/fonts/archivo.woff2", "weight": "400 900" }`.
 - **`stylesheet`** is optional and names what you render, so you send nothing else. See
   Build to production, below.
-- **`stylePlugins`** is optional and names the appearance. It is a list, because a build can
-  carry more than one register, and the first entry is what a page with no class on it looks
+- **`stylePlugins`** names the appearance, and it is optional only in the sense that leaving it
+  out keeps somebody else's. It is a list, because a build can carry more than one register, and the first entry is what a page with no class on it looks
   like; every later one emits under `.arena-<name>` and is a difference. An entry is the word
   `default`, which is the appearance this package installs with, or a path to a directory of
   your own holding `plugin.tokens.json` and optionally `plugin.css`. The first entry answers
