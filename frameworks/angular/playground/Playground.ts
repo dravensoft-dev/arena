@@ -45,9 +45,9 @@ import { PlaygroundStore } from './PlaygroundState';
               }
               @case ('select') {
                 <select [id]="'knob-' + knob.member" class="pg-field" [disabled]="!bound(knob)"
-                  [value]="text(held(knob))" (change)="pick(knob, value($event))">
+                  (change)="pick(knob, value($event))">
                   @for (option of knob.options ?? []; track option) {
-                    <option [value]="option">{{ option }}</option>
+                    <option [value]="option" [selected]="text(held(knob)) === text(option)">{{ option }}</option>
                   }
                 </select>
               }
@@ -70,10 +70,11 @@ import { PlaygroundStore } from './PlaygroundState';
                     <label class="pg-check">
                       <span class="pg-knob-form">{{ field.name }}</span>
                       @if (field.options) {
-                        <select class="pg-field" [value]="text(fieldOf(knob, field))"
+                        <select class="pg-field"
                           (change)="writeField(knob, field, optionFor(field.options, value($event)))">
                           @for (option of field.options; track option) {
-                            <option [value]="option">{{ option }}</option>
+                            <option [value]="option"
+                              [selected]="text(fieldOf(knob, field)) === text(option)">{{ option }}</option>
                           }
                         </select>
                       } @else if (field.type === 'boolean') {
