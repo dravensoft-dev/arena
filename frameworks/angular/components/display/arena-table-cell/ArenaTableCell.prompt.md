@@ -16,6 +16,8 @@ it.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `content` | slot |  |  | What the cell shows: a value, or one of Arena's own components, such as an ArenaBadge for a status or an ArenaButton for an action. This is what the compound shape exists for. The consumer instantiates one element per cell, so nothing here is per-item projection. |
+| `href` | primitive | `string` |  | Present => the cell draws an <a> around its content, inside its own box, which is where HTML admits one and why this member is the cell's rather than the row's: an anchor wrapping a row would break the row/cell structure the grid is made of, and may not contain the button a cell's own contract invites. It carries the settled anchor convention rather than restating it, the fifth member to do so after ArenaCard.href, ArenaCommand.route, ArenaCrumb.href and ArenaSideNavItem.href: a primary click with no modifier is cancelled and reported through `navigate`, so a router owns it, and ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing. The anchor is a tab stop of its own, which is the answer this table already gives for a control a consumer puts in a cell, so it is one Tab from the cell rather than a step-in the grid does not have. Inside a row carrying `interactive` the anchor wins and the row does not fire, because a press that lands on a control inside the row was never the row's. It survives both shapes: below --bp-md the anchor is still an anchor and does not compete with the row's role="button", by the same predicate. |
+| `navigate` | event |  |  | The cell's anchor was activated by the one activation a router owns, a primary click with no modifier, and Arena has already cancelled the anchor's own navigation by the time it fires; a modified click, a middle click and a context menu are the browser's and do not fire it at all. No payload, because the consumer wrote this element and already holds what it is about, the same shape as ArenaTableRow.click. It is `navigate` rather than a `click` because the cell has no other activation to report: with no `href` there is no anchor, and an event that only ever fires for one member is named after what that member does. |
 
 <!-- @api end -->
 
@@ -35,6 +37,33 @@ it.
   `ArenaTable.prompt.md` is the standing check.
 - Don't use it outside an `arena-table-row`. It injects that row's state, so outside one it
   is a DI error rather than a cell that quietly renders wrong.
+
+### `href` makes the cell a real destination, and the row keeps its own
+
+`href` draws an `<a>` around the cell's content, inside the cell box. That is the one place HTML
+admits it: an anchor around the whole row would break the row and cell structure the grid is made
+of, and an anchor may not contain the `arena-button` a cell's own contract invites into it.
+
+```html
+<td arena-table-cell [href]="'/ventas/' + v.id" (navigate)="router.navigate(['/ventas', v.id])">
+  {{ v.number }}
+</td>
+```
+
+It carries the anchor convention the four members before it carry, and does not restate it: a
+**primary click with no modifier** is cancelled and reported through `(navigate)`, so your router
+owns it; ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report
+nothing at all, because the reader asked for a new tab or for the address.
+
+**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** That is not a
+special case written for this member: it is the same rule the row already applies to a checkbox or a
+button you put in a cell, that a press landing on a control inside the row was never the row's. So a
+table can have a link in its first column and a clickable row under it, and one press runs one
+destination. A cell with no `href` in the same row still activates it.
+
+**The anchor is a tab stop of its own**, one Tab from the cell rather than a step-in the grid does
+not have, which is the answer this table already gives for any control you draw in a cell. The
+grid's `Enter` is the cell's and still activates the row; the anchor's `Enter` is the anchor's.
 
 ### What is shared, and therefore not yours
 
