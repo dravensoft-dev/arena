@@ -12,9 +12,11 @@ import { readFileSync, existsSync, lstatSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
+import { readJson } from '../../utils/read-file.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { FRONTMATTER } from '../../lib/arena/llms-index.ts';
+import { BUN_RUN } from './check-vocabulary.ts';
 
 export const ROOT = 'AGENTS.md';
 export const CONVENTION = 'https://agents.md';
@@ -27,8 +29,6 @@ export const DEPARTURES = new Map<string, string>([
    + `${COMPANION} is the only file a harness loading one name and nothing else reads, so it `
    + 'carries the choice between them and no rule of its own.'],
 ]);
-
-const COMMAND = /\bbun run ([a-z][a-z0-9-]*(?::[a-z0-9-]+)*)/g;
 
 export function trackedPages(base = root) {
   const git = hostBinary('git', 'to read what the tree tracks, since a page outside the index '
@@ -72,7 +72,7 @@ export function frontmatterProblems(path: string, text: string) {
 }
 
 export function commandProblems(text: string, scripts: Record<string, string>) {
-  const named = [...text.matchAll(COMMAND)].map((match) => match[1] ?? '');
+  const named = [...text.matchAll(BUN_RUN)].map((match) => match[1] ?? '');
   return entryPoints(scripts)
     .filter((entry) => !named.includes(entry))
     .map((entry) => `${ROOT} names no \`bun run ${entry}\`, and ${CONVENTION} says an agent runs `
@@ -87,8 +87,8 @@ export function madeDepartures(base = root) {
 
 export function undeclaredDepartureProblems(made: string[]) {
   return made
-    .filter((made) => !DEPARTURES.has(made))
-    .map((made) => `${made} departs from ${CONVENTION} and DEPARTURES declares no reason for it. A `
+    .filter((name) => !DEPARTURES.has(name))
+    .map((name) => `${name} departs from ${CONVENTION} and DEPARTURES declares no reason for it. A `
       + 'departure nobody recorded is one the next reader repairs.');
 }
 
@@ -100,14 +100,13 @@ export function staleDepartureProblems(made: string[]) {
 }
 
 export function collect(base = root, paths = trackedPages(base)) {
-  const zero = zeroPageProblems(paths);
+  const zero = [...zeroPageProblems(paths), ...rootProblems(paths)];
   if (zero.length > 0) return zero;
-  const scripts = JSON.parse(readFileSync(join(base, 'package.json'), 'utf8')).scripts ?? {};
+  const scripts = readJson(join(base, 'package.json')).scripts ?? {};
   const entries = zeroEntryProblems(entryPoints(scripts));
   if (entries.length > 0) return entries;
   const made = madeDepartures(base);
   return [
-    ...rootProblems(paths),
     ...paths.flatMap((path) => frontmatterProblems(path, readFileSync(join(base, path), 'utf8'))),
     ...commandProblems(readFileSync(join(base, ROOT), 'utf8'), scripts),
     ...undeclaredDepartureProblems(made),
