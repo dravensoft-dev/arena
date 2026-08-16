@@ -13,6 +13,8 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ArenaHeadingLevel } from '../Api.generated';
 import { assertNoNode } from '../test/NodeAssert';
+import { ArenaPageHead } from './navigation/arena-page-head/ArenaPageHead';
+import { ArenaHero } from './layout/arena-hero/ArenaHero';
 import { ArenaCard } from './display/arena-card/ArenaCard';
 import { ArenaUnauthCard } from './display/arena-unauth-card/ArenaUnauthCard';
 import { ArenaChartCard } from './charts/arena-chart-card/ArenaChartCard';
@@ -21,13 +23,15 @@ import { ArenaBoardColumn } from './layout/arena-board-column/ArenaBoardColumn';
 import { ArenaEmptyState } from './feedback/arena-empty-state/ArenaEmptyState';
 import { ArenaErrorState } from './feedback/arena-error-state/ArenaErrorState';
 
-const LADDER = [ArenaCard, ArenaUnauthCard, ArenaChartCard, ArenaSection,
-                ArenaBoardColumn, ArenaEmptyState, ArenaErrorState];
+const LADDER = [ArenaPageHead, ArenaHero, ArenaCard, ArenaUnauthCard, ArenaChartCard,
+                ArenaSection, ArenaBoardColumn, ArenaEmptyState, ArenaErrorState];
 
 @Component({
   standalone: true,
   imports: LADDER,
   template: `
+    <arena-hero title="Hero" [headingLevel]="level()" />
+    <arena-page-head title="Page" [headingLevel]="level()" />
     <arena-section title="Section" [headingLevel]="level()"><p>Body</p></arena-section>
     <arena-card title="Card" [headingLevel]="level()" />
     <arena-chart-card title="Chart" [headingLevel]="level()" />
@@ -54,10 +58,12 @@ test('every title takes its own rung of the ladder when nobody says otherwise', 
   const fixture = TestBed.createComponent(LadderHost);
   try {
     fixture.detectChanges();
-    assert.deepEqual(outline(fixture.nativeElement as Element), [
-      'h2:Section', 'h3:Card', 'h3:Column', 'h3:Empty', 'h3:Error', 'h2:Unauth',
-    ], 'the default outline IS the title ladder: a section over the card register, and a chart '
-     + 'card taking no rung at all because a grid of tiles is not a hierarchy');
+    const host = fixture.nativeElement as Element;
+    assert.deepEqual(outline(host), [
+      'h1:Hero', 'h1:Page', 'h2:Section', 'h3:Card', 'h3:Column', 'h3:Empty', 'h3:Error', 'h2:Unauth',
+    ], 'the default outline IS the title ladder: two page titles each certain it is the only '
+     + 'one, a section over the card register, and a chart card taking no rung at all because '
+     + 'a grid of tiles is not a hierarchy');
   } finally { fixture.destroy(); }
 });
 
@@ -72,7 +78,8 @@ test('a level moves the element and nothing else', () => {
     fixture.detectChanges();
 
     assert.deepEqual(outline(host), [
-      'h4:Section', 'h4:Card', 'h4:Chart', 'h4:Column', 'h4:Empty', 'h4:Error', 'h4:Unauth',
+      'h4:Hero', 'h4:Page', 'h4:Section', 'h4:Card', 'h4:Chart',
+      'h4:Column', 'h4:Empty', 'h4:Error', 'h4:Unauth',
     ], 'every component on the ladder answers the member, the chart card included');
     assert.deepEqual(titleClasses(host), before,
       'a rung may not reach the class, or the member is a styling surface and a style plugin '
@@ -108,10 +115,45 @@ class OptionalHost {}
 
 @Component({
   standalone: true,
+  imports: [ArenaHero, ArenaPageHead],
+  template: `
+    <arena-hero title="Hero" />
+    <arena-page-head title="Page" headingLevel="h2" />
+  `,
+})
+class TopRungHost {}
+
+test('a page carrying both page titles has one h1, and the ladder says which yields', () => {
+  const fixture = TestBed.createComponent(TopRungHost);
+  try {
+    fixture.detectChanges();
+    const host = fixture.nativeElement as Element;
+    assert.deepEqual(outline(host), ['h1:Hero', 'h2:Page'],
+      'the hero is the rung above the page head, so the hero keeps the page\'s one h1 and the '
+      + 'page head is what steps down. Neither reads the page to find that out');
+  } finally { fixture.destroy(); }
+});
+
+@Component({
+  standalone: true,
   imports: [ArenaSection],
   template: '<arena-section title="Section" headingLevel="none"><p>Body</p></arena-section>',
 })
 class SectionNoneHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaHero],
+  template: '<arena-hero title="Hero" headingLevel="none" />',
+})
+class HeroNoneHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaPageHead],
+  template: '<arena-page-head title="Page" headingLevel="none" />',
+})
+class PageHeadNoneHost {}
 
 @Component({
   standalone: true,
@@ -127,7 +169,8 @@ class ColumnNoneHost {}
 })
 class EmptyNoneHost {}
 
-for (const [name, host] of [['ArenaSection', SectionNoneHost], ['ArenaBoardColumn', ColumnNoneHost],
+for (const [name, host] of [['ArenaHero', HeroNoneHost], ['ArenaPageHead', PageHeadNoneHost],
+                            ['ArenaSection', SectionNoneHost], ['ArenaBoardColumn', ColumnNoneHost],
                             ['ArenaEmptyState', EmptyNoneHost]] as [string, unknown][]) {
   test(`${name} refuses none, because its title is required`, () => {
     const fixture = TestBed.createComponent(host as never);

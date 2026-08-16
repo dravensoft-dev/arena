@@ -8,6 +8,8 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import type { ArenaHeadingLevel } from '../Api.generated';
+import { ArenaPageHead } from './navigation/arena-page-head/ArenaPageHead.tsx';
+import { ArenaHero } from './layout/arena-hero/ArenaHero.tsx';
 import { ArenaCard } from './display/arena-card/ArenaCard.tsx';
 import { ArenaUnauthCard } from './display/arena-unauth-card/ArenaUnauthCard.tsx';
 import { ArenaChartCard } from './charts/arena-chart-card/ArenaChartCard.tsx';
@@ -25,6 +27,10 @@ interface Rung {
 }
 
 const LADDER: Rung[] = [
+  { name: 'ArenaHero', text: 'Hero', rung: 'h1', refusesNone: true,
+    draw: (headingLevel) => <ArenaHero title="Hero" headingLevel={headingLevel} /> },
+  { name: 'ArenaPageHead', text: 'Page', rung: 'h1', refusesNone: true,
+    draw: (headingLevel) => <ArenaPageHead title="Page" headingLevel={headingLevel} /> },
   { name: 'ArenaSection', text: 'Section', rung: 'h2', refusesNone: true,
     draw: (headingLevel) => <ArenaSection title="Section" headingLevel={headingLevel}><p>Body</p></ArenaSection> },
   { name: 'ArenaCard', text: 'Card', rung: 'h3', refusesNone: false,
@@ -65,6 +71,15 @@ test('a level moves the element and nothing else', () => {
       `${name}: a rung may not reach the class, or the member is a styling surface and a style `
       + 'plugin no longer owns the register a title is drawn in');
   }
+});
+
+test('a page carrying both page titles has one h1, and the ladder says which yields', () => {
+  const html = renderToStaticMarkup(
+    <><ArenaHero title="Hero" /><ArenaPageHead title="Page" headingLevel="h2" /></>,
+  );
+  assert.deepEqual(headings(html), ['h1:Hero', 'h2:Page'],
+    'the hero is the rung above the page head, so the hero keeps the page\'s one h1 and the '
+    + 'page head is what steps down. Neither reads the page to find that out');
 });
 
 test('none takes a title out of the outline, or is refused where the title is required', () => {

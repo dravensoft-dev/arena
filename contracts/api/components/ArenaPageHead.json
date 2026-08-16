@@ -5,6 +5,8 @@
   "api": {
     "title": { "form": "primitive", "type": "string", "required": true,
                "description": "The page title. Required: a page head with no title is a bug, not a state." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h1",
+                      "description": "Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h1` because a page head is the page's own title and the screen it heads carries no other. Under a hero, the one rung above it on the title ladder, it takes `h2` and leaves the page's single `h1` to the hero; that is the one arrangement where the default is wrong, and it is a member rather than something read off the page, because what a component renders is never derived from what sits above it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one." },
     "subtitle": { "form": "primitive", "type": "string",
                   "description": "A muted line under the title." },
     "actions": { "form": "slot",

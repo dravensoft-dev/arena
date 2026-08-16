@@ -2,12 +2,15 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaHero.classes.generated.ts';
 
-import type { ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
+import type { ArenaHeadingLevel, ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
 
 export interface ArenaHeroProps {
 
   /** The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   title: string;
+
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h1` because a hero opens the page it sits on and a landing page carries no other title. A page carrying a hero AND a page head has two candidates for one rung, and the ladder settles which yields rather than the markup order: the hero is the rung above, so it keeps the `h1` and the page head is what steps down. Nothing here reads the page to work that out, because what a component renders is never derived from what sits above it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  headingLevel?: ArenaHeadingLevel;
 
   /** A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */
   eyebrow?: string;
@@ -40,11 +43,15 @@ const alignOf = (align: string | undefined): ArenaHeroAlign =>
 const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
 
 export function ArenaHero({
-  title, eyebrow, lede, actions, figure, layout = 'split', align = 'start',
+  title, headingLevel = 'h1', eyebrow, lede, actions, figure, layout = 'split', align = 'start',
 }: ArenaHeroProps) {
   if (!title?.trim()) {
     throw new Error('ArenaHero: `title` is required, and names the page it opens');
   }
+  if (headingLevel === 'none') {
+    throw new Error('ArenaHero: `headingLevel` cannot be none, because `title` is required and is the line the page is built around');
+  }
+  const Heading = headingLevel;
   const chosen = layoutOf(layout);
   const styles = arenaHeroStyles({ layout: chosen, align: alignOf(align) });
   const tracks = chosen === 'split'
@@ -55,7 +62,7 @@ export function ArenaHero({
     <section className={styles.root()} data-arena-part={manifest.parts.root} style={{ gridTemplateColumns: tracks }}>
       <div className={styles.words()} data-arena-part={manifest.parts.words}>
         {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</p>}
-        <h1 className={styles.title()} data-arena-part={manifest.parts.title}>{title}</h1>
+        <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
         {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede}>{lede}</p>}
         {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
       </div>
