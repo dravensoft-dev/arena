@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 43_000,
+    budget: 44_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -89,7 +89,11 @@ export const ROUTES: Route[] = [
       + 'Raised again when a cold agent walked this route and reported that the page taught it the '
       + 'skin is a palette and three fonts: it would have shipped somebody else\'s appearance with '
       + 'its own colours in it and believed that was the job, so the section says what a palette '
-      + 'is not and names where the decision is made.',
+      + 'is not and names where the decision is made. Raised again when the same walk found what '
+      + 'the page ships and never names: five projection markers whose slots fail in silence, and '
+      + 'the sheets under css/ a reader picking a depth is not offered. A file a package ships and '
+      + 'a page never mentions is one nobody imports, and this route is where a consumer meets '
+      + 'every one of them.',
   },
   {
     name: 'consumer-skin',

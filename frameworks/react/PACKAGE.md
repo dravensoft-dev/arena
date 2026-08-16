@@ -66,8 +66,10 @@ bun add @dravensoft/arena-react
 
 That is the whole install. `react`, `react-dom` and `@phosphor-icons/web` are peer dependencies,
 so your package manager brings down whichever of them the project does not already have. **The
-package declares `engines: { node: ">=26" }`**, which the command below needs rather than the
-components: a project on an older Node installs cleanly and fails at `arena-to-prod`.
+package declares `engines: { node: ">=26" }`**, which is a floor this project holds itself to
+rather than one the code needs: the shipped command imports `node:fs`, `node:path` and `node:url`
+and nothing newer. A project on an older Node still installs, with whatever warning its package
+manager gives an unmet engine, and fails only if it installs strictly.
 
 **An icon is a class name, not an element.** Every `icon` prop takes a Phosphor class list,
 `"ph-bold ph-bell"`, and the component renders it. The stylesheet that turns those classes into
@@ -354,8 +356,8 @@ flash it exists to prevent.
 ## What the package ships besides the components
 
 Every component is imported from the package root, and its types ship with it, emitted from the
-components' own source rather than written beside it. Four other surfaces reach that root, each
-answering a question a consumer cannot answer from outside.
+components' own source rather than written beside it. Everything else that reaches that root is
+in the table below, each answering a question a consumer cannot answer from outside.
 
 | export | what it is |
 | --- | --- |
@@ -387,6 +389,14 @@ zero-friction path:
 | `css/page.css` | `.arena-shell` and `.arena-band`, the column your page sits in: a shell that fills the window so a footer never floats halfway up it, `.arena-shell__main` on the one child that should take the slack, and a band that centres its contents at the page width with a gutter either side. Both lengths are the same pair a style plugin re-answers, so one written for reading narrows the page you already shipped |
 | `css/prose.css` | `.arena-prose`, the width of a reading column as a measure in `ch` rather than a pixel width, so it tracks the font size the way a measure has to. Put it on an article or a section you wrote; a style plugin written for reading narrows it and every page you already shipped follows |
 | `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. `--start`, `--end`, `--baseline` and `--between` line the items up without touching the gap. Put one on a container of your own, which is where your layout goes anyway |
+
+**The rest of what ships under `css/` is not a choice.** The token layer is six sheets,
+`css/reset.css`, `css/typography.css`, `css/spacing.css`, `css/effects.css`, `css/colors.css` and
+`css/environment.css`, which `arena.css` imports in the order they have to be in, and
+`css/prelude.css` is what a single component sheet pulls in for itself. The one that IS a decision
+is `css/style-plugin-default.css`, the appearance this package installs with: it arrives through
+`arena.css` like the rest, and a `stylePlugins` list of your own that does not name `default` does
+not receive it, which is the point of writing one.
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to
 come before your own rules if you want yours to win.

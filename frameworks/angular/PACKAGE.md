@@ -69,7 +69,7 @@ bun add @dravensoft/arena-angular
 ```
 
 That is the whole install. Angular, the CDK and `@phosphor-icons/web` are peer dependencies, so
-your package manager brings down whichever of them the project does not already have. **The package declares `engines: { node: ">=26" }`**, which the command below needs rather than the components: a project on an older Node installs cleanly and fails at `arena-to-prod`.
+your package manager brings down whichever of them the project does not already have. **The package declares `engines: { node: ">=26" }`**, which is a floor this project holds itself to rather than one the code needs: the shipped command imports `node:fs`, `node:path` and `node:url` and nothing newer. A project on an older Node still installs, with the warning its package manager gives an unmet engine, and fails only if it runs the install strictly.
 
 **An icon is a class name, not an element.** Every `icon` input takes a Phosphor class list,
 `"ph-bold ph-bell"`, and the component renders it. The stylesheet that turns those classes into
@@ -284,7 +284,7 @@ yourself only under `--no-import`, where you are importing the package sheet by 
 | flag | what it does |
 | --- | --- |
 | `--audit` | Report where your own sources break a rule of the language: a class of yours on a component Arena draws, a stylesheet rule reaching an `arena-` slot, or one reaching a `data-arena-part` hook from outside a style plugin; an Arena component wrapped in your router's own link; a raw colour, a bare pixel length or a gradient where a token belongs, raw meaning a hex, channels or a name; an icon passed as an element; an emoji. **Every rule is read in a scope**: inside a directory your `stylePlugins` declares, a part hook is what you are meant to select and a gradient is yours to paint, so neither is reported there; the compiled `arena-` class name and a raw value are reported in both, because the hook is the contract and the class is output. The run also names the parts your plugins paint, which is where the evidence for promoting one into a role comes from. **No gate reads your application**, so this is the only automatic signal there is, and it is a report rather than a failure until you pass `--strict`. It decides only what source text shows, so it never claims to have checked one primary per view or a filled danger surface. **A comment is prose** and declares nothing, so a note about a value costs no allowance. Exempt a line it is wrong about with an `arena-audit allow` comment on that line, and it reports the allowance once there is nothing left on the line to exempt.  Reported for the templates it can read, the same way it reads your TypeScript. |
-| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. | Reported by name. A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a template that writes the attribute without listing `ArenaFooter` in its own `imports` renders nothing there, and neither the build nor `ngc --strictTemplates` says a word. This is the one defect a component cannot report about itself. |
+| `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a report rather than writing anyway. Bare, it holds every kind; `--strict=contrast,audit` holds the kinds you name, out of `components`, `contrast`, `ramp`, `glyph`, `markers`, `audit`, `environment` and `restated`. **Name them when one of them is a decision you already made**: a brand under 4.5:1 is measured and deliberate, and one switch over all of them would make it the price of holding the rest in CI. `environment` says the run is outside an Arena package, so Arena's own icons went uncounted; `restated` says a plugin rule restates the value that part's slot already paints, so it changes nothing. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |
@@ -390,8 +390,10 @@ flash it exists to prevent.
 
 ## What the package ships besides the components
 
-Every component is standalone, so import the ones a template uses. Five other surfaces reach the
-package root, each answering a question a consumer cannot answer from outside.
+Every component is standalone, so import the ones a template uses. **A parent does not bring its
+children with it**: a table wants `ArenaTableRow` and `ArenaTableCell` in the same `imports` array,
+and so does every other family whose parts are separate elements. Everything else that reaches the
+package root is below, each answering a question a consumer cannot answer from outside.
 
 **The projection markers, and they are not optional.** Ten directives stand behind ten
 attributes: `ArenaAction` behind `[action]`, `ArenaActions` behind `[actions]`, `ArenaBrand`
@@ -439,6 +441,14 @@ zero-friction path:
 | `css/prose.css` | `.arena-prose`, the width of a reading column as a measure in `ch` rather than a pixel width, so it tracks the font size the way a measure has to. Put it on an article or a section you wrote; a style plugin written for reading narrows it and every page you already shipped follows |
 | `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as three named steps rather than a number you pick: `--group` for things that read as one unit, the default for two peers, `--section` between two sections of a page. `--start`, `--end`, `--baseline` and `--between` line the items up without touching the gap. Put one on a container of your own, which is where your layout goes anyway |
 | `css/arena-cdk.css` | the CDK overlay, re-based onto Arena's layering |
+
+**The rest of what ships under `css/` is not a choice.** The token layer is six sheets,
+`css/reset.css`, `css/typography.css`, `css/spacing.css`, `css/effects.css`, `css/colors.css` and
+`css/environment.css`, which `arena.css` imports in the order they have to be in, and
+`css/prelude.css` is what a single component sheet pulls in for itself. The one that IS a decision
+is `css/style-plugin-default.css`, the appearance this package installs with: it arrives through
+`arena.css` like the rest, and a `stylePlugins` list of your own that does not name `default` does
+not receive it, which is the point of writing one.
 
 Importing the halves rather than `arena.css` makes **order** yours: Arena's components have to
 come before your own rules if you want yours to win. There is nothing to compile either way: no
