@@ -36,6 +36,20 @@ test('a raw value is reported where it styles something, and not where it is onl
   assert.equal(rules('const gap = "16px";'), '');
 });
 
+test('an element of your own passed into a slot carries your own class', () => {
+  assert.equal(rules('<ArenaAppLogo name="X" mark={<img src="/m.svg" alt="" className="mark" />} />'), '',
+    'a slot is filled by passing an element, so that element sits inside the Arena tag\'s '
+    + 'attribute region and the class on it is the consumer\'s own');
+  assert.equal(rules('<ArenaCard action={<button className="mine">Go</button>} title="t" />'), '');
+
+  assert.match(rules('<ArenaButton className={styles.mine}>Go</ArenaButton>'), /own-class/,
+    'a class on the Arena tag is still one whether its value is a string or an expression');
+  assert.equal(rules('<ArenaCard className="mine" action={<button className="mine" />} />')
+    .split('\n').length, 1, 'and the tag\'s own class is reported exactly once');
+  assert.match(rules('<arena-card [ngClass]="k"><img class="mine" /></arena-card>', 'src/a.html'),
+    /own-class/, 'the Angular idiom passes an element by projection and is unaffected');
+});
+
 test('a colour is raw whichever notation writes it, and derived through a token is not', () => {
   const css = (rule: string) => auditText('src/a.css', rule).join('\n');
   assert.match(css('.x { background: rgb(255 255 255 / 0.22) }'), /raw colour/);

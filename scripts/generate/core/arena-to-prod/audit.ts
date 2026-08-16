@@ -270,6 +270,20 @@ export function lineAt(text: string, index: number) {
   return line;
 }
 
+export function ownAttributes(attributes: string) {
+  let depth = 0;
+  let quote = '';
+  let out = '';
+  for (const c of attributes) {
+    if (quote) { out += depth ? ' ' : c; if (c === quote) quote = ''; continue; }
+    if (c === '"' || c === "'" || c === '`') { quote = c; out += depth ? ' ' : c; continue; }
+    if (c === '{') { depth += 1; out += ' '; continue; }
+    if (c === '}') { depth -= 1; out += ' '; continue; }
+    out += depth ? ' ' : c;
+  }
+  return out;
+}
+
 export function structuralFindings(text: string): Finding[] {
   const found: Finding[] = [];
   for (const m of text.matchAll(OPEN_TAG)) {
@@ -277,7 +291,7 @@ export function structuralFindings(text: string): Finding[] {
     const start = m.index ?? 0;
     const ends = tagEnd(text, start);
     if (ends === -1) continue;
-    const attributes = text.slice(start + name.length + 1, ends - 1);
+    const attributes = ownAttributes(text.slice(start + name.length + 1, ends - 1));
 
     if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
       found.push(at(lineAt(text, start), 'own-class', OWN_CLASS_MESSAGE));
