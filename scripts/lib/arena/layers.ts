@@ -11,6 +11,7 @@
 
 import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { memoBy } from '../../utils/memo.ts';
 import { repoRoot } from './repo-root.ts';
 
 export const LAYERS = ['tailwind', 'angular', 'react'];
@@ -24,7 +25,7 @@ export const emittedTree = (root = repoRoot) => join(root, 'frameworks', 'angula
 
 export type ComponentTree = Record<string, string[]>;
 
-export function readLayer(layer: string): ComponentTree {
+export const readLayer = memoBy((layer: string) => layer, (layer: string): ComponentTree => {
   const base = join(repoRoot, 'frameworks', layer, 'components');
   if (!existsSync(base)) return {};
   const out: ComponentTree = {};
@@ -36,4 +37,4 @@ export function readLayer(layer: string): ComponentTree {
       .sort();
   }
   return out;
-}
+});

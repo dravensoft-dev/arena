@@ -9,6 +9,7 @@
  * rather than a segment, so a native root names a file that is not on disk. */
 
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
@@ -16,6 +17,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { nodeBin } from '../arena/node-bin.ts';
+import { cached } from '../arena/artifact-cache.ts';
 import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import type { ManifestClassSource, Manifests } from './manifest-shapes.ts';
 
@@ -48,20 +50,34 @@ export function entryStylesheet(preset: string, components: string, extra?: stri
     + (extra ? `@source '${toPosix(extra)}';\n` : '');
 }
 
-export function compileEntry(entry: string, root = repoRoot) {
-  const bin = nodeBin('@tailwindcss/cli', undefined, root);
-  const dir = mkdtempSync(join(tmpdir(), 'arena-tw-'));
-  const out = join(dir, 'out.css');
-  try {
-    const r = spawnSync(process.execPath, [bin, '-i', '-', '-o', out], { input: entry, encoding: 'utf8' });
-    if (r.status !== 0) {
-      if (r.error) throw new Error(`tailwindcss failed to spawn: ${r.error.message || r.error}`);
-      throw new Error(`tailwindcss exited ${r.status}\n${r.stderr || r.stdout}`);
+export const entryName = (entry: string) =>
+  `tailwind-${createHash('sha256').update(entry).digest('hex').slice(0, 12)}`;
+
+export function compileEntry(entry: string, root = repoRoot, inputs?: string[]) {
+  const run = () => {
+    const bin = nodeBin('@tailwindcss/cli', undefined, root);
+    const dir = mkdtempSync(join(tmpdir(), 'arena-tw-'));
+    const out = join(dir, 'out.css');
+    try {
+      const r = spawnSync(process.execPath, [bin, '-i', '-', '-o', out], { input: entry, encoding: 'utf8' });
+      if (r.status !== 0) {
+        if (r.error) throw new Error(`tailwindcss failed to spawn: ${r.error.message || r.error}`);
+        throw new Error(`tailwindcss exited ${r.status}\n${r.stderr || r.stdout}`);
+      }
+      return readFileSync(out, 'utf8');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
-    return readFileSync(out, 'utf8');
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
+  };
+  if (!inputs) return run();
+  return cached(entryName(entry), inputs, run, root);
+}
+
+export function layerInputs(root = repoRoot) {
+  return [
+    relPosix(root, join(root, 'frameworks/tailwind/Theme.css')),
+    ...manifestFiles(join(root, 'frameworks/tailwind/components')).map((path) => relPosix(root, path)),
+  ];
 }
 
 export function layerManifests(root = repoRoot): Manifests {
@@ -79,5 +95,5 @@ export function compileLayer(opts: { root?: string; extraSource?: string } = {})
 
   const manifests = layerManifests(root);
   const entry = entryStylesheet(preset, components, opts.extraSource);
-  return { css: compileEntry(entry, root), manifests };
+  return { css: compileEntry(entry, root, opts.extraSource ? undefined : layerInputs(root)), manifests };
 }

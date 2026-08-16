@@ -11,7 +11,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
-import { compileLayer, compileEntry, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { compileLayer, compileEntry, layerInputs, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import {
   classBase, classesManifest, entryStylesheet, stripIndirection, stripProblems, themeMapFor,
 } from '../../lib/tailwind/component-css.ts';
@@ -145,7 +145,7 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const manifests = opts.manifests ?? layerManifests(root);
   const preset = join(root, 'frameworks/tailwind/Theme.css');
 
-  const raw = compileEntry(entryStylesheet(preset, manifests), root);
+  const raw = compileEntry(entryStylesheet(preset, manifests), root, layerInputs(root));
   const problems = stripProblems(raw, themeMapFor(root));
   if (problems.length > 0) {
     throw new Error(`build-tailwind: the compiled component CSS carries an indirection the preset does `

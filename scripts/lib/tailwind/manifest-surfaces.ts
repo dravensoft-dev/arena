@@ -10,6 +10,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
+import { memoBy } from '../../utils/memo.ts';
 import { kebab } from '../../utils/case.ts';
 import type { ComponentTree } from '../arena/layers.ts';
 import { repoRoot } from '../arena/repo-root.ts';
@@ -91,10 +92,10 @@ export const HAND_DRAWN = new Map([
 const COMPONENTS_JSON = join(repoRoot, 'frameworks/Components.json');
 const MANIFEST_DIR = join(repoRoot, 'frameworks/tailwind/components');
 
-export function categories(root = repoRoot): ComponentTree {
+export const categories = memoBy((root: string = repoRoot) => root, (root: string = repoRoot): ComponentTree => {
   const path = root === repoRoot ? COMPONENTS_JSON : join(root, 'frameworks/Components.json');
   return readJson(path);
-}
+});
 
 export function categoryOf(name: string, root = repoRoot) {
   for (const [category, names] of Object.entries(categories(root)))

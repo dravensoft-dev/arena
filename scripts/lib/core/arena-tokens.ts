@@ -12,14 +12,18 @@ import { join } from 'node:path';
 import { parseDecls } from '../arena/css-decls.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { captured } from '../../utils/captures.ts';
+import { memoBy } from '../../utils/memo.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 
 const GENERATED = CSS_TARGETS.map((target) => target.split('/').at(-1) as string);
 
+const generatedDecls = memoBy((root: string = repoRoot) => root, (root: string = repoRoot) =>
+  GENERATED.map((f) => parseDecls(readFileSync(join(root, 'contracts', 'design-generated', f), 'utf8'))));
+
 export function arenaTokens(root = repoRoot) {
   const names = new Set<string>();
-  for (const f of GENERATED)
-    for (const decls of parseDecls(readFileSync(join(root, 'contracts', 'design-generated', f), 'utf8')).values())
+  for (const sheet of generatedDecls(root))
+    for (const decls of sheet.values())
       for (const name of decls.keys()) names.add(name);
   return names;
 }
@@ -28,8 +32,8 @@ export const SCOPE_CLASS = /\.arena-([a-z0-9]+(?:-[a-z0-9]+)*)(?![\w-])/g;
 
 export function arenaScopeClasses(root = repoRoot) {
   const classes = new Set<string>();
-  for (const f of GENERATED)
-    for (const selector of parseDecls(readFileSync(join(root, 'contracts', 'design-generated', f), 'utf8')).keys())
+  for (const sheet of generatedDecls(root))
+    for (const selector of sheet.keys())
       for (const m of selector.matchAll(SCOPE_CLASS)) classes.add(captured(m));
   return classes;
 }

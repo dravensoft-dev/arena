@@ -1,8 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { manifestClasses, escapeClass, compileLayer, entryStylesheet, manifestFiles } from './tailwind-compile.ts';
+import {
+  manifestClasses, escapeClass, compileEntry, compileLayer, entryName, entryStylesheet, manifestFiles,
+} from './tailwind-compile.ts';
+import { CACHE_DIR } from '../arena/artifact-cache.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
@@ -71,12 +74,20 @@ test('compileLayer keys its manifests by repo-relative path, not by basename', (
     assert.match(key, /^frameworks\/tailwind\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/);
 });
 
-test('compileLayer includes the underlying spawn error (e.g. ENOENT) rather than "exited null"', () => {
+test('an entry with no declared inputs is compiled rather than held, which is what the spawn cases need', () => {
+  const held = entryName('@import \'a\';');
+  assert.notEqual(held, entryName('@import \'b\';'),
+    'the entry text decides the name, so two entries over one input set cannot collide');
+  assert.equal(existsSync(join(repoRoot, CACHE_DIR, `${held}.json`)), false,
+    'compileEntry called without inputs records nothing, or the spawn below is unreachable');
+});
+
+test('a failed spawn includes the underlying error (e.g. ENOENT) rather than "exited null"', () => {
   const realExecPath = process.execPath;
   process.execPath = '/nonexistent/arena-test-binary-xyz';
   try {
     assert.throws(
-      () => compileLayer(),
+      () => compileEntry('@import \'nothing\';'),
       (err: Error) => {
         assert.match(err.message, /tailwindcss failed to spawn/);
         assert.match(err.message, /ENOENT/);

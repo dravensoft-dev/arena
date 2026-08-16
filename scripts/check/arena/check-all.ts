@@ -16,6 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { DOMAINS, isSuite } from '../../lib/arena/domains.ts';
+import { purge } from '../../lib/arena/artifact-cache.ts';
 import { gateDecisions, shortFingerprint } from '../../graph/gate-plan.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -212,6 +213,11 @@ async function main() {
   } catch (err) {
     console.error((err as Error).message);
     process.exit(1);
+  }
+
+  if (selection.force) {
+    const dropped = purge();
+    console.log(`check-all: --force dropped ${dropped} artifact(s), so every derived answer is recomputed here`);
   }
 
   const graph = await gateDecisions(gates.map((g) => g.name), selection.force);

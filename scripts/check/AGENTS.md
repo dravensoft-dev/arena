@@ -94,7 +94,9 @@ edge holds or breaks depending on whether that tree happens to be on disk. `chec
 `check:icons` both skip any directory named `build`, and `check:icons` skips `vendor` as well, so
 each excludes what it skips. A gate that grows a skip grows the matching `!` spec with it.
 
-`--force` runs every selected gate and rewrites what it records. `stepStatus` is untouched by any of
+`--force` runs every selected gate, rewrites what it records, and **drops `.cache/artifacts/`
+first**: that is a second cache, `lib/arena/artifact-cache.ts`, holding what a gate would
+recompute where the graph holds what decides whether it runs. Trust nothing reaches both. `stepStatus` is untouched by any of
 this: it maps a child's exit code, and a kept gate spawns no child, so three of the four labels come
 from a process and the fourth comes from the graph.
 

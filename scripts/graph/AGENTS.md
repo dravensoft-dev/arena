@@ -202,6 +202,12 @@ nothing. A `touch` invalidates nothing. Only a changed byte does.
 deliberate mtime restore to reach. It is the trade every incremental build makes, and `--force` is
 what answers it.
 
+**`.cache/artifacts/` is not this layer's and nothing here reads it**: `lib/arena/artifact-cache.ts`
+keeps the answer a step would recompute where this keeps the stamps that decide whether it runs at
+all, and the separation costs nothing to maintain, since `.cache` is skipped by the walk above and
+`.cache/**/*` is in `audit.ts:NOT_AN_INPUT`, so an artifact is invisible to a fingerprint and to a
+declaration alike.
+
 **Nothing here asks git what it tracks.** `universe(root)` is a walk, so an artifact under
 `.gitignore` is fingerprinted like any other file, a fresh clone that has not built is a smaller
 universe rather than a special case, and no rule about ignored files has to exist to be forgotten.

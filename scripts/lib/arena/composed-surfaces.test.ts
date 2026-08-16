@@ -23,10 +23,10 @@ test('an import of another component directory is a composition, and nothing els
 test('the graph reads every layer, so a composition only one of them makes still counts', () => {
   const graph = composedGraph();
   assert.ok(graph.size > 0, 'an empty graph would let every page link too little and pass');
-  assert.ok(graph.get('ArenaTable').has('ArenaPagination'), 'both layers compose ArenaPagination inside ArenaTable');
-  assert.ok(graph.get('ArenaUnauthCard').has('ArenaCard'),
+  assert.ok(graph.get('ArenaTable')?.has('ArenaPagination'), 'both layers compose ArenaPagination inside ArenaTable');
+  assert.ok(graph.get('ArenaUnauthCard')?.has('ArenaCard'),
     'React composes ArenaCard and Angular draws the frame itself; the union is what both pages carry');
-  assert.ok(graph.get('ArenaConfirmDialog').has('ArenaButton'), 'the cancel action is a real ArenaButton in React');
+  assert.ok(graph.get('ArenaConfirmDialog')?.has('ArenaButton'), 'the cancel action is a real ArenaButton in React');
 });
 
 test('the closure is transitive and excludes what was asked about', () => {

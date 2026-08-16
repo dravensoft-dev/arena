@@ -319,8 +319,8 @@ export function commentRuleProblems(root = ROOT) {
   let scanned = 0;
 
   for (const path of sources) {
-    const source = readFileSync(path, 'utf8');
     if (isGenerated(path)) continue;
+    const source = readFileSync(path, 'utf8');
     scanned += 1;
 
     const rel = relPosix(root, path);

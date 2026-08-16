@@ -143,6 +143,12 @@ does. **The separator rules read suites as well**, and each one says so where it
 native path compared against a posix literal is the same defect wherever it sits, and a suite is
 where it lands as an assertion that passes on the machine that wrote it and on no other.
 
+**A step that spawns a compiler keeps its answer, in `lib/arena/artifact-cache.ts` and nowhere
+else.** `.cache/artifacts/` is not `.cache/graph/`: the graph keeps stamps and decides whether a
+NODE runs, this keeps the answer a step would recompute. An entry is **never authoritative**,
+which is what lets a gate read one without becoming downstream of another, and its own level
+carries the two rules that make that true.
+
 **A test lives beside what it tests**, in the same directory, which for a `lib/` module means
 the same domain, not merely somewhere under `lib/`.
 
