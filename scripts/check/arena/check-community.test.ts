@@ -6,14 +6,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, CONTRIBUTOR_BASENAMES, unwrapped,
   missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
-  context7Problems, zeroScanProblems, markdown, LIMITS,
+  context7Problems, zeroScanProblems, markdown, LIMITS, CONTEXT7_KEYS,
 } from './check-community.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 function tree(files: Record<string, string>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-community-'));
@@ -196,4 +197,22 @@ test('unwrapped flattens a run of whitespace and leaves the words alone', () => 
 test('an empty walk is a clean-looking pass over a tree nobody opened', () => {
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems([`${ROUTER}`]), []);
+});
+
+test('a key the declared schema does not define fails, because it invalidates the whole file', () => {
+  const bad = tree({
+    [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: [], version: '10.0.0' }),
+    [ROUTER]: '',
+  });
+  const problems = context7Problems(bad);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /carries "version", which the schema it declares does not define/);
+});
+
+test('every key this tree writes is one the schema defines', () => {
+  const config = JSON.parse(readFileSync(join(repoRoot, CONTEXT7), 'utf8'));
+  assert.ok(Object.keys(config).length > 0, 'an empty config would pass this vacuously');
+  for (const key of Object.keys(config)) {
+    assert.ok(CONTEXT7_KEYS.includes(key), `${key} is not in the schema's set`);
+  }
 });

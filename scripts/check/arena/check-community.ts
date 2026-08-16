@@ -34,6 +34,11 @@ export const SECURITY = 'SECURITY.md';
 export const CONTEXT7 = 'context7.json';
 export const ROUTER = 'skills/design/SKILL.md';
 
+export const CONTEXT7_KEYS = [
+  '$schema', 'projectTitle', 'description', 'branch', 'folders', 'excludeFolders', 'excludeFiles',
+  'rules', 'disallow', 'redirect', 'previousVersions', 'url', 'public_key',
+];
+
 export const OUTWARD = new Map([
   [CONTRIBUTING,
    'The one place the governance policy is stated. Every template links it rather than restating '
@@ -158,6 +163,14 @@ export function context7Problems(base = root, ignored = ignoredRoots(base)) {
   if (!existsSync(path)) return [];
   const config = readJson(path) as Context7;
   const problems = [];
+
+  for (const key of Object.keys(config)) {
+    if (CONTEXT7_KEYS.includes(key)) continue;
+    problems.push(`${CONTEXT7} carries "${key}", which the schema it declares does not define. That `
+      + 'schema sets additionalProperties to false, so one key outside the set is not one field '
+      + 'ignored: the whole file fails to validate, and what Context7 indexes is whatever it falls '
+      + 'back to');
+  }
 
   for (const folder of config.excludeFolders ?? []) {
     if (!existsSync(join(base, folder))) {
