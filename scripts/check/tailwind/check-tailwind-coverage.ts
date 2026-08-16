@@ -77,6 +77,7 @@ export const EXCLUDED = new Map([
   ['chart-legend-max', 'script-readable: a clamp bound compared against a measured width'],
   ['chart-legend-gap', 'script-readable: subtracted from a measured width to size the plot'],
   ['chart-pad-category', 'script-readable: subtracted from the measured width to size a horizontal chart\'s plot, and the same number places the category label at its right edge'],
+  ['chart-tick-char', 'script-readable: multiplied by a tick label\'s length to size the value gutter, which is arithmetic over a string and not a length any element wears'],
   ['chart-legend-strip', 'script-readable: subtracted from the chart height to size the plot, and the same number is the strip\'s own height, so one utility could carry at most half of it'],
   ['chart-label-gap', 'script-readable: subtracted from a pad or a height in JS to place an SVG text x/y, never a utility'],
   ['chart-ring-inset', 'script-readable: subtracted from half the plot box in JS to size the doughnut\'s outer radius, never a utility'],

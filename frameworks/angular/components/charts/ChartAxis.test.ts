@@ -1,12 +1,46 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ARENA_CHART_HEIGHT, ARENA_PAD } from '../../DataVisuals';
-import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii } from './ChartAxis';
-import { arenaLinearScale, arenaNiceDomain } from './ChartScales';
+import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
+import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
+import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
+import { chartTickChar, chartLabelGap } from '../../Tokens.generated';
 
 test('the tick label ends one label gap left of the plot, inside the left pad', () => {
   assert.equal(arenaTickLabelX(), ARENA_PAD.l - 8);
   assert.ok(arenaTickLabelX() > 0, 'the label must not sit off the left edge of the box');
+});
+
+test('the gutter holds the widest tick the axis will write, whatever writes it', () => {
+  const domain = arenaNiceDomain(0, 100);
+  const suffixed = arenaValueGutter(domain, arenaValueWriter({ suffix: ' pts' }));
+  const bare = arenaValueGutter(domain, String);
+  assert.ok(suffixed > bare, 'a suffix is part of the label, so it is part of the room it needs');
+
+  for (const write of [String, arenaValueWriter({ suffix: ' pts' }), arenaValueWriter({ prefix: 'Bs. ' })]) {
+    const gutter = arenaValueGutter(domain, write);
+    const widest = Math.max(...arenaDomainTicks(domain).map((value) => write(value).length));
+    assert.ok(gutter - chartLabelGap >= widest * chartTickChar,
+      `a ${widest}-character tick does not fit a ${gutter}px gutter, so it renders clipped`);
+    assert.equal(arenaTickLabelX(gutter) - widest * chartTickChar >= 0, true,
+      'the label is anchored at its right end, so its left edge is where clipping starts');
+  }
+});
+
+test('the gutter never narrows below the pad, so a short axis draws what it always drew', () => {
+  for (const max of [1, 8, 100, 2000]) {
+    const domain = arenaNiceDomain(0, max);
+    assert.ok(arenaValueGutter(domain, String) >= ARENA_PAD.l, `at a maximum of ${max}`);
+  }
+  assert.equal(arenaValueGutter(arenaNiceDomain(0, 100), String), ARENA_PAD.l,
+    'three digits and a gap fit the pad, which is why the charts that shipped before this draw '
+    + 'the same bytes they drew');
+});
+
+test('a wider gutter takes its room from the plot rather than from the box', () => {
+  const wide = arenaValueGutter(arenaNiceDomain(0, 100), arenaValueWriter({ suffix: ' points' }));
+  const box = arenaPlotBox(600, 280, wide);
+  assert.equal(box.x, wide);
+  assert.equal(box.x + box.w, 600 - ARENA_PAD.r, 'the plot still ends one right pad from the edge');
 });
 
 test('the category label sits one label gap above the bottom edge of the box', () => {

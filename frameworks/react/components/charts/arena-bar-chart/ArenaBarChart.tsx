@@ -5,7 +5,7 @@ import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
 import { arenaBarPath } from '../ChartMarks.ts';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries.ts';
@@ -72,7 +72,8 @@ export function ArenaBarChart({
 
   const domain = stack ? arenaStackDomain(series) : arenaSeriesDomain(series);
   const strip = arenaLegendStrip(height, series.length);
-  const box = arenaPlotBox(width, strip.plotH);
+  const gutter = arenaValueGutter(domain, fmt);
+  const box = arenaPlotBox(width, strip.plotH, gutter);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const bands = arenaBandScale(n, box.x, box.w, chartBarGap);
   const axis = arenaAxisModel(yScale, domain, fmt);
@@ -105,7 +106,7 @@ export function ArenaBarChart({
           <g key={i}>
             <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y}
               stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
-            <text x={arenaTickLabelX()} y={tick.y} textAnchor="end" dominantBaseline="middle"
+            <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
               fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}

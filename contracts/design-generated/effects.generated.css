@@ -139,6 +139,17 @@
    */
   --chart-label-gap:8px;
   /*
+     The advance of one character of a tick label, which is what lets the axis measure
+     its widest tick without a DOM to ask. A CONSEQUENCE of two decisions rather than a
+     chosen dimension: a tick is written in the mono face, whose advance is 0.6em, at
+     --dz-text-2xs, which is 10px in both densities. Measured in the browser at 6.0016px
+     and rounded down to the whole pixel, because the gutter takes the ceiling of what it
+     computes and a hundredth of a pixel per character is not room anybody can see. It
+     holds only while the ticks stay monospaced: a proportional face makes a label's width
+     its glyphs' business and no arithmetic can answer it.
+   */
+  --chart-tick-char:6px;
+  /*
      Breathing room between the doughnut's outer radius and its box, so a slice's
      stroke is not clipped. Not a multiplier deriving one dimension from another --
      those stay inline by the recorded criterion -- but a chosen gap, which is why

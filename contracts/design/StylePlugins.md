@@ -17,6 +17,13 @@ Not one value of appearance.
 | The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
 | The cascade | `arena-plugin`, a layer declared after `utilities` |
 
+**A part hook belongs to a manifest, so the chart family has none.** Seven of the eight charts
+draw geometry whose coordinates are the data, which is why they carry no manifest, and a
+component with no slot has no hook: a plugin reaches `ArenaChartCard`, the frame, and nothing
+inside the plot. What carries the skin there instead is the token tier, since every value a
+chart paints is one the palette moves, and [`../../frameworks/CHARTS.md`](../../frameworks/CHARTS.md)
+records why the plot geometry cannot be a role at all.
+
 [`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
 with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
 `scripts/check/core/check-role-contract.ts` holds it instead: a type, a description, a closed set

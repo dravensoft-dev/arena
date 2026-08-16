@@ -37,6 +37,11 @@
       "$description": "Between an axis label and the plot it labels: a y-axis tick label ends this far\nleft of pad-left, and an x-axis category label sits this far above the bottom\nedge. It is a spacing decision, so it is a token by the same criterion the pads\nare.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
+    "tick-char": {
+      "$value": { "value": 6, "unit": "px" },
+      "$description": "The advance of one character of a tick label, which is what lets the axis measure\nits widest tick without a DOM to ask. A CONSEQUENCE of two decisions rather than a\nchosen dimension: a tick is written in the mono face, whose advance is 0.6em, at\n--dz-text-2xs, which is 10px in both densities. Measured in the browser at 6.0016px\nand rounded down to the whole pixel, because the gutter takes the ceiling of what it\ncomputes and a hundredth of a pixel per character is not room anybody can see. It\nholds only while the ticks stay monospaced: a proportional face makes a label's width\nits glyphs' business and no arithmetic can answer it.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
     "ring-inset": {
       "$value": { "value": 8, "unit": "px" },
       "$description": "Breathing room between the doughnut's outer radius and its box, so a slice's\nstroke is not clipped. Not a multiplier deriving one dimension from another --\nthose stay inline by the recorded criterion -- but a chosen gap, which is why\nthis one is a token and the 0.62 inner-radius ratio beside it is not.",

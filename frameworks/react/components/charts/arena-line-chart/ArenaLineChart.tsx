@@ -8,7 +8,7 @@ import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales.ts';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks.ts';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaTooltipAnchor } from '../ChartTooltip.ts';
@@ -81,7 +81,8 @@ export function ArenaLineChart({
 
   const domain = arenaSeriesDomain(series);
   const strip = arenaLegendStrip(height, series.length);
-  const box = arenaPlotBox(width, strip.plotH);
+  const gutter = arenaValueGutter(domain, fmt);
+  const box = arenaPlotBox(width, strip.plotH, gutter);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
   const axis = arenaAxisModel(yScale, domain, fmt);
@@ -116,7 +117,7 @@ export function ArenaLineChart({
         {axis.ticks.map((tick, i) => (
           <g key={i}>
             <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y} stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
-            <text x={arenaTickLabelX()} y={tick.y} textAnchor="end" dominantBaseline="middle"
+            <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
               fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}

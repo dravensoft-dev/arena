@@ -6,7 +6,7 @@ import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../Da
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales';
-import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryLabelY } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import {
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange,
@@ -57,7 +57,7 @@ const MARK_STYLE = {
         <g>
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
                 stroke="var(--border)" [style]="lineStyle" />
-          <text [attr.x]="tickLabelX" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
+          <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
                 fill="var(--text-muted)" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
@@ -173,7 +173,7 @@ export class ArenaScatterChart {
   protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
   protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
   protected readonly sizeKeyValueStyle = SIZE_KEY_VALUE_STYLE;
-  protected readonly tickLabelX = arenaTickLabelX();
+  protected readonly tickLabelX = computed(() => arenaTickLabelX(this.gutter()));
   protected readonly pointR = chartPointR;
   protected readonly pointRHover = chartPointRHover;
   protected readonly hover = signal<number | null>(null);
@@ -210,7 +210,9 @@ export class ArenaScatterChart {
   });
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH));
+  private readonly gutter = computed(() => arenaValueGutter(this.domains().y, this.write()));
+
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);
