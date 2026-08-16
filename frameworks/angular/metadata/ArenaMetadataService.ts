@@ -30,6 +30,12 @@ export const ARENA_METADATA = new InjectionToken<ArenaMetadataConfig>('ARENA_MET
   factory: () => ({}),
 });
 
+export const ARENA_NO_ORIGIN = 'metadata: a route is indexable and no `origin` is configured, so it'
+  + ' publishes no canonical at all. Two addresses reaching the same page are then two pages, and'
+  + ' whichever one is linked more wins. The origin is a value you pass rather than one read off'
+  + ' window.location, because that one differs between a server render and the client that'
+  + ' hydrates it. Pass it to provideArenaMetadata, or say `robots: "noindex"` and mean it.';
+
 @Injectable({ providedIn: 'root' })
 export class ArenaMetadataService {
   private readonly doc = inject(DOCUMENT);
@@ -37,15 +43,19 @@ export class ArenaMetadataService {
   private readonly documentTitle = inject(Title);
   private readonly config = inject(ARENA_METADATA);
 
+  private warnedNoOrigin = false;
+
   apply(page: ArenaPageMetadata): void {
     const title = this.compose(page.title);
     const description = page.description ?? this.config.description;
     const canonical = this.absolute(page.canonical ?? page.url);
+    const robots = page.robots ?? this.config.robots ?? ARENA_ROBOTS_UNTIL_SAID;
 
     if (title !== undefined) this.documentTitle.setTitle(title);
 
     this.named('description', description);
-    this.named('robots', page.robots ?? this.config.robots ?? ARENA_ROBOTS_UNTIL_SAID);
+    this.named('robots', robots);
+    this.warnOnMissingOrigin(robots, page);
 
     this.canonical(canonical);
 
@@ -55,6 +65,14 @@ export class ArenaMetadataService {
     this.property('og:url', canonical);
     this.property('og:image', page.image ?? this.config.image);
     this.property('og:site_name', this.config.siteName);
+  }
+
+  private warnOnMissingOrigin(robots: string, page: ArenaPageMetadata): void {
+    if (this.warnedNoOrigin || this.config.origin !== undefined) return;
+    if (robots.includes('noindex')) return;
+    if (page.canonical === undefined && page.url === undefined) return;
+    this.warnedNoOrigin = true;
+    if (typeof console !== 'undefined') console.warn(`[arena] ${ARENA_NO_ORIGIN}`);
   }
 
   private compose(title: string | undefined): string | undefined {

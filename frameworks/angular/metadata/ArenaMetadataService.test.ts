@@ -10,7 +10,9 @@ useTestEnvironment();
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TestBed } from '@angular/core/testing';
-import { ArenaMetadataService, ARENA_METADATA, ARENA_ROBOTS_UNTIL_SAID } from './ArenaMetadataService';
+import {
+  ArenaMetadataService, ARENA_METADATA, ARENA_NO_ORIGIN, ARENA_ROBOTS_UNTIL_SAID,
+} from './ArenaMetadataService';
 import type { ArenaMetadataConfig } from './ArenaMetadataService';
 
 function service(config?: ArenaMetadataConfig): ArenaMetadataService {
@@ -120,4 +122,68 @@ test('one tag is written per name however many pages pass through', () => {
   assert.equal(document.head.querySelectorAll('meta[property="og:url"]').length, 1);
   assert.equal(document.head.querySelectorAll('link[rel="canonical"]').length, 1);
   clean();
+});
+
+function warnings(run: () => void): string[] {
+  const said: string[] = [];
+  const before = console.warn;
+  console.warn = (...args: unknown[]) => { said.push(String(args[0] ?? '')); };
+  try { run(); } finally { console.warn = before; }
+  return said;
+}
+
+test('an indexable route with no origin says so, because the canonical it wanted is not there', () => {
+  clean();
+  const one = service({ robots: 'index,follow' });
+  const said = warnings(() => one.apply({ title: 'Catalogue', url: '/catalogue' }));
+
+  assert.equal(canonical(), null, 'the premise: no origin means no canonical at all');
+  assert.equal(said.length, 1, 'the one thing that went missing went missing in silence');
+  assert.match(said[0] ?? '', /origin/,
+    'the message has to name the value that is absent, or it is a warning nobody can act on');
+  assert.equal(said[0], `[arena] ${ARENA_NO_ORIGIN}`);
+});
+
+test('a private route with no origin says nothing, because a canonical would mean nothing there', () => {
+  clean();
+  const one = service();
+  const said = warnings(() => one.apply({ title: 'Cash', url: '/cash' }));
+
+  assert.deepEqual(said, [],
+    'the default is noindex, so a management application that never opts in hears nothing: a '
+    + 'warning that fires on every route of every private application is one nobody reads by the '
+    + 'second screen');
+});
+
+test('an origin that is configured says nothing either, and writes the canonical instead', () => {
+  clean();
+  const one = service({ robots: 'index,follow', origin: 'https://example.com' });
+  const said = warnings(() => one.apply({ title: 'Catalogue', url: '/catalogue' }));
+
+  assert.deepEqual(said, []);
+  assert.equal(canonical(), 'https://example.com/catalogue');
+});
+
+test('it says it once, not once per navigation', () => {
+  clean();
+  const one = service({ robots: 'index,follow' });
+  const said = warnings(() => {
+    one.apply({ title: 'A', url: '/a' });
+    one.apply({ title: 'B', url: '/b' });
+    one.apply({ title: 'C', url: '/c' });
+  });
+
+  assert.equal(said.length, 1,
+    'a router fires this on every navigation, so a warning that repeats is a console nobody can '
+    + 'read the real errors out of');
+});
+
+test('a route with nothing to canonicalise says nothing, since there was no address to publish', () => {
+  clean();
+  const one = service({ robots: 'index,follow' });
+  const said = warnings(() => one.apply({ title: 'Nowhere' }));
+
+  assert.deepEqual(said, [],
+    'the warning is about a canonical that went missing, and with no url and no canonical there '
+    + 'was never one to write');
 });
