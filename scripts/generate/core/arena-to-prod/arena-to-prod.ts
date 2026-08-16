@@ -464,7 +464,7 @@ export function iconsStep(options: ResolvedOptions,
       scan(source, ours);
     }
   } else {
-    reports.push(report('glyph', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
+    reports.push(report('environment', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
   }
 
   const yours: IconScan = { pairs: new Map(), loose: new Set() };

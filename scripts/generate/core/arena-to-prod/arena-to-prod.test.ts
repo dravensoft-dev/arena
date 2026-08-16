@@ -292,6 +292,10 @@ test('the map is read from beside the command, by the name both packages write i
   rmSync(root, { recursive: true });
 });
 
+test('--strict takes the environment kind by name', () => {
+  assert.deepEqual(parseArgs(['--strict=environment']).strict, ['environment']);
+});
+
 test('the icons step writes one file holding every weight in use and nothing else', () => {
   const { root: phosphorRootDir, web } = phosphor();
   const root = project(readable, { 'app.html': '<i class="ph-bold ph-bell"></i><i class="ph-fill ph-moon"></i>' });
@@ -358,8 +362,10 @@ test('running outside a package says so, because the icons Arena draws went unco
   const { root: phosphorRootDir, web } = phosphor();
   const root = project();
   const step = iconsStep(options(root), { phosphor: web, arena: null });
-  assert.ok(step.reports.some((one) => one.kind === 'glyph'
-    && one.message.includes('not running from inside an Arena package')));
+  assert.deepEqual(step.reports.map((one) => one.kind), ['environment'],
+    'where the command runs is not a glyph Phosphor cannot draw, and a project holding glyph in CI '
+    + 'would otherwise hold a note that fires on any bare checkout');
+  assert.ok(step.reports.some((one) => one.message.includes('not running from inside an Arena package')));
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
 });
