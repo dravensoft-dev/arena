@@ -28,6 +28,7 @@ export const GATES = [
   { name: 'check:graph', file: 'arena/check-graph.ts' },
   { name: 'check:portability', file: 'arena/check-portability.ts' },
   { name: 'check:generated', file: 'arena/check-generated.ts' },
+  { name: 'check:skill-spec', file: 'arena/check-skill-spec.ts' },
   { name: 'check:skills', file: 'arena/check-skills.ts' },
   { name: 'check:prompts', file: 'arena/check-prompts.ts' },
   { name: 'check:routes', file: 'arena/check-routes.ts' },

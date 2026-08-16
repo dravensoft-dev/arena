@@ -172,7 +172,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 37 | two or more layers at once, or the repository root |
+| [`arena/`](./arena/AGENTS.md) | 38 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 11 | `contracts/` and `assets/` only |

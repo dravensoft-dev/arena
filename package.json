@@ -87,6 +87,7 @@
     "check:graph": "bun scripts/check/arena/check-graph.ts",
     "check:portability": "bun scripts/check/arena/check-portability.ts",
     "check:generated": "bun scripts/check/arena/check-generated.ts",
+    "check:skill-spec": "bun scripts/check/arena/check-skill-spec.ts",
     "check:skills": "bun scripts/check/arena/check-skills.ts",
     "check:prompts": "bun scripts/check/arena/check-prompts.ts",
     "check:routes": "bun scripts/check/arena/check-routes.ts",
