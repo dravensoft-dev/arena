@@ -10,7 +10,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, CONTRIBUTOR_BASENAMES, unwrapped,
+  OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, contributorBasenames, unwrapped,
   missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
   context7Problems, zeroScanProblems, markdown, LIMITS, CONTEXT7_KEYS,
 } from './check-community.ts';
@@ -184,10 +184,19 @@ test('one half of the ownership pair claims nothing and reads as a claim that wa
   assert.deepEqual(context7Problems(neither, new Set()), []);
 });
 
-test('every contributor basename the gate guards is one the repository actually uses', () => {
-  assert.ok(CONTRIBUTOR_BASENAMES.includes('AGENTS.md'));
-  assert.ok(CONTRIBUTOR_BASENAMES.includes('DOUBTS.md'));
-  assert.equal(new Set(CONTRIBUTOR_BASENAMES).size, CONTRIBUTOR_BASENAMES.length);
+test('the contributor basenames are what the tree carries, so a new document joins them unasked', () => {
+  const names = contributorBasenames(repoRoot, markdown(repoRoot), ['scripts', 'contracts', 'intro', 'assets']);
+  assert.ok(names.includes('AGENTS.md'));
+  assert.ok(names.includes('DOUBTS.md'));
+  assert.ok(names.includes('GENERATED.md'), 'a contributor document added at the root is guarded without an edit here');
+  assert.equal(new Set(names).size, names.length);
+});
+
+test('a consumer document is not a contributor basename, whatever directory it sits in', () => {
+  const found = ['AGENTS.md', 'frameworks/react/INDEX.md', 'frameworks/react/PACKAGE.md',
+    'frameworks/react/components/forms/arena-button/ArenaButton.prompt.md',
+    'skills/design/SKILL.md', 'README.md', 'dist/site/frameworks/react/AGENTS.md'];
+  assert.deepEqual(contributorBasenames(repoRoot, found, []), ['AGENTS.md']);
 });
 
 test('unwrapped flattens a run of whitespace and leaves the words alone', () => {
