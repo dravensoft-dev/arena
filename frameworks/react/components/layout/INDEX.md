@@ -18,7 +18,7 @@ import { ArenaButton, ArenaTag } from '@dravensoft/arena-react';
 A member is a prop. The main slot is `children`, a named slot is a prop taking a node, and an
 event is an `on`-prefixed handler. An icon is a Phosphor class-name string, never an element.
 
-- Every other category this layer ships: [`../../SKILL.md`](../../SKILL.md).
+- Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:
   [`../../PACKAGE.md`](../../PACKAGE.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this

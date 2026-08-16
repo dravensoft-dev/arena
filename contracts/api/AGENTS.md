@@ -1,7 +1,7 @@
 # Arena API capability contracts
 
 > **For whoever adds or changes a component contract.** Using a component instead? Start at
-> [`frameworks/SKILL.md`](../../frameworks/SKILL.md), then your layer's index beside it, and how to use one is its own
+> [`frameworks/INDEX.md`](../../frameworks/INDEX.md), then your layer's index beside it, and how to use one is its own
 > `.prompt.md`, which states every member this directory declares. None of that needs this document.
 
 Arena states three contracts. `contracts/design/` is the normative source for design values.

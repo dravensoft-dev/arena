@@ -92,7 +92,7 @@ function isPragma(text: string) {
 }
 
 export const CONSUMER_LAST_STOP = '.prompt.md';
-export const CONSUMER_INDEX = 'SKILL.md';
+export const CONSUMER_INDEX = 'INDEX.md';
 export const CONSUMER_TREE = 'frameworks/';
 
 export const BRANCH_SWITCH = {

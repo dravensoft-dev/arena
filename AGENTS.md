@@ -72,7 +72,7 @@ an agent building with Arena reads the router, where it takes the rules, then it
 `SKILL.md`, then one component's `.prompt.md`, and reaches `contracts/api/components/` only for
 the reasoning behind a member. **Everything on that route after the router is under
 `frameworks/`**, and each stop narrows. It reads no `AGENTS.md`, which is why the router names
-them and says not to. `frameworks/SKILL.md` sits beside that route rather than on it: it answers
+them and says not to. `frameworks/INDEX.md` sits beside that route rather than on it: it answers
 whether a component exists at all and which layers ship it, which is a question a builder who
 knows what they are reaching for never asks. **`check:routes` is what holds the route to a
 budget**, and `ROUTES` in `scripts/check/arena/check-routes.ts` is where the stops are declared;
@@ -93,7 +93,7 @@ token under `contracts/design/` that only a generator reads is a contributor one
 
 **Anything a package ships needs a home on the consumer branch**: an exported symbol, a file
 under `css/`, a class a consumer writes. That home is the layer's `PACKAGE.md`, which is the page
-npm shows; the layer's `SKILL.md` beside it is generated and indexes components alone. **A
+npm shows; the layer's `INDEX.md` beside it is generated and indexes components alone. **A
 layer's `AGENTS.md` is neither**, because the router forbids reading it, so a shipped thing
 documented only there is a thing nobody can find. Derive what ships rather than trusting a list:
 `ROOT_TS` in `scripts/build/react/build-react-package.ts`, and every `copy(` in
@@ -101,7 +101,7 @@ documented only there is a thing nobody can find. Derive what ships rather than 
 
 **A rule binding more than one component is the router's, stated once**; a rule binding one
 component is that component's `.prompt.md`, in each layer's own idiom. **A consumer document
-cites no contributor one**: `check:docs` fails a prompt, or a `SKILL.md` under `frameworks/`,
+cites no contributor one**: `check:docs` fails a prompt, or an `INDEX.md` under `frameworks/`,
 naming a path under `scripts/`, an `AGENTS.md` under `contracts/` or `frameworks/`, or
 `frameworks/PACKAGING.md`. The root `SKILL.md` is the one carve-out, since naming this branch is
 how it redirects. **Telling a consumer to import something names the package, never a path.**

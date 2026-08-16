@@ -362,8 +362,8 @@ test('the rule reaches prompts alone, and a sibling of the component is not a co
 });
 
 test('an index under frameworks/ is a consumer document, and the root router is the one that is not', () => {
-  assert.equal(isConsumerDocument('frameworks/SKILL.md'), true);
-  assert.equal(isConsumerDocument('frameworks/react/SKILL.md'), true);
+  assert.equal(isConsumerDocument('frameworks/INDEX.md'), true);
+  assert.equal(isConsumerDocument('frameworks/react/INDEX.md'), true);
   assert.equal(isConsumerDocument('frameworks/react/components/a/A.prompt.md'), true);
   assert.equal(isConsumerDocument('SKILL.md'), false,
     'the root router names the contributor branch to send a contributor away');
@@ -373,13 +373,13 @@ test('an index under frameworks/ is a consumer document, and the root router is 
 
 test('an index citing a contributor path fails the same way a prompt does', () => {
   const root = tree({
-    'frameworks/react/SKILL.md': 'Emitted by `scripts/generate/arena/generate-skills.ts`.\n',
+    'frameworks/react/INDEX.md': 'Emitted by `scripts/generate/arena/generate-skills.ts`.\n',
     'frameworks/react/components/a/A.prompt.md': 'Import from `@dravensoft/arena-react`.\n',
   });
   const { problems, scanned } = consumerBranchProblems(root);
   assert.equal(scanned, 2, 'the index and the prompt are both consumer documents');
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /frameworks[\\/]react[\\/]SKILL\.md/);
+  assert.match(problems[0] ?? '', /frameworks[\\/]react[\\/]INDEX\.md/);
   rmSync(root, { recursive: true });
 });
 
@@ -402,7 +402,7 @@ test('an exemption naming a file that is not there is stale, and says so', () =>
 
 test('the boundary reads two file names and a reason-carrying list, all by name', () => {
   assert.equal(CONSUMER_LAST_STOP, '.prompt.md');
-  assert.equal(CONSUMER_INDEX, 'SKILL.md');
+  assert.equal(CONSUMER_INDEX, 'INDEX.md');
   assert.deepEqual(Object.keys(BRANCH_SWITCH), ['SKILL.md']);
   for (const reason of Object.values(BRANCH_SWITCH)) assert.match(reason, /\w/);
   assert.equal(CONTRIBUTOR_PATHS.length, 9);

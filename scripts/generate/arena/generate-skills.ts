@@ -1,10 +1,11 @@
-/* GENERATED-file writer. Emits the consumer branch's index tree: frameworks/SKILL.md, which
- * says what Arena ships and how it is classified, and one frameworks/<layer>/SKILL.md, which
- * names each member as that layer binds it and links the prompt beside the component. Every
- * column is derived, so no page can disagree with the contracts, and check:skills fails a
- * stale one. They are tracked because the plugin is served from the git tag, where nothing
- * runs a build, and they carry no frontmatter: a nested file is reached by link rather than
- * registered, and the plugin root's SKILL.md is the one that is a skill. */
+/* GENERATED-file writer. Emits the consumer branch's index tree: frameworks/INDEX.md, which says
+ * what Arena ships and how it is classified, and one frameworks/<layer>/INDEX.md, which names each
+ * member as that layer binds it and links the prompt beside the component. Every column is
+ * derived, so no page can disagree with the contracts, and check:skills fails a stale one. They
+ * are tracked because the plugin is served from the git tag, where nothing runs a build. An index
+ * is reached by link rather than registered, so it carries no frontmatter, and INDEX is why it
+ * carries no skill's name either: a file under that name and no frontmatter is a skill that fails
+ * to parse to anything globbing for it, which is how the npm convention finds one. */
 
 import { writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,12 +21,14 @@ import { bindingName } from '../../lib/arena/api-surface.ts';
 
 export const CONSUMER_LAYERS = LAYERS.filter((layer) => layer !== 'tailwind');
 
-export const INDEX_TARGET = 'frameworks/SKILL.md';
+export const INDEX = 'INDEX.md';
 
-export const layerTarget = (layer: string) => `frameworks/${layer}/SKILL.md`;
+export const INDEX_TARGET = `frameworks/${INDEX}`;
+
+export const layerTarget = (layer: string) => `frameworks/${layer}/${INDEX}`;
 
 export const categoryTarget = (layer: string, category: string) =>
-  `frameworks/${layer}/components/${category}/SKILL.md`;
+  `frameworks/${layer}/components/${category}/${INDEX}`;
 
 export const node = {
   name: 'generate:skills',
@@ -37,7 +40,7 @@ export const node = {
   writes: [
     INDEX_TARGET,
     ...CONSUMER_LAYERS.map(layerTarget),
-    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/SKILL.md`),
+    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/${INDEX}`),
   ],
   feeds: [
     'build:angular-package',
@@ -111,7 +114,7 @@ a screen built from this page alone breaks the rules where nothing will report i
 | Layer | Index | Package |
 |---|---|---|
 ${CONSUMER_LAYERS
-    .map((layer) => `| ${LAYER_TITLE[layer]} | [\`${layer}/SKILL.md\`](./${layer}/SKILL.md) | \`${PACKAGES[layer]}\` |`)
+    .map((layer) => `| ${LAYER_TITLE[layer]} | [\`${layer}/${INDEX}\`](./${layer}/${INDEX}) | \`${PACKAGES[layer]}\` |`)
     .join('\n')}
 
 - **Takes** is the members its API contract declares, in contract order, under the neutral names
@@ -140,7 +143,7 @@ breaks them where nothing will report it.
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`PACKAGE.md\`](./PACKAGE.md).
 - Whether a component exists at all, including any this layer does not ship:
-  [\`../SKILL.md\`](../SKILL.md).`;
+  [\`../${INDEX}\`](../${INDEX}).`;
 }
 
 export function categoryHeader(layer: string, category: string) {
@@ -159,7 +162,7 @@ Import from the package root, never from a path inside it:
 
 ${LAYER_IDIOM[layer]}
 
-- Every other category this layer ships: [\`../../SKILL.md\`](../../SKILL.md).
+- Every other category this layer ships: [\`../../${INDEX}\`](../../${INDEX}).
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`../../PACKAGE.md\`](../../PACKAGE.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
@@ -333,8 +336,8 @@ export function renderLayerIndex(layer: string, base = root) {
     const rows = layerRowsIn(layer, category, base);
     count += rows.length;
     const held = rows.map((row) => `\`${row.component}\``).join(' ');
-    out.push(`| \`${category}\` | ${held} | [\`components/${category}/SKILL.md\`](./components/${
-      category}/SKILL.md) |`);
+    out.push(`| \`${category}\` | ${held} | [\`components/${category}/${INDEX}\`](./components/${
+      category}/${INDEX}) |`);
   }
 
   if (count === 0) indexOfNothing(`the ${layer} layer holds no declared component`);

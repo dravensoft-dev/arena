@@ -1,5 +1,5 @@
 /* Holds everything on the consumer branch that is emitted rather than written equal to a fresh
- * emit: the index tree, frameworks/SKILL.md and one per layer, and the regions of each npm page
+ * emit: the index tree, frameworks/INDEX.md and one per layer, and the regions of each npm page
  * that are the same page in both packages. All of them are tracked
  * rather than built, because the plugin is served from the git tag where nothing runs a build, so
  * a stale copy is not a stale artefact: it is a wrong answer handed to every reader of that tag,
@@ -21,7 +21,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 export const node = {
   name: 'check:skills',
   reads: [
-    'contracts/api/components', 'frameworks/Components.json', 'frameworks/SKILL.md',
+    'contracts/api/components', 'frameworks/Components.json', 'frameworks/INDEX.md',
     ...NPM_TARGETS,
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',

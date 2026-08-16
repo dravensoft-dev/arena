@@ -34,8 +34,8 @@ export const ROUTES: Route[] = [
       + 'component it writes',
     stops: [
       'SKILL.md',
-      'frameworks/*/SKILL.md',
-      'frameworks/*/components/*/SKILL.md',
+      'frameworks/*/INDEX.md',
+      'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
     budget: 44_000,

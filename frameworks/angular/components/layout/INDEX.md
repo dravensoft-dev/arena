@@ -21,7 +21,7 @@ gives it, and the main slot is content projection. A named slot is a marker dire
 in `imports` as well, because a component cannot tell an un-imported marker from an unfilled
 slot. An icon is a Phosphor class-name string, never an element.
 
-- Every other category this layer ships: [`../../SKILL.md`](../../SKILL.md).
+- Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:
   [`../../PACKAGE.md`](../../PACKAGE.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this

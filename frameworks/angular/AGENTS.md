@@ -1,7 +1,7 @@
 # Arena, the Angular layer
 
 > **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
-> [`SKILL.md`](./SKILL.md) to find a component, and that component's `.prompt.md` to use it.
+> [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
 **Published as `@dravensoft/arena-angular`.** [`PACKAGE.md`](./PACKAGE.md) is what a consumer
 reads, and the assembly copies it into `dist/` as the package README;

@@ -1,7 +1,7 @@
 # The framework layers
 
 > **For whoever changes a layer.** Building an app with Arena instead? This is the wrong branch:
-> start at the root `SKILL.md`, then `frameworks/SKILL.md`, then your layer's index beside it.
+> start at the root `SKILL.md`, then `frameworks/INDEX.md`, then your layer's index beside it.
 
 Three layers implement one language. `react/` and `angular/` each ship a component library;
 `tailwind/` is authored once and consumed by both. Each has its own `AGENTS.md`; this page is
@@ -78,7 +78,7 @@ Find them all with `bun test scripts` before assuming a count is a count. Verify
 process, the args array in `testStep()`, because `bun test frameworks/react` never matches
 `scripts/` and reports green over a tree whose run is red.
 
-**The consumer index tree moves too**, `frameworks/SKILL.md` and one `SKILL.md` per layer. It is
+**The consumer index tree moves too**, `frameworks/INDEX.md` and one `INDEX.md` per layer. It is
 generated, so nothing is written by hand: `bun run generate:skills`, which `bun run build`
 already does. Those three are **tracked**, unlike everything else a generator writes under
 `frameworks/`, because the plugin is served from the git tag where nothing runs a build, so an

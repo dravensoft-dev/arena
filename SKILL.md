@@ -30,16 +30,16 @@ read [`AGENTS.md`](./AGENTS.md) instead. It is the root of that branch and this 
 
 ## In this order
 
-1. **`frameworks/<layer>/SKILL.md`**: the directory of your framework's components, naming every
+1. **`frameworks/<layer>/INDEX.md`**: the directory of your framework's components, naming every
    one under the category it is filed under. Read your layer's, and no other. It is short because
    it describes nothing: it tells you which category holds the name you are reaching for.
-2. **`frameworks/<layer>/components/<category>/SKILL.md`**, linked from there: every component in
+2. **`frameworks/<layer>/components/<category>/INDEX.md`**, linked from there: every component in
    that category under the names the layer binds them to, with what each one is and what it takes,
    each linking its own prompt. Read the one category you are reaching into, and no other.
 3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
 
-[`frameworks/SKILL.md`](./frameworks/SKILL.md) is the layer-neutral index beside those three, and
+[`frameworks/INDEX.md`](./frameworks/INDEX.md) is the layer-neutral index beside those three, and
 it answers one question your layer's cannot: whether a component exists at all, and which layers
 ship it. Read it when you are looking for something you are not sure Arena has, and skip it when
 you already know what you are reaching for.
@@ -101,9 +101,9 @@ about the rest, so breaking one of those is still a defect nothing will report.
 
 | Question | Read |
 |---|---|
-| Does a component like this exist at all, and which layers ship it? | [`frameworks/SKILL.md`](./frameworks/SKILL.md) |
-| Which category holds the component I am reaching for? | `frameworks/<layer>/SKILL.md`, which names every one of them and describes none |
-| What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/SKILL.md` |
+| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](./frameworks/INDEX.md) |
+| Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
+| What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |

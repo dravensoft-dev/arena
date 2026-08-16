@@ -14,8 +14,8 @@ a screen built from this page alone breaks the rules where nothing will report i
 
 | Layer | Index | Package |
 |---|---|---|
-| Angular | [`angular/SKILL.md`](./angular/SKILL.md) | `@dravensoft/arena-angular` |
-| React | [`react/SKILL.md`](./react/SKILL.md) | `@dravensoft/arena-react` |
+| Angular | [`angular/INDEX.md`](./angular/INDEX.md) | `@dravensoft/arena-angular` |
+| React | [`react/INDEX.md`](./react/INDEX.md) | `@dravensoft/arena-react` |
 
 - **Takes** is the members its API contract declares, in contract order, under the neutral names
   the contract gives them. A member marked `*` is required. Your layer's index gives the name

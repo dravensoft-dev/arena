@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LLMS_INDEX, ROUTER, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl, summary,
+  LLMS_INDEX, ROUTER, INDEX, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl, summary,
   categoryIndexes, prompts, layerDocs, servedDocs, index, corpus, nameOf, categoryOf,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
@@ -56,7 +56,7 @@ test('the router and the cross-layer index lead every corpus, since that is the 
   for (const layer of LAYERS) {
     const text = corpus(layer);
     assert.ok(text.indexOf(`<!-- ${ROUTER} -->`) < text.indexOf(`<!-- ${LAYER_INDEX} -->`));
-    assert.ok(text.indexOf(`<!-- ${LAYER_INDEX} -->`) < text.indexOf(`<!-- frameworks/${layer}/${ROUTER} -->`));
+    assert.ok(text.indexOf(`<!-- ${LAYER_INDEX} -->`) < text.indexOf(`<!-- frameworks/${layer}/${INDEX} -->`));
   }
 });
 
@@ -83,5 +83,5 @@ test('a URL is spelled once, from the domain the site is built for', () => {
 
 test('a document is named by what it is, not by the path it sits at', () => {
   assert.equal(nameOf('frameworks/react/components/forms/arena-button/ArenaButton.prompt.md'), 'ArenaButton');
-  assert.equal(categoryOf('frameworks/react/components/forms/SKILL.md'), 'forms');
+  assert.equal(categoryOf('frameworks/react/components/forms/INDEX.md'), 'forms');
 });

@@ -17,7 +17,8 @@ import { DOMAIN, LAYERS } from './site-pages.ts';
 export const LLMS_INDEX = 'llms.txt';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const ROUTER = 'SKILL.md';
-export const LAYER_INDEX = 'frameworks/SKILL.md';
+export const INDEX = 'INDEX.md';
+export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
 export const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 export const DESCRIPTION = /^description:\s*(.+)$/m;
@@ -45,7 +46,7 @@ export function under(layer: string, base: string, keep: (rel: string) => boolea
 }
 
 export function categoryIndexes(layer: string, base = root) {
-  return under(layer, base, (rel) => rel.endsWith(`/${ROUTER}`) && rel.includes('/components/'));
+  return under(layer, base, (rel) => rel.endsWith(`/${INDEX}`) && rel.includes('/components/'));
 }
 
 export function prompts(layer: string, base = root) {
@@ -54,7 +55,7 @@ export function prompts(layer: string, base = root) {
 
 export function layerDocs(layer: string, base = root) {
   return [
-    `frameworks/${layer}/${ROUTER}`,
+    `frameworks/${layer}/${INDEX}`,
     `frameworks/${layer}/PACKAGE.md`,
     ...categoryIndexes(layer, base),
     ...prompts(layer, base),

@@ -1,7 +1,7 @@
 # Arena, the React layer
 
 > **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
-> [`SKILL.md`](./SKILL.md) to find a component, and that component's `.prompt.md` to use it.
+> [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
 The React primitives, the kitchen-sink page one style plugin gets, and the shared modules both of them read.
 Every value here comes from `contracts/design/`; this layer introduces no design decision

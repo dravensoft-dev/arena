@@ -176,7 +176,7 @@ two generated outputs that can carry neither the infix nor a header: the font bi
 `assets/fonts/` and `intro/support.js`.
 
 **The consumer index tree is not a hole in that naming rule.** The pattern reaches a
-`.generated.` name, `SKILL.md` is not one, and so the three are tracked by default under the
+`.generated.` name, `INDEX.md` is not one, and so the three are tracked by default under the
 first reason above. `check:generated` scans no `.md` at all, and `check:skills` holds their
 freshness and their tracking instead.
 

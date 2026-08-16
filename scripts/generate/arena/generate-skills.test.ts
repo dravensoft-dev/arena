@@ -136,7 +136,7 @@ test('the directory names every component the layer ships, so no category has to
   for (const layer of CONSUMER_LAYERS) {
     const roof = renderLayerIndex(layer);
     for (const category of layerCategories(layer)) {
-      assert.ok(roof.includes(`components/${category}/SKILL.md`), `the roof drops ${category}`);
+      assert.ok(roof.includes(`components/${category}/INDEX.md`), `the roof drops ${category}`);
       for (const row of renderCategoryIndex(layer, category).split('\n')) {
         const named = /^\| `(Arena[A-Za-z0-9]*)` \|/.exec(row);
         if (named) assert.ok(roof.includes(`\`${named[1]}\``), `${named[1]} is in no roof row`);
@@ -160,6 +160,6 @@ test('no index is an entry point, so every one names the router above it', () =>
 });
 
 test('a target nothing emits is an error rather than an empty page', () => {
-  assert.throws(() => renderTarget('frameworks/tailwind/SKILL.md'), /nothing emits/);
-  assert.equal(layerTarget('react'), 'frameworks/react/SKILL.md');
+  assert.throws(() => renderTarget('frameworks/tailwind/INDEX.md'), /nothing emits/);
+  assert.equal(layerTarget('react'), 'frameworks/react/INDEX.md');
 });
