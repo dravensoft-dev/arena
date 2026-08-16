@@ -44,6 +44,7 @@
   --fill-surface-sunken:var(--color-base-100);
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
+  --fill-track:var(--color-base-300);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
@@ -80,6 +81,7 @@
   --fill-surface-sunken:var(--color-base-100);
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
+  --fill-track:var(--color-base-300);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);

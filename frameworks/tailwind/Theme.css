@@ -56,6 +56,7 @@
   --color-surface-sunken: var(--fill-surface-sunken);
   --color-field: var(--fill-field);
   --color-hover: var(--fill-hover);
+  --color-track: var(--fill-track);
 
   /* The wash a media frame draws under anything laid over it. A colour key rather than one of
      its own, because bg-* is the namespace that paints it; the OPACITY stays in the manifest,

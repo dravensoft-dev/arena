@@ -204,6 +204,10 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "fill-track": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.secondary}"

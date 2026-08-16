@@ -204,6 +204,10 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-track": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.base-content}"
