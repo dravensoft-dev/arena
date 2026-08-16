@@ -1,7 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { avatarLg, avatarMd, avatarSm, avatarXs } from '../../../Tokens.generated';
 import { arenaAvatarStyles } from './ArenaAvatar.variants';
 import manifest from './ArenaAvatar.classes.generated';
 import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../../../Api.generated';
+
+const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
+  xs: avatarXs, sm: avatarSm, md: avatarMd, lg: avatarLg,
+};
 
 @Component({
   selector: 'arena-avatar',
@@ -15,7 +20,8 @@ import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../..
   template: `
     <span [class]="styles().box()" [attr.data-arena-part]="parts.box">
       @if (src(); as source) {
-        <img [src]="source" [alt]="name()" [class]="styles().image()" [attr.data-arena-part]="parts.image" />
+        <img [src]="source" [alt]="name()" [class]="styles().image()" [attr.data-arena-part]="parts.image"
+             [attr.width]="diameter()" [attr.height]="diameter()" decoding="async" />
       } @else {
         {{ initials() }}
       }
@@ -50,4 +56,6 @@ export class ArenaAvatar {
 
   protected readonly initials = computed(() =>
     this.name().trim().split(/\s+/).slice(0, 2).map((word) => word[0] ?? '').join('').toUpperCase());
+
+  protected readonly diameter = computed(() => AVATAR_DIAMETER[this.size()]);
 }

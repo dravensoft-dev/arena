@@ -108,3 +108,24 @@ test('a focusable element inside the render is what this suite exists to catch',
     'an ArenaCard given an action slot renders a real button -- the check must see it, or it sees nothing. '
     + 'The binding stays correct because that button is the CONSUMER\'s, which is why the cases above pass no slots.');
 });
+
+test('an avatar image reserves its own box before the stylesheet arrives', () => {
+  const image = mount(<ArenaAvatar name="Ada Lovelace" src="/ada.png" size="lg" />).querySelector('img');
+  assert.ok(image);
+  assert.equal(image.getAttribute('width'), '56', 'the lg diameter, read from the token rather than restated here');
+  assert.equal(image.getAttribute('height'), '56');
+  assert.equal(image.getAttribute('decoding'), 'async');
+  assert.equal(image.getAttribute('loading'), null,
+    'deliberately absent: an avatar above the fold should not be deferred and the component cannot '
+    + 'know where it sits, so exposing the choice would be a capability and would go through the '
+    + 'audit protocol rather than through a defect');
+});
+
+test('the reserved box is the drawn box at every size', () => {
+  for (const [size, px] of [['xs', 24], ['sm', 32], ['md', 40], ['lg', 56]] as const) {
+    const image = mount(<ArenaAvatar name="Ada" src="/ada.png" size={size} />).querySelector('img');
+    assert.equal(image?.getAttribute('width'), String(px),
+      'the class sizes the box and the attribute reserves it, and the two disagreeing is a shift '
+      + 'that only appears on a slow stylesheet, which is where nobody looks');
+  }
+});

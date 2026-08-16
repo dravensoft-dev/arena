@@ -90,6 +90,14 @@
      needs something to derive from. If a second component ever wants the same
      ladder, rename this for the role instead of duplicating it.
    */
+  /*
+     Script-readable, and so are its three siblings, for one reason: an <img>
+     reserves its box before the stylesheet arrives through the width and height
+     attributes, which take a bare integer and cannot take a custom property. So the
+     number has to reach JavaScript or the avatar is the one image in the library
+     whose space is not held. Reading it here rather than restating it in each layer
+     is what keeps the reserved box and the drawn box the same number.
+   */
   --avatar-xs:24px;
   --avatar-sm:32px;
   --avatar-md:40px;
