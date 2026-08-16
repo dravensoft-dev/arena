@@ -287,11 +287,6 @@ export function phosphorRoot(from = process.cwd(), fallback = here) {
   return null;
 }
 
-/* The one spelling of a separator conversion inside the CLI tree, which is copied whole into
- * bin/ and so cannot climb out of itself to reach scripts/utils/posix-path.ts. The walk answers
- * in the host separator because that is a path to hand back to node, and every string that
- * LEAVES this command goes through here: an @import a browser resolves, and a citation a reader
- * greps for. The separator is a parameter so a backslash is a case rather than a machine. */
 export function toPosix(path: string, separator = sep) {
   return path.split(separator).join('/');
 }
