@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LLMS_INDEX, ROUTER, INDEX, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl, summary,
+  LLMS_INDEX, ROUTER, INDEX, KERNEL, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl, summary,
   categoryIndexes, prompts, layerDocs, servedDocs, index, corpus, nameOf, categoryOf,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
@@ -57,6 +57,17 @@ test('the router and the cross-layer index lead every corpus, since that is the 
     const text = corpus(layer);
     assert.ok(text.indexOf(`<!-- ${ROUTER} -->`) < text.indexOf(`<!-- ${LAYER_INDEX} -->`));
     assert.ok(text.indexOf(`<!-- ${LAYER_INDEX} -->`) < text.indexOf(`<!-- frameworks/${layer}/${INDEX} -->`));
+  }
+});
+
+test('the kernel is on every corpus and in the index, since it is the decision before the first screen', () => {
+  assert.ok(servedDocs().includes(KERNEL), 'a document off servedDocs reaches no corpus and no index');
+  assert.ok(index().includes(docUrl(KERNEL)), 'the index an agent fetches first does not name it');
+  for (const layer of LAYERS) {
+    const text = corpus(layer);
+    assert.ok(text.indexOf(`<!-- ${ROUTER} -->`) < text.indexOf(`<!-- ${KERNEL} -->`));
+    assert.ok(text.indexOf(`<!-- ${KERNEL} -->`) < text.indexOf(`<!-- ${LAYER_INDEX} -->`),
+      'the skin decision is read before the components, so it is concatenated before them');
   }
 });
 

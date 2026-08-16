@@ -18,6 +18,7 @@ export const LLMS_INDEX = 'llms.txt';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const ROUTER = 'skills/design/SKILL.md';
 export const INDEX = 'INDEX.md';
+export const KERNEL = 'skills/design/references/style-kernel.md';
 export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
 export const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
@@ -69,7 +70,7 @@ export function layerDocs(layer: string, base = root) {
 }
 
 export function servedDocs(base = root) {
-  return [ROUTER, LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
+  return [ROUTER, KERNEL, LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
     .filter((rel) => existsSync(join(base, rel)));
 }
 
@@ -94,6 +95,7 @@ export function index(base = root) {
     '## Start here',
     '',
     `- [The router](${docUrl(ROUTER)}): the rules of the language. Every other document is reached from here.`,
+    `- [Make it look like your product](${docUrl(KERNEL)}): the questions the kernel asks, and which answers carry the difference. Read once per project, before the first screen.`,
     `- [Every component in one read](${docUrl(LAYER_INDEX)}): which components exist and which layers ship them.`,
     '',
   ];
@@ -135,7 +137,7 @@ export function corpus(layer: string, base = root) {
     'under both names and the two documents are not interchangeable.',
     '',
   ];
-  for (const rel of [ROUTER, LAYER_INDEX, ...layerDocs(layer, base)]) {
+  for (const rel of [ROUTER, KERNEL, LAYER_INDEX, ...layerDocs(layer, base)]) {
     parts.push('', `<!-- ${rel} -->`, '', readFileSync(join(base, rel), 'utf8').trim(), '');
   }
   return `${parts.join('\n')}\n`;
