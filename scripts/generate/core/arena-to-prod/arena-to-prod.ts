@@ -392,7 +392,8 @@ export function markersStep(options: ResolvedOptions, map: ComponentMap | null) 
       files.push({ path: file, source: readFileSync(file, 'utf8') });
     }
   }
-  return { reports: markerProblems(files, map.markers).map((line) => report('markers', line)) };
+  return { reports: markerProblems(files, map.markers, map.markerDirectives ?? {})
+    .map((line) => report('markers', line)) };
 }
 
 export function undrawnStep(options: ResolvedOptions, packageName: string, map: ComponentMap | null) {

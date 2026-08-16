@@ -11,7 +11,9 @@ import { dirname, join } from 'node:path';
 
 export type MarkerMap = Record<string, string[]>;
 
-export function directiveFor(attribute: string): string {
+export function directiveFor(attribute: string, directives: Record<string, string> = {}): string {
+  const named = directives[attribute];
+  if (named) return named;
   return `Arena${attribute.charAt(0).toUpperCase()}${attribute.slice(1)}`;
 }
 
@@ -73,6 +75,7 @@ export function templatesOf(path: string, source: string, read = readFileSync): 
 export function markerProblems(
   files: Array<{ path: string; source: string }>,
   markers: MarkerMap,
+  directives: Record<string, string> = {},
   read = readFileSync,
 ): string[] {
   const problems: string[] = [];
@@ -83,7 +86,7 @@ export function markerProblems(
     const imports = importsOf(source);
     for (const template of templatesOf(path, source, read)) {
       for (const { attribute, host } of markerUses(template, markers)) {
-        const directive = directiveFor(attribute);
+        const directive = directiveFor(attribute, directives);
         if (imports.includes(directive)) continue;
         problems.push(
           `${path} projects into the \`${attribute}\` slot of <${host}> and does not import `

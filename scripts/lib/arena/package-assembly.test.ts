@@ -10,6 +10,7 @@ import {
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
 
@@ -201,9 +202,23 @@ test('each package carries the map its own layer derives, under the one name the
 
 test('a map that claims no sheet at all is refused, because auto would then unstyle every screen', () => {
   const to = mkdtempSync(join(tmpdir(), 'arena-assembly-map-'));
-  assert.throws(() => writeComponentMap(to, 'angular', mkdtempSync(join(tmpdir(), 'arena-empty-'))),
-    /derived no component sheet for angular/);
+  const from = mkdtempSync(join(tmpdir(), 'arena-empty-'));
+  mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
+  writeFileSync(join(from, MARKERS_FILE),
+    "@Directive({ selector: '[action]', standalone: true })\nexport class ArenaAction {}\n");
+  assert.throws(() => writeComponentMap(to, 'angular', from), /derived no component sheet for angular/,
+    'the root carries the marker declaration and no components, so the only thing it lacks is the '
+    + 'sheet this case is about: a root missing both is refused for whichever is asked for first');
+  rmSync(from, { recursive: true });
   rmSync(to, { recursive: true });
+});
+
+test('a marker declaration nothing can be read out of is refused rather than yielding no markers', () => {
+  const from = mkdtempSync(join(tmpdir(), 'arena-nomarkers-'));
+  mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
+  writeFileSync(join(from, MARKERS_FILE), 'export const nothing = 1;\n');
+  assert.throws(() => markerAttributes(from), /declares no projection marker/);
+  rmSync(from, { recursive: true });
 });
 
 test('a command whose directory moved is reported rather than shipped missing', () => {

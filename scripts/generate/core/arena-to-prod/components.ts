@@ -18,6 +18,7 @@ export type ComponentMap = {
   draws: Record<string, string | null>;
   needs: Record<string, string[]>;
   markers?: Record<string, string[]>;
+  markerDirectives?: Record<string, string>;
 };
 
 export function selectorKeys(map: ComponentMap, sources: string[]) {

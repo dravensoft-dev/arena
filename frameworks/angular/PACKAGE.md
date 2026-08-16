@@ -88,7 +88,8 @@ import { ArenaButton, ArenaCard } from '@dravensoft/arena-angular';
 ```
 
 Every type carries it as well, so a tone is an `ArenaTone`, and the projection markers carry it
-already: `ArenaAction`, `ArenaActions`, `ArenaBrand`, `ArenaFooter` and `ArenaSecondaryAction`.
+already: `ArenaAction`, `ArenaActions`, `ArenaBrand`, `ArenaFooter`, `ArenaSecondaryAction`,
+`ArenaFigureSlot`, `ArenaMedia`, `ArenaFallback`, `ArenaOverlay` and `ArenaNav`.
 
 **The class names carry it too, and they carry it once.** A component renders
 `.arena-button__root`, spelt from the component's own name, so a rule of yours written against
@@ -392,9 +393,13 @@ flash it exists to prevent.
 Every component is standalone, so import the ones a template uses. Five other surfaces reach the
 package root, each answering a question a consumer cannot answer from outside.
 
-**The projection markers, and they are not optional.** `ArenaAction`, `ArenaActions`,
-`ArenaBrand`, `ArenaFooter` and `ArenaSecondaryAction` are the directives behind the `[action]`,
-`[actions]`, `[brand]`, `[footer]` and `[secondaryAction]` attributes. **Put the marker your
+**The projection markers, and they are not optional.** Ten directives stand behind ten
+attributes: `ArenaAction` behind `[action]`, `ArenaActions` behind `[actions]`, `ArenaBrand`
+behind `[brand]`, `ArenaFooter` behind `[footer]`, `ArenaSecondaryAction` behind
+`[secondaryAction]`, `ArenaFigureSlot` behind `[figure]`, `ArenaMedia` behind `[media]`,
+`ArenaFallback` behind `[fallback]`, `ArenaOverlay` behind `[overlay]` and `ArenaNav` behind
+`[nav]`. **`ArenaFigureSlot` is the one whose name is not its attribute capitalised**, because
+`ArenaFigure` is the component that holds the slot. **Put the marker your
 template writes in that component's own `imports`.** A component detects a projected slot with a
 `contentChild` on the directive, so an un-imported marker leaves the query null and the slot
 silently unrendered: no error and no template diagnostic, because a bare `footer` attribute on a

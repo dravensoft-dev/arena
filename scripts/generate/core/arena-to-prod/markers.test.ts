@@ -37,6 +37,7 @@ test('a template in its own file is read through templateUrl, which is how an An
   const problems = markerProblems(
     [{ path: 'app/shell.ts', source: "@Component({ imports: [ArenaCard], templateUrl: './shell.html' })" }],
     MARKERS,
+    {},
     read(files),
   );
   assert.equal(problems.length, 1);
