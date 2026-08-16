@@ -143,7 +143,7 @@ export const CLAIMS = {
     { chosen: { accent: false }, slot: 'root', has: ['border-edge-surface'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
     { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
     { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and a style plugin can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
-    { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', 'text-ink-eyebrow-surface'], hasNot: ['text-ink-eyebrow'], why: 'the eyebrow is the accent mono micro-label above the display-weight title, and it takes the SURFACE eyebrow ink: an accent spent on every card is an accent spent, so a style plugin holds a card\'s eyebrow back while the line that opens a section keeps it' },
+    { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', 'text-ink-eyebrow'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
     { slot: 'title', has: ['font-face-heading', 'text-title-surface'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
   ArenaSkeleton: [

@@ -72,7 +72,6 @@
   --color-ink-heading: var(--ink-heading);
   --color-ink-body: var(--ink-body);
   --color-ink-eyebrow: var(--ink-eyebrow);
-  --color-ink-eyebrow-surface: var(--ink-eyebrow-surface);
   --color-ink-muted: var(--ink-muted);
 
   /* Edge ROLES. v4 has no border-color namespace: a border colour is a --color-* key read by

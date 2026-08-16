@@ -153,7 +153,27 @@ because no product wants a portrait outlined the way it wants a tag outlined. On
 is that product's own by the rule above, and the entry is here so the next one is a count rather
 than a rediscovery.
 
+**A level is not a colour, so an ask that is a level is no evidence for a colour role.** The
+eyebrow of a card is the measured case. Two plugins paint it by hand, which reads as a count that
+clears the bar, and what each rule changes is how far the line is held back rather than which
+colour it takes: both already answer `ink-eyebrow` with the muted step their own palette declares.
+A colour role names WHICH of the consumer's colours and never how held back it is, which
+[`roles.json`](./roles.json) states at `ink-muted`, so no colour role could have carried that ask
+and the count was two plugins reaching for one alias rather than two plugins asking one question.
+
+**What a plugin does instead is compose the colour**, `color-mix(in oklab, var(--color-base-content)
+62%, transparent)`, which is the instruction the audit already gives a consumer who writes a raw
+one. The limit behind it is worth stating in the same breath: a slot carrying no opacity modifier
+cannot be held back by any token, because the modifier lives in the manifest and a role cannot add
+a declaration a slot never makes. Most text carries none, since full strength is the ordinary case
+and the held-back register is the one that spells its level. Moving a slot from one register to the
+other is a decision about one product's appearance, so it belongs to a rule through the part, which
+is what the escape hatch is and why the audit permits it inside a plugin directory.
+
 This is how the current tier was derived, by counting the slots that named a palette step, a face
 or a case directly. What changes is that the count now has a source that keeps producing: the
 audit reports which parts a plugin paints, and that note is where the evidence for promoting one
-comes from.
+comes from. **A count is evidence only once each part in it is remeasured against the sheet the
+slot compiles to**, because a plugin declaration restating what the slot already paints raises the
+count without changing a pixel, and one naming an alias raises it without asking a question the
+kernel could answer.
