@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  COMPLETE, collect, movedRoles, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems,
+  COMPLETE, collect, movedRoles, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems, restatedInWitness, sheetsByPart,
 } from './check-style-plugin-coverage.ts';
 
 test('a role complete does not move is a role nothing can reach', () => {
@@ -42,4 +42,26 @@ test('the tree holds: every declared role moves and every emitted part is painte
   const { problems, roles, parts } = collect();
   assert.deepEqual(problems, []);
   assert.ok(roles > 0 && parts > 0, `${COMPLETE} was read and answered nothing, so a green run proves nothing`);
+});
+
+test('a witness restating a slot value demonstrates no reach', () => {
+  const problems = restatedInWitness(
+    '[data-arena-part="card.title"] { font-family: var(--ff-heading); }',
+    () => '.arena-card__title { font-family: var(--ff-heading); }',
+  );
+  assert.equal(problems.length, 1, 'the value the slot already paints is the whole of that rule');
+  assert.match(problems[0] ?? '', /card\.title/);
+});
+
+test('a witness painting a value of its own is what coverage means', () => {
+  assert.deepEqual(restatedInWitness(
+    '[data-arena-part="card.title"] { font-family: var(--font-mono); }',
+    () => '.arena-card__title { font-family: var(--ff-heading); }',
+  ), []);
+});
+
+test('every part the manifests emit resolves to a compiled sheet, or the rule reads nothing', () => {
+  const sheets = sheetsByPart();
+  assert.ok(sheets.size > 0, 'no part mapped to a sheet, so the witness would be measured against nothing');
+  assert.ok(sheets.has('card.title'), 'a part every layer draws must resolve, or the map is partial');
 });

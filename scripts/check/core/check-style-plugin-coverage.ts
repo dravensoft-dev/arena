@@ -6,12 +6,15 @@
  * never rebuilt is caught, and it reuses paintedParts from the shipped audit rather than parsing
  * a selector a second time. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { paintedParts } from '../../generate/core/arena-to-prod/audit.ts';
+import { restatedFindings } from '../../generate/core/arena-to-prod/restated.ts';
+import { kebab } from '../../utils/case.ts';
+import { categoryOf } from '../../lib/tailwind/manifest-surfaces.ts';
 import { MANIFESTS, partsOf } from '../arena/check-parts.ts';
 import { ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
 
@@ -61,6 +64,25 @@ export function phantomParts(all: string[], painted: string[]) {
     + 'draws already carries another slot\'s hook.');
 }
 
+export function sheetsByPart(base = repoRoot) {
+  const out = new Map<string, string>();
+  for (const name of MANIFESTS()) {
+    const path = join(base, 'frameworks/tailwind/consume/components', categoryOf(name) ?? '',
+      kebab(name), `${name}.styles.generated.css`);
+    if (!existsSync(path)) continue;
+    for (const part of Object.values(partsOf(name))) out.set(part, path);
+  }
+  return out;
+}
+
+export function restatedInWitness(css: string, sheetOf: (part: string) => string | null) {
+  return restatedFindings(css, sheetOf).map(({ part, property, value }) =>
+    `${COMPLETE_CSS} sets ${property} to ${value} on [data-arena-part="${part}"] and the slot `
+    + 'already paints exactly that, so the rule demonstrates no reach. The witness is what says the '
+    + 'advertised surface is real, and a part reached by restating its own answer says the opposite '
+    + 'while counting as coverage: paint it with a value of its own.');
+}
+
 export function zeroCoverageProblems(count: number) {
   if (count > 0) return [];
   return ['walked 0 role(s) -- an empty result set is a failure, not a clean pass; check the '
@@ -72,13 +94,20 @@ export function collect(base = repoRoot) {
   const root = answersIn(readJson(join(base, ROOT_PLUGIN)) as Record<string, Token>);
   const complete = answersIn(readJson(join(base, COMPLETE)) as Record<string, Token>);
   const parts = [...new Set(MANIFESTS().flatMap((name) => Object.values(partsOf(name))))].sort();
-  const painted = paintedParts(readFileSync(join(base, COMPLETE_CSS), 'utf8'));
+  const witness = readFileSync(join(base, COMPLETE_CSS), 'utf8');
+  const painted = paintedParts(witness);
+  const sheets = sheetsByPart(base);
+  const sheetOf = (part: string) => {
+    const path = sheets.get(part);
+    return path ? readFileSync(path, 'utf8') : null;
+  };
 
   return {
     problems: [
       ...unreachedRoles(declared, movedRoles(root, complete)),
       ...unpaintedParts(parts, painted),
       ...phantomParts(parts, painted),
+      ...restatedInWitness(witness, sheetOf),
     ],
     roles: declared.length,
     parts: parts.length,

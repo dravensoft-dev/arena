@@ -374,7 +374,7 @@
   border-radius: var(--r-surface-floating);
 }
 .arena-complete [data-arena-part="card.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="card.head"] {
@@ -498,7 +498,7 @@
   outline-offset: var(--sp-1);
 }
 .arena-complete [data-arena-part="confirm-dialog.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="confirm-dialog.foot"] {
@@ -535,7 +535,7 @@
   border-radius: var(--r-surface-floating);
 }
 .arena-complete [data-arena-part="dialog.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="dialog.foot"] {
@@ -649,7 +649,7 @@
   outline-offset: var(--sp-1);
 }
 .arena-complete [data-arena-part="hero.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="hero.figure"] {
@@ -778,7 +778,7 @@
 }
 .arena-complete [data-arena-part="menu.panel"] {
   background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
-  border-radius: var(--r-surface-floating);
+  border-radius: var(--r-marker);
 }
 .arena-complete [data-arena-part="menu.shortcut"] {
   letter-spacing: var(--track-eyebrow);
@@ -803,7 +803,7 @@
   outline-offset: var(--sp-1);
 }
 .arena-complete [data-arena-part="onboarding.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="onboarding.foot"] {
@@ -1008,7 +1008,7 @@
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="section.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="section.head"] {
@@ -1429,7 +1429,7 @@
   outline-offset: var(--sp-1);
 }
 .arena-complete [data-arena-part="unauth-card.eyebrow"] {
-  letter-spacing: var(--track-eyebrow);
+  letter-spacing: var(--track-label);
   text-wrap: balance;
 }
 .arena-complete [data-arena-part="unauth-card.footer"] {

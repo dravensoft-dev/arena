@@ -156,6 +156,11 @@ export const PAINTED = 'card.body';
 export const PLUGIN_PAINT = `[data-arena-part="${PAINTED}"] {\n`
   + '  background: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));\n}\n';
 
+export const RESTATED = 'card.title';
+
+export const PLUGIN_RESTATE = `[data-arena-part="${RESTATED}"] {\n`
+  + '  font-family: var(--ff-heading);\n}\n';
+
 export const REACHING_IN = 'src/reach.css';
 
 export function pluginFixture(layer: string, plugins: string[], base = root) {
@@ -171,7 +176,7 @@ export function pluginFixture(layer: string, plugins: string[], base = root) {
       continue;
     }
     writeFileSync(join(at, PLUGIN_TOKENS), `${JSON.stringify(PARTIAL_ANSWERS, null, 2)}\n`);
-    writeFileSync(join(at, PLUGIN_CSS), PLUGIN_PAINT);
+    writeFileSync(join(at, PLUGIN_CSS), PLUGIN_PAINT + PLUGIN_RESTATE);
   }
   writeFileSync(join(dir, ...REACHING_IN.split('/')), PLUGIN_PAINT);
   return dir;
@@ -250,9 +255,19 @@ export function scopeProblems(layer: string, audited: CliRun) {
       + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
       + 'floor and --strict may not refuse what the norm permits');
   }
-  if (!audited.stdout.includes(`paint 1 part(s): ${PAINTED}`)) {
+  if (!audited.stdout.includes(`paint 2 part(s): ${PAINTED}, ${RESTATED}`)) {
     problems.push(`${layer}: the run does not name the parts the plugin paints, and that note is where the `
       + `evidence for promoting a role comes from:\n    ${audited.stdout.trim()}`);
+  }
+  const restated = audited.stderr.split('\n').filter((line) => line.includes('changes nothing'));
+  if (!restated.some((line) => line.includes(RESTATED))) {
+    problems.push(`${layer}: the plugin restates the value ${RESTATED} already paints and the run says `
+      + 'nothing. A part counts as painted because the audit reads source text, and a role is grown from '
+      + `that count, so a restatement left unreported is evidence for a question nobody asked:\n    ${audited.stderr.trim().slice(0, 200)}`);
+  }
+  if (restated.some((line) => line.includes(PAINTED))) {
+    problems.push(`${layer}: the gradient on ${PAINTED} was called a restatement, and the slot paints no `
+      + 'gradient at all, so the rule is reporting a rule that does change something');
   }
   return problems;
 }

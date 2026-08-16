@@ -24,6 +24,7 @@ import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
+import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
 import type { Report, StrictKind } from './reports.ts';
 
@@ -342,19 +343,32 @@ export function pluginDirs(options: ResolvedOptions) {
     .map((entry: string) => resolve(dirname(resolve(options.config)), entry.trim()));
 }
 
-export function auditStep(options: ResolvedOptions) {
+export function auditStep(options: ResolvedOptions, arena: string | null = null) {
   if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
   const reports: Report[] = [];
   const painted = new Set<string>();
   let scanned = 0;
+  const sheetOf = (part: string) => {
+    if (!arena) return null;
+    const path = join(arena, 'css', 'components', sheetFor(part));
+    return existsSync(path) ? readFileSync(path, 'utf8') : null;
+  };
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
       scanned += 1;
       const text = readFileSync(file, 'utf8');
       const scope = sourceScope(resolve(file), dirs);
       reports.push(...auditText(file, text, scope).map((line) => report('audit', line)));
-      if (scope === 'plugin') for (const part of paintedParts(text)) painted.add(part);
+      if (scope !== 'plugin') continue;
+      for (const part of paintedParts(text)) painted.add(part);
+      if (!file.endsWith('.css')) continue;
+      for (const one of restatedFindings(text, sheetOf)) {
+        reports.push(report('restated', `${file}: ${one.property} on [data-arena-part="${one.part}"] `
+          + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
+          + 'counts a part as painted by reading source text, and a role is grown from that count, '
+          + 'so a restatement is evidence for a question nobody asked'));
+      }
     }
   }
   return { reports, scanned, painted: [...painted].sort() };
@@ -563,7 +577,7 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
-  const audit = auditStep(options);
+  const audit = auditStep(options, arena);
   for (const one of audit.reports) console.error(`arena-to-prod: ${one.message}`);
   if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `

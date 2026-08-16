@@ -124,6 +124,7 @@ an application source and says nothing about it inside a declared plugin directo
 | a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
 | no gradient | `--audit`, in the application scope only | a consumer's sources |
 | a colour assigned through one of Arena's own aliases rather than a role | `--audit`, in the plugin scope only | a consumer's style plugins |
+| a declaration restating what the part's slot already paints | `--audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
 
 A floor nothing measures is a sentence, and a sentence that reads like a guarantee is worse than
 an admitted limit.
@@ -194,4 +195,8 @@ audit reports which parts a plugin paints, and that note is where the evidence f
 comes from. **A count is evidence only once each part in it is remeasured against the sheet the
 slot compiles to**, because a plugin declaration restating what the slot already paints raises the
 count without changing a pixel, and one naming an alias raises it without asking a question the
-kernel could answer.
+kernel could answer. The audit reads that comparison for a consumer and
+`check:style-plugin-coverage` reads it over `complete`, since a witness reaching a part by
+restating the part's own answer demonstrates nothing about reach. **The comparison is over text**,
+so a restatement written through a name that resolves to the same value is invisible to it, which
+is why the remeasurement is a reading and not only a gate.
