@@ -122,9 +122,22 @@ an application source and says nothing about it inside a declared plugin directo
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, bar one declared allowance carrying its measurement |
 | the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
 | a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
-| no gradient | `--audit`, in the application scope only | a consumer's sources |
+| no gradient | `--audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
 | a colour assigned through one of Arena's own aliases rather than a role | `--audit`, in the plugin scope only | a consumer's style plugins |
 | a declaration restating what the part's slot already paints | `--audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
+
+**A brand whose mark IS a gradient is the case that split does not cover.** The scope reads the
+directory a line sits in, which is the right question for a part hook and the wrong one for a
+brand: a product whose mark is a gradient draws that element itself, because Arena has none, so
+the gradient lands in application CSS where the rule always reports it and `--strict=audit` would
+fail the build over the most recognisable thing about the product. `gradientMark` in
+`arena.config.json` is where a project says so, once, beside the rest of what it owns.
+
+What that replaces is an allowance per line. A marker suppresses every rule on its line rather
+than the gradient on it, so a line carrying a gradient and a bare pixel length would report
+neither, and the marker has to be repeated wherever the mark is drawn. The declaration silences
+the one rule it is about: the colours inside the gradient are still the skin, which a project
+assigns rather than authors, and they are still reported.
 
 A floor nothing measures is a sentence, and a sentence that reads like a guarantee is worse than
 an admitted limit.

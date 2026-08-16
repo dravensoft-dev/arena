@@ -56,6 +56,7 @@ export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 
 export type ArenaConfig = {
   stylePlugins?: unknown;
+  gradientMark?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
   stylesheet?: ArenaStylesheet;
@@ -400,6 +401,14 @@ export function stylePluginProblems(
     : []));
 }
 
+export function gradientMarkProblems(config: ArenaConfig) {
+  const declared = config.gradientMark;
+  if (declared === undefined || typeof declared === 'boolean') return [];
+  return [`gradientMark: declare true or false, not ${typeof declared}. It says the mark this `
+    + 'project is drawn with is a gradient, so the audit stops reporting one in your own sources, '
+    + 'and a value that is not a boolean would read as true while meaning nothing'];
+}
+
 export function configProblems(
   config: ArenaConfig, sheets: PackageSheets = null, plugins: ResolvedPlugins = null,
 ) {
@@ -417,6 +426,7 @@ export function configProblems(
     }
   }
 
+  problems.push(...gradientMarkProblems(config));
   problems.push(...stylePluginProblems(config, sheets, plugins));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));

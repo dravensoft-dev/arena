@@ -189,6 +189,12 @@ What each part means:
   value is invalid at computed-value time, so an unanswered role is a missing border rather than
   a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
+- **`gradientMark`** is optional, a boolean, and says the mark your product is drawn with is a
+  gradient. Arena ships no element that is one, so yours lives in your own CSS, where `--audit`
+  reports it: the scope reads which directory a line sits in, which is right for a part hook and
+  wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
+  the gradient are still reported, since they are the skin. It replaces an `arena-audit allow`
+  marker, which silences every rule on its line and is repeated wherever the mark is drawn.
 
 **A plugin carrying a `plugin.css` gets a third generated file**, `plugin.generated.css`, and
 you import it beside the other two. It declares the cascade layer order itself and then opens

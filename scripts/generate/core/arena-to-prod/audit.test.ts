@@ -247,6 +247,31 @@ test('an alias inside a fallback is still an assignment, since the fallback is w
     .filter((one) => one.rule === 'compat-alias').length, 1);
 });
 
+test('a project whose mark is a gradient is not told about one, and only about that', () => {
+  const rule = '.story__ring { background: conic-gradient(var(--color-cat-1), var(--color-cat-4)); }';
+  assert.match(auditText('src/a.css', rule, 'app').join('\n'), /gradient/,
+    'a gradient in an application source is the report the norm keeps');
+  assert.equal(auditText('src/a.css', rule, 'app', true).join('\n').includes('gradient'), false,
+    'a product whose mark IS a gradient draws that element itself, because Arena has none, so the '
+    + 'scope that reads the directory a line sits in asks the wrong question about a brand');
+});
+
+test('declaring the mark silences the gradient and nothing else on the line', () => {
+  const found = auditText('src/a.css', '.x { background: linear-gradient(red, blue); padding: 16px; }',
+    'app', true);
+  assert.match(found.join('\n'), /bare pixel length/,
+    'an allowance suppresses the whole line, which is what declaring the mark replaces');
+  assert.match(found.join('\n'), /raw colour/,
+    'the colours in the gradient are still the skin, which a project assigns rather than authors');
+});
+
+test('the declaration is not a way into the plugin scope, which already permits a gradient', () => {
+  const rule = '[data-arena-part="avatar.box"] { background: linear-gradient(var(--color-cat-1), var(--color-cat-4)); }';
+  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin'), [],
+    'a plugin paints one from its own stylesheet whatever the token tier says, declared or not');
+  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin', true), []);
+});
+
 test('the scope defaults to the application, so no caller changes meaning by accident', () => {
   assert.equal(findings('a.css', '[data-arena-part="card"] { color: red }').length,
     findings('a.css', '[data-arena-part="card"] { color: red }', 'app').length);

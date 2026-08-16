@@ -324,7 +324,8 @@ export function structuralFindings(text: string): Finding[] {
   return found;
 }
 
-export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app'): Finding[] {
+export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app',
+  gradientMark = false): Finding[] {
   const found: Finding[] = [];
 
   if (isStylesheet && OWN_RULE.test(line))
@@ -349,7 +350,7 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
   if (isStylesheet && scope === 'plugin' && namesAnAlias(line))
     found.push(at(0, 'compat-alias', COMPAT_ALIAS_MESSAGE));
 
-  if (styled && scope === 'app' && GRADIENT.test(line))
+  if (styled && scope === 'app' && !gradientMark && GRADIENT.test(line))
     found.push(at(0, 'raw-value', 'a gradient. Depth comes from the base-100 to base-300 surface '
       + 'scale, the hairline border and the warm shadow'));
 
@@ -370,19 +371,21 @@ export function bracketFindings(text: string, lines: string[]): Finding[] {
   });
 }
 
-export function findings(relPath: string, text: string, scope: Scope = 'app'): Finding[] {
+export function findings(relPath: string, text: string, scope: Scope = 'app',
+  gradientMark = false): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
   const perLine = withoutComments(text).split('\n').flatMap((line, index) =>
-    lineFindings(line, isStylesheet, scope).map((one) => at(index + 1, one.rule, one.message)));
+    lineFindings(line, isStylesheet, scope, gradientMark).map((one) => at(index + 1, one.rule, one.message)));
   return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 
-export function auditText(relPath: string, text: string, scope: Scope = 'app'): string[] {
+export function auditText(relPath: string, text: string, scope: Scope = 'app',
+  gradientMark = false): string[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text, scope)) {
+  for (const one of findings(relPath, text, scope, gradientMark)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }

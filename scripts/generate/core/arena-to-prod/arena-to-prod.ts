@@ -343,9 +343,18 @@ export function pluginDirs(options: ResolvedOptions) {
     .map((entry: string) => resolve(dirname(resolve(options.config)), entry.trim()));
 }
 
+export function gradientMark(options: ResolvedOptions) {
+  try {
+    return JSON.parse(readFileSync(options.config, 'utf8')).gradientMark === true;
+  } catch {
+    return false;
+  }
+}
+
 export function auditStep(options: ResolvedOptions, arena: string | null = null) {
   if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
+  const declaredMark = gradientMark(options);
   const reports: Report[] = [];
   const painted = new Set<string>();
   let scanned = 0;
@@ -359,7 +368,7 @@ export function auditStep(options: ResolvedOptions, arena: string | null = null)
       scanned += 1;
       const text = readFileSync(file, 'utf8');
       const scope = sourceScope(resolve(file), dirs);
-      reports.push(...auditText(file, text, scope).map((line) => report('audit', line)));
+      reports.push(...auditText(file, text, scope, declaredMark).map((line) => report('audit', line)));
       if (scope !== 'plugin') continue;
       for (const part of paintedParts(text)) painted.add(part);
       if (!file.endsWith('.css')) continue;

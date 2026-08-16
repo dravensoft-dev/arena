@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 40_500,
+    budget: 41_100,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -75,7 +75,10 @@ export const ROUTES: Route[] = [
       + 'screen, which costs more than every stop on this route put together. Raised again when '
       + '--strict stopped being one switch: a project whose brand does not clear 4.5:1 has to be '
       + 'told which kinds it can still hold, and a flag whose kinds are not named on the page is '
-      + 'one nobody can type.',
+      + 'one nobody can type. Raised again when the config gained a key for a brand whose mark is '
+      + 'a gradient: what the key buys is that --strict=audit stops failing over the most '
+      + 'recognisable thing about a product, and a key nobody is told about is one nobody '
+      + 'declares, so the report it silences goes on being suppressed a line at a time.',
   },
   {
     name: 'contributor-component',
