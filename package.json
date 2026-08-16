@@ -56,6 +56,7 @@
     "check:style-plugin": "bun scripts/check/core/check-style-plugin.ts",
     "check:style-plugin-coverage": "bun scripts/check/core/check-style-plugin-coverage.ts",
     "check:role-contract": "bun scripts/check/core/check-role-contract.ts",
+    "check:compat-aliases": "bun scripts/check/core/check-compat-aliases.ts",
     "check:token-collisions": "bun scripts/check/core/check-token-collisions.ts",
     "check:tokens": "bun scripts/check/core/check-tokens-generated.ts",
     "check:fonts": "bun scripts/check/core/check-fonts-generated.ts",

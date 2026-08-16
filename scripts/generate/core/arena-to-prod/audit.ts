@@ -195,6 +195,25 @@ export function rawColour(line: string, isStylesheet: boolean) {
 export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel value and a '
   + 'colour\'s name are both the skin written down: read the colour through its custom property, '
   + 'as var(--crimson), or compose one with color-mix() over var()';
+export const COMPAT_ALIASES = [
+  'picker-invert', 'ink', 'ink-2', 'panel', 'line-strong', 'bone', 'bone-dim', 'mute',
+  'mute-2-disabled', 'status-offline', 'crimson', 'crimson-strong', 'crimson-soft', 'gold',
+  'gold-strong', 'gold-soft', 'success', 'success-soft', 'warning', 'warning-soft', 'danger',
+  'danger-strong', 'danger-soft', 'danger-fill', 'info', 'info-soft', 'bg', 'bg-raised',
+  'surface-card', 'surface-input', 'text-strong', 'text-body', 'text-muted', 'border',
+  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent',
+];
+
+export const COMPAT_ALIAS_MESSAGE = 'a value read through one of Arena\'s own compatibility '
+  + 'aliases. The layer maps Arena\'s names onto the palette and ships with the package, so a rule '
+  + 'naming one assigns a step of the ramp under another name rather than answering a role: answer '
+  + 'the role in plugin.tokens.json with one of your palette colours, and compose the shade you '
+  + 'want with color-mix() over var(--color-*) where no palette entry holds it';
+
+export function namesAnAlias(line: string) {
+  return COMPAT_ALIASES.some((alias) => new RegExp(`var\\(\\s*--${alias}\\s*[,)]`).test(line));
+}
+
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
 const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
@@ -327,6 +346,9 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
   if (styled && BARE_PIXELS.test(line))
     found.push(at(0, 'raw-value', 'a bare pixel length. Read it through the spacing scale, as '
       + 'var(--sp-4), or derive it with calc() over one'));
+  if (isStylesheet && scope === 'plugin' && namesAnAlias(line))
+    found.push(at(0, 'compat-alias', COMPAT_ALIAS_MESSAGE));
+
   if (styled && scope === 'app' && GRADIENT.test(line))
     found.push(at(0, 'raw-value', 'a gradient. Depth comes from the base-100 to base-300 surface '
       + 'scale, the hairline border and the warm shadow'));

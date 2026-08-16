@@ -50,6 +50,23 @@ does not own. It is mechanical as well as doctrinal: the emitter turns a bare co
 `var()` it restates under every palette, and anything else resolves to one theme's hex and
 inherits it into the other.
 
+**The alias layer is the route around that, and it had nothing watching it.**
+[`colors.css`](./colors.css) maps Arena's own names onto the palette and ships with the packages,
+so a rule reading `var(--mute)` assigns a step of the ramp under another name while the raw-colour
+rule stays silent, because an alias is a token. The audit reports one inside a declared plugin
+directory, where the assignment is the plugin's own to make properly, and says nothing about one in
+an application, which is the last word and is already reported for reaching in.
+`check:compat-aliases` holds the rule's list against the stylesheet that defines the names, since
+the rule ships beside the CLI and cannot read that file.
+
+**Where no palette entry holds the shade a plugin wants, it composes one.**
+`color-mix(in oklab, var(--color-base-content) 62%, transparent)` is a colour built out of the
+consumer's own palette rather than a name borrowed from Arena's internals, and it is the same
+instruction the audit gives a consumer who writes a raw colour. That is the route for a decision no
+role carries, and holding a level is the clearest case: a role names which colour and the opacity
+modifier is a second decision the manifest composes on top, so a slot declaring no modifier cannot
+be held back by any answer to any role.
+
 ## The first plugin in the list is total
 
 `stylePlugins` takes a list, because a build can carry more than one register. The first entry is
@@ -106,6 +123,7 @@ an application source and says nothing about it inside a declared plugin directo
 | the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
 | a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
 | no gradient | `--audit`, in the application scope only | a consumer's sources |
+| a colour assigned through one of Arena's own aliases rather than a role | `--audit`, in the plugin scope only | a consumer's style plugins |
 
 A floor nothing measures is a sentence, and a sentence that reads like a guarantee is worse than
 an admitted limit.

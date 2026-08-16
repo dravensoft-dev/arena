@@ -210,6 +210,43 @@ test('a raw value is reported in both scopes and a gradient only in the app', ()
     + 'plugin assigns rather than authors');
 });
 
+test('a plugin assigning a colour through one of Arena\'s own aliases is reported', () => {
+  const rule = '[data-arena-part="card.eyebrow"] { color: var(--mute) }';
+  const found = findings('design/x/plugin.css', rule, 'plugin');
+  assert.equal(found.length, 1, 'the alias is a step of the ramp under another name, so assigning '
+    + 'it is authoring a skin rather than answering a role');
+  assert.equal(found[0]?.rule, 'compat-alias');
+});
+
+test('the alias rule reads the plugin scope only, since an application is the last word', () => {
+  const rule = '.thing { color: var(--mute) }';
+  assert.deepEqual(findings('src/app.css', rule, 'app'), [],
+    'application CSS reaching into Arena is already what the own-class rule reports, and the '
+    + 'aliases ship, so naming one there is not this rule\'s business');
+});
+
+test('a plugin naming a role or a palette colour is not naming an alias', () => {
+  for (const value of ['var(--ink-eyebrow)', 'var(--color-neutral-content)',
+    'color-mix(in oklab, var(--color-base-content) 62%, transparent)']) {
+    assert.deepEqual(findings('design/x/plugin.css', `[data-arena-part="card.eyebrow"] { color: ${value} }`, 'plugin'), [],
+      `${value} is the route a plugin takes, so the rule must leave it alone`);
+  }
+});
+
+test('an alias is matched whole, so a longer name is not read as a shorter one inside it', () => {
+  assert.deepEqual(findings('design/x/plugin.css', '.x { color: var(--mute-2-disabled) }', 'plugin')
+    .map((one) => one.rule), ['compat-alias'],
+    'the longer alias is an alias too, and it is reported as itself rather than as --mute');
+  assert.deepEqual(findings('design/x/plugin.css', '.x { color: var(--muted-of-my-own) }', 'plugin'), [],
+    'a custom property of the project\'s own is not one of Arena\'s, and the boundary is what tells '
+    + 'them apart');
+});
+
+test('an alias inside a fallback is still an assignment, since the fallback is what paints', () => {
+  assert.equal(findings('design/x/plugin.css', '.x { color: var(--mute, red) }', 'plugin')
+    .filter((one) => one.rule === 'compat-alias').length, 1);
+});
+
 test('the scope defaults to the application, so no caller changes meaning by accident', () => {
   assert.equal(findings('a.css', '[data-arena-part="card"] { color: red }').length,
     findings('a.css', '[data-arena-part="card"] { color: red }', 'app').length);
