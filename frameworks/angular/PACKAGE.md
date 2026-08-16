@@ -424,6 +424,53 @@ un-imported marker from an unfilled slot, so nothing can warn you.
 | `ARENA_MAIN_ID` | the id `arena-main` writes on its landmark and `arena-skip-link` points at, as a string. A page has one main region, so the id is a constant rather than something coordinated at the call site: read it when you write a second route into the content, an anchor of your own or a test that has to find the region |
 | `ARENA_SR_ONLY` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. `css/sr-only.css` is the same thing as a class |
 
+### The `<head>` is a second entry point, and the router is why
+
+`provideArenaMetadata()` is the one thing this package does not ship from `@dravensoft/arena-angular`.
+It lives at `@dravensoft/arena-angular/metadata`, because reaching it means reaching
+`@angular/router`, which is an **optional** peer: a project that never imports that subpath never
+installs it and nothing else here moves.
+
+```ts
+import { provideArenaMetadata, arenaRouteMeta } from '@dravensoft/arena-angular/metadata';
+
+bootstrapApplication(App, {
+  providers: [
+    provideRouter(routes),
+    provideArenaMetadata({ suffix: 'Andina', origin: 'https://andina.example', siteName: 'Andina' }),
+  ],
+});
+
+export const routes: Routes = [
+  { path: 'orders', title: 'Orders', component: Orders,
+    data: arenaRouteMeta({ description: 'Every order in the system.', robots: 'index,follow' }) },
+  { path: 'cash', title: 'Cash', component: Cash },
+];
+```
+
+It composes on Angular's own `title:` rather than competing with it, through the `TitleStrategy`
+Angular defines for exactly this, so `title: 'Orders'` keeps meaning what it meant and gains a
+suffix, a description, a canonical and the `og:*` pair beside it.
+
+**A route is not indexed until it says it is.** `robots` defaults to `noindex`, so `cash` above is
+private without anybody remembering to make it so and `orders` is public because it said so. Its
+absence does not announce itself until a cash-register screen turns up in a search result. The
+same key on `provideArenaMetadata` moves the default for the whole application, and a route still
+outranks it.
+
+**Without `origin` there is no canonical and no `og:url`, deliberately.** An origin read off
+`window.location` differs between a server render and the client that hydrates it, which is the
+one hazard a `<head>` writer can introduce and never see, so a project that wants a canonical says
+where it lives. The fragment is dropped from it, and a route whose canonical is not the url it was
+reached by says so with `canonical`.
+
+| export | what it is |
+| --- | --- |
+| `provideArenaMetadata(config?)` | the provider, returning `EnvironmentProviders` because a `TitleStrategy` is the application's and not one component's. Takes `suffix`, `separator`, `origin`, `robots`, `description`, `image` and `siteName`, each a default a route can outrank |
+| `arenaRouteMeta(meta)` | a route's own `description`, `robots`, `image`, `type` and `canonical`, under one key of the `data` that is yours. Typed, because `Route.data` is not: written flat, a misspelled `descripton` is a metadatum that never appears and nothing that fails. A deeper route wins a key and keeps what it did not name, so a layout route sets what its section shares |
+| `ArenaMetadataService` | the writer itself, one method, `apply(page)`. Call it for a page whose metadata is not a fact about the route: a detail screen described by the record it just loaded |
+| `ArenaTitleStrategy` | the strategy the provider installs, exported so one of your own extends it rather than replaces it |
+
 Call either measurement from an injection context, a field initializer or the constructor:
 `DestroyRef` disconnects the observer and `afterNextRender` decides when there is a box to
 measure at all. Every other symbol reaching the root is an internal of this layer, exported

@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 46_600,
+    budget: 49_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -101,6 +101,13 @@ export const ROUTES: Route[] = [
       + 'by a constant id: the id is the one thing a consumer needs in order to write a second '
       + 'route into the content or an anchor of their own, and a pair whose id is undocumented is '
       + 'a pair a consumer coordinates by reading the source of a package they installed. '
+      + 'Raised again to 49,400 when the metadata provider shipped behind a second entry point: '
+      + 'the import path is not derivable, the router peer is optional and a consumer who does not '
+      + 'know that installs it for nothing, and the whole value of the provider is a default a '
+      + 'reader has to be told about, since a route born noindex is a surprise the first time it '
+      + 'is right and a defect every time it is not. What the section deliberately does NOT carry '
+      + 'is why a bundler resolves before it eliminates, which is the mechanism behind the second '
+      + 'entry point and belongs to frameworks/PACKAGING.md, on the branch whose reader can act on it. '
       + 'What buys a raise here is always the same argument, that being right is what the page is '
       + 'for, and what makes this one binding is that a gate fails the page now rather than a '
       + 'reader discovering it.',

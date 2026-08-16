@@ -125,6 +125,15 @@ test('a component barrel exports every module beside it, or PRIVATE says why not
   }
 });
 
+test('the root barrel reaches nothing under metadata/, which is what makes the router optional', () => {
+  const barrel = readFileSync(join(LAYER, 'index.ts'), 'utf8');
+  assert.ok(!/metadata/.test(barrel),
+    'metadata/ is a secondary entry point and the only thing in this layer that names @angular/router. '
+    + 'A bundler RESOLVES an import before it eliminates it, so a router reached from the root barrel '
+    + 'is a router every adopter has to install, whether or not they call the provider that needs it. '
+    + 'It ships as @dravensoft/arena-angular/metadata and is reached by that subpath alone.');
+});
+
 test('the layer root exports every module beside it, or ROOT_PRIVATE says why not', () => {
   const exported = exportsOf(join(LAYER, 'index.ts'));
   const unexported = new Set<string>();

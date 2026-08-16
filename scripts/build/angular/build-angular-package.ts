@@ -61,11 +61,19 @@ export function manifest(root = repoRoot) {
       '@angular/common': '>=20',
       '@angular/platform-browser': '>=20',
       '@angular/cdk': '>=20',
+      '@angular/router': '>=20',
       '@phosphor-icons/web': '^2.1.2',
     },
+    peerDependenciesMeta: OPTIONAL_PEERS,
     dependencies: RUNTIME_DEPENDENCIES,
   };
 }
+
+export const OPTIONAL_PEERS = {
+  '@angular/router': { optional: true },
+};
+
+export const SECONDARY_ENTRY_POINTS = ['metadata'];
 
 export const RUNTIME_DEPENDENCIES = {
   tslib: '^2.8.1',
@@ -83,6 +91,10 @@ export function ngPackageConfig() {
     allowedNonPeerDependencies: Object.keys(RUNTIME_DEPENDENCIES),
     assets: [] as string[],
   };
+}
+
+export function secondaryConfig() {
+  return { lib: { entryFile: 'index.ts' } };
 }
 
 export function libTsconfig() {
@@ -136,6 +148,9 @@ function stage(root: string) {
 
 
   write(dir, 'ng-package.json', `${JSON.stringify(ngPackageConfig(), null, 2)}\n`);
+  for (const entry of SECONDARY_ENTRY_POINTS) {
+    write(dir, `${entry}/ng-package.json`, `${JSON.stringify(secondaryConfig(), null, 2)}\n`);
+  }
   write(dir, 'tsconfig.lib.json', `${JSON.stringify(libTsconfig(), null, 2)}\n`);
   write(dir, 'package.json', `${JSON.stringify({ ...manifest(root), $schema: undefined }, null, 2)}\n`);
   return { dir, staged };

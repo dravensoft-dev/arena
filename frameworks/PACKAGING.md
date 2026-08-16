@@ -89,6 +89,22 @@ were told about and resents one they find.
   class name the consumer supplies and a component renders, so the font has to be installed
   and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
 
+**A second peer exists and it is optional, which is a different kind of thing.** The Angular
+package declares `@angular/router` under `peerDependenciesMeta` as optional, and an adopter who
+never installs it installs cleanly and is told nothing. It is reachable only through the
+**secondary entry point** `@dravensoft/arena-angular/metadata`: the primary entry point names it
+nowhere, which is a claim `grep '@angular/router' frameworks/angular/dist/fesm2022/dravensoft-arena-angular.mjs`
+re-derives against the assembled package. That separation is the whole reason the entry point
+exists rather than the provider sitting in the root barrel: a bundler **resolves** an import
+before it eliminates it, so a router named anywhere in the primary graph is a router every
+adopter has to have installed, whether or not they call the thing that needs it. So the coupling
+is opt-in at the import site, and an adopter pays for it by asking for it.
+
+**A secondary entry point is a directory holding its own `ng-package.json`**, which
+`build-angular-package.ts` writes into the staging tree from `SECONDARY_ENTRY_POINTS`. ng-packagr
+finds it, compiles it into its own FESM module and its own types, and adds the subpath to the
+package's `exports` map.
+
 **Tailwind is not one.** It is how Arena's CSS is *authored*, and it stops there: a
 manifest's class string is compiled through `@apply`, stripped of every Tailwind theme
 indirection, and emitted as plain declarations under Arena's own class names. Nothing a package

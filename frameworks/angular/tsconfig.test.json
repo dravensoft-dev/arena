@@ -11,6 +11,7 @@
     "./components/**/*.ts",
     "./playground/**/*.ts",
     "./test/**/*.ts",
+    "./metadata/**/*.ts",
     "./theme/**/*.ts",
     "./icons/**/*.ts",
     "./*.ts"
