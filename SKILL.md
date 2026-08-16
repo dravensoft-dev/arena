@@ -57,9 +57,10 @@ component, one wrapped in your router's link, a raw value where a token belongs,
 element, an emoji. It reports rather than fails unless you add `--strict`, and it decides nothing
 about the rest, so breaking one of those is still a defect nothing will report.
 
-- **Tokens are the only styling layer.** A raw hex, or a bare `16px`, is a bug. Read a value
-  through its custom property (`var(--crimson)`, `var(--sp-4)`) or derive it with
-  `calc()`/`clamp()` over one.
+- **Tokens are the only styling layer.** A raw colour, or a bare `16px`, is a bug. A hex, a
+  channel triple in `rgb()` or `oklch()`, and a colour's own name are the same defect written
+  three ways. Read a value through its custom property (`var(--crimson)`, `var(--sp-4)`), derive
+  it with `calc()`/`clamp()` over one, or mix it with `color-mix()` over one.
 - **Danger is outline, never filled**: transparent background, border and content in
   `--error`/`--danger`. The single filled danger surface in the whole system is the final
   irreversible confirmation inside `ArenaConfirmDialog`.

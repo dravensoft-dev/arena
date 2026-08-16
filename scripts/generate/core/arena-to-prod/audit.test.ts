@@ -36,6 +36,35 @@ test('a raw value is reported where it styles something, and not where it is onl
   assert.equal(rules('const gap = "16px";'), '');
 });
 
+test('a colour is raw whichever notation writes it, and derived through a token is not', () => {
+  const css = (rule: string) => auditText('src/a.css', rule).join('\n');
+  assert.match(css('.x { background: rgb(255 255 255 / 0.22) }'), /raw colour/);
+  assert.match(css('.x { background: rgba(0, 0, 0, .18) }'), /raw colour/);
+  assert.match(css('.x { color: hsl(210 40% 96%) }'), /raw colour/);
+  assert.match(css('.x { color: oklch(0.7 0.1 250) }'), /raw colour/);
+  assert.match(css('.x { background: color-mix(in oklab, black 22%, transparent) }'), /raw colour/);
+  assert.match(css('.x { border-color: white }'), /raw colour/);
+  assert.match(css('.x { box-shadow: 0 0 0 1px rebeccapurple }'), /raw colour/);
+
+  assert.equal(css('.x { background: color-mix(in oklab, var(--crimson) 22%, transparent) }'), '');
+  assert.equal(css('.x { color: color-mix(in oklab, var(--a) 50%, var(--b)) }'), '');
+  assert.equal(css('.x { color: rgb(from var(--crimson) r g b / 40%) }'), '',
+    'a channel READ from a custom property is not a value this project chose');
+  assert.equal(css('.x { color: var(--ink-body) }'), '');
+});
+
+test('a colour name is a colour where a value goes, and a word everywhere else', () => {
+  const css = (rule: string) => auditText('src/a.css', rule).join('\n');
+  assert.equal(css('.white-panel { color: var(--ink-body) }'), '',
+    'a selector is not a declaration, so a name inside one is not a colour');
+  assert.equal(css('.x { background: url(white-dot.png) }'), '',
+    'a name is a colour when it stands alone, and part of an identifier when it does not');
+  assert.equal(css('.x { content: "red" }'), '',
+    'a quoted value in a stylesheet is a string');
+  assert.match(auditText('src/App.tsx', '<div style={{ color: "white" }} />').join('\n'),
+    /raw colour/, 'and in an inline style the quotes are how the value is written');
+});
+
 test('a comment is prose, and the rules of the language read declarations', () => {
   assert.equal(auditText('src/a.css', '/* a profile header wants roughly 150px */').join('\n'), '',
     'a note explaining why a value is what it is is the note a reviewer wants, and reporting it is '
@@ -157,11 +186,14 @@ test('a compiler class is reported in both scopes', () => {
 
 test('a raw value is reported in both scopes and a gradient only in the app', () => {
   assert.equal(findings('p.css', '.x { color: #fff }', 'plugin')[0]?.rule, 'raw-value');
-  assert.deepEqual(findings('p.css', '.x { background: linear-gradient(red, blue) }', 'plugin'), [],
+  const ramp = '.x { background: linear-gradient(var(--cat-1), var(--cat-3)) }';
+  assert.deepEqual(findings('p.css', ramp, 'plugin'), [],
     'a plugin paints a gradient from its own stylesheet whatever the token tier says, so the norm '
     + 'records it as a report rather than a floor and --strict may not refuse what the norm permits');
-  assert.equal(findings('a.css', '.x { background: linear-gradient(red, blue) }', 'app')[0]?.rule,
-    'raw-value');
+  assert.equal(findings('a.css', ramp, 'app')[0]?.rule, 'raw-value');
+  assert.equal(findings('p.css', '.x { background: linear-gradient(red, blue) }', 'plugin').length, 1,
+    'the gradient is the plugin\'s to paint and the colours in it are still the skin, which the '
+    + 'plugin assigns rather than authors');
 });
 
 test('the scope defaults to the application, so no caller changes meaning by accident', () => {

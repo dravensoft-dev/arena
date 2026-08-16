@@ -113,6 +113,88 @@ const OWN_RULE = /(^|[\s,{}])\.arena-[a-z0-9-]+/;
 
 const RAW_HEX = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3}(?:[0-9a-fA-F]{2})?)?\b/;
 const BARE_PIXELS = /(?<![\w.-])-?\d*\.?\d+px\b/;
+
+export const NAMED_COLOURS = [
+  'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black',
+  'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse',
+  'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan',
+  'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta',
+  'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen',
+  'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink',
+  'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen',
+  'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow',
+  'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender',
+  'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan',
+  'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon',
+  'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue',
+  'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine',
+  'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue',
+  'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream',
+  'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange',
+  'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred',
+  'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'rebeccapurple',
+  'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell',
+  'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen',
+  'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white',
+  'whitesmoke', 'yellow', 'yellowgreen',
+];
+
+const NAMED_COLOUR = new RegExp(`(?<![\\w-])(?:${NAMED_COLOURS.join('|')})(?![\\w-])`, 'i');
+const COLOUR_CALL = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|color)\s*\(/gi;
+const DECLARATION = /:\s*([^;{}]*)/g;
+const QUOTED = /"[^"]*"|'[^']*'/g;
+const VAR_CALL = /var\(\s*--[a-z0-9-]+\s*(?:,(?:[^()]|\([^()]*\))*)?\)/gi;
+const COLOUR_SPACE = /\bin\s+[a-z0-9-]+(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?/gi;
+const CHANNEL = /\b(?:from|none|transparent|currentcolor|alpha|[rgbhslwac])\b/gi;
+const SHARE = /-?\d*\.?\d+%/g;
+
+function callArguments(text: string, from: number) {
+  let depth = 0;
+  for (let i = from; i < text.length; i++) {
+    if (text[i] === '(') depth += 1;
+    else if (text[i] === ')') {
+      depth -= 1;
+      if (depth === 0) return text.slice(from + 1, i);
+    }
+  }
+  return text.slice(from + 1);
+}
+
+export function namesAColour(value: string, isStylesheet: boolean) {
+  const text = (isStylesheet ? value.replace(QUOTED, ' ') : value)
+    .replace(VAR_CALL, ' ')
+    .replace(RAW_HEX, ' ');
+  if (NAMED_COLOUR.test(text)) return true;
+
+  COLOUR_CALL.lastIndex = 0;
+  let call = COLOUR_CALL.exec(text);
+  let read = 0;
+  while (call) {
+    if (call.index >= read) {
+      const args = callArguments(text, call.index + call[0].length - 1);
+      read = call.index + call[0].length + args.length;
+      const left = args
+        .replace(COLOUR_SPACE, ' ')
+        .replace(CHANNEL, ' ')
+        .replace(SHARE, ' ')
+        .replace(/[,/()\s]/g, '');
+      if (left.length) return true;
+    }
+    call = COLOUR_CALL.exec(text);
+  }
+  return false;
+}
+
+export function rawColour(line: string, isStylesheet: boolean) {
+  DECLARATION.lastIndex = 0;
+  for (const declaration of line.matchAll(DECLARATION))
+    if (namesAColour(group(declaration), isStylesheet)) return true;
+  return false;
+}
+
+export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel value and a '
+  + 'colour\'s name are both the skin written down: read the colour through its custom property, '
+  + 'as var(--crimson), or compose one with color-mix() over var()';
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
 const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
@@ -226,6 +308,8 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
   if (styled && RAW_HEX.test(line))
     found.push(at(0, 'raw-value', 'a raw hex where a token belongs. Read the value through its '
       + 'custom property, as var(--crimson)'));
+  if (styled && rawColour(line, isStylesheet))
+    found.push(at(0, 'raw-value', RAW_COLOUR_MESSAGE));
   if (styled && BARE_PIXELS.test(line))
     found.push(at(0, 'raw-value', 'a bare pixel length. Read it through the spacing scale, as '
       + 'var(--sp-4), or derive it with calc() over one'));

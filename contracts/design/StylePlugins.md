@@ -97,7 +97,7 @@ an application source and says nothing about it inside a declared plugin directo
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, bar one declared allowance carrying its measurement |
 | the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
-| a raw hex or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
+| a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
 | no gradient | `--audit`, in the application scope only | a consumer's sources |
 
 A floor nothing measures is a sentence, and a sentence that reads like a guarantee is worse than
