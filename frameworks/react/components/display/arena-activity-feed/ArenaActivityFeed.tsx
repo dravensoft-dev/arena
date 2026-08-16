@@ -74,7 +74,9 @@ export function ArenaActivityFeed({ items, label, busy = false }: ArenaActivityF
             {` ${item.action}${item.target ? ' ' : ''}`}
             {item.target && <span className={feedStyles({}).target()} data-arena-part={manifest.parts.target}>{item.target}</span>}
           </span>
-          {item.time && <span className={feedStyles({}).time()} data-arena-part={manifest.parts.time}>{item.time}</span>}
+          {item.time && (item.dateTime
+            ? <time className={feedStyles({}).time()} data-arena-part={manifest.parts.time} dateTime={item.dateTime}>{item.time}</time>
+            : <span className={feedStyles({}).time()} data-arena-part={manifest.parts.time}>{item.time}</span>)}
         </li>
       ))}
     </ul>

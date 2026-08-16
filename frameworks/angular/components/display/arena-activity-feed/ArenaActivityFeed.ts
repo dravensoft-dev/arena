@@ -41,7 +41,11 @@ export function arenaResolveActivityFeedRows(items: readonly ArenaActivityItem[]
             }
           </span>
           @if (row.item.time) {
-            <span [class]="base().time()" [attr.data-arena-part]="parts.time">{{ row.item.time }}</span>
+            @if (row.item.dateTime; as stamp) {
+              <time [class]="base().time()" [attr.data-arena-part]="parts.time" [attr.datetime]="stamp">{{ row.item.time }}</time>
+            } @else {
+              <span [class]="base().time()" [attr.data-arena-part]="parts.time">{{ row.item.time }}</span>
+            }
           }
         </li>
       }

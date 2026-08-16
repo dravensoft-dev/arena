@@ -72,3 +72,33 @@ test('an absent label throws -- a feed a reader navigates BY cannot be nameless'
   assert.throws(() => renderToStaticMarkup(<ArenaActivityFeed items={ITEMS} />),
     /ArenaActivityFeed: `label` is required/);
 });
+
+test('dateTime turns the row time into a real <time> a machine can read', () => {
+  const html = renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[
+    { id: '1', actor: 'ana@', action: 'approved the release', time: '2h ago', dateTime: '2026-08-16T09:12:00Z' },
+  ]} />);
+  assert.match(html, /<time [^>]*datetime="2026-08-16T09:12:00Z"[^>]*>2h ago<\/time>/i,
+    'two fields rather than one: the reader keeps "2h ago", which no parser resolves to a date, '
+    + 'and the machine gets the stamp beside it. The match ignores case because this layer writes '
+    + 'the idiomatic React prop and React serialises it as it was spelled; an HTML parser lowercases '
+    + 'an attribute name, so the two layers reach the same DOM from different source text, which is '
+    + 'what ArenaActivityFeed.cases.dom.test.tsx asserts against a parsed document rather than a string');
+});
+
+test('without dateTime the row time is drawn exactly as it was', () => {
+  const html = renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[
+    { id: '1', actor: 'ana@', action: 'approved the release', time: '2h ago' },
+  ]} />);
+  assert.doesNotMatch(html, /<time/, 'a <time> with no datetime says nothing a span does not');
+  assert.match(html, /<span[^>]*>2h ago<\/span>/);
+});
+
+test('Arena emits the element itself, which is what keeps the projection convention intact', () => {
+  const html = renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[
+    { id: '1', actor: 'ana@', action: 'shipped', time: '<b>now</b>', dateTime: '2026-08-16T09:12:00Z' },
+  ]} />);
+  assert.doesNotMatch(html, /<b>now<\/b>/,
+    'a field inside an array of predefined objects can only be a primitive, so a consumer cannot '
+    + 'place markup inside one row of a list Arena renders. The pair of fields exists precisely so '
+    + 'that convention did not have to be lifted to get a machine-readable date.');
+});
