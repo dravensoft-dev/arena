@@ -192,9 +192,9 @@ focus navigation, which nothing here implements and happy-dom does not have; a t
 would pass identically against a perfect trap and against none. `bun run check:focus-trap` is
 what covers it: real Chromium over each declared page, one real Tab press per stop.
 
-- `kitchen-sink/<style plugin>/`: one page per style plugin holding every component at once,
+- `kitchen-sink/<arrangement>/`: one page per arrangement holding every component at once,
   emitted into this layer from the fixture under `frameworks/kitchen-sink/` that every layer is
-  emitted from. Nothing here is hand-written: the pages one style plugin gets differ in what mounts
+  emitted from. Nothing here is hand-written: the pages one arrangement gets differ in what mounts
   them and in nothing else, which is what lets `check:pixel-parity` capture them and fail on one
   differing pixel. Edit the fixture, never the emitted page.
 - `vendor/`: a generated CommonJS→ESM bundle of React for the demo pages'

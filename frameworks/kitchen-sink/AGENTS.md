@@ -51,10 +51,21 @@ sink that could reseed a component would be a second place a component is config
 first divergence it produced would look exactly like the divergence this whole arrangement
 exists to catch.
 
-## The arrangements differ on purpose
+## One arrangement, and it is the appearance a consumer installs
 
-The order and grouping are free to differ between arrangements, and an arrangement built for one
-appearance shows it doing its work on a layout that argues for it. What may **not** differ is the
+There is one fixture, `default`, so the pair `check:pixel-parity` opens is the unscoped appearance
+that ships. That is why `ALLOWED` in that gate is empty and the emptiness is the claim: nothing
+compared here needs a relief, and a single differing pixel fails.
+
+**What a scoped style plugin paints is held as text rather than as a photograph.** `check:parts`
+fails a slot that reaches the DOM without its hook and fails two layers reaching different parts
+from one manifest, and `check:style-plugin-coverage` fails a role the witness plugin answers the
+way the root does or a part no rule in it paints. A second arrangement would open a scoped page in
+a browser as well, at two more captures per theme per layer, and that is a trade to make again
+deliberately rather than to inherit.
+
+The order and grouping are an arrangement's own, and one built for an appearance shows it doing
+its work on a layout that argues for it. What may **not** differ, the day there is a second, is the
 set: every fixture holds every component, so no page is compared over a smaller surface than its
 siblings.
 
@@ -69,3 +80,6 @@ reads it from there, so a component that gains or loses a host says so once.
 A new component needs its name in every fixture in the same commit, or `check:kitchen-sink` fails
 on the registry entry no fixture covers. Put the name where the arrangement argues it goes, run
 `bun run build`, and open the pair with `bun run demos`.
+
+A new **arrangement** is a file here and nothing else: the emitter walks `*.sink.json`, and
+`check:pixel-parity` walks the directories it emitted, so neither carries a list to update.

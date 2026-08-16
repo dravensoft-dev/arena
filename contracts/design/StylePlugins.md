@@ -119,7 +119,7 @@ an application source and says nothing about it inside a declared plugin directo
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
-| the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, bar one declared allowance carrying its measurement |
+| the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
 | the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
 | a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
 | no gradient | `--audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
@@ -151,11 +151,11 @@ is why a manifest carries no slot for an action a component composes rather than
 `ArenaButton` inside a dialog is an `ArenaButton` in both layers, and a slot typed out beside it in
 one of them would be a part only that layer could paint.
 
-Below the parts the two layers still quantise a shrink-to-fit box to a different 1/64 of a pixel,
-where the element carrying the difference is the component itself in Angular and a `div` in React.
-Neither layer can close it, so `check:pixel-parity` carries one declared allowance for the sink that
-reveals it, bounded on the pixel count and on the channel delta and carrying the measurement. The
-appearance Arena installs with carries none.
+`check:pixel-parity` compares the appearance Arena installs with, and it carries no allowance at
+all: a single differing pixel is a failure. What a scoped plugin paints is held as text instead,
+by `check:parts`, which fails a slot reaching the DOM without its hook and fails two layers
+reaching different parts from one manifest, and by `check:style-plugin-coverage`, which fails a
+part no rule in the witness plugin paints.
 
 ## A slot name is contract
 

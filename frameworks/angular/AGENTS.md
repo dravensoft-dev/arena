@@ -152,9 +152,9 @@ chip's identity colour. The name matches the placement: a module a schedule grid
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
-`kitchen-sink/<style plugin>/` is emitted, never written: one page per style plugin holding
+`kitchen-sink/<arrangement>/` is emitted, never written: one page per arrangement holding
 every component at once, arranged in `frameworks/kitchen-sink/` and emitted into every layer
-from there. Its whole purpose is that the pages a single style plugin gets differ in what mounts
+from there. Its whole purpose is that the pages a single arrangement gets differ in what mounts
 them and in nothing else, so `check:pixel-parity` can capture them and fail on one differing
 pixel. Edit the arrangement, never the page.
 

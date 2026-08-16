@@ -1,13 +1,13 @@
-/* Captures the kitchen-sink page every layer draws for one appearance and fails on one
- * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an
- * inherited typography or a computed colour that moved in one layer alone passes every other gate.
- * No baseline: one browser renders both pages, so the question is whether they agree with EACH
- * OTHER. ALLOWED is the one relief, declared per sink and carrying the measurement behind it,
- * because a blanket threshold would license the move this catches; an allowance nothing spends is
- * stale and reported. Motion, focus and MEASUREMENT are stopped before the shutter, the third
- * because the shutter resizes the page past the viewport and hands width 0 to every live
- * ResizeObserver partway through: a chart redraws collapsed and the compositor takes the rest of
- * its tiles from that frame. Pairs are walked from the tree, where a sweep finding none fails. */
+/* Captures the kitchen-sink page every layer draws for one appearance and fails on one differing
+ * pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
+ * typography or a computed colour that moved in one layer alone passes every other gate. No
+ * baseline: one browser renders both pages, so the question is whether they agree with EACH OTHER.
+ * ALLOWED is the one relief and it is EMPTY, which is the claim: the appearance a consumer installs
+ * is identical to the pixel in both layers. An entry would be per sink and bounded on count AND
+ * delta, and one nothing spends is stale, so no blanket threshold ever absorbs a move. Motion,
+ * focus and MEASUREMENT stop before the shutter, the third because the shutter reaches past the
+ * viewport and hands width 0 to every live ResizeObserver: a chart redraws collapsed and the
+ * compositor takes the rest from that frame. Pairs are walked, and a sweep finding none fails. */
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -162,18 +162,7 @@ export function sizeProblem(name: string, a: { width: number; height: number },
 
 export type Allowance = { pixels: number; delta: number; why: string };
 
-export const ALLOWED = new Map<string, Allowance>([
-  ['complete', {
-    pixels: 400,
-    delta: 64,
-    why: 'the two layers quantise a shrink-to-fit flex item to a different 1/64 of a pixel, measured '
-      + 'at textarea.counter as x=819.359375 w=39.625 against x=819.375 w=39.609375 with identical '
-      + 'markup, text, font and parent box. Neither layer can close it: it is Chromium resolving a '
-      + 'LayoutUnit, and the element carrying the difference is the component itself in Angular and a '
-      + 'div in React. It shows here and not under default because the difference is in the coverage '
-      + 'an edge antialiases with, and only some colours round it to a different byte',
-  }],
-]);
+export const ALLOWED = new Map<string, Allowance>([]);
 
 export function within(allowance: Allowance | undefined, pixels: number, maxDelta: number) {
   return allowance !== undefined && pixels <= allowance.pixels && maxDelta <= allowance.delta;

@@ -64,9 +64,9 @@ test('the sinks on disk are the sinks walked, so an arrangement that lands is co
 });
 
 test('a sink missing from one layer is named rather than quietly skipped', () => {
-  const problems = pairProblems(new Map([['react', ['default', 'complete']], ['angular', ['default']]]));
+  const problems = pairProblems(new Map([['react', ['default', 'witness']], ['angular', ['default']]]));
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /complete: angular draws no page/);
+  assert.match(problems[0] ?? '', /witness: angular draws no page/);
 });
 
 test('two pages of different sizes are reported as that, rather than as a box inside them', () => {
@@ -121,16 +121,18 @@ test('an allowance is bounded on both axes, so a wider move is not absorbed by a
 });
 
 test('an allowance nothing spends is stale, and one for a pair nobody compared is worse', () => {
-  const declared = new Map([['complete', { pixels: 400, delta: 64, why: 'measured' }]]);
-  assert.deepEqual(staleAllowanceProblems(new Map([['complete', 149]]), declared), []);
-  assert.match(staleAllowanceProblems(new Map([['complete', 0]]), declared)[0] ?? '',
+  const declared = new Map([['witness', { pixels: 400, delta: 64, why: 'measured' }]]);
+  assert.deepEqual(staleAllowanceProblems(new Map([['witness', 149]]), declared), []);
+  assert.match(staleAllowanceProblems(new Map([['witness', 0]]), declared)[0] ?? '',
     /not an exemption/);
   assert.match(staleAllowanceProblems(new Map(), declared)[0] ?? '', /not here/);
 });
 
-test('the appearance arena ships carries no allowance at all', () => {
-  assert.equal(ALLOWED.has('default'), false,
-    'default is what a consumer installs, and the two layers agree on it to the pixel');
+test('no sink carries an allowance at all, and the emptiness is the claim', () => {
+  assert.deepEqual([...ALLOWED.keys()], [],
+    'every arrangement compared is one a consumer installs, and the two layers agree on it to the '
+    + 'pixel; an entry landing here is a divergence somebody measured and could not close, never a '
+    + 'threshold that made a run go quiet');
   for (const [sink, allowance] of ALLOWED) {
     assert.ok(allowance.why.length > 80, `${sink}: an allowance carries the measurement behind it`);
   }

@@ -18,7 +18,7 @@ export const LAYERS = ['tailwind', 'angular', 'react'];
 
 export const NON_LAYERS = new Map([
   ['demos', 'the playground fixtures: one fact per component that belongs to every layer and to none, so a copy per layer is a copy that can disagree'],
-  ['kitchen-sink', 'the arrangement each style plugin is drawn in: which sections a page holds and which components land in each, for every layer at once, so the pair check:pixel-parity compares cannot differ in how it was written'],
+  ['kitchen-sink', 'the arrangement every component is drawn in: which sections a page holds and which components land in each, for every layer at once, so the pair check:pixel-parity compares cannot differ in how it was written'],
 ]);
 
 export const emittedTree = (root = repoRoot) => join(root, 'frameworks', 'angular', 'build');
