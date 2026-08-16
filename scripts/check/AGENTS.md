@@ -34,10 +34,14 @@ are rules a new gate holds to:
 - **Decide absence by walking the tree**, so "this layer does not implement it" and "this gate
   cannot find it" stop being the same value. Resolving by constructed path is what makes the
   per-component probe silent.
-- **Make a zero-result count an explicit failure** rather than a vacuous pass. `check:tailwind`,
-  `check:radius`, `check:roles`, `check:style-plugin`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
-  `check:icons`, `check:docs`, `check:playgrounds` and
-  `check:script-tokens` each carry one, as an exported pure function with a suite.
+- **Make a zero-result count an explicit failure** rather than a vacuous pass, as an exported
+  pure function with a suite so the emptiness is a claim the suite can assert. Which gates carry
+  one is a question for the tree and never for this page, because a list of them written here
+  goes short the moment one lands and reads as an inventory of the gates that need one:
+
+  ```bash
+  grep -rl 'zero[A-Za-z]*Problem' scripts/check/*/check-*.ts | grep -v '\.test\.'
+  ```
 - **A gate has two existences, the file and every place that invokes it, and only the second
   is worth anything.** Adding a gate means adding it to `package.json` **and** to `GATES`.
   Citing a gate as evidence means confirming it is in `GATES` first.

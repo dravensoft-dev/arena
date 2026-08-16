@@ -57,6 +57,13 @@ a gate with nothing to check rather than something to fail.
    prompt tables and the consumer index tree, and commit what it writes under `frameworks/`
    only where the tree tracks it.
 
+**Changing an existing component's members starts at step 2 and it obliges every layer.** A
+member is a contract fact rather than a layer's, so there is no such thing as adding one to one
+layer: `check:api` fails a layer declaring a member no contract names AND a layer failing to
+declare one a contract does, which is the same gate refusing the two halves of the same shortcut.
+The doc comment above the member is not yours either; [`../GENERATED.md`](../GENERATED.md) says
+which parts of a file under this tree a generator writes.
+
 **A family of literal inventories moves outside the layer you touched, and no layer suite can
 see any of them.** `scripts/lib/arena/behaviour-contracts.test.ts` asserts an inventory **per
 layer** by literal value, one for React and one for Angular, so a new component **directory**

@@ -133,6 +133,27 @@ export const ROUTES: Route[] = [
       + 'file under the reserved name, and the cost of that is paid by every reader of the tag.',
   },
   {
+    name: 'contributor-authoring',
+    who: 'a contributor about to edit a file and deciding which half of it is theirs: the router, '
+      + 'then the page that says what a machine writes and where the boundary runs inside one file',
+    stops: ['AGENTS.md', 'GENERATED.md'],
+    budget: 28_000,
+    reason:
+      'paid once per contributor rather than per change, which is what lets it carry the whole '
+      + 'surface rather than a pointer to it. It is the shortest contributor route on purpose: what '
+      + 'it answers is asked before the first edit, by a reader who has not chosen a task yet, and a '
+      + 'route that costs more than the change it precedes is one nobody walks. Three cold walks '
+      + 'converged on it independently, one per other contributor route, and each had decided '
+      + 'generated against authored by opening files rather than by being told: a component source '
+      + 'carrying an emitted doc comment with no marker on it, a prompt read as wholly generated '
+      + 'when it is mostly prose, and a manifest whose existence no stop on the route mentions. '
+      + 'Every one of those mistakes ships green, which is the argument for a stop of its own '
+      + 'rather than a paragraph on a page a task chooses. The number is what the stops measure '
+      + 'with room for one section, and it grows when a generator gains a shape rather than when '
+      + 'the page gains a paragraph, since the shapes are derived from what each node declares it '
+      + 'writes.',
+  },
+  {
     name: 'contributor-token',
     who: 'a contributor moving a value: the router, the contracts roof, the design specification '
       + 'and the shape a token is authored in',
@@ -152,7 +173,7 @@ export const ROUTES: Route[] = [
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 96_000,
+    budget: 99_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -160,9 +181,13 @@ export const ROUTES: Route[] = [
       + 'new row breaks reports the row rather than the growth it is there to report. Raised from '
       + '88,000 when check:parts landed and one row spent the last of it, and again when '
       + 'check:skill-spec landed and spent the next of it: that is the clause above happening '
-      + 'twice, and it is what the headroom is for. Raised to 96,000 rather than to the next row, '
-      + 'because two rows landed in one session and a headroom spent the day it is granted is not '
-      + 'headroom: the number is what restores the few gates of room the clause above claims.',
+      + 'twice, and it is what the headroom is for. Raised to 96,000 when two rows landed in one '
+      + 'session, and to 99,000 when check:agents-spec landed and a cold walk measured what was '
+      + 'left: 842 characters against a median row of 774 and a longest of 3,542, so the clause '
+      + 'above was claiming a few gates of room over less than one. The measurement is the '
+      + 'argument, and it is worth more than the number: derive the two figures with awk over the '
+      + 'rows of the domain table rather than trusting these, because the row that breaks a budget '
+      + 'is the long one and the median is what says how often that happens.',
   },
 ];
 

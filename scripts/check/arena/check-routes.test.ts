@@ -35,7 +35,7 @@ const route = (over: Partial<typeof ROUTES[number]> = {}) => ({
 test('every route names the reader it is paid by and the reason for its budget', () => {
   assert.deepEqual(ROUTES.map((r) => r.name), [
     'consumer-component', 'consumer-install', 'consumer-skin',
-    'contributor-component', 'contributor-token', 'contributor-gate',
+    'contributor-component', 'contributor-authoring', 'contributor-token', 'contributor-gate',
   ]);
   for (const one of ROUTES) {
     assert.ok(one.stops.length > 1, `${one.name} is a route rather than a single document`);

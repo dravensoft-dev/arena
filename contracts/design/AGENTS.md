@@ -159,13 +159,27 @@ It is derived by enumeration against the validator rather than chosen by eye: a 
 
 ### Re-check after you swap
 
-The promise above is only worth the validator that backs it. After changing anything in `contracts/design/`, rebuild (`bun run generate:tokens`) and then:
+The promise above is only worth the validator that backs it. After changing a **colour**, rebuild (`bun run generate:tokens`) and then:
 
 ```bash
 bun scripts/check/core/check-ramp.ts
 ```
 
 It reads the ramp straight out of `palette.generated.css`, which the build regenerates from the DTCG source, measures both themes against their real surfaces, and exits non-zero on any failure, **including** the warnings the upstream validator tolerates, because Arena's shipped ramp needs no relief rule and neither should yours. Do not trust your eye here; nobody's eye simulates deuteranopia.
+
+**That gate is the colour one and it is not the only gate a token answers to**, so a value that is not a colour passes it while failing elsewhere: a duration added and never exposed reaches no Tailwind utility, and the gate that says so is a different one. Which gates read this directory is declared by each of them rather than listed here, so ask the graph:
+
+```bash
+bun -e "
+import { allNodes } from './scripts/graph/nodes.ts';
+const nodes = await allNodes();
+for (const node of Object.values(nodes).flat())
+  if ((node?.reads ?? []).some((read) => read.startsWith('contracts/design')))
+    console.log(node.name);
+"
+```
+
+**A step is added to a scale on the same evidence a role is**, which `StylePlugins.md` states for roles and which holds here too: a step earns its place when something is measured reaching for it, not when a value would be convenient. A scale whose last step has no consumer is not short of one.
 
 ## Three documents live beside this one, and the split is by audience
 

@@ -29,6 +29,7 @@ this file is not, and the two are almost disjoint by design.
 | a browsable page or a specimen | [`intro/AGENTS.md`](./intro/AGENTS.md) |
 | the npm channel, or a release | [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md) and [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) |
 | documentation | this page, the two sections below it |
+| whether the file in front of me is mine to edit at all | [`GENERATED.md`](./GENERATED.md), before the edit and not after the gate |
 | nothing yet, and something looks wrong | [`DOUBTS.md`](./DOUBTS.md), which says what counts as a debt and where the records live |
 
 **A fresh clone builds first.** `bun install && bun run build`, or part of the tree does not
@@ -93,8 +94,9 @@ that pays for it, because a departure nobody recorded is one the next reader rep
   reports what the build route costs as four stops, and it cost half again as a flat one. The
   depth is the saving and the budget is the instrument.
 - **The reference tree lives beside the code it is generated from rather than inside
-  `references/`.** A prompt is emitted from its component's contract next to that component, and a
-  copy inside the skill directory would be a second answer to a question the contracts answer once.
+  `references/`.** A prompt sits next to its component, carrying regions emitted from that
+  component's contract, and a copy inside the skill directory would be a second answer to a
+  question the contracts answer once.
 - **This page routes where the convention's own example instructs.** A contributor route is three
   and four stops, and `check:routes` is what says what carrying the whole of it here would cost on
   every task. What stays is what an agent acts on, which is the commands.
