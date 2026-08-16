@@ -73,6 +73,12 @@ export function arenaTickLabelX(gutter: number = ARENA_PAD.l): number {
 export function arenaCategoryLabelY(height: number): number {
   return height - chartLabelGap;
 }
+export function arenaCategoryAnchor(index: number, count: number): 'start' | 'middle' | 'end' {
+  if (count < 2) return 'middle';
+  if (index === 0) return 'start';
+  if (index === count - 1) return 'end';
+  return 'middle';
+}
 
 export function arenaDoughnutRadii(
   plotWidth: number, height: number, shape: ArenaChartShape,

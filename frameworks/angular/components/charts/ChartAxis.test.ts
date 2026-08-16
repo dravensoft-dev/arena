@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
-import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
+import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
 import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
 import { chartTickChar, chartLabelGap } from '../../Tokens.generated';
 
@@ -148,4 +148,29 @@ test('the hole is the shape and never a caller-supplied ratio, so only the two s
   for (const plot of [120, 300, 600]) {
     assert.equal(arenaDoughnutRadii(plot, ARENA_CHART_HEIGHT, 'pie').inner, 0, `at plot width ${plot}`);
   }
+});
+
+test('a label at either end of a category axis runs inwards from its point', () => {
+  assert.equal(arenaCategoryAnchor(0, 5), 'start',
+    'the first label is centred on a point one half-label from the value gutter');
+  assert.equal(arenaCategoryAnchor(4, 5), 'end',
+    'the last label is centred on a point one half-label from the right pad');
+  for (const index of [1, 2, 3]) assert.equal(arenaCategoryAnchor(index, 5), 'middle');
+});
+
+test('a lone label is centred, because neither edge is the one it overflows', () => {
+  assert.equal(arenaCategoryAnchor(0, 1), 'middle');
+  assert.equal(arenaCategoryAnchor(0, 0), 'middle');
+});
+
+test('an index outside the count is centred rather than anchored to an edge it is not at', () => {
+  assert.equal(arenaCategoryAnchor(7, 5), 'middle');
+  assert.equal(arenaCategoryAnchor(-1, 5), 'middle');
+});
+
+test('the anchor is a decision about an index, so it holds for any face the consumer declares', () => {
+  const anchors = Array.from({ length: 4 }, (_, i) => arenaCategoryAnchor(i, 4));
+  assert.deepEqual(anchors, ['start', 'middle', 'middle', 'end'],
+    'nothing here reads a width, which is what the value gutter can do and this cannot: a bottom '
+    + 'label is set in the body face, and that face is the consumer\'s own');
 });
