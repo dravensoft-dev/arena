@@ -94,6 +94,7 @@ function isPragma(text: string) {
 export const CONSUMER_LAST_STOP = '.prompt.md';
 export const CONSUMER_INDEX = 'INDEX.md';
 export const CONSUMER_TREE = 'frameworks/';
+export const SKILL_TREE = 'skills/';
 
 export const BRANCH_SWITCH = {
   'skills/design/SKILL.md':
@@ -106,6 +107,7 @@ export const CONSUMER_PACKAGE_PAGE = 'PACKAGE.md';
 
 export function isConsumerDocument(repoRelativePath: string) {
   if (Object.hasOwn(BRANCH_SWITCH, repoRelativePath)) return false;
+  if (repoRelativePath.startsWith(SKILL_TREE)) return true;
   if (repoRelativePath.endsWith(CONSUMER_LAST_STOP)) return true;
   if (basename(repoRelativePath) === CONSUMER_PACKAGE_PAGE && repoRelativePath.startsWith(CONSUMER_TREE)) return true;
   return basename(repoRelativePath) === CONSUMER_INDEX && repoRelativePath.startsWith(CONSUMER_TREE);

@@ -367,6 +367,9 @@ test('an index under frameworks/ is a consumer document, and the root router is 
   assert.equal(isConsumerDocument('frameworks/react/components/a/A.prompt.md'), true);
   assert.equal(isConsumerDocument('skills/design/SKILL.md'), false,
     'the root router names the contributor branch to send a contributor away');
+  assert.equal(isConsumerDocument('skills/design/references/style-kernel.md'), true,
+    'a reference the skill reaches is a consumer document, and the branch rules are what keep it '
+    + 'from sending a reader somewhere the router promised they would not have to go');
   assert.equal(isConsumerDocument('frameworks/react/README.md'), false);
   assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
 });
