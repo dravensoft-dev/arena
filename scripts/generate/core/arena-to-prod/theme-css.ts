@@ -18,6 +18,8 @@ import {
   FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, scopeOn, totalityProblems,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
+import { report } from './reports.ts';
+import type { Report } from './reports.ts';
 import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
@@ -427,12 +429,12 @@ export function paletteReports(config: CheckedConfig) {
     const mode = palette.polarity;
     const surface = palette.colors['base-100'];
     const ramp = catKeys().map((k) => palette.colors[k]).filter(Boolean);
-    const messages = [];
+    const messages: Report[] = [];
 
     if (ramp.length) {
       const rampOptions = { mode, surface };
       for (const [name, state, detail] of validate(ramp, rampOptions).report as [string, any, string][]) {
-        if (state === false || state === 'fail') messages.push(`ramp, ${name}: ${detail}`);
+        if (state === false || state === 'fail') messages.push(report('ramp', `ramp, ${name}: ${detail}`));
       }
     }
 
@@ -445,7 +447,10 @@ export function paletteReports(config: CheckedConfig) {
     for (const [what, fg, bg] of text) {
       if (!fg || !bg) continue;
       const ratio = contrast(fg, bg);
-      if (ratio < 4.5) messages.push(`text, ${what}: ${ratio.toFixed(2)}:1, under the 4.5:1 Arena holds itself to`);
+      if (ratio < 4.5) {
+        messages.push(report('contrast',
+          `text, ${what}: ${ratio.toFixed(2)}:1, under the 4.5:1 Arena holds itself to`));
+      }
     }
 
     if (messages.length) out.push({ palette: palette.name, messages });

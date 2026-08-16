@@ -11,6 +11,7 @@ import {
   pluginCss, PLUGIN_LAYER_ORDER,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
+import { STRICT_KINDS, report } from './reports.ts';
 import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
@@ -22,7 +23,7 @@ test('every path has a default, so the bare command is the whole of it', () => {
   assert.equal(bare.config, 'arena.config.json');
   assert.equal(bare.out, 'src');
   assert.deepEqual(bare.paths, ['src']);
-  assert.equal(bare.strict, false);
+  assert.deepEqual(bare.strict, []);
   assert.equal(bare.importHeader, true);
 });
 
@@ -51,8 +52,15 @@ test('a positional is an error, because every path this command takes is named',
 
 test('both behaviour flags default off and read as themselves', () => {
   const flagged = parseArgs(['--strict', '--no-import']);
-  assert.equal(flagged.strict, true);
+  assert.deepEqual(flagged.strict, [...STRICT_KINDS]);
   assert.equal(flagged.importHeader, false);
+});
+
+test('--strict takes the kinds it holds, and refuses one it does not report on', () => {
+  assert.deepEqual(parseArgs(['--strict=audit,glyph']).strict, ['audit', 'glyph']);
+  assert.deepEqual(parseArgs(['--strict=']).strict, [],
+    'naming nothing holds nothing, which is the bare command');
+  assert.match(errorOf(['--strict=spelling']), /--strict does not report on spelling/);
 });
 
 test('--help asks for nothing else', () => {
@@ -62,8 +70,11 @@ test('--help asks for nothing else', () => {
   assert.match(USAGE, new RegExp(ICONS_SHEET.replace('.', '\\.')));
 });
 
-test('a report line names the palette it came from', () => {
-  assert.deepEqual(reportLines([{ palette: 'ember', messages: ['text, x: 2.00:1'] }]), ['ember: text, x: 2.00:1']);
+test('a report line names the palette it came from, and keeps the kind it is', () => {
+  assert.deepEqual(
+    reportLines([{ palette: 'ember', messages: [report('contrast', 'text, x: 2.00:1')] }]),
+    [report('contrast', 'ember: text, x: 2.00:1')],
+  );
 });
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
@@ -177,7 +188,7 @@ test('a contrast report warns and still writes, because a consumer owns their br
   const root = project(dim);
   const step = themeStep(options(root), { packageName: '@dravensoft/arena-react', sheets: null });
   assert.equal(step.code, 0);
-  assert.ok(step.reports.some((m) => m.includes('under the 4.5:1')));
+  assert.ok(step.reports.some((one) => one.kind === 'contrast' && one.message.includes('under the 4.5:1')));
   assert.ok(existsSync(join(root, 'src', THEME_SHEET)));
   rmSync(root, { recursive: true });
 });
@@ -234,7 +245,8 @@ test('an element Arena does not ship is reported, and --strict is what makes it 
 
   const step = themeStep(options(root), environment);
   assert.equal(step.code, 0);
-  assert.ok(step.reports.some((m) => m.includes('arena-widget is not a component this package ships')));
+  assert.ok(step.reports.some((one) => one.kind === 'components'
+    && one.message.includes('arena-widget is not a component this package ships')));
 
   const argv = (...extra: string[]) =>
     ['--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), ...extra];
@@ -346,7 +358,8 @@ test('running outside a package says so, because the icons Arena draws went unco
   const { root: phosphorRootDir, web } = phosphor();
   const root = project();
   const step = iconsStep(options(root), { phosphor: web, arena: null });
-  assert.ok(step.reports.some((m) => m.includes('not running from inside an Arena package')));
+  assert.ok(step.reports.some((one) => one.kind === 'glyph'
+    && one.message.includes('not running from inside an Arena package')));
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
 });
@@ -357,7 +370,8 @@ test('a glyph Phosphor does not draw is reported and still writes', () => {
 
   const step = iconsStep(options(root), { phosphor: web, arena: null });
   assert.equal(step.code, 0);
-  assert.ok(step.reports.some((m) => m.includes('ph-nope is not an icon Phosphor draws at that weight')));
+  assert.ok(step.reports.some((one) => one.kind === 'glyph'
+    && one.message.includes('ph-nope is not an icon Phosphor draws at that weight')));
   assert.ok(existsSync(join(root, 'src', ICONS_SHEET)));
 
   rmSync(root, { recursive: true });
@@ -432,6 +446,10 @@ test('--strict promotes a report from either step, and neither is fatal without 
 
   assert.equal(quietly(() => main(argv(contrast), environment)).code, 0);
   assert.equal(quietly(() => main(argv(contrast, '--strict'), environment)).code, 1);
+  assert.equal(quietly(() => main(argv(contrast, '--strict=contrast'), environment)).code, 1);
+  assert.equal(quietly(() => main(argv(contrast, '--strict=audit'), environment)).code, 0,
+    'a brand measured under 4.5:1 is a decision its owner made, and holding the other kinds is '
+    + 'what a project in that position is left with');
   assert.equal(quietly(() => main(argv(glyph), environment)).code, 0);
   assert.equal(quietly(() => main(argv(glyph, '--strict'), environment)).code, 1);
 

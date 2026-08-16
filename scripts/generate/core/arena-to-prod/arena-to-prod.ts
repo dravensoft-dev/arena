@@ -7,8 +7,8 @@
  * the package between them draw. Theme first, and its failure stops the run: a project whose
  * config does not parse has no theme, and nothing to subset for. hostPackage answers a path
  * rather than a name because the two steps want different things out of it. A configuration
- * problem is always fatal; a contrast, ramp or missing-glyph report is not, since a consumer
- * owns their brand and a false hit in prose costs nothing. --strict makes the reports fatal. */
+ * problem is always fatal and a report is not, since a consumer owns their brand; --strict is
+ * what makes one fatal, and it takes the kinds it holds, on reports.ts's reasoning. */
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +24,8 @@ import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
+import { STRICT_KINDS, report, reported } from './reports.ts';
+import type { Report, StrictKind } from './reports.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -44,7 +46,7 @@ export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.an
 export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET]);
 
 export const USAGE = [
-  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict]',
+  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict[=<kind>,...]]',
   '',
   `  --config        the palettes and fonts this project declares; defaults to ${DEFAULT_CONFIG}`,
   `  --src           a source tree to scan for Phosphor class names; repeatable, defaults to ${DEFAULT_SOURCE}`,
@@ -54,12 +56,14 @@ export const USAGE = [
   '                  on an Arena component, one wrapped in your router\'s link, a raw value where',
   '                  a token belongs, an icon as an element, an emoji',
   '  --undrawn       name the components this package ships that your sources draw nowhere',
-  '  --strict        exit 1 on a contrast, ramp, missing-glyph or audit report, not only on a config problem',
+  `  --strict        exit 1 on a report, not only on a config problem. Bare, it holds every kind;`,
+  `                  --strict=${STRICT_KINDS.slice(0, 3).join(',')} holds the ones you name, out of`,
+  `                  ${STRICT_KINDS.join(', ')}`,
   '  --no-import     omit the @import of the package stylesheet from the theme output',
 ].join('\n');
 
 export type ResolvedOptions = {
-  strict: boolean;
+  strict: StrictKind[];
   audit: boolean;
   undrawn: boolean;
   importHeader: boolean;
@@ -77,7 +81,7 @@ export function resolved(options: CliOptions): ResolvedOptions {
       + 'resolved option set, so every path this command was given is unknown');
   }
   return {
-    strict: Boolean(options.strict),
+    strict: options.strict ?? [],
     audit: Boolean(options.audit),
     undrawn: Boolean(options.undrawn),
     importHeader: options.importHeader !== false,
@@ -87,14 +91,27 @@ export function resolved(options: CliOptions): ResolvedOptions {
   };
 }
 
+export function strictKinds(value: string) {
+  const named = value.split(',').map((one) => one.trim()).filter(Boolean);
+  const unknown = named.filter((one) => !STRICT_KINDS.includes(one as StrictKind));
+  if (unknown.length) return { error: `--strict does not report on ${unknown.join(', ')}; it reports on ${STRICT_KINDS.join(', ')}` };
+  return { kinds: named as StrictKind[] };
+}
+
 export function parseArgs(argv: string[]): CliOptions {
   const paths: string[] = [];
-  const options: CliOptions = { strict: false, audit: false, undrawn: false, importHeader: true, paths };
+  const options: CliOptions = { strict: [], audit: false, undrawn: false, importHeader: true, paths };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === undefined) continue;
     if (arg === '--help' || arg === '-h') return { help: true };
-    if (arg === '--strict') { options.strict = true; continue; }
+    if (arg === '--strict') { options.strict = [...STRICT_KINDS]; continue; }
+    if (arg.startsWith('--strict=')) {
+      const named = strictKinds(arg.slice('--strict='.length));
+      if (named.error) return { error: named.error };
+      options.strict = named.kinds;
+      continue;
+    }
     if (arg === '--audit') { options.audit = true; continue; }
     if (arg === '--undrawn') { options.undrawn = true; continue; }
     if (arg === '--no-import') { options.importHeader = false; continue; }
@@ -274,8 +291,9 @@ export function relativeFrom(outDir: string, target: string) {
   return path.startsWith('.') ? path : `./${path}`;
 }
 
-export function reportLines(reports: { palette: string; messages: string[] }[]) {
-  return reports.flatMap(({ palette, messages }) => messages.map((m) => `${palette}: ${m}`));
+export function reportLines(reports: { palette: string; messages: Report[] }[]) {
+  return reports.flatMap(({ palette, messages }) =>
+    messages.map((one) => report(one.kind, `${palette}: ${one.message}`)));
 }
 
 export function autoComponents(config: ArenaConfig, options: ResolvedOptions,
@@ -325,9 +343,9 @@ export function pluginDirs(options: ResolvedOptions) {
 }
 
 export function auditStep(options: ResolvedOptions) {
-  if (!options.audit) return { reports: [] as string[], scanned: 0, painted: [] as string[] };
+  if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
-  const reports = [];
+  const reports: Report[] = [];
   const painted = new Set<string>();
   let scanned = 0;
   for (const path of options.paths) {
@@ -335,7 +353,7 @@ export function auditStep(options: ResolvedOptions) {
       scanned += 1;
       const text = readFileSync(file, 'utf8');
       const scope = sourceScope(resolve(file), dirs);
-      reports.push(...auditText(file, text, scope));
+      reports.push(...auditText(file, text, scope).map((line) => report('audit', line)));
       if (scope === 'plugin') for (const part of paintedParts(text)) painted.add(part);
     }
   }
@@ -343,7 +361,7 @@ export function auditStep(options: ResolvedOptions) {
 }
 
 export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
-  if (!map?.markers) return { reports: [] as string[] };
+  if (!map?.markers) return { reports: [] as Report[] };
   const files = [];
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
@@ -351,7 +369,7 @@ export function markersStep(options: ResolvedOptions, map: ComponentMap | null) 
       files.push({ path: file, source: readFileSync(file, 'utf8') });
     }
   }
-  return { reports: markerProblems(files, map.markers) };
+  return { reports: markerProblems(files, map.markers).map((line) => report('markers', line)) };
 }
 
 export function undrawnStep(options: ResolvedOptions, packageName: string, map: ComponentMap | null) {
@@ -385,10 +403,10 @@ export function themeStep(
   try {
     config = JSON.parse(readFileSync(options.config, 'utf8'));
   } catch (error) {
-    return { code: 2, reports: [] as string[], fatal: [`cannot read ${options.config}: ${(error as Error).message}`] };
+    return { code: 2, reports: [] as Report[], fatal: [`cannot read ${options.config}: ${(error as Error).message}`] };
   }
 
-  const auto = { reports: [] as string[], notes: [] as string[] };
+  const auto = { reports: [] as Report[], notes: [] as string[] };
   if (config.stylesheet?.components === AUTO) {
     if (!map) {
       return { code: 1,
@@ -399,12 +417,12 @@ export function themeStep(
     const resolved = autoComponents(config, options, map, packageName);
     if (resolved.fatal) return { code: 1, reports: [], fatal: resolved.fatal };
     config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
-    auto.reports.push(...resolved.reports);
+    auto.reports.push(...resolved.reports.map((line) => report('components', line)));
     auto.notes.push(resolved.note);
   }
 
   const { plugins, fatal } = readPlugins(config, dirname(resolve(options.config)));
-  if (fatal.length) return { code: 1, reports: [] as string[], fatal };
+  if (fatal.length) return { code: 1, reports: [] as Report[], fatal };
 
   const problems = configProblems(config, sheets, plugins);
   if (problems.length) return { code: 1, reports: [], fatal: problems };
@@ -435,7 +453,7 @@ export function iconsStep(options: ResolvedOptions,
   }
 
   const found: IconScan = { pairs: new Map(), loose: new Set() };
-  const reports = [];
+  const reports: Report[] = [];
   const ours: IconScan = { pairs: new Map(), loose: new Set() };
 
   if (arena) {
@@ -446,7 +464,7 @@ export function iconsStep(options: ResolvedOptions,
       scan(source, ours);
     }
   } else {
-    reports.push('not running from inside an Arena package, so the icons Arena draws itself were not counted');
+    reports.push(report('glyph', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
   }
 
   const yours: IconScan = { pairs: new Map(), loose: new Set() };
@@ -489,7 +507,7 @@ export function iconsStep(options: ResolvedOptions,
 
   const { css, missing, kept } = iconsCss(sheets, options.paths.join(', '));
   for (const [weight, names] of missing) {
-    for (const name of names) reports.push(`${weight}: ${name} is not an icon Phosphor draws at that weight`);
+    for (const name of names) reports.push(report('glyph', `${weight}: ${name} is not an icon Phosphor draws at that weight`));
   }
 
   mkdirSync(outDir, { recursive: true });
@@ -533,7 +551,7 @@ export function main(argv: string[], environment: Environment = {}) {
 
   const theme = themeStep(options, { packageName, sheets, map });
   for (const line of theme.fatal) console.error(`arena-to-prod: ${line}`);
-  for (const line of theme.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of theme.reports) console.error(`arena-to-prod: ${one.message}`);
   if (theme.code !== 0) return theme.code;
   for (const line of theme.notes ?? []) console.log(`arena-to-prod: ${line}`);
   console.log(`arena-to-prod: wrote ${theme.wrote}`);
@@ -546,7 +564,7 @@ export function main(argv: string[], environment: Environment = {}) {
   }
 
   const audit = auditStep(options);
-  for (const line of audit.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of audit.reports) console.error(`arena-to-prod: ${one.message}`);
   if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `
       + `${audit.reports.length || 'no'} finding(s). No gate reads your application, so these hold `
@@ -558,16 +576,21 @@ export function main(argv: string[], environment: Environment = {}) {
   }
 
   const markers = markersStep(options, map);
-  for (const line of markers.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of markers.reports) console.error(`arena-to-prod: ${one.message}`);
 
   const icons = iconsStep(options, { arena, phosphor });
   for (const line of icons.fatal) console.error(`arena-to-prod: ${line}`);
-  for (const line of icons.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of icons.reports) console.error(`arena-to-prod: ${one.message}`);
   if (icons.code !== 0) return icons.code;
   console.log(`arena-to-prod: wrote ${icons.wrote}`);
 
-  const reported = theme.reports.length + audit.reports.length + markers.reports.length + icons.reports.length;
-  return options.strict && reported ? 1 : 0;
+  const held = reported([...theme.reports, ...audit.reports, ...markers.reports, ...icons.reports],
+    options.strict);
+  if (held.length) {
+    console.error(`arena-to-prod: --strict holds ${options.strict.join(', ')}, and this run reports `
+      + `${held.length} of them: ${[...new Set(held.map((one) => one.kind))].join(', ')}`);
+  }
+  return held.length ? 1 : 0;
 }
 
 export function isProgram(entry: string | undefined, self: string) {

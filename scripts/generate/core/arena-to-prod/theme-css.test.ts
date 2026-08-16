@@ -179,12 +179,13 @@ test('a palette whose text fails 4.5:1 is reported rather than refused', () => {
   const [report] = paletteReports(c);
   assert.ok(report, 'a palette under 4.5:1 reported nothing at all');
   assert.equal(report.palette, 'dark');
-  assert.ok(report.messages.some((m) => m.startsWith('text, base-content on base-100')));
+  assert.ok(report.messages.some((m) => m.kind === 'contrast'
+    && m.message.startsWith('text, base-content on base-100')));
 });
 
 test('a ramp of one repeated colour is reported as indistinguishable', () => {
   const [report] = paletteReports(config());
-  assert.ok(report?.messages.some((m) => m.startsWith('ramp,')));
+  assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.startsWith('ramp,')));
 });
 
 test('a stylesheet src becomes an @import, because Google Fonts serves CSS and not a binary', () => {
