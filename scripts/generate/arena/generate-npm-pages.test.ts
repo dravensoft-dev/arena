@@ -8,9 +8,21 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { LAYER_TOKENS } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, REGIONS, openLine, closeLine, renderRegion, applyRegion, renderTarget,
 } from './generate-npm-pages.ts';
+
+test('a shared region names no layer, because it is written into every layer at once', () => {
+  const tokens = Object.entries(LAYER_TOKENS)
+    .flatMap(([layer, entries]) => entries.map(([token, re]) => ({ layer, token, re })));
+  for (const key of Object.keys(REGIONS))
+    for (const [index, line] of renderRegion(key).split('\n').entries())
+      for (const { layer, token, re } of tokens)
+        assert.ok(!re.test(line), `the ${key} region names ${layer} ("${token}") on line ${index + 1}: `
+          + `${line.trim()}. A fact true of one package only is that package's own paragraph, `
+          + 'hand-written outside the markers, and it states what its own package does.');
+});
 
 test('both npm pages carry every shared region, and each is byte-identical between them', () => {
   const [react, angular] = TARGETS.map((t) => readFileSync(join(repoRoot, t), 'utf8'));

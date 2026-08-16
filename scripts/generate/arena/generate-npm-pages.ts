@@ -4,7 +4,10 @@
  * elsewhere on the page. Each region is emitted between markers a person placed, because where a
  * section sits on the page is the author's decision and only what it says is this file's.
  * Everything a layer decides, the import idiom, what the package exports and how a layout is
- * composed, stays hand-written in each. */
+ * composed, stays hand-written in each. A region lands in both pages, so it names no layer:
+ * `check:layer-independence` refuses a page under `frameworks/<A>/` that cites layer B. A fact
+ * true of one package only is that package's own paragraph outside the markers, saying what it
+ * does rather than what the other does instead; the test here holds every region to that. */
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -58,13 +61,10 @@ shape, space, weight and depth and ships one set of answers; a project writes it
 plugin, which is the ordinary case rather than an escape hatch. A palette is not an appearance,
 so the config below is the smaller half of that decision.
 
-**A \`<head>\` for a product that has to be found from outside it, and it is optional.** Arena
-writes it in the Angular layer, at \`@dravensoft/arena-angular/metadata\`: a title composed with
-Angular's own, a description, a canonical and the \`og:*\` pair, and every route private until it
-says otherwise. It sits behind a second entry point because reaching it means reaching
-the router, an optional peer nothing else here asks for. \`@dravensoft/arena-react\` writes no
-\`<head>\`, so a React project keeps that with whatever its own framework offers;
-\`ArenaBreadcrumbs\` describes the trail it draws in \`schema.org\` terms under both.`,
+**What a machine reads off a screen is part of what a component draws.** \`ArenaBreadcrumbs\`
+describes the trail it draws in \`schema.org\` terms, so a crawler reads the same trail a person
+does. Whether this package also writes your \`<head>\` is a thing only this package can answer,
+and it answers it below.`,
 
   register: () => `## The screens it is for
 
