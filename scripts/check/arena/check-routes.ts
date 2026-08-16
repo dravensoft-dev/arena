@@ -88,13 +88,16 @@ export const ROUTES: Route[] = [
     who: 'a contributor adding or changing a component: the router, the frameworks roof, then the '
       + 'layer that binds it',
     stops: ['AGENTS.md', 'frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 83_000,
+    budget: 84_500,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
       + 'and never by whoever uses it. What it may not carry is one category\'s own tour: the '
       + 'chart family is a fourth stop, frameworks/CHARTS.md, for whoever changes a chart, and '
-      + 'charging every component change for it cost a fifth of this route.',
+      + 'charging every component change for it cost a fifth of this route. Raised from 83,000 '
+      + 'when the branch named the convention it answers to and the two places it departs from '
+      + 'one: a contributor who does not know the consumer branch is a skill adds an eighteenth '
+      + 'file under the reserved name, and the cost of that is paid by every reader of the tag.',
   },
   {
     name: 'contributor-token',
@@ -116,14 +119,15 @@ export const ROUTES: Route[] = [
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 92_000,
+    budget: 93_500,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
       + 'claim in one table row. The headroom is deliberately a few gates wide: a budget a single '
       + 'new row breaks reports the row rather than the growth it is there to report. Raised from '
-      + '88,000 when check:parts landed and one row spent the last of it, which is the case that '
-      + 'clause describes.',
+      + '88,000 when check:parts landed and one row spent the last of it, and again when '
+      + 'check:skill-spec landed and spent the next of it: that is the clause above happening '
+      + 'twice, and it is what the headroom is for.',
   },
 ];
 

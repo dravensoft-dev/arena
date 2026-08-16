@@ -66,6 +66,29 @@ refused outright whatever a repository-size argument says.
 
 ## Where a new document goes
 
+**Each branch answers to a published convention, and neither answers to a house style.** The
+consumer branch is **one Agent Skill**, and the specification it conforms to is the one at
+[agentskills.io](https://agentskills.io/specification). Its root is `skills/design/`, and every
+document it reaches is a reference rather than a skill: a file carrying the reserved name and no
+frontmatter is not a lesser skill but a broken one, since a scanner globbing for the name reads it
+as a skill that fails to parse, and globbing for a `SKILL.md` a level inside a `skills` directory
+is how the npm convention finds one at all. The contributor branch is **AGENTS.md**, one per
+declared domain. The site publishes **llms.txt** and one corpus per layer, in the order that
+specification fixes. `check:skill-spec` holds the first of those and `skills-ref validate` is the
+standard's own second opinion, which is worth running by hand: it found two defects this gate did
+not, and the gate grew both.
+
+**Where Arena departs from the specification, it departs in writing.** Two departures, each with
+the measurement that pays for it, because a departure nobody recorded is one the next reader
+repairs:
+
+- **The route is four stops deep where the specification recommends one.** `check:routes` reports
+  what the build route costs as four stops, and it cost half again as a flat one. The depth is the
+  saving and the budget is the instrument.
+- **The reference tree lives beside the code it is generated from rather than inside
+  `references/`.** A prompt is emitted from its component's contract next to that component, and a
+  copy inside the skill directory would be a second answer to a question the contracts answer once.
+
 **Two branches, and a fact belongs to exactly one.** `skills/design/SKILL.md` roots the *consumer*
 branch the way this file roots the contributor one. The cost of the consumer branch is paid on
 every build: an agent building with Arena reads the router, where it takes the rules, then its own
