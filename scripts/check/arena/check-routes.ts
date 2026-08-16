@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 44_500,
+    budget: 46_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -93,7 +93,13 @@ export const ROUTES: Route[] = [
       + 'the page ships and never names: five projection markers whose slots fail in silence, and '
       + 'the sheets under css/ a reader picking a depth is not offered. A file a package ships and '
       + 'a page never mentions is one nobody imports, and this route is where a consumer meets '
-      + 'every one of them.',
+      + 'every one of them. Raised again to 46,000 when check:exports landed and reported twelve '
+      + 'symbols in that same shape, the modal contract among them: Arena tells a consumer a '
+      + 'lightbox is theirs to write, ships the tested focus trap its own dialogs run on, and the '
+      + 'page disclaimed it by omission, so a cold walk planned a second trap written from memory. '
+      + 'What buys a raise here is always the same argument, that being right is what the page is '
+      + 'for, and what makes this one binding is that a gate fails the page now rather than a '
+      + 'reader discovering it.',
   },
   {
     name: 'consumer-skin',

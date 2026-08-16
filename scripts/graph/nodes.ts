@@ -40,6 +40,10 @@ export const NEVER_SUBSCRIBES = new Map([
   ['scripts/check/arena/check-agents.ts',
    'it walks the branch for a level no chain of links reaches, so its subject is every document '
    + 'that could have carried the link and an absence sits in no spec'],
+  ['scripts/check/arena/check-exports.ts',
+   'its subject is whatever a barrel happens to re-export, which is a set the barrel decides at '
+   + 'read time rather than one a spec can name ahead of it: a module gaining an export changes '
+   + 'what this gate reads without changing any path it could have declared'],
   ['scripts/check/arena/check-agents-spec.ts',
    'its subject is a file appearing anywhere in the index under the one name the convention fixes, '
    + 'and a spec naming where a level is allowed to sit could not report one that is not'],

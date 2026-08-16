@@ -119,6 +119,7 @@
     "check:shared-arithmetic": "bun scripts/check/arena/check-shared-arithmetic.ts",
     "check:packages": "bun scripts/check/arena/check-packages.ts",
     "check:consumer": "bun scripts/check/arena/check-consumer.ts",
+    "check:exports": "bun scripts/check/arena/check-exports.ts",
     "check": "bun scripts/check/arena/check-all.ts",
     "ci:summarize": "bun scripts/ci/arena/summarize-tests.ts",
     "test:scripts": "bun scripts/ci/arena/run-suite.ts scripts",
