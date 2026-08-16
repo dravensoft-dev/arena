@@ -20,7 +20,7 @@
         "confirm": "bg-error-fill text-error-content"
       },
       "false": {
-        "eyebrow": "text-ink-eyebrow",
+        "eyebrow": "text-ink-eyebrow-surface",
         "confirm": "bg-primary text-primary-content"
       }
     },

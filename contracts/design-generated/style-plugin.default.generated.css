@@ -48,6 +48,7 @@
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
+  --ink-eyebrow-surface:var(--color-primary);
   --ink-muted:var(--color-base-content);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
@@ -85,6 +86,7 @@
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
+  --ink-eyebrow-surface:var(--color-primary);
   --ink-muted:var(--color-base-content);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);

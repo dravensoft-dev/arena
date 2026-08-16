@@ -3,7 +3,7 @@
   "slots": {
     "root": "block bg-surface border-[length:var(--bw-surface)] rounded-surface overflow-hidden shadow-surface-rest",
     "head": "flex items-start justify-between px-surface pt-4.5",
-    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow-surface mb-1.5 font-eyebrow",
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
     "body": "p-surface flex flex-col gap-items min-w-0"
   },

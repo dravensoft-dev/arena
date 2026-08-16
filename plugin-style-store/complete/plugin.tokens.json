@@ -220,6 +220,10 @@
     "$type": "color",
     "$value": "{color.secondary}"
   },
+  "ink-eyebrow-surface": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "ink-muted": {
     "$type": "color",
     "$value": "{color.neutral-content}"
