@@ -139,6 +139,20 @@ rather than left to be discovered at a consumer's build.
 > style plugins are measured painting the same decision by hand through the same part. What one
 > plugin paints is its own.
 
+**A plugin selects by part and never by the value of a variant, and that decides which asks can
+become members at all.** A product whose avatar ring is a gradient in one state and a grey in the
+other cannot be served by a `ring` member taking a tone: the component would render one part in
+both states, the plugin would paint it once, and the mark that product is recognised by is the
+difference between the two. An ask whose whole content is a difference the cascade cannot see is
+markup its own product writes, and no member Arena could add would carry it.
+
+**A role that does two jobs is a split waiting for its second product, not a name to be argued
+with.** `edge-marker` is the current case: it draws the edge of a chip and the edge of a
+photograph, and one product has already set it to nothing to take the border off its avatars,
+because no product wants a portrait outlined the way it wants a tag outlined. One product measured
+is that product's own by the rule above, and the entry is here so the next one is a count rather
+than a rediscovery.
+
 This is how the current tier was derived, by counting the slots that named a palette step, a face
 or a case directly. What changes is that the count now has a source that keeps producing: the
 audit reports which parts a plugin paints, and that note is where the evidence for promoting one

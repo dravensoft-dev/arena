@@ -48,6 +48,11 @@ is the page's own reading width.
   out, so a minimum nobody meets pins the grid at one column forever.
 - **Don't** nest one to make a two-level layout. Two grids nested pick their counts independently
   and the cells stop lining up; give the outer one the cells it actually has.
+- **Don't** wait for a fixed column count. A photo wall three across and a pair of lesson choices
+  are both `grid-template-columns: repeat(N, 1fr)` on an element of your own, one line each, and a
+  count Arena took would contradict what this component is: the number comes from the room rather
+  than from a breakpoint somebody picked. Two products measured wanting one, and neither would
+  have written less than the line they wrote.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-grid/ArenaGrid.demo.generated.html`:
