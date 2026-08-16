@@ -69,6 +69,8 @@ export const UNTRACKED = {
     + 'page importing one needs it compiled.',
   'frameworks/react/AnchorActivation.generated.js':
     'the same, for the predicate that decides which activation of an anchor is the router\'s.',
+  'frameworks/react/StructuredData.generated.js': 'the same, for the schema.org serialisation the '
+    + 'structured-data pattern requires.',
   'frameworks/react/Theme.generated.js': 'the same, for the theme helper.',
   'frameworks/react/WarnOnce.generated.js': 'the same, for the once-per-message console warning '
     + 'the charts and ArenaTable share.',

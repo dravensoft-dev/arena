@@ -1,4 +1,7 @@
 {
   "pattern": "navigation",
-  "exceptions": []
+  "exceptions": [],
+  "also": [
+    { "pattern": "structured-data", "exceptions": [] }
+  ]
 }
