@@ -10,7 +10,9 @@ Read this once per project, before the first screen. The rules of the language a
 ## The three files you write
 
 **`arena.config.json`, in your project root.** The palettes, the fonts and the plugins, and
-nothing about components:
+nothing about components. **The shape, abridged, and not a file to copy**: every palette answers
+the whole colour set rather than the three shown, and a config carrying three keys is refused
+rather than defaulted.
 
 ```json
 {
@@ -23,8 +25,14 @@ nothing about components:
 }
 ```
 
-Every palette answers the same fixed set of colour keys, and the full list, the font slots and
-the rest of the config are on your package's own page: [`../../../frameworks/react/PACKAGE.md`](../../../frameworks/react/PACKAGE.md)
+**`"stylePlugins": ["default"]` is a legitimate answer**, and it is the right one for a first
+screen or a tool nobody outside the team will look at: it keeps the appearance Arena installs
+with, and a project moves off it when the appearance starts mattering rather than before. What
+this page costs you is paid when you decide to look like yourself, not to start.
+
+Arena ships two themes and is dark first, so a real config carries a dark palette as well as the
+light one above. The full colour list, the font slots and the rest of the config are on your
+package's own page, and the file to copy is there rather than here: [`../../../frameworks/react/PACKAGE.md`](../../../frameworks/react/PACKAGE.md)
 or [`../../../frameworks/angular/PACKAGE.md`](../../../frameworks/angular/PACKAGE.md).
 
 **`design/<name>/plugin.tokens.json`.** One entry per role, and the directory name becomes the
@@ -139,10 +147,14 @@ palette does.
 Those are not the answers the appearance Arena installs with gives. That one is a design of its
 own and assigns several of these differently, so it is a plugin to read rather than a baseline to
 inherit: a plugin you write answers every role itself, and nothing is inherited from it.
-**It is `plugin-style-store/default/plugin.tokens.json` in the Arena repository**, and
-`plugin-style-store/complete/` beside it is a second one answering the same roles differently.
-Read one of them before writing yours: answering every role from a list of role names is the
-hardest instruction on this page, and a worked answer is worth more than the list.
+It is [`plugin-style-store/default/plugin.tokens.json`](../../../plugin-style-store/default/plugin.tokens.json)
+in the Arena repository, and
+[`plugin-style-store/complete/`](../../../plugin-style-store/complete/plugin.tokens.json) beside
+it is a second one answering the same roles differently. Read one of them before writing yours:
+answering every role from a list of role names is the hardest instruction on this page, and a
+worked answer is worth more than the list. **Both are in the repository rather than in the
+package**, so from an installed project read them on the Arena repository, or start from
+`"stylePlugins": ["default"]` and replace one role at a time against something that already runs.
 
 **These are where a product lives.** Each of the four gave a different answer:
 

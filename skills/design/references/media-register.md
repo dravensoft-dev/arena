@@ -26,13 +26,21 @@ markup can be held to:
 Read the one your element is, and bind what it requires. These files are the same source Arena's
 own components are held to, so what you write is held to the standard the components are.
 
-## Arena ships the hard parts of that
+## One of those two is handed over, and the other is not
 
 **You do not write a focus trap.** The package exports the one Arena's own dialogs run on, and
 your layer's `PACKAGE.md` names each: the modal contract, the tone-to-colour map for a status
 shape you draw, and the visually-hidden style object for a label the design does not show. Reach
 for those rather than writing a second copy, and read that page's export table before you reach
 for anything else: what it names is what carries a promise.
+
+**The feed pattern has no such export, and it is not an oversight you can wait out.** Arena binds
+it once, inside `ArenaActivityFeed`, and that component is not your feed: it is an event log with
+a fixed row and no slot for your markup, so reaching for it because the name matches is the
+mistake this section exists to stop. What you can do is read how it binds the pattern, in that
+component's source, and write the same thing around your own article: the paging keys move focus
+between articles rather than scrolling, which is the part a reimplementation from memory gets
+wrong. Until an export exists, that reading is the handover.
 
 **`isArenaOwnActivation(target, container)`** is the one to know about by name. A post that opens
 on tap and carries a like button inside it is two activations on one surface, and that predicate
@@ -47,10 +55,17 @@ markup that is not a component: `css/rhythm.css` for the vertical stack between 
 jitter as it counts, and `css/sr-only.css` for the label a screen reader needs and the design does
 not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
 
-**A grid is one line and it is yours.** `ArenaGrid` exists for a set of cards and says so in its
-own Don't: a photo wall three across is `grid-template-columns: repeat(3, 1fr)` on an element of
-your own, and two products measured wanting it wrote exactly that line. Reaching for a component
-here costs more than writing it.
+**The frame around a picture is a component, and the grid around the frames usually is not.**
+`ArenaFigure` is the cell: its `ratio` defaults to the `aspect-media` role and its overlay slot
+paints `overlay-media`, so the two roles below are answered for every picture at once and a wall
+reads as a wall rather than as whatever sizes the images happened to be. Use it for a post's image
+and for a wall's cell alike.
+
+The grid holding them is the split. `ArenaGrid` auto-fits off the `grid-min` role, which is what
+you want when the count is the data's and the plugin decides how dense it looks. A wall that is
+**three across because the design says three** is `grid-template-columns: repeat(3, 1fr)` on an
+element of your own, one line, and `ArenaGrid`'s own Don't says so: two products measured wanting
+a fixed count wrote exactly that line rather than bending a component into it.
 
 ## Four roles decide how your media looks
 
@@ -64,6 +79,11 @@ before you answer anything else.
 `r-media` is also where the boundary is stated in the kernel's own words: a card is a container
 the reader looks past, and a figure is the thing being looked at. If your post is the thing being
 looked at, it is not a card.
+
+**Two component names will look like your answer and are not.** `ArenaActivityFeed` is an event
+log with a fixed row, and `ArenaCard` is the container above. Both are the first thing a search
+for your screen returns, and reaching for either is how a product in this register ends up fighting
+a component instead of writing six lines.
 
 ## One rule bends here, and only one
 
@@ -79,8 +99,8 @@ both. A media product is where both are most tempting.
 
 ## What Arena still gives you
 
-The furniture around the content is still Arena's, and reaching for it is what keeps a product
-built this way from reading as two products. The banner, the navigation, the dialogs that are
-dialogs, the empty and error states, the skeletons, the toasts, the avatars, the tags, the buttons
-and every field: those are components, and the screen you are writing is mostly them with one
-element of your own in the middle.
+**The screen you are writing is mostly components with one element of your own in the middle.**
+The banner, the navigation, the states around empty and failed, every field and every button are
+furniture whatever the product is, and reaching for them is what keeps a product built this way
+from reading as two. Your layer's `INDEX.md` is the directory; work out from your own element
+rather than in from a page layout.

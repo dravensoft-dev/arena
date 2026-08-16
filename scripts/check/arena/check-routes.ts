@@ -134,7 +134,7 @@ export const ROUTES: Route[] = [
     who: 'a builder whose product, or one screen of it, is outside the component list: the router, '
       + 'then the page that says what Arena hands over instead of a component',
     stops: ['skills/design/SKILL.md', 'skills/design/references/media-register.md'],
-    budget: 20_000,
+    budget: 21_500,
     reason:
       'paid once per project like the skin route, and by a reader the router has just told to write '
       + 'their own markup. What it buys is that the honest sentence at the top of the router stops '
@@ -144,7 +144,13 @@ export const ROUTES: Route[] = [
       + 'wall is one line of CSS. Every part of the answer already existed and none of it was '
       + 'reachable from the sentence that created the need. The number is what the stops measure '
       + 'with room for one section, and it grows when the register gains a part to hand over rather '
-      + 'than when the page gains a paragraph.',
+      + 'than when the page gains a paragraph. Raised to 21,500 the first time that happened, on the '
+      + 'walk that repeated against this page: it gained the component that reads the two media '
+      + 'roles the page already told a reader to answer first, the split between an auto-fitting '
+      + 'grid and a fixed-count wall, and the two component names that look like the answer and are '
+      + 'not. It also lost a claim it should never have made: the page said Arena ships the hard '
+      + 'parts of both patterns it names, and Arena ships the modal one and binds the feed one '
+      + 'inside a component nobody can reuse, so the page says that instead.',
   },
   {
     name: 'contributor-component',
