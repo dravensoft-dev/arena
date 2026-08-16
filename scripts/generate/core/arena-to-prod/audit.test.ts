@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
-  paintedParts, sourceScope, OWN_CLASS_ATTRIBUTE, UNMODELLED_UNITS,
+  paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
+  UNMODELLED_UNITS,
 } from './audit.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -297,4 +301,61 @@ test('the audit reports which parts a plugin paints', () => {
 test('the own-class attribute pattern is exported, so its suite can assert on it', () => {
   assert.ok(OWN_CLASS_ATTRIBUTE.test(' className='));
   assert.ok(OWN_CLASS_ATTRIBUTE.test(' [class]='));
+});
+
+test('a screen drawing a page head and a card, with no section between, is reported', () => {
+  assert.match(rules('<ArenaPageHead title="Sales" /><ArenaCard title="Today" />'), /outline-gap/);
+  assert.match(
+    rules('<arena-page-head title="Sales" /><arena-card title="Today" />', 'src/app.html'),
+    /outline-gap/,
+    'the rule reads a screen and not a layer, so it holds in either idiom',
+  );
+});
+
+test('the same screen with the middle rung written is not reported', () => {
+  assert.equal(
+    rules('<ArenaPageHead title="Sales" /><ArenaSection title="Today"><ArenaCard title="A" /></ArenaSection>'),
+    '',
+    'a section IS the h2 the outline was missing, which is the fix the message asks for',
+  );
+  assert.equal(
+    rules('<ArenaPageHead title="Sales" /><ArenaCard title="A" headingLevel="h2" />'),
+    '',
+    'and saying the rung by hand is the other fix, so a component that declares one is not counted '
+    + 'against a default it is not using',
+  );
+});
+
+test('one rung on its own is no gap, however deep it sits', () => {
+  assert.equal(rules('<ArenaCard title="A" /><ArenaCard title="B" />'), '',
+    'a screen of cards inside a shell that draws the page head elsewhere is the ordinary case, and '
+    + 'a rule that fired on it would be one every project turns off');
+});
+
+test('the gap is found between any two rungs, not only between one and three', () => {
+  assert.deepEqual(outlineGap([1, 3]), [1, 3]);
+  assert.deepEqual(outlineGap([2, 3, 1]), null, 'contiguous in any order is contiguous');
+  assert.deepEqual(outlineGap([1, 2]), null);
+  assert.deepEqual(outlineGap([]), null);
+  assert.deepEqual(outlineGap([3, 3, 3]), null);
+});
+
+test('the ladder this rule reads is the one the contracts declare, or it is judging a shape Arena '
+  + 'no longer draws', () => {
+  const dir = join(repoRoot, 'contracts/api/components');
+  const declared: Record<string, number> = {};
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.json')) continue;
+    const contract = JSON.parse(readFileSync(join(dir, file), 'utf8'));
+    const level = contract.api?.headingLevel?.default;
+    if (typeof level !== 'string' || !/^h[1-6]$/.test(level)) continue;
+    declared[kebabTag(contract.component)] = Number(level.slice(1));
+  }
+
+  assert.ok(Object.keys(declared).length > 0, 'no contract declares a heading rung, so this checked nothing');
+  assert.deepEqual(HEADING_RUNGS, declared,
+    'the audit ships inside the package and cannot read contracts/ from there, so the ladder is a '
+    + 'literal here and this is what keeps it from drifting: a component that gains, loses or moves '
+    + 'a default rung has to move this list with it. A component defaulting to `none` is deliberately '
+    + 'absent, because it opens no rung at all');
 });

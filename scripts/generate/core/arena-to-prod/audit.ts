@@ -257,6 +257,38 @@ export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
 
+export const HEADING_RUNGS: Record<string, number> = {
+  'arena-hero': 1,
+  'arena-page-head': 1,
+  'arena-section': 2,
+  'arena-unauth-card': 2,
+  'arena-board-column': 3,
+  'arena-card': 3,
+  'arena-empty-state': 3,
+  'arena-error-state': 3,
+};
+
+export const HEADING_LEVEL_ATTRIBUTE = /(?:^|\s)\[?headingLevel\]?\s*=/;
+
+export function outlineGap(drawn: number[]): [number, number] | null {
+  const rungs = [...new Set(drawn)].sort((a, b) => a - b);
+  for (let i = 1; i < rungs.length; i += 1) {
+    const under = rungs[i - 1] as number;
+    const over = rungs[i] as number;
+    if (over - under > 1) return [under, over];
+  }
+  return null;
+}
+
+export function outlineMessage(under: number, over: number) {
+  return `an outline that skips h${under + 1}: this screen can draw an h${under} and an h${over} `
+    + 'with nothing between them. Arena gives each component the rung of its own register, so a card '
+    + 'lands at h3 on the reading that a section names the region holding it -- with no section '
+    + 'written, the middle rung is not there and the outline has a hole a reader jumping by '
+    + 'heading falls through. Wrap the region in an arena-section, or say the rung you meant with '
+    + '`headingLevel`';
+}
+
 const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//g;
 
 export function withoutComments(text: string) {
@@ -289,6 +321,12 @@ export function lineAt(text: string, index: number) {
   return line;
 }
 
+export function kebabTag(name: string) {
+  return name.startsWith('Arena')
+    ? name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+    : name;
+}
+
 export function ownAttributes(attributes: string) {
   let depth = 0;
   let quote = '';
@@ -305,12 +343,20 @@ export function ownAttributes(attributes: string) {
 
 export function structuralFindings(text: string): Finding[] {
   const found: Finding[] = [];
+  const rungs: number[] = [];
+  let firstRung = 0;
   for (const m of text.matchAll(OPEN_TAG)) {
     const name = m[1] ?? '';
     const start = m.index ?? 0;
     const ends = tagEnd(text, start);
     if (ends === -1) continue;
     const attributes = ownAttributes(text.slice(start + name.length + 1, ends - 1));
+
+    const rung = HEADING_RUNGS[kebabTag(name)];
+    if (rung !== undefined && !HEADING_LEVEL_ATTRIBUTE.test(attributes)) {
+      if (!rungs.length) firstRung = lineAt(text, start);
+      rungs.push(rung);
+    }
 
     if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
       found.push(at(lineAt(text, start), 'own-class', OWN_CLASS_MESSAGE));
@@ -321,6 +367,8 @@ export function structuralFindings(text: string): Finding[] {
     if (/^<(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.test(inside))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
   }
+  const gap = outlineGap(rungs);
+  if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
   return found;
 }
 
