@@ -156,6 +156,12 @@ export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
 
+const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//g;
+
+export function withoutComments(text: string) {
+  return text.replace(BLOCK_COMMENT, (span) => span.replace(/[^\n]/g, ' '));
+}
+
 export type Finding = { line: number; rule: string; message: string };
 
 function at(line: number, rule: string, message: string): Finding {
@@ -247,7 +253,7 @@ export function bracketFindings(text: string, lines: string[]): Finding[] {
 export function findings(relPath: string, text: string, scope: Scope = 'app'): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
-  const perLine = lines.flatMap((line, index) =>
+  const perLine = withoutComments(text).split('\n').flatMap((line, index) =>
     lineFindings(line, isStylesheet, scope).map((one) => at(index + 1, one.rule, one.message)));
   return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);

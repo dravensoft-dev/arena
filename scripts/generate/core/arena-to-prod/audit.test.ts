@@ -36,6 +36,22 @@ test('a raw value is reported where it styles something, and not where it is onl
   assert.equal(rules('const gap = "16px";'), '');
 });
 
+test('a comment is prose, and the rules of the language read declarations', () => {
+  assert.equal(auditText('src/a.css', '/* a profile header wants roughly 150px */').join('\n'), '',
+    'a note explaining why a value is what it is is the note a reviewer wants, and reporting it is '
+    + 'how the allowance mechanism gets spent on prose');
+  assert.equal(auditText('src/a.css', '/* the .arena-avatar__box class is output */').join('\n'), '');
+  assert.match(auditText('src/a.css', '.x { padding: 16px } /* and here is why */').join('\n'),
+    /bare pixel/);
+  assert.match(auditText('src/a.css', '/* why 16px:\n   the field is dense */\n.x { padding: 16px }')
+    .join('\n'), /^src\/a\.css:3: /, 'a comment spanning lines keeps every line after it in place');
+});
+
+test('an allowance over a comment is stale, because the comment was never a finding', () => {
+  assert.match(auditText('src/a.css', '/* roughly 150px */ /* arena-audit allow */').join('\n'),
+    /stale arena-audit allowance/);
+});
+
 test('an icon as an element and an emoji are each reported', () => {
   assert.match(rules('<ArenaButton icon={<Plus />}>Go</ArenaButton>'), /icon-element/);
   assert.match(rules('<ArenaButton iconRight={<Down />}>Go</ArenaButton>'), /icon-element/);
