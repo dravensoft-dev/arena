@@ -106,7 +106,7 @@ export const ROUTES: Route[] = [
     who: 'a project deciding what Arena looks like in their product: the router, then the kernel '
       + 'document that says what the questions are and which answers carry the difference',
     stops: ['skills/design/SKILL.md', 'skills/design/references/style-kernel.md'],
-    budget: 27_500,
+    budget: 29_500,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -120,7 +120,31 @@ export const ROUTES: Route[] = [
       + 'a reading floor refuses the build rather than reporting; and that the loudest two '
       + 'decisions a brand makes, a square corner and no shadow, have no step to alias. Every one '
       + 'of those was a guess it had to make, and a route that costs less by leaving them out '
-      + 'costs more the first time somebody walks it.',
+      + 'costs more the first time somebody walks it. Raised to 29,500 when the router gained the '
+      + 'ordering two cold walks proved was missing: the kernel was routed to from a question table '
+      + 'and from a paragraph under a heading about delivery, while the one section shaped like a '
+      + 'procedure began at step 1, pick a component. Both walks reached the kernel in time and '
+      + 'both reported reaching it by reading the table top to bottom rather than by being sent, '
+      + 'which is luck of format. The router is a stop on four consumer routes, so that fix is '
+      + 'charged four times and this is one of them; the paragraph saying the same thing a second '
+      + 'time is what was bought back first.',
+  },
+  {
+    name: 'consumer-register',
+    who: 'a builder whose product, or one screen of it, is outside the component list: the router, '
+      + 'then the page that says what Arena hands over instead of a component',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/media-register.md'],
+    budget: 20_000,
+    reason:
+      'paid once per project like the skin route, and by a reader the router has just told to write '
+      + 'their own markup. What it buys is that the honest sentence at the top of the router stops '
+      + 'costing more than a dishonest one would: two cold walks were sent away from the component '
+      + 'list correctly and then left to hand-roll a focus trap the package already ships, guess an '
+      + 'ARIA contract that is written down in contracts/behaviour/, and rediscover that a photo '
+      + 'wall is one line of CSS. Every part of the answer already existed and none of it was '
+      + 'reachable from the sentence that created the need. The number is what the stops measure '
+      + 'with room for one section, and it grows when the register gains a part to hand over rather '
+      + 'than when the page gains a paragraph.',
   },
   {
     name: 'contributor-component',

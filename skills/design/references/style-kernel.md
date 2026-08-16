@@ -139,6 +139,10 @@ palette does.
 Those are not the answers the appearance Arena installs with gives. That one is a design of its
 own and assigns several of these differently, so it is a plugin to read rather than a baseline to
 inherit: a plugin you write answers every role itself, and nothing is inherited from it.
+**It is `plugin-style-store/default/plugin.tokens.json` in the Arena repository**, and
+`plugin-style-store/complete/` beside it is a second one answering the same roles differently.
+Read one of them before writing yours: answering every role from a list of role names is the
+hardest instruction on this page, and a worked answer is worth more than the list.
 
 **These are where a product lives.** Each of the four gave a different answer:
 

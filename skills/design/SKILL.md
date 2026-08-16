@@ -16,7 +16,10 @@ text, crimson as the voice and gold as distinction, sharp geometry, no gradients
 the states around them, the furniture of an application somebody works in. A media or a consumer
 product is a different register, so a photo wall, a feed of posts, a document editor or a game
 map is markup you write yourself; the skin travels either way, because a style plugin answers
-every role whatever the product is.
+every role whatever the product is. **When that is your product**, or one screen of it,
+[`references/media-register.md`](./references/media-register.md) is what Arena hands you instead
+of a component: the pattern your markup binds, the parts the package already ships for it, and
+the one rule that bends.
 
 **This file routes. Read only what your task needs.**
 
@@ -31,6 +34,18 @@ read [`AGENTS.md`](../../AGENTS.md) instead. It is the root of that branch and t
 **Everything here is one component at a time.**
 
 ## In this order
+
+**Before any of the three below, and once per project rather than per screen**, settle two things
+in this order, because a screen written ahead of either is written against decisions nobody made:
+
+- **What is this product, and is Arena's component list for it?** The paragraph above answers the
+  second half; ask the user the first half when their brief has not. A product outside the
+  register still takes the skin, and [`references/media-register.md`](./references/media-register.md)
+  is what to read when the answer is that the markup is yours.
+- **What does it look like?** [`references/style-kernel.md`](./references/style-kernel.md), which is
+  how a project answers the kernel's roles and which answers carry the difference.
+
+Then, per screen:
 
 1. **`frameworks/<layer>/INDEX.md`**: the directory of your framework's components, naming every
    one under the category it is filed under. Read your layer's, and no other. It is short because
@@ -105,6 +120,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | Question | Read |
 |---|---|
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
+| Arena has no component for what I am building. Now what? | [`references/media-register.md`](./references/media-register.md): the pattern your markup binds, the parts the package ships for it, and the one rule that bends |
 | Which of those answers actually change how it looks? | the same document's table, measured over four products built on this kernel |
 | What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
 | Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md) |
@@ -142,15 +158,18 @@ nothing stops you and nothing supports you either. The name reads like a BEM sur
 meant you to target and it is not one: it is compiler output, no contract names it, and a slot
 may be renamed in any release. Content you draw yourself is yours, styled through the same tokens.
 
-**Decide what the product looks like before the first screen.** Arena keeps the questions and
-every answer is a style plugin, so the appearance it installs with is the one entry a project
-replaces. That decision is paid once per project and never per screen, and a screen written before
-it is written against an appearance nobody chose:
-[`references/style-kernel.md`](./references/style-kernel.md) is how a project answers, and which
-answers carry the difference. The reasoning underneath is
+Arena keeps the questions and every answer is a style plugin, so the appearance it installs with
+is the one entry a project replaces, which is why that decision is the first of the two above.
+The reasoning underneath is
 [`contracts/design/StylePlugins.md`](../../contracts/design/StylePlugins.md).
 
-## Invoked with no other guidance
+## Ask before you build
 
-**Ask what the user wants to build**, and a few questions about audience and surface. Then act as an expert in the Arena language and produce either an HTML
-artifact or production code, whichever the answer calls for.
+**A brief names a product and never a palette, so the questions are always the same ones**, and a
+one-line brief is the normal case rather than the empty one. Before the first file: what is being
+built and who works in it; whose brand this is, since Arena installs with Dravensoft's and a
+project's own is the one entry it replaces; which fonts; and whether anything on the screen falls
+outside the register above, because that part is markup you write. **Invoked with no guidance at
+all**, ask what the user wants to build first and then the same list. Then act as an expert in the
+Arena language and produce either an HTML artifact or production code, whichever the answer calls
+for.

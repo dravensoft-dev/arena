@@ -34,7 +34,7 @@ const route = (over: Partial<typeof ROUTES[number]> = {}) => ({
 
 test('every route names the reader it is paid by and the reason for its budget', () => {
   assert.deepEqual(ROUTES.map((r) => r.name), [
-    'consumer-component', 'consumer-install', 'consumer-skin',
+    'consumer-component', 'consumer-install', 'consumer-skin', 'consumer-register',
     'contributor-component', 'contributor-authoring', 'contributor-token', 'contributor-gate',
   ]);
   for (const one of ROUTES) {
