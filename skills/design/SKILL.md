@@ -37,7 +37,8 @@ read [`AGENTS.md`](../../AGENTS.md) instead. It is the root of that branch and t
    it describes nothing: it tells you which category holds the name you are reaching for.
 2. **`frameworks/<layer>/components/<category>/INDEX.md`**, linked from there: every component in
    that category under the names the layer binds them to, with what each one is and what it takes,
-   each linking its own prompt. Read the one category you are reaching into, and no other.
+   each linking its own prompt. Read the categories you are reaching into, and no others: a screen
+   of any size reaches into two or three, and the saving is the four you skip.
 3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
 
