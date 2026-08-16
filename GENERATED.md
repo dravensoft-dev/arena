@@ -87,6 +87,14 @@ after the gate:
 - **Writing a gate over a whole file whose regions have different owners.** A gate that judges an
   authored file's generated region reports a defect whose fix is somewhere the message does not
   name, and the reader repairs the wrong file.
+- **Restating in the authored half what the generated half already says.** A prompt whose prose
+  lists the members its `@api` table lists is two answers to one question, and only one of them
+  is regenerated: the table gains the new member and the sentence beside it stays the length it
+  was, with every gate green, because the gate that holds the table reads the region and the gate
+  that holds the members reads the source. Find them before you add to one:
+  `grep -rn 'The members are' frameworks/*/components/*/*/*.prompt.md`. When you write in the
+  authored half, write what the generated half cannot: why a member exists, what it is for, what
+  it costs. Never the list.
 
 ## After you change anything a generator reads
 

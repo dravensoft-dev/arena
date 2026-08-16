@@ -186,11 +186,12 @@ notices each missing piece.
 
 ## Adding a gate
 
-Put it in `check/<domain>/`, add it to `GATES` in `check/arena/check-all.ts` with its domain
-in the path, give it an npm script, add a row to that domain's table, and either declare its
-node or name it in one of the two lists in `graph/nodes.ts`. `check-all.test.ts` asserts every
-gate names one of the five domains and `check:graph` asserts the fifth, so a gate landing
-outside the grid, or outside the graph without saying so, fails rather than running unnoticed.
+**The checklist is [`check/AGENTS.md`](./check/AGENTS.md)'s and it is stated there only**, since a
+list of registrations copied into a second page is the copy that ends up one registration short.
+What this level owns is why the grid exists at all: `check-all.test.ts` asserts every gate names
+one of the five domains and `check:graph` asserts it is in the graph or says why not, so a gate
+landing outside the grid, or outside the graph without saying so, fails rather than running
+unnoticed.
 
 **A script under `build/`, `generate/` or `check/` does no work when it is imported.** The
 graph collects a node by importing the script that declares it, so the work goes in `main()`

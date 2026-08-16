@@ -75,6 +75,14 @@ is the one level with a generated sibling directory. `api/` and `design/` both a
 **per framework layer**, `Api.generated.*` and `Tokens.generated.*`, so that a component's
 import never crosses the `contracts/` ↔ `frameworks/` boundary. `behaviour/` emits nothing.
 
+**A value reaches both layers as a custom property and by no per-layer step at all**, which is
+the reading the paragraph above is most often given the other way round. The generated CSS is
+tracked, every page links it, and a layer that wants a value writes `var(--name)`: there is no
+file under `frameworks/` to edit and nothing to add. `Tokens.generated.*` is the exception below
+and never the route, so a contributor asked to make both layers reach a new value and reading
+only the paragraph above reaches for the flag, which is the one move that cannot be undone
+cheaply.
+
 **A token whose consumer is JavaScript emits twice.** One flagged
 `$extensions["com.dravensoft.arena"].script: true` gets the custom property it always would have
 **and** a bare number in each layer's `Tokens.generated.*`. Flag one only when JS arithmetic must

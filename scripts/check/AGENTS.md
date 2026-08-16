@@ -204,6 +204,14 @@ the one a gate can be missing while running and passing, and the sibling suite, 
 gate that finds nothing and a gate that looks at nothing are the same run. A gate covered
 somewhere other than beside itself says so in `COVERED_ELSEWHERE`, with where.
 
+Two registrations are outside this file and are the two a contributor reaches the end without:
+**declare the node**, or name the gate in one of the two lists in `../graph/nodes.ts`, and then
+**edit the generator upstream of it**, because an edge is declared downstream and a gate reading
+what a generator writes is named in that generator's `feeds`. And **the domain table this gate's
+row lands in is a stop on a budgeted route**, so a row written in the register the neighbouring
+rows are written in can cost more than `check:routes` has left; measure with
+`bun run check:routes` before the row rather than after the sweep.
+
 `check-release` is the one script with no npm entry and no place in `GATES`: it is run by path
 before publishing, because it asserts what the *tag* hands out and there is nothing to assert
 until one exists. Each publish workflow runs it first, so a version bump pushed without its tag
