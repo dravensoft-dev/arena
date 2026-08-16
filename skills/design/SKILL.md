@@ -103,6 +103,9 @@ about the rest, so breaking one of those is still a defect nothing will report.
 
 | Question | Read |
 |---|---|
+| How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
+| Which of those answers actually change how it looks? | the same document's table, measured over four products built on this kernel |
+| What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
 | Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md) |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
@@ -138,12 +141,12 @@ nothing stops you and nothing supports you either. The name reads like a BEM sur
 meant you to target and it is not one: it is compiler output, no contract names it, and a slot
 may be renamed in any release. Content you draw yourself is yours, styled through the same tokens.
 
-**Arena arrives with the style plugin `default` plugged in**, which is the appearance it installs
-with and the one entry a project replaces. Re-skin through `arena.config.json`: the palettes and
-the fonts are the skin, and a project wanting a different appearance writes a style plugin of its
-own, a directory holding an answer to every role and CSS written against the
-`data-arena-part` hook every slot carries, named in `stylePlugins`. What that costs, what a
-plugin may say, and which of Arena's floors a gate still holds once one is open are stated in
+**Decide what the product looks like before the first screen.** Arena keeps the questions and
+every answer is a style plugin, so the appearance it installs with is the one entry a project
+replaces. That decision is paid once per project and never per screen, and a screen written before
+it is written against an appearance nobody chose:
+[`references/style-kernel.md`](./references/style-kernel.md) is how a project answers, and which
+answers carry the difference. The reasoning underneath is
 [`contracts/design/StylePlugins.md`](../../contracts/design/StylePlugins.md).
 
 ## Invoked with no other guidance

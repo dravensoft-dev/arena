@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 41_500,
+    budget: 42_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -81,7 +81,26 @@ export const ROUTES: Route[] = [
       + 'declares, so the report it silences goes on being suppressed a line at a time. Raised '
       + 'again when the router\'s description named the style kernel: the description is the whole '
       + 'of what an agent reads before it decides whether to load Arena at all, and one that stops '
-      + 'at the palette describes a system that cannot be reskinned.',
+      + 'at the palette describes a system that cannot be reskinned. Raised again when the '
+      + 'question table gained the three rows the kernel answers: this route and the build route '
+      + 'share the router, so a project that has to decide its appearance before the first screen '
+      + 'pays for those rows here too. Most of what they cost was bought back out of the paragraph '
+      + 'that used to describe a style plugin on the router, which the kernel document owns now.',
+  },
+  {
+    name: 'consumer-skin',
+    who: 'a project deciding what Arena looks like in their product: the router, then the kernel '
+      + 'document that says what the questions are and which answers carry the difference',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/style-kernel.md'],
+    budget: 24_000,
+    reason:
+      'paid once per project and never per screen, like the install route, which is what lets it '
+      + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
+      + 'that a project stops learning the kernel from a normative contributor document that names '
+      + 'gates and links a contributor roof, which is where four products learned it. The number is '
+      + 'what the stops measure with room for the kernel to grow a section, and it moves when the '
+      + 'kernel grows a question rather than when the document grows a paragraph: the differentiation '
+      + 'table is a measurement over consumer benches, so it grows by remeasuring and not by writing.',
   },
   {
     name: 'contributor-component',
