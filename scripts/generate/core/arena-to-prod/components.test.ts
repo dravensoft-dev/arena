@@ -77,6 +77,16 @@ test('an element wearing the prefix that Arena does not ship is reported and sto
 test('a selector is matched at its end, so one name is not read inside a longer one', () => {
   const { drawn } = selectorKeys(ANGULAR, ['<arena-table-row />']);
   assert.deepEqual(drawn, ['arena-table-row'], 'arena-table is a prefix of it and was not drawn');
+
+  const hooked = selectorKeys(ANGULAR, ['<tr arena-table-row [interactive]="true">']);
+  assert.deepEqual(hooked.drawn, ['arena-table-row'],
+    'a primitive written as an attribute on a native element is used as much as one written as an element, '
+    + 'and a sheet it needs is missing from the emit if it is not read');
+
+  const bystander = selectorKeys(ANGULAR, ['<div data-arena-part="table.body"></div>', '<div class="arena-num"></div>']);
+  assert.deepEqual([...bystander.drawn, ...bystander.unplaced], [],
+    'the hook is read from an attribute POSITION and not from anything that merely starts with arena-, '
+    + 'or every part hook in a consumer\'s own markup is reported as a component nobody can place');
 });
 
 test('React is read through the import that names the package', () => {

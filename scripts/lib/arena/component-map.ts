@@ -22,7 +22,7 @@ export const SKIPPED_SOURCE = /\.(test|spec|demo|entry|prompt|card)\.|\.generate
 
 export const MANIFEST_IMPORT = /import manifest from '[^']*?([A-Za-z0-9]+)\.classes\.generated[^']*'/;
 export const VARIANTS_IMPORT = /from '(\.[^']*\.variants)'/;
-export const SELECTOR = /selector: '(arena-[a-z0-9-]+)'/g;
+export const SELECTOR = /selector: '[a-z]*\[?(arena-[a-z0-9-]+)\]?'/g;
 export const DECORATOR_IMPORTS = /imports: \[([^\]]*)\]/g;
 export const EXPORTED = /export (?:function|const) ([A-Za-z0-9_]+)/g;
 export const COMPONENT_NAME = /^[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*$/;

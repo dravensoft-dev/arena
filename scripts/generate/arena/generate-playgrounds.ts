@@ -124,6 +124,15 @@ export function loadPlaces(base = root) {
   return out;
 }
 
+export function loadAngularSources(base = root, all = loadPlaces(base)) {
+  const out = new Map();
+  for (const [name, place] of all as Map<string, Place>) {
+    const file = join(base, 'frameworks/angular/components', place.category, place.dir, `${name}.ts`);
+    if (existsSync(file)) out.set(name, readFileSync(file, 'utf8'));
+  }
+  return out;
+}
+
 export function placesFor(model: Pick<PlaygroundModel, 'component' | 'uses'>,
   all: Map<string, Place>): Places {
   const out = new Map();
@@ -148,6 +157,7 @@ export function componentFiles(base = root, components = allComponents(base)) {
   const types = loadTypes(base);
   const all = loadPlaces(base);
   const markers = readFileSync(join(base, MARKERS_SOURCE), 'utf8');
+  const sources = loadAngularSources(base, all);
 
   const files = new Map();
   for (const name of components) {
@@ -163,7 +173,7 @@ export function componentFiles(base = root, components = allComponents(base)) {
 
     const angularDir = dir.replace('<layer>', 'angular');
     files.set(`${angularDir}/${name}.demo.generated.html`, angularPage(model, PAGE_BANNER));
-    files.set(`${angularDir}/${name}.demo.entry.generated.ts`, angularEntry(model, places, contracts, markers, ENTRY_BANNER));
+    files.set(`${angularDir}/${name}.demo.entry.generated.ts`, angularEntry(model, places, contracts, markers, ENTRY_BANNER, sources));
   }
   return files;
 }

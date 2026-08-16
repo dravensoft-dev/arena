@@ -13,6 +13,8 @@ export const AUTO = 'auto';
 
 export const SELECTOR_LIKE = /<(arena-[a-z0-9-]+)[\s/>]/g;
 
+export const HOOK_LIKE = /<[a-z][a-z0-9]*(?:\s[^<>]*?)?\s(arena-[a-z0-9-]+)(?=[\s/>=])/g;
+
 export type ComponentMap = {
   match: string;
   draws: Record<string, string | null>;
@@ -25,9 +27,11 @@ export function selectorKeys(map: ComponentMap, sources: string[]) {
   const drawn = new Set();
   const unplaced = new Set();
   for (const source of sources) {
-    for (const m of source.matchAll(SELECTOR_LIKE)) {
-      const selector = m[1] ?? '';
-      (selector in map.draws ? drawn : unplaced).add(selector);
+    for (const shape of [SELECTOR_LIKE, HOOK_LIKE]) {
+      for (const m of source.matchAll(shape)) {
+        const selector = m[1] ?? '';
+        (selector in map.draws ? drawn : unplaced).add(selector);
+      }
     }
   }
   return { drawn: [...drawn].sort(), unplaced: [...unplaced].sort() };

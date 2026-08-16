@@ -11,7 +11,7 @@
 
 import { kitchenSinkPage, KS, bodyClass, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
 import { UP } from '../react/kitchen-sink-react.ts';
-import { renderNode, collectFields, markerNames, PRIMITIVES, MARKERS_SOURCE } from './playground-angular.ts';
+import { renderNode, collectFields, markerNames, componentTags, PRIMITIVES, MARKERS_SOURCE } from './playground-angular.ts';
 import { placeOf } from '../arena/playground-model.ts';
 import type { Place, Places } from '../arena/playground-model.ts';
 import type { SinkModel } from '../arena/kitchen-sink-model.ts';
@@ -38,8 +38,10 @@ export function escapeTitle(text: string) {
 }
 
 export function angularSinkEntry(model: SinkModel, places: Places,
-  contracts: Map<string, any>, markersSource: string, banner: string) {
+  contracts: Map<string, any>, markersSource: string, banner: string,
+  sources: Map<string, string> = new Map()) {
   const markers = markerNames(markersSource);
+  const tags = componentTags(sources);
   const fields: any[] = [];
   for (const one of model.sections)
     for (const item of one.items) collectFields(item.node, contracts, fields, 'sink');
@@ -49,7 +51,7 @@ export function angularSinkEntry(model: SinkModel, places: Places,
     const tiles = one.items.map((item) => `        <div class="${KS.tile}">
           <span class="${KS.label}">${item.component}</span>
           <div class="${bodyClass(item.staged)}">
-${renderNode(item.node, places, fields, markers, 6, imports)}
+${renderNode(item.node, places, fields, markers, tags, 6, imports)}
           </div>
         </div>`).join('\n');
     return `      <section class="${KS.section}">

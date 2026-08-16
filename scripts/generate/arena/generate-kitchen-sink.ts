@@ -16,7 +16,7 @@ import { PAGE_FILE, entryFile } from '../../lib/arena/kitchen-sink-page.ts';
 import { sinkModel, placesFor, stagedComponents } from '../../lib/arena/kitchen-sink-model.ts';
 import type { SinkFixture } from '../../lib/arena/kitchen-sink-model.ts';
 import { UP as PLAYGROUND_UP } from '../../lib/arena/playground-page.ts';
-import { loadPlaces, loadContracts } from './generate-playgrounds.ts';
+import { loadPlaces, loadContracts, loadAngularSources } from './generate-playgrounds.ts';
 import { reactSinkEntry, reactSinkPage, UP as SINK_UP } from '../../lib/react/kitchen-sink-react.ts';
 import { angularSinkEntry, angularSinkPage, MARKERS_SOURCE } from '../../lib/angular/kitchen-sink-angular.ts';
 
@@ -29,6 +29,7 @@ export const node = {
   reads: [
     `${FIXTURES}/*.sink.json`, 'frameworks/demos/*.demo.json', 'frameworks/Components.json',
     'frameworks/angular/ProjectionMarkers.ts', 'contracts/api/components',
+    'frameworks/angular/components/**/*.ts', '!frameworks/**/*.generated.*',
     'frameworks/tailwind/components/**/*.manifest.json',
   ],
   writes: SINK_LAYERS.flatMap((layer) => [
@@ -102,6 +103,7 @@ export function buildKitchenSink(base = root) {
   const places = loadPlaces(base);
   const contracts = loadContracts(base);
   const markers = readFileSync(join(base, MARKERS_SOURCE), 'utf8');
+  const sources = loadAngularSources(base, places);
   const staged = stagedComponents([...places.keys()], base);
 
   const files = new Map<string, string>();
@@ -116,7 +118,7 @@ export function buildKitchenSink(base = root) {
     const angularDir = pageDir('angular', sink);
     files.set(`${angularDir}/${PAGE_FILE}`, angularSinkPage(model, PAGE_BANNER));
     files.set(`${angularDir}/${entryFile(sink, 'ts')}`,
-      angularSinkEntry(model, where, contracts, markers, ENTRY_BANNER));
+      angularSinkEntry(model, where, contracts, markers, ENTRY_BANNER, sources));
   }
 
   const problems = [];
