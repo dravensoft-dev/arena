@@ -6,7 +6,7 @@ import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../Da
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales';
-import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import {
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange,
@@ -64,7 +64,7 @@ const MARK_STYLE = {
       }
 
       @for (tick of xTicks(); track tick.value) {
-        <text [attr.x]="tick.x" [attr.y]="xLabelY()" text-anchor="middle"
+        <text [attr.x]="tick.x" [attr.y]="xLabelY()" [attr.text-anchor]="tick.anchor"
               fill="var(--text-muted)" font-family="var(--font-mono)"
               [style]="tickLabelStyle">{{ tick.label }}</text>
       }
@@ -236,7 +236,10 @@ export class ArenaScatterChart {
   private readonly xAxis = computed(() => arenaAxisModelX(this.xScale(), this.domains().x, this.write()));
   private readonly yAxis = computed(() => arenaAxisModel(this.yScale(), this.domains().y, this.write()));
 
-  protected readonly xTicks = computed(() => this.xAxis().ticks);
+  protected readonly xTicks = computed(() => {
+    const ticks = this.xAxis().ticks;
+    return ticks.map((tick, index) => ({ ...tick, anchor: arenaCategoryAnchor(index, ticks.length) }));
+  });
   protected readonly yTicks = computed(() => this.yAxis().ticks);
   protected readonly zeroX = computed(() => this.xAxis().zeroX);
   protected readonly zeroY = computed(() => this.yAxis().zeroY);

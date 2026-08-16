@@ -11,7 +11,7 @@ import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
@@ -96,7 +96,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readon
       }
 
       @for (point of axisPoints(); track point.index) {
-        <text [attr.x]="point.x" [attr.y]="pointLabelY()" text-anchor="middle"
+        <text [attr.x]="point.x" [attr.y]="pointLabelY()" [attr.text-anchor]="point.anchor"
               fill="var(--text-muted)" font-family="var(--font-body)"
               [style]="pointLabelStyle">{{ point.label }}</text>
       }
@@ -272,7 +272,8 @@ export class ArenaLineChart {
   protected readonly axisPoints = computed(() => {
     const xScale = this.xScale();
     const labels = this.labels();
-    return Array.from({ length: this.pointCount() }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }));
+    const count = this.pointCount();
+    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), anchor: arenaCategoryAnchor(index, count), label: labels[index] ?? '' }));
   });
 
   protected readonly legend = computed(() => {

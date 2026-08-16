@@ -134,6 +134,19 @@ token is a consequence of the type scale the way `chart.pad-bottom` is. It holds
 ticks are monospaced. The pad stays as the floor, so every chart whose ticks already fit draws
 what it drew, and the gutter takes its extra room from the plot rather than from the box.
 
+**The label at either end of an axis is anchored rather than measured, and that is the other side
+of the same limit.** A bottom label is centred on its point, so half of the last one falls past
+`chart.pad-right` and half of the first falls into the value gutter. The gutter's arithmetic cannot
+answer it: that measurement reaches a tick only because a tick is monospaced, and a bottom label is
+set in the body face, which is the consumer's own typeface. A token holding a proportional advance
+is a guess, wrong for any project whose face is wider than the one it was measured against, and a
+plot reserving room by guessing is the DOM read this rule refuses, made worse by being silent. What
+is exact there is the anchor, so `arenaCategoryAnchor(index, count)` puts the near edge of an end
+label on its point and lets its body run inwards, and every label between them stays centred. It
+reads no width, so it holds for any face, and a scatter chart whose bottom labels are monospaced
+takes the same rule, because one rule across the three is worth more than an exception that happens
+to be measurable.
+
 **A gutter that a style plugin could answer is a role that cannot exist, and this is where that
 is recorded.** A role is a custom property with no value, answered in the cascade; a plot
 position is JavaScript arithmetic that produces an SVG attribute, and reading a custom property

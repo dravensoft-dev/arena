@@ -11,7 +11,7 @@ import {
   arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import {
   arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
@@ -80,7 +80,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
             (pointerleave)="onPointerLeave($event)" (pointercancel)="hover.set(null)" />
 
       @for (bar of bars(); track bar.index) {
-        <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" text-anchor="middle"
+        <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" [attr.text-anchor]="bar.anchor"
               fill="var(--text-muted)" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
       }
@@ -224,6 +224,7 @@ export class ArenaBarChart {
       index,
       hitX: arenaBandStart(bands, index),
       midX: arenaBandCenter(bands, index),
+      anchor: arenaCategoryAnchor(index, this.points()),
       label: labels[index] ?? '',
       marks: stacked
         ? arenaStackSegments(series, index).map((segment) => {
