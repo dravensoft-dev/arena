@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import { arenaTrapTabKey } from '../../../UseDialogModal.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
@@ -31,8 +31,6 @@ export interface ArenaCommandPaletteProps {
 
 
 const paletteStyles = arenaStyles(manifest);
-
-let nextId = 0;
 
 export function arenaCapCommands(commands: readonly ArenaCommand[], max: number | undefined): readonly ArenaCommand[] {
   return max === undefined || max < 0 ? commands : commands.slice(0, max);
@@ -73,10 +71,9 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
-  const uid = useRef<string | null>(null);
-  if (uid.current === null) uid.current = `arena-command-palette-${nextId++}`;
-  const listboxId = `${uid.current}-listbox`;
-  const optionId = (index: number) => `${uid.current}-option-${index}`;
+  const uid = `arena-command-palette-${useId().replace(/:/g, '')}`;
+  const listboxId = `${uid}-listbox`;
+  const optionId = (index: number) => `${uid}-option-${index}`;
   const filtered = arenaOrderCommands(arenaCapCommands(
     commands.filter((c) => (c.label + ' ' + (c.hint || '')).toLowerCase().includes(q.toLowerCase())),
     maxResults,

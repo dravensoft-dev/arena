@@ -1,11 +1,10 @@
 import {
-  ChangeDetectionStrategy, Component, computed, input, output, signal,
+  ChangeDetectionStrategy, Component, computed, inject, input, output, signal,
 } from '@angular/core';
 import type { ArenaSegmentOption, ArenaSegmentedControlSize } from '../../../Api.generated';
 import { arenaSegmentedControlStyles } from './ArenaSegmentedControl.variants';
 import manifest from './ArenaSegmentedControl.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-segmented-control',
@@ -50,7 +49,7 @@ export class ArenaSegmentedControl {
   /** A different option was chosen; carries its value. */
   readonly change = output<string>();
 
-  private readonly fallbackName = `arena-segmented-control-${nextId++}`;
+  private readonly fallbackName = inject(ArenaIdGenerator).next('arena-segmented-control');
   private readonly chosen = signal<string | undefined>(undefined);
 
   protected readonly groupName = computed(() => this.name() ?? this.fallbackName);

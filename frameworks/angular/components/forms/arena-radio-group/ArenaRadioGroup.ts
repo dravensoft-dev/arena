@@ -4,8 +4,7 @@ import {
 import { ArenaRadioGroupState } from './ArenaRadioGroupState';
 import { arenaRadioGroupStyles } from './ArenaRadioGroup.variants';
 import manifest from '../arena-radio/ArenaRadio.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-radio-group',
@@ -43,7 +42,7 @@ export class ArenaRadioGroup {
 
   protected readonly styles = computed(() => arenaRadioGroupStyles());
 
-  private readonly fallbackName = `arena-radio-group-${nextId++}`;
+  private readonly fallbackName = inject(ArenaIdGenerator).next('arena-radio-group');
   private readonly chosen = signal<string | undefined>(undefined);
   private readonly state = inject(ArenaRadioGroupState);
 

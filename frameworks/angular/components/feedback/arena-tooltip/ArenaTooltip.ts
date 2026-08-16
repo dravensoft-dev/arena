@@ -10,8 +10,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { delayClose, delayOpen, sp2 } from '../../../Tokens.generated';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
 import manifest from './ArenaTooltip.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = [
   { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -sp2 },
@@ -53,7 +52,7 @@ export class ArenaTooltip {
   /** The bubble's text. Arena draws the bubble; the consumer names it. */
   readonly label = input.required<string>();
 
-  protected readonly bubbleId = `arena-tooltip-${nextId++}`;
+  protected readonly bubbleId = inject(ArenaIdGenerator).next('arena-tooltip');
   protected readonly styles = computed(() => arenaTooltipStyles({ anchored: true }));
 
   private readonly bubble = viewChild.required<TemplateRef<unknown>>('bubble');

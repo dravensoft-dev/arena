@@ -45,6 +45,13 @@ const ROOT_PRIVATE = new Map([
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
    + 'imports across one. It replaced the two runtime dependencies, and a consumer has no more '
    + 'reason to call it than they had to call `arenaTv`: they render a component, not a recipe.'],
+  ['ArenaIds.ts',
+   'the generator behind the ids a component uses to point one of its own elements at another, '
+   + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '
+   + 'that `id` is one only where the component generates one AND the consumer needs to address '
+   + 'it, which is ArenaInput and ArenaTextarea and nobody else. A consumer receives its output '
+   + 'already wired inside a subtree they did not write, so there is nothing here for them to '
+   + 'call and exporting it would publish a second way to name what Arena already named.'],
 ]);
 
 const EXPORT = /from '\.\/([A-Za-z0-9.-]+)'/g;

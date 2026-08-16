@@ -17,8 +17,7 @@ import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { arenaConfirmDialogStyles } from './ArenaConfirmDialog.variants';
 import manifest from './ArenaConfirmDialog.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 export function isArenaConfirmLocked(required: string | undefined, typed: string): boolean {
   return required !== undefined && required !== '' && typed.trim() !== required;
@@ -95,7 +94,7 @@ export class ArenaConfirmDialog {
   private readonly doc = inject(DOCUMENT);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
-  private readonly uid = `arena-confirm-dialog-${nextId++}`;
+  private readonly uid = inject(ArenaIdGenerator).next('arena-confirm-dialog');
   protected readonly titleId = `${this.uid}-title`;
   protected readonly descId = `${this.uid}-body`;
 

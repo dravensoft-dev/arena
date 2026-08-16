@@ -4,8 +4,7 @@ import {
 import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-side-nav-section',
@@ -34,7 +33,7 @@ export class ArenaSideNavSection {
 
   private readonly host = inject(ElementRef<HTMLElement>);
 
-  protected readonly labelId = `arena-side-nav-section-${nextId++}`;
+  protected readonly labelId = inject(ArenaIdGenerator).next('arena-side-nav-section');
 
   protected readonly heading = computed(() => {
     const text = this.label();

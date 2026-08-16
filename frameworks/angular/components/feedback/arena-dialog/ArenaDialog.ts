@@ -19,8 +19,7 @@ import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaDialogStyles } from './ArenaDialog.variants';
 import manifest from './ArenaDialog.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-dialog',
@@ -70,7 +69,7 @@ export class ArenaDialog {
   private readonly doc = inject(DOCUMENT);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
-  protected readonly titleId = `arena-dialog-${nextId++}-title`;
+  protected readonly titleId = `${inject(ArenaIdGenerator).next('arena-dialog')}-title`;
   protected readonly footer = contentChild(ArenaFooter);
   protected readonly styles = computed(() => arenaDialogStyles({ open: this.open() }));
 

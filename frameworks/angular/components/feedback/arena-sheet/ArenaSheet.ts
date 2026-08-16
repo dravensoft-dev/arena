@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, contentChild, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, contentChild, inject, input, output,
+} from '@angular/core';
 import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaSheetStyles } from './ArenaSheet.variants';
 import manifest from './ArenaSheet.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-sheet',
@@ -63,8 +64,9 @@ export class ArenaSheet {
   readonly close = output<void>();
 
   protected readonly footer = contentChild(ArenaFooter);
-  protected readonly triggerId = `arena-sheet-${nextId}-trigger`;
-  protected readonly bodyId = `arena-sheet-${nextId++}-body`;
+  private readonly uid = inject(ArenaIdGenerator).next('arena-sheet');
+  protected readonly triggerId = `${this.uid}-trigger`;
+  protected readonly bodyId = `${this.uid}-body`;
 
   protected readonly caretGlyph = computed(() => (this.collapsed() ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'));
   protected readonly styles = computed(() => arenaSheetStyles({ placement: this.placement(), open: this.open() }));

@@ -1,11 +1,10 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output,
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, inject, input, output,
 } from '@angular/core';
 import type { ArenaSelectOption } from '../../../Api.generated';
 import { arenaSelectStyles } from './ArenaSelect.variants';
 import manifest from './ArenaSelect.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-select',
@@ -75,7 +74,7 @@ export class ArenaSelect {
   /** A different option was chosen; carries its value. */
   readonly change = output<string>();
 
-  protected readonly selectId = `arena-select-${nextId++}`;
+  protected readonly selectId = inject(ArenaIdGenerator).next('arena-select');
   protected readonly noteId = `${this.selectId}-note`;
 
   protected readonly hasError = computed(() => Boolean(this.error()));

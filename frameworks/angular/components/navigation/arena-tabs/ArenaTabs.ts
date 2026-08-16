@@ -7,8 +7,7 @@ import { ArenaTab } from '../arena-tab/ArenaTab';
 import { ArenaTabsState } from './ArenaTabsState';
 import { arenaTabsStyles } from './ArenaTabs.variants';
 import manifest from './ArenaTabs.classes.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-tabs',
@@ -39,7 +38,7 @@ export class ArenaTabs {
   /** A different tab was chosen; carries its value. */
   readonly change = output<string>();
 
-  private readonly base = `arena-tabs-${nextId++}`;
+  private readonly base = inject(ArenaIdGenerator).next('arena-tabs');
   private readonly chosen = signal<string | undefined>(undefined);
   private readonly state = inject(ArenaTabsState);
   private readonly injector = inject(Injector);

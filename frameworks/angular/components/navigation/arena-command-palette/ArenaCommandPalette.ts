@@ -19,8 +19,7 @@ import manifest from './ArenaCommandPalette.classes.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 import type { ArenaCommand } from '../../../Api.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 export function arenaFilterCommands(commands: readonly ArenaCommand[], query: string): ArenaCommand[] {
   const needle = query.toLowerCase();
@@ -184,7 +183,7 @@ export class ArenaCommandPalette {
   protected readonly groups = computed(() => arenaCommandGroups(this.filtered()));
 
   private readonly doc = inject(DOCUMENT);
-  private readonly uid = `arena-command-palette-${nextId++}`;
+  private readonly uid = inject(ArenaIdGenerator).next('arena-command-palette');
   protected readonly listboxId = `${this.uid}-listbox`;
   protected readonly activeId = computed(() => arenaActiveOptionId(this.uid, this.active(), this.filtered().length));
 
