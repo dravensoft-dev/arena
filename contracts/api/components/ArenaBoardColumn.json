@@ -5,6 +5,8 @@
   "api": {
     "title": { "form": "primitive", "type": "string", "required": true,
                "description": "What this column is: a status, a stage, a person, a day. It is the head's text and the column's accessible name at once. Required and guarded at runtime rather than defaulted, because a column of a board is only ever read by what it groups, and an unnamed one is a pile." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h3",
+                      "description": "Which rung of the document outline the head's text takes. Only the element changes: its class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because a board sits inside the region a section names and a column sits inside the board. The column's accessible name is separate and is unaffected, since it is the group's own and is carried whatever the head is drawn as. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one." },
     "count": { "form": "primitive", "type": "number",
                "description": "How many things are in the column, drawn beside the title in the numeric register. It is passed rather than counted, because Arena never derives what it draws from what a consumer projected: the column holds the consumer's own elements, one of which may be a placeholder and none of which Arena can read." },
     "summary": { "form": "primitive", "type": "string",

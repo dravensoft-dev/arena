@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy, Component, ElementRef, computed, contentChild, input, viewChild,
 } from '@angular/core';
-import type { ArenaSectionRhythm } from '../../../Api.generated';
+import type { ArenaHeadingLevel, ArenaSectionRhythm } from '../../../Api.generated';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaSectionStyles } from './ArenaSection.variants';
 import manifest from './ArenaSection.classes.generated';
@@ -16,7 +16,12 @@ import manifest from './ArenaSection.classes.generated';
     <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
       <div [class]="styles().titles()" [attr.data-arena-part]="parts.titles">
         @if (eyebrow(); as label) { <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div> }
-        <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h2>
+        @switch (level()) {
+          @case ('h1') { <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h1> }
+          @case ('h3') { <h3 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h3> }
+          @case ('h4') { <h4 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h4> }
+          @default { <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h2> }
+        }
         @if (description(); as line) { <p [class]="styles().description()" [attr.data-arena-part]="parts.description">{{ line }}</p> }
       </div>
       @if (action()) { <div [class]="styles().action()" [attr.data-arena-part]="parts.action"><ng-content select="[action]" /></div> }
@@ -29,6 +34,10 @@ export class ArenaSection {
 
   /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   readonly title = input.required<string>();
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because the section register is already a step under a page's title and a step over a card's, and this is that register said as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
+    'h2', { transform: (value) => value ?? 'h2' },
+  );
   /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */
   readonly eyebrow = input<string>();
   /** A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen. */
@@ -47,6 +56,14 @@ export class ArenaSection {
       throw new Error('ArenaSection: `title` is required, and names the region its heading introduces');
     }
     return text;
+  });
+
+  protected readonly level = computed(() => {
+    const level = this.headingLevel();
+    if (level === 'none') {
+      throw new Error('ArenaSection: `headingLevel` cannot be none, because `title` is required and names the region its heading introduces');
+    }
+    return level;
   });
 
   protected readonly styles = computed(() => arenaSectionStyles({ rhythm: this.rhythm() }));

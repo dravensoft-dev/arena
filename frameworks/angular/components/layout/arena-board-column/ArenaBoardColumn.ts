@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import type { ArenaCatSlot } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
 import { arenaCatColor } from '../../../DataVisuals';
 import { arenaBoardStyles } from '../arena-board/ArenaBoard.variants';
 import manifest from '../arena-board/ArenaBoard.classes.generated';
@@ -17,7 +17,12 @@ import manifest from '../arena-board/ArenaBoard.classes.generated';
         @if (colorId() !== undefined) {
           <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
         }
-        <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</span>
+        @switch (level()) {
+          @case ('h1') { <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h1> }
+          @case ('h2') { <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h2> }
+          @case ('h4') { <h4 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h4> }
+          @default { <h3 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h3> }
+        }
         @if (count() !== undefined) {
           <span [class]="styles().count()" [attr.data-arena-part]="parts.count">{{ count() }}</span>
         }
@@ -42,12 +47,24 @@ export class ArenaBoardColumn {
 
   /** What this column is: a status, a stage, a person, a day. It is the head's text and the column's accessible name at once. Required and guarded at runtime rather than defaulted, because a column of a board is only ever read by what it groups, and an unnamed one is a pile. */
   readonly title = input.required<string>();
+  /** Which rung of the document outline the head's text takes. Only the element changes: its class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because a board sits inside the region a section names and a column sits inside the board. The column's accessible name is separate and is unaffected, since it is the group's own and is carried whatever the head is drawn as. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
+    'h3', { transform: (value) => value ?? 'h3' },
+  );
   /** How many things are in the column, drawn beside the title in the numeric register. It is passed rather than counted, because Arena never derives what it draws from what a consumer projected: the column holds the consumer's own elements, one of which may be a placeholder and none of which Arena can read. */
   readonly count = input<number>();
   /** One line under the head: the total the column adds up to, an estimate, a limit. A string rather than a number because the unit travels with it, and a column reading "19 pts" is one value and not two. */
   readonly summary = input<string>();
   /** An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. It inks the head's mark and reaches the column as a custom property, `--arena-board-column-cat`, so an appearance that fills the whole head with it is a style plugin's to write and needs no member here. */
   readonly colorId = input<ArenaCatSlot>();
+
+  protected readonly level = computed(() => {
+    const level = this.headingLevel();
+    if (level === 'none') {
+      throw new Error('ArenaBoardColumn: `headingLevel` cannot be none, because `title` is required and names the column it heads');
+    }
+    return level;
+  });
 
   protected readonly named = computed(() => {
     const name = this.title();

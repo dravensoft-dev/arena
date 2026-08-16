@@ -3,12 +3,16 @@ import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorA
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCard.classes.generated.ts';
 
+import type { ArenaHeadingLevel } from '../../../Api.generated';
+
 export interface ArenaCardProps {
 
   /** The card's body, below the optional header. */
   children?: React.ReactNode;
   /** Header title. Absent, along with eyebrow and action, renders no header block at all. */
   title?: string;
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own, which is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region; with no title there is no heading either way. */
+  headingLevel?: ArenaHeadingLevel;
   /** Mono uppercase label above the title, in the accent colour. */
   eyebrow?: string;
 
@@ -34,9 +38,10 @@ export interface ArenaCardProps {
 const arenaCardStyles = arenaStyles(manifest);
 
 export function ArenaCard({
-  children, title, eyebrow, action, floating = false, accent = false,
+  children, title, headingLevel = 'h3', eyebrow, action, floating = false, accent = false,
   interactive = false, disabled = false, href, onClick,
 }: ArenaCardProps) {
+  const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   const target = href !== undefined;
   const acts = interactive || target;
   const styles = arenaCardStyles({ accent, floating, interactive: acts });
@@ -72,7 +77,7 @@ export function ArenaCard({
         <div className={styles.head()} data-arena-part={manifest.parts.head}>
           <div>
             {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
-            {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
+            {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
           </div>
           {action}
         </div>

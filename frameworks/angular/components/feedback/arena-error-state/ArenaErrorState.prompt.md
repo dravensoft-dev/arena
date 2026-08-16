@@ -29,6 +29,7 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 |---|---|---|---|---|
 | `icon` | primitive | `string` |  | A Phosphor class name for the danger glyph Arena draws. |
 | `title` | primitive | `string` | `"Something went wrong"` | The headline: what failed. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, for the reason an empty state does: a failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants, and it is available here because `title` carries a default rather than being required. |
 | `message` | primitive | `string` |  | A sentence of detail under the title. |
 | `code` | primitive | `string` |  | A diagnostic/support code, shown monospaced. |
 | `retryLabel` | primitive | `string` |  | The label of the retry button Arena draws. Absent renders no retry. |

@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, contentChild, input, output,
 } from '@angular/core';
+import type { ArenaHeadingLevel } from '../../../Api.generated';
 import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaCardStyles } from './ArenaCard.variants';
@@ -25,7 +26,13 @@ import manifest from './ArenaCard.classes.generated';
               <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
             }
             @if (title(); as heading) {
-              <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
+              @switch (headingLevel()) {
+                @case ('h1') { <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</h1> }
+                @case ('h2') { <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</h2> }
+                @case ('h3') { <h3 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</h3> }
+                @case ('h4') { <h4 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</h4> }
+                @default { <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div> }
+              }
             }
           </div>
           <ng-content select="[action]" />
@@ -52,6 +59,10 @@ export class ArenaCard {
 
   /** Header title. Absent, along with eyebrow and action, renders no header block at all. */
   readonly title = input<string>();
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own, which is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region; with no title there is no heading either way. */
+  readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
+    'h3', { transform: (value) => value ?? 'h3' },
+  );
   /** Mono uppercase label above the title, in the accent colour. */
   readonly eyebrow = input<string>();
   /** Adds the warm shadow. Depth comes from the shadow and the surface scale, never a gradient. */

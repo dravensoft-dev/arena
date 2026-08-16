@@ -1,0 +1,6 @@
+{
+  "name": "ArenaHeadingLevel",
+  "kind": "enum",
+  "description": "Which rung of the document outline a title takes. Arena already declares a title ladder, hero over page head over section over card, and that ladder was a visual register alone: a style plugin re-pitches the four as a unit, while a reader walking headings met whichever element each component had settled on for itself, which was one level deep or none at all. This is the same ladder said as structure. The value names the element and nothing else, because the class that styles a title is the same at every value, so choosing a level costs no appearance and check:pixel-parity is what holds that. Each component defaults to its own rung, so a card inside a section nests with nobody saying so, and the member is there for the screens where the default rung is the wrong one. `none` draws the title with no heading at all, for a title that labels a surface rather than naming a region; a component whose title is required refuses `none` at runtime, since a title required because it names the thing it draws cannot also be told the name is not one.",
+  "values": ["h1", "h2", "h3", "h4", "none"]
+}

@@ -3,12 +3,15 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import { arenaCatColor } from '../../../DataVisuals.ts';
 import manifest from '../arena-board/ArenaBoard.classes.generated.ts';
 
-import type { ArenaCatSlot } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
 
 export interface ArenaBoardColumnProps {
 
   /** What this column is: a status, a stage, a person, a day. It is the head's text and the column's accessible name at once. Required and guarded at runtime rather than defaulted, because a column of a board is only ever read by what it groups, and an unnamed one is a pile. */
   title: string;
+
+  /** Which rung of the document outline the head's text takes. Only the element changes: its class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because a board sits inside the region a section names and a column sits inside the board. The column's accessible name is separate and is unaffected, since it is the group's own and is carried whatever the head is drawn as. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  headingLevel?: ArenaHeadingLevel;
 
   /** How many things are in the column, drawn beside the title in the numeric register. It is passed rather than counted, because Arena never derives what it draws from what a consumer projected: the column holds the consumer's own elements, one of which may be a placeholder and none of which Arena can read. */
   count?: number;
@@ -32,15 +35,19 @@ export interface ArenaBoardColumnProps {
 
 const boardStyles = arenaStyles(manifest);
 
-export function ArenaBoardColumn({ title, count, summary, colorId, action, children, footer }: ArenaBoardColumnProps) {
+export function ArenaBoardColumn({ title, headingLevel = 'h3', count, summary, colorId, action, children, footer }: ArenaBoardColumnProps) {
   if (!title?.trim()) throw new Error('ArenaBoardColumn: `title` is required (it is the head and the column\'s accessible name at once)');
+  if (headingLevel === 'none') {
+    throw new Error('ArenaBoardColumn: `headingLevel` cannot be none, because `title` is required and names the column it heads');
+  }
   const styles = boardStyles({ identity: colorId !== undefined });
+  const Heading = headingLevel;
   return (
     <section role="group" aria-label={title} className={styles.column()} data-arena-part={manifest.parts.column}
       style={colorId ? { '--arena-board-column-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
       <div className={styles.head()} data-arena-part={manifest.parts.head}>
         {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />}
-        <span className={styles.title()} data-arena-part={manifest.parts.title}>{title}</span>
+        <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
         {count !== undefined && <span className={styles.count()} data-arena-part={manifest.parts.count}>{count}</span>}
         <span className={styles.action()} data-arena-part={manifest.parts.action}>{action}</span>
       </div>

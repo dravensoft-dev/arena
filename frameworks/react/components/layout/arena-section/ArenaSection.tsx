@@ -2,12 +2,15 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSection.classes.generated.ts';
 
-import type { ArenaSectionRhythm } from '../../../Api.generated';
+import type { ArenaHeadingLevel, ArenaSectionRhythm } from '../../../Api.generated';
 
 export interface ArenaSectionProps {
 
   /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   title: string;
+
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because the section register is already a step under a page's title and a step over a card's, and this is that register said as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  headingLevel?: ArenaHeadingLevel;
 
   /** What the region holds. Required, and guarded at runtime: a section renders a heading naming a group, so a childless one renders a label for nothing. The guard counts the way the render path counts, so a child that is a false conditional counts as absent rather than as one. */
   children: React.ReactNode;
@@ -31,22 +34,26 @@ const rhythmOf = (rhythm: string | undefined): ArenaSectionRhythm =>
   (rhythm && RHYTHMS.includes(rhythm) ? rhythm as ArenaSectionRhythm : 'md');
 
 export function ArenaSection({
-  title, children, eyebrow, description, action, rhythm = 'md',
+  title, headingLevel = 'h2', children, eyebrow, description, action, rhythm = 'md',
 }: ArenaSectionProps) {
   if (!title?.trim()) {
     throw new Error('ArenaSection: `title` is required, and names the region its heading introduces');
+  }
+  if (headingLevel === 'none') {
+    throw new Error('ArenaSection: `headingLevel` cannot be none, because `title` is required and names the region its heading introduces');
   }
   if (React.Children.toArray(children).length === 0) {
     throw new Error('ArenaSection: a section with no children is not a legal shape, because its heading would name nothing');
   }
   const styles = arenaSectionStyles({ rhythm: rhythmOf(rhythm) });
+  const Heading = headingLevel;
 
   return (
     <section className={styles.root()} data-arena-part={manifest.parts.root}>
       <div className={styles.head()} data-arena-part={manifest.parts.head}>
         <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
           {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
-          <h2 className={styles.title()} data-arena-part={manifest.parts.title}>{title}</h2>
+          <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
           {description && <p className={styles.description()} data-arena-part={manifest.parts.description}>{description}</p>}
         </div>
         {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}

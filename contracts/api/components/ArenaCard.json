@@ -15,6 +15,8 @@
                 "description": "Right-aligned in the header, beside the title. Arena draws the header row; the consumer draws what sits in it." },
     "title": { "form": "primitive", "type": "string",
                "description": "Header title. Absent, along with eyebrow and action, renders no header block at all." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h3",
+                      "description": "Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own, which is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region; with no title there is no heading either way." },
     "eyebrow": { "form": "primitive", "type": "string",
                  "description": "Mono uppercase label above the title, in the accent colour." },
     "floating": { "form": "primitive", "type": "boolean", "default": false,
