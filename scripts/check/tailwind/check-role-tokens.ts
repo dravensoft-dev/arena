@@ -107,7 +107,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaKeyValue:valueNumeric:font-mono', 'a figure in a summary, and a column of them has to align by digit or it jitters as the basket changes. It is the same claim .arena-num ships for a figure a consumer draws themselves, made once here for the figures this component draws'],
 
   ['ArenaAppLogo:name:font-display', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It follows the mark beside it and no style plugin'],
-  ['ArenaAppLogo:name:uppercase', 'the same wordmark: its capitals are how the brand is drawn, and a style plugin that sets its eyebrows in sentence case has not renamed the company'],
   ['ArenaAvatar:box:font-display', 'a monogram: two letters standing in for a face, which is the same reason the slot keeps font-extrabold'],
   ['ArenaSheet:trigger:font-display', 'the trigger repeats the title of the sheet it opens, so it follows that title rather than the heading tier'],
   ['ArenaSheet:trigger:text-h3', 'the same trigger and the same reason one axis over: the size follows the title it repeats, not the register the title tier is pitched at. The two entries move together or the slot is half on the tier'],

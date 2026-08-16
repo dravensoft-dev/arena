@@ -39,6 +39,9 @@ are two decisions and not three:
 
 ## Do / Don't
 
+- **Do** write `name` in the case your brand wears. Arena sets the face, the weight and the
+  tracking of the wordmark and never its case: a name is text you wrote, and a component
+  that shouted it would be renaming the company in CSS.
 - **Do** pass the mark as an asset, so the call site names which brand it renders.
 - **Do** give the mark an empty `alt`, the wordmark beside it is the accessible name,
   and a mark announced separately reads the brand twice.
@@ -47,7 +50,7 @@ are two decisions and not three:
 - **Don't** look for a component that renders the mark on its own. Arena ships none:
   the mark is a brand asset (`assets/rotor-*.svg`), and the lock-up is this component,
   which takes that asset as `mark` alongside a product `name`.
-- **Don't** mix the variants. A crimson mark beside an undivided `DRAVENSOFT` is half
+- **Don't** mix the variants. A crimson mark beside an undivided `Dravensoft` is half
   of Primary and half of Monochrome, no variant at all, and precisely the defect that
   existed in the console before this component held the rule.
 
