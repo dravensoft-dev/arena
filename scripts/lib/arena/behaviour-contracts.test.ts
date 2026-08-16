@@ -66,13 +66,14 @@ test('none aside, exactly the patterns with no APG pattern page cite something e
     .filter(([stem, p]) => stem !== 'none' && !p.source.includes('/ARIA/apg/'))
     .map(([stem]) => stem)
     .sort();
-  assert.deepEqual(nonApg, ['absent', 'figure-with-data-table', 'progressbar', 'scrollable-region', 'select', 'status', 'textbox']);
+  assert.deepEqual(nonApg, ['absent', 'figure-with-data-table', 'progressbar', 'scrollable-region', 'select', 'status', 'structured-data', 'textbox']);
 });
 
 const patterns = new Map([
   ['dialog-modal', { name: 'dialog-modal', source: 'x', requires: { 'focus.trap': true, 'keyboard.Escape': 'close' } }],
   ['none', { name: 'none', source: 'n/a', requires: {} }],
   ['absent', { name: 'absent', source: 'n/a', requires: {} }],
+  ['machine-readable', { name: 'machine-readable', source: 'x', additive: true, description: 'x', requires: { 'alternative.jsonLd': 'a block' } }],
 ]);
 
 test('a binding naming a real pattern with no exceptions is valid', () => {
@@ -388,4 +389,86 @@ test('two cased bindings with mismatched case patterns and no divergesFrom still
     { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
   ] };
   assert.equal(crossLayerAgrees(react, angular), false);
+});
+
+test('a component may add an additive pattern to the one it binds', () => {
+  assert.deepEqual(validateBinding('ArenaBreadcrumbs', 'react', {
+    pattern: 'dialog-modal',
+    also: [{ pattern: 'machine-readable' }],
+  }, patterns), [],
+  'this is the whole reason "also" exists: a pattern that says what a component owes BESIDES its '
+  + 'own has nowhere to go in a schema where a binding declares one pattern or a set of cases, '
+  + 'and cases are alternative renders rather than a second thing true of the same one');
+});
+
+test('an ordinary pattern cannot be added to another', () => {
+  assert.match(validateBinding('ArenaBreadcrumbs', 'react', {
+    pattern: 'machine-readable',
+    also: [{ pattern: 'dialog-modal' }],
+  }, patterns).join('\n'), /is not additive/,
+  'a pattern answering roles, keys or focus belongs where a layer can be held to exactly one');
+});
+
+test('an additive pattern cannot be bound on its own', () => {
+  assert.match(validateBinding('ArenaBreadcrumbs', 'react', { pattern: 'machine-readable' }, patterns).join('\n'),
+    /that one is additive/,
+    'alone it would leave the roles, the keys and the focus unanswered rather than answered as none');
+});
+
+test('adding the same pattern twice is a problem', () => {
+  assert.match(validateBinding('ArenaBreadcrumbs', 'react', {
+    pattern: 'dialog-modal',
+    also: [{ pattern: 'machine-readable' }, { pattern: 'machine-readable' }],
+  }, patterns).join('\n'), /adds "machine-readable" twice/,
+  'one of the two would govern nothing, and an exception written on the wrong one would be '
+  + 'silently ignored rather than reported');
+});
+
+test('an exception against an additive pattern is held to that pattern', () => {
+  const problems = validateBinding('ArenaBreadcrumbs', 'react', {
+    pattern: 'dialog-modal',
+    also: [{ pattern: 'machine-readable', exceptions: [{ requirement: 'focus.trap', reason: 'x' }] }],
+  }, patterns);
+  assert.match(problems.join('\n'), /excepts "focus.trap", which pattern "machine-readable" does not require/,
+    'the primary pattern requires it and the additive one does not, so naming it here excepts '
+    + 'nothing while reading as though it excepted something');
+});
+
+test('an exception against an additive pattern still needs its reason', () => {
+  assert.match(validateBinding('ArenaBreadcrumbs', 'react', {
+    pattern: 'dialog-modal',
+    also: [{ pattern: 'machine-readable', exceptions: [{ requirement: 'alternative.jsonLd' }] }],
+  }, patterns).join('\n'), /has no reason/);
+});
+
+test('two layers must add the same patterns, or they are not one component', () => {
+  const withIt = { pattern: 'dialog-modal', also: [{ pattern: 'machine-readable' }] };
+  const without = { pattern: 'dialog-modal' };
+  assert.equal(crossLayerAgrees(withIt, without), false,
+    'an additive pattern one layer ships and the other does not is exactly the divergence this '
+    + 'branch exists to catch: a crawler would be told about the React page and not the Angular one');
+  assert.equal(crossLayerAgrees(withIt, { ...withIt }), true);
+});
+
+test('an additive pattern may require nothing in the roles family', () => {
+  assert.match(validatePattern('bad', {
+    name: 'bad', source: 'x', additive: true, description: 'x',
+    requires: { 'roles.element': 'main' },
+  }).join('\n'), /may require nothing in the roles family/,
+  'which element a component renders is answered once, by the pattern it binds; a second pattern '
+  + 'answering it again is a contradiction with no way to report which of the two was broken');
+});
+
+test('additive is true or it is absent', () => {
+  assert.match(validatePattern('bad', {
+    name: 'bad', source: 'x', additive: false, requires: { 'focus.trap': true },
+  }).join('\n'), /is present and not true/);
+});
+
+test('an additive pattern must say why a component owes it as well', () => {
+  assert.match(validatePattern('bad', {
+    name: 'bad', source: 'x', additive: true, requires: { 'alternative.jsonLd': 'a block' },
+  }).join('\n'), /must carry a description/,
+  'it is bound alongside another pattern rather than instead of one, so nothing else on the page '
+  + 'says why a component owes both');
 });

@@ -218,7 +218,7 @@ export const BEHAVIOURAL = new Set([
   'keyboard.TypeAhead',
 
   'content.noAutoDismiss',
-  'alternative.table',
+  'alternative.table', 'alternative.jsonLd',
 
   'states.disabled', 'states.required', 'states.readonly',
   'states.multiselectable', 'states.busy', 'states.posinset',

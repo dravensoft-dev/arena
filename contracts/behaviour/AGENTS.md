@@ -122,6 +122,38 @@ churned to say so. Find the bindings that do declare `cases` with
 rather than a figure written here, which drifts the first time another binding
 is converted.
 
+### Additive patterns
+
+`pattern` and `cases` are the two ways of saying what a component *is*, and they are
+alternatives because a render is one thing or the other. `also` is a third key and it is not an
+alternative to either: it lists patterns a component owes **as well as**, whichever of those two
+shapes it uses.
+
+The distinction that decides where a new pattern goes is whether it answers the question this
+directory opens with. A pattern saying which roles a component carries, which keys it answers,
+where focus goes or what dismisses it is an answer to *what must this component do*, and there is
+exactly one such answer per render: two of them would contradict, with no way to report which of
+the two a layer broke. That is why an ordinary pattern may not be added to another, and why an
+additive one may require nothing in the `roles` family. `validatePattern` and `validateBinding`
+hold both halves.
+
+A pattern declares itself with `"additive": true`, in its own file rather than in a list here,
+so the rule travels with the thing it governs. Present and not `true` is a problem rather than a
+synonym for absent: it would read as a decision somebody made, and the only decision available
+is whether the key is there. An additive pattern must also carry a `description`, because it is
+bound alongside another rather than instead of one and nothing else on the page says why a
+component owes both.
+
+In a binding, `also` is an array of `{ pattern, exceptions }`, and its exceptions are held to the
+additive pattern's own requirements rather than to the primary one's. `crossLayerAgrees` compares
+the added set as well as the pattern: an additive pattern one layer ships and the other does not
+is the divergence this branch exists to catch, and it is the easier one to introduce by accident,
+since nothing a person sees moves when it goes missing.
+
+Find the bindings that add one with
+`grep -rl '"also"' --include='*.behaviour.json' frameworks/`. Read the list rather than a figure
+written here, which drifts the first time another binding adds one.
+
 ### What this layer cannot express, and what a green run does not claim
 
 Four limits are structural. None is a defect waiting to be fixed; each is a property of what a
