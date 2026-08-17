@@ -15,9 +15,9 @@
   --lh-prose:1.6;
   --lh-heading:1.5;
   --measure-prose:72ch;
-  --ff-heading:'Archivo',system-ui,sans-serif;
-  --ff-eyebrow:'Spline Sans Mono',ui-monospace,monospace;
-  --ff-label:'Spline Sans Mono',ui-monospace,monospace;
+  --ff-heading:var(--font-display);
+  --ff-eyebrow:var(--font-mono);
+  --ff-label:var(--font-mono);
   --fw-eyebrow:400;
   --fw-control:600;
   --tt-eyebrow:uppercase;

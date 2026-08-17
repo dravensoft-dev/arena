@@ -221,6 +221,8 @@ const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
 
+export const SKIN_ALIAS = /^(?:color|font)\.[a-z0-9-]+$/;
+
 export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   if (typeof raw !== 'string' || !raw.trim()) return null;
   const value = raw.trim();
@@ -228,7 +230,7 @@ export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   if (!alias) return value;
   const flat = alias.replace(/\./g, '-');
   if (catalogue?.tokens?.[flat] === undefined) return null;
-  return COLOUR_ALIAS.test(alias) ? `var(--${flat})` : catalogue.tokens[flat];
+  return SKIN_ALIAS.test(alias) ? `var(--${flat})` : catalogue.tokens[flat];
 }
 
 export function dtcgValue(node: unknown) {

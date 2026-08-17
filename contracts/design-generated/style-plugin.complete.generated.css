@@ -15,9 +15,9 @@
   --lh-prose:1.8;
   --lh-heading:1.15;
   --measure-prose:62ch;
-  --ff-heading:'Familjen Grotesk',system-ui,sans-serif;
-  --ff-eyebrow:'Familjen Grotesk',system-ui,sans-serif;
-  --ff-label:'Archivo',system-ui,sans-serif;
+  --ff-heading:var(--font-body);
+  --ff-eyebrow:var(--font-body);
+  --ff-label:var(--font-display);
   --fw-eyebrow:700;
   --fw-control:500;
   --tt-eyebrow:none;

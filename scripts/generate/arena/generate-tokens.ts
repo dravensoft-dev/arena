@@ -4,10 +4,10 @@
  * no file at all on Windows; and it stamps each token's filePath with glob's posix answer, which
  * writes a Windows drive as //?/D:/ and therefore equals nothing any join produces. Comparing two
  * spellings of one file is the defect both halves of that caused, and a name has only one.
- * An alias resolves to its value EXCEPT where the token it points at is redeclared in another
- * scope, which REDECLARED_GROUPS names: a role resolved at build time freezes whichever scope the
- * generator read and then inherits it everywhere. That is the palette and the density axis, and
- * a reference restated into each of their scopes is what keeps a role answering inside one. */
+ * An alias resolves to its value EXCEPT where that value is the SKIN's, which LATE_BOUND names:
+ * the palette and the faces belong to the consuming project and the density axis to another
+ * scope, so a role resolved at build time freezes one answer and inherits it everywhere.
+ * REDECLARED_GROUPS says which of those are additionally restated per scope. */
 
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
@@ -78,6 +78,8 @@ export const REDECLARED_GROUPS = new Map<string, string[]>([
   ['dz', ['compact', 'comfortable']],
 ]);
 
+export const LATE_BOUND = new Set([...REDECLARED_GROUPS.keys(), 'font']);
+
 export const themeOf = (token: { path?: string[] }) => {
   const first = token.path?.[0] ?? '';
   return THEME_SCOPES.has(first) ? first : '';
@@ -102,7 +104,7 @@ export function scopesRedeclaring(token: DtcgToken) {
 
 export function referenceOf(token: DtcgToken) {
   const alias = aliasOf(token);
-  if (!alias || !scopesRedeclaring(token).length) return null;
+  if (!alias || !LATE_BOUND.has(alias.split('.')[0] ?? '')) return null;
   return `var(--${alias.replace(/\./g, '-')})`;
 }
 

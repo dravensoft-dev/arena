@@ -366,8 +366,14 @@ const pluginProblems = (c: any, plugins: any[] = []) =>
 test('a bare colour alias becomes the var() a palette scope can restate', () => {
   assert.equal(pluginValue('{color.secondary}', SHEETS_FULL.catalogue), 'var(--color-secondary)');
   assert.equal(pluginValue('{fs.h3}', SHEETS_FULL.catalogue), '24px',
-    'only a colour is deferred, because only a colour is redeclared under a palette');
+    'a scale step is Arena\'s own and resolves to the value this package ships');
   assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
+});
+
+test('a face alias becomes a var() too, because the face is the consumer\'s', () => {
+  assert.equal(pluginValue('{font.display}', SHEETS_FULL.catalogue), 'var(--font-display)',
+    'resolving it to the catalogue would answer ff-heading with Archivo, which is Arena\'s '
+    + 'own face and not one the consumer loaded');
 });
 
 test('a token at the top of the tree is reachable by the alias that names it', () => {
