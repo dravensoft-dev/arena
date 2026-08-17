@@ -188,6 +188,16 @@ test('a ramp of one repeated colour is reported as indistinguishable', () => {
   assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.startsWith('ramp,')));
 });
 
+test('a ramp slot invisible against the surface it is drawn on is reported', () => {
+  const pale = ['#ffe9a8', '#ffd6e0', '#d9f2d0', '#cfe6ff', '#f0dcff', '#d0f2ee', '#ffe4cc', '#e6e6c8'];
+  const overrides: Record<string, string> = { 'base-100': '#ffffff', 'base-200': '#ffffff' };
+  pale.forEach((hex, i) => { overrides[`cat-${i + 1}`] = hex; });
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: colors(overrides) }] });
+  const [report] = paletteReports(c);
+  assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.includes('Contrast vs surface')),
+    'a slot under 3:1 against its surface reached the consumer as silence');
+});
+
 test('a stylesheet src becomes an @import, because Google Fonts serves CSS and not a binary', () => {
   const c = config();
   c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&display=swap';

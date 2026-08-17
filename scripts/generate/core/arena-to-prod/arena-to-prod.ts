@@ -456,7 +456,8 @@ export function themeStep(
   const problems = configProblems(config, sheets, plugins);
   if (problems.length) return { code: 1, reports: [], fatal: problems };
 
-  const reports = [...auto.reports, ...reportLines(paletteReports(config))];
+  const reports = [...auto.reports,
+    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins))];
   const out = join(options.out, THEME_SHEET);
   const css = themeCss(config, {
     packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins,

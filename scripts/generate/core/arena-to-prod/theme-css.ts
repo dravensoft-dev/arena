@@ -433,18 +433,33 @@ export function configProblems(
   return problems;
 }
 
-export function paletteReports(config: CheckedConfig) {
+export const SURFACE_ROLE = 'fill-surface';
+
+export const rampFailed = (state: unknown) => state !== true && state !== 'pass';
+
+export function surfaceOf(palette: CheckedPalette, roles: Map<string, string>) {
+  const key = roles.get(SURFACE_ROLE)?.match(/^var\(--color-([\w-]+)\)$/)?.[1];
+  return (key && palette.colors[key]) || palette.colors['base-100'];
+}
+
+export function paletteReports(
+  config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
+) {
+  const root = (plugins ?? [])[0] ?? null;
   const out = [];
   for (const palette of config.palettes) {
     const mode = palette.polarity;
-    const surface = palette.colors['base-100'];
+    const roles = root
+      ? resolvedPlugin(root, catalogue, mode)
+      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+    const surface = surfaceOf(palette, roles);
     const ramp = catKeys().map((k) => palette.colors[k]).filter(Boolean);
     const messages: Report[] = [];
 
     if (ramp.length) {
       const rampOptions = { mode, surface };
       for (const [name, state, detail] of validate(ramp, rampOptions).report as [string, any, string][]) {
-        if (state === false || state === 'fail') messages.push(report('ramp', `ramp, ${name}: ${detail}`));
+        if (rampFailed(state)) messages.push(report('ramp', `ramp, ${name}: ${detail}`));
       }
     }
 
