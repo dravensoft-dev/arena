@@ -109,6 +109,7 @@ export const node = {
     'check:skills',
     'check:states',
     'check:tailwind-generated',
+    'check:text-contrast',
     'build:site',
   ],
 };

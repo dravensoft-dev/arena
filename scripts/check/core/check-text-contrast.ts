@@ -9,6 +9,9 @@ import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
+import { walkFiles } from '../../utils/walk-files.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { drawnBy, levelReports, levelsIn } from '../../generate/core/arena-to-prod/levels.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
 } from '../../generate/core/arena-to-prod/oklab.ts';
@@ -23,12 +26,30 @@ export const ROLE_SHEETS = [
 
 export const SCOPED_PLUGINS = ['complete'];
 
+export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components/**/*.styles.generated.css';
+
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS, ...ROLE_SHEETS],
+  reads: [PALETTE, COLORS, ...ROLE_SHEETS, COMPONENT_SHEETS],
   writes: [],
   feeds: [],
 };
+
+export function componentLevels() {
+  const at = join(root, 'frameworks/tailwind/consume/components');
+  return walkFiles(at)
+    .filter((file) => file.endsWith('.styles.generated.css'))
+    .flatMap((file) => levelsIn(readFileSync(file, 'utf8')));
+}
+
+export function paletteColours(body: string) {
+  const colours: Record<string, string> = {};
+  for (const key of PALETTE_KEYS) {
+    const hex = tryHex(body, `color-${key}`);
+    if (hex) colours[key] = hex;
+  }
+  return colours;
+}
 
 const block = paletteBlock;
 
@@ -124,9 +145,18 @@ function main() {
     ok = false;
     console.log(`\n[FAIL] --${token} is declared in contracts/design/colors.css. It is not a token Arena has; use ${use}.`);
   }
+  const levels = componentLevels();
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
+
+    const painted = levelReports(levels, resolvedFor(effects, '', t.name), paletteColours(body));
+    console.log(`\n${t.name} — the ${drawnBy(levels).length} levels the component sheets compile, `
+      + 'each composited over the surfaces the root plugin names');
+    for (const one of painted) console.log(`  [FAIL] ${one.message}`);
+    if (painted.length) ok = false;
+    else console.log('  [PASS] every level clears the bar its property carries');
+
     for (const scope of scopesToMeasure(effects, t.name, scoped)) {
       const surfaces: [string, string][] = scope.surfaces
         .map((name) => [name.replace(/^color-/, ''), readHex(body, name)]);
