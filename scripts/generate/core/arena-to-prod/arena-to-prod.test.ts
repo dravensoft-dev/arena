@@ -491,6 +491,7 @@ test('the sheets a package ships are read from beside the command, so no copy of
     layers: ['css/reset.css', 'css/components.css'],
     components: ['button', 'table'],
     levels: [],
+    washes: [],
     roleReferences: [],
     catalogue: undefined,
   });
@@ -501,9 +502,13 @@ test('the levels a component sheet paints are read from that sheet and not from 
   const root = installed("@import './css/components.css';\n", ['table']);
   writeFileSync(join(root, 'css', 'components', 'table.css'),
     '.arena-table__caption {\n  color: color-mix(in oklab, var(--ink-muted) 62%, transparent);\n}\n');
-  assert.deepEqual(packageSheets(root)?.levels, [
-    { selector: '.arena-table__caption', property: 'color', variable: 'ink-muted', percent: 62 },
-  ]);
+  assert.deepEqual(packageSheets(root)?.levels, [{
+    selector: '.arena-table__caption',
+    state: '.arena-table__caption',
+    property: 'color',
+    variable: 'ink-muted',
+    percent: 62,
+  }]);
   rmSync(root, { recursive: true });
 });
 

@@ -27,7 +27,7 @@ import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
-import { levelsIn } from './levels.ts';
+import { levelsIn, washesIn } from './levels.ts';
 import type { Report, StrictKind } from './reports.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -198,12 +198,15 @@ export function packageSheets(root: string): PackageSheets {
       .sort();
     if (!layers.length || !components.length) return null;
     const catalogue = packageCatalogue(root);
-    const levels = components.flatMap((name) =>
-      levelsIn(readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8')));
+    const sheets = components.map((name) =>
+      readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'));
+    const levels = sheets.flatMap(levelsIn);
+    const washes = sheets.flatMap(washesIn);
     return {
       layers,
       components,
       levels,
+      washes,
       roleReferences: roleReferencesIn(catalogue),
       catalogue: catalogue ?? undefined,
     };
@@ -462,7 +465,7 @@ export function themeStep(
   if (problems.length) return { code: 1, reports: [], fatal: problems };
 
   const reports = [...auto.reports,
-    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins, sheets?.levels ?? [])),
+    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
     ...weightReports(config, sheets?.catalogue ?? null, plugins)];
   const out = join(options.out, THEME_SHEET);
   const css = themeCss(config, {

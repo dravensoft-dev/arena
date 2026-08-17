@@ -11,7 +11,9 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
-import { drawnBy, levelReports, levelsIn } from '../../generate/core/arena-to-prod/levels.ts';
+import {
+  drawnBy, levelReports, levelsIn, washesIn, washReports,
+} from '../../generate/core/arena-to-prod/levels.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
 } from '../../generate/core/arena-to-prod/oklab.ts';
@@ -35,11 +37,11 @@ export const node = {
   feeds: [],
 };
 
-export function componentLevels() {
+export function componentSheets() {
   const at = join(root, 'frameworks/tailwind/consume/components');
   return walkFiles(at)
     .filter((file) => file.endsWith('.styles.generated.css'))
-    .flatMap((file) => levelsIn(readFileSync(file, 'utf8')));
+    .map((file) => readFileSync(file, 'utf8'));
 }
 
 export function paletteColours(body: string) {
@@ -145,7 +147,9 @@ function main() {
     ok = false;
     console.log(`\n[FAIL] --${token} is declared in contracts/design/colors.css. It is not a token Arena has; use ${use}.`);
   }
-  const levels = componentLevels();
+  const sheets = componentSheets();
+  const levels = sheets.flatMap(levelsIn);
+  const washes = sheets.flatMap(washesIn);
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
@@ -156,6 +160,14 @@ function main() {
     for (const one of painted) console.log(`  [FAIL] ${one.message}`);
     if (painted.length) ok = false;
     else console.log('  [PASS] every level clears the bar its property carries');
+
+    console.log(`\n${t.name} — a token drawn on a wash of its own colour, REPORTED AND NOT GATED`);
+    for (const one of washReports(washes, resolvedFor(effects, '', t.name), paletteColours(body))) {
+      console.log(`  [INFO] ${one.message}`);
+    }
+    console.log('         The hover can never beat the resting ratio, so lowering the wash does not '
+      + 'repair it; what would is a hover that changes something other than the fill, which is a '
+      + 'decision about the danger convention rather than about a percentage.');
 
     for (const scope of scopesToMeasure(effects, t.name, scoped)) {
       const surfaces: [string, string][] = scope.surfaces

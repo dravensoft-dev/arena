@@ -19,8 +19,8 @@ import {
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { errorFill } from './oklab.ts';
-import { levelReports } from './levels.ts';
-import type { Level } from './levels.ts';
+import { levelReports, washReports } from './levels.ts';
+import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import type { SerializableToken } from './serialize-token.ts';
@@ -34,6 +34,7 @@ export type CheckedSheets = {
   layers: string[];
   components: string[];
   levels?: Level[];
+  washes?: Wash[];
   roleReferences?: string[];
   catalogue?: TokenCatalogue;
 };
@@ -450,7 +451,7 @@ export function surfaceOf(palette: CheckedPalette, roles: Map<string, string>) {
 
 export function paletteReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
-  levels: Level[] = [],
+  levels: Level[] = [], washes: Wash[] = [],
 ) {
   const root = (plugins ?? [])[0] ?? null;
   const out = [];
@@ -485,6 +486,7 @@ export function paletteReports(
     }
 
     messages.push(...levelReports(levels, roles, colors));
+    messages.push(...washReports(washes, roles, colors));
 
     if (messages.length) out.push({ palette: palette.name, messages });
   }

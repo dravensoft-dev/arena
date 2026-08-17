@@ -13,6 +13,7 @@ import type { Report } from './reports.ts';
 
 export type Level = {
   selector: string;
+  state: string;
   property: string;
   variable: string;
   percent: number;
@@ -36,20 +37,70 @@ const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
 const MIX = /^\s*([\w-]+)\s*:\s*color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*([\d.]+)%,\s*transparent\)/;
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
 
+const INK = /^\s*color\s*:\s*var\(--([\w-]+)\)\s*;/;
+
 export function levelsIn(css: string): Level[] {
   const out: Level[] = [];
   let selector = '';
+  let state = '';
   for (const line of css.split('\n')) {
     const named = SELECTOR.exec(line)?.[1];
-    if (named && !named.startsWith('@')) selector = named;
+    if (named?.startsWith('.')) { selector = named; state = named; }
+    else if (named) state = `${selector}${named.replace(/&/g, '')}`;
     const mix = MIX.exec(line);
-    if (mix) out.push({ selector, property: mix[1] as string, variable: mix[2] as string, percent: Number(mix[3]) });
+    if (!mix) continue;
+    out.push({
+      selector,
+      state,
+      property: mix[1] as string,
+      variable: mix[2] as string,
+      percent: Number(mix[3]),
+    });
+  }
+  return out;
+}
+
+export type Wash = { selector: string; variable: string; percent: number };
+
+export function washesIn(css: string): Wash[] {
+  const out: Wash[] = [];
+  let selector = '';
+  let ink = '';
+  for (const line of css.split('\n')) {
+    const named = SELECTOR.exec(line)?.[1];
+    if (named && named.startsWith('.')) { selector = named; ink = ''; }
+    const inked = INK.exec(line)?.[1];
+    if (inked) ink = inked;
+    const mix = MIX.exec(line);
+    if (!mix || mix[1] !== 'background-color' || mix[2] !== ink) continue;
+    out.push({ selector, variable: ink, percent: Number(mix[3]) });
+  }
+  return out;
+}
+
+export function washReports(
+  washes: Wash[], roles: Map<string, string>, colors: Record<string, string>,
+) {
+  const surfaces = surfaceKeys(roles).filter((key) => colors[key]);
+  const out: Report[] = [];
+  for (const wash of washes) {
+    const key = paletteKey(roles.get(wash.variable)) ?? paletteKey(`var(--${wash.variable})`);
+    const ink = key ? colors[key] : undefined;
+    if (!ink) continue;
+    for (const surface of surfaces) {
+      const painted = composite(ink, colors[surface] as string, wash.percent);
+      const ratio = contrast(ink, painted);
+      if (ratio >= TEXT_MIN) continue;
+      out.push(report('contrast', `--${wash.variable} is drawn on a ${wash.percent}% wash of itself `
+        + `at ${wash.selector}, which reads ${ratio.toFixed(2)}:1 over --color-${surface}, under `
+        + `${TEXT_MIN}:1. The resting ratio is the ceiling here, so no wash percentage lifts it`));
+    }
   }
   return out;
 }
 
 export function exemptionFor(level: Level) {
-  for (const [what, why] of EXEMPT) if (level.selector.includes(what)) return why;
+  for (const [what, why] of EXEMPT) if (level.state.includes(what)) return why;
   return null;
 }
 

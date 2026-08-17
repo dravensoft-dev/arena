@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  exemptionFor, gateFor, levelReports, levelsIn, surfaceKeys,
+  exemptionFor, gateFor, levelReports, levelsIn, surfaceKeys, washesIn, washReports,
 } from './levels.ts';
 
 const SHEET = [
@@ -12,8 +12,10 @@ const SHEET = [
   '      color: color-mix(in oklab, var(--ink-muted) 62%, transparent);',
   '    }',
   '  }',
-  '  .arena-tag__close--disabled-true {',
-  '    color: color-mix(in oklab, var(--ink-muted) 40%, transparent);',
+  '  .arena-pagination__nav {',
+  '    &:disabled {',
+  '      color: color-mix(in oklab, var(--ink-muted) 40%, transparent);',
+  '    }',
   '  }',
   '  .arena-avatar__status--status-offline {',
   '    background-color: color-mix(in oklab, var(--color-base-content) 52%, transparent);',
@@ -66,4 +68,29 @@ test('a level composited over a real palette is measured rather than assumed', (
   assert.equal(reports.length, 2, 'the caption at 62% and the presence dot at 52% both fail here');
   assert.ok(reports.some((r) => r.message.includes('--ink-muted at 62%') && r.message.includes('3.23:1')));
   assert.ok(reports.some((r) => r.message.includes('--color-base-content at 52%') && r.message.includes('2.58:1')));
+});
+
+const HOVER = [
+  '  .arena-button__root--variant-danger {',
+  '    color: var(--color-error);',
+  '    &:hover {',
+  '      @media (hover: hover) {',
+  '        background-color: color-mix(in oklab, var(--color-error) 14%, transparent);',
+  '      }',
+  '    }',
+  '  }',
+].join('\n');
+
+test('a token drawn on a wash of its own colour is found through the nesting', () => {
+  assert.deepEqual(washesIn(HOVER), [
+    { selector: '.arena-button__root--variant-danger', variable: 'color-error', percent: 14 },
+  ]);
+});
+
+test('the wash is measured against the ink that rides on it', () => {
+  const roles = new Map([['fill-surface', 'var(--color-base-100)']]);
+  const colors = { 'base-100': '#ffffff', 'color-error': '#ff4b4b', error: '#ff4b4b' };
+  const [only] = washReports(washesIn(HOVER), roles, colors);
+  assert.match(only?.message ?? '', /14% wash of itself/);
+  assert.match(only?.message ?? '', /ceiling/);
 });
