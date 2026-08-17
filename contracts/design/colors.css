@@ -56,12 +56,11 @@
   /* The only filled danger surface in Arena (ArenaConfirmDialog's final
      confirmation). Never a border or text color — --danger is that.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
-     does: #ce3838). If it doesn't, the fill DERIVES from --color-error by
-     darkening it in oklab — so a skin that only swaps the palette still gets a
-     filled danger dark enough to carry --color-error-content, and nothing goes
-     backgroundless. check-text-contrast.ts gates whichever path is live, and
-     always gates the fallback too. */
-  --danger-fill:var(--color-error-fill,color-mix(in oklab,var(--color-error) 85%,black));
+     does: #ce3838). A skin that doesn't gets one derived from --color-error,
+     emitted into the palette by arena-to-prod rather than composed here: the
+     compiled confirm button reads var(--color-error-fill) with no fallback of
+     its own, so a fallback living only in this alias is one nothing reads. */
+  --danger-fill:var(--color-error-fill);
   --info:var(--color-info);
   --info-soft:color-mix(in oklab,var(--color-info) 16%,transparent);
 

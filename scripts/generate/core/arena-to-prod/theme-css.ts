@@ -18,6 +18,7 @@ import {
   FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, scopeOn, totalityProblems,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
+import { errorFill } from './oklab.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import type { SerializableToken } from './serialize-token.ts';
@@ -449,11 +450,12 @@ export function paletteReports(
   const out = [];
   for (const palette of config.palettes) {
     const mode = palette.polarity;
+    const colors = derivedColours(palette.colors);
     const roles = root
       ? resolvedPlugin(root, catalogue, mode)
       : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-    const surface = surfaceOf(palette, roles);
-    const ramp = catKeys().map((k) => palette.colors[k]).filter(Boolean);
+    const surface = surfaceOf({ ...palette, colors }, roles);
+    const ramp = catKeys().map((k) => colors[k]).filter(Boolean);
     const messages: Report[] = [];
 
     if (ramp.length) {
@@ -464,9 +466,8 @@ export function paletteReports(
     }
 
     const text = [
-      ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, palette.colors[ink], palette.colors[on]]),
-      ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`,
-        palette.colors[content], palette.colors[fill]]),
+      ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),
+      ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`, colors[content], colors[fill]]),
     ];
     for (const [what, fg, bg] of text) {
       if (!fg || !bg) continue;
@@ -513,10 +514,18 @@ function block(selector: string, declarations: string[]) {
   return [`${selector}{`, ...declarations.map((d) => `  ${d}`), '}'].join('\n');
 }
 
+export function derivedColours(colors: Record<string, string>) {
+  const error = colors.error;
+  return colors['error-fill'] === undefined && error !== undefined
+    ? { ...colors, 'error-fill': errorFill(error) }
+    : colors;
+}
+
 function colourDeclarations(palette: CheckedPalette) {
+  const colors = derivedColours(palette.colors);
   return PALETTE_KEYS
     .flatMap((key) => {
-      const value = palette.colors[key];
+      const value = colors[key];
       return value === undefined ? [] : [`--color-${key}:${value.toLowerCase()};`];
     });
 }

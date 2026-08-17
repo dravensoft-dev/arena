@@ -188,6 +188,17 @@ test('a ramp of one repeated colour is reported as indistinguishable', () => {
   assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.startsWith('ramp,')));
 });
 
+test('a palette that leaves error-fill out still gets a fill to paint with', () => {
+  const without = colors({ error: '#c0392f' });
+  delete without['error-fill'];
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: without }] });
+  assert.deepEqual(configProblems(c), []);
+  const decls = parseDecls(themeCss(c));
+  assert.ok(decls.get(':root').get('color-error-fill'),
+    'ArenaConfirmDialog compiles to var(--color-error-fill) with no fallback, so an omitted '
+    + 'key drops the declaration and the point-of-no-return button paints nothing at all');
+});
+
 test('every fill a consumer declares is measured against its content, not only primary', () => {
   const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light',
     colors: colors({ success: '#58cc02', 'success-content': '#ffffff' }) }] });

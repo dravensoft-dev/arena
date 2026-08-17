@@ -9,6 +9,7 @@ import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
+import { composite, darkenOklab, FILL_FALLBACK_KEEP } from '../../generate/core/arena-to-prod/oklab.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
@@ -50,48 +51,6 @@ export function resolvePercent(structure: string, name: string, seen = new Set()
   throw new Error(`colors.css: --${name} resolves to "${value}", which is neither base-content, a color-mix of it, nor a var() alias`);
 }
 
-type Triple = [number, number, number];
-
-const hex2rgb = (h: string): Triple =>
-  [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-const rgb2hex = (rgb: Triple) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
-
-const composite = (fg: string, bg: string, percent: number) => {
-  const [fr, fgreen, fb] = hex2rgb(fg);
-  const [br, bgreen, bb] = hex2rgb(bg);
-  const a = percent / 100;
-  const over = (f: number, b: number) => f * a + b * (1 - a);
-  return rgb2hex([over(fr, br), over(fgreen, bgreen), over(fb, bb)]);
-};
-
-const s2lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-const lin2s = (c: number) => { c = Math.max(0, Math.min(1, c)); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
-function toOklab(hex: string): Triple {
-  const [red, green, blue] = hex2rgb(hex);
-  const [r, g, b] = [s2lin(red / 255), s2lin(green / 255), s2lin(blue / 255)];
-  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
-  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
-  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
-  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
-          1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
-          0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
-}
-function oklabToHex([L, a, b]: Triple) {
-  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
-  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
-  const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
-  const linear: Triple = [
-    +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
-  ];
-  return rgb2hex([lin2s(linear[0]) * 255, lin2s(linear[1]) * 255, lin2s(linear[2]) * 255]);
-}
-const darkenOklab = (hex: string, keep: number) => {
-  const [l, a, b] = toOklab(hex);
-  return oklabToHex([l * keep, a * keep, b * keep]);
-};
-
 const LEVELS = [
   { token: 'text-strong', gate: 4.5, note: 'body text' },
   { token: 'text-body', gate: 4.5, note: 'body text' },
@@ -100,8 +59,6 @@ const LEVELS = [
 
   { token: 'mute-2-disabled', gate: null, note: 'EXEMPT — disabled controls (WCAG 1.4.3/1.4.11 inactive-component exemption)' },
 ];
-
-const FILL_FALLBACK_KEEP = 0.85;
 
 export const PAIRS = [
   { fill: 'primary', content: 'primary-content', gate: 4.5, note: 'button text via --on-accent (ArenaButton, ArenaIconButton solid, ArenaPagination active); ArenaCheckbox tick, ArenaSwitch knob, and ArenaSwitch’s knob glyph read the other way round (text-primary on bg-primary-content)' },
