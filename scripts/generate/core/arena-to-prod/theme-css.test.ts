@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
-  pluginName, pluginValue, readPlugin,
+  pluginName, pluginValue, readPlugin, weightReports,
 } from './theme-css.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
@@ -318,6 +318,7 @@ const SHEETS_FULL = {
   catalogue: {
     tokens: {
       'fs-h3': '24px', 'font-display': "'Archivo',system-ui,sans-serif",
+      'font-body': "'Familjen Grotesk',system-ui,sans-serif", 'fw-black': '900', 'fw-regular': '400',
       'color-base-200': 'var(--color-base-200)', 'color-secondary': 'var(--color-secondary)',
       bw: '1px', 'bw-surface': '1px', 'shadow-surface-rest': '0px 0px 0px 0px rgba(0,0,0,0)',
       'fill-surface': 'var(--color-base-200)', 'fill-page': 'var(--color-base-100)',
@@ -368,6 +369,41 @@ test('a bare colour alias becomes the var() a palette scope can restate', () => 
   assert.equal(pluginValue('{fs.h3}', SHEETS_FULL.catalogue), '24px',
     'a scale step is Arena\'s own and resolves to the value this package ships');
   assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
+});
+
+test('a weight a role asks for and the face never carries is reported', () => {
+  const c = config();
+  c.fonts.display.family = 'Baloo 2';
+  c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap';
+  const plugin = readPlugin('bank', {
+    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+  });
+  const messages = weightReports(c, SHEETS_FULL.catalogue, [plugin]);
+  assert.ok(messages.some((m) => m.kind === 'weight' && m.message.includes('900')
+    && m.message.includes('Baloo 2')),
+  'the face tops out at 800, so 900 is a weight the browser draws by smearing the 800');
+});
+
+test('a weight the face does carry is not reported', () => {
+  const c = config();
+  c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..900&display=swap';
+  const plugin = readPlugin('bank', {
+    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+  });
+  assert.deepEqual(weightReports(c, SHEETS_FULL.catalogue, [plugin]), []);
+});
+
+test('a src that says nothing about weight is left alone rather than guessed at', () => {
+  const c = config();
+  const plugin = readPlugin('bank', {
+    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+  });
+  c.fonts.display.src = './fonts/display.woff2';
+  assert.deepEqual(weightReports(c, SHEETS_FULL.catalogue, [plugin]), [],
+    'a self-hosted file declares its own range and this command cannot open it');
 });
 
 test('a face alias becomes a var() too, because the face is the consumer\'s', () => {

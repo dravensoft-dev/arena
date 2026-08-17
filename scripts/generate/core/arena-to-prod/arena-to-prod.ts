@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, relative, resolve, sep } from 'node:path';
 import {
   DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, readPlugin, themeCss,
+  weightReports,
 } from './theme-css.ts';
 import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
@@ -457,7 +458,8 @@ export function themeStep(
   if (problems.length) return { code: 1, reports: [], fatal: problems };
 
   const reports = [...auto.reports,
-    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins))];
+    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins)),
+    ...weightReports(config, sheets?.catalogue ?? null, plugins)];
   const out = join(options.out, THEME_SHEET);
   const css = themeCss(config, {
     packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins,

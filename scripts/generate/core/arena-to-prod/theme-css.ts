@@ -491,6 +491,72 @@ function family(name: string, fallback: string[]) {
     .join(',');
 }
 
+export const WEIGHT_ROLES = [
+  { weight: 'fw-heading', through: 'ff-heading' },
+  { weight: 'fw-eyebrow', through: 'ff-eyebrow' },
+  { weight: 'fw-control', font: 'body' },
+];
+
+const FACE_REFERENCE = /^var\(--font-([\w-]+)\)$/;
+
+const GOOGLE_DEFAULT: [number, number][] = [[400, 400]];
+
+export function googleWeights(src: string): [number, number][] | null {
+  if (!/^https?:\/\/fonts\.googleapis\.com\//.test(src)) return null;
+  const family = /[?&]family=([^&]*)/.exec(src)?.[1];
+  if (family === undefined) return null;
+  const axed = /^[^:]*:([^@]+)@(.*)$/.exec(family);
+  if (!axed) return GOOGLE_DEFAULT;
+  const at = (axed[1] ?? '').split(',').indexOf('wght');
+  if (at < 0) return GOOGLE_DEFAULT;
+  const out: [number, number][] = [];
+  for (const tuple of (axed[2] ?? '').split(';')) {
+    const [lo, hi] = (tuple.split(',')[at] ?? '').split('..').map(Number);
+    if (Number.isFinite(lo)) out.push([lo as number, Number.isFinite(hi) ? hi as number : lo as number]);
+  }
+  return out.length ? out : null;
+}
+
+export function weightsCovered(font: ArenaFont): [number, number][] | null {
+  const declared = font.weight;
+  if (typeof declared === 'number') return [[declared, declared]];
+  if (typeof declared === 'string' && declared.trim()) {
+    const parts = declared.trim().split(/\s+/).map(Number).filter((n) => Number.isFinite(n));
+    if (parts.length === 1) return [[parts[0] as number, parts[0] as number]];
+    if (parts.length === 2) return [[parts[0] as number, parts[1] as number]];
+    return null;
+  }
+  return typeof font.src === 'string' ? googleWeights(font.src) : null;
+}
+
+export function weightReports(
+  config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
+) {
+  const root = (plugins ?? [])[0] ?? null;
+  const out: Report[] = [];
+  const seen = new Set<string>();
+  for (const polarity of new Set(config.palettes.map((p) => p.polarity))) {
+    const resolved = root
+      ? resolvedPlugin(root, catalogue, polarity)
+      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+    for (const role of WEIGHT_ROLES) {
+      const asked = Number(resolved.get(role.weight));
+      const face = role.font ?? FACE_REFERENCE.exec(resolved.get(role.through ?? '') ?? '')?.[1];
+      const font = face ? config.fonts?.[face] : undefined;
+      if (!Number.isFinite(asked) || !font) continue;
+      const covered = weightsCovered(font);
+      if (!covered || covered.some(([lo, hi]) => asked >= lo && asked <= hi)) continue;
+      const has = covered.map(([lo, hi]) => (lo === hi ? `${lo}` : `${lo}-${hi}`)).join(', ');
+      const message = `${role.weight} is ${asked} and fonts.${face} loads ${font.family} at ${has}; `
+        + 'the browser draws the rest by smearing the nearest one, which is not the face you chose';
+      if (seen.has(message)) continue;
+      seen.add(message);
+      out.push(report('weight', message));
+    }
+  }
+  return out;
+}
+
 export function isStylesheet(src: string) {
   const path = src.split('?')[0] ?? '';
   return path.endsWith('.css') || /^https?:\/\/fonts\.googleapis\.com\//.test(src);

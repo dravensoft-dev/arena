@@ -4,8 +4,8 @@
  * neither of those. One switch over every kind makes the strictest of them the price of any of
  * them, so the kind travels with the message from the step that produced it. */
 
-export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'glyph', 'markers', 'audit',
-  'environment', 'restated'] as const;
+export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers',
+  'audit', 'environment', 'restated'] as const;
 
 export type StrictKind = (typeof STRICT_KINDS)[number];
 
