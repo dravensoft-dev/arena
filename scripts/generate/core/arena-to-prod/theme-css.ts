@@ -583,9 +583,10 @@ function block(selector: string, declarations: string[]) {
 }
 
 export function derivedColours(colors: Record<string, string>) {
-  const error = colors.error;
-  return colors['error-fill'] === undefined && error !== undefined
-    ? { ...colors, 'error-fill': errorFill(error) }
+  const { error } = colors;
+  const content = colors['error-content'];
+  return colors['error-fill'] === undefined && error !== undefined && content !== undefined
+    ? { ...colors, 'error-fill': errorFill(error, content) }
     : colors;
 }
 

@@ -9,7 +9,9 @@ import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
-import { composite, darkenOklab, FILL_FALLBACK_KEEP } from '../../generate/core/arena-to-prod/oklab.ts';
+import {
+  composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
+} from '../../generate/core/arena-to-prod/oklab.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
@@ -194,13 +196,14 @@ function main() {
     const errHex = tryHex(body, 'color-error');
     const errContent = tryHex(body, 'color-error-content');
     if (errHex && errContent) {
-      const derived = darkenOklab(errHex, FILL_FALLBACK_KEEP);
+      const derived = errorFill(errHex, errContent);
       const ratio = contrast(derived, errContent);
       const failed = ratio < 4.5;
       if (failed) ok = false;
-      console.log(`\n${t.name} — --danger-fill fallback (used when a skin omits --color-error-fill)`);
-      console.log(`  [${failed ? 'FAIL' : 'PASS'}] color-mix 85%      ${errContent} on ${derived}  ${ratio.toFixed(2)}:1  gate 4.5:1`);
-      console.log(`         derived from --color-error ${errHex} by darkening in oklab`);
+      const way = derived === darkenOklab(errHex, FILL_FALLBACK_KEEP) ? 'darkening' : 'lightening';
+      console.log(`\n${t.name} — the fill derived when a skin omits --color-error-fill`);
+      console.log(`  [${failed ? 'FAIL' : 'PASS'}] keep ${FILL_FALLBACK_KEEP}          ${errContent} on ${derived}  ${ratio.toFixed(2)}:1  gate 4.5:1`);
+      console.log(`         derived from --color-error ${errHex} by ${way} it in oklab, away from --color-error-content`);
     }
   }
 

@@ -4,7 +4,10 @@
  * than in validate-palette.mjs, which is vendored verbatim from the dataviz skill and is
  * re-vendored rather than patched. errorFill answers the one derivation a palette may
  * leave to Arena: --color-error-fill, the only filled danger surface, absent from a
- * config that pins nothing. FILL_FALLBACK_KEEP is how much of the colour it keeps. */
+ * config that pins nothing. It moves error AWAY from error-content rather than always
+ * toward black, because "darker" only helps a palette whose filled danger carries white,
+ * which is what both Arena themes do and what a dark palette naming the page as its
+ * error-content does not. FILL_FALLBACK_KEEP is how much of the colour it keeps. */
 
 export type Triple = [number, number, number];
 
@@ -51,11 +54,18 @@ export function oklabToHex([L, a, b]: Triple) {
   return rgb2hex([lin2s(linear[0]) * 255, lin2s(linear[1]) * 255, lin2s(linear[2]) * 255]);
 }
 
-export const darkenOklab = (hex: string, keep: number) => {
+export const towardOklab = (hex: string, keep: number, target: 0 | 1) => {
   const [l, a, b] = toOklab(hex);
-  return oklabToHex([l * keep, a * keep, b * keep]);
+  return oklabToHex([l * keep + (1 - keep) * target, a * keep, b * keep]);
 };
+
+export const darkenOklab = (hex: string, keep: number) => towardOklab(hex, keep, 0);
+
+export const lightenOklab = (hex: string, keep: number) => towardOklab(hex, keep, 1);
 
 export const FILL_FALLBACK_KEEP = 0.85;
 
-export const errorFill = (error: string) => darkenOklab(error, FILL_FALLBACK_KEEP);
+export const errorFill = (error: string, content: string) =>
+  (toOklab(content)[0] >= toOklab(error)[0]
+    ? darkenOklab(error, FILL_FALLBACK_KEEP)
+    : lightenOklab(error, FILL_FALLBACK_KEEP));
