@@ -1,9 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
-  derivedLevels, exemptionFor, gateFor, levelReports, levelsIn, raisedReports, surfaceKeys,
-  washesIn, washReports,
+  DECORATIVE, derivedLevels, exemptionFor, gateFor, levelReports, levelsIn, raisedReports,
+  surfaceKeys, washesIn, washReports,
 } from './levels.ts';
+import { walkFiles } from '../../../utils/walk-files.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
 const SHEET = [
   '@layer utilities {',
@@ -124,4 +128,37 @@ test('an ink that cannot clear its bar at full strength is named as the ink and 
   assert.equal(derived.get('level-ink-muted')?.percent, null);
   const [only] = levelReports(levelsIn(SHEET, DEFAULTS), ROLES, flat, derived);
   assert.match(only?.message ?? '', /The ink is what has no room, not the level/);
+});
+
+const COMPOUNDED = [
+  '  .arena-stat-card__icon {',
+  '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);',
+  '    opacity: 60%;',
+  '  }',
+].join('\n');
+
+test('an opacity on the same rule compounds, because it is what the browser paints', () => {
+  const [only] = levelsIn(COMPOUNDED, DEFAULTS);
+  assert.equal(only?.percent, 37.2,
+    '62% of the ink at 60% opacity is 37.2% of it, and reporting 62 is reporting a value '
+    + 'nothing paints');
+});
+
+test('every decorative exemption is a part both layers still render aria-hidden', () => {
+  for (const [selector, why] of DECORATIVE) {
+    const part = (selector.match(/^\.arena-[a-z-]+__([a-z-]+)$/) ?? [])[1];
+    assert.ok(part, `${selector} is not a part selector, so nothing can hold its markup`);
+    const component = selector.slice(1).split('__')[0] as string;
+    const slot = component.replace(/(^|-)([a-z])/g, (_, __, c) => c.toUpperCase());
+    for (const layer of ['react', 'angular']) {
+      const at = join(repoRoot, 'frameworks', layer, 'components');
+      const file = walkFiles(at).find((p) => p.endsWith(`${slot}.${layer === 'react' ? 'tsx' : 'ts'}`));
+      assert.ok(file, `${slot} has no source in the ${layer} layer`);
+      const lines: string[] = readFileSync(file as string, 'utf8').split('\n');
+      const drawn: string | undefined = lines.find((line) => line.includes(`parts.${part}`));
+      assert.ok(drawn?.includes('aria-hidden'),
+        `${selector} is exempt because "${why.slice(0, 40)}…", and the ${layer} layer no longer `
+        + 'renders it aria-hidden, so the exemption is excusing a mark somebody has to see');
+    }
+  }
 });

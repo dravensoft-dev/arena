@@ -34,12 +34,20 @@ export const EXEMPT = new Map([
   ['placeholder', 'a placeholder is a hint the field replaces, not the field\'s own text'],
 ]);
 
+export const DECORATIVE = new Map([
+  ['.arena-stat-card__icon', 'a glyph Arena draws inside an aria-hidden wrapper beside a label '
+    + 'that already says the same thing, so WCAG 1.4.11 exempts it as purely decorative. The '
+    + 'paired suite asserts both layers still render it aria-hidden, so the day one stops, this '
+    + 'entry fails rather than quietly excusing a mark somebody has to see'],
+]);
+
 const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
 const MIX = /^\s*([\w-]+)\s*:\s*color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
 const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
 
 const INK = /^\s*color\s*:\s*var\(--([\w-]+)\)\s*;/;
+const OPACITY = /^\s*opacity\s*:\s*([\d.]+)%\s*;/;
 
 export function levelDefaults(css: string) {
   const out: Record<string, number> = {};
@@ -47,7 +55,22 @@ export function levelDefaults(css: string) {
   return out;
 }
 
+export function opacitiesIn(css: string) {
+  const out = new Map<string, number>();
+  let selector = '';
+  let state = '';
+  for (const line of css.split('\n')) {
+    const named = SELECTOR.exec(line)?.[1];
+    if (named?.startsWith('.')) { selector = named; state = named; }
+    else if (named) state = `${selector}${named.replace(/&/g, '')}`;
+    const held = OPACITY.exec(line)?.[1];
+    if (held !== undefined) out.set(state, Number(held) / 100);
+  }
+  return out;
+}
+
 export function levelsIn(css: string, defaults: Record<string, number> = {}): Level[] {
+  const held = opacitiesIn(css);
   const out: Level[] = [];
   let selector = '';
   let state = '';
@@ -58,15 +81,16 @@ export function levelsIn(css: string, defaults: Record<string, number> = {}): Le
     const mix = MIX.exec(line);
     if (!mix) continue;
     const level = mix[4] ?? null;
-    const percent = level === null ? Number(mix[3]) : defaults[level];
-    if (percent === undefined) continue;
+    const declared = level === null ? Number(mix[3]) : defaults[level];
+    if (declared === undefined) continue;
+    const opacity = (held.get(state) ?? 1) * (state === selector ? 1 : held.get(selector) ?? 1);
     out.push({
       selector,
       state,
       property: mix[1] as string,
       variable: mix[2] as string,
-      percent,
-      level,
+      percent: Number((declared * opacity).toFixed(2)),
+      level: opacity === 1 ? level : null,
     });
   }
   return out;
@@ -112,6 +136,8 @@ export function washReports(
 }
 
 export function exemptionFor(level: Level) {
+  const decorative = DECORATIVE.get(level.selector);
+  if (decorative) return decorative;
   for (const [what, why] of EXEMPT) if (level.state.includes(what)) return why;
   return null;
 }
