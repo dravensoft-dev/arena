@@ -6,9 +6,9 @@
     "head": "flex items-center gap-items min-w-0",
     "dot": "size-1.5 shrink-0 rounded-pill bg-[color:var(--arena-board-column-cat)]",
     "title": "min-w-0 truncate text-ctl-md font-medium text-ink-heading",
-    "count": "shrink-0 font-mono tabular-nums text-ctl-xs text-ink-muted/62",
+    "count": "shrink-0 font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "action": "shrink-0 flex items-center ms-auto",
-    "summary": "font-mono tabular-nums text-ctl-xs text-ink-muted/62",
+    "summary": "font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "stack": "grid gap-items",
     "foot": "grid"
   },

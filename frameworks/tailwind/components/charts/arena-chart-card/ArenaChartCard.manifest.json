@@ -3,7 +3,7 @@
   "slots": {
     "root": "flex flex-col gap-items bg-surface border-[length:var(--bw-surface)] border-edge-surface rounded-surface p-surface shadow-surface-rest",
     "head": "flex flex-wrap items-center justify-between gap-items",
-    "title": "font-face-label text-ctl-2xs tracking-label case-label text-ink-muted/62",
+    "title": "font-face-label text-ctl-2xs tracking-label case-label text-ink-muted/(--level-ink-muted)",
     "actions": "flex flex-wrap items-center gap-inline"
   }
 }

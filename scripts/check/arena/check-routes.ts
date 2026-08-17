@@ -258,15 +258,19 @@ export const ROUTES: Route[] = [
     who: 'a contributor moving a value: the router, the contracts roof, the design specification '
       + 'and the shape a token is authored in',
     stops: ['AGENTS.md', 'contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 76_000,
+    budget: 77_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
       + 'can afford. Raised from 72,000 when the role tier went from 28 roles to 63 and grew a '
       + 'ninth token type: TokenTypes.md has to state what a keyword is and why it is the one '
       + 'departure from 2025.10, and the design specification has to say why a style plugin now '
-      + 'reaches type, ink and internal air. The route is longer because the thing it describes is '
-      + 'bigger, which is the one reason a budget should ever move.',
+      + 'reaches type, ink and internal air. Raised again to 77,000 when the muted percentages '
+      + 'stopped being literals frozen into a hundred compiled sheets and became a level tier a '
+      + 'palette moves: the specification has to say that those numbers are floors, that a level '
+      + 'is raised and never lowered, and what raising one costs the hierarchy it belonged to. '
+      + 'The route is longer because the thing it describes is bigger, which is the one reason a '
+      + 'budget should ever move.',
   },
   {
     name: 'contributor-gate',

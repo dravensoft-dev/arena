@@ -8,7 +8,7 @@
     "actions": "flex items-center gap-1.5 flex-1 flex-wrap",
     "action": "inline-flex items-center gap-control h-8.5 px-control-x bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-control text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-hover shadow-control-rest",
     "actionIcon": "inline-flex text-[length:var(--icon-md)]",
-    "clear": "bg-transparent border-none cursor-pointer text-ink-muted/62 font-face-label text-ctl-xs tracking-badge case-label"
+    "clear": "bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) font-face-label text-ctl-xs tracking-badge case-label"
   },
   "variants": {
     "destructive": {
@@ -16,7 +16,7 @@
         "action": "border-error text-error hover:bg-error/14"
       },
       "false": {
-        "action": "border-edge-control-quiet text-ink-body/82 hover:bg-base-200"
+        "action": "border-edge-control-quiet text-ink-body/(--level-ink-body) hover:bg-base-200"
       }
     },
     "open": {

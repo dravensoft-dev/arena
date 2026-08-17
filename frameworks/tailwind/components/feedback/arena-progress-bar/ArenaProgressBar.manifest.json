@@ -3,8 +3,8 @@
   "slots": {
     "root": "grid",
     "head": "flex items-baseline justify-between gap-items mb-2",
-    "label": "font-body text-ctl-md text-ink-body/82",
-    "value": "font-mono text-ctl-sm text-ink-muted/62",
+    "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
+    "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "track": "relative rounded-pill bg-track overflow-hidden",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
@@ -28,7 +28,7 @@
       "radial": {
         "root": "w-fit justify-items-center gap-items",
         "label": "text-center",
-        "value": "font-mono text-ctl-md text-ink-body/82 [grid-area:1/1]"
+        "value": "font-mono text-ctl-md text-ink-body/(--level-ink-body) [grid-area:1/1]"
       }
     },
     "tone": {

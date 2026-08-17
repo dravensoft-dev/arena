@@ -2,9 +2,9 @@
   "component": "ArenaEmptyState",
   "slots": {
     "root": "flex flex-col items-center text-center gap-items px-8 py-14 bg-surface border-[length:var(--bw-surface)] border-dashed border-edge-surface-floating rounded-surface shadow-surface-rest",
-    "icon": "text-[length:var(--icon-xl)] text-ink-muted/62 leading-ctl",
+    "icon": "text-[length:var(--icon-xl)] text-ink-muted/(--level-ink-muted) leading-ctl",
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
-    "message": "font-body text-md text-ink-muted/62 leading-prose max-w-[42ch]",
+    "message": "font-body text-md text-ink-muted/(--level-ink-muted) leading-prose max-w-[42ch]",
     "action": "mt-1.5"
   }
 }

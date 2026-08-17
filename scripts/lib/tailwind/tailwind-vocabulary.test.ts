@@ -8,7 +8,7 @@ import { compileLayer, escapeClass } from './tailwind-compile.ts';
 const VOCABULARY = {
   colour: ['bg-base-100', 'bg-base-200', 'bg-base-300', 'border-base-300', 'border-neutral',
     'text-base-content', 'text-base-content/82', 'text-base-content/62', 'text-base-content/40',
-    'bg-base-content/52', 'bg-base-100/30', 'text-neutral', 'bg-primary', 'text-primary',
+    'bg-base-content/(--level-presence)', 'bg-base-100/30', 'text-neutral', 'bg-primary', 'text-primary',
     'border-primary', 'bg-primary/14',
     'text-primary-content', 'text-secondary', 'text-error', 'border-error', 'bg-error/14',
     'bg-error-fill', 'text-error-content', 'text-success', 'border-success', 'bg-success/16',

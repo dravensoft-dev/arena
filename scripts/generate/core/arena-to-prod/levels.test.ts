@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  exemptionFor, gateFor, levelReports, levelsIn, surfaceKeys, washesIn, washReports,
+  derivedLevels, exemptionFor, gateFor, levelReports, levelsIn, raisedReports, surfaceKeys,
+  washesIn, washReports,
 } from './levels.ts';
 
 const SHEET = [
@@ -9,7 +10,7 @@ const SHEET = [
   '  .arena-table__caption {',
   '    color: var(--ink-muted);',
   '    @supports (color: color-mix(in lab, red, red)) {',
-  '      color: color-mix(in oklab, var(--ink-muted) 62%, transparent);',
+  '      color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);',
   '    }',
   '  }',
   '  .arena-pagination__nav {',
@@ -31,10 +32,12 @@ const ROLES = new Map([
   ['fill-surface', 'var(--color-base-100)'],
 ]);
 
+const DEFAULTS = { 'level-ink-muted': 62 };
+
 const DUOLINGO = { 'base-100': '#ffffff', 'base-content': '#4b4b4b', success: '#58cc02' };
 
 test('a level is read off the sheet a package ships, with the slot that paints it', () => {
-  const levels = levelsIn(SHEET);
+  const levels = levelsIn(SHEET, DEFAULTS);
   assert.deepEqual(levels.map((l) => `${l.property}/${l.variable}/${l.percent}`), [
     'color/ink-muted/62',
     'color/ink-muted/40',
@@ -45,12 +48,12 @@ test('a level is read off the sheet a package ships, with the slot that paints i
 });
 
 test('the disabled register is exempt, and says why rather than being absent', () => {
-  const [, disabled] = levelsIn(SHEET);
+  const [, disabled] = levelsIn(SHEET, DEFAULTS);
   assert.match(exemptionFor(disabled as never) ?? '', /inactive/);
 });
 
 test('text is held to AA, a mark to 3:1, and a tint of a status colour to nothing', () => {
-  const [text, , mark, tint] = levelsIn(SHEET);
+  const [text, , mark, tint] = levelsIn(SHEET, DEFAULTS);
   assert.equal(gateFor(text as never), 4.5);
   assert.equal(gateFor(mark as never), 3);
   assert.equal(gateFor(tint as never), null,
@@ -64,7 +67,7 @@ test('the surfaces are the page plus whatever the plugin answers with', () => {
 });
 
 test('a level composited over a real palette is measured rather than assumed', () => {
-  const reports = levelReports(levelsIn(SHEET), ROLES, DUOLINGO);
+  const reports = levelReports(levelsIn(SHEET, DEFAULTS), ROLES, DUOLINGO);
   assert.equal(reports.length, 2, 'the caption at 62% and the presence dot at 52% both fail here');
   assert.ok(reports.some((r) => r.message.includes('--ink-muted at 62%') && r.message.includes('3.23:1')));
   assert.ok(reports.some((r) => r.message.includes('--color-base-content at 52%') && r.message.includes('2.58:1')));
@@ -93,4 +96,32 @@ test('the wash is measured against the ink that rides on it', () => {
   const [only] = washReports(washesIn(HOVER), roles, colors);
   assert.match(only?.message ?? '', /14% wash of itself/);
   assert.match(only?.message ?? '', /ceiling/);
+});
+
+test('a level is raised until it clears its bar, and never lowered', () => {
+  const derived = derivedLevels(levelsIn(SHEET, DEFAULTS), ROLES, DUOLINGO);
+  assert.equal(derived.get('level-ink-muted')?.percent, 76,
+    "duolingo's #4b4b4b on white needs 76% to clear AA, where Dravensoft needs 62");
+
+  const roomy = { ...DUOLINGO, 'base-content': '#1a1a1a' };
+  assert.equal(derivedLevels(levelsIn(SHEET, DEFAULTS), ROLES, roomy).get('level-ink-muted')?.percent, 62,
+    'an ink with room resolves to the floor, so Arena and every skin like it do not move');
+});
+
+test('a level that closes on the one above it says so, because legibility cost the hierarchy', () => {
+  const derived = new Map([
+    ['level-ink-muted', { floor: 62, percent: 76, gate: 4.5 }],
+    ['level-ink-quiet', { floor: 70, percent: 76, gate: 4.5 }],
+  ]);
+  const said = raisedReports(derived).map((r) => r.message).join('\n');
+  assert.match(said, /raised from 62% to 76%/);
+  assert.match(said, /0 points apart/);
+});
+
+test('an ink that cannot clear its bar at full strength is named as the ink and not the level', () => {
+  const flat = { 'base-100': '#ffffff', 'base-content': '#e8e8e8' };
+  const derived = derivedLevels(levelsIn(SHEET, DEFAULTS), ROLES, flat);
+  assert.equal(derived.get('level-ink-muted')?.percent, null);
+  const [only] = levelReports(levelsIn(SHEET, DEFAULTS), ROLES, flat, derived);
+  assert.match(only?.message ?? '', /The ink is what has no room, not the level/);
 });

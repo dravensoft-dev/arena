@@ -2,13 +2,13 @@
   "component": "ArenaSelect",
   "slots": {
     "root": "flex flex-col gap-1.5",
-    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/62",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "wrap": "relative",
     "field": "appearance-none w-full h-ctl-h pl-3 pr-9 bg-field text-ink-body border-[length:var(--bw-field)] rounded-field font-body text-ctl cursor-pointer transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus:outline-none",
-    "caret": "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-muted/62 text-[length:var(--icon-sm)]",
-    "hint": "font-body text-ctl-sm text-ink-muted/62",
+    "caret": "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)]",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-error",
-    "iconWrap": "absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex text-ink-muted/62 text-[length:var(--icon-md)]"
+    "iconWrap": "absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)]"
   },
   "variants": {
     "state": {

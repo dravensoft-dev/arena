@@ -6,8 +6,8 @@
     "icon": "inline-flex text-[length:var(--icon-lg)]",
     "badge": "ms-auto inline-flex items-center justify-center min-w-5 px-1.5 rounded-pill font-mono text-ctl-2xs font-bold tracking-badge",
     "section": "flex flex-col gap-1",
-    "sectionLabel": "ps-3 py-1.5 font-face-label text-ctl-xs tracking-badge case-label text-ink-muted/62",
-    "trigger": "flex items-center gap-items px-control-x py-2.5 rounded-control border-none cursor-pointer text-left font-body text-ctl bg-transparent text-ink-muted/62 font-medium shadow-control-rest hover:bg-hover",
+    "sectionLabel": "ps-3 py-1.5 font-face-label text-ctl-xs tracking-badge case-label text-ink-muted/(--level-ink-muted)",
+    "trigger": "flex items-center gap-items px-control-x py-2.5 rounded-control border-none cursor-pointer text-left font-body text-ctl bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover",
     "triggerLabel": "flex-1",
     "caret": "inline-flex text-[length:var(--icon-md)]",
     "region": "flex flex-col gap-1"
@@ -19,8 +19,8 @@
         "badge": "bg-primary text-primary-content"
       },
       "false": {
-        "item": "bg-transparent text-ink-muted/62 font-medium hover:bg-hover",
-        "badge": "bg-base-300 text-ink-body/82"
+        "item": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:bg-hover",
+        "badge": "bg-base-300 text-ink-body/(--level-ink-body)"
       }
     }
   },

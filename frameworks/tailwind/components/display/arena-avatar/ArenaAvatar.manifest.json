@@ -2,7 +2,7 @@
   "component": "ArenaAvatar",
   "slots": {
     "root": "relative inline-flex shrink-0",
-    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw-marker)] border-edge-marker font-display font-extrabold tracking-normal text-ink-body/82",
+    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw-marker)] border-edge-marker font-display font-extrabold tracking-normal text-ink-body/(--level-ink-body)",
     "image": "w-full h-full object-cover",
     "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200"
   },
@@ -22,7 +22,7 @@
       "online": { "status": "bg-success" },
       "busy": { "status": "bg-error" },
       "away": { "status": "bg-warning" },
-      "offline": { "status": "bg-base-content/52" }
+      "offline": { "status": "bg-base-content/(--level-presence)" }
     }
   },
   "defaultVariants": { "size": "md", "shape": "circle", "status": "none" }

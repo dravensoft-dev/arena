@@ -13,7 +13,7 @@
         "root": "bg-base-200 text-ink-body border-edge-control hover:bg-hover"
       },
       "ghost": {
-        "root": "bg-transparent text-ink-body/82 border-transparent hover:bg-base-200"
+        "root": "bg-transparent text-ink-body/(--level-ink-body) border-transparent hover:bg-base-200"
       },
       "danger": {
         "root": "bg-transparent border-error text-error hover:bg-error/14"

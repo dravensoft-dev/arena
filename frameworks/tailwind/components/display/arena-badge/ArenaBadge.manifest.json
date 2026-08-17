@@ -6,7 +6,7 @@
   },
   "variants": {
     "tone": {
-      "neutral": { "root": "bg-base-300 text-ink-body/82" },
+      "neutral": { "root": "bg-base-300 text-ink-body/(--level-ink-body)" },
       "accent": { "root": "bg-primary/14 text-primary" },
       "gold": { "root": "bg-secondary/16 text-secondary" },
       "success": { "root": "bg-success/16 text-success" },

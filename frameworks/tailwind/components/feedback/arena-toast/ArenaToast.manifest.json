@@ -4,10 +4,10 @@
     "root": "flex gap-items items-start w-85 px-4 py-3.5 z-toast bg-surface-floating border-t-[length:var(--bw-surface)] border-r-[length:var(--bw-surface)] border-b-[length:var(--bw-surface)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-surface-floating shadow-surface-floating",
     "body": "flex-1",
     "title": "flex items-center gap-control font-body font-semibold text-ctl text-ink-heading",
-    "pinned": "font-face-label text-ctl-2xs tracking-column-header case-label text-ink-muted/62 border-[length:var(--bw-marker)] border-edge-surface rounded-marker px-1",
-    "message": "font-body text-sm text-ink-muted/62 mt-0.5",
+    "pinned": "font-face-label text-ctl-2xs tracking-column-header case-label text-ink-muted/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-surface rounded-marker px-1",
+    "message": "font-body text-sm text-ink-muted/(--level-ink-muted) mt-0.5",
     "action": "mt-2.5 bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
-    "close": "inline-flex items-center bg-transparent border-none cursor-pointer text-ink-muted/62 text-[length:var(--icon-md)] leading-ctl"
+    "close": "inline-flex items-center bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl"
   },
   "variants": {
     "tone": {

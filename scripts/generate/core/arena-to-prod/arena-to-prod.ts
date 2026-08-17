@@ -27,7 +27,7 @@ import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
-import { levelsIn, washesIn } from './levels.ts';
+import { levelDefaults, levelsIn, washesIn } from './levels.ts';
 import type { Report, StrictKind } from './reports.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -188,6 +188,10 @@ export function roleReferencesIn(catalogue: TokenCatalogue | null): string[] {
     .filter((d) => REFERENCE_DECLARATION.test(d.replace(/;$/, '')));
 }
 
+const read = (at: string) => {
+  try { return readFileSync(at, 'utf8'); } catch { return ''; }
+};
+
 export function packageSheets(root: string): PackageSheets {
   try {
     const layers = [...readFileSync(join(root, 'arena.css'), 'utf8').matchAll(SHEET_IMPORT)]
@@ -200,7 +204,8 @@ export function packageSheets(root: string): PackageSheets {
     const catalogue = packageCatalogue(root);
     const sheets = components.map((name) =>
       readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'));
-    const levels = sheets.flatMap(levelsIn);
+    const defaults = levelDefaults(read(join(root, 'css', 'colors.css')));
+    const levels = sheets.flatMap((css) => levelsIn(css, defaults));
     const washes = sheets.flatMap(washesIn);
     return {
       layers,

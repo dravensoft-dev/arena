@@ -17,6 +17,7 @@ export type Level = {
   property: string;
   variable: string;
   percent: number;
+  level: string | null;
 };
 
 export const SURFACE_ROLES = ['fill-surface', 'fill-surface-floating', 'fill-page'];
@@ -34,12 +35,19 @@ export const EXEMPT = new Map([
 ]);
 
 const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
-const MIX = /^\s*([\w-]+)\s*:\s*color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*([\d.]+)%,\s*transparent\)/;
+const MIX = /^\s*([\w-]+)\s*:\s*color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
+const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
 
 const INK = /^\s*color\s*:\s*var\(--([\w-]+)\)\s*;/;
 
-export function levelsIn(css: string): Level[] {
+export function levelDefaults(css: string) {
+  const out: Record<string, number> = {};
+  for (const [, name, percent] of css.matchAll(DEFAULT)) out[name as string] = Number(percent);
+  return out;
+}
+
+export function levelsIn(css: string, defaults: Record<string, number> = {}): Level[] {
   const out: Level[] = [];
   let selector = '';
   let state = '';
@@ -49,12 +57,16 @@ export function levelsIn(css: string): Level[] {
     else if (named) state = `${selector}${named.replace(/&/g, '')}`;
     const mix = MIX.exec(line);
     if (!mix) continue;
+    const level = mix[4] ?? null;
+    const percent = level === null ? Number(mix[3]) : defaults[level];
+    if (percent === undefined) continue;
     out.push({
       selector,
       state,
       property: mix[1] as string,
       variable: mix[2] as string,
-      percent: Number(mix[3]),
+      percent,
+      level,
     });
   }
   return out;
@@ -137,8 +149,39 @@ export function drawnBy(levels: Level[]) {
   return [...grouped.values()];
 }
 
+export function clears(ink: string, surfaces: string[], percent: number, gate: number) {
+  return surfaces.every((on) => contrast(composite(ink, on, percent), on) >= gate);
+}
+
+export function raisedLevel(ink: string, surfaces: string[], floor: number, gate: number) {
+  for (let percent = Math.ceil(floor); percent <= 100; percent += 1) {
+    if (clears(ink, surfaces, percent, gate)) return percent;
+  }
+  return null;
+}
+
+export function derivedLevels(
+  levels: Level[], roles: Map<string, string>, colors: Record<string, string>,
+) {
+  const surfaces = surfaceKeys(roles)
+    .map((key) => colors[key])
+    .filter((hex): hex is string => Boolean(hex));
+  const out = new Map<string, { floor: number; percent: number | null; gate: number }>();
+  for (const { level, ...rest } of levels) {
+    if (level === null || out.has(level) || exemptionFor({ ...rest, level })) continue;
+    const gate = gateFor({ ...rest, level });
+    if (gate === null) continue;
+    const key = paletteKey(roles.get(rest.variable)) ?? paletteKey(`var(--${rest.variable})`);
+    const ink = key ? colors[key] : undefined;
+    if (!ink) continue;
+    out.set(level, { floor: rest.percent, percent: raisedLevel(ink, surfaces, rest.percent, gate), gate });
+  }
+  return out;
+}
+
 export function levelReports(
   levels: Level[], roles: Map<string, string>, colors: Record<string, string>,
+  derived = new Map<string, { floor: number; percent: number | null; gate: number }>(),
 ) {
   const surfaces = surfaceKeys(roles).filter((key) => colors[key]);
   const out: Report[] = [];
@@ -148,14 +191,48 @@ export function levelReports(
     const key = paletteKey(roles.get(level.variable)) ?? paletteKey(`var(--${level.variable})`);
     const ink = key ? colors[key] : undefined;
     if (!ink) continue;
+    const raised = level.level === null ? undefined : derived.get(level.level);
+    if (raised && raised.percent === null) {
+      out.push(report('contrast', `--${level.variable} cannot clear ${gate}:1 at any level, because `
+        + `--color-${key} at full strength does not; ${slots.length} slot(s) draw it, such as `
+        + `${slots[0]}. The ink is what has no room, not the level`));
+      continue;
+    }
+    const percent = raised?.percent ?? level.percent;
     for (const surface of surfaces) {
       const on = colors[surface] as string;
-      const ratio = contrast(composite(ink, on, level.percent), on);
+      const ratio = contrast(composite(ink, on, percent), on);
       if (ratio >= gate) continue;
-      out.push(report('contrast', `--${level.variable} at ${level.percent}% is ${ratio.toFixed(2)}:1 `
+      out.push(report('contrast', `--${level.variable} at ${percent}% is ${ratio.toFixed(2)}:1 `
         + `on --color-${surface}, under the ${gate}:1 that ${level.property} carries; `
         + `${slots.length} slot(s) draw it, such as ${slots[0]}`));
     }
+  }
+  return out;
+}
+
+export const SEPARATION = 8;
+
+export function raisedReports(
+  derived: Map<string, { floor: number; percent: number | null; gate: number }>,
+) {
+  const out: Report[] = [];
+  const steps = [...derived]
+    .filter(([, one]) => one.percent !== null)
+    .sort((a, b) => (a[1].percent as number) - (b[1].percent as number));
+  for (const [level, one] of derived) {
+    if (one.percent === null || one.percent === one.floor) continue;
+    out.push(report('contrast', `--${level} is raised from ${one.floor}% to ${one.percent}% for this `
+      + `palette, because your ink does not clear ${one.gate}:1 at ${one.floor}%. Arena raises a `
+      + 'level and never lowers one, so the register is held back less than it is on other skins'));
+  }
+  for (const [i, [level, one]] of steps.entries()) {
+    const above = steps[i + 1];
+    if (!above || (above[1].percent as number) - (one.percent as number) >= SEPARATION) continue;
+    out.push(report('contrast', `--${level} at ${one.percent}% and --${above[0]} at ${above[1].percent}% `
+      + `are ${(above[1].percent as number) - (one.percent as number)} points apart, under the `
+      + `${SEPARATION} two registers need to read as different. Legibility is held; the hierarchy `
+      + 'between them is not, and only a base-content with more room restores it'));
   }
   return out;
 }

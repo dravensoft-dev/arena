@@ -4,7 +4,7 @@
     "root": "block w-full bg-surface border-t-[length:var(--bw-surface)] border-edge-surface",
     "band": "flex flex-col w-full mx-auto px-gutter py-section gap-component",
     "columns": "grid gap-component",
-    "note": "font-body text-sm text-ink-muted/62 leading-prose m-0"
+    "note": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose m-0"
   },
   "variants": {},
   "defaultVariants": {}

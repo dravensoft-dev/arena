@@ -12,7 +12,8 @@ import { resolvedFor } from './check-style-plugin.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
 import {
-  drawnBy, levelReports, levelsIn, washesIn, washReports,
+  derivedLevels, drawnBy, levelDefaults, levelReports, levelsIn, raisedReports,
+  washesIn, washReports,
 } from '../../generate/core/arena-to-prod/levels.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
@@ -148,13 +149,17 @@ function main() {
     console.log(`\n[FAIL] --${token} is declared in contracts/design/colors.css. It is not a token Arena has; use ${use}.`);
   }
   const sheets = componentSheets();
-  const levels = sheets.flatMap(levelsIn);
+  const defaults = levelDefaults(readFileSync(join(root, COLORS), 'utf8'));
+  const levels = sheets.flatMap((css) => levelsIn(css, defaults));
   const washes = sheets.flatMap(washesIn);
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
 
-    const painted = levelReports(levels, resolvedFor(effects, '', t.name), paletteColours(body));
+    const roles = resolvedFor(effects, '', t.name);
+    const colours = paletteColours(body);
+    const derived = derivedLevels(levels, roles, colours);
+    const painted = [...levelReports(levels, roles, colours, derived), ...raisedReports(derived)];
     console.log(`\n${t.name} — the ${drawnBy(levels).length} levels the component sheets compile, `
       + 'each composited over the surfaces the root plugin names');
     for (const one of painted) console.log(`  [FAIL] ${one.message}`);

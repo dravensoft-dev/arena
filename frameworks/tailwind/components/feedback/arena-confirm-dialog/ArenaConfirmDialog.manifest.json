@@ -6,9 +6,9 @@
     "head": "px-6 pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
-    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/82",
+    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/(--level-ink-body)",
     "requireBlock": "mt-3.5",
-    "requireLabel": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/62 mb-1.5",
+    "requireLabel": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted) mb-1.5",
     "input": "w-full h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field text-ink-body font-mono text-ctl outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-error",
     "foot": "flex flex-wrap justify-end gap-2.5 px-6 pb-5.5",
     "confirm": "inline-flex items-center justify-center h-ctl-h px-4.5 rounded-control border-[length:var(--bw-control)] border-transparent font-body font-control text-ctl cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed gap-control transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover hover:shadow-control-raised shadow-control-rest"

@@ -7,7 +7,7 @@
   "variants": {
     "variant": {
       "ghost": {
-        "root": "bg-transparent text-ink-body/82 border-[length:var(--bw-control)] border-edge-control-quiet hover:bg-base-200"
+        "root": "bg-transparent text-ink-body/(--level-ink-body) border-[length:var(--bw-control)] border-edge-control-quiet hover:bg-base-200"
       },
       "solid": {
         "root": "bg-primary text-primary-content border-none hover:bg-primary"

@@ -481,6 +481,7 @@ function installed(barrel: string, components: string[]) {
   const root = mkdtempSync(join(tmpdir(), 'arena-installed-'));
   mkdirSync(join(root, 'css', 'components'), { recursive: true });
   writeFileSync(join(root, 'arena.css'), barrel);
+  writeFileSync(join(root, 'css', 'colors.css'), ':root{--level-ink-muted:62%;}');
   for (const name of components) writeFileSync(join(root, 'css', 'components', `${name}.css`), '');
   return root;
 }
@@ -508,6 +509,7 @@ test('the levels a component sheet paints are read from that sheet and not from 
     property: 'color',
     variable: 'ink-muted',
     percent: 62,
+    level: null,
   }]);
   rmSync(root, { recursive: true });
 });

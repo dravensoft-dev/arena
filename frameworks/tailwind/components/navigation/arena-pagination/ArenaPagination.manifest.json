@@ -2,11 +2,11 @@
   "component": "ArenaPagination",
   "slots": {
     "root": "inline-flex items-center gap-1.5",
-    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 bg-transparent border-[length:var(--bw-control)] border-edge-separator rounded-control text-[length:var(--icon-md)] cursor-pointer text-ink-body/82 disabled:text-ink-muted/40 disabled:cursor-not-allowed shadow-control-rest",
+    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 bg-transparent border-[length:var(--bw-control)] border-edge-separator rounded-control text-[length:var(--icon-md)] cursor-pointer text-ink-body/(--level-ink-body) disabled:text-ink-muted/40 disabled:cursor-not-allowed shadow-control-rest",
     "page": "inline-flex items-center justify-center h-8.5 min-w-8.5 px-2 rounded-control border-[length:var(--bw-control)] cursor-pointer font-mono text-ctl-md font-bold shadow-control-rest",
     "pageCurrent": "bg-primary border-primary text-primary-content",
-    "pageOther": "bg-transparent border-edge-control-quiet text-ink-body/82",
-    "ellipsis": "px-1 font-mono text-ctl-md text-ink-muted/62"
+    "pageOther": "bg-transparent border-edge-control-quiet text-ink-body/(--level-ink-body)",
+    "ellipsis": "px-1 font-mono text-ctl-md text-ink-muted/(--level-ink-muted)"
   },
   "partOf": {
     "pageCurrent": "page",

@@ -19,7 +19,7 @@ import {
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { errorFill } from './oklab.ts';
-import { levelReports, washReports } from './levels.ts';
+import { derivedLevels, levelReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
@@ -485,7 +485,9 @@ export function paletteReports(
       }
     }
 
-    messages.push(...levelReports(levels, roles, colors));
+    const derived = derivedLevels(levels, roles, colors);
+    messages.push(...levelReports(levels, roles, colors, derived));
+    messages.push(...raisedReports(derived));
     messages.push(...washReports(washes, roles, colors));
 
     if (messages.length) out.push({ palette: palette.name, messages });
@@ -665,17 +667,26 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     if (!isStylesheet(fontFor(role).src)) parts.push(fontFace(fontFor(role)));
   }
 
-  const fallback = defaultPalette(config.palettes);
-  parts.push(block(':root', [
-    ...colourDeclarations(fallback),
-    `--picker-invert:${fallback.polarity === 'light' ? 0 : 1};`,
-    ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
-  ]));
-
   const catalogue = sheets?.catalogue ?? null;
   const declared = (plugins ?? []).flatMap((plugin, i) =>
     (plugin ? [{ plugin, at: i === 0 ? ':root' : `.arena-${plugin.name}` }] : []));
   const root = declared.find(({ at }) => at === ':root')?.plugin;
+
+  const levelDeclarations = (palette: CheckedPalette) => {
+    const roles = root
+      ? resolvedPlugin(root, catalogue, palette.polarity)
+      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+    return [...derivedLevels(sheets?.levels ?? [], roles, derivedColours(palette.colors))]
+      .flatMap(([name, one]) => (one.percent === null ? [] : [`--${name}:${one.percent}%;`]));
+  };
+
+  const fallback = defaultPalette(config.palettes);
+  parts.push(block(':root', [
+    ...colourDeclarations(fallback),
+    ...levelDeclarations(fallback),
+    `--picker-invert:${fallback.polarity === 'light' ? 0 : 1};`,
+    ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
+  ]));
 
   for (const { plugin, at } of declared) {
     const answers = pluginBlocks(plugin, catalogue, fallback.polarity);
@@ -690,6 +701,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     const cross = scopeOn(`.arena-${palette.name}`);
     parts.push(block(`.arena-${palette.name}`, [
       ...colourDeclarations(palette),
+      ...levelDeclarations(palette),
       `--picker-invert:${palette.polarity === 'light' ? 0 : 1};`,
       ...(sheets?.roleReferences ?? []),
       ...(root ? restated(root, palette.polarity) : []),

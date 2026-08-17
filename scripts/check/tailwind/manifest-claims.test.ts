@@ -134,7 +134,7 @@ export const CLAIMS = {
     { chosen: { status: 'online' }, slot: 'status', has: ['bg-success'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
     { chosen: { status: 'busy' }, slot: 'status', has: ['bg-error'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
     { chosen: { status: 'away' }, slot: 'status', has: ['bg-warning'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
-    { chosen: { status: 'offline' }, slot: 'status', has: ['bg-base-content/52'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
+    { chosen: { status: 'offline' }, slot: 'status', has: ['bg-base-content/(--level-presence)'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
   ArenaCard: [
@@ -208,7 +208,7 @@ export const CLAIMS = {
   ArenaBreadcrumbs: [
     { slot: 'root', has: ['flex'], why: 'a host-bound breadcrumbs trail has no other way to lay out' },
     { slot: 'current', has: ['font-bold', 'text-ink-body'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
-    { slot: 'crumb', has: ['text-ink-muted/62', 'no-underline', 'cursor-pointer', 'hover:text-ink-body/82'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
+    { slot: 'crumb', has: ['text-ink-muted/(--level-ink-muted)', 'no-underline', 'cursor-pointer', 'hover:text-ink-body/(--level-ink-body)'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
     { slot: 'separator', has: ['text-neutral'], why: 'the separator is muted, distinct from both crumb slots' },
     { slot: 'crumb', has: ['font-face-label', 'text-ctl-sm', 'tracking-mono-nav'], why: 'the label register, which default answers as the mono face, at the narrow nav tracking' },
     { slot: 'current', has: ['font-face-label', 'text-ctl-sm', 'tracking-mono-nav'], why: 'the same register at the last segment, which is the one drawn bold' },
@@ -267,7 +267,7 @@ export const CLAIMS = {
     { slot: 'ringIndeterminate', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
   ],
   ArenaSpinner: [
-    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/62', 'on-accent': 'text-primary-content' })
+    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/(--level-ink-muted)', 'on-accent': 'text-primary-content' })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'root', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
     ...Object.entries({ sm: 'size-icon-sm', md: 'size-5', lg: 'size-8' })
       .map(([s, cls]) => ({ chosen: { size: s }, slot: 'circle', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
@@ -360,7 +360,7 @@ export const CLAIMS = {
   ],
   ArenaSegmentedControl: [
     { chosen: { selected: true }, slot: 'segment', has: ['bg-neutral', 'font-control', 'shadow-1'], why: 'the selected segment reads as a raised neutral chip rather than a brand fill' },
-    { chosen: { selected: false }, slot: 'segment', has: ['bg-transparent', 'text-ink-muted/62', 'hover:text-ink-body/82'], why: 'an unselected segment is muted and answers hover' },
+    { chosen: { selected: false }, slot: 'segment', has: ['bg-transparent', 'text-ink-muted/(--level-ink-muted)', 'hover:text-ink-body/(--level-ink-body)'], why: 'an unselected segment is muted and answers hover' },
     { slot: 'track', has: ['inline-flex', 'rounded-control', 'focus-within:border-secondary'], why: 'the track carries the focus ring for the group, since the native inputs are hidden' },
     { slot: 'segment', has: ['rounded-control-sm'], why: 'the segment radius is one step inside the track radius' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
@@ -399,7 +399,7 @@ export const CLAIMS = {
   ArenaTabs: [
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
     { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
-    { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/62', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
+    { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
     { slot: 'tab', has: ['px-4', 'focus-visible:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'selection never moves the padding, and the focus ring is the recipe\'s job' },
     { chosen: { selected: true }, slot: 'panel', has: ['block'], hasNot: ['hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
     { chosen: { selected: false }, slot: 'panel', has: ['hidden'], hasNot: ['block'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
@@ -412,7 +412,7 @@ export const CLAIMS = {
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group' },
     { chosen: { readonly: true }, slot: 'field', has: ['bg-base-200', 'cursor-default'], why: 'readonly changes the surface, not the border' },
-    { slot: 'counter', has: ['font-mono', 'text-ink-muted/62'], why: 'the counter is a muted mono readout' },
+    { slot: 'counter', has: ['font-mono', 'text-ink-muted/(--level-ink-muted)'], why: 'the counter is a muted mono readout' },
     { slot: 'counterNear', has: ['text-warning'], why: 'the counter warns before it refuses, which is a status colour and not a danger one' },
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],

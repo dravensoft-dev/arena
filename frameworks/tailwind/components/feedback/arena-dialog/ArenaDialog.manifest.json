@@ -6,7 +6,7 @@
     "head": "px-6 pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
-    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/82",
+    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/(--level-ink-body)",
     "foot": "flex flex-wrap justify-end gap-2.5 px-6 pb-5.5"
   },
   "variants": {

@@ -4,8 +4,8 @@
     "root": "flex flex-col items-center text-center gap-items px-8 py-14 bg-error/14 border-[length:var(--bw-surface)] border-error rounded-surface shadow-surface-rest",
     "icon": "text-[length:var(--icon-xl)] text-error leading-ctl",
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
-    "message": "font-body text-md text-ink-body/82 leading-prose max-w-[46ch]",
-    "code": "font-mono text-ctl-sm text-ink-muted/62 bg-surface-sunken/30 px-2.5 py-1 rounded-marker",
+    "message": "font-body text-md text-ink-body/(--level-ink-body) leading-prose max-w-[46ch]",
+    "code": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted) bg-surface-sunken/30 px-2.5 py-1 rounded-marker",
     "actions": "flex gap-2.5 mt-1.5"
   }
 }

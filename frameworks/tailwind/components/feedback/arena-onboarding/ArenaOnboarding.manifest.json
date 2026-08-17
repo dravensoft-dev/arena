@@ -5,13 +5,13 @@
     "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep p-5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
-    "body": "font-body text-md leading-prose text-ink-body/82 mt-2",
+    "body": "font-body text-md leading-prose text-ink-body/(--level-ink-body) mt-2",
     "foot": "flex items-center gap-1.5 mt-4.5",
     "dots": "flex gap-1.5 flex-1",
     "dot": "h-2 rounded-pill transition-[width] duration-[var(--dur-state)] ease-state",
     "dotOn": "w-4.5 bg-primary",
     "dotOff": "w-2 bg-neutral",
-    "text": "font-face-label text-ctl-xs tracking-uppercase-status case-label font-bold bg-transparent border-none cursor-pointer text-ink-muted/62",
+    "text": "font-face-label text-ctl-xs tracking-uppercase-status case-label font-bold bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted)",
     "next": "h-8.5 px-4 bg-primary text-primary-content border-none rounded-control font-body font-control text-ctl-md cursor-pointer shadow-control-rest"
   },
   "partOf": {

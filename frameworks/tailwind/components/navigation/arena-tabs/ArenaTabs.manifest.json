@@ -8,7 +8,7 @@
   "variants": {
     "selected": {
       "true": { "tab": "font-control text-ink-body shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]" },
-      "false": { "tab": "font-medium text-ink-muted/62 shadow-none", "panel": "hidden" }
+      "false": { "tab": "font-medium text-ink-muted/(--level-ink-muted) shadow-none", "panel": "hidden" }
     }
   },
   "defaultVariants": { "selected": false }

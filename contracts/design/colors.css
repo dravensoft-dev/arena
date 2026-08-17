@@ -19,7 +19,25 @@
    Muted text levels are derived from base-content with
    color-mix (equivalent to daisyUI's opacity pattern).
    ============================================================ */
+/* ============================================================
+   The LEVELS, which are how held back a colour is rather than
+   which colour it is. A slot spells one as an opacity modifier
+   (text-ink-muted/(--level-ink-muted)), so the percentage is a
+   value a palette can move and not a literal frozen into 100
+   compiled sheets. These are the floors: what Dravensoft wears,
+   and the least any skin may hold back by. arena-to-prod RAISES
+   one per palette when the consumer's ink has too little room to
+   clear its bar, and never lowers it. The disabled level is not
+   here on purpose: it is exempt under WCAG 1.4.3/1.4.11 and
+   raising it to answer a contrast report is the one move the
+   scale forbids.
+   ============================================================ */
 :root,.arena-light{
+  --level-ink-body:82%;    /* body copy */
+  --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
+  --level-ink-muted:62%;   /* captions, meta, the held-back register */
+  --level-presence:52%;    /* ArenaAvatar's offline dot: a graphical object, 3:1 */
+
   /* raw neutrals */
   --ink:var(--color-base-100);
   --ink-2:var(--color-base-200);

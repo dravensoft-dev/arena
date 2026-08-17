@@ -3,10 +3,10 @@
   "slots": {
     "root": "fixed z-sheet flex flex-col bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating shadow-surface-deep overflow-hidden",
     "head": "flex items-center gap-items px-5 py-4 border-b-[length:var(--bw-separator)] border-edge-separator",
-    "trigger": "flex flex-1 items-center gap-control bg-transparent border-none p-0 cursor-pointer text-left font-display font-heading text-h3 text-ink-body tracking-heading transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body/82 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-    "caret": "shrink-0 text-[length:var(--icon-md)] leading-ctl text-ink-muted/62",
-    "close": "inline-flex items-center shrink-0 bg-transparent border-none cursor-pointer text-ink-muted/62 text-[length:var(--icon-md)] leading-ctl transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-    "body": "flex-1 overflow-y-auto px-5 py-4 font-body text-md leading-prose text-ink-body/82",
+    "trigger": "flex flex-1 items-center gap-control bg-transparent border-none p-0 cursor-pointer text-left font-display font-heading text-h3 text-ink-body tracking-heading transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body/(--level-ink-body) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+    "caret": "shrink-0 text-[length:var(--icon-md)] leading-ctl text-ink-muted/(--level-ink-muted)",
+    "close": "inline-flex items-center shrink-0 bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+    "body": "flex-1 overflow-y-auto px-5 py-4 font-body text-md leading-prose text-ink-body/(--level-ink-body)",
     "foot": "flex flex-wrap justify-end gap-2.5 px-5 py-4 border-t-[length:var(--bw-separator)] border-edge-separator"
   },
   "variants": {

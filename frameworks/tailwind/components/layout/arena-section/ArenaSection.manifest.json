@@ -6,7 +6,7 @@
     "titles": "min-w-0",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading m-0",
-    "description": "font-body text-sm text-ink-muted/62 leading-prose mt-0.5 mb-0",
+    "description": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose mt-0.5 mb-0",
     "action": "flex items-center flex-wrap gap-inline shrink-0",
     "body": "min-w-0"
   },

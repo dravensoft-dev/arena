@@ -12,7 +12,7 @@
     },
     "selected": {
       "true": { "segment": "bg-neutral text-ink-body font-control shadow-1" },
-      "false": { "segment": "bg-transparent text-ink-muted/62 font-medium hover:text-ink-body/82" }
+      "false": { "segment": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:text-ink-body/(--level-ink-body)" }
     }
   },
   "defaultVariants": { "size": "md", "selected": false }

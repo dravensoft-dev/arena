@@ -2,13 +2,13 @@
   "component": "ArenaTextarea",
   "slots": {
     "root": "flex flex-col gap-1.5",
-    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/62",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "required": "text-primary ml-1",
     "field": "w-full px-control-x py-2.5 bg-field border-[length:var(--bw-field)] rounded-field text-ink-body font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "foot": "flex justify-between gap-items",
-    "hint": "font-body text-ctl-sm text-ink-muted/62",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-error",
-    "counter": "font-mono text-ctl-xs text-ink-muted/62",
+    "counter": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "counterNear": "font-mono text-ctl-xs text-warning"
   },
   "partOf": {
