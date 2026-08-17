@@ -5,7 +5,7 @@
     "panel": "w-140 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
     "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-edge-field",
     "searchIcon": "text-ink-muted/(--level-ink-muted) text-[length:var(--icon-lg)]",
-    "input": "flex-1 bg-transparent border-none outline-none text-ink-body font-body text-ctl",
+    "input": "flex-1 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl",
     "esc": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-control-quiet rounded-marker px-1.5 py-0.5",
     "list": "max-h-80 overflow-auto p-1.5",
     "empty": "px-3 py-4.5 font-body text-md text-ink-muted/(--level-ink-muted)",

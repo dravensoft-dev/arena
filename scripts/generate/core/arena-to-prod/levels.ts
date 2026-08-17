@@ -4,7 +4,9 @@
  * against a consumer's palette. These are read out of the component sheets a package
  * ships rather than listed here, because a list is one more thing to keep true, and every
  * one of them mixes against `transparent`, so the value it paints does not exist until a
- * browser composites it over whatever surface is behind. That is what levelReports does. */
+ * browser composites it over whatever surface is behind. That is what levelReports does.
+ * A placeholder is not in EXEMPT: 1.4.3 exempts an INACTIVE component and a field waiting for
+ * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any. */
 
 import { contrast } from './validate-palette.mjs';
 import { composite } from './oklab.ts';
@@ -31,7 +33,6 @@ export const MARK_MIN = 3;
 export const EXEMPT = new Map([
   ['disabled', 'WCAG 1.4.3 and 1.4.11 exempt an inactive component, and a disabled control '
     + 'has to read as inactive rather than as one more thing to press'],
-  ['placeholder', 'a placeholder is a hint the field replaces, not the field\'s own text'],
 ]);
 
 export const DECORATIVE = new Map([

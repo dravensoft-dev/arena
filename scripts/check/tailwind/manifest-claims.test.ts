@@ -424,3 +424,17 @@ export const CLAIMS = {
     })),
   ],
 };
+
+test('every slot that takes a placeholder colours it, rather than inheriting preflight', () => {
+  const wanted = 'placeholder:text-ink-muted/(--level-ink-muted)';
+  for (const [component, slot] of [
+    ['ArenaInput', 'input'],
+    ['ArenaTextarea', 'field'],
+    ['ArenaCommandPalette', 'input'],
+  ] as const) {
+    assert.ok(resolve(component, {}, slot).includes(wanted),
+      `${component}.${slot} takes a placeholder and colours none, so Tailwind's preflight paints `
+      + 'it at 50% of currentcolor: a level nothing in Arena declared, nothing measures, and one '
+      + 'that fails AA on six of the ten palettes measured, this skin\'s own light theme included');
+  }
+});
