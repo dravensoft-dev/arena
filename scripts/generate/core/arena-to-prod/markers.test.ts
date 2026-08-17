@@ -1,7 +1,12 @@
-/* Covers markers.ts. The cases that matter are the four a looser reader gets wrong: a marker
+/* Covers markers.ts. The cases that matter are the ones a looser reader gets wrong: a marker
  * word inside an attribute VALUE, a marker name that is the prefix of a longer attribute, a
- * template in its own .html file rather than inline, and a marker written under a host that does
- * not query that slot at all. */
+ * template in its own .html file rather than inline, and a marker under a host that does not
+ * query that slot. The last four hold a file with more than one component, which is what a
+ * consumer writes as soon as two belong together. Two of them fail against a reader that stops
+ * at the first declaration, one in each direction: a later marker is missed, and a later
+ * templateUrl is judged against the first component's imports. The other two pass either way and
+ * are here to fail against the WRONG repair -- merging every import in the file would let one
+ * component's import cover its sibling's marker, and nothing else here would notice. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -87,4 +92,70 @@ test('a use is attributed to the nearest host that queries that slot', () => {
     MARKERS,
   );
   assert.deepEqual(uses, [{ attribute: 'action', host: 'arena-card' }]);
+});
+
+test('a marker in the SECOND component of a file is read, not just the first', () => {
+  const problems = markerProblems([{
+    path: 'app/blocks.ts',
+    source: `
+      @Component({ selector: 'app-todo', imports: [ArenaCard], template: \`<arena-card>plain</arena-card>\` })
+      export class Todo {}
+
+      @Component({ selector: 'app-blocks', imports: [ArenaDialog], template: \`<arena-dialog><div footer>x</div></arena-dialog>\` })
+      export class Blocks {}
+    `,
+  }], MARKERS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /projects into the `footer` slot of <arena-dialog> and does not import ArenaFooter/);
+});
+
+test('a templateUrl answers to its own component\'s imports, not to the first component\'s', () => {
+  const files = { [join('app', 'row.html')]: '<arena-card><button action>Retry</button></arena-card>' };
+  assert.deepEqual(
+    markerProblems(
+      [{
+        path: 'app/list.ts',
+        source: `
+          @Component({ selector: 'app-list', imports: [ArenaCard], template: \`<arena-card>plain</arena-card>\` })
+          export class List {}
+
+          @Component({ selector: 'app-row', imports: [ArenaCard, ArenaAction], templateUrl: './row.html' })
+          export class Row {}
+        `,
+      }],
+      MARKERS,
+      {},
+      read(files),
+    ),
+    [],
+    'Row imports ArenaAction; reading List\'s imports instead would report a slot that is filled',
+  );
+});
+
+test('each template answers to the imports of its OWN component, so a sibling\'s import does not cover it', () => {
+  const problems = markerProblems([{
+    path: 'app/pair.ts',
+    source: `
+      @Component({ selector: 'app-one', imports: [ArenaDialog], template: \`<arena-dialog><div footer>x</div></arena-dialog>\` })
+      export class One {}
+
+      @Component({ selector: 'app-two', imports: [ArenaDialog, ArenaFooter], template: \`<div>nothing projected</div>\` })
+      export class Two {}
+    `,
+  }], MARKERS);
+  assert.equal(problems.length, 1, 'One does not import ArenaFooter; Two importing it is Two\'s business');
+  assert.match(problems[0] ?? '', /`footer` slot of <arena-dialog>/);
+});
+
+test('a component that imports its marker is fine even when a sibling in the file does not', () => {
+  assert.deepEqual(markerProblems([{
+    path: 'app/pair.ts',
+    source: `
+      @Component({ selector: 'app-one', imports: [ArenaDialog, ArenaFooter], template: \`<arena-dialog><div footer>x</div></arena-dialog>\` })
+      export class One {}
+
+      @Component({ selector: 'app-two', imports: [ArenaCard], template: \`<arena-card>plain</arena-card>\` })
+      export class Two {}
+    `,
+  }], MARKERS), []);
 });

@@ -1,10 +1,13 @@
 /* A slot gated by a contentChild(ArenaX) reports whether anything was projected, and the query
  * resolves the DIRECTIVE: a template that writes the attribute without listing ArenaX in its own
- * imports leaves the query null, the guard never renders, the ng-content is never instantiated,
- * and the projected content vanishes. Nothing reports it, because it is valid HTML and a valid
- * compile, and the component cannot tell an un-imported marker from an unfilled slot. So the
- * check sits outside, here, over the consumer's own sources, reading which host queries which
- * marker out of the map the package carries rather than out of a table that would rot. */
+ * imports leaves the query null, the guard never renders, and the projected content vanishes.
+ * Nothing reports it, because it is valid HTML and a valid compile, and the component cannot tell
+ * an un-imported marker from an unfilled slot. So the check sits outside, here, over the
+ * consumer's own sources, reading which host queries which marker out of the map the package
+ * carries rather than out of a table that would rot. Its unit is one DECLARATION and never one
+ * file: the two readers below each answer about the first they meet, so componentsOf cuts at the
+ * decorator and pairs every template with the imports of its own component. Merging the file's
+ * imports instead would let one component's import cover its sibling's marker. */
 
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -45,6 +48,11 @@ export function markerUses(template: string, markers: MarkerMap) {
   return uses;
 }
 
+export function componentsOf(source: string): string[] {
+  const starts = [...source.matchAll(/@Component\s*\(/g)].map((match) => match.index ?? 0);
+  return starts.map((start, i) => source.slice(start, starts[i + 1]));
+}
+
 export function importsOf(source: string): string {
   const at = source.indexOf('imports: [');
   if (at === -1) return '';
@@ -82,17 +90,19 @@ export function markerProblems(
   if (Object.keys(markers).length === 0) return problems;
 
   for (const { path, source } of files) {
-    if (!source.includes('imports: [')) continue;
-    const imports = importsOf(source);
-    for (const template of templatesOf(path, source, read)) {
-      for (const { attribute, host } of markerUses(template, markers)) {
-        const directive = directiveFor(attribute, directives);
-        if (imports.includes(directive)) continue;
-        problems.push(
-          `${path} projects into the \`${attribute}\` slot of <${host}> and does not import `
-          + `${directive}. That slot is gated on a query for the directive, so without the import `
-          + 'it renders nothing at all, and neither the build nor the typecheck says so',
-        );
+    for (const declaration of componentsOf(source)) {
+      if (!declaration.includes('imports: [')) continue;
+      const imports = importsOf(declaration);
+      for (const template of templatesOf(path, declaration, read)) {
+        for (const { attribute, host } of markerUses(template, markers)) {
+          const directive = directiveFor(attribute, directives);
+          if (imports.includes(directive)) continue;
+          problems.push(
+            `${path} projects into the \`${attribute}\` slot of <${host}> and does not import `
+            + `${directive}. That slot is gated on a query for the directive, so without the import `
+            + 'it renders nothing at all, and neither the build nor the typecheck says so',
+          );
+        }
       }
     }
   }
