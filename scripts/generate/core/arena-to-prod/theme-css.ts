@@ -11,7 +11,7 @@
 
 import {
   PALETTE_KEYS, POLARITIES, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
-  catKeys, requiredKeys,
+  FILL_PAIRS, SURFACE_PAIRS, TEXT_MIN, catKeys, requiredKeys,
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
@@ -464,17 +464,16 @@ export function paletteReports(
     }
 
     const text = [
-      ['base-content on base-100', palette.colors['base-content'], palette.colors['base-100']],
-      ['base-content on base-200', palette.colors['base-content'], palette.colors['base-200']],
-      ['primary-content on primary', palette.colors['primary-content'], palette.colors.primary],
-      ['error on base-200', palette.colors.error, palette.colors['base-200']],
+      ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, palette.colors[ink], palette.colors[on]]),
+      ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`,
+        palette.colors[content], palette.colors[fill]]),
     ];
     for (const [what, fg, bg] of text) {
       if (!fg || !bg) continue;
       const ratio = contrast(fg, bg);
-      if (ratio < 4.5) {
+      if (ratio < TEXT_MIN) {
         messages.push(report('contrast',
-          `text, ${what}: ${ratio.toFixed(2)}:1, under the 4.5:1 Arena holds itself to`));
+          `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
       }
     }
 

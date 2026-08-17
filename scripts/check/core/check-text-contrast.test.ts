@@ -1,8 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  COLORS, PALETTE, REMOVED, resolvePercent, scopesToMeasure, structureOf, surfacesUnder,
+  COLORS, PAIRS, PALETTE, REMOVED, resolvePercent, scopesToMeasure, structureOf, surfacesUnder,
 } from './check-text-contrast.ts';
+import { FILL_PAIRS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+
+test('this gate and the shipped command hold the same fills legible', () => {
+  const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;
+  assert.deepEqual([...PAIRS.map(key)].sort(), [...FILL_PAIRS.map(key)].sort(),
+    'a pair this gate measures over Arena and the command does not measure over a consumer '
+    + 'is the half nobody reads');
+});
 
 const structure = structureOf([
   ':root, .arena-light {',

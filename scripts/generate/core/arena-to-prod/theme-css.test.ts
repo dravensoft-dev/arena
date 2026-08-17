@@ -188,6 +188,15 @@ test('a ramp of one repeated colour is reported as indistinguishable', () => {
   assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.startsWith('ramp,')));
 });
 
+test('every fill a consumer declares is measured against its content, not only primary', () => {
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light',
+    colors: colors({ success: '#58cc02', 'success-content': '#ffffff' }) }] });
+  const [report] = paletteReports(c);
+  assert.ok(report?.messages.some((m) => m.kind === 'contrast'
+    && m.message.startsWith('text, success-content on success')),
+  'a fill carrying illegible content reached the consumer as silence');
+});
+
 test('a ramp slot invisible against the surface it is drawn on is reported', () => {
   const pale = ['#ffe9a8', '#ffd6e0', '#d9f2d0', '#cfe6ff', '#f0dcff', '#d0f2ee', '#ffe4cc', '#e6e6c8'];
   const overrides: Record<string, string> = { 'base-100': '#ffffff', 'base-200': '#ffffff' };
