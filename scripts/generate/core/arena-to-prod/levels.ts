@@ -103,7 +103,7 @@ export function washReports(
       const painted = composite(ink, colors[surface] as string, wash.percent);
       const ratio = contrast(ink, painted);
       if (ratio >= TEXT_MIN) continue;
-      out.push(report('contrast', `--${wash.variable} is drawn on a ${wash.percent}% wash of itself `
+      out.push(report('wash', `--${wash.variable} is drawn on a ${wash.percent}% wash of itself `
         + `at ${wash.selector}, which reads ${ratio.toFixed(2)}:1 over --color-${surface}, under `
         + `${TEXT_MIN}:1. The resting ratio is the ceiling here, so no wash percentage lifts it`));
     }
