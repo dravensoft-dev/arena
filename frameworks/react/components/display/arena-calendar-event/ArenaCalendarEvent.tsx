@@ -2,6 +2,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated.ts';
 import React from 'react';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
+import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
 
@@ -60,6 +61,8 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
   actionsEnabled = false, actions,
   box, domId, color, timeLabel, dateLabel, showTime, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
+
+  const ink = color ?? arenaCatColor(colorId ?? 1);
 
   if (!id) throw new Error('ArenaCalendarEvent: `id` is required');
   if (!title) throw new Error('ArenaCalendarEvent: `title` is required');
@@ -146,8 +149,8 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
       id={domId}
       className={styles.chip()} data-arena-part={manifest.parts.chip}
       style={{ ...box,
-        background: `color-mix(in oklab, ${color} 16%, var(--surface-card))`,
-        borderLeftColor: color }}>
+        background: arenaCatTint(ink),
+        borderLeftColor: ink }}>
       {hasPanel ? (
         <>
           {interactive ? (
