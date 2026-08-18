@@ -29,7 +29,7 @@ export const node = {
   reads: [
     'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
-    'intro/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
+    'intro/**', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'plugin-style-store/**/plugin.css',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',

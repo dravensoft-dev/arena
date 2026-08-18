@@ -27,6 +27,7 @@ export const PHOSPHOR_KEEP = ['style.css', '.woff2', '.woff'];
 
 export const COPIED = [
   'intro',
+  'contracts/behaviour',
   'contracts/design',
   'contracts/design-generated',
   'assets',
