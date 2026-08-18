@@ -122,11 +122,16 @@ export function sheetPath(manifestFile: string) {
 
 export function keyframesIn(css: string) {
   const blocks = [];
-  for (const match of css.matchAll(/@keyframes\s+[A-Za-z0-9_-]+\s*\{/g)) {
+  let taken = 0;
+  for (const match of css.matchAll(/@(?:keyframes\s+[A-Za-z0-9_-]+\s*|media\b[^{]*)\{/g)) {
+    if (match.index < taken) continue;
     const open = match.index + match[0].length - 1;
     const close = matchingBrace(css, open);
-    if (close === -1) throw new Error('build-tailwind: an @keyframes block never closes');
-    blocks.push(css.slice(match.index, close + 1));
+    if (close === -1) throw new Error('build-tailwind: an at-rule holding a keyframe never closes');
+    const block = css.slice(match.index, close + 1);
+    if (!block.includes('@keyframes')) continue;
+    blocks.push(block);
+    taken = close + 1;
   }
   return blocks;
 }

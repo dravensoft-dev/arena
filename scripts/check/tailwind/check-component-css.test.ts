@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  EXTERNAL_PROPERTIES, MANIFEST_FETCH, THEME_NAMESPACES, collect, preludeProblems, propertiesIn,
-  selectorsIn, themeLeaks,
+  EXTERNAL_PROPERTIES, MANIFEST_FETCH, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
+  propertiesIn, selectorsIn, themeLeaks,
 } from './check-component-css.ts';
-import { sheetPath } from '../../build/tailwind/build-tailwind.ts';
+import { keyframesIn, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 
 test('the gate runs green over the tree as it stands', () => {
   const { manifests, problems } = collect();
@@ -50,6 +50,28 @@ test('the prelude is held to the three things whose absence is silent', () => {
   assert.equal(missing.length, 1);
   assert.match(missing[0] ?? '', /every border and every focus ring is invalid/);
   assert.deepEqual(preludeProblems(), []);
+});
+
+test('a keyframe redefined bare is reported, because that declaration wins for everybody', () => {
+  const guarded = '@keyframes pop { from { opacity: 0; transform: none; } }\n'
+    + '@media (prefers-reduced-motion: reduce) { @keyframes pop { from { opacity: 0; } } }';
+  assert.deepEqual(keyframeDepths(guarded).map((k) => k.depth), [0, 1]);
+
+  const bare = '@keyframes pop { from { opacity: 0; transform: none; } }\n'
+    + '@keyframes pop { from { opacity: 0; } }';
+  assert.deepEqual(keyframeDepths(bare).map((k) => k.depth), [0, 0]);
+});
+
+test('the extractor keeps the at-rule around a keyframe, since the condition is the whole of it', () => {
+  const source = '@keyframes pop { from { opacity: 0; transform: none; } }\n'
+    + '@media (prefers-reduced-motion: reduce) {\n'
+    + '  @keyframes pop { from { opacity: 0; } }\n'
+    + '}\n'
+    + '@utility pop { animation: pop 1s; @media (prefers-reduced-motion: reduce) { animation: none; } }';
+  const blocks = keyframesIn(source);
+  assert.equal(blocks.length, 2, 'the guarded redefinition is one block, not a second bare keyframe');
+  assert.match(blocks[1] ?? '', /^@media \(prefers-reduced-motion: reduce\) \{/);
+  assert.deepEqual(keyframeDepths(blocks.join('\n')).map((k) => k.depth), [0, 1]);
 });
 
 test('every external property carries a reason, because an entry with none cannot be judged stale', () => {

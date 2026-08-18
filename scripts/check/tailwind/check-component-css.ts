@@ -113,6 +113,19 @@ export function sheetProblems(manifests: Manifests, base = root) {
   return problems;
 }
 
+export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
+
+export function keyframeDepths(css: string) {
+  const found = [];
+  let depth = 0;
+  for (const match of css.matchAll(/@keyframes\s+([A-Za-z0-9_-]+)|\{|\}/g)) {
+    if (match[0] === '{') depth += 1;
+    else if (match[0] === '}') depth -= 1;
+    else found.push({ name: match[1] ?? '', depth });
+  }
+  return found;
+}
+
 export function preludeProblems(base = root) {
   const path = join(base, PRELUDE);
   if (!existsSync(path)) {
@@ -124,6 +137,24 @@ export function preludeProblems(base = root) {
   if (!/@property --tw-border-style/.test(css)) problems.push(`${PRELUDE}: no --tw-border-style registration, so every border disappears`);
   if (!/@property --tw-shadow\b/.test(css)) problems.push(`${PRELUDE}: no --tw-shadow registration, so every shadow and the focus ring disappear`);
   if (!/@keyframes/.test(css)) problems.push(`${PRELUDE}: no @keyframes, so every animation the component CSS names does not play`);
+  const authored = new Set(keyframeDepths(readFileSync(join(base, ANIMATIONS), 'utf8')).map((k) => k.name));
+  const emitted = new Set(keyframeDepths(css).map((k) => k.name));
+  for (const name of authored) {
+    if (!emitted.has(name)) {
+      problems.push(`${PRELUDE}: ${ANIMATIONS} declares @keyframes ${name} and the prelude carries `
+        + 'none, so every rule naming that animation resolves to nothing and simply does not play');
+    }
+  }
+  const declared = new Set();
+  for (const { name, depth } of keyframeDepths(css)) {
+    if (declared.has(name) && depth === 0) {
+      problems.push(`${PRELUDE}: @keyframes ${name} is declared a second time at the top level, so `
+        + 'that declaration wins for every reader and the first never plays. A redefinition '
+        + 'answering a condition keeps the at-rule stating it, or the condition is spent on '
+        + 'everybody: this is how a reduced-motion entrance becomes the only entrance');
+    }
+    declared.add(name);
+  }
   if (!/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) {
     problems.push(`${PRELUDE}: no layer order declaration ending in the reserved plugin layer, so `
       + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
