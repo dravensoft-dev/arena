@@ -5,9 +5,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from './repo-root.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, sinkNames, entryPoints, components,
-  playgroundsOnDisk, missingPlaygrounds, sinkPages, pages, indexedDirectories, titleOf, url,
+  playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
+  modules, missingModules, titleOf, url,
 } from './site-pages.ts';
 
 test('the site is built for one domain, named once, and every URL is spelled from it', () => {
@@ -38,6 +42,25 @@ test('a sink names itself in its own fixture, so one added tomorrow is published
 
 test('every component the packages ship draws a playground, in both layers', () => {
   assert.deepEqual(missingPlaygrounds(), []);
+});
+
+test('every module a page imports is one the tree holds, so the graph has no dead edge', () => {
+  assert.deepEqual(missingModules(), []);
+});
+
+test('the graph reaches past the entry beside the page, which is where it used to stop', () => {
+  const carried = new Set(modules());
+  assert.ok(carried.size > 0, 'an empty graph would publish nothing and report every page whole');
+  for (const rel of carried) {
+    assert.ok(existsSync(join(repoRoot, rel)), `${rel} is in the graph and not in the tree`);
+    assert.ok(rel.endsWith('.js'), `${rel} is not JavaScript, so nothing imported it as a module`);
+  }
+  for (const rel of ['frameworks/react/playground/Playground.generated.js',
+    'frameworks/react/ArenaStyles.generated.js',
+    'frameworks/react/components/forms/arena-select/ArenaSelect.generated.js']) {
+    assert.ok(carried.has(rel),
+      `${rel} is reached only through an import, and a walk that stops at the entry misses it`);
+  }
 });
 
 test('the two layers key that map differently, and both answer in kebab', () => {
@@ -82,4 +105,45 @@ test('only the sheet and the font binaries of a Phosphor weight travel, never th
   assert.ok(!phosphorKeeps('Phosphor-Bold.ttf'));
   assert.ok(!phosphorKeeps('selection.json'));
   assert.ok(!phosphorKeeps('style.css.map'));
+});
+
+test('the index of a layer names every playground it publishes, exactly once', () => {
+  for (const layer of LAYERS) {
+    const drawn = playgroundsOnDisk(layer);
+    const listed = playgroundSections(layer).flatMap(({ links }) => links);
+    const named = new Set(listed.map(({ href }) => href));
+    assert.equal(named.size, listed.length, 'a playground named twice is one a reader meets twice');
+    assert.equal(listed.length, drawn.size,
+      `${layer} publishes ${drawn.size} playground(s) and its index offers ${listed.length}`);
+    for (const rel of drawn.values()) {
+      const href = rel.slice(`frameworks/${layer}/components/`.length);
+      assert.ok(named.has(href), `${rel} is published and no index names it, so nothing links to it`);
+    }
+  }
+});
+
+test('a section is a category the tree already has, headed and never empty', () => {
+  for (const layer of LAYERS) {
+    const sections = playgroundSections(layer);
+    assert.ok(sections.length > 1, 'one section is a flat list wearing a heading');
+    for (const { heading, links } of sections) {
+      assert.ok((heading ?? '').length > 0, 'a section nothing heads is one a reader cannot skip');
+      assert.ok(links.length > 0, 'an empty section is a category the walk invented');
+      for (const { href, label } of links) {
+        assert.ok(!href.startsWith('/'), `${href} is rooted at the site and the index is not`);
+        assert.ok(label.startsWith('Arena'), `${label} is not what the component is called`);
+      }
+    }
+  }
+});
+
+test('every public entry point lands on a page the site publishes or a directory it indexes', () => {
+  const published = new Set(pages().map((rel) => `/${rel}`));
+  const indexed = new Set(indexedDirectories().map((dir) => (dir === '' ? '/' : `/${dir}/`)));
+  for (const { label, path } of entryPoints().filter((entry) => entry.public)) {
+    const target = decodeURIComponent(path);
+    assert.ok(published.has(target) || indexed.has(target),
+      `${label} points at ${path}, which the site neither publishes nor indexes, so the one list `
+      + 'the landing page and the dev server both read offers a dead end');
+  }
 });

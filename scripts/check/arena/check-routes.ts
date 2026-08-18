@@ -467,7 +467,7 @@ export const ROUTES: Route[] = [
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 99_000,
+    budget: 103_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -481,7 +481,11 @@ export const ROUTES: Route[] = [
       + 'above was claiming a few gates of room over less than one. The measurement is the '
       + 'argument, and it is worth more than the number: derive the two figures with awk over the '
       + 'rows of the domain table rather than trusting these, because the row that breaks a budget '
-      + 'is the long one and the median is what says how often that happens.',
+      + 'is the long one and the median is what says how often that happens. Raised to 103,000 '
+      + 'when check:site grew its claim by 281 characters and broke a budget that had 7 left: a '
+      + 'cold walk measured 99,274 against 99,000, with a median row of 901 and a longest of '
+      + '3,542, so what the break reported was the previous raise having been spent to the last '
+      + 'character rather than this sentence. The headroom is 3,726 again, four median rows.',
   },
 ];
 

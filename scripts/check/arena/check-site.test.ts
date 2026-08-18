@@ -12,8 +12,9 @@ import { join } from 'node:path';
 import {
   REFERENCE, OFF_SITE, AUTHORED, FORBIDDEN, referenced, resolves, htmlFiles,
   brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems, tokenProblems,
+  missingModuleProblems,
 } from './check-site.ts';
-import { DOMAIN } from '../../lib/arena/site-pages.ts';
+import { DOMAIN, modules } from '../../lib/arena/site-pages.ts';
 
 function out(files: Record<string, string>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-site-'));
@@ -122,4 +123,16 @@ test('an empty walk is a clean-looking pass over an output nobody opened', () =>
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems(['page.html']), []);
   assert.deepEqual(htmlFiles(join(tmpdir(), 'arena-site-that-is-not-there')), []);
+});
+
+test('a module a page imports and the output dropped is a problem, and an empty output is all of them', () => {
+  const empty = out({ 'placeholder.txt': 'x' });
+  assert.deepEqual(missingModuleProblems(empty, empty), [],
+    'a tree with no page imports nothing, so nothing is missing from an output carrying nothing');
+
+  const problems = missingModuleProblems(empty);
+  assert.equal(problems.length, modules().length,
+    'an output carrying none of the graph is a problem per module and never a clean pass');
+  assert.match(problems[0] ?? '', /renders nothing at all/,
+    'the line has to say what a reader sees, since every href on that page still answers 200');
 });

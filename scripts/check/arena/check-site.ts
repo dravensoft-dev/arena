@@ -1,13 +1,13 @@
-/* Holds the published site to what it claims. The load-bearing assertion is that every href, src
- * and markdown link of everything emitted resolves inside the output: a broken path fails silently
- * in both directions, and an unstyled page that happens to fit its box passes outright. The
- * markdown half is the one an agent reads, since the documents the corpus hands out are followed
- * by their links and nothing renders them, so a path correct in a clone and absent here is a dead
- * end at the exact sentence saying to go and read something; that is how the style plugins to read
- * before writing one went unreachable from the page calling it the hardest instruction it gives.
- * The rest keeps the set honest both ways, so a playground the build dropped is missing rather
- * than absent and a page nobody meant to publish is named. It reads the output and writes nothing,
- * and skips rather than passes without dist/site, since a walk of nothing reports everything fine. */
+/* Holds the published site to what it claims. The load-bearing assertion is that every href, src,
+ * markdown link and imported module of everything emitted resolves inside the output: a broken path
+ * fails silently in both directions, and an unstyled page that fits its box passes outright. The
+ * module half is that assertion one notation further in, since a `src` resolving says nothing about
+ * what the entry imports and an ES import that 404s throws before it runs, which is how every React
+ * playground went out answering 200 at every href with an empty root. The markdown half is the one
+ * an agent reads, since a corpus is followed by its links and nothing renders them, which is how
+ * the style plugins went unreachable from the page calling them its hardest instruction. The rest
+ * keeps the set honest both ways. It reads the output, writes nothing, and skips rather than passes
+ * without dist/site, since a walk of nothing reports everything fine. */
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -17,7 +17,8 @@ import { relPosix, isInside } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds, url,
+  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds, missingModules,
+  modules, url,
 } from '../../lib/arena/site-pages.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
@@ -128,6 +129,14 @@ export function brokenLinkProblems(out: string, files = htmlFiles(out)) {
     }
   }
   return problems;
+}
+
+export function missingModuleProblems(out: string, base = root) {
+  return modules(base)
+    .filter((rel) => !existsSync(join(out, rel)))
+    .map((rel) => `${rel} is a module a published page imports and the output does not carry. An `
+      + 'ES import that 404s throws before the entry runs, so the page keeps every href it had, '
+      + 'answers 200 at all of them, and renders nothing at all');
 }
 
 export function missingPageProblems(out: string, base = root) {
@@ -248,8 +257,10 @@ function main() {
     ...brokenLinkProblems(out, files),
     ...markdownLinkProblems(out, docs),
     ...missingPageProblems(out),
+    ...missingModuleProblems(out),
     ...orphanProblems(out, root, files),
     ...missingPlaygrounds(),
+    ...missingModules(),
     ...domainProblems(out),
     ...sitemapProblems(out),
     ...localhostProblems(out, files),
@@ -263,8 +274,9 @@ function main() {
   }
   console.log(
     `check-site: ${files.length} page(s) and ${docs.length} document(s) published for ${DOMAIN}, `
-    + `every href, src and markdown link resolving inside the output, every declared page present `
-    + `and none unnamed, and the sitemap naming all ${pages().length} of them`,
+    + `every href, src and markdown link resolving inside the output, all ${modules().length} `
+    + `module(s) the pages import present with them, every declared page present and none `
+    + `unnamed, and the sitemap naming all ${pages().length} of them`,
   );
 }
 
