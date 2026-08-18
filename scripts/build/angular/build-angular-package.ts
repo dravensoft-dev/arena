@@ -19,7 +19,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, CLI_BINS, keywords,
-  NPM_SKILL, npmSkill,
+  NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
@@ -192,6 +192,7 @@ export function buildAngularPackage(root = repoRoot) {
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
   written.push(write(dist, NPM_SKILL, npmSkill(NAME)));
+  written.push(...copyBehaviourContracts(dist, root));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 
   const emitted = readJson(join(dist, 'package.json'));
@@ -216,6 +217,7 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './css/components/*': { default: './css/components/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
       './arena.tokens.json': { default: './arena.tokens.json' },
+      './contracts/behaviour/*': { default: './contracts/behaviour/*' },
     },
     bin: { ...CLI_BINS },
     sideEffects: emitted.sideEffects ?? false,

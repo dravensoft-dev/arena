@@ -21,7 +21,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, keywords,
-  NPM_SKILL, npmSkill,
+  NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
@@ -162,6 +162,7 @@ export function manifest(root = repoRoot) {
       './css/components/*': './css/components/*',
       './arena.config.example.json': './arena.config.example.json',
       './arena.tokens.json': './arena.tokens.json',
+      './contracts/behaviour/*': './contracts/behaviour/*',
       './package.json': './package.json',
     },
     peerDependencies: {
@@ -196,6 +197,7 @@ export async function buildReactPackage(root = repoRoot) {
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));
   written.push(write(dir, NPM_SKILL, npmSkill(NAME)));
+  written.push(...copyBehaviourContracts(dir, root));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
   written.push(write(dir, 'package.json', `${JSON.stringify(manifest(root), null, 2)}\n`));
 

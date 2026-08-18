@@ -50,6 +50,14 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
 
+export const CONSUMER_SHEETS: CssChainEntry[] = [
+  { from: 'frameworks/tailwind/Numerals.css', to: 'css/numerals.css' },
+  { from: 'frameworks/tailwind/Page.css', to: 'css/page.css' },
+  { from: 'frameworks/tailwind/Prose.css', to: 'css/prose.css' },
+  { from: 'frameworks/tailwind/Rhythm.css', to: 'css/rhythm.css' },
+  { from: 'frameworks/tailwind/SrOnly.css', to: 'css/sr-only.css' },
+];
+
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
   '   Import this FIRST, then the file arena-to-prod wrote from your arena.config.json,',
@@ -145,11 +153,9 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
     { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${base}` },
-    { to: 'css/numerals.css', content: readFileSync(join(dir, 'Numerals.css'), 'utf8') },
-    { to: 'css/page.css', content: readFileSync(join(dir, 'Page.css'), 'utf8') },
-    { to: 'css/prose.css', content: readFileSync(join(dir, 'Prose.css'), 'utf8') },
-    { to: 'css/rhythm.css', content: readFileSync(join(dir, 'Rhythm.css'), 'utf8') },
-    { to: 'css/sr-only.css', content: readFileSync(join(dir, 'SrOnly.css'), 'utf8') },
+    ...CONSUMER_SHEETS.map(({ from, to }) => ({
+      to, content: readFileSync(join(root, ...(from ?? '').split('/')), 'utf8'),
+    })),
     { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
@@ -186,6 +192,19 @@ them: a copy inside a tarball is a second router that goes stale on its own sche
 so a screen written against half the language renders exactly as well as one written against all
 of it. What differs is a reader.
 `;
+}
+
+export const BEHAVIOUR_DIR = 'contracts/behaviour';
+
+export function copyBehaviourContracts(dir: string, root = repoRoot) {
+  const from = join(root, ...BEHAVIOUR_DIR.split('/'));
+  const files = collectFiles(from, (path) => path.endsWith('.json'));
+  if (files.length === 0) {
+    throw new Error('package-assembly: no behaviour contract was found, so the package would tell a '
+      + 'consumer to bind a pattern it does not carry, and the export beside that sentence is the '
+      + 'only half of the answer they could reach');
+  }
+  return files.map((file) => copy(file, dir, `${BEHAVIOUR_DIR}/${relPosix(from, file)}`));
 }
 
 export const CATALOGUE_FILE = 'arena.tokens.json';
