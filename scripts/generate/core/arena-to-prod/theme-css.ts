@@ -10,7 +10,7 @@
  * so what a consumer writes is held to the same floors in the PROJECT's build. */
 
 import {
-  PALETTE_KEYS, POLARITIES, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
+  PALETTE_KEYS, POLARITIES, pickerInvert, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
   FILL_PAIRS, SURFACE_PAIRS, TEXT_MIN, catKeys, requiredKeys,
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
@@ -35,6 +35,7 @@ export type CheckedSheets = {
   components: string[];
   levels?: Level[];
   washes?: Wash[];
+  scopes?: string[];
   roleReferences?: string[];
   catalogue?: TokenCatalogue;
 };
@@ -96,7 +97,9 @@ export function defaultPalette(palettes: CheckedPalette[]): CheckedPalette {
   return found;
 }
 
-function paletteProblems(palette: ArenaPalette, index: number, seen: Set<string>) {
+function paletteProblems(
+  palette: ArenaPalette, index: number, seen: Set<string>, shipped: readonly string[] = [],
+) {
   const at = `palettes[${index}]`;
   const problems = [];
   if (!isObject(palette)) return [`${at}: not an object`];
@@ -107,6 +110,13 @@ function paletteProblems(palette: ArenaPalette, index: number, seen: Set<string>
     problems.push(`${at}.name: ${palette.name} is declared twice`);
   } else {
     seen.add(palette.name);
+    if (shipped.includes(palette.name) && palette.name !== palette.polarity) {
+      problems.push(`${at}.name: "${palette.name}" is already a class this package ships, and both `
+        + `would be .arena-${palette.name}. A palette shares one class namespace with every scope, `
+        + 'utility and component Arena draws, so the colours would land on whatever that class '
+        + `already selects. The one name a palette may take out of that set is its own polarity, `
+        + `which is the scope a palette of that polarity is meant to answer to.`);
+    }
   }
 
   if (typeof palette.polarity !== 'string' || !POLARITIES.includes(palette.polarity)) {
@@ -322,6 +332,7 @@ export function pluginTokenProblems(
 
 function entryProblems(
   entry: unknown, at: string, index: number, paletteNames: string[], seen: Set<string>,
+  shipped: readonly string[] = [],
 ) {
   if (typeof entry !== 'string' || !entry.trim()) {
     return [`${at}: ${JSON.stringify(entry)} is not a style plugin. An entry is the word `
@@ -337,7 +348,7 @@ function entryProblems(
   }
 
   const name = pluginName(value);
-  const problems = nameProblems(name, POLARITIES, at);
+  const problems = nameProblems(name, POLARITIES, at, shipped);
   if (paletteNames.includes(name)) {
     problems.push(`${at}: "${name}" is also the name of a palette, and both would be the class `
       + `.arena-${name}; rename one of them`);
@@ -400,7 +411,7 @@ export function stylePluginProblems(
     .filter(isObject).map((p) => String((p as ArenaPalette).name ?? ''));
   const seen = new Set<string>();
   const problems = declared
-    .flatMap((entry, i) => entryProblems(entry, `stylePlugins[${i}]`, i, paletteNames, seen));
+    .flatMap((entry, i) => entryProblems(entry, `stylePlugins[${i}]`, i, paletteNames, seen, sheets?.scopes ?? []));
   if (problems.length || !plugins) return problems;
 
   return plugins.flatMap((plugin, i) => (plugin
@@ -426,7 +437,8 @@ export function configProblems(
     problems.push('palettes: declare at least one palette');
   } else {
     const seen = new Set<string>();
-    (config.palettes as ArenaPalette[]).forEach((p, i) => problems.push(...paletteProblems(p, i, seen)));
+    const shipped = sheets?.scopes ?? [];
+    (config.palettes as ArenaPalette[]).forEach((p, i) => problems.push(...paletteProblems(p, i, seen, shipped)));
     const defaults = config.palettes.filter((p) => isObject(p) && p.default === true);
     if (defaults.length > 1) {
       problems.push(`palettes: ${defaults.length} palettes declare default; exactly one reaches :root`);
@@ -684,7 +696,8 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   parts.push(block(':root', [
     ...colourDeclarations(fallback),
     ...levelDeclarations(fallback),
-    `--picker-invert:${fallback.polarity === 'light' ? 0 : 1};`,
+    `--picker-invert:${pickerInvert(fallback.polarity)};`,
+    `color-scheme:${fallback.polarity};`,
     ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
   ]));
 
@@ -702,7 +715,8 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     parts.push(block(`.arena-${palette.name}`, [
       ...colourDeclarations(palette),
       ...levelDeclarations(palette),
-      `--picker-invert:${palette.polarity === 'light' ? 0 : 1};`,
+      `--picker-invert:${pickerInvert(palette.polarity)};`,
+      `color-scheme:${palette.polarity};`,
       ...(sheets?.roleReferences ?? []),
       ...(root ? restated(root, palette.polarity) : []),
     ]));

@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented,
-  SOURCES, UNKNOWN, FILL, GLYPH,
+  palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
 
@@ -86,4 +86,38 @@ test('the documented list is read from the shipped README, and a second one shad
   assert.equal(documented('no list here').names, null);
   assert.equal(documented('"components": ["button"] then "components": ["arena-button"]').names, null,
     'two lists mean the gate would run whichever came first, which is how a stale example hides behind a fresh one');
+});
+
+const themed = (...blocks: string[]): CliRun => ({ ...ok, theme: blocks.join('\n\n') });
+
+const paletteBlock = (selector: string, polarity: string | null) =>
+  `${selector}{\n  --color-base-100:#141010;\n${polarity ? `  color-scheme:${polarity};\n` : ''}}`;
+
+test('three palettes each reaching a block with their own polarity is what a pass means', () => {
+  const run = themed(
+    paletteBlock(':root', 'dark'),
+    paletteBlock('.arena-light', 'light'),
+    paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
+  );
+  assert.deepEqual(palettesProblems('react', run), []);
+});
+
+test('a palette whose block carries no color-scheme is reported, and so is one with no block at all', () => {
+  const silent = themed(
+    paletteBlock(':root', 'dark'),
+    paletteBlock('.arena-light', null),
+    paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
+  );
+  const problems = palettesProblems('react', silent);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /\.arena-light declares no color-scheme:light/);
+
+  const missing = themed(paletteBlock(':root', 'dark'), paletteBlock('.arena-light', 'light'));
+  assert.match(palettesProblems('react', missing)[0] ?? '', /carries no \.arena-dusk block/);
+});
+
+test('a command that refused a third palette is a failure rather than an empty theme sheet', () => {
+  const problems = palettesProblems('angular', { ...ok, status: 1 });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /three palettes exited 1/);
 });

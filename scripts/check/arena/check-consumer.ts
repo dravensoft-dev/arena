@@ -281,6 +281,48 @@ export function installed(layer: string, dir: string, base = root) {
   return join(at, CLI);
 }
 
+export const THIRD_PALETTE = { name: 'dusk', polarity: 'dark' };
+
+export const POLARITY_SCOPES: [string, string][] = [
+  [':root', 'dark'], ['.arena-light', 'light'], [`.arena-${THIRD_PALETTE.name}`, 'dark'],
+];
+
+export function palettesFixture(layer: string, base = root) {
+  const dir = fixture(layer, SOURCES[layer] ?? {}, AUTO, base);
+  const written = readJson(join(dir, 'arena.config.json'));
+  const borrowed = written.palettes.find((p: { polarity: string }) => p.polarity === THIRD_PALETTE.polarity);
+  written.palettes.push({ ...THIRD_PALETTE, colors: (borrowed ?? written.palettes[0]).colors });
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify(written, null, 2));
+  return dir;
+}
+
+export function blockIn(css: string, selector: string) {
+  const at = css.indexOf(`${selector}{`);
+  return at < 0 ? null : css.slice(at, css.indexOf('}', at));
+}
+
+export function palettesProblems(layer: string, run: CliRun) {
+  if (run.status !== 0) {
+    return [`${layer}: a configuration declaring three palettes exited ${run.status}, so the field `
+      + 'that carries more than the classic pair is one no project can spend'];
+  }
+  const problems = [];
+  for (const [selector, polarity] of POLARITY_SCOPES) {
+    const block = blockIn(run.theme ?? '', selector);
+    if (block === null) {
+      problems.push(`${layer}: ${THEME_SHEET} carries no ${selector} block, so one of three declared `
+        + 'palettes reaches no page at all');
+      continue;
+    }
+    if (!block.includes(`color-scheme:${polarity};`)) {
+      problems.push(`${layer}: ${selector} declares no color-scheme:${polarity}, so the browser draws `
+        + 'the furniture Arena never draws against the wrong polarity: its scrollbars, its native '
+        + 'controls, its autofill and the canvas it paints wherever nothing else does');
+    }
+  }
+  return problems;
+}
+
 export function runCli(layer: string, dir: string, base = root, extra: string[] = []) {
   const node = hostBinary('node', 'to run the CLI a consumer installs, the way a consumer runs it');
   const run = spawnSync(node, [installed(layer, dir, base), '--src', 'src', '--out', 'out', ...extra],
@@ -443,7 +485,8 @@ export function collect(base = root) {
       const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
-      dirs.push(auto, unexported, named, unknown, unplaced, broken, plugged, partialRoot);
+      const palettes = palettesFixture(layer, base);
+      dirs.push(auto, unexported, named, unknown, unplaced, broken, plugged, partialRoot, palettes);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -462,6 +505,7 @@ export function collect(base = root) {
       problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base, ['--strict'])));
       problems.push(...layerProblems(layer, valid));
       problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['--src', 'design', '--audit'])));
+      problems.push(...palettesProblems(layer, runCli(layer, palettes, base)));
     }
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
@@ -477,7 +521,8 @@ function main() {
     process.exit(1);
   }
   console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
-    + `a consumer's sources name, and scope a style plugin of the project's own`
+    + `a consumer's sources name, scope a style plugin of the project's own, and emit a block carrying `
+    + `its own polarity for each of three palettes`
     + `${built ? ', after assembling what was missing' : ''}`);
 }
 

@@ -493,9 +493,20 @@ test('the sheets a package ships are read from beside the command, so no copy of
     components: ['button', 'table'],
     levels: [],
     washes: [],
+    scopes: [],
     roleReferences: [],
     catalogue: undefined,
   });
+  rmSync(root, { recursive: true });
+});
+
+test('the classes a package ships are read out of its own sheets, from every layer and component', () => {
+  const root = installed("@import './css/colors.css';\n@import './css/rhythm.css';\n", ['button', 'stat-card']);
+  writeFileSync(join(root, 'css', 'colors.css'), '/* .arena-ghost in prose is not a class */\n'
+    + ':root{--level-ink-muted:62%;}\n.arena-light{--picker-invert:0;}\n');
+  writeFileSync(join(root, 'css', 'rhythm.css'), '.arena-stack{gap:1px}\n.arena-stack--group{gap:0}\n');
+  writeFileSync(join(root, 'css', 'components', 'stat-card.css'), '.arena-stat-card__icon{color:red}\n');
+  assert.deepEqual(packageSheets(root)?.scopes, ['light', 'stack', 'stat-card']);
   rmSync(root, { recursive: true });
 });
 

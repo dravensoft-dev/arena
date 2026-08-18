@@ -192,6 +192,14 @@ const read = (at: string) => {
   try { return readFileSync(at, 'utf8'); } catch { return ''; }
 };
 
+const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
+
+export const SCOPE_CLASS = /\.arena-([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;
+
+export function scopesIn(css: string) {
+  return [...css.replace(CSS_COMMENT, ' ').matchAll(SCOPE_CLASS)].map((m) => m[1] as string);
+}
+
 export function packageSheets(root: string): PackageSheets {
   try {
     const layers = [...readFileSync(join(root, 'arena.css'), 'utf8').matchAll(SHEET_IMPORT)]
@@ -207,11 +215,13 @@ export function packageSheets(root: string): PackageSheets {
     const defaults = levelDefaults(read(join(root, 'css', 'colors.css')));
     const levels = sheets.flatMap((css) => levelsIn(css, defaults));
     const washes = sheets.flatMap(washesIn);
+    const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));
     return {
       layers,
       components,
       levels,
       washes,
+      scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
       roleReferences: roleReferencesIn(catalogue),
       catalogue: catalogue ?? undefined,
     };

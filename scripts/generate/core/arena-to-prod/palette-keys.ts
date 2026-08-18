@@ -44,6 +44,8 @@ export const ARENA_CAT_SLOTS = 8;
 
 export const POLARITIES = ['dark', 'light'];
 
+export const pickerInvert = (polarity: string) => (polarity === 'light' ? 0 : 1);
+
 export const FONT_ROLES = {
   display: ['system-ui', 'sans-serif'],
   body: ['system-ui', 'sans-serif'],

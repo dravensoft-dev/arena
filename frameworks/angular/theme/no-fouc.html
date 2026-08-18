@@ -3,16 +3,26 @@
      so the stored palette is applied before first paint (no flash). It shares the
      `arena-theme` storage key with ArenaThemeService.ts, and the same rule: the default
      palette sits on :root and wears no class, every other one wears .arena-<name>.
-     Set the two names below to match the palettes arena.config.json declares. -->
+     PALETTES and DEFAULT below are the same two values ArenaThemeService takes, so a
+     build with three or four palettes states them once and the two cannot disagree.
+     A first visit with nothing stored answers the device, and the device answers a
+     polarity rather than a name, so the first palette of that polarity is the one. -->
 <script>
   (function () {
+    var PALETTES = [
+      { name: 'dark', polarity: 'dark' },
+      { name: 'light', polarity: 'light' }
+    ];
     var DEFAULT = 'dark';
-    var PREFERS_LIGHT = 'light';
     try {
-      var stored = localStorage.getItem('arena-theme');
-      var name = stored ||
-        (window.matchMedia('(prefers-color-scheme: light)').matches ? PREFERS_LIGHT : DEFAULT);
-      if (name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
+      var name = localStorage.getItem('arena-theme');
+      if (!name) {
+        var wants = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        for (var i = 0; i < PALETTES.length; i++) {
+          if (PALETTES[i].polarity === wants) { name = PALETTES[i].name; break; }
+        }
+      }
+      if (name && name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
         document.documentElement.classList.add('arena-' + name);
       }
     } catch (e) {}

@@ -8,11 +8,19 @@
    Swapping the skin means swapping the palette source, not this file.
    ============================================================ */
 
-/* Theme polarity — not a color, a direction. Read by the injected
-   style that recolors the native date picker indicator, which is a
-   vendor pseudo-element an inline style cannot reach (see ArenaInput.tsx). */
-:root{ --picker-invert:1; }
-.arena-light{ --picker-invert:0; }
+/* Theme polarity — not a color, a direction, and two things read it.
+   --picker-invert is read by the injected style that recolors the native
+   date picker indicator, which is a vendor pseudo-element an inline style
+   cannot reach (see ArenaInput.tsx).
+   color-scheme is read by the browser, and it decides the furniture Arena
+   never draws: scrollbars, native controls, autofill, and the canvas the UA
+   paints wherever nothing else does. It reaches the canvas from the root
+   element alone, which is where the .arena-<name> class goes.
+   This is a declaration about the palette and not a paint: --fill-page is
+   the floor and the project is what applies it. Arena states which way the
+   palette points and leaves the page to whoever owns it. */
+:root{ --picker-invert:1; color-scheme:dark; }
+.arena-light{ --picker-invert:0; color-scheme:light; }
 
 /* ============================================================
    Compatibility layer — Arena aliases → daisyUI tokens.

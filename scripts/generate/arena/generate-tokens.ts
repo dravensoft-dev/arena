@@ -136,6 +136,7 @@ export const node = {
     'check:angular',
     'check:arbitrary',
     'check:boundary-contrast',
+    'check:classes',
     'check:cdk',
     'check:component-css',
     'check:contracts',

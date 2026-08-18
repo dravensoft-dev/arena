@@ -95,13 +95,20 @@ export function totalityProblems(declared: string[], answered: string[]) {
     + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
 
-export function nameProblems(name: string, polarities: readonly string[], where: string) {
+export function nameProblems(
+  name: string, polarities: readonly string[], where: string, shipped: readonly string[] = [],
+) {
   const problems = [];
   if (polarities.includes(name))
     problems.push(`${where}: "${name}" is a theme polarity, and .arena-${name} is already the class a palette of `
       + `that polarity answers to. A style plugin named after one would be indistinguishable from the `
       + `theme's own scope, both to the cascade and to the consumer CLI reading the catalogue out of `
       + `the shipped CSS.`);
+  else if (shipped.includes(name))
+    problems.push(`${where}: "${name}" is already a class this package ships, and both would be `
+      + `.arena-${name}. A style plugin shares one class namespace with every scope, utility and `
+      + 'component Arena draws, so the roles it answers would land on whatever that class already '
+      + 'selects.');
   if (!KEBAB.test(name))
     problems.push(`${where}: "${name}" is not kebab-case, and the name becomes the class .arena-${name}`);
   return problems;

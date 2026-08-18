@@ -13,6 +13,12 @@ const colors = (overrides: Record<string, string> = {}): Record<string, string> 
   return { ...out, ...overrides };
 };
 
+const schemeIn = (css: string, selector: string): string | null => {
+  const at = css.indexOf(`${selector}{`);
+  if (at < 0) return null;
+  return /color-scheme:([a-z]+);/.exec(css.slice(at, css.indexOf('}', at)))?.[1] ?? null;
+};
+
 const config = (overrides: Record<string, any> = {}): any => ({
   palettes: [{ name: 'dark', default: true, polarity: 'dark', colors: colors() }],
   fonts: {
@@ -102,9 +108,55 @@ test('with no palette declaring default, the first one is it', () => {
   assert.equal(defaultPalette(c.palettes).name, 'ember');
 });
 
-test('an unknown polarity is rejected, because it decides --picker-invert', () => {
+test('an unknown polarity is rejected, because it decides --picker-invert and color-scheme', () => {
   const c = config({ palettes: [{ name: 'dark', polarity: 'midnight', colors: colors() }] });
   assert.deepEqual(configProblems(c), ['palettes[0].polarity: "midnight" is not one of dark, light']);
+});
+
+const withScopes = (scopes: string[]): any => ({ layers: [], components: [], scopes });
+
+test('a palette named after a class the package ships is refused, and its own polarity is the exception', () => {
+  const c = config({ palettes: [
+    { name: 'light', default: true, polarity: 'light', colors: colors() },
+    { name: 'midnight', polarity: 'dark', colors: colors() },
+    { name: 'compact', polarity: 'dark', colors: colors() },
+    { name: 'stat-card', polarity: 'dark', colors: colors() },
+  ] });
+  const problems = configProblems(c, withScopes(['compact', 'light', 'stat-card']));
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /^palettes\[2\]\.name: "compact" is already a class this package ships/);
+  assert.match(problems[1] ?? '', /^palettes\[3\]\.name: "stat-card" is already a class this package ships/);
+});
+
+test('a palette claiming a polarity scope it does not answer to is refused', () => {
+  const c = config({ palettes: [
+    { name: 'midnight', default: true, polarity: 'dark', colors: colors() },
+    { name: 'light', polarity: 'dark', colors: colors() },
+  ] });
+  const problems = configProblems(c, withScopes(['light']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /palettes\[1\]\.name: "light" is already a class this package ships/);
+});
+
+test('a style plugin named after a class the package ships is refused', () => {
+  const c = config({ stylePlugins: ['default', './plugins/stack'] });
+  const problems = configProblems(c, withScopes(['stack']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^stylePlugins\[1\]: "stack" is already a class this package ships/);
+});
+
+test('every palette is validated, however many the config declares', () => {
+  const c = config({ palettes: [
+    { name: 'bone', default: true, polarity: 'light', colors: colors() },
+    { name: 'ember', polarity: 'midnight', colors: colors() },
+    { name: 'Slate', polarity: 'dark', colors: colors() },
+    { name: 'dusk', polarity: 'dark', colors: colors({ primary: 'crimson' }) },
+  ] });
+  assert.deepEqual(configProblems(c), [
+    'palettes[1].polarity: "midnight" is not one of dark, light',
+    'palettes[2].name: "Slate" is not a kebab-case name',
+    'palettes[3].colors.primary: "crimson" is not a #rrggbb hex',
+  ]);
 });
 
 test('a missing font role names the three tokens Arena reads', () => {
@@ -125,14 +177,23 @@ test('the default palette lands on :root and every other on its own class', () =
   assert.equal(decls.get('.arena-light').get('color-base-100'), '#ffffff');
 });
 
-test('polarity decides --picker-invert in every block', () => {
+test('polarity decides --picker-invert and color-scheme in every block', () => {
   const c = config({ palettes: [
     { name: 'bone', default: true, polarity: 'light', colors: colors() },
     { name: 'ember', polarity: 'dark', colors: colors() },
+    { name: 'dusk', polarity: 'dark', colors: colors() },
+    { name: 'paper', polarity: 'light', colors: colors() },
   ] });
-  const decls = parseDecls(themeCss(c));
+  const css = themeCss(c);
+  const decls = parseDecls(css);
   assert.equal(decls.get(':root').get('picker-invert'), '0');
   assert.equal(decls.get('.arena-ember').get('picker-invert'), '1');
+  assert.equal(decls.get('.arena-dusk').get('picker-invert'), '1');
+  assert.equal(decls.get('.arena-paper').get('picker-invert'), '0');
+  assert.equal(schemeIn(css, ':root'), 'light');
+  assert.equal(schemeIn(css, '.arena-ember'), 'dark');
+  assert.equal(schemeIn(css, '.arena-dusk'), 'dark');
+  assert.equal(schemeIn(css, '.arena-paper'), 'light');
 });
 
 test('the three families reach :root with the generic fallback their role carries', () => {
