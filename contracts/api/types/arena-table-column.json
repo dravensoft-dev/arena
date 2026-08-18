@@ -14,6 +14,6 @@
     "sortable": { "form": "primitive", "type": "boolean", "default": false,
                   "description": "Whether this column's header is an activation target. A declared boolean rather than \"is sortChange bound?\", because Arena never derives what it draws from what a consumer listens for, the same reason ArenaTableRow.interactive is one. It costs no tab stop: the header row is already row 0 of the grid's roving cursor, so a sortable header is activated with Enter or Space on the cell the user is already on. Without ArenaTable.sort no header is a target however many columns declare it, because a control that draws a direction it does not know is worse than no control." },
     "mobileLayout": { "form": "enum", "type": "ArenaTableCellLayout", "default": "row",
-                      "description": "How this column renders in card mode: a label/value pair, or full width with no label." }
+                      "description": "How this column renders in card mode: a label/value pair, or a full-width strip with no label whose contents sit at its end, which suits an actions cell rather than a long value." }
   }
 }
