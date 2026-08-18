@@ -1,13 +1,13 @@
 /* Assembles the published site out of the built tree. It copies rather than rewrites: a page names
- * its assets with a relative href that counts directories, so the output holds the same shape under
- * the same names and a page served from the domain is the page a clone serves. node_modules is on
- * that path, because a playground links the Phosphor sheets there, and only the sheet and the font
- * binaries of each weight travel. copyAll rather than package-assembly's copyTree, whose exclusions
- * keep a demo entry and a vendor directory out of an npm package and are exactly what a playground
- * loads. What it authors is what serve.ts answers at request time and a static host cannot: an index
- * at every directory a visitor lands on, the landing page, the sitemap, robots.txt, a 404 and the
- * card a link preview reads. No count is typed on any of them; a number nothing holds is the defect
- * this repository is about, so each is derived from the same map the packages ship. */
+ * its assets by a relative href counting directories, so the output holds the same shape under the
+ * same names and the page served from the domain is the page a clone serves. node_modules is on
+ * that path for a playground's Phosphor sheets, and only the sheet and font binaries travel.
+ * copyAll, not package-assembly's copyTree, whose exclusions are exactly what a playground loads.
+ * A page's JavaScript is copied by following it: the React pages load unbundled ES modules, so
+ * publishing the entry beside the page and stopping there put up pages answering 200 at every href
+ * with an empty root. What it authors is what serve.ts answers at request time and a static host
+ * cannot: an index per directory a visitor lands on, the landing page, the sitemap, robots.txt, a
+ * 404 and the preview card. No count is typed on any; each is derived from the map the packages ship. */
 
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,9 +17,9 @@ import { reset, write, copy } from '../../lib/arena/package-assembly.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE, PLAYGROUND_SUFFIX,
+  DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE,
   entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
-  playgroundsOnDisk, titleOf, url,
+  playgroundsOnDisk, playgroundSections, modules, titleOf, url,
 } from '../../lib/arena/site-pages.ts';
 import { renderOgImage, OG_WIDTH, OG_HEIGHT } from '../../lib/arena/og-image.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
@@ -33,6 +33,7 @@ export const node = {
     'plugin-style-store/**/plugin.css',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
+    'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
     'frameworks/angular/build/demo/**',
   ],
   writes: [`${SITE_DIR}/**`],
@@ -81,16 +82,22 @@ const head = (title: string, description: string, canonical: string, depth: numb
 </head><body>`;
 };
 
-export function indexPage(title: string, links: { href: string; label: string }[], depth: number) {
-  const items = links
-    .map(({ href, label }) => `  <li><a href="${href}">${escape(label)}</a></li>`)
-    .join('\n');
+export type Section = { heading?: string; links: { href: string; label: string }[] };
+
+export function indexPage(title: string, sections: Section[], depth: number) {
+  const blocks = sections.map(({ heading, links }) => {
+    const items = links
+      .map(({ href, label }) => `  <li><a href="${href}">${escape(label)}</a></li>`)
+      .join('\n');
+    const headed = heading === undefined
+      ? ''
+      : `<h2 style="font-family:var(--font-display)">${escape(heading)}</h2>\n`;
+    return `${headed}<ul style="line-height:2">\n${items}\n</ul>`;
+  }).join('\n');
   return `${head(title, title, `https://${DOMAIN}/`, depth)}
 <main style="max-width:60rem;margin:0 auto;padding:var(--sp-6)">
 <h1 style="font-family:var(--font-display)">${escape(title)}</h1>
-<ul style="line-height:2">
-${items}
-</ul>
+${blocks}
 </main>
 </body></html>
 `;
@@ -177,19 +184,18 @@ export function sitemap(base = repoRoot) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
 }
 
-function linksFor(directory: string, base: string) {
-  if (directory === '') {
-    return entryPoints(base).filter((e) => e.public).map((e) => ({ href: `.${e.path}`, label: e.label }));
-  }
+function sectionsFor(directory: string, base: string): Section[] {
   if (directory === 'intro/guidelines') {
-    return guidelineLinks(base);
+    return [{ links: guidelineLinks(base) }];
   }
+  const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
+  if (drawn) return playgroundSections(drawn[1] ?? '', base);
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) {
-    return sinkNames(base).map((name) => ({ href: `${name}/`, label: name }));
+    return [{ links: sinkNames(base).map((name) => ({ href: `${name}/`, label: name })) }];
   }
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
-  if (one) return [{ href: SINK_PAGE, label: titleOf(`${directory}/${SINK_PAGE}`, base) }];
+  if (one) return [{ links: [{ href: SINK_PAGE, label: titleOf(`${directory}/${SINK_PAGE}`, base) }] }];
   return [];
 }
 
@@ -216,9 +222,13 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     }
     for (const rel of playgroundsOnDisk(layer, base).values()) {
       written.push(copy(join(base, rel), out, rel));
-      const entry = rel.replace(PLAYGROUND_SUFFIX, '.demo.entry.generated.js');
-      if (existsSync(join(base, entry))) written.push(copy(join(base, entry), out, entry));
     }
+  }
+
+  const carried = new Set(written);
+  for (const rel of modules(base)) {
+    if (carried.has(join(out, rel))) continue;
+    written.push(copy(join(base, rel), out, rel));
   }
 
   for (const rel of phosphorFiles(base)) written.push(copy(join(base, rel), out, rel));
@@ -228,7 +238,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     const rel = directory === '' ? 'index.html' : `${directory}/index.html`;
     const page = directory === ''
       ? landingPage(base)
-      : indexPage(titleFor(directory), linksFor(directory, base), depth);
+      : indexPage(titleFor(directory), sectionsFor(directory, base), depth);
     written.push(write(out, rel, page));
   }
 
@@ -252,6 +262,8 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
 
 function titleFor(directory: string) {
   if (directory === 'intro/guidelines') return 'Guidelines, Arena by Dravensoft';
+  const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
+  if (drawn) return `Playgrounds, ${drawn[1]}`;
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) return `Kitchen sinks, ${sink[1]}`;
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
