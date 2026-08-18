@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   PAGE, BARRELS, INTERNAL, EXPORTED, rootModules, symbolsOf, reachedSymbols,
-  zeroReachProblems, homeProblems, staleInternalProblems, collect,
+  zeroReachProblems, homeProblems, staleInternalProblems, collect, parametersOf, signatureProblems,
 } from './check-exports.ts';
 
 function tree(files: Record<string, string>) {
@@ -81,6 +81,36 @@ test('a barrel that reaches nothing is a failure, not a page with nothing to ans
   assert.equal(zeroReachProblems(new Map()).length, 1);
   assert.equal(zeroReachProblems(new Map([['react', []]])).length, 1);
   assert.deepEqual(zeroReachProblems(new Map([['react', ['arenaThing']]])), []);
+});
+
+test('a parameter list is read off the declaration, destructuring and optionality included', () => {
+  const source = 'export function arenaTrapTabKey(container: Element, event: KeyboardEvent, activeElement: Element | null) {}\n'
+    + 'export function useArenaThing({ open, panelRef }: Options) {}\n'
+    + 'export function arenaWidth(target?: Ref) {}\n';
+  assert.deepEqual(parametersOf(source, 'arenaTrapTabKey'), ['container', 'event', 'activeElement']);
+  assert.deepEqual(parametersOf(source, 'useArenaThing'), ['{ open, panelRef }']);
+  assert.deepEqual(parametersOf(source, 'arenaWidth'), ['target?']);
+  assert.equal(parametersOf(source, 'arenaAbsent'), null);
+});
+
+test('a call form the page writes with the wrong parameters is one a consumer cannot compile', () => {
+  const helpers = 'export function arenaThing(container: Element, event: KeyboardEvent) {}\n';
+  const barrels = new Map([['react', 'frameworks/react/Index.generated.ts']]);
+  const wrong = tree({
+    'frameworks/react/Index.generated.ts': "export * from './Helpers.ts';\n",
+    'frameworks/react/Helpers.ts': helpers,
+    [`frameworks/react/${PAGE}`]: '# page\n\nReach for `arenaThing(event, root)` instead.\n',
+  });
+  const problems = signatureProblems(wrong, barrels);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /writes arenaThing\(event, root\) and .* declares arenaThing\(container, event\)/);
+
+  const right = tree({
+    'frameworks/react/Index.generated.ts': "export * from './Helpers.ts';\n",
+    'frameworks/react/Helpers.ts': helpers,
+    [`frameworks/react/${PAGE}`]: '# page\n\nReach for `arenaThing(container, event)` instead.\n',
+  });
+  assert.deepEqual(signatureProblems(right, barrels), []);
 });
 
 test('this tree conforms', () => {

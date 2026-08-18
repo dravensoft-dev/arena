@@ -10,6 +10,7 @@
  * carries it, so naming the hook names its options. */
 
 import { readFileSync, existsSync } from 'node:fs';
+import { createSourceFile, isFunctionDeclaration, isObjectBindingPattern, ScriptTarget } from 'typescript';
 import { join, dirname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -120,11 +121,57 @@ export function staleInternalProblems(reached = reachedSymbols(), internal = INT
       + `declaration outlived what it was written for: ${reason}`);
 }
 
+export const CALL_FORM = /`([a-z][A-Za-z0-9_]*)\(([^`)]*)\)`/g;
+
+export function parametersOf(source: string, name: string) {
+  const file = createSourceFile('signature.ts', source, ScriptTarget.Latest, true);
+  for (const statement of file.statements) {
+    if (!isFunctionDeclaration(statement) || statement.name?.text !== name) continue;
+    return statement.parameters.map((parameter) => (isObjectBindingPattern(parameter.name)
+      ? `{ ${parameter.name.elements.map((element) => element.name.getText()).join(', ')} }`
+      : parameter.name.getText() + (parameter.questionToken === undefined ? '' : '?')));
+  }
+  return null;
+}
+
+export function declaringModules(base: string, barrels = BARRELS) {
+  const where = new Map<string, Map<string, string>>();
+  for (const [layer, barrel] of barrels) {
+    if (!existsSync(join(base, barrel))) continue;
+    const byName = new Map<string, string>();
+    for (const rel of rootModules(base, barrel)) for (const name of symbolsOf(base, rel)) byName.set(name, rel);
+    where.set(layer, byName);
+  }
+  return where;
+}
+
+export function signatureProblems(base = root, barrels = BARRELS) {
+  const problems = [];
+  for (const [layer, byName] of declaringModules(base, barrels)) {
+    const page = join(base, 'frameworks', layer, PAGE);
+    if (!existsSync(page)) continue;
+    for (const match of readFileSync(page, 'utf8').matchAll(CALL_FORM)) {
+      const [, name = '', written = ''] = match;
+      const rel = byName.get(name);
+      if (rel === undefined) continue;
+      const real = parametersOf(readFileSync(join(base, rel), 'utf8'), name);
+      if (real === null) continue;
+      const shown = written.split(',').map((part) => part.trim()).filter(Boolean).join(', ');
+      if (shown === real.join(', ')) continue;
+      problems.push(`frameworks/${layer}/${PAGE} writes ${name}(${written}) and ${rel} declares `
+        + `${name}(${real.join(', ')}). A consumer copying the page writes a call that does not `
+        + `compile, and the page is the only signature they have: the export table is the surface `
+        + `this package tells them to reach for instead of writing their own.`);
+    }
+  }
+  return problems;
+}
+
 export function collect(base = root) {
   const reached = reachedSymbols(base);
   const zero = zeroReachProblems(reached);
   if (zero.length > 0) return zero;
-  return [...homeProblems(base, reached), ...staleInternalProblems(reached)];
+  return [...homeProblems(base, reached), ...staleInternalProblems(reached), ...signatureProblems(base)];
 }
 
 function main() {
@@ -137,7 +184,8 @@ function main() {
   const reached = reachedSymbols();
   const counted = [...reached].map(([layer, names]) => `${layer} ${names.length}`).join(', ');
   console.log(`check-exports: every symbol a barrel reaches has a home on its npm page (${counted}), `
-    + `with ${INTERNAL.size} declared internal`);
+    + `with ${INTERNAL.size} declared internal, and every call form those pages write is the `
+    + `signature its module declares`);
 }
 
 if (isMainModule(import.meta.url)) main();
