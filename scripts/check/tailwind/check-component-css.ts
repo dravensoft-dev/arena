@@ -1,13 +1,13 @@
-/* Five claims about the CSS a component renders, none of which needs a browser. Every class
- * a manifest names has a rule, and every rule came from a manifest, so a renamed slot cannot
- * leave a component drawing a class nothing defines. No emitted file reads a Tailwind theme
- * property, which is the assertion that the strip ran and therefore that an adopter's own
- * `--spacing` cannot reach in. And every property the CSS does read resolves to a token Arena
- * ships, so a rule cannot quietly depend on something no package carries. The seven `arena-*`
- * animation utilities are excluded by name because `Animations.css` already owns that
- * namespace and they are rules no manifest can derive. The fifth is the specimen's: a page
- * links one sheet per manifest it fetches, since a missing link renders that part unstyled
- * and nothing opens the page to see it. */
+/* Seven claims about the CSS a component renders, none of which needs a browser. Every class a
+ * manifest names has a rule and every rule came from a manifest, so a renamed slot cannot leave a
+ * component drawing a class nothing defines. No emitted file reads a Tailwind theme property,
+ * which is the assertion that the strip ran and therefore that an adopter's own `--spacing`
+ * cannot reach in, and every property the CSS does read resolves to a token Arena ships. The
+ * seven `arena-*` animation utilities are excluded by name, since `Animations.css` owns that
+ * namespace. The specimen's is that a page links one sheet per manifest it fetches, a missing
+ * link rendering that part unstyled with nothing opening the page to see it. The last two read
+ * the `@supports` emit and supports-blocks.ts states what each is; a survivor of either reports a
+ * sheet emitted before those transforms rather than a manifest to edit. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -17,6 +17,7 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
+import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
@@ -108,6 +109,20 @@ export function sheetProblems(manifests: Manifests, base = root) {
       if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name)) continue;
       problems.push(`${manifest.component}: reads --${name}, which is no Arena token and is not `
         + 'declared external, so nothing in either package defines it');
+    }
+    for (const repeated of repeatedSupports(css)) {
+      problems.push(`${manifest.component}: ${repeated.selector} states ${repeated.condition} `
+        + `${repeated.count} times, and a bundler is free to keep one of them: bun build keeps the `
+        + 'first and discards the rest, so every held-back colour after the first leaves the sheet '
+        + 'a consumer installs. One rule states a condition once, which is what mergeSupports does '
+        + 'wherever it can prove the move harmless; a survivor here is a merge it refused');
+    }
+    for (const blind of blindFallbacks(css)) {
+      problems.push(`${manifest.component}: ${blind.selector} falls back to `
+        + `${blind.property}: var(--${blind.token}) under an ink of the same colour, so wherever `
+        + 'color-mix does not resolve the glyph is painted in the colour behind it and the state '
+        + 'is a solid block with nothing in it. A wash of its own colour has no full-strength '
+        + 'fallback: drop it and let the background not paint');
     }
   }
   return problems;

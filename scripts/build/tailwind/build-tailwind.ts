@@ -15,6 +15,7 @@ import { compileLayer, compileEntry, layerInputs, layerManifests } from '../../l
 import {
   classBase, classesManifest, entryStylesheet, stripIndirection, stripProblems, themeMapFor,
 } from '../../lib/tailwind/component-css.ts';
+import { dropBlindFallbacks, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
 import {
   componentSheet, matchingBrace, preludeSheet, splitUtilities,
 } from '../../lib/tailwind/component-sheets.ts';
@@ -161,7 +162,8 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const byComponent = new Map();
   for (const [file, manifest] of manifests) byComponent.set(classBase(manifest.component), file);
 
-  const { shared, components } = splitUtilities(stripIndirection(raw), new Set(byComponent.keys()));
+  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw)));
+  const { shared, components } = splitUtilities(settled, new Set(byComponent.keys()));
   const out = new Map();
   out.set(join(root, PRELUDE), BANNER + preludeSheet(shared, keyframesOf(root)));
 
