@@ -27,6 +27,7 @@ export const node = {
     'build:angular-package',
     'build:react-package',
     'check:arbitrary',
+    'check:classes',
     'check:dimensions',
     'check:duplicate-constants',
     'check:generated',
@@ -61,6 +62,12 @@ shape, space, weight and depth and ships one set of answers; a project writes it
 plugin, which is the ordinary case rather than an escape hatch. A palette is not an appearance,
 so the config below is the smaller half of that decision.
 
+**Every member documents itself where you already are.** The members of every component, each with
+the paragraph saying what it is for, ship as this package's type declarations, so an editor shows
+them on hover and the file the \`types\` entry resolves to is the same reference in one place. That
+is the member-level answer; what it does not carry is the language above it, which is the next
+section.
+
 **What a machine reads off a screen is part of what a component draws.** \`ArenaBreadcrumbs\`
 describes the trail it draws in \`schema.org\` terms, so a crawler reads the same trail a person
 does. Whether this package also writes your \`<head>\` is a thing only this package can answer,
@@ -76,7 +83,15 @@ editor and a game map are markup you write yourself.
 
 **The skin travels either way.** A style plugin answers every role whatever the product is, so
 what Arena does draw wears your appearance rather than Arena's. What runs out first is the
-component list.`,
+component list.
+
+**When the answer is that the markup is yours, the pattern is still not.** This package ships
+\`contracts/behaviour/\`, one file per accessibility pattern, stating normatively what markup of
+yours has to do to carry it: the roles it takes, the keys it answers, where focus goes on open,
+what it returns to on close and what dismisses it. \`dialog-modal.json\` is the one a lightbox or a
+viewer of yours binds; \`feed.json\` a scrolling list of posts. Read the file for the pattern you
+are drawing, and take the exported helper named in the table below rather than writing a second
+copy of either half.`,
 
   repository: () => `## This package ships the components and not the language
 
@@ -95,6 +110,68 @@ Without them an agent guesses, and **no gate reads your application**, so nothin
 difference: the screen renders, and the rules it breaks are the ones only a reader notices.
 
 The package is the code. The repository is the language.`,
+
+  page: () => `## The page around the components
+
+**The floor is yours, and this package paints none of it.** \`--fill-page\` is the role the page
+itself takes, and it goes on the element that owns the whole viewport. A page with no floor shows
+the browser's own canvas below the first screenful, which is white under a dark palette and is the
+most common way a correctly built screen looks broken. What the package does declare is
+\`color-scheme\`, from the palette's polarity, so the scrollbars, the native controls and the
+autofill the browser draws point the way the palette does without you asking.
+
+**Markup of your own takes a role the same way a component does.** \`--fill-surface\` and
+\`--edge-surface\` for a panel or a block of yours that reads as a card, \`--fill-surface-sunken\`
+for a well or a code block, \`--fill-field\` for a box somebody types into, \`--fill-hover\` for a
+row of yours under the pointer, and \`--ink-heading\`, \`--ink-body\` and \`--ink-muted\` for a
+heading, for text somebody reads and for text held back. A role is what a style plugin answers, so
+a page painted through one wears the appearance the project adopts later without a rule of yours
+being edited. \`contracts/design/roles.json\` in the repository is one entry per role.
+
+**The short names in \`css/colors.css\` are aliases over the palette**: \`--crimson\` and
+\`--gold\` for the two accents with a soft wash beside each, \`--danger\`, \`--success\`,
+\`--warning\` and \`--info\` for the four status colours with the same, and \`--bone\` and
+\`--mute\` for text at full strength and held back. Both are legitimate, and the difference is what
+happens when the appearance changes: a role follows the style plugin and an alias follows the
+palette. Reach for a role when the thing you are drawing is furniture, and an alias when it is
+voice.
+
+**A role says which colour text takes, and a level says how far it is held back.** They are two
+values and both are needed: under the appearance this package installs with, \`--ink-muted\` and
+\`--ink-body\` resolve to the same colour, and what makes the held-back register held back is the
+level mixed into it. Write it the way every component here writes it,
+\`color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)\`, with
+\`--level-ink-body\` and \`--level-ink-quiet\` beside it. The levels are floors rather than
+constants, and \`arena-to-prod\` raises one for a palette whose ink has too little room to clear its
+contrast bar, so a percentage of your own is the one value here that cannot follow the palette. A
+bare \`var(--ink-muted)\` paints at full strength, which is body copy wearing the name of a caption.
+
+**The column is three classes and the air between two things is a named step.** \`.arena-shell\`
+fills the window, \`.arena-shell__main\` goes on the one child that should take the slack, and
+\`.arena-band\` centres the content at the page width with a gutter either side. Inside it,
+\`.arena-stack\` is the step between two peers, \`.arena-stack--group\` the one for things that read
+as one unit, \`.arena-stack--section\` the one between two sections, and \`.arena-row\` a wrapping
+line. Every one of them goes on a container of your own, and none of them does anything on a
+component this package draws.
+
+**The miss those replace has one shape, and it is small enough to look like nothing.** A column of
+your own carrying \`display: flex\`, \`flex-direction: column\` and a gap, or two blocks with a
+margin between them, holding a title over its service inside a table cell, or a label over the
+value under it, written inline because reaching for a class felt like more than two lines were
+worth. \`.arena-stack--group\` is exactly that block, and the step a group is spent at is the same
+step wherever it is spent.
+
+**The band carries the width and the gutter and no block air**, so the space above and below a
+page's content column is yours, spent on the \`--sp-*\` scale. The rhythm classes answer the gap
+between two siblings, and this is the padding of the box that holds them.
+
+**Two densities, and each is a class on an ancestor rather than a member on anything.**
+\`.arena-compact\` re-densifies the controls and the rows for a screen that has to hold more.
+\`.arena-comfortable\` grows them to a 48px touch target for a screen a thumb drives. Both answer
+the same keys, so a container wearing both gets whichever the stylesheet emits last, which is why
+the two are exclusive. Each re-answers the control and row sizes and nothing
+else: the rhythm above does not re-densify, so the air between two components stays where you
+spent it.`,
 
   skin: () => `## Declare your skin
 
@@ -172,8 +249,14 @@ What each part means:
   \`{ "family": "Archivo", "src": "/fonts/archivo.woff2", "weight": "400 900" }\`.
 - **\`stylesheet\`** is optional and names what you render, so you send nothing else. See
   Build to production, below.
-- **\`stylePlugins\`** names the appearance, and it is optional only in the sense that leaving it
-  out keeps somebody else's. It is a list, because a build can carry more than one register, and the first entry is what a page with no class on it looks
+- **\`stylePlugins\`** names the appearance. **\`["default"]\`, or leaving the key out, is a
+  finished answer** rather than a step somebody has not taken yet, and it is the right one for a
+  first screen, for a prototype and for a tool nobody outside the team looks at. What it leaves
+  unresolved is the appearance: the product wears the answers this package installs with, and every
+  project stopping there looks like every other one. Writing one of your own is what makes the
+  corners, the weights, the borders, the depth and the internal air the product's own, with no
+  component rewritten to get there.
+  It is a list, because a build can carry more than one register, and the first entry is what a page with no class on it looks
   like; every later one emits under \`.arena-<name>\` and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
   your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers

@@ -35,10 +35,15 @@ read [`AGENTS.md`](../../AGENTS.md) instead. It is the root of that branch and t
 
 ## In this order
 
-**Before any of the three below, and once per project rather than per screen**, settle three things
+**Before any of the four below, and once per project rather than per screen**, settle four things
 in this order, because a screen written ahead of any of them is written against decisions nobody
 made:
 
+- **What is there, and how much of it am I taking?** [`references/surface.md`](./references/surface.md),
+  the whole offer in one place, the three steps a project can stop at, and the line where Arena
+  stops. It comes first because the three questions under it ask how much of a thing you have not
+  been shown yet, and because the parts that are not components are the ones a project discovers
+  late or never.
 - **What is this product, and is Arena's component list for it?** The paragraph above answers the
   second half; ask the user the first half when their brief has not. A product outside the
   register still takes the skin, and [`references/media-register.md`](./references/media-register.md)
@@ -136,7 +141,11 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
 | What else does the package export, besides components? | the layer's `PACKAGE.md`: the theme surface, the two measurements, the chart ramp helpers, and Angular's projection markers |
 | How do I size a page layout, or fit a panel to its own box? | the same section: `useArenaViewportBelow` / `arenaViewportBelow` for a page, `useArenaContainerWidth` / `arenaContainerWidth` for a box |
-| What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` (the aliases such as `--crimson`, and the muted text levels) and `contracts/design/environment.css` (`--pad-safe-*`, the device's own insets composed with the spacing scale, for a shell you draw around Arena) |
+| What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the nineteen colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
+| How much air goes between two components, and what column does the page sit in? | the same document: the three named steps as classes and as tokens, the four classes the column is made of, and the cut between air you place and air the kernel answers |
+| What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
+| Where does Arena stop? | the same document's last section, which is a list of decisions rather than gaps waiting to close |
+| What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible? | `contracts/behaviour/<pattern>.json`, and the component's own `<Name>.behaviour.json` |
 | How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](../../frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](../../frameworks/angular/PACKAGE.md) |
@@ -163,10 +172,11 @@ nothing stops you and nothing supports you either. The name reads like a BEM sur
 meant you to target and it is not one: it is compiler output, no contract names it, and a slot
 may be renamed in any release. Content you draw yourself is yours, styled through the same tokens.
 
-**How a screen is composed is yours, and the silence is deliberate.** Arena ships the pieces,
-`css/page.css` for the column and the components, and no shape they must make: a console and a
-reading view are different pages before they are different components. Start from what the
-application is.
+**How a screen is composed is yours, and the silence is deliberate, and it is about the shape
+rather than about the inventory.** Arena ships the pieces and no shape they must make: a console
+and a reading view are different pages before they are different components. Start from what the
+application is, and take the pieces from [`references/page.md`](./references/page.md), which is
+the inventory half and holds every one of them.
 
 Arena keeps the questions and every answer is a style plugin. The reasoning under the appearance
 decision above is

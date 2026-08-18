@@ -85,6 +85,28 @@ log with a fixed row, and `ArenaCard` is the container above. Both are the first
 for your screen returns, and reaching for either is how a product in this register ends up fighting
 a component instead of writing six lines.
 
+## The viewer that opens a picture at full size
+
+Arena ships no lightbox, and this is the element of your own that comes up most often. Every value
+it needs is already a token, so the only thing you are inventing is the box:
+
+- **The dim is `--scrim` with `blur(var(--scrim-blur))`**, which is the pair Arena's own dialogs
+  dim the page with, and the layer is `--z-modal`. A scrim of your own is the one value that makes
+  a viewer look like a different product from the dialogs beside it.
+- **`object-fit: contain`, not `cover`.** Edge to edge and never cropped pull against each other on
+  any viewport whose shape differs from the picture's, and a capture that lost a corner to its
+  frame is one somebody has to go and find the original of. What is left over on the short axis is
+  the dimmed page rather than a mat you designed.
+- **The way out is a control you draw, and `--overlay-media` is what it stands on.** That role is
+  the wash a frame draws under anything laid over a picture, and a close control laid over one is
+  that case even with no `ArenaFigure` in sight: the picture underneath is one nobody chose, so a
+  control tinted by the palette alone is legible over some of them and invisible over the rest.
+- **`--pad-safe-top` and `--pad-safe-right`** hold that control off a phone's cutout, composed with
+  a step of the spacing scale.
+- **Bind `contracts/behaviour/dialog-modal.json`** and take the focus trap your layer exports
+  rather than writing one. A viewer with no name, no Tab trap or no focus restored to the control
+  that opened it is the same defect in your markup that the contract exists to stop in Arena's.
+
 ## One rule bends here, and only one
 
 **One primary accent per view** is written for a screen. A feed is not a screen in that sense: a
