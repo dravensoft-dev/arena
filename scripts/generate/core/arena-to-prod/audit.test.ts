@@ -6,6 +6,7 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
+  LINKABLE_TAGS, statedRung,
   UNMODELLED_UNITS,
 } from './audit.ts';
 
@@ -358,4 +359,30 @@ test('the ladder this rule reads is the one the contracts declare, or it is judg
     + 'literal here and this is what keeps it from drifting: a component that gains, loses or moves '
     + 'a default rung has to move this list with it. A component defaulting to `none` is deliberately '
     + 'absent, because it opens no rung at all');
+});
+
+test('a stated heading level is the rung it states, so saying the level you meant cannot open a gap', () => {
+  assert.equal(statedRung('headingLevel="h3"'), 3);
+  assert.equal(statedRung("[headingLevel]=\"'h3'\""), 3);
+  assert.equal(statedRung('headingLevel="none"'), null);
+  assert.equal(statedRung('[headingLevel]="pitch()"'), undefined);
+  assert.equal(statedRung('title="x"'), undefined);
+});
+
+test('the components a link may wrap are the ones whose contract takes an href, since the remedy is '
+  + 'to pass it', () => {
+  const dir = join(repoRoot, 'contracts/api/components');
+  const declared = new Set<string>();
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.json')) continue;
+    const contract = JSON.parse(readFileSync(join(dir, file), 'utf8'));
+    if (contract.api?.href !== undefined) declared.add(kebabTag(contract.component));
+  }
+
+  assert.ok(declared.size > 0, 'no contract declares an href, so this checked nothing');
+  assert.deepEqual([...LINKABLE_TAGS].sort(), [...declared].sort(),
+    'the audit ships inside the package and cannot read contracts/ from there, so this set is a '
+    + 'literal and this is what keeps it from drifting. It reports only these because the finding '
+    + 'tells a reader to pass the href to the component instead: a component with no href member '
+    + 'cannot take that advice, and the app bar documents wrapping its brand in a link of your own');
 });

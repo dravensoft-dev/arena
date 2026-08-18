@@ -271,6 +271,18 @@ export const HEADING_RUNGS: Record<string, number> = {
 
 export const HEADING_LEVEL_ATTRIBUTE = /(?:^|\s)\[?headingLevel\]?\s*=/;
 
+export const STATED_HEADING_LEVEL = /(?:^|\s)\[?headingLevel\]?\s*=\s*["']\{?\s*'?(h[1-6]|none)'?\s*\}?["']/;
+
+export function statedRung(attributes: string) {
+  const stated = STATED_HEADING_LEVEL.exec(attributes)?.[1];
+  if (stated === undefined) return undefined;
+  return stated === 'none' ? null : Number(stated.slice(1));
+}
+
+export const LINKABLE_TAGS = new Set([
+  'arena-bottom-nav-item', 'arena-card', 'arena-side-nav-item', 'arena-table-cell',
+]);
+
 export function outlineGap(drawn: number[]): [number, number] | null {
   const rungs = [...new Set(drawn)].sort((a, b) => a - b);
   for (let i = 1; i < rungs.length; i += 1) {
@@ -354,9 +366,15 @@ export function structuralFindings(text: string): Finding[] {
     const attributes = ownAttributes(text.slice(start + name.length + 1, ends - 1));
 
     const rung = HEADING_RUNGS[kebabTag(name)];
-    if (rung !== undefined && !HEADING_LEVEL_ATTRIBUTE.test(attributes)) {
-      if (!rungs.length) firstRung = lineAt(text, start);
-      rungs.push(rung);
+    if (rung !== undefined) {
+      const stated = statedRung(attributes);
+      const drawn = stated === undefined
+        ? (HEADING_LEVEL_ATTRIBUTE.test(attributes) ? undefined : rung)
+        : stated ?? undefined;
+      if (drawn !== undefined) {
+        if (!rungs.length) firstRung = lineAt(text, start);
+        rungs.push(drawn);
+      }
     }
 
     if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
@@ -365,7 +383,8 @@ export function structuralFindings(text: string): Finding[] {
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
     const inside = text.slice(ends).replace(/^\s*(?:\{\s*\/\*[\s\S]*?\*\/\s*\}\s*|<!--[\s\S]*?-->\s*)*/, '');
-    if (/^<(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.test(inside))
+    const wrapped = /^<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.exec(inside)?.[1];
+    if (wrapped !== undefined && LINKABLE_TAGS.has(kebabTag(wrapped)))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
   }
   const gap = outlineGap(rungs);

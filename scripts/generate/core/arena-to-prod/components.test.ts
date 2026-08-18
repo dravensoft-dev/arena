@@ -118,3 +118,15 @@ test('a map keyed by something this command cannot scan for is an answer of none
 test('the word the config takes is stated once', () => {
   assert.equal(AUTO, 'auto');
 });
+
+test('a generic type argument is not a tag, so a type-only import is not reported as a component', () => {
+  const map = { match: 'symbol', draws: { ArenaTable: 'arena-table' }, needs: {} };
+  const source = "import type { ArenaTableSort } from '@dravensoft/arena-react';\n"
+    + "const [sort, setSort] = useState<ArenaTableSort>({ column: 0 });\n"
+    + "const view = <ArenaTable sort={sort} />;\n";
+  const read = symbolKeys(map, [source], '@dravensoft/arena-react');
+  assert.deepEqual(read.drawn, ['ArenaTable']);
+  assert.deepEqual(read.unplaced, [],
+    'useState<ArenaTableSort> is a type position: reporting it tells a consumer their type import '
+    + 'is a component this package does not ship, and --strict=components fails the build on it');
+});

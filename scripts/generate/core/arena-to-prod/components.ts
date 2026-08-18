@@ -40,7 +40,7 @@ export function selectorKeys(map: ComponentMap, sources: string[]) {
 export const namedImports = (packageName: string) =>
   new RegExp(`import\\s*(?:type\\s*)?\\{([^}]*)\\}\\s*from\\s*['"]${packageName.replace('/', '\\/')}['"]`, 'g');
 
-export const JSX_OPEN = /<([A-Z][A-Za-z0-9]*)[\s/>]/g;
+export const JSX_OPEN = /(?<![A-Za-z0-9_$])<([A-Z][A-Za-z0-9]*)[\s/>]/g;
 
 export function symbolKeys(map: ComponentMap, sources: string[], packageName: string) {
   const written = new Set<string>();
