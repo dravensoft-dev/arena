@@ -47,7 +47,9 @@ export function useArenaDialogModal({ open, panelRef, onDismiss }: ArenaDialogMo
 
   useEffect(() => {
     if (open) {
-      restoreTo.current = typeof document === 'undefined' ? null : document.activeElement;
+      if (restoreTo.current === null) {
+        restoreTo.current = typeof document === 'undefined' ? null : document.activeElement;
+      }
       const panel = panelRef.current;
       if (panel) arenaFocusFirstFocusable(panel);
       return undefined;
