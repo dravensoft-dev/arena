@@ -20,6 +20,10 @@ type FieldRef = Pick<Field, 'name' | 'member' | 'node'>;
 
 type Markers = Map<string, string>;
 
+export type Tag = { element: string; hook: string };
+
+export type Tags = Map<string, Tag>;
+
 export const PRIMITIVES = new Set(['string', 'number', 'boolean']);
 
 export const VOID_ELEMENTS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
@@ -45,8 +49,28 @@ export function markerNames(source: string): Markers {
   return found;
 }
 
-export function selector(name: string) {
-  return kebab(name);
+export function tagFor(declared: string): Tag {
+  const at = declared.indexOf('[');
+  if (at === -1) return { element: declared, hook: '' };
+  return { element: declared.slice(0, at), hook: declared.slice(at + 1, declared.indexOf(']')) };
+}
+
+export function componentTags(sources: Map<string, string>): Tags {
+  const found: Tags = new Map();
+  for (const [name, source] of sources) {
+    const declared = source.match(/selector:\s*'([^']+)'/);
+    if (declared) found.set(name, tagFor(captured(declared)));
+  }
+  return found;
+}
+
+export function selector(name: string, tags?: Tags) {
+  return tags?.get(name)?.element ?? kebab(name);
+}
+
+export function hook(name: string, tags?: Tags) {
+  const carried = tags?.get(name)?.hook;
+  return carried ? ` ${carried}` : '';
 }
 
 export function typeExpr(knob: Knob) {
@@ -118,7 +142,7 @@ export function nodeAttributes(node: FixtureNode, fields: FieldRef[]) {
 }
 
 export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[],
-  markers: Markers, depth: number, imports: Set<string>): string {
+  markers: Markers, tags: Tags, depth: number, imports: Set<string>): string {
   const pad = '  '.repeat(depth);
   if (typeof node.text === 'string' && !node.element) return `${pad}${escapeText(node.text)}`;
   if (typeof node.element === 'string' || typeof node.text === 'string') {
@@ -130,7 +154,8 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
   }
 
   const place = placeOf(places, node.component);
-  const tag = selector(place.name);
+  const tag = selector(place.name, tags);
+  const open = `${tag}${hook(place.name, tags)}`;
   imports.add(place.name);
   const slots = node.slots ?? {};
   const attrs = nodeAttributes(node, fields);
@@ -140,19 +165,19 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
       const marked = name === 'content' ? '' : ` ${name}`;
       const marker = markers.get(name);
       if (marked && marker) imports.add(marker);
-      children.push(projected(one, places, fields, markers, depth + 1, imports, marked));
+      children.push(projected(one, places, fields, markers, tags, depth + 1, imports, marked));
     }
   }
-  if (children.length === 0) return `${pad}<${tag}${attrs}></${tag}>`;
-  return `${pad}<${tag}${attrs}>\n${children.join('\n')}\n${pad}</${tag}>`;
+  if (children.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
+  return `${pad}<${open}${attrs}>\n${children.join('\n')}\n${pad}</${tag}>`;
 }
 
 export function projected(node: FixtureNode, places: Places, fields: FieldRef[],
-  markers: Markers, depth: number, imports: Set<string>, marked: string) {
+  markers: Markers, tags: Tags, depth: number, imports: Set<string>, marked: string) {
   const pad = '  '.repeat(depth);
-  if (!marked) return renderNode(node, places, fields, markers, depth, imports);
+  if (!marked) return renderNode(node, places, fields, markers, tags, depth, imports);
   if (typeof node.text === 'string' && !node.element) return `${pad}<span${marked}>${escapeText(node.text)}</span>`;
-  const rendered = renderNode(node, places, fields, markers, depth, imports).trimStart();
+  const rendered = renderNode(node, places, fields, markers, tags, depth, imports).trimStart();
   return `${pad}${rendered.replace(/^(<[\w-]+)/, `$1${marked}`)}`;
 }
 
@@ -161,24 +186,25 @@ export function escapeText(text: string) {
 }
 
 export function slotBlock(knob: Knob, places: Places, fields: FieldRef[],
-  markers: Markers, depth: number, imports: Set<string>, marked: string) {
+  markers: Markers, tags: Tags, depth: number, imports: Set<string>, marked: string) {
   const pad = '  '.repeat(depth);
   if (knob.control === 'slotText') {
     const body = marked ? `<span${marked}>{{ k().${knob.member} }}</span>` : `{{ k().${knob.member} }}`;
     return `${pad}@if (k().${knob.member} !== undefined) {\n${pad}  ${body}\n${pad}}`;
   }
   const nodes = ((knob.nodes ?? []) as FixtureNode[])
-    .map((one) => projected(one, places, fields, markers, depth + 1, imports, marked));
+    .map((one) => projected(one, places, fields, markers, tags, depth + 1, imports, marked));
   if (!marked) return `${pad}@if (k().${knob.member}) {\n${nodes.join('\n')}\n${pad}}`;
   return nodes.map((one: string) => `${pad}@if (k().${knob.member}) {\n${one}\n${pad}}`).join('\n');
 }
 
 export function renderSubject(model: PlaygroundModel, places: Places,
   fields: FieldRef[],
-  markers: Markers, depth: number, imports: Set<string>) {
+  markers: Markers, tags: Tags, depth: number, imports: Set<string>) {
   const pad = '  '.repeat(depth);
   const inner = `${pad}  `;
-  const tag = selector(model.component);
+  const tag = selector(model.component, tags);
+  const open = `${tag}${hook(model.component, tags)}`;
   imports.add(model.component);
 
   const attrs = model.knobs
@@ -192,16 +218,16 @@ export function renderSubject(model: PlaygroundModel, places: Places,
     .join('');
 
   const slots = model.knobs.filter((knob) => knob.form === 'slot');
-  if (slots.length === 0) return `${pad}<${tag}${attrs}></${tag}>`;
+  if (slots.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
 
   const blocks = slots.map((knob) => {
     const marked = knob.member === 'content' ? '' : ` ${knob.member}`;
     const draws = knob.control === 'slotText' || (knob.nodes ?? []).length > 0;
     const marker = markers.get(knob.member);
     if (marked && draws && marker) imports.add(marker);
-    return slotBlock(knob, places, fields, markers, depth + 1, imports, marked);
+    return slotBlock(knob, places, fields, markers, tags, depth + 1, imports, marked);
   });
-  return `${pad}<${tag}${attrs}>\n${blocks.join('\n')}\n${pad}</${tag}>`;
+  return `${pad}<${open}${attrs}>\n${blocks.join('\n')}\n${pad}</${tag}>`;
 }
 
 export function holdsSubject(node: FixtureNode | string | null): boolean {
@@ -211,14 +237,15 @@ export function holdsSubject(node: FixtureNode | string | null): boolean {
 }
 
 export function renderTree(model: PlaygroundModel, places: Places, fields: FieldRef[],
-  markers: Markers, depth: number, imports: Set<string>) {
-  if (model.host === null) return renderSubject(model, places, fields, markers, depth, imports);
+  markers: Markers, tags: Tags, depth: number, imports: Set<string>) {
+  if (model.host === null) return renderSubject(model, places, fields, markers, tags, depth, imports);
   const wrap = (node: FixtureNode | typeof SUBJECT, level: number): string => {
     const pad = '  '.repeat(level);
-    if (node === '$subject') return renderSubject(model, places, fields, markers, level, imports);
-    if (!holdsSubject(node)) return renderNode(node, places, fields, markers, level, imports);
+    if (node === '$subject') return renderSubject(model, places, fields, markers, tags, level, imports);
+    if (!holdsSubject(node)) return renderNode(node, places, fields, markers, tags, level, imports);
     const place = placeOf(places, node.component);
-    const tag = selector(place.name);
+    const tag = selector(place.name, tags);
+    const open = `${tag}${hook(place.name, tags)}`;
     imports.add(place.name);
     const attrs = nodeAttributes(node, fields);
     const children = [];
@@ -229,11 +256,11 @@ export function renderTree(model: PlaygroundModel, places: Places, fields: Field
         if (marked && marker) imports.add(marker);
         children.push(holdsSubject(one)
           ? wrap(one, level + 1)
-          : projected(one, places, fields, markers, level + 1, imports, marked));
+          : projected(one, places, fields, markers, tags, level + 1, imports, marked));
       }
     }
-    if (children.length === 0) return `${pad}<${tag}${attrs}></${tag}>`;
-    return `${pad}<${tag}${attrs}>\n${children.join('\n')}\n${pad}</${tag}>`;
+    if (children.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
+    return `${pad}<${open}${attrs}>\n${children.join('\n')}\n${pad}</${tag}>`;
   };
   return wrap(model.host, depth);
 }
@@ -251,8 +278,10 @@ export function validatorTable(model: { knobs: Knob[] }) {
 }
 
 export function angularEntry(model: PlaygroundModel, places: Places,
-  contracts: Map<string, any>, markersSource: string, banner: string) {
+  contracts: Map<string, any>, markersSource: string, banner: string,
+  sources: Map<string, string> = new Map()) {
   const markers = markerNames(markersSource);
+  const tags = componentTags(sources);
   const fields: Field[] = [];
   collectFields(model.host, contracts, fields, 'host');
   for (const knob of model.knobs) {
@@ -260,7 +289,7 @@ export function angularEntry(model: PlaygroundModel, places: Places,
   }
 
   const imports = new Set<string>();
-  const template = renderTree(model, places, fields, markers, 3, imports);
+  const template = renderTree(model, places, fields, markers, tags, 3, imports);
   const used = [...imports].sort();
   const types = contractTypes(model, fields);
 

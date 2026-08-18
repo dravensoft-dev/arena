@@ -15,6 +15,8 @@
     "AGENTS.md",
     "CLAUDE.md",
     "DOUBTS.md",
+    "GENERATED.md",
+    "CHARTS.md",
     "PACKAGING.md",
     "CONTRIBUTING.md",
     "SECURITY.md"
@@ -22,8 +24,7 @@
   "rules": [
     "Tokens are the only styling layer.",
     "Put no class of your own on an Arena component",
-    "Re-skin through `arena.config.json`",
-    "One voice per page, picked before anything else",
+    "Arena keeps the questions and\nevery answer is a style plugin",
     "Danger is outline, never filled",
     "One primary accent per view.",
     "No gradients",

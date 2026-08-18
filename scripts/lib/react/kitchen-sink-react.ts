@@ -44,7 +44,7 @@ export function section(one: SinkModel['sections'][number], places: Places, dept
 export function header(model: SinkModel, depth: number) {
   const pad = '  '.repeat(depth);
   return `${pad}<header className="${KS.head}">\n`
-    + `${pad}  <h1 className="${KS.voice}">${model.extension}</h1>\n`
+    + `${pad}  <h1 className="${KS.sink}">${model.sink}</h1>\n`
     + (model.note ? `${pad}  <p className="${KS.note}">{${JSON.stringify(model.note)}}</p>\n` : '')
     + `${pad}</header>`;
 }
@@ -83,11 +83,11 @@ export function reactSinkPage(model: SinkModel, banner: string) {
     },
   };
   return kitchenSinkPage({
-    extension: model.extension,
+    sink: model.sink,
     up: UP,
     banner,
     head: `<script type="importmap">\n${JSON.stringify(importmap, null, 2)}\n</script>\n`,
     mount: `<div id="${MOUNT_ID}"></div>`,
-    script: entryFile(model.extension, 'js'),
+    script: entryFile(model.sink, 'js'),
   });
 }

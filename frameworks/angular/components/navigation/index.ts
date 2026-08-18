@@ -1,3 +1,4 @@
+export * from './arena-app-bar';
 export * from './arena-bottom-nav';
 export * from './arena-bottom-nav-item';
 export * from './arena-breadcrumbs';

@@ -6,8 +6,8 @@ import { FocusKeyManager, type FocusableOption } from '@angular/cdk/a11y';
 import { ArenaTab } from '../arena-tab/ArenaTab';
 import { ArenaTabsState } from './ArenaTabsState';
 import { arenaTabsStyles } from './ArenaTabs.variants';
-
-let nextId = 0;
+import manifest from './ArenaTabs.classes.generated';
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-tabs',
@@ -16,9 +16,9 @@ let nextId = 0;
   providers: [ArenaTabsState],
   host: { style: 'display: contents' },
   template: `
-    <div role="tablist" [class]="styles().root()" (keydown)="onKeydown($event)">
+    <div role="tablist" [class]="styles().root()" [attr.data-arena-part]="parts.root" (keydown)="onKeydown($event)">
       @for (tab of tabs(); track tab.value(); let i = $index) {
-        <button #tabButton type="button" role="tab" [class]="tabClass(tab.value())"
+        <button #tabButton type="button" role="tab" [class]="tabClass(tab.value())" [attr.data-arena-part]="parts.tab"
                 [attr.id]="tabId(tab.value())" [attr.aria-controls]="panelId(tab.value())"
                 [attr.aria-selected]="tab.value() === active()"
                 [attr.tabindex]="i === stopIndex() ? 0 : -1"
@@ -29,6 +29,8 @@ let nextId = 0;
   `,
 })
 export class ArenaTabs {
+  protected readonly parts = manifest.parts;
+
   /** The selected tab's value. Omit and pass `defaultValue` to let it govern itself. */
   readonly value = input<string>();
   /** The initially selected value when uncontrolled. Defaults to the first tab. */
@@ -36,7 +38,7 @@ export class ArenaTabs {
   /** A different tab was chosen; carries its value. */
   readonly change = output<string>();
 
-  private readonly base = `arena-tabs-${nextId++}`;
+  private readonly base = inject(ArenaIdGenerator).next('arena-tabs');
   private readonly chosen = signal<string | undefined>(undefined);
   private readonly state = inject(ArenaTabsState);
   private readonly injector = inject(Injector);

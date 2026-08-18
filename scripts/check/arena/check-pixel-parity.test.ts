@@ -7,8 +7,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, voicesIn,
+  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
+  ALLOWED, staleAllowanceProblems, within,
 } from './check-pixel-parity.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 
@@ -51,32 +52,32 @@ test('the freeze runs after the page has settled, or it pins the width nothing h
 });
 
 test('a page is walked from the tree, and the pair points at the same file in every layer', () => {
-  assert.equal(pagePath('react', 'editorial'), `frameworks/react/kitchen-sink/editorial/${PAGE_FILE}`);
-  assert.equal(pagePath('angular', 'editorial'), `frameworks/angular/kitchen-sink/editorial/${PAGE_FILE}`);
+  assert.equal(pagePath('react', 'default'), `frameworks/react/kitchen-sink/default/${PAGE_FILE}`);
+  assert.equal(pagePath('angular', 'default'), `frameworks/angular/kitchen-sink/default/${PAGE_FILE}`);
 });
 
-test('the voices on disk are the voices walked, so an arrangement that lands is compared', () => {
-  const react = voicesIn('react');
-  assert.deepEqual(react, voicesIn('angular'),
-    'a voice one layer draws and the other does not is the pair that cannot be compared');
+test('the sinks on disk are the sinks walked, so an arrangement that lands is compared', () => {
+  const react = sinksIn('react');
+  assert.deepEqual(react, sinksIn('angular'),
+    'a page one layer draws and the other does not is the pair that cannot be compared');
   assert.ok(react.length > 0, 'a sweep over no page reports no difference exactly as a clean one does');
 });
 
-test('a voice missing from one layer is named rather than quietly skipped', () => {
-  const problems = pairProblems(new Map([['react', ['none', 'editorial']], ['angular', ['none']]]));
+test('a sink missing from one layer is named rather than quietly skipped', () => {
+  const problems = pairProblems(new Map([['react', ['default', 'witness']], ['angular', ['default']]]));
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /editorial: angular draws no page/);
+  assert.match(problems[0] ?? '', /witness: angular draws no page/);
 });
 
 test('two pages of different sizes are reported as that, rather than as a box inside them', () => {
-  assert.equal(sizeProblem('none:dark', { width: 1440, height: 700 }, { width: 1440, height: 700 }), null);
-  const problem = sizeProblem('none:dark', { width: 1440, height: 700 }, { width: 1440, height: 812 });
+  assert.equal(sizeProblem('default:dark', { width: 1440, height: 700 }, { width: 1440, height: 700 }), null);
+  const problem = sizeProblem('default:dark', { width: 1440, height: 700 }, { width: 1440, height: 812 });
   assert.match(problem ?? '', /1440x700/);
   assert.match(problem ?? '', /1440x812/);
 });
 
 test('a page that never painted says so, and says nothing about whether the layers agree', () => {
-  const problem = paintProblem('none:dark', 'angular', {
+  const problem = paintProblem('default:dark', 'angular', {
     painted: { ready: false, waitedMs: PAINTED.ms }, settled: false, tries: 0,
     silence: { ...SILENT, readyState: 'loading', elements: 2 },
   });
@@ -85,14 +86,14 @@ test('a page that never painted says so, and says nothing about whether the laye
 });
 
 test('a page that painted and never stopped moving is a different failure from one that never painted', () => {
-  const problem = paintProblem('none:dark', 'react', {
+  const problem = paintProblem('default:dark', 'react', {
     painted: { ready: true, waitedMs: 40 }, settled: false, tries: SETTLE_TRIES, silence: SILENT,
   });
   assert.match(problem ?? '', /never stopped changing/);
 });
 
 test('a page that raised an error is not compared, since what it painted is not what it was asked to', () => {
-  const problem = paintProblem('none:dark', 'react', {
+  const problem = paintProblem('default:dark', 'react', {
     painted: { ready: true, waitedMs: 40 }, settled: true, tries: 1,
     silence: { ...SILENT, errors: ['failed to load Sink.entry.generated.js'] },
   });
@@ -101,7 +102,7 @@ test('a page that raised an error is not compared, since what it painted is not 
 });
 
 test('a page that painted, settled and said nothing is compared', () => {
-  assert.equal(paintProblem('none:dark', 'react', {
+  assert.equal(paintProblem('default:dark', 'react', {
     painted: { ready: true, waitedMs: 40 }, settled: true, tries: 1, silence: SILENT,
   }), null);
 });
@@ -109,4 +110,30 @@ test('a page that painted, settled and said nothing is compared', () => {
 test('captures are written only where a reader asks for them, so the gate writes nothing by default', () => {
   assert.equal(dumpDir({}), undefined);
   assert.equal(dumpDir({ ARENA_PIXEL_DUMP: '/tmp/parity' }), '/tmp/parity');
+});
+
+test('an allowance is bounded on both axes, so a wider move is not absorbed by a narrow one', () => {
+  const allowance = { pixels: 400, delta: 64, why: 'measured' };
+  assert.equal(within(allowance, 150, 35), true);
+  assert.equal(within(allowance, 401, 35), false, 'past the count');
+  assert.equal(within(allowance, 150, 65), false, 'past the channel delta');
+  assert.equal(within(undefined, 1, 1), false, 'a sink with no allowance takes none');
+});
+
+test('an allowance nothing spends is stale, and one for a pair nobody compared is worse', () => {
+  const declared = new Map([['witness', { pixels: 400, delta: 64, why: 'measured' }]]);
+  assert.deepEqual(staleAllowanceProblems(new Map([['witness', 149]]), declared), []);
+  assert.match(staleAllowanceProblems(new Map([['witness', 0]]), declared)[0] ?? '',
+    /not an exemption/);
+  assert.match(staleAllowanceProblems(new Map(), declared)[0] ?? '', /not here/);
+});
+
+test('no sink carries an allowance at all, and the emptiness is the claim', () => {
+  assert.deepEqual([...ALLOWED.keys()], [],
+    'every arrangement compared is one a consumer installs, and the two layers agree on it to the '
+    + 'pixel; an entry landing here is a divergence somebody measured and could not close, never a '
+    + 'threshold that made a run go quiet');
+  for (const [sink, allowance] of ALLOWED) {
+    assert.ok(allowance.why.length > 80, `${sink}: an allowance carries the measurement behind it`);
+  }
 });

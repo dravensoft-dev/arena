@@ -1,7 +1,7 @@
 # Arena's scales, step by step
 
 > **The tables half of the design specification.** [`AGENTS.md`](./AGENTS.md) beside it is what
-> DECIDES: the voice, the colour meanings, the danger convention, iconography, theming and the
+> DECIDES: the register, the colour meanings, the danger convention, iconography, theming and the
 > layer contract. [`TokenTypes.md`](./TokenTypes.md) is the third audience, the DTCG `$type`
 > every group carries and the shape a value is authored in.
 
@@ -94,9 +94,9 @@ goes to 48px, `--dz-ctl-h-sm` to 40px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to
 
 48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
 the 40px base does not. This is the whole reason target size is density's axis and never a design
-extension's, since how large a control is answers who is pointing at it rather than what voice the
+style plugin's, since how large a control is answers who is pointing at it rather than what register the
 product speaks in. The two density classes are mutually exclusive with each other, because both
-set the same keys, and compose with a theme and with an extension, because those set others.
+set the same keys, and compose with a theme and with a style plugin, because those set others.
 
 `--dz-text-2xs` does not shrink further in the compact scope: −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 
@@ -151,7 +151,7 @@ Line height splits editorial from control exactly the way `fs`/`dz` split font s
 | `--lh-tight` | `0.98` | sub-1em, the tightest display headings |
 | `--lh-snug` | `1.15` | snug prose: short labels and values that still wrap on occasion (`ArenaStatCard`'s value, `ArenaRadio`'s label, `Shell`'s person block) |
 | `--lh-body` | `1.6` | prose: paragraphs, dialog and alert body copy, messages |
-| `--lh-loose` | `1.8` | reading leading, one step above body, for a voice that carries its hierarchy in type rather than in boxes. It is what `lh-prose` moves to under `editorial` and what nothing else reaches for |
+| `--lh-loose` | `1.8` | reading leading, one step above body, for a style plugin that carries its hierarchy in type rather than in boxes. It is the step `lh-prose` reaches for and nothing else does |
 | `--dz-lh` | `1` | glyph-tight, the control reset, where the box is exactly its glyph |
 
 The prose steps between them cover every wrapping site in the system, and a value within 0.05 of one is drift rather than a step of its own.
@@ -177,9 +177,9 @@ Two families, one `$type: duration`, two roles that must not merge. `dur` is the
 
 Exposed in the Tailwind layer as an arbitrary value against each token, `duration-[var(--loop-spin)]` and so on, rather than as a named utility: Tailwind v4 has no duration namespace of its own for either family to extend.
 
-**A transition names four roles and no scale step, and the easing scale is where that rule was half kept.** `dur` above says how long, `ease` (`--ease-out`, `--ease-in-out`, `--ease-emphatic`, `contracts/design/effects.json`) says on what curve, and neither says *which* transition is being asked about. The questions are in `contracts/design/roles.json`: `--dur-hover` and `--ease-hover` for a response to a pointer, `--dur-state` and `--ease-state` for a change the eye follows, plus `--press-scale` for how far a control sinks while it is held and `--lift-control` for how far it rises. A manifest writes those and `check:roles` fails one that writes `--dur-fast` or `ease-out`, because only a question can be answered differently by one voice than by another: `showcase` takes the hover to 220ms **on `ease.in-out`**, which is an object with mass being moved rather than the same instant answer taking longer.
+**A transition names four roles and no scale step, and the easing scale is where that rule was half kept.** `dur` above says how long, `ease` (`--ease-out`, `--ease-in-out`, `--ease-emphatic`, `contracts/design/effects.json`) says on what curve, and neither says *which* transition is being asked about. The questions are in `contracts/design/roles.json`: `--dur-hover` and `--ease-hover` for a response to a pointer, `--dur-state` and `--ease-state` for a change the eye follows, plus `--press-scale` for how far a control sinks while it is held and `--lift-control` for how far it rises. A manifest writes those and `check:roles` fails one that writes `--dur-fast` or `ease-out`, because only a question can be answered differently by one style plugin than by another: a plugin that takes the hover to 220ms **on `ease.in-out`** is moving an object with mass rather than making the same instant answer take longer.
 
-The three `ease` steps stay reachable where no voice has a question to re-answer: every entrance in `frameworks/tailwind/Animations.css` is a keyframe rather than a transition, and the rotor's `--ease-emphatic` is the brand's own gesture. Those answer the `prefers-reduced-motion` policy above, which is a floor and belongs to nobody.
+The three `ease` steps stay reachable where no style plugin has a question to re-answer: every entrance in `frameworks/tailwind/Animations.css` is a keyframe rather than a transition, and the rotor's `--ease-emphatic` is the brand's own gesture. Those answer the `prefers-reduced-motion` policy above, which is a floor and belongs to nobody.
 
 ## Behaviour timing (`delay` / `dismiss`)
 Two more `$type: duration` families, deliberately not part of `dur` or `loop` above. `dur` measures how long a transition takes *once it has been decided*; `delay` measures how long the system waits *before deciding*, which is pointer intent rather than motion. `dismiss` measures how long a transient notice is left alone before it withdraws itself, which is a permanence decision, not a transition either. Both live in `contracts/design/behaviour.json`, generated into `contracts/design-generated/effects.generated.css`.

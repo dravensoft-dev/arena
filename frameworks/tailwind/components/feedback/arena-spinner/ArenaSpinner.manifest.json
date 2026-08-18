@@ -8,7 +8,7 @@
     "tone": {
       "accent": { "root": "text-primary" },
       "gold": { "root": "text-secondary" },
-      "neutral": { "root": "text-base-content/62" },
+      "neutral": { "root": "text-ink-muted/(--level-ink-muted)" },
       "on-accent": { "root": "text-primary-content" }
     },
     "size": {

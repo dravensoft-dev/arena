@@ -11,7 +11,7 @@ import {
   arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import {
   arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
@@ -57,7 +57,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
         <g>
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
                 stroke="var(--border)" [style]="lineStyle" />
-          <text [attr.x]="tickLabelX" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
+          <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
                 fill="var(--text-muted)" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
@@ -80,7 +80,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
             (pointerleave)="onPointerLeave($event)" (pointercancel)="hover.set(null)" />
 
       @for (bar of bars(); track bar.index) {
-        <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" text-anchor="middle"
+        <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" [attr.text-anchor]="bar.anchor"
               fill="var(--text-muted)" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
       }
@@ -154,7 +154,7 @@ export class ArenaBarChart {
   protected readonly legendItemStyle = ARENA_LEGEND_ITEM_STYLE;
   protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
   protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
-  protected readonly tickLabelX = arenaTickLabelX();
+  protected readonly tickLabelX = computed(() => arenaTickLabelX(this.gutter()));
   protected readonly categoryLabelY = computed(() => arenaCategoryLabelY(this.strip().plotH));
   protected readonly hover = signal<number | null>(null);
 
@@ -185,7 +185,9 @@ export class ArenaBarChart {
   private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH));
+  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write()));
+
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);
@@ -222,6 +224,7 @@ export class ArenaBarChart {
       index,
       hitX: arenaBandStart(bands, index),
       midX: arenaBandCenter(bands, index),
+      anchor: arenaCategoryAnchor(index, this.points()),
       label: labels[index] ?? '',
       marks: stacked
         ? arenaStackSegments(series, index).map((segment) => {

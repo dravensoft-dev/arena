@@ -45,8 +45,11 @@ test('check:angular typechecks both projects, because no barrel reaches a page e
   );
 });
 
-test('the layer project still names the barrel alone, so check:angular keeps its own subject', () => {
+test('the layer project names the shipped entry points and nothing else, so check:angular keeps its own subject', () => {
   const layer = readJson(join(repoRoot, 'frameworks/angular/tsconfig.check.json'));
-  assert.deepEqual(layer.files, ['./index.ts'],
-    'the shipped surface is the barrel; folding the tests into it would report a test error as a broken layer');
+  assert.deepEqual(layer.files, ['./index.ts', './metadata/index.ts'],
+    'the shipped surface is every entry point the package exports, and a secondary one is reached '
+    + 'by subpath rather than from the root barrel, so naming the barrel alone would leave it '
+    + 'typechecked by the test build alone. Folding the tests in would report a test error as a '
+    + 'broken layer, which is the other half of what this holds.');
 });

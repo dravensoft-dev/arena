@@ -30,6 +30,7 @@ export const node = {
     'build:angular-package',
     'build:react-package',
     'check:appearance',
+    'check:parts',
     'check:arbitrary',
     'check:behaviour',
     'check:compliance',
@@ -64,7 +65,7 @@ export const RULES_CLOSE_LINE = '<!-- @rules end -->';
 export const RULES_OPEN = '<!-- @rules GENERATED for every prompt from one source.'
   + ' Edit it there, not here. -->';
 
-export const ROUTER_FROM_PROMPT = '../../../../../SKILL.md';
+export const ROUTER_FROM_PROMPT = '../../../../../skills/design/SKILL.md';
 
 export const OWN_CLASS_ATTR: Record<string, string> = { react: 'className', angular: 'class' };
 
@@ -75,9 +76,8 @@ export function renderRulesRegion(layer: string) {
     '**The rules of the language hold in the code you write from this page, and no gate reads your '
     + `application to enforce them.** An Arena component is not a styling surface: put no \`${
       OWN_CLASS_ATTR[layer] ?? 'class'}\` of your own on it, read every value through its token `
-    + 'rather than a raw hex or a bare `16px`, and never wrap it in your router\'s own link. The '
-    + `rest of the rules, and the voice they answer to, are in [\`${ROUTER_FROM_PROMPT}\`](${
-      ROUTER_FROM_PROMPT}).`,
+    + 'rather than a raw colour or a bare `16px`, and never wrap it in your router\'s own link. The '
+    + `rest of the rules are in [\`${ROUTER_FROM_PROMPT}\`](${ROUTER_FROM_PROMPT}).`,
     '',
     RULES_CLOSE_LINE,
   ].join('\n');

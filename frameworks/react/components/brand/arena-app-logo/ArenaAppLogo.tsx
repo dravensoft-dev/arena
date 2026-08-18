@@ -17,7 +17,7 @@ export interface ArenaAppLogoProps {
   /** The product name, or its first half when `dim` carries the second. */
   name: string;
 
-  /** The wordmark's second half, drawn muted. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */
+  /** The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. It is the second half of a name and never a tagline beside it: a product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */
   dim?: string;
 }
 
@@ -28,10 +28,10 @@ export function ArenaAppLogo({ size = 'md', orientation = 'horizontal', mark, na
   if (!mark || !name) throw new Error('ArenaAppLogo: `mark` and `name` are required');
   const styles = logoStyles({ size, orientation });
   return (
-    <span className={styles.root()}>
-      <span className={styles.mark()}>{mark}</span>
-      <span className={styles.name()}>
-        {name}{dim && <span className={styles.dim()}>{dim}</span>}
+    <span className={styles.root()} data-arena-part={manifest.parts.root}>
+      <span className={styles.mark()} data-arena-part={manifest.parts.mark}>{mark}</span>
+      <span className={styles.name()} data-arena-part={manifest.parts.name}>
+        {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim}>{dim}</span>}
       </span>
     </span>
   );

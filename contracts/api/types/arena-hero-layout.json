@@ -1,0 +1,6 @@
+{
+  "name": "ArenaHeroLayout",
+  "kind": "enum",
+  "description": "How a hero arranges its words against its figure. Checked against every enum already declared here before it was added; nothing carries this set. Three arrangements rather than a boolean, because bleed is not split-with-the-figure-behind: stacked and split put the two side by side or one under the other and the figure keeps its own box, while bleed lays the words ON the figure and makes the wash under them load-bearing. A boolean would have hidden the third.",
+  "values": ["stacked", "split", "bleed"]
+}

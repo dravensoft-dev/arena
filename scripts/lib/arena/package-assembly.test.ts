@@ -7,9 +7,10 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
-  writeComponentMap, keywords, SHARED_KEYWORDS,
+  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
 
@@ -201,9 +202,23 @@ test('each package carries the map its own layer derives, under the one name the
 
 test('a map that claims no sheet at all is refused, because auto would then unstyle every screen', () => {
   const to = mkdtempSync(join(tmpdir(), 'arena-assembly-map-'));
-  assert.throws(() => writeComponentMap(to, 'angular', mkdtempSync(join(tmpdir(), 'arena-empty-'))),
-    /derived no component sheet for angular/);
+  const from = mkdtempSync(join(tmpdir(), 'arena-empty-'));
+  mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
+  writeFileSync(join(from, MARKERS_FILE),
+    "@Directive({ selector: '[action]', standalone: true })\nexport class ArenaAction {}\n");
+  assert.throws(() => writeComponentMap(to, 'angular', from), /derived no component sheet for angular/,
+    'the root carries the marker declaration and no components, so the only thing it lacks is the '
+    + 'sheet this case is about: a root missing both is refused for whichever is asked for first');
+  rmSync(from, { recursive: true });
   rmSync(to, { recursive: true });
+});
+
+test('a marker declaration nothing can be read out of is refused rather than yielding no markers', () => {
+  const from = mkdtempSync(join(tmpdir(), 'arena-nomarkers-'));
+  mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
+  writeFileSync(join(from, MARKERS_FILE), 'export const nothing = 1;\n');
+  assert.throws(() => markerAttributes(from), /declares no projection marker/);
+  rmSync(from, { recursive: true });
 });
 
 test('a command whose directory moved is reported rather than shipped missing', () => {
@@ -222,7 +237,10 @@ test('write creates the directories leading to a file nobody made yet', () => {
 function tailwindTree(names: string[]) {
   const files: Record<string, string> = {
     'frameworks/tailwind/Numerals.css': '.arena-num{}',
+    'frameworks/tailwind/Page.css': '.arena-band{}',
+    'frameworks/tailwind/Prose.css': '.arena-prose{}',
     'frameworks/tailwind/Rhythm.css': '.arena-stack{}',
+    'frameworks/tailwind/SrOnly.css': '.arena-sr-only{}',
     'frameworks/tailwind/consume/Prelude.generated.css': ':root{}',
   };
   for (const name of names) {
@@ -266,4 +284,19 @@ test('a component sheet is reached through the barrel alone, never named twice i
     'an unlinked sheet is still written, because ./css/components/* is an exported subpath');
   rmSync(root, { recursive: true });
   rmSync(dir, { recursive: true });
+});
+
+test('the token catalogue offers roles and no catalogue of appearances', () => {
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['roles', 'tokens'],
+    'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
+    + 'appearances is a decision Arena took for somebody else');
+});
+
+test('the package stylesheet imports the default plugin between the scales and the palette', () => {
+  const names = CSS_CHAIN.map((entry) => entry.to);
+  assert.ok(names.includes('css/style-plugin-default.css'));
+  assert.ok(names.indexOf('css/style-plugin-default.css') > names.indexOf('css/effects.css'),
+    'a role answers with a scale alias, so the scales are declared before anything resolves against them');
+  assert.ok(names.indexOf('css/style-plugin-default.css') < names.indexOf('css/colors.css'),
+    'and ahead of the palette, so a colour reference is substituted in the scope that declares it');
 });

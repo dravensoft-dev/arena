@@ -1,0 +1,10 @@
+{
+  "component": "ArenaPeopleList",
+  "cases": [
+    { "name": "list",
+      "when": "always -- a list of people renders its rows and offers nothing to act on; a control inside a row belongs to that row's action slot and carries its own pattern",
+      "pattern": "none",
+      "reason": "The list is a labelled <ul> or <ol> and nothing more: it takes no focus, answers no key and holds no state. What a reader acts on is whatever the consumer projected into a row's action, which is that component's own binding rather than this one's.",
+      "exceptions": [] }
+  ]
+}

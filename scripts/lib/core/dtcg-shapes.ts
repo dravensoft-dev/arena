@@ -5,9 +5,11 @@
  * `isToken()` is the test written once. `filePath` and `name` are not DTCG: Style Dictionary
  * stamps them on. `childEntries()` skips the `$`-prefixed keys, which are a node's own
  * metadata rather than its children. `$value` is `any` because `$type` decides its shape
- * and DTCG defines a family of them; the serializers own that knowledge. */
+ * and DTCG defines a family of them; the serializers own that knowledge. ARENA_EXT is re-exported
+ * rather than declared, because the shipped style-plugin rules need it too and a package carries no
+ * scripts/ to import from: one definition, in the command's own tree, read from here. */
 
-export const ARENA_EXT = 'com.dravensoft.arena';
+export { ARENA_EXT } from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 
 export type DtcgToken = {
   $value: any;

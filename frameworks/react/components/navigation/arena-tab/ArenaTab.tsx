@@ -38,7 +38,7 @@ export function ArenaTab({
 
       tabIndex={tabStop ? 0 : -1}
       onClick={() => onSelect && onSelect(value)}
-      className={arenaTabsStyles({ selected }).tab()}>
+      className={arenaTabsStyles({ selected }).tab()} data-arena-part={manifest.parts.tab}>
       {label}
     </button>
   );

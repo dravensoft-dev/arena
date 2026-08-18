@@ -1,5 +1,5 @@
 import { ARENA_PAD } from '../../DataVisuals.ts';
-import { chartLabelGap, chartRingInset, chartPadCategory } from '../../Tokens.generated.js';
+import { chartLabelGap, chartRingInset, chartPadCategory, chartTickChar } from '../../Tokens.generated.js';
 import type { ArenaChartShape } from '../../Api.generated';
 import type { ArenaDomain, ArenaLinearScale } from './ChartScales.ts';
 import { arenaScaleValue, arenaScaleZero, arenaDomainTicks } from './ChartScales.ts';
@@ -33,11 +33,20 @@ export interface ArenaAxisModelX {
   zeroX: number;
 }
 
-export function arenaPlotBox(width: number, height: number): ArenaPlotBox {
+export function arenaValueGutter(domain: ArenaDomain, write: (value: number) => string): number {
+  let widest = 0;
+  for (const value of arenaDomainTicks(domain)) {
+    const length = write(value).length;
+    if (length > widest) widest = length;
+  }
+  return Math.max(ARENA_PAD.l, Math.ceil(widest * chartTickChar) + chartLabelGap);
+}
+
+export function arenaPlotBox(width: number, height: number, gutter: number = ARENA_PAD.l): ArenaPlotBox {
   return {
-    x: ARENA_PAD.l,
+    x: gutter,
     y: ARENA_PAD.t,
-    w: Math.max(1, width - ARENA_PAD.l - ARENA_PAD.r),
+    w: Math.max(1, width - gutter - ARENA_PAD.r),
     h: Math.max(1, height - ARENA_PAD.t - ARENA_PAD.b),
   };
 }
@@ -57,12 +66,18 @@ export function arenaAxisModel(
   };
 }
 
-export function arenaTickLabelX(): number {
-  return ARENA_PAD.l - chartLabelGap;
+export function arenaTickLabelX(gutter: number = ARENA_PAD.l): number {
+  return gutter - chartLabelGap;
 }
 
 export function arenaCategoryLabelY(height: number): number {
   return height - chartLabelGap;
+}
+export function arenaCategoryAnchor(index: number, count: number): 'start' | 'middle' | 'end' {
+  if (count < 2) return 'middle';
+  if (index === 0) return 'start';
+  if (index === count - 1) return 'end';
+  return 'middle';
 }
 
 export function arenaDoughnutRadii(

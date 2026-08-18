@@ -1,0 +1,13 @@
+{
+  "component": "ArenaBoard",
+  "description": "The frame of a board: columns side by side, as wide as the room allows and never narrower than one column's minimum, scrolling sideways when they no longer fit. It is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all. It draws no card and moves nothing: what a column holds is the consumer's, and reordering is theirs too.",
+  "affordances": ["focus"],
+  "api": {
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names the board to assistive technology: what the columns are columns OF. \"Sprint 32 tasks by status\", never \"Board\". Required and guarded at runtime after trimming, the shape ArenaScroller.label carries for the same reason, since a group announced as a group tells a reader that focus moved and nothing about where it landed." },
+    "content": { "form": "slot", "required": true,
+                 "description": "The columns, one ArenaBoardColumn each. Required and guarded at runtime: a board with no columns is a tab stop over nothing, which is the dead stop a component with a group role must not ship." },
+    "minColumn": { "form": "primitive", "type": "string", "default": "var(--grid-min)",
+                   "description": "The narrowest a column may be before the board scrolls rather than squeezing. Columns share the room equally above it, so a board of four fills the width it is given and a board of twelve scrolls. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one: this is page geometry and the spacing scale models rhythm. The default is the same role a grid's cell reads, so a card is one width across a wall, a rail and a board." }
+  }
+}

@@ -3,18 +3,19 @@
   "slots": {
     "root": "inline-flex items-center gap-1.5 rounded-pill border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold",
     "dot": "size-1.5 rounded-pill bg-current",
-    "close": "inline-flex items-center bg-transparent border-none cursor-pointer p-0 text-base-content/62 text-[length:var(--icon-sm)] leading-ctl"
+    "close": "inline-flex items-center bg-transparent border-none cursor-pointer p-0 text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)] leading-ctl"
   },
   "variants": {
     "tone": {
-      "neutral": { "root": "border-base-300 text-base-content/70" },
+      "neutral": { "root": "border-edge-surface text-ink-body/(--level-ink-quiet)" },
       "primary": { "root": "border-primary text-primary" },
       "success": { "root": "border-success text-success" },
       "warning": { "root": "border-warning text-warning" },
-      "danger":  { "root": "border-error text-error" }
+      "danger":  { "root": "border-error text-error" },
+      "identity": { "root": "border-[color:var(--arena-tag-cat)] text-[color:var(--arena-tag-cat)]" }
     },
     "disabled": {
-      "true": { "close": "cursor-not-allowed text-base-content/40" },
+      "true": { "close": "cursor-not-allowed text-ink-muted/40" },
       "false": {}
     }
   },

@@ -13,6 +13,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { arenaOnboardingStyles } from './ArenaOnboarding.variants';
+import manifest from './ArenaOnboarding.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 import { onboardingWidth, onboardingHeightReserve, sp3, sp4 } from '../../../Tokens.generated';
 
@@ -25,37 +26,39 @@ import type { ArenaOnboardingAnchor, ArenaOnboardingStep } from '../../../Api.ge
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
   },
   template: `
     @if (visible()) {
-      <div #panel [class]="styles().panel()" role="dialog" aria-modal="true" tabindex="-1"
+      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
            [attr.aria-label]="label()"
            (click)="$event.stopPropagation()"
            [style.top.px]="position()?.top" [style.left.px]="position()?.left">
         @if (step().eyebrow; as eyebrow) {
-          <div [class]="styles().eyebrow()">{{ eyebrow }}</div>
+          <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ eyebrow }}</div>
         }
         @if (step().title; as title) {
-          <div [class]="styles().title()">{{ title }}</div>
+          <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title }}</div>
         }
         @if (step().body; as body) {
-          <div [class]="styles().body()">{{ body }}</div>
+          <div [class]="styles().body()" [attr.data-arena-part]="parts.body">{{ body }}</div>
         }
-        <div [class]="styles().foot()">
-          <div [class]="styles().dots()" [attr.aria-label]="'Progress: step ' + (index() + 1) + ' of ' + steps().length">
+        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
+          <div [class]="styles().dots()" [attr.data-arena-part]="parts.dots" [attr.aria-label]="'Progress: step ' + (index() + 1) + ' of ' + steps().length">
             @for (dot of steps(); track $index) {
-              <span [class]="styles().dot() + ' ' + ($index === index() ? styles().dotOn() : styles().dotOff())"></span>
+              <span [class]="styles().dot() + ' ' + ($index === index() ? styles().dotOn() : styles().dotOff())"
+                    [attr.data-arena-part]="parts.dot"></span>
             }
           </div>
           @if (index() > 0) {
-            <button type="button" [class]="styles().text()" (click)="back.emit()">Back</button>
+            <button type="button" [class]="styles().text()" [attr.data-arena-part]="parts.text" (click)="back.emit()">Back</button>
           }
           @if (!last()) {
-            <button type="button" [class]="styles().text()" (click)="skip.emit()">Skip</button>
+            <button type="button" [class]="styles().text()" [attr.data-arena-part]="parts.text" (click)="skip.emit()">Skip</button>
           }
-          <button type="button" [class]="styles().next()" (click)="last() ? done.emit() : next.emit()">
+          <button type="button" [class]="styles().next()" [attr.data-arena-part]="parts.next" (click)="last() ? done.emit() : next.emit()">
             {{ last() ? 'Got it' : 'Next' }}
           </button>
         </div>
@@ -64,6 +67,8 @@ import type { ArenaOnboardingAnchor, ArenaOnboardingStep } from '../../../Api.ge
   `,
 })
 export class ArenaOnboarding {
+  protected readonly parts = manifest.parts;
+
   /** Whether the tour is shown. Closed renders nothing, scrim included. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
   /** The tour, in order. An empty tour renders nothing. */

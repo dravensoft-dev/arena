@@ -77,6 +77,16 @@ test('an element wearing the prefix that Arena does not ship is reported and sto
 test('a selector is matched at its end, so one name is not read inside a longer one', () => {
   const { drawn } = selectorKeys(ANGULAR, ['<arena-table-row />']);
   assert.deepEqual(drawn, ['arena-table-row'], 'arena-table is a prefix of it and was not drawn');
+
+  const hooked = selectorKeys(ANGULAR, ['<tr arena-table-row [interactive]="true">']);
+  assert.deepEqual(hooked.drawn, ['arena-table-row'],
+    'a primitive written as an attribute on a native element is used as much as one written as an element, '
+    + 'and a sheet it needs is missing from the emit if it is not read');
+
+  const bystander = selectorKeys(ANGULAR, ['<div data-arena-part="table.body"></div>', '<div class="arena-num"></div>']);
+  assert.deepEqual([...bystander.drawn, ...bystander.unplaced], [],
+    'the hook is read from an attribute POSITION and not from anything that merely starts with arena-, '
+    + 'or every part hook in a consumer\'s own markup is reported as a component nobody can place');
 });
 
 test('React is read through the import that names the package', () => {
@@ -107,4 +117,16 @@ test('a map keyed by something this command cannot scan for is an answer of none
 
 test('the word the config takes is stated once', () => {
   assert.equal(AUTO, 'auto');
+});
+
+test('a generic type argument is not a tag, so a type-only import is not reported as a component', () => {
+  const map = { match: 'symbol', draws: { ArenaTable: 'arena-table' }, needs: {} };
+  const source = "import type { ArenaTableSort } from '@dravensoft/arena-react';\n"
+    + "const [sort, setSort] = useState<ArenaTableSort>({ column: 0 });\n"
+    + "const view = <ArenaTable sort={sort} />;\n";
+  const read = symbolKeys(map, [source], '@dravensoft/arena-react');
+  assert.deepEqual(read.drawn, ['ArenaTable']);
+  assert.deepEqual(read.unplaced, [],
+    'useState<ArenaTableSort> is a type position: reporting it tells a consumer their type import '
+    + 'is a component this package does not ship, and --strict=components fails the build on it');
 });

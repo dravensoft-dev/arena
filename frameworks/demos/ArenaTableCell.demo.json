@@ -1,6 +1,8 @@
 {
   "component": "ArenaTableCell",
-  "seed": {},
+  "seed": {
+    "href": "#checkout-api"
+  },
   "slots": {
     "content": [
       {
@@ -44,5 +46,5 @@
       ]
     }
   },
-  "note": "A cell reads its alignment from the column it sits under."
+  "note": "A cell reads its alignment from the column it sits under, and `href` is what makes the record it shows a destination a crawler and a ctrl-click can reach."
 }

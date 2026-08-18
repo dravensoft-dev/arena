@@ -20,18 +20,12 @@ test('all three toggles are static markup outside any framework, so a re-render 
   const dock = toggleDock();
   assert.match(dock, /class="dtoggle themebtn"/);
   assert.match(dock, /id="density"/);
-  assert.match(dock, /id="extension"/);
   assert.match(page(), /dtoggle-dock/);
 });
 
-test('the voice control ships no dots, because only the catalogue knows how many voices there are', () => {
-  assert.match(toggleDock(), /<span class="cycle"><\/span>/);
-});
-
-test('the theme, density and extension scripts load, or the URL stops reproducing the view', () => {
+test('the theme and density scripts load, or the URL stops reproducing the view', () => {
   assert.match(page(), new RegExp(`<script src="${UP}intro/theme\\.js">`));
   assert.match(page(), new RegExp(`<script src="${UP}intro/density\\.js">`));
-  assert.match(page(), new RegExp(`<script src="${UP}intro/extension\\.js">`));
 });
 
 test('a page declares no card, because its height moves with every knob', () => {

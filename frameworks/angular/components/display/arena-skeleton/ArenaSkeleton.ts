@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { arenaSkeletonStyles } from './ArenaSkeleton.variants';
+import manifest from './ArenaSkeleton.classes.generated';
 import type { ArenaSkeletonVariant } from '../../../Api.generated';
 
 export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'lastLine' {
@@ -12,6 +13,7 @@ export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'last
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'hostClass()',
+    '[attr.data-arena-part]': 'stacked() ? parts.stack : parts.root',
     '[style.width]': 'hostWidth()',
     '[style.height]': 'hostHeight()',
     '[style.borderRadius]': 'hostRadius()',
@@ -21,12 +23,15 @@ export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'last
   template: `
     @if (stacked()) {
       @for (row of rows(); track row) {
-        <div [class]="rowSlot(row, rows().length) === 'lastLine' ? styles().lastLine() : styles().line()"></div>
+        <div [class]="rowSlot(row, rows().length) === 'lastLine' ? styles().lastLine() : styles().line()"
+             [attr.data-arena-part]="parts.line"></div>
       }
     }
   `,
 })
 export class ArenaSkeleton {
+  protected readonly parts = manifest.parts;
+
   /** The shape the placeholder reserves. */
   readonly variant = input<ArenaSkeletonVariant, ArenaSkeletonVariant | undefined>(
     'block',

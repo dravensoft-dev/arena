@@ -1,0 +1,14 @@
+{
+  "component": "ArenaKeyValue",
+  "seed": {
+    "rows": [
+      { "term": "Delivering to", "value": "A. Okonkwo, Gran Via 4, 48001 Bilbao" },
+      { "term": "Method", "value": "Standard, 2 to 3 days" },
+      { "term": "Subtotal", "value": "42.00", "numeric": true },
+      { "term": "Delivery", "value": "Free", "numeric": true }
+    ],
+    "total": { "term": "Total", "value": "42.00", "numeric": true }
+  },
+  "slots": {},
+  "note": "A real definition list, so a term and its value are associated by the platform. The figures take tabular numerals so a column of them aligns by digit."
+}

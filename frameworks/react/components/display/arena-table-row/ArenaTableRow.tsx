@@ -54,12 +54,11 @@ export function ArenaTableRow({
       onClick();
     }
     : undefined;
-  const cursor = interactive ? (disabled ? 'not-allowed' : 'pointer') : 'default';
 
   if (layout === 'card') {
     return (
-      <div onClick={activate}
-        role={interactive ? 'button' : undefined}
+      <tr onClick={activate}
+        role={interactive ? 'button' : 'presentation'}
         tabIndex={interactive ? 0 : undefined}
         aria-disabled={interactive && disabled ? 'true' : undefined}
         onKeyDown={activate ? (e) => {
@@ -67,23 +66,23 @@ export function ArenaTableRow({
           e.preventDefault();
           activate(e);
         } : undefined}
-        className={rowStyles({ narrow: true }).card()}>
+        className={rowStyles({ narrow: true }).card()} data-arena-part={manifest.parts.card}>
         {cells}
-      </div>
+      </tr>
     );
   }
 
   const base = rowStyles({ narrow: false });
   const rowClass = [
     rowIndex <= 1 ? `${base.row()} ${base.rowFirst()}` : base.row(),
-    activate ? base.rowInteractive() : '',
+    interactive && !disabled ? base.rowInteractive() : '',
   ].filter(Boolean).join(' ');
 
   return (
-    <tr role="row" onClick={activate}
+    <tr onClick={activate}
       aria-disabled={onClick && disabled ? 'true' : undefined}
 
-      className={rowClass}>
+      className={rowClass} data-arena-part={manifest.parts.row}>
       {cells}
     </tr>
   );

@@ -1,14 +1,13 @@
-/* Captures the kitchen-sink page every layer draws for one design extension and fails on one
- * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an
- * inherited typography or a computed colour that moved in one layer alone passes every other gate.
- * No baseline and no tolerance: one browser renders both pages, so the question is whether they
- * agree with EACH OTHER, and a threshold would license the move this catches. Motion, focus and
- * MEASUREMENT are stopped before the shutter, the third because the shutter resizes the page to
- * reach past the viewport and hands width 0 to every live ResizeObserver partway through: a chart
- * redraws collapsed and the compositor takes the rest of its tiles from that frame, so a layer is
- * reported as diverging from one it agrees with. A page is captured until two in a row agree, and
- * pairs are walked from the tree, where a sweep finding none fails. */
-
+/* Captures the kitchen-sink page every layer draws for one appearance and fails on one differing
+ * pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
+ * typography or a computed colour that moved in one layer alone passes every other gate. No
+ * baseline: one browser renders both pages, so the question is whether they agree with EACH OTHER.
+ * ALLOWED is the one relief and it is EMPTY, which is the claim: the appearance a consumer installs
+ * is identical to the pixel in both layers. An entry would be per sink and bounded on count AND
+ * delta, and one nothing spends is stale, so no blanket threshold ever absorbs a move. Motion,
+ * focus and MEASUREMENT stop before the shutter, the third because the shutter reaches past the
+ * viewport and hands width 0 to every live ResizeObserver: a chart redraws collapsed and the
+ * compositor takes the rest from that frame. Pairs are walked, and a sweep finding none fails. */
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -126,7 +125,7 @@ export function sinkDir(layer: string) {
   return join(root, 'frameworks', layer, 'kitchen-sink');
 }
 
-export function voicesIn(layer: string) {
+export function sinksIn(layer: string) {
   const dir = sinkDir(layer);
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
@@ -135,19 +134,19 @@ export function voicesIn(layer: string) {
     .sort();
 }
 
-export function pagePath(layer: string, extension: string) {
-  return `frameworks/${layer}/kitchen-sink/${extension}/${PAGE_FILE}`;
+export function pagePath(layer: string, sink: string) {
+  return `frameworks/${layer}/kitchen-sink/${sink}/${PAGE_FILE}`;
 }
 
 export function pairProblems(byLayer: Map<string, string[]>) {
   const problems = [];
   const layers = [...byLayer.keys()];
   const union = [...new Set(layers.flatMap((layer) => byLayer.get(layer) ?? []))].sort();
-  for (const extension of union) {
-    const missing = layers.filter((layer) => !(byLayer.get(layer) ?? []).includes(extension));
+  for (const sink of union) {
+    const missing = layers.filter((layer) => !(byLayer.get(layer) ?? []).includes(sink));
     if (missing.length === 0) continue;
-    problems.push(`${extension}: ${missing.join(' and ')} draws no page for this voice, so there is `
-      + 'no pair to compare and the voice ships compared in one layer only');
+    problems.push(`${sink}: ${missing.join(' and ')} draws no page for this arrangement, so there is `
+      + 'no pair to compare and it ships compared in one layer only');
   }
   return problems;
 }
@@ -161,21 +160,56 @@ export function sizeProblem(name: string, a: { width: number; height: number },
     + 'box below could describe';
 }
 
-export function differenceProblem(name: string, png: { react: Buffer; angular: Buffer }) {
+export type Allowance = { pixels: number; delta: number; why: string };
+
+export const ALLOWED = new Map<string, Allowance>([]);
+
+export function within(allowance: Allowance | undefined, pixels: number, maxDelta: number) {
+  return allowance !== undefined && pixels <= allowance.pixels && maxDelta <= allowance.delta;
+}
+
+export function staleAllowanceProblems(measured: Map<string, number>, allowed = ALLOWED) {
+  const problems = [];
+  for (const [sink, allowance] of allowed) {
+    const seen = measured.get(sink);
+    if (seen === undefined) {
+      problems.push(`${sink}: an allowance of ${allowance.pixels} pixel(s) is declared and no pair by `
+        + 'that name was compared, so it is an allowance for something that is not here');
+      continue;
+    }
+    if (seen === 0) {
+      problems.push(`${sink}: an allowance of ${allowance.pixels} pixel(s) is declared and every pair `
+        + 'is identical. An allowance is not an exemption: take it out, and the next divergence is '
+        + 'reported rather than absorbed');
+    }
+  }
+  return problems;
+}
+
+export function differenceProblem(name: string, sink: string, png: { react: Buffer; angular: Buffer },
+  allowed = ALLOWED) {
   const a = decode(png.react);
   const b = decode(png.angular);
   const size = sizeProblem(name, a, b);
   const diff = difference(a, b);
   if (!diff) {
-    return size ?? `${name}: the two files differ as bytes and every pixel they share is equal, `
-      + 'which means the difference is in the encoding rather than the image; the capture options moved';
+    return { problem: size ?? `${name}: the two files differ as bytes and every pixel they share is equal, `
+      + 'which means the difference is in the encoding rather than the image; the capture options moved',
+    pixels: 0 };
   }
   const { pixels, box, maxDelta, channel } = diff;
+  const allowance = allowed.get(sink);
+  if (size === null && within(allowance, pixels, maxDelta)) return { problem: null, pixels };
   const where = `x=${box.left}..${box.right} y=${box.top}..${box.bottom}`;
-  return `${name}: ${pixels} pixel(s) differ, inside ${where}, the largest by ${maxDelta} on the `
-    + `${CHANNEL_NAMES[channel] ?? channel} channel${size ? `. ${size}` : ''}. Open both pages at that `
-    + `scroll offset with bun run demos, or set ARENA_PIXEL_DUMP to a directory to have this run `
-    + 'write the two captures out';
+  const over = allowance
+    ? `. Its allowance is ${allowance.pixels} pixel(s) at a channel delta of ${allowance.delta}, `
+      + `which this is past, and the allowance is there because ${allowance.why}`
+    : '';
+  return { problem: `${name}: ${pixels} pixel(s) differ, inside ${where}, the largest by ${maxDelta} on the `
+    + `${CHANNEL_NAMES[channel] ?? channel} channel${size ? `. ${size}` : ''}${over}. Open both pages at `
+    + 'that scroll offset with bun run demos, or set ARENA_PIXEL_DUMP to a directory to have this run '
+    + 'write the two captures out',
+  pixels };
 }
 
 export function dumpDir(env = arenaEnv()) {
@@ -279,11 +313,11 @@ export function paintProblem(name: string, layer: string,
 const skip: (reason: string) => never = (reason) => cannotRun('check-pixel-parity', reason);
 
 async function main() {
-  const byLayer = new Map(SINK_LAYERS.map((layer) => [layer, voicesIn(layer)]));
+  const byLayer = new Map(SINK_LAYERS.map((layer) => [layer, sinksIn(layer)]));
   const shared = pairProblems(byLayer);
-  const voices = (byLayer.get('react') ?? []).filter((one) => (byLayer.get('angular') ?? []).includes(one));
+  const sinks = (byLayer.get('react') ?? []).filter((one) => (byLayer.get('angular') ?? []).includes(one));
 
-  if (voices.length === 0) {
+  if (sinks.length === 0) {
     console.error('check-pixel-parity: found 0 kitchen-sink pair(s). An empty sweep is a failure '
       + 'rather than a clean pass: run bun run build, which emits the pages and bundles both layers.');
     process.exit(1);
@@ -296,14 +330,16 @@ async function main() {
   const cdp = await connect(chrome.wsUrl);
   const problems = [...shared];
   const dumped = [];
+  const measured = new Map<string, number>();
+  const absorbed: string[] = [];
   let compared = 0;
   let slowest = 0;
   try {
-    for (const extension of voices) {
+    for (const sink of sinks) {
       for (const theme of THEMES) {
-        const name = `${extension}:${theme}`;
+        const name = `${sink}:${theme}`;
         const url = (layer: string) =>
-          `http://127.0.0.1:${server.port}/${pagePath(layer, extension)}?theme=${theme}`;
+          `http://127.0.0.1:${server.port}/${pagePath(layer, sink)}?theme=${theme}`;
         const react = await capture(cdp, url('react'));
         const angular = await capture(cdp, url('angular'));
         slowest = Math.max(slowest, react.painted.waitedMs, angular.painted.waitedMs);
@@ -314,8 +350,11 @@ async function main() {
         if (!react.png || !angular.png) continue;
 
         compared += 1;
-        if (react.png.equals(angular.png)) continue;
-        problems.push(differenceProblem(name, { react: react.png, angular: angular.png }));
+        if (react.png.equals(angular.png)) { measured.set(sink, measured.get(sink) ?? 0); continue; }
+        const { problem, pixels } = differenceProblem(name, sink, { react: react.png, angular: angular.png });
+        measured.set(sink, Math.max(measured.get(sink) ?? 0, pixels));
+        if (problem === null) { absorbed.push(`${name}: ${pixels} pixel(s), inside its allowance`); continue; }
+        problems.push(problem);
         if (into) dumped.push(...dump(into, name, { react: react.png, angular: angular.png }));
       }
     }
@@ -323,6 +362,8 @@ async function main() {
     await chrome.kill?.();
     server.close?.();
   }
+
+  problems.push(...staleAllowanceProblems(measured));
 
   if (problems.length) {
     console.error(`check-pixel-parity: ${problems.length} problem(s)\n`);
@@ -333,8 +374,10 @@ async function main() {
     process.exit(1);
   }
   console.log(`check-pixel-parity: ${compared} pair(s) captured in a real browser across `
-    + `${voices.length} voice(s) and ${THEMES.length} theme(s), and every one of them is identical `
-    + `byte for byte. The slowest page painted after ${slowest}ms of the ${PAINTED.ms}ms allowed`);
+    + `${sinks.length} sink(s) and ${THEMES.length} theme(s), and every one of them is identical `
+    + `byte for byte${absorbed.length ? ` bar ${absorbed.length} inside a declared allowance` : ''}. `
+    + `The slowest page painted after ${slowest}ms of the ${PAINTED.ms}ms allowed`);
+  for (const one of absorbed) console.log(`  ${one}`);
 }
 
 if (isMainModule(import.meta.url)) {

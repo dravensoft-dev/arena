@@ -33,19 +33,19 @@ export function ArenaStatCard({ label, value, tone = 'neutral', delta, sub, icon
   if (!label || !value) throw new Error('ArenaStatCard: `label` and `value` are required');
   const styles = arenaStatCardStyles({ tone, deltaTone: delta?.tone ?? 'neutral' });
   return (
-    <div className={styles.root()}>
-      <div className={styles.head()}>
-        <span className={styles.label()}>{label}</span>
-        {icon && <span aria-hidden="true" className={styles.icon()}><i className={icon} /></span>}
+    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head}>
+        <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
+        {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} /></span>}
       </div>
-      <div className={styles.value()}>{value}</div>
+      <div className={styles.value()} data-arena-part={manifest.parts.value}>{value}</div>
       {delta?.value && (
-        <span className={styles.delta()}>
+        <span className={styles.delta()} data-arena-part={manifest.parts.delta}>
           <i className={delta.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'} aria-hidden="true" />
           {delta.value}
         </span>
       )}
-      {sub && <span className={styles.sub()}>{sub}</span>}
+      {sub && <span className={styles.sub()} data-arena-part={manifest.parts.sub}>{sub}</span>}
     </div>
   );
 }

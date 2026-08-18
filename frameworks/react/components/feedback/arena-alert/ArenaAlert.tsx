@@ -40,17 +40,17 @@ export function ArenaAlert({ tone = 'info', title, children, icon, actionLabel, 
   const at = toneOf(tone);
   const styles = arenaAlertStyles({ tone: at, titled: Boolean(title) });
   return (
-    <div role={tone === 'danger' ? 'alert' : 'status'} className={styles.root()}>
-      <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} />
-      <div className={styles.body()}>
-        {title && <div className={styles.title()}>{title}</div>}
-        {children && <div className={styles.message()}>{children}</div>}
+    <div role={tone === 'danger' ? 'alert' : 'status'} className={styles.root()} data-arena-part={manifest.parts.root}>
+      <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} />
+      <div className={styles.body()} data-arena-part={manifest.parts.body}>
+        {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
+        {children && <div className={styles.message()} data-arena-part={manifest.parts.message}>{children}</div>}
         {actionLabel && (
-          <button onClick={onAction} className={styles.action()}>{actionLabel}</button>
+          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action}>{actionLabel}</button>
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label="Dismiss" className={styles.close()}>
+        <button onClick={onClose} aria-label="Dismiss" className={styles.close()} data-arena-part={manifest.parts.close}>
           <i className="ph-bold ph-x" />
         </button>
       )}

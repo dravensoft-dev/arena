@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, extensions, entryPoints, components,
+  DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, sinkPages, pages, indexedDirectories, titleOf, url,
 } from './site-pages.ts';
 
@@ -30,9 +30,9 @@ test('every entry point the dev server prints is one the site publishes', () => 
   }
 });
 
-test('the voices come from the contracts, so a voice added tomorrow is published without an edit', () => {
-  const found = extensions();
-  assert.ok(found.includes('none'), 'the default voice is one of them');
+test('a sink names itself in its own fixture, so one added tomorrow is published without an edit', () => {
+  const found = sinkNames();
+  assert.ok(found.length > 0, 'found no sink fixture at all, which is a failure rather than a clean pass');
   assert.equal(new Set(found).size, found.length, 'and none of them is counted twice');
 });
 
@@ -51,9 +51,9 @@ test('the two layers key that map differently, and both answer in kebab', () => 
   }
 });
 
-test('a sink stands for every layer times every voice, and the list has no repeat in it', () => {
+test('a sink stands for every layer times every fixture, and the list has no repeat in it', () => {
   const sinks = sinkPages();
-  assert.equal(sinks.length, LAYERS.length * extensions().length);
+  assert.equal(sinks.length, LAYERS.length * sinkNames().length);
   assert.equal(new Set(sinks).size, sinks.length);
 });
 

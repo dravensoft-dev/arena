@@ -1,9 +1,9 @@
 # Arena, the React layer
 
 > **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
-> [`SKILL.md`](./SKILL.md) to find a component, and that component's `.prompt.md` to use it.
+> [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
-The React primitives, the kitchen-sink page one design extension gets, and the shared modules both of them read.
+The React primitives, the kitchen-sink page one style plugin gets, and the shared modules both of them read.
 Every value here comes from `contracts/design/`; this layer introduces no design decision
 of its own. For what those values mean, read
 [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md).
@@ -156,7 +156,7 @@ holds each activation separately.
 `ArenaSideNav` nest to any depth with **no context anywhere**: a section or a collapsible re-injects
 into its own children with `depth + 1`. The shared helper is
 `components/navigation/arena-side-nav/SideNavInject.tsx`, which covers that family and no more, so the
-placement rule sends it to the family's parent directory. **Its `.tsx` extension is
+placement rule sends it to the family's parent directory. **Its `.tsx` style plugin is
 load-bearing**: `check:dimensions` never opens a `.js`, and its `arenaIndentFor()` produces a governed
 `padding-inline-start`. It is a `.tsx` under `components/` that is **not a component**, since a
 component is a **directory**, in `reactComponents()` and in every count of the set.
@@ -192,9 +192,9 @@ focus navigation, which nothing here implements and happy-dom does not have; a t
 would pass identically against a perfect trap and against none. `bun run check:focus-trap` is
 what covers it: real Chromium over each declared page, one real Tab press per stop.
 
-- `kitchen-sink/<extension>/`: one page per design extension holding every component at once,
+- `kitchen-sink/<arrangement>/`: one page per arrangement holding every component at once,
   emitted into this layer from the fixture under `frameworks/kitchen-sink/` that every layer is
-  emitted from. Nothing here is hand-written: the pages one extension gets differ in what mounts
+  emitted from. Nothing here is hand-written: the pages one arrangement gets differ in what mounts
   them and in nothing else, which is what lets `check:pixel-parity` capture them and fail on one
   differing pixel. Edit the fixture, never the emitted page.
 - `vendor/`: a generated CommonJS→ESM bundle of React for the demo pages'
@@ -264,7 +264,7 @@ Each demo page's script is a real sibling source file (`<Name>.demo.entry.genera
 `<Name>.demo.generated.html`), and every component `.tsx` plus every entry has a compiled
 `<Name>.generated.js` sibling, same directory and same stem, that
 the page loads with a plain `<script type="module">`. `bun run build:demos` compiles them with
-Bun's own transpiler and rewrites each relative import's `.tsx` extension to `.generated.js`;
+Bun's own transpiler and rewrites each relative import's `.tsx` style plugin to `.generated.js`;
 `check:demos` guards drift and orphaned output.
 
 **Those siblings are git-ignored**, along with the `vendor/` bundles: only demo pages read
@@ -284,7 +284,7 @@ render correctly server-side.
 **What decides which invocation a suite belongs to is its filename, wherever the file
 sits**, meaning the `.dom.test.` infix. The first invocation passes `frameworks/react` with
 `--path-ignore-patterns='**/*.dom.test.*'`; the second passes the bare string
-`.dom.test.`, which `bun test` matches as a path substring. Neither names an extension, so
+`.dom.test.`, which `bun test` matches as a path substring. Neither names a style plugin, so
 the split survives a rename of the layer's sources.
 
 They cannot merge because the DOM is installed by `--preload ./test/Preload.js`, which

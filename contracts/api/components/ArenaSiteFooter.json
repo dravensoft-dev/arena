@@ -1,0 +1,11 @@
+{
+  "component": "ArenaSiteFooter",
+  "description": "The band across the bottom of every screen: what a page says about itself once it has finished. It is the contentinfo landmark, so there is one per page, and like the bar at the top its contents line up with the page above them.",
+  "affordances": [],
+  "api": {
+    "content": { "form": "slot",
+                 "description": "The columns, one per child, laid out by a grid that decides its own count from the room it is given rather than from a breakpoint anyone picked. A column of links, a signup, an address and a mark all land the same way." },
+    "note": { "form": "primitive", "type": "string",
+              "description": "The line under the columns, in the muted ink: the licence, the year, the company. Absent, the footer renders no line at all rather than an empty one." }
+  }
+}

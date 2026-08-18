@@ -145,10 +145,10 @@ const ROWS: readonly RowSpec[] = [
   template: `
     <arena-table label="Nodes" [columns]="columns">
       @for (row of shown(); track row.id) {
-        <arena-table-row [interactive]="true">
-          <arena-table-cell>{{ row.node }}</arena-table-cell>
-          <arena-table-cell>{{ row.region }}</arena-table-cell>
-        </arena-table-row>
+        <tr arena-table-row [interactive]="true">
+          <td arena-table-cell>{{ row.node }}</td>
+          <td arena-table-cell>{{ row.region }}</td>
+        </tr>
       }
     </arena-table>
   `,
@@ -168,14 +168,14 @@ class TableRepeat implements Growable {
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Nodes" [columns]="columns">
-      <arena-table-row interactive>
-        <arena-table-cell>eu-south-1</arena-table-cell>
-        <arena-table-cell>eu-south</arena-table-cell>
-      </arena-table-row>
-      <arena-table-row interactive>
-        <arena-table-cell>eu-west-2</arena-table-cell>
-        <arena-table-cell>eu-west</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row interactive>
+        <td arena-table-cell>eu-south-1</td>
+        <td arena-table-cell>eu-south</td>
+      </tr>
+      <tr arena-table-row interactive>
+        <td arena-table-cell>eu-west-2</td>
+        <td arena-table-cell>eu-west</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -190,11 +190,11 @@ const CELLS: readonly string[] = ['eu-south-1', 'eu-south'];
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Nodes" [columns]="columns">
-      <arena-table-row>
+      <tr arena-table-row>
         @for (cell of shown(); track cell) {
-          <arena-table-cell>{{ cell }}</arena-table-cell>
+          <td arena-table-cell>{{ cell }}</td>
         }
-      </arena-table-row>
+      </tr>
     </arena-table>
   `,
 })
@@ -213,10 +213,10 @@ class RowRepeat implements Growable {
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Nodes" [columns]="columns">
-      <arena-table-row>
-        <arena-table-cell>eu-south-1</arena-table-cell>
-        <arena-table-cell>eu-south</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row>
+        <td arena-table-cell>eu-south-1</td>
+        <td arena-table-cell>eu-south</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -243,9 +243,9 @@ const tabButtons: Read = (root) => [...root.querySelectorAll<HTMLElement>('[role
     panel: root.querySelector(`#${button.getAttribute('aria-controls')}`)?.tagName ?? null,
   }));
 
-const gridCells: Read = (root) => [...root.querySelectorAll<HTMLElement>('[role="row"]')]
+const gridCells: Read = (root) => [...root.querySelectorAll<HTMLElement>('tr')]
   .map((row) => ({
-    cells: [...row.querySelectorAll<HTMLElement>('[role="gridcell"]')].map((cell) => ({
+    cells: [...row.querySelectorAll<HTMLElement>('td')].map((cell) => ({
       text: cell.textContent, stop: cell.getAttribute('tabindex'), width: cell.style.width,
     })),
   }));

@@ -1,12 +1,12 @@
 {
   "component": "ArenaBadge",
   "slots": {
-    "root": "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill font-mono text-ctl-xs font-bold tracking-badge uppercase",
+    "root": "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill font-face-label text-ctl-xs font-bold tracking-badge case-label",
     "dot": "size-1.5 rounded-pill bg-current"
   },
   "variants": {
     "tone": {
-      "neutral": { "root": "bg-base-300 text-base-content/82" },
+      "neutral": { "root": "bg-base-300 text-ink-body/(--level-ink-body)" },
       "accent": { "root": "bg-primary/14 text-primary" },
       "gold": { "root": "bg-secondary/16 text-secondary" },
       "success": { "root": "bg-success/16 text-success" },

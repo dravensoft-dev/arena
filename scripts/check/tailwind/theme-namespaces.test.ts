@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
+import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { join } from 'node:path';
 import {
   attributedNames, deriveNamespaces, namespacedPropertyCandidates,
 } from '../../lib/tailwind/theme-namespaces.ts';
@@ -84,8 +87,7 @@ test('a fake key in an unreset, non-native namespace is caught by the completene
 });
 
 test('every token the tracking namespace reaches emits a length, because a bare number is not a letter-spacing', () => {
-  const generated = ['effects', 'typography'].map((f) =>
-    readFileSync(new URL(`../../../contracts/design-generated/${f}.generated.css`, import.meta.url), 'utf8'));
+  const generated = CSS_TARGETS.map((target) => readFileSync(join(repoRoot, target), 'utf8'));
   const values = new Map<string, string>();
   for (const css of generated)
     for (const decls of parseDecls(css).values())

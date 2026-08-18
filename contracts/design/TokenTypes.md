@@ -1,8 +1,12 @@
-# Arena token type map (DTCG 2025.10)
+# Arena token type map (DTCG 2025.10, plus `keyword`)
 
 **Normative, and for whoever authors a token or targets a new platform.** What the values
 MEAN is [`AGENTS.md`](./AGENTS.md) beside this file; this document states what shape they
 arrive in. A consumer reading a value out of the JSON needs neither: the JSON is the value.
+
+Every type here is a 2025.10 type but one. `keyword` is Arena's single addition, it is stated
+below with the reason it was worth making, and nothing else in this repository departs from the
+specification.
 
 The table states the DTCG `$type` of every token group in `contracts/design/`. Consume these
 values; do not re-derive them.
@@ -28,7 +32,7 @@ values; do not re-derive them.
 | Shadows (`shadow-1..3`) | `effects.json` | `shadow` | composite, incl. negative spread and rgba color |
 | `scrim` | `effects.json` | `color` | structured srgb with `alpha`, rendered as `rgba()` |
 | `scrim-blur`, `focus-width`, `focus-offset` | `effects.json` | `dimension` | px |
-| Durations (`dur-fast/mid/slow`) | `effects.json` | `duration` | ms |
+| Durations (the `dur` group) | `effects.json` | `duration` | ms |
 | Loop durations (`loop-spin/sweep/shimmer/brand/reduced/brand-reduced`) | `effects.json` | `duration` | ms; cyclical motion, deliberately separate from `dur`'s transition range |
 | Easings (`ease-*`) | `effects.json` | `cubicBezier` | `[x1,y1,x2,y2]` |
 | Roles (`r-surface/control/field`, `bw-surface/control/field`, `shadow-surface-rest`, `dur-hover/state`, `ease-hover/state`, `press-scale`) | `roles.json` | the type of the scale each one names, and its own where it names none | Authored as **aliases** wherever a scale exists to alias, on the same footing as `rhythm`: those `$value`s are `{r.lg}`, `{bw}`, `{shadow.2}`, `{dur.fast}` or `{ease.out}`, so a role cannot drift off the scale it names and the emitted line is a literal exactly as `rhythm`'s is. **A role is a literal only where it names a question no scale ever answered**, and each of those says which: `shadow-surface-rest` and `shadow-control-rest` are fully transparent shadows, because DTCG types a shadow as offsets, blur, spread and a colour and cannot spell the absence of one; `lift-control` is `0px`, a travel distance with no ladder of travels behind it; `press-scale` is `0.98`, the compression under a press, and nothing else in Arena compresses. A scale says how round, how thick, how deep or how long; a role says WHICH corner, border, depth or transition is being asked about, and only a question can be answered differently by one scope than by another. Resolved against `effects.json` through `RESOLVES_AGAINST` in `scripts/generate/arena/generate-tokens.ts`, and emitted into `effects.generated.css` beside the scales they alias rather than into a file of their own, because `scripts/lib/core/arena-tokens.ts` reads a fixed list of four generated files and a fifth would be invisible to `check:coverage`. `r-control` and `r-field` are both `r.sm` today, and `bw-surface`, `bw-control` and `bw-field` are all `bw`: same length, different question, the cut `rhythm-group` and `dz-stack` already make at 12px |
@@ -37,7 +41,7 @@ values; do not re-derive them.
 | Component geometry (`calendar-*`, `onboarding-width`) | `component.json` | `dimension` | px; **script-readable**. Named after a component rather than a role, like `avatar-*` and `logo-*`. Count them rather than trusting a list here, with `grep -c '"script": true' contracts/design/component.json`. Two of them also replace a value the component rendered as a `calc()`, so it existed in two idioms with nothing holding them in step: `onboarding-width` and `calendar-gutter-w` |
 | Behaviour (`delay-*`, `dismiss-*`, `limit-*`) | `behaviour.json` | `duration`, except `limit-*` | ms, and `limit-*` is a bare `number` like `z-*`. **Script-readable**, since the consumer is a `setTimeout` argument or an array bound, so these are read as numbers in JS as well as emitted to CSS. Behaviour VALUES only; the behaviour CONTRACT (which keys, which roles, where focus goes) is not a token and lives outside `contracts/design/` and `contracts/design-generated/` |
 
-### Value formats are strict 2025.10
+### Value formats are strict
 
 - Every `color`, including each `shadow`'s color slot and `scrim`, is a
   structured object: `{ "colorSpace": "srgb", "components": [r,g,b], "alpha"?: a,
@@ -60,6 +64,41 @@ values; do not re-derive them.
   is a darkening on an already dark page and separates nothing. Note that a colour carrying both
   `hex` and an `alpha` below 1 loses the alpha on the way out, so an `rgba` shadow colour is
   authored as `components` with no `hex`, the way every shadow in `effects.json` already is.
+
+### `keyword`, the one type Arena adds
+
+A `keyword` is a single bare CSS word, and it carries the set of words it may take:
+
+```json
+"tt-eyebrow": {
+  "$type": "keyword",
+  "$value": "uppercase",
+  "$extensions": { "com.dravensoft.arena": { "values": ["none", "uppercase", "lowercase", "capitalize"] } }
+}
+```
+
+**Why it exists.** Some CSS properties take a word rather than a measurement, and `text-transform`
+is the one that asked: whether a label is set in capitals is a decision about register, so a style
+plugin for a shop and one for a console want opposite answers. 2025.10 types a length, a colour, a
+weight, a duration and a curve, and has no type for a word. The alternative to adding one was to
+leave the property out of the token tier, which freezes it into every manifest that paints it, and
+that is exactly the defect the role tier exists to prevent.
+
+**Why not `string`.** A `string` type would have carried the same value and given up the property
+that makes a type worth having: with no closed set, `smallcaps` is as valid as `uppercase` and no
+gate can tell them apart. A keyword names its words, so `check:dtcg` refuses any other, and the
+error names the set.
+
+**Where the set is declared, and where it is enforced.** Once, on the role in
+[`roles.json`](./roles.json). A style plugin re-values a role it did not declare and repeats
+nothing, so `values` is optional on the answer and
+`scripts/generate/core/arena-to-prod/style-plugin-rules.ts:valueProblems(where, key, token, role)`
+is what holds a moved keyword to its role's set. Two gates, one set: the alternative is a copy of
+the enum in every plugin, which is a copy that can drift.
+
+**What it does not buy.** A keyword is a word, so it cannot alias a scale and cannot carry a
+`cssUnit`. A value that is a measurement stays a `dimension` or a `number`, and a value that is a
+list of words, which is to say a shorthand, is not a token at all.
 
 ### Script-readable tokens
 

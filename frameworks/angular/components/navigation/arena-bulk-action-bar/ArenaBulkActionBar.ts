@@ -1,6 +1,7 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import { arenaBulkActionBarStyles } from './ArenaBulkActionBar.variants';
+import manifest from './ArenaBulkActionBar.classes.generated';
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';
 
 @Component({
@@ -9,29 +10,30 @@ import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.gen
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "count() > 0 ? 'toolbar' : null",
     '[attr.aria-label]': "count() > 0 ? 'Actions on the selection' : null",
     '(keydown)': 'onKeydown($event)',
   },
   template: `
     @if (count() > 0) {
-      <span [class]="styles().count()">
-        <b [class]="styles().number()">{{ count() }}</b> {{ noun() }} selected
+      <span [class]="styles().count()" [attr.data-arena-part]="parts.count">
+        <b [class]="styles().number()" [attr.data-arena-part]="parts.number">{{ count() }}</b> {{ noun() }} selected
       </span>
-      <span [class]="styles().divider()" aria-hidden="true"></span>
-      <div [class]="styles().actions()">
+      <span [class]="styles().divider()" [attr.data-arena-part]="parts.divider" aria-hidden="true"></span>
+      <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions">
         @for (action of actions(); track action.label; let i = $index) {
-          <button type="button" [class]="classesFor(action).action()" (click)="run.emit(action)"
+          <button type="button" [class]="classesFor(action).action()" [attr.data-arena-part]="parts.action" (click)="run.emit(action)"
                   [attr.tabindex]="i === at() ? 0 : -1" (focus)="cursor.set(i)">
             @if (action.icon; as glyph) {
-              <span [class]="styles().actionIcon()"><i [class]="glyph" aria-hidden="true"></i></span>
+              <span [class]="styles().actionIcon()" [attr.data-arena-part]="parts.actionIcon"><i [class]="glyph" aria-hidden="true"></i></span>
             }
             {{ action.label }}
           </button>
         }
       </div>
       @if (clearable()) {
-        <button type="button" [class]="styles().clear()" aria-label="Clear selection"
+        <button type="button" [class]="styles().clear()" [attr.data-arena-part]="parts.clear" aria-label="Clear selection"
                 [attr.tabindex]="actions().length === at() ? 0 : -1" (focus)="cursor.set(actions().length)"
                 (click)="clear.emit()">Clear</button>
       }
@@ -39,6 +41,8 @@ import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.gen
   `,
 })
 export class ArenaBulkActionBar {
+  protected readonly parts = manifest.parts;
+
   /** How many rows are selected. Zero renders no bar at all. */
   readonly count = input.required<number>();
   /** What is being counted, plural: "items", "projects". */

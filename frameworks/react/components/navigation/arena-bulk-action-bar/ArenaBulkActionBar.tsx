@@ -66,26 +66,26 @@ export function ArenaBulkActionBar({ count, noun = 'items', actions, layout = 'a
   return (
     <div role="toolbar" aria-label="Actions on the selection"
       ref={barRef} onKeyDown={onKeyDown}
-      className={styles.root()}>
-      <span className={styles.count()}>
-        <b className={styles.number()}>{count}</b>{` ${noun} selected`}
+      className={styles.root()} data-arena-part={manifest.parts.root}>
+      <span className={styles.count()} data-arena-part={manifest.parts.count}>
+        <b className={styles.number()} data-arena-part={manifest.parts.number}>{count}</b>{` ${noun} selected`}
       </span>
       {!narrow && (
-        <span aria-hidden="true" className={styles.divider()} />
+        <span aria-hidden="true" className={styles.divider()} data-arena-part={manifest.parts.divider} />
       )}
-      <div className={styles.actions()}>
+      <div className={styles.actions()} data-arena-part={manifest.parts.actions}>
         {actions.map((a, i) => (
           <button key={i} onClick={() => onRun && onRun(a)}
             tabIndex={i === at ? 0 : -1} onFocus={() => setCursor(i)}
-            className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()}>
-            {a.icon && <span className={styles.actionIcon()}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
+            className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action}>
+            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
           </button>
         ))}
       </div>
       {clearable && (
         <button onClick={() => onClear && onClear()} aria-label="Clear selection"
           tabIndex={actions.length === at ? 0 : -1} onFocus={() => setCursor(actions.length)}
-          className={styles.clear()}>
+          className={styles.clear()} data-arena-part={manifest.parts.clear}>
           Clear
         </button>
       )}

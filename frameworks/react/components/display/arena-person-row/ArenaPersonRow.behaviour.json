@@ -1,0 +1,10 @@
+{
+  "component": "ArenaPersonRow",
+  "cases": [
+    { "name": "row",
+      "when": "always -- a row states who and how much, and a consumer's control is projected rather than drawn",
+      "pattern": "none",
+      "reason": "The row is a <li> carrying text and an image: nothing here takes focus or answers a key. `current` reflects through aria-current so the reader's own row is announced as well as filled, which is a state and not an affordance.",
+      "exceptions": [] }
+  ]
+}

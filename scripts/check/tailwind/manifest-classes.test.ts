@@ -5,7 +5,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import {
-  arenaClassesFor, classBase, classesFor, slotClass,
+  arenaClassesFor, classBase, classesFor, classesManifest, slotClass, slotPart,
 } from '../../lib/tailwind/component-css.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -14,7 +14,7 @@ const tag = readJson(join(repoRoot, 'frameworks/tailwind/components/display/aren
 test('the default variants apply when nothing is chosen', () => {
   const { root = '', dot = '' } = classesFor(tag);
   assert.ok(root.includes('rounded-pill'), 'the base slot is present');
-  assert.ok(root.includes('border-base-300'), 'tone=neutral is the default');
+  assert.ok(root.includes('border-edge-surface'), 'tone=neutral is the default');
   assert.equal(dot, 'size-1.5 rounded-pill bg-current');
 });
 
@@ -69,5 +69,26 @@ test('the harness spells a class the way the generator does, for every manifest 
           + `defines, because the generator writes "${slotClass(manifest.component, slot)}"`);
       }
     }
+  }
+});
+
+test('the root slot is the bare component and every other is qualified', () => {
+  assert.equal(slotPart('ArenaCard', 'root'), 'card');
+  assert.equal(slotPart('ArenaCard', 'body'), 'card.body');
+  assert.equal(slotPart('ArenaSideNavItem', 'triggerLabel'), 'side-nav-item.trigger-label');
+});
+
+test('classesManifest carries a part for every slot', () => {
+  const out = classesManifest({ component: 'ArenaCard', slots: { root: 'a', body: 'b' } });
+  assert.deepEqual(out.parts, { root: 'card', body: 'card.body' });
+});
+
+test('every manifest that ships names a part for every slot it names', () => {
+  const manifests = [...layerManifests(repoRoot).values()];
+  assert.ok(manifests.length > 0, 'no manifest was read, so this asserts nothing');
+  for (const manifest of manifests) {
+    const built = classesManifest(manifest);
+    assert.deepEqual(Object.keys(built.parts ?? {}), Object.keys(built.slots),
+      `${manifest.component}: a slot with no part is a slot a style plugin cannot reach`);
   }
 });

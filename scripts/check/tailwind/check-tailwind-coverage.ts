@@ -31,6 +31,20 @@ export const EXCLUDED = new Map([
   ['loop-brand', 'v4 has no duration namespace; reached as duration-[var(--loop-brand)]'],
   ['loop-reduced', 'v4 has no duration namespace; the reduced-motion step, set inside a media query rather than by a utility'],
   ['loop-brand-reduced', 'v4 has no duration namespace; the reduced-motion step, set inside a media query rather than by a utility'],
+  ['tt-eyebrow', 'v4 has no text-transform namespace, and its uppercase/lowercase/capitalize are static '
+    + 'utilities naming a value, which is the shape of a scale rather than of a role. Reached through '
+    + '.case-eyebrow in frameworks/tailwind/Case.css, hand-authored for exactly that reason'],
+  ['tt-label', 'the same, through .case-label'],
+  ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '
+    + 'static utilities naming a value, which is the shape of a scale rather than of a role. Reached '
+    + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],
+  ['aspect-media', 'the shape of a media frame, which a member carries and ArenaFigure writes inline the '
+    + 'way ArenaGrid writes its track list, because a consumer pinning a video to sixteen by nine is '
+    + 'answering about one figure and not about the appearance. A theme key would also have collided with '
+    + 'the token: v4 emits aspect-<key> from --aspect-*, and the role is already spelt --aspect-media'],
+  ['grid-min', 'the narrowest column of an auto-fitting grid, which lands inside a repeat(auto-fit, '
+    + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached as '
+    + 'grid-cols-[repeat(auto-fit,minmax(min(var(--grid-min),100%),1fr))]'],
   ['bw', 'v4 has no border-width namespace; reached as border-[length:var(--bw)]'],
   ['bw-strong', 'v4 has no border-width namespace; no consumer today, available as border-[length:var(--bw-strong)]'],
   ['bw-surface', 'v4 has no border-width namespace, so a border role cannot become a named utility the way a radius role does; reached as border-[length:var(--bw-surface)]'],
@@ -63,6 +77,7 @@ export const EXCLUDED = new Map([
   ['chart-legend-max', 'script-readable: a clamp bound compared against a measured width'],
   ['chart-legend-gap', 'script-readable: subtracted from a measured width to size the plot'],
   ['chart-pad-category', 'script-readable: subtracted from the measured width to size a horizontal chart\'s plot, and the same number places the category label at its right edge'],
+  ['chart-tick-char', 'script-readable: multiplied by a tick label\'s length to size the value gutter, which is arithmetic over a string and not a length any element wears'],
   ['chart-legend-strip', 'script-readable: subtracted from the chart height to size the plot, and the same number is the strip\'s own height, so one utility could carry at most half of it'],
   ['chart-label-gap', 'script-readable: subtracted from a pad or a height in JS to place an SVG text x/y, never a utility'],
   ['chart-ring-inset', 'script-readable: subtracted from half the plot box in JS to size the doughnut\'s outer radius, never a utility'],
@@ -79,7 +94,6 @@ export const EXCLUDED = new Map([
   ['dismiss-default', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
-  ['arena-extensions', 'not a value but a CATALOGUE: the comma-separated names of the extensions the build ships, derived from FILES in scripts/generate/arena/generate-tokens.ts and read by intro/extension.js to populate the voice control. No utility could carry a list, and nothing paints with it, so a namespace would be a place to put it rather than a use for it'],
 ]);
 
 export function presetTokens(css: string) {

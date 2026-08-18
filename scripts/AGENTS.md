@@ -143,6 +143,12 @@ does. **The separator rules read suites as well**, and each one says so where it
 native path compared against a posix literal is the same defect wherever it sits, and a suite is
 where it lands as an assertion that passes on the machine that wrote it and on no other.
 
+**A step that spawns a compiler keeps its answer, in `lib/arena/artifact-cache.ts` and nowhere
+else.** `.cache/artifacts/` is not `.cache/graph/`: the graph keeps stamps and decides whether a
+NODE runs, this keeps the answer a step would recompute. An entry is **never authoritative**,
+which is what lets a gate read one without becoming downstream of another, and its own level
+carries the two rules that make that true.
+
 **A test lives beside what it tests**, in the same directory, which for a `lib/` module means
 the same domain, not merely somewhere under `lib/`.
 
@@ -176,7 +182,7 @@ two generated outputs that can carry neither the infix nor a header: the font bi
 `assets/fonts/` and `intro/support.js`.
 
 **The consumer index tree is not a hole in that naming rule.** The pattern reaches a
-`.generated.` name, `SKILL.md` is not one, and so the three are tracked by default under the
+`.generated.` name, `INDEX.md` is not one, and so the three are tracked by default under the
 first reason above. `check:generated` scans no `.md` at all, and `check:skills` holds their
 freshness and their tracking instead.
 
@@ -186,11 +192,12 @@ notices each missing piece.
 
 ## Adding a gate
 
-Put it in `check/<domain>/`, add it to `GATES` in `check/arena/check-all.ts` with its domain
-in the path, give it an npm script, add a row to that domain's table, and either declare its
-node or name it in one of the two lists in `graph/nodes.ts`. `check-all.test.ts` asserts every
-gate names one of the five domains and `check:graph` asserts the fifth, so a gate landing
-outside the grid, or outside the graph without saying so, fails rather than running unnoticed.
+**The checklist is [`check/AGENTS.md`](./check/AGENTS.md)'s and it is stated there only**, since a
+list of registrations copied into a second page is the copy that ends up one registration short.
+What this level owns is why the grid exists at all: `check-all.test.ts` asserts every gate names
+one of the five domains and `check:graph` asserts it is in the graph or says why not, so a gate
+landing outside the grid, or outside the graph without saying so, fails rather than running
+unnoticed.
 
 **A script under `build/`, `generate/` or `check/` does no work when it is imported.** The
 graph collects a node by importing the script that declares it, so the work goes in `main()`
@@ -211,7 +218,7 @@ commit.** The individual gates are cheap and stay available per commit, `check:d
 touching a framework layer, `check:tokens` after a rebuild, and a task that widens a gate should
 still watch that gate fail and then pass. But the full sweep is a **completion** gate, not a
 per-commit toll. Stating that is what lets a gate be expensive enough to be worth having: `check:pixel-parity`
-opens two real pages per component per voice in Chromium and compares them pixel for pixel, which
+opens two real pages per component per arrangement in Chromium and compares them pixel for pixel, which
 no repository can afford once per commit.
 
 **Some gates are not runtime-portable**, needing a headless browser, `Bun.build` or

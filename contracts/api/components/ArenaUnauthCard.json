@@ -9,6 +9,8 @@
                  "description": "Mono crimson microlabel: the product, not the task." },
     "title": { "form": "primitive", "type": "string",
                "description": "The task. \"Welcome back\", \"Check your inbox\"." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h2",
+                      "description": "Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because this title is drawn in the section register rather than the card one, so the outline follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way." },
     "content": { "form": "slot",
                  "description": "The fields, composed from ArenaInput and ArenaButton." },
     "footer": { "form": "slot",

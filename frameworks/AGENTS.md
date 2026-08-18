@@ -1,7 +1,7 @@
 # The framework layers
 
 > **For whoever changes a layer.** Building an app with Arena instead? This is the wrong branch:
-> start at the root `SKILL.md`, then `frameworks/SKILL.md`, then your layer's index beside it.
+> start at the root `SKILL.md`, then `frameworks/INDEX.md`, then your layer's index beside it.
 
 Three layers implement one language. `react/` and `angular/` each ship a component library;
 `tailwind/` is authored once and consumed by both. Each has its own `AGENTS.md`; this page is
@@ -14,7 +14,7 @@ what binds them, and every rule here binds more than one of them.
 | change how a component looks | [`tailwind/AGENTS.md`](./tailwind/AGENTS.md), because appearance is authored there and compiled into both |
 | understand what a layer holds | that layer's `AGENTS.md`: [`react/`](./react/AGENTS.md), [`angular/`](./angular/AGENTS.md), [`tailwind/`](./tailwind/AGENTS.md) |
 | seed a component's playground | [`demos/AGENTS.md`](./demos/AGENTS.md) |
-| arrange the page a design extension is compared on | [`kitchen-sink/AGENTS.md`](./kitchen-sink/AGENTS.md) |
+| arrange the page a style plugin is compared on | [`kitchen-sink/AGENTS.md`](./kitchen-sink/AGENTS.md) |
 | change a chart | [`CHARTS.md`](./CHARTS.md), beside this page, because a chart's arithmetic is one thing both layers hold byte for byte |
 | publish a package | [`PACKAGING.md`](./PACKAGING.md) |
 
@@ -57,6 +57,13 @@ a gate with nothing to check rather than something to fail.
    prompt tables and the consumer index tree, and commit what it writes under `frameworks/`
    only where the tree tracks it.
 
+**Changing an existing component's members starts at step 2 and it obliges every layer.** A
+member is a contract fact rather than a layer's, so there is no such thing as adding one to one
+layer: `check:api` fails a layer declaring a member no contract names AND a layer failing to
+declare one a contract does, which is the same gate refusing the two halves of the same shortcut.
+The doc comment above the member is not yours either; [`../GENERATED.md`](../GENERATED.md) says
+which parts of a file under this tree a generator writes.
+
 **A family of literal inventories moves outside the layer you touched, and no layer suite can
 see any of them.** `scripts/lib/arena/behaviour-contracts.test.ts` asserts an inventory **per
 layer** by literal value, one for React and one for Angular, so a new component **directory**
@@ -78,7 +85,7 @@ Find them all with `bun test scripts` before assuming a count is a count. Verify
 process, the args array in `testStep()`, because `bun test frameworks/react` never matches
 `scripts/` and reports green over a tree whose run is red.
 
-**The consumer index tree moves too**, `frameworks/SKILL.md` and one `SKILL.md` per layer. It is
+**The consumer index tree moves too**, `frameworks/INDEX.md` and one `INDEX.md` per layer. It is
 generated, so nothing is written by hand: `bun run generate:skills`, which `bun run build`
 already does. Those three are **tracked**, unlike everything else a generator writes under
 `frameworks/`, because the plugin is served from the git tag where nothing runs a build, so an

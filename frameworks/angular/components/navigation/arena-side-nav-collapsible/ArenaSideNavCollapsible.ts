@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
+import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 
 @Component({
   selector: 'arena-side-nav-collapsible',
@@ -12,26 +13,29 @@ import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
   providers: [ArenaSideNavState],
   host: {
     '[class]': 'styles().section()',
+    '[attr.data-arena-part]': 'parts.section',
     '[attr.id]': 'null',
   },
   template: `
-    <button type="button" [id]="triggerId()" [class]="styles().trigger()"
+    <button type="button" [id]="triggerId()" [class]="styles().trigger()" [attr.data-arena-part]="parts.trigger"
             [style.paddingInlineStart]="indent()"
             [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
             (click)="press()" (keydown)="onKeydown($event)">
       @if (icon(); as glyph) {
-        <i [class]="styles().icon() + ' ' + glyph" aria-hidden="true"></i>
+        <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
       }
-      <span [class]="styles().triggerLabel()">{{ heading() }}</span>
-      <i [class]="styles().caret() + ' ' + caretGlyph()" aria-hidden="true"></i>
+      <span [class]="styles().triggerLabel()" [attr.data-arena-part]="parts.triggerLabel">{{ heading() }}</span>
+      <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
     </button>
-    <div [id]="regionId()" [class]="styles().region()" role="group"
+    <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" role="group"
          [attr.aria-labelledby]="triggerId()" [hidden]="!expanded()">
       <ng-content />
     </div>
   `,
 })
 export class ArenaSideNavCollapsible {
+  protected readonly parts = manifest.parts;
+
   /** Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it. */
   readonly id = input.required<string>();
   /** What the trigger reads, and the accessible name of both the trigger and the region it controls. Required and falsy-guarded. */

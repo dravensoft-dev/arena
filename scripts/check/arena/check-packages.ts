@@ -1,13 +1,13 @@
-/* Four claims. First, that the CLI shipped inside both packages emits what Style Dictionary
+/* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
  * emits: a second emitter exists, so something has to hold the two together. Second, when
  * dist/ has been assembled, that each package is registry-standard: the version comes from
  * plugin.json, every exports target resolves to a file that is there and every wildcard one
  * matches at least one, the entry declaration is advertised at the root, and no peer leaked into
  * dependencies. Third, that the stylesheets resolve, because a sheet that imports 43 files that
  * are not there passes the second claim and fails in the consumer's bundler. Fourth, that the
- * component map is there and reaches every sheet both ways: it is all that stands between
- * "components": "auto" and a subset resolved from nothing, which is every screen unstyled with
- * the build green. dist/ is git-ignored, so all but the first are skipped on a fresh clone. */
+ * component map is there and reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS is
+ * the only honest subject for, since what a consumer installs is this and not an intermediate:
+ * supports-blocks.ts states both halves of it. dist/ is git-ignored, so all but the first skip. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
@@ -21,6 +21,9 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { themeCss } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
+import { NPM_SKILL } from '../../lib/arena/package-assembly.ts';
+import { ROUTER } from '../../lib/arena/llms-index.ts';
+import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 
 export const node = {
   name: 'check:packages',
@@ -191,6 +194,24 @@ export function componentMapProblems(pkg: { layer: string; name: string }, dir: 
   return problems;
 }
 
+export function discoveryProblems(pkg: { layer: string; name: string }, dir: string) {
+  const at = join(dir, NPM_SKILL);
+  if (!existsSync(at)) {
+    return [`${pkg.name}: no ${NPM_SKILL}, so the glob the npm skills convention discovers a `
+      + 'package by matches nothing here and an agent working in a project that already depends on '
+      + 'Arena has no way to learn the language exists'];
+  }
+  const text = readFileSync(at, 'utf8');
+  const problems = [];
+  if (!text.startsWith('---\n')) problems.push(`${pkg.name}: ${NPM_SKILL} carries no frontmatter, so it is discovered by nothing`);
+  if (!text.includes(pkg.name)) problems.push(`${pkg.name}: ${NPM_SKILL} does not name its own package`);
+  if (!text.includes(ROUTER)) {
+    problems.push(`${pkg.name}: ${NPM_SKILL} does not name ${ROUTER}, and pointing at the route is `
+      + 'the whole of what a stub is for');
+  }
+  return problems;
+}
+
 const RELATIVE_IMPORT = /@import\s+(?:url\(\s*)?['"](\.[^'"]*)['"]/g;
 
 export function importsIn(css: string) {
@@ -225,6 +246,35 @@ export function styleProblems(pkg: { layer: string; name: string }, dir: string)
   return { problems, walked: seen.size };
 }
 
+export function shippedSheets(dir: string) {
+  return walkFiles(dir).filter((path) => path.endsWith('.css'));
+}
+
+export function bundledCssProblems(pkg: { layer: string; name: string }, dir: string) {
+  const sheets = shippedSheets(dir);
+  if (sheets.length === 0) {
+    return [`${pkg.name}: not one stylesheet was emitted, so this claim read nothing; a walk that `
+      + 'found no subject is a failure rather than a clean pass'];
+  }
+  const problems = [];
+  for (const path of sheets) {
+    const rel = relPosix(dir, path);
+    const css = readFileSync(path, 'utf8');
+    for (const blind of blindFallbacks(css)) {
+      problems.push(`${pkg.name}: ${rel} falls back to ${blind.property}: var(--${blind.token}) `
+        + `at ${blind.selector}, under an ink of the same colour. Wherever color-mix does not `
+        + 'resolve, that paints the glyph in the ground it stands on');
+    }
+    for (const repeated of repeatedSupports(css)) {
+      problems.push(`${pkg.name}: ${rel} states ${repeated.condition} ${repeated.count} times at `
+        + `${repeated.selector}, and a bundler is free to keep one of them: bun build keeps the `
+        + 'first and discards the rest, so every held-back colour after the first leaves the sheet '
+        + 'the consumer ends up with');
+    }
+  }
+  return problems;
+}
+
 export function declaredComponents(base = root): string[] {
   const declared = readJson(join(base, 'frameworks', 'Components.json')) as Record<string, string[]>;
   return Object.values(declared).flat().sort();
@@ -254,6 +304,7 @@ export function collect(base = root) {
 
   const assembled = [];
   const declared = declaredComponents(base);
+  let sheets = 0;
   for (const pkg of PACKAGES) {
     const dir = distDir(pkg.layer, base);
     const manifestPath = join(dir, 'package.json');
@@ -264,14 +315,17 @@ export function collect(base = root) {
     problems.push(...exportProblems(pkg, manifest, dir));
     problems.push(...componentMapProblems(pkg, dir));
     problems.push(...componentReachProblems(pkg, dir, declared));
+    problems.push(...discoveryProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
+    problems.push(...bundledCssProblems(pkg, dir));
+    sheets += shippedSheets(dir).length;
   }
 
-  return { problems, compared: equivalence.compared, assembled, version };
+  return { problems, compared: equivalence.compared, assembled, version, sheets };
 }
 
 function main() {
-  const { problems, compared, assembled, version } = collect();
+  const { problems, compared, assembled, version, sheets } = collect();
   for (const problem of problems) console.error(`check-packages: ${problem}`);
 
   if (problems.length) {
@@ -280,7 +334,9 @@ function main() {
   }
 
   const built = assembled.length
-    ? `${assembled.length} package(s) assembled at ${version}: ${assembled.join(', ')}`
+    ? `${assembled.length} package(s) assembled at ${version}: ${assembled.join(', ')}, whose `
+      + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
+      + 'each condition once per rule'
     : 'no package assembled; run bun run build:packages to check the manifests too';
   console.log(`check-packages: arena-to-prod matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
 }

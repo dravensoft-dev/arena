@@ -1,0 +1,7 @@
+{
+  "component": "ArenaMain",
+  "slots": {
+    "content": [ { "text": "Everything the page is for goes here." } ]
+  },
+  "note": "The main landmark and nothing else: no width, no grid, no padding. It is also the target a skip link jumps to, which is why it is focusable programmatically."
+}

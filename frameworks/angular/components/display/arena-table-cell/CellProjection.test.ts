@@ -33,10 +33,10 @@ const VALUE = 'checkout-api';
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Recent deployments" [columns]="columns" responsive>
-      <arena-table-row>
-        <arena-table-cell>{{ value }}</arena-table-cell>
-        <arena-table-cell>Healthy</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row>
+        <td arena-table-cell>{{ value }}</td>
+        <td arena-table-cell>Healthy</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -85,7 +85,7 @@ test('a cell keeps its projected value through a resize in either direction, and
     await fixture.whenStable();
     const host = fixture.nativeElement as Element;
 
-    const cell = () => host.querySelector('arena-table-cell');
+    const cell = () => host.querySelector('td[arena-table-cell]');
     assert.equal(occurrences(host.textContent ?? '', VALUE), 1, 'the value is projected once in the wide shape');
     assertNoNode(
       cell()?.querySelector('span'),

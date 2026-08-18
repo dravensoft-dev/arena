@@ -6,14 +6,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, CONTRIBUTOR_BASENAMES, unwrapped,
+  OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, contributorBasenames, unwrapped,
   missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
-  context7Problems, zeroScanProblems, markdown, LIMITS,
+  context7Problems, zeroScanProblems, markdown, LIMITS, CONTEXT7_KEYS,
 } from './check-community.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 function tree(files: Record<string, string>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-community-'));
@@ -99,7 +100,7 @@ test('a contact link naming a path the branch does not carry answers 404 to the 
 test('an exclusion covering nothing is stale, whether it names a folder or a file', () => {
   const base = tree({
     [CONTEXT7]: JSON.stringify({ excludeFolders: ['scripts'], excludeFiles: ['AGENTS.md'] }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(base);
   assert.equal(problems.length, 2, 'the missing folder and the absent document are both reported');
@@ -109,7 +110,7 @@ test('a contributor document Context7 would index is the failure this gate exist
   const base = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: [] }),
     'AGENTS.md': 'contributor reasoning',
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(base);
   assert.equal(problems.length, 1);
@@ -119,19 +120,19 @@ test('a contributor document Context7 would index is the failure this gate exist
 test('a rule the router does not carry has drifted, and rewrapping the router has not', () => {
   const drifted = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Gradients are fine'] }),
-    'SKILL.md': '**No gradients** on any surface.',
+    [ROUTER]: '**No gradients** on any surface.',
   });
   assert.equal(context7Problems(drifted).length, 1);
 
   const wrapped = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Icons are Phosphor class-name strings'] }),
-    'SKILL.md': '**Icons are Phosphor\nclass-name strings**, never elements.',
+    [ROUTER]: '**Icons are Phosphor\nclass-name strings**, never elements.',
   });
   assert.deepEqual(context7Problems(wrapped), [], 'a line break is formatting and never a drift');
 });
 
 test('excluding a folder git ignores is coverage the parser never had, since Context7 reads the repository', () => {
-  const base = tree({ [CONTEXT7]: JSON.stringify({ excludeFolders: ['docs'] }), 'SKILL.md': '' });
+  const base = tree({ [CONTEXT7]: JSON.stringify({ excludeFolders: ['docs'] }), [ROUTER]: '' });
   mkdirSync(join(base, 'docs'), { recursive: true });
   const problems = context7Problems(base, new Set(['docs']));
   assert.equal(problems.length, 1);
@@ -142,13 +143,13 @@ test('excluding a folder git ignores is coverage the parser never had, since Con
 test('a field over its schema limit fails the whole document, and the claim reports it as something else', () => {
   const over = tree({
     [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(201) }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(over, new Set());
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /schema allows 200/);
 
-  const inside = tree({ [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(200) }), 'SKILL.md': '' });
+  const inside = tree({ [CONTEXT7]: JSON.stringify({ description: 'x'.repeat(200) }), [ROUTER]: '' });
   assert.deepEqual(context7Problems(inside, new Set()), [], 'the limit itself is allowed');
 });
 
@@ -163,30 +164,39 @@ test('every limit the gate holds is one the published schema declares', () => {
 test('a path in excludeFiles matches nothing, since that field takes a file name', () => {
   const base = tree({
     [CONTEXT7]: JSON.stringify({ excludeFiles: ['contracts/AGENTS.md'] }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   const problems = context7Problems(base, new Set());
   assert.ok(problems.some((p) => /file name rather than a path/.test(p)));
 });
 
 test('one half of the ownership pair claims nothing and reads as a claim that was made', () => {
-  const half = tree({ [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r' }), 'SKILL.md': '' });
+  const half = tree({ [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r' }), [ROUTER]: '' });
   assert.equal(context7Problems(half, new Set()).length, 1);
 
   const both = tree({
     [CONTEXT7]: JSON.stringify({ url: 'https://context7.com/o/r', public_key: 'pk_x' }),
-    'SKILL.md': '',
+    [ROUTER]: '',
   });
   assert.deepEqual(context7Problems(both, new Set()), []);
 
-  const neither = tree({ [CONTEXT7]: JSON.stringify({}), 'SKILL.md': '' });
+  const neither = tree({ [CONTEXT7]: JSON.stringify({}), [ROUTER]: '' });
   assert.deepEqual(context7Problems(neither, new Set()), []);
 });
 
-test('every contributor basename the gate guards is one the repository actually uses', () => {
-  assert.ok(CONTRIBUTOR_BASENAMES.includes('AGENTS.md'));
-  assert.ok(CONTRIBUTOR_BASENAMES.includes('DOUBTS.md'));
-  assert.equal(new Set(CONTRIBUTOR_BASENAMES).size, CONTRIBUTOR_BASENAMES.length);
+test('the contributor basenames are what the tree carries, so a new document joins them unasked', () => {
+  const names = contributorBasenames(repoRoot, markdown(repoRoot), ['scripts', 'contracts', 'intro', 'assets']);
+  assert.ok(names.includes('AGENTS.md'));
+  assert.ok(names.includes('DOUBTS.md'));
+  assert.ok(names.includes('GENERATED.md'), 'a contributor document added at the root is guarded without an edit here');
+  assert.equal(new Set(names).size, names.length);
+});
+
+test('a consumer document is not a contributor basename, whatever directory it sits in', () => {
+  const found = ['AGENTS.md', 'frameworks/react/INDEX.md', 'frameworks/react/PACKAGE.md',
+    'frameworks/react/components/forms/arena-button/ArenaButton.prompt.md',
+    'skills/design/SKILL.md', 'README.md', 'dist/site/frameworks/react/AGENTS.md'];
+  assert.deepEqual(contributorBasenames(repoRoot, found, []), ['AGENTS.md']);
 });
 
 test('unwrapped flattens a run of whitespace and leaves the words alone', () => {
@@ -196,4 +206,22 @@ test('unwrapped flattens a run of whitespace and leaves the words alone', () => 
 test('an empty walk is a clean-looking pass over a tree nobody opened', () => {
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems([`${ROUTER}`]), []);
+});
+
+test('a key the declared schema does not define fails, because it invalidates the whole file', () => {
+  const bad = tree({
+    [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: [], version: '10.0.0' }),
+    [ROUTER]: '',
+  });
+  const problems = context7Problems(bad);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /carries "version", which the schema it declares does not define/);
+});
+
+test('every key this tree writes is one the schema defines', () => {
+  const config = JSON.parse(readFileSync(join(repoRoot, CONTEXT7), 'utf8'));
+  assert.ok(Object.keys(config).length > 0, 'an empty config would pass this vacuously');
+  for (const key of Object.keys(config)) {
+    assert.ok(CONTEXT7_KEYS.includes(key), `${key} is not in the schema's set`);
+  }
 });

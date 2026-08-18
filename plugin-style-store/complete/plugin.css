@@ -1,0 +1,1462 @@
+/* complete is authored, and it is authored to be exhaustive rather than coherent. One rule per
+   part hook every manifest emits, each visibly different from what the component draws without
+   it, so check:style-plugin-coverage can ask whether the surface the kernel advertises is the
+   surface it exposes. The gradient is deliberate: it is the floor that became a report, and this
+   is where that is demonstrated rather than described. Every other value is a token, because a
+   plugin re-answers Arena and does not leave it.
+
+   Every selector carries .arena-complete, which a root plugin's would not. No package assembles
+   this one, so it is always a difference sitting over a root plugin, and the site loads it beside
+   default: an unscoped rule here would paint the page default is what looks like. */
+
+
+.arena-complete [data-arena-part="activity-feed"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="activity-feed.actor"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="activity-feed.dot"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="activity-feed.item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="activity-feed.target"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="activity-feed.text"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="activity-feed.time"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="alert"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="alert.action"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="alert.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="alert.close"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="alert.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="alert.message"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="alert.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="app-bar"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="app-bar.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="app-bar.band"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="app-bar.brand"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="app-bar.nav"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="app-logo"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="app-logo.dim"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="app-logo.mark"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="app-logo.name"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="avatar"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="avatar.box"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="avatar.image"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="avatar.status"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="badge"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="badge.dot"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+
+.arena-complete [data-arena-part="bottom-nav"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="bottom-nav.badge"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bottom-nav.glyph"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="bottom-nav.item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bottom-nav.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="breadcrumbs"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="breadcrumbs.crumb"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="breadcrumbs.current"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="breadcrumbs.separator"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="board"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="board.column"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="board.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="board.dot"] {
+  transform: rotate(-4deg) scale(1.4);
+}
+.arena-complete [data-arena-part="board.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="board.count"] {
+  letter-spacing: var(--track-eyebrow);
+}
+.arena-complete [data-arena-part="board.summary"] {
+  font-style: italic;
+}
+.arena-complete [data-arena-part="board.action"] {
+  opacity: 0.92;
+}
+.arena-complete [data-arena-part="board.stack"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="board.foot"] {
+  border-block-start: var(--bw-separator) dashed var(--edge-separator);
+}
+.arena-complete [data-arena-part="bulk-action-bar"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="bulk-action-bar.action"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bulk-action-bar.action-icon"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bulk-action-bar.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bulk-action-bar.clear"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bulk-action-bar.count"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="bulk-action-bar.divider"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bulk-action-bar.number"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="button"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="button.spinner"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+
+.arena-complete [data-arena-part="calendar"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="calendar.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="calendar.cell"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.chip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.chip-body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="calendar.column"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.day-head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.day-number"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="calendar.grid"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.gutter"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.head-strip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.heading"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="calendar.hour-label"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.kebab-wrap"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.nav"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.now"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.now-dot"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="calendar.rule"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.scroll"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.time"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="calendar.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="calendar.today"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.toolbar"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="calendar.weekday"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="card"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="card.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="card.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="card.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="card.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="chart-card"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="chart-card.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="chart-card.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="chart-card.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="checkbox"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="checkbox.box"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="checkbox.check"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="checkbox.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="checkbox.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="command-palette"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="command-palette.empty"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.esc"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.group"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.group-label"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.list"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="command-palette.row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.row-icon"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.row-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="command-palette.search"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.search-icon"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="command-palette.shortcut"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="confirm-dialog"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="confirm-dialog.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="confirm-dialog.confirm"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="confirm-dialog.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="confirm-dialog.foot"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="confirm-dialog.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="confirm-dialog.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="confirm-dialog.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="confirm-dialog.require-block"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="confirm-dialog.require-label"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="confirm-dialog.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="dialog.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="dialog.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="dialog.foot"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="dialog.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="dialog.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="dialog.scrim"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="dialog.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="empty-state"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="empty-state.action"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="empty-state.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="empty-state.message"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="empty-state.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="error-state"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="error-state.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="error-state.code"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="error-state.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="error-state.message"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="error-state.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="figure"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="figure.caption"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="figure.fallback"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="figure.frame"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="figure.media"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="figure.overlay"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="grid"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
+.arena-complete [data-arena-part="hero"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="hero.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="hero.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="hero.figure"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="hero.lede"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="hero.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="hero.words"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="icon-button"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="icon-button.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="input"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="input.error"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="input.field"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="input.hint"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="input.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="input.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="input.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="input.prefix"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="input.required"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="input.status-icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+
+.arena-complete [data-arena-part="key-value"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="key-value.row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="key-value.term"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="key-value.total"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="key-value.total-term"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="key-value.total-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="key-value.value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="main"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
+.arena-complete [data-arena-part="menu"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="menu.divider"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="menu.header"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="menu.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="menu.item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="menu.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="menu.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-marker);
+}
+.arena-complete [data-arena-part="menu.shortcut"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="onboarding"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="onboarding.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="onboarding.dot"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="onboarding.dots"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="onboarding.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="onboarding.foot"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="onboarding.next"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="onboarding.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="onboarding.text"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="onboarding.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="page-head"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="page-head.actions"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="page-head.subtitle"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="page-head.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="page-head.titles"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="pagination"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="pagination.ellipsis"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="pagination.nav"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="pagination.page"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="people-list"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="people-list.row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="people-list.rank"] {
+  letter-spacing: var(--track-eyebrow);
+  opacity: 0.82;
+}
+.arena-complete [data-arena-part="people-list.text"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="people-list.name"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="people-list.secondary"] {
+  font-style: italic;
+}
+.arena-complete [data-arena-part="people-list.figure"] {
+  letter-spacing: var(--track-eyebrow);
+}
+.arena-complete [data-arena-part="people-list.action"] {
+  opacity: 0.92;
+}
+.arena-complete [data-arena-part="progress-bar"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="progress-bar.announcement"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="progress-bar.fill"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="progress-bar.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="progress-bar.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="progress-bar.ring"] {
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="progress-bar.ring-content"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="progress-bar.ring-fill"] {
+  stroke-linecap: butt;
+}
+.arena-complete [data-arena-part="progress-bar.ring-geometry"] {
+  opacity: 0.92;
+}
+.arena-complete [data-arena-part="progress-bar.ring-track"] {
+  stroke: var(--edge-marker);
+}
+.arena-complete [data-arena-part="progress-bar.track"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="progress-bar.value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="radio"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="radio.dot"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="radio.group"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="radio.hint"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="radio.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="radio.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="radio.ring"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="radio.text"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="scroller"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
+.arena-complete [data-arena-part="scroller-item"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
+.arena-complete [data-arena-part="section"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="section.action"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="section.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="section.description"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="section.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="section.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="section.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="section.titles"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="segmented-control.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="segmented-control.segment"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="segmented-control.track"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+
+.arena-complete [data-arena-part="select"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="select.caret"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="select.error"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="select.field"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="select.hint"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="select.icon-wrap"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="select.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="select.wrap"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="sheet"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="sheet.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="sheet.caret"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="sheet.close"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="sheet.foot"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="sheet.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="sheet.trigger"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="side-nav"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="side-nav.badge"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="side-nav.caret"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="side-nav.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="side-nav.item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="side-nav.region"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="side-nav.section"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="side-nav.section-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="side-nav.trigger"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="side-nav.trigger-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="site-footer"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="site-footer.band"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="site-footer.columns"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="site-footer.note"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="skeleton"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="skeleton.line"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="skeleton.stack"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="skip-link"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
+.arena-complete [data-arena-part="spinner"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="spinner.circle"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="stat-card"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="stat-card.delta"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="stat-card.head"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="stat-card.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="stat-card.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="stat-card.sub"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="stat-card.value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="switch"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="switch.guard"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="switch.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="switch.knob"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="switch.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="switch.track"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+
+.arena-complete [data-arena-part="table"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="table.body"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.card"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.card-block"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.card-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="table.card-row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.card-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="table.empty"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.grid"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.head-row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.link"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.pager"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.sort-bar"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.sort-caret"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="table.sort-field"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.td"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="table.th"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="tabs"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="tabs.panel"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="tabs.tab"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="tag"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="tag.close"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="tag.dot"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+
+.arena-complete [data-arena-part="textarea"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="textarea.counter"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="textarea.error"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="textarea.field"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="textarea.foot"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="textarea.hint"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="textarea.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="textarea.required"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="toast"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="toast.action"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="toast.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="toast.close"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="toast.message"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="toast.pinned"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="toast.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
+.arena-complete [data-arena-part="toast-host"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
+.arena-complete [data-arena-part="tooltip"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="tooltip.bubble"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
+.arena-complete [data-arena-part="unauth-card"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="unauth-card.body"] {
+  background-image: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="unauth-card.brand"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="unauth-card.eyebrow"] {
+  letter-spacing: var(--track-label);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="unauth-card.footer"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="unauth-card.title"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}

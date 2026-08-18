@@ -1,0 +1,5 @@
+{
+  "pattern": "none",
+  "reason": "ArenaSection draws a heading over the children it is given and nothing else: no role, no state, no control. The head is a heading, an optional line above it, an optional line under it and a slot the consumer fills, and every focusable thing on the page inside it came from that slot or from the content one, each carrying its own binding. What this deliberately does NOT claim is a `region` landmark: a <section> earns that only with an accessible name, and a page whose every section announced itself as a landmark would bury the two or three that matter under the rest. The heading is the structure a reader navigates by here, and it is the platform's own.",
+  "exceptions": []
+}

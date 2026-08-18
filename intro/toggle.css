@@ -10,12 +10,6 @@
  * across and turn it gold. The knob geometry is bespoke — there is no 36px or
  * 20px in the spacing scale — but every colour, radius, border and transition
  * below is a token.
- *
- * The extension control draws dots instead of a knob, and the difference is the
- * point rather than a variation: a thumb between two ends can only ever say one
- * of two things, and the voice catalogue grows. One dot per voice says how many
- * there are and which one is on, at any length, so a third extension needs no
- * change here. Its geometry is bespoke for the same reason the knob's is.
  */
 
 .dtoggle-dock {
@@ -74,32 +68,13 @@
 }
 
 .dtoggle[data-light="1"] .knob::before,
-.dtoggle[data-compact="1"] .knob::before {
+.dtoggle[data-compact="1"] .knob::before,
+.dtoggle[data-plugin="1"] .knob::before {
   transform: translateX(16px);
   background: var(--gold);
 }
 
-.dtoggle .cycle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  height: 20px;
-  padding: 0 8px;
-  border-radius: var(--r-pill);
-  background: var(--color-base-300);
-}
-
-.dtoggle .cycle i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--crimson);
-  transition: background var(--dur-fast) var(--ease-out);
-}
-
-.dtoggle .cycle i.on { background: var(--gold); }
-
 /* The thumb travel is the state, and it survives; only the slide is dropped. */
 @media (prefers-reduced-motion: reduce) {
-  .dtoggle, .dtoggle .knob, .dtoggle .knob::before, .dtoggle .cycle i { transition: none; }
+  .dtoggle, .dtoggle .knob, .dtoggle .knob::before { transition: none; }
 }

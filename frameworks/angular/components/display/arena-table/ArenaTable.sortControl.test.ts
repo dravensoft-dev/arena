@@ -34,11 +34,11 @@ const COLUMNS: ArenaTableColumn[] = [
   template: `
     <arena-table [label]="label" [columns]="columns" [sort]="sort()" [sortControl]="control"
                  (sortChange)="seen.push($event)">
-      <arena-table-row>
-        <arena-table-cell>Andina</arena-table-cell>
-        <arena-table-cell>Paid</arena-table-cell>
-        <arena-table-cell>1042</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row>
+        <td arena-table-cell>Andina</td>
+        <td arena-table-cell>Paid</td>
+        <td arena-table-cell>1042</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -98,7 +98,7 @@ test('card mode draws a sort control, and picking one emits the same sortChange 
     fixture = await render();
     const host = fixture.nativeElement as Element;
 
-    assert.equal(host.querySelectorAll('[role="columnheader"]').length, 0,
+    assert.equal(host.querySelectorAll('th').length, 0,
       'card mode must not bring the header row back: it exists because a grid does not fit');
 
     const control = select(fixture);
@@ -151,7 +151,7 @@ test('the wide shape draws no control, because there the header row IS the contr
   try {
     fixture = await render();
     assert.equal(select(fixture), null, 'a second affordance for one state is one too many');
-    assert.ok((fixture.nativeElement as Element).querySelectorAll('[role="columnheader"]').length > 0);
+    assert.ok((fixture.nativeElement as Element).querySelectorAll('th').length > 0);
   } finally { fixture?.destroy(); }
 });
 

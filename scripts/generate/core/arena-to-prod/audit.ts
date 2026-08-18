@@ -3,10 +3,11 @@
  * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here
  * rather than holding a second copy that would drift. It depends on nothing but its own siblings,
  * because inside a package scripts/ does not exist. It decides what source text shows and nothing
- * else, and the omissions are the point: one primary per view needs a view and a file is not one,
- * and filled danger and the render rules are not visible from outside. A line carrying an allow
- * marker is exempt, and a marker over a line with nothing to exempt is stale and reported, so an
- * allowance cannot outlive what it was written for. */
+ * else: filled danger and the render rules are not visible from outside. A line carrying an allow
+ * marker is exempt, and a marker over a line with nothing to exempt is stale. Every rule is read
+ * in a SCOPE, because an audit that cannot say where a project's appearance lives has given up
+ * half of what it reports: a declared style plugin directory may select a part hook and may paint
+ * a gradient, and an application source may do neither. */
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
@@ -112,8 +113,132 @@ const OWN_RULE = /(^|[\s,{}])\.arena-[a-z0-9-]+/;
 
 const RAW_HEX = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3}(?:[0-9a-fA-F]{2})?)?\b/;
 const BARE_PIXELS = /(?<![\w.-])-?\d*\.?\d+px\b/;
+
+export const NAMED_COLOURS = [
+  'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black',
+  'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse',
+  'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan',
+  'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta',
+  'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen',
+  'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink',
+  'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen',
+  'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow',
+  'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender',
+  'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan',
+  'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon',
+  'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue',
+  'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine',
+  'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue',
+  'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream',
+  'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange',
+  'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred',
+  'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'rebeccapurple',
+  'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell',
+  'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen',
+  'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white',
+  'whitesmoke', 'yellow', 'yellowgreen',
+];
+
+const NAMED_COLOUR = new RegExp(`(?<![\\w-])(?:${NAMED_COLOURS.join('|')})(?![\\w-])`, 'i');
+const COLOUR_CALL = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|color)\s*\(/gi;
+const DECLARATION = /:\s*([^;{}]*)/g;
+const QUOTED = /"[^"]*"|'[^']*'/g;
+const VAR_CALL = /var\(\s*--[a-z0-9-]+\s*(?:,(?:[^()]|\([^()]*\))*)?\)/gi;
+const COLOUR_SPACE = /\bin\s+[a-z0-9-]+(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?/gi;
+const CHANNEL = /\b(?:from|none|transparent|currentcolor|alpha|[rgbhslwac])\b/gi;
+const SHARE = /-?\d*\.?\d+%/g;
+
+function callArguments(text: string, from: number) {
+  let depth = 0;
+  for (let i = from; i < text.length; i++) {
+    if (text[i] === '(') depth += 1;
+    else if (text[i] === ')') {
+      depth -= 1;
+      if (depth === 0) return text.slice(from + 1, i);
+    }
+  }
+  return text.slice(from + 1);
+}
+
+export function namesAColour(value: string, isStylesheet: boolean) {
+  const text = (isStylesheet ? value.replace(QUOTED, ' ') : value)
+    .replace(VAR_CALL, ' ')
+    .replace(RAW_HEX, ' ');
+  if (NAMED_COLOUR.test(text)) return true;
+
+  COLOUR_CALL.lastIndex = 0;
+  let call = COLOUR_CALL.exec(text);
+  let read = 0;
+  while (call) {
+    if (call.index >= read) {
+      const args = callArguments(text, call.index + call[0].length - 1);
+      read = call.index + call[0].length + args.length;
+      const left = args
+        .replace(COLOUR_SPACE, ' ')
+        .replace(CHANNEL, ' ')
+        .replace(SHARE, ' ')
+        .replace(/[,/()\s]/g, '');
+      if (left.length) return true;
+    }
+    call = COLOUR_CALL.exec(text);
+  }
+  return false;
+}
+
+export function rawColour(line: string, isStylesheet: boolean) {
+  DECLARATION.lastIndex = 0;
+  for (const declaration of line.matchAll(DECLARATION))
+    if (namesAColour(group(declaration), isStylesheet)) return true;
+  return false;
+}
+
+export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel value and a '
+  + 'colour\'s name are both the skin written down: read the colour through its custom property, '
+  + 'as var(--crimson), or compose one with color-mix() over var()';
+export const COMPAT_ALIASES = [
+  'level-ink-body', 'level-ink-quiet', 'level-ink-muted', 'level-presence',
+  'picker-invert', 'ink', 'ink-2', 'panel', 'line-strong', 'bone', 'bone-dim', 'mute',
+  'mute-2-disabled', 'status-offline', 'crimson', 'crimson-strong', 'crimson-soft', 'gold',
+  'gold-strong', 'gold-soft', 'success', 'success-soft', 'warning', 'warning-soft', 'danger',
+  'danger-strong', 'danger-soft', 'danger-fill', 'info', 'info-soft', 'bg', 'bg-raised',
+  'surface-card', 'surface-input', 'text-strong', 'text-body', 'text-muted', 'border',
+  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent',
+];
+
+export const COMPAT_ALIAS_MESSAGE = 'a value read through one of Arena\'s own compatibility '
+  + 'aliases. The layer maps Arena\'s names onto the palette and ships with the package, so a rule '
+  + 'naming one assigns a step of the ramp under another name rather than answering a role: answer '
+  + 'the role in plugin.tokens.json with one of your palette colours, and compose the shade you '
+  + 'want with color-mix() over var(--color-*) where no palette entry holds it';
+
+export function namesAnAlias(line: string) {
+  return COMPAT_ALIASES.some((alias) => new RegExp(`var\\(\\s*--${alias}\\s*[,)]`).test(line));
+}
+
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
+const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
+
+export const PAINTED_PART = /\[data-arena-part\s*=\s*"([^"]+)"\]/g;
+
+export type Scope = 'app' | 'plugin';
+
+export const SEGMENT = /[^/\\]+/g;
+
+const segments = (path: string) => path.match(SEGMENT) ?? [];
+
+export function sourceScope(relPath: string, pluginDirs: string[]): Scope {
+  const path = segments(relPath);
+  const inside = (dir: string) => {
+    const at = segments(dir);
+    return at.length > 0 && at.every((part, i) => path[i] === part);
+  };
+  return pluginDirs.some(inside) ? 'plugin' : 'app';
+}
+
+export function paintedParts(css: string) {
+  return [...new Set([...css.matchAll(PAINTED_PART)].map((m) => group(m)))].sort();
+}
 
 const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
@@ -122,7 +247,7 @@ const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
 const OPEN_TAG = /<([A-Za-z][A-Za-z0-9._-]*)/g;
 const ARENA_TAG = /^(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)$/;
 const LINK_TAG = /^(?:a|Link|NavLink)$/;
-const OWN_CLASS_ATTRIBUTE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[class\.[a-z0-9-]+\])\s*=/;
+export const OWN_CLASS_ATTRIBUTE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[class\.[a-z0-9-]+\])\s*=/;
 const ROUTER_ATTRIBUTE = /(?:^|\s)(?:routerLink|\[routerLink\]|to|href)\s*=/;
 
 export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws. Arena renders its '
@@ -132,6 +257,56 @@ export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws
 export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your own, which nests '
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
+
+export const HEADING_RUNGS: Record<string, number> = {
+  'arena-hero': 1,
+  'arena-page-head': 1,
+  'arena-section': 2,
+  'arena-unauth-card': 2,
+  'arena-board-column': 3,
+  'arena-card': 3,
+  'arena-empty-state': 3,
+  'arena-error-state': 3,
+};
+
+export const HEADING_LEVEL_ATTRIBUTE = /(?:^|\s)\[?headingLevel\]?\s*=/;
+
+export const STATED_HEADING_LEVEL = /(?:^|\s)\[?headingLevel\]?\s*=\s*["']\{?\s*'?(h[1-6]|none)'?\s*\}?["']/;
+
+export function statedRung(attributes: string) {
+  const stated = STATED_HEADING_LEVEL.exec(attributes)?.[1];
+  if (stated === undefined) return undefined;
+  return stated === 'none' ? null : Number(stated.slice(1));
+}
+
+export const LINKABLE_TAGS = new Set([
+  'arena-bottom-nav-item', 'arena-card', 'arena-side-nav-item', 'arena-table-cell',
+]);
+
+export function outlineGap(drawn: number[]): [number, number] | null {
+  const rungs = [...new Set(drawn)].sort((a, b) => a - b);
+  for (let i = 1; i < rungs.length; i += 1) {
+    const under = rungs[i - 1] as number;
+    const over = rungs[i] as number;
+    if (over - under > 1) return [under, over];
+  }
+  return null;
+}
+
+export function outlineMessage(under: number, over: number) {
+  return `an outline that skips h${under + 1}: this screen can draw an h${under} and an h${over} `
+    + 'with nothing between them. Arena gives each component the rung of its own register, so a card '
+    + 'lands at h3 on the reading that a section names the region holding it -- with no section '
+    + 'written, the middle rung is not there and the outline has a hole a reader jumping by '
+    + 'heading falls through. Wrap the region in an arena-section, or say the rung you meant with '
+    + '`headingLevel`';
+}
+
+const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//g;
+
+export function withoutComments(text: string) {
+  return text.replace(BLOCK_COMMENT, (span) => span.replace(/[^\n]/g, ' '));
+}
 
 export type Finding = { line: number; rule: string; message: string };
 
@@ -159,14 +334,48 @@ export function lineAt(text: string, index: number) {
   return line;
 }
 
+export function kebabTag(name: string) {
+  return name.startsWith('Arena')
+    ? name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+    : name;
+}
+
+export function ownAttributes(attributes: string) {
+  let depth = 0;
+  let quote = '';
+  let out = '';
+  for (const c of attributes) {
+    if (quote) { out += depth ? ' ' : c; if (c === quote) quote = ''; continue; }
+    if (c === '"' || c === "'" || c === '`') { quote = c; out += depth ? ' ' : c; continue; }
+    if (c === '{') { depth += 1; out += ' '; continue; }
+    if (c === '}') { depth -= 1; out += ' '; continue; }
+    out += depth ? ' ' : c;
+  }
+  return out;
+}
+
 export function structuralFindings(text: string): Finding[] {
   const found: Finding[] = [];
+  const rungs: number[] = [];
+  let firstRung = 0;
   for (const m of text.matchAll(OPEN_TAG)) {
     const name = m[1] ?? '';
     const start = m.index ?? 0;
     const ends = tagEnd(text, start);
     if (ends === -1) continue;
-    const attributes = text.slice(start + name.length + 1, ends - 1);
+    const attributes = ownAttributes(text.slice(start + name.length + 1, ends - 1));
+
+    const rung = HEADING_RUNGS[kebabTag(name)];
+    if (rung !== undefined) {
+      const stated = statedRung(attributes);
+      const drawn = stated === undefined
+        ? (HEADING_LEVEL_ATTRIBUTE.test(attributes) ? undefined : rung)
+        : stated ?? undefined;
+      if (drawn !== undefined) {
+        if (!rungs.length) firstRung = lineAt(text, start);
+        rungs.push(drawn);
+      }
+    }
 
     if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
       found.push(at(lineAt(text, start), 'own-class', OWN_CLASS_MESSAGE));
@@ -174,27 +383,42 @@ export function structuralFindings(text: string): Finding[] {
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
     const inside = text.slice(ends).replace(/^\s*(?:\{\s*\/\*[\s\S]*?\*\/\s*\}\s*|<!--[\s\S]*?-->\s*)*/, '');
-    if (/^<(?:Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.test(inside))
+    const wrapped = /^<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.exec(inside)?.[1];
+    if (wrapped !== undefined && LINKABLE_TAGS.has(kebabTag(wrapped)))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
   }
+  const gap = outlineGap(rungs);
+  if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
   return found;
 }
 
-export function lineFindings(line: string, isStylesheet: boolean): Finding[] {
+export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app',
+  gradientMark = false): Finding[] {
   const found: Finding[] = [];
 
   if (isStylesheet && OWN_RULE.test(line))
     found.push(at(0, 'own-class', 'a rule targeting an arena- class. That name is compiler output '
       + 'rather than a surface somebody meant you to target, and a slot may be renamed in any release'));
 
+  if (scope === 'app' && PART_SELECTOR.test(line))
+    found.push(at(0, 'own-class', 'a rule targeting a data-arena-part hook from outside a style '
+      + 'plugin. The hook is where a project\'s appearance is allowed to live, and a rule reaching '
+      + 'it from anywhere else is appearance nobody can find; move it into a directory the config '
+      + 'declares in stylePlugins'));
+
   const styled = isStylesheet || INLINE_STYLE.test(line);
   if (styled && RAW_HEX.test(line))
     found.push(at(0, 'raw-value', 'a raw hex where a token belongs. Read the value through its '
       + 'custom property, as var(--crimson)'));
+  if (styled && rawColour(line, isStylesheet))
+    found.push(at(0, 'raw-value', RAW_COLOUR_MESSAGE));
   if (styled && BARE_PIXELS.test(line))
     found.push(at(0, 'raw-value', 'a bare pixel length. Read it through the spacing scale, as '
       + 'var(--sp-4), or derive it with calc() over one'));
-  if (styled && GRADIENT.test(line))
+  if (isStylesheet && scope === 'plugin' && namesAnAlias(line))
+    found.push(at(0, 'compat-alias', COMPAT_ALIAS_MESSAGE));
+
+  if (styled && scope === 'app' && !gradientMark && GRADIENT.test(line))
     found.push(at(0, 'raw-value', 'a gradient. Depth comes from the base-100 to base-300 surface '
       + 'scale, the hairline border and the warm shadow'));
 
@@ -215,19 +439,21 @@ export function bracketFindings(text: string, lines: string[]): Finding[] {
   });
 }
 
-export function findings(relPath: string, text: string): Finding[] {
+export function findings(relPath: string, text: string, scope: Scope = 'app',
+  gradientMark = false): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
-  const perLine = lines.flatMap((line, index) =>
-    lineFindings(line, isStylesheet).map((one) => at(index + 1, one.rule, one.message)));
+  const perLine = withoutComments(text).split('\n').flatMap((line, index) =>
+    lineFindings(line, isStylesheet, scope, gradientMark).map((one) => at(index + 1, one.rule, one.message)));
   return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 
-export function auditText(relPath: string, text: string): string[] {
+export function auditText(relPath: string, text: string, scope: Scope = 'app',
+  gradientMark = false): string[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text)) {
+  for (const one of findings(relPath, text, scope, gradientMark)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }

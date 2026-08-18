@@ -18,7 +18,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE, PLAYGROUND_SUFFIX,
-  entryPoints, extensions, components, pages, indexedDirectories, phosphorFiles,
+  entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, titleOf, url,
 } from '../../lib/arena/site-pages.ts';
 import { renderOgImage, OG_WIDTH, OG_HEIGHT } from '../../lib/arena/og-image.ts';
@@ -27,9 +27,10 @@ import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/aren
 export const node = {
   name: 'build:site',
   reads: [
-    'SKILL.md', 'frameworks/**/SKILL.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
+    'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
-    'intro/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
+    'intro/**', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
+    'plugin-style-store/**/plugin.css',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
     'frameworks/angular/build/demo/**',
@@ -99,7 +100,6 @@ export const TAGLINE = 'One design system, in React and in Angular, built to be 
 
 export function landingPage(base = repoRoot) {
   const drawn = components('react', base).length;
-  const voices = extensions(base).length;
   const links = entryPoints(base).filter((entry) => entry.public);
   const cards = links
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
@@ -126,9 +126,6 @@ bun add @phosphor-icons/web</code></pre>
 <ul style="line-height:2">
 ${cards}
 </ul>
-<p style="color:var(--mute)">Each kitchen sink is drawn once per voice, and this build ships
-${voices} of them.</p>
-
 <h2 style="font-family:var(--font-display)">Take it</h2>
 <ul style="line-height:2">
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-react">@dravensoft/arena-react</a></li>
@@ -189,7 +186,7 @@ function linksFor(directory: string, base: string) {
   }
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) {
-    return extensions(base).map((e) => ({ href: `${e}/`, label: `${e} voice` }));
+    return sinkNames(base).map((name) => ({ href: `${name}/`, label: name }));
   }
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
   if (one) return [{ href: SINK_PAGE, label: titleOf(`${directory}/${SINK_PAGE}`, base) }];
@@ -258,7 +255,7 @@ function titleFor(directory: string) {
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) return `Kitchen sinks, ${sink[1]}`;
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
-  if (one) return `${one[2]} voice, ${one[1]}`;
+  if (one) return `${one[2]}, ${one[1]}`;
   return directory;
 }
 

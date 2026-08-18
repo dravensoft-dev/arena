@@ -1,0 +1,21 @@
+{
+  "component": "ArenaPersonRow",
+  "description": "One person in an ArenaPeopleList: a face, a name, an optional line under it, an optional position in front and an optional figure behind. Its size comes from the list rather than from here.",
+  "affordances": [],
+  "api": {
+    "name": { "form": "primitive", "type": "string", "required": true,
+              "description": "The person or entity. It is the row's own text, the face's initials when there is no image, and that image's alt text, which is why one member carries all three: a name spelt differently in any of them is the same person announced as two. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody." },
+    "src": { "form": "primitive", "type": "string",
+             "description": "The face's image. Absent, the row draws the initials `name` gives it, which is the same fallback ArenaAvatar states and the reason a row needs no second member for the picture." },
+    "secondary": { "form": "primitive", "type": "string",
+                   "description": "One line under the name: a handle, a role, a team, why this person is being suggested. Prose rather than a value, so it is set in the body register and never in the numeric one." },
+    "rank": { "form": "primitive", "type": "number",
+              "description": "The position this row holds, drawn in front of the face in a column wide enough for the list's longest. It is the number a standings list is read by, so it is set in the numeric register, and it says nothing about the order the rows are in: that is `ArenaPeopleList.ordered`." },
+    "figure": { "form": "primitive", "type": "string",
+                "description": "The quantity this row is about, drawn at the end: a score, a count, a share. A string rather than a number because the unit travels with it and a row reading \"1815 XP\" is one value and not two, which also keeps the formatting where the data is." },
+    "current": { "form": "primitive", "type": "boolean", "default": false,
+                 "description": "Whether this row is the reader's own. It fills the row so it can be found without reading it, and it says so rather than only showing it, because a highlight nothing announces is a highlight half the readers do not get." },
+    "action": { "form": "slot",
+                "description": "One control at the end of the row: follow, invite, remove. It sits after the figure, and the row draws nothing for it beyond the space it takes." }
+  }
+}

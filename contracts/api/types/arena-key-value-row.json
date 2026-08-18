@@ -1,0 +1,13 @@
+{
+  "name": "ArenaKeyValueRow",
+  "kind": "object",
+  "description": "One term and the value against it. Both are strings, because the value of a row in a summary is a formatted answer rather than a component: a price, a method, an address, a count. A slot per row would have made the list a compound family and bought nothing, since every value in every list this replaces is text somebody already formatted.",
+  "fields": {
+    "term": { "form": "primitive", "type": "string", "required": true,
+              "description": "What the row is about, rendered as a real dt." },
+    "value": { "form": "primitive", "type": "string", "required": true,
+               "description": "The answer, rendered as a real dd." },
+    "numeric": { "form": "primitive", "type": "boolean",
+                 "description": "Whether the value is a figure, and takes the mono face and tabular numerals so a column of them aligns by digit. A money column that does not is a column that jitters as it changes." }
+  }
+}

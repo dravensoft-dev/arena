@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { validate } from '../../lib/core/validate-palette.mjs';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { rampFailed } from '../../generate/core/arena-to-prod/theme-css.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 
@@ -49,8 +50,8 @@ export function rampReport(css: string) {
     const options = { mode: t.mode, surface, pairs: 'adjacent' };
     const result = validate(ramp, options);
     const rows = result.report as [string, boolean | string, string][];
-    const warned = rows.filter(([, s]) => s === 'floor' || s === 'relief');
-    return { name: t.name, surface, rows, warned, ok: result.ok && warned.length === 0 };
+    const warned = rows.filter(([, s]) => rampFailed(s) && s !== false && s !== 'fail');
+    return { name: t.name, surface, rows, warned, ok: !rows.some(([, s]) => rampFailed(s)) };
   });
 }
 

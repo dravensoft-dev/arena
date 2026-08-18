@@ -52,14 +52,15 @@ export function ArenaSideNavItem({
       if (onActivate) onActivate(id);
     },
     className: styles.item(),
+    'data-arena-part': manifest.parts.item,
     style: { paddingInlineStart: arenaIndentFor(indentStep, depth) },
   };
 
   const glyph = icon
-    ? <i className={`${on ? arenaActiveWeight(icon) : icon} ${styles.icon()}`} aria-hidden="true" />
+    ? <i className={`${on ? arenaActiveWeight(icon) : icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />
     : null;
   const count = arenaBadgeCount(badge);
-  const tally = count === null ? null : <span className={styles.badge()}>{count}</span>;
+  const tally = count === null ? null : <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{count}</span>;
   return href
     ? <a href={href} {...shared}>{glyph}{label}{tally}</a>
     : <button type="button" {...shared}>{glyph}{label}{tally}</button>;

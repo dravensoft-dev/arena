@@ -3,6 +3,7 @@ import {
   input, output, viewChild,
 } from '@angular/core';
 import { arenaTextareaStyles } from './ArenaTextarea.variants';
+import manifest from './ArenaTextarea.classes.generated';
 
 export const ARENA_COUNTER_WARNING_SHARE = 0.9;
 
@@ -25,35 +26,38 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
     '[attr.id]': 'null',
   },
   template: `
     @if (label(); as text) {
-      <label [class]="styles().label()" [attr.for]="controlId()">{{ text }}@if (required()) {
-        <span [class]="styles().required()">*</span>
+      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="controlId()">{{ text }}@if (required()) {
+        <span [class]="styles().required()" [attr.data-arena-part]="parts.required">*</span>
       }</label>
     }
-    <textarea #control [class]="styles().field()" [attr.id]="controlId()" [attr.rows]="rows()"
+    <textarea #control [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="controlId()" [attr.rows]="rows()"
               [attr.maxlength]="maxLength()" [disabled]="disabled()" [required]="required()"
               [readOnly]="readOnly()" [attr.placeholder]="placeholder()" [attr.name]="name()"
               [attr.aria-invalid]="hasError()" [value]="value() ?? ''"
               (input)="onInput($event)" (change)="onNativeChange($event)"></textarea>
-    <div [class]="styles().foot()">
+    <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
       @if (shownError(); as message) {
-        <span [class]="styles().error()">{{ message }}</span>
+        <span [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
       } @else if (hint(); as text) {
-        <span [class]="styles().hint()">{{ text }}</span>
+        <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
       } @else {
         <span></span>
       }
       @if (counterText(); as text) {
-        <span [class]="counterClass()">{{ text }}</span>
+        <span [class]="counterClass()" [attr.data-arena-part]="parts.counter">{{ text }}</span>
       }
     </div>
   `,
 })
 export class ArenaTextarea {
+  protected readonly parts = manifest.parts;
+
   /** Field label; the counter and error sit under the field. */
   readonly label = input<string>();
   /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. */

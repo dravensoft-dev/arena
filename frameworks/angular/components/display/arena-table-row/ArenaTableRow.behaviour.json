@@ -1,19 +1,25 @@
 {
   "component": "ArenaTableRow",
   "cases": [
-    { "name": "row",
-      "when": "the table is not narrow -- the wide layout, where the row renders inside arena-table's grid",
+    {
+      "name": "row",
+      "when": "the table is not narrow -- the wide layout, where the row is a <tr> inside arena-table's grid",
       "pattern": "none",
-      "reason": "Every requirement that applies to a row in this shape is a clause of the `grid` pattern arena-table binds: the row role, the roving tab stop across the cells and the Enter that activates the row all live on the grid and are recorded there. The row owns none of them, which is why binding an interactive pattern here would claim a route this element does not have -- the same reason ArenaTab binds `none` under `tabs` and ArenaSideNavItem binds `none` under `navigation`.",
-      "exceptions": [] },
-    { "name": "card-interactive",
-      "when": "the table is narrow and `interactive` is true -- below --bp-md the row renders as a <div>, which CAN carry role=\"button\"",
+      "reason": "Every requirement that applies to a row in this shape is a clause of the `grid` pattern arena-table binds: the row role, the roving tab stop across the cells and the Enter that activates the row all live on the grid and are recorded there. The row role is not written here at all -- the element supplies it, which is the whole reason this shape is a <tr> -- and the row owns none of the rest, which is why binding an interactive pattern here would claim a route this element does not have: the same reason ArenaTab binds `none` under `tabs` and ArenaSideNavItem binds `none` under `navigation`.",
+      "exceptions": []
+    },
+    {
+      "name": "card-interactive",
+      "when": "the table is narrow and `interactive` is true -- below --bp-md the row is still a <tr>, and role=\"button\" replaces the row role the element carries natively",
       "pattern": "button",
-      "exceptions": [] },
-    { "name": "card-inert",
+      "exceptions": []
+    },
+    {
+      "name": "card-inert",
       "when": "the table is narrow and `interactive` is false -- the default, and nothing obliges a consumer to change it",
       "pattern": "none",
-      "reason": "With `interactive` false the card is a <div> with no role, no tab stop and no activation. There is nothing to press, so no interactive pattern applies to it. This is the shape that keeps a dead tab stop off every row of every table that is not clickable.",
-      "exceptions": [] }
+      "reason": "With `interactive` false there is nothing to press, so no interactive pattern applies. The card is a <tr> with no tab stop and no activation, and it declares role=\"presentation\" so the row role the element carries natively does not describe a stack of cards as a table. This is the shape that keeps a dead tab stop off every row of every table that is not clickable.",
+      "exceptions": []
+    }
   ]
 }

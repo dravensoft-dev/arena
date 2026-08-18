@@ -18,6 +18,12 @@ through `navigate`, which carries the clicked `ArenaCrumb` alone: route from the
 does not navigate underneath you. The rest keep working for a consumer who wires no listener
 at all.
 
+`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. That
+is the same branch the last crumb already takes, minus its `aria-current`: a level of the trail
+that leads nowhere is not a link and does not take the pointer or the hover either. What it must
+never be is an anchor to the page it sits on, which is a dead edge in the crawl graph and a target
+the keyboard can reach and nothing happens on.
+
 **Do not put `routerLink` on `arena-breadcrumbs`.** `RouterLink` decides whether it is on an
 anchor from the host's `tagName`, and the anchor here is inside the component, so it would
 ignore every modifier key and add a second tab stop over the crumb's own link. Route in the
@@ -40,6 +46,7 @@ handler instead:
 | `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". |
 | `items*` | array | `readonly ArenaCrumb[]` |  | The trail, root first. The last entry is the current location and is never a link. |
 | `separator` | primitive | `string` | `"/"` | Drawn between crumbs, never before the first. Arena draws it, in its own aria-hidden span. |
+| `origin` | primitive | `string` |  | The scheme and host each crumb's href is resolved against in the structured data the component emits, as in "https://example.com". Absent, the relative href is published as it stands, which is valid and less well supported. It is a member rather than something read off the document because location.origin does not exist on a server, and a value that differs between the server render and the client one is the hydration hazard ArenaCalendar.timeZone already documents; a value the consumer passes cannot differ. One line per application, not per screen. It changes nothing a person sees. |
 | `navigate` | event | `ArenaCrumb` |  | A non-current crumb was activated, carrying that crumb alone. The native MouseEvent is not forwarded, because a platform's own event type never travels in a payload; what the listener needs from it, the chance to route instead of navigating, arrives as behaviour rather than as data. Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate. It fires for a primary click with no modifier and for Enter; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working trail of real links. |
 
 <!-- @api end -->
@@ -69,6 +76,6 @@ nicety, not an operability gap, and left out on that basis rather than by oversi
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

@@ -1,9 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
-import { componentMap, angularComponentMap, reactComponentMap, sheetOf, close, MAP_FILE } from './component-map.ts';
+import {
+  componentMap, angularComponentMap, reactComponentMap, sheetOf, close, MAP_FILE,
+  markerAttributes, MARKERS_FILE,
+} from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from './repo-root.ts';
@@ -64,11 +67,13 @@ test('a component wears its parent\'s sheet, because 43 sheets dress 55 componen
   assert.equal(react.draws.ArenaTableRow, 'arena-table');
 });
 
-test('the two layers differ in fact rather than in spelling, which is why each carries its own map', () => {
+test('a map is derived per layer, and the two agree where the two layers compose the same thing', () => {
   const angular = componentMap('angular', repoRoot);
   const react = componentMap('react', repoRoot);
-  assert.deepEqual(react.needs['arena-confirm-dialog'], ['arena-button'], 'React renders an ArenaButton inside it');
-  assert.equal(angular.needs['arena-confirm-dialog'], undefined, 'Angular draws its own, out of its own manifest');
+  for (const map of [react, angular]) {
+    assert.deepEqual(map.needs['arena-confirm-dialog'], ['arena-button'],
+      'the cancel action IS an ArenaButton, so both layers render one and the sheet follows');
+  }
 });
 
 test('a layer nothing assembles is refused rather than answered with an empty map', () => {
@@ -94,4 +99,21 @@ test('a chain of needs is walked to the end, so a sheet two hops away still ship
 
 test('both maps are derived from the layer they describe and nothing else', () => {
   assert.notDeepEqual(angularComponentMap(repoRoot).draws, reactComponentMap(repoRoot).draws);
+});
+
+test('every projection marker the layer declares is one the map carries', () => {
+  const declared = markerAttributes();
+  const source = readFileSync(join(repoRoot, MARKERS_FILE), 'utf8');
+  const classes = [...source.matchAll(/export class (Arena[A-Za-z0-9]*)/g)].map((one) => one[1]);
+  assert.ok(classes.length > 0, `${MARKERS_FILE} declares no marker, so this case proves nothing`);
+  assert.deepEqual([...declared.keys()].sort(), [...classes].sort(),
+    'the map is derived from this file rather than kept beside it, because a hand-kept copy went '
+    + 'five markers short and the report that catches a missing import was silent over all five');
+});
+
+test('a marker whose class is not its attribute capitalised is carried, not guessed', () => {
+  const declared = markerAttributes();
+  assert.equal(declared.get('ArenaFigureSlot'), 'figure',
+    'ArenaFigure is the component that holds the slot, so guessing the directive from the '
+    + 'attribute names the wrong symbol');
 });

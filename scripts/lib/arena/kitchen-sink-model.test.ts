@@ -7,14 +7,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   FIXED, classStrings, drawsFixed, stagedComponents, substitute, instanceNode, componentsIn,
-  rebase, rebaseNode, sinkModel, scopeClass, NONE,
+  rebase, rebaseNode, sinkModel, scopeClass, ROOT_SINK,
 } from './kitchen-sink-model.ts';
 
 const DEPTH = { from: '../../../../../', to: '../../../../' };
 
-test('a scope class is the voice, and the plain voice is the absence of one', () => {
+test('a scope class names the appearance, and the root one is the absence of a class', () => {
   assert.equal(scopeClass('editorial'), 'arena-editorial');
-  assert.equal(scopeClass(NONE), '');
+  assert.equal(scopeClass(ROOT_SINK), '');
 });
 
 test('the fixed utility is matched as a utility, so a class merely containing the word is not one', () => {
@@ -102,7 +102,7 @@ test('rebasing reaches an attribute nested in a slot, which is where the one rea
 
 test('an arrangement naming a component with no demo fixture fails rather than emitting nothing for it', () => {
   assert.throws(
-    () => sinkModel({ extension: 'none', sections: [{ title: 'Forms', items: ['ArenaGhost'] }] },
+    () => sinkModel({ sink: 'none', sections: [{ title: 'Forms', items: ['ArenaGhost'] }] },
       new Map(), new Set(), DEPTH),
     /nothing says how to seed it/,
   );
@@ -114,10 +114,10 @@ test('the model carries the staging flag and the components every section reache
     ['ArenaBadge', { component: 'ArenaBadge', slots: { content: [{ text: 'Live' }] } }],
   ]);
   const model = sinkModel(
-    { extension: 'editorial', note: 'a note', sections: [{ title: 'Both', items: ['ArenaDialog', 'ArenaBadge'] }] },
+    { sink: 'editorial', note: 'a note', sections: [{ title: 'Both', items: ['ArenaDialog', 'ArenaBadge'] }] },
     demos, new Set(['ArenaDialog']), DEPTH,
   );
-  assert.equal(model.extension, 'editorial');
+  assert.equal(model.sink, 'editorial');
   assert.equal(model.note, 'a note');
   assert.deepEqual(model.uses, ['ArenaBadge', 'ArenaDialog']);
   assert.deepEqual(model.sections[0]?.items.map((one) => [one.component, one.staged]),

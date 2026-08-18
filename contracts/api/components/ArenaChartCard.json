@@ -5,6 +5,8 @@
   "api": {
     "title": { "form": "primitive", "type": "string",
                "description": "The card heading. Absent renders no head unless `actions` is present." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "none",
+                      "description": "Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it, the micro register this title is drawn in included. It is the one title on the ladder that defaults to `none`, because the ordinary chart card is a tile in a dashboard grid and a dozen tiles each opening a rung invents an outline where a page has one region; the chart inside carries its own accessible name, so nothing goes unnamed. A tile that genuinely IS a region of the page says which rung it takes, and `h3` is the card rung a chart card inside a section would want." },
     "actions": { "form": "slot",
                  "description": "Controls in the head row, right-aligned beside the title." },
     "content": { "form": "slot",

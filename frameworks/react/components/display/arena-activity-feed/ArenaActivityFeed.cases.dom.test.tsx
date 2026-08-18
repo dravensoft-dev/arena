@@ -121,3 +121,18 @@ test('ArenaActivityFeed meets the feed pattern in both of its declared states', 
     },
   });
 });
+
+test('dateTime reaches a parsed document as a lowercase datetime attribute', () => {
+  const items: ArenaActivityItem[] = [
+    { id: '1', actor: 'ana@', action: 'approved the release', time: '2h ago', dateTime: '2026-08-16T09:12:00Z' },
+  ];
+  const time = mount(<ArenaActivityFeed label="Deployment activity" items={items} />).querySelector('time');
+
+  assert.ok(time, 'the row draws a real <time>, not a span, once it has a stamp to carry');
+  assert.equal(time.getAttribute('datetime'), '2026-08-16T09:12:00Z',
+    'the contract asks for a machine-readable stamp on the row, and an attribute name is what a '
+    + 'parser lowercases rather than what a source file spelled. So the subject here is the parsed '
+    + 'document rather than the markup a layer serialises, which is where an idiom may differ and '
+    + 'the result may not.');
+  assert.equal(time.textContent, '2h ago', 'and the reader still gets the preformatted text');
+});

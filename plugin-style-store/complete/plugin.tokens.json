@@ -1,0 +1,322 @@
+{
+  "r-surface": {
+    "$type": "dimension",
+    "$value": "{r.2xl}"
+  },
+  "r-surface-floating": {
+    "$type": "dimension",
+    "$value": "{r.xl}"
+  },
+  "r-control": {
+    "$type": "dimension",
+    "$value": "{r.pill}"
+  },
+  "r-control-sm": {
+    "$type": "dimension",
+    "$value": "{r.pill}"
+  },
+  "r-field": {
+    "$type": "dimension",
+    "$value": "{r.md}"
+  },
+  "r-marker": {
+    "$type": "dimension",
+    "$value": "{r.pill}"
+  },
+  "r-media": {
+    "$type": "dimension",
+    "$value": "{r.2xl}"
+  },
+  "aspect-media": {
+    "$type": "number",
+    "$value": 1.5
+  },
+  "fit-media": {
+    "$type": "keyword",
+    "$value": "contain"
+  },
+  "overlay-media": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "fw-heading": {
+    "$type": "fontWeight",
+    "$value": "{fw.black}"
+  },
+  "track-heading": {
+    "$type": "number",
+    "$value": "{ls.normal}",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "lh-prose": {
+    "$type": "number",
+    "$value": "{lh.loose}"
+  },
+  "lh-heading": {
+    "$type": "number",
+    "$value": "{lh.snug}"
+  },
+  "measure-prose": {
+    "$type": "number",
+    "$value": 62,
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "ch"
+      }
+    }
+  },
+  "ff-heading": {
+    "$type": "fontFamily",
+    "$value": "{font.body}"
+  },
+  "ff-eyebrow": {
+    "$type": "fontFamily",
+    "$value": "{font.body}"
+  },
+  "ff-label": {
+    "$type": "fontFamily",
+    "$value": "{font.display}"
+  },
+  "fw-eyebrow": {
+    "$type": "fontWeight",
+    "$value": "{fw.bold}"
+  },
+  "fw-control": {
+    "$type": "fontWeight",
+    "$value": "{fw.medium}"
+  },
+  "tt-eyebrow": {
+    "$type": "keyword",
+    "$value": "none"
+  },
+  "tt-label": {
+    "$type": "keyword",
+    "$value": "capitalize"
+  },
+  "track-eyebrow": {
+    "$type": "number",
+    "$value": "{ls.wide}",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "track-label": {
+    "$type": "number",
+    "$value": "{ls.normal}",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "step-eyebrow": {
+    "$type": "dimension",
+    "$value": "{dz.text-sm}"
+  },
+  "step-title-surface": {
+    "$type": "dimension",
+    "$value": "{fs.h3}"
+  },
+  "step-title-section": {
+    "$type": "dimension",
+    "$value": "{fs.h2}"
+  },
+  "step-title-page": {
+    "$type": "dimension",
+    "$value": "{fs.hero}"
+  },
+  "step-title-hero": {
+    "$type": "dimension",
+    "$value": "{fs.mega}"
+  },
+  "pad-control-x": {
+    "$type": "dimension",
+    "$value": "{sp.5}"
+  },
+  "pad-control-y": {
+    "$type": "dimension",
+    "$value": "{sp.3}"
+  },
+  "gap-control": {
+    "$type": "dimension",
+    "$value": "{sp.3}"
+  },
+  "gap-inline": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "gap-items": {
+    "$type": "dimension",
+    "$value": "{sp.4}"
+  },
+  "grid-min": {
+    "$type": "dimension",
+    "$value": {
+      "value": 260,
+      "unit": "px"
+    }
+  },
+  "container-max": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1080,
+      "unit": "px"
+    }
+  },
+  "gutter": {
+    "$type": "dimension",
+    "$value": {
+      "value": 40,
+      "unit": "px"
+    }
+  },
+  "pad-surface": {
+    "$type": "dimension",
+    "$value": "{sp.6}"
+  },
+  "fill-surface": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
+  "fill-surface-floating": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
+  "fill-page": {
+    "$type": "color",
+    "$value": "{color.base-200}"
+  },
+  "fill-surface-sunken": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
+  "fill-field": {
+    "$type": "color",
+    "$value": "{color.base-200}"
+  },
+  "fill-hover": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "fill-track": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "ink-heading": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "ink-body": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "ink-eyebrow": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "ink-muted": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "edge-surface": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "edge-surface-floating": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "edge-control-quiet": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "edge-marker": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "edge-control": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "edge-field": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "edge-separator": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "bw-surface": {
+    "$type": "dimension",
+    "$value": "{bw-strong}"
+  },
+  "bw-control": {
+    "$type": "dimension",
+    "$value": "{bw-strong}"
+  },
+  "bw-field": {
+    "$type": "dimension",
+    "$value": "{bw-strong}"
+  },
+  "bw-separator": {
+    "$type": "dimension",
+    "$value": "{bw-strong}"
+  },
+  "bw-marker": {
+    "$type": "dimension",
+    "$value": "{bw-strong}"
+  },
+  "shadow-surface-floating": {
+    "$type": "shadow",
+    "$value": "{shadow.3}"
+  },
+  "shadow-surface-rest": {
+    "$type": "shadow",
+    "$value": "{shadow.1}"
+  },
+  "shadow-surface-deep": {
+    "$type": "shadow",
+    "$value": "{shadow.1}"
+  },
+  "shadow-control-raised": {
+    "$type": "shadow",
+    "$value": "{shadow.1}"
+  },
+  "shadow-control-rest": {
+    "$type": "shadow",
+    "$value": "{shadow.1}"
+  },
+  "lift-control": {
+    "$type": "dimension",
+    "$value": {
+      "value": -2,
+      "unit": "px"
+    }
+  },
+  "dur-hover": {
+    "$type": "duration",
+    "$value": "{dur.mid}"
+  },
+  "dur-state": {
+    "$type": "duration",
+    "$value": "{dur.slow}"
+  },
+  "ease-hover": {
+    "$type": "cubicBezier",
+    "$value": "{ease.emphatic}"
+  },
+  "ease-state": {
+    "$type": "cubicBezier",
+    "$value": "{ease.in-out}"
+  },
+  "press-scale": {
+    "$type": "number",
+    "$value": 0.94
+  }
+}

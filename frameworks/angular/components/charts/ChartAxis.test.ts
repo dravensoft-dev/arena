@@ -1,12 +1,46 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ARENA_CHART_HEIGHT, ARENA_PAD } from '../../DataVisuals';
-import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii } from './ChartAxis';
-import { arenaLinearScale, arenaNiceDomain } from './ChartScales';
+import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
+import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
+import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
+import { chartTickChar, chartLabelGap } from '../../Tokens.generated';
 
 test('the tick label ends one label gap left of the plot, inside the left pad', () => {
   assert.equal(arenaTickLabelX(), ARENA_PAD.l - 8);
   assert.ok(arenaTickLabelX() > 0, 'the label must not sit off the left edge of the box');
+});
+
+test('the gutter holds the widest tick the axis will write, whatever writes it', () => {
+  const domain = arenaNiceDomain(0, 100);
+  const suffixed = arenaValueGutter(domain, arenaValueWriter({ suffix: ' pts' }));
+  const bare = arenaValueGutter(domain, String);
+  assert.ok(suffixed > bare, 'a suffix is part of the label, so it is part of the room it needs');
+
+  for (const write of [String, arenaValueWriter({ suffix: ' pts' }), arenaValueWriter({ prefix: 'Bs. ' })]) {
+    const gutter = arenaValueGutter(domain, write);
+    const widest = Math.max(...arenaDomainTicks(domain).map((value) => write(value).length));
+    assert.ok(gutter - chartLabelGap >= widest * chartTickChar,
+      `a ${widest}-character tick does not fit a ${gutter}px gutter, so it renders clipped`);
+    assert.equal(arenaTickLabelX(gutter) - widest * chartTickChar >= 0, true,
+      'the label is anchored at its right end, so its left edge is where clipping starts');
+  }
+});
+
+test('the gutter never narrows below the pad, so a short axis draws what it always drew', () => {
+  for (const max of [1, 8, 100, 2000]) {
+    const domain = arenaNiceDomain(0, max);
+    assert.ok(arenaValueGutter(domain, String) >= ARENA_PAD.l, `at a maximum of ${max}`);
+  }
+  assert.equal(arenaValueGutter(arenaNiceDomain(0, 100), String), ARENA_PAD.l,
+    'three digits and a gap fit the pad, which is why the charts that shipped before this draw '
+    + 'the same bytes they drew');
+});
+
+test('a wider gutter takes its room from the plot rather than from the box', () => {
+  const wide = arenaValueGutter(arenaNiceDomain(0, 100), arenaValueWriter({ suffix: ' points' }));
+  const box = arenaPlotBox(600, 280, wide);
+  assert.equal(box.x, wide);
+  assert.equal(box.x + box.w, 600 - ARENA_PAD.r, 'the plot still ends one right pad from the edge');
 });
 
 test('the category label sits one label gap above the bottom edge of the box', () => {
@@ -114,4 +148,29 @@ test('the hole is the shape and never a caller-supplied ratio, so only the two s
   for (const plot of [120, 300, 600]) {
     assert.equal(arenaDoughnutRadii(plot, ARENA_CHART_HEIGHT, 'pie').inner, 0, `at plot width ${plot}`);
   }
+});
+
+test('a label at either end of a category axis runs inwards from its point', () => {
+  assert.equal(arenaCategoryAnchor(0, 5), 'start',
+    'the first label is centred on a point one half-label from the value gutter');
+  assert.equal(arenaCategoryAnchor(4, 5), 'end',
+    'the last label is centred on a point one half-label from the right pad');
+  for (const index of [1, 2, 3]) assert.equal(arenaCategoryAnchor(index, 5), 'middle');
+});
+
+test('a lone label is centred, because neither edge is the one it overflows', () => {
+  assert.equal(arenaCategoryAnchor(0, 1), 'middle');
+  assert.equal(arenaCategoryAnchor(0, 0), 'middle');
+});
+
+test('an index outside the count is centred rather than anchored to an edge it is not at', () => {
+  assert.equal(arenaCategoryAnchor(7, 5), 'middle');
+  assert.equal(arenaCategoryAnchor(-1, 5), 'middle');
+});
+
+test('the anchor is a decision about an index, so it holds for any face the consumer declares', () => {
+  const anchors = Array.from({ length: 4 }, (_, i) => arenaCategoryAnchor(i, 4));
+  assert.deepEqual(anchors, ['start', 'middle', 'middle', 'end'],
+    'nothing here reads a width, which is what the value gutter can do and this cannot: a bottom '
+    + 'label is set in the body face, and that face is the consumer\'s own');
 });

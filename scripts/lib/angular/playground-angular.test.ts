@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  selector, typeExpr, importPath, markerNames, collectFields, escapeText, renderSubject, renderTree,
+  selector, hook, componentTags, typeExpr, importPath, markerNames, collectFields, escapeText,
+  renderSubject, renderTree,
   knobsInterface, angularEntry, angularPage, renderNode, slotBlock, attributeText, MARKERS_SOURCE,
 } from './playground-angular.ts';
 import { repoRoot as root } from '../arena/repo-root.ts';
@@ -61,6 +62,24 @@ test('a selector is derived from the component name, never listed', () => {
   assert.equal(selector('ArenaAppLogo'), 'arena-app-logo');
 });
 
+test('an attribute selector opens with the element and its hook, and closes with the element alone', () => {
+  const tags = componentTags(new Map([
+    ['ArenaCard', "@Component({\n  selector: 'arena-card',\n"],
+    ['ArenaTableRow', "@Component({\n  selector: 'tr[arena-table-row]',\n"],
+  ]));
+  assert.deepEqual(tags.get('ArenaTableRow'), { element: 'tr', hook: 'arena-table-row' });
+  assert.equal(selector('ArenaTableRow', tags), 'tr');
+  assert.equal(hook('ArenaTableRow', tags), ' arena-table-row');
+  assert.equal(selector('ArenaCard', tags), 'arena-card');
+  assert.equal(hook('ArenaCard', tags), '',
+    'an element selector carries no hook, or every tag would open with its own name written twice');
+});
+
+test('a component the sources do not reach still gets a tag, so a missing read is not a silent empty tag', () => {
+  assert.equal(selector('ArenaTableRow', new Map()), 'arena-table-row');
+  assert.equal(hook('ArenaTableRow', new Map()), '');
+});
+
 test('a marker directive is read from the layer\'s own source, so a new one joins with no edit here', () => {
   const found = markerNames(MARKERS);
   assert.deepEqual([...found.entries()], [['action', 'ArenaAction'], ['footer', 'ArenaFooter']]);
@@ -107,25 +126,25 @@ test('template syntax inside fixture copy is neutralised rather than executed', 
 });
 
 test('every member is written out, because this layer has no spread', () => {
-  const out = renderSubject(model, places, [], new Map(), 0, new Set());
+  const out = renderSubject(model, places, [], new Map(), new Map(), 0, new Set());
   assert.match(out, /\[title\]="k\(\)\.title"/);
   assert.match(out, /\[tone\]="k\(\)\.tone"/);
 });
 
 test('a void event takes no $event and a payload event forwards one', () => {
-  const out = renderSubject(model, places, [], new Map(), 0, new Set());
+  const out = renderSubject(model, places, [], new Map(), new Map(), 0, new Set());
   assert.match(out, /\(click\)="play\.fire\('click'\)"/);
   assert.match(out, /\(sortChange\)="play\.fire\('sortChange', \$event\)"/);
 });
 
 test('a named slot is wrapped in @if, because a marked element counts as filled even when empty', () => {
-  const out = renderSubject(model, places, [{ node: model.knobs[3]?.nodes[0], member: 'tone', name: 'f0' }], markerNames(MARKERS), 0, new Set());
+  const out = renderSubject(model, places, [{ node: model.knobs[3]?.nodes[0], member: 'tone', name: 'f0' }], markerNames(MARKERS), new Map(), 0, new Set());
   assert.match(out, /@if \(k\(\)\.action\) \{/);
   assert.match(out, /<arena-badge action/);
 });
 
 test('a text slot is guarded on undefined rather than on truthiness, so an empty string still renders', () => {
-  const out = renderSubject(model, places, [], new Map(), 0, new Set());
+  const out = renderSubject(model, places, [], new Map(), new Map(), 0, new Set());
   assert.match(out, /@if \(k\(\)\.content !== undefined\) \{/);
 });
 
@@ -138,7 +157,7 @@ test('a marker directive joins imports only when a slot it covers is projected',
 test('a host wraps the subject where the placeholder marks', () => {
   const hosted = { ...model, host: { component: 'ArenaTable', members: { label: 'L' }, slots: { content: ['$subject' as const] } } };
   const fields = collectFields(hosted.host, contracts, [], 'host');
-  const out = renderTree(hosted, places, fields, new Map(), 0, new Set());
+  const out = renderTree(hosted, places, fields, new Map(), new Map(), 0, new Set());
   assert.match(out, /^<arena-table label="L"/);
   assert.match(out, /<arena-card/);
   assert.match(out, /<\/arena-table>$/);
@@ -177,7 +196,7 @@ test('the page mounts demo-root, loads its bundle and declares no card', () => {
 
 test('a void element is self-closing, because this layer refuses an end tag on one', () => {
   const node = { element: 'img', attrs: { src: 'x.svg', alt: '' } };
-  const out = renderNode(node, places, [], new Map(), 0, new Set());
+  const out = renderNode(node, places, [], new Map(), new Map(), 0, new Set());
   assert.equal(out.trim(), '<img src="x.svg" alt="" />');
 });
 
@@ -187,7 +206,7 @@ test('each projected node gets its own @if, because a block with two roots proje
     control: 'slotPresence', codec: 'flag', initial: true, doc: '',
     nodes: [{ component: 'ArenaBadge', slots: {} }, { component: 'ArenaBadge', slots: {} }],
   };
-  const out = slotBlock(knob, places, [], new Map(), 0, new Set(), ' footer');
+  const out = slotBlock(knob, places, [], new Map(), new Map(), 0, new Set(), ' footer');
   assert.equal(out.match(/@if \(k\(\)\.footer\) \{/g)?.length, 2);
 });
 

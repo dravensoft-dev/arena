@@ -13,6 +13,7 @@ import { ArenaSelect } from '../../forms/arena-select/ArenaSelect';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
 import { arenaTableStyles } from './ArenaTable.variants';
+import manifest from './ArenaTable.classes.generated';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -31,36 +32,39 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableState],
   imports: [ArenaPagination, ArenaSelect],
-  host: { '[class]': 'styles().root()' },
+  host: { '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (sortBar()) {
-      <div [class]="styles().sortBar()">
-        <div [class]="styles().sortField()">
+      <div [class]="styles().sortBar()" [attr.data-arena-part]="parts.sortBar">
+        <div [class]="styles().sortField()" [attr.data-arena-part]="parts.sortField">
           <arena-select [label]="sortLabel" [options]="sortOptions()" [value]="sortValue()"
                         (change)="onSortPick($event)" />
         </div>
       </div>
     }
-    <div [class]="styles().grid()" [attr.role]="gridRole()"
-         [attr.aria-label]="empty() ? null : gridLabel()" (keydown)="onKeydown($event)">
+    <table [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
+           [attr.aria-label]="gridName()" (keydown)="onKeydown($event)">
       @if (!narrow() && !empty()) {
-        <div role="row" [class]="styles().headRow()">
-          @for (column of columns(); track $index; let i = $index) {
-            <div role="columnheader" [class]="headerClass(column)" [style.width]="column.width"
-                 [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
-                 [attr.aria-sort]="sortStateOf(i)"
-                 (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
-              <i [class]="styles().sortCaret() + ' ' + caretOf(i)" aria-hidden="true"></i>
-            }</div>
-          }
-        </div>
+        <thead>
+          <tr [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow">
+            @for (column of columns(); track $index; let i = $index) {
+              <th scope="col" [class]="headerClass(column)" [attr.data-arena-part]="parts.th" [style.width]="column.width"
+                  [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
+                  [attr.aria-sort]="sortStateOf(i)"
+                  (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
+                <i [class]="styles().sortCaret() + ' ' + caretOf(i)" [attr.data-arena-part]="parts.sortCaret" aria-hidden="true"></i>
+              }</th>
+            }
+          </tr>
+        </thead>
       }
-      <ng-content />
-    </div>
+      <tbody [class]="styles().body()" [attr.data-arena-part]="parts.body" [attr.role]="groupRole()"><ng-content /></tbody>
+    </table>
     @if (empty()) {
-      <div [class]="styles().empty()"><ng-content select="[empty]">No data.</ng-content></div>
+      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty"><ng-content select="[empty]">No data.</ng-content></div>
     } @else if (pager(); as paging) {
-      <div [class]="styles().pager()">
+      <div [class]="styles().pager()" [attr.data-arena-part]="parts.pager">
         <arena-pagination [page]="paging.index" [pageCount]="pageCount()"
                           [ariaLabel]="gridLabel()" (change)="pageChange.emit($event)" />
       </div>
@@ -68,6 +72,8 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   `,
 })
 export class ArenaTable {
+  protected readonly parts = manifest.parts;
+
   /** Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". */
   readonly label = input.required<string>();
   /** The columns, in order. A column heads and sets its cells; it never says what goes in them. */
@@ -116,7 +122,17 @@ export class ArenaTable {
 
   protected readonly empty = computed(() => this.rows().length === 0);
 
-  protected readonly gridRole = computed(() => (this.narrow() || this.empty() ? null : 'grid'));
+  protected readonly flat = computed(() => this.narrow() || this.empty());
+
+  protected readonly gridRole = computed(() => (this.flat() ? 'presentation' : 'grid'));
+
+  protected readonly groupRole = computed(() => (this.flat() ? 'presentation' : null));
+
+  protected readonly gridName = computed(() => {
+    if (this.empty()) return null;
+    const name = this.gridLabel();
+    return this.narrow() ? null : name;
+  });
 
   protected readonly pager = computed(() => (this.pageControl() === 'none' ? undefined : this.page()));
 
@@ -206,15 +222,13 @@ export class ArenaTable {
 
     afterRenderEffect(() => {
       this.state.clamped();
-      const grid = this.host.nativeElement.querySelector('[role="grid"]');
+      if (this.flat()) return;
+      const grid = this.host.nativeElement.querySelector('table');
       if (!grid) return;
       const active = grid.ownerDocument.activeElement;
       if (!active || !grid.contains(active)) return;
-      const role = active.getAttribute('role');
-      if (role !== 'gridcell' && role !== 'columnheader') return;
-      const stop = grid.querySelector<HTMLElement>(
-        '[role="gridcell"][tabindex="0"], [role="columnheader"][tabindex="0"]',
-      );
+      if (active.tagName !== 'TD' && active.tagName !== 'TH') return;
+      const stop = grid.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
       if (stop && stop !== active) stop.focus();
     });
   }
@@ -224,9 +238,9 @@ export class ArenaTable {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    if (this.flat()) return;
     const target = event.target as Element | null;
-    const role = target?.getAttribute?.('role');
-    if (role !== 'gridcell' && role !== 'columnheader') return;
+    if (target?.tagName !== 'TD' && target?.tagName !== 'TH') return;
 
     const lengths = this.state.lengths();
     const at = this.state.clamped();

@@ -63,26 +63,26 @@ export function ArenaSideNavCollapsible({
   };
 
   const styles = arenaSideNavStyles();
-  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} aria-hidden="true" /> : null;
+  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" /> : null;
 
   return (
-    <div className={styles.section()}>
+    <div className={styles.section()} data-arena-part={manifest.parts.section}>
       {
 
 }
       <button id={triggerId} type="button" aria-expanded={expanded} aria-controls={regionId}
         onClick={press}
-        className={styles.trigger()}
+        className={styles.trigger()} data-arena-part={manifest.parts.trigger}
         style={{ paddingInlineStart: arenaIndentFor(indentStep, depth) }}>
         {glyph}
-        <span className={styles.triggerLabel()}>{label}</span>
-        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`}
+        <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel}>{label}</span>
+        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}
           aria-hidden="true" />
       </button>
       {
 }
       <div id={regionId} role="group" aria-labelledby={triggerId} hidden={!expanded}
-        className={styles.region()}>
+        className={styles.region()} data-arena-part={manifest.parts.region}>
         {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate })}
       </div>
     </div>

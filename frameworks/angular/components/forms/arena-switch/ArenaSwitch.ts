@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { arenaSwitchStyles } from './ArenaSwitch.variants';
+import manifest from './ArenaSwitch.classes.generated';
 
 export type SwitchFootprint = `${ArenaOrientation}-${ArenaSwitchSize}`;
 export type SwitchThumb = `${'on' | 'off'}-${ArenaOrientation}`;
@@ -19,26 +20,29 @@ export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): Sw
   selector: 'arena-switch',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()' },
+  host: { '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root', },
   template: `
-    <button type="button" role="switch" [class]="styles().track()"
+    <button type="button" role="switch" [class]="styles().track()" [attr.data-arena-part]="parts.track"
             [attr.aria-checked]="state()" [attr.aria-label]="label()"
             [disabled]="disabled()" (click)="activate()">
-      <span [class]="styles().knob()" aria-hidden="true">
+      <span [class]="styles().knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
         @if (glyph()) {
-          <i [class]="glyphClass()" aria-hidden="true"></i>
+          <i [class]="glyphClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
       </span>
     </button>
-    <span [class]="styles().label()" (click)="activate()">
+    <span [class]="styles().label()" [attr.data-arena-part]="parts.label" (click)="activate()">
       {{ label() }}
       @if (confirm()) {
-        <i [class]="guardClass()" aria-hidden="true" title="Requires confirmation"></i>
+        <i [class]="guardClass()" [attr.data-arena-part]="parts.guard" aria-hidden="true" title="Requires confirmation"></i>
       }
     </span>
   `,
 })
 export class ArenaSwitch {
+  protected readonly parts = manifest.parts;
+
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });
   /** Whether the switch lies horizontally or stands vertically. */

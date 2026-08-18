@@ -24,7 +24,7 @@ const PAGE: ArenaTablePage = { index: 2, size: 10, total: 45 };
   template: `
     <arena-table label="Recent deployments" [columns]="columns" [responsive]="false"
                  [page]="page" [pageControl]="pageControl" (pageChange)="chose = $event">
-      <arena-table-row><arena-table-cell>checkout-api</arena-table-cell></arena-table-row>
+      <tr arena-table-row><td arena-table-cell>checkout-api</td></tr>
     </arena-table>
   `,
 })

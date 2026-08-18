@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports } from './theme-css.ts';
+import {
+  configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
+  pluginName, pluginValue, readPlugin, weightReports,
+} from './theme-css.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
 
@@ -8,6 +11,12 @@ const colors = (overrides: Record<string, string> = {}): Record<string, string> 
   const out: Record<string, string> = {};
   for (const key of PALETTE_KEYS) out[key] = '#141010';
   return { ...out, ...overrides };
+};
+
+const schemeIn = (css: string, selector: string): string | null => {
+  const at = css.indexOf(`${selector}{`);
+  if (at < 0) return null;
+  return /color-scheme:([a-z]+);/.exec(css.slice(at, css.indexOf('}', at)))?.[1] ?? null;
 };
 
 const config = (overrides: Record<string, any> = {}): any => ({
@@ -22,6 +31,29 @@ const config = (overrides: Record<string, any> = {}): any => ({
 
 test('a well-formed configuration has no problems', () => {
   assert.deepEqual(configProblems(config()), []);
+});
+
+test('an extension key is not a configuration', () => {
+  const problems = configProblems(config({ extension: 'showcase' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /stylePlugins/,
+    'the axis has one name, and the other one is taken twice over: by the DTCG vendor key in this '
+    + 'tree and by the Claude Code plugin the repository ships');
+});
+
+test('stylePlugins takes a list and never a bare name', () => {
+  const problems = configProblems(config({ stylePlugins: 'default' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /a list/,
+    'a build can carry more than one register, so the field is a list from the first day rather '
+    + 'than a name that grows into one');
+});
+
+test('an empty list is not a configuration', () => {
+  const problems = configProblems(config({ stylePlugins: [] }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /at least one/,
+    'removable means replaceable: a build with no style plugin has no answer to any role');
 });
 
 test('a missing colour is named by its key', () => {
@@ -76,9 +108,55 @@ test('with no palette declaring default, the first one is it', () => {
   assert.equal(defaultPalette(c.palettes).name, 'ember');
 });
 
-test('an unknown polarity is rejected, because it decides --picker-invert', () => {
+test('an unknown polarity is rejected, because it decides --picker-invert and color-scheme', () => {
   const c = config({ palettes: [{ name: 'dark', polarity: 'midnight', colors: colors() }] });
   assert.deepEqual(configProblems(c), ['palettes[0].polarity: "midnight" is not one of dark, light']);
+});
+
+const withScopes = (scopes: string[]): any => ({ layers: [], components: [], scopes });
+
+test('a palette named after a class the package ships is refused, and its own polarity is the exception', () => {
+  const c = config({ palettes: [
+    { name: 'light', default: true, polarity: 'light', colors: colors() },
+    { name: 'midnight', polarity: 'dark', colors: colors() },
+    { name: 'compact', polarity: 'dark', colors: colors() },
+    { name: 'stat-card', polarity: 'dark', colors: colors() },
+  ] });
+  const problems = configProblems(c, withScopes(['compact', 'light', 'stat-card']));
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /^palettes\[2\]\.name: "compact" is already a class this package ships/);
+  assert.match(problems[1] ?? '', /^palettes\[3\]\.name: "stat-card" is already a class this package ships/);
+});
+
+test('a palette claiming a polarity scope it does not answer to is refused', () => {
+  const c = config({ palettes: [
+    { name: 'midnight', default: true, polarity: 'dark', colors: colors() },
+    { name: 'light', polarity: 'dark', colors: colors() },
+  ] });
+  const problems = configProblems(c, withScopes(['light']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /palettes\[1\]\.name: "light" is already a class this package ships/);
+});
+
+test('a style plugin named after a class the package ships is refused', () => {
+  const c = config({ stylePlugins: ['default', './plugins/stack'] });
+  const problems = configProblems(c, withScopes(['stack']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^stylePlugins\[1\]: "stack" is already a class this package ships/);
+});
+
+test('every palette is validated, however many the config declares', () => {
+  const c = config({ palettes: [
+    { name: 'bone', default: true, polarity: 'light', colors: colors() },
+    { name: 'ember', polarity: 'midnight', colors: colors() },
+    { name: 'Slate', polarity: 'dark', colors: colors() },
+    { name: 'dusk', polarity: 'dark', colors: colors({ primary: 'crimson' }) },
+  ] });
+  assert.deepEqual(configProblems(c), [
+    'palettes[1].polarity: "midnight" is not one of dark, light',
+    'palettes[2].name: "Slate" is not a kebab-case name',
+    'palettes[3].colors.primary: "crimson" is not a #rrggbb hex',
+  ]);
 });
 
 test('a missing font role names the three tokens Arena reads', () => {
@@ -99,14 +177,23 @@ test('the default palette lands on :root and every other on its own class', () =
   assert.equal(decls.get('.arena-light').get('color-base-100'), '#ffffff');
 });
 
-test('polarity decides --picker-invert in every block', () => {
+test('polarity decides --picker-invert and color-scheme in every block', () => {
   const c = config({ palettes: [
     { name: 'bone', default: true, polarity: 'light', colors: colors() },
     { name: 'ember', polarity: 'dark', colors: colors() },
+    { name: 'dusk', polarity: 'dark', colors: colors() },
+    { name: 'paper', polarity: 'light', colors: colors() },
   ] });
-  const decls = parseDecls(themeCss(c));
+  const css = themeCss(c);
+  const decls = parseDecls(css);
   assert.equal(decls.get(':root').get('picker-invert'), '0');
   assert.equal(decls.get('.arena-ember').get('picker-invert'), '1');
+  assert.equal(decls.get('.arena-dusk').get('picker-invert'), '1');
+  assert.equal(decls.get('.arena-paper').get('picker-invert'), '0');
+  assert.equal(schemeIn(css, ':root'), 'light');
+  assert.equal(schemeIn(css, '.arena-ember'), 'dark');
+  assert.equal(schemeIn(css, '.arena-dusk'), 'dark');
+  assert.equal(schemeIn(css, '.arena-paper'), 'light');
 });
 
 test('the three families reach :root with the generic fallback their role carries', () => {
@@ -153,12 +240,43 @@ test('a palette whose text fails 4.5:1 is reported rather than refused', () => {
   const [report] = paletteReports(c);
   assert.ok(report, 'a palette under 4.5:1 reported nothing at all');
   assert.equal(report.palette, 'dark');
-  assert.ok(report.messages.some((m) => m.startsWith('text, base-content on base-100')));
+  assert.ok(report.messages.some((m) => m.kind === 'contrast'
+    && m.message.startsWith('text, base-content on base-100')));
 });
 
 test('a ramp of one repeated colour is reported as indistinguishable', () => {
   const [report] = paletteReports(config());
-  assert.ok(report?.messages.some((m) => m.startsWith('ramp,')));
+  assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.startsWith('ramp,')));
+});
+
+test('a palette that leaves error-fill out still gets a fill to paint with', () => {
+  const without = colors({ error: '#c0392f' });
+  delete without['error-fill'];
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: without }] });
+  assert.deepEqual(configProblems(c), []);
+  const decls = parseDecls(themeCss(c));
+  assert.ok(decls.get(':root').get('color-error-fill'),
+    'ArenaConfirmDialog compiles to var(--color-error-fill) with no fallback, so an omitted '
+    + 'key drops the declaration and the point-of-no-return button paints nothing at all');
+});
+
+test('every fill a consumer declares is measured against its content, not only primary', () => {
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light',
+    colors: colors({ success: '#58cc02', 'success-content': '#ffffff' }) }] });
+  const [report] = paletteReports(c);
+  assert.ok(report?.messages.some((m) => m.kind === 'contrast'
+    && m.message.startsWith('text, success-content on success')),
+  'a fill carrying illegible content reached the consumer as silence');
+});
+
+test('a ramp slot invisible against the surface it is drawn on is reported', () => {
+  const pale = ['#ffe9a8', '#ffd6e0', '#d9f2d0', '#cfe6ff', '#f0dcff', '#d0f2ee', '#ffe4cc', '#e6e6c8'];
+  const overrides: Record<string, string> = { 'base-100': '#ffffff', 'base-200': '#ffffff' };
+  pale.forEach((hex, i) => { overrides[`cat-${i + 1}`] = hex; });
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: colors(overrides) }] });
+  const [report] = paletteReports(c);
+  assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.includes('Contrast vs surface')),
+    'a slot under 3:1 against its surface reached the consumer as silence');
 });
 
 test('a stylesheet src becomes an @import, because Google Fonts serves CSS and not a binary', () => {
@@ -229,7 +347,7 @@ test('a component the package does not ship is fatal and the message lists what 
 });
 
 test('an empty list is a problem, because it reads as a project that renders nothing', () => {
-  assert.deepEqual(configProblems(config({ stylesheet: { components: [] } }), shipped),
+  assert.deepEqual(configProblems(config({ stylesheet: { components: [] } }), SHEETS),
     ['stylesheet.components: name at least one component sheet, or drop stylesheet to import them all']);
 });
 
@@ -250,78 +368,304 @@ test('without the shipped sheets a name can be held to nothing, so the run stops
   assert.match(problem ?? '', /^stylesheet: the sheets this package ships cannot be read/);
 });
 
-const SHEETS_WITH_EXT = {
+const SHEETS = {
   layers: ['css/reset.css'],
   components: ['button'],
-  extensions: { showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'],
-    byPolarity: { light: ['--shadow-surface-rest:DROP;'] } } },
   roleReferences: ['--fill-surface:var(--color-base-200);'],
 };
 
-test('the extension field is optional, and a config without one asks for no extension', () => {
+const SHEETS_FULL = {
+  ...SHEETS,
+  catalogue: {
+    tokens: {
+      'fs-h3': '24px', 'font-display': "'Archivo',system-ui,sans-serif",
+      'font-body': "'Familjen Grotesk',system-ui,sans-serif", 'fw-black': '900', 'fw-regular': '400',
+      'color-base-200': 'var(--color-base-200)', 'color-secondary': 'var(--color-secondary)',
+      bw: '1px', 'bw-surface': '1px', 'shadow-surface-rest': '0px 0px 0px 0px rgba(0,0,0,0)',
+      'fill-surface': 'var(--color-base-200)', 'fill-page': 'var(--color-base-100)',
+      'lh-prose': '1.6', 'lh-heading': '1.5', 'measure-prose': '72ch',
+      'rhythm-group': '12px', 'rhythm-section': '24px',
+    },
+    roles: {
+      'ff-eyebrow': { type: 'fontFamily' },
+      'tt-eyebrow': { type: 'keyword', values: ['none', 'uppercase', 'lowercase', 'capitalize'] },
+      'step-title-surface': { type: 'dimension' },
+      'ink-eyebrow': { type: 'color' },
+      'fill-surface': { type: 'color' },
+      'bw-surface': { type: 'dimension' },
+      'lh-heading': { type: 'number' },
+      'measure-prose': { type: 'number' },
+    },
+  },
+};
+
+const ARENA = 'com.dravensoft.arena';
+
+const ROOT_ANSWERS: Record<string, any> = {
+  'ff-eyebrow': { $type: 'fontFamily', $value: '{font.display}' },
+  'tt-eyebrow': { $type: 'keyword', $value: 'none' },
+  'step-title-surface': { $type: 'dimension', $value: '{fs.h3}' },
+  'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' },
+  'fill-surface': { $type: 'color', $value: '{color.base-200}' },
+  'bw-surface': { $type: 'dimension', $value: { value: 1, unit: 'px' } },
+  'lh-heading': { $type: 'number', $value: 1.5 },
+  'measure-prose': { $type: 'number', $value: 72, $extensions: { [ARENA]: { cssUnit: 'ch' } } },
+};
+
+const total = (over: Record<string, any> = {}) => readPlugin('console', { ...ROOT_ANSWERS, ...over });
+
+const scoped = (over: Record<string, any> = {}) => readPlugin('marketing', {
+  'bw-surface': { $type: 'dimension', $value: { value: 0, unit: 'px' } },
+  ...over,
+});
+
+const listed = (names: string[], over: Record<string, any> = {}) =>
+  config({ stylePlugins: names.map((name) => (name === 'default' ? name : `./design/${name}`)), ...over });
+
+const pluginProblems = (c: any, plugins: any[] = []) =>
+  configProblems(c, SHEETS_FULL, plugins).filter((p) => p.includes('stylePlugin'));
+
+test('a bare colour alias becomes the var() a palette scope can restate', () => {
+  assert.equal(pluginValue('{color.secondary}', SHEETS_FULL.catalogue), 'var(--color-secondary)');
+  assert.equal(pluginValue('{fs.h3}', SHEETS_FULL.catalogue), '24px',
+    'a scale step is Arena\'s own and resolves to the value this package ships');
+  assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
+});
+
+test('a weight a role asks for and the face never carries is reported', () => {
   const c = config();
-  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+  c.fonts.display.family = 'Baloo 2';
+  c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap';
+  const plugin = readPlugin('bank', {
+    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+  });
+  const messages = weightReports(c, SHEETS_FULL.catalogue, [plugin]);
+  assert.ok(messages.some((m) => m.kind === 'weight' && m.message.includes('900')
+    && m.message.includes('Baloo 2')),
+  'the face tops out at 800, so 900 is a weight the browser draws by smearing the 800');
 });
 
-test('"none" is how a config says it wants no extension, and it is not an unknown name', () => {
-  const c = config({ extension: 'none' });
-  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+test('a weight the face does carry is not reported', () => {
+  const c = config();
+  c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..900&display=swap';
+  const plugin = readPlugin('bank', {
+    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+  });
+  assert.deepEqual(weightReports(c, SHEETS_FULL.catalogue, [plugin]), []);
 });
 
-test('"default" is an unknown extension until one is called that, rather than a word meaning none', () => {
-  const c = config({ extension: 'default' });
-  const problems = configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension'));
+test('a src that says nothing about weight is left alone rather than guessed at', () => {
+  const c = config();
+  const plugin = readPlugin('bank', {
+    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+  });
+  c.fonts.display.src = './fonts/display.woff2';
+  assert.deepEqual(weightReports(c, SHEETS_FULL.catalogue, [plugin]), [],
+    'a self-hosted file declares its own range and this command cannot open it');
+});
+
+test('a face alias becomes a var() too, because the face is the consumer\'s', () => {
+  assert.equal(pluginValue('{font.display}', SHEETS_FULL.catalogue), 'var(--font-display)',
+    'resolving it to the catalogue would answer ff-heading with Archivo, which is Arena\'s '
+    + 'own face and not one the consumer loaded');
+});
+
+test('a token at the top of the tree is reachable by the alias that names it', () => {
+  assert.equal(pluginValue('{bw}', SHEETS_FULL.catalogue), '1px',
+    'bw and scrim-blur are leaves beside the color and fs groups, so the alias naming one '
+    + 'carries no dot. An alias pattern that demanded one did not report the reference, it '
+    + 'stopped seeing it, and the raw {bw} reached the sheet as a declaration the browser drops.');
+  assert.equal(pluginValue('{nonesuch}', SHEETS_FULL.catalogue), null,
+    'and a dotless alias naming nothing resolves to null like any other, so the audit reports '
+    + 'it instead of writing it out');
+});
+
+test('a length role answered with a css function keeps the function', () => {
+  const read = readPlugin('meridian', {
+    'step-title-surface': { $type: 'dimension', $value: 'clamp(2.5rem,8.5vw,6rem)' },
+  });
+  assert.equal(read.tokens['step-title-surface'], 'clamp(2.5rem,8.5vw,6rem)',
+    'a scale has no fluid step, so a title that has to shrink with its column is exactly the '
+    + 'literal the norm sanctions. What it may never do is reach the sheet as undefinedundefined, '
+    + 'which is an invalid custom property and takes its whole declaration with it.');
+});
+
+test('a length role answered with half a length is reported rather than emitted', () => {
+  const problems = pluginProblems(listed(['./design/console']), [total({
+    'step-title-surface': { $type: 'dimension', $value: { value: 12 } },
+  })]);
+  assert.match(problems.join('\n'), /"step-title-surface" is .*resolves to nothing/);
+});
+
+test('a plugin file is read as DTCG, and an alias survives while a literal is spelled as CSS', () => {
+  const read = readPlugin('meridian', {
+    $description: 'a group key of its own is not an answer',
+    'r-surface': { $type: 'dimension', $value: '{r.lg}' },
+    'grid-min': { $type: 'dimension', $value: { value: 200, unit: 'px' } },
+    'measure-prose': { $type: 'number', $value: 72, $extensions: { [ARENA]: { cssUnit: 'ch' } } },
+    light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } },
+  });
+  assert.deepEqual(read.tokens, { 'r-surface': '{r.lg}', 'grid-min': '200px', 'measure-prose': '72ch' });
+  assert.deepEqual(read.light, { 'ink-eyebrow': '{color.secondary}' });
+  assert.equal(read.name, 'meridian');
+});
+
+test('a plugin is named by the directory that holds it', () => {
+  assert.equal(pluginName('./design/marketing'), 'marketing');
+  assert.equal(pluginName('../shared/design/marketing/'), 'marketing');
+  assert.equal(pluginName('default'), 'default');
+});
+
+test('a style plugin a consumer wrote is accepted, which is the point of the field', () => {
+  assert.deepEqual(pluginProblems(listed(['console']), [total()]), []);
+});
+
+test('the first plugin lands on :root and the rest on their own class', () => {
+  const css = themeCss(listed(['console', 'marketing']), {
+    sheets: SHEETS_FULL, importHeader: false, plugins: [total(), scoped()],
+  });
+  assert.match(css, /:root\{[^}]*--bw-surface:1px;/);
+  assert.match(css, /\.arena-marketing\{[^}]*--bw-surface:0px;/);
+  assert.doesNotMatch(css, /\.arena-console\{/,
+    'the first plugin is what a page with no class on it looks like, so it has no class of its own');
+});
+
+test('a polarity group emits all three compound selectors', () => {
+  const css = themeCss(listed(['console', 'marketing'], {
+    palettes: [
+      { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+      { name: 'light', polarity: 'light', colors: colors() },
+    ],
+  }), {
+    sheets: SHEETS_FULL,
+    importHeader: false,
+    plugins: [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })],
+  });
+  assert.ok(css.includes('.arena-light.arena-marketing'));
+  assert.ok(css.includes('.arena-light .arena-marketing'));
+  assert.ok(css.includes('.arena-marketing .arena-light'),
+    'the plugin class and the theme class sit in either order or on one element, and this is the one '
+    + 'an author forgets: without it a light region inside a scoped root takes the dark answer');
+});
+
+test('only the root plugin is held to totality', () => {
+  assert.match(pluginProblems(listed(['marketing', 'console']), [scoped(), total()])[0] ?? '',
+    /does not answer/);
+  assert.deepEqual(pluginProblems(listed(['console', 'marketing']), [total(), scoped()]), []);
+});
+
+test('a style plugin is held to the floors the repository holds its own to', () => {
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'lh-heading': { $type: 'number', $value: 0.8 } })])[0] ?? '', /--lh-heading is 0.8/);
+  assert.match(pluginProblems(listed(['console']), [total({
+    'measure-prose': { $type: 'number', $value: 120, $extensions: { [ARENA]: { cssUnit: 'ch' } } },
+  })])[0] ?? '', /outside 45 to 90/);
+});
+
+test('a style plugin may not name a role the package does not ship', () => {
+  const problems = pluginProblems(listed(['console']),
+    [total({ 'r-lg': { $type: 'dimension', $value: { value: 22, unit: 'px' } } })]);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /default/);
-  assert.match(problems[0] ?? '', /showcase/);
+  assert.match(problems[0] ?? '', /neither a role this package ships nor an fs or rhythm step/);
 });
 
-test('a shipped extension is accepted by name', () => {
-  const c = config({ extension: 'showcase' });
-  assert.deepEqual(configProblems(c, SHEETS_WITH_EXT).filter((p) => p.includes('extension')), []);
+test('a style plugin may not author a colour, only assign one', () => {
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'ink-eyebrow': { $type: 'color', $value: '#b52a20' } })])[0] ?? '',
+  /takes a \{color\.\*\} alias only/);
+  assert.deepEqual(pluginProblems(listed(['console']),
+    [total({ 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } })]), []);
 });
 
-test('the extension field is one name and never a list, so a build carries at most one', () => {
-  const c = config({ extension: ['showcase'] });
-  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('extension')) ?? '', /one name/);
+test('a keyword outside its set fails in a consumer build with the set named', () => {
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'tt-eyebrow': { $type: 'keyword', $value: 'smallcaps' } })])[0] ?? '',
+  /not one of none, uppercase, lowercase, capitalize/);
 });
 
-test('a palette may not take a shipped extension name, since both become .arena-<name>', () => {
-  const c = config({ palettes: [{ name: 'showcase', default: true, polarity: 'dark', colors: colors() }] });
-  assert.match(configProblems(c, SHEETS_WITH_EXT).find((p) => p.includes('showcase')) ?? '', /extension/);
+test('an alias that points at nothing shipped fails rather than emitting the word null', () => {
+  assert.match(pluginProblems(listed(['console']),
+    [total({ 'step-title-surface': { $type: 'dimension', $value: '{fs.nonesuch}' } })])[0] ?? '',
+  /resolves to nothing this package ships/);
 });
 
-test('the chosen extension reaches :root, so a consumer needs no class of their own', () => {
-  const css = themeCss(config({ extension: 'showcase' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
-  assert.match(css, /--r-surface:22px;/);
-  assert.match(css, /--bw-surface:0px;/);
+test('a style plugin may not take a theme polarity or a palette name', () => {
+  assert.match(pluginProblems(listed(['dark']))[0] ?? '', /theme polarity/);
+  assert.match(pluginProblems(listed(['meridian'], {
+    palettes: [{ name: 'meridian', default: true, polarity: 'dark', colors: colors() }],
+  }))[0] ?? '', /also the name of a palette/);
 });
 
-test('no extension means nothing extra reaches :root', () => {
-  const css = themeCss(config(), { sheets: SHEETS_WITH_EXT, importHeader: false });
-  assert.ok(!css.includes('--r-surface'));
+test('two entries under one directory name would be one class, so the second is refused', () => {
+  assert.match(pluginProblems(config({
+    stylePlugins: ['./design/marketing', './vendor/marketing'],
+  }))[0] ?? '', /is the directory name of another entry/);
 });
 
-test('"none" emits nothing, the same as omitting the field', () => {
-  const css = themeCss(config({ extension: 'none' }), { sheets: SHEETS_WITH_EXT, importHeader: false });
-  assert.ok(!css.includes('--r-surface'));
+test('the sheet the package assembles is the first entry of the list or none of it', () => {
+  assert.deepEqual(pluginProblems(listed(['default', 'marketing']), [null, scoped()]), []);
+  assert.match(pluginProblems(listed(['marketing', 'default']), [scoped(), null])[0] ?? '',
+    /first entry of the list or none of it/);
 });
 
-test('a voice that answers a polarity reaches the palette of that polarity, not only the default one', () => {
-  const css = themeCss(config({
-    extension: 'showcase',
+test('a style plugin that answers nothing is a class nobody can tell from its absence', () => {
+  assert.match(pluginProblems(listed(['console', 'empty']),
+    [total(), readPlugin('empty', {})])[0] ?? '', /answers at least one role/);
+});
+
+test('a style plugin with no catalogue beside it is refused rather than emitted unchecked', () => {
+  const problems = configProblems(listed(['console']), SHEETS, [total()]).filter((p) => p.includes('stylePlugin'));
+  assert.match(problems.at(-1) ?? '', /role catalogue this package ships cannot be read/);
+});
+
+test('the field is optional, and a config without one declares no style plugin', () => {
+  assert.deepEqual(configProblems(config(), SHEETS).filter((p) => p.includes('stylePlugin')), []);
+});
+
+test('a path is a spelling this module checks and never opens', () => {
+  assert.deepEqual(configProblems(listed(['console']), SHEETS_FULL), [],
+    'the command reads the directory and hands the answers in, because emitting a theme opens no file');
+});
+
+test('an entry that is not a path is named by its index', () => {
+  const problems = configProblems(config({ stylePlugins: [{ name: 'meridian' }] }), SHEETS_FULL);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /stylePlugins\[0\]/);
+});
+
+test('a root plugin of a consumer\'s own drops the package\'s appearance from the import chain', () => {
+  const css = themeCss(listed(['console']), { sheets: shipped, plugins: [total()] });
+  assert.doesNotMatch(css, /arena\.css/,
+    'the barrel carries the sheet the package assembles, and a build that answered every role itself '
+    + 'would take both');
+  assert.doesNotMatch(css, /style-plugin-default\.css/);
+  assert.match(css, /css\/components\/arena-button\.css/);
+});
+
+test('the sheet the package assembles stays in the chain while it is the root plugin', () => {
+  const css = themeCss(listed(['default']), { sheets: shipped });
+  assert.match(css, /@import '@dravensoft\/arena-react\/arena\.css';/);
+});
+
+test('no declared plugin means nothing extra reaches :root', () => {
+  const css = themeCss(config(), { sheets: SHEETS_FULL, importHeader: false });
+  assert.ok(!css.includes('--step-title-surface'));
+});
+
+test('a colour a plugin assigns is restated inside every palette, not left on :root alone', () => {
+  const css = themeCss(listed(['console'], {
     palettes: [
       { name: 'night', default: true, polarity: 'dark', colors: colors() },
       { name: 'day', polarity: 'light', colors: colors() },
     ],
-  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  }), { sheets: SHEETS_FULL, importHeader: false, plugins: [total()] });
 
-  const dayBlock = css.slice(css.indexOf('.arena-day'));
-  assert.match(dayBlock, /--shadow-surface-rest:DROP;/,
-    'the light half of the voice never reached the light palette, so a consumer would take the dark '
-    + 'answer in their light theme -- the defect the theme group exists to remove');
-  assert.doesNotMatch(css.slice(0, css.indexOf('.arena-day')), /--shadow-surface-rest:DROP;/,
-    'the light half reached :root, where the dark palette would take it too');
+  assert.match(css.slice(css.indexOf('.arena-day')), /--ink-eyebrow:var\(--color-secondary\);/,
+    'left on :root alone the role computes against the default palette and inherits that colour '
+    + 'into every other one, so a second palette keeps the first one\'s eyebrow');
 });
 
 test('a colour reference is restated inside every palette, because a var() computes where it is declared', () => {
@@ -330,9 +674,19 @@ test('a colour reference is restated inside every palette, because a var() compu
       { name: 'night', default: true, polarity: 'dark', colors: colors() },
       { name: 'day', polarity: 'light', colors: colors() },
     ],
-  }), { sheets: SHEETS_WITH_EXT, importHeader: false });
+  }), { sheets: SHEETS, importHeader: false });
 
   assert.match(css.slice(css.indexOf('.arena-day')), /--fill-surface:var\(--color-base-200\);/,
     'left on :root alone the role computes against the default palette and inherits that colour '
     + 'into every other one, so a second palette keeps the first one\'s card fill');
+});
+
+test('gradientMark is a boolean or it is absent, so a typo cannot read as true', () => {
+  assert.deepEqual(configProblems(config({ gradientMark: true })), []);
+  assert.deepEqual(configProblems(config({ gradientMark: false })), []);
+  assert.deepEqual(configProblems(config()), [],
+    'a project that never mentions it is a project whose mark is not a gradient');
+  const problems = configProblems(config({ gradientMark: 'yes' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /gradientMark: declare true or false/);
 });

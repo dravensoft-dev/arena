@@ -22,19 +22,27 @@ export const SKIPPED_SOURCE = /\.(test|spec|demo|entry|prompt|card)\.|\.generate
 
 export const MANIFEST_IMPORT = /import manifest from '[^']*?([A-Za-z0-9]+)\.classes\.generated[^']*'/;
 export const VARIANTS_IMPORT = /from '(\.[^']*\.variants)'/;
-export const SELECTOR = /selector: '(arena-[a-z0-9-]+)'/g;
+export const SELECTOR = /selector: '[a-z]*\[?(arena-[a-z0-9-]+)\]?'/g;
 export const DECORATOR_IMPORTS = /imports: \[([^\]]*)\]/g;
 export const EXPORTED = /export (?:function|const) ([A-Za-z0-9_]+)/g;
 export const COMPONENT_NAME = /^[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*$/;
 export const LAYER_IMPORT = /from '\.\.\/\.\.\/[a-z-]+\/[a-z-]+\/([A-Z][A-Za-z0-9]*)\.tsx?'/g;
 export const QUERIED_MARKER = /contentChild\((Arena[A-Za-z0-9]*)\)/g;
-export const MARKER_ATTRIBUTES = new Map([
-  ['ArenaAction', 'action'],
-  ['ArenaActions', 'actions'],
-  ['ArenaBrand', 'brand'],
-  ['ArenaFooter', 'footer'],
-  ['ArenaSecondaryAction', 'secondaryAction'],
-]);
+export const MARKERS_FILE = 'frameworks/angular/ProjectionMarkers.ts';
+
+export const DECLARED_MARKER = /@Directive\(\{\s*selector:\s*'\[([A-Za-z][\w-]*)\]'[^}]*\}\)\s*export class (Arena[A-Za-z0-9]*)/g;
+
+export function markerAttributes(root = repoRoot) {
+  const source = readFileSync(join(root, MARKERS_FILE), 'utf8');
+  const pairs = [...source.matchAll(DECLARED_MARKER)]
+    .map((one) => [one[2] ?? '', one[1] ?? ''] as [string, string]);
+  if (pairs.length === 0) {
+    throw new Error(`component-map: ${MARKERS_FILE} declares no projection marker, so every slot `
+      + 'gated on one would go unmapped and the report that catches a missing import would be '
+      + 'silent over the whole library');
+  }
+  return new Map(pairs);
+}
 
 export function componentFiles(layer: string, extension: string, root = repoRoot) {
   const base = join(root, 'frameworks', layer, 'components');
@@ -111,6 +119,7 @@ function mapFrom(
 }
 
 export function angularComponentMap(root = repoRoot) {
+  const attributes = markerAttributes(root);
   const entries = componentFiles('angular', '.ts', root).map(({ file, symbol }) => {
     const source = readFileSync(file, 'utf8');
     return {
@@ -121,11 +130,12 @@ export function angularComponentMap(root = repoRoot) {
         .flatMap((m) => captured(m).split(',').map((name) => name.trim()))
         .filter((name) => /^[A-Z][A-Za-z0-9]*$/.test(name)),
       markers: [...new Set([...source.matchAll(QUERIED_MARKER)]
-        .map((m) => MARKER_ATTRIBUTES.get(captured(m)))
+        .map((m) => attributes.get(captured(m)))
         .filter((attribute): attribute is string => Boolean(attribute)))],
     };
   });
-  return mapFrom(entries.filter((e) => e.keys.length), 'selector');
+  const map = mapFrom(entries.filter((e) => e.keys.length), 'selector');
+  return { ...map, markerDirectives: Object.fromEntries([...attributes].map(([c, a]) => [a, c])) };
 }
 
 export function reactComponentMap(root = repoRoot) {
@@ -146,6 +156,7 @@ export type ComponentSheetMap = {
   draws: Record<string, string | null>;
   needs: Record<string, string[]>;
   markers: Record<string, string[]>;
+  markerDirectives?: Record<string, string>;
 };
 
 export function componentMap(layer: string, root = repoRoot): ComponentSheetMap {

@@ -13,6 +13,8 @@
                 "description": "What they did it to. Drawn monospaced in --gold: it is an identifier." },
     "time": { "form": "primitive", "type": "string",
               "description": "When. Monospaced --mute, pushed to the trailing edge. Preformatted: ArenaActivityFeed never formats." },
+    "dateTime": { "form": "primitive", "type": "string",
+                  "description": "The same moment as an ISO 8601 string, which turns the row's time into a real <time datetime> a machine can read. Present, Arena wraps its own text in that element; absent, the text is drawn as before. Two fields rather than one because time is what a reader sees and is deliberately whatever the consumer preformatted, up to \"3 min ago\", which no parser can resolve to a date. The pair is what lets Arena emit the element itself, which is the only way it can: a field inside an array of predefined objects can only be a primitive, so a consumer cannot place markup inside one row of a list Arena renders, and the convention that says so is not being lifted here." },
     "tone": { "form": "enum", "type": "ArenaTone",
               "description": "ArenaBadge's vocabulary, driving the leading dot. Defaults to accent." }
   }

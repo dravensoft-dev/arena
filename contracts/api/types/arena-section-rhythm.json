@@ -1,0 +1,6 @@
+{
+  "name": "ArenaSectionRhythm",
+  "kind": "enum",
+  "description": "How far a section's head stands from the body under it. Checked against every enum already declared here before it was added, and ArenaGridGap carries this exact set for a different subject: that one is the air between two CELLS, on both axes, and this is the air between a heading and the thing it names, on one. Sharing the name would have put grid in the type of a member no grid is involved in, and the near miss is worth stating rather than hiding, since a later reader will find them and wonder. Four named steps rather than a length, for the reason ArenaGridGap gives: these are a decision about rhythm and each layer resolves its own step from the scale.",
+  "values": ["none", "sm", "md", "lg"]
+}

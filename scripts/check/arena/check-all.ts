@@ -16,6 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { DOMAINS, isSuite } from '../../lib/arena/domains.ts';
+import { purge } from '../../lib/arena/artifact-cache.ts';
 import { gateDecisions, shortFingerprint } from '../../graph/gate-plan.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -28,14 +29,20 @@ export const GATES = [
   { name: 'check:graph', file: 'arena/check-graph.ts' },
   { name: 'check:portability', file: 'arena/check-portability.ts' },
   { name: 'check:generated', file: 'arena/check-generated.ts' },
+  { name: 'check:skill-spec', file: 'arena/check-skill-spec.ts' },
   { name: 'check:skills', file: 'arena/check-skills.ts' },
   { name: 'check:prompts', file: 'arena/check-prompts.ts' },
   { name: 'check:routes', file: 'arena/check-routes.ts' },
   { name: 'check:vocabulary', file: 'arena/check-vocabulary.ts' },
   { name: 'check:duplication', file: 'arena/check-duplication.ts' },
   { name: 'check:dtcg', file: 'core/check-dtcg.ts' },
-  { name: 'check:extensions', file: 'core/check-extensions.ts' },
+  { name: 'check:style-plugin', file: 'core/check-style-plugin.ts' },
+  { name: 'check:style-plugin-coverage', file: 'core/check-style-plugin-coverage.ts' },
+  { name: 'check:role-contract', file: 'core/check-role-contract.ts' },
+  { name: 'check:compat-aliases', file: 'core/check-compat-aliases.ts' },
+  { name: 'check:polarity', file: 'core/check-polarity.ts' },
   { name: 'check:tokens', file: 'core/check-tokens-generated.ts' },
+  { name: 'check:token-collisions', file: 'core/check-token-collisions.ts' },
   { name: 'check:script-tokens', file: 'arena/check-script-tokens.ts' },
   { name: 'check:duplicate-constants', file: 'arena/check-duplicate-constants.ts' },
   { name: 'check:deadlines', file: 'arena/check-deadlines.ts' },
@@ -45,7 +52,6 @@ export const GATES = [
   { name: 'check:tailwind', file: 'tailwind/check-tailwind.ts' },
   { name: 'check:tailwind-generated', file: 'tailwind/check-tailwind-generated.ts' },
   { name: 'check:coverage', file: 'tailwind/check-tailwind-coverage.ts' },
-  { name: 'check:surface-parity', file: 'tailwind/check-surface-parity.ts' },
   { name: 'check:radius', file: 'tailwind/check-radius-tokens.ts' },
   { name: 'check:roles', file: 'tailwind/check-role-tokens.ts' },
   { name: 'check:arbitrary', file: 'tailwind/check-arbitrary-values.ts' },
@@ -53,6 +59,7 @@ export const GATES = [
   { name: 'check:dimensions', file: 'arena/check-dimension-literals.ts' },
   { name: 'check:states', file: 'arena/check-manifest-states.ts' },
   { name: 'check:appearance', file: 'arena/check-appearance.ts' },
+  { name: 'check:parts', file: 'arena/check-parts.ts' },
   { name: 'check:layer-independence', file: 'arena/check-layer-independence.ts' },
   { name: 'check:structure', file: 'arena/check-structure.ts' },
   { name: 'check:contracts', file: 'arena/check-contracts.ts' },
@@ -63,6 +70,7 @@ export const GATES = [
   { name: 'check:kitchen-sink', file: 'arena/check-kitchen-sink.ts' },
   { name: 'check:citations', file: 'arena/check-citations.ts' },
   { name: 'check:agents', file: 'arena/check-agents.ts' },
+  { name: 'check:agents-spec', file: 'arena/check-agents-spec.ts' },
   { name: 'check:community', file: 'arena/check-community.ts' },
   { name: 'check:site', file: 'arena/check-site.ts' },
   { name: 'check:icons', file: 'arena/check-icons.ts' },
@@ -79,6 +87,8 @@ export const GATES = [
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },
   { name: 'check:packages', file: 'arena/check-packages.ts' },
   { name: 'check:consumer', file: 'arena/check-consumer.ts' },
+  { name: 'check:exports', file: 'arena/check-exports.ts' },
+  { name: 'check:classes', file: 'arena/check-classes.ts' },
   { name: 'check:angular', file: 'angular/check-angular.ts' },
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },
   { name: 'check:assertions', file: 'angular/check-assertions.ts' },
@@ -205,6 +215,11 @@ async function main() {
   } catch (err) {
     console.error((err as Error).message);
     process.exit(1);
+  }
+
+  if (selection.force) {
+    const dropped = purge();
+    console.log(`check-all: --force dropped ${dropped} artifact(s), so every derived answer is recomputed here`);
   }
 
   const graph = await gateDecisions(gates.map((g) => g.name), selection.force);

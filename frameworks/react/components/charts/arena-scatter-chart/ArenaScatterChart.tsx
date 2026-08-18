@@ -4,7 +4,7 @@ import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../Data
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales.ts';
-import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryLabelY } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import {
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange,
@@ -74,7 +74,8 @@ export function ArenaScatterChart({
   const rScale = arenaRadiusScale(sizes.min, sizes.max);
   const showsKey = sized && sizeLegend;
   const strip = arenaLegendStrip(height, series.length, showsKey);
-  const box = arenaPlotBox(width, strip.plotH);
+  const gutter = arenaValueGutter(domains.y, fmt);
+  const box = arenaPlotBox(width, strip.plotH, gutter);
   const xScale = arenaLinearScale(domains.x.min, domains.x.max, box.x, box.x + box.w);
   const yScale = arenaLinearScale(domains.y.min, domains.y.max, box.y + box.h, box.y);
   const xAxis = arenaAxisModelX(xScale, domains.x, fmt);
@@ -128,13 +129,13 @@ export function ArenaScatterChart({
           <g key={i}>
             <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y}
               stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
-            <text x={arenaTickLabelX()} y={tick.y} textAnchor="end" dominantBaseline="middle"
+            <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
               fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
 
         {xAxis.ticks.map((tick, i) => (
-          <text key={i} x={tick.x} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
+          <text key={i} x={tick.x} y={arenaCategoryLabelY(strip.plotH)} textAnchor={arenaCategoryAnchor(i, xAxis.ticks.length)}
             fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
         ))}
 

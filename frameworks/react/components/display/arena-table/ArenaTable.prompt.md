@@ -89,6 +89,15 @@ The grid is **not assumed rectangular**. A row may carry fewer or more cells tha
 
 Card mode answers none of this. A card is a list item, and a list is traversed with Tab, and a card whose row carries `interactive` becomes a `role="button"` tab stop of its own with an Enter and Space handler, which is `ArenaTableRow`'s `card-interactive` case, not a clause of this component's binding, which carries no exception in either shape. A card row without `interactive` is inert in both shapes.
 
+### The markup, at both widths
+
+There is always a real `<table>`, and card mode restyles the same `<tr>`s and `<td>`s rather than
+drawing a second tree of divs, so a crawler reads a table at every width. `role="grid"` is written,
+because the roving tab stop is what makes it a grid rather than a table; the row, columnheader and
+gridcell under it are not, because the elements mean them already. Below `--bp-md`, and with no
+rows, it declares `role="presentation"` and drops its name, which leaves nothing of it in a
+reader's ear.
+
 ## Verifying the grid by hand
 
 `ArenaTable` has render suites: one walks the grid cell by cell and renders both declared shapes,
@@ -140,10 +149,10 @@ Serve the tree with `bun run demos`, open
 Both are **controlled**, and for the same reason: `ArenaTable` does not hold the rows, so it
 cannot order them and cannot cut them. It draws the affordance and tells you what was asked.
 
-```html
-<ArenaTable label="Recent deployments" [columns]="columns"
-             [sort]="sort()" (sortChange)="sort.set($event)"
-             [page]="page()" (pageChange)="goTo($event)">
+```tsx
+<ArenaTable label="Recent deployments" columns={columns}
+            sort={sort} onSortChange={setSort}
+            page={page} onPageChange={goTo}>
 ```
 
 Mark a column `sortable: true` and pass `sort`. Without `sort` no header is a target however
@@ -155,7 +164,7 @@ column and which way.
 
 **Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort`
 bound and at least one `sortable` column, card mode draws one compact select above the cards,
-listing every sortable column in each direction, and it reports through the same `sortChange`
+listing every sortable column in each direction, and it reports through the same `onSortChange`
 the header does. Set it to `none` for a table whose order is the document's rather than the
 reader's. The header row does **not** come back below the breakpoint: card mode exists for the
 one reason a grid does not fit.
@@ -184,7 +193,7 @@ because the rows you project are one page and nothing about the whole list can b
 them. ArenaTable draws its own `ArenaPagination` below the grid and names it from `label`, which is
 what makes two paged tables on one dashboard tellable apart.
 
-The one thing ArenaTable emits on its own is `pageChange` with 1, when the total drops far enough
+The one thing ArenaTable emits on its own is `onPageChange` with 1, when the total drops far enough
 that the current page is **past the end**. It is bounded: a filter that leaves the page valid is
 silent, so nothing loops.
 
@@ -201,6 +210,6 @@ const applyStatus = (next: string) => { setStatus(next); setPageIndex(1); };  //
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

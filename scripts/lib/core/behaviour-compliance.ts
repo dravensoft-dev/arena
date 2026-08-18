@@ -59,12 +59,16 @@ export const ELEMENT_ROLE: Record<string, string> = {
   button: 'button',
   checkbox: 'checkbox',
   combobox: 'combobox',
+  banner: 'banner',
+  contentinfo: 'contentinfo',
+  main: 'main',
   'dialog-modal': 'dialog',
   disclosure: 'button',
   listbox: 'listbox',
   'menu-button': 'button',
   navigation: 'navigation',
   progressbar: 'progressbar',
+  'scrollable-region': 'group',
   select: 'combobox',
   status: 'status',
   switch: 'switch',
@@ -194,6 +198,7 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
 export const DECIDABLE = new Set([
   'roles.element',
   'roles.label',
+  'focus.target',
   ...Object.keys(ATTRIBUTE_FOR),
   ...Object.keys(ROLE_NAMED_BY_KEY),
   'states.checked',
@@ -204,6 +209,7 @@ export const DECIDABLE = new Set([
 export const BEHAVIOURAL = new Set([
 
   'focus.unaffected', 'focus.onOpen', 'focus.onClose', 'focus.trap', 'focus.roving', 'focus.never',
+  'focus.stop',
 
   'keyboard.Space', 'keyboard.Enter', 'keyboard.Escape',
   'keyboard.ArrowKeys', 'keyboard.ArrowUp', 'keyboard.ArrowDown',
@@ -214,7 +220,7 @@ export const BEHAVIOURAL = new Set([
   'keyboard.TypeAhead',
 
   'content.noAutoDismiss',
-  'alternative.table',
+  'alternative.table', 'alternative.jsonLd',
 
   'states.disabled', 'states.required', 'states.readonly',
   'states.multiselectable', 'states.busy', 'states.posinset',
@@ -262,6 +268,11 @@ export function evaluate(
     return Array.isArray(wanted) ? actual != null && wanted.includes(actual) : actual === wanted;
   }
 
+  if (key === 'focus.target') {
+    const ti = el.getAttribute('tabindex');
+    if (ti !== null) return Number.isFinite(Number(ti));
+    return NATIVELY_FOCUSABLE.has(el.tagName.toUpperCase());
+  }
   if (key === 'states.checked') {
 
     if (el.getAttribute('aria-checked') !== null) return true;

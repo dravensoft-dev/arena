@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BOUNDARIES, removedBorders, boundaryProblems, collect,
+  BOUNDARIES, removedBorders, boundaryProblems, collect, zeroBoundaryProblems,
 } from './check-boundary-contrast.ts';
 
 const HEXES = {
@@ -10,7 +10,7 @@ const HEXES = {
   'color-base-300': '#2a2323',
 };
 
-test('an extension that leaves the control borders alone removes no boundary', () => {
+test('an answer that leaves the control borders alone removes no boundary', () => {
   assert.deepEqual(removedBorders({ 'r-surface': { $value: '{r.xl}' } }), []);
 });
 
@@ -49,6 +49,11 @@ test('every declared boundary names the fill, the surround and the role that dra
   }
 });
 
-test('the real tree holds: no shipped extension removes a boundary it cannot replace', () => {
+test('the real tree holds: nothing shipped removes a boundary it cannot replace', () => {
   assert.deepEqual(collect(), []);
+});
+
+test('a zero walk is a failure and not a clean pass', () => {
+  assert.match(zeroBoundaryProblems(0)[0] ?? '', /0 boundary/i);
+  assert.deepEqual(zeroBoundaryProblems(BOUNDARIES.length), []);
 });

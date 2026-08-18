@@ -11,7 +11,7 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assertSameNode } from '../../../test/NodeAssert';
+import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaActivityFeed } from './ArenaActivityFeed';
@@ -151,4 +151,48 @@ test('a label bound to nothing throws, because input.required only proves it was
       return;
     }
   }
+});
+
+test('dateTime turns the row time into a real <time> a machine can read', () => {
+  const fixture = TestBed.createComponent(ArenaActivityFeed);
+  fixture.componentRef.setInput('label', 'Deployment activity');
+  fixture.componentRef.setInput('items', [
+    { id: '1', actor: 'ana@', action: 'approved the release', time: '2h ago', dateTime: '2026-08-16T09:12:00Z' },
+  ]);
+  fixture.detectChanges();
+
+  const time = (fixture.nativeElement as Element).querySelector('time');
+  assert.ok(time, 'the row draws a real <time>, not a span, once it has a stamp to carry');
+  assert.equal(time.getAttribute('datetime'), '2026-08-16T09:12:00Z');
+  assert.equal(time.textContent, '2h ago',
+    'two fields rather than one: the reader keeps "2h ago", which no parser resolves to a date, '
+    + 'and the machine gets the stamp beside it');
+});
+
+test('without dateTime the row time is drawn exactly as it was', () => {
+  const fixture = TestBed.createComponent(ArenaActivityFeed);
+  fixture.componentRef.setInput('label', 'Deployment activity');
+  fixture.componentRef.setInput('items', [{ id: '1', actor: 'ana@', action: 'shipped', time: '2h ago' }]);
+  fixture.detectChanges();
+
+  const host = fixture.nativeElement as Element;
+  assertNoNode(host.querySelector('time'), 'a <time> with no datetime says nothing a span does not');
+  assert.equal(host.querySelector('[data-arena-part="activity-feed.time"]')?.tagName, 'SPAN');
+});
+
+test('Arena emits the element itself, which is what keeps the projection convention intact', () => {
+  const fixture = TestBed.createComponent(ArenaActivityFeed);
+  fixture.componentRef.setInput('label', 'Deployment activity');
+  fixture.componentRef.setInput('items', [
+    { id: '1', actor: 'ana@', action: 'shipped', time: '<b>now</b>', dateTime: '2026-08-16T09:12:00Z' },
+  ]);
+  fixture.detectChanges();
+
+  const host = fixture.nativeElement as Element;
+  assert.equal(host.querySelectorAll('b').length, 1,
+    'the one <b> is the actor, which Arena draws. A field inside an array of predefined objects '
+    + 'can only be a primitive, so a consumer cannot place markup inside one row of a list Arena '
+    + 'renders, and the pair of fields exists precisely so that convention did not have to be '
+    + 'lifted to get a machine-readable date.');
+  assert.equal(host.querySelector('time')?.textContent, '<b>now</b>');
 });

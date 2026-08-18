@@ -3,9 +3,9 @@
   "slots": {
     "root": "flex justify-between gap-4",
     "titles": "min-w-0",
-    "title": "font-display font-heading text-h1 leading-snug tracking-heading text-base-content m-0",
-    "subtitle": "font-body text-sm text-base-content/62 leading-prose mt-0.5 mb-0",
-    "actions": "flex items-center flex-wrap gap-2 shrink-0"
+    "title": "font-face-heading font-heading text-title-page leading-snug tracking-heading text-ink-heading m-0",
+    "subtitle": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose mt-0.5 mb-0",
+    "actions": "flex items-center flex-wrap gap-inline shrink-0"
   },
   "variants": {
     "narrow": {

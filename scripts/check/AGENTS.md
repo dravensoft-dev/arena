@@ -34,10 +34,14 @@ are rules a new gate holds to:
 - **Decide absence by walking the tree**, so "this layer does not implement it" and "this gate
   cannot find it" stop being the same value. Resolving by constructed path is what makes the
   per-component probe silent.
-- **Make a zero-result count an explicit failure** rather than a vacuous pass. `check:tailwind`,
-  `check:radius`, `check:roles`, `check:extensions`, `check:structure`, `check:api`, `check:behaviour`, `check:dtcg`,
-  `check:icons`, `check:docs`, `check:playgrounds` and
-  `check:script-tokens` each carry one, as an exported pure function with a suite.
+- **Make a zero-result count an explicit failure** rather than a vacuous pass, as an exported
+  pure function with a suite so the emptiness is a claim the suite can assert. Which gates carry
+  one is a question for the tree and never for this page, because a list of them written here
+  goes short the moment one lands and reads as an inventory of the gates that need one:
+
+  ```bash
+  grep -rl 'zero[A-Za-z]*Problem' scripts/check/*/check-*.ts | grep -v '\.test\.'
+  ```
 - **A gate has two existences, the file and every place that invokes it, and only the second
   is worth anything.** Adding a gate means adding it to `package.json` **and** to `GATES`.
   Citing a gate as evidence means confirming it is in `GATES` first.
@@ -90,7 +94,9 @@ edge holds or breaks depending on whether that tree happens to be on disk. `chec
 `check:icons` both skip any directory named `build`, and `check:icons` skips `vendor` as well, so
 each excludes what it skips. A gate that grows a skip grows the matching `!` spec with it.
 
-`--force` runs every selected gate and rewrites what it records. `stepStatus` is untouched by any of
+`--force` runs every selected gate, rewrites what it records, and **drops `.cache/artifacts/`
+first**: that is a second cache, `lib/arena/artifact-cache.ts`, holding what a gate would
+recompute where the graph holds what decides whether it runs. Trust nothing reaches both. `stepStatus` is untouched by any of
 this: it maps a child's exit code, and a kept gate spawns no child, so three of the four labels come
 from a process and the fourth comes from the graph.
 
@@ -172,10 +178,10 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 36 | two or more layers at once, or the repository root |
-| [`tailwind/`](./tailwind/AGENTS.md) | 8 | the shared Tailwind layer |
+| [`arena/`](./arena/AGENTS.md) | 41 | two or more layers at once, or the repository root |
+| [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
-| [`core/`](./core/AGENTS.md) | 7 | `contracts/` and `assets/` only |
+| [`core/`](./core/AGENTS.md) | 12 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 4 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at
@@ -199,6 +205,14 @@ also holds the two registrations nothing else would notice: the row in the domai
 the one a gate can be missing while running and passing, and the sibling suite, without which a
 gate that finds nothing and a gate that looks at nothing are the same run. A gate covered
 somewhere other than beside itself says so in `COVERED_ELSEWHERE`, with where.
+
+Two registrations are outside this file and are the two a contributor reaches the end without:
+**declare the node**, or name the gate in one of the two lists in `../graph/nodes.ts`, and then
+**edit the generator upstream of it**, because an edge is declared downstream and a gate reading
+what a generator writes is named in that generator's `feeds`. And **the domain table this gate's
+row lands in is a stop on a budgeted route**, so a row written in the register the neighbouring
+rows are written in can cost more than `check:routes` has left; measure with
+`bun run check:routes` before the row rather than after the sweep.
 
 `check-release` is the one script with no npm entry and no place in `GATES`: it is run by path
 before publishing, because it asserts what the *tag* hands out and there is nothing to assert

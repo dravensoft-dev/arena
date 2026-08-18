@@ -1,0 +1,6 @@
+{
+  "component": "ArenaSkipLink",
+  "slots": {
+    "root": "block fixed z-skip start-4 top-[max(var(--sp-4),var(--pad-safe-top))] opacity-0 pointer-events-none rounded-control border-[length:var(--bw-surface)] bg-surface px-control-x py-2.5 font-body text-ctl text-ink-body no-underline shadow-surface-floating focus:opacity-100 focus:pointer-events-auto focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ArenaProgressShape",
+  "kind": "enum",
+  "description": "How the meter is drawn. A bar reads along a row and a ring reads at a glance, which is why a table cell takes the first and a tile takes the second. Nothing else about the component moves: the same percentage, the same tone, the same accessible name, the same announcement.",
+  "values": ["linear", "radial"]
+}

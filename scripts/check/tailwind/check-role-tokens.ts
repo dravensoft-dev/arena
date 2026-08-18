@@ -1,13 +1,13 @@
-/* Fails on a scale utility standing where a role belongs. A scale says how round a corner is or
- * how deep a shadow is; a role says WHICH corner or depth is being asked about, and only a
- * question can be answered differently by a design extension. Radius and depth are banned by
- * utility name because they have a Tailwind namespace; a border width and a duration are banned
- * by TOKEN name, which catches border-[length:var(--bw)] and the var(--dur-fast) buried in an
- * arbitrary [transition:...] property with one entry rather than one per spelling. An easing is
- * the one family banned BOTH ways, because it is the one with a namespace that a manifest also
- * spells as a token inside that same arbitrary property, and the two spellings never collide:
- * the utility entry cannot match inside var(--ease-out), where a hyphen precedes it. SCALE_USES
- * records the places that genuinely mean the length, one entry per case with its reason. */
+/* Fails on a scale utility standing where a role belongs. A scale says how round a corner is; a
+ * role says WHICH corner is being asked about, and only a question can be answered differently by
+ * a style plugin. The ban covers ink, edges, faces, case and internal air as well as geometry,
+ * since the role tier grew to reach them. A family with a Tailwind namespace is banned by utility
+ * name; a border width and a duration are banned by TOKEN name, which catches
+ * border-[length:var(--bw)] and the var(--dur-fast) buried in an arbitrary [transition:...] with
+ * one entry rather than one per spelling. An easing is banned BOTH ways and the two never collide,
+ * since the utility entry cannot match inside var(--ease-out) where a hyphen precedes it.
+ * SCALE_USES records the places that genuinely mean the value, one entry per case with its reason,
+ * and its largest group is the mono face standing for figures rather than for a register. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -37,12 +37,25 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['shadow-3', 'shadow-surface-deep'],
   ['shadow-none', 'nothing at all, when the branch means the depth the slot already paints'],
   ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
+  ['bg-base-300', 'bg-track, when the slot is the ground a value or a segment sits in, or bg-edge-separator when it is a rule drawn as a filled strip'],
   ['p-5', 'p-surface, when the slot is the room a surface gives its own content'],
   ['px-5', 'px-surface, for the same reason'],
   ['font-extrabold', 'font-heading, when the slot IS a heading in the display face'],
   ['tracking-tight', 'tracking-heading, for the same reason'],
   ['leading-body', 'leading-prose, when the slot is text somebody reads'],
   ['ease-out', 'ease-hover or ease-state, whichever duration the same transition names'],
+  ['text-base-content', 'text-ink-heading, text-ink-body or text-ink-muted, whichever text this is'],
+  ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
+  ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
+  ['uppercase', 'case-eyebrow or case-label, so a style plugin can set the register in sentence case'],
+  ['font-mono', 'font-face-eyebrow or font-face-label, when the slot is a register rather than a figure'],
+  ['font-display', 'font-face-heading, when the slot is a heading rather than the brand itself'],
+  ['text-h1', 'text-title-page, when the slot is the one heading that names the screen'],
+  ['text-h2', 'text-title-page or text-title-section, whichever this title is titling'],
+  ['text-h3', 'text-title-section, when the slot is the head of a region on a page'],
+  ['text-h4', 'text-title-surface, when the slot is the head of a card, a panel or a tile'],
+  ['tracking-label', 'tracking-eyebrow, when the slot IS an eyebrow'],
+  ['tracking-field-label', 'tracking-label-role, the tracking of the label register'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -54,18 +67,60 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
   ['ArenaTabs:tab:shadow-none', 'cancels the inset rule the selected branch draws under a tab, and the slot paints no depth role for it to override. A tab has no resting depth to restore, so the literal is the whole answer here rather than a value written over a role'],
-  ['ArenaButton:root:bg-base-200', 'the fill of a secondary button, and the hover of a ghost one: a control the user presses rather than a region something is placed inside. A voice that flattens its surfaces onto the page is saying its regions are carried by air, and a button that went with them would stop looking pressable'],
+  ['ArenaButton:root:bg-base-200', 'the fill of a secondary button, and the hover of a ghost one: a control the user presses rather than a region something is placed inside. A style plugin that flattens its surfaces onto the page is saying its regions are carried by air, and a button that went with them would stop looking pressable'],
   ['ArenaIconButton:root:bg-base-200', 'the same, as the hover fill of a control with no resting one'],
-  ['ArenaBulkActionBar:action:bg-base-200', 'the same, as the hover fill of a control INSIDE a floating surface, which is why it must not follow that surface when a voice moves it'],
-  ['ArenaInput:field:bg-base-200', 'the readonly state of a field, which says a control cannot be typed into by matching the surface it sits on. It is a state of a control, not the surface itself, and a voice that moved it would be re-answering readonly rather than re-answering grouping'],
+  ['ArenaBulkActionBar:action:bg-base-200', 'the same, as the hover fill of a control INSIDE a floating surface, which is why it must not follow that surface when a style plugin moves it'],
+  ['ArenaInput:field:bg-base-200', 'the readonly state of a field, which says a control cannot be typed into by matching the surface it sits on. It is a state of a control, not the surface itself, and a style plugin that moved it would be re-answering readonly rather than re-answering grouping'],
   ['ArenaTextarea:field:bg-base-200', 'the same readonly state, for the same reason'],
-  ['ArenaSheet:head:px-5', 'a sheet is pinned to the viewport edge, so its padding is a fit constraint rather than a statement about air. A voice with a lever here could push its content off the screen, which is why the floating tier has no padding role'],
+  ['ArenaCheckbox:box:bg-base-300', 'the ground of a control that is not set yet, which is the fill of a thing the user presses rather than of a region something is placed inside. It is the reason ArenaButton:root:bg-base-200 carries one step over, and a style plugin re-answering its tracks has said nothing about whether an unchecked box reads as empty'],
+  ['ArenaRadio:ring:bg-base-300', 'the same unset ground, one control over'],
+  ['ArenaBadge:root:bg-base-300', 'the ground of a MARKER in its neutral tone, which is neither a surface nor a control by the argument r-marker and bw-marker already stand on'],
+  ['ArenaSideNav:badge:bg-base-300', 'the same marker ground, on the count beside a navigation row that is not current'],
+  ['ArenaAvatar:box:bg-base-300', 'the ground a monogram or a missing photograph sits on, which is a marker ground for the reason above and is the same slot that keeps font-display and font-extrabold for standing in for a face'],
+
+  ['ArenaSheet:head:px-5', 'a sheet is pinned to the viewport edge, so its padding is a fit constraint rather than a statement about air. A style plugin with a lever here could push its content off the screen, which is why the floating tier has no padding role'],
   ['ArenaSheet:body:px-5', 'the same sheet, the same constraint'],
   ['ArenaSheet:foot:px-5', 'the same sheet, the same constraint'],
-  ['ArenaAvatar:box:font-extrabold', 'a monogram rather than a heading: two letters standing in for a face, weighted to read at 12px inside a circle. A voice that lightened its headings has said nothing about initials'],
-  ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no voice'],
-  ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading voice would reflow a form field under somebody mid-sentence'],
+  ['ArenaAvatar:box:font-extrabold', 'a monogram rather than a heading: two letters standing in for a face, weighted to read at 12px inside a circle. A style plugin that lightened its headings has said nothing about initials'],
+  ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no style plugin'],
+  ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading style plugin would reflow a form field under somebody mid-sentence'],
   ['ArenaOnboarding:panel:p-5', 'a coachmark is pinned to the element it points at and sized against the viewport in JS, so its padding is a fit constraint for the same reason a sheet\'s is'],
+
+  ['ArenaActivityFeed:time:font-mono', 'a timestamp, read as a figure. This entry and the twenty-three under it are the mono face standing for FIGURES or CODE rather than for a register: a column of digits aligns by digit and a string read character by character has to be monospaced whatever the page sounds like, so a style plugin that sets its labels in the display face has said nothing about any of them. It is the half .arena-num ships for a figure a consumer draws themselves'],
+  ['ArenaCalendar:dayNumber:font-mono', 'a day of the month, read as a figure'],
+  ['ArenaCalendar:time:font-mono', 'a clock time, read as a figure'],
+  ['ArenaTable:tdMono:font-mono', 'the mono column of a table, which is what the face is for'],
+  ['ArenaTable:cardValueMono:font-mono', 'the same column in the card layout the table falls back to'],
+  ['ArenaBoard:count:font-mono', 'how many cards a column holds, read as a figure beside its name, and a row of columns whose counts do not align by digit reads as a jumble'],
+  ['ArenaBoard:summary:font-mono', 'the total a column adds up to, read as a figure under its name rather than as a register'],
+  ['ArenaPeopleList:rank:font-mono', 'a position in a standings list, read as a figure, and a column of them has to align by digit or the list stops reading as a ranking'],
+  ['ArenaPeopleList:figure:font-mono', 'the quantity a row of people is sorted by, read as a figure beside the name rather than as a register'],
+  ['ArenaProgressBar:value:font-mono', 'a percentage that must not jitter as it counts'],
+  ['ArenaTextarea:counter:font-mono', 'a character count that must not jitter as it counts'],
+  ['ArenaTextarea:counterNear:font-mono', 'the same count at its warning threshold'],
+  ['ArenaBulkActionBar:count:font-mono', 'a selection count that must not jitter as it counts'],
+  ['ArenaPagination:page:font-mono', 'a page number, and the row of them has to align'],
+  ['ArenaPagination:ellipsis:font-mono', 'the gap between two page numbers, which sits on their grid'],
+  ['ArenaBottomNav:badge:font-mono', 'a count on a badge'],
+  ['ArenaSideNav:badge:font-mono', 'the same count in the side navigation'],
+  ['ArenaErrorState:code:font-mono', 'an error code, read character by character'],
+  ['ArenaConfirmDialog:input:font-mono', 'the field a user retypes a name into, where every character has to be distinguishable from the one it looks like'],
+  ['ArenaInput:prefix:font-mono', 'a unit or a currency sitting on the field\'s own baseline grid'],
+  ['ArenaCommandPalette:shortcut:font-mono', 'a keyboard shortcut, which is a key cap rather than a label'],
+  ['ArenaCommandPalette:esc:font-mono', 'the same, for the escape cap'],
+  ['ArenaMenu:shortcut:font-mono', 'the same, in a menu'],
+  ['ArenaTooltip:bubble:font-mono', 'a tooltip carries a shortcut or a value often enough that the bubble is set in mono outright'],
+  ['ArenaActivityFeed:target:font-mono', 'the object an activity happened to, which is an identifier rather than a name'],
+  ['ArenaKeyValue:valueNumeric:font-mono', 'a figure in a summary, and a column of them has to align by digit or it jitters as the basket changes. It is the same claim .arena-num ships for a figure a consumer draws themselves, made once here for the figures this component draws'],
+
+  ['ArenaAppLogo:name:font-display', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It follows the mark beside it and no style plugin'],
+  ['ArenaAvatar:box:font-display', 'a monogram: two letters standing in for a face, which is the same reason the slot keeps font-extrabold'],
+  ['ArenaSheet:trigger:font-display', 'the trigger repeats the title of the sheet it opens, so it follows that title rather than the heading tier'],
+  ['ArenaSheet:trigger:text-h3', 'the same trigger and the same reason one axis over: the size follows the title it repeats, not the register the title tier is pitched at. The two entries move together or the slot is half on the tier'],
+  ['ArenaStatCard:value:text-h2', 'the figure a stat card exists to show, which is data set large and not a title of anything. A style plugin re-pitching the titles on a page has said nothing about how big a number is, and binding this would have moved every dashboard the first time one did'],
+
+  ['ArenaChartCard:title:tracking-label', 'a chart tile\'s title is set in the label register at the label step, which is one step open of where track-label is born. Binding it would have tightened it, so it keeps the step until a role names the difference'],
+  ['ArenaStatCard:label:tracking-label', 'the same step for the same reason, on a stat card\'s label'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {
@@ -138,7 +193,7 @@ function main() {
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth, duration and easing decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth, duration, easing, ink, edge, face, case and internal-air decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();

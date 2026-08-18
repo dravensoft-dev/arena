@@ -19,7 +19,9 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
+  CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, keywords,
+  NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
@@ -29,7 +31,7 @@ export const NAME = '@dravensoft/arena-react';
 export const LAYER = 'frameworks/react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
-export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'ToastClock.ts', 'Theme.ts', 'WarnOnce.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
+export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
 export const DIST_PROJECT = 'frameworks/react/tsconfig.dist.json';
 
 export const node = {
@@ -159,6 +161,8 @@ export function manifest(root = repoRoot) {
       './css/*': './css/*',
       './css/components/*': './css/components/*',
       './arena.config.example.json': './arena.config.example.json',
+      './arena.tokens.json': './arena.tokens.json',
+      './contracts/behaviour/*': './contracts/behaviour/*',
       './package.json': './package.json',
     },
     peerDependencies: {
@@ -190,7 +194,10 @@ export async function buildReactPackage(root = repoRoot) {
 
   written.push(writeComponentMap(dir, 'react', root));
   written.push(write(dir, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
+  written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));
+  written.push(write(dir, NPM_SKILL, npmSkill(NAME)));
+  written.push(...copyBehaviourContracts(dir, root));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
   written.push(write(dir, 'package.json', `${JSON.stringify(manifest(root), null, 2)}\n`));
 

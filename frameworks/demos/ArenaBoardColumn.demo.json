@@ -1,0 +1,26 @@
+{
+  "component": "ArenaBoardColumn",
+  "seed": {
+    "title": "In progress",
+    "count": 2,
+    "summary": "13 pts",
+    "colorId": 1
+  },
+  "slots": {
+    "content": [
+      { "component": "ArenaCard", "members": { "title": "Instrument the activation funnel" } },
+      { "component": "ArenaCard", "members": { "title": "Split the reporting service off" } }
+    ]
+  },
+  "host": {
+    "component": "ArenaBoard",
+    "members": { "label": "Sprint 32 tasks by status" },
+    "slots": {
+      "content": [
+        "$subject",
+        { "component": "ArenaBoardColumn", "members": { "title": "In review", "count": 0, "colorId": 4 } }
+      ]
+    }
+  },
+  "note": "A column is a cell of a board's grid, so the playground draws the board around it."
+}

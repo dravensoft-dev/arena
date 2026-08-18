@@ -1,0 +1,6 @@
+{
+  "component": "ArenaSkipLink",
+  "pattern": "none",
+  "reason": "It renders a real <a href>, so its role, its keyboard activation and its focusability are the platform's the moment the element exists, and there is no link pattern to bind. Naming another role would take the anchor's own away, which is the reason ArenaSideNavItem's link case records for the same shape. What this component adds on top of the anchor is where it goes and when it is visible, and neither is a role, a key, a focus move it owns or a dismissal: the landmark it points at carries the requirement that makes the jump work, and that is bound on the component that draws the landmark.",
+  "exceptions": []
+}

@@ -39,8 +39,6 @@
     "component": { "$value": "{sp.4}", "$description": "Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing." },
     "section": { "$value": "{sp.6}", "$description": "Between two sections of a page. The two sides answer different questions, and this gap is what says so." }
   },
-  "container-max": { "$type": "dimension", "$value": { "value": 1240, "unit": "px" }, "$description": "Container / layout" },
-  "gutter": { "$type": "dimension", "$value": { "value": 88, "unit": "px" } },
   "layout": {
     "$type": "dimension",
     "$description": "Application frame. Example code, and therefore the numbers a consumer\ncopies. Arena draws neither of these itself: the sidebar is the console shell's\nand the bar is a phone shell's, and they are declared for the same reason --z-nav\nis, because the frame a consumer builds is part of the system and every one of\nthem otherwise invents its own number.",
@@ -77,10 +75,23 @@
   "avatar": {
     "$type": "dimension",
     "$description": "ArenaAvatar diameters. The first family named after a component rather\nthan a role, and worth stating rather than glossing: dz and icon are named for\nroles. It earns its place because ArenaAvatar derives two values from its own\ndiameter (the initials at 0.4 and the presence dot at 0.28), and a derivation\nneeds something to derive from. If a second component ever wants the same\nladder, rename this for the role instead of duplicating it.",
-    "xs": { "$value": { "value": 24, "unit": "px" } },
-    "sm": { "$value": { "value": 32, "unit": "px" } },
-    "md": { "$value": { "value": 40, "unit": "px" } },
-    "lg": { "$value": { "value": 56, "unit": "px" } }
+    "xs": {
+      "$value": { "value": 24, "unit": "px" },
+      "$description": "Script-readable, and so are its three siblings, for one reason: an <img>\nreserves its box before the stylesheet arrives through the width and height\nattributes, which take a bare integer and cannot take a custom property. So the\nnumber has to reach JavaScript or the avatar is the one image in the library\nwhose space is not held. Reading it here rather than restating it in each layer\nis what keeps the reserved box and the drawn box the same number.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "sm": {
+      "$value": { "value": 32, "unit": "px" },
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "md": {
+      "$value": { "value": 40, "unit": "px" },
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "lg": {
+      "$value": { "value": 56, "unit": "px" },
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    }
   },
   "logo": {
     "$type": "dimension",

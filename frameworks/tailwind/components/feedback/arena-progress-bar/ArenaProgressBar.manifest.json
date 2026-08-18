@@ -1,28 +1,82 @@
 {
   "component": "ArenaProgressBar",
   "slots": {
-    "root": "block w-full",
-    "head": "flex items-baseline justify-between gap-3 mb-2",
-    "label": "font-body text-ctl-md text-base-content/82",
-    "value": "font-mono text-ctl-sm text-base-content/62",
-    "track": "relative rounded-pill bg-base-300 overflow-hidden",
+    "root": "grid",
+    "head": "flex items-baseline justify-between gap-items mb-2",
+    "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
+    "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "track": "relative rounded-pill bg-track overflow-hidden",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
-    "indeterminate": "arena-prog-indeterminate"
+    "indeterminate": "arena-prog-indeterminate",
+    "ring": "relative grid place-items-center shrink-0",
+    "ringContent": "relative grid place-items-center [grid-area:1/1]",
+    "ringGeometry": "absolute inset-0 size-full -rotate-90",
+    "ringTrack": "fill-none stroke-base-300 [vector-effect:non-scaling-stroke]",
+    "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state",
+    "ringIndeterminate": "arena-prog-ring"
+  },
+  "partOf": {
+    "indeterminate": "track",
+    "ringIndeterminate": "ringFill"
   },
   "variants": {
+    "shape": {
+      "linear": {
+        "root": "w-full"
+      },
+      "radial": {
+        "root": "w-fit justify-items-center gap-items",
+        "label": "text-center",
+        "value": "font-mono text-ctl-md text-ink-body/(--level-ink-body) [grid-area:1/1]"
+      }
+    },
     "tone": {
-      "accent": { "track": "text-primary" },
-      "gold": { "track": "text-secondary" },
-      "success": { "track": "text-success" },
-      "danger": { "track": "text-error" },
-      "info": { "track": "text-info" }
+      "accent": {
+        "track": "text-primary",
+        "ring": "text-primary"
+      },
+      "gold": {
+        "track": "text-secondary",
+        "ring": "text-secondary"
+      },
+      "success": {
+        "track": "text-success",
+        "ring": "text-success"
+      },
+      "danger": {
+        "track": "text-error",
+        "ring": "text-error"
+      },
+      "info": {
+        "track": "text-info",
+        "ring": "text-info"
+      }
     },
     "size": {
-      "sm": { "track": "h-1" },
-      "md": { "track": "h-1.5" },
-      "lg": { "track": "h-2.5" }
+      "sm": {
+        "track": "h-1",
+        "ring": "size-12",
+        "ringTrack": "[stroke-width:var(--sp-1)]",
+        "ringFill": "[stroke-width:var(--sp-1)]"
+      },
+      "md": {
+        "track": "h-1.5",
+        "ring": "size-16",
+        "ringTrack": "[stroke-width:calc(var(--sp-1)*1.5)]",
+        "ringFill": "[stroke-width:calc(var(--sp-1)*1.5)]"
+      },
+      "lg": {
+        "track": "h-2.5",
+        "ring": "size-24",
+        "ringTrack": "[stroke-width:calc(var(--sp-1)*2.5)]",
+        "ringFill": "[stroke-width:calc(var(--sp-1)*2.5)]"
+      }
     }
   },
-  "defaultVariants": { "tone": "accent", "size": "md" }
+  "defaultVariants": {
+    "shape": "linear",
+    "tone": "accent",
+    "size": "md"
+  }
 }

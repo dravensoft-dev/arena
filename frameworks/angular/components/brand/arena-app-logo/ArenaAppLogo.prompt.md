@@ -19,7 +19,7 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
 |---|---|---|---|---|
 | `mark*` | slot |  |  | The mark, as an asset the consumer supplies. Required: Arena ships MIT and a default would ship Dravensoft's trademark to whoever never read the API. The slot sizes the mark; a mark that brings its own dimensions fights the lock-up. |
 | `name*` | primitive | `string` |  | The product name, or its first half when `dim` carries the second. |
-| `dim` | primitive | `string` |  | The wordmark's second half, drawn muted. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. |
+| `dim` | primitive | `string` |  | The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. It is the second half of a name and never a tagline beside it: a product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. |
 | `size` | enum | `ArenaLogoSize` | `"md"` | Both halves at once: the mark's slot and the wordmark. |
 | `orientation` | enum | `ArenaOrientation` | `"horizontal"` | Mark beside the name, or above it. |
 
@@ -34,7 +34,10 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
   rather than reaching into the node, Angular has no `cloneElement`, and the CSS
   descendant combinator reaches the same result through the platform's own idiom.
 - Use `dim` for the second ink of a two-part wordmark, and pass no space between the
-  parts, `name="Draven" dim="soft"` renders DRAVENSOFT in two inks, one word.
+  parts, `name="Draven" dim="soft"` renders Dravensoft in two inks, one word.
+- Write `name` in the case your brand wears. Arena sets the face, the weight and the
+  tracking of the wordmark and never its case: a name is text you wrote, and a component
+  that shouted it would be renaming the company in CSS.
 - Don't ship it with a mark that is not yours. Nothing defaults here on purpose: Arena is
   MIT and a default mark would be someone else's trademark travelling in your build.
 - Don't reach for a fifth size. Four steps are the repertoire; a size between them is a
@@ -42,6 +45,6 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

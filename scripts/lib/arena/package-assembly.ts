@@ -17,6 +17,11 @@ import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
+import { DOMAIN } from './site-pages.ts';
+import { LLMS_INDEX } from './llms-index.ts';
+import { parseDecls } from './css-decls.ts';
+import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
+import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 
 export const EXCLUDED_NAMES = new Set(['node_modules', 'dist', 'vendor', 'test', 'build']);
 
@@ -40,8 +45,17 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design-generated/typography.generated.css', to: 'css/typography.css' },
   { from: 'contracts/design-generated/spacing.generated.css', to: 'css/spacing.css' },
   { from: 'contracts/design-generated/effects.generated.css', to: 'css/effects.css' },
+  { from: 'contracts/design-generated/style-plugin.default.generated.css', to: 'css/style-plugin-default.css' },
   { from: 'contracts/design/colors.css', to: 'css/colors.css' },
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
+];
+
+export const CONSUMER_SHEETS: CssChainEntry[] = [
+  { from: 'frameworks/tailwind/Numerals.css', to: 'css/numerals.css' },
+  { from: 'frameworks/tailwind/Page.css', to: 'css/page.css' },
+  { from: 'frameworks/tailwind/Prose.css', to: 'css/prose.css' },
+  { from: 'frameworks/tailwind/Rhythm.css', to: 'css/rhythm.css' },
+  { from: 'frameworks/tailwind/SrOnly.css', to: 'css/sr-only.css' },
 ];
 
 export const arenaCssHeader = (name: string) => [
@@ -50,7 +64,9 @@ export const arenaCssHeader = (name: string) => [
   '   whose palette and font values are meant to win. reset.css leads so anything can',
   '   override it, and colors.css derives its muted levels from --color-base-content,',
   '   so it follows the palette rather than defining one. environment.css composes the',
-  "   device's safe-area insets with the spacing scale and defines no length of its own. */",
+  "   device's safe-area insets with the spacing scale and defines no length of its own.",
+  '   style-plugin-default.css is the appearance rather than the language, and it is the one',
+  '   entry a project replaces: write your own style plugin and it takes this one\'s place. */',
 ].join('\n');
 
 export function excluded(name: string) {
@@ -137,12 +153,77 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
     { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${base}` },
-    { to: 'css/numerals.css', content: readFileSync(join(dir, 'Numerals.css'), 'utf8') },
-    { to: 'css/rhythm.css', content: readFileSync(join(dir, 'Rhythm.css'), 'utf8') },
+    ...CONSUMER_SHEETS.map(({ from, to }) => ({
+      to, content: readFileSync(join(root, ...(from ?? '').split('/')), 'utf8'),
+    })),
     { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
   ];
+}
+
+export const NPM_SKILL = 'skills/arena/SKILL.md';
+
+export const NPM_SKILL_NAME = 'arena';
+
+export function npmSkill(name: string) {
+  return `---
+name: ${NPM_SKILL_NAME}
+license: MIT
+description: "Arena by Dravensoft, a token-driven design system with React and Angular component
+ libraries on a shared Tailwind layer. Use when a project depends on ${name} and you are about to
+ write or restyle a screen with it. This file is the discovery record only: the rules, the
+ component documents and the style kernel are in the repository, and this says how to reach them."
+---
+
+# Arena is installed here, and its language is not
+
+**${name} ships the components and not the language.** The rules every component answers to, the
+usage document of each one, and the style kernel a project answers to make Arena look like its own
+product are in the repository. None of them is in this package, and this file is not a copy of
+them: a copy inside a tarball is a second router that goes stale on its own schedule.
+
+**Reach them before you write a screen.** Either install the Claude Code plugin from
+\`https://github.com/dravensoft-dev/arena\`, or clone that repository and read
+\`skills/design/SKILL.md\`. Working over HTTP instead, start at
+\`https://${DOMAIN}/${LLMS_INDEX}\`, which indexes the same route and has one corpus per framework.
+
+**Without them an agent guesses, and nothing reports it.** No gate reads a consumer's application,
+so a screen written against half the language renders exactly as well as one written against all
+of it. What differs is a reader.
+`;
+}
+
+export const BEHAVIOUR_DIR = 'contracts/behaviour';
+
+export function copyBehaviourContracts(dir: string, root = repoRoot) {
+  const from = join(root, ...BEHAVIOUR_DIR.split('/'));
+  const files = collectFiles(from, (path) => path.endsWith('.json'));
+  if (files.length === 0) {
+    throw new Error('package-assembly: no behaviour contract was found, so the package would tell a '
+      + 'consumer to bind a pattern it does not carry, and the export beside that sentence is the '
+      + 'only half of the answer they could reach');
+  }
+  return files.map((file) => copy(file, dir, `${BEHAVIOUR_DIR}/${relPosix(from, file)}`));
+}
+
+export const CATALOGUE_FILE = 'arena.tokens.json';
+
+export function tokenCatalogue(root = repoRoot) {
+  const decls = new Map<string, Map<string, string>>();
+  for (const target of CSS_TARGETS) {
+    for (const [selector, pairs] of parseDecls(readFileSync(join(root, target), 'utf8')))
+      decls.set(selector, new Map([...(decls.get(selector) ?? []), ...pairs]));
+  }
+  const tokens = Object.fromEntries(decls.get(':root') ?? []);
+
+  const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
+  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, {
+    type: role.$type,
+    ...(role.$extensions?.[ARENA_EXT]?.values ? { values: role.$extensions[ARENA_EXT].values } : {}),
+  }]));
+
+  return { tokens, roles };
 }
 
 export const CLI_BINS = { 'arena-to-prod': './bin/arena-to-prod.mjs' };

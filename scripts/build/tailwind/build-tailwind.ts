@@ -11,10 +11,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
-import { compileLayer, compileEntry, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { compileLayer, compileEntry, layerInputs, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import {
   classBase, classesManifest, entryStylesheet, stripIndirection, stripProblems, themeMapFor,
 } from '../../lib/tailwind/component-css.ts';
+import { dropBlindFallbacks, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
 import {
   componentSheet, matchingBrace, preludeSheet, splitUtilities,
 } from '../../lib/tailwind/component-sheets.ts';
@@ -60,6 +61,8 @@ export const MANIFESTS = 'frameworks/**/*.manifest.json';
 
 export const PRESET = [
   'frameworks/tailwind/Theme.css', 'frameworks/tailwind/Animations.css',
+  'frameworks/tailwind/Case.css', 'frameworks/tailwind/Numerals.css', 'frameworks/tailwind/SrOnly.css',
+  'frameworks/tailwind/Prose.css', 'frameworks/tailwind/Rhythm.css',
   'frameworks/tailwind/Breakpoints.generated.css', 'contracts/design-generated',
 ];
 
@@ -87,6 +90,7 @@ export const node = {
     'check:angular',
     'check:api',
     'check:appearance',
+    'check:parts',
     'check:arbitrary',
     'check:behaviour',
     'check:compliance',
@@ -106,6 +110,7 @@ export const node = {
     'check:skills',
     'check:states',
     'check:tailwind-generated',
+    'check:text-contrast',
     'build:site',
   ],
 };
@@ -118,11 +123,16 @@ export function sheetPath(manifestFile: string) {
 
 export function keyframesIn(css: string) {
   const blocks = [];
-  for (const match of css.matchAll(/@keyframes\s+[A-Za-z0-9_-]+\s*\{/g)) {
+  let taken = 0;
+  for (const match of css.matchAll(/@(?:keyframes\s+[A-Za-z0-9_-]+\s*|media\b[^{]*)\{/g)) {
+    if (match.index < taken) continue;
     const open = match.index + match[0].length - 1;
     const close = matchingBrace(css, open);
-    if (close === -1) throw new Error('build-tailwind: an @keyframes block never closes');
-    blocks.push(css.slice(match.index, close + 1));
+    if (close === -1) throw new Error('build-tailwind: an at-rule holding a keyframe never closes');
+    const block = css.slice(match.index, close + 1);
+    if (!block.includes('@keyframes')) continue;
+    blocks.push(block);
+    taken = close + 1;
   }
   return blocks;
 }
@@ -142,7 +152,7 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const manifests = opts.manifests ?? layerManifests(root);
   const preset = join(root, 'frameworks/tailwind/Theme.css');
 
-  const raw = compileEntry(entryStylesheet(preset, manifests), root);
+  const raw = compileEntry(entryStylesheet(preset, manifests), root, layerInputs(root));
   const problems = stripProblems(raw, themeMapFor(root));
   if (problems.length > 0) {
     throw new Error(`build-tailwind: the compiled component CSS carries an indirection the preset does `
@@ -152,7 +162,8 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const byComponent = new Map();
   for (const [file, manifest] of manifests) byComponent.set(classBase(manifest.component), file);
 
-  const { shared, components } = splitUtilities(stripIndirection(raw), new Set(byComponent.keys()));
+  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw)));
+  const { shared, components } = splitUtilities(settled, new Set(byComponent.keys()));
   const out = new Map();
   out.set(join(root, PRELUDE), BANNER + preludeSheet(shared, keyframesOf(root)));
 

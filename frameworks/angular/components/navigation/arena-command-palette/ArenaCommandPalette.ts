@@ -15,11 +15,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { arenaCommandPaletteStyles } from './ArenaCommandPalette.variants';
+import manifest from './ArenaCommandPalette.classes.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 import type { ArenaCommand } from '../../../Api.generated';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 export function arenaFilterCommands(commands: readonly ArenaCommand[], query: string): ArenaCommand[] {
   const needle = query.toLowerCase();
@@ -87,27 +87,28 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '(click)': 'onScrimClick()',
   },
   template: `
     @if (open()) {
-      <div #panel [class]="styles().panel()" role="dialog" aria-modal="true" aria-label="ArenaCommand palette"
+      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" aria-label="ArenaCommand palette"
            (click)="$event.stopPropagation()">
-        <div [class]="styles().search()">
-          <i [class]="styles().searchIcon() + ' ph-bold ph-magnifying-glass'" aria-hidden="true"></i>
-          <input [class]="styles().input()" [value]="query()" [attr.placeholder]="placeholder()"
+        <div [class]="styles().search()" [attr.data-arena-part]="parts.search">
+          <i [class]="styles().searchIcon() + ' ph-bold ph-magnifying-glass'" [attr.data-arena-part]="parts.searchIcon" aria-hidden="true"></i>
+          <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="query()" [attr.placeholder]="placeholder()"
                  role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
                  [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="activeId()"
                  [attr.aria-label]="placeholder() || 'Search commands'"
                  (input)="onQuery($event)" (keydown)="onKey($event)" />
-          <span [class]="styles().esc()">ESC</span>
+          <span [class]="styles().esc()" [attr.data-arena-part]="parts.esc">ESC</span>
         </div>
-        <div #list [class]="styles().list()" [id]="listboxId" role="listbox" aria-label="Commands">
+        <div #list [class]="styles().list()" [attr.data-arena-part]="parts.list" [id]="listboxId" role="listbox" aria-label="Commands">
           @for (group of groups(); track group.name ?? '') {
-          <div [class]="styles().group()" [attr.role]="group.name ? 'group' : null"
+          <div [class]="styles().group()" [attr.data-arena-part]="parts.group" [attr.role]="group.name ? 'group' : null"
                [attr.aria-label]="group.name">
             @if (group.name; as heading) {
-              <span [class]="styles().groupLabel()" aria-hidden="true">{{ heading }}</span>
+              <span [class]="styles().groupLabel()" [attr.data-arena-part]="parts.groupLabel" aria-hidden="true">{{ heading }}</span>
             }
             @for (row of group.rows; track row.command.id ?? row.command.label) {
             @let i = row.index;
@@ -116,25 +117,29 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
               <a [id]="optionId(i)" role="option" [attr.aria-selected]="i === active()" tabindex="-1"
                  [href]="target"
                  [class]="styles().row() + ' ' + (i === active() ? styles().rowActive() : styles().rowDefault())"
+                 [attr.data-arena-part]="parts.row"
                  (mouseenter)="onHover(i)" (click)="onRouteClick(command, $event)">
                 @if (command.icon; as glyph) {
-                  <span [class]="styles().rowIcon()"><i [class]="glyph" aria-hidden="true"></i></span>
+                  <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
                 }
-                <span [class]="styles().rowLabel() + ' ' + (i === active() ? styles().rowLabelActive() : styles().rowLabelDefault())">{{ command.label }}</span>
+                <span [class]="styles().rowLabel() + ' ' + (i === active() ? styles().rowLabelActive() : styles().rowLabelDefault())"
+                      [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
                 @if (command.shortcut; as shortcut) {
-                  <span [class]="styles().shortcut()">{{ shortcut }}</span>
+                  <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
                 }
               </a>
             } @else {
             <button type="button" [id]="optionId(i)" role="option" [attr.aria-selected]="i === active()" tabindex="-1"
                     [class]="styles().row() + ' ' + (i === active() ? styles().rowActive() : styles().rowDefault())"
+                 [attr.data-arena-part]="parts.row"
                     (mouseenter)="onHover(i)" (click)="onRun(command)">
               @if (command.icon; as glyph) {
-                <span [class]="styles().rowIcon()"><i [class]="glyph" aria-hidden="true"></i></span>
+                <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
               }
-              <span [class]="styles().rowLabel() + ' ' + (i === active() ? styles().rowLabelActive() : styles().rowLabelDefault())">{{ command.label }}</span>
+              <span [class]="styles().rowLabel() + ' ' + (i === active() ? styles().rowLabelActive() : styles().rowLabelDefault())"
+                      [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
               @if (command.shortcut; as shortcut) {
-                <span [class]="styles().shortcut()">{{ shortcut }}</span>
+                <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
               }
             </button>
             }
@@ -143,13 +148,15 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
           }
         </div>
         @if (filtered().length === 0) {
-          <div [class]="styles().empty()">No results for "{{ query() }}".</div>
+          <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty">No results for "{{ query() }}".</div>
         }
       </div>
     }
   `,
 })
 export class ArenaCommandPalette {
+  protected readonly parts = manifest.parts;
+
   /** Whether the palette is shown. Closed renders nothing. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
   /** Every command the palette can find. Filtered by label and hint as the user types. */
@@ -176,7 +183,7 @@ export class ArenaCommandPalette {
   protected readonly groups = computed(() => arenaCommandGroups(this.filtered()));
 
   private readonly doc = inject(DOCUMENT);
-  private readonly uid = `arena-command-palette-${nextId++}`;
+  private readonly uid = inject(ArenaIdGenerator).next('arena-command-palette');
   protected readonly listboxId = `${this.uid}-listbox`;
   protected readonly activeId = computed(() => arenaActiveOptionId(this.uid, this.active(), this.filtered().length));
 

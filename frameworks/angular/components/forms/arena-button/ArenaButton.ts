@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import type { ArenaButtonType, ArenaButtonVariant, ArenaControlSize } from '../../../Api.generated';
 import { arenaButtonStyles } from './ArenaButton.variants';
+import manifest from './ArenaButton.classes.generated';
 
 @Component({
   selector: 'arena-button',
@@ -14,11 +15,11 @@ import { arenaButtonStyles } from './ArenaButton.variants';
     '[attr.name]': 'null',
   },
   template: `
-    <button #control [class]="styles().root()" [attr.type]="type()" [disabled]="inert()"
+    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.type]="type()" [disabled]="inert()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
             [attr.tabindex]="tabStop() ? null : -1" (click)="onClick($event)">
       @if (loading()) {
-        <span [class]="styles().spinner()" aria-hidden="true"></span>
+        <span [class]="styles().spinner()" [attr.data-arena-part]="parts.spinner" aria-hidden="true"></span>
       } @else if (icon(); as glyph) {
         <i [class]="glyph" aria-hidden="true"></i>
       }
@@ -30,6 +31,8 @@ import { arenaButtonStyles } from './ArenaButton.variants';
   `,
 })
 export class ArenaButton {
+  protected readonly parts = manifest.parts;
+
   /** Which action this is. Danger is outline, never filled. */
   readonly variant = input<ArenaButtonVariant, ArenaButtonVariant | undefined>(
     'primary',
@@ -63,7 +66,7 @@ export class ArenaButton {
   readonly autoFocus = input(false, { transform: booleanAttribute });
   /** The id of the form this button belongs to, when it is not a descendant of it. */
   readonly form = input<string>();
-  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. ArenaTable's actions column is where this one is needed: an ArenaButton inside a row of a grid. */
+  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
   readonly tabStop = input(true, { transform: booleanAttribute });
   /** The button was activated, by pointer or by keyboard. */
   readonly click = output<void>();

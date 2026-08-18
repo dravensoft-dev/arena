@@ -1,8 +1,8 @@
 /* The kitchen-sink page every layer serves, built in one place so the two differ in exactly the
  * two lines they have to: what mounts the app, and what it is loaded from. A sibling of
- * playground-page.ts rather than a caller: that page offers a control that cycles the design
- * extension, and this page IS one, spelled as the scope class on <html>, which is what lets
- * check:pixel-parity navigate to a URL and know what it is looking at. The theme button is
+ * playground-page.ts rather than a caller: that page carries a scope class on <html> naming the
+ * appearance it is drawn in, which is what lets check:pixel-parity navigate to a URL and know
+ * what it is looking at. The theme button is
  * load-bearing: intro/theme.js applies nothing until it finds a .themebtn, so a page without one
  * ignores ?theme=light and one theme alone could be compared. The whole barrel is linked rather
  * than the list a playground computes, an order computed twice being one that can differ. Ready
@@ -19,8 +19,8 @@ export const MOUNT_ID = 'root';
 
 export const PAGE_FILE = 'index.generated.html';
 
-export function entryFile(extension: string, ext: string) {
-  return `${extension}.sink.entry.generated.${ext}`;
+export function entryFile(sink: string, ext: string) {
+  return `${sink}.sink.entry.generated.${ext}`;
 }
 
 export function themeDock() {
@@ -32,8 +32,8 @@ export function themeDock() {
   ].join('\n');
 }
 
-export function kitchenSinkPage({ extension, up, banner, mount, head = '', script }: {
-  extension: string; up: string; banner: string; mount: string; head?: string; script: string;
+export function kitchenSinkPage({ sink, up, banner, mount, head = '', script }: {
+  sink: string; up: string; banner: string; mount: string; head?: string; script: string;
 }) {
   const styles = [
     `<link rel="stylesheet" href="${up}intro/styles.css">`,
@@ -44,14 +44,14 @@ export function kitchenSinkPage({ extension, up, banner, mount, head = '', scrip
       (weight) => `<link rel="stylesheet" href="${up}node_modules/@phosphor-icons/web/src/${weight}/style.css">`,
     ),
   ];
-  const scope = scopeClass(extension);
+  const scope = scopeClass(sink);
 
   return `${banner}<!doctype html>
 <html lang="en"${scope ? ` class="${scope}"` : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${extension} · Arena kitchen sink</title>
+<title>${sink} · Arena kitchen sink</title>
 ${styles.join('\n')}
 ${head}</head>
 <body class="ks-page">
@@ -75,7 +75,7 @@ export const READY_SIGNAL = `(async () => {
 
 export const KS = {
   head: 'ks-head',
-  voice: 'ks-voice',
+  sink: 'ks-sink',
   note: 'ks-note',
   section: 'ks-section',
   title: 'ks-title',

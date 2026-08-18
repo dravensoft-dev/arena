@@ -1,3 +1,13 @@
+/* Every token in `contracts/design/` is a DTCG 2025.10 type but one, and this gate is where that
+ * claim is kept true. The exception is `keyword`, for a property whose value is a word rather than
+ * a measurement, which text-transform asked for and 2025.10 has no type for. The closed set is
+ * what earns it: a bare `string` would carry the same value and give up the only thing a type
+ * buys, since with no set `smallcaps` is as valid as `uppercase` and no gate can tell them apart.
+ * A keyword therefore names the words it may take and this gate refuses the rest. The set is
+ * declared once, on the role in `roles.json`, which EXCLUDED keeps out of this walk by name: a
+ * role states a question and carries no value, and a DTCG token without one is not a DTCG token.
+ * The reasoning in full is in `contracts/design/TokenTypes.md`. */
+
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -10,6 +20,7 @@ export const node = {
   writes: [],
   feeds: [],
 };
+import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 
 const RESERVED = new Set(['$value', '$type', '$description', '$extensions', '$deprecated']);
@@ -43,8 +54,21 @@ function checkColor(v: unknown, at: string, errs: string[]) {
   }
 }
 
-function checkValue(type: string, v: unknown, at: string, errs: string[]) {
+const KEYWORD = /^-?[a-zA-Z_][\w-]*$/;
+
+function checkKeyword(v: unknown, values: unknown, at: string, errs: string[]) {
+  if (typeof v !== 'string' || !KEYWORD.test(v))
+    return errs.push(`${at}: keyword must be a single bare CSS word, got ${JSON.stringify(v)}`);
+  if (values === undefined) return;
+  if (!Array.isArray(values) || !values.length || !values.every((w) => typeof w === 'string' && KEYWORD.test(w)))
+    return errs.push(`${at}: $extensions["${ARENA_EXT}"].values must be a non-empty array of bare CSS words`);
+  if (!values.includes(v))
+    errs.push(`${at}: keyword "${v}" is not one of ${values.join(', ')} — the set a keyword declares is the whole reason it is not a string`);
+}
+
+function checkValue(type: string, v: unknown, at: string, errs: string[], values?: unknown) {
   switch (type) {
+    case 'keyword': return checkKeyword(v, values, at, errs);
     case 'color': return checkColor(v, at, errs);
     case 'dimension': return checkDimension(v, at, errs);
     case 'duration': return checkDimension(v, at, errs, ['ms', 's']);
@@ -76,7 +100,7 @@ function checkValue(type: string, v: unknown, at: string, errs: string[]) {
       return;
     }
     default:
-      errs.push(`${at}: unknown $type "${type}" — not a DTCG 2025.10 type`);
+      errs.push(`${at}: unknown $type "${type}" — not a DTCG 2025.10 type, and not Arena's one addition to them, keyword`);
   }
 }
 
@@ -89,11 +113,17 @@ export function validateTree(tree: DtcgNode, file: string) {
       else for (const k of Object.keys(node.$extensions))
         if (!DNS.test(k)) errs.push(`${file}:${path.join('.')}: $extensions key "${k}" must be reverse-DNS`);
     }
+    if (typeof node.$description === 'string' && /\{[^{}]*\}/.test(node.$description)) {
+      errs.push(`${file}:${path.join('.')}: $description contains ${(/\{[^{}]*\}/.exec(node.$description) ?? [''])[0]}, `
+        + 'which Style Dictionary resolves as a token reference wherever it appears, so the prose is '
+        + 'replaced by that token\'s value and the description stops being a string. Name the token '
+        + 'without braces');
+    }
     if (node.$value !== undefined) {
       const at = `${file}:${path.join('.')}`;
       if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) return;
       if (!type) return errs.push(`${at}: token has no $type (own or inherited) — invalid under DTCG 2025.10`);
-      checkValue(type, node.$value, at, errs);
+      checkValue(type, node.$value, at, errs, node.$extensions?.[ARENA_EXT]?.values);
       return;
     }
     for (const [k, child] of Object.entries(node) as [string, DtcgNode][]) {
@@ -107,6 +137,12 @@ export function validateTree(tree: DtcgNode, file: string) {
   return errs;
 }
 
+export const EXCLUDED = new Map([
+  ['roles.json',
+   'it declares the questions the kernel asks and carries no value, so it is not a token file. '
+   + 'A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead.'],
+]);
+
 export function zeroSourceProblems(count: number) {
   if (count > 0) return [];
   return ['found 0 token files in contracts/design — an empty result set is a failure, not a clean pass; check the discovery path'];
@@ -114,17 +150,17 @@ export function zeroSourceProblems(count: number) {
 
 function main() {
   const src = join(root, 'contracts/design');
-  const files = readdirSync(src).filter((f) => f.endsWith('.json')).sort();
+  const files = readdirSync(src).filter((f) => f.endsWith('.json') && !EXCLUDED.has(f)).sort();
   const zero = zeroSourceProblems(files.length);
   if (zero.length) { for (const z of zero) console.error(`check-dtcg: ${z}`); process.exit(1); }
   let errs: string[] = [];
   for (const f of files) errs = errs.concat(validateTree(readJson(join(src, f)), f));
   if (errs.length) {
-    console.error(`check-dtcg: ${errs.length} violation(s) of DTCG 2025.10\n`);
+    console.error(`check-dtcg: ${errs.length} violation(s) of DTCG 2025.10 and Arena's keyword type\n`);
     for (const e of errs) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log(`check-dtcg: ${files.length} file(s) valid DTCG 2025.10 — ${files.join(', ')}`);
+  console.log(`check-dtcg: ${files.length} file(s) valid DTCG 2025.10 (plus keyword) — ${files.join(', ')}`);
 }
 
 if (isMainModule(import.meta.url)) main();

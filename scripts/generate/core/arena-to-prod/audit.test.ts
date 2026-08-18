@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
-  auditText, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist, UNMODELLED_UNITS,
+  auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
+  paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
+  LINKABLE_TAGS, statedRung,
+  UNMODELLED_UNITS,
 } from './audit.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -33,6 +39,65 @@ test('a raw value is reported where it styles something, and not where it is onl
   assert.match(auditText('src/a.css', '.x { background: linear-gradient(a, b); }').join('\n'), /gradient/);
   assert.equal(rules('const id = "#b52a20";'), '');
   assert.equal(rules('const gap = "16px";'), '');
+});
+
+test('an element of your own passed into a slot carries your own class', () => {
+  assert.equal(rules('<ArenaAppLogo name="X" mark={<img src="/m.svg" alt="" className="mark" />} />'), '',
+    'a slot is filled by passing an element, so that element sits inside the Arena tag\'s '
+    + 'attribute region and the class on it is the consumer\'s own');
+  assert.equal(rules('<ArenaCard action={<button className="mine">Go</button>} title="t" />'), '');
+
+  assert.match(rules('<ArenaButton className={styles.mine}>Go</ArenaButton>'), /own-class/,
+    'a class on the Arena tag is still one whether its value is a string or an expression');
+  assert.equal(rules('<ArenaCard className="mine" action={<button className="mine" />} />')
+    .split('\n').length, 1, 'and the tag\'s own class is reported exactly once');
+  assert.match(rules('<arena-card [ngClass]="k"><img class="mine" /></arena-card>', 'src/a.html'),
+    /own-class/, 'the Angular idiom passes an element by projection and is unaffected');
+});
+
+test('a colour is raw whichever notation writes it, and derived through a token is not', () => {
+  const css = (rule: string) => auditText('src/a.css', rule).join('\n');
+  assert.match(css('.x { background: rgb(255 255 255 / 0.22) }'), /raw colour/);
+  assert.match(css('.x { background: rgba(0, 0, 0, .18) }'), /raw colour/);
+  assert.match(css('.x { color: hsl(210 40% 96%) }'), /raw colour/);
+  assert.match(css('.x { color: oklch(0.7 0.1 250) }'), /raw colour/);
+  assert.match(css('.x { background: color-mix(in oklab, black 22%, transparent) }'), /raw colour/);
+  assert.match(css('.x { border-color: white }'), /raw colour/);
+  assert.match(css('.x { box-shadow: 0 0 0 1px rebeccapurple }'), /raw colour/);
+
+  assert.equal(css('.x { background: color-mix(in oklab, var(--crimson) 22%, transparent) }'), '');
+  assert.equal(css('.x { color: color-mix(in oklab, var(--a) 50%, var(--b)) }'), '');
+  assert.equal(css('.x { color: rgb(from var(--crimson) r g b / 40%) }'), '',
+    'a channel READ from a custom property is not a value this project chose');
+  assert.equal(css('.x { color: var(--ink-body) }'), '');
+});
+
+test('a colour name is a colour where a value goes, and a word everywhere else', () => {
+  const css = (rule: string) => auditText('src/a.css', rule).join('\n');
+  assert.equal(css('.white-panel { color: var(--ink-body) }'), '',
+    'a selector is not a declaration, so a name inside one is not a colour');
+  assert.equal(css('.x { background: url(white-dot.png) }'), '',
+    'a name is a colour when it stands alone, and part of an identifier when it does not');
+  assert.equal(css('.x { content: "red" }'), '',
+    'a quoted value in a stylesheet is a string');
+  assert.match(auditText('src/App.tsx', '<div style={{ color: "white" }} />').join('\n'),
+    /raw colour/, 'and in an inline style the quotes are how the value is written');
+});
+
+test('a comment is prose, and the rules of the language read declarations', () => {
+  assert.equal(auditText('src/a.css', '/* a profile header wants roughly 150px */').join('\n'), '',
+    'a note explaining why a value is what it is is the note a reviewer wants, and reporting it is '
+    + 'how the allowance mechanism gets spent on prose');
+  assert.equal(auditText('src/a.css', '/* the .arena-avatar__box class is output */').join('\n'), '');
+  assert.match(auditText('src/a.css', '.x { padding: 16px } /* and here is why */').join('\n'),
+    /bare pixel/);
+  assert.match(auditText('src/a.css', '/* why 16px:\n   the field is dense */\n.x { padding: 16px }')
+    .join('\n'), /^src\/a\.css:3: /, 'a comment spanning lines keeps every line after it in place');
+});
+
+test('an allowance over a comment is stale, because the comment was never a finding', () => {
+  assert.match(auditText('src/a.css', '/* roughly 150px */ /* arena-audit allow */').join('\n'),
+    /stale arena-audit allowance/);
 });
 
 test('an icon as an element and an emoji are each reported', () => {
@@ -118,4 +183,206 @@ test('the markdown allowance the gate relies on still reads from this module', (
 test('the unit list the dimension gate reads is the one stated here', () => {
   assert.ok(UNMODELLED_UNITS.includes('vh'));
   assert.ok(!UNMODELLED_UNITS.includes('px'));
+});
+
+test('a part selector is sanctioned in a plugin and reported in the app', () => {
+  const rule = '[data-arena-part="card.body"] { color: var(--ink-body) }';
+  assert.deepEqual(findings('p.css', rule, 'plugin'), [],
+    'the plugin directory is the one place a project\'s appearance lives, and the hook is how it '
+    + 'reaches a component');
+  const app = findings('a.css', rule, 'app');
+  assert.equal(app.length, 1);
+  assert.equal(app[0]?.rule, 'own-class');
+});
+
+test('a compiler class is reported in both scopes', () => {
+  const rule = '.arena-card__root { color: var(--ink-body) }';
+  assert.equal(findings('p.css', rule, 'plugin').length, 1,
+    'the part hook is the contract and the compiled class name is output, so reaching for the '
+    + 'class is a defect even inside a plugin');
+  assert.equal(findings('a.css', rule, 'app').length, 1);
+});
+
+test('a raw value is reported in both scopes and a gradient only in the app', () => {
+  assert.equal(findings('p.css', '.x { color: #fff }', 'plugin')[0]?.rule, 'raw-value');
+  const ramp = '.x { background: linear-gradient(var(--cat-1), var(--cat-3)) }';
+  assert.deepEqual(findings('p.css', ramp, 'plugin'), [],
+    'a plugin paints a gradient from its own stylesheet whatever the token tier says, so the norm '
+    + 'records it as a report rather than a floor and --strict may not refuse what the norm permits');
+  assert.equal(findings('a.css', ramp, 'app')[0]?.rule, 'raw-value');
+  assert.equal(findings('p.css', '.x { background: linear-gradient(red, blue) }', 'plugin').length, 1,
+    'the gradient is the plugin\'s to paint and the colours in it are still the skin, which the '
+    + 'plugin assigns rather than authors');
+});
+
+test('a plugin assigning a colour through one of Arena\'s own aliases is reported', () => {
+  const rule = '[data-arena-part="card.eyebrow"] { color: var(--mute) }';
+  const found = findings('design/x/plugin.css', rule, 'plugin');
+  assert.equal(found.length, 1, 'the alias is a step of the ramp under another name, so assigning '
+    + 'it is authoring a skin rather than answering a role');
+  assert.equal(found[0]?.rule, 'compat-alias');
+});
+
+test('the alias rule reads the plugin scope only, since an application is the last word', () => {
+  const rule = '.thing { color: var(--mute) }';
+  assert.deepEqual(findings('src/app.css', rule, 'app'), [],
+    'application CSS reaching into Arena is already what the own-class rule reports, and the '
+    + 'aliases ship, so naming one there is not this rule\'s business');
+});
+
+test('a plugin naming a role or a palette colour is not naming an alias', () => {
+  for (const value of ['var(--ink-eyebrow)', 'var(--color-neutral-content)',
+    'color-mix(in oklab, var(--color-base-content) 62%, transparent)']) {
+    assert.deepEqual(findings('design/x/plugin.css', `[data-arena-part="card.eyebrow"] { color: ${value} }`, 'plugin'), [],
+      `${value} is the route a plugin takes, so the rule must leave it alone`);
+  }
+});
+
+test('an alias is matched whole, so a longer name is not read as a shorter one inside it', () => {
+  assert.deepEqual(findings('design/x/plugin.css', '.x { color: var(--mute-2-disabled) }', 'plugin')
+    .map((one) => one.rule), ['compat-alias'],
+    'the longer alias is an alias too, and it is reported as itself rather than as --mute');
+  assert.deepEqual(findings('design/x/plugin.css', '.x { color: var(--muted-of-my-own) }', 'plugin'), [],
+    'a custom property of the project\'s own is not one of Arena\'s, and the boundary is what tells '
+    + 'them apart');
+});
+
+test('an alias inside a fallback is still an assignment, since the fallback is what paints', () => {
+  assert.equal(findings('design/x/plugin.css', '.x { color: var(--mute, red) }', 'plugin')
+    .filter((one) => one.rule === 'compat-alias').length, 1);
+});
+
+test('a project whose mark is a gradient is not told about one, and only about that', () => {
+  const rule = '.story__ring { background: conic-gradient(var(--color-cat-1), var(--color-cat-4)); }';
+  assert.match(auditText('src/a.css', rule, 'app').join('\n'), /gradient/,
+    'a gradient in an application source is the report the norm keeps');
+  assert.equal(auditText('src/a.css', rule, 'app', true).join('\n').includes('gradient'), false,
+    'a product whose mark IS a gradient draws that element itself, because Arena has none, so the '
+    + 'scope that reads the directory a line sits in asks the wrong question about a brand');
+});
+
+test('declaring the mark silences the gradient and nothing else on the line', () => {
+  const found = auditText('src/a.css', '.x { background: linear-gradient(red, blue); padding: 16px; }',
+    'app', true);
+  assert.match(found.join('\n'), /bare pixel length/,
+    'an allowance suppresses the whole line, which is what declaring the mark replaces');
+  assert.match(found.join('\n'), /raw colour/,
+    'the colours in the gradient are still the skin, which a project assigns rather than authors');
+});
+
+test('the declaration is not a way into the plugin scope, which already permits a gradient', () => {
+  const rule = '[data-arena-part="avatar.box"] { background: linear-gradient(var(--color-cat-1), var(--color-cat-4)); }';
+  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin'), [],
+    'a plugin paints one from its own stylesheet whatever the token tier says, declared or not');
+  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin', true), []);
+});
+
+test('the scope defaults to the application, so no caller changes meaning by accident', () => {
+  assert.equal(findings('a.css', '[data-arena-part="card"] { color: red }').length,
+    findings('a.css', '[data-arena-part="card"] { color: red }', 'app').length);
+});
+
+test('a source inside a declared plugin directory is plugin scope and nothing else is', () => {
+  const dirs = ['design/shop', 'vendor/house'];
+  assert.equal(sourceScope('design/shop/plugin.css', dirs), 'plugin');
+  assert.equal(sourceScope('design/shop/deep/more.css', dirs), 'plugin');
+  assert.equal(sourceScope('design/shopfront/plugin.css', dirs), 'app',
+    'a prefix that stops mid-segment is a different directory');
+  assert.equal(sourceScope('src/app.css', dirs), 'app');
+  assert.equal(sourceScope('design/shop/plugin.css', []), 'app');
+});
+
+test('the audit reports which parts a plugin paints', () => {
+  assert.deepEqual(paintedParts('[data-arena-part="card.body"]{}[data-arena-part="hero.title"]{}'),
+    ['card.body', 'hero.title']);
+  assert.deepEqual(paintedParts('[data-arena-part="card"]{}[data-arena-part="card"]{}'), ['card'],
+    'it answers which parts rather than how many rules, because it is what the role tier grows by');
+});
+
+test('the own-class attribute pattern is exported, so its suite can assert on it', () => {
+  assert.ok(OWN_CLASS_ATTRIBUTE.test(' className='));
+  assert.ok(OWN_CLASS_ATTRIBUTE.test(' [class]='));
+});
+
+test('a screen drawing a page head and a card, with no section between, is reported', () => {
+  assert.match(rules('<ArenaPageHead title="Sales" /><ArenaCard title="Today" />'), /outline-gap/);
+  assert.match(
+    rules('<arena-page-head title="Sales" /><arena-card title="Today" />', 'src/app.html'),
+    /outline-gap/,
+    'the rule reads a screen and not a layer, so it holds in either idiom',
+  );
+});
+
+test('the same screen with the middle rung written is not reported', () => {
+  assert.equal(
+    rules('<ArenaPageHead title="Sales" /><ArenaSection title="Today"><ArenaCard title="A" /></ArenaSection>'),
+    '',
+    'a section IS the h2 the outline was missing, which is the fix the message asks for',
+  );
+  assert.equal(
+    rules('<ArenaPageHead title="Sales" /><ArenaCard title="A" headingLevel="h2" />'),
+    '',
+    'and saying the rung by hand is the other fix, so a component that declares one is not counted '
+    + 'against a default it is not using',
+  );
+});
+
+test('one rung on its own is no gap, however deep it sits', () => {
+  assert.equal(rules('<ArenaCard title="A" /><ArenaCard title="B" />'), '',
+    'a screen of cards inside a shell that draws the page head elsewhere is the ordinary case, and '
+    + 'a rule that fired on it would be one every project turns off');
+});
+
+test('the gap is found between any two rungs, not only between one and three', () => {
+  assert.deepEqual(outlineGap([1, 3]), [1, 3]);
+  assert.deepEqual(outlineGap([2, 3, 1]), null, 'contiguous in any order is contiguous');
+  assert.deepEqual(outlineGap([1, 2]), null);
+  assert.deepEqual(outlineGap([]), null);
+  assert.deepEqual(outlineGap([3, 3, 3]), null);
+});
+
+test('the ladder this rule reads is the one the contracts declare, or it is judging a shape Arena '
+  + 'no longer draws', () => {
+  const dir = join(repoRoot, 'contracts/api/components');
+  const declared: Record<string, number> = {};
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.json')) continue;
+    const contract = JSON.parse(readFileSync(join(dir, file), 'utf8'));
+    const level = contract.api?.headingLevel?.default;
+    if (typeof level !== 'string' || !/^h[1-6]$/.test(level)) continue;
+    declared[kebabTag(contract.component)] = Number(level.slice(1));
+  }
+
+  assert.ok(Object.keys(declared).length > 0, 'no contract declares a heading rung, so this checked nothing');
+  assert.deepEqual(HEADING_RUNGS, declared,
+    'the audit ships inside the package and cannot read contracts/ from there, so the ladder is a '
+    + 'literal here and this is what keeps it from drifting: a component that gains, loses or moves '
+    + 'a default rung has to move this list with it. A component defaulting to `none` is deliberately '
+    + 'absent, because it opens no rung at all');
+});
+
+test('a stated heading level is the rung it states, so saying the level you meant cannot open a gap', () => {
+  assert.equal(statedRung('headingLevel="h3"'), 3);
+  assert.equal(statedRung("[headingLevel]=\"'h3'\""), 3);
+  assert.equal(statedRung('headingLevel="none"'), null);
+  assert.equal(statedRung('[headingLevel]="pitch()"'), undefined);
+  assert.equal(statedRung('title="x"'), undefined);
+});
+
+test('the components a link may wrap are the ones whose contract takes an href, since the remedy is '
+  + 'to pass it', () => {
+  const dir = join(repoRoot, 'contracts/api/components');
+  const declared = new Set<string>();
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.json')) continue;
+    const contract = JSON.parse(readFileSync(join(dir, file), 'utf8'));
+    if (contract.api?.href !== undefined) declared.add(kebabTag(contract.component));
+  }
+
+  assert.ok(declared.size > 0, 'no contract declares an href, so this checked nothing');
+  assert.deepEqual([...LINKABLE_TAGS].sort(), [...declared].sort(),
+    'the audit ships inside the package and cannot read contracts/ from there, so this set is a '
+    + 'literal and this is what keeps it from drifting. It reports only these because the finding '
+    + 'tells a reader to pass the href to the component instead: a component with no href member '
+    + 'cannot take that advice, and the app bar documents wrapping its brand in a link of your own');
 });

@@ -1,0 +1,37 @@
+{
+  "component": "ArenaFigure",
+  "seed": {
+    "caption": "Finca El Injerto, Huehuetenango"
+  },
+  "slots": {
+    "fallback": [
+      {
+        "component": "ArenaBadge",
+        "members": {},
+        "slots": {
+          "content": [
+            {
+              "text": "Lot 4"
+            }
+          ]
+        }
+      }
+    ],
+    "overlay": [
+      {
+        "component": "ArenaBadge",
+        "members": {
+          "tone": "success"
+        },
+        "slots": {
+          "content": [
+            {
+              "text": "In stock"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "note": "A frame the style plugin shapes, with a wash under whatever is laid over it. The picture is the element you wrote, and its alternative text stays on it."
+}

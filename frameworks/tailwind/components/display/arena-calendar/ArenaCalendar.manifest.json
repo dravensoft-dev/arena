@@ -2,31 +2,31 @@
   "component": "ArenaCalendar",
   "slots": {
     "root": "flex flex-col w-full font-body",
-    "toolbar": "flex items-center gap-2 mb-3 flex-wrap",
-    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer text-[length:var(--icon-md)] shadow-control-rest",
-    "today": "inline-flex items-center justify-center h-8.5 px-3 bg-transparent border-[length:var(--bw-control)] border-base-300 rounded-control text-base-content/82 cursor-pointer font-body text-ctl-md font-semibold shadow-control-rest",
-    "heading": "m-0 ml-1 text-md font-semibold text-base-content",
-    "actions": "ml-auto flex gap-2 flex-wrap",
-    "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-base-300",
+    "toolbar": "flex items-center gap-inline mb-3 flex-wrap",
+    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body) cursor-pointer text-[length:var(--icon-md)] shadow-control-rest",
+    "today": "inline-flex items-center justify-center h-8.5 px-control-x bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body) cursor-pointer font-body text-ctl-md font-control shadow-control-rest",
+    "heading": "m-0 ml-1 text-md font-semibold text-ink-heading",
+    "actions": "ml-auto flex gap-inline flex-wrap",
+    "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-edge-separator",
     "dayHead": "min-w-0 px-2 pt-1.5 text-center",
-    "weekday": "font-mono text-ctl-2xs tracking-column-header uppercase font-bold text-base-content/62",
+    "weekday": "font-face-label text-ctl-2xs tracking-column-header case-label font-bold text-ink-muted/(--level-ink-muted)",
     "dayNumber": "font-mono text-ctl font-bold mt-0.5",
     "scroll": "flex-1 min-h-0 overflow-y-auto py-2",
     "body": "flex relative",
     "gutter": "w-[var(--calendar-gutter-w)] shrink-0 relative",
-    "hourLabel": "absolute right-2 -mt-1 font-mono text-ctl-2xs tracking-uppercase-status uppercase font-bold text-base-content/62",
+    "hourLabel": "absolute right-2 -mt-1 font-face-label text-ctl-2xs tracking-uppercase-status case-label font-bold text-ink-muted/(--level-ink-muted)",
     "grid": "grid flex-1 min-w-0 relative",
-    "rule": "absolute left-0 right-0 border-t-[length:var(--bw-separator)] border-base-300 pointer-events-none",
-    "column": "min-w-0 relative border-l-[length:var(--bw-separator)] border-base-300",
+    "rule": "absolute left-0 right-0 border-t-[length:var(--bw-separator)] border-edge-separator pointer-events-none",
+    "column": "min-w-0 relative border-l-[length:var(--bw-separator)] border-edge-separator",
     "cell": "absolute left-0 right-0 outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "now": "absolute left-0 right-0 border-t-[length:var(--bw-strong)] border-primary pointer-events-none",
     "nowDot": "absolute -top-1 -left-1 size-1.5 rounded-pill bg-primary",
     "chip": "absolute box-border flex flex-col overflow-hidden text-left font-body mx-0.5 px-1.5 py-1 min-h-6.5 rounded-control border-l-[length:var(--bw-strong)] border-t-0 border-r-0 border-b-0",
     "chipBody": "flex flex-col bg-transparent border-none p-0 m-0 text-left font-body",
-    "title": "text-ctl-sm font-semibold text-base-content whitespace-nowrap overflow-hidden text-ellipsis",
-    "time": "font-mono text-ctl-2xs text-base-content/62",
+    "title": "text-ctl-sm font-semibold text-ink-heading whitespace-nowrap overflow-hidden text-ellipsis",
+    "time": "font-mono text-ctl-2xs text-ink-muted/(--level-ink-muted)",
     "kebabWrap": "absolute right-0",
-    "panel": "absolute top-full right-0 flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-base-300 rounded-control shadow-surface-floating"
+    "panel": "absolute top-full right-0 flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface rounded-control shadow-surface-floating"
   },
   "variants": {
     "today": {
@@ -34,7 +34,7 @@
         "dayNumber": "text-primary"
       },
       "false": {
-        "dayNumber": "text-base-content/82"
+        "dayNumber": "text-ink-body/(--level-ink-body)"
       }
     },
     "firstColumn": {

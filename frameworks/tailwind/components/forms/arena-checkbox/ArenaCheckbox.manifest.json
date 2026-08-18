@@ -4,7 +4,7 @@
     "root": "inline-flex items-center gap-2.5",
     "box": "inline-flex items-center justify-center size-5 rounded-control-sm border-[length:var(--bw-control)] transition-[background] duration-[var(--dur-hover)] ease-hover [&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]",
     "check": "size-3 text-primary-content [stroke-width:var(--bw-strong)]",
-    "label": "font-body text-ctl text-base-content/82",
+    "label": "font-body text-ctl text-ink-body/(--level-ink-body)",
     "input": "absolute opacity-0 size-0"
   },
   "variants": {
@@ -13,7 +13,7 @@
         "box": "bg-primary border-primary"
       },
       "false": {
-        "box": "bg-base-300 border-neutral"
+        "box": "bg-base-300 border-edge-control"
       }
     },
     "disabled": {

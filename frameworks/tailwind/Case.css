@@ -1,0 +1,25 @@
+/* Whether a line is set in capitals, as a pair of utilities rather than as theme keys.
+ *
+ * `text-transform` is not a Tailwind v4 namespace, so there is no --something-* key that would
+ * make a role reachable the way --color-edge-surface makes border-edge-surface reachable. The
+ * built-in `uppercase`, `lowercase` and `capitalize` are static utilities naming a value, which
+ * is the same shape as a scale: a manifest that writes `uppercase` has said an answer, and only
+ * a question can be answered differently by one voice than by another.
+ *
+ * These two are the questions. `@utility` and not a plain class, because a manifest reaches them
+ * through the same compilation as every other utility and a bare class is not applicable: the
+ * build fails with "Cannot apply unknown utility class", which is the right failure and worth
+ * knowing about before writing the third one.
+ *
+ * They are hand-written for the same reason Numerals.css and Rhythm.css are, and unlike those two
+ * they are NOT copied into the packages: manifests name them rather than consumers, so they
+ * compile through into the component sheets the way Animations.css does.
+ */
+
+@utility case-eyebrow {
+  text-transform: var(--tt-eyebrow);
+}
+
+@utility case-label {
+  text-transform: var(--tt-label);
+}

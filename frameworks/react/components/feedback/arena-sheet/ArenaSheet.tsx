@@ -58,24 +58,24 @@ export function ArenaSheet({
   if (!open) return null;
   const styles = arenaSheetStyles({ placement, open: true });
   return (
-    <div onKeyDown={onKeyDown} className={styles.root()}>
-      <div className={styles.head()}>
+    <div onKeyDown={onKeyDown} className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head}>
         <button type="button" id={triggerId} aria-expanded={!collapsed} aria-controls={bodyId}
-          onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()}>
+          onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger}>
           <span>{title}</span>
-          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`}
+          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}
             aria-hidden="true" />
         </button>
         {dismissible && (
-          <button type="button" onClick={onClose} aria-label="Close" className={styles.close()}>
+          <button type="button" onClick={onClose} aria-label="Close" className={styles.close()} data-arena-part={manifest.parts.close}>
             <i className="ph-bold ph-x" aria-hidden="true" />
           </button>
         )}
       </div>
-      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()}>
+      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body}>
         {children}
       </div>
-      {footer && <div className={styles.foot()}>{footer}</div>}
+      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot}>{footer}</div>}
     </div>
   );
 }

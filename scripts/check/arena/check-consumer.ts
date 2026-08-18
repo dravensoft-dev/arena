@@ -11,7 +11,8 @@
 
 import { spawnSync } from 'node:child_process';
 import {
-  mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync, symlinkSync,
+  mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, readdirSync, rmSync,
+  symlinkSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,7 +23,11 @@ import { linkDir } from '../../lib/arena/platform.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
-import { THEME_SHEET, ICONS_SHEET } from '../../generate/core/arena-to-prod/arena-to-prod.ts';
+import {
+  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
+} from '../../generate/core/arena-to-prod/arena-to-prod.ts';
+import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { WEIGHT_CLASSES } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { captured } from '../../utils/captures.ts';
 
@@ -121,7 +126,10 @@ export function assemble(base = root) {
   return { built: true, missing };
 }
 
-export type CliRun = { status: number | null; stderr: string; theme: string | null; icons: string | null };
+export type CliRun = {
+  status: number | null; stdout: string; stderr: string;
+  theme: string | null; icons: string | null; plugin: string | null;
+};
 
 export function fixture(
   layer: string, files: Record<string, string>, stylesheet: Record<string, unknown>, base = root,
@@ -136,6 +144,134 @@ export function fixture(
   return dir;
 }
 
+export const PLUGINS = { total: './design/console', partial: './design/marketing' };
+
+export const PARTIAL_ANSWERS = {
+  'r-surface': { $type: 'dimension', $value: '{r.xs}' },
+  'fill-surface': { $type: 'color', $value: '{color.base-300}' },
+};
+
+export const PAINTED = 'card.body';
+
+export const PLUGIN_PAINT = `[data-arena-part="${PAINTED}"] {\n`
+  + '  background: linear-gradient(180deg, var(--color-base-200), var(--color-base-100));\n}\n';
+
+export const RESTATED = 'card.title';
+
+export const PLUGIN_RESTATE = `[data-arena-part="${RESTATED}"] {\n`
+  + '  font-family: var(--ff-heading);\n}\n';
+
+export const REACHING_IN = 'src/reach.css';
+
+export function pluginFixture(layer: string, plugins: string[], base = root) {
+  const dir = fixture(layer, SOURCES[layer] ?? {}, AUTO, base);
+  const written = readJson(join(dir, 'arena.config.json'));
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...written, stylePlugins: plugins }, null, 2));
+  for (const entry of plugins) {
+    if (entry === DEFAULT_PLUGIN) continue;
+    const at = join(dir, ...entry.split('/'));
+    mkdirSync(at, { recursive: true });
+    if (pluginName(entry) === pluginName(PLUGINS.total)) {
+      copyFileSync(join(base, ...ROOT_PLUGIN.split('/')), join(at, PLUGIN_TOKENS));
+      continue;
+    }
+    writeFileSync(join(at, PLUGIN_TOKENS), `${JSON.stringify(PARTIAL_ANSWERS, null, 2)}\n`);
+    writeFileSync(join(at, PLUGIN_CSS), PLUGIN_PAINT + PLUGIN_RESTATE);
+  }
+  writeFileSync(join(dir, ...REACHING_IN.split('/')), PLUGIN_PAINT);
+  return dir;
+}
+
+export function stylePluginProblems(layer: string, valid: CliRun, partial: CliRun) {
+  const problems = [];
+  if (valid.status !== 0) {
+    problems.push(`${layer}: a config naming two style plugins of its own exited ${valid.status}, so the `
+      + `path a consumer takes has been run nowhere outside this repository:\n    ${valid.stderr.trim()}`);
+  } else {
+    const theme = valid.theme ?? '';
+    if (!/:root\{[^}]*--pad-surface/.test(theme)) {
+      problems.push(`${layer}: the first plugin in the list answered no role on :root, and that is what a `
+        + 'page with no class on it looks like');
+    }
+    if (!theme.includes(`.arena-${pluginName(PLUGINS.partial)}`)) {
+      problems.push(`${layer}: the second plugin reached no scope class of its own, so a build carrying `
+        + 'two registers carries one');
+    }
+    if (theme.includes('/arena.css')) {
+      problems.push(`${layer}: the theme still imports the barrel, and the barrel carries the sheet the `
+        + 'package assembles, so the appearance this config replaced is loaded beside the one it wrote');
+    }
+  }
+  if (partial.status === 0) {
+    problems.push(`${layer}: a root style plugin leaving a role unanswered was accepted. A custom property `
+      + 'with no value is invalid at computed-value time, so what a consumer gets is a missing border '
+      + 'rather than a plainer appearance');
+  } else if (!partial.stderr.includes('does not answer')) {
+    problems.push(`${layer}: a partial root style plugin was refused without naming the role nobody `
+      + `answers, which is the only thing that says what to write:\n    ${partial.stderr.trim()}`);
+  }
+  return problems;
+}
+
+export function layerProblems(layer: string, valid: CliRun) {
+  const problems = [];
+  const sheet = valid.plugin;
+  if (!sheet) {
+    problems.push(`${layer}: a style plugin carrying ${PLUGIN_CSS} produced no ${PLUGIN_SHEET}, so the CSS `
+      + 'half of a plugin reaches no page at all');
+    return problems;
+  }
+  if (!sheet.startsWith(PLUGIN_LAYER_ORDER)) {
+    problems.push(`${layer}: ${PLUGIN_SHEET} does not lead with the layer order. A bare @layer `
+      + `${PLUGIN_LAYER} block met before the order is declared registers that name as the LOWEST `
+      + 'layer, and every plugin rule contesting a component rule then loses with nothing to report '
+      + `it:\n    ${sheet.slice(0, 80)}`);
+  }
+  if (!sheet.includes(`@layer ${PLUGIN_LAYER} {`)) {
+    problems.push(`${layer}: ${PLUGIN_SHEET} does not open the reserved layer. Every compiled component `
+      + 'rule sits in @layer utilities at one class of specificity, so an unlayered plugin rule would '
+      + `need !important to reach anything:\n    ${sheet.slice(0, 80)}`);
+  }
+  if (!sheet.includes(PAINTED)) {
+    problems.push(`${layer}: ${PLUGIN_SHEET} carries no rule the plugin wrote, so the wrap is empty`);
+  }
+  return problems;
+}
+
+export function scopeProblems(layer: string, audited: CliRun) {
+  const problems = [];
+  const reported = audited.stderr.split('\n').filter((line) => line.includes('(own-class)'));
+  if (reported.some((line) => line.includes(PLUGIN_CSS))) {
+    problems.push(`${layer}: --audit reported a part selector inside a directory the config declares in `
+      + 'stylePlugins. That directory is the one place a project\'s appearance is allowed to live, and '
+      + `a gate a consumer cannot trust is worse than none:\n    ${reported[0]}`);
+  }
+  if (!reported.some((line) => line.includes(REACHING_IN))) {
+    problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit no longer says `
+      + 'where a project\'s appearance lives, which is half of what it reports');
+  }
+  if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {
+    problems.push(`${layer}: --audit reported a gradient inside a style plugin. A plugin paints one from its `
+      + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
+      + 'floor and --strict may not refuse what the norm permits');
+  }
+  if (!audited.stdout.includes(`paint 2 part(s): ${PAINTED}, ${RESTATED}`)) {
+    problems.push(`${layer}: the run does not name the parts the plugin paints, and that note is where the `
+      + `evidence for promoting a role comes from:\n    ${audited.stdout.trim()}`);
+  }
+  const restated = audited.stderr.split('\n').filter((line) => line.includes('changes nothing'));
+  if (!restated.some((line) => line.includes(RESTATED))) {
+    problems.push(`${layer}: the plugin restates the value ${RESTATED} already paints and the run says `
+      + 'nothing. A part counts as painted because the audit reads source text, and a role is grown from '
+      + `that count, so a restatement left unreported is evidence for a question nobody asked:\n    ${audited.stderr.trim().slice(0, 200)}`);
+  }
+  if (restated.some((line) => line.includes(PAINTED))) {
+    problems.push(`${layer}: the gradient on ${PAINTED} was called a restatement, and the slot paints no `
+      + 'gradient at all, so the rule is reporting a rule that does change something');
+  }
+  return problems;
+}
+
 export function installed(layer: string, dir: string, base = root) {
   const name = PACKAGES.find((p) => p.layer === layer)?.name;
   if (!name) throw new Error(`check-consumer: no package is declared for a layer called "${layer}"`);
@@ -143,6 +279,48 @@ export function installed(layer: string, dir: string, base = root) {
   mkdirSync(join(at, '..'), { recursive: true });
   if (!existsSync(at)) linkDir(distDir(layer, base), at);
   return join(at, CLI);
+}
+
+export const THIRD_PALETTE = { name: 'dusk', polarity: 'dark' };
+
+export const POLARITY_SCOPES: [string, string][] = [
+  [':root', 'dark'], ['.arena-light', 'light'], [`.arena-${THIRD_PALETTE.name}`, 'dark'],
+];
+
+export function palettesFixture(layer: string, base = root) {
+  const dir = fixture(layer, SOURCES[layer] ?? {}, AUTO, base);
+  const written = readJson(join(dir, 'arena.config.json'));
+  const borrowed = written.palettes.find((p: { polarity: string }) => p.polarity === THIRD_PALETTE.polarity);
+  written.palettes.push({ ...THIRD_PALETTE, colors: (borrowed ?? written.palettes[0]).colors });
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify(written, null, 2));
+  return dir;
+}
+
+export function blockIn(css: string, selector: string) {
+  const at = css.indexOf(`${selector}{`);
+  return at < 0 ? null : css.slice(at, css.indexOf('}', at));
+}
+
+export function palettesProblems(layer: string, run: CliRun) {
+  if (run.status !== 0) {
+    return [`${layer}: a configuration declaring three palettes exited ${run.status}, so the field `
+      + 'that carries more than the classic pair is one no project can spend'];
+  }
+  const problems = [];
+  for (const [selector, polarity] of POLARITY_SCOPES) {
+    const block = blockIn(run.theme ?? '', selector);
+    if (block === null) {
+      problems.push(`${layer}: ${THEME_SHEET} carries no ${selector} block, so one of three declared `
+        + 'palettes reaches no page at all');
+      continue;
+    }
+    if (!block.includes(`color-scheme:${polarity};`)) {
+      problems.push(`${layer}: ${selector} declares no color-scheme:${polarity}, so the browser draws `
+        + 'the furniture Arena never draws against the wrong polarity: its scrollbars, its native '
+        + 'controls, its autofill and the canvas it paints wherever nothing else does');
+    }
+  }
+  return problems;
 }
 
 export function runCli(layer: string, dir: string, base = root, extra: string[] = []) {
@@ -153,7 +331,14 @@ export function runCli(layer: string, dir: string, base = root, extra: string[] 
     const at = join(dir, 'out', name);
     return readIfExists(at);
   };
-  return { status: run.status, stderr: run.stderr ?? '', theme: read(THEME_SHEET), icons: read(ICONS_SHEET) };
+  return {
+    status: run.status,
+    stdout: run.stdout ?? '',
+    stderr: run.stderr ?? '',
+    theme: read(THEME_SHEET),
+    icons: read(ICONS_SHEET),
+    plugin: read(PLUGIN_SHEET),
+  };
 }
 
 export function auditProblems(layer: string, reported: CliRun, strict: CliRun, rules: string[]) {
@@ -298,7 +483,10 @@ export function collect(base = root) {
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
       const breaking = BREAKING[layer];
       const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
-      dirs.push(auto, unexported, named, unknown, unplaced, broken);
+      const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
+      const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
+      const palettes = palettesFixture(layer, base);
+      dirs.push(auto, unexported, named, unknown, unplaced, broken, plugged, partialRoot, palettes);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -313,6 +501,11 @@ export function collect(base = root) {
         breaking?.rules ?? [],
       ));
       problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['--audit'])));
+      const valid = runCli(layer, plugged, base, ['--strict']);
+      problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base, ['--strict'])));
+      problems.push(...layerProblems(layer, valid));
+      problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['--src', 'design', '--audit'])));
+      problems.push(...palettesProblems(layer, runCli(layer, palettes, base)));
     }
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
@@ -327,8 +520,10 @@ function main() {
     for (const one of problems) console.error(`  ${one}`);
     process.exit(1);
   }
-  console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path and resolve "auto" to the sheets `
-    + `a consumer's sources name${built ? ', after assembling what was missing' : ''}`);
+  console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
+    + `a consumer's sources name, scope a style plugin of the project's own, and emit a block carrying `
+    + `its own polarity for each of three palettes`
+    + `${built ? ', after assembling what was missing' : ''}`);
 }
 
 if (isMainModule(import.meta.url)) main();

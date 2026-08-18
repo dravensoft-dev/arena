@@ -1,0 +1,37 @@
+<!-- @dsCard group="Tailwind" viewport="820x320" name="ArenaSkipLink" subtitle="Resting and focused, rendered from ArenaSkipLink.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-skip-link/ArenaSkipLink.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaSkipLink.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+
+function link(text, shown) {
+  return el('a', {
+    class: c.root,
+    href: '#arena-main',
+    text,
+    style: shown
+      ? { position: 'static', opacity: '1', pointerEvents: 'auto' }
+      : { position: 'static' },
+  });
+}
+
+mountSpecimen({ sections: [
+  section('Focused, which is the only time anybody sees it', [link('Skip to content', true)], { stack: true }),
+  section('Resting, in the same box', [link('Skip to content', false)], { stack: true }),
+  section('The two declarations that carry it', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'Both states are the same element: opacity and pointer-events are what move, so nothing '
+      + 'is mounted or unmounted and the link is reachable by Tab at every moment. Position is '
+      + 'overridden to static here so the specimen can show it in flow; the real one is fixed at '
+      + 'the top of the page, on the layering slot directly above nav, because a link that lands '
+      + 'under a sticky header is a link nobody can read.'),
+  ]),
+]});
+</script></body></html>

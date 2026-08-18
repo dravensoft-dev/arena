@@ -28,20 +28,24 @@ export function arenaResolveActivityFeedRows(items: readonly ArenaActivityItem[]
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents', '(keydown)': 'onKeydown($event)' },
   template: `
-    <ul [class]="base().root()" role="feed" [attr.aria-label]="labelText()"
+    <ul [class]="base().root()" [attr.data-arena-part]="parts.root" role="feed" [attr.aria-label]="labelText()"
         [attr.aria-busy]="busy() ? 'true' : 'false'">
       @for (row of rows(); track row.item.id ?? $index; let i = $index) {
-        <li [class]="row.itemClass" role="article" tabindex="0"
+        <li [class]="row.itemClass" [attr.data-arena-part]="parts.item" role="article" tabindex="0"
             [attr.aria-posinset]="i + 1" [attr.aria-setsize]="rows().length">
-          <span [class]="row.dotClass" aria-hidden="true"></span>
-          <span [class]="base().text()">
-            <b [class]="base().actor()">{{ row.item.actor }}</b> {{ row.item.action }}
+          <span [class]="row.dotClass" [attr.data-arena-part]="parts.dot" aria-hidden="true"></span>
+          <span [class]="base().text()" [attr.data-arena-part]="parts.text">
+            <b [class]="base().actor()" [attr.data-arena-part]="parts.actor">{{ row.item.actor }}</b> {{ row.item.action }}
             @if (row.item.target) {
-              <span [class]="base().target()">{{ row.item.target }}</span>
+              <span [class]="base().target()" [attr.data-arena-part]="parts.target">{{ row.item.target }}</span>
             }
           </span>
           @if (row.item.time) {
-            <span [class]="base().time()">{{ row.item.time }}</span>
+            @if (row.item.dateTime; as stamp) {
+              <time [class]="base().time()" [attr.data-arena-part]="parts.time" [attr.datetime]="stamp">{{ row.item.time }}</time>
+            } @else {
+              <span [class]="base().time()" [attr.data-arena-part]="parts.time">{{ row.item.time }}</span>
+            }
           }
         </li>
       }
@@ -49,6 +53,8 @@ export function arenaResolveActivityFeedRows(items: readonly ArenaActivityItem[]
   `,
 })
 export class ArenaActivityFeed {
+  protected readonly parts = manifest.parts;
+
   /** Names the feed for assistive technology. Required, and guarded at runtime: nothing can derive it, and a feed is a landmark a reader navigates BY, so say what the events are about ("Deployment activity"), never "Activity feed". */
   readonly label = input.required<string>();
   /** The events, newest first by convention. Each row is drawn by Arena; there is no per-item projection. */

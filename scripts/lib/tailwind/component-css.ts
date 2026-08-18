@@ -14,7 +14,8 @@ import { join } from 'node:path';
 import { parseDecls } from '../arena/css-decls.ts';
 import { toPosix, type PathModule } from '../../utils/posix-path.ts';
 import {
-  classBase, classesManifest as rawClassesManifest, compoundClass, slotClass, variantClass,
+  classBase, classesManifest as rawClassesManifest, compoundClass, slotClass, slotPart,
+  variantClass,
   classesFor as rawClassesFor, arenaClassesFor as rawArenaClassesFor,
 } from '../../../frameworks/tailwind/ManifestClasses.js';
 import type { ArenaClassManifest, ArenaSelection } from '../../../frameworks/tailwind/ArenaStyles.ts';
@@ -27,7 +28,7 @@ export const classesFor =
 export const arenaClassesFor =
   rawArenaClassesFor as (manifest: ComponentManifest, chosen?: ArenaSelection) => SlotClasses;
 
-export { classBase, compoundClass, slotClass, variantClass };
+export { classBase, compoundClass, slotClass, slotPart, variantClass };
 
 export const INDIRECTION = /var\(\s*--([a-z0-9-]+)\s*,\s*var\(\s*--([a-z0-9-]+)\s*\)\s*\)/g;
 export const isThemeKey = (name: string) => !name.startsWith('tw-');

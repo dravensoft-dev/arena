@@ -24,7 +24,7 @@ export function ArenaBottomNav({ active, ariaLabel, children, onNav }: ArenaBott
 
   if (!ariaLabel?.trim()) throw new Error('ArenaBottomNav: `ariaLabel` is required, and names which navigation this landmark is');
   return (
-    <nav aria-label={ariaLabel} className={arenaBottomNavStyles().root()}>
+    <nav aria-label={ariaLabel} className={arenaBottomNavStyles().root()} data-arena-part={manifest.parts.root}>
       {arenaInjectInto(children, { activeId: active, onActivate: onNav })}
     </nav>
   );

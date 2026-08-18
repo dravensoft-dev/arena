@@ -17,7 +17,9 @@ import { nodeBin } from '../../lib/arena/node-bin.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
+  CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, CLI_BINS, keywords,
+  NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
@@ -59,11 +61,19 @@ export function manifest(root = repoRoot) {
       '@angular/common': '>=20',
       '@angular/platform-browser': '>=20',
       '@angular/cdk': '>=20',
+      '@angular/router': '>=20',
       '@phosphor-icons/web': '^2.1.2',
     },
+    peerDependenciesMeta: OPTIONAL_PEERS,
     dependencies: RUNTIME_DEPENDENCIES,
   };
 }
+
+export const OPTIONAL_PEERS = {
+  '@angular/router': { optional: true },
+};
+
+export const SECONDARY_ENTRY_POINTS = ['metadata'];
 
 export const RUNTIME_DEPENDENCIES = {
   tslib: '^2.8.1',
@@ -81,6 +91,10 @@ export function ngPackageConfig() {
     allowedNonPeerDependencies: Object.keys(RUNTIME_DEPENDENCIES),
     assets: [] as string[],
   };
+}
+
+export function secondaryConfig() {
+  return { lib: { entryFile: 'index.ts' } };
 }
 
 export function libTsconfig() {
@@ -134,6 +148,9 @@ function stage(root: string) {
 
 
   write(dir, 'ng-package.json', `${JSON.stringify(ngPackageConfig(), null, 2)}\n`);
+  for (const entry of SECONDARY_ENTRY_POINTS) {
+    write(dir, `${entry}/ng-package.json`, `${JSON.stringify(secondaryConfig(), null, 2)}\n`);
+  }
   write(dir, 'tsconfig.lib.json', `${JSON.stringify(libTsconfig(), null, 2)}\n`);
   write(dir, 'package.json', `${JSON.stringify({ ...manifest(root), $schema: undefined }, null, 2)}\n`);
   return { dir, staged };
@@ -172,7 +189,10 @@ export function buildAngularPackage(root = repoRoot) {
 
   written.push(writeComponentMap(dist, 'angular', root));
   written.push(write(dist, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
+  written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
+  written.push(write(dist, NPM_SKILL, npmSkill(NAME)));
+  written.push(...copyBehaviourContracts(dist, root));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 
   const emitted = readJson(join(dist, 'package.json'));
@@ -196,6 +216,8 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
+      './arena.tokens.json': { default: './arena.tokens.json' },
+      './contracts/behaviour/*': { default: './contracts/behaviour/*' },
     },
     bin: { ...CLI_BINS },
     sideEffects: emitted.sideEffects ?? false,

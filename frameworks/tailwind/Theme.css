@@ -28,8 +28,13 @@
    scripts/check/tailwind/check-tailwind-coverage.ts asserts no token is missing from it. */
 @import 'tailwindcss';
 @import './Animations.css';
+@import './Case.css';
+@import './Media.css';
 @import './Numerals.css';
+@import './Page.css';
+@import './Prose.css';
 @import './Rhythm.css';
+@import './SrOnly.css';
 @import './Breakpoints.generated.css';
 
 @theme {
@@ -47,6 +52,37 @@
      than at a palette step: the role is what an extension re-values. */
   --color-surface: var(--fill-surface);
   --color-surface-floating: var(--fill-surface-floating);
+  --color-page: var(--fill-page);
+  --color-surface-sunken: var(--fill-surface-sunken);
+  --color-field: var(--fill-field);
+  --color-hover: var(--fill-hover);
+  --color-track: var(--fill-track);
+
+  /* The wash a media frame draws under anything laid over it. A colour key rather than one of
+     its own, because bg-* is the namespace that paints it; the OPACITY stays in the manifest,
+     so which colour and how held back are two decisions rather than one baked into a token
+     nothing could measure the contrast of. */
+  --color-overlay-media: var(--overlay-media);
+
+  /* Ink ROLES, so text-* asks which text is being coloured rather than which palette step it
+     takes. A hundred and twenty-two slots pointed at base-content directly, which is why a voice
+     could change every shape on a page and not one word's colour. The LEVEL is not here: the
+     opacity modifier stays in the manifest, so text-ink-muted/62 is which colour and how held
+     back as two decisions rather than one. */
+  --color-ink-heading: var(--ink-heading);
+  --color-ink-body: var(--ink-body);
+  --color-ink-eyebrow: var(--ink-eyebrow);
+  --color-ink-muted: var(--ink-muted);
+
+  /* Edge ROLES. v4 has no border-color namespace: a border colour is a --color-* key read by
+     border-<key>, which is why these sit here rather than beside the bw roles they pair with. */
+  --color-edge-surface: var(--edge-surface);
+  --color-edge-surface-floating: var(--edge-surface-floating);
+  --color-edge-control: var(--edge-control);
+  --color-edge-control-quiet: var(--edge-control-quiet);
+  --color-edge-field: var(--edge-field);
+  --color-edge-separator: var(--edge-separator);
+  --color-edge-marker: var(--edge-marker);
 
   /* brand voice */
   --color-primary: var(--color-primary);
@@ -90,6 +126,17 @@
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
 
+  /* Face ROLES, so a manifest says which text is being set rather than which typeface it takes.
+     The three families above are the consumer's to choose in arena.config.json; these three say
+     which of them a heading, an eyebrow and a label reach for, which is a voice's to answer.
+     The `face` infix is load-bearing: v4 emits `font-<key>` from BOTH --font-* and
+     --font-weight-*, so a family key named `heading` produces the same class as the weight role
+     that has been called font-heading since the tier was built, and the later declaration wins.
+     A title compiled with both a family and no weight is what that looked like. */
+  --font-face-heading: var(--ff-heading);
+  --font-face-eyebrow: var(--ff-eyebrow);
+  --font-face-label: var(--ff-label);
+
   --text-*: initial;
   --text-mega: var(--fs-mega);
   --text-hero: var(--fs-hero);
@@ -98,6 +145,16 @@
   --text-h2: var(--fs-h2);
   --text-h3: var(--fs-h3);
   --text-h4: var(--fs-h4);
+
+  /* Step ROLES: which rung of the ladder a slot takes, as against how large a rung is. Named
+     `step` and not `fs` because FS_STEP already claims that prefix for the scale's own steps,
+     which an extension may move directly. --text-eyebrow points at a dz step today and is
+     emitted as a reference for it, so it re-densifies like the control text it is. */
+  --text-eyebrow: var(--step-eyebrow);
+  --text-title-surface: var(--step-title-surface);
+  --text-title-section: var(--step-title-section);
+  --text-title-page: var(--step-title-page);
+  --text-title-hero: var(--step-title-hero);
   --text-lg: var(--fs-lg);
   --text-md: var(--fs-md);
   --text-sm: var(--fs-sm);
@@ -132,9 +189,12 @@
   --font-weight-extrabold: var(--fw-extrabold);
   --font-weight-black: var(--fw-black);
 
-  /* The weight a heading is set at, as a role: fw is named by value and cannot be re-answered,
-     and a voice that carries its hierarchy in type rather than in boxes has to be able to. */
+  /* Weight ROLES: fw is named by value and cannot be re-answered, and a voice that carries its
+     hierarchy in type rather than in boxes has to be able to. Four more beside the heading, one
+     per register a voice actually separates. */
   --font-weight-heading: var(--fw-heading);
+  --font-weight-eyebrow: var(--fw-eyebrow);
+  --font-weight-control: var(--fw-control);
 
   --leading-*: initial;
   --leading-tight: var(--lh-tight);
@@ -144,6 +204,11 @@
 
   /* The leading of text somebody reads, as a role. Floored at 1.5 by check:extensions. */
   --leading-prose: var(--lh-prose);
+
+  /* Its opposite: the leading of a heading, unfloored, because a heading is a shape rather than
+     the paragraph WCAG 1.4.8 is about. Born at lh-root, which is what seven of the eight title
+     slots inherit today, so painting it moves nothing until a voice does. */
+  --leading-heading: var(--lh-heading);
 
   /* `ctl` infix for the same reason dz's font-size scale takes one above:
      the natural --leading-none key is a Tailwind stock name, and dz's
@@ -155,8 +220,14 @@
   --tracking-*: initial;
   --tracking-tight: var(--ls-tight);
 
-  /* The tracking of a heading, as a role beside the ls steps that are already named by use. */
-  --tracking-heading: var(--ls-heading);
+  /* Tracking ROLES. The token prefix is `track` and not `ls` because `ls` is the scale's: a role
+     spelled --ls-label would have silently overwritten the ls.label step, since effects.generated
+     loads after typography.generated, and check:token-collisions holds that rule now.
+     --tracking-label-role carries the suffix because the scale step named by use already holds
+     --tracking-label; the awkward half of the pair is the one a manifest should stop reaching for. */
+  --tracking-heading: var(--track-heading);
+  --tracking-eyebrow: var(--track-eyebrow);
+  --tracking-label-role: var(--track-label);
   --tracking-normal: var(--ls-normal);
   --tracking-mono-nav: var(--ls-mono-nav);
   --tracking-uppercase-status: var(--ls-uppercase-status);
@@ -199,6 +270,17 @@
      the inside of a component where they answer the space between two. */
   --spacing-surface: var(--pad-surface);
 
+  /* Air ROLES inside a component, beside the surface's own padding. The two control paddings are
+     split because a control's axes are not one decision: width is where air lives and height is
+     where density and target size do, so a voice widens a button without making it taller. The
+     three gaps are inside one control, between controls on a line, and between the members of a
+     group, which is the cut a voice actually spends. */
+  --spacing-control-x: var(--pad-control-x);
+  --spacing-control-y: var(--pad-control-y);
+  --spacing-control: var(--gap-control);
+  --spacing-inline: var(--gap-inline);
+  --spacing-items: var(--gap-items);
+
   --spacing-group: var(--rhythm-group);
   --spacing-component: var(--rhythm-component);
   --spacing-section: var(--rhythm-section);
@@ -222,6 +304,11 @@
      with Tailwind's built-in static max-w-max and shadows it. */
   --container-*: initial;
   --container-page: var(--container-max);
+
+  /* The reading column, in ch, beside the page column in px. Two different questions: the page
+     asks how wide a layout gets and this asks how long a LINE gets, which is why one is a length
+     and the other tracks the font size. */
+  --container-prose: var(--measure-prose);
 
   /* icon size → contracts/design-generated/spacing.generated.css. A glyph rendered as a webfont is an icon,
      not type, so it does not live in the --text-* namespace — that argument
@@ -270,6 +357,7 @@
   --radius-control-sm: var(--r-control-sm);
   --radius-field: var(--r-field);
   --radius-marker: var(--r-marker);
+  --radius-media: var(--r-media);
 
   --shadow-*: initial;
   --shadow-1: var(--shadow-1);
@@ -307,6 +395,7 @@
      rather than guessing at a magic number. */
   --z-index-*: initial;
   --z-index-nav: var(--z-nav);
+  --z-index-skip: var(--z-skip);
   --z-index-sheet: var(--z-sheet);
   --z-index-dropdown: var(--z-dropdown);
   --z-index-tooltip: var(--z-tooltip);

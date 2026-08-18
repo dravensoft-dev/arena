@@ -1,0 +1,8 @@
+{
+  "name": "contentinfo",
+  "source": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+  "description": "The landmark holding what a page says about itself once it has finished: the licence, the address, the secondary links nobody navigates by. The other half of banner, from the same practice page and for the same reason, and one per page like it, so no name is required either.",
+  "requires": {
+    "roles.element": "contentinfo (native footer at the top level of the document, or role=contentinfo when footer cannot be used)"
+  }
+}

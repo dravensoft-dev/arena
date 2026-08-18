@@ -49,7 +49,7 @@ test('a generated region is cut out, because it is one source rendered into many
 
 test('two documents with one name are one document rendered per layer, and are never compared', () => {
   assert.equal(sameSubject('frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'), true);
-  assert.equal(sameSubject('frameworks/react/SKILL.md', 'frameworks/react/PACKAGE.md'), false);
+  assert.equal(sameSubject('frameworks/react/INDEX.md', 'frameworks/react/PACKAGE.md'), false);
   assert.ok(ONE_SOURCE_RENDERED_TWICE.length > 80, 'the exemption states its reason');
 });
 

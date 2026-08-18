@@ -1,7 +1,7 @@
 # Arena, the Angular layer
 
 > **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
-> [`SKILL.md`](./SKILL.md) to find a component, and that component's `.prompt.md` to use it.
+> [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
 **Published as `@dravensoft/arena-angular`.** [`PACKAGE.md`](./PACKAGE.md) is what a consumer
 reads, and the assembly copies it into `dist/` as the package README;
@@ -80,6 +80,22 @@ family draws one. The category is the one
 `frameworks/AGENTS.md` states: directories kebab-case, file names capital-initial. Each component's
 own tests sit in that same directory as `<Component>.<facet>.test.ts`.
 
+**A primitive whose native element carries the semantics is an attribute on that element, not an
+element of its own.** The default is an element selector, `arena-x`; the exception is decided by one
+question and not by taste: would wrapping the native element in `<arena-x>` break what the element
+means? It does whenever the element is only itself as a **DOM child** of a particular parent, which
+is every internal table element -- `display: contents` fixes the box tree and not the DOM tree, and a
+server render makes it worse rather than better, because the markup is serialized and re-parsed and
+the HTML parser foster-parents a non-table element straight out of the table. So `ArenaTableRow` is
+`tr[arena-table-row]` and `ArenaTableCell` is `td[arena-table-cell]`, the prefix is unchanged, and the
+role the element already maps to is not written back onto it. Two consequences travel with the shape.
+An **output named after a native DOM event cannot be listened to from the `host` block**: the listener
+is wired to that output and `emit()` re-enters its own handler, so the listener is added to the host
+element in the constructor, which also puts it ahead of the one Angular adds for the consumer's
+binding and lets `stopImmediatePropagation()` refuse the duplicate. And **the demo emitters read the
+declared selector** from the layer's own source, so a tag opens with its element and its hook and
+closes with the element alone, with nothing to list anywhere.
+
 **A compound family pushes nothing, so its recursive case costs no helper.** `ArenaSideNav` nests to
 any depth because each container re-provides `ArenaSideNavState` at `depth + 1` and a row **pulls**
 the nearest, which is the whole mechanism: an item reads its own indent from the injector rather
@@ -136,9 +152,9 @@ chip's identity colour. The name matches the placement: a module a schedule grid
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
-`kitchen-sink/<extension>/` is emitted, never written: one page per design extension holding
+`kitchen-sink/<arrangement>/` is emitted, never written: one page per arrangement holding
 every component at once, arranged in `frameworks/kitchen-sink/` and emitted into every layer
-from there. Its whole purpose is that the pages a single extension gets differ in what mounts
+from there. Its whole purpose is that the pages a single arrangement gets differ in what mounts
 them and in nothing else, so `check:pixel-parity` can capture them and fail on one differing
 pixel. Edit the arrangement, never the page.
 

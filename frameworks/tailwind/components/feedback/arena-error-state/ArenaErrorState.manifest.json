@@ -1,12 +1,11 @@
 {
   "component": "ArenaErrorState",
   "slots": {
-    "root": "flex flex-col items-center text-center gap-3 px-8 py-14 bg-error/14 border-[length:var(--bw-surface)] border-error rounded-surface shadow-surface-rest",
+    "root": "flex flex-col items-center text-center gap-items px-8 py-14 bg-error/14 border-[length:var(--bw-surface)] border-error rounded-surface shadow-surface-rest",
     "icon": "text-[length:var(--icon-xl)] text-error leading-ctl",
-    "title": "font-display font-heading text-h4 text-base-content tracking-heading",
-    "message": "font-body text-md text-base-content/82 leading-prose max-w-[46ch]",
-    "code": "font-mono text-ctl-sm text-base-content/62 bg-base-100/30 px-2.5 py-1 rounded-marker",
-    "actions": "flex gap-2.5 mt-1.5",
-    "retry": "inline-flex items-center justify-center h-ctl-h px-4.5 rounded-control border-[length:var(--bw-control)] font-body font-semibold text-ctl cursor-pointer gap-2 transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover bg-primary text-primary-content border-primary hover:shadow-control-raised shadow-control-rest"
+    "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
+    "message": "font-body text-md text-ink-body/(--level-ink-body) leading-prose max-w-[46ch]",
+    "code": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted) bg-surface-sunken/30 px-2.5 py-1 rounded-marker",
+    "actions": "flex gap-2.5 mt-1.5"
   }
 }

@@ -8,6 +8,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pascal } from '../../utils/case.ts';
+import { memoBy } from '../../utils/memo.ts';
 import { LAYERS } from './layers.ts';
 import { repoRoot } from './repo-root.ts';
 import { captured } from '../../utils/captures.ts';
@@ -49,12 +50,8 @@ export function importedComponents(text: string, path: string, layer: string, ro
   return names;
 }
 
-const cache = new Map();
-
-export function composedGraph(root = repoRoot) {
-  const hit = cache.get(root);
-  if (hit) return hit;
-  const graph = new Map();
+export const composedGraph = memoBy((root: string = repoRoot) => root, (root: string = repoRoot) => {
+  const graph = new Map<string, Set<string>>();
   for (const layer of LAYERS) {
     for (const { name, path } of componentSources(layer, root)) {
       const into = graph.get(name) ?? new Set();
@@ -64,9 +61,8 @@ export function composedGraph(root = repoRoot) {
       graph.set(name, into);
     }
   }
-  cache.set(root, graph);
   return graph;
-}
+});
 
 export function composedBy(names: string[], graph: Map<string, Set<string>>): string[] {
   const seen = new Set(names);

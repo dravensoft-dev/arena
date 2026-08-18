@@ -6,11 +6,15 @@ import { join } from 'node:path';
 import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
-  relativeFrom, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
-  COMPONENT_MAP, OUTPUT_SHEETS,
+  relativeFrom, toPosix, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
+  COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
+  pluginCss, PLUGIN_LAYER_ORDER,
 } from './arena-to-prod.ts';
-import { PALETTE_KEYS, POLARITIES } from './palette-keys.ts';
+import { PALETTE_KEYS } from './palette-keys.ts';
+import { STRICT_KINDS, report } from './reports.ts';
+import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import type { ComponentMap } from './components.ts';
 import type { Environment, ThemeEnvironment } from './arena-to-prod.ts';
 
@@ -19,7 +23,7 @@ test('every path has a default, so the bare command is the whole of it', () => {
   assert.equal(bare.config, 'arena.config.json');
   assert.equal(bare.out, 'src');
   assert.deepEqual(bare.paths, ['src']);
-  assert.equal(bare.strict, false);
+  assert.deepEqual(bare.strict, []);
   assert.equal(bare.importHeader, true);
 });
 
@@ -48,8 +52,15 @@ test('a positional is an error, because every path this command takes is named',
 
 test('both behaviour flags default off and read as themselves', () => {
   const flagged = parseArgs(['--strict', '--no-import']);
-  assert.equal(flagged.strict, true);
+  assert.deepEqual(flagged.strict, [...STRICT_KINDS]);
   assert.equal(flagged.importHeader, false);
+});
+
+test('--strict takes the kinds it holds, and refuses one it does not report on', () => {
+  assert.deepEqual(parseArgs(['--strict=audit,glyph']).strict, ['audit', 'glyph']);
+  assert.deepEqual(parseArgs(['--strict=']).strict, [],
+    'naming nothing holds nothing, which is the bare command');
+  assert.match(errorOf(['--strict=spelling']), /--strict does not report on spelling/);
 });
 
 test('--help asks for nothing else', () => {
@@ -59,8 +70,11 @@ test('--help asks for nothing else', () => {
   assert.match(USAGE, new RegExp(ICONS_SHEET.replace('.', '\\.')));
 });
 
-test('a report line names the palette it came from', () => {
-  assert.deepEqual(reportLines([{ palette: 'ember', messages: ['text, x: 2.00:1'] }]), ['ember: text, x: 2.00:1']);
+test('a report line names the palette it came from, and keeps the kind it is', () => {
+  assert.deepEqual(
+    reportLines([{ palette: 'ember', messages: [report('contrast', 'text, x: 2.00:1')] }]),
+    [report('contrast', 'ember: text, x: 2.00:1')],
+  );
 });
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
@@ -174,7 +188,7 @@ test('a contrast report warns and still writes, because a consumer owns their br
   const root = project(dim);
   const step = themeStep(options(root), { packageName: '@dravensoft/arena-react', sheets: null });
   assert.equal(step.code, 0);
-  assert.ok(step.reports.some((m) => m.includes('under the 4.5:1')));
+  assert.ok(step.reports.some((one) => one.kind === 'contrast' && one.message.includes('under the 4.5:1')));
   assert.ok(existsSync(join(root, 'src', THEME_SHEET)));
   rmSync(root, { recursive: true });
 });
@@ -231,7 +245,8 @@ test('an element Arena does not ship is reported, and --strict is what makes it 
 
   const step = themeStep(options(root), environment);
   assert.equal(step.code, 0);
-  assert.ok(step.reports.some((m) => m.includes('arena-widget is not a component this package ships')));
+  assert.ok(step.reports.some((one) => one.kind === 'components'
+    && one.message.includes('arena-widget is not a component this package ships')));
 
   const argv = (...extra: string[]) =>
     ['--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), ...extra];
@@ -275,6 +290,10 @@ test('the map is read from beside the command, by the name both packages write i
   assert.equal(componentMap(root), null, 'a file of the right name and the wrong shape is no map');
   assert.equal(componentMap(join(tmpdir(), 'arena-nowhere')), null);
   rmSync(root, { recursive: true });
+});
+
+test('--strict takes the environment kind by name', () => {
+  assert.deepEqual(parseArgs(['--strict=environment']).strict, ['environment']);
 });
 
 test('the icons step writes one file holding every weight in use and nothing else', () => {
@@ -343,7 +362,10 @@ test('running outside a package says so, because the icons Arena draws went unco
   const { root: phosphorRootDir, web } = phosphor();
   const root = project();
   const step = iconsStep(options(root), { phosphor: web, arena: null });
-  assert.ok(step.reports.some((m) => m.includes('not running from inside an Arena package')));
+  assert.deepEqual(step.reports.map((one) => one.kind), ['environment'],
+    'where the command runs is not a glyph Phosphor cannot draw, and a project holding glyph in CI '
+    + 'would otherwise hold a note that fires on any bare checkout');
+  assert.ok(step.reports.some((one) => one.message.includes('not running from inside an Arena package')));
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
 });
@@ -354,7 +376,8 @@ test('a glyph Phosphor does not draw is reported and still writes', () => {
 
   const step = iconsStep(options(root), { phosphor: web, arena: null });
   assert.equal(step.code, 0);
-  assert.ok(step.reports.some((m) => m.includes('ph-nope is not an icon Phosphor draws at that weight')));
+  assert.ok(step.reports.some((one) => one.kind === 'glyph'
+    && one.message.includes('ph-nope is not an icon Phosphor draws at that weight')));
   assert.ok(existsSync(join(root, 'src', ICONS_SHEET)));
 
   rmSync(root, { recursive: true });
@@ -429,6 +452,10 @@ test('--strict promotes a report from either step, and neither is fatal without 
 
   assert.equal(quietly(() => main(argv(contrast), environment)).code, 0);
   assert.equal(quietly(() => main(argv(contrast, '--strict'), environment)).code, 1);
+  assert.equal(quietly(() => main(argv(contrast, '--strict=contrast'), environment)).code, 1);
+  assert.equal(quietly(() => main(argv(contrast, '--strict=audit'), environment)).code, 0,
+    'a brand measured under 4.5:1 is a decision its owner made, and holding the other kinds is '
+    + 'what a project in that position is left with');
   assert.equal(quietly(() => main(argv(glyph), environment)).code, 0);
   assert.equal(quietly(() => main(argv(glyph, '--strict'), environment)).code, 1);
 
@@ -454,6 +481,7 @@ function installed(barrel: string, components: string[]) {
   const root = mkdtempSync(join(tmpdir(), 'arena-installed-'));
   mkdirSync(join(root, 'css', 'components'), { recursive: true });
   writeFileSync(join(root, 'arena.css'), barrel);
+  writeFileSync(join(root, 'css', 'colors.css'), ':root{--level-ink-muted:62%;}');
   for (const name of components) writeFileSync(join(root, 'css', 'components', `${name}.css`), '');
   return root;
 }
@@ -463,9 +491,37 @@ test('the sheets a package ships are read from beside the command, so no copy of
   assert.deepEqual(packageSheets(root), {
     layers: ['css/reset.css', 'css/components.css'],
     components: ['button', 'table'],
-    extensions: {},
+    levels: [],
+    washes: [],
+    scopes: [],
     roleReferences: [],
+    catalogue: undefined,
   });
+  rmSync(root, { recursive: true });
+});
+
+test('the classes a package ships are read out of its own sheets, from every layer and component', () => {
+  const root = installed("@import './css/colors.css';\n@import './css/rhythm.css';\n", ['button', 'stat-card']);
+  writeFileSync(join(root, 'css', 'colors.css'), '/* .arena-ghost in prose is not a class */\n'
+    + ':root{--level-ink-muted:62%;}\n.arena-light{--picker-invert:0;}\n');
+  writeFileSync(join(root, 'css', 'rhythm.css'), '.arena-stack{gap:1px}\n.arena-stack--group{gap:0}\n');
+  writeFileSync(join(root, 'css', 'components', 'stat-card.css'), '.arena-stat-card__icon{color:red}\n');
+  assert.deepEqual(packageSheets(root)?.scopes, ['light', 'stack', 'stat-card']);
+  rmSync(root, { recursive: true });
+});
+
+test('the levels a component sheet paints are read from that sheet and not from a list', () => {
+  const root = installed("@import './css/components.css';\n", ['table']);
+  writeFileSync(join(root, 'css', 'components', 'table.css'),
+    '.arena-table__caption {\n  color: color-mix(in oklab, var(--ink-muted) 62%, transparent);\n}\n');
+  assert.deepEqual(packageSheets(root)?.levels, [{
+    selector: '.arena-table__caption',
+    state: '.arena-table__caption',
+    property: 'color',
+    variable: 'ink-muted',
+    percent: 62,
+    level: null,
+  }]);
   rmSync(root, { recursive: true });
 });
 
@@ -492,6 +548,12 @@ test('Phosphor is looked for upwards, which is where a package manager puts it',
 test('a path already leaving the directory keeps its shape, and a sibling gains one', () => {
   assert.equal(relativeFrom(join('a', 'b'), join('a', 'b', 'c.woff2')), './c.woff2');
   assert.equal(relativeFrom(join('a', 'b'), join('a', 'd.woff2')), '../d.woff2');
+});
+
+test('a path the walk answers is cited in one separator, whichever one the host walked with', () => {
+  assert.equal(toPosix('src\\reach.css', '\\'), 'src/reach.css');
+  assert.equal(toPosix('design\\console\\plugin.css', '\\'), 'design/console/plugin.css');
+  assert.equal(toPosix('src/reach.css', '/'), 'src/reach.css');
 });
 
 test('--undrawn names the shipped components a project draws nowhere', () => {
@@ -578,26 +640,24 @@ test('it takes the union both ways, which is the half the shipped copy had lost'
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('the extensions a package ships are read out of the effects sheet, so no list is written twice', () => {
-  const root = installed(
-    "@import './css/reset.css';\n@import './css/effects.css';\n",
-    ['button'],
-  );
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --r-surface:14px;\n}\n\n.arena-showcase{\n  /* a reason */\n  --r-surface:22px;\n  --bw-surface:0px;\n}\n');
-  assert.deepEqual(packageSheets(root)?.extensions, {
-    showcase: { base: ['--r-surface:22px;', '--bw-surface:0px;'], byPolarity: {} },
-  });
+test('a package carrying no catalogue reads as empty rather than failing', () => {
+  const root = installed("@import './css/reset.css';\n", ['button']);
+  assert.deepEqual(packageSheets(root)?.roleReferences, []);
   rmSync(root, { recursive: true });
 });
 
-test('a package whose effects sheet declares no scope class ships no extensions rather than failing', () => {
-  const root = installed("@import './css/reset.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'), ':root{\n  --r-surface:14px;\n}\n');
-  assert.deepEqual(packageSheets(root)?.extensions, {});
-  rmSync(root, { recursive: true });
+test('a colour reference is derived from the catalogue, because a consumer palette has to restate it', () => {
+  assert.deepEqual(roleReferencesIn({
+    tokens: {
+      'fill-surface': 'var(--color-base-200)',
+      'r-surface': '14px',
+      'step-eyebrow': 'var(--dz-text-xs)',
+    },
+    roles: {},
+  }), ['--fill-surface:var(--color-base-200);'],
+  'only a colour reference is restated per palette. A dz reference is restated per DENSITY, which '
+  + 'is another axis and another block, and a resolved length is right in every scope there is');
+  assert.deepEqual(roleReferencesIn(null), []);
 });
 
 test('the walk skips the two sheets this command writes, so a scan never reads its own output', () => {
@@ -617,58 +677,67 @@ test('a consumer file that merely ends in .generated.css is still a source, sinc
 });
 
 test('the skipped names are exactly what the command writes, derived rather than restated', () => {
-  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, THEME_SHEET].sort());
+  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, PLUGIN_SHEET, THEME_SHEET].sort());
 });
 
-test('a theme-scoped block is the extension it names, never an extension called after the polarity', () => {
-  const root = installed("@import './css/effects.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --fill-surface:var(--color-base-200);\n}\n'
-    + '.arena-light{\n  --fill-surface:var(--color-base-200);\n}\n'
-    + '.arena-showcase{\n  --bw-surface:0px;\n}\n'
-    + '.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light{\n'
-    + '  --shadow-surface-rest:DROP;\n}\n');
-  const shipped = packageSheets(root)?.extensions ?? {};
-  assert.deepEqual(Object.keys(shipped), ['showcase'],
-    'a bare .arena-light block is the theme restating its own roles, and a descendant selector is '
-    + 'a voice scoped to a polarity; reading either as an extension offers a consumer a voice nobody wrote');
-  assert.deepEqual(shipped.showcase, {
-    base: ['--bw-surface:0px;'],
-    byPolarity: { light: ['--shadow-surface-rest:DROP;'] },
-  });
-  rmSync(root, { recursive: true });
-});
 
-test('a colour reference is read off :root, because a consumer palette has to restate it', () => {
-  const root = installed("@import './css/effects.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    ':root{\n  --fill-surface:var(--color-base-200);\n  --r-surface:14px;\n  --scrim:rgba(0,0,0,.5);\n}\n');
-  assert.deepEqual(packageSheets(root)?.roleReferences, ['--fill-surface:var(--color-base-200);'],
-    'a resolved length and a literal colour are not references and must not be restated');
-  rmSync(root, { recursive: true });
-});
 
-test('the shipped discovery is run against the CSS this build actually emits, not only a fixture', () => {
-  const root = installed("@import './css/effects.css';\n", ['button']);
-  mkdirSync(join(root, 'css'), { recursive: true });
-  writeFileSync(join(root, 'css', 'effects.css'),
-    readFileSync(join(repoRoot, 'contracts/design-generated/effects.generated.css'), 'utf8'));
-
-  const shipped = packageSheets(root)?.extensions ?? {};
-  const names = Object.keys(shipped).sort();
-  assert.ok(names.length > 0, 'found 0 extensions in the real sheet -- an empty result is a failure, not a pass');
-  for (const polarity of POLARITIES) {
-    assert.ok(!names.includes(polarity),
-      `discovery offered a voice called ${polarity}, which is a theme scope rather than an extension`);
+test('the shipped catalogue is the one this build actually assembles, not only a fixture', () => {
+  const catalogue = tokenCatalogue(repoRoot);
+  assert.ok(Object.keys(catalogue.roles).length > 0, 'found 0 roles, so nothing could be answered');
+  assert.ok(Object.keys(catalogue.tokens).length > 0, 'found 0 tokens, so no alias could resolve');
+  for (const [name, role] of Object.entries(catalogue.roles)) {
+    const { type } = role as { type?: string };
+    assert.ok(type, `${name} reaches a consumer with no type, so nothing can check an answer to it`);
   }
-  for (const [name, { base, byPolarity }] of Object.entries(shipped)) {
-    assert.ok(base.length > 0, `${name} ships an empty base block`);
-    for (const [polarity, declarations] of Object.entries(byPolarity)) {
-      assert.ok(POLARITIES.includes(polarity), `${name} carries a scope called ${polarity}`);
-      assert.ok(declarations.length > 0, `${name} ships an empty ${polarity} block`);
-    }
-  }
-  rmSync(root, { recursive: true });
+});
+
+
+test('the root plugin\'s stylesheet is wrapped and its author never spells the layer', () => {
+  assert.equal(
+    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }', root: true }]),
+    `${PLUGIN_LAYER_ORDER}\n@layer arena-plugin {\n[data-arena-part="card"] { border-radius: 0 }\n}\n`,
+    'the layer is the build\'s to declare, because a plugin author writing it could get it wrong '
+    + 'in a way nothing reports',
+  );
+});
+
+test('the sheet declares the layer order itself, so where a bundler puts it cannot matter', () => {
+  const css = pluginCss([{ name: 'shop', css: '.x{}', root: true }]) ?? '';
+  assert.ok(css.startsWith(PLUGIN_LAYER_ORDER), 'the order leads the file');
+  assert.ok(
+    css.indexOf('@layer theme, base, components, utilities, arena-plugin;')
+    < css.indexOf('@layer arena-plugin {'),
+    'a bare @layer arena-plugin block met before the order statement registers that name as the '
+    + 'LOWEST layer, and every plugin rule contesting a component rule then loses in silence',
+  );
+  assert.equal(
+    PLUGIN_LAYER_ORDER,
+    LAYER_ORDER,
+    'the consumer sheet and the prelude declare one order, or the two disagree about where the '
+    + 'plugin layer sits',
+  );
+});
+
+test('a plugin that is not the root is nested under its own class', () => {
+  assert.equal(
+    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }' }]),
+    `${PLUGIN_LAYER_ORDER}\n@layer arena-plugin {\n.arena-shop {\n[data-arena-part="card"] { border-radius: 0 }\n}\n}\n`,
+    'a later plugin is a difference and paints where its class is, or it would paint the pages '
+    + 'the root plugin is what looks like',
+  );
+});
+
+test('several plugins concatenate in list order, so a later one wins by source order', () => {
+  const css = pluginCss([{ name: 'a', css: '.x{}', root: true }, { name: 'b', css: '.y{}', root: true }]);
+  assert.ok((css ?? '').indexOf('.x{}') < (css ?? '').indexOf('.y{}'));
+});
+
+test('no plugin carrying css writes no sheet at all', () => {
+  assert.equal(pluginCss([]), null, 'an empty layer is a file a consumer imports for nothing');
+});
+
+test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {
+  assert.ok(OUTPUT_SHEETS.has(PLUGIN_SHEET));
+  assert.equal(PLUGIN_CSS, 'plugin.css');
 });

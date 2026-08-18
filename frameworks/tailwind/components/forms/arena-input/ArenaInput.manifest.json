@@ -2,30 +2,47 @@
   "component": "ArenaInput",
   "slots": {
     "root": "flex flex-col gap-1.5",
-    "label": "font-mono text-ctl-xs tracking-field-label uppercase text-base-content/62",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "required": "text-primary ml-1",
-    "field": "flex items-center gap-2 h-ctl-h px-3 bg-base-300 border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
-    "icon": "inline-flex text-base-content/62 text-[length:var(--icon-md)]",
-    "prefix": "font-mono text-ctl-md text-base-content/62",
-    "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-base-content font-body text-ctl [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:[filter:invert(var(--picker-invert))] [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:duration-[var(--dur-hover)] hover:[&::-webkit-calendar-picker-indicator]:opacity-100",
+    "field": "flex items-center gap-control h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
+    "icon": "inline-flex text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)]",
+    "prefix": "font-mono text-ctl-md text-ink-muted/(--level-ink-muted)",
+    "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:[filter:invert(var(--picker-invert))] [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:duration-[var(--dur-hover)] hover:[&::-webkit-calendar-picker-indicator]:opacity-100",
     "statusIcon": "text-[length:var(--icon-md)]",
-    "hint": "font-body text-ctl-sm text-base-content/62",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-error"
   },
   "variants": {
     "state": {
-      "neutral": { "field": "border-base-300 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16" },
-      "error": { "field": "border-error ring-[length:var(--focus-width)] ring-error/14", "statusIcon": "text-error" },
-      "valid": { "field": "border-success ring-[length:var(--focus-width)] ring-success/16 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16", "statusIcon": "text-success" }
+      "neutral": {
+        "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16"
+      },
+      "error": {
+        "field": "border-error ring-[length:var(--focus-width)] ring-error/14",
+        "statusIcon": "text-error"
+      },
+      "valid": {
+        "field": "border-success ring-[length:var(--focus-width)] ring-success/16 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
+        "statusIcon": "text-success"
+      }
     },
     "disabled": {
-      "true": { "root": "opacity-50" },
+      "true": {
+        "root": "opacity-50"
+      },
       "false": {}
     },
     "readonly": {
-      "true": { "field": "bg-base-200", "input": "cursor-default" },
+      "true": {
+        "field": "bg-base-200",
+        "input": "cursor-default"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "state": "neutral", "disabled": false, "readonly": false }
+  "defaultVariants": {
+    "state": "neutral",
+    "disabled": false,
+    "readonly": false
+  }
 }

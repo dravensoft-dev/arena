@@ -27,7 +27,7 @@ Action button. The main action uses `variant="primary"` (crimson), maximum one p
 | `value` | primitive | `string` |  | The value submitted under `name`. |
 | `autoFocus` | primitive | `boolean` | `false` | Focused on mount. |
 | `form` | primitive | `string` |  | The id of the form this button belongs to, when it is not a descendant of it. |
-| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. ArenaTable's actions column is where this one is needed: an ArenaButton inside a row of a grid. |
+| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
 | `onClick` | event |  |  | The button was activated, by pointer or by keyboard. |
 
 <!-- @api end -->
@@ -38,6 +38,6 @@ Variants: primary · secondary · ghost · danger. Sizes sm/md/lg. Props: icon, 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

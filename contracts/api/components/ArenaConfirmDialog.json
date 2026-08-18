@@ -6,7 +6,7 @@
     "open": { "form": "primitive", "type": "boolean", "required": true,
               "description": "Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog." },
     "title": { "form": "primitive", "type": "string", "required": true,
-               "description": "The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all." },
+               "description": "The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes." },
     "eyebrow": { "form": "primitive", "type": "string", "default": "Confirm",
                  "description": "Small uppercase label above the title." },
     "content": { "form": "slot",

@@ -11,7 +11,7 @@ import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
@@ -56,7 +56,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readon
         <g>
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
                 stroke="var(--border)" [style]="lineStyle" />
-          <text [attr.x]="tickLabelX" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
+          <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
                 fill="var(--text-muted)" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
@@ -96,7 +96,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readon
       }
 
       @for (point of axisPoints(); track point.index) {
-        <text [attr.x]="point.x" [attr.y]="pointLabelY()" text-anchor="middle"
+        <text [attr.x]="point.x" [attr.y]="pointLabelY()" [attr.text-anchor]="point.anchor"
               fill="var(--text-muted)" font-family="var(--font-body)"
               [style]="pointLabelStyle">{{ point.label }}</text>
       }
@@ -178,7 +178,7 @@ export class ArenaLineChart {
   protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
   protected readonly pointR = POINT_R;
   protected readonly pointRHover = POINT_R_HOVER;
-  protected readonly tickLabelX = arenaTickLabelX();
+  protected readonly tickLabelX = computed(() => arenaTickLabelX(this.gutter()));
   protected readonly pointLabelY = computed(() => arenaCategoryLabelY(this.strip().plotH));
   protected readonly hover = signal<number | null>(null);
 
@@ -219,7 +219,9 @@ export class ArenaLineChart {
   private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH));
+  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write()));
+
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);
@@ -270,7 +272,8 @@ export class ArenaLineChart {
   protected readonly axisPoints = computed(() => {
     const xScale = this.xScale();
     const labels = this.labels();
-    return Array.from({ length: this.pointCount() }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }));
+    const count = this.pointCount();
+    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), anchor: arenaCategoryAnchor(index, count), label: labels[index] ?? '' }));
   });
 
   protected readonly legend = computed(() => {

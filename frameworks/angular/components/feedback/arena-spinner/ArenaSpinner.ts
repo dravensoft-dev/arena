@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type { ArenaControlSize, ArenaSpinnerTone } from '../../../Api.generated';
 import { arenaSpinnerStyles } from './ArenaSpinner.variants';
+import manifest from './ArenaSpinner.classes.generated';
 
 @Component({
   selector: 'arena-spinner',
@@ -8,13 +9,16 @@ import { arenaSpinnerStyles } from './ArenaSpinner.variants';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     role: 'progressbar',
     'aria-live': 'polite',
     '[attr.aria-label]': 'label()',
   },
-  template: `<span [class]="styles().circle()" aria-hidden="true"></span>`,
+  template: `<span [class]="styles().circle()" [attr.data-arena-part]="parts.circle" aria-hidden="true"></span>`,
 })
 export class ArenaSpinner {
+  protected readonly parts = manifest.parts;
+
   /** Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. */
   readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
     'md',

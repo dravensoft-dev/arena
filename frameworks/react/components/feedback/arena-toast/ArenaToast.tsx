@@ -45,21 +45,21 @@ export function ArenaToast({ title, message, tone = 'neutral', actionLabel, onAc
   const styles = arenaToastStyles({ tone: toneOf(tone) });
   return (
     <div role={tone === 'danger' ? 'alert' : 'status'} aria-live={tone === 'danger' ? 'assertive' : 'polite'}
-      data-persist={pinned ? '' : undefined} className={styles.root()}>
-      <div className={styles.body()}>
+      data-persist={pinned ? '' : undefined} className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={styles.body()} data-arena-part={manifest.parts.body}>
         {title && (
-          <div className={styles.title()}>
+          <div className={styles.title()} data-arena-part={manifest.parts.title}>
             {title}
-            {pinned && <span title="Does not auto-dismiss" className={styles.pinned()}>Pinned</span>}
+            {pinned && <span title="Does not auto-dismiss" className={styles.pinned()} data-arena-part={manifest.parts.pinned}>Pinned</span>}
           </div>
         )}
-        {message && <div className={styles.message()}>{message}</div>}
+        {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
         {actionLabel && (
-          <button onClick={onAction} className={styles.action()}>{actionLabel}</button>
+          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action}>{actionLabel}</button>
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label="Close" className={styles.close()}>
+        <button onClick={onClose} aria-label="Close" className={styles.close()} data-arena-part={manifest.parts.close}>
           <i className="ph-bold ph-x" />
         </button>
       )}

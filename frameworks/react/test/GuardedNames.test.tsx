@@ -15,7 +15,15 @@ import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-sec
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed.tsx';
+import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList.tsx';
+import { ArenaBoard } from '../components/layout/arena-board/ArenaBoard.tsx';
+import { ArenaBoardColumn } from '../components/layout/arena-board-column/ArenaBoardColumn.tsx';
+import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPersonRow.tsx';
 import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
+import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
+import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
+import { ArenaSkipLink } from '../components/layout/arena-skip-link/ArenaSkipLink.tsx';
+import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet.tsx';
@@ -30,10 +38,18 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
   ['ArenaBreadcrumbs', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
   ['ArenaActivityFeed', () => <ArenaActivityFeed label={BLANK} items={[]} />],
+  ['ArenaPeopleList', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],
+  ['ArenaPersonRow', () => <ArenaPersonRow name={BLANK} />],
+  ['ArenaBoard', () => <ArenaBoard label={BLANK}><ArenaBoardColumn title="To do" /></ArenaBoard>],
+  ['ArenaBoardColumn', () => <ArenaBoardColumn title={BLANK} />],
   ['ArenaTable', () => <ArenaTable label={BLANK} columns={[{ header: 'A' }]} />],
+  ['ArenaScroller', () => <ArenaScroller label={BLANK}><span>One</span></ArenaScroller>],
+  ['ArenaSection', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],
+  ['ArenaHero', () => <ArenaHero title={BLANK} />],
   ['ArenaPagination', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
   ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
   ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],
+  ['ArenaSkipLink', () => <ArenaSkipLink label={BLANK} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {

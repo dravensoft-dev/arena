@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, computed, inject,
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaBottomNavState } from '../arena-bottom-nav/ArenaBottomNavState';
 import { arenaBottomNavStyles } from '../arena-bottom-nav/ArenaBottomNav.variants';
+import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 
 @Component({
@@ -14,33 +15,35 @@ import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
   },
   template: `
     @if (href(); as url) {
-      <a [class]="styles().item()" [href]="url"
+      <a [class]="styles().item()" [attr.data-arena-part]="parts.item" [href]="url"
          [attr.aria-current]="current()" [attr.aria-disabled]="off()"
          (click)="activateAnchor($event)">
-        <span [class]="styles().glyph()">
+        <span [class]="styles().glyph()" [attr.data-arena-part]="parts.glyph">
           <i [class]="glyphClass()" aria-hidden="true"></i>
           @if (count(); as tally) {
-            <span [class]="styles().badge()">{{ tally }}</span>
+            <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
           }
         </span>
-        <span [class]="styles().label()">{{ name() }}</span>
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ name() }}</span>
       </a>
     } @else {
-      <button type="button" [class]="styles().item()"
+      <button type="button" [class]="styles().item()" [attr.data-arena-part]="parts.item"
               [attr.aria-current]="current()" [attr.aria-disabled]="off()"
               (click)="activate($event)">
-        <span [class]="styles().glyph()">
+        <span [class]="styles().glyph()" [attr.data-arena-part]="parts.glyph">
           <i [class]="glyphClass()" aria-hidden="true"></i>
           @if (count(); as tally) {
-            <span [class]="styles().badge()">{{ tally }}</span>
+            <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
           }
         </span>
-        <span [class]="styles().label()">{{ name() }}</span>
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ name() }}</span>
       </button>
     }
   `,
 })
 export class ArenaBottomNavItem {
+  protected readonly parts = manifest.parts;
+
   /** Identifies the destination. ArenaBottomNav.active names one of these, and the item whose id matches is the one marked aria-current="page". Required, and guarded with a falsy check rather than an absence check: a blank id can never match and is an omission wearing a value. */
   readonly id = input.required<string>();
   /** What the item reads under its glyph, and the whole of its accessible name unless a badge adds a count to it. Required and falsy-guarded for the same reason. It is drawn rather than hidden: a bar of glyphs alone asks every reader to have learnt the icons, and the label is what makes the destination sayable. */

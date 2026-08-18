@@ -2,11 +2,10 @@
   "component": "ArenaUnauthCard",
   "slots": {
     "root": "block w-full max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)] rounded-surface shadow-surface-deep",
-    "panel": "bg-surface border-[length:var(--bw-surface)] border-base-300 rounded-surface overflow-hidden p-surface shadow-surface-rest",
     "body": "p-4",
     "brand": "flex mb-7",
-    "eyebrow": "font-mono text-ctl-xs tracking-label uppercase text-primary mb-1.5",
-    "title": "font-display font-heading text-h3 text-base-content mb-6 tracking-heading",
-    "footer": "mt-5 text-center font-body text-ctl-md text-base-content/62"
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-section text-ink-heading mb-6 tracking-heading leading-heading",
+    "footer": "mt-5 text-center font-body text-ctl-md text-ink-muted/(--level-ink-muted)"
   }
 }

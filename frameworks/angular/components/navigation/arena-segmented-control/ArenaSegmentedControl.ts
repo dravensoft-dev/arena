@@ -1,10 +1,10 @@
 import {
-  ChangeDetectionStrategy, Component, computed, input, output, signal,
+  ChangeDetectionStrategy, Component, computed, inject, input, output, signal,
 } from '@angular/core';
 import type { ArenaSegmentOption, ArenaSegmentedControlSize } from '../../../Api.generated';
 import { arenaSegmentedControlStyles } from './ArenaSegmentedControl.variants';
-
-let nextId = 0;
+import manifest from './ArenaSegmentedControl.classes.generated';
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-segmented-control',
@@ -12,15 +12,16 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().track()',
+    '[attr.data-arena-part]': 'parts.track',
     role: 'radiogroup',
     '[attr.aria-label]': 'ariaLabel()',
     '[attr.name]': 'null',
   },
   template: `
     @for (option of options(); track option.value) {
-      <label [class]="segmentClass(option.value)">
+      <label [class]="segmentClass(option.value)" [attr.data-arena-part]="parts.segment">
         {{ option.label }}
-        <input type="radio" [class]="styles().input()" [attr.name]="groupName()"
+        <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
                [attr.value]="option.value" [checked]="option.value === selected()"
                (change)="choose(option.value, $event)" />
       </label>
@@ -28,6 +29,8 @@ let nextId = 0;
   `,
 })
 export class ArenaSegmentedControl {
+  protected readonly parts = manifest.parts;
+
   /** The options, in order. Two to four with one-word labels. */
   readonly options = input.required<readonly ArenaSegmentOption[]>();
   /** The selected option's value. Omit and pass `defaultValue` to let it govern itself. */
@@ -46,7 +49,7 @@ export class ArenaSegmentedControl {
   /** A different option was chosen; carries its value. */
   readonly change = output<string>();
 
-  private readonly fallbackName = `arena-segmented-control-${nextId++}`;
+  private readonly fallbackName = inject(ArenaIdGenerator).next('arena-segmented-control');
   private readonly chosen = signal<string | undefined>(undefined);
 
   protected readonly groupName = computed(() => this.name() ?? this.fallbackName);

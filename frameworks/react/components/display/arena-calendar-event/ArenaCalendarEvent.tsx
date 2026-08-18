@@ -2,6 +2,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated.ts';
 import React from 'react';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
+import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
 
@@ -61,6 +62,8 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
   box, domId, color, timeLabel, dateLabel, showTime, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
 
+  const ink = color ?? arenaCatColor(colorId ?? 1);
+
   if (!id) throw new Error('ArenaCalendarEvent: `id` is required');
   if (!title) throw new Error('ArenaCalendarEvent: `title` is required');
   if (!start) throw new Error('ArenaCalendarEvent: `start` is required');
@@ -111,9 +114,9 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 
   const body = (
     <>
-      <span className={styles.title()}>{title}</span>
+      <span className={styles.title()} data-arena-part={manifest.parts.title}>{title}</span>
       {showTime && (
-        <span className={styles.time()}>{timeLabel}</span>
+        <span className={styles.time()} data-arena-part={manifest.parts.time}>{timeLabel}</span>
       )}
     </>
   );
@@ -144,10 +147,10 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
         }
       } : undefined}
       id={domId}
-      className={styles.chip()}
+      className={styles.chip()} data-arena-part={manifest.parts.chip}
       style={{ ...box,
-        background: `color-mix(in oklab, ${color} 16%, var(--surface-card))`,
-        borderLeftColor: color }}>
+        background: arenaCatTint(ink),
+        borderLeftColor: ink }}>
       {hasPanel ? (
         <>
           {interactive ? (
@@ -156,21 +159,21 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
               aria-label={`${title}, ${dateLabel}, ${timeLabel}`}
               aria-disabled={disabled ? 'true' : undefined}
 
-              className={styles.chipBody()}>
+              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
               {body}
             </button>
           ) : (
             <span ref={setFocusable} tabIndex={tabIndex} onClick={activate}
-              className={styles.chipBody()}>
+              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
               {body}
             </span>
           )}
-          <span ref={kebabWrapRef} className={styles.kebabWrap()}>
+          <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap}>
             <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label="Actions" size="sm"
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (
-              <span ref={panelRef} className={styles.panel()}>
+              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel}>
                 {actions}
               </span>
             )}

@@ -6,13 +6,24 @@
     "line": "arena-shimmer h-3 rounded-marker w-full",
     "lastLine": "arena-shimmer h-3 rounded-marker w-[62%]"
   },
+  "partOf": {
+    "lastLine": "line"
+  },
   "variants": {
     "variant": {
       "text": {},
-      "line": { "root": "h-3 w-full rounded-marker" },
-      "block": { "root": "h-24 w-full rounded-surface" },
-      "circle": { "root": "size-10 rounded-pill" }
+      "line": {
+        "root": "h-3 w-full rounded-marker"
+      },
+      "block": {
+        "root": "h-24 w-full rounded-surface"
+      },
+      "circle": {
+        "root": "size-10 rounded-pill"
+      }
     }
   },
-  "defaultVariants": { "variant": "block" }
+  "defaultVariants": {
+    "variant": "block"
+  }
 }

@@ -63,8 +63,35 @@ false. An entry can be wrong for as long as nobody reads it, and having been cor
 evidence of being correct, because nothing checks the correction either.
 
 **It is not a substitute for reading.** An entry is a claim, and a claim about a file you have
-not read is how any record goes quietly false. `AGENTS.md` carries that rule, the three shapes it
-takes, and the change-time greps that find them.
+not read is how any record goes quietly false.
+
+## The three shapes a false claim takes
+
+None of them is findable by a keyword query, which is why "I grepped it" is not evidence:
+
+- **A document describing ITSELF**: one naming its own directory layout, a clause excluding a
+  path that a move has since merged into the path two sentences above it. Only an end-to-end read
+  finds these.
+- **A component name written into ANOTHER file's prose**, which rots while every gate stays
+  green. A *structural* reference is fine and should not be hunted, meaning this component's own
+  render naming what it draws. What rots is a citation asserting **another** component's current
+  state.
+- **A sibling cited by its bare filename**, which a refactor rewrites in every import specifier
+  and nowhere in a sentence.
+
+When you change component `X`, read every hit of:
+
+```bash
+X=ArenaSkeleton   # the component you just changed
+grep -rn --binary-files=without-match "\b$X\b" \
+    --include='*.md' --include='*.json' --include='*.mjs' --include='*.tsx' --include='*.ts' \
+    AGENTS.md DOUBTS.md contracts/ docs/ frameworks/ scripts/
+```
+
+Drop by hand the hits under `X`'s **own** files. **Scope a worklist by its path list and never by
+piping `grep -n` through `grep -v`**: `-n` prints `path:line:CONTENT`, so a filter after it drops
+hits by their *text*, which silently excludes any directory whose name the filter happens to
+match.
 
 ## If you must file one here
 

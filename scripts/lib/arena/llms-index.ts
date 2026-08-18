@@ -16,8 +16,14 @@ import { DOMAIN, LAYERS } from './site-pages.ts';
 
 export const LLMS_INDEX = 'llms.txt';
 export const PROMPT_SUFFIX = '.prompt.md';
-export const ROUTER = 'SKILL.md';
-export const LAYER_INDEX = 'frameworks/SKILL.md';
+export const ROUTER = 'skills/design/SKILL.md';
+export const INDEX = 'INDEX.md';
+export const REFERENCE_DIR = 'skills/design/references';
+export const REFERENCE_LINK = /\.\/references\/([A-Za-z0-9-]+\.md)/g;
+export const HEADLINE = /^#\s+(.+)$/m;
+export const OPENING = /^#\s+.+\n+([\s\S]*?)(?:\n\n|$)/;
+export const WHEN = /Read this [^.]*\./;
+export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
 export const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 export const DESCRIPTION = /^description:\s*(.+)$/m;
@@ -28,10 +34,16 @@ export function docUrl(rel: string) {
   return `https://${DOMAIN}/${rel.split('/').map(encodeURIComponent).join('/')}`;
 }
 
+export const QUOTED = /^(["'])([\s\S]*)\1$/;
+
+export function unquote(value: string) {
+  return QUOTED.exec(value)?.[2] ?? value;
+}
+
 export function summary(base = root) {
   const text = readFileSync(join(base, ROUTER), 'utf8');
   const front = FRONTMATTER.exec(text)?.[1] ?? '';
-  return DESCRIPTION.exec(front)?.[1]?.trim() ?? '';
+  return unquote(DESCRIPTION.exec(front)?.[1]?.trim() ?? '');
 }
 
 export function under(layer: string, base: string, keep: (rel: string) => boolean) {
@@ -45,7 +57,7 @@ export function under(layer: string, base: string, keep: (rel: string) => boolea
 }
 
 export function categoryIndexes(layer: string, base = root) {
-  return under(layer, base, (rel) => rel.endsWith(`/${ROUTER}`) && rel.includes('/components/'));
+  return under(layer, base, (rel) => rel.endsWith(`/${INDEX}`) && rel.includes('/components/'));
 }
 
 export function prompts(layer: string, base = root) {
@@ -54,15 +66,41 @@ export function prompts(layer: string, base = root) {
 
 export function layerDocs(layer: string, base = root) {
   return [
-    `frameworks/${layer}/${ROUTER}`,
+    `frameworks/${layer}/${INDEX}`,
     `frameworks/${layer}/PACKAGE.md`,
     ...categoryIndexes(layer, base),
     ...prompts(layer, base),
   ].filter((rel) => existsSync(join(base, rel)));
 }
 
+export function references(base = root) {
+  const linked = readFileSync(join(base, ROUTER), 'utf8').matchAll(REFERENCE_LINK);
+  return [...new Set([...linked].map((hit) => `${REFERENCE_DIR}/${hit[1]}`))]
+    .filter((rel) => existsSync(join(base, rel)));
+}
+
+export function headline(rel: string, base = root) {
+  return HEADLINE.exec(readFileSync(join(base, rel), 'utf8'))?.[1]?.trim() ?? nameOf(rel);
+}
+
+export function opening(rel: string, base = root) {
+  const paragraph = OPENING.exec(readFileSync(join(base, rel), 'utf8'))?.[1] ?? '';
+  const flat = paragraph.replace(/\s+/g, ' ').trim();
+  const stop = flat.search(/\.(?:\s|$)/);
+  return stop < 0 ? flat : flat.slice(0, stop + 1);
+}
+
+export function when(rel: string, base = root) {
+  const flat = readFileSync(join(base, rel), 'utf8').replace(/\s+/g, ' ');
+  return WHEN.exec(flat)?.[0] ?? '';
+}
+
+export function blurb(rel: string, base = root) {
+  return [opening(rel, base), when(rel, base)].filter(Boolean).join(' ');
+}
+
 export function servedDocs(base = root) {
-  return [ROUTER, LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
+  return [ROUTER, ...references(base), LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
     .filter((rel) => existsSync(join(base, rel)));
 }
 
@@ -86,7 +124,9 @@ export function index(base = root) {
     '',
     '## Start here',
     '',
-    `- [The router](${docUrl(ROUTER)}): pick the voice the application takes, then the rules of the language. Every other document is reached from here.`,
+    `- [The router](${docUrl(ROUTER)}): the rules of the language. Every other document is reached from here.`,
+    ...references(base).map((rel) =>
+      `- [${headline(rel, base)}](${docUrl(rel)}): ${blurb(rel, base)}`),
     `- [Every component in one read](${docUrl(LAYER_INDEX)}): which components exist and which layers ship them.`,
     '',
   ];
@@ -94,7 +134,7 @@ export function index(base = root) {
   for (const layer of LAYERS) {
     const title = layer.charAt(0).toUpperCase() + layer.slice(1);
     lines.push(`## ${title}`, '');
-    lines.push(`- [Layer index](${docUrl(`frameworks/${layer}/${ROUTER}`)}): every component under this framework's own names.`);
+    lines.push(`- [Layer index](${docUrl(`frameworks/${layer}/${INDEX}`)}): every component under this framework's own names.`);
     lines.push(`- [Install and configure](${docUrl(`frameworks/${layer}/PACKAGE.md`)}): the package, \`arena.config.json\`, and what the CLI writes.`);
     lines.push(`- [Everything above and every component document, in one file](https://${DOMAIN}/${layerFile(layer)}): the whole ${title} corpus, and nothing from the other layer.`);
     for (const rel of categoryIndexes(layer, base)) {
@@ -128,7 +168,7 @@ export function corpus(layer: string, base = root) {
     'under both names and the two documents are not interchangeable.',
     '',
   ];
-  for (const rel of [ROUTER, LAYER_INDEX, ...layerDocs(layer, base)]) {
+  for (const rel of [ROUTER, ...references(base), LAYER_INDEX, ...layerDocs(layer, base)]) {
     parts.push('', `<!-- ${rel} -->`, '', readFileSync(join(base, rel), 'utf8').trim(), '');
   }
   return `${parts.join('\n')}\n`;

@@ -31,8 +31,6 @@
   --rhythm-group:12px; /* Inside one group of related things: a label and its field, a card's own stacked children, a row of chips. Both sides read as one unit. */
   --rhythm-component:16px; /* Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing. */
   --rhythm-section:24px; /* Between two sections of a page. The two sides answer different questions, and this gap is what says so. */
-  --container-max:1240px; /* Container / layout */
-  --gutter:88px;
 
   /*
      Application frame. Example code, and therefore the numbers a consumer
@@ -91,6 +89,14 @@
      diameter (the initials at 0.4 and the presence dot at 0.28), and a derivation
      needs something to derive from. If a second component ever wants the same
      ladder, rename this for the role instead of duplicating it.
+   */
+  /*
+     Script-readable, and so are its three siblings, for one reason: an <img>
+     reserves its box before the stylesheet arrives through the width and height
+     attributes, which take a bare integer and cannot take a custom property. So the
+     number has to reach JavaScript or the avatar is the one image in the library
+     whose space is not held. Reading it here rather than restating it in each layer
+     is what keeps the reserved box and the drawn box the same number.
    */
   --avatar-xs:24px;
   --avatar-sm:32px;
@@ -216,11 +222,11 @@
   /*
      Comfortable density: for touch, for a general audience, and for anything a
      person uses occasionally rather than all day. Apply on a container:
-     <div class="arena-comfortable"> … </div>  (composes with .arena-light and with a design extension)
+     <div class="arena-comfortable"> … </div>  (composes with .arena-light and with a style plugin)
      
      The counterpart to density.compact.json, and the reason target size is density's axis and never
-     an extension's: how large a control is answers who is pointing at it, not what voice the product
-     is speaking in. A shop on a phone and a console on a desk can want the same extension and
+     a style plugin's: how large a control is answers who is pointing at it, not what register the product
+     is speaking in. A shop on a phone and a console on a desk can want the same style plugin and
      opposite densities, and only separate axes let them have that.
      
      MUTUALLY EXCLUSIVE with .arena-compact. Both set the same keys, so a container wearing both gets

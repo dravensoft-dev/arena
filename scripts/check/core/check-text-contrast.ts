@@ -8,18 +8,51 @@ import { contrast } from '../../lib/core/validate-palette.mjs';
 import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { extensionFiles, extensionName, resolvedFor } from './check-extensions.ts';
+import { resolvedFor } from './check-style-plugin.ts';
+import { walkFiles } from '../../utils/walk-files.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import {
+  derivedLevels, drawnBy, levelDefaults, levelReports, levelsIn, raisedReports,
+  washesIn, washReports,
+} from '../../generate/core/arena-to-prod/levels.ts';
+import {
+  composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
+} from '../../generate/core/arena-to-prod/oklab.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
-export const EFFECTS = 'contracts/design-generated/effects.generated.css';
+export const ROLE_SHEETS = [
+  'contracts/design-generated/effects.generated.css',
+  'contracts/design-generated/style-plugin.default.generated.css',
+  'contracts/design-generated/style-plugin.complete.generated.css',
+];
+
+export const SCOPED_PLUGINS = ['complete'];
+
+export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components/**/*.styles.generated.css';
 
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS, EFFECTS],
+  reads: [PALETTE, COLORS, ...ROLE_SHEETS, COMPONENT_SHEETS],
   writes: [],
   feeds: [],
 };
+
+export function componentSheets() {
+  const at = join(root, 'frameworks/tailwind/consume/components');
+  return walkFiles(at)
+    .filter((file) => file.endsWith('.styles.generated.css'))
+    .map((file) => readFileSync(file, 'utf8'));
+}
+
+export function paletteColours(body: string) {
+  const colours: Record<string, string> = {};
+  for (const key of PALETTE_KEYS) {
+    const hex = tryHex(body, `color-${key}`);
+    if (hex) colours[key] = hex;
+  }
+  return colours;
+}
 
 const block = paletteBlock;
 
@@ -44,48 +77,6 @@ export function resolvePercent(structure: string, name: string, seen = new Set()
   throw new Error(`colors.css: --${name} resolves to "${value}", which is neither base-content, a color-mix of it, nor a var() alias`);
 }
 
-type Triple = [number, number, number];
-
-const hex2rgb = (h: string): Triple =>
-  [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-const rgb2hex = (rgb: Triple) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
-
-const composite = (fg: string, bg: string, percent: number) => {
-  const [fr, fgreen, fb] = hex2rgb(fg);
-  const [br, bgreen, bb] = hex2rgb(bg);
-  const a = percent / 100;
-  const over = (f: number, b: number) => f * a + b * (1 - a);
-  return rgb2hex([over(fr, br), over(fgreen, bgreen), over(fb, bb)]);
-};
-
-const s2lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-const lin2s = (c: number) => { c = Math.max(0, Math.min(1, c)); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
-function toOklab(hex: string): Triple {
-  const [red, green, blue] = hex2rgb(hex);
-  const [r, g, b] = [s2lin(red / 255), s2lin(green / 255), s2lin(blue / 255)];
-  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
-  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
-  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
-  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
-          1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
-          0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
-}
-function oklabToHex([L, a, b]: Triple) {
-  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
-  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
-  const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
-  const linear: Triple = [
-    +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
-  ];
-  return rgb2hex([lin2s(linear[0]) * 255, lin2s(linear[1]) * 255, lin2s(linear[2]) * 255]);
-}
-const darkenOklab = (hex: string, keep: number) => {
-  const [l, a, b] = toOklab(hex);
-  return oklabToHex([l * keep, a * keep, b * keep]);
-};
-
 const LEVELS = [
   { token: 'text-strong', gate: 4.5, note: 'body text' },
   { token: 'text-body', gate: 4.5, note: 'body text' },
@@ -95,9 +86,7 @@ const LEVELS = [
   { token: 'mute-2-disabled', gate: null, note: 'EXEMPT — disabled controls (WCAG 1.4.3/1.4.11 inactive-component exemption)' },
 ];
 
-const FILL_FALLBACK_KEEP = 0.85;
-
-const PAIRS = [
+export const PAIRS = [
   { fill: 'primary', content: 'primary-content', gate: 4.5, note: 'button text via --on-accent (ArenaButton, ArenaIconButton solid, ArenaPagination active); ArenaCheckbox tick, ArenaSwitch knob, and ArenaSwitch’s knob glyph read the other way round (text-primary on bg-primary-content)' },
 
   { fill: 'error-fill', content: 'error-content', gate: 4.5, deriveFrom: 'error', keep: FILL_FALLBACK_KEEP, note: "ArenaConfirmDialog's final confirmation — Arena's only filled danger surface" },
@@ -136,10 +125,10 @@ export function surfacesUnder(resolved: Map<string, string>) {
   return names;
 }
 
-export function scopesToMeasure(effects: string, theme: string, extensions: string[]) {
+export function scopesToMeasure(effects: string, theme: string, plugins: string[]) {
   const base = surfacesUnder(resolvedFor(effects, '', theme));
-  const out = [{ label: 'no extension', surfaces: base }];
-  for (const name of extensions) {
+  const out = [{ label: 'the root plugin', surfaces: base }];
+  for (const name of plugins) {
     const surfaces = surfacesUnder(resolvedFor(effects, name, theme));
     if (surfaces.join() === base.join()) continue;
     out.push({ label: `.arena-${name}`, surfaces });
@@ -150,8 +139,8 @@ export function scopesToMeasure(effects: string, theme: string, extensions: stri
 function main() {
   const palette = readFileSync(join(root, PALETTE), 'utf8');
   const structure = structureOf(readFileSync(join(root, COLORS), 'utf8'));
-  const effects = readFileSync(join(root, EFFECTS), 'utf8');
-  const extensions = extensionFiles().map(extensionName);
+  const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(root, sheet), 'utf8')).join('\n');
+  const scoped = SCOPED_PLUGINS;
   let ok = true;
 
   for (const { token, use } of REMOVED) {
@@ -159,10 +148,33 @@ function main() {
     ok = false;
     console.log(`\n[FAIL] --${token} is declared in contracts/design/colors.css. It is not a token Arena has; use ${use}.`);
   }
+  const sheets = componentSheets();
+  const defaults = levelDefaults(readFileSync(join(root, COLORS), 'utf8'));
+  const levels = sheets.flatMap((css) => levelsIn(css, defaults));
+  const washes = sheets.flatMap(washesIn);
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
-    for (const scope of scopesToMeasure(effects, t.name, extensions)) {
+
+    const roles = resolvedFor(effects, '', t.name);
+    const colours = paletteColours(body);
+    const derived = derivedLevels(levels, roles, colours);
+    const painted = [...levelReports(levels, roles, colours, derived), ...raisedReports(derived)];
+    console.log(`\n${t.name} — the ${drawnBy(levels).length} levels the component sheets compile, `
+      + 'each composited over the surfaces the root plugin names');
+    for (const one of painted) console.log(`  [FAIL] ${one.message}`);
+    if (painted.length) ok = false;
+    else console.log('  [PASS] every level clears the bar its property carries');
+
+    console.log(`\n${t.name} — a token drawn on a wash of its own colour, REPORTED AND NOT GATED`);
+    for (const one of washReports(washes, resolvedFor(effects, '', t.name), paletteColours(body))) {
+      console.log(`  [INFO] ${one.message}`);
+    }
+    console.log('         The hover can never beat the resting ratio, so lowering the wash does not '
+      + 'repair it; what would is a hover that changes something other than the fill, which is a '
+      + 'decision about the danger convention rather than about a percentage.');
+
+    for (const scope of scopesToMeasure(effects, t.name, scoped)) {
       const surfaces: [string, string][] = scope.surfaces
         .map((name) => [name.replace(/^color-/, ''), readHex(body, name)]);
       console.log(`\n${t.name}, ${scope.label} — --color-base-content ${content} over ${surfaces.map(([n, h]) => `${n} ${h}`).join(', ')}`);
@@ -203,10 +215,6 @@ function main() {
       }
 
     }
-    const quiet = extensions.length + 1 - scopesToMeasure(effects, t.name, extensions).length;
-    if (quiet > 0)
-      console.log(`\n  ${quiet} extension(s) put text on the same surfaces as no extension in ${t.name}, so the run above measured them too`);
-
     console.log(`\n${t.name} — fill/content pairs`);
     for (const { fill, content, gate, deriveFrom, keep, note } of PAIRS) {
       let fillHex = tryHex(body, `color-${fill}`);
@@ -235,13 +243,14 @@ function main() {
     const errHex = tryHex(body, 'color-error');
     const errContent = tryHex(body, 'color-error-content');
     if (errHex && errContent) {
-      const derived = darkenOklab(errHex, FILL_FALLBACK_KEEP);
+      const derived = errorFill(errHex, errContent);
       const ratio = contrast(derived, errContent);
       const failed = ratio < 4.5;
       if (failed) ok = false;
-      console.log(`\n${t.name} — --danger-fill fallback (used when a skin omits --color-error-fill)`);
-      console.log(`  [${failed ? 'FAIL' : 'PASS'}] color-mix 85%      ${errContent} on ${derived}  ${ratio.toFixed(2)}:1  gate 4.5:1`);
-      console.log(`         derived from --color-error ${errHex} by darkening in oklab`);
+      const way = derived === darkenOklab(errHex, FILL_FALLBACK_KEEP) ? 'darkening' : 'lightening';
+      console.log(`\n${t.name} — the fill derived when a skin omits --color-error-fill`);
+      console.log(`  [${failed ? 'FAIL' : 'PASS'}] keep ${FILL_FALLBACK_KEEP}          ${errContent} on ${derived}  ${ratio.toFixed(2)}:1  gate 4.5:1`);
+      console.log(`         derived from --color-error ${errHex} by ${way} it in oklab, away from --color-error-content`);
     }
   }
 

@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ArenaRadioGroupState } from '../arena-radio-group/ArenaRadioGroupState';
 import { arenaRadioStyles } from './ArenaRadio.variants';
+import manifest from './ArenaRadio.classes.generated';
 
 @Component({
   selector: 'arena-radio',
@@ -10,29 +11,31 @@ import { arenaRadioStyles } from './ArenaRadio.variants';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <label [class]="styles().root()">
-      <span [class]="styles().ring()">
+    <label [class]="styles().root()" [attr.data-arena-part]="parts.root">
+      <span [class]="styles().ring()" [attr.data-arena-part]="parts.ring">
         @if (checked()) {
-          <span [class]="styles().dot()"></span>
+          <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
         }
       </span>
       @if (label() || hint()) {
-        <span [class]="styles().text()">
+        <span [class]="styles().text()" [attr.data-arena-part]="parts.text">
           @if (label(); as text) {
-            <span [class]="styles().label()">{{ text }}</span>
+            <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ text }}</span>
           }
           @if (hint(); as text) {
-            <span [class]="styles().hint()">{{ text }}</span>
+            <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
           }
         </span>
       }
-      <input type="radio" [class]="styles().input()" [attr.name]="groupName()"
+      <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
              [attr.value]="value()" [checked]="checked()" [disabled]="disabled()"
              (change)="onChange($event)" />
     </label>
   `,
 })
 export class ArenaRadio {
+  protected readonly parts = manifest.parts;
+
   /** This option's value, matched against the group's. */
   readonly value = input.required<string>();
   /** The option's label. */

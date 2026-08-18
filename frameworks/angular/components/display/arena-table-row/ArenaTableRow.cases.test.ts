@@ -35,10 +35,10 @@ const NARROW_WIDTH = 400;
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table [label]="label" [columns]="columns" [responsive]="responsive">
-      <arena-table-row [interactive]="interactive" [disabled]="disabled" (click)="activated = activated + 1">
-        <arena-table-cell>checkout-api</arena-table-cell>
-        <arena-table-cell>Healthy</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row [interactive]="interactive" [disabled]="disabled" (click)="activated = activated + 1">
+        <td arena-table-cell>checkout-api</td>
+        <td arena-table-cell>Healthy</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -87,7 +87,7 @@ function emissionsOf(fixture: ComponentFixture<RowHost>): { count: number } {
 
 function rowOf(fixture: ComponentFixture<RowHost>): HTMLElement {
   const table = fixture.nativeElement.querySelector('arena-table') as HTMLElement;
-  return table.querySelectorAll<HTMLElement>('arena-table-row > div')[0];
+  return table.querySelectorAll<HTMLElement>('tr[arena-table-row]')[0];
 }
 
 function press(el: HTMLElement, key: string): KeyboardEvent {
@@ -117,7 +117,10 @@ test('arena-table-row meets all three of its declared shapes', async () => {
       cases: {
         row: () => {
           const el = rowOf(wide);
-          assert.equal(el.getAttribute('role'), 'row', 'the wide row is a row, and arena-table\'s grid owns it');
+          assert.equal(el.tagName, 'TR', 'the wide row is a real table row, and arena-table\'s grid owns it');
+          assert.equal(el.hasAttribute('role'), false,
+            'the element already maps to a row, so writing the role back onto it is the hand-rebuild the '
+            + 'contract refuses');
           assert.equal(el.hasAttribute('tabindex'), false,
             'the roving stop lives on the CELLS -- a stop on the row would be a second one');
           return { root: el, subjects: { default: el } };
@@ -168,7 +171,9 @@ test('arena-table-row meets all three of its declared shapes', async () => {
 
         'card-inert': () => {
           const el = rowOf(inert);
-          assert.equal(el.hasAttribute('role'), false, 'a row nobody can activate claims no role');
+          assert.equal(el.getAttribute('role'), 'presentation',
+            'a row nobody can activate claims no interactive role, and the table role the element carries '
+            + 'natively is stripped rather than left describing a stack of cards as a table');
           assert.equal(el.hasAttribute('tabindex'), false,
             'and no tab stop -- a dead stop on every row of every table is worse than the gap it would close');
 

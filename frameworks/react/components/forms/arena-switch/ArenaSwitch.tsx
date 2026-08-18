@@ -55,17 +55,17 @@ export function ArenaSwitch({
   };
 
   return (
-    <span className={styles.root()}>
+    <span className={styles.root()} data-arena-part={manifest.parts.root}>
       <button type="button" role="switch" aria-checked={state} aria-label={label} disabled={disabled} onClick={activate}
-        className={styles.track()}>
-        <span aria-hidden="true" className={styles.knob()}>
-          {icon && <i aria-hidden="true" className={`${icon} ${styles.icon()}`} />}
+        className={styles.track()} data-arena-part={manifest.parts.track}>
+        <span aria-hidden="true" className={styles.knob()} data-arena-part={manifest.parts.knob}>
+          {icon && <i aria-hidden="true" className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} />}
         </span>
       </button>
       {label && (
-        <span onClick={activate} className={styles.label()}>
+        <span onClick={activate} className={styles.label()} data-arena-part={manifest.parts.label}>
           {label}
-          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} aria-hidden="true" title="Requires confirmation" />}
+          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} data-arena-part={manifest.parts.guard} aria-hidden="true" title="Requires confirmation" />}
         </span>
       )}
     </span>

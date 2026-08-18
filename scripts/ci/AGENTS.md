@@ -13,14 +13,12 @@ summary that classifies a suite into nothing prints a confident zero. So every r
 in a module with a suite beside it, and the workflow reads the module, never a copy of the
 rule written in YAML.
 
-| file | why it exists |
+| domain | what a script there answers |
 | --- | --- |
-| [`arena/changed-layers.ts`](./arena/changed-layers.ts) | which framework layers a diff reaches |
-| [`arena/summarize-tests.ts`](./arena/summarize-tests.ts) | runs the suite the way `check-all` runs it, and reports per domain |
-| [`arena/package-inputs.ts`](./arena/package-inputs.ts) | what each published package is assembled from |
+| [`arena/`](./arena/AGENTS.md) | every one of them: which layers a diff reaches, what the suite reported, what a package is assembled from, which platforms are supported and which gates are worth re-running on one, and what a release says |
 
-All three are `arena`: each reads two or more layers, or the repository root. The other four
-domains exist and are empty, the way they are under every phase.
+Every script here is `arena`, because each reads two or more layers or the repository root. The
+other four domains exist and are empty, the way they are under every phase.
 
 `summarize-tests` is the one with an npm script, `bun run ci:summarize`, because it is worth
 running by hand: with no `GITHUB_STEP_SUMMARY` in the environment it prints the table to

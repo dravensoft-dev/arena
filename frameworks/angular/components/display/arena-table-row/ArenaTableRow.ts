@@ -1,28 +1,32 @@
 import {
-  ChangeDetectionStrategy, Component, DestroyRef, booleanAttribute, computed, contentChildren,
-  inject, input, output,
+  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, booleanAttribute, computed,
+  contentChildren, inject, input, output,
 } from '@angular/core';
 import { isArenaOwnActivation } from '../../../AnchorActivation';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 import { ArenaTableState } from '../arena-table/ArenaTableState';
 import { ArenaTableRowState } from './ArenaTableRowState';
 import { arenaTableRowStyles } from './ArenaTableRow.variants';
+import manifest from '../arena-table/ArenaTable.classes.generated';
 
 @Component({
-  selector: 'arena-table-row',
+  selector: 'tr[arena-table-row]',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableRowState],
-  host: { style: 'display: contents' },
-  template: `
-    <div [class]="rowClass()" [attr.role]="role()" [attr.aria-disabled]="inert()"
-         [attr.tabindex]="cardStop()" (keydown)="onKeydown($event)"
-         (click)="onClick($event)">
-      <ng-content />
-    </div>
-  `,
+  host: {
+    '[class]': 'rowClass()',
+    '[attr.data-arena-part]': 'narrow() ? parts.card : parts.row',
+    '[attr.role]': 'role()',
+    '[attr.aria-disabled]': 'inert()',
+    '[attr.tabindex]': 'cardStop()',
+    '(keydown)': 'onKeydown($event)',
+  },
+  template: `<ng-content />`,
 })
 export class ArenaTableRow {
+  protected readonly parts = manifest.parts;
+
   /** Whether the row can be activated. A boolean rather than "is `click` bound?": Arena never derives what it draws from what a consumer listens for, because an outbound member's subscriber list is private in at least one platform and a consumer's binding leaves nothing in the DOM to detect, so deriving the interactive shape from it is a divergence waiting to happen, and it was one. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler; a non-interactive one is inert, because a dead tab stop on every row of every table is worse than the gap it would close. */
   readonly interactive = input(false, { transform: booleanAttribute });
   /** Whether the row is drawn but cannot be activated: a record the consumer's rules lock. It reflects through `aria-disabled` rather than the native attribute, and the card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `click` there is nothing to disable and the row is inert already. */
@@ -33,23 +37,27 @@ export class ArenaTableRow {
   private readonly table = inject(ArenaTableState);
   private readonly arenaRowState = inject(ArenaTableRowState);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly cells = contentChildren(ArenaTableCell);
 
   protected readonly role = computed(() => {
-    if (!this.table.narrow()) return 'row';
-    return this.interactive() ? 'button' : null;
+    if (!this.table.narrow()) return null;
+    return this.interactive() ? 'button' : 'presentation';
   });
 
   protected readonly cardStop = computed(() => (this.table.narrow() && this.interactive() ? 0 : null));
 
   protected readonly inert = computed(() => (this.disabled() ? 'true' : null));
 
+  protected readonly narrow = computed(() => this.table.narrow());
+
   protected readonly rowClass = computed(() => {
     const narrow = this.table.narrow();
     const styles = arenaTableRowStyles({ narrow });
     if (narrow) return styles.card();
-    return this.table.rowIndexOf(this) === 1 ? `${styles.row()} ${styles.rowFirst()}` : styles.row();
+    const base = this.table.rowIndexOf(this) === 1 ? `${styles.row()} ${styles.rowFirst()}` : styles.row();
+    return this.interactive() && !this.disabled() ? `${base} ${styles.rowInteractive()}` : base;
   });
 
   constructor() {
@@ -60,10 +68,15 @@ export class ArenaTableRow {
       activate: () => this.emit(),
     });
     this.destroyRef.onDestroy(() => this.table.releaseRow(this));
+
+    const row = this.host.nativeElement;
+    const press = (event: Event) => this.onClick(event);
+    row.addEventListener('click', press);
+    this.destroyRef.onDestroy(() => row.removeEventListener('click', press));
   }
 
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
+  private onClick(event: Event): void {
+    event.stopImmediatePropagation();
     if (!this.ownActivation(event)) return;
     this.emit();
   }

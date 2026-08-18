@@ -9,8 +9,8 @@ import {
 import { TemplatePortal } from '@angular/cdk/portal';
 import { delayClose, delayOpen, sp2 } from '../../../Tokens.generated';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
-
-let nextId = 0;
+import manifest from './ArenaTooltip.classes.generated';
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = [
   { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -sp2 },
@@ -33,6 +33,7 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '(pointerenter)': 'scheduleOpen()',
     '(pointerleave)': 'scheduleClose()',
     '(focusin)': 'openNow()',
@@ -41,15 +42,17 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   template: `
     <ng-content />
     <ng-template #bubble>
-      <span [class]="styles().bubble()" role="tooltip" [id]="bubbleId">{{ label() }}</span>
+      <span [class]="styles().bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">{{ label() }}</span>
     </ng-template>
   `,
 })
 export class ArenaTooltip {
+  protected readonly parts = manifest.parts;
+
   /** The bubble's text. Arena draws the bubble; the consumer names it. */
   readonly label = input.required<string>();
 
-  protected readonly bubbleId = `arena-tooltip-${nextId++}`;
+  protected readonly bubbleId = inject(ArenaIdGenerator).next('arena-tooltip');
   protected readonly styles = computed(() => arenaTooltipStyles({ anchored: true }));
 
   private readonly bubble = viewChild.required<TemplateRef<unknown>>('bubble');

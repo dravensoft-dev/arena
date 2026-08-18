@@ -1,0 +1,38 @@
+<!-- @dsCard group="Tailwind" viewport="900x300" name="ArenaBoard" subtitle="The frame, a named column and its identity mark, rendered from ArenaBoard.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-board/ArenaBoard.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaBoard.manifest.json')).json();
+
+function column(title, count, summary, slot, cards) {
+  const c = arenaClassesFor(manifest, { identity: slot !== undefined });
+  const head = el('div', { class: c.head });
+  if (slot !== undefined) head.append(el('span', { class: c.dot }));
+  head.append(el('span', { class: c.title }, title), el('span', { class: c.count }, String(count)));
+  const stack = el('div', { class: c.stack });
+  for (const card of cards) stack.append(el('span', { class: c.title }, card));
+  const box = el('section', { class: c.column, style: slot ? `--arena-board-column-cat: var(--color-cat-${slot})` : '' }, head);
+  if (summary) box.append(el('span', { class: c.summary }, summary));
+  box.append(stack);
+  return box;
+}
+
+function board(...columns) {
+  const c = arenaClassesFor(manifest, {});
+  return el('div', { class: c.root, style: '--arena-board-column: var(--grid-min)' }, ...columns);
+}
+
+mountSpecimen({ sections: [
+  section('A board of three', [board(
+    column('To do', 2, '19 pts', 7, ['Audit the preferences screen', 'Reduce cold start']),
+    column('In progress', 1, '8 pts', 1, ['Rebuild the onboarding checklist']),
+    column('Done', 0, undefined, undefined, []),
+  )]),
+]});
+</script></body></html>

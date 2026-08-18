@@ -1,10 +1,10 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output,
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, inject, input, output,
 } from '@angular/core';
 import type { ArenaSelectOption } from '../../../Api.generated';
 import { arenaSelectStyles } from './ArenaSelect.variants';
-
-let nextId = 0;
+import manifest from './ArenaSelect.classes.generated';
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 @Component({
   selector: 'arena-select',
@@ -12,17 +12,18 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
   template: `
     @if (label(); as text) {
-      <label [class]="styles().label()" [attr.for]="selectId">{{ text }}</label>
+      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="selectId">{{ text }}</label>
     }
-    <div [class]="styles().wrap()">
+    <div [class]="styles().wrap()" [attr.data-arena-part]="parts.wrap">
       @if (icon(); as glyph) {
-        <i [class]="styles().iconWrap() + ' ' + glyph" aria-hidden="true"></i>
+        <i [class]="styles().iconWrap() + ' ' + glyph" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"></i>
       }
-      <select [class]="styles().field()" [attr.id]="selectId" [disabled]="disabled()"
+      <select [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="disabled()"
               [required]="required()" [attr.name]="name()"
               [attr.aria-invalid]="hasError()" [attr.aria-describedby]="describedBy()"
               (change)="onChange($event)">
@@ -33,16 +34,18 @@ let nextId = 0;
           <option [value]="option.value" [selected]="option.value === value()">{{ option.label }}</option>
         }
       </select>
-      <span [class]="styles().caret()" aria-hidden="true">&#9662;</span>
+      <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true">&#9662;</span>
     </div>
     @if (error(); as message) {
-      <span [class]="styles().error()" [attr.id]="noteId">{{ message }}</span>
+      <span [class]="styles().error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()" [attr.id]="noteId">{{ text }}</span>
+      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
     }
   `,
 })
 export class ArenaSelect {
+  protected readonly parts = manifest.parts;
+
   /** Field label above the control. */
   readonly label = input<string>();
   /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". */
@@ -71,7 +74,7 @@ export class ArenaSelect {
   /** A different option was chosen; carries its value. */
   readonly change = output<string>();
 
-  protected readonly selectId = `arena-select-${nextId++}`;
+  protected readonly selectId = inject(ArenaIdGenerator).next('arena-select');
   protected readonly noteId = `${this.selectId}-note`;
 
   protected readonly hasError = computed(() => Boolean(this.error()));

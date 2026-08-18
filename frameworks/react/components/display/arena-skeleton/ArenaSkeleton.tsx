@@ -28,16 +28,17 @@ export function ArenaSkeleton({ variant = 'block', width, height, lines = 3, rad
   const styles = arenaSkeletonStyles({ variant });
   if (variant === 'text' && lines > 1) {
     return (
-      <div role="status" aria-label="Loading" className={styles.stack()} style={{ width }}>
+      <div role="status" aria-label="Loading" className={styles.stack()} data-arena-part={manifest.parts.stack} style={{ width }}>
         {Array.from({ length: lines }).map((_, i) => (
-          <div key={i} className={i === lines - 1 ? styles.lastLine() : styles.line()} />
+          <div key={i} className={i === lines - 1 ? styles.lastLine() : styles.line()}
+            data-arena-part={manifest.parts.line} />
         ))}
       </div>
     );
   }
   const box = variant === 'circle' ? (height || width) : undefined;
   return (
-    <div className={styles.root()} role="status" aria-label="Loading"
+    <div className={styles.root()} data-arena-part={manifest.parts.root} role="status" aria-label="Loading"
       style={{ width: box ?? width, height: box ?? height, borderRadius: radius }} />
   );
 }

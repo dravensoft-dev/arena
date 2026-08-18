@@ -1,0 +1,47 @@
+{
+  "sink": "default",
+  "note": "Grouped by the category each component is registered under, one bordered region per group, because the default appearance draws the region and the box is the grouping.",
+  "sections": [
+    { "title": "Brand", "items": ["ArenaAppLogo"] },
+    {
+      "title": "Forms",
+      "items": [
+        "ArenaButton", "ArenaIconButton", "ArenaInput", "ArenaTextarea", "ArenaSelect",
+        "ArenaCheckbox", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio"
+      ]
+    },
+    {
+      "title": "Display",
+      "items": [
+        "ArenaCard", "ArenaKeyValue", "ArenaStatCard", "ArenaUnauthCard", "ArenaBadge", "ArenaTag", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
+        "ArenaSkeleton", "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed",
+        "ArenaCalendar", "ArenaCalendarEvent"
+      ]
+    },
+    {
+      "title": "Navigation",
+      "items": [
+        "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaTabs", "ArenaTab", "ArenaSegmentedControl",
+        "ArenaPagination", "ArenaMenu", "ArenaBulkActionBar", "ArenaSideNav", "ArenaSideNavSection",
+        "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem",
+        "ArenaCommandPalette"
+      ]
+    },
+    {
+      "title": "Feedback",
+      "items": [
+        "ArenaAlert", "ArenaProgressBar", "ArenaSpinner", "ArenaEmptyState", "ArenaErrorState",
+        "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaDialog", "ArenaConfirmDialog",
+        "ArenaSheet", "ArenaOnboarding"
+      ]
+    },
+    {
+      "title": "Charts",
+      "items": [
+        "ArenaChartCard", "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart",
+        "ArenaDoughnutChart", "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
+      ]
+    },
+    { "title": "Layout", "items": ["ArenaMain", "ArenaSkipLink", "ArenaGrid", "ArenaBoard", "ArenaBoardColumn", "ArenaSiteFooter", "ArenaFigure", "ArenaHero", "ArenaScroller", "ArenaScrollerItem", "ArenaSection"] }
+  ]
+}

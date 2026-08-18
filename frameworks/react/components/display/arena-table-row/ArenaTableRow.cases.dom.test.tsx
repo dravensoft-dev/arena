@@ -21,10 +21,12 @@ const COLUMNS = [{ header: 'Service' }, { header: 'Status' }];
 
 function card(extra: Record<string, unknown> = {}) {
   return mount(
-    <ArenaTableRow layout="card" columns={COLUMNS} {...extra}>
-      <ArenaTableCell>checkout-api</ArenaTableCell>
-      <ArenaTableCell>Healthy</ArenaTableCell>
-    </ArenaTableRow>,
+    <table role="presentation"><tbody role="presentation">
+      <ArenaTableRow layout="card" columns={COLUMNS} {...extra}>
+        <ArenaTableCell>checkout-api</ArenaTableCell>
+        <ArenaTableCell>Healthy</ArenaTableCell>
+      </ArenaTableRow>
+    </tbody></table>,
   );
 }
 
@@ -49,7 +51,9 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
           </tbody></table>,
         );
         const tr = root.querySelector<HTMLElement>('tr');
-        assert.equal(tr!.getAttribute('role'), 'row', 'the wide row is a row, and ArenaTable\'s grid owns it');
+        assert.equal(tr!.hasAttribute('role'), false,
+          'the element already maps to a row, so writing the role back onto it is the hand-rebuild the '
+          + 'contract refuses; ArenaTable\'s grid owns what the row means');
         assert.equal(tr!.hasAttribute('tabindex'), false,
           'the roving stop lives on the CELLS, injected by ArenaTable -- a stop on the row would be a second one');
         return { root, subjects: { default: tr } };
@@ -58,9 +62,12 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
       'card-interactive': () => {
         let clicked = 0;
         const root = card({ interactive: true, onClick: () => { clicked += 1; } });
-        const el = root.firstElementChild;
+        const el = root.querySelector<HTMLElement>('tr');
 
-        assert.equal(el!.tagName, 'DIV', 'the card shape is a div, which is why it CAN take role="button"');
+        assert.equal(el!.getAttribute('role'), 'button',
+          'the card shape is still a <tr>, and role="button" is what replaces the row role the element carries '
+          + 'natively -- the enclosing table is presentational, so nothing is left describing a stack of cards '
+          + 'as a table with a button for a row');
         assert.equal(el!.getAttribute('tabindex'), '0', 'a card row is reached by Tab, unlike the wide row');
         assert.match(el!.textContent, /checkout-api/,
           'the button pattern accepts text content as its name, and the cells are that text');
@@ -76,7 +83,7 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
 
         let blocked = 0;
         const off = card({ interactive: true, disabled: true, onClick: () => { blocked += 1; } });
-        const offEl = off.firstElementChild;
+        const offEl = off.querySelector<HTMLElement>('tr');
         assert.equal(offEl!.getAttribute('aria-disabled'), 'true',
           'a disabled row must announce itself rather than leave the tab order');
         assert.equal(offEl!.getAttribute('role'), 'button',
@@ -94,8 +101,10 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
 
       'card-inert': () => {
         const root = card();
-        const el = root.firstElementChild;
-        assert.equal(el!.hasAttribute('role'), false, 'with no onClick there is nothing to press');
+        const el = root.querySelector<HTMLElement>('tr');
+        assert.equal(el!.getAttribute('role'), 'presentation',
+          'with no onClick there is nothing to press, and the table role the element carries natively is '
+          + 'stripped rather than left describing a stack of cards as a table');
         assert.equal(el!.hasAttribute('tabindex'), false, 'an inert card must not be in the tab order');
         return { root, subjects: { default: el } };
       },

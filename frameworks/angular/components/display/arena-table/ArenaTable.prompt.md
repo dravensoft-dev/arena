@@ -2,17 +2,17 @@ Arena data table for dense surfaces: headers in mono/uppercase, rows separated b
 hairline. Standalone, `OnPush`, signal inputs.
 
 It is a **compound** primitive: `columns` says how each column is headed and set, and you
-write one `<arena-table-row>` per row with one `<arena-table-cell>` per cell inside it.
+write one `<tr arena-table-row>` per row with one `<td arena-table-cell>` per cell inside it.
 Cells are **positional**: the nth cell takes the nth column.
 
 ```html
 <arena-table [label]="'Recent deployments'" [columns]="columns">
   @for (d of deploys(); track d.build) {
-    <arena-table-row interactive (click)="openDeploy(d)">
-      <arena-table-cell>{{ d.build }}</arena-table-cell>
-      <arena-table-cell>{{ d.project }}</arena-table-cell>
-      <arena-table-cell><arena-badge [tone]="d.tone" dot>{{ d.status }}</arena-badge></arena-table-cell>
-    </arena-table-row>
+    <tr arena-table-row interactive (click)="openDeploy(d)">
+      <td arena-table-cell>{{ d.build }}</td>
+      <td arena-table-cell>{{ d.project }}</td>
+      <td arena-table-cell><arena-badge [tone]="d.tone" dot>{{ d.status }}</arena-badge></td>
+    </tr>
   }
   <span empty>No deployments in this range.</span>
 </arena-table>
@@ -84,27 +84,38 @@ clause of this component's binding. A card row without it is inert, because a de
 every row of every table is worse than the gap it would close. The shape follows the member and
 never whether anything is listening, which is why `interactive` exists at all.
 
-### Why the wide shape is not a `<table>` element
+### Why there is always a real `<table>`, at both widths
 
-Angular indexes projection slots in template order and hands the content to the **first**
-matching one, so a `wide` branch and a `card` branch cannot each carry their own
-`<ng-content>`, because one of the two would always render empty. The rows are therefore projected
-once, into a box whose display and role change with the shape, and the wide box is a
-`display: table` with `role="grid"` rather than a `<table>`. A native `<table>` would carry
-`role="table"` and have to be overridden to `grid` anyway, so nothing is lost there; what a
-non-element table costs is `colspan`, so the empty state is a block **beside** the grid box
-rather than a cell spanning it. That stopped being a visible cost when the empty state stopped
-drawing a grid at all: with no rows there is no header row and no `role="grid"`, only the
-block, which is what `contracts/api/components/ArenaTable.json` contracts for the state.
-The other cost stands: the box that carries `display: table` sits inside the bordered frame, so the
-measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels
-earlier than the declared breakpoint. The host itself is a plain block.
+The rows are **authored** by the consumer, as `<tr arena-table-row>`, and the width that decides the
+shape is measured at runtime. So the elements cannot change with the shape: a `<tr>` that is not a
+DOM child of a table is dropped outright by the HTML parser, which is what a server render and its
+re-parse put it through. A shape that appears and disappears under the rows is therefore not
+available here, and the single shape that survives both widths is a real `<table>` always, restyled
+by CSS into cards below `--bp-md`.
+
+That also settles a second constraint that used to point the other way: Angular indexes projection
+slots in template order and hands the content to the **first** matching one, so a `wide` branch and a
+`card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
+and one `<ng-content>`, and nothing to choose between.
+
+`role="grid"` is still written, because APG's grid is not the `table` a `<table>` maps to and the
+roving tab stop is the difference. Nothing under it is: a `<tr>` is a row, a `<th scope="col">` is a
+columnheader and a `<td>` inside the grid is a gridcell, so none of the three is written back onto
+the element that already means it. Below `--bp-md` the whole table declares `role="presentation"` and
+drops its `aria-label`, which is what takes those mappings back off it -- a name would make the
+element ineligible for the role and bring the table back in the reader's ear while the screen shows a
+stack of cards.
+
+The empty state is still a block **beside** the table rather than a cell spanning it, and the table
+left behind is presentational. One measured cost stands: the `<table>` sits inside the bordered
+frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of
+pixels earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
 `frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1–5 were checked in real
 Chromium: one Tab in, the gold inset ring on the focused cell, the arrow walk,
 `Home`/`End` inside the row, `Enter` on a data row, one Tab out onto the actions button, and
-zero roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
+zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
 it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
@@ -187,6 +198,6 @@ setStatus(next: string): void {
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

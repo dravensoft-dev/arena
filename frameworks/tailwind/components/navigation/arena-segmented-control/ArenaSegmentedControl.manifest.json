@@ -1,7 +1,7 @@
 {
   "component": "ArenaSegmentedControl",
   "slots": {
-    "track": "inline-flex items-center gap-0.5 p-1 bg-base-300 border-[length:var(--bw-control)] border-base-300 rounded-control transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16 shadow-control-rest",
+    "track": "inline-flex items-center gap-0.5 p-1 bg-track border-[length:var(--bw-control)] border-edge-control-quiet rounded-control transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16 shadow-control-rest",
     "segment": "relative inline-flex items-center justify-center rounded-control-sm font-body cursor-pointer select-none whitespace-nowrap transition-[background,color] duration-[var(--dur-hover)] ease-hover",
     "input": "absolute opacity-0 size-0"
   },
@@ -11,8 +11,8 @@
       "md": { "segment": "h-8.5 px-3.5 text-ctl-md" }
     },
     "selected": {
-      "true": { "segment": "bg-neutral text-base-content font-semibold shadow-1" },
-      "false": { "segment": "bg-transparent text-base-content/62 font-medium hover:text-base-content/82" }
+      "true": { "segment": "bg-neutral text-ink-body font-control shadow-1" },
+      "false": { "segment": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:text-ink-body/(--level-ink-body)" }
     }
   },
   "defaultVariants": { "size": "md", "selected": false }

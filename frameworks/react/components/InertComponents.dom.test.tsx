@@ -24,6 +24,11 @@ import { ArenaChartCard } from './charts/arena-chart-card/ArenaChartCard.tsx';
 import { ArenaEmptyState } from './feedback/arena-empty-state/ArenaEmptyState.tsx';
 import { ArenaToastHost } from './feedback/arena-toast-host/ArenaToastHost.tsx';
 import { ArenaGrid } from './layout/arena-grid/ArenaGrid.tsx';
+import { ArenaKeyValue } from './display/arena-key-value/ArenaKeyValue.tsx';
+import { ArenaFigure } from './layout/arena-figure/ArenaFigure.tsx';
+import { ArenaHero } from './layout/arena-hero/ArenaHero.tsx';
+import { ArenaScrollerItem } from './layout/arena-scroller-item/ArenaScrollerItem.tsx';
+import { ArenaSection } from './layout/arena-section/ArenaSection.tsx';
 import { ArenaPageHead } from './navigation/arena-page-head/ArenaPageHead.tsx';
 import { ArenaSideNavSection } from './navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
 
@@ -49,6 +54,16 @@ const INERT: [string, string, React.ReactElement][] = [
   ['ArenaEmptyState', 'feedback/arena-empty-state/ArenaEmptyState.behaviour.json', <ArenaEmptyState title="Nothing here yet" />],
   ['ArenaToastHost', 'feedback/arena-toast-host/ArenaToastHost.behaviour.json', <ArenaToastHost />],
   ['ArenaGrid', 'layout/arena-grid/ArenaGrid.behaviour.json', <ArenaGrid><InertChild /></ArenaGrid>],
+  ['ArenaKeyValue', 'display/arena-key-value/ArenaKeyValue.behaviour.json',
+    <ArenaKeyValue rows={[{ term: 'Method', value: 'Standard' }]} />],
+  ['ArenaFigure', 'layout/arena-figure/ArenaFigure.behaviour.json',
+    <ArenaFigure caption="Kochere, 2050 m" />],
+  ['ArenaHero', 'layout/arena-hero/ArenaHero.behaviour.json',
+    <ArenaHero title="Coffee that tells you where it grew" />],
+  ['ArenaScrollerItem', 'layout/arena-scroller-item/ArenaScrollerItem.behaviour.json',
+    <ArenaScrollerItem><InertChild /></ArenaScrollerItem>],
+  ['ArenaSection', 'layout/arena-section/ArenaSection.behaviour.json',
+    <ArenaSection title="Landed recently"><InertChild /></ArenaSection>],
   ['ArenaPageHead', 'navigation/arena-page-head/ArenaPageHead.behaviour.json', <ArenaPageHead title="Projects" />],
   ['ArenaSideNavSection', 'navigation/arena-side-nav-section/ArenaSideNavSection.behaviour.json',
     <ArenaSideNavSection label="Workspace"><InertChild /></ArenaSideNavSection>],
@@ -92,4 +107,25 @@ test('a focusable element inside the render is what this suite exists to catch',
   assert.notDeepEqual(inertProblems(root), [],
     'an ArenaCard given an action slot renders a real button -- the check must see it, or it sees nothing. '
     + 'The binding stays correct because that button is the CONSUMER\'s, which is why the cases above pass no slots.');
+});
+
+test('an avatar image reserves its own box before the stylesheet arrives', () => {
+  const image = mount(<ArenaAvatar name="Ada Lovelace" src="/ada.png" size="lg" />).querySelector('img');
+  assert.ok(image);
+  assert.equal(image.getAttribute('width'), '56', 'the lg diameter, read from the token rather than restated here');
+  assert.equal(image.getAttribute('height'), '56');
+  assert.equal(image.getAttribute('decoding'), 'async');
+  assert.equal(image.getAttribute('loading'), null,
+    'deliberately absent: an avatar above the fold should not be deferred and the component cannot '
+    + 'know where it sits, so exposing the choice would be a capability and would go through the '
+    + 'audit protocol rather than through a defect');
+});
+
+test('the reserved box is the drawn box at every size', () => {
+  for (const [size, px] of [['xs', 24], ['sm', 32], ['md', 40], ['lg', 56]] as const) {
+    const image = mount(<ArenaAvatar name="Ada" src="/ada.png" size={size} />).querySelector('img');
+    assert.equal(image?.getAttribute('width'), String(px),
+      'the class sizes the box and the attribute reserves it, and the two disagreeing is a shift '
+      + 'that only appears on a slow stylesheet, which is where nobody looks');
+  }
 });

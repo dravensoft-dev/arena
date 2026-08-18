@@ -25,8 +25,9 @@ the shape each value arrives in.
 
 ## Visual foundations
 - **Color, token architecture (daisyUI structure):** the source of truth is a set of `--color-*` tokens paired with their `-content` counterpart (the legible color on top), defined per theme in `contracts/design/palette.dark.json` and `contracts/design/palette.light.json`, from which `contracts/design-generated/palette.generated.css` is generated. On top of them, `contracts/design/colors.css` maps Arena's own aliases (`--bg`, `--surface-card`, `--crimson`, `--gold`, `--danger`, `--mute`…) onto those tokens, so a rule can name the job a colour does rather than its position in the set. Muted text levels (`--bone-dim`, `--mute`) and `--status-offline` are derived from `--color-base-content` with `color-mix`, not fixed hex values.
-  - **One token breaks the pairing, on purpose: `--color-error-fill`** (alias `--danger-fill`). It has no `-content` of its own, because it *is* a second fill for `--color-error`'s content, because danger is worn two ways and one hex cannot do both. See [Danger convention](#danger-convention-destructive-actions-and-risk-indicators). Pinning it is **optional**: `--danger-fill` falls back to `color-mix(in oklab, var(--color-error) 85%, black)`, so a palette copied without it still gets a filled danger dark enough for white text. Pin it to override the derived tone (the Dravensoft skin pins `#ce3838`); `check-text-contrast.ts` gates both the pin and the fallback.
+  - **One token breaks the pairing, on purpose: `--color-error-fill`** (alias `--danger-fill`). It has no `-content` of its own, because it *is* a second fill for `--color-error`'s content, because danger is worn two ways and one hex cannot do both. See [Danger convention](#danger-convention-destructive-actions-and-risk-indicators). Pinning it is **optional**: a palette that leaves it out has one derived by `scripts/generate/core/arena-to-prod/oklab.ts:errorFill(error, content)` and written into the palette, so a skin copied without it gets a filled danger rather than a button with no background at all. It moves `error` **away from `error-content`**, darkening where the content is lighter and lightening where it is darker. Both Arena themes put white on that fill, so a rule that only darkened read as correct here and walked the fill toward its own text on any palette naming its dark page as `error-content`, which is what the daisyUI pairing invites. The derivation belongs to the emitter and not to a CSS fallback, because the compiled confirm button reads `var(--color-error-fill)` with nothing behind it, so a fallback spelled in an alias is a fallback nothing reads. Pin it to override the derived tone (the Dravensoft skin pins `#ce3838`); `check-text-contrast.ts` gates the pin and the derivation over Arena's own skin, and `arena-to-prod` measures whichever one a consumer ends up with.
 - **The muted text scale**, every level AA on both surfaces in both themes: `--text-strong` (100%, 15.23:1 dark / 15.86:1 light on the card), `--text-body` (82%, 10.46 / 9.28), `--text-muted` (62%, 6.52 / 4.71). `--text-muted` in light is the tightest of the three: it clears AA, and it is the reason nothing fits below it. A fainter level cannot be added, because clearing AA in light needs 61% while `--text-muted` already sits at 62%.
+- **Those percentages are FLOORS and not constants, because they were measured against one ink.** A slot spells a level as an opacity modifier over a custom property, `text-ink-muted/(--level-ink-muted)`, so a palette can move it: `colors.css` declares what Dravensoft wears and the least any skin may hold back by, and `arena-to-prod` **raises** one whose ink cannot clear the bar, never lowers it. On the benches every light palette needs a raise and no dark one does (62 to 76, 68, 66, 64). **Raising a level costs the hierarchy it belonged to**, and the command says so rather than flattening it quietly: at 76% duolingo's muted and quiet registers are one grey, and only a roomier ink parts them.
 - **`--status-offline`** (52%, 4.93:1 dark / 3.46:1 light on the card) is **presence only**, meaning `ArenaAvatar`'s offline dot. It clears WCAG 1.4.11's 3:1 for graphical objects. It is *not* `--mute-2-disabled` (40%), which dresses disabled controls: that one is low **by design** and exempt under 1.4.3/1.4.11's inactive-component carve-out. Do not raise it, and do not reach for it to render presence.
 - **Verifying it:** `bun scripts/check/core/check-text-contrast.ts` measures every level against the real surfaces in both themes and exits non-zero on failure. Run it after touching `contracts/design/colors.css`, or after rebuilding a change to `contracts/design/palette.dark.json` / `palette.light.json`. The claim above is machine-checkable, which is the point: a contrast figure nothing measures can be false for a whole theme with nothing to say so.
 - **Themes:** the language is **dark-first** but supports two switchable themes, **dark** (`:root`, default) and **light** (`.arena-light`, warm inverse). The same tokens change value per theme; components are never rewritten. (The Overview includes the toggle in its header.)
@@ -40,6 +41,7 @@ To tell **destructive / risk actions and indicators** apart from the primary act
 - **Rule:** a **filled** danger button never appears as a trigger in the UI (lists, cards, toolbars). The solid fill is reserved by visual weight for the primary action (crimson).
 - **Only exception, the final irreversible confirmation:** inside an `ArenaConfirmDialog`, the button for the final "point of no return" **is** filled, in `--danger-fill` (`--color-error-fill`) over `--color-error-content` and **not** in `--danger`. It's the only surface where danger is filled, precisely because it must not be confused with an ordinary action.
 - **Danger is two reds, and they cannot be one.** `--danger` is read *as text* on the base surfaces, so it is tuned against them (lighter in dark, darker in light). That leaves it too light to carry white text, which is exactly what the filled confirmation needs, so the fill is its own token, tuned in the opposite direction. Collapsing them puts one of the two roles under WCAG AA; `bun scripts/check/core/check-text-contrast.ts` gates both.
+- **A hover that washes the fill in the token's own colour cannot clear AA.** An outline control IS its token as text and its hover is a wash of that token, so the text loses contrast against its own background: `--color-error` on its 14% wash reads 4.44:1 dark, and `--color-primary` on a pressed `ArenaIconButton`'s 22% wash reads 2.58:1. **The resting ratio is the ceiling**, so no percentage repairs it; a hover moving something other than the fill would, and that is a decision about this convention, not about a number. `check:text-contrast` reports all three and gates none.
 - **Specimen:** `intro/guidelines/components-danger.html` (all three states side by side: filled primary · outline danger · filled final confirmation).
 - **"Danger is outline" governs controls and surfaces, not presence or identity marks.** `ArenaAvatar`'s presence dot (online/busy/away/offline) is a different semantic family, a status taxonomy like the chart `tone` colors rather than a destructive affordance, and it is filled: `--color-success`, `--color-warning` and `--color-error` for the three live states, `--status-offline` for the fourth. An outline dot at that size (`max(8px, diameter * 0.28)`) would not read at all. The same carve-out covers any other small identifying dot at that size, filled via `currentColor` from a `tone`/status token: `ArenaTag`'s leading dot and `ArenaActivityFeed`'s per-row tone dot are both `bg-current`, and both fill with `text-error` for their danger tone. A tag or a feed row is naming *what kind of thing this is*, the same taxonomy ArenaAvatar's presence is, not asking to be read as a risk trigger. Nothing here contradicts the rule above: the rule is about *danger*, and a dot filled in `--color-error` at this size is identity/status borrowing the error hue for "this one," not a risk indicator.
 
@@ -64,6 +66,18 @@ To tell **destructive / risk actions and indicators** apart from the primary act
 - **No emoji.** No arbitrary unicode as an icon. The **Rotor** (`assets/rotor-*.svg`) is brand, not a UI icon: don't use it as a functional glyph, and Arena ships no component that wraps it. The lock-up is `ArenaAppLogo`, which takes the mark as its `mark` node.
 
 ---
+
+## Three tiers, and the kernel is the smallest of them
+
+| Tier | What it holds | Who owns it |
+|---|---|---|
+| The kernel | the floors, the role declaration, the scale repertoire, the part hooks and the reserved cascade layer. No value of appearance | this directory |
+| The style plugin | an answer to every role, and CSS of its own written against the part hooks | [`plugin-style-store/`](../../plugin-style-store/AGENTS.md) for the two Arena authors, a directory of their own for anybody else |
+| The skin | the palettes and the fonts, declared in `arena.config.json` | the consuming project |
+
+[`StylePlugins.md`](./StylePlugins.md) is the normative statement of the middle tier: what the
+kernel exposes, what a plugin may answer with, which floors a gate still holds and which became
+reports, and the rule the role tier grows by. Read it before writing one.
 
 ## Theming
 
@@ -110,35 +124,6 @@ only a token and what the device reports. The full `$type` table is
 
 Two of these numbers the scripts **report without gating**: crimson as text sits at 2.80:1 on the dark card, gold as text at 2.24:1 on the light one. Both are below AA and both are deliberate: they are the brand, and a gate there would not tighten a token but repaint Dravensoft. Use them as fills or on the theme that carries them, and reach for `--text-strong` when the job is reading text.
 
-**Three tiers, and each has exactly one party who may move it.** The full statement is
-[`Extensions.md`](./Extensions.md); this is the table.
-
-| Floor, nobody moves it | Extension, Arena moves it | Skin, the consumer moves it |
-|---|---|---|
-| Danger is outline, never filled (one exception: `ArenaConfirmDialog`'s final confirmation) | The grouping signal: the hairline, or elevation and air instead | Crimson (`--color-primary`) |
-| No gradients on any surface (one exception: `ArenaSkeleton`'s shimmer). An extension buys its expression with shape, depth and motion, never with a fill whose contrast is a range | | The status hues |
-| WCAG contrast, and the 3:1 a control's boundary and the focus ring carry | The radius roles, and the border roles other than a control's and a field's | Gold (`--color-secondary`) |
-| An extension authors no colour | Which of the skin's colours a surface takes: `fill-surface` and `fill-surface-floating`, split so flattening a card never flattens an overlay | |
-| Target size, which is density's axis rather than an extension's | Resting and raised depth | The warm-black base values |
-| | Air: `pad-surface` inside a surface, and the `rhythm` steps between two things. Density keeps the controls and the data rows, so the two compose | |
-| Prose leading never closes below 1.5, which is WCAG 1.4.8 and what `lh-root` already is | A heading's weight and tracking, and how far above the floor prose is set | |
-| The reduced-motion policy, answered per animation | The motion roles, meaning how much energy a response has | |
-| The `base-100`→`base-200`→`base-300` surface scale | | The 8 categorical slots |
-| The three families, and the uppercase-microlabel rule | | |
-| Identity vs meaning; one axis in charts; the ramp is never cycled | | |
-
-An extension may not lower a floor, and the floor gates run against every scope Arena ships rather
-than against `:root` alone.
-
-**Two voices differ by mechanism or they do not differ.** Every extension declares in its own file
-which Gestalt principle answers "what belongs together" for it, and `bun run check:extensions`
-holds the claim against the resolved values: `common-region` draws the region, `figure-ground`
-removes the line and arrives with the depth, `proximity` draws neither. **Two extensions declaring
-the same principle fail the build.** Without that, a second voice can only be the first one taken
-further, and a catalogue of those is one voice with a dial on it. Every other decision a voice
-makes, the corner, the air, the depth, the motion, the type, is derived from the principle rather
-than chosen beside it, which is why the principle is the thing declared and the values are not.
-
 ### The categorical ramp
 
 A fixed set of slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
@@ -176,7 +161,7 @@ It is derived by enumeration against the validator rather than chosen by eye: a 
 
 ### Re-check after you swap
 
-The promise above is only worth the validator that backs it. After changing anything in `contracts/design/`, rebuild (`bun run generate:tokens`) and then:
+The promise above is only worth the validator that backs it. After changing a **colour**, rebuild (`bun run generate:tokens`) and then:
 
 ```bash
 bun scripts/check/core/check-ramp.ts
@@ -184,14 +169,33 @@ bun scripts/check/core/check-ramp.ts
 
 It reads the ramp straight out of `palette.generated.css`, which the build regenerates from the DTCG source, measures both themes against their real surfaces, and exits non-zero on any failure, **including** the warnings the upstream validator tolerates, because Arena's shipped ramp needs no relief rule and neither should yours. Do not trust your eye here; nobody's eye simulates deuteranopia.
 
-## Two documents live beside this one, and the split is by audience
+**That gate is the colour one and it is not the only gate a token answers to**, so a value that is not a colour passes it while failing elsewhere: a duration added and never exposed reaches no Tailwind utility, and `check:coverage` is what refuses it. Which gates read this directory is declared by each of them rather than listed here, so ask the graph rather than trusting that this page has named them all:
 
-All three are normative, and none is a summary of another.
+```bash
+bun -e "
+import { allNodes } from './scripts/graph/nodes.ts';
+const nodes = await allNodes();
+for (const node of Object.values(nodes).flat())
+  if ((node?.reads ?? []).some((read) => read.startsWith('contracts/design')))
+    console.log(node.name);
+"
+```
+
+**A step is added to a scale on the same evidence a role is**, which `StylePlugins.md` states for roles and which holds here too: a step earns its place when something is measured reaching for it, not when a value would be convenient. A scale whose last step has no consumer is not short of one.
+
+## Three documents live beside this one, and the split is by audience
+
+All four are normative, and none is a summary of another.
 
 **[`Scales.md`](./Scales.md)** carries every scale step by step: type, layering, quantity
 invariants, control density, tracking, line height, motion and behaviour timing. What a table
 there adds to the JSON is **which role a step plays**, which is what a reader choosing between
 two steps needs and the one thing the JSON cannot say.
+
+**[`StylePlugins.md`](./StylePlugins.md)** carries the middle tier: what the kernel exposes, what
+a plugin may say, which floors survive as gates and which became reports, and the rule a role is
+promoted by. It is what a consumer replacing the appearance reads, and the one document that
+admits where a gate stops reaching.
 
 **[`TokenTypes.md`](./TokenTypes.md)** carries the DTCG `$type` of every group, the strict
 2025.10 value formats, the `script: true` flag and what the map deliberately leaves out. It is
@@ -200,4 +204,4 @@ the second thing a new platform target reads.
 **This document states what a value MEANS**, which is what anyone choosing a colour needs; that
 one states what shape it arrives in, which only somebody authoring a token or targeting a new
 platform needs. **And the values themselves are the DTCG JSON in this directory**, which is
-machine-readable and cheaper to read than any of the three.
+machine-readable and cheaper to read than any of the four.

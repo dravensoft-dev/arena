@@ -13,10 +13,11 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { arenaConfirmDialogStyles } from './ArenaConfirmDialog.variants';
+import manifest from './ArenaConfirmDialog.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
-
-let nextId = 0;
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 export function isArenaConfirmLocked(required: string | undefined, typed: string): boolean {
   return required !== undefined && required !== '' && typed.trim() !== required;
@@ -28,39 +29,43 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
   },
+  imports: [ArenaButton],
   template: `
     @if (open()) {
-      <div #panel [class]="styles().panel()" role="alertdialog" aria-modal="true" tabindex="-1"
+      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="alertdialog" aria-modal="true" tabindex="-1"
            [attr.aria-labelledby]="titleId" [attr.aria-describedby]="descId">
-        <div [class]="styles().head()">
-          <div [class]="styles().eyebrow()">{{ eyebrow() }}</div>
-          <div [id]="titleId" [class]="styles().title()">{{ title() }}</div>
+        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+          <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ eyebrow() }}</div>
+          <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [id]="descId" [class]="styles().body()">
+        <div [id]="descId" [class]="styles().body()" [attr.data-arena-part]="parts.body">
           <ng-content />
           @if (requireText(); as required) {
-            <div [class]="styles().requireBlock()">
-              <div [class]="styles().requireLabel()">Type "{{ required }}" to confirm</div>
-              <input [class]="styles().input()" [value]="typed()" (input)="onType($event)" />
+            <div [class]="styles().requireBlock()" [attr.data-arena-part]="parts.requireBlock">
+              <div [class]="styles().requireLabel()" [attr.data-arena-part]="parts.requireLabel">Type "{{ required }}" to confirm</div>
+              <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="typed()" (input)="onType($event)" />
             </div>
           }
         </div>
-        <div [class]="styles().foot()">
-          <button type="button" [class]="styles().cancel()" (click)="cancel.emit()">{{ cancelLabel() }}</button>
-          <button type="button" [class]="styles().confirm()" [disabled]="locked()" (click)="confirm.emit()">{{ confirmLabel() }}</button>
+        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
+          <arena-button variant="ghost" (click)="cancel.emit()">{{ cancelLabel() }}</arena-button>
+          <button type="button" [class]="styles().confirm()" [attr.data-arena-part]="parts.confirm" [disabled]="locked()" (click)="confirm.emit()">{{ confirmLabel() }}</button>
         </div>
       </div>
     }
   `,
 })
 export class ArenaConfirmDialog {
+  protected readonly parts = manifest.parts;
+
   /** Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
 
-  /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. */
+  /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. */
   readonly title = input.required<string>();
   /** Small uppercase label above the title. */
   readonly eyebrow = input<string, string | undefined>(
@@ -89,7 +94,7 @@ export class ArenaConfirmDialog {
   private readonly doc = inject(DOCUMENT);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
-  private readonly uid = `arena-confirm-dialog-${nextId++}`;
+  private readonly uid = inject(ArenaIdGenerator).next('arena-confirm-dialog');
   protected readonly titleId = `${this.uid}-title`;
   protected readonly descId = `${this.uid}-body`;
 

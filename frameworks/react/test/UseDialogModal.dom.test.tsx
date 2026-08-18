@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { arenaFocusableElements, arenaFocusFirstFocusable, arenaTrapTabKey } from '../UseDialogModal.ts';
+import React, { StrictMode, createRef, useState } from 'react';
+import { mount, cleanup, act } from './Harness.tsx';
+import { arenaFocusableElements, arenaFocusFirstFocusable, arenaTrapTabKey, useArenaDialogModal } from '../UseDialogModal.ts';
 
 function panelWith(html: string) {
   const el = document.createElement('div');
@@ -51,4 +53,37 @@ test('arenaTrapTabKey leaves a middle element alone -- the browser does that par
   arenaTrapTabKey(p!, { key: 'Tab', shiftKey: false, preventDefault: () => {} }, middle ?? null);
   assert.equal(document.activeElement, middle,
     'the trap must not move focus off a middle element -- native sequential navigation owns that');
+});
+
+test('the invoker is remembered once, so a double-invoked effect does not restore to the panel', () => {
+  const invoker = document.createElement('button');
+  invoker.textContent = 'open';
+  document.body.appendChild(invoker);
+  invoker.focus();
+
+  const panel = document.createElement('div');
+  panel.innerHTML = '<button>close</button>';
+  document.body.appendChild(panel);
+  const panelRef = createRef<HTMLElement>();
+  (panelRef as { current: HTMLElement | null }).current = panel;
+
+  let setOpen: ((next: boolean) => void) | null = null;
+  function Host() {
+    const [open, set] = useState(true);
+    setOpen = set;
+    useArenaDialogModal({ open, panelRef });
+    return null;
+  }
+
+  mount(<StrictMode><Host /></StrictMode>);
+  act(() => { setOpen?.(false); });
+
+  assert.equal(document.activeElement, invoker,
+    'StrictMode mounts the effect twice: the second pass reads activeElement after the first has '
+    + 'already moved focus into the panel, so an unguarded capture stores the close button and '
+    + 'closing returns focus to an element that is going away');
+
+  cleanup();
+  invoker.remove();
+  panel.remove();
 });

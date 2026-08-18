@@ -18,7 +18,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git']);
+export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', '.claude']);
 
 export const SKIPPED_UNDER_FRAMEWORKS = new Set(['dist', 'build', 'vendor']);
 
@@ -28,6 +28,11 @@ export function skips(name: string, relativeDirectory: string) {
 }
 
 export const EXEMPT = new Map([
+  ['skills/arena/SKILL.md',
+   'the discovery stub, which exists at that path inside each PUBLISHED package and nowhere in '
+   + 'this tree. It is emitted by the package assembly rather than tracked, because a tracked one '
+   + 'would be a second file under the reserved name and check:skill-spec fails on exactly that. '
+   + 'Its presence in both packages is check:packages\' claim, over the assembled directory.'],
   ['frameworks/angular/BehaviourDelegated.json',
    'the file records a component one layer lacks, and every component exists in both layers, so '
    + 'it correctly does not exist. The prose that names it says so, and check:behaviour reads it '

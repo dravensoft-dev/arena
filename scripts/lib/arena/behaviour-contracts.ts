@@ -26,6 +26,17 @@ export function validatePattern(fileStem: string, pattern: any) {
       problems.push(`${fileStem}: requirement "${key}" must be dotted (group.leaf) so an exception can name exactly one`);
     }
   }
+  if ('additive' in pattern && pattern.additive !== true) {
+    problems.push(`${fileStem}: "additive" is present and not true. It says a component adds this pattern to the one it already binds, so the only value that means anything is true; omit it for an ordinary pattern rather than declaring it false.`);
+  }
+  if (pattern.additive === true) {
+    if (!pattern.description) {
+      problems.push(`${fileStem}: an additive pattern must carry a description. It is bound alongside another pattern rather than instead of one, so nothing else on the page says why a component owes both.`);
+    }
+    for (const key of keys.filter((k) => k.startsWith('roles.'))) {
+      problems.push(`${fileStem}: requires "${key}", and an additive pattern may require nothing in the roles family. Which element a component renders and what names it are answered once, by the pattern it binds; a second pattern answering them again is a contradiction with no way to report which of the two the component broke.`);
+    }
+  }
   return problems;
 }
 
@@ -54,6 +65,11 @@ export type BindingCase = {
   exceptions: BindingException[];
 };
 
+export type BindingAlso = {
+  pattern?: string;
+  exceptions?: BindingException[];
+};
+
 export type BehaviourBinding = {
   component?: string;
   pattern?: string;
@@ -61,6 +77,7 @@ export type BehaviourBinding = {
   divergesFrom?: string;
   delegatedTo?: string;
   exceptions?: BindingException[];
+  also?: BindingAlso[];
   cases?: {
     name?: string;
     when?: string;
@@ -69,6 +86,10 @@ export type BehaviourBinding = {
     exceptions?: BindingException[];
   }[];
 };
+
+export function bindingAlso(binding: BehaviourBinding): BindingAlso[] {
+  return Array.isArray(binding.also) ? binding.also : [];
+}
 
 export function bindingCases(binding: BehaviourBinding): BindingCase[] {
   if (!Array.isArray(binding.cases)) {
@@ -132,6 +153,38 @@ export function validateBinding(component: string, layer: string, binding: Behav
       }
     }
   }
+  const alsoSeen = new Set();
+  for (const [i, entry] of bindingAlso(binding).entries()) {
+    const label = `${where} also[${i}]`;
+    const pattern = patterns.get(entry.pattern);
+    if (!pattern) {
+      problems.push(`${label}: unknown pattern "${entry.pattern}" — no such file in ${PATTERN_DIR}`);
+      continue;
+    }
+    if (pattern.additive !== true) {
+      problems.push(`${label}: "${entry.pattern}" is not additive, so it cannot be added to another. A component binds one pattern for what it does, and "also" is for the ones that say something a component owes ON TOP of that; a pattern that answers roles, keys or focus belongs in "pattern" or in a case, where a layer can be held to exactly one of them.`);
+      continue;
+    }
+    if (alsoSeen.has(entry.pattern)) {
+      problems.push(`${label}: adds "${entry.pattern}" twice, so one of the two declarations governs nothing and an exception written on the wrong one would be silently ignored.`);
+    }
+    alsoSeen.add(entry.pattern);
+    for (const e of entry.exceptions ?? []) {
+      if (!(e.requirement in pattern.requires)) {
+        problems.push(`${label}: excepts "${e.requirement}", which pattern "${entry.pattern}" does not require`);
+      }
+      if (!e.reason) {
+        problems.push(`${label}: exception for "${e.requirement}" has no reason`);
+      }
+    }
+  }
+  for (const c of bindingCases(binding)) {
+    const pattern = patterns.get(c.pattern);
+    if (pattern?.additive === true) {
+      problems.push(`${where}: binds "${c.pattern}" as its pattern, and that one is additive. It states what a component owes BESIDES the pattern it binds, so on its own it would leave the roles, the keys and the focus unanswered rather than answered as none.`);
+    }
+  }
+
   if ('delegatedTo' in binding && !binding.delegatedTo) {
     problems.push(`${where}: delegatedTo must name the third-party control that provides the behaviour, e.g. "SomeLibrary someControl". No entry declares one today; the branch stands so the first that does is checked.`);
   }
@@ -144,6 +197,9 @@ export function validateBinding(component: string, layer: string, binding: Behav
 
 export function crossLayerAgrees(a: BehaviourBinding, b: BehaviourBinding) {
   if (a.pattern === ABSENT || b.pattern === ABSENT) return true;
+
+  const added = (x: BehaviourBinding) => bindingAlso(x).map((e) => e.pattern).sort().join(',');
+  if (added(a) !== added(b)) return false;
 
   const mine = bindingCases(a);
   const theirs = bindingCases(b);

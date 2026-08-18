@@ -1,0 +1,19 @@
+{
+  "component": "ArenaPersonRow",
+  "seed": {
+    "name": "Priya Raman",
+    "secondary": "Platform, on call",
+    "figure": "12 open"
+  },
+  "host": {
+    "component": "ArenaPeopleList",
+    "members": { "label": "Assignees" },
+    "slots": {
+      "content": [
+        "$subject",
+        { "component": "ArenaPersonRow", "members": { "name": "Tomas Klein", "figure": "4 open" } }
+      ]
+    }
+  },
+  "note": "A row takes its size from the list it sits in, so the playground draws one around it."
+}

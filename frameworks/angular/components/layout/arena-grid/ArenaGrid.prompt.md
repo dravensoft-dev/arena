@@ -16,7 +16,7 @@ element you place.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `min` | primitive | `string` | `"calc(var(--sp-1) * 50)"` | The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it. |
+| `min` | primitive | `string` | `"var(--grid-min)"` | The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it. The default is a role rather than the arithmetic it used to spell, so a style plugin can answer how many cards a viewport shows: a gallery wants a dense wall and a ledger wants a wide column, from the same markup. |
 | `gap` | enum | `ArenaGridGap` | `"md"` | The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. Its steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections, and none closes the gap entirely; a grid is that rhythm plus a grid, and nothing here is a number this component chose. |
 | `maxWidth` | primitive | `string` |  | A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for. |
 | `content` | slot |  |  | The cells, one per child. Nothing is wrapped and nothing is measured: a child is a grid item exactly as it was written, so a card, a chart or a definition list all lay out the same way. |
@@ -48,6 +48,11 @@ is the page's own reading width.
   out, so a minimum nobody meets pins the grid at one column forever.
 - **Don't** nest one to make a two-level layout. Two grids nested pick their counts independently
   and the cells stop lining up; give the outer one the cells it actually has.
+- **Don't** wait for a fixed column count. A photo wall three across and a pair of lesson choices
+  are both `grid-template-columns: repeat(N, 1fr)` on an element of your own, one line each, and a
+  count Arena took would contradict what this component is: the number comes from the room rather
+  than from a breakpoint somebody picked. Two products measured wanting one, and neither would
+  have written less than the line they wrote.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-grid/ArenaGrid.demo.generated.html`:
@@ -58,6 +63,6 @@ is the page's own reading width.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

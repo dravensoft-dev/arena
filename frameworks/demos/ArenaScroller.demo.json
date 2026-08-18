@@ -1,0 +1,95 @@
+{
+  "component": "ArenaScroller",
+  "seed": {
+    "label": "Recently landed lots"
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaScrollerItem",
+        "slots": {
+          "content": [
+            {
+              "component": "ArenaCard",
+              "members": {
+                "eyebrow": "Huehuetenango",
+                "title": "Finca El Injerto"
+              },
+              "slots": {
+                "content": [
+                  {
+                    "text": "Washed, 1900 m"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "component": "ArenaScrollerItem",
+        "slots": {
+          "content": [
+            {
+              "component": "ArenaCard",
+              "members": {
+                "eyebrow": "Yirgacheffe",
+                "title": "Kochere Lot 4"
+              },
+              "slots": {
+                "content": [
+                  {
+                    "text": "Natural, 2050 m"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "component": "ArenaScrollerItem",
+        "slots": {
+          "content": [
+            {
+              "component": "ArenaCard",
+              "members": {
+                "eyebrow": "Nari\u00f1o",
+                "title": "La Esperanza"
+              },
+              "slots": {
+                "content": [
+                  {
+                    "text": "Honey, 1750 m"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "component": "ArenaScrollerItem",
+        "slots": {
+          "content": [
+            {
+              "component": "ArenaCard",
+              "members": {
+                "eyebrow": "Kirinyaga",
+                "title": "Kiangoi AA"
+              },
+              "slots": {
+                "content": [
+                  {
+                    "text": "Washed, 1700 m"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "note": "One tab stop with a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all."
+}

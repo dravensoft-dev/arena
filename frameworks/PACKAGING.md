@@ -24,8 +24,8 @@ than being written into `dist/` directly for one reason: `check:docs` reads them
 page npm shows holds to the same size, punctuation and comment rules as everything else.
 
 **The half of that page which is the same page in both packages is written once**, in
-`scripts/generate/arena/generate-npm-pages.ts`, and emitted into four `@shared` regions per file:
-what the repository is, how a skin is declared, the voice catalogue with its prose, and the tail.
+`scripts/generate/arena/generate-npm-pages.ts`, and emitted into the `@shared` regions per file:
+what the repository is, how a skin is declared, and the tail.
 A person places the markers, so where a section sits on the page stays the page's decision and
 only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit.
 What a layer decides stays hand-written in each: the import idiom, what the package exports, and
@@ -88,6 +88,22 @@ were told about and resents one they find.
 - **Phosphor** travels as a **peer dependency** of both packages. Every `icon` member is a
   class name the consumer supplies and a component renders, so the font has to be installed
   and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
+
+**A second peer exists and it is optional, which is a different kind of thing.** The Angular
+package declares `@angular/router` under `peerDependenciesMeta` as optional, and an adopter who
+never installs it installs cleanly and is told nothing. It is reachable only through the
+**secondary entry point** `@dravensoft/arena-angular/metadata`: the primary entry point names it
+nowhere, which is a claim `grep '@angular/router' frameworks/angular/dist/fesm2022/dravensoft-arena-angular.mjs`
+re-derives against the assembled package. That separation is the whole reason the entry point
+exists rather than the provider sitting in the root barrel: a bundler **resolves** an import
+before it eliminates it, so a router named anywhere in the primary graph is a router every
+adopter has to have installed, whether or not they call the thing that needs it. So the coupling
+is opt-in at the import site, and an adopter pays for it by asking for it.
+
+**A secondary entry point is a directory holding its own `ng-package.json`**, which
+`build-angular-package.ts` writes into the staging tree from `SECONDARY_ENTRY_POINTS`. ng-packagr
+finds it, compiles it into its own FESM module and its own types, and adds the subpath to the
+package's `exports` map.
 
 **Tailwind is not one.** It is how Arena's CSS is *authored*, and it stops there: a
 manifest's class string is compiled through `@apply`, stripped of every Tailwind theme
@@ -220,8 +236,8 @@ Neither half compiles anything, because the two layers need different compilers.
 each declaration is EMITTED by `tsc` rather than copied, so it cannot disagree with the
 implementation it describes. There is exactly one rewrite, and it normalises every relative
 specifier to `.js`: one carrying `.ts`, `.tsx`, `.jsx` or `.js` is retargeted, and one carrying
-no extension gains it. Inside the package only the compiled `.js` resolves, and a consumer on
-`node16` infers no extension from a declaration, where this layer's own `bundler` resolution
+no file extension gains it. Inside the package only the compiled `.js` resolves, and a consumer
+on `node16` infers no file extension from a declaration, where this layer's own `bundler` resolution
 makes it optional. Neither half is taken on trust: `unresolvedProblems` resolves every specifier
 in every emitted module and declaration against what the package holds, so one naming nothing
 fails the build rather than the consumer's editor. The entry point is
@@ -243,7 +259,7 @@ that moved is loud rather than silently empty.
 
 ### What never ships
 
-Tests in any extension, demo pages, `.card.html` specimens, `.demo.` playgrounds, behaviour
+Tests in any file extension, demo pages, `.card.html` specimens, `.demo.` playgrounds, behaviour
 bindings, component prompts, the vendored React bundles, the test harnesses, the tsconfigs,
 and the font binaries. `EXCLUDED_NAMES` and `EXCLUDED_PATTERNS` are the record, and the
 suite beside them asserts both by name.

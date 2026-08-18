@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { typecheck, projectFiles, zeroProjectProblems } from '../../lib/arena/typecheck.ts';
+import { verdictFor, zeroProjectProblems } from '../../lib/arena/typecheck.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
 export const PROJECTS = [
@@ -41,29 +41,25 @@ function main() {
   if (empty.length) process.exit(1);
 
   for (const { project, reaches } of PROJECTS) {
-    let unreached;
+    const onDisk = sourcesUnder(join(repoRoot, 'scripts'));
+    let verdict;
     try {
-      unreached = unreachedProblems(sourcesUnder(join(repoRoot, 'scripts')), projectFiles({ project }));
+      verdict = verdictFor(project, onDisk.map((path) => relPosix(repoRoot, path)));
     } catch (err) {
       console.error(`check-script-types: ${(err as Error).message}`);
       process.exit(1);
     }
+
+    const unreached = unreachedProblems(onDisk, verdict.reach.map((rel) => join(repoRoot, rel)));
     if (unreached.length) {
       console.error(`check-script-types: ${project} leaves ${unreached.length} file(s) unchecked\n`);
       for (const problem of unreached) console.error(`  ${problem}`);
       process.exit(1);
     }
 
-    let result;
-    try {
-      result = typecheck({ project });
-    } catch (err) {
-      console.error(`check-script-types: ${(err as Error).message}`);
-      process.exit(1);
-    }
-    if (result.status !== 0) {
+    if (verdict.status !== 0) {
       console.error(`check-script-types: ${project} does not typecheck -- it reaches ${reaches}\n`);
-      console.error(result.output.trim());
+      console.error(verdict.output.trim());
       process.exit(1);
     }
   }

@@ -1,0 +1,32 @@
+{
+  "component": "ArenaHero",
+  "slots": {
+    "root": "grid w-full py-section",
+    "words": "flex flex-col gap-items min-w-0",
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow m-0 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-hero text-ink-heading tracking-heading leading-heading m-0",
+    "lede": "font-body text-lg text-ink-body leading-prose max-w-prose m-0",
+    "actions": "flex flex-wrap items-center gap-inline",
+    "figure": "min-w-0"
+  },
+  "variants": {
+    "layout": {
+      "stacked": { "root": "grid-cols-1 gap-component" },
+      "split": { "root": "items-center gap-section" },
+      "bleed": {
+        "root": "grid-cols-1 relative overflow-hidden rounded-media p-surface",
+        "words": "col-start-1 row-start-1 z-10",
+        "figure": "col-start-1 row-start-1 self-stretch"
+      }
+    },
+    "align": {
+      "start": { "words": "items-start text-start" },
+      "center": { "words": "items-center text-center" }
+    }
+  },
+  "compoundVariants": [
+    { "layout": "bleed", "align": "start", "class": { "words": "justify-end" } },
+    { "layout": "bleed", "align": "center", "class": { "words": "justify-center" } }
+  ],
+  "defaultVariants": { "layout": "split", "align": "start" }
+}

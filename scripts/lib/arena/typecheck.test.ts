@@ -1,12 +1,13 @@
-/* Both refusals asserted here are the vacuous pass in its two forms: a runner given no
- * project would check nothing and report nothing wrong, and a gate holding no project at
- * all would do the same one level up. Neither can be reached by accident once they throw. */
+/* Every refusal asserted here is the vacuous pass in one of its forms: a runner given no
+ * project would check nothing and report nothing wrong, a gate holding no project at all
+ * would do the same one level up, and a held verdict handed no candidate would answer for
+ * a tree a new file had since joined. None can be reached by accident once they throw. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
-import { TSC_SPAWN, tscBin, typecheck, projectFiles, zeroProjectProblems } from './typecheck.ts';
+import { TSC_SPAWN, tscBin, typecheck, projectFiles, verdictFor, zeroProjectProblems } from './typecheck.ts';
 import { budgetFor } from './deadline.ts';
 
 const BUDGET_MS = budgetFor(TSC_SPAWN);
@@ -44,4 +45,11 @@ test('a gate holding zero projects is a failure, not a clean run', () => {
   assert.equal(zeroProjectProblems(0).length, 1);
   assert.match(zeroProjectProblems(0)[0] ?? '', /reports clean by construction/);
   assert.deepEqual(zeroProjectProblems(1), []);
+});
+
+test('verdictFor refuses an empty candidate list, since nothing would then notice a file arriving', () => {
+  assert.throws(
+    () => verdictFor('scripts/tsconfig.check.json', []),
+    /0 candidate\(s\)/,
+  );
 });

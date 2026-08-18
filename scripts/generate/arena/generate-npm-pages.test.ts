@@ -1,18 +1,28 @@
 /* The property that makes this safe to have written at all is that a region is placed by a person
  * and only filled by the script, so these hold both halves: a page with no markers is refused
  * rather than rewritten, and a page with them comes back byte-identical once it is current. The
- * voice region is the one that is not verbatim, so its two derived parts, the catalogue and the
- * count in its opening sentence, are asserted against the contracts. */
+ * every region is verbatim, so a page that is current comes back unchanged. */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { voiceTable, voices } from './generate-voices.ts';
+import { LAYER_TOKENS } from '../../check/arena/check-layer-independence.ts';
 import {
-  TARGETS, REGIONS, openLine, closeLine, shipped, renderRegion, applyRegion, renderTarget,
+  TARGETS, REGIONS, openLine, closeLine, renderRegion, applyRegion, renderTarget,
 } from './generate-npm-pages.ts';
+
+test('a shared region names no layer, because it is written into every layer at once', () => {
+  const tokens = Object.entries(LAYER_TOKENS)
+    .flatMap(([layer, entries]) => entries.map(([token, re]) => ({ layer, token, re })));
+  for (const key of Object.keys(REGIONS))
+    for (const [index, line] of renderRegion(key).split('\n').entries())
+      for (const { layer, token, re } of tokens)
+        assert.ok(!re.test(line), `the ${key} region names ${layer} ("${token}") on line ${index + 1}: `
+          + `${line.trim()}. A fact true of one package only is that package's own paragraph, `
+          + 'hand-written outside the markers, and it states what its own package does.');
+});
 
 test('both npm pages carry every shared region, and each is byte-identical between them', () => {
   const [react, angular] = TARGETS.map((t) => readFileSync(join(repoRoot, t), 'utf8'));
@@ -47,11 +57,3 @@ test('a region replaces what is between its markers and leaves the page around i
   assert.doesNotMatch(after, /old/);
 });
 
-test('the voice region carries the catalogue and says how many ship, both from the contracts', () => {
-  const region = renderRegion('voices');
-  for (const row of voiceTable()) assert.ok(region.includes(row), 'every catalogue row is emitted');
-  const { extensions, capitalized } = shipped();
-  assert.equal(extensions, voices().length - 1, 'the base voice is not an extension');
-  assert.ok(region.includes(`${capitalized} ship today`),
-    'the count is a word derived from the catalogue rather than a number somebody typed');
-});

@@ -8,18 +8,44 @@
    Swapping the skin means swapping the palette source, not this file.
    ============================================================ */
 
-/* Theme polarity — not a color, a direction. Read by the injected
-   style that recolors the native date picker indicator, which is a
-   vendor pseudo-element an inline style cannot reach (see ArenaInput.tsx). */
-:root{ --picker-invert:1; }
-.arena-light{ --picker-invert:0; }
+/* Theme polarity — not a color, a direction, and two things read it.
+   --picker-invert is read by the injected style that recolors the native
+   date picker indicator, which is a vendor pseudo-element an inline style
+   cannot reach (see ArenaInput.tsx).
+   color-scheme is read by the browser, and it decides the furniture Arena
+   never draws: scrollbars, native controls, autofill, and the canvas the UA
+   paints wherever nothing else does. It reaches the canvas from the root
+   element alone, which is where the .arena-<name> class goes.
+   This is a declaration about the palette and not a paint: --fill-page is
+   the floor and the project is what applies it. Arena states which way the
+   palette points and leaves the page to whoever owns it. */
+:root{ --picker-invert:1; color-scheme:dark; }
+.arena-light{ --picker-invert:0; color-scheme:light; }
 
 /* ============================================================
    Compatibility layer — Arena aliases → daisyUI tokens.
    Muted text levels are derived from base-content with
    color-mix (equivalent to daisyUI's opacity pattern).
    ============================================================ */
+/* ============================================================
+   The LEVELS, which are how held back a colour is rather than
+   which colour it is. A slot spells one as an opacity modifier
+   (text-ink-muted/(--level-ink-muted)), so the percentage is a
+   value a palette can move and not a literal frozen into 100
+   compiled sheets. These are the floors: what Dravensoft wears,
+   and the least any skin may hold back by. arena-to-prod RAISES
+   one per palette when the consumer's ink has too little room to
+   clear its bar, and never lowers it. The disabled level is not
+   here on purpose: it is exempt under WCAG 1.4.3/1.4.11 and
+   raising it to answer a contrast report is the one move the
+   scale forbids.
+   ============================================================ */
 :root,.arena-light{
+  --level-ink-body:82%;    /* body copy */
+  --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
+  --level-ink-muted:62%;   /* captions, meta, the held-back register */
+  --level-presence:52%;    /* ArenaAvatar's offline dot: a graphical object, 3:1 */
+
   /* raw neutrals */
   --ink:var(--color-base-100);
   --ink-2:var(--color-base-200);
@@ -56,12 +82,11 @@
   /* The only filled danger surface in Arena (ArenaConfirmDialog's final
      confirmation). Never a border or text color — --danger is that.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
-     does: #ce3838). If it doesn't, the fill DERIVES from --color-error by
-     darkening it in oklab — so a skin that only swaps the palette still gets a
-     filled danger dark enough to carry --color-error-content, and nothing goes
-     backgroundless. check-text-contrast.ts gates whichever path is live, and
-     always gates the fallback too. */
-  --danger-fill:var(--color-error-fill,color-mix(in oklab,var(--color-error) 85%,black));
+     does: #ce3838). A skin that doesn't gets one derived from --color-error,
+     emitted into the palette by arena-to-prod rather than composed here: the
+     compiled confirm button reads var(--color-error-fill) with no fallback of
+     its own, so a fallback living only in this alias is one nothing reads. */
+  --danger-fill:var(--color-error-fill);
   --info:var(--color-info);
   --info-soft:color-mix(in oklab,var(--color-info) 16%,transparent);
 

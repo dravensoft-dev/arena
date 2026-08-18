@@ -26,6 +26,7 @@ serves sign-in, "check your inbox", "this link expired" and two-factor entry.
 | `brand` | slot |  |  | The brand lock-up above the panel's content. An ArenaAppLogo, in practice. |
 | `eyebrow` | primitive | `string` |  | Mono crimson microlabel: the product, not the task. |
 | `title` | primitive | `string` |  | The task. "Welcome back", "Check your inbox". |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h2"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because this title is drawn in the section register rather than the card one, so the outline follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. |
 | `content` | slot |  |  | The fields, composed from ArenaInput and ArenaButton. |
 | `footer` | slot |  |  | Centred muted line below the content: a recovery link, a legal note. |
 
@@ -50,6 +51,6 @@ own margin, so a card that omits one ships no dead space for it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

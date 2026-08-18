@@ -30,7 +30,7 @@ test('the motion roles are not scale uses, at either end of the transition', () 
   assert.deepEqual(scaleUsesIn('duration-[var(--dur-state)] ease-state'), []);
 });
 
-test('the easings a voice never answers are left alone, because an entrance and the brand gesture are not a hover', () => {
+test('the easings no role answers are left alone, because an entrance and the brand gesture are not a hover', () => {
   assert.deepEqual(scaleUsesIn('ease-in-out ease-emphatic'), []);
 });
 
@@ -93,4 +93,18 @@ test('zeroManifestProblem fails on an empty walk rather than reporting a clean p
 
 test('zeroManifestProblem is null for a non-empty file list', () => {
   assert.equal(zeroManifestProblem(['X.manifest.json']), null);
+});
+
+test('the palette step behind a track is a role position, so a manifest naming it is a finding', () => {
+  const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' } };
+  const findings = evaluateManifest(manifest, new Map());
+  assert.deepEqual(findings.map((f) => f.utility), ['bg-base-300'],
+    'nothing else in that class string stands where a role belongs');
+  assert.match(findings[0]?.role ?? '', /bg-track/);
+});
+
+test('a fill utility is matched whole, so bg-base-300 is not read out of bg-base-300\\/40', () => {
+  assert.deepEqual(scaleUsesIn('bg-base-300'), ['bg-base-300']);
+  assert.deepEqual(scaleUsesIn('hover:bg-base-300'), ['bg-base-300'],
+    'a variant prefix does not change which utility is standing there');
 });

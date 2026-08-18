@@ -1,6 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { avatarLg, avatarMd, avatarSm, avatarXs } from '../../../Tokens.generated';
 import { arenaAvatarStyles } from './ArenaAvatar.variants';
+import manifest from './ArenaAvatar.classes.generated';
 import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../../../Api.generated';
+
+const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
+  xs: avatarXs, sm: avatarSm, md: avatarMd, lg: avatarLg,
+};
 
 @Component({
   selector: 'arena-avatar',
@@ -8,22 +14,26 @@ import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../..
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
   template: `
-    <span [class]="styles().box()">
+    <span [class]="styles().box()" [attr.data-arena-part]="parts.box">
       @if (src(); as source) {
-        <img [src]="source" [alt]="name()" [class]="styles().image()" />
+        <img [src]="source" [alt]="name()" [class]="styles().image()" [attr.data-arena-part]="parts.image"
+             [attr.width]="diameter()" [attr.height]="diameter()" decoding="async" />
       } @else {
         {{ initials() }}
       }
     </span>
     @if (status(); as presence) {
-      <span [class]="styles().status()" [attr.aria-label]="presence" [title]="presence"></span>
+      <span [class]="styles().status()" [attr.data-arena-part]="parts.status" [attr.aria-label]="presence" [title]="presence"></span>
     }
   `,
 })
 export class ArenaAvatar {
+  protected readonly parts = manifest.parts;
+
   /** Image URL. Absent renders initials from `name`. */
   readonly src = input<string>();
   /** The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. */
@@ -46,4 +56,6 @@ export class ArenaAvatar {
 
   protected readonly initials = computed(() =>
     this.name().trim().split(/\s+/).slice(0, 2).map((word) => word[0] ?? '').join('').toUpperCase());
+
+  protected readonly diameter = computed(() => AVATAR_DIAMETER[this.size()]);
 }

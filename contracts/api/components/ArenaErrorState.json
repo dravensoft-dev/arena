@@ -7,6 +7,8 @@
               "description": "A Phosphor class name for the danger glyph Arena draws." },
     "title": { "form": "primitive", "type": "string", "default": "Something went wrong",
                "description": "The headline: what failed." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h3",
+                      "description": "Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, for the reason an empty state does: a failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants, and it is available here because `title` carries a default rather than being required." },
     "message": { "form": "primitive", "type": "string",
                  "description": "A sentence of detail under the title." },
     "code": { "form": "primitive", "type": "string",

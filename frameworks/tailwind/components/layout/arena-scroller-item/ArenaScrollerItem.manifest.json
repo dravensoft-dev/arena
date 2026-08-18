@@ -1,0 +1,8 @@
+{
+  "component": "ArenaScrollerItem",
+  "slots": {
+    "root": "block shrink-0 grow-0 basis-[var(--arena-scroller-item)] min-w-0 snap-start"
+  },
+  "variants": {},
+  "defaultVariants": {}
+}

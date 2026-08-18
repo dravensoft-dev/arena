@@ -142,7 +142,7 @@
     },
     "loose": {
       "$value": 1.8,
-      "$description": "Reading leading for a voice that carries its hierarchy in type rather than in boxes.\nOne step above body, which is where a page of prose stops being a panel of copy."
+      "$description": "Reading leading for a style plugin that carries its hierarchy in type rather than in boxes.\nOne step above body, which is where a page of prose stops being a panel of copy."
     }
   },
   "ls": {

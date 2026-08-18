@@ -11,7 +11,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
+  GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
+  discoveryProblems,
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -329,4 +330,70 @@ test('every component the tree declares is one this gate would look for', () => 
   const declared = declaredComponents();
   assert.ok(declared.length > 40, `only ${declared.length} components declared, which is not the whole library`);
   assert.deepEqual([...declared].sort(), declared, 'the list is sorted, so a diff of it reads');
+});
+
+test('a package shipping no discovery stub is one no agent can find Arena through', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const empty = assembled({ 'package.json': '{}' });
+  const problems = discoveryProblems(pkg, empty);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no skills\/arena\/SKILL\.md/);
+  rmSync(empty, { recursive: true });
+});
+
+test('a stub that carries no frontmatter, no package name or no route is not a stub', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const bare = assembled({ 'skills/arena/SKILL.md': '# Arena\n' });
+  assert.equal(discoveryProblems(pkg, bare).length, 3, 'each of the three is its own finding');
+  rmSync(bare, { recursive: true });
+
+  const whole = assembled({
+    'skills/arena/SKILL.md': '---\nname: arena\n---\n@dravensoft/arena-react and skills/design/SKILL.md\n',
+  });
+  assert.deepEqual(discoveryProblems(pkg, whole), []);
+  rmSync(whole, { recursive: true });
+});
+
+const PKG = { layer: 'react', name: '@dravensoft/arena-react' };
+const CONDITION = '@supports (color: color-mix(in lab, red, red))';
+
+test('the shipped CSS is the honest subject, and a walk that finds no sheet is a failure', () => {
+  const bare = assembled({ 'package.json': '{}' });
+  const problems = bundledCssProblems(PKG, bare);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /not one stylesheet was emitted/);
+  rmSync(bare, { recursive: true });
+});
+
+test('a shipped rule whose fallback paints the ink in its own colour is reported', () => {
+  const dir = assembled({
+    'css/a.css': `.a {\n  background-color: var(--color-primary);\n  ${CONDITION} {\n`
+      + '    background-color: color-mix(in oklab, var(--color-primary) 14%, transparent);\n'
+      + '  }\n  color: var(--color-primary);\n}\n',
+  });
+  const problems = bundledCssProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /under an ink of the same colour/);
+  rmSync(dir, { recursive: true });
+});
+
+test('a shipped rule stating one condition twice is reported, because a bundler keeps one', () => {
+  const dir = assembled({
+    'css/a.css': `.a {\n  ${CONDITION} {\n    color: color-mix(in oklab, var(--ink-body) 50%, transparent);\n  }\n`
+      + `  ${CONDITION} {\n    border-color: color-mix(in oklab, var(--edge-surface) 50%, transparent);\n  }\n}\n`,
+  });
+  const problems = bundledCssProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /states .* 2 times/);
+  rmSync(dir, { recursive: true });
+});
+
+test('a wash of a colour the ink is not, stated once, is what a clean package looks like', () => {
+  const dir = assembled({
+    'css/a.css': `.a {\n  background-color: var(--fill-surface-sunken);\n  color: var(--ink-muted);\n  ${CONDITION} {\n`
+      + '    background-color: color-mix(in oklab, var(--fill-surface-sunken) 30%, transparent);\n'
+      + '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);\n  }\n}\n',
+  });
+  assert.deepEqual(bundledCssProblems(PKG, dir), []);
+  rmSync(dir, { recursive: true });
 });

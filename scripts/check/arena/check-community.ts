@@ -16,12 +16,13 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { skips } from './check-agents.ts';
+import { skips, emitted } from './check-agents.ts';
+import { isConsumerDocument, DATED_PROCESS_DOCUMENTS } from './check-docs.ts';
 import { ignoredRoots } from './check-citations.ts';
 
 export const node = {
   name: 'check:community',
-  reads: ['CONTRIBUTING.md', 'SECURITY.md', 'SKILL.md', 'context7.json', '.github/**'],
+  reads: ['CONTRIBUTING.md', 'SECURITY.md', 'skills/design/SKILL.md', 'context7.json', '.github/**'],
   writes: [],
   feeds: [],
 };
@@ -32,7 +33,12 @@ export const CONFIG = '.github/ISSUE_TEMPLATE/config.yml';
 export const CONTRIBUTING = 'CONTRIBUTING.md';
 export const SECURITY = 'SECURITY.md';
 export const CONTEXT7 = 'context7.json';
-export const ROUTER = 'SKILL.md';
+export const ROUTER = 'skills/design/SKILL.md';
+
+export const CONTEXT7_KEYS = [
+  '$schema', 'projectTitle', 'description', 'branch', 'folders', 'excludeFolders', 'excludeFiles',
+  'rules', 'disallow', 'redirect', 'previousVersions', 'url', 'public_key',
+];
 
 export const OUTWARD = new Map([
   [CONTRIBUTING,
@@ -58,7 +64,25 @@ export const OUTWARD = new Map([
    + 'branch out of a consumer answer.'],
 ]);
 
-export const CONTRIBUTOR_BASENAMES = ['AGENTS.md', 'CLAUDE.md', 'DOUBTS.md', 'PACKAGING.md'];
+export const CONSUMER_BRANCH_ROOT = 'skills';
+export const BELONGS_TO_NEITHER = 'README.md';
+
+export function contributorBasenames(
+  base = root,
+  found = markdown(base),
+  excludeFolders: string[] = [],
+) {
+  const skipped = [...excludeFolders, CONSUMER_BRANCH_ROOT, DATED_PROCESS_DOCUMENTS.replace('/', '')];
+  const names = new Set<string>();
+  for (const rel of found) {
+    if (emitted(rel)) continue;
+    if (skipped.some((directory) => rel.startsWith(`${directory}/`))) continue;
+    if (isConsumerDocument(rel) || OUTWARD.has(rel)) continue;
+    if (basename(rel) === BELONGS_TO_NEITHER) continue;
+    names.add(basename(rel));
+  }
+  return [...names].sort();
+}
 
 export const LIMITS = new Map([
   ['projectTitle', 100],
@@ -159,6 +183,14 @@ export function context7Problems(base = root, ignored = ignoredRoots(base)) {
   const config = readJson(path) as Context7;
   const problems = [];
 
+  for (const key of Object.keys(config)) {
+    if (CONTEXT7_KEYS.includes(key)) continue;
+    problems.push(`${CONTEXT7} carries "${key}", which the schema it declares does not define. That `
+      + 'schema sets additionalProperties to false, so one key outside the set is not one field '
+      + 'ignored: the whole file fails to validate, and what Context7 indexes is whatever it falls '
+      + 'back to');
+  }
+
   for (const folder of config.excludeFolders ?? []) {
     if (!existsSync(join(base, folder))) {
       problems.push(
@@ -217,14 +249,13 @@ export function context7Problems(base = root, ignored = ignoredRoots(base)) {
       );
     }
   }
-  for (const name of CONTRIBUTOR_BASENAMES) {
-    if (present.has(name) && !excluded.has(name)) {
-      problems.push(
-        `${name} is on the contributor branch and ${CONTEXT7} does not exclude it. Context7 has no `
-        + 'router, so what it indexes is what it hands back, and a contributor document reaches a '
-        + 'consumer asking how to use a component',
-      );
-    }
+  for (const name of contributorBasenames(base, markdown(base), config.excludeFolders ?? [])) {
+    if (excluded.has(name)) continue;
+    problems.push(
+      `${name} is on the contributor branch and ${CONTEXT7} does not exclude it. Context7 has no `
+      + 'router, so what it indexes is what it hands back, and a contributor document reaches a '
+      + 'consumer asking how to use a component',
+    );
   }
 
   const skill = unwrapped(existsSync(join(base, ROUTER)) ? readFileSync(join(base, ROUTER), 'utf8') : '');

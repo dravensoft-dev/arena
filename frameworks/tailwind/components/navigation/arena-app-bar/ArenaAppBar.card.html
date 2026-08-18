@@ -1,0 +1,45 @@
+<!-- @dsCard group="Tailwind" viewport="820x330" name="ArenaAppBar" subtitle="The band, and what it does with the room, rendered from ArenaAppBar.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/navigation/arena-app-bar/ArenaAppBar.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaAppBar.manifest.json')).json();
+
+const chip = (text) => el('span', {
+  class: 'bg-base-300 border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2 '
+    + 'font-mono text-ctl-sm text-base-content/82',
+  text,
+});
+
+function bar(sticky) {
+  const c = arenaClassesFor(manifest, { sticky });
+  const band = el('div', { class: c.band, style: { maxWidth: 'var(--container-max)' } });
+  band.append(el('div', { class: c.brand }, chip('Meridian')));
+  const nav = el('div', { class: c.nav });
+  for (const label of ['Shop', 'Single origin', 'Equipment']) nav.append(chip(label));
+  band.append(nav);
+  const actions = el('div', { class: c.actions });
+  for (const label of ['Search', 'Basket']) actions.append(chip(label));
+  band.append(actions);
+
+  const root = el('header', { class: c.root });
+  root.append(band);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('sticky="true" — the default', [bar(true)], { stack: true }),
+  section('sticky="false"', [bar(false)], { stack: true }),
+  section('The bar spans, the band does not', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'The fill and the hairline run edge to edge; the contents stop at --container-max with '
+      + '--gutter either side, so they line up with everything under them. Both lengths are roles '
+      + 'a style plugin re-answers, and they are the same pair .arena-band carries for markup you wrote.'),
+  ]),
+]});
+</script></body></html>

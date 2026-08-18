@@ -39,7 +39,8 @@ test('arenaCatSlotFor spreads over the ramp by these pinned vectors', () => {
 
 test('arenaCatSurface tints from the slot colour, and the edge is the stronger of the two', () => {
   const surface = arenaCatSurface(3);
-  assert.equal(surface.fill, `color-mix(in oklab, ${arenaCatColor(3)} 12%, var(--color-base-100))`);
+  assert.equal(surface.fill, `color-mix(in oklab, ${arenaCatColor(3)} 12%, var(--fill-surface))`,
+    'the ground is the surface ROLE, so a chip lands on whatever the style plugin calls a surface');
   assert.equal(surface.border, `color-mix(in oklab, ${arenaCatColor(3)} 26%, transparent)`);
 });
 

@@ -1,0 +1,7 @@
+{
+  "component": "ArenaSkipLink",
+  "seed": {
+    "label": "Skip to content"
+  },
+  "note": "Invisible until it takes focus. Press Tab with the page freshly loaded and it appears at the top; it points at the page's own ArenaMain."
+}

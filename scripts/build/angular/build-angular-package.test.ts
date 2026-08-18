@@ -47,7 +47,11 @@ test('the manifest names the package and takes its version from plugin.json', ()
 test('Angular, the CDK and Phosphor are the peers; tslib is the only real dependency', () => {
   const m = manifest(repoRoot);
   assert.deepEqual(Object.keys(m.peerDependencies).sort(),
-    ['@angular/cdk', '@angular/common', '@angular/core', '@angular/platform-browser', '@phosphor-icons/web']);
+    ['@angular/cdk', '@angular/common', '@angular/core', '@angular/platform-browser',
+     '@angular/router', '@phosphor-icons/web']);
+  assert.deepEqual(m.peerDependenciesMeta, { '@angular/router': { optional: true } },
+    'the router is reachable only through the metadata entry point, so a project that never '
+    + 'imports that subpath must install cleanly without it and be told nothing');
   assert.deepEqual(m.dependencies, RUNTIME_DEPENDENCIES,
     'tailwind-variants runs on every render to compose a slot class, so a consumer cannot be asked to bring it');
 });

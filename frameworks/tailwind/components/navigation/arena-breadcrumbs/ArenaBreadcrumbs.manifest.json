@@ -1,9 +1,20 @@
 {
   "component": "ArenaBreadcrumbs",
   "slots": {
-    "root": "flex items-center flex-wrap gap-2",
-    "crumb": "font-mono text-ctl-sm tracking-mono-nav text-base-content/62 no-underline cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-base-content/82",
-    "current": "font-mono text-ctl-sm tracking-mono-nav text-base-content font-bold",
-    "separator": "font-mono text-ctl-sm text-neutral"
+    "root": "flex items-center flex-wrap gap-inline",
+    "crumb": "font-face-label text-ctl-sm tracking-mono-nav text-ink-muted/(--level-ink-muted) no-underline",
+    "current": "font-face-label text-ctl-sm tracking-mono-nav text-ink-body font-bold",
+    "separator": "font-face-label text-ctl-sm text-neutral"
+  },
+  "variants": {
+    "linked": {
+      "true": {
+        "crumb": "cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body/(--level-ink-body)"
+      },
+      "false": {}
+    }
+  },
+  "defaultVariants": {
+    "linked": true
   }
 }

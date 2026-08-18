@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import type { ArenaButtonType, ArenaControlSize, ArenaIconButtonVariant } from '../../../Api.generated';
 import { arenaIconButtonStyles } from './ArenaIconButton.variants';
+import manifest from './ArenaIconButton.classes.generated';
 
 @Component({
   selector: 'arena-icon-button',
@@ -14,7 +15,7 @@ import { arenaIconButtonStyles } from './ArenaIconButton.variants';
     '[attr.name]': 'null',
   },
   template: `
-    <button #control [class]="styles().root()" [attr.type]="type()" [disabled]="disabled()"
+    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.type]="type()" [disabled]="disabled()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
             [attr.tabindex]="tabStop() ? null : -1"
             [attr.aria-label]="label()" [attr.title]="showLabel() ? null : label()"
@@ -22,12 +23,14 @@ import { arenaIconButtonStyles } from './ArenaIconButton.variants';
             (click)="onClick($event)">
       <i [class]="icon()" aria-hidden="true"></i>
       @if (showLabel()) {
-        <span [class]="styles().label()">{{ label() }}</span>
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
       }
     </button>
   `,
 })
 export class ArenaIconButton {
+  protected readonly parts = manifest.parts;
+
   /** Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. */
   readonly icon = input.required<string>();
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */

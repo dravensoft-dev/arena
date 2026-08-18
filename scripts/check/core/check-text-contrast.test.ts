@@ -1,8 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  COLORS, PALETTE, REMOVED, resolvePercent, scopesToMeasure, structureOf, surfacesUnder,
+  COLORS, PAIRS, PALETTE, REMOVED, resolvePercent, scopesToMeasure, structureOf, surfacesUnder,
 } from './check-text-contrast.ts';
+import { FILL_PAIRS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+
+test('this gate and the shipped command hold the same fills legible', () => {
+  const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;
+  assert.deepEqual([...PAIRS.map(key)].sort(), [...FILL_PAIRS.map(key)].sort(),
+    'a pair this gate measures over Arena and the command does not measure over a consumer '
+    + 'is the half nobody reads');
+});
 
 const structure = structureOf([
   ':root, .arena-light {',
@@ -72,10 +80,10 @@ test('a role that is not a reference contributes no surface, rather than a name 
   assert.deepEqual(surfacesUnder(new Map()), ['color-base-100']);
 });
 
-test('an extension that moves no fill adds no scope, so the run is not the same measurement twice', () => {
+test('a style plugin that moves no fill adds no scope, so the run is not the same measurement twice', () => {
   const css = ':root{--fill-surface:var(--color-base-200)}\n.arena-quiet{--r-surface:22px}\n'
     + '.arena-loud{--fill-surface:var(--color-base-300)}';
   const scopes = scopesToMeasure(css, 'dark', ['quiet', 'loud']);
-  assert.deepEqual(scopes.map((s) => s.label), ['no extension', '.arena-loud']);
+  assert.deepEqual(scopes.map((s) => s.label), ['the root plugin', '.arena-loud']);
   assert.deepEqual(scopes[1]?.surfaces, ['color-base-100', 'color-base-300']);
 });

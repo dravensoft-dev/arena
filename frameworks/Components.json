@@ -19,6 +19,9 @@
     "ArenaCalendar",
     "ArenaCalendarEvent",
     "ArenaCard",
+    "ArenaKeyValue",
+    "ArenaPeopleList",
+    "ArenaPersonRow",
     "ArenaSkeleton",
     "ArenaStatCard",
     "ArenaTable",
@@ -53,9 +56,20 @@
     "ArenaTextarea"
   ],
   "layout": [
-    "ArenaGrid"
+    "ArenaBoard",
+    "ArenaBoardColumn",
+    "ArenaFigure",
+    "ArenaGrid",
+    "ArenaHero",
+    "ArenaMain",
+    "ArenaScroller",
+    "ArenaScrollerItem",
+    "ArenaSection",
+    "ArenaSiteFooter",
+    "ArenaSkipLink"
   ],
   "navigation": [
+    "ArenaAppBar",
     "ArenaBottomNav",
     "ArenaBottomNavItem",
     "ArenaBreadcrumbs",

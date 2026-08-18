@@ -1,0 +1,17 @@
+{
+  "component": "ArenaAppBar",
+  "slots": {
+    "root": "block w-full bg-surface border-b-[length:var(--bw-surface)] border-edge-surface",
+    "band": "flex flex-wrap items-center gap-items w-full mx-auto px-gutter py-3",
+    "brand": "shrink-0",
+    "nav": "flex flex-wrap items-center gap-inline min-w-0 me-auto",
+    "actions": "flex flex-wrap items-center gap-inline ms-auto"
+  },
+  "variants": {
+    "sticky": {
+      "true": { "root": "sticky top-0 z-nav" },
+      "false": {}
+    }
+  },
+  "defaultVariants": { "sticky": true }
+}

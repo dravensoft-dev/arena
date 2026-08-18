@@ -29,16 +29,16 @@ export type Route = {
 export const ROUTES: Route[] = [
   {
     name: 'consumer-component',
-    who: 'an agent writing a screen: the router, where it picks the voice, then its layer\'s '
+    who: 'an agent writing a screen: the router, where it takes the rules, then its layer\'s '
       + 'directory, then the index of the one category it reaches into, then the prompt of the one '
       + 'component it writes',
     stops: [
-      'SKILL.md',
-      'frameworks/*/SKILL.md',
-      'frameworks/*/components/*/SKILL.md',
+      'skills/design/SKILL.md',
+      'frameworks/*/INDEX.md',
+      'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 44_000,
+    budget: 46_200,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -49,56 +49,439 @@ export const ROUTES: Route[] = [
       + 'quarter off this number, and naming the components in the directory is what keeps the '
       + 'extra stop from costing a guess. The number is what the stops measure today with room for '
       + 'one component to grow, and it is the ceiling a new rule on the consumer branch is argued '
-      + 'against.',
+      + 'against. Raised to 44,600 when the router gained the third decision a project takes before '
+      + 'its first screen, whether anybody outside the product has to find it. The router is a stop '
+      + 'on five consumer routes now, so a question added to it is charged five times and this is '
+      + 'the one that pays per screen; what makes it worth the build route is that the answer is a '
+      + 'peer dependency and a layer rather than a component, and a build that starts before it is '
+      + 'settled is a build that has already chosen. Raised again to 45,400 when the router started '
+      + 'naming the pieces a page is composed from. It said the shape of a screen is the project\'s '
+      + 'and the silence about the shape had spread to the inventory: Arena ships css/page.css, '
+      + 'css/rhythm.css and a fill-page role, documents all three on each layer\'s npm page, and '
+      + 'named none of them where a builder decides how a screen goes together. What that costs is '
+      + 'measured on a consumer bench, where a page carries a shell written by hand and a floor '
+      + 'nobody paints, so a dark palette leaves the canvas the browser\'s own below the first '
+      + 'viewport. This is the route that pays per screen and the one where it bites, because a '
+      + 'screen is composed before a component is chosen, and a build that starts without the '
+      + 'pieces writes them again. Raised again to 45,600 by three cold walks of the consumer '
+      + 'branch, one per entry point. The two that reached this router painted the floor through '
+      + 'the role and the one that never did took a palette step instead, so the row carries what '
+      + 'separates them: a role is what a style plugin re-answers, and a page painted through one '
+      + 'follows the skin it is handed. It stops there rather than forbidding a step, because the '
+      + 'manifests spend both and a rule stricter than the tree is one the tree refutes. Raised '
+      + 'again to 46,000 when the router gained the question that comes before the other three, '
+      + 'what Arena ships at all and how much of it a project takes. This is the route that pays '
+      + 'per screen and it is where not knowing bites: a builder who has never been told that '
+      + 'rhythm-group, rhythm-component and rhythm-section exist writes a margin instead, and the '
+      + 'branch named those three nowhere while spelling the classes that read them. The same '
+      + 'silence covered the two density classes, which appeared once on the whole branch inside a '
+      + 'rules bullet and never as something a product can offer. Two of the table\'s longest rows '
+      + 'became pointers to pay part of it, which is the trade this budget is for: the router names '
+      + 'the question and the document carries the answer. Raised again to 46,200 when the router '
+      + 'started naming the contributor branch by its URL. A relative path to it resolves in a '
+      + 'clone and nowhere else, and this router is served on the site and read inside a package, '
+      + 'so the one sentence sending a reader to the other branch was a 404 for everybody who did '
+      + 'not already have the tree.',
   },
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
-    stops: ['SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 43_000,
+    stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
+    budget: 62_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
-      + 'router with the build route, which is where the voice catalogue sits, so the two move '
-      + 'together whenever that page does. The number is argued up rather than held down when a '
-      + 'correction lands on the npm page: a pre-paint script that answers the device as well as '
-      + 'storage is longer than one that does not, and being right is what the page is for.',
+      + 'router with the build route, so the two move together whenever that page does. The number '
+      + 'is argued up rather than held down when a correction lands on the npm page: a pre-paint '
+      + 'script that answers the device as well as storage is longer than one that does not, and '
+      + 'being right is what the page is for. It is what the stops measure once the appearance a '
+      + 'project adopts stopped being picked from a page rather than written in a directory. '
+      + 'Raised from 36,000 when the audit gained a scope: a consumer has to be told which rule '
+      + 'relaxes inside a style plugin directory and which does not, and a report that is silent '
+      + 'about where it stops applying is one nobody can act on. Raised again when the third '
+      + 'generated file gained a name on the page: a file nobody is told to import is a plugin '
+      + 'whose CSS reaches no page, and the failure is silent, so naming it is worth more than the '
+      + 'lines it costs. Raised again when the page stated which register the library is for: what '
+      + 'this route decides is whether to adopt Arena at all, and a consumer whose product is a '
+      + 'media or a consumer one otherwise learns that the components run out by building the '
+      + 'screen, which costs more than every stop on this route put together. Raised again when '
+      + '--strict stopped being one switch: a project whose brand does not clear 4.5:1 has to be '
+      + 'told which kinds it can still hold, and a flag whose kinds are not named on the page is '
+      + 'one nobody can type. Raised again when the config gained a key for a brand whose mark is '
+      + 'a gradient: what the key buys is that --strict=audit stops failing over the most '
+      + 'recognisable thing about a product, and a key nobody is told about is one nobody '
+      + 'declares, so the report it silences goes on being suppressed a line at a time. Raised '
+      + 'again when the router\'s description named the style kernel: the description is the whole '
+      + 'of what an agent reads before it decides whether to load Arena at all, and one that stops '
+      + 'at the palette describes a system that cannot be reskinned. Raised again when the '
+      + 'question table gained the three rows the kernel answers: this route and the build route '
+      + 'share the router, so a project that has to decide its appearance before the first screen '
+      + 'pays for those rows here too. Most of what they cost was bought back out of the paragraph '
+      + 'that used to describe a style plugin on the router, which the kernel document owns now. '
+      + 'Raised again when a cold agent walked this route and reported that the page taught it the '
+      + 'skin is a palette and three fonts: it would have shipped somebody else\'s appearance with '
+      + 'its own colours in it and believed that was the job, so the section says what a palette '
+      + 'is not and names where the decision is made. Raised again when the same walk found what '
+      + 'the page ships and never names: five projection markers whose slots fail in silence, and '
+      + 'the sheets under css/ a reader picking a depth is not offered. A file a package ships and '
+      + 'a page never mentions is one nobody imports, and this route is where a consumer meets '
+      + 'every one of them. Raised again to 46,000 when check:exports landed and reported twelve '
+      + 'symbols in that same shape, the modal contract among them: Arena tells a consumer a '
+      + 'lightbox is theirs to write, ships the tested focus trap its own dialogs run on, and the '
+      + 'page disclaimed it by omission, so a cold walk planned a second trap written from memory. '
+      + 'Raised again to 46,600 when the main landmark and its skip link shipped as a pair joined '
+      + 'by a constant id: the id is the one thing a consumer needs in order to write a second '
+      + 'route into the content or an anchor of their own, and a pair whose id is undocumented is '
+      + 'a pair a consumer coordinates by reading the source of a package they installed. '
+      + 'Raised again to 49,400 when the metadata provider shipped behind a second entry point: '
+      + 'the import path is not derivable, the router peer is optional and a consumer who does not '
+      + 'know that installs it for nothing, and the whole value of the provider is a default a '
+      + 'reader has to be told about, since a route born noindex is a surprise the first time it '
+      + 'is right and a defect every time it is not. What the section deliberately does NOT carry '
+      + 'is why a bundler resolves before it eliminates, which is the mechanism behind the second '
+      + 'entry point and belongs to frameworks/PACKAGING.md, on the branch whose reader can act on it. '
+      + 'What buys a raise here is always the same argument, that being right is what the page is '
+      + 'for, and what makes this one binding is that a gate fails the page now rather than a '
+      + 'reader discovering it. Raised again to 49,900 when the router started asking whether the '
+      + 'product has to be found at all: this route is where the answer is acted on, since a yes '
+      + 'names an entry point to import and a peer to install and a no leaves both alone, and the '
+      + 'question reaching a project only through the page it is answered on is the shape that put '
+      + 'the provider out of reach in the first place. Raised again to 52,300 when the page opened '
+      + 'on what a project is adopting rather than on what to install: the components carry an API '
+      + 'declared once for both layers, a behaviour pattern each of them binds, a kernel whose '
+      + 'answers are the appearance, and a head a product that has to be found asks for and no '
+      + 'other pays. A reader arriving from the registry has read nothing else, and one who learns '
+      + 'those four by reaching the section that details each has already decided against three of '
+      + 'them; the section is shared between both pages, so what it says is said once and charged '
+      + 'to the larger. Raised again to 53,100 when the router started naming the pieces a page is '
+      + 'composed from, which the npm page already documents sheet by sheet. The table was the one '
+      + 'place css/page.css and css/rhythm.css were named, and a reader reaches a table by being '
+      + 'sent to it: the router pointing at those two rows is what turns a stylesheet list a '
+      + 'consumer finds into one they arrive at. Raised again to 53,700 by the same argument the '
+      + 'pre-paint script bought the first time: it took two palette names as two literals, so a '
+      + 'project declaring three or four could not state its first visit there at all, and the one '
+      + 'name it did take was picked by hand where the theme surface takes the first palette of the '
+      + 'matching polarity. The snippet takes the list and the default now, which are the two values '
+      + 'that surface already takes, so the page costs more and the two cannot disagree. Raised '
+      + 'again to 54,200 when the rhythm row started spelling its own classes. It named the three '
+      + 'steps as bare modifiers, which reads as a custom property rather than as a class, and three '
+      + 'cold walks read it that way: one wrote a gap variable that does not exist, one guessed the '
+      + 'class and said so, and the one that got it right had it from a component prompt that '
+      + 'happens to spell it. A row naming what a class does and never the class is a row a reader '
+      + 'finishes and still has to guess from, so it spells all nine and says which belong to a '
+      + 'stack and which to a row. Raised again to 54,600 when the router gained the inventory '
+      + 'question. This page is where every part is documented in detail, sheet by sheet and export '
+      + 'by export, and detail is not the same as knowing the part is there: a reader reaches a '
+      + 'table by being sent to it, and the two tables on this page are long enough that what a '
+      + 'reader does not already suspect exists is what they skip. The question sends them, and the '
+      + 'inventory it links names the part in one line and leaves the detail here, so nothing on '
+      + 'this page is said a second time. Raised again to 57,200 when the page gained the '
+      + 'half of a page that is not a component. Three cold walks entered this library by three '
+      + 'different doors, and only the two that reached the repository painted a floor: the page '
+      + 'said the shell fills the window and never said what colour it takes, so the walk holding '
+      + 'this page alone shipped a screen standing on the browser\'s own canvas, and painted its '
+      + 'text out of the compatibility aliases in css/colors.css, because no role was named '
+      + 'anywhere it was reading. The same walk could not learn that either density class exists '
+      + 'at all. A class a consumer writes and a floor only a project can apply are both shipped '
+      + 'things, and a shipped thing this page does not name is one a consumer replaces with a '
+      + 'rule of their own and never learns they had. '
+      + 'Raised again to 61,000 by six cold walks, two per entry point across both layers. This '
+      + 'is the only route a reader arriving from the registry can take, and what it lacked is '
+      + 'what they alone could not reach: how a level holds text back, which is why a bare ink- '
+      + 'muted paints a caption at the strength of body copy; the column and the rhythm as names '
+      + 'rather than as a stylesheet table four hundred lines down; the shape of the miss the '
+      + 'group step replaces, which a walk reading only this page wrote by hand inside a table '
+      + 'cell; that the band carries no block air, which every walk invented a padding for; and '
+      + 'the behaviour contracts, which this package now ships because the sentence sending a '
+      + 'builder to bind one pointed at a directory no tarball carried. Raised again to 62,500 '
+      + 'when the page said what a TypeScript project declares before it can import a stylesheet. '
+      + 'The three import lines it shows are a bundler\'s idiom and not the compiler\'s: a .css '
+      + 'specifier resolves to no module, so a strict build stops at the file that wires Arena in, '
+      + 'and three cold walks of this route wrote a declaration file of their own to get past it. '
+      + 'It also carries what the shared column region gained, the row as anything laid across and '
+      + 'the wrapper a growing child needs when that child is a component this package draws.',
+  },
+  {
+    name: 'consumer-skin',
+    who: 'a project deciding what Arena looks like in their product: the router, then the kernel '
+      + 'document that says what the questions are and which answers carry the difference',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/style-kernel.md'],
+    budget: 31_700,
+    reason:
+      'paid once per project and never per screen, like the install route, which is what lets it '
+      + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
+      + 'that a project stops learning the kernel from a normative contributor document that names '
+      + 'gates and links a contributor roof, which is where four products learned it. The number is '
+      + 'what the stops measure with room for the kernel to grow a section, and it moves when the '
+      + 'kernel grows a question rather than when the document grows a paragraph: the differentiation '
+      + 'table is a measurement over consumer benches, so it grows by remeasuring and not by '
+      + 'writing. Raised from 24,000 by what a cold agent could not answer from it: which scale '
+      + 'each role draws from, since the type does not say and one type covers four scales; that '
+      + 'a reading floor refuses the build rather than reporting; and that the loudest two '
+      + 'decisions a brand makes, a square corner and no shadow, have no step to alias. Every one '
+      + 'of those was a guess it had to make, and a route that costs less by leaving them out '
+      + 'costs more the first time somebody walks it. Raised to 29,500 when the router gained the '
+      + 'ordering two cold walks proved was missing: the kernel was routed to from a question table '
+      + 'and from a paragraph under a heading about delivery, while the one section shaped like a '
+      + 'procedure began at step 1, pick a component. Both walks reached the kernel in time and '
+      + 'both reported reaching it by reading the table top to bottom rather than by being sent, '
+      + 'which is luck of format. The router is a stop on four consumer routes, so that fix is '
+      + 'charged four times and this is one of them; the paragraph saying the same thing a second '
+      + 'time is what was bought back first. Raised again to 30,500 when the router stated that how '
+      + 'a screen is composed belongs to the project: Arena ships the pieces and no shape they must '
+      + 'make, which is a decision about the product rather than a paragraph, and a skeleton handed '
+      + 'down instead would have made the first impression of the kernel Arena\'s rather than the '
+      + 'project\'s. Three buy-backs paid for it, the last of them an identity sentence restating '
+      + 'two rules that have their own bullets. What the raise itself buys is that the route stopped '
+      + 'sitting one character under its ceiling, where the next correction is refused by arithmetic '
+      + 'rather than by judgement. Raised again to 31,300 when the router named the floor a page '
+      + 'stands on. fill-page is a question the kernel asks and every answer to it reached a style '
+      + 'plugin and never a page, because nothing on this route said the role exists or that Arena '
+      + 'declares the polarity and paints no page of the project\'s: a skin decided without its '
+      + 'floor is a skin decided down to the last surface and not the one under them. Raised again '
+      + 'to 31,700 when the router gained the inventory question, which is worth its share here for '
+      + 'a reason particular to this route: the kernel is the largest thing on the consumer branch '
+      + 'and a project that meets it first meets it as the whole offer. Named as one part of eleven '
+      + 'and the second of three steps, it becomes a decision a project can take or defer on '
+      + 'purpose, and that deferring it is legitimate is something this route cannot say about '
+      + 'itself.',
+  },
+  {
+    name: 'consumer-register',
+    who: 'a builder whose product, or one screen of it, is outside the component list: the router, '
+      + 'then the page that says what Arena hands over instead of a component',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/media-register.md'],
+    budget: 25_300,
+    reason:
+      'paid once per project like the skin route, and by a reader the router has just told to write '
+      + 'their own markup. What it buys is that the honest sentence at the top of the router stops '
+      + 'costing more than a dishonest one would: two cold walks were sent away from the component '
+      + 'list correctly and then left to hand-roll a focus trap the package already ships, guess an '
+      + 'ARIA contract that is written down in contracts/behaviour/, and rediscover that a photo '
+      + 'wall is one line of CSS. Every part of the answer already existed and none of it was '
+      + 'reachable from the sentence that created the need. The number is what the stops measure '
+      + 'with room for one section, and it grows when the register gains a part to hand over rather '
+      + 'than when the page gains a paragraph. Raised to 21,500 the first time that happened, on the '
+      + 'walk that repeated against this page: it gained the component that reads the two media '
+      + 'roles the page already told a reader to answer first, the split between an auto-fitting '
+      + 'grid and a fixed-count wall, and the two component names that look like the answer and are '
+      + 'not. It also lost a claim it should never have made: the page said Arena ships the hard '
+      + 'parts of both patterns it names, and Arena ships the modal one and binds the feed one '
+      + 'inside a component nobody can reuse, so the page says that instead. Raised again to 22,200 '
+      + 'when the router started naming the pieces a page is composed from, which this reader needs '
+      + 'more than any other on the branch: nothing they write is a component that arrives carrying '
+      + 'its own floor, its own column and its own air, so a route that hands them the markup and '
+      + 'not the pieces hands them a page to rebuild from nothing. Raised again to 22,600 when the '
+      + 'router gained the inventory question and sent the pieces to a page of their own. This '
+      + 'reader gets the most of both: the inventory is where they learn that the parts handed over '
+      + 'are not only the two this page names, and the page document is where the floor, the column '
+      + 'and the air stop being a sentence in a router and become the list their own markup is '
+      + 'built from. '
+      + 'Raised again to 24,300 when the register gained the viewer that opens a picture at full '
+      + 'size. Six cold walks were asked for one and six wrote it, each inventing the same four '
+      + 'answers: what dims the page behind it, whether the picture is contained or cropped, what '
+      + 'a control laid over a picture nobody chose stands on, and whether the pattern still has '
+      + 'to be bound when Arena ships no component to bind it. Every one of those is already a '
+      + 'token or a contract, so the section costs a paragraph and replaces four guesses per '
+      + 'project. Raised again to 25,300 when the section gained the box itself. It opened by '
+      + 'saying every value a viewer needs is already a token and left the one value that is not '
+      + 'unsaid, so walks sized the picture with a vh nobody chose. A fixed layer at inset 0 needs '
+      + 'no length at all, and the unit that follows a phone\'s browser chrome is dvh, which is '
+      + 'what the chosen number was compensating for.',
+  },
+  {
+    name: 'consumer-seo',
+    who: 'a project deciding whether what it builds has to be found from outside it: the router, '
+      + 'then the page that says what Arena writes into the head and which layer writes it',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/seo.md'],
+    budget: 19_700,
+    reason:
+      'paid once per project like the skin and the register routes, and taken before the first '
+      + 'screen for the same reason they are: the answer reaches the layer and the install rather '
+      + 'than a component, so a project that settles it afterwards settles it against code it has '
+      + 'already written. What it buys is that the metadata entry point stops being reachable only '
+      + 'from the install route, four hundred lines into the longest page on the consumer branch, '
+      + 'by a reader who has no reason to be looking for it. Every default it exists to surface is '
+      + 'silent in the direction that costs: a route is born unindexed and says nothing about it, '
+      + 'and an application with no origin publishes no canonical rather than a wrong one, so both '
+      + 'are correct until a screen is missing from a result nobody thought to check. The page '
+      + 'carries the question, the three properties and the asymmetry between the layers, and it '
+      + 'carries no export table, because the layer\'s own page is where anything a package ships '
+      + 'is documented. The number is what the stops measure with room for one section, and it '
+      + 'grows when Arena gains something to write into the head rather than when the page gains a '
+      + 'paragraph. Raised to 19,300 by a question this route does not ask: the router names the '
+      + 'pieces a page is composed from now, and the router is a stop on five consumer routes, so '
+      + 'this one is charged for it. That is what a shared stop costs and the reason it is still '
+      + 'worth sharing, since the alternative is five routers going stale on five schedules. '
+      + 'Raised again to 19,700 by the same arithmetic and a second question this route does not '
+      + 'ask: the router asks what Arena ships and how much of it a project takes, and the head is '
+      + 'one of the eleven parts that answer names. The shared stop is seven routes wide now, so a '
+      + 'question added to the router is charged seven times, and what keeps that worth paying is '
+      + 'that the head reaches a reader who came for something else and would never have opened '
+      + 'this page on purpose.',
+  },
+  {
+    name: 'consumer-surface',
+    who: 'a project deciding how much of Arena it is taking: the router, then the page naming '
+      + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/surface.md'],
+    budget: 25_800,
+    reason:
+      'paid once per project like the skin, the register and the seo routes, and taken before all '
+      + 'three, because each of them asks how much of a thing nobody has shown the reader yet. What '
+      + 'it buys is that a consumer stops learning the offer by running out of it. Arena ships a '
+      + 'token layer, a set of colour aliases, seventy-two roles, two densities, the components, '
+      + 'five stylesheets for markup that is not one, a dozen exports carrying a compatibility '
+      + 'promise, a head in one layer, a command that reports as well as writes, and a contract per '
+      + 'pattern; the branch documented every one of them and named the whole of it nowhere, so '
+      + 'which parts a project found came down to which page it happened to finish. The two '
+      + 'measured cases are the rhythm tokens, which no consumer document named at all, and the '
+      + 'density classes, which one rules bullet named once. The page is an index rather than a '
+      + 'tutorial: every row points at the document that owns the part, which is what keeps it '
+      + 'inside this budget and what keeps it from becoming a second router. It also carries the '
+      + 'section nothing else could own, where Arena stops, because a limit stated in the document '
+      + 'that would have taught you the feature is a limit nobody reads. The number is what the '
+      + 'stops measure with room for one part to be added, and it grows when Arena ships something '
+      + 'new rather than when the page explains something better: an explanation here is a row that '
+      + 'should have been a pointer. '
+      + 'Raised again to 25,800 when the density row stopped being two class names. Asked whether '
+      + 'Arena answers twice the rows in the same height and a screen a thumb drives, six cold '
+      + 'walks found both classes and none could say how one product offers both, which is the '
+      + 'question a project actually has: the two are exclusive and neither is a prop, so the '
+      + 'swap is a branch on the breakpoint helper rather than a media query, and that is decided '
+      + 'here rather than per screen.',
+  },
+  {
+    name: 'consumer-page',
+    who: 'anybody writing markup that is not a component, which is every project: the router, then '
+      + 'the page saying what colour their own markup takes, what column it sits in and how much '
+      + 'air goes between two components',
+    stops: ['skills/design/SKILL.md', 'skills/design/references/page.md'],
+    budget: 29_900,
+    reason:
+      'the one consumer route past the router that is not paid per project or per screen but per '
+      + 'element a builder draws themselves, which every screen has. What it buys is the half of a '
+      + 'page that is never a component, and every part of it was reachable before only as a table '
+      + 'row: the floor arrived as one row of the router, six hundred characters wide, and the air '
+      + 'and the column as one row pointing at a stylesheet table four hundred lines into an npm '
+      + 'page. Both of those rows are pointers here now, so a third of this route was bought back '
+      + 'out of the stop it shares. What it adds beyond them is what no row had space for: which of '
+      + 'the nineteen colour roles each thing a builder draws takes, that the three rhythm steps are '
+      + 'custom properties as well as classes, that the alignment modifiers carry no length, and the '
+      + 'cut that decides which side of a gap a builder owns, since air between two components comes '
+      + 'from here and air inside one is a role answered in a style plugin. It closes on the same '
+      + 'least-to-most the surface page opens with, because the answer for a first screen and the '
+      + 'answer for a product with its own appearance are the same names read twice. The number is '
+      + 'what the stops measure with room for one section, and it grows when Arena ships a piece for '
+      + 'markup of somebody else\'s rather than when this page argues for one it already '
+      + 'names. Raised again to 26,100 when the group step gained the shape of the miss it '
+      + 'replaces. A cold walk that had read this page still wrote a column of its own carrying a '
+      + 'display, a direction and a gap inside a table cell, which is what the group class already '
+      + 'is, so the sentence telling a builder to reach for the class first is the one sentence '
+      + 'here that was read and passed over. Naming the case costs a paragraph, and it is what '
+      + 'separates a rule a builder agrees with from one they apply. '
+      + 'Raised again to 27,700 when the colour section gained the level beside the role. A role '
+      + 'says which colour text takes and a level says how far it is held back, and under the '
+      + 'default style plugin ink-muted and ink-body resolve to the same colour, so a bare ink- '
+      + 'muted paints a caption at full strength and no gate reports it. Five of six cold walks '
+      + 'shipped exactly that, and the one that did not found the idiom in a compiled component '
+      + 'sheet, which this branch tells a builder never to target. The block air the band leaves '
+      + 'is here for the same reason: all six invented a padding for it because the column '
+      + 'section said what the band carries and never what it leaves. Raised again to 29,900 by '
+      + 'three more measured misses on this same page. Four of six walks wrote a hand-rolled flex '
+      + 'strip for a short horizontal group inside an app bar, because the row was described as a '
+      + 'wrapping line and a two element lock-up does not read as one, so the row is stated as the '
+      + 'horizontal half of the three steps and the wrapping is a property it has rather than the '
+      + 'test for whether it applies. One walk refused to put a class on an Arena element, which '
+      + 'is right, and wrote no wrapper, which leaves the shell distributing its slack to nothing, '
+      + 'so the page says what to do when the element that has to be laid out is a component. And '
+      + 'the gutter is stated as a ceiling, since a length answered for a full width page leaves a '
+      + '430px viewport spending two fifths of itself on margin.',
   },
   {
     name: 'contributor-component',
     who: 'a contributor adding or changing a component: the router, the frameworks roof, then the '
       + 'layer that binds it',
     stops: ['AGENTS.md', 'frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 83_000,
+    budget: 86_000,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
       + 'and never by whoever uses it. What it may not carry is one category\'s own tour: the '
       + 'chart family is a fourth stop, frameworks/CHARTS.md, for whoever changes a chart, and '
-      + 'charging every component change for it cost a fifth of this route.',
+      + 'charging every component change for it cost a fifth of this route. Raised from 83,000 '
+      + 'when the branch named the convention it answers to and the two places it departs from '
+      + 'one: a contributor who does not know the consumer branch is a skill adds an eighteenth '
+      + 'file under the reserved name, and the cost of that is paid by every reader of the tag. '
+      + 'Raised from 84,500 when the Angular stop gained the rule deciding which primitives are an '
+      + 'attribute on a native element rather than an element of their own. That is not one '
+      + 'family\'s tour: the question it answers -- would wrapping this element break what the '
+      + 'element means -- is asked of every primitive, and the two consequences it carries, that an '
+      + 'output named after a DOM event cannot be listened to from the host block and that the demo '
+      + 'emitters read the declared selector, are ones a contributor hits by writing the component '
+      + 'and not by reading about the table. Left out of the roof and out of a family page for the '
+      + 'same reason: only one layer authors elements a consumer nests, so only that layer decides.',
+  },
+  {
+    name: 'contributor-authoring',
+    who: 'a contributor about to edit a file and deciding which half of it is theirs: the router, '
+      + 'then the page that says what a machine writes and where the boundary runs inside one file',
+    stops: ['AGENTS.md', 'GENERATED.md'],
+    budget: 28_000,
+    reason:
+      'paid once per contributor rather than per change, which is what lets it carry the whole '
+      + 'surface rather than a pointer to it. It is the shortest contributor route on purpose: what '
+      + 'it answers is asked before the first edit, by a reader who has not chosen a task yet, and a '
+      + 'route that costs more than the change it precedes is one nobody walks. Three cold walks '
+      + 'converged on it independently, one per other contributor route, and each had decided '
+      + 'generated against authored by opening files rather than by being told: a component source '
+      + 'carrying an emitted doc comment with no marker on it, a prompt read as wholly generated '
+      + 'when it is mostly prose, and a manifest whose existence no stop on the route mentions. '
+      + 'Every one of those mistakes ships green, which is the argument for a stop of its own '
+      + 'rather than a paragraph on a page a task chooses. The number is what the stops measure '
+      + 'with room for one section, and it grows when a generator gains a shape rather than when '
+      + 'the page gains a paragraph, since the shapes are derived from what each node declares it '
+      + 'writes.',
   },
   {
     name: 'contributor-token',
     who: 'a contributor moving a value: the router, the contracts roof, the design specification '
       + 'and the shape a token is authored in',
     stops: ['AGENTS.md', 'contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 72_000,
+    budget: 77_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
-      + 'can afford.',
+      + 'can afford. Raised from 72,000 when the role tier went from 28 roles to 63 and grew a '
+      + 'ninth token type: TokenTypes.md has to state what a keyword is and why it is the one '
+      + 'departure from 2025.10, and the design specification has to say why a style plugin now '
+      + 'reaches type, ink and internal air. Raised again to 77,000 when the muted percentages '
+      + 'stopped being literals frozen into a hundred compiled sheets and became a level tier a '
+      + 'palette moves: the specification has to say that those numbers are floors, that a level '
+      + 'is raised and never lowered, and what raising one costs the hierarchy it belonged to. '
+      + 'The route is longer because the thing it describes is bigger, which is the one reason a '
+      + 'budget should ever move.',
   },
   {
     name: 'contributor-gate',
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
     stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 88_000,
+    budget: 99_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
       + 'claim in one table row. The headroom is deliberately a few gates wide: a budget a single '
-      + 'new row breaks reports the row rather than the growth it is there to report.',
+      + 'new row breaks reports the row rather than the growth it is there to report. Raised from '
+      + '88,000 when check:parts landed and one row spent the last of it, and again when '
+      + 'check:skill-spec landed and spent the next of it: that is the clause above happening '
+      + 'twice, and it is what the headroom is for. Raised to 96,000 when two rows landed in one '
+      + 'session, and to 99,000 when check:agents-spec landed and a cold walk measured what was '
+      + 'left: 842 characters against a median row of 774 and a longest of 3,542, so the clause '
+      + 'above was claiming a few gates of room over less than one. The measurement is the '
+      + 'argument, and it is worth more than the number: derive the two figures with awk over the '
+      + 'rows of the domain table rather than trusting these, because the row that breaks a budget '
+      + 'is the long one and the median is what says how often that happens.',
   },
 ];
 

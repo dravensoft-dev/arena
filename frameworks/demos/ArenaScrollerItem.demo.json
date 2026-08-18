@@ -1,0 +1,23 @@
+{
+  "component": "ArenaScrollerItem",
+  "seed": {},
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaCard",
+        "members": { "eyebrow": "Huehuetenango", "title": "Finca El Injerto" },
+        "slots": { "content": [ { "text": "Washed, 1900 m" } ] }
+      }
+    ]
+  },
+  "host": {
+    "component": "ArenaScroller",
+    "members": { "label": "Recently landed lots" },
+    "slots": {
+      "content": [
+        "$subject"
+      ]
+    }
+  },
+  "note": "The box a row sizes and settles on, so the two layers lay the same markup out the same way."
+}

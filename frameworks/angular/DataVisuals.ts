@@ -34,10 +34,14 @@ export interface ArenaCatSurface {
   border: string;
 }
 
+export function arenaCatTint(colour: string): string {
+  return `color-mix(in oklab, ${colour} ${tintSoft}%, var(--fill-surface))`;
+}
+
 export function arenaCatSurface(slot: number): ArenaCatSurface {
   const colour = arenaCatColor(slot);
   return {
-    fill: `color-mix(in oklab, ${colour} ${tintSoft}%, var(--color-base-100))`,
+    fill: arenaCatTint(colour),
     border: `color-mix(in oklab, ${colour} ${tintEdge}%, transparent)`,
   };
 }

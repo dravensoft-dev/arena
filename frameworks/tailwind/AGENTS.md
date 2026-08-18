@@ -163,7 +163,7 @@ exempts: `text-[13px]`, `bg-[#b52a20]`, `duration-[200ms]` and
 this file carries that no marker names still fails;
 a marker naming a class the file no longer carries fails too, as a stale
 allowance. The marker is honoured in `.md` only, and found in any other
-extension it is itself a failure.
+style plugin it is itself a failure.
 
 ## A scale where a role belongs is a build failure
 
@@ -183,7 +183,7 @@ the same transition names, because a curve is half of what a transition feels li
 that named a role for the length and a scale step for the shape would have answered half the
 question.
 
-**Why it is a rule and not a preference**: a design extension is a scope class that re-values
+**Why it is a rule and not a preference**: a style plugin is a scope class that re-values
 role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
 one. Re-valuing the scale instead is not a repair, because a step is shared by every use that
 happens to want that length, and a card and a tooltip do not stop being different things by
@@ -194,7 +194,7 @@ one that sits over the page rather than in it. A CONTROL is pressed. A FIELD is 
 MARKER encloses a label and nothing else, so it is none of the other four. A SEPARATOR is the
 sixth and it is not a kind of thing but a kind of edge: the line dividing one thing from the
 next INSIDE a surface. It is a separate role from `--bw-surface` for the reason that matters
-most to this whole tier, which is that an extension grouping by elevation removes the enclosure
+most to this whole tier, which is that a style plugin grouping by elevation removes the enclosure
 and a table whose row rules vanished with it would stop being readable.
 
 **Radius and depth are banned by utility name; a border width and a duration by TOKEN name; an
@@ -215,7 +215,7 @@ case and says why, and an entry no manifest carries fails the gate as a stale al
 ## A slot paints the expressive properties even when they are neutral
 
 A token re-values a declaration a slot already makes and cannot add one. A card that declared no
-`box-shadow` could therefore never be given depth by an extension, however that extension was
+`box-shadow` could therefore never be given depth by a style plugin, however that style plugin was
 written, so the flat surfaces and the flat controls carry `shadow-surface-rest` and
 `shadow-control-rest`, and `ArenaButton` carries `hover:-translate-y-[var(--lift-control)]`. All
 three default to nothing: the two shadows are fully transparent, because DTCG 2025.10 types a
@@ -225,7 +225,7 @@ travel is `0px`.
 **A variant branch that restates a role as a literal un-paints it, and that is the same defect
 seen from the other end.** A root painting `shadow-surface-rest` whose `floating` variant writes
 `shadow-none` on the false branch, which is the DEFAULT, resolves every ordinary card to a
-transparent literal instead of the role: the one token authored to let an extension trade
+transparent literal instead of the role: the one token authored to let a style plugin trade
 hairline grouping for elevation then reaches nothing on the component it was written for. A branch meaning "the value the slot already paints" says nothing at all, because the base
 rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
 with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its
@@ -387,6 +387,36 @@ on two variants at once, `classesFor()` resolves them after every single-variant
 `arenaStyles` applies one only when every condition it names holds. They compile to a
 `--cv<n>` class in declaration order. Prefer a plain boolean variant where one will do: a
 compound is harder to read and the emitted name says less.
+
+## A slot name is a public contract
+
+A manifest's slot names leave the repository twice: as the `arena-<manifest>__<slot>` class the
+compiler writes, and as the `data-arena-part="<component>.<slot>"` attribute every element drawing
+that slot carries. The attribute is what a style plugin selects, so **renaming a slot is a break**,
+in the same sense that renaming a component's input is one. The name is the whole cost of the
+escape hatch, and it is stated here, where slots are defined, rather than discovered at a
+consumer's build.
+
+`slotPart` in [`ManifestClasses.js`](./ManifestClasses.js) spells the part the way `slotClass`
+spells the class, from one module, because the generator and the browser specimen harness both
+read it. [`check:parts`](../../scripts/check/arena/check-parts.ts) fails an element that carries a
+slot class and no hook, in either layer.
+
+**A slot that is a second class on another slot's element declares that in `partOf`.** Some slots
+are not a part of the DOM at all: `tdMono` is the `td` element set in the mono face, `pageCurrent`
+is the `page` a pager marks as current, `indeterminate` is the `track` while it sweeps. A
+component composes those classes onto the base slot's element, so the element carries the base
+slot's hook and there is nothing for a hook of the variant's own to sit on. `partOf` maps the
+variant to its base and `classesManifest` resolves the part through it, so what the kernel
+advertises is what an element carries.
+
+**Without it the surface over-claims and nothing notices**, which is the failure this key exists
+to close: `check:parts` sees a hook on the element and passes, and a plugin's rule against the
+variant's name matches nothing on any page while still reading as coverage.
+[`check:style-plugin-coverage`](../../scripts/check/core/check-style-plugin-coverage.ts) now asks
+the question both ways, so a part painted and never emitted fails as loudly as one emitted and
+never painted. The cut is which decision a state is: a variant painted through a `variants` block
+needs no entry, because a variant class already belongs to the slot it modifies.
 
 ## What a manifest is compiled into
 

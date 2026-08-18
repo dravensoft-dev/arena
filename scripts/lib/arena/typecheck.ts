@@ -11,8 +11,10 @@
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from './repo-root.ts';
 import { childOutput } from './child-output.ts';
+import { cachedReading } from './artifact-cache.ts';
 import { deadline, type Deadline } from './deadline.ts';
 
 export const TSC_SPAWN: Deadline = deadline('typecheck:spawn', 30_000,
@@ -47,6 +49,22 @@ export function projectFiles(opts: TypecheckOptions = {}) {
   const { status, output } = runTsc(['-p', join(root, opts.project), '--listFilesOnly'], root);
   if (status !== 0) throw new Error(`tsc could not read ${opts.project}:\n${output.trim()}`);
   return output.split('\n').map((line) => line.trim()).filter(Boolean);
+}
+
+export type Verdict = { reach: string[]; status: number; output: string };
+
+export function verdictFor(project: string, candidates: string[], root = repoRoot): Verdict {
+  if (candidates.length === 0) {
+    throw new Error(`verdictFor: ${project} was handed 0 candidate(s). The reach an entry carries `
+      + 'covers what the compiler read LAST time, so the candidates are the only thing that notices '
+      + 'a file arriving; with none, a new source would join the project and the held verdict would '
+      + 'answer for a tree it never saw');
+  }
+  return cachedReading<Verdict>(`typecheck-${project}`, [project, ...candidates], () => {
+    const reach = projectFiles({ project, root }).map((path) => relPosix(root, path));
+    const { status, output } = typecheck({ project, root });
+    return { value: { reach, status, output }, read: reach, keep: status === 0 };
+  }, root);
 }
 
 export function zeroProjectProblems(count: number) {

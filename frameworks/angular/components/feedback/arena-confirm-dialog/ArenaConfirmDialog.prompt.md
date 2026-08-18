@@ -22,7 +22,7 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
-| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. |
+| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
 | `eyebrow` | primitive | `string` | `"Confirm"` | Small uppercase label above the title. |
 | `content` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` | `"Confirm"` | The confirm button's label. |
@@ -52,6 +52,11 @@ close, and Tab wraps at the panel's edges.
   `[title]="projectName()"` sets the input alone, and it is the spelling that says so.
 - Use `requireText` when the action is genuinely irreversible, and use the name of the
   thing being destroyed as the word.
+- **Don't hold one in the template with an empty `title` while it is closed.** Both are
+  required inputs whatever the other is, so a screen that keeps one confirmation and feeds it a
+  subject per row fails on the first render: put it behind an `@if` on the subject instead. Keep
+  the subject through a cancel and toggle only `open`, or focus never returns to the control
+  that opened it.
 - Don't reach for `destructive` on a merely inconvenient action. The filled red is the
   system's loudest surface and it stops working once it is common.
 - Don't use this for a routine question: that is `MatDialog` wearing Arena.
@@ -64,6 +69,6 @@ close, and Tab wraps at the panel's edges.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

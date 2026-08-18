@@ -5,6 +5,7 @@ import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
+import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 
 @Component({
   selector: 'arena-side-nav-item',
@@ -16,33 +17,35 @@ import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
   },
   template: `
     @if (href(); as url) {
-      <a [class]="styles().item()" [href]="url" [style.paddingInlineStart]="indent()"
+      <a [class]="styles().item()" [attr.data-arena-part]="parts.item" [href]="url" [style.paddingInlineStart]="indent()"
          [attr.aria-current]="current()" [attr.aria-disabled]="off()"
          (click)="activateAnchor($event)">
         @if (glyphClass(); as glyph) {
-          <i [class]="glyph" aria-hidden="true"></i>
+          <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
         {{ name() }}
         @if (count(); as tally) {
-          <span [class]="styles().badge()">{{ tally }}</span>
+          <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
         }
       </a>
     } @else {
-      <button type="button" [class]="styles().item()" [style.paddingInlineStart]="indent()"
+      <button type="button" [class]="styles().item()" [attr.data-arena-part]="parts.item" [style.paddingInlineStart]="indent()"
               [attr.aria-current]="current()" [attr.aria-disabled]="off()"
               (click)="activate($event)">
         @if (glyphClass(); as glyph) {
-          <i [class]="glyph" aria-hidden="true"></i>
+          <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
         {{ name() }}
         @if (count(); as tally) {
-          <span [class]="styles().badge()">{{ tally }}</span>
+          <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
         }
       </button>
     }
   `,
 })
 export class ArenaSideNavItem {
+  protected readonly parts = manifest.parts;
+
   /** Identifies the destination. ArenaSideNav.active names one of these, and the item whose id matches is the one marked aria-current="page". Required, and guarded with a falsy check rather than an absence check: a blank id can never match and is an omission wearing a value. */
   readonly id = input.required<string>();
   /** What the item reads, and the whole of its accessible name unless a badge adds a count to it. Required and falsy-guarded for the same reason. */

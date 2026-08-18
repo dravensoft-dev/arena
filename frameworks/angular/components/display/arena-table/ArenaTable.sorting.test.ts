@@ -29,11 +29,11 @@ const COLUMNS: ArenaTableColumn[] = [
   template: `
     <arena-table [label]="label" [columns]="columns" [responsive]="false" [sort]="sort()"
                  (sortChange)="seen.push($event)">
-      <arena-table-row interactive (click)="activated = activated + 1">
-        <arena-table-cell>checkout</arena-table-cell>
-        <arena-table-cell>Healthy</arena-table-cell>
-        <arena-table-cell>91</arena-table-cell>
-      </arena-table-row>
+      <tr arena-table-row interactive (click)="activated = activated + 1">
+        <td arena-table-cell>checkout</td>
+        <td arena-table-cell>Healthy</td>
+        <td arena-table-cell>91</td>
+      </tr>
     </arena-table>
   `,
 })
@@ -53,7 +53,7 @@ function render(sort?: ArenaTableSort): ComponentFixture<SortHost> {
 }
 
 function headers(fixture: ComponentFixture<SortHost>): HTMLElement[] {
-  return [...(fixture.nativeElement as Element).querySelectorAll<HTMLElement>('[role="columnheader"]')];
+  return [...(fixture.nativeElement as Element).querySelectorAll<HTMLElement>('th')];
 }
 
 function press(fixture: ComponentFixture<SortHost>, key: string): KeyboardEvent {
@@ -127,7 +127,7 @@ test('Enter and Space on a header sort it, and neither adds a tab stop', () => {
 test('Enter on a DATA row still activates the row, not a sort', () => {
   const fixture = render({ column: 0, direction: 'asc' });
   try {
-    const cell = (fixture.nativeElement as Element).querySelector<HTMLElement>('[role="gridcell"]');
+    const cell = (fixture.nativeElement as Element).querySelector<HTMLElement>('td');
     cell?.focus();
     fixture.detectChanges();
     press(fixture, 'Enter');

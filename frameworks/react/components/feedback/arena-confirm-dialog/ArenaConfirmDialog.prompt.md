@@ -15,7 +15,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
-| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. |
+| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
 | `eyebrow` | primitive | `string` | `"Confirm"` | Small uppercase label above the title. |
 | `children` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` | `"Confirm"` | The confirm button's label. |
@@ -48,6 +48,7 @@ page behind the scrim.
 - **Don't** reach for `destructive` on a merely important action. A filled red competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton variant="danger">` outline is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
+- **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is, so a screen that mounts one confirmation and feeds it a subject per row fails on the first render: mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.
 - **Don't** put a `tabIndex={-1}` on a control the user has to reach: it is how the trap decides what is focusable, so a control held out of the Tab order is one the wrap skips over.
 ## Verifying the focus trap by hand
 
@@ -84,6 +85,6 @@ does not activate a button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw hex or a bare `16px`, and never wrap it in your router's own link. The rest of the rules, and the voice they answer to, are in [`../../../../../SKILL.md`](../../../../../SKILL.md).
+**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
 
 <!-- @rules end -->

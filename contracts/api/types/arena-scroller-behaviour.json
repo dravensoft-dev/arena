@@ -1,0 +1,6 @@
+{
+  "name": "ArenaScrollerBehaviour",
+  "kind": "enum",
+  "description": "Whether a scrolled row settles on an item or wherever it was left. Two words and not a boolean, because the pair is a decision about how the row reads and a boolean would name only one half of it: snap says the row is a sequence of things and lands on one, flow says it is a strip and lands anywhere. Neither moves on its own, which is why nothing here answers prefers-reduced-motion and why the component is not named for a marquee.",
+  "values": ["snap", "flow"]
+}

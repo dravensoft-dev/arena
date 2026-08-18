@@ -1,0 +1,46 @@
+/* frameworks/tailwind/Page.css
+   The column a page sits in, as classes a consumer puts on their own markup. Imported by
+   Theme.css, so `bun run build:tailwind` compiles it into Utilities.generated.css with everything
+   else, and copied into both packages as css/page.css the way rhythm.css and prose.css are.
+
+   The cut against Rhythm.css beside it is what each one measures. Rhythm is the air between two
+   components, in three named steps. This is the geometry of the page those components sit on:
+   how wide the content column gets, how far it stands off the viewport edge, and that a short
+   page still fills the window so its footer does not float halfway up one.
+
+   Both lengths are roles, so a voice re-answers them together, and neither is a number this file
+   chose. Narrowing the column while keeping the gutter says the page is a document; widening both
+   says it is a console.
+
+   The gutter is a CEILING and not a fixed inset, which is the one thing this file decides that
+   no token could. A length answered for a page that reaches its full width is the wrong length
+   on a phone: 88px either side of a 430px viewport leaves a 254px column, so 41% of the screen
+   is margin and the content is narrower than the air around it. The share is what the authored
+   pair already implies -- 88px of 1240px is a hair over 7% -- so the band reaches its full gutter
+   exactly where the column reaches its full width and holds that proportion below it. Above that
+   width the min() never binds, so nothing a desktop page draws moves. It is a percentage rather
+   than a viewport unit because a band nested in a narrower column should stand off ITS edges,
+   and a ceiling rather than a clamp because a style plugin answering a smaller gutter has said a
+   smaller gutter and no rule here may inflate it.
+
+   The growing child carries a class rather than the shell distributing the slack, because a shell
+   with a header, a main and a footer has exactly one child that should grow and no rule here can
+   know which of the three it is. */
+
+.arena-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.arena-shell__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.arena-band {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: min(var(--gutter), 7%);
+}

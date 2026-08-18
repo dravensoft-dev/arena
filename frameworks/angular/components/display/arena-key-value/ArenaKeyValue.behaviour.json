@@ -1,0 +1,6 @@
+{
+  "component": "ArenaKeyValue",
+  "pattern": "none",
+  "reason": "ArenaKeyValue renders a definition list and nothing else: no role of its own, no state, no control. The association between a term and its value is the platform's, which is the whole reason it is a real dl rather than two columns of divs, and a `list` role here would claim a structure a reader walks past rather than reads. Nothing in it is focusable, because every value is a string the consumer already formatted.",
+  "exceptions": []
+}

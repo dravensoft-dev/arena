@@ -8,13 +8,12 @@
  * the page served from a clone. indexedDirectories is where serve.ts answers with a listing it
  * makes at request time and a static host answers 404. A specimen under intro/guidelines/ has no
  * <title> and is named by the @dsCard header the Overview page already reads. */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from './repo-root.ts';
 import { componentMap } from './component-map.ts';
-import { voices } from '../../generate/arena/generate-voices.ts';
 import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
 import { kebab } from '../../utils/case.ts';
 
@@ -28,8 +27,10 @@ export const PHOSPHOR_KEEP = ['style.css', '.woff2', '.woff'];
 
 export const COPIED = [
   'intro',
+  'contracts/behaviour',
   'contracts/design',
   'contracts/design-generated',
+  'plugin-style-store',
   'assets',
   'frameworks/tailwind/consume',
   'frameworks/react/vendor',
@@ -38,8 +39,16 @@ export const COPIED = [
 
 export type Entry = { label: string; path: string; public: boolean };
 
-export function extensions(base = root) {
-  return voices(base).map((voice) => voice.name);
+export const SINK_FIXTURES = 'frameworks/kitchen-sink';
+export const SINK_SUFFIX = '.sink.json';
+
+export function sinkNames(base = root) {
+  const dir = join(base, SINK_FIXTURES);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((file) => file.endsWith(SINK_SUFFIX))
+    .map((file) => file.slice(0, -SINK_SUFFIX.length))
+    .sort();
 }
 
 export function entryPoints(base = root): Entry[] {
@@ -82,8 +91,8 @@ export function missingPlaygrounds(base = root) {
 }
 
 export function sinkPages(base = root) {
-  return LAYERS.flatMap((layer) => extensions(base).map(
-    (extension) => `frameworks/${layer}/kitchen-sink/${extension}/${SINK_PAGE}`,
+  return LAYERS.flatMap((layer) => sinkNames(base).map(
+    (name) => `frameworks/${layer}/kitchen-sink/${name}/${SINK_PAGE}`,
   ));
 }
 
@@ -109,7 +118,7 @@ export function indexedDirectories(base = root) {
     '',
     'intro/guidelines',
     ...LAYERS.map((layer) => `frameworks/${layer}/kitchen-sink`),
-    ...LAYERS.flatMap((layer) => extensions(base).map((e) => `frameworks/${layer}/kitchen-sink/${e}`)),
+    ...LAYERS.flatMap((layer) => sinkNames(base).map((name) => `frameworks/${layer}/kitchen-sink/${name}`)),
   ];
 }
 

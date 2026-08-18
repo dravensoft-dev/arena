@@ -5,9 +5,9 @@
  * the branch boundary, which keeps a contributor path out of a consumer's last
  * stop and, through RULE_OWNERS, a rule off the branch that does not own it,
  * FOREIGN_CODE, which keeps another design system out of the examples a reader
- * copies, and the two claims a consumer page makes about what SHIPS: how many
- * components, and which voices. SIZE_ALLOWANCE is empty, and that emptiness is
- * the claim: a document falling back inside the shared limit fails. */
+ * copies, and the claim a consumer page makes about what SHIPS: how many
+ * components. SIZE_ALLOWANCE is empty, and that emptiness is the claim: a
+ * document falling back inside the shared limit fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -19,9 +19,6 @@ import { proseSegments, fencedLines } from '../../lib/arena/markdown-prose.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { captured } from '../../utils/captures.ts';
-import { arenaScopeClasses, SCOPE_CLASS } from '../../lib/core/arena-tokens.ts';
-import { extensionFiles, extensionName } from '../core/check-extensions.ts';
 
 export const MAX_DOCUMENT_CHARS = 60_000;
 export const HEADER_MAX_LINES = 10;
@@ -95,11 +92,12 @@ function isPragma(text: string) {
 }
 
 export const CONSUMER_LAST_STOP = '.prompt.md';
-export const CONSUMER_INDEX = 'SKILL.md';
+export const CONSUMER_INDEX = 'INDEX.md';
 export const CONSUMER_TREE = 'frameworks/';
+export const SKILL_TREE = 'skills/';
 
 export const BRANCH_SWITCH = {
-  'SKILL.md':
+  'skills/design/SKILL.md':
     'the root router is the switch between the two branches, and naming the contributor one is '
     + 'how it sends a contributor away. Every consumer document below it is downstream of that '
     + 'choice and has nobody left to redirect.',
@@ -109,6 +107,7 @@ export const CONSUMER_PACKAGE_PAGE = 'PACKAGE.md';
 
 export function isConsumerDocument(repoRelativePath: string) {
   if (Object.hasOwn(BRANCH_SWITCH, repoRelativePath)) return false;
+  if (repoRelativePath.startsWith(SKILL_TREE)) return true;
   if (repoRelativePath.endsWith(CONSUMER_LAST_STOP)) return true;
   if (basename(repoRelativePath) === CONSUMER_PACKAGE_PAGE && repoRelativePath.startsWith(CONSUMER_TREE)) return true;
   return basename(repoRelativePath) === CONSUMER_INDEX && repoRelativePath.startsWith(CONSUMER_TREE);
@@ -124,6 +123,11 @@ export const CONSUMER_OWN_OUTPUT = new Map([
    'the Phosphor subset the CONSUMER generates, in their own project, by the same run of '
    + 'arena-to-prod. Same reading as arena.generated.css above: the infix is theirs '
    + 'and not this repository\'s, and the name is the one the npm page tells them to write.'],
+  ['plugin.generated.css',
+   'the style plugin\'s own CSS, wrapped in the reserved layer, written into the CONSUMER\'s '
+   + 'project by the same run of arena-to-prod. The third of the three and the only one that is '
+   + 'conditional, since it exists when a declared plugin carries a plugin.css. Named on the npm '
+   + 'page for the reason the other two are: a consumer cannot import a file nobody told them about.'],
 ]);
 
 export const CONTRIBUTOR_PATHS = [
@@ -315,8 +319,8 @@ export function commentRuleProblems(root = ROOT) {
   let scanned = 0;
 
   for (const path of sources) {
-    const source = readFileSync(path, 'utf8');
     if (isGenerated(path)) continue;
+    const source = readFileSync(path, 'utf8');
     scanned += 1;
 
     const rel = relPosix(root, path);
@@ -404,91 +408,6 @@ export function componentCountProblems(root = ROOT) {
   return { problems, scanned: scanned.length, shipped };
 }
 
-export const VOICE_PAGE_CLAIM = new Map<string, string>([
-  ['frameworks/react/PACKAGE.md',
-   'the npm page for the React package, and the place a consumer meets the catalogue at all: '
-   + 'nothing else they read lists the voices'],
-  ['frameworks/angular/PACKAGE.md', 'the same page for the Angular package, and the same reason'],
-  ['SKILL.md',
-   'the router an agent reads before it builds a screen, so it picks a voice on the reader\'s '
-   + 'behalf and can only pick from what it was told about'],
-]);
-
-export const NOT_A_VOICE = new Map<string, string>([
-  ['arena-num',
-   'a utility from css/numerals.css that a consumer puts on one figure they draw themselves, so '
-   + 'it is shipped and it is not a scope class: a voice is chosen once for a page and this is '
-   + 'written per element'],
-  ['arena-stack', 'the same, from css/rhythm.css: the air between two components, which a page applies and Arena never draws'],
-  ['arena-row', 'the same sheet and the same reason, laid the other way'],
-]);
-
-export const CLASS_ATTRIBUTE = /class(?:Name)?="([^"]*)"/g;
-
-const VOICE_CLASS = /^arena-[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-export function scopeClassesNamed(text: string) {
-  const out = new Set<string>();
-  for (const m of text.matchAll(SCOPE_CLASS)) out.add(`arena-${captured(m)}`);
-  for (const m of text.matchAll(CLASS_ATTRIBUTE))
-    for (const cls of (m[1] ?? '').split(/\s+/)) if (VOICE_CLASS.test(cls)) out.add(cls);
-  return out;
-}
-
-export function voiceCatalogueProblems(root = ROOT, pages = VOICE_PAGE_CLAIM, excused = NOT_A_VOICE) {
-  const voices = extensionFiles(join(root, 'contracts', 'design')).map(extensionName);
-  const allowed = new Set([...arenaScopeClasses(root)].map((c) => `arena-${c}`));
-  for (const name of excused.keys()) allowed.add(name);
-  const catalogue = voices.map((v) => `.arena-${v}`).join(', ');
-
-  const problems = [];
-  const written = new Set<string>();
-  let scanned = 0;
-
-  for (const [rel, why] of pages) {
-    const path = join(root, rel);
-    if (!existsSync(path)) {
-      problems.push(
-        `VOICE_PAGE_CLAIM names ${rel}, which is not there. It was on the record as ${why}, so `
-        + 'either the catalogue moved to another page and this entry follows it, or a page that '
-        + 'carried the claim has gone and nothing is holding the claim any more',
-      );
-      continue;
-    }
-    scanned++;
-    const named = scopeClassesNamed(readFileSync(path, 'utf8'));
-    for (const cls of named) written.add(cls);
-
-    for (const voice of voices)
-      if (!named.has(`arena-${voice}`))
-        problems.push(
-          `${rel}: names no .arena-${voice}, and this build ships it. The page is ${why}, and a `
-          + `voice a consumer is never told about is a voice that did not ship. The catalogue is `
-          + `${catalogue}`,
-        );
-
-    for (const cls of named)
-      if (!allowed.has(cls))
-        problems.push(
-          `${rel}: offers .${cls}, and Arena answers to no such scope class, so the page offers `
-          + `one the cascade ignores and a reader writes it into a root that does nothing. `
-          + `The voices this build ships are ${catalogue}; if it is not a voice at all, record it `
-          + 'in NOT_A_VOICE with what it is',
-        );
-  }
-
-  for (const [name] of excused)
-    if (!written.has(name))
-      problems.push(`NOT_A_VOICE excuses .${name} and no page on the record writes it -- drop the entry`);
-
-  if (voices.length === 0)
-    problems.push('found 0 extensions -- with no catalogue to hold a page to, this assertion passes over nothing');
-  if (scanned === 0)
-    problems.push('read no page on the record -- a catalogue nobody offers is the defect this assertion exists to stop');
-
-  return { problems, scanned, voices };
-}
-
 export function foreignCodeProblems(root = ROOT) {
   const scanned = documents(root).filter((p) => isConsumerDocument(relPosix(root, p)));
   const problems = [];
@@ -537,11 +456,10 @@ function main() {
   });
   const foreign = foreignCodeProblems();
   const counts = componentCountProblems();
-  const voices = voiceCatalogueProblems();
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
-    ...counts.problems, ...voices.problems,
+    ...counts.problems,
   ];
 
   if (problems.length > 0) {
@@ -555,9 +473,7 @@ function main() {
     + `banned punctuation; ${comments.scanned} hand-written source(s) hold to the comment rule; `
     + `${branch.scanned} consumer document(s) cite no contributor path, offer no foreign framework `
     + `in a fenced example, and neither branch states one of the other's ${RULE_OWNERS.length} `
-    + `registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components; `
-    + `${voices.scanned} page(s) offer the ${voices.voices.length} voice(s) this build ships and `
-    + 'no class the cascade would ignore',
+    + `registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components`,
   );
 }
 

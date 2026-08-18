@@ -65,9 +65,9 @@ test('ArenaTable meets both of its declared shapes', () => {
         assert.ok(grid, 'the wide shape must render a real grid');
         assert.equal(grid.getAttribute('aria-label'), LABEL, 'the grid name is not the `label` member');
 
-        const gridRows = [...grid.querySelectorAll<HTMLElement>('[role="row"]')];
+        const gridRows = [...grid.querySelectorAll<HTMLElement>('tr')];
         assert.equal(gridRows.length, ROWS + 1, 'one header row plus one row per record');
-        const cellsOf = (row: ParentNode) => [...row.querySelectorAll<HTMLElement>('[role="gridcell"], [role="columnheader"]')];
+        const cellsOf = (row: ParentNode) => [...row.querySelectorAll<HTMLElement>('td, th')];
         const cells = gridRows.map(cellsOf);
 
         const start = cells[0]![0]!;
@@ -114,7 +114,7 @@ test('ArenaTable meets both of its declared shapes', () => {
           subjects: {
             default: grid,
             'roles.row': gridRows[0],
-            'roles.cell': grid.querySelector<HTMLElement>('[role="gridcell"]')!,
+            'roles.cell': grid.querySelector<HTMLElement>('td')!,
           },
           behavioural: {
             'focus.roving': true,
@@ -129,9 +129,15 @@ test('ArenaTable meets both of its declared shapes', () => {
         const root = mount(<ArenaTable label={LABEL} columns={COLUMNS}>{rows()}</ArenaTable>);
         assert.equal(root.querySelector<HTMLElement>('[role="grid"]')!, null,
           'below --bp-md there is no grid at all, which is why this case binds `none`');
-        assert.equal(root.querySelector<HTMLElement>('table')!, null, 'the card shape renders no table element');
         assert.equal(root.querySelectorAll<HTMLElement>('[role="gridcell"]').length, 0,
           'no cells means no roving tab stop to claim -- the requirement does not apply rather than going unmet');
+        const flattened = [...root.querySelectorAll<HTMLElement>('table, tbody, tr, td')];
+        assert.ok(flattened.length > 0, 'the card shape is still made of table elements, so there is something to strip');
+        for (const one of flattened) {
+          assert.equal(one.getAttribute('role'), 'presentation',
+            `the card shape leaves a <${one.tagName.toLowerCase()}> carrying its native table role, which the reader `
+            + 'would hear as a table while the screen shows a stack of cards');
+        }
         return { root, subjects: { default: root.firstElementChild } };
       }),
 
@@ -139,7 +145,7 @@ test('ArenaTable meets both of its declared shapes', () => {
         const root = mount(<ArenaTable label={LABEL} columns={COLUMNS} responsive={false} empty="Nothing shipped." />);
         assert.equal(root.querySelector<HTMLElement>('[role="grid"]')!, null,
           'with no rows there is no grid at all, which is why this case binds `none`');
-        assert.equal(root.querySelector<HTMLElement>('[role="columnheader"]')!, null,
+        assert.equal(root.querySelector<HTMLElement>('th')!, null,
           'and no orphan header standing over the sentence that says there is nothing');
         assert.equal(root.querySelectorAll<HTMLElement>('[tabindex]').length, 0,
           'nothing to rove over means no tab stop to claim');
@@ -152,11 +158,12 @@ test('ArenaTable meets both of its declared shapes', () => {
 
 test('ArenaTableCell binds "none" because ArenaTable owns the grid, and it adds no affordance of its own', () => {
   const root = mount(<ArenaTable label={LABEL} columns={COLUMNS} responsive={false}>{rows()}</ArenaTable>);
-  const cell = root.querySelector<HTMLElement>('[role="gridcell"]');
+  const cell = root.querySelector<HTMLElement>('td');
 
   assert.ok(cell, 'the wide shape must render cells, or this assertion checked nothing');
-  assert.equal(cell.getAttribute('role'), 'gridcell',
-    'the role a cell carries is a clause of the `grid` pattern ArenaTable binds -- the cell does not choose it');
+  assert.equal(cell.hasAttribute('role'), false,
+    'the role a cell carries is a clause of the `grid` pattern ArenaTable binds and comes from the element it '
+    + 'is -- the cell neither chooses it nor writes it back');
   assert.equal(cell.hasAttribute('aria-haspopup'), false,
     'a cell that grew an affordance of its own would need a pattern of its own, and its binding says it has none');
 

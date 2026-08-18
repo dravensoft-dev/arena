@@ -1,0 +1,25 @@
+{
+  "component": "ArenaSection",
+  "seed": {
+    "eyebrow": "This week",
+    "title": "Landed recently",
+    "description": "Everything that cleared customs since Monday."
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaCard",
+        "members": { "title": "checkout-api" },
+        "slots": { "content": [ { "text": "Build #4821" } ] }
+      }
+    ],
+    "action": [
+      {
+        "component": "ArenaButton",
+        "members": { "variant": "ghost", "iconRight": "ph-bold ph-arrow-right" },
+        "slots": { "content": [ { "text": "See all" } ] }
+      }
+    ]
+  },
+  "note": "A heading over a group. The title sits at the section register, one step under a page head and one over a card."
+}

@@ -1,0 +1,13 @@
+{
+  "component": "ArenaFigure",
+  "slots": {
+    "root": "flex flex-col gap-items m-0 min-w-0",
+    "frame": "relative grid overflow-hidden rounded-media border-[length:var(--bw-surface)] border-edge-surface shadow-surface-rest bg-surface-sunken text-ink-eyebrow",
+    "media": "col-start-1 row-start-1 w-full h-full min-w-0 [&>img]:fit-media [&>img]:w-full [&>img]:h-full [&>video]:fit-media [&>video]:w-full [&>video]:h-full",
+    "fallback": "col-start-1 row-start-1 grid place-items-center w-full h-full",
+    "overlay": "col-start-1 row-start-1 self-end flex flex-wrap items-center gap-inline p-surface bg-overlay-media/72 text-ink-heading",
+    "caption": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose m-0"
+  },
+  "variants": {},
+  "defaultVariants": {}
+}

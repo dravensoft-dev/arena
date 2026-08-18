@@ -21,19 +21,19 @@ export type SinkItem = { component: string; node: FixtureNode; staged: boolean }
 export type SinkSection = { title: string; items: SinkItem[] };
 
 export type SinkModel = {
-  extension: string;
+  sink: string;
   note: string;
   sections: SinkSection[];
   uses: string[];
 };
 
 export type SinkFixture = {
-  extension: string;
+  sink: string;
   note?: string;
   sections: { title: string; items: string[] }[];
 };
 
-export const NONE = 'none';
+export const ROOT_SINK = 'default';
 
 export const FIXED = /(?:^|\s)(?:[\w-]+:)*fixed(?=\s|$)/;
 
@@ -139,7 +139,7 @@ export function sinkModel(fixture: SinkFixture, demos: Map<string, Fixture>,
     items: section.items.map((component) => {
       const demo = demos.get(component);
       if (!demo) {
-        throw new Error(`kitchen-sink-model: ${fixture.extension} arranges ${component}, and `
+        throw new Error(`kitchen-sink-model: ${fixture.sink} arranges ${component}, and `
           + `frameworks/demos/${component}.demo.json is not there, so nothing says how to seed it`);
       }
       const node = rebaseNode(instanceNode(demo), depth.from, depth.to) as FixtureNode;
@@ -148,7 +148,7 @@ export function sinkModel(fixture: SinkFixture, demos: Map<string, Fixture>,
     }),
   }));
   return {
-    extension: fixture.extension,
+    sink: fixture.sink,
     note: fixture.note ?? '',
     sections,
     uses: [...uses].sort(),
@@ -160,7 +160,7 @@ export function placesFor(model: SinkModel, all: Map<string, Place>): Places {
   for (const name of model.uses) {
     const place = all.get(name);
     if (!place) {
-      throw new Error(`kitchen-sink-model: ${model.extension} reaches ${name}, which `
+      throw new Error(`kitchen-sink-model: ${model.sink} reaches ${name}, which `
         + 'frameworks/Components.json does not name');
     }
     out.set(name, place);
@@ -168,6 +168,6 @@ export function placesFor(model: SinkModel, all: Map<string, Place>): Places {
   return out;
 }
 
-export function scopeClass(extension: string) {
-  return extension === NONE ? '' : `arena-${extension}`;
+export function scopeClass(sink: string) {
+  return sink === ROOT_SINK ? '' : `arena-${sink}`;
 }

@@ -1,0 +1,39 @@
+<!-- @dsCard group="Tailwind" viewport="820x300" name="ArenaMain" subtitle="The landmark and the box it does not draw, rendered from ArenaMain.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-main/ArenaMain.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaMain.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+
+function landmark(text) {
+  const main = el('main', { class: c.root, id: 'arena-main', tabindex: '-1' });
+  main.append(el('div', {
+    class: 'font-body text-sm text-base-content/82',
+    text,
+  }));
+  return main;
+}
+
+mountSpecimen({ sections: [
+  section('The whole recipe', [landmark('Whatever the page is for goes here.')], { stack: true }),
+  section('It draws no box', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'The slot carries one declaration, display: block, which is what a landmark already is. '
+      + 'No width, no padding, no grid: where things go stays the container the consumer owns, '
+      + 'so a page whose main is swapped for a plain div looks identical.'),
+  ]),
+  section('Why it takes a tabindex', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'tabindex="-1" keeps it out of the tab order and makes it focusable programmatically. '
+      + 'An anchor pointing at a container the platform will not focus scrolls the page and '
+      + 'leaves focus where it was, which is the failure that makes most skip links look like '
+      + 'they work.'),
+  ]),
+]});
+</script></body></html>

@@ -1,0 +1,10 @@
+{
+  "component": "ArenaBoardColumn",
+  "cases": [
+    { "name": "column",
+      "when": "always -- a column names what it groups, stacks what it was given and offers nothing to act on of its own",
+      "pattern": "none",
+      "reason": "The column is a named group holding the consumer's cards: it takes no focus, answers no key and holds no state. The board around it is the tab stop, and whatever a consumer projects into the head, the stack or the footer carries its own pattern.",
+      "exceptions": [] }
+  ]
+}

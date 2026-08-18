@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ArenaTabsState } from '../arena-tabs/ArenaTabsState';
 import { arenaTabStyles } from './ArenaTab.variants';
+import manifest from '../arena-tabs/ArenaTabs.classes.generated';
 
 @Component({
   selector: 'arena-tab',
@@ -10,6 +11,7 @@ import { arenaTabStyles } from './ArenaTab.variants';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().panel()',
+    '[attr.data-arena-part]': 'parts.panel',
     role: 'tabpanel',
     '[attr.id]': 'panelId()',
     '[attr.aria-labelledby]': 'tabId()',
@@ -18,6 +20,8 @@ import { arenaTabStyles } from './ArenaTab.variants';
   template: `<ng-content />`,
 })
 export class ArenaTab {
+  protected readonly parts = manifest.parts;
+
   /** What this tab selects, and what the parent's `change` carries. */
   readonly value = input.required<string>();
   /** What the tab reads. Arena draws the button; the consumer names it. */

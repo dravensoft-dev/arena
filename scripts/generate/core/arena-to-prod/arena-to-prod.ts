@@ -7,26 +7,37 @@
  * the package between them draw. Theme first, and its failure stops the run: a project whose
  * config does not parse has no theme, and nothing to subset for. hostPackage answers a path
  * rather than a name because the two steps want different things out of it. A configuration
- * problem is always fatal; a contrast, ramp or missing-glyph report is not, since a consumer
- * owns their brand and a false hit in prose costs nothing. --strict makes the reports fatal. */
+ * problem is always fatal and a report is not, since a consumer owns their brand; --strict is
+ * what makes one fatal, and it takes the kinds it holds, on reports.ts's reasoning. */
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, relative, resolve, sep } from 'node:path';
-import { configProblems, paletteReports, themeCss } from './theme-css.ts';
-import type { ArenaConfig, PackageSheets, ShippedExtension } from './theme-css.ts';
+import {
+  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, readPlugin, themeCss,
+  weightReports,
+} from './theme-css.ts';
+import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
-import { auditText } from './audit.ts';
+import { auditText, paintedParts, sourceScope } from './audit.ts';
+import { restatedFindings, sheetFor } from './restated.ts';
+import { STRICT_KINDS, report, reported } from './reports.ts';
+import { levelDefaults, levelsIn, washesIn } from './levels.ts';
+import type { Report, StrictKind } from './reports.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
 export const THEME_SHEET = 'arena.generated.css';
 export const ICONS_SHEET = 'icons.generated.css';
+export const PLUGIN_SHEET = 'plugin.generated.css';
+export const PLUGIN_CSS = 'plugin.css';
+export const PLUGIN_LAYER = 'arena-plugin';
+export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
@@ -35,10 +46,10 @@ export const DEFAULT_OUT = 'src';
 
 export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
-export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET]);
+export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET]);
 
 export const USAGE = [
-  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict]',
+  'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict[=<kind>,...]]',
   '',
   `  --config        the palettes and fonts this project declares; defaults to ${DEFAULT_CONFIG}`,
   `  --src           a source tree to scan for Phosphor class names; repeatable, defaults to ${DEFAULT_SOURCE}`,
@@ -48,12 +59,14 @@ export const USAGE = [
   '                  on an Arena component, one wrapped in your router\'s link, a raw value where',
   '                  a token belongs, an icon as an element, an emoji',
   '  --undrawn       name the components this package ships that your sources draw nowhere',
-  '  --strict        exit 1 on a contrast, ramp, missing-glyph or audit report, not only on a config problem',
+  `  --strict        exit 1 on a report, not only on a config problem. Bare, it holds every kind;`,
+  `                  --strict=${STRICT_KINDS.slice(0, 3).join(',')} holds the ones you name, out of`,
+  `                  ${STRICT_KINDS.join(', ')}`,
   '  --no-import     omit the @import of the package stylesheet from the theme output',
 ].join('\n');
 
 export type ResolvedOptions = {
-  strict: boolean;
+  strict: StrictKind[];
   audit: boolean;
   undrawn: boolean;
   importHeader: boolean;
@@ -71,7 +84,7 @@ export function resolved(options: CliOptions): ResolvedOptions {
       + 'resolved option set, so every path this command was given is unknown');
   }
   return {
-    strict: Boolean(options.strict),
+    strict: options.strict ?? [],
     audit: Boolean(options.audit),
     undrawn: Boolean(options.undrawn),
     importHeader: options.importHeader !== false,
@@ -81,14 +94,27 @@ export function resolved(options: CliOptions): ResolvedOptions {
   };
 }
 
+export function strictKinds(value: string) {
+  const named = value.split(',').map((one) => one.trim()).filter(Boolean);
+  const unknown = named.filter((one) => !STRICT_KINDS.includes(one as StrictKind));
+  if (unknown.length) return { error: `--strict does not report on ${unknown.join(', ')}; it reports on ${STRICT_KINDS.join(', ')}` };
+  return { kinds: named as StrictKind[] };
+}
+
 export function parseArgs(argv: string[]): CliOptions {
   const paths: string[] = [];
-  const options: CliOptions = { strict: false, audit: false, undrawn: false, importHeader: true, paths };
+  const options: CliOptions = { strict: [], audit: false, undrawn: false, importHeader: true, paths };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === undefined) continue;
     if (arg === '--help' || arg === '-h') return { help: true };
-    if (arg === '--strict') { options.strict = true; continue; }
+    if (arg === '--strict') { options.strict = [...STRICT_KINDS]; continue; }
+    if (arg.startsWith('--strict=')) {
+      const named = strictKinds(arg.slice('--strict='.length));
+      if (named.error) return { error: named.error };
+      options.strict = named.kinds;
+      continue;
+    }
     if (arg === '--audit') { options.audit = true; continue; }
     if (arg === '--undrawn') { options.undrawn = true; continue; }
     if (arg === '--no-import') { options.importHeader = false; continue; }
@@ -143,56 +169,35 @@ export const SHEET_IMPORT = /@import\s+'\.\/([^']+)';/g;
 
 export const CSS_BLOCK = /([^{}]+)\{([^}]*)\}/g;
 
-export const EXTENSION_SELECTOR = /^\.arena-([a-z][a-z0-9-]*)$/;
+export const CATALOGUE_FILE = 'arena.tokens.json';
 
 export const REFERENCE_DECLARATION = /^--[\w-]+:\s*var\(--color-[\w-]+\)$/;
 
-const declarationsIn = (body: string) =>
-  body.split(';').map((d) => d.trim()).filter(Boolean).map((d) => `${d};`);
-
-const blocksIn = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(CSS_BLOCK)]
-  .map((m) => ({ selector: (m[1] ?? '').trim(), declarations: declarationsIn(m[2] ?? '') }))
-  .filter((b) => b.declarations.length);
-
-function effectsCss(root: string) {
-  try { return readFileSync(join(root, 'css', 'effects.css'), 'utf8'); } catch { return null; }
+export function packageCatalogue(root: string): TokenCatalogue | null {
+  try {
+    return JSON.parse(readFileSync(join(root, CATALOGUE_FILE), 'utf8')) as TokenCatalogue;
+  } catch {
+    return null;
+  }
 }
 
-export function polarityOf(selector: string, name: string, polarities: readonly string[]) {
-  const clauses = selector.split(',').map((c) => c.trim()).filter(Boolean);
-  const has = (clause: string, cls: string) => new RegExp(`\\.arena-${cls}(?![\\w-])`).test(clause);
-  for (const polarity of polarities) {
-    if (clauses.every((c) => has(c, name) && has(c, polarity))) return polarity;
-  }
-  return null;
-}
-
-export function packageExtensions(root: string, polarities: readonly string[] = POLARITIES) {
-  const css = effectsCss(root);
-  if (css === null) return {};
-  const blocks = blocksIn(css);
-  const out: Record<string, ShippedExtension> = {};
-  for (const { selector, declarations } of blocks) {
-    const name = EXTENSION_SELECTOR.exec(selector)?.[1];
-    if (name && !polarities.includes(name)) out[name] = { base: declarations, byPolarity: {} };
-  }
-  for (const { selector, declarations } of blocks) {
-    for (const name of Object.keys(out)) {
-      const polarity = polarityOf(selector, name, polarities);
-      const shipped = out[name];
-      if (polarity && shipped) shipped.byPolarity[polarity] = declarations;
-    }
-  }
-  return out;
-}
-
-export function packageRoleReferences(root: string): string[] {
-  const css = effectsCss(root);
-  if (css === null) return [];
-  return blocksIn(css)
-    .filter((b) => b.selector === ':root')
-    .flatMap((b) => b.declarations)
+export function roleReferencesIn(catalogue: TokenCatalogue | null): string[] {
+  if (!catalogue) return [];
+  return Object.entries(catalogue.tokens ?? {})
+    .map(([name, value]) => `--${name}:${value};`)
     .filter((d) => REFERENCE_DECLARATION.test(d.replace(/;$/, '')));
+}
+
+const read = (at: string) => {
+  try { return readFileSync(at, 'utf8'); } catch { return ''; }
+};
+
+const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
+
+export const SCOPE_CLASS = /\.arena-([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;
+
+export function scopesIn(css: string) {
+  return [...css.replace(CSS_COMMENT, ' ').matchAll(SCOPE_CLASS)].map((m) => m[1] as string);
 }
 
 export function packageSheets(root: string): PackageSheets {
@@ -203,12 +208,65 @@ export function packageSheets(root: string): PackageSheets {
       .filter((name) => name.endsWith('.css'))
       .map((name) => basename(name, '.css'))
       .sort();
-    return layers.length && components.length
-      ? { layers, components, extensions: packageExtensions(root), roleReferences: packageRoleReferences(root) }
-      : null;
+    if (!layers.length || !components.length) return null;
+    const catalogue = packageCatalogue(root);
+    const sheets = components.map((name) =>
+      readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'));
+    const defaults = levelDefaults(read(join(root, 'css', 'colors.css')));
+    const levels = sheets.flatMap((css) => levelsIn(css, defaults));
+    const washes = sheets.flatMap(washesIn);
+    const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));
+    return {
+      layers,
+      components,
+      levels,
+      washes,
+      scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
+      roleReferences: roleReferencesIn(catalogue),
+      catalogue: catalogue ?? undefined,
+    };
   } catch {
     return null;
   }
+}
+
+export function pluginCss(sheets: { name: string; css: string; root?: boolean }[]) {
+  const carried = sheets.filter(({ css }) => css.trim() !== '');
+  if (carried.length === 0) return null;
+  const scoped = ({ name, css, root }: { name: string; css: string; root?: boolean }) =>
+    (root ? css.trim() : `.arena-${name} {\n${css.trim()}\n}`);
+  return `${PLUGIN_LAYER_ORDER}\n@layer ${PLUGIN_LAYER} {\n${carried.map(scoped).join('\n')}\n}\n`;
+}
+
+export function pluginSheets(config: ArenaConfig, from: string) {
+  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
+  const out: { name: string; css: string; root: boolean }[] = [];
+  declared.forEach((entry, i) => {
+    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) return;
+    const at = join(resolve(from, entry.trim()), PLUGIN_CSS);
+    if (!existsSync(at)) return;
+    out.push({ name: pluginName(entry), css: readFileSync(at, 'utf8'), root: i === 0 });
+  });
+  return out;
+}
+
+export function readPlugins(config: ArenaConfig, from: string) {
+  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
+  const plugins: ResolvedPlugins = [];
+  const fatal: string[] = [];
+  declared.forEach((entry, i) => {
+    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) { plugins.push(null); return; }
+    const dir = resolve(from, entry.trim());
+    const file = join(dir, PLUGIN_TOKENS);
+    try {
+      plugins.push(readPlugin(pluginName(entry), JSON.parse(readFileSync(file, 'utf8'))));
+    } catch (error) {
+      plugins.push(null);
+      fatal.push(`stylePlugins[${i}]: cannot read ${file}: ${(error as Error).message}. An entry is `
+        + `the word "${DEFAULT_PLUGIN}" or a directory of your own holding ${PLUGIN_TOKENS}`);
+    }
+  });
+  return { plugins, fatal };
 }
 
 export function componentMap(root: string): ComponentMap | null {
@@ -252,13 +310,18 @@ export function phosphorRoot(from = process.cwd(), fallback = here) {
   return null;
 }
 
+export function toPosix(path: string, separator = sep) {
+  return path.split(separator).join('/');
+}
+
 export function relativeFrom(outDir: string, target: string) {
-  const path = relative(outDir, target).split(sep).join('/');
+  const path = toPosix(relative(outDir, target));
   return path.startsWith('.') ? path : `./${path}`;
 }
 
-export function reportLines(reports: { palette: string; messages: string[] }[]) {
-  return reports.flatMap(({ palette, messages }) => messages.map((m) => `${palette}: ${m}`));
+export function reportLines(reports: { palette: string; messages: Report[] }[]) {
+  return reports.flatMap(({ palette, messages }) =>
+    messages.map((one) => report(one.kind, `${palette}: ${one.message}`)));
 }
 
 export function autoComponents(config: ArenaConfig, options: ResolvedOptions,
@@ -294,29 +357,71 @@ export function readSources(paths: string[]) {
   return sources;
 }
 
-export function auditStep(options: ResolvedOptions) {
-  if (!options.audit) return { reports: [] as string[], scanned: 0 };
-  const reports = [];
+export function pluginDirs(options: ResolvedOptions) {
+  let config;
+  try {
+    config = JSON.parse(readFileSync(options.config, 'utf8'));
+  } catch {
+    return [] as string[];
+  }
+  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
+  return declared
+    .filter((entry: unknown): entry is string => typeof entry === 'string' && entry.trim() !== DEFAULT_PLUGIN)
+    .map((entry: string) => resolve(dirname(resolve(options.config)), entry.trim()));
+}
+
+export function gradientMark(options: ResolvedOptions) {
+  try {
+    return JSON.parse(readFileSync(options.config, 'utf8')).gradientMark === true;
+  } catch {
+    return false;
+  }
+}
+
+export function auditStep(options: ResolvedOptions, arena: string | null = null) {
+  if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
+  const dirs = pluginDirs(options);
+  const declaredMark = gradientMark(options);
+  const reports: Report[] = [];
+  const painted = new Set<string>();
   let scanned = 0;
+  const sheetOf = (part: string) => {
+    if (!arena) return null;
+    const path = join(arena, 'css', 'components', sheetFor(part));
+    return existsSync(path) ? readFileSync(path, 'utf8') : null;
+  };
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
       scanned += 1;
-      reports.push(...auditText(file, readFileSync(file, 'utf8')));
+      const cited = toPosix(file);
+      const text = readFileSync(file, 'utf8');
+      const scope = sourceScope(resolve(file), dirs);
+      reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
+      if (scope !== 'plugin') continue;
+      for (const part of paintedParts(text)) painted.add(part);
+      if (!file.endsWith('.css')) continue;
+      for (const one of restatedFindings(text, sheetOf)) {
+        reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
+          + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
+          + 'counts a part as painted by reading source text, and a role is grown from that count, '
+          + 'so a restatement is evidence for a question nobody asked'));
+      }
     }
   }
-  return { reports, scanned };
+  return { reports, scanned, painted: [...painted].sort() };
 }
 
 export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
-  if (!map?.markers) return { reports: [] as string[] };
+  if (!map?.markers) return { reports: [] as Report[] };
   const files = [];
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) {
       if (!file.endsWith('.ts')) continue;
-      files.push({ path: file, source: readFileSync(file, 'utf8') });
+      files.push({ path: toPosix(file), source: readFileSync(file, 'utf8') });
     }
   }
-  return { reports: markerProblems(files, map.markers) };
+  return { reports: markerProblems(files, map.markers, map.markerDirectives ?? {})
+    .map((line) => report('markers', line)) };
 }
 
 export function undrawnStep(options: ResolvedOptions, packageName: string, map: ComponentMap | null) {
@@ -350,10 +455,10 @@ export function themeStep(
   try {
     config = JSON.parse(readFileSync(options.config, 'utf8'));
   } catch (error) {
-    return { code: 2, reports: [] as string[], fatal: [`cannot read ${options.config}: ${(error as Error).message}`] };
+    return { code: 2, reports: [] as Report[], fatal: [`cannot read ${options.config}: ${(error as Error).message}`] };
   }
 
-  const auto = { reports: [] as string[], notes: [] as string[] };
+  const auto = { reports: [] as Report[], notes: [] as string[] };
   if (config.stylesheet?.components === AUTO) {
     if (!map) {
       return { code: 1,
@@ -364,22 +469,35 @@ export function themeStep(
     const resolved = autoComponents(config, options, map, packageName);
     if (resolved.fatal) return { code: 1, reports: [], fatal: resolved.fatal };
     config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
-    auto.reports.push(...resolved.reports);
+    auto.reports.push(...resolved.reports.map((line) => report('components', line)));
     auto.notes.push(resolved.note);
   }
 
-  const problems = configProblems(config, sheets);
+  const { plugins, fatal } = readPlugins(config, dirname(resolve(options.config)));
+  if (fatal.length) return { code: 1, reports: [] as Report[], fatal };
+
+  const problems = configProblems(config, sheets, plugins);
   if (problems.length) return { code: 1, reports: [], fatal: problems };
 
-  const reports = [...auto.reports, ...reportLines(paletteReports(config))];
+  const reports = [...auto.reports,
+    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
+    ...weightReports(config, sheets?.catalogue ?? null, plugins)];
   const out = join(options.out, THEME_SHEET);
   const css = themeCss(config, {
-    packageName, importHeader: options.importHeader, source: basename(options.config), sheets,
+    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins,
   });
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, css);
 
-  return { code: 0, reports, fatal: [] as string[], notes: auto.notes, wrote: `${out} (${css.length} bytes)` };
+  const wrote = [`${out} (${css.length} bytes)`];
+  const layered = pluginCss(pluginSheets(config, dirname(resolve(options.config))));
+  if (layered !== null) {
+    const at = join(options.out, PLUGIN_SHEET);
+    writeFileSync(at, layered);
+    wrote.push(`${at} (${layered.length} bytes, wrapped in @layer ${PLUGIN_LAYER})`);
+  }
+
+  return { code: 0, reports, fatal: [] as string[], notes: auto.notes, wrote: wrote.join(' and ') };
 }
 
 export function iconsStep(options: ResolvedOptions,
@@ -389,7 +507,7 @@ export function iconsStep(options: ResolvedOptions,
   }
 
   const found: IconScan = { pairs: new Map(), loose: new Set() };
-  const reports = [];
+  const reports: Report[] = [];
   const ours: IconScan = { pairs: new Map(), loose: new Set() };
 
   if (arena) {
@@ -400,7 +518,7 @@ export function iconsStep(options: ResolvedOptions,
       scan(source, ours);
     }
   } else {
-    reports.push('not running from inside an Arena package, so the icons Arena draws itself were not counted');
+    reports.push(report('environment', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
   }
 
   const yours: IconScan = { pairs: new Map(), loose: new Set() };
@@ -443,7 +561,7 @@ export function iconsStep(options: ResolvedOptions,
 
   const { css, missing, kept } = iconsCss(sheets, options.paths.join(', '));
   for (const [weight, names] of missing) {
-    for (const name of names) reports.push(`${weight}: ${name} is not an icon Phosphor draws at that weight`);
+    for (const name of names) reports.push(report('glyph', `${weight}: ${name} is not an icon Phosphor draws at that weight`));
   }
 
   mkdirSync(outDir, { recursive: true });
@@ -487,7 +605,7 @@ export function main(argv: string[], environment: Environment = {}) {
 
   const theme = themeStep(options, { packageName, sheets, map });
   for (const line of theme.fatal) console.error(`arena-to-prod: ${line}`);
-  for (const line of theme.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of theme.reports) console.error(`arena-to-prod: ${one.message}`);
   if (theme.code !== 0) return theme.code;
   for (const line of theme.notes ?? []) console.log(`arena-to-prod: ${line}`);
   console.log(`arena-to-prod: wrote ${theme.wrote}`);
@@ -499,24 +617,34 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
-  const audit = auditStep(options);
-  for (const line of audit.reports) console.error(`arena-to-prod: ${line}`);
-  if (options.audit)
+  const audit = auditStep(options, arena);
+  for (const one of audit.reports) console.error(`arena-to-prod: ${one.message}`);
+  if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `
       + `${audit.reports.length || 'no'} finding(s). No gate reads your application, so these hold `
       + 'because you hold them');
+    const named = audit.painted.length ? `: ${audit.painted.join(', ')}` : '';
+    console.log(`arena-to-prod: your style plugin(s) paint ${audit.painted.length || 'no'} part(s)${named}. `
+      + 'A role is added to Arena when several style plugins are measured painting the same decision '
+      + 'by hand through the same part, so this note is where the evidence for one comes from');
+  }
 
   const markers = markersStep(options, map);
-  for (const line of markers.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of markers.reports) console.error(`arena-to-prod: ${one.message}`);
 
   const icons = iconsStep(options, { arena, phosphor });
   for (const line of icons.fatal) console.error(`arena-to-prod: ${line}`);
-  for (const line of icons.reports) console.error(`arena-to-prod: ${line}`);
+  for (const one of icons.reports) console.error(`arena-to-prod: ${one.message}`);
   if (icons.code !== 0) return icons.code;
   console.log(`arena-to-prod: wrote ${icons.wrote}`);
 
-  const reported = theme.reports.length + audit.reports.length + markers.reports.length + icons.reports.length;
-  return options.strict && reported ? 1 : 0;
+  const held = reported([...theme.reports, ...audit.reports, ...markers.reports, ...icons.reports],
+    options.strict);
+  if (held.length) {
+    console.error(`arena-to-prod: --strict holds ${options.strict.join(', ')}, and this run reports `
+      + `${held.length} of them: ${[...new Set(held.map((one) => one.kind))].join(', ')}`);
+  }
+  return held.length ? 1 : 0;
 }
 
 export function isProgram(entry: string | undefined, self: string) {

@@ -1,10 +1,11 @@
-/* GENERATED-file writer. Emits the consumer branch's index tree: frameworks/SKILL.md, which
- * says what Arena ships and how it is classified, and one frameworks/<layer>/SKILL.md, which
- * names each member as that layer binds it and links the prompt beside the component. Every
- * column is derived, so no page can disagree with the contracts, and check:skills fails a
- * stale one. They are tracked because the plugin is served from the git tag, where nothing
- * runs a build, and they carry no frontmatter: a nested file is reached by link rather than
- * registered, and the plugin root's SKILL.md is the one that is a skill. */
+/* GENERATED-file writer. Emits the consumer branch's index tree: frameworks/INDEX.md, which says
+ * what Arena ships and how it is classified, and one frameworks/<layer>/INDEX.md, which names each
+ * member as that layer binds it and links the prompt beside the component. Every column is
+ * derived, so no page can disagree with the contracts, and check:skills fails a stale one. They
+ * are tracked because the plugin is served from the git tag, where nothing runs a build. An index
+ * is reached by link rather than registered, so it carries no frontmatter, and INDEX is why it
+ * carries no skill's name either: a file under that name and no frontmatter is a skill that fails
+ * to parse to anything globbing for it, which is how the npm convention finds one. */
 
 import { writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,12 +21,14 @@ import { bindingName } from '../../lib/arena/api-surface.ts';
 
 export const CONSUMER_LAYERS = LAYERS.filter((layer) => layer !== 'tailwind');
 
-export const INDEX_TARGET = 'frameworks/SKILL.md';
+export const INDEX = 'INDEX.md';
 
-export const layerTarget = (layer: string) => `frameworks/${layer}/SKILL.md`;
+export const INDEX_TARGET = `frameworks/${INDEX}`;
+
+export const layerTarget = (layer: string) => `frameworks/${layer}/${INDEX}`;
 
 export const categoryTarget = (layer: string, category: string) =>
-  `frameworks/${layer}/components/${category}/SKILL.md`;
+  `frameworks/${layer}/components/${category}/${INDEX}`;
 
 export const node = {
   name: 'generate:skills',
@@ -37,12 +40,13 @@ export const node = {
   writes: [
     INDEX_TARGET,
     ...CONSUMER_LAYERS.map(layerTarget),
-    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/SKILL.md`),
+    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/${INDEX}`),
   ],
   feeds: [
     'build:angular-package',
     'build:react-package',
     'check:appearance',
+    'check:parts',
     'check:arbitrary',
     'check:behaviour',
     'check:compliance',
@@ -103,15 +107,15 @@ writing one: what a member is called where you are building, and how to write it
 layer's index and then the component's own prompt, and reading this page first buys nothing when
 you already know what you are reaching for.
 
-**The voice this application takes, and the rules of the language every component below answers
-to, are decided in [\`../SKILL.md\`](../SKILL.md) before any component on this page.** Nothing
-here restates them, so a screen built from this page alone is built in the default voice by
-accident and breaks the rules where nothing will report it.
+**The rules of the language every component below answers to are stated in
+[\`../skills/design/SKILL.md\`](../skills/design/SKILL.md) before any component on this page.**
+Nothing here restates them, so a screen built from this page alone breaks the rules where nothing
+will report it.
 
 | Layer | Index | Package |
 |---|---|---|
 ${CONSUMER_LAYERS
-    .map((layer) => `| ${LAYER_TITLE[layer]} | [\`${layer}/SKILL.md\`](./${layer}/SKILL.md) | \`${PACKAGES[layer]}\` |`)
+    .map((layer) => `| ${LAYER_TITLE[layer]} | [\`${layer}/${INDEX}\`](./${layer}/${INDEX}) | \`${PACKAGES[layer]}\` |`)
     .join('\n')}
 
 - **Takes** is the members its API contract declares, in contract order, under the neutral names
@@ -132,17 +136,15 @@ category's index for what the component takes, and its own prompt for how to wri
 components are named here rather than described so that finding yours costs one page instead of
 a guess.
 
-**Read [\`../../SKILL.md\`](../../SKILL.md) before you write anything from here.** It carries the
-two things no page below it does: the voice the application takes, which is decided before any
-component, and the rules of the language, which hold in your code because you hold them and which
-no gate reads your application to enforce. Every component answers to the voice without being told,
-so a screen built from this tree alone is built in the default voice by accident rather than on
-purpose, and breaks the rules where nothing will report it.
+**Read [\`../../skills/design/SKILL.md\`](../../skills/design/SKILL.md) before you write anything
+from here.** It carries the one thing no page below it does: the rules of the language, which hold
+in your code because you hold them and which no gate reads your application to enforce. A screen
+built from this tree alone breaks them where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`PACKAGE.md\`](./PACKAGE.md).
 - Whether a component exists at all, including any this layer does not ship:
-  [\`../SKILL.md\`](../SKILL.md).`;
+  [\`../${INDEX}\`](../${INDEX}).`;
 }
 
 export function categoryHeader(layer: string, category: string) {
@@ -153,15 +155,15 @@ export function categoryHeader(layer: string, category: string) {
 Every ${category} component this layer ships, under the names it binds them to. **This page is an
 index, not a manual.** How to write one is its own prompt, linked in the last column.
 
-**The voice this application takes, and the rules every component below answers to, are decided in
-[\`../../../../SKILL.md\`](../../../../SKILL.md) before any component here**, and nothing on this
-page restates them.
+**The rules every component below answers to are stated in
+[\`../../../../skills/design/SKILL.md\`](../../../../skills/design/SKILL.md) before any component
+here**, and nothing on this page restates them.
 
 Import from the package root, never from a path inside it:
 
 ${LAYER_IDIOM[layer]}
 
-- Every other category this layer ships: [\`../../SKILL.md\`](../../SKILL.md).
+- Every other category this layer ships: [\`../../${INDEX}\`](../../${INDEX}).
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`../../PACKAGE.md\`](../../PACKAGE.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
@@ -335,8 +337,8 @@ export function renderLayerIndex(layer: string, base = root) {
     const rows = layerRowsIn(layer, category, base);
     count += rows.length;
     const held = rows.map((row) => `\`${row.component}\``).join(' ');
-    out.push(`| \`${category}\` | ${held} | [\`components/${category}/SKILL.md\`](./components/${
-      category}/SKILL.md) |`);
+    out.push(`| \`${category}\` | ${held} | [\`components/${category}/${INDEX}\`](./components/${
+      category}/${INDEX}) |`);
   }
 
   if (count === 0) indexOfNothing(`the ${layer} layer holds no declared component`);

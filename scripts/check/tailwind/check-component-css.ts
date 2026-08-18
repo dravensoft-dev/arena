@@ -1,13 +1,13 @@
-/* Five claims about the CSS a component renders, none of which needs a browser. Every class
- * a manifest names has a rule, and every rule came from a manifest, so a renamed slot cannot
- * leave a component drawing a class nothing defines. No emitted file reads a Tailwind theme
- * property, which is the assertion that the strip ran and therefore that an adopter's own
- * `--spacing` cannot reach in. And every property the CSS does read resolves to a token Arena
- * ships, so a rule cannot quietly depend on something no package carries. The seven `arena-*`
- * animation utilities are excluded by name because `Animations.css` already owns that
- * namespace and they are rules no manifest can derive. The fifth is the specimen's: a page
- * links one sheet per manifest it fetches, since a missing link renders that part unstyled
- * and nothing opens the page to see it. */
+/* Seven claims about the CSS a component renders, none of which needs a browser. Every class a
+ * manifest names has a rule and every rule came from a manifest, so a renamed slot cannot leave a
+ * component drawing a class nothing defines. No emitted file reads a Tailwind theme property,
+ * which is the assertion that the strip ran and therefore that an adopter's own `--spacing`
+ * cannot reach in, and every property the CSS does read resolves to a token Arena ships. The
+ * seven `arena-*` animation utilities are excluded by name, since `Animations.css` owns that
+ * namespace. The specimen's is that a page links one sheet per manifest it fetches, a missing
+ * link rendering that part unstyled with nothing opening the page to see it. The last two read
+ * the `@supports` emit and supports-blocks.ts states what each is; a survivor of either reports a
+ * sheet emitted before those transforms rather than a manifest to edit. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -17,6 +17,7 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
+import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
@@ -39,6 +40,23 @@ export const THEME_NAMESPACES = [
 
 export const EXTERNAL_PROPERTIES = new Map([
   ['picker-invert', 'written by arena-to-prod into the consuming project\'s own stylesheet, never by the package'],
+  ['arena-scroller-item', 'written by ArenaScroller onto its own root from the itemWidth member, in both layers, '
+    + 'because a row lays its items out at one width and cannot reach inside them to set it. It is a component\'s '
+    + 'own channel to its children rather than a design value, which is why no token defines it and why its '
+    + 'default, the grid-min role, is resolved by the component and not by this sheet'],
+  ['arena-board-column', 'written by ArenaBoard onto its own root from the minColumn member, in both layers, because '
+    + 'a board lays its columns out at one minimum width and cannot reach inside them to set it. It is the same '
+    + 'channel ArenaScroller opens for the same reason, and its default is the grid-min role resolved by the '
+    + 'component rather than by this sheet'],
+  ['arena-board-column-cat', 'written by ArenaBoardColumn onto its own section from the colorId member, in both '
+    + 'layers, for the reason ArenaTag writes its own: a ramp slot is data rather than a design value and a class '
+    + 'string cannot name which of the eight it is. It is set only while colorId names one, and a style plugin '
+    + 'reads it to fill the whole head with the identity colour'],
+  ['arena-tag-cat', 'written by ArenaTag onto its own root from the colorId member, in both layers, because '
+    + 'the ramp slot a tag carries is data rather than a design value and a class string cannot name which '
+    + 'of the eight it is. It is set only while colorId names one, so the identity arm is the only rule that '
+    + 'reads it and an unset property reaches no declaration. A style plugin reads it too, which is how an '
+    + 'appearance fills the pill with the identity colour without a member for it'],
 ]);
 
 export function selectorsIn(css: string) {
@@ -92,8 +110,35 @@ export function sheetProblems(manifests: Manifests, base = root) {
       problems.push(`${manifest.component}: reads --${name}, which is no Arena token and is not `
         + 'declared external, so nothing in either package defines it');
     }
+    for (const repeated of repeatedSupports(css)) {
+      problems.push(`${manifest.component}: ${repeated.selector} states ${repeated.condition} `
+        + `${repeated.count} times, and a bundler is free to keep one of them: bun build keeps the `
+        + 'first and discards the rest, so every held-back colour after the first leaves the sheet '
+        + 'a consumer installs. One rule states a condition once, which is what mergeSupports does '
+        + 'wherever it can prove the move harmless; a survivor here is a merge it refused');
+    }
+    for (const blind of blindFallbacks(css)) {
+      problems.push(`${manifest.component}: ${blind.selector} falls back to `
+        + `${blind.property}: var(--${blind.token}) under an ink of the same colour, so wherever `
+        + 'color-mix does not resolve the glyph is painted in the colour behind it and the state '
+        + 'is a solid block with nothing in it. A wash of its own colour has no full-strength '
+        + 'fallback: drop it and let the background not paint');
+    }
   }
   return problems;
+}
+
+export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
+
+export function keyframeDepths(css: string) {
+  const found = [];
+  let depth = 0;
+  for (const match of css.matchAll(/@keyframes\s+([A-Za-z0-9_-]+)|\{|\}/g)) {
+    if (match[0] === '{') depth += 1;
+    else if (match[0] === '}') depth -= 1;
+    else found.push({ name: match[1] ?? '', depth });
+  }
+  return found;
 }
 
 export function preludeProblems(base = root) {
@@ -107,8 +152,28 @@ export function preludeProblems(base = root) {
   if (!/@property --tw-border-style/.test(css)) problems.push(`${PRELUDE}: no --tw-border-style registration, so every border disappears`);
   if (!/@property --tw-shadow\b/.test(css)) problems.push(`${PRELUDE}: no --tw-shadow registration, so every shadow and the focus ring disappear`);
   if (!/@keyframes/.test(css)) problems.push(`${PRELUDE}: no @keyframes, so every animation the component CSS names does not play`);
-  if (!/^@layer theme, base, components, utilities;$/m.test(css)) {
-    problems.push(`${PRELUDE}: no layer order declaration, so Tailwind's own property fallbacks sort above everything`);
+  const authored = new Set(keyframeDepths(readFileSync(join(base, ANIMATIONS), 'utf8')).map((k) => k.name));
+  const emitted = new Set(keyframeDepths(css).map((k) => k.name));
+  for (const name of authored) {
+    if (!emitted.has(name)) {
+      problems.push(`${PRELUDE}: ${ANIMATIONS} declares @keyframes ${name} and the prelude carries `
+        + 'none, so every rule naming that animation resolves to nothing and simply does not play');
+    }
+  }
+  const declared = new Set();
+  for (const { name, depth } of keyframeDepths(css)) {
+    if (declared.has(name) && depth === 0) {
+      problems.push(`${PRELUDE}: @keyframes ${name} is declared a second time at the top level, so `
+        + 'that declaration wins for every reader and the first never plays. A redefinition '
+        + 'answering a condition keeps the at-rule stating it, or the condition is spent on '
+        + 'everybody: this is how a reduced-motion entrance becomes the only entrance');
+    }
+    declared.add(name);
+  }
+  if (!/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) {
+    problems.push(`${PRELUDE}: no layer order declaration ending in the reserved plugin layer, so `
+      + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
+      + 'compiled component rule outranks it');
   }
   for (const directive of ['@apply', '@utility', '@reference', '@source', '@theme']) {
     if (css.includes(directive)) problems.push(`${PRELUDE}: carries ${directive}, a compile-time directive a browser cannot read`);
