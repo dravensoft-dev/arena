@@ -97,7 +97,12 @@ a reader learns that green is sometimes a category.
   floating halfway up.
 - **`.arena-shell__main`** goes on the one child of the shell that should take the slack. It is a
   class rather than something the shell distributes because a shell with a header, a main and a
-  footer has exactly one child that should grow and no rule can know which.
+  footer has exactly one child that should grow and no rule can know which. **If the child that
+  should grow is an Arena component, wrap it in a `<div>` of your own and put the class on the
+  div.** Refusing to put a class on an Arena element is right and stopping there is not: a
+  component's own element may declare `display: contents` and carry no box, so a shell whose
+  growing child is a component and has no wrapper distributes its slack to nothing and the footer
+  floats halfway up the page, which is the same failure the shell exists to prevent.
 - **`.arena-band`** centres its contents at the page width with a gutter either side. Put it
   inside anything that spans the viewport so the contents line up with the page above and below.
 - **`.arena-prose`** holds a reading column to a measure in `ch` rather than a pixel width, so it
@@ -114,6 +119,13 @@ scale below. It is not a rhythm step: the classes in the next section answer the
 siblings, and this is the padding of the box that holds them, which is a different question with a
 different answer.
 
+**The gutter is a ceiling and not a fixed inset**, so the band stands off by the whole of it at or
+above the page width and by the same share of the space it has below that. A length answered for a
+page that reaches its full width is the wrong length on a phone, where a fixed inset either side
+leaves the content narrower than the air around it, and a class that only works at one width is a
+class a screen has to override. Nothing on your side answers this: the band already does it, and
+what you write is the same one class at every width.
+
 ## The air between two components
 
 **Arena draws no outer margin on anything**, so the space between one component and the next is
@@ -125,8 +137,8 @@ you pick.
 | `.arena-stack` | `--rhythm-component` | a column of peers: a card and the next card, a chart and the table under it |
 | `.arena-stack--group` | `--rhythm-group` | a column of things that read as one unit: a label and its field, a card's own stacked children |
 | `.arena-stack--section` | `--rhythm-section` | between two sections of a page, which answer different questions |
-| `.arena-row` | `--rhythm-group` | a wrapping line, grouped by default |
-| `.arena-row--component` | `--rhythm-component` | a wrapping line whose items are separate things |
+| `.arena-row` | `--rhythm-group` | two or more things side by side that read as one unit: a mark beside a name, a label beside its badge |
+| `.arena-row--component` | `--rhythm-component` | things side by side that are separate things: a bar's links, a toolbar's buttons |
 
 **The three lengths are also custom properties**, `--rhythm-group`, `--rhythm-component` and
 `--rhythm-section`, so a grid of your own or a rule the classes do not cover spends the same step
@@ -139,6 +151,15 @@ identifier inside a table cell, or a label over the value under it, written inli
 for a class felt like more than two lines were worth. `.arena-stack--group` is exactly that block,
 and the step a group is spent at is the same step wherever it is spent.
 
+**The row is missed the same way and more often, because a short strip does not look like a
+layout.** A mark and the product's name in an app bar, two links beside each other, an icon and
+the word after it, a status label next to the badge it describes: each of those is a row, each is
+usually written as a `display: flex` with a gap somebody chose, and each is a step off the scale
+that no gate on your side reports. `.arena-row` is the horizontal half of the three steps above
+and it answers all of them, whatever the line holds and however short it is. That it wraps when
+the line runs out is a property it has, never the test for whether it applies: two elements side
+by side are already a row.
+
 **Five modifiers carry no length and line the items up instead**: `.arena-stack--start`,
 `.arena-stack--end`, `.arena-row--start`, `.arena-row--baseline` and `.arena-row--between`. They
 answer a question about your content, a trailing figure against a wrapping name, which is why
@@ -146,7 +167,10 @@ they are here rather than in the kernel.
 
 **These classes go on an element you wrote, and they are useless on an Arena element.** A
 component's own element may declare `display: contents` and carry no box, and one component
-renders no element of its own at all, so an Arena element is never a layout target.
+renders no element of its own at all, so an Arena element is never a layout target. **When the
+element you need to lay out is a component, the answer is a `<div>` of your own around it**, not
+dropping the class: refusing the class and writing no wrapper leaves the layout unstated, which
+looks like restraint and reads on the screen as a bug.
 
 **The air inside a component is not this.** `gap-control`, `gap-inline`, `gap-items`,
 `pad-surface`, `pad-control-x` and `pad-control-y` are kernel roles, and you move them by

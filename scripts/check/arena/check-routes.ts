@@ -83,7 +83,7 @@ export const ROUTES: Route[] = [
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 61_000,
+    budget: 62_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -189,7 +189,13 @@ export const ROUTES: Route[] = [
       + 'group step replaces, which a walk reading only this page wrote by hand inside a table '
       + 'cell; that the band carries no block air, which every walk invented a padding for; and '
       + 'the behaviour contracts, which this package now ships because the sentence sending a '
-      + 'builder to bind one pointed at a directory no tarball carried.',
+      + 'builder to bind one pointed at a directory no tarball carried. Raised again to 62,500 '
+      + 'when the page said what a TypeScript project declares before it can import a stylesheet. '
+      + 'The three import lines it shows are a bundler\'s idiom and not the compiler\'s: a .css '
+      + 'specifier resolves to no module, so a strict build stops at the file that wires Arena in, '
+      + 'and three cold walks of this route wrote a declaration file of their own to get past it. '
+      + 'It also carries what the shared column region gained, the row as anything laid across and '
+      + 'the wrapper a growing child needs when that child is a component this package draws.',
   },
   {
     name: 'consumer-skin',
@@ -241,7 +247,7 @@ export const ROUTES: Route[] = [
     who: 'a builder whose product, or one screen of it, is outside the component list: the router, '
       + 'then the page that says what Arena hands over instead of a component',
     stops: ['skills/design/SKILL.md', 'skills/design/references/media-register.md'],
-    budget: 24_300,
+    budget: 25_300,
     reason:
       'paid once per project like the skin route, and by a reader the router has just told to write '
       + 'their own markup. What it buys is that the honest sentence at the top of the router stops '
@@ -273,7 +279,11 @@ export const ROUTES: Route[] = [
       + 'a control laid over a picture nobody chose stands on, and whether the pattern still has '
       + 'to be bound when Arena ships no component to bind it. Every one of those is already a '
       + 'token or a contract, so the section costs a paragraph and replaces four guesses per '
-      + 'project.',
+      + 'project. Raised again to 25,300 when the section gained the box itself. It opened by '
+      + 'saying every value a viewer needs is already a token and left the one value that is not '
+      + 'unsaid, so walks sized the picture with a vh nobody chose. A fixed layer at inset 0 needs '
+      + 'no length at all, and the unit that follows a phone\'s browser chrome is dvh, which is '
+      + 'what the chosen number was compensating for.',
   },
   {
     name: 'consumer-seo',
@@ -343,7 +353,7 @@ export const ROUTES: Route[] = [
       + 'the page saying what colour their own markup takes, what column it sits in and how much '
       + 'air goes between two components',
     stops: ['skills/design/SKILL.md', 'skills/design/references/page.md'],
-    budget: 27_700,
+    budget: 29_900,
     reason:
       'the one consumer route past the router that is not paid per project or per screen but per '
       + 'element a builder draws themselves, which every screen has. What it buys is the half of a '
@@ -373,7 +383,16 @@ export const ROUTES: Route[] = [
       + 'shipped exactly that, and the one that did not found the idiom in a compiled component '
       + 'sheet, which this branch tells a builder never to target. The block air the band leaves '
       + 'is here for the same reason: all six invented a padding for it because the column '
-      + 'section said what the band carries and never what it leaves.',
+      + 'section said what the band carries and never what it leaves. Raised again to 29,900 by '
+      + 'three more measured misses on this same page. Four of six walks wrote a hand-rolled flex '
+      + 'strip for a short horizontal group inside an app bar, because the row was described as a '
+      + 'wrapping line and a two element lock-up does not read as one, so the row is stated as the '
+      + 'horizontal half of the three steps and the wrapping is a property it has rather than the '
+      + 'test for whether it applies. One walk refused to put a class on an Arena element, which '
+      + 'is right, and wrote no wrapper, which leaves the shell distributing its slack to nothing, '
+      + 'so the page says what to do when the element that has to be laid out is a component. And '
+      + 'the gutter is stated as a ceiling, since a length answered for a full width page leaves a '
+      + '430px viewport spending two fifths of itself on margin.',
   },
   {
     name: 'contributor-component',

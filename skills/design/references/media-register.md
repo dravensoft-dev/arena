@@ -90,6 +90,16 @@ a component instead of writing six lines.
 Arena ships no lightbox, and this is the element of your own that comes up most often. Every value
 it needs is already a token, so the only thing you are inventing is the box:
 
+- **The box needs no length of its own, and the one people write is the tell.** As tall as the
+  viewport allows is not a token and is not a percentage of one: it is `position: fixed` with
+  `inset: 0` on the layer and `max-width: 100%` with `max-height: 100%` on the picture, and the
+  layer's own padding is where `--pad-safe-*` and a step of the spacing scale go. A chosen `90vh`
+  is the shape this goes wrong in, and it is usually compensating for the second mistake rather
+  than for a design: `vh` is the viewport a phone has with its browser chrome retracted, so a
+  picture sized in it is taller than the room it has while the chrome is showing. `dvh` is the
+  unit that follows the chrome, which is why `.arena-shell` fills the window with `100dvh`, and
+  a fixed layer at `inset: 0` needs neither. There is no role here because there is no decision
+  here: how tall a full-size picture may get is the viewport's answer and not a style plugin's.
 - **The dim is `--scrim` with `blur(var(--scrim-blur))`**, which is the pair Arena's own dialogs
   dim the page with, and the layer is `--z-modal`. A scrim of your own is the one value that makes
   a viewer look like a different product from the dialogs beside it.

@@ -26,6 +26,13 @@ whose main landmark is swapped for a plain `<div>` looks identical. Where things
 container you own, which is what `PACKAGE.md` says and what this deliberately does not reopen.
 What it says is only what the region IS.
 
+**`.arena-shell__main` goes on a `<div>` around it, never on the component.** A shell whose growing
+child should be the main region cannot hand its slack to this: the host is out of layout and the
+`<main>` inside is Arena's element rather than yours, so there is no element here for the class to
+land on. Wrap it, put the class on the wrapper, and the shell has a child that can take the slack.
+Omitting the class because the component refuses it is the shape that gets shipped, and it reads
+as a footer floating halfway up a short page.
+
 **One per page.** A landmark that appears twice is two answers to "where does the content start",
 and a reader jumping by landmark gets the first one. It carries no name for the same reason
 `arena-app-bar` carries none and `arena-side-nav` requires one: a page has one main and a reader
