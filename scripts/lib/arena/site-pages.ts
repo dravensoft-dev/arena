@@ -30,6 +30,7 @@ export const COPIED = [
   'contracts/behaviour',
   'contracts/design',
   'contracts/design-generated',
+  'plugin-style-store',
   'assets',
   'frameworks/tailwind/consume',
   'frameworks/react/vendor',

@@ -38,7 +38,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 46_000,
+    budget: 46_200,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -77,7 +77,11 @@ export const ROUTES: Route[] = [
       + 'silence covered the two density classes, which appeared once on the whole branch inside a '
       + 'rules bullet and never as something a product can offer. Two of the table\'s longest rows '
       + 'became pointers to pay part of it, which is the trade this budget is for: the router names '
-      + 'the question and the document carries the answer.',
+      + 'the question and the document carries the answer. Raised again to 46,200 when the router '
+      + 'started naming the contributor branch by its URL. A relative path to it resolves in a '
+      + 'clone and nowhere else, and this router is served on the site and read inside a package, '
+      + 'so the one sentence sending a reader to the other branch was a 404 for everybody who did '
+      + 'not already have the tree.',
   },
   {
     name: 'consumer-install',

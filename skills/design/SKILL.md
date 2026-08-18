@@ -29,7 +29,10 @@ the one rule that bends.
 here, and follow the table below.
 
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
-read [`AGENTS.md`](../../AGENTS.md) instead. It is the root of that branch and this file is not.
+read [`AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/AGENTS.md) instead. It is the
+root of that branch and this file is not. It is named by its URL rather than by a path beside this
+one because that branch is the repository's and reaches nothing a package or this site carries, so
+a relative link to it resolves in a clone and nowhere else.
 
 **Everything here is one component at a time.**
 

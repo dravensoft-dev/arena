@@ -21,7 +21,7 @@ Not one value of appearance.
 draw geometry whose coordinates are the data, which is why they carry no manifest, and a
 component with no slot has no hook: a plugin reaches `ArenaChartCard`, the frame, and nothing
 inside the plot. What carries the skin there instead is the token tier, since every value a
-chart paints is one the palette moves, and [`../../frameworks/CHARTS.md`](../../frameworks/CHARTS.md)
+chart paints is one the palette moves, and [`frameworks/CHARTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/CHARTS.md)
 records why the plot geometry cannot be a role at all.
 
 [`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
@@ -161,7 +161,7 @@ part no rule in the witness plugin paints.
 
 A manifest's slot names leave the repository as the part hook, so **renaming one is a break**.
 That is the price of the escape hatch, and it is recorded in
-[`frameworks/tailwind/AGENTS.md`](../../frameworks/tailwind/AGENTS.md), where slots are defined,
+[`frameworks/tailwind/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/AGENTS.md), where slots are defined,
 rather than left to be discovered at a consumer's build.
 `scripts/check/arena/check-parts.ts` fails an element that carries a slot class and no hook.
 

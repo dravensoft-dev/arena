@@ -1,11 +1,13 @@
-/* Holds the published site to what it claims. The load-bearing assertion is that every href and
- * every src of every emitted page resolves to a file inside the output: intro/AGENTS.md already
- * says a broken path fails silently in both directions and an unstyled page that happens to fit
- * its box passes outright, and until this ran nothing in the repository held it for any page. The
- * rest keeps the set honest in both directions, so a playground the build dropped is missing
- * rather than absent and a page nobody meant to publish is named. It reads the output and writes
- * nothing, because check:graph refuses a gate that writes, and it skips rather than passing when
- * dist/site is not there, since a walk of nothing reports everything resolved. */
+/* Holds the published site to what it claims. The load-bearing assertion is that every href, src
+ * and markdown link of everything emitted resolves inside the output: a broken path fails silently
+ * in both directions, and an unstyled page that happens to fit its box passes outright. The
+ * markdown half is the one an agent reads, since the documents the corpus hands out are followed
+ * by their links and nothing renders them, so a path correct in a clone and absent here is a dead
+ * end at the exact sentence saying to go and read something; that is how the style plugins to read
+ * before writing one went unreachable from the page calling it the hardest instruction it gives.
+ * The rest keeps the set honest both ways, so a playground the build dropped is missing rather
+ * than absent and a page nobody meant to publish is named. It reads the output and writes nothing,
+ * and skips rather than passes without dist/site, since a walk of nothing reports everything fine. */
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -27,6 +29,7 @@ export const node = {
 };
 
 export const REFERENCE = /(?:href|src)="([^"]+)"/g;
+export const MARKDOWN_LINK = /\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
 export const OFF_SITE = /^(?:https?:|mailto:|data:|#|\/\/)/;
 export const AUTHORED = ['index.html', '404.html', 'og.html'];
 export const FORBIDDEN = ['file://', 'localhost', '127.0.0.1'];
@@ -80,6 +83,35 @@ export function resolves(out: string, page: string, target: string) {
   if (!isInside(out, from)) return false;
   if (!existsSync(from)) return false;
   return statSync(from).isDirectory() ? existsSync(join(from, 'index.html')) : true;
+}
+
+export function markdownFiles(out: string) {
+  if (!existsSync(out)) return [];
+  return walkFiles(out).filter((path) => path.endsWith('.md'));
+}
+
+export function markdownLinks(text: string) {
+  return [...text.matchAll(MARKDOWN_LINK)]
+    .map((match) => match[1] ?? '')
+    .filter((target) => target && !OFF_SITE.test(target));
+}
+
+export function markdownLinkProblems(out: string, files = markdownFiles(out)) {
+  const problems = [];
+  for (const page of files) {
+    for (const target of markdownLinks(readFileSync(page, 'utf8'))) {
+      if (!resolves(out, page, target)) {
+        problems.push(
+          `${relPosix(out, page)} links ${target}, and the output carries nothing there. A `
+          + 'document served to an agent is read through its links, so one that resolves in a '
+          + 'clone and not here sends the reader to a 404 at exactly the point the prose says to '
+          + 'go and read something. Publish what it names, or name it by a URL that answers '
+          + 'from everywhere the document is read',
+        );
+      }
+    }
+  }
+  return problems;
 }
 
 export function brokenLinkProblems(out: string, files = htmlFiles(out)) {
@@ -189,6 +221,13 @@ export function llmsProblems(out: string, base = root) {
   return problems;
 }
 
+export function zeroDocProblems(docs: unknown[]) {
+  return docs.length === 0
+    ? ['found 0 served markdown documents; an empty walk reports every link in them resolved, '
+       + 'which is a clean-looking pass over a corpus it never opened']
+    : [];
+}
+
 export function zeroScanProblems(files: unknown[]) {
   return files.length === 0
     ? ['found 0 pages; an empty walk reports every link resolved and every page present, which is '
@@ -202,9 +241,12 @@ function main() {
     cannotRun('check-site', `${SITE_DIR} is not there; run bun run build:site, which is what this reads`);
   }
   const files = htmlFiles(out);
+  const docs = markdownFiles(out);
   const problems = [
     ...zeroScanProblems(files),
+    ...zeroDocProblems(docs),
     ...brokenLinkProblems(out, files),
+    ...markdownLinkProblems(out, docs),
     ...missingPageProblems(out),
     ...orphanProblems(out, root, files),
     ...missingPlaygrounds(),
@@ -220,9 +262,9 @@ function main() {
     process.exit(1);
   }
   console.log(
-    `check-site: ${files.length} page(s) published for ${DOMAIN}, every href and src resolving `
-    + `inside the output, every declared page present and none unnamed, and the sitemap naming all `
-    + `${pages().length} of them`,
+    `check-site: ${files.length} page(s) and ${docs.length} document(s) published for ${DOMAIN}, `
+    + `every href, src and markdown link resolving inside the output, every declared page present `
+    + `and none unnamed, and the sitemap naming all ${pages().length} of them`,
   );
 }
 
