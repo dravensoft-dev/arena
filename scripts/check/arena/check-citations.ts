@@ -18,7 +18,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git']);
+export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', '.claude']);
 
 export const SKIPPED_UNDER_FRAMEWORKS = new Set(['dist', 'build', 'vendor']);
 

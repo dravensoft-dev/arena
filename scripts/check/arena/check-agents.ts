@@ -23,7 +23,7 @@ export const SURVIVORS = new Map([
    + 'to neither.'],
 ]);
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git']);
+export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', '.claude']);
 export const SKIPPED_UNDER_FRAMEWORKS = new Set(['dist', 'vendor']);
 
 export const LINK = /\]\(([^)\s]+)/g;

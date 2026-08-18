@@ -120,7 +120,7 @@ test('a survivor that is there passes, and an assembled dist copy is read by nob
 });
 
 test('a vendor or dist directory under frameworks is skipped, and one anywhere else is not', () => {
-  assert.deepEqual([...SKIPPED_ANYWHERE], ['node_modules', '.git']);
+  assert.deepEqual([...SKIPPED_ANYWHERE], ['node_modules', '.git', '.claude']);
   assert.deepEqual([...SKIPPED_UNDER_FRAMEWORKS], ['dist', 'vendor']);
   assert.equal(skips('vendor', 'frameworks/react'), true);
   assert.equal(skips('vendor', 'scripts'), false);
