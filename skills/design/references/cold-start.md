@@ -47,8 +47,10 @@ concluded before you build on it.
 
 Five questions, and they cover the decisions
 [`style-kernel.md`](./style-kernel.md) measured as the ones that separate one product from another.
-Ask them one at a time. Colour assignment is not among them because four unrelated products
-answered it identically, and that page's own table is where those answers are.
+Ask them one at a time. Which colour the TEXT takes is not among them, because eight unrelated
+products answered that identically; which surface the page takes is settled by the first question
+rather than by a sixth of its own, because it follows from what the screen is. That page's own table
+is where both are.
 
 | Ask | What the answer fixes |
 |---|---|
@@ -70,8 +72,13 @@ shadow reads as two products sharing a screen.
 ## 4. The last resort, and it is a real answer
 
 Ask for one thing only: a short description of the app. Then match that description against the
-catalogue in `plugin-style-store/catalogue/`, which holds one entry per register, each measured on a
-real product and each carrying its own `ENTRY.md`. Read the entry, do not remember it.
+catalogue in `plugin-style-store/catalogue/`, where each directory is a register measured on a real
+product and carrying its own `ENTRY.md`.
+
+**Match on one line rather than on the entries themselves.** Every `ENTRY.md` carries a line
+beginning `Take this entry when`, which says what that register is for in the terms a description
+arrives in. Read those lines, pick the one the description fits, and only then open that entry. Read
+it, do not remember it.
 
 **Name the entry you picked and what it decides, and wait.** Say which register it is, what it
 answered for shape, air and depth, and what it leaves open. An entry chosen silently is the same
@@ -225,7 +232,7 @@ Then, in this order, because each file is read by the next.
 - `arena.config.json`, with both palettes and the three font slots.
 - `design/<name>/plugin.tokens.json`, answering every role. Shapes first, then space, then weight,
   then depth, and leave the colour roles at the answers
-  [`style-kernel.md`](./style-kernel.md) reports four products converged on.
+  [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
 - `design/<name>/plugin.css`, only for a decision no role reaches.
 - Run `arena-to-prod --src src --src design`, which writes the stylesheet no package can carry and
   subsets the icon font to the glyphs your screens draw. Import what it wrote.

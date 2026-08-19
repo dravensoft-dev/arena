@@ -8,9 +8,11 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { POLARITIES, FONT_ROLES, requiredKeys } from '../../generate/core/arena-to-prod/palette-keys.ts';
 import { ROLES } from './check-style-plugin.ts';
 import {
-  CARRIES, CATALOGUE, CARD, CONFIG, SHEET, TOKENS, catalogueProblems, configProblems, entries,
-  missingFileProblems, shapeProblems, sheetProblems, tokenProblems, zeroScanProblems,
+  CARRIES, CATALOGUE, CARD, CONFIG, SHEET, TOKENS, cardProblems, catalogueProblems, configProblems,
+  entries, missingFileProblems, readingFloorProblems, shapeProblems, sheetProblems, tokenProblems,
+  zeroScanProblems,
 } from './check-catalogue.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 
 const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -18,10 +20,14 @@ type Role = { $type?: string; $extensions?: Record<string, { values?: string[] }
 
 const roles = readJson(join(repoRoot, ROLES)) as Record<string, Role>;
 
-function anyAnswer(shape: Role) {
+const CLEARS_THE_FLOOR: Record<string, number> = {
+  'lh-prose': 1.6, 'lh-heading': 1.15, 'measure-prose': 68,
+};
+
+function anyAnswer(role: string, shape: Role) {
   if (shape.$type === 'color') return '{color.base-100}';
   if (shape.$type === 'keyword') return shape.$extensions?.[ARENA_EXT]?.values?.[0];
-  return 1;
+  return CLEARS_THE_FLOOR[role] ?? 1;
 }
 
 function bench(build: (dir: string) => void) {
@@ -33,7 +39,7 @@ function bench(build: (dir: string) => void) {
 
 function wholeEntry(dir: string, name = 'a-register') {
   const answers = Object.fromEntries(Object.entries(roles).map(([role, shape]) => [
-    role, { $type: shape.$type, $value: anyAnswer(shape) },
+    role, { $type: shape.$type, $value: anyAnswer(role, shape) },
   ]));
   writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
   writeFileSync(join(dir, SHEET), '[data-arena-part="button"] { color: var(--ink-body); }');
@@ -46,7 +52,8 @@ function wholeEntry(dir: string, name = 'a-register') {
     })),
     fonts: Object.fromEntries(Object.keys(FONT_ROLES).map((slot) => [slot, { family: 'Inter' }])),
   }));
-  writeFileSync(join(dir, CARD), '# An entry\n');
+  writeFileSync(join(dir, CARD),
+    '# An entry\n\nTake this entry when the description matches what this register is for.\n');
 }
 
 test('the repository catalogue is inside every claim this gate makes', () => {
@@ -57,7 +64,7 @@ test('the repository catalogue is inside every claim this gate makes', () => {
 
 test('every shipped entry is named for a register rather than for the product it was measured on', () => {
   for (const name of entries())
-    assert.doesNotMatch(name, /clickup|duolingo|instagram|notion/i,
+    assert.doesNotMatch(name, /clickup|duolingo|instagram|notion|etsy|superhuman|grafana|calendly/i,
       `${name} is named for a product. The name becomes a class in a consumer's build, and a `
       + 'register generalises to a second measurement where a product name contradicts it.');
 });
@@ -152,6 +159,47 @@ test('a config is held to both polarities, the whole colour set, the three font 
     assert.ok(problems.some((one) => one.includes('answers no base-content')));
     assert.ok(problems.some((one) => one.includes('no body font')));
     assert.ok(problems.some((one) => one.includes('no mono font')));
+  } finally { clean(); }
+});
+
+test('an entry with no line a cold start can match on is reported', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    writeFileSync(join(dir, CARD), '# An entry\n\nIt is the register of something.\n');
+  });
+  try {
+    assert.match(cardProblems('a-register', base)[0] ?? '', /Take this entry when/);
+  } finally { clean(); }
+});
+
+test('a leading a reader cannot follow is refused, whichever scale step spells it', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, { $value: unknown }>;
+    (answers['lh-heading'] as { $value: unknown }).$value = '{lh.tight}';
+    (answers['lh-prose'] as { $value: unknown }).$value = '{lh.snug}';
+    (answers['measure-prose'] as { $value: unknown }).$value = 120;
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const problems = readingFloorProblems('a-register', tokenCatalogue(), base);
+    for (const polarity of POLARITIES) {
+      assert.ok(problems.some((one) => one.includes(`--lh-heading is 0.98 in ${polarity}`)));
+      assert.ok(problems.some((one) => one.includes(`--lh-prose is 1.15 in ${polarity}`)));
+      assert.ok(problems.some((one) => one.includes(`--measure-prose is 120ch in ${polarity}`)));
+    }
+  } finally { clean(); }
+});
+
+test('an entry answering a floor through a scale alias is measured at the value that alias resolves to', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, { $value: unknown }>;
+    (answers['lh-prose'] as { $value: unknown }).$value = '{lh.root}';
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
   } finally { clean(); }
 });
 

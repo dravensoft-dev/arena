@@ -2,10 +2,11 @@
  * plugin-style-store/catalogue is compiled, so no other gate reads one: an entry that stopped
  * answering a role the kernel gained is a build that refuses in every project that took it, and
  * none of those projects is here to report it. The rules are the shipped command's own, imported
- * rather than restated, so an entry is measured by what will measure it once it is copied. Two of
- * them are not: floorProblems reads declarations a build already resolved, and keyProblems asks
- * every token for a $description that no plugin in this tree carries and that would put the
- * reasoning somewhere ENTRY.md already owns. What that rule holds besides the description, a key
+ * rather than restated, so an entry is measured by what will measure it once it is copied. The
+ * floors are reached the same way a consumer's build reaches them, by resolving the entry against
+ * the token catalogue in memory, since nothing emits a sheet for one here. keyProblems is the one
+ * rule left out: it asks every token for a $description that no plugin in this tree carries and
+ * that would put the reasoning somewhere ENTRY.md already owns. What it holds besides that, a key
  * that is a role at all and a type agreeing with roles.json, is held below in this gate's words. */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -16,9 +17,13 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   POLARITIES, FONT_ROLES, requiredKeys,
 } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { readPlugin, resolvedPlugin } from '../../generate/core/arena-to-prod/theme-css.ts';
+import type { TokenCatalogue } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { ROLES, movedTokens } from './check-style-plugin.ts';
 import {
-  nameProblems, totalityProblems, valueProblems,
+  floorProblems, nameProblems, totalityProblems, valueProblems,
 } from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 
 export const CATALOGUE = 'plugin-style-store/catalogue';
@@ -35,7 +40,7 @@ export const CARRIES = [TOKENS, SHEET, CONFIG, CARD];
 
 export const node = {
   name: 'check:catalogue',
-  reads: [ROLES, `${CATALOGUE}/**`],
+  reads: [ROLES, ...CSS_TARGETS, `${CATALOGUE}/**`],
   writes: [],
   feeds: [],
 };
@@ -43,6 +48,8 @@ export const node = {
 const PART_HOOK = /^\s*\[data-arena-part=/;
 
 const LAYER = /@layer/;
+
+const TAKE = /^Take this entry when /m;
 
 export function entries(base = repoRoot) {
   const dir = join(base, CATALOGUE);
@@ -119,6 +126,15 @@ export function sheetProblems(name: string, base = repoRoot) {
   return problems;
 }
 
+export function cardProblems(name: string, base = repoRoot) {
+  const where = `${CATALOGUE}/${name}/${CARD}`;
+  if (TAKE.test(readFileSync(join(base, CATALOGUE, name, CARD), 'utf8'))) return [];
+  return [`${where} carries no line beginning "Take this entry when". That line is what a cold `
+    + 'start matches a description against before it opens anything, so an entry without one is an '
+    + 'entry found only by reading every entry, and the catalogue gets worse to choose from with '
+    + 'each one that is added.'];
+}
+
 export function configProblems(name: string, base = repoRoot) {
   const where = `${CATALOGUE}/${name}/${CONFIG}`;
   const config = readJson(join(base, where)) as {
@@ -156,6 +172,16 @@ export function configProblems(name: string, base = repoRoot) {
   return problems;
 }
 
+export function readingFloorProblems(
+  name: string, catalogue: TokenCatalogue, base = repoRoot,
+) {
+  const where = `${CATALOGUE}/${name}/${TOKENS}`;
+  const plugin = readPlugin(name, readJson(join(base, where)));
+  return POLARITIES.flatMap((polarity) => floorProblems(
+    resolvedPlugin(plugin, catalogue, polarity), polarity, where,
+  ));
+}
+
 export function zeroScanProblems(found: string[]) {
   if (found.length > 0) return [];
   return [`walked 0 entr(ies) under ${CATALOGUE}, so this gate holds nothing and reports clean. `
@@ -168,15 +194,20 @@ export function catalogueProblems(base = repoRoot) {
   const problems = [...zeroScanProblems(found)];
   const roles = readJson(join(repoRoot, ROLES)) as Record<string, unknown>;
 
+  const catalogue = tokenCatalogue();
+
   for (const name of found) {
     const missing = missingFileProblems(name, base);
     problems.push(...missing);
     if (missing.length > 0) continue;
+    const answers = tokenProblems(name, roles, base);
     problems.push(
-      ...tokenProblems(name, roles, base),
+      ...answers,
       ...sheetProblems(name, base),
       ...configProblems(name, base),
+      ...cardProblems(name, base),
     );
+    if (answers.length === 0) problems.push(...readingFloorProblems(name, catalogue, base));
   }
 
   return { problems, found };
@@ -190,7 +221,9 @@ function main() {
     process.exit(1);
   }
   console.log(`check-catalogue: ${found.length} entr(ies) answer every role the kernel declares, `
-    + 'paint through part hooks only, and ship a config a project can run where it puts it');
+    + 'paint through part hooks only, hold the reading floors in both polarities, ship a config a '
+    + 'project can run where it puts it, and say in one line what a cold start matches a '
+    + 'description against');
 }
 
 if (isMainModule(import.meta.url)) main();

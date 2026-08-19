@@ -1,0 +1,102 @@
+{
+  "stylePlugins": [
+    "./design/inbox"
+  ],
+  "palettes": [
+    {
+      "name": "dark",
+      "default": true,
+      "polarity": "dark",
+      "colors": {
+        "base-100": "#0d0d11",
+        "base-200": "#16161c",
+        "base-300": "#262630",
+        "base-content": "#e7e7ef",
+        "primary": "#a396ff",
+        "primary-content": "#12102b",
+        "secondary": "#7fd3c1",
+        "secondary-content": "#0a1f1a",
+        "neutral": "#1c1c24",
+        "neutral-content": "#9a9aac",
+        "info": "#84b6f4",
+        "info-content": "#0a1725",
+        "success": "#79cd93",
+        "success-content": "#08200f",
+        "warning": "#e2b463",
+        "warning-content": "#241703",
+        "error": "#f08a8a",
+        "error-content": "#2a0a0a",
+        "error-fill": "#d06e6e",
+        "cat-1": "#a360d6",
+        "cat-2": "#ad780b",
+        "cat-3": "#407dff",
+        "cat-4": "#945079",
+        "cat-5": "#ae8f02",
+        "cat-6": "#7e54b2",
+        "cat-7": "#aa6005",
+        "cat-8": "#079fd4"
+      }
+    },
+    {
+      "name": "light",
+      "polarity": "light",
+      "colors": {
+        "base-100": "#ffffff",
+        "base-200": "#f4f4f7",
+        "base-300": "#e0e0e8",
+        "base-content": "#17171f",
+        "primary": "#4b32c3",
+        "primary-content": "#ffffff",
+        "secondary": "#0f6b5c",
+        "secondary-content": "#ffffff",
+        "neutral": "#eeeef2",
+        "neutral-content": "#5b5b6b",
+        "info": "#1f5c8b",
+        "info-content": "#ffffff",
+        "success": "#1f6b34",
+        "success-content": "#ffffff",
+        "warning": "#8a5a00",
+        "warning-content": "#ffffff",
+        "error": "#a51c1c",
+        "error-content": "#ffffff",
+        "error-fill": "#a51c1c",
+        "cat-1": "#a264d2",
+        "cat-2": "#bd8307",
+        "cat-3": "#568dff",
+        "cat-4": "#793860",
+        "cat-5": "#ab8d02",
+        "cat-6": "#955ed8",
+        "cat-7": "#7c4401",
+        "cat-8": "#079cd0"
+      }
+    }
+  ],
+  "fonts": {
+    "display": {
+      "family": "Inter Tight",
+      "src": "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap",
+      "fallback": [
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "body": {
+      "family": "Inter",
+      "src": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      "fallback": [
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "mono": {
+      "family": "JetBrains Mono",
+      "src": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap",
+      "fallback": [
+        "ui-monospace",
+        "monospace"
+      ]
+    }
+  }
+}

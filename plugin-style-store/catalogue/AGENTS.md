@@ -31,7 +31,21 @@ Four files, and a gate fails an entry missing any of them.
 
 ## What `ENTRY.md` says, and in this order
 
-The order is what a cold agent needs rather than what is easiest to write.
+**The preamble carries a line beginning `Take this entry when`**, and it is the only part of an
+entry a cold start reads before it has chosen one. Node 4 of
+[`skills/design/references/cold-start.md`](../../skills/design/references/cold-start.md) matches a
+description against that line across the whole catalogue and then opens a single entry, which is
+what keeps choosing as cheap as the catalogue grows: an index would be a second answer to a question
+the entries already answer, and it would go stale where the entry it describes does not.
+`check:catalogue` fails an entry that carries no such line.
+
+**The line names the SHAPE of the screen and not only what the product is about**, because the
+domain is what collides. A support desk and a project tracker are both a tool somebody keeps open
+all day, and what separates them is that one is a list against a reading column and the other is a
+board that has to hold more than it fits. A line that stops at the domain hands a cold start two
+entries and no way to choose.
+
+The order below is what a cold agent needs rather than what is easiest to write.
 
 1. **What this register answered**, over the role groups
    [`skills/design/references/style-kernel.md`](../../skills/design/references/style-kernel.md)

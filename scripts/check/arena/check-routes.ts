@@ -263,7 +263,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 16_000,
+    budget: 17_200,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -301,7 +301,14 @@ export const ROUTES: Route[] = [
       + 'and a project that meets it first meets it as the whole offer. Named as one part of eleven '
       + 'and the second of three steps, it becomes a decision a project can take or defer on '
       + 'purpose, and that deferring it is legitimate is something this route cannot say about '
-      + 'itself.',
+      + 'itself. Raised again to 17,200 by the remeasurement this route\'s own reason reserves the '
+      + 'raise for: the catalogue grew from four registers to eight, and three role groups that '
+      + 'four products had answered identically stopped agreeing. Which surface is the page and '
+      + 'which is the thing standing on it, whether a control and a field carry a drawn edge, and '
+      + 'whether small text is the body face or the mono one each moved from the table of answers a '
+      + 'project may inherit into the table of answers it has to make. A row in the second table is '
+      + 'a decision this page is now obliged to name, and a page that kept the shorter version '
+      + 'would be telling a project that a decision it has to make was already made for it.',
   },
   {
     name: 'consumer-register',
@@ -474,7 +481,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 19_500,
+    budget: 23_000,
     reason:
       'the first route on this branch that is declared as a tree, and the reason the shape exists. '
       + 'A reader here answers a question and walks one way: handed a document stating the palette '
@@ -496,7 +503,16 @@ export const ROUTES: Route[] = [
       + 'The pair is what lets the last node derive the dependency list from the answers instead '
       + 'of asking about dependencies, and it is charged here rather than on the install route '
       + 'because a project reaching the install page has already chosen the layer this node chooses. It grew because the thing it describes grew, which is the one reason a budget should '
-      + 'ever move.',
+      + 'ever move. It grew again when node 4 gained what it matches a description against, which '
+      + 'is the one line every ENTRY.md carries and not the entries themselves. That line is what '
+      + 'keeps the second stop at a single entry as the catalogue grows: matching on the entries '
+      + 'would make this route cost the whole catalogue, and the glob would stop being a fair '
+      + 'charge the day a second register landed. The entry stop grew with it, because the '
+      + 'catalogue now holds registers that depart from the answers the first ones converged '
+      + 'on, and an entry that departs has to say so in its own table or a reader takes its '
+      + 'roles for the shared answer and inherits a decision nobody made. A row is worth the '
+      + 'characters when it names a role this register answers differently, and it is worth '
+      + 'none when it restates the sheet sitting beside it.',
   },
   {
     name: 'contributor-component',

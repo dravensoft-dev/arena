@@ -1,0 +1,18 @@
+/* An observability console's appearance, painted through the part hooks the kernel exposes. This
+   is the register where a style plugin does least, because what a reader looks at is the plot and
+   the plot is skinned by the palette. What is left is the frame around it. */
+
+/* A panel head is chrome and the plot is the data, so a board draws the line between them. Nothing
+   in the kernel reaches the inside of a surface, and a board of panels is the one register where
+   the head of every surface has to read the same way at a glance. */
+[data-arena-part="chart-card.head"] {
+  padding-block-end: var(--sp-2);
+  border-block-end: var(--bw-separator) solid var(--edge-separator);
+}
+
+/* A panel title takes the label tracking this plugin answered. The card sets the label scale step
+   outright, so track-label does not reach it, and a console where the panel titles track
+   differently from every other label is a console with two kinds of small text. */
+[data-arena-part="chart-card.title"] {
+  letter-spacing: var(--track-label);
+}

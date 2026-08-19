@@ -133,7 +133,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | Which layer, which architecture, and what do I have to install? | the same tree's last three nodes: how much the product has to be found decides the layer and a peer, what it is assembled on is answered per architecture with the evidence for each, and the dependency list follows from both |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Arena has no component for what I am building. Now what? | [`references/media-register.md`](./references/media-register.md): the pattern your markup binds, the parts the package ships for it, and the one rule that bends |
-| Which of those answers actually change how it looks? | the same document's table, measured over four products built on this kernel |
+| Which of those answers actually change how it looks? | the same document's table, measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
 | What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
 | Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md) |

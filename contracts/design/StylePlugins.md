@@ -117,6 +117,7 @@ an application source and says nothing about it inside a declared plugin directo
 | Claim | Held by | Over |
 |---|---|---|
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
+| the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
@@ -179,11 +180,14 @@ difference between the two. An ask whose whole content is a difference the casca
 markup its own product writes, and no member Arena could add would carry it.
 
 **A role that does two jobs is a split waiting for its second product, not a name to be argued
-with.** `edge-marker` is the current case: it draws the edge of a chip and the edge of a
-photograph, and one product has already set it to nothing to take the border off its avatars,
-because no product wants a portrait outlined the way it wants a tag outlined. One product measured
-is that product's own by the rule above, and the entry is here so the next one is a count rather
-than a rediscovery.
+with.** `edge-marker` is the current case, and the count is now two products that moved it for two
+different reasons. It draws the edge of a chip, the edge of a photograph and the edge of a keyboard
+cap: one product set it to nothing to take the border off its avatars, because no product wants a
+portrait outlined the way it wants a tag outlined, and a second answered it with the muted text
+colour so a cap can be found on a screen where every other edge is a hairline. **Two products
+pulling one role in opposite directions is the shape a split has**, and the pair to separate is the
+edge a marker draws around a word from the edge a frame draws around a picture. `bw-marker` and
+`r-marker` carry the same load and are not yet measured moving with it.
 
 **A level is not a colour, so an ask that is a level is no evidence for a colour role.** The
 eyebrow of a card is the measured case. Two plugins paint it by hand, which reads as a count that
