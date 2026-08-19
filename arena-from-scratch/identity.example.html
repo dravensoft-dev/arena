@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en" class="arena-light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identity document, filled in</title>
+
+<!-- The one sheet this page reads, and the only line in it you change by hand.
+     Working inside the Arena repository, point it at ../intro/styles.css.
+     Working inside a project that already ran arena-to-prod, point it at that project's
+     arena.generated.css instead, and the page draws that project's own answers.
+     Serve this over HTTP. Opened from file:// the sheet does not load and every swatch is blank. -->
+<link rel="stylesheet" href="../intro/styles.css">
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap");
+  :root {
+    --color-base-100: #ffffff;
+    --color-base-200: #f7f7f7;
+    --color-base-300: #e5e5e5;
+    --color-base-content: #4b4b4b;
+    --color-primary: #58cc02;
+    --color-primary-content: #ffffff;
+    --color-secondary: #ce82ff;
+    --color-secondary-content: #ffffff;
+    --color-neutral: #e5e5e5;
+    --color-neutral-content: #777777;
+    --color-info: #1cb0f6;
+    --color-info-content: #ffffff;
+    --color-success: #58cc02;
+    --color-success-content: #ffffff;
+    --color-warning: #ffc800;
+    --color-warning-content: #4b4b4b;
+    --color-error: #ff4b4b;
+    --color-error-content: #ffffff;
+    --color-error-fill: #ea2b2b;
+    --color-cat-1: #58cc02;
+    --color-cat-2: #1cb0f6;
+    --color-cat-3: #ce82ff;
+    --color-cat-4: #ffc800;
+    --color-cat-5: #ff4b4b;
+    --color-cat-6: #ff9600;
+    --color-cat-7: #2b70c9;
+    --color-cat-8: #00cd9c;
+    --font-display: "Baloo 2", system-ui, sans-serif;
+    --font-body: "Nunito", system-ui, sans-serif;
+    --font-mono: "Roboto Mono", system-ui, sans-serif;
+  }
+</style>
+
+<style>
+  /* Every colour here is a role rather than a palette step, so this page follows whatever skin
+     the linked sheet carries. --ink is the page's own fill and never its text: the text roles are
+     ink-heading, ink-body, ink-muted and ink-eyebrow. */
+  body { margin: 0; background: var(--fill-page); color: var(--ink-body);
+         font-family: var(--font-body); padding: var(--sp-8) var(--sp-6); }
+  main { max-inline-size: var(--measure-prose); margin-inline: auto; }
+  h1, h2 { font-family: var(--ff-heading); color: var(--ink-heading);
+           letter-spacing: var(--track-heading); }
+  h1 { font-size: var(--fs-display); line-height: var(--lh-heading); margin-block: 0 var(--sp-2); }
+  h2 { font-size: var(--fs-xl); margin-block: var(--sp-10) var(--sp-2); }
+  p  { line-height: var(--lh-prose); }
+  .ask { color: var(--ink-muted); font-style: italic; }
+  .fill { display: block; border: var(--bw-separator) dashed var(--edge-separator);
+          border-radius: var(--r-surface); padding: var(--sp-3); margin-block: var(--sp-3);
+          color: var(--ink-muted); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-block: var(--sp-4); }
+  .chip { inline-size: calc(var(--sp-1) * 22); }
+  .chip i { display: block; block-size: calc(var(--sp-1) * 14);
+            border: var(--bw-surface) solid var(--edge-surface);
+            border-radius: var(--r-surface); }
+  .chip span, .swatch { display: block; font-family: var(--ff-mono); font-size: var(--fs-xs);
+               color: var(--ink-muted); margin-block-start: var(--sp-1); }
+  .box { inline-size: calc(var(--sp-1) * 26); block-size: calc(var(--sp-1) * 18);
+         background: var(--fill-surface-sunken);
+         border: var(--bw-surface) solid var(--edge-surface); }
+  table { border-collapse: collapse; inline-size: 100%; margin-block: var(--sp-4); }
+  th, td { text-align: start; padding: var(--sp-2);
+           border-block-end: var(--bw-separator) solid var(--edge-separator);
+           vertical-align: top; font-size: var(--fs-sm); }
+  th { color: var(--ink-muted); font-weight: var(--fw-heading); }
+  code { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Identity document, filled in</h1>
+<p>
+  A worked answer to every question <code>identity.html</code> beside this file asks, taken from the
+  language course entry in <code>plugin-style-store/catalogue/</code>. Read it before filling in
+  your own: answering a list of role names from the list alone is the hardest instruction on the
+  page, and a worked answer is worth more than the list.
+</p>
+<p class="ask">
+  The swatches and the faces below are this document's own, declared in the page rather than
+  inherited from Arena, because a document showing somebody else's colours is a document nobody
+  can approve.
+</p>
+
+<h2>The product</h2>
+<p class="ask">What is being built, who works in it, and on what.</p>
+<p>A language course. A lesson path, a streak, a progress bar, and one large button that is the screen's reason. It is used in short bursts, mostly by a thumb, and getting the next thing pressed matters more than getting more onto the screen. The lesson path itself is a game map rather than furniture, so that part is markup we write.</p>
+<p>
+  The register decides whether Arena's component list is the right one. A tool somebody works in is
+  furniture Arena ships. A photo wall, a feed of posts, a slideshow, a document editor or a game map
+  is markup you write, and the skin still travels.
+</p>
+
+<h2>The palette</h2>
+<p class="ask">
+  Whose brand this is, which polarity leads, and which colour is the voice. Arena installs with
+  Dravensoft's palette, and a project's own is the one entry it replaces.
+</p>
+<p>Ours. Light leads, because the product is used outdoors and in daylight as often as not. Green is the voice and gold is distinction, and every status colour is louder here than a console would want, because a wrong answer has to be legible at a glance.</p>
+
+<div class="row">
+  <div class="chip"><i style="background: var(--color-base-100)"></i><span>base-100</span></div>
+  <div class="chip"><i style="background: var(--color-base-200)"></i><span>base-200</span></div>
+  <div class="chip"><i style="background: var(--color-base-300)"></i><span>base-300</span></div>
+  <div class="chip"><i style="background: var(--color-base-content)"></i><span>base-content</span></div>
+  <div class="chip"><i style="background: var(--color-primary)"></i><span>primary</span></div>
+  <div class="chip"><i style="background: var(--color-secondary)"></i><span>secondary</span></div>
+  <div class="chip"><i style="background: var(--color-neutral)"></i><span>neutral</span></div>
+</div>
+<div class="row">
+  <div class="chip"><i style="background: var(--color-info)"></i><span>info</span></div>
+  <div class="chip"><i style="background: var(--color-success)"></i><span>success</span></div>
+  <div class="chip"><i style="background: var(--color-warning)"></i><span>warning</span></div>
+  <div class="chip"><i style="background: var(--color-error)"></i><span>error</span></div>
+</div>
+<div class="row">
+  <div class="chip"><i style="background: var(--color-cat-1)"></i><span>cat-1</span></div>
+  <div class="chip"><i style="background: var(--color-cat-2)"></i><span>cat-2</span></div>
+  <div class="chip"><i style="background: var(--color-cat-3)"></i><span>cat-3</span></div>
+  <div class="chip"><i style="background: var(--color-cat-4)"></i><span>cat-4</span></div>
+  <div class="chip"><i style="background: var(--color-cat-5)"></i><span>cat-5</span></div>
+  <div class="chip"><i style="background: var(--color-cat-6)"></i><span>cat-6</span></div>
+  <div class="chip"><i style="background: var(--color-cat-7)"></i><span>cat-7</span></div>
+  <div class="chip"><i style="background: var(--color-cat-8)"></i><span>cat-8</span></div>
+</div>
+<p>
+  Both polarities are declared or the build has one nobody authored. The categorical ramp is
+  identity and the status colours are meaning, and a status colour is never a series colour.
+</p>
+
+<h2>The type</h2>
+<p class="ask">Which three faces: the display face, the body face, the mono face.</p>
+<p>Display Baloo 2, body Nunito, mono Roboto Mono, all three from Google Fonts. The display face carries more weight here than in any other register, because it sets the buttons as well as the headings: a replacement face with no black weight changes this product more than it looks like it will.</p>
+<div style="font-family: var(--ff-heading); font-weight: var(--fw-heading); font-size: var(--fs-display); line-height: var(--lh-heading); letter-spacing: var(--track-heading); color: var(--ink-heading)">Display</div>
+<div style="font-family: var(--ff-body); font-size: var(--fs-md); color: var(--ink-body)">Body, which is what a paragraph of this product reads like at the size it is read at.</div>
+<div style="font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--ink-muted)">Mono 0123456789</div>
+
+<h2>The character</h2>
+<p class="ask">
+  How round, how drawn, how heavy and how deep. One answer, because these move together: a product
+  is soft, or drawn, or flat, and a plugin that mixes them reads as two products.
+</p>
+<p>Soft and loud, standing on a hard edge. Everything is round, everything is drawn at twice the hairline, type is black, labels are capitals, and depth is a solid offset with no blur at all.</p>
+<div class="row">
+  <div><div class="box" style="border-radius: var(--r-sm)"></div><span class="swatch"><code>r-sm</code></span></div>
+  <div><div class="box" style="border-radius: var(--r-md)"></div><span class="swatch"><code>r-md</code></span></div>
+  <div><div class="box" style="border-radius: var(--r-lg)"></div><span class="swatch"><code>r-lg</code></span></div>
+  <div><div class="box" style="border-radius: var(--r-xl)"></div><span class="swatch"><code>r-xl</code></span></div>
+</div>
+<table>
+  <tr><th>What it decides</th><th>The roles</th><th>This product's answer</th></tr>
+  <tr><td>how round it is</td><td><code>r-control</code>, <code>r-field</code>, <code>r-media</code>, <code>r-surface</code></td><td>The large radius step on controls, fields and media, and the extra large one on surfaces. The roundest register of the four, because a soft object reads as safe to press.</td></tr>
+  <tr><td>whether an edge is drawn</td><td>every <code>bw-*</code></td><td>Twice the hairline, everywhere. The border is part of the object rather than a separator, and a hairline disappears under the fill.</td></tr>
+  <tr><td>how loud type is</td><td><code>fw-heading</code>, <code>fw-eyebrow</code>, <code>fw-control</code></td><td>Black for a heading and an eyebrow, bold for a control, and the display face on the control as well.</td></tr>
+  <tr><td>whether small text shouts</td><td><code>tt-label</code>, <code>tt-eyebrow</code>, <code>track-label</code>, <code>track-eyebrow</code></td><td>Capitals, with the badge tracking on a label. A control's own text is a shout, which is coherent with everything else here.</td></tr>
+  <tr><td>whether depth is real</td><td><code>shadow-surface-floating</code>, <code>shadow-surface-deep</code>, <code>shadow-control-raised</code></td><td>A hard offset with no blur at all. Depth here is a solid edge under the object rather than a soft cloud behind it.</td></tr>
+  <tr><td>how it answers a hand</td><td><code>press-scale</code>, <code>lift-control</code>, <code>dur-state</code>, <code>ease-state</code></td><td>No shrink and no rise, on an emphatic curve. The press is a travel instead, and no role reaches a press travel, so <code>plugin.css</code> paints it through the button hooks. It is the clearest case of the kernel not reaching something, and it costs a few rules rather than a fork.</td></tr>
+</table>
+
+<h2>The air</h2>
+<p class="ask">How tight it is to the hand, and how wide it breathes.</p>
+<p>Comfortable, which grows the controls to a touch target, because a thumb drives this and not a pointer. A moderate container and the narrowest prose measure of the four registers, because a lesson is read one short line at a time.</p>
+<table>
+  <tr><th>What it decides</th><th>The roles</th><th>This product's answer</th></tr>
+  <tr><td>how tight to the hand</td><td><code>pad-control-x</code>, <code>pad-control-y</code>, <code>gap-inline</code>, <code>gap-items</code>, <code>gap-control</code></td><td>The loosest padding of the four registers. A target sized for a thumb rather than for a pointer.</td></tr>
+  <tr><td>how wide it breathes</td><td><code>container-max</code>, <code>measure-prose</code>, <code>grid-min</code>, <code>gutter</code></td><td>A moderate container, the narrowest prose measure of the four, a mid grid cell and a middling gutter.</td></tr>
+  <tr><td>which density class</td><td><code>arena-compact</code>, <code>arena-comfortable</code>, or neither</td><td><code>arena-comfortable</code>, and it is the only one of the four registers that asks for it.</td></tr>
+</table>
+
+<h2>The media</h2>
+<p class="ask">What shape a picture is, before any of it is cropped.</p>
+<p>Square, contained. An illustration teaches by being whole, so nothing is cropped, and a square survives every breakpoint this product has.</p>
+
+<h2>The page</h2>
+<p class="ask">
+  Arena ships the floor, the column, the air and the components, and no shape they must make. This
+  is the shape.
+</p>
+<p>Two columns: a sticky side rail wider than a console's, holding the lesson path, and a main column on <code>minmax(0, 1fr)</code>. The main column is a single centred stack and never a board. The component step goes between almost every pair of things, because there are few things on screen and each gets room.</p>
+
+<h2>What this document does not settle</h2>
+<p>
+  The copy and the brand mark are still open. Whether anybody outside the product has to find it
+  is answered here rather than left open, because it reaches the install and the layer rather than a
+  screen: yes for the marketing pages and the course catalogue, no for everything behind the login,
+  which means the metadata entry point and the layer that ships it.
+</p>
+
+</main>
+</body>
+</html>

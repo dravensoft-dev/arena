@@ -150,9 +150,6 @@ const THE_PACKAGE_SHIPS = 'a file the assembled package hands npm, which exists 
   + 'names it because that is where its reader meets it';
 
 export const NAMED_BUT_NOT_HERE = new Map([
-  ['arena.config.json', 'the file a consuming project writes, which is the whole shape of the '
-    + 'adoption contract: the package carries the language and the project declares the skin, so '
-    + 'this repository has none of its own'],
   ['arena.config.example.json', THE_PACKAGE_SHIPS],
   ['arena.css', THE_PACKAGE_SHIPS],
   ['arena-button.css', THE_PACKAGE_SHIPS],

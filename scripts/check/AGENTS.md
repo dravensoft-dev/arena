@@ -178,10 +178,10 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 41 | two or more layers at once, or the repository root |
+| [`arena/`](./arena/AGENTS.md) | 42 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
-| [`core/`](./core/AGENTS.md) | 12 | `contracts/` and `assets/` only |
+| [`core/`](./core/AGENTS.md) | 13 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 4 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at

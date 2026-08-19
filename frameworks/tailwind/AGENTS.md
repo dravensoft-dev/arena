@@ -560,6 +560,18 @@ to a manifest slot expecting it to change anything. Every slot is already border
 the preflight, so the class is a no-op that only reads as if some *other* slot were missing
 it.
 
+**Both of those files reach the whole document, and that is the one architecture promise the
+stylesheet does not make.** The reset selects `*` and sets a line height on `html`, and the tokens
+are declared on `:root`, so a project embedding Arena as a fragment inside somebody else's page
+changes that page and not only its own subtree, and two Arena versions in one document collide on
+`:root` with the last sheet loaded winning. **This is stated so nobody widens the reach further
+believing it is already document-wide anyway**, and so nobody narrows it to fix an embedding
+without knowing what it costs: every slot's declared size is its outer edge BECAUSE of that
+preflight, so scoping it to a container is a different box model for every component at once. What
+does work in a fragment's favour is that a palette other than the default emits as a plain class,
+which a subtree can carry. The consumer branch says the same thing where a project chooses that
+architecture, and this is where the reach is authored.
+
 ## P1: invented states
 
 Before adding any state modifier a brief does not contain, read

@@ -285,6 +285,41 @@ each layer's knob model to the other's. It opens none of them.
 | **that any page mounts and draws** | **nothing. Open it** |
 | **the two layers paint the same thing** | **nothing. The paired playground pages exist for a person to compare** |
 | **whether a category is the right category** | **nothing. It is editorial judgement** |
+| a layer imports only what its envelope declares | `check:architecture`, `ENVELOPES` |
+| no source reads a browser global while the module evaluates | the same gate, with two escapes it names |
+| no source reaches an API a server render cannot answer | the same gate, `SSR_HOSTILE` |
+| the router peer stays optional, and stays inside the metadata entry point | the same gate, both halves |
+| **that a server render of a real page actually succeeds** | **nothing under Angular. React's suites render through `react-dom/server`; Angular's run through a DOM, so its half is held by the code and not by a run** |
+
+## The architecture envelope is a promise a consumer already acted on
+
+**Arena is adopted through a decision tree**, and its last nodes tell a project it may build a
+single-page application, server-render, prerender or embed as a fragment in somebody else's host,
+and which dependencies each of those answers costs. Nothing about that is policy: **every one of
+those answers is a property of the sources in this directory**, so it can be withdrawn by a change
+that was solving something else, and the consumer finds out at their own build.
+
+- **Neither layer ships a router, a store, a data client or an application shell**, and this is what
+  architecture neutrality actually consists of. A capability that seems to need one is reached
+  through a member the consumer answers: that is why an anchor Arena draws splits its activations
+  and reports through its own event instead of navigating.
+- **A browser global read while a module evaluates runs on a server too.** It throws during a server
+  render and a prerender, at import time rather than at paint, so the stack names the import and not
+  the component. Read it inside a function, an effect or an after-render hook, or guard it with a
+  `typeof` check; Angular's answer is the injected `DOCUMENT` token, and both layers already do
+  this everywhere.
+- **What each layer may reach, and the peer each one keeps optional, is that layer's own page.**
+  `ENVELOPES` is where the two lists are declared, and the reason a package is in one belongs
+  beside the layer that reaches it.
+- **The one thing no gate can hold is a real server render of a real page.** Much of the React
+  suite renders through `react-dom/server`, so that half is exercised on every run; Angular's suites
+  run through a DOM instead, so its half rests on the code alone. **Smoke-test Angular first**
+  when a change touches how a component reaches the document.
+
+**What the stylesheet does NOT promise is the same isolation**, and a contributor should not read
+the list above as covering it: the tokens are declared on `:root` and the reset sets the box model
+on `*`, so a fragment embedded in a host changes that host. That is stated where a consumer decides
+it, and the layer that owns the box model is [`tailwind/AGENTS.md`](./tailwind/AGENTS.md).
 
 ## Anti-patterns, and what each one costs
 

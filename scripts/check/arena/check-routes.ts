@@ -18,13 +18,62 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const BUDGET_SLACK = 0.85;
 
-export type Route = {
+export type Entry = {
   name: string;
-  who: string;
-  stops: string[];
+  router: string;
   budget: number;
   reason: string;
 };
+
+export type Branch = {
+  name?: string;
+  stops: string[];
+};
+
+export type Route = {
+  name: string;
+  who: string;
+  entry: string;
+  stops?: string[];
+  branches?: Branch[];
+  budget: number;
+  reason: string;
+};
+
+export const ENTRIES: Entry[] = [
+  {
+    name: 'consumer',
+    router: 'skills/design/SKILL.md',
+    budget: 16_200,
+    reason:
+      'the page every consumer route opens with, and the reason it is declared here rather than as '
+      + 'the first stop of each of them: a paragraph added to a router that seven routes shared was '
+      + 'charged seven times and argued seven times, and moving one out reported seven stale '
+      + 'allowances. Neither number was about the reader. What a route pays past this is its own, '
+      + 'so the two move independently and each is argued where it is spent. The number is what the '
+      + 'router costs today with room for one question, and a question earns its place here only if '
+      + 'it is asked before a builder knows which situation they are in; everything asked after that '
+      + 'belongs to the node that asks it. Raised from 15,700 when the cold start tree gained '
+      + 'the two questions that decide an install rather than a screen, and the router had to '
+      + 'say so: a row a reader matches on is how they learn a node exists at all, and a tree '
+      + 'whose last nodes are unreachable from the page every route opens with is one only '
+      + 'somebody who already knew about it can walk.',
+  },
+  {
+    name: 'contributor',
+    router: 'AGENTS.md',
+    budget: 21_400,
+    reason:
+      'the same argument on the other branch, and it is allowed to cost more because it is paid by '
+      + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than '
+      + 'a tour, so it grows by a row when a level appears and not by a paragraph when a level '
+      + 'grows. Raised to 21,400 for a row that is not a level: what a consumer may build Arena '
+      + 'into is a promise the sources keep rather than a directory anybody edits, so a '
+      + 'contributor reaches it by the change they are making and never by the file they are '
+      + 'opening. It is the one subject where the page a reader would look for does not exist, '
+      + 'which is what the row buys.',
+  },
+];
 
 export const ROUTES: Route[] = [
   {
@@ -32,13 +81,13 @@ export const ROUTES: Route[] = [
     who: 'an agent writing a screen: the router, where it takes the rules, then its layer\'s '
       + 'directory, then the index of the one category it reaches into, then the prompt of the one '
       + 'component it writes',
+    entry: 'consumer',
     stops: [
-      'skills/design/SKILL.md',
       'frameworks/*/INDEX.md',
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 46_200,
+    budget: 30_500,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -86,8 +135,9 @@ export const ROUTES: Route[] = [
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
-    stops: ['skills/design/SKILL.md', 'frameworks/*/PACKAGE.md'],
-    budget: 62_500,
+    entry: 'consumer',
+    stops: ['frameworks/*/PACKAGE.md'],
+    budget: 47_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -199,14 +249,21 @@ export const ROUTES: Route[] = [
       + 'specifier resolves to no module, so a strict build stops at the file that wires Arena in, '
       + 'and three cold walks of this route wrote a declaration file of their own to get past it. '
       + 'It also carries what the shared column region gained, the row as anything laid across and '
-      + 'the wrapper a growing child needs when that child is a component this package draws.',
+      + 'the wrapper a growing child needs when that child is a component this package draws. '
+      + 'Raised again to 47,400 when the install section named the three package managers rather '
+      + 'than the one it showed. The layout that would break a package making flat-tree '
+      + 'assumptions is the strict one, so the page says the peers are declared rather than '
+      + 'hoisted and that the shipped command resolves the icon font through a symlinked store. '
+      + 'It was verified by installing the packed tarball under that layout and running the '
+      + 'command, which is the evidence a claim about somebody else\'s tool needs.',
   },
   {
     name: 'consumer-skin',
     who: 'a project deciding what Arena looks like in their product: the router, then the kernel '
       + 'document that says what the questions are and which answers carry the difference',
-    stops: ['skills/design/SKILL.md', 'skills/design/references/style-kernel.md'],
-    budget: 31_700,
+    entry: 'consumer',
+    stops: ['skills/design/references/style-kernel.md'],
+    budget: 16_000,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -250,8 +307,9 @@ export const ROUTES: Route[] = [
     name: 'consumer-register',
     who: 'a builder whose product, or one screen of it, is outside the component list: the router, '
       + 'then the page that says what Arena hands over instead of a component',
-    stops: ['skills/design/SKILL.md', 'skills/design/references/media-register.md'],
-    budget: 25_300,
+    entry: 'consumer',
+    stops: ['skills/design/references/media-register.md'],
+    budget: 9_600,
     reason:
       'paid once per project like the skin route, and by a reader the router has just told to write '
       + 'their own markup. What it buys is that the honest sentence at the top of the router stops '
@@ -293,8 +351,9 @@ export const ROUTES: Route[] = [
     name: 'consumer-seo',
     who: 'a project deciding whether what it builds has to be found from outside it: the router, '
       + 'then the page that says what Arena writes into the head and which layer writes it',
-    stops: ['skills/design/SKILL.md', 'skills/design/references/seo.md'],
-    budget: 19_700,
+    entry: 'consumer',
+    stops: ['skills/design/references/seo.md'],
+    budget: 4_000,
     reason:
       'paid once per project like the skin and the register routes, and taken before the first '
       + 'screen for the same reason they are: the answer reaches the layer and the install rather '
@@ -324,8 +383,9 @@ export const ROUTES: Route[] = [
     name: 'consumer-surface',
     who: 'a project deciding how much of Arena it is taking: the router, then the page naming '
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
-    stops: ['skills/design/SKILL.md', 'skills/design/references/surface.md'],
-    budget: 25_800,
+    entry: 'consumer',
+    stops: ['skills/design/references/surface.md'],
+    budget: 10_100,
     reason:
       'paid once per project like the skin, the register and the seo routes, and taken before all '
       + 'three, because each of them asks how much of a thing nobody has shown the reader yet. What '
@@ -356,8 +416,9 @@ export const ROUTES: Route[] = [
     who: 'anybody writing markup that is not a component, which is every project: the router, then '
       + 'the page saying what colour their own markup takes, what column it sits in and how much '
       + 'air goes between two components',
-    stops: ['skills/design/SKILL.md', 'skills/design/references/page.md'],
-    budget: 29_900,
+    entry: 'consumer',
+    stops: ['skills/design/references/page.md'],
+    budget: 14_200,
     reason:
       'the one consumer route past the router that is not paid per project or per screen but per '
       + 'element a builder draws themselves, which every screen has. What it buys is the half of a '
@@ -399,11 +460,51 @@ export const ROUTES: Route[] = [
       + '430px viewport spending two fifths of itself on margin.',
   },
   {
+    name: 'consumer-coldstart',
+    who: 'an agent starting a project that has no appearance of its own: the router, then the tree, '
+      + 'then whichever of its branches the answers unlock',
+    entry: 'consumer',
+    branches: [
+      { name: 'the tree alone', stops: ['skills/design/references/cold-start.md'] },
+      {
+        name: 'a catalogue entry',
+        stops: [
+          'skills/design/references/cold-start.md',
+          'plugin-style-store/catalogue/*/ENTRY.md',
+        ],
+      },
+    ],
+    budget: 19_500,
+    reason:
+      'the first route on this branch that is declared as a tree, and the reason the shape exists. '
+      + 'A reader here answers a question and walks one way: handed a document stating the palette '
+      + 'and the type, they read the tree and go on; handed nothing and unwilling to be '
+      + 'interviewed, they read the tree and one entry of the catalogue. Charging both branches '
+      + 'would price a journey nobody takes and would make the catalogue look like a tax on every '
+      + 'cold start rather than the answer to one branch of it. The worst branch is the catalogue '
+      + 'one, and its second stop is a glob over the entries so the figure is the largest of them '
+      + 'rather than the one that happens to be first. The number is what the two stops measure '
+      + 'today with room for one entry to grow, and what it is argued against is that this route '
+      + 'is paid once per project by a reader who would otherwise be guessing: the alternative to '
+      + 'reading it is an agent inferring a palette from a screenshot, which costs nothing here '
+      + 'and costs the project every screen. A branch is added when an answer sends a reader to a '
+      + 'document the others never open, and never to describe a node they all read. Raised '
+      + 'from 13,100 when the tree gained the two decisions that reach an install rather than a '
+      + 'screen: how much of the product has to be found from outside it, which decides a layer '
+      + 'and turns an optional peer into a required one, and what the application is assembled '
+      + 'on, which is where the architecture claims are stated with what holds each of them up. '
+      + 'The pair is what lets the last node derive the dependency list from the answers instead '
+      + 'of asking about dependencies, and it is charged here rather than on the install route '
+      + 'because a project reaching the install page has already chosen the layer this node chooses. It grew because the thing it describes grew, which is the one reason a budget should '
+      + 'ever move.',
+  },
+  {
     name: 'contributor-component',
     who: 'a contributor adding or changing a component: the router, the frameworks roof, then the '
       + 'layer that binds it',
-    stops: ['AGENTS.md', 'frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 86_000,
+    entry: 'contributor',
+    stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
+    budget: 69_500,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
@@ -420,14 +521,27 @@ export const ROUTES: Route[] = [
       + 'output named after a DOM event cannot be listened to from the host block and that the demo '
       + 'emitters read the declared selector, are ones a contributor hits by writing the component '
       + 'and not by reading about the table. Left out of the roof and out of a family page for the '
-      + 'same reason: only one layer authors elements a consumer nests, so only that layer decides.',
+      + 'same reason: only one layer authors elements a consumer nests, so only that layer '
+      + 'decides. Raised to 69,500 when the architecture envelope was written down on the three '
+      + 'stops that own it. A consumer adopts Arena on a tree whose last nodes tell a project it '
+      + 'may server-render, prerender or embed as a fragment, and what each answer costs in '
+      + 'dependencies; every one of those is a property of the sources this route reaches, and '
+      + 'the whole of it was unwritten. What that cost was measured on the consumer bench: a '
+      + 'module-scope read of a browser global throws at import time during a server render, so '
+      + 'the stack names the import and never the component that caused it, and a contributor '
+      + 'fixing something else has no way to know the claim existed. check:architecture holds the '
+      + 'mechanical half now, and this route is where its reader is told which escapes are '
+      + 'correct rather than only that the gate failed. The roof carries what binds both layers '
+      + 'and each layer carries its own envelope and its own peer, which is the split that keeps '
+      + 'the pair from going stale in one of them.',
   },
   {
     name: 'contributor-authoring',
     who: 'a contributor about to edit a file and deciding which half of it is theirs: the router, '
       + 'then the page that says what a machine writes and where the boundary runs inside one file',
-    stops: ['AGENTS.md', 'GENERATED.md'],
-    budget: 28_000,
+    entry: 'contributor',
+    stops: ['GENERATED.md'],
+    budget: 7_000,
     reason:
       'paid once per contributor rather than per change, which is what lets it carry the whole '
       + 'surface rather than a pointer to it. It is the shortest contributor route on purpose: what '
@@ -447,8 +561,9 @@ export const ROUTES: Route[] = [
     name: 'contributor-token',
     who: 'a contributor moving a value: the router, the contracts roof, the design specification '
       + 'and the shape a token is authored in',
-    stops: ['AGENTS.md', 'contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 77_000,
+    entry: 'contributor',
+    stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
+    budget: 56_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -466,8 +581,9 @@ export const ROUTES: Route[] = [
     name: 'contributor-gate',
     who: 'a contributor writing or moving a gate: the router, the scripts roof, the check roof and '
       + 'the domain the gate lands in',
-    stops: ['AGENTS.md', 'scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 103_000,
+    entry: 'contributor',
+    stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
+    budget: 82_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -489,9 +605,16 @@ export const ROUTES: Route[] = [
   },
 ];
 
+export function branchesOf(route: Route): Branch[] {
+  return route.branches ?? [{ stops: route.stops ?? [] }];
+}
+
 export const node = {
   name: 'check:routes',
-  reads: [...new Set(ROUTES.flatMap((route) => route.stops))],
+  reads: [...new Set([
+    ...ENTRIES.map((entry) => entry.router),
+    ...ROUTES.flatMap((route) => branchesOf(route).flatMap((branch) => branch.stops)),
+  ])],
   writes: [],
   feeds: [],
 };
@@ -520,15 +643,37 @@ export function largestReached(stop: string, universe: string[], base = root): C
   return charge;
 }
 
-export function measure(route: Route, universe: string[], base = root) {
+export function chargeStops(stops: string[], universe: string[], base = root) {
   const charged: Charge[] = [];
   const unreached: string[] = [];
-  for (const stop of route.stops) {
+  for (const stop of stops) {
     const charge = largestReached(stop, universe, base);
     if (charge) charged.push(charge);
     else unreached.push(stop);
   }
   return { charged, unreached, total: charged.reduce((sum, one) => sum + one.chars, 0) };
+}
+
+export function measureEntry(entry: Entry, universe: string[], base = root) {
+  const { charged, unreached, total } = chargeStops([entry.router], universe, base);
+  return { entry, charged, unreached, total };
+}
+
+export function measure(route: Route, universe: string[], base = root) {
+  const measured = branchesOf(route).map((branch, index) => ({
+    branch,
+    name: branch.name ?? `the ${route.name} branch`,
+    index,
+    ...chargeStops(branch.stops, universe, base),
+  }));
+  const worst = [...measured].sort((a, b) => b.total - a.total)[0];
+  return {
+    branches: measured,
+    worst,
+    charged: worst?.charged ?? [],
+    unreached: measured.flatMap((one) => one.unreached),
+    total: worst?.total ?? 0,
+  };
 }
 
 export function unreachedProblems(route: Route, unreached: string[]) {
@@ -538,68 +683,112 @@ export function unreachedProblems(route: Route, unreached: string[]) {
   );
 }
 
-export function overBudgetProblems(route: Route, charged: Charge[], total: number) {
-  if (total <= route.budget) return [];
+export function overBudgetProblems(
+  name: string, reason: string, budget: number, charged: Charge[], total: number, what = 'route',
+) {
+  if (total <= budget) return [];
   const worst = [...charged].sort((a, b) => b.chars - a.chars)[0];
   return [
-    `${route.name}: costs ${total} characters against a budget of ${route.budget}. ${route.reason} `
+    `${name}: costs ${total} characters against a budget of ${budget}. ${reason} `
     + `The stop spending most of it is ${worst?.rel} at ${worst?.chars}. Move a level's own tour `
-    + 'into that level and leave the cross-level rule with a pointer, or argue the budget up here '
-    + 'with the reason.',
+    + `into that level and leave the cross-level rule with a pointer, or argue the ${what}'s budget `
+    + 'up here with the reason.',
   ];
 }
 
-export function staleBudgetProblems(route: Route, total: number) {
-  const floor = Math.round(route.budget * BUDGET_SLACK);
+export function staleBudgetProblems(name: string, budget: number, total: number) {
+  const floor = Math.round(budget * BUDGET_SLACK);
   if (total >= floor) return [];
   return [
-    `${route.name}: costs ${total} characters against a budget of ${route.budget}, which it has `
-    + `fallen ${route.budget - total} under. An allowance is not an exemption: lower the budget to `
-    + 'what the route now costs, or the next paragraph spends a saving nobody argued for.',
+    `${name}: costs ${total} characters against a budget of ${budget}, which it has `
+    + `fallen ${budget - total} under. An allowance is not an exemption: lower the budget to `
+    + 'what it now costs, or the next paragraph spends a saving nobody argued for.',
   ];
 }
 
-export function zeroScanProblems(routes: Route[], universe: string[]) {
+export function entryProblems(route: Route, entries = ENTRIES) {
+  if (entries.some((entry) => entry.name === route.entry)) return [];
+  return [
+    `${route.name}: opens with the entry "${route.entry}", and no entry is declared under that `
+    + 'name. A route is what a reader pays PAST its router, so one whose router is not declared '
+    + 'reports a cost that leaves the first document out.',
+  ];
+}
+
+export function zeroScanProblems(routes: Route[], universe: string[], entries = ENTRIES) {
   const problems = [];
+  if (entries.length === 0)
+    problems.push('declared 0 entries, so every route reports what it adds and nothing reports the '
+      + 'page each of them opens with');
   if (routes.length === 0)
     problems.push('declared 0 routes, so this gate holds no reader to anything and reports clean');
   if (universe.length === 0)
     problems.push('walked 0 documents, so every stop reads as unreachable and no cost is measured at all');
+  for (const entry of entries)
+    if (!routes.some((route) => route.entry === entry.name))
+      problems.push(`the entry ${entry.name} is declared and no route opens with it, so its budget `
+        + 'holds a page nobody is measured reading');
   for (const route of routes)
-    if (route.stops.length === 0)
-      problems.push(`${route.name} declares no stop, so it costs nothing and is a route in name only`);
+    for (const branch of branchesOf(route))
+      if (branch.stops.length === 0)
+        problems.push(`${route.name}: ${branch.name ?? 'a branch'} declares no stop, so it costs `
+          + 'nothing and is the branch every measurement of this route will pick as its cheapest');
   return problems;
 }
 
-export function routeProblems(base = root, routes = ROUTES) {
+export function routeProblems(base = root, routes = ROUTES, entries = ENTRIES) {
   const universe = documents(base);
-  const problems = [...zeroScanProblems(routes, universe)];
+  const problems = [...zeroScanProblems(routes, universe, entries)];
+  const opened = new Map<string, ReturnType<typeof measureEntry>>();
   const measured = [];
 
-  for (const route of routes) {
-    const { charged, unreached, total } = measure(route, universe, base);
-    measured.push({ route, charged, total });
+  for (const entry of entries) {
+    const one = measureEntry(entry, universe, base);
+    opened.set(entry.name, one);
     problems.push(
-      ...unreachedProblems(route, unreached),
-      ...overBudgetProblems(route, charged, total),
-      ...staleBudgetProblems(route, total),
+      ...one.unreached.map((stop) =>
+        `${entry.name}: the router ${stop} reaches no document, so every route opening with it `
+        + 'reports a cost that starts at the second page'),
+      ...overBudgetProblems(entry.name, entry.reason, entry.budget, one.charged, one.total, 'entry'),
+      ...staleBudgetProblems(entry.name, entry.budget, one.total),
     );
   }
 
-  return { problems, measured, scanned: universe.length };
+  for (const route of routes) {
+    const named = entryProblems(route, entries);
+    problems.push(...named);
+    const { branches, worst, charged, unreached, total } = measure(route, universe, base);
+    const opening = opened.get(route.entry)?.total ?? 0;
+    measured.push({ route, branches, worst, charged, total, opening, whole: opening + total });
+    problems.push(
+      ...unreachedProblems(route, unreached),
+      ...(named.length > 0 ? [] : [
+        ...overBudgetProblems(route.name, route.reason, route.budget, charged, total),
+        ...staleBudgetProblems(route.name, route.budget, total),
+      ]),
+    );
+  }
+
+  return { problems, measured, opened: [...opened.values()], scanned: universe.length };
 }
 
 function main() {
-  const { problems, measured, scanned } = routeProblems();
-  for (const { route, total } of measured)
-    console.log(`  ${String(total).padStart(6)} / ${String(route.budget).padStart(6)}  ${route.name}`);
+  const { problems, measured, opened, scanned } = routeProblems();
+  for (const { entry, total } of opened)
+    console.log(`  ${String(total).padStart(6)} / ${String(entry.budget).padStart(6)}  `
+      + `${entry.name} (${entry.router})`);
+  for (const { route, worst, total, whole } of measured)
+    console.log(`  ${String(total).padStart(6)} / ${String(route.budget).padStart(6)}  `
+      + `${route.name} past ${route.entry}, ${whole} whole`
+      + `${route.branches ? `, worst branch ${worst?.name}` : ''}`);
 
   if (problems.length > 0) {
     console.error(`\ncheck-routes: ${problems.length} problem(s)\n`);
     for (const problem of problems) console.error(`  ${problem}`);
     process.exit(1);
   }
-  console.log(`\ncheck-routes: ${measured.length} route(s) inside their budget, over ${scanned} document(s)`);
+  console.log(`\ncheck-routes: ${opened.length} entr(ies) and ${measured.length} route(s) inside `
+    + `their budget, over ${scanned} document(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();

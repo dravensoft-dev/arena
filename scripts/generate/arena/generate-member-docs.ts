@@ -25,6 +25,7 @@ export const node = {
   reads: ['contracts/api/components', 'frameworks/Components.json', ...COMPONENT_SOURCES],
   writes: COMPONENT_SOURCES,
   feeds: [
+    'check:architecture',
     'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',

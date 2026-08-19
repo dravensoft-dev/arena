@@ -1,0 +1,58 @@
+/* A language course's appearance, painted through the part hooks the kernel exposes.
+   Everything answerable as a role is answered in plugin.tokens.json, so what is left here is
+   the one gesture this register is read by: a control stands on a hard bottom edge and drops
+   into it when pressed. lift-control is a hover rise and press-scale is a press shrink, and
+   neither is a press TRAVEL, so it is painted here. */
+
+/* The whole voice of this product is one gesture: a control stands on a hard bottom edge
+   and drops into it when pressed. The kernel has lift-control for a hover rise and
+   press-scale for a press shrink, and no role for a press TRAVEL, so it is painted here. */
+[data-arena-part="button"] {
+  font-family: var(--ff-heading);
+  text-transform: var(--tt-label);
+  letter-spacing: var(--track-label);
+  border-block-end-width: var(--sp-1);
+  transition: transform var(--dur-hover) var(--ease-hover), filter var(--dur-hover) var(--ease-hover);
+}
+
+[data-arena-part="button"]:active:not(:disabled) {
+  transform: translateY(var(--sp-1));
+  border-block-end-width: 0;
+  margin-block-end: var(--sp-1);
+}
+
+[data-arena-part="icon-button"] {
+  border-block-end-width: var(--sp-1);
+}
+
+[data-arena-part="icon-button"]:active:not(:disabled) {
+  transform: translateY(var(--sp-1));
+  border-block-end-width: 0;
+  margin-block-end: var(--sp-1);
+}
+
+/* A card is a rounded box on a hard bottom edge, the same object the buttons are. */
+[data-arena-part="card"] {
+  border-block-end-width: var(--sp-1);
+}
+
+
+/* A card's eyebrow is held back, which is a level rather than a colour, so no role carries it
+   and this composes the shade from the palette. */
+[data-arena-part="card.eyebrow"] {
+  color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+}
+
+/* A field is a chunky rounded well: the fill is a role, the edge is not. */
+[data-arena-part="input.field"] {
+  border-block-end-width: var(--sp-1);
+}
+
+[data-arena-part="input.label"] {
+  font-family: var(--ff-heading);
+}
+
+/* A menu row is a big target with a rounded corner, because this is a phone product first. */
+[data-arena-part="menu.item"] {
+  font-family: var(--ff-heading);
+}

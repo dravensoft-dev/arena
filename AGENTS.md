@@ -24,9 +24,12 @@ this file is not, and the two are almost disjoint by design.
 | which of those three a fact belongs to | [`contracts/AGENTS.md`](./contracts/AGENTS.md), the roof |
 | a component, in one layer or both | [`frameworks/AGENTS.md`](./frameworks/AGENTS.md), then that layer's own |
 | how a component LOOKS | [`frameworks/tailwind/AGENTS.md`](./frameworks/tailwind/AGENTS.md) |
+| what a consumer may build Arena INTO: an import, a peer, a browser global, a server render | [`frameworks/AGENTS.md`](./frameworks/AGENTS.md), the envelope section, then the layer you are editing. `check:architecture` fails a withdrawal |
 | a playground's seed | [`frameworks/demos/AGENTS.md`](./frameworks/demos/AGENTS.md) |
 | a script, a gate, a generator | [`scripts/AGENTS.md`](./scripts/AGENTS.md) |
 | a browsable page or a specimen | [`intro/AGENTS.md`](./intro/AGENTS.md) |
+| the identity document a project fills in before its first screen | [`arena-from-scratch/AGENTS.md`](./arena-from-scratch/AGENTS.md) |
+| a style plugin Arena renders, or an entry a project starts from | [`plugin-style-store/AGENTS.md`](./plugin-style-store/AGENTS.md), and [`catalogue/`](./plugin-style-store/catalogue/AGENTS.md) beside it |
 | the npm channel, or a release | [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md) and [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) |
 | documentation | this page, the two sections below it |
 | whether the file in front of me is mine to edit at all | [`GENERATED.md`](./GENERATED.md), before the edit and not after the gate |

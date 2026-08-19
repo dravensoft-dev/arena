@@ -20,6 +20,24 @@ would be if a `<Component>.variants.ts` reached four directories up into `framew
 for a manifest and a recipe: the class names a component composes are emitted into this layer
 beside the component, the way the contract types and the script tokens are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
 
+**Outside itself it reaches only Angular, the CDK and `rxjs`**, and `check:architecture` holds that
+list for the same reason the sibling layer has one: a package imported here is a dependency every
+consumer installs, whatever architecture they chose.
+
+**`@angular/router` is inside that list and is the one entry that may not spread.** It is a
+declared peer marked optional, and it stays optional only while `metadata/` is the single place
+that imports it: an import anywhere else is loaded by every consumer of the main entry point, so
+the optional declaration stops being true at run time while the manifest still says it. The gate
+fails an import of it outside that directory, and fails the declaration being withdrawn. A project
+that answered no to being found from outside must not install a router to use a button.
+
+**Reach the document through the injected `DOCUMENT` token and never the global**, and put a
+measurement inside `afterNextRender`. A global read while the module evaluates throws during a
+server render at import time. This layer's suites run through a DOM rather than a server renderer,
+so here that claim is held by the code and by no run, which
+[`DOUBTS.md`](../../DOUBTS.md) files as a debt: **smoke-test a server render by hand** when a
+change touches how a component reaches the document.
+
 **Beside the components, the files that carry the theme, the icons and the CDK bridge:**
 - `theme/arena-tailwind.css`: one import that pulls Arena's tokens (including the self-hosted
   fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)

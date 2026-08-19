@@ -112,8 +112,13 @@ The package is the code. The repository is the language.
 ## Install
 
 ```bash
-bun add @dravensoft/arena-angular
+bun add @dravensoft/arena-angular      # or: npm i / pnpm add
 ```
+
+**npm, bun and pnpm all install this**, and pnpm is the one worth naming because its layout is
+the strict one: nothing here is hoisted into place by accident, since every peer is declared
+rather than assumed, and the command below resolves the icon font through the symlinked store
+like any other dependency. No hoisting flag is needed under any of the three.
 
 That is the whole install. Angular, the CDK and `@phosphor-icons/web` are peer dependencies, so
 your package manager brings down whichever of them the project does not already have. **The package declares `engines: { node: ">=26" }`**, which is a floor this project holds itself to rather than one the code needs: the shipped command imports `node:fs`, `node:path` and `node:url` and nothing newer. A project on an older Node still installs, with the warning its package manager gives an unmet engine, and fails only if it runs the install strictly.

@@ -1,11 +1,20 @@
 # plugin-style-store/
 
-**One authored copy of each style plugin, and nothing copies one anywhere.** The sheets the site
-loads, the artefact each package assembles and the table a consumer's build resolves against are
-all emitted from here, so a value that moves in this directory moves everywhere or fails a gate
-that says it did not. That is why the store is a directory of the repository rather than a fixture
-beside a gate or a template a command copies into a project: a template is a copy the moment it is
-used, and a copy is a second answer to a question the kernel asks once.
+**One authored copy of each of Arena's own style plugins, and nothing copies one anywhere.** The
+sheets the site loads, the artefact each package assembles and the table a consumer's build
+resolves against are all emitted from here, so a value that moves in this directory moves
+everywhere or fails a gate that says it did not. That is why the store is a directory of the
+repository rather than a fixture beside a gate or a template a command copies into a project: a
+template is a copy the moment it is used, and a copy is a second answer to a question the kernel
+asks once.
+
+**That claim is about the answers Arena gives, and [`catalogue/`](./catalogue/AGENTS.md) gives
+none.** An entry there is a starting point measured on a real product, published so a project with
+no appearance of its own can take one and edit it in its own tree, and being copied is its whole
+purpose rather than a defect. It costs the claim above nothing, because no entry is compiled: none
+has a row in `FILES` in `scripts/generate/arena/generate-tokens.ts`, so no sheet is emitted, no
+class exists, and nothing in this repository renders one. What this repository renders is the two
+below; what it publishes for somebody else to run is the catalogue.
 
 A plugin is a directory holding two files. [`default/plugin.tokens.json`](./default/plugin.tokens.json)
 answers roles. `plugin.css` beside it is CSS of the plugin's own, written against the
@@ -16,7 +25,7 @@ compiled component rule sits at one class of specificity, so a plugin rule wins 
 `!important` anywhere. Unlayered application CSS still beats it, which is the right order and is
 why the audit keeps reporting an application that reaches in.
 
-## The two that live here
+## The two Arena renders
 
 **`default`** is the plugin both packages assemble a sheet from, so installing and rendering needs
 no configuration. It answers every role the kernel declares, because the first plugin in a build's

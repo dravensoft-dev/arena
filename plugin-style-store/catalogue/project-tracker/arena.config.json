@@ -1,0 +1,88 @@
+{
+  "stylePlugins": [
+    "./design/project-tracker"
+  ],
+  "palettes": [
+    {
+      "name": "light",
+      "default": true,
+      "polarity": "light",
+      "colors": {
+        "base-100": "#ffffff",
+        "base-200": "#f7f8f9",
+        "base-300": "#e4e7eb",
+        "base-content": "#2a3039",
+        "primary": "#6c4ee3",
+        "primary-content": "#ffffff",
+        "secondary": "#c2367f",
+        "secondary-content": "#ffffff",
+        "neutral": "#eceef1",
+        "neutral-content": "#5c6673",
+        "info": "#1a7fc1",
+        "info-content": "#ffffff",
+        "success": "#1a8f5a",
+        "success-content": "#ffffff",
+        "warning": "#a05c00",
+        "warning-content": "#ffffff",
+        "error": "#cf3437",
+        "error-content": "#ffffff",
+        "error-fill": "#b32c2f",
+        "cat-1": "#6c4ee3",
+        "cat-2": "#1a7fc1",
+        "cat-3": "#c2367f",
+        "cat-4": "#a05c00",
+        "cat-5": "#1a8f5a",
+        "cat-6": "#b3441a",
+        "cat-7": "#4a5bb5",
+        "cat-8": "#0f8f86"
+      }
+    },
+    {
+      "name": "dark",
+      "polarity": "dark",
+      "colors": {
+        "base-100": "#17181c",
+        "base-200": "#1f2126",
+        "base-300": "#2d3037",
+        "base-content": "#e7e9ec",
+        "primary": "#9b86ff",
+        "primary-content": "#17181c",
+        "secondary": "#ff7fbb",
+        "secondary-content": "#17181c",
+        "neutral": "#2a2d34",
+        "neutral-content": "#a3abb8",
+        "info": "#49ccf9",
+        "info-content": "#17181c",
+        "success": "#4bd693",
+        "success-content": "#17181c",
+        "warning": "#ffb648",
+        "warning-content": "#17181c",
+        "error": "#ff6b6f",
+        "error-content": "#17181c",
+        "error-fill": "#e05457",
+        "cat-1": "#9b86ff",
+        "cat-2": "#49ccf9",
+        "cat-3": "#ff7fbb",
+        "cat-4": "#ffb648",
+        "cat-5": "#4bd693",
+        "cat-6": "#ff8a5c",
+        "cat-7": "#8f9bff",
+        "cat-8": "#3fd0c4"
+      }
+    }
+  ],
+  "fonts": {
+    "display": {
+      "family": "Plus Jakarta Sans",
+      "src": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    },
+    "body": {
+      "family": "Inter",
+      "src": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    },
+    "mono": {
+      "family": "IBM Plex Mono",
+      "src": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
+    }
+  }
+}

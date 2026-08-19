@@ -26,7 +26,9 @@ the one rule that bends.
 ## Which job is this?
 
 **Building something with Arena** (a screen, a prototype, a component, an integration): stay
-here, and follow the table below.
+here, and follow the table below. **If the project has no appearance of its own yet**, start at
+[`references/cold-start.md`](./references/cold-start.md) instead, which is the tree the next section
+sends you to and the only page that asks what this product looks like before anything answers.
 
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
 read [`AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/AGENTS.md) instead. It is the
@@ -38,24 +40,20 @@ a relative link to it resolves in a clone and nowhere else.
 
 ## In this order
 
-**Before any of the four below, and once per project rather than per screen**, settle four things
-in this order, because a screen written ahead of any of them is written against decisions nobody
-made:
+**Before the first screen, and once per project rather than per screen**, settle what this product
+is and what it looks like, because a screen written ahead of that is written against decisions
+nobody made. [`references/cold-start.md`](./references/cold-start.md) is where that happens, and it
+is a tree rather than a list: its first question is whether the project already carries Arena, and
+its branches reach the four decisions a project settles once, the interview that comes before them
+when there is no appearance to read, the catalogue of measured style plugins a project can start
+from instead, the identity document every branch converges on before a file is written, and the two
+questions that decide an install rather than a screen: how much of the product has to be found from
+outside it, and what it is assembled on. Its last node derives the dependency list from those
+answers, so nothing has to be guessed at install time.
 
-- **What is there, and how much of it am I taking?** [`references/surface.md`](./references/surface.md),
-  the whole offer in one place, the three steps a project can stop at, and the line where Arena
-  stops. It comes first because the three questions under it ask how much of a thing you have not
-  been shown yet, and because the parts that are not components are the ones a project discovers
-  late or never.
-- **What is this product, and is Arena's component list for it?** The paragraph above answers the
-  second half; ask the user the first half when their brief has not. A product outside the
-  register still takes the skin, and [`references/media-register.md`](./references/media-register.md)
-  is what to read when the answer is that the markup is yours.
-- **What does it look like?** [`references/style-kernel.md`](./references/style-kernel.md), which is
-  how a project answers the kernel's roles and which answers carry the difference.
-- **Does anybody outside it have to find it?** [`references/seo.md`](./references/seo.md), because
-  a yes decides a peer dependency and a layer before it decides a screen, and because nothing
-  announces a no that was never chosen.
+**Walk it before the first file, on either branch.** The warm one reads the config and the plugin
+that are already there rather than writing over them; the cold one is what stops a screenshot
+becoming a palette while nobody is looking.
 
 Then, per screen:
 
@@ -131,6 +129,8 @@ about the rest, so breaking one of those is still a defect nothing will report.
 
 | Question | Read |
 |---|---|
+| I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
+| Which layer, which architecture, and what do I have to install? | the same tree's last three nodes: how much the product has to be found decides the layer and a peer, what it is assembled on is answered per architecture with the evidence for each, and the dependency list follows from both |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Arena has no component for what I am building. Now what? | [`references/media-register.md`](./references/media-register.md): the pattern your markup binds, the parts the package ships for it, and the one rule that bends |
 | Which of those answers actually change how it looks? | the same document's table, measured over four products built on this kernel |
@@ -188,11 +188,9 @@ decision above is
 ## Ask before you build
 
 **A brief names a product and never a palette, so the questions are always the same ones**, and a
-one-line brief is the normal case rather than the empty one. Before the first file: what is being
-built and who works in it; whose brand this is, since Arena installs with Dravensoft's and a
-project's own is the one entry it replaces; which fonts; whether anybody outside the product has to
-find it, since that answer reaches the layer and the install rather than the screen; and whether
-anything on the screen falls outside the register above, because that part is markup you write.
-**Invoked with no guidance at all**, ask what the user wants to build first and then the same list.
-Then act as an expert in the Arena language and produce either an HTML artifact or production code,
-whichever the answer calls for.
+one-line brief is the normal case rather than the empty one. Which ones to ask, in what order, and
+what each answer unlocks is [`references/cold-start.md`](./references/cold-start.md), which is the
+tree named above and the one place those questions are written down. **Invoked with no guidance at
+all**, ask what the user wants to build and then walk that tree from its first node. Then act as an
+expert in the Arena language and produce either an HTML artifact or production code, whichever the
+answer calls for.

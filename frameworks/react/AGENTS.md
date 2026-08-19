@@ -21,6 +21,28 @@ same problem differently, the contract is what makes the two answers comparable,
 implementation is the other's record. `bun run check:layer-independence` fails a file here that
 cites a sibling layer, by import or in prose.
 
+**It also reaches nothing outside `react`, `react-dom` and the two vendored styling utilities**,
+and `check:architecture` holds that list. The manifest therefore declares no runtime dependency at
+all, which is the whole of why a consumer may drop this layer into a single-page application, a
+server-rendered one, a static build or a fragment of somebody else's page without being handed a
+framework decision. A router, a store or a data client imported here is that decision made for
+them, and they meet it as a package they did not choose. Where a capability seems to need one,
+reach it through a member the consumer answers: the anchor components report through their own
+event and navigate nothing, which is that rule already applied.
+
+**Nothing here may read a browser global while the module evaluates**, and nothing may reach
+`useLayoutEffect`. Much of this layer's suite renders through `react-dom/server`, so a module-scope
+read fails at import time during a server render rather than at paint, and the stack names the
+import instead of the component. Read it inside a function or an effect, or guard it with a
+`typeof` check as `Theme.ts` does. The same gate holds both.
+
+**This layer ships no `'use client'` directive, and that is a decision.** Its components use hooks,
+so a React Server Components project has to draw the boundary itself, in one line, at the module of
+its own that imports Arena. Shipping the directive would draw it at every leaf instead, which
+places a boundary the consumer did not choose and cannot move. The consumer branch says so at the
+node where that architecture is picked; **do not add the directive here to make an error go away**,
+because the error is telling a consumer where their boundary is missing.
+
 ## Components compose their own class names
 
 Each component draws its appearance from the manifest that describes its surface, but never

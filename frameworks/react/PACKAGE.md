@@ -107,8 +107,13 @@ The package is the code. The repository is the language.
 ## Install
 
 ```bash
-bun add @dravensoft/arena-react
+bun add @dravensoft/arena-react      # or: npm i / pnpm add
 ```
+
+**npm, bun and pnpm all install this**, and pnpm is the one worth naming because its layout is
+the strict one: nothing here is hoisted into place by accident, since every peer is declared
+rather than assumed, and the command below resolves the icon font through the symlinked store
+like any other dependency. No hoisting flag is needed under any of the three.
 
 That is the whole install. `react`, `react-dom` and `@phosphor-icons/web` are peer dependencies,
 so your package manager brings down whichever of them the project does not already have. **The
