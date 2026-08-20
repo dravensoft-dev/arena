@@ -1,8 +1,13 @@
+/* The four true entries in the two maps below are verdicts this suite does not earn: nothing
+ * here presses a key or reads document.activeElement. They are earned beside it, in
+ * Behavioural.dom.test.tsx, which dispatches Escape and asserts focus returns to the invoker.
+ * Nothing connected the two files, so deleting the suite that earns them left this one green
+ * over four literals. The last test reads that file, which is what makes the deletion red. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { join } from 'node:path';
-import { writeFileSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { mount, cleanup } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
@@ -148,4 +153,20 @@ test('the require-text input substitutes a focus ring for the outline it removes
     'the rule lives in the manifest now, so nothing injects a stylesheet for it');
   assert.equal(container.querySelectorAll<HTMLElement>('style').length, 0,
     'and nothing renders one inline either, which would ship one tag per instance');
+});
+
+test('the behavioural verdicts above are earned in Behavioural.dom.test.tsx, which is read here', () => {
+  const pinning = readFileSync(join(REACT_COMPONENTS, 'feedback/Behavioural.dom.test.tsx'), 'utf8');
+  for (const [component, behavioural] of [
+    ['ArenaDialog', DIALOG_BEHAVIOURAL],
+    ['ArenaConfirmDialog', CONFIRM_DIALOG_BEHAVIOURAL],
+  ] as const) {
+    for (const [requirement, met] of Object.entries(behavioural)) {
+      if (!met) continue;
+      const earns = new RegExp(`test\\('${component}[^']*${requirement.replace('.', '\\.')} is met`);
+      assert.match(pinning, earns,
+        `${component} claims ${requirement} met here and nothing in Behavioural.dom.test.tsx earns it: `
+        + 'either that test went, or the claim did');
+    }
+  }
 });
