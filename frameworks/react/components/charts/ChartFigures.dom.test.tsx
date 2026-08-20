@@ -122,6 +122,38 @@ function cursorVerdicts(root: HTMLElement, name: string): Record<string, boolean
   return Object.fromEntries(CURSOR_KEYS.map((key) => [key, !idle.includes(key)]));
 }
 
+const BOTTOM_AXIS: [string, ChartComponent][] = [
+  ['ArenaBarChart', ArenaBarChart as unknown as ChartComponent],
+  ['ArenaLineChart', ArenaLineChart as unknown as ChartComponent],
+];
+
+function bottomAnchors(root: HTMLElement) {
+  const texts = [...root.querySelectorAll('svg text')];
+  const floor = Math.max(...texts.map((at) => Number(at.getAttribute('y') ?? Number.NaN)));
+  const bottom = texts.filter((at) => Number(at.getAttribute('y')) === floor);
+  assert.ok(bottom.length > 1, 'a bottom axis with one label is not an axis');
+  return [...new Set(bottom.map((at) => at.getAttribute('text-anchor')))];
+}
+
+const CENTRED = 'a label clamped to start or end sits beside the mark it names rather than over it, '
+  + 'and the reader takes it for the neighbour: the overhang at either end is the price, and it is '
+  + 'the one the horizontal bar and the pyramid already pay on the same edge';
+
+for (const [name, Chart] of BOTTOM_AXIS) {
+  test(`${name} centres every label on its bottom axis over the mark that label names`, () => {
+    const root = mount(<Chart labels={LABELS} series={[{ label: SERIES, values: VALUES }]} label={CHART} />);
+    assert.deepEqual(bottomAnchors(root), ['middle'], CENTRED);
+  });
+}
+
+test('ArenaScatterChart centres its bottom axis too, though those labels are monospaced', () => {
+  const root = mount(
+    <ArenaScatterChart label={CHART} xLabel="Load" yLabel="Latency"
+      series={[{ label: SERIES, x: [1, 2, 3, 4, 5], y: VALUES }]} />,
+  );
+  assert.deepEqual(bottomAnchors(root), ['middle'], CENTRED);
+});
+
 for (const [name, Chart, tail, heading] of CHARTS) {
   test(`${name} pairs a named graphic with a real table of the same numbers`, () => {
     const root = mount(<Chart labels={LABELS} series={[{ label: SERIES, values: VALUES }]} label={CHART} />);
