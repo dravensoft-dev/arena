@@ -50,6 +50,7 @@ test('every route names the reader it is paid by, the entry it opens with, and t
     'consumer-component', 'consumer-install', 'consumer-skin', 'consumer-register', 'consumer-seo',
     'consumer-surface', 'consumer-page', 'consumer-coldstart',
     'contributor-component', 'contributor-authoring', 'contributor-token', 'contributor-gate',
+    'contributor-tailwind', 'contributor-behaviour', 'contributor-release',
   ]);
   for (const one of ROUTES) {
     assert.ok(ENTRIES.some((entry) => entry.name === one.entry), `${one.name} opens with an entry`);

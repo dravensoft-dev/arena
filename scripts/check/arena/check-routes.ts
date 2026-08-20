@@ -376,7 +376,10 @@ export const ROUTES: Route[] = [
       + 'saying every value a viewer needs is already a token and left the one value that is not '
       + 'unsaid, so walks sized the picture with a vh nobody chose. A fixed layer at inset 0 needs '
       + 'no length at all, and the unit that follows a phone\'s browser chrome is dvh, which is '
-      + 'what the chosen number was compensating for.',
+      + 'what the chosen number was compensating for.'
+      + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
+      + 'against what is left, so every one of them names a number this route does not have. The '
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
   },
   {
     name: 'consumer-seo',
@@ -408,7 +411,10 @@ export const ROUTES: Route[] = [
       + 'one of the eleven parts that answer names. The shared stop is seven routes wide now, so a '
       + 'question added to the router is charged seven times, and what keeps that worth paying is '
       + 'that the head reaches a reader who came for something else and would never have opened '
-      + 'this page on purpose.',
+      + 'this page on purpose.'
+      + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
+      + 'against what is left, so every one of them names a number this route does not have. The '
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
   },
   {
     name: 'consumer-surface',
@@ -440,7 +446,10 @@ export const ROUTES: Route[] = [
       + 'walks found both classes and none could say how one product offers both, which is the '
       + 'question a project actually has: the two are exclusive and neither is a prop, so the '
       + 'swap is a branch on the breakpoint helper rather than a media query, and that is decided '
-      + 'here rather than per screen.',
+      + 'here rather than per screen.'
+      + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
+      + 'against what is left, so every one of them names a number this route does not have. The '
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
   },
   {
     name: 'consumer-page',
@@ -488,7 +497,10 @@ export const ROUTES: Route[] = [
       + 'is right, and wrote no wrapper, which leaves the shell distributing its slack to nothing, '
       + 'so the page says what to do when the element that has to be laid out is a component. And '
       + 'the gutter is stated as a ceiling, since a length answered for a full width page leaves a '
-      + '430px viewport spending two fifths of itself on margin.',
+      + '430px viewport spending two fifths of itself on margin.'
+      + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
+      + 'against what is left, so every one of them names a number this route does not have. The '
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
   },
   {
     name: 'consumer-coldstart',
@@ -633,7 +645,10 @@ export const ROUTES: Route[] = [
       + 'palette moves: the specification has to say that those numbers are floors, that a level '
       + 'is raised and never lowered, and what raising one costs the hierarchy it belonged to. '
       + 'The route is longer because the thing it describes is bigger, which is the one reason a '
-      + 'budget should ever move.',
+      + 'budget should ever move.'
+      + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
+      + 'against what is left, so every one of them names a number this route does not have. The '
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
   },
   {
     name: 'contributor-gate',
@@ -661,6 +676,55 @@ export const ROUTES: Route[] = [
       + 'contributor that nothing has to be written down for a node-less gate to run, which is '
       + 'true of the cache and false of check:graph. That sentence sent a reader to write a gate '
       + 'that goes red on the one rule the nearest page had just excused them from.',
+  },
+  {
+    name: 'contributor-tailwind',
+    who: 'a contributor changing how a component looks and nothing about what it is: the router, '
+      + 'then the one layer that owns an appearance decision for both frameworks at once',
+    entry: 'contributor',
+    stops: ['frameworks/tailwind/AGENTS.md'],
+    budget: 44_000,
+    reason:
+      'the row a contributor takes when a shape, a colour or a state is wrong and the API is not, '
+      + 'and it went unbudgeted for as long as the routing table has carried it. What that cost is '
+      + 'was measured on a cold walk: the file a corner radius actually moves in is a style plugin '
+      + 'under plugin-style-store, four stops from the router, because the appearance Arena '
+      + 'installs with IS a plugin and no page on the way said so. One stop, and it is the largest '
+      + 'single page on the contributor branch, so what this budget holds down is the document most '
+      + 'likely to grow by a hazard nobody routes to and everybody meets.',
+  },
+  {
+    name: 'contributor-behaviour',
+    who: 'a contributor answering a report about a role, a key, focus or a dismissal: the router, '
+      + 'the contracts roof, then the level that says what a kind of component must do',
+    entry: 'contributor',
+    stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
+    budget: 37_000,
+    reason:
+      'the route a bug report takes, which is the arrival the routing table had no row for until '
+      + 'the symptom rows landed, and the one whose answer is most often that nothing in the code '
+      + 'is broken: a requirement no suite pins is unfalsifiable rather than unverified, and that '
+      + 'paragraph is what a reader comes here for. It is budgeted apart from the component route '
+      + 'because the two share no stop past the roof, and because this one is paid by whoever is '
+      + 'holding a defect rather than by whoever is adding a component.',
+  },
+  {
+    name: 'contributor-release',
+    who: 'a contributor cutting a release: the router, the order the moves are made in, what a '
+      + 'package is, and what CI does with the tag once it exists',
+    entry: 'contributor',
+    stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
+    budget: 54_300,
+    reason:
+      'the least frequent route on the branch and the most expensive one to get wrong, because '
+      + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
+      + 'because the document carrying the sequence was a .txt until this route existed, so every '
+      + 'documentation gate walked past it: its own citations went unchecked, so did the two pages '
+      + 'naming it, and one of its commands pushed the tag to whatever branch was checked out '
+      + 'while the publish workflows listen on one. A cold walk reached the procedure at all only '
+      + 'by reading to the middle of a CI page. The sequence is the first stop because it is what '
+      + 'a reader needs first, and the other two are what it sends them to rather than what they '
+      + 'open instead.',
   },
 ];
 
