@@ -448,15 +448,19 @@ repository does not have.
 - **Danger is outline:** `border` and `text` in `--error`, transparent fill; a
   filled danger surface is reserved for `ArenaConfirmDialog`'s final confirmation.
 - **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
-  gold ring, `--focus-ring` at `--focus-width`, or `--gold-soft` where the ring is drawn as
-  a shadow. A SURFACE an activation is drawn around takes `ring-primary` with `ring-2`.
-  Derive which manifests spend each with
+  gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
+  takes `ring-primary` with `ring-2`. Derive which manifests spend each with
   `grep -rl 'focus-visible:ring-primary' frameworks/tailwind/components` and
-  `grep -rl 'focus-ring\|gold-soft' frameworks/tailwind/components`.
+  `grep -rl 'focus-ring' frameworks/tailwind/components`. **`--gold-soft` is not that ring**:
+  it is the accent at 16%, and a real browser reads it as a wash rather than an edge.
 - **A ring is composed from several utilities rather than named by one**, which is why
-  `check:coverage` excludes the namespace and why nothing fails a manifest painting none.
-  One that paints none leaves the user agent's own outline, which is visible and is not
-  Arena's, so the absence is quiet in every gate and loud on the page.
+  `check:coverage` excludes the namespace and why nothing fails a manifest painting none,
+  and the composition is two decisions. A slot focused directly also carries `outline-none`,
+  or the browser draws its own ring over Arena's; one focused through a sized-to-nothing
+  input has none to remove. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
+  slot held, so a slot whose shadow already means something, the selected tab's underline,
+  takes `ring-*`, which writes its own slot and composes. A manifest painting no ring is
+  quiet in every gate and loud on the page.
 - No gradient utilities. Uppercase is reserved for micro-labels. Charts carry identity
   (`--color-cat-*`) or meaning (status), never both.
 

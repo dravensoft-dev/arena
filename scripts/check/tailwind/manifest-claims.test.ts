@@ -62,6 +62,18 @@ test('every manifest claim holds', () => {
   assert.deepEqual(problems, [], problems.join('\n'));
 });
 
+test('the tab draws its focus ring with a ring utility, because its shadow slot is the selected mark', () => {
+  for (const selected of [true, false]) {
+    const carried = resolve('ArenaTabs', { selected }, 'tab')
+      .filter((cls) => /^focus(-visible)?:shadow-/.test(cls));
+    assert.deepEqual(carried, [],
+      `the tab carries ${carried.join(' ')}. shadow-* writes --tw-shadow, and this slot spends that `
+      + 'on the inset underline marking the selected tab, so a focus ring written as a shadow '
+      + 'replaces the mark that says which tab you are on for exactly as long as you are on it. A '
+      + 'ring utility writes --tw-ring-shadow, which composes with it.');
+  }
+});
+
 test('no ArenaSideNav slot hard-codes an indent bracket, because a static utility holds no runtime multiplier', () => {
   for (const slot of ['item', 'trigger', 'sectionLabel']) {
     const carried = resolve('ArenaSideNav', {}, slot).filter((cls) => cls.startsWith('ps-['));
@@ -300,7 +312,7 @@ export const CLAIMS = {
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner slot carries the reduced-motion-aware utility, which is where that answer lives' },
   ],
   ArenaCheckbox: [
-    { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives' },
+    { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { chosen: { checked: true }, slot: 'box', has: ['bg-primary', 'border-primary'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-edge-control'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: true }, slot: 'check', has: ['text-primary-content'], why: 'the tick reads on the filled box, which is the one pairing that has to hold' },
@@ -333,7 +345,7 @@ export const CLAIMS = {
     { slot: 'required', has: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
   ],
   ArenaRadio: [
-    { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives' },
+    { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
@@ -400,7 +412,12 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
     { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
-    { slot: 'tab', has: ['px-4', 'focus-visible:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'selection never moves the padding, and the focus ring is the recipe\'s job' },
+    { slot: 'tab', has: ['px-4', 'focus-visible:outline-none'], why: 'selection never moves the padding, and a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
+    {
+      slot: 'tab',
+      has: ['focus-visible:ring-[length:var(--focus-width)]', 'focus-visible:ring-[color:var(--focus-ring)]'],
+      why: 'the ring is a ring utility rather than a shadow one, for the reason the tab focus-ring test in this file carries',
+    },
     { chosen: { selected: true }, slot: 'panel', has: ['block'], hasNot: ['hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
     { chosen: { selected: false }, slot: 'panel', has: ['hidden'], hasNot: ['block'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
   ],
