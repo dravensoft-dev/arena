@@ -252,6 +252,29 @@ carries what that leaves open.
 
 **Every `.prompt.md` carries examples and, where it adds value, a Do / Don't section.**
 
+## A run of text is one child
+
+**A render composes a run of text in ONE expression and never out of pieces.** A run of text has
+to reach the DOM as a single text node, and this layer makes a node per child, so
+`<div>Type "{word}" to confirm</div>` arrives as three. The browser shapes each node on its own, so
+three short strings and one long one are laid out by different measurements, and a page built the
+second way and a page built the first draw the same sentence differently. Write the run as a
+template literal: `` <div>{`Type "${word}" to confirm`}</div> ``.
+
+**It is invisible until an appearance moves the type.** The two spellings agree at every pixel
+under the appearance the package installs with, which is why this shipped: it took the second
+kitchen-sink arrangement, drawn under the plugin that answers every role differently, to move 157
+pixels across `ArenaConfirmDialog` and `ArenaTextarea` with every other gate green.
+[`../kitchen-sink/AGENTS.md`](../kitchen-sink/AGENTS.md) is why that arrangement exists.
+
+**An element between two runs is not this.** `<b>{count}</b>{` ${noun} selected`}` is a bold
+element followed by one text node, which is one run each and correct.
+
+`check:text-runs` holds the half a parser can decide, which is literal text beside an expression.
+**Two adjacent expressions are the same defect and the gate cannot see them**, because whether a
+call returns a string or an element is not a fact about source text; `{a}{fmt(b)}` is a run and
+`{a}{cond && <span/>}` is not, and they parse alike.
+
 ## The layer answers to a compiler
 
 `bun run check:react-types` runs `tsc` over `tsconfig.check.json`, strict, across every

@@ -80,6 +80,7 @@
     "check:cdk": "bun scripts/check/angular/check-cdk.ts",
     "check:boolean-inputs": "bun scripts/check/angular/check-boolean-inputs.ts",
     "check:optional-inputs": "bun scripts/check/angular/check-optional-inputs.ts",
+    "check:text-runs": "bun scripts/check/react/check-text-runs.ts",
     "check:tailwind": "bun scripts/check/tailwind/check-tailwind.ts",
     "check:tailwind-generated": "bun scripts/check/tailwind/check-tailwind-generated.ts",
     "check:coverage": "bun scripts/check/tailwind/check-tailwind-coverage.ts",

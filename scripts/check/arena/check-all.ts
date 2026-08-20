@@ -82,6 +82,7 @@ export const GATES = [
   { name: 'check:demos', file: 'react/check-demos-generated.ts' },
   { name: 'check:react-barrel', file: 'react/check-react-barrel.ts' },
   { name: 'check:react-types', file: 'react/check-react-types.ts' },
+  { name: 'check:text-runs', file: 'react/check-text-runs.ts' },
   { name: 'check:script-types', file: 'arena/check-script-types.ts' },
   { name: 'check:script-reach', file: 'arena/check-script-reach.ts' },
   { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts' },

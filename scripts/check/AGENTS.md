@@ -182,7 +182,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 | [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 13 | `contracts/` and `assets/` only |
-| [`react/`](./react/AGENTS.md) | 4 | the React layer |
+| [`react/`](./react/AGENTS.md) | 5 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at
 `<domain>/<gate>.ts`, so a gate landing outside the grid fails rather than running unnoticed.

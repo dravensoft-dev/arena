@@ -96,7 +96,7 @@ export function ArenaTextarea({
           : hint ? <span className={styles.hint()} data-arena-part={manifest.parts.hint}>{hint}</span> : <span />}
         {counter && maxLength && (
           <span className={len > maxLength * 0.9 ? styles.counterNear() : styles.counter()}
-            data-arena-part={manifest.parts.counter}>{len}/{maxLength}</span>
+            data-arena-part={manifest.parts.counter}>{`${len}/${maxLength}`}</span>
         )}
       </div>
     </div>

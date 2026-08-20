@@ -550,13 +550,12 @@ export const ROUTES: Route[] = [
       + 'correct rather than only that the gate failed. The roof carries what binds both layers '
       + 'and each layer carries its own envelope and its own peer, which is the split that keeps '
       + 'the pair from going stale in one of them. Raised to 70,000 when the Angular stop gained '
-      + 'the fourth trap: the layer writes an optional member's default twice, as the initial '
+      + 'the fourth trap: the layer writes an optional member\'s default twice, as the initial '
       + 'value and again as the fallback of the transform that resolves an absence, and only one '
       + 'of the two runs for any given caller. It is charged here rather than to a family page '
       + 'because every optional member in the layer carries the shape, and it is charged at all '
-      + 'because no gate could see it: the pixel gate renders one appearance, so an initial value '
-      + 'hardcoding what that appearance answers for a role agrees at every pixel and diverges in '
-      + 'every project that answers the role otherwise. Measured on a consumer bench, where one '
+      + 'because no gate holds the PAIR: the two halves are read by two gates that each know one '
+      + 'of them and neither knows they are one decision. Measured on a consumer bench, where one '
       + 'grid drew six columns against the five the same config drew beside it.',
   },
   {

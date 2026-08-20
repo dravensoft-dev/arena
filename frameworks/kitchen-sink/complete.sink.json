@@ -1,0 +1,58 @@
+{
+  "sink": "complete",
+  "note": "Grouped by what an appearance does to a thing rather than by what the registry calls it, because this page is drawn under the plugin that answers every role differently: a dialog beside a sheet beside a menu is where a role answered inconsistently shows, and the registry's own grouping puts those three in three places.",
+  "sections": [
+    {
+      "title": "Ground",
+      "items": [
+        "ArenaMain", "ArenaSkipLink", "ArenaSection", "ArenaHero", "ArenaGrid", "ArenaBoard",
+        "ArenaBoardColumn", "ArenaScroller", "ArenaScrollerItem", "ArenaSiteFooter"
+      ]
+    },
+    {
+      "title": "Surfaces",
+      "items": [
+        "ArenaCard", "ArenaStatCard", "ArenaUnauthCard", "ArenaChartCard", "ArenaFigure",
+        "ArenaKeyValue", "ArenaSkeleton"
+      ]
+    },
+    {
+      "title": "Controls",
+      "items": [
+        "ArenaButton", "ArenaIconButton", "ArenaInput", "ArenaTextarea", "ArenaSelect",
+        "ArenaCheckbox", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaSegmentedControl"
+      ]
+    },
+    {
+      "title": "Wayfinding",
+      "items": [
+        "ArenaAppLogo", "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaTabs", "ArenaTab",
+        "ArenaPagination", "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem",
+        "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem"
+      ]
+    },
+    {
+      "title": "Overlays",
+      "items": [
+        "ArenaDialog", "ArenaConfirmDialog", "ArenaSheet", "ArenaMenu", "ArenaCommandPalette",
+        "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaOnboarding", "ArenaBulkActionBar"
+      ]
+    },
+    {
+      "title": "Signals",
+      "items": [
+        "ArenaAlert", "ArenaBadge", "ArenaTag", "ArenaProgressBar", "ArenaSpinner",
+        "ArenaEmptyState", "ArenaErrorState"
+      ]
+    },
+    {
+      "title": "Data",
+      "items": [
+        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaCalendar",
+        "ArenaCalendarEvent", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
+        "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart", "ArenaDoughnutChart",
+        "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
+      ]
+    }
+  ]
+}

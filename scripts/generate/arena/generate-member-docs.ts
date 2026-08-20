@@ -52,6 +52,7 @@ export const node = {
     'check:playgrounds',
     'check:react-barrel',
     'check:react-types',
+    'check:text-runs',
     'check:script-tokens',
     'check:shared-arithmetic',
     'check:skills',

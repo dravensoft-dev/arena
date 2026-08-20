@@ -202,14 +202,14 @@ export function ArenaScatterChart({
             {series[active.seriesIndex]?.label}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-            {xLabel}: {fmt(active.x)}
+            {`${xLabel}: ${fmt(active.x)}`}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-            {yLabel}: {fmt(active.y)}
+            {`${yLabel}: ${fmt(active.y)}`}
           </div>
           {active.size !== undefined && (
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-              {sizeLabel}: {fmt(active.size)}
+              {`${sizeLabel}: ${fmt(active.size)}`}
             </div>
           )}
         </div>
