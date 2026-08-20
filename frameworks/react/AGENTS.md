@@ -367,6 +367,20 @@ bun run test:react     # the DOM-free suites
 bun run test:react-dom # the DOM suites, with the preload
 ```
 
+**One file, while you iterate on a red suite.** All three scripts take a suite name and never a
+path, so a single file is `bun test` carrying the same arguments that suite declares in `SUITES`
+in `scripts/check/arena/check-all.ts`, plus the path:
+
+```bash
+bun test <path>.test.tsx                                          # a DOM-free suite
+bun test --preload ./frameworks/react/test/Preload.js <path>.dom.test.tsx
+```
+
+Read those arguments off `SUITES` rather than off this block, which is the same reason the
+merged command is not restated here either. **Getting the second one wrong is the failure the
+section above describes**: the file runs, reports green, and every `onChange` it asserted fired
+zero times, so a narrowed run that passes is evidence of nothing until the preload is in it.
+
 `bun run check` runs every gate and the full suite; run it once when an implementation is
 finished rather than before every commit.
 

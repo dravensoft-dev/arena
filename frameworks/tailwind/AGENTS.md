@@ -169,8 +169,11 @@ style plugin it is itself a failure.
 
 A scale says how round a corner is, how thick an edge is, how deep a shadow is and how long a
 transition takes. A role says WHICH corner, edge, depth or transition is being asked about. The
-roles live in `contracts/design/roles.json`, every one an alias of the scale step it names, so
-the default appearance is the same pixel it always was.
+roles are DECLARED in `contracts/design/roles.json`, which carries a type and a description per
+role and **no value at all**: a role is the question, and every answer is a style plugin's. The
+plugin Arena installs with is `plugin-style-store/default/plugin.tokens.json`, where each role
+aliases the scale step it names, so the default appearance is the same pixel it always was. A
+reader looking for what a role resolves to and opening `roles.json` finds prose.
 
 A manifest writes the role, and `check:roles` fails one that writes the scale:
 `rounded-surface`, `rounded-surface-floating`, `rounded-control`, `rounded-control-sm`,
@@ -182,6 +185,12 @@ and `--dur-mid`; `ease-hover` and `ease-state` rather than `ease-out`, paired wi
 the same transition names, because a curve is half of what a transition feels like and a manifest
 that named a role for the length and a scale step for the shape would have answered half the
 question.
+
+**`check:roles` is the gate that judges a radius, and `check:radius` is not it.** The second
+reads a manifest for `rounded-full` alone, where `rounded-pill` belongs, because that is the one
+utility in a cleared `--radius-*` namespace that still resolves with no Arena token behind it. It
+is deliberately that one class and it says so in its own header. Which step a role should have
+named is `check:roles`, and its `SCALE_UTILITIES` map is where the pairing is declared.
 
 **Why it is a rule and not a preference**: a style plugin is a scope class that re-values
 role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
@@ -438,9 +447,18 @@ repository does not have.
 
 - **Danger is outline:** `border` and `text` in `--error`, transparent fill; a
   filled danger surface is reserved for `ArenaConfirmDialog`'s final confirmation.
-- **Focus is the gold ring.** No gradient utilities. Uppercase is reserved for
-  micro-labels. Charts carry identity (`--color-cat-*`) or meaning (status),
-  never both.
+- **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
+  gold ring, `--focus-ring` at `--focus-width`, or `--gold-soft` where the ring is drawn as
+  a shadow. A SURFACE an activation is drawn around takes `ring-primary` with `ring-2`.
+  Derive which manifests spend each with
+  `grep -rl 'focus-visible:ring-primary' frameworks/tailwind/components` and
+  `grep -rl 'focus-ring\|gold-soft' frameworks/tailwind/components`.
+- **A ring is composed from several utilities rather than named by one**, which is why
+  `check:coverage` excludes the namespace and why nothing fails a manifest painting none.
+  One that paints none leaves the user agent's own outline, which is visible and is not
+  Arena's, so the absence is quiet in every gate and loud on the page.
+- No gradient utilities. Uppercase is reserved for micro-labels. Charts carry identity
+  (`--color-cat-*`) or meaning (status), never both.
 
 Authoring a manifest that needs a value no token holds is a spec violation: add
 the token to `contracts/design/` first, then reference it here.
