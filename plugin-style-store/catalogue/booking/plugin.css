@@ -1,0 +1,23 @@
+/* A booking flow's appearance, painted through the part hooks the kernel exposes. Everything
+   answerable as a role is answered in plugin.tokens.json, so what is left here is the one thing
+   this register cannot say through one: a field label is a question rather than a caption. */
+
+/* A label above a field on a public page is the question being asked, so it is read at the size
+   and the strength of an answer. Arena pitches every field label at a density step and holds it
+   back to the muted level, which is right in a product somebody works in all day and wrong on the
+   one page a stranger fills in once. A level is not a colour, so no colour role could carry this,
+   and the size is a density step rather than a title register. */
+[data-arena-part="input.label"],
+[data-arena-part="select.label"],
+[data-arena-part="textarea.label"] {
+  font-size: var(--dz-text);
+  color: var(--ink-heading);
+  font-weight: var(--fw-control);
+}
+
+/* The hint under a field is the other half of the same decision: it stays quieter than the
+   question and it stops being smaller than the answer. */
+[data-arena-part="input.hint"],
+[data-arena-part="radio.hint"] {
+  font-size: var(--dz-text-md);
+}

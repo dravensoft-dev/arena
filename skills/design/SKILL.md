@@ -21,41 +21,43 @@ every role whatever the product is. **When that is your product**, or one screen
 of a component: the pattern your markup binds, the parts the package already ships for it, and
 the one rule that bends.
 
-**This file routes. Read only what your task needs.**
+**This file routes. Read only what your task needs.** The rules below bind the code you write;
+the table under them routes. Read the rules once rather than per screen.
 
 ## Which job is this?
 
-**Building something with Arena** (a screen, a prototype, a component, an integration): stay
-here, and follow the table below.
+**Building something with Arena** (a screen, a prototype, a skin, an integration): stay here, and
+follow the table below. **On a project you have not walked yet**, start at
+[`references/cold-start.md`](./references/cold-start.md) instead, whose first question is whether
+the project already carries Arena: one that does is a short walk that reads the config and the
+plugin it already has, and one that does not is the only page asking what this product looks like
+before anything answers.
 
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
 read [`AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/AGENTS.md) instead. It is the
-root of that branch and this file is not. It is named by its URL rather than by a path beside this
-one because that branch is the repository's and reaches nothing a package or this site carries, so
-a relative link to it resolves in a clone and nowhere else.
+root of that branch and this file is not, and it is named by URL because that branch is the
+repository's and reaches nothing a package or this site carries.
+
+**A value you answer is not a value you move**, which is what decides the branch when the job is
+an appearance: a role your project fills is this branch's whatever it paints, and a scale step
+every product reads is the other one's, the type and page rhythm ladders aside. **Every path here outside `references/` is a repository
+path**, carried by a clone and by the plugin, and read on the repository above when it is
+neither.
 
 **Everything here is one component at a time.**
 
 ## In this order
 
-**Before any of the four below, and once per project rather than per screen**, settle four things
-in this order, because a screen written ahead of any of them is written against decisions nobody
-made:
-
-- **What is there, and how much of it am I taking?** [`references/surface.md`](./references/surface.md),
-  the whole offer in one place, the three steps a project can stop at, and the line where Arena
-  stops. It comes first because the three questions under it ask how much of a thing you have not
-  been shown yet, and because the parts that are not components are the ones a project discovers
-  late or never.
-- **What is this product, and is Arena's component list for it?** The paragraph above answers the
-  second half; ask the user the first half when their brief has not. A product outside the
-  register still takes the skin, and [`references/media-register.md`](./references/media-register.md)
-  is what to read when the answer is that the markup is yours.
-- **What does it look like?** [`references/style-kernel.md`](./references/style-kernel.md), which is
-  how a project answers the kernel's roles and which answers carry the difference.
-- **Does anybody outside it have to find it?** [`references/seo.md`](./references/seo.md), because
-  a yes decides a peer dependency and a layer before it decides a screen, and because nothing
-  announces a no that was never chosen.
+**Before the first screen, and once per project rather than per screen**, settle what this product
+is and what it looks like, because a screen written ahead of that is written against decisions
+nobody made. [`references/cold-start.md`](./references/cold-start.md) is where that happens, and
+it is a tree rather than a list, whose branches reach the four decisions a project settles once,
+the interview that comes before them when there is no appearance to read, the catalogue of
+measured style plugins a project can start from instead, the identity document every branch
+converges on before a file is written, and the two questions that decide an install rather than a
+screen: how much of the product has to be found from outside it, and what it is assembled on. Its
+last node derives the dependency list from those answers, so nothing has to be guessed at install
+time.
 
 Then, per screen:
 
@@ -69,9 +71,8 @@ Then, per screen:
 3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
 
-[`frameworks/INDEX.md`](../../frameworks/INDEX.md) is the layer-neutral index beside those three, and
-it answers one question your layer's cannot: whether a component exists at all, and which layers
-ship it. Read it when you are looking for something you are not sure Arena has, and skip it when
+[`frameworks/INDEX.md`](../../frameworks/INDEX.md) is the layer-neutral index beside those three,
+and it answers the one question your layer's cannot, which the table below routes. Skip it when
 you already know what you are reaching for.
 
 A prompt states every member's type and default, so `contracts/api/components/<Name>.json` is
@@ -131,12 +132,13 @@ about the rest, so breaking one of those is still a defect nothing will report.
 
 | Question | Read |
 |---|---|
+| I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
+| Which layer, which architecture, and what do I have to install? | the same tree's last three nodes: how much the product has to be found decides the layer and a peer, what it is assembled on is answered per architecture with the evidence for each, and the dependency list follows from both |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
-| Arena has no component for what I am building. Now what? | [`references/media-register.md`](./references/media-register.md): the pattern your markup binds, the parts the package ships for it, and the one rule that bends |
-| Which of those answers actually change how it looks? | the same document's table, measured over four products built on this kernel |
+| Which of those answers actually change how it looks? | the same document's table, measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
 | What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
-| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md) |
+| Does a component like this exist at all, and what if it does not? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md), which also says which layers ship it. A no is one of three: your product is a different register and the markup is yours, [`references/media-register.md`](./references/media-register.md); Arena ships none on purpose, which [`references/surface.md`](./references/surface.md)'s last section states with the reason; or nobody has added one, which is the other branch, named at the top of this page |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
@@ -150,10 +152,11 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | Where does Arena stop? | the same document's last section, which is a list of decisions rather than gaps waiting to close |
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
-| What must this kind of component do to be accessible? | `contracts/behaviour/<pattern>.json`, and the component's own `<Name>.behaviour.json` |
+| What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
 | How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](../../frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](../../frameworks/angular/PACKAGE.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
+| Arena itself is wrong, or one of these pages sent me somewhere empty. Where does that go? | [`CONTRIBUTING.md`](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md), which takes issues and no external pull request, and says what makes one usable. A question this documentation did not answer is one of them |
 
 **Do not read these to build something.** `contracts/api/AGENTS.md`,
 `contracts/behaviour/AGENTS.md`, `frameworks/PACKAGING.md`, and each layer's own `AGENTS.md`
@@ -188,11 +191,8 @@ decision above is
 ## Ask before you build
 
 **A brief names a product and never a palette, so the questions are always the same ones**, and a
-one-line brief is the normal case rather than the empty one. Before the first file: what is being
-built and who works in it; whose brand this is, since Arena installs with Dravensoft's and a
-project's own is the one entry it replaces; which fonts; whether anybody outside the product has to
-find it, since that answer reaches the layer and the install rather than the screen; and whether
-anything on the screen falls outside the register above, because that part is markup you write.
-**Invoked with no guidance at all**, ask what the user wants to build first and then the same list.
-Then act as an expert in the Arena language and produce either an HTML artifact or production code,
-whichever the answer calls for.
+one-line brief is the normal case rather than the empty one. Which ones to ask, in what order, and
+what each answer unlocks is the tree named above. **Invoked with no guidance at
+all**, ask what the user wants to build and then walk that tree from its first node. Then act as an
+expert in the Arena language and produce either an HTML artifact or production code, whichever the
+answer calls for.

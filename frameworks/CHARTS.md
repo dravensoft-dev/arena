@@ -134,18 +134,21 @@ token is a consequence of the type scale the way `chart.pad-bottom` is. It holds
 ticks are monospaced. The pad stays as the floor, so every chart whose ticks already fit draws
 what it drew, and the gutter takes its extra room from the plot rather than from the box.
 
-**The label at either end of an axis is anchored rather than measured, and that is the other side
-of the same limit.** A bottom label is centred on its point, so half of the last one falls past
-`chart.pad-right` and half of the first falls into the value gutter. The gutter's arithmetic cannot
-answer it: that measurement reaches a tick only because a tick is monospaced, and a bottom label is
-set in the body face, which is the consumer's own typeface. A token holding a proportional advance
-is a guess, wrong for any project whose face is wider than the one it was measured against, and a
-plot reserving room by guessing is the DOM read this rule refuses, made worse by being silent. What
-is exact there is the anchor, so `arenaCategoryAnchor(index, count)` puts the near edge of an end
-label on its point and lets its body run inwards, and every label between them stays centred. It
-reads no width, so it holds for any face, and a scatter chart whose bottom labels are monospaced
-takes the same rule, because one rule across the three is worth more than an exception that happens
-to be measurable.
+**A label on a bottom axis is centred on the mark it names, and the overhang at either end is
+what that costs.** Half of the last label falls past `chart.pad-right` and half of the first falls
+into the value gutter, and neither can be reserved for: the gutter's arithmetic reaches a tick only
+because a tick is monospaced, while a bottom label is set in the body face, which is the consumer's
+own typeface. A token holding a proportional advance is a guess, wrong for any project whose face
+is wider than the one it was measured against, and a plot reserving room by guessing is the DOM read
+this rule refuses, made worse by being silent. **Clamping the anchor instead is the trade that
+cannot be made**, because it buys those pixels with the one thing an axis label is for: an end
+label anchored `start` begins at its mark's centre and runs off to the side, so it reads as the
+neighbour's label, and where a label is wider than half a band it overlaps that neighbour outright.
+A label that overhangs the plot by a few pixels is a label in the wrong place; a label centred on
+the wrong mark is the wrong label. `ArenaHorizontalBarChart` and `ArenaPyramidChart` were already
+paying the overhang on the same edge, so this is one rule across the five rather than a rule across
+three and a silence about two, and both render suites assert the bottom row of every plot that
+draws one writes a single anchor.
 
 **A gutter that a style plugin could answer is a role that cannot exist, and this is where that
 is recorded.** A role is a custom property with no value, answered in the cascade; a plot
@@ -157,6 +160,15 @@ the charter above**: these charts carry no manifest, so they carry no slot, so t
 hook, and a product's data visualisation is the one region of its screen a style plugin cannot
 re-skin. It wears the skin all the same, because every value a chart paints is a token the
 palette moves: the ramp, the surfaces, the muted ink, the mono face and the hairline.
+
+**Every mark of text inside a plot is set from the `dz` ladder, and none of it from `fs`.** A tick,
+a category name, a point label, a legend key and a tooltip are all chrome around data rather than
+prose somebody reads, which is the cut `contracts/design/Scales.md` states for the two ladders. It
+is also what makes the paragraph above true rather than nearly true: `fs` is one of the two ladders
+a style plugin may re-value directly, so a plot with a single mark on it had half its text moving
+with a plugin and half of it not, and the coherence a reader saw was whatever the plugin had not
+touched yet. On `dz` the plot moves with density, which is a property of the surface it sits on,
+and with nothing else.
 
 **A chart whose categories run down the plot carries no scrolling rail, and that is a decision
 rather than a gap.** `ArenaBarChart` overflows sideways when the points stop fitting, and sideways

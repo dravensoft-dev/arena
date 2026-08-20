@@ -25,6 +25,7 @@ export const node = {
   reads: ['contracts/api/components', 'frameworks/Components.json', ...COMPONENT_SOURCES],
   writes: COMPONENT_SOURCES,
   feeds: [
+    'check:architecture',
     'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',
@@ -51,6 +52,7 @@ export const node = {
     'check:playgrounds',
     'check:react-barrel',
     'check:react-types',
+    'check:text-runs',
     'check:script-tokens',
     'check:shared-arithmetic',
     'check:skills',

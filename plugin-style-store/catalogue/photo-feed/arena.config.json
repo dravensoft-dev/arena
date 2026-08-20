@@ -1,0 +1,89 @@
+{
+  "stylePlugins": [
+    "./design/photo-feed"
+  ],
+  "gradientMark": true,
+  "palettes": [
+    {
+      "name": "dark",
+      "default": true,
+      "polarity": "dark",
+      "colors": {
+        "base-100": "#000000",
+        "base-200": "#121212",
+        "base-300": "#262626",
+        "base-content": "#f5f5f5",
+        "primary": "#4a9eff",
+        "primary-content": "#000000",
+        "secondary": "#ff5f9e",
+        "secondary-content": "#000000",
+        "neutral": "#1c1c1c",
+        "neutral-content": "#a8a8a8",
+        "info": "#4a9eff",
+        "info-content": "#000000",
+        "success": "#5bd672",
+        "success-content": "#000000",
+        "warning": "#ffcc4d",
+        "warning-content": "#000000",
+        "error": "#ff6b74",
+        "error-content": "#000000",
+        "error-fill": "#e05159",
+        "cat-1": "#f09433",
+        "cat-2": "#e6683c",
+        "cat-3": "#ff4f6b",
+        "cat-4": "#ef4d95",
+        "cat-5": "#c56bd6",
+        "cat-6": "#7a86ff",
+        "cat-7": "#4ac6d6",
+        "cat-8": "#8ecb54"
+      }
+    },
+    {
+      "name": "light",
+      "polarity": "light",
+      "colors": {
+        "base-100": "#ffffff",
+        "base-200": "#fafafa",
+        "base-300": "#dbdbdb",
+        "base-content": "#262626",
+        "primary": "#0074cc",
+        "primary-content": "#ffffff",
+        "secondary": "#c02063",
+        "secondary-content": "#ffffff",
+        "neutral": "#efefef",
+        "neutral-content": "#737373",
+        "info": "#0074cc",
+        "info-content": "#ffffff",
+        "success": "#2c7a3d",
+        "success-content": "#ffffff",
+        "warning": "#8a6100",
+        "warning-content": "#ffffff",
+        "error": "#c62330",
+        "error-content": "#ffffff",
+        "error-fill": "#a91d29",
+        "cat-1": "#a8620d",
+        "cat-2": "#c04a1e",
+        "cat-3": "#cc2743",
+        "cat-4": "#bd1e6b",
+        "cat-5": "#8a3fa0",
+        "cat-6": "#4451c9",
+        "cat-7": "#0f7f92",
+        "cat-8": "#3f7a1c"
+      }
+    }
+  ],
+  "fonts": {
+    "display": {
+      "family": "DM Sans",
+      "src": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
+    },
+    "body": {
+      "family": "DM Sans",
+      "src": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
+    },
+    "mono": {
+      "family": "Space Mono",
+      "src": "https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+    }
+  }
+}

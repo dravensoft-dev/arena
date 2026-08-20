@@ -20,7 +20,7 @@ import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
-  writeComponentMap, keywords,
+  writeComponentMap, writeIconManifest, keywords,
   NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -193,6 +193,7 @@ export async function buildReactPackage(root = repoRoot) {
   for (const rel of copyCli(dir, root)) written.push(join(dir, rel));
 
   written.push(writeComponentMap(dir, 'react', root));
+  written.push(writeIconManifest(dir, 'react', root));
   written.push(write(dir, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));

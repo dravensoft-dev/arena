@@ -1,0 +1,49 @@
+/* A photo feed's appearance, painted through the part hooks the kernel exposes.
+   Everything answerable as a role is answered in plugin.tokens.json, so what is left here is
+   what this register takes away: an overlay whose chrome gets out of the picture's way, and an
+   avatar with no ring of its own because the story ring is the ring. */
+
+/* A button here is a solid pill of accent with no border and no lift, and a ghost one is
+   just blue text. The manifest gives a ghost button a hairline, which reads as chrome. */
+[data-arena-part="button"] {
+  font-weight: var(--fw-bold);
+}
+
+/* An overlay is edge to edge: the dialog is the photo, and its chrome gets out of the way. */
+[data-arena-part="dialog.panel"] {
+  padding: 0;
+}
+
+[data-arena-part="dialog.head"] {
+  position: absolute;
+  inline-size: 1px; /* arena-audit allow */
+  block-size: 1px; /* arena-audit allow */
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+[data-arena-part="dialog.body"] {
+  padding: 0;
+}
+
+/* An avatar in this product never wears a ring of its own, because the story ring is the
+   ring and two concentric rings read as an error. */
+[data-arena-part="avatar.box"] {
+  border-width: 0;
+}
+
+/* A menu is a floating sheet with generous rows, which is what a phone-first product wants
+   even on a desktop. */
+[data-arena-part="menu.item"] {
+  justify-content: center;
+  font-weight: var(--fw-semibold);
+}
+
+[data-arena-part="menu.item-destructive"] {
+  font-weight: var(--fw-bold);
+}
+
+[data-arena-part="menu.icon"] {
+  display: none;
+}

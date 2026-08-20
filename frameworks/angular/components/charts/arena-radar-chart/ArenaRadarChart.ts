@@ -29,7 +29,7 @@ const REGION_STYLE = { display: 'block', outlineOffset: 'var(--focus-offset)' } 
 
 const LINE_STYLE = { strokeWidth: 'var(--bw)' } as const satisfies Readonly<Record<string, string>>;
 
-const CATEGORY_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readonly<Record<string, string>>;
+const CATEGORY_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies Readonly<Record<string, string>>;
 
 const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfies Readonly<Record<string, string>>;
 

@@ -62,6 +62,18 @@ test('every manifest claim holds', () => {
   assert.deepEqual(problems, [], problems.join('\n'));
 });
 
+test('the tab draws its focus ring with a ring utility, because its shadow slot is the selected mark', () => {
+  for (const selected of [true, false]) {
+    const carried = resolve('ArenaTabs', { selected }, 'tab')
+      .filter((cls) => /^focus(-visible)?:shadow-/.test(cls));
+    assert.deepEqual(carried, [],
+      `the tab carries ${carried.join(' ')}. shadow-* writes --tw-shadow, and this slot spends that `
+      + 'on the inset underline marking the selected tab, so a focus ring written as a shadow '
+      + 'replaces the mark that says which tab you are on for exactly as long as you are on it. A '
+      + 'ring utility writes --tw-ring-shadow, which composes with it.');
+  }
+});
+
 test('no ArenaSideNav slot hard-codes an indent bracket, because a static utility holds no runtime multiplier', () => {
   for (const slot of ['item', 'trigger', 'sectionLabel']) {
     const carried = resolve('ArenaSideNav', {}, slot).filter((cls) => cls.startsWith('ps-['));
@@ -112,7 +124,7 @@ export const CLAIMS = {
   ],
   ArenaChartCard: [
     { slot: 'root', has: ['flex', 'bg-surface', 'border-[length:var(--bw-surface)]', 'border-edge-surface', 'rounded-surface'], why: 'a chart tile is a bordered tile off the surface scale, not a heading-bearing panel' },
-    { slot: 'title', has: ['font-face-label', 'case-label', 'tracking-label'], hasNot: ['font-display', 'text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a microlabel carries neither the display font nor a heading size, which would fabricate a document outline' },
+    { slot: 'title', has: ['font-face-label', 'case-label', 'tracking-label-role'], hasNot: ['font-display', 'text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a microlabel carries neither the display font nor a heading size, which would fabricate a document outline' },
     { slot: 'head', has: ['justify-between', 'items-center', 'flex-wrap'], why: 'the head row spaces title and actions to opposite ends and wraps, since the slot projects one element per control' },
   ],
   ArenaActivityFeed: [
@@ -161,7 +173,7 @@ export const CLAIMS = {
     { chosen: { tone: 'danger', deltaTone: 'positive' }, slot: 'delta', has: ['border-success', 'text-success'], why: 'tone and deltaTone are independent, which is why the contract declares them separately' },
     { chosen: { deltaTone: 'negative' }, slot: 'delta', has: ['border-error', 'text-error', 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta is outline: border and text in --error, never a filled background' },
     { chosen: { deltaTone: 'positive' }, slot: 'delta', has: ['border-success', 'text-success'], why: 'a positive delta reads success, not the danger family' },
-    { chosen: { deltaTone: 'neutral' }, slot: 'delta', has: ['rounded-pill'], why: 'every delta tone keeps the shared pill base' },
+    { chosen: { deltaTone: 'neutral' }, slot: 'delta', has: ['rounded-marker'], why: 'every delta tone keeps the shared marker base, which is the corner roles.json gives a delta badge' },
   ],
   ArenaTable: [
     ...['th', 'td', 'tdMono'].map((slot) => ({
@@ -181,8 +193,8 @@ export const CLAIMS = {
   ArenaTag: [
     { chosen: { tone: 'danger' }, slot: 'root', has: ['border-error', 'text-error'], hasNot: ['bg-error'], why: 'danger is outline: border and text in --error, never a filled background' },
     ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({
-      chosen: { tone }, slot: 'root', has: ['rounded-pill', 'text-ctl-xs'],
-      why: 'every tone keeps the shared pill base and its control font size, which an unregistered suffix would lose to the tone colour',
+      chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
+      why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),
   ],
   ArenaUnauthCard: [
@@ -209,9 +221,9 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex'], why: 'a host-bound breadcrumbs trail has no other way to lay out' },
     { slot: 'current', has: ['font-bold', 'text-ink-body'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
     { slot: 'crumb', has: ['text-ink-muted/(--level-ink-muted)', 'no-underline', 'cursor-pointer', 'hover:text-ink-body/(--level-ink-body)'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
-    { slot: 'separator', has: ['text-neutral'], why: 'the separator is muted, distinct from both crumb slots' },
-    { slot: 'crumb', has: ['font-face-label', 'text-ctl-sm', 'tracking-mono-nav'], why: 'the label register, which default answers as the mono face, at the narrow nav tracking' },
-    { slot: 'current', has: ['font-face-label', 'text-ctl-sm', 'tracking-mono-nav'], why: 'the same register at the last segment, which is the one drawn bold' },
+    { slot: 'separator', has: ['text-ink-muted/(--level-ink-muted)'], why: 'the mark between two crumbs is held back to the level a crumb already sits at, because the muted step is the faintest level that clears AA and a mark under it is a mark nobody sees' },
+    { slot: 'crumb', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the trail register, which wears the label face and none of its case, and which default answers at the size and the narrow nav tracking a crumb already had' },
+    { slot: 'current', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the same register at the last segment, which is the one drawn bold' },
   ],
   ArenaBulkActionBar: [
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
@@ -300,7 +312,7 @@ export const CLAIMS = {
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner slot carries the reduced-motion-aware utility, which is where that answer lives' },
   ],
   ArenaCheckbox: [
-    { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives' },
+    { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { chosen: { checked: true }, slot: 'box', has: ['bg-primary', 'border-primary'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-edge-control'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: true }, slot: 'check', has: ['text-primary-content'], why: 'the tick reads on the filled box, which is the one pairing that has to hold' },
@@ -333,7 +345,7 @@ export const CLAIMS = {
     { slot: 'required', has: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
   ],
   ArenaRadio: [
-    { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives' },
+    { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
@@ -400,7 +412,12 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
     { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
-    { slot: 'tab', has: ['px-4', 'focus-visible:shadow-[0_0_0_var(--focus-width)_var(--gold-soft)]'], why: 'selection never moves the padding, and the focus ring is the recipe\'s job' },
+    { slot: 'tab', has: ['px-4', 'focus-visible:outline-none'], why: 'selection never moves the padding, and a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
+    {
+      slot: 'tab',
+      has: ['focus-visible:ring-[length:var(--focus-width)]', 'focus-visible:ring-[color:var(--focus-ring)]'],
+      why: 'the ring is a ring utility rather than a shadow one, for the reason the tab focus-ring test in this file carries',
+    },
     { chosen: { selected: true }, slot: 'panel', has: ['block'], hasNot: ['hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
     { chosen: { selected: false }, slot: 'panel', has: ['hidden'], hasNot: ['block'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
   ],
@@ -419,8 +436,8 @@ export const CLAIMS = {
   ArenaBadge: [
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
     ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({
-      chosen: { tone }, slot: 'root', has: ['rounded-pill', 'font-face-label', 'case-label', 'text-ctl-xs', 'tracking-badge'],
-      why: 'every tone keeps the shared chip base, the pill radius and the mono uppercase micro-label',
+      chosen: { tone }, slot: 'root', has: ['rounded-marker', 'font-face-label', 'case-label', 'text-ctl-xs', 'tracking-label-role'],
+      why: 'every tone keeps the shared chip base, the marker radius roles.json gives a badge, and the mono uppercase micro-label',
     })),
   ],
 };

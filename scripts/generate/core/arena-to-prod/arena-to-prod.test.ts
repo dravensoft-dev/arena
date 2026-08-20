@@ -7,8 +7,9 @@ import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, toPosix, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
+  ICON_MANIFEST,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
-  pluginCss, PLUGIN_LAYER_ORDER,
+  pluginCss, PLUGIN_LAYER_ORDER, auditStep, auditFiles, pluginDirs,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { STRICT_KINDS, report } from './reports.ts';
@@ -309,7 +310,7 @@ test('the icons step writes one file holding every weight in use and nothing els
   assert.doesNotMatch(css, /\.ph-bold\.ph-moon/, 'a weight gains no glyph the sources did not name beside it');
   assert.match(css, /\.ph-fill\.ph-bell:before/,
     'fill is the exception: the navigation asks for it on its own, so the sheet carries every named glyph in it');
-  assert.match(step.wrote ?? '', /2 glyph\(s\), 2 named by your sources and 0 by Arena's own components, 2 weight\(s\)/);
+  assert.match(step.wrote ?? '', /2 glyph\(s\), 2 named by your sources and 0 drawn by Arena's own components, 2 weight\(s\)/);
 
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
@@ -344,15 +345,31 @@ test('the font path is written relative to the stylesheet, so a bundler resolves
   rmSync(phosphorRootDir, { recursive: true });
 });
 
-test('the icons Arena draws itself are counted, because a consumer never names them', () => {
+test('the icons Arena draws itself come from the list the package ships, not from reading it', () => {
   const { root: phosphorRootDir, web } = phosphor();
   const arena = mkdtempSync(join(tmpdir(), 'arena-package-'));
-  writeFileSync(join(arena, 'index.js'), "const caret = 'ph-bold ph-sun';");
+  writeFileSync(join(arena, ICON_MANIFEST), JSON.stringify({ pairs: { bold: ['ph-sun'] }, loose: [] }));
+  writeFileSync(join(arena, 'index.d.ts'), '/** Phosphor class name, e.g. \'ph-bold ph-moon\'. */');
   const root = project();
 
   iconsStep(options(root), { phosphor: web, arena });
-  assert.match(readFileSync(join(root, 'src', ICONS_SHEET), 'utf8'), /ph-sun/);
+  const css = readFileSync(join(root, 'src', ICONS_SHEET), 'utf8');
+  assert.match(css, /ph-sun/, 'a glyph the package declares it draws reaches the sheet');
+  assert.doesNotMatch(css, /ph-moon/,
+    'a glyph named in a sentence about the API is not one anything draws, and reading the package '
+    + 'as text is what could not tell the two apart');
 
+  rmSync(arena, { recursive: true });
+  rmSync(root, { recursive: true });
+  rmSync(phosphorRootDir, { recursive: true });
+});
+
+test('a package with no list beside it says so rather than counting nothing in silence', () => {
+  const { root: phosphorRootDir, web } = phosphor();
+  const arena = mkdtempSync(join(tmpdir(), 'arena-package-'));
+  const root = project();
+  const step = iconsStep(options(root), { phosphor: web, arena });
+  assert.ok(step.reports.some((one) => one.message.includes(ICON_MANIFEST)));
   rmSync(arena, { recursive: true });
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
@@ -740,4 +757,32 @@ test('no plugin carrying css writes no sheet at all', () => {
 test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {
   assert.ok(OUTPUT_SHEETS.has(PLUGIN_SHEET));
   assert.equal(PLUGIN_CSS, 'plugin.css');
+});
+
+test('a style plugin the config declares is walked wherever it lives, so the bare command measures it', () => {
+  const root = project({ ...readable, stylePlugins: ['./design/andina'] });
+  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'design', 'andina', 'plugin.css'),
+    '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n'
+    + '[data-arena-part="chart-card.title"] { font-size: var(--fs-sm); }\n');
+  const audit = auditStep(resolved(parseArgs([
+    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
+  ])));
+  assert.deepEqual(audit.painted, ['chart-card.title', 'table.th'],
+    'the plugin directory is resolved from the config, so nothing has to name it a second time as a source');
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('a plugin under src is walked once, so a part it paints is not counted twice', () => {
+  const root = project({ ...readable, stylePlugins: ['./src/design/andina'] });
+  mkdirSync(join(root, 'src', 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'src', 'design', 'andina', 'plugin.css'),
+    '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n');
+  const options = resolved(parseArgs([
+    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
+  ]));
+  const files = auditFiles(options.paths, pluginDirs(options));
+  assert.equal(new Set(files).size, files.length,
+    'the walk is the union of the sources and the declared plugin directories, deduplicated by path');
+  rmSync(root, { recursive: true, force: true });
 });

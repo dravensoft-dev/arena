@@ -100,6 +100,15 @@ before it eliminates it, so a router named anywhere in the primary graph is a ro
 adopter has to have installed, whether or not they call the thing that needs it. So the coupling
 is opt-in at the import site, and an adopter pays for it by asking for it.
 
+**That claim is held at both ends now, and the two halves fail at different times.** The grep above
+re-derives it against the assembled package, which is what a released tarball actually promises;
+`check:architecture` holds it against the sources, failing an import of the router from anywhere
+outside `frameworks/angular/metadata/` and failing the optional declaration being withdrawn from
+`OPTIONAL_PEERS`. The source half is the one that reports the mistake on the change that made it,
+before an assembly exists to grep. **A dependency is the one part of a design system an adopter
+cannot route around**, so what either half prevents is a project that answered no to being found
+from outside installing a router in order to use a button.
+
 **A secondary entry point is a directory holding its own `ng-package.json`**, which
 `build-angular-package.ts` writes into the staging tree from `SECONDARY_ENTRY_POINTS`. ng-packagr
 finds it, compiles it into its own FESM module and its own types, and adds the subpath to the
@@ -347,7 +356,12 @@ Three things about the publish itself, each of which has a way of going wrong:
 
 ### Publishing by hand
 
-Still possible, and the fallback when the workflow cannot run:
+Still possible, and the fallback when the workflow cannot run. **It is the publish and not the
+release**: the version bump that has to precede the build, the tag, the branch the tag lands on
+and the benches that are packed after it are all in
+[`../versioning_steps.md`](../versioning_steps.md), and this block replaces none of them. Its
+first command **fails by design** on a tree whose tag does not exist yet, which is the expected
+output there and a red herring here, so read that page's step 1 before running anything below:
 
 ```bash
 bun scripts/check/arena/check-release.ts

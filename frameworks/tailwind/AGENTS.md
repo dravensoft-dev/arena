@@ -169,8 +169,11 @@ style plugin it is itself a failure.
 
 A scale says how round a corner is, how thick an edge is, how deep a shadow is and how long a
 transition takes. A role says WHICH corner, edge, depth or transition is being asked about. The
-roles live in `contracts/design/roles.json`, every one an alias of the scale step it names, so
-the default appearance is the same pixel it always was.
+roles are DECLARED in `contracts/design/roles.json`, which carries a type and a description per
+role and **no value at all**: a role is the question, and every answer is a style plugin's. The
+plugin Arena installs with is `plugin-style-store/default/plugin.tokens.json`, where each role
+aliases the scale step it names, so the default appearance is the same pixel it always was. A
+reader looking for what a role resolves to and opening `roles.json` finds prose.
 
 A manifest writes the role, and `check:roles` fails one that writes the scale:
 `rounded-surface`, `rounded-surface-floating`, `rounded-control`, `rounded-control-sm`,
@@ -182,6 +185,12 @@ and `--dur-mid`; `ease-hover` and `ease-state` rather than `ease-out`, paired wi
 the same transition names, because a curve is half of what a transition feels like and a manifest
 that named a role for the length and a scale step for the shape would have answered half the
 question.
+
+**`check:roles` is the gate that judges a radius, and `check:radius` is not it.** The second
+reads a manifest for `rounded-full` alone, where `rounded-pill` belongs, because that is the one
+utility in a cleared `--radius-*` namespace that still resolves with no Arena token behind it. It
+is deliberately that one class and it says so in its own header. Which step a role should have
+named is `check:roles`, and its `SCALE_UTILITIES` map is where the pairing is declared.
 
 **Why it is a rule and not a preference**: a style plugin is a scope class that re-values
 role tokens, so a manifest that resolved a role to a scale step at build time cannot answer to
@@ -438,9 +447,22 @@ repository does not have.
 
 - **Danger is outline:** `border` and `text` in `--error`, transparent fill; a
   filled danger surface is reserved for `ArenaConfirmDialog`'s final confirmation.
-- **Focus is the gold ring.** No gradient utilities. Uppercase is reserved for
-  micro-labels. Charts carry identity (`--color-cat-*`) or meaning (status),
-  never both.
+- **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
+  gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
+  takes `ring-primary` with `ring-2`. Derive which manifests spend each with
+  `grep -rl 'focus-visible:ring-primary' frameworks/tailwind/components` and
+  `grep -rl 'focus-ring' frameworks/tailwind/components`. **`--gold-soft` is not that ring**:
+  it is the accent at 16%, and a real browser reads it as a wash rather than an edge.
+- **A ring is composed from several utilities rather than named by one**, which is why
+  `check:coverage` excludes the namespace and why nothing fails a manifest painting none,
+  and the composition is two decisions. A slot focused directly also carries `outline-none`,
+  or the browser draws its own ring over Arena's; one focused through a sized-to-nothing
+  input has none to remove. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
+  slot held, so a slot whose shadow already means something, the selected tab's underline,
+  takes `ring-*`, which writes its own slot and composes. A manifest painting no ring is
+  quiet in every gate and loud on the page.
+- No gradient utilities. Uppercase is reserved for micro-labels. Charts carry identity
+  (`--color-cat-*`) or meaning (status), never both.
 
 Authoring a manifest that needs a value no token holds is a spec violation: add
 the token to `contracts/design/` first, then reference it here.
@@ -559,6 +581,18 @@ real 26px overrun. Measure the rendered box.
 to a manifest slot expecting it to change anything. Every slot is already border-box from
 the preflight, so the class is a no-op that only reads as if some *other* slot were missing
 it.
+
+**Both of those files reach the whole document, and that is the one architecture promise the
+stylesheet does not make.** The reset selects `*` and sets a line height on `html`, and the tokens
+are declared on `:root`, so a project embedding Arena as a fragment inside somebody else's page
+changes that page and not only its own subtree, and two Arena versions in one document collide on
+`:root` with the last sheet loaded winning. **This is stated so nobody widens the reach further
+believing it is already document-wide anyway**, and so nobody narrows it to fix an embedding
+without knowing what it costs: every slot's declared size is its outer edge BECAUSE of that
+preflight, so scoping it to a container is a different box model for every component at once. What
+does work in a fragment's favour is that a palette other than the default emits as a plain class,
+which a subtree can carry. The consumer branch says the same thing where a project chooses that
+architecture, and this is where the reach is authored.
 
 ## P1: invented states
 

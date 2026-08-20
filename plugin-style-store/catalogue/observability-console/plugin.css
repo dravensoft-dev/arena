@@ -1,0 +1,5 @@
+/* An observability console's appearance. This is the register where a style plugin does least,
+   because what a reader looks at is the plot and the plot is skinned by the palette; what is left
+   is the frame around it, and every decision this register makes about that frame is a role it
+   answers in plugin.tokens.json. No rule here reaches a part hook, which is the whole of what this
+   entry has to say: a console is a set of answers rather than a sheet. */

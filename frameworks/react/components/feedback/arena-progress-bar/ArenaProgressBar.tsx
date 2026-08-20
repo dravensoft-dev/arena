@@ -66,9 +66,9 @@ export function ArenaProgressBar({ children, progressPercentage = 0, indetermina
               cx={RING_CENTRE} cy={RING_CENTRE} r={RING_RADIUS} pathLength={100}
               style={{ strokeDashoffset: indeterminate ? 100 - RING_SWEEP : 100 - pct }} />
           </svg>
-          {!indeterminate && <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{pct}%</span>}
+          {!indeterminate && <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{`${pct}%`}</span>}
           <span className={styles.ringContent()} data-arena-part={manifest.parts.ringContent}>{children}</span>
-          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{pct}%</span>}
+          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{`${pct}%`}</span>}
         </div>
         {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
       </div>
@@ -80,7 +80,7 @@ export function ArenaProgressBar({ children, progressPercentage = 0, indetermina
       {(showLabel || showValue) && (
         <div className={styles.head()} data-arena-part={manifest.parts.head}>
           {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
-          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{pct}%</span>}
+          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{`${pct}%`}</span>}
         </div>
       )}
       <div {...meter} {...live}
@@ -88,7 +88,7 @@ export function ArenaProgressBar({ children, progressPercentage = 0, indetermina
         data-arena-part={manifest.parts.track}>
         {!indeterminate && (
           <>
-            <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{pct}%</span>
+            <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{`${pct}%`}</span>
             <span className={styles.fill()} data-arena-part={manifest.parts.fill} style={{ width: `${pct}%` }} />
           </>
         )}

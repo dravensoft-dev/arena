@@ -1,0 +1,74 @@
+/* A project tracker's appearance, painted through the part hooks the kernel exposes.
+   Everything answerable as a role is answered in plugin.tokens.json, so what is left here is
+   what this register paints and the kernel does not ask: a status that is an identity rather
+   than a state, and a board column named by a filled bar in its own ramp slot. */
+
+/* A space tree row is dense and fills on hover, and the current one wears the accent. */
+[data-arena-part="side-nav.item"],
+[data-arena-part="side-nav.trigger"] {
+  font-weight: var(--fw-control);
+}
+
+[data-arena-part="side-nav.badge"] {
+  background: var(--fill-surface-sunken);
+  color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+}
+
+/* A card's eyebrow is held back, which is a level rather than a colour, so no role carries it
+   and this composes the shade from the palette. */
+[data-arena-part="card.eyebrow"] {
+  color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+}
+
+/* A selection bar floats over the board and takes the accent. */
+[data-arena-part="bulk-action-bar"] {
+  border-radius: var(--r-marker);
+}
+
+[data-arena-part="bulk-action-bar.number"] {
+  color: var(--color-primary);
+}
+
+/* A feed row is a line of chrome, not prose. */
+[data-arena-part="activity-feed.target"] {
+  color: var(--color-primary);
+}
+
+/* The wordmark's case is this product's own now, written into the name it passes. What is
+   left is the weight: this register sets its mark lighter than the black Arena's lock-up draws. */
+[data-arena-part="app-logo.name"] {
+  font-weight: var(--fw-extrabold);
+}
+
+/* A status is an identity, so the pill fills with the ramp slot the tag carries rather than
+   outlining it, and reads as a label. A tag with no slot falls back to Arena's own outline. */
+[data-arena-part="tag"] {
+  background: var(--arena-tag-cat, transparent);
+  border-color: transparent;
+  color: var(--color-primary-content);
+  text-transform: var(--tt-label);
+  letter-spacing: var(--track-label);
+  font-weight: var(--fw-bold);
+}
+
+[data-arena-part="tag.dot"] { display: none; }
+
+/* A board column is named by a filled bar in its own identity colour, which is the one thing
+   this product's board is read by. The column carries the ramp slot as a custom property, so
+   the head fills with it and the title sits on top rather than beside a dot. */
+[data-arena-part="board.head"] {
+  background: var(--arena-board-column-cat, transparent);
+  border-radius: var(--r-marker);
+  padding: var(--sp-1) var(--sp-3);
+}
+
+[data-arena-part="board.title"] {
+  color: var(--color-primary-content);
+  font-size: var(--dz-text-2xs);
+  font-weight: var(--fw-bold);
+  text-transform: var(--tt-label);
+  letter-spacing: var(--track-label);
+}
+
+[data-arena-part="board.count"] { color: var(--color-primary-content); }
+[data-arena-part="board.dot"] { display: none; }

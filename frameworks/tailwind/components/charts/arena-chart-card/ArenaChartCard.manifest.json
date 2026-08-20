@@ -2,8 +2,8 @@
   "component": "ArenaChartCard",
   "slots": {
     "root": "flex flex-col gap-items bg-surface border-[length:var(--bw-surface)] border-edge-surface rounded-surface p-surface shadow-surface-rest",
-    "head": "flex flex-wrap items-center justify-between gap-items",
-    "title": "font-face-label text-ctl-2xs tracking-label case-label text-ink-muted/(--level-ink-muted)",
+    "head": "flex flex-wrap items-center justify-between gap-items pb-surface-head border-b-[length:var(--bw-surface-head)] border-edge-separator",
+    "title": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "actions": "flex flex-wrap items-center gap-inline"
   }
 }

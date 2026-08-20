@@ -6,6 +6,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   bindingName, validateTypes, validateContract, compareSurface, docProblems,
   resolveAngularImplementations, resolveReactImplementations, zeroContractProblems,
+  angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT,
 } from './check-api.ts';
 import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
@@ -773,4 +774,81 @@ test('a member the contract leaves undescribed demands no doc and permits none',
   const contract = { component: 'X', api: { quiet: { form: 'primitive', type: 'boolean' } } };
   assert.deepEqual(docProblems(contract, new Map(), 'react'), []);
   assert.match(docProblems(contract, new Map([['quiet', 'Invented.']]), 'react')[0] ?? '', /is no contracted member/);
+});
+
+const HEIGHTED = {
+  component: 'ArenaBarChart',
+  api: { height: { form: 'primitive', type: 'number' }, stack: { form: 'primitive', type: 'boolean', default: false } },
+};
+
+test('an Angular default of the right type and the wrong value fails, which no gate said before', () => {
+  const source = "export class ArenaGrid {\n"
+    + "  readonly gap = input<ArenaGridGap, ArenaGridGap | undefined>('lg', { transform: (v) => v ?? 'lg' });\n"
+    + '}';
+  const contract = { component: 'ArenaGrid', api: { gap: { form: 'enum', type: 'ArenaGridGap', default: 'md' } } };
+  const problems = angularImplementationProblems(
+    contract as ContractCandidate, 'ArenaGrid.ts', new Set(), () => source,
+  );
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /angular\/ArenaGrid\.gap: the contract declares default "md", the implementation uses "lg"/);
+});
+
+test('an Angular default the contract agrees with passes, in both spellings of the input', () => {
+  const source = "export class X {\n"
+    + "  readonly gap = input<G, G | undefined>('md', { transform: (v) => v ?? 'md' });\n"
+    + '  readonly lines = input(3);\n'
+    + '}';
+  const contract = {
+    component: 'X',
+    api: { gap: { form: 'enum', type: 'G', default: 'md' }, lines: { form: 'primitive', type: 'number', default: 3 } },
+  };
+  assert.deepEqual(
+    angularImplementationProblems(contract as ContractCandidate, 'X.ts', new Set(), () => source),
+    [],
+  );
+});
+
+test('a default this gate cannot read is a problem unless DERIVED_DEFAULT names it', () => {
+  const undeclared = implementationDefaultProblems(
+    'angular/ArenaBarChart', 'ArenaBarChart', HEIGHTED.api,
+    new Map([['height', 'SOME_CONSTANT']]), new Set(), new Map(),
+  );
+  assert.equal(undeclared.length, 1);
+  assert.match(undeclared[0] ?? '', /not a literal this gate reads/);
+  assert.match(undeclared[0] ?? '', /name ArenaBarChart\.height in DERIVED_DEFAULT/);
+
+  const declared = implementationDefaultProblems(
+    'angular/ArenaBarChart', 'ArenaBarChart', HEIGHTED.api,
+    new Map([['height', 'ARENA_CHART_HEIGHT']]), new Set(), DERIVED_DEFAULT,
+  );
+  assert.deepEqual(declared, []);
+});
+
+test('a DERIVED_DEFAULT entry whose initialiser became a literal fails as a record of nothing', () => {
+  const problems = implementationDefaultProblems(
+    'react/ArenaBarChart', 'ArenaBarChart', HEIGHTED.api,
+    new Map([['height', '280']]), new Set(), DERIVED_DEFAULT,
+  );
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /is named in DERIVED_DEFAULT and its initialiser is the literal 280/);
+});
+
+test('a DERIVED_DEFAULT entry no layer reaches fails as stale', () => {
+  const seen = new Set(['ArenaBarChart.height']);
+  const problems = staleDerivedProblems(seen, new Map([
+    ['ArenaBarChart.height', 'why'], ['ArenaGhost.height', 'why'],
+  ]));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /DERIVED_DEFAULT names ArenaGhost\.height/);
+});
+
+test('DERIVED_DEFAULT is the six chart heights, and each entry carries the reason as a value', () => {
+  assert.deepEqual([...DERIVED_DEFAULT.keys()].sort(), [
+    'ArenaBarChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
+    'ArenaPyramidChart.height', 'ArenaRadarChart.height', 'ArenaScatterChart.height',
+  ]);
+  for (const [key, why] of DERIVED_DEFAULT) {
+    assert.ok(why.includes('--chart-height'), `${key}: the reason names the token the value comes from`);
+    assert.ok(why.length > 80, `${key}: a reason short enough to be a label is not a reason`);
+  }
 });

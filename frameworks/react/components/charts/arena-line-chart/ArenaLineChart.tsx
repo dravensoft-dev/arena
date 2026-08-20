@@ -8,7 +8,7 @@ import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales.ts';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks.ts';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaTooltipAnchor } from '../ChartTooltip.ts';
@@ -151,8 +151,8 @@ export function ArenaLineChart({
 
 }
         {Array.from({ length: n }, (_, i) => (
-          <text key={i} x={arenaPointAt(xScale, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor={arenaCategoryAnchor(i, n)}
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--fs-xs)' }}>{labels[i] ?? ''}</text>
+          <text key={i} x={arenaPointAt(xScale, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
+            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         {
@@ -191,7 +191,7 @@ export function ArenaLineChart({
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
             <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-              {series.length > 1 ? `${one.label}: ` : ''}{fmt(one.values[hover] as number)}
+              {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}
         </div>

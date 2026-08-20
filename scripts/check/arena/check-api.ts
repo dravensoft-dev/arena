@@ -1,6 +1,10 @@
-/* Asserts each API contract against every layer implementing it. There is no
- * exception map, and that is deliberate: a contract forbids divergence, so it has
- * nowhere for a second opinion to live. R2 and R3 are authoring rules no gate
+/* Asserts each API contract against every layer implementing it. A contract forbids divergence,
+ * so nothing here is a second opinion about whether a member may differ. The one map is about
+ * what this gate can READ: DERIVED_DEFAULT names the members defaulting to a token reached
+ * through a constant, a value no contract can state without copying the token, and it fails both
+ * ways, on an entry whose initialiser became a literal and on a non-literal nobody named. Both
+ * layers go through one comparison, because a default read in one layer alone is how a member
+ * that renders one way and is documented another shipped. R2 and R3 are authoring rules no gate
  * asserts, and neither is a fact about source text -- contracts/api/AGENTS.md states why. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
@@ -10,8 +14,8 @@ import { readJson } from '../../utils/read-file.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { PREFIX } from './check-structure.ts';
 import {
-  reactSurface, angularSurface, reactImplementation, defaultProblems, normaliseDoc, UnrecognisedShape,
-  bindingName,
+  reactSurface, angularSurface, reactImplementation, angularImplementation, defaultProblems,
+  literalValue, normaliseDoc, UnrecognisedShape, bindingName,
 } from '../../lib/arena/api-surface.ts';
 import { pascal } from '../../utils/case.ts';
 import { readLayer } from '../../lib/arena/layers.ts';
@@ -360,6 +364,65 @@ export function resolveReactImplementations(tree: Record<string, string[]>, exis
 
 export const COMPARABLE_DEFAULT = new Set(['primitive', 'enum']);
 
+const THE_PLOT_HEIGHT_IS_A_TOKEN = 'the plot height a chart renders at is --chart-height, reached '
+  + 'through ARENA_CHART_HEIGHT, which both layers import from their generated Tokens module. The '
+  + 'value a consumer observes is a token\'s, so a default written into the contract would be a '
+  + 'second copy of it that goes stale the day contracts/design/chart.json moves and fails nothing.';
+
+export const DERIVED_DEFAULT = new Map<string, string>([
+  ['ArenaBarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaHorizontalBarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaLineChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaPyramidChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaRadarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaScatterChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+]);
+
+export function implementationDefaultProblems(
+  where: string, component: string, api: unknown,
+  defaults: Map<string, string | null>, seen = new Set<string>(), derived = DERIVED_DEFAULT,
+) {
+  const problems = [];
+  for (const [member, spec] of memberEntries(api)) {
+    if (!COMPARABLE_DEFAULT.has(spec.form)) continue;
+    if (!defaults.has(member)) continue;
+    const raw = defaults.get(member) ?? null;
+    if (raw === null) continue;
+    const key = `${component}.${member}`;
+    const readable = literalValue(raw) !== undefined;
+    const named = derived.has(key);
+    if (named) seen.add(key);
+    if (!readable && !named) {
+      problems.push(
+        `${where}.${member}: the implementation defaults to ${raw}, which is not a literal this gate `
+        + 'reads, so the contract\'s declared default is asserted against nothing here and a member '
+        + 'that renders one way and is documented another passes. Give it a literal, or name '
+        + `${key} in DERIVED_DEFAULT with what the value derives from and why the contract cannot state it.`,
+      );
+      continue;
+    }
+    if (readable && named) {
+      problems.push(
+        `${where}.${member}: ${key} is named in DERIVED_DEFAULT and its initialiser is the literal `
+        + `${raw}, which this gate can read and compare. A record of an exception that is not one `
+        + 'answers the next reader wrongly.',
+      );
+      continue;
+    }
+    if (named) continue;
+    problems.push(...defaultProblems(where, member, spec.default, raw));
+  }
+  return problems;
+}
+
+export function staleDerivedProblems(seen: Set<string>, derived = DERIVED_DEFAULT) {
+  return [...derived.keys()]
+    .filter((key) => !seen.has(key))
+    .map((key) => `DERIVED_DEFAULT names ${key}, and no layer defaults that member through an `
+      + 'initialiser this gate cannot read. A stale exemption is worse than none, because it reads '
+      + 'as a decision somebody made about code that is there.');
+}
+
 export const REACT_SOURCE_EXTENSIONS = ['.tsx', '.jsx'];
 
 export function reactSourceFor(declarationPath: string, readFile = readFileSync) {
@@ -381,7 +444,7 @@ export function reactSourceFor(declarationPath: string, readFile = readFileSync)
   return null;
 }
 
-export function reactImplementationProblems(contract: ContractCandidate, declarationPath: string, readFile = readFileSync) {
+export function reactImplementationProblems(contract: ContractCandidate, declarationPath: string, seen: Set<string>, readFile = readFileSync) {
   const where = `react/${contract.component}`;
   const found = reactSourceFor(declarationPath, readFile);
   if (!found) {
@@ -404,12 +467,23 @@ export function reactImplementationProblems(contract: ContractCandidate, declara
     );
   }
   if (!impl.destructures) return problems;
-  for (const [member, spec] of memberEntries(contract.api)) {
-    if (!COMPARABLE_DEFAULT.has(spec.form)) continue;
-    if (!impl.defaults.has(member)) continue;
-    problems.push(...defaultProblems(where, member, spec.default, impl.defaults.get(member)));
-  }
+  problems.push(...implementationDefaultProblems(where, contract.component ?? '', contract.api, impl.defaults, seen));
   return problems;
+}
+
+export function angularImplementationProblems(
+  contract: ContractCandidate, path: string, seen: Set<string>,
+  readFile: (at: string, encoding: 'utf8') => string = readFileSync,
+) {
+  const where = `angular/${contract.component}`;
+  let impl;
+  try {
+    impl = angularImplementation(readFile(path, 'utf8'), contract.component ?? '');
+  } catch (error) {
+    if (!(error instanceof UnrecognisedShape)) throw error;
+    return [`${where}: the reader could not read the implementation — ${error.message}`];
+  }
+  return implementationDefaultProblems(where, contract.component ?? '', contract.api, impl.defaults, seen);
 }
 
 function reactImplementations() {
@@ -476,6 +550,7 @@ function main() {
   problems.push(...reactLayer.problems);
   const angularLayer = angularImplementations();
   problems.push(...angularLayer.problems);
+  const derivedSeen = new Set<string>();
   let layersChecked = 0;
 
   for (const file of files) {
@@ -508,9 +583,12 @@ function main() {
       }
       problems.push(...compareSurface(contract, surface.members, layer, typesByName));
       problems.push(...docProblems(contract, surface.docs ?? new Map(), layer));
-      if (layer === 'react') problems.push(...reactImplementationProblems(contract, path));
+      if (layer === 'react') problems.push(...reactImplementationProblems(contract, path, derivedSeen));
+      else problems.push(...angularImplementationProblems(contract, path, derivedSeen));
     }
   }
+
+  problems.push(...staleDerivedProblems(derivedSeen));
 
   if (problems.length) {
     console.error(`check-api: ${problems.length} problem(s)\n`);

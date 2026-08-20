@@ -4,7 +4,7 @@ import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../Data
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales.ts';
-import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import {
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange,
@@ -135,7 +135,7 @@ export function ArenaScatterChart({
         ))}
 
         {xAxis.ticks.map((tick, i) => (
-          <text key={i} x={tick.x} y={arenaCategoryLabelY(strip.plotH)} textAnchor={arenaCategoryAnchor(i, xAxis.ticks.length)}
+          <text key={i} x={tick.x} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
             fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
         ))}
 
@@ -202,14 +202,14 @@ export function ArenaScatterChart({
             {series[active.seriesIndex]?.label}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-            {xLabel}: {fmt(active.x)}
+            {`${xLabel}: ${fmt(active.x)}`}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-            {yLabel}: {fmt(active.y)}
+            {`${yLabel}: ${fmt(active.y)}`}
           </div>
           {active.size !== undefined && (
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-              {sizeLabel}: {fmt(active.size)}
+              {`${sizeLabel}: ${fmt(active.size)}`}
             </div>
           )}
         </div>

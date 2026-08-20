@@ -1,0 +1,19 @@
+{
+  "name": "ArenaTableSlice",
+  "kind": "object",
+  "description": "Where the projected rows sit inside a longer list. The grid pattern's source page applies `aria-rowcount` and `aria-rowindex` whenever rows are not present in the DOM, and a render that projects part of a list is that condition, so this is what those two attributes carry. Bound, it answers them whatever the consumer slices by. Absent with `page` bound, they are derived from the page, because a page IS a slice and stating it twice is how the two disagree. Absent with `page` absent, the projected rows are the whole list and neither attribute is written, which is the same answer the source page gives for a grid holding every row it has.",
+  "fields": {
+    "total": {
+      "form": "primitive",
+      "type": "number",
+      "required": true,
+      "description": "How many rows the whole list holds, counting the ones nobody projected and not the header row, which ArenaTable adds itself because `aria-rowcount` counts it. `-1` is the answer for a list whose length is not known yet, which is the source page's own sentinel for it and reaches the attribute unchanged: a feed that loads as it scrolls says -1 rather than a number it would have to invent and correct."
+    },
+    "offset": {
+      "form": "primitive",
+      "type": "number",
+      "required": true,
+      "description": "How many rows of the whole list come before the first row projected here, counting from 0, so a window at the top of the list passes 0. `aria-rowindex` is 1-based and the header row takes 1, so ArenaTable does that arithmetic rather than the consumer: an offset that already counted from 1 is counted twice, and the reader is told a position one row past where they are."
+    }
+  }
+}

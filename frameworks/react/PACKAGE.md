@@ -107,8 +107,13 @@ The package is the code. The repository is the language.
 ## Install
 
 ```bash
-bun add @dravensoft/arena-react
+bun add @dravensoft/arena-react      # or: npm i / pnpm add
 ```
+
+**npm, bun and pnpm all install this**, and pnpm is the one worth naming because its layout is
+the strict one: nothing here is hoisted into place by accident, since every peer is declared
+rather than assumed, and the command below resolves the icon font through the symlinked store
+like any other dependency. No hoisting flag is needed under any of the three.
 
 That is the whole install. `react`, `react-dom` and `@phosphor-icons/web` are peer dependencies,
 so your package manager brings down whichever of them the project does not already have. **The
@@ -295,12 +300,18 @@ three fonts served by Google Fonts, and it is enough to start:
     "display": { "family": "Archivo", "src": "https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" },
     "body": { "family": "Familjen Grotesk", "src": "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700;800;900&display=swap" },
     "mono": { "family": "Spline Sans Mono", "src": "https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@400;500;600;700;800;900&display=swap" }
-  }
+  },
+  "stylePlugins": ["default"]
 }
 ```
 
 `arena.config.example.json` in this package is the same file with both Dravensoft palettes in
 it, ready to copy and edit.
+
+**`stylePlugins` is in that block because leaving it out is a decision and not a blank.** The
+value above is the appearance this package installs with, which is Dravensoft's, and a project
+that means to look like itself replaces it with the path to a plugin directory of its own. Both
+are finished answers; only one of them is one somebody made.
 
 What each part means:
 
@@ -353,8 +364,8 @@ what wins.
 bunx arena-to-prod
 ```
 
-One command, no arguments. It reads `arena.config.json` and your `src` tree, and writes two
-files into `src`:
+One command and no arguments. It reads `arena.config.json`, your `src` tree and every style
+plugin directory that config declares, wherever those sit, and writes two files into `src`:
 
 - **`arena.generated.css`**, your palettes and your `@font-face` rules, led by an `@import` of
   the package's own stylesheet. **This file is where every colour comes from**: the package
@@ -370,7 +381,12 @@ files into `src`:
   a bundler copies is that whole file. Host a subset of your own there if the bytes matter, and the
   glyph list this file names is what to cut it to. Counting what Arena draws is the part you cannot
   do by hand: a component renders icons you never wrote, and leaving those out is an empty box
-  in a menu you did not know had one. **Every glyph you name also reaches the filled weight**,
+  in a menu you did not know had one. **The two halves are answered differently.** Your sources are
+  read as text, because there is nothing else to read them by. Arena's half is not: the package
+  ships `icons.json`, the list its own components draw, computed when the package was built from
+  the renders themselves, so the command reads a list instead of searching this package for
+  anything that looks like a class name. A search cannot tell a render from a sentence about one,
+  and it is the glyph list that a self-hosted subset gets cut to. **Every glyph you name also reaches the filled weight**,
   whichever weight you wrote it beside, because a navigation item draws its active destination
   filled and asks for a rule you never wrote: name the glyph the way its member documents it,
   `icon="ph-bold ph-receipt"`, and the sheet has both.
@@ -417,7 +433,7 @@ that for every project that installs it.
 | `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a report rather than writing anyway. Bare, it holds every kind; `--strict=contrast,audit` holds the kinds you name, out of `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers`, `audit`, `environment` and `restated`. **Name them when one of them is a decision you already made**: a brand under 4.5:1 is measured and deliberate, and one switch over all of them would make it the price of holding the rest in CI. `environment` says the run is outside an Arena package, so Arena's own icons went uncounted; `weight` says a role asks for a weight the face you loaded does not carry, so the browser draws it by smearing the nearest one; `wash` is the one kind `--strict` never holds: a token on a wash of its own colour clears AA at no percentage, and a build nobody can fix is not a gate; `restated` says a plugin rule restates the value that part's slot already paints, so it changes nothing. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-react/arena.css` yourself. |
-| `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. |
+| `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. **`--src` is repeatable and names the trees of your own**, and a style plugin is not one of them: a directory your `stylePlugins` declares is resolved from the config and walked wherever it lives, so every scope rule in the `--audit` row reaches it whether or not it sits under `src`. One command and no arguments is the whole of it, and a plugin in `design/` costs nothing to remember. |
 
 **It reports rather than refuses.** If a text colour lands under 4.5:1, if two ramp slots are
 too close to tell apart with a common colour vision deficiency, or if you name a glyph Phosphor

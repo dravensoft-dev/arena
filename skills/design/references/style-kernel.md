@@ -4,6 +4,10 @@ Arena keeps the questions and a repertoire of values. **Every answer is a style 
 appearance Arena installs with is one of them, so replacing it is the ordinary case rather than an
 escape hatch.
 
+**Eight registers are already measured, and picking one is a way to answer this page rather than
+a way around it.** `plugin-style-store/catalogue/` holds a directory each, and the fourth node
+of [`cold-start.md`](./cold-start.md) is where a product is matched against them.
+
 Read this once per project, before the first screen. The rules of the language are in
 [`../SKILL.md`](../SKILL.md) and hold whatever your appearance is.
 
@@ -57,7 +61,7 @@ plugin's name:
 }
 ```
 
-The four products measured for this document write between nine and nineteen such rules each. If
+The eight products measured for this document write between two and sixteen such rules each. If
 yours is running to hundreds, the answer is almost always a role you have not moved.
 
 ## The two rules that decide everything else
@@ -102,7 +106,7 @@ through your dark theme.
 | `shadow-*` | `shadow` | the same |
 | `dur-*`, `ease-*` | `dur`, `ease` | the same |
 | `pad-*`, `gap-*`, `gutter` | `sp` | [`spacing.json`](../../../contracts/design/spacing.json) |
-| `step-eyebrow` | `dz` | the same |
+| `step-eyebrow`, `step-label` | `dz` | the same |
 | `fw-*` | `fw` | [`typography.json`](../../../contracts/design/typography.json) |
 | `ff-*` | `font`, which resolves to the families your config declares | the same |
 | `track-*` | `ls` | the same |
@@ -114,9 +118,14 @@ through your dark theme.
 that have one, which is not all of them.
 
 **What an answer may never be is a scale itself.** A scale step is shared by every use that wants
-that value, so moving one is not a style plugin but a different Arena. The type and page-rhythm
-ladders are the one exception, because they reach a page through classes you apply rather than
-through any role.
+that value, so moving one is not a style plugin but a different Arena. **The type and page-rhythm
+ladders are the one exception**, because they reach a page through classes you apply rather than
+through any role, and you answer them in the plugin beside the roles: a key named `fs-<step>` or
+`rhythm-<step>` is read as that step rather than as a role nothing ships. Both are dimensions and
+both carry a `$description`, because a step a plugin moves is a decision rather than a value. Move
+one step or every one of them, as the product needs: completeness binds a role, which disappears
+unanswered, and never a step, which keeps the value Arena ships. Every other scale key is refused
+by name, so a different type scale is answered here or it is not answered.
 
 The questions themselves are in
 [`../../../contracts/design/roles.json`](../../../contracts/design/roles.json): a name, a type, a
@@ -124,25 +133,26 @@ description and, for a keyword role, its closed set. No values, because the valu
 
 ## Where the appearance actually comes from
 
-Four unrelated products were built on this kernel, one each in the register of a project tracker,
-a language course, a photo feed and a document workspace. **Every one of them answered these
-identically**, and a plugin that spends its first day on them spends it on nothing:
+Eight unrelated products were built on this kernel, one each in the register of a project tracker,
+a language course, a photo feed, a document workspace, a storefront, an inbox, an observability
+console and a booking flow. **Every one of them answered these identically**, and a plugin that
+spends its first day on them spends it on nothing:
 
-| Answered the same way by all four | What they said |
+| Answered the same way by all eight | What they said |
 |---|---|
-| `fill-surface`, `fill-page` | `{color.base-100}` |
-| `fill-surface-sunken`, `fill-field`, `fill-hover` | `{color.base-200}` |
 | `ink-heading`, `ink-body`, `ink-muted` | `{color.base-content}` |
 | `ink-eyebrow` | `{color.neutral-content}` |
-| every `edge-*` role | `{color.base-300}` |
-| `ff-heading`, `ff-eyebrow`, `ff-label` | the three fonts the config declares |
+| `edge-surface`, `edge-surface-floating`, `edge-control-quiet`, `edge-separator` | `{color.base-300}` |
+| `ff-heading` | the display face the config declares |
 | `lh-heading`, `dur-hover`, `ease-hover` | one step each, the same one every time |
-| `shadow-surface-rest` | no shadow, written as the all-zero literal |
 
-**Colour assignment is very nearly a constant.** The products look nothing like each other, and
-almost none of that difference is which colour a surface takes. **Start from the answers in this
-table**, which is what four brands independently converged on, and let your palette do the work a
-palette does.
+**Which colour the text takes is a constant, and which colour a surface takes is not.** The ink
+roles and the four quiet edges are what eight brands converged on, and starting from them costs
+nothing. The fills are the opposite, and it took the wider catalogue to show it: a console puts its
+panels on the second surface step and its page on the first, a booking page does the reverse, and
+the other six leave both at the page colour. **That answer follows from the page shape rather than
+from the palette**, so settle what the screen is before assigning any of it.
+
 
 Those are not the answers the appearance Arena installs with gives. That one is a design of its
 own and assigns several of these differently, so it is a plugin to read rather than a baseline to
@@ -156,7 +166,8 @@ worked answer is worth more than the list. **Both are in the repository rather t
 package**, so from an installed project read them on the Arena repository, or start from
 `"stylePlugins": ["default"]` and replace one role at a time against something that already runs.
 
-**These are where a product lives.** Each of the four gave a different answer:
+**These are where a product lives**, and the eight measured products disagree on every one of
+them:
 
 | Role | What moving it decides |
 |---|---|
@@ -166,9 +177,12 @@ package**, so from an installed project read them on the Arena repository, or st
 | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | whether small text shouts in capitals or reads as a word |
 | `pad-control-x`, `pad-control-y`, `gap-inline`, `gap-items`, `gap-control` | how tight the product is to the hand |
 | `container-max`, `measure-prose`, `grid-min`, `gutter` | how wide it breathes, and it ranges from a dense console to a reading column |
-| `shadow-surface-floating`, `shadow-surface-deep`, `shadow-control-raised` | whether depth is a soft blur, a hard offset or nothing at all |
+| `shadow-surface-rest`, `shadow-surface-floating`, `shadow-surface-deep`, `shadow-control-raised` | whether depth is a soft blur, a hard offset or nothing at all, and whether a surface has any at rest |
 | `press-scale`, `lift-control`, `dur-state`, `ease-state` | how the product answers a hand |
 | `aspect-media`, `fit-media` | what shape an image is, before any of it is cropped |
+| `fill-page`, `fill-surface`, `fill-surface-sunken`, `fill-field` | which surface is the page and which is the thing standing on it |
+| `edge-control`, `edge-field`, `edge-marker` | whether a control, a field and a marker are outlined at all, and in what |
+| `ff-eyebrow`, `ff-label` | whether small text is the body face or the mono one, which is the difference between a shopfront and a console |
 
 **So the order of work is: shapes, then space, then weight, then depth.** Leave the colour roles
 where they are until those read as your product, because a plugin that starts by reassigning
@@ -226,8 +240,8 @@ Stated so you can plan around it rather than discover it.
 - **Press travel and a resting edge have no role.** A control that stands on a hard bottom edge
   and drops into it when pressed is one product's whole identity, and it paints that by hand.
   `lift-control` and `press-scale` are the near miss and do not cover it.
-- **A scale is not yours to re-answer.** Where a component's size ramp runs out, the exit is your
-  own CSS on your own element, not a step moved under the kernel.
+- **A size ramp is not yours to re-answer**, the type and page rhythm ladders aside. Where a component's own
+  ramp runs out, the exit is your own CSS on your own element, not a step moved under the kernel.
 - **A document block family is markup you write.** Paragraph, heading, quote, callout, toggle,
   code and figure are the register of a document editor, and Arena is a product-application
   library.
@@ -249,8 +263,8 @@ Beyond those, no gate reads your application, so the last step is the only one t
 thing you care about.
 
 - [ ] Answer every role in `plugin.tokens.json`, starting with the shapes.
-- [ ] Run `bunx arena-to-prod --src src --src design --audit`. Passing your plugin directory as a
-      source is what puts it in scope; without it the audit measures your application only.
+- [ ] Run `bunx arena-to-prod --audit`. Your plugin directory is in scope because the config
+      declares it, so the audit measures your application and your plugin together.
 - [ ] Read the report. Fix what it names, and re-run it until it names nothing.
 - [ ] Import the three files it writes, `arena.generated.css`, `icons.generated.css` and, when your
       plugin carries CSS, `plugin.generated.css`.

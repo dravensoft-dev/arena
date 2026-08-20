@@ -242,12 +242,18 @@ three fonts served by Google Fonts, and it is enough to start:
     "display": { "family": "Archivo", "src": "https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" },
     "body": { "family": "Familjen Grotesk", "src": "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700;800;900&display=swap" },
     "mono": { "family": "Spline Sans Mono", "src": "https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@400;500;600;700;800;900&display=swap" }
-  }
+  },
+  "stylePlugins": ["default"]
 }
 \`\`\`
 
 \`arena.config.example.json\` in this package is the same file with both Dravensoft palettes in
 it, ready to copy and edit.
+
+**\`stylePlugins\` is in that block because leaving it out is a decision and not a blank.** The
+value above is the appearance this package installs with, which is Dravensoft's, and a project
+that means to look like itself replaces it with the path to a plugin directory of its own. Both
+are finished answers; only one of them is one somebody made.
 
 What each part means:
 

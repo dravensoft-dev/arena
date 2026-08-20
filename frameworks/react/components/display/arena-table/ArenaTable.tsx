@@ -9,8 +9,8 @@ import { ArenaSelect } from '../../forms/arena-select/ArenaSelect.tsx';
 import type { ArenaTableRowProps } from '../arena-table-row/ArenaTableRow.tsx';
 
 import type {
-  ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSort,
-  ArenaTableSortControl,
+  ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSlice,
+  ArenaTableSort, ArenaTableSortControl,
 } from '../../../Api.generated';
 
 export type { ArenaTableColumn };
@@ -47,6 +47,9 @@ export interface ArenaTableProps {
   /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
   pageControl?: ArenaTablePageControl;
 
+  /** Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. */
+  slice?: ArenaTableSlice;
+
   /** A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */
   onPageChange?: (page: number) => void;
 }
@@ -67,7 +70,7 @@ const arenaTableStyles = arenaStyles(manifest);
 
 export function ArenaTable({
   columns, children, empty = 'No data.', responsive = true, label,
-  sort, sortControl = 'auto', onSortChange, page, pageControl = 'auto', onPageChange,
+  sort, sortControl = 'auto', onSortChange, page, slice, pageControl = 'auto', onPageChange,
 }: ArenaTableProps) {
   if (!label?.trim()) throw new Error('ArenaTable: `label` is required');
   if (columns == null) throw new Error('ArenaTable: `columns` is required');
@@ -80,6 +83,9 @@ export function ArenaTable({
   const flat = narrow || bare;
 
   const pageCount = page ? Math.max(1, Math.ceil(page.total / Math.max(1, page.size))) : 1;
+
+  const extent = slice ?? (page ? { total: page.total, offset: (page.index - 1) * page.size } : null);
+  const rowCount = extent === null ? undefined : extent.total < 0 ? -1 : extent.total + 1;
 
   useEffect(() => {
     if (page && page.index > pageCount) onPageChange?.(1);
@@ -200,11 +206,13 @@ export function ArenaTable({
         </div>
       )}
       <table role={flat ? 'presentation' : 'grid'} aria-label={flat ? undefined : label} ref={gridRef}
+        aria-rowcount={flat ? undefined : rowCount}
         onKeyDown={onGridKeyDown}
         className={arenaTableStyles({ narrow }).grid()} data-arena-part={manifest.parts.grid}>
         {!flat && (
           <thead>
-            <tr className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
+            <tr aria-rowindex={extent ? 1 : undefined}
+              className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
               {columns.map((c, ci) => (
                 <th key={ci} scope="col" {...headerNav(ci)}
                   aria-sort={sortStateOf(ci)}
@@ -223,6 +231,7 @@ export function ArenaTable({
           {rowEls.map((row, ri) => (React.isValidElement(row)
             ? React.cloneElement(row, {
               rowIndex: ri + 1,
+              ariaRowIndex: flat || !extent ? null : extent.offset + ri + 2,
               columns,
               layout: narrow ? 'card' : 'table',
               cursorCol: narrow || curRow !== ri + 1 ? null : curCol,

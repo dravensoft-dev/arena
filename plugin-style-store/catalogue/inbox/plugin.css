@@ -1,0 +1,11 @@
+/* A mail client's appearance, painted through the part hooks the kernel exposes. Everything
+   answerable as a role is answered in plugin.tokens.json, so what is left here is the two places
+   this register wants a shape and a height the kernel holds for every product at once. */
+
+/* A mailbox list is read down rather than pointed at, so its rows sit at the row height the
+   density class already fixes rather than at a padding of the component's own. No role reaches
+   a component's own padding, and the compact class does not either. */
+[data-arena-part="side-nav.item"],
+[data-arena-part="side-nav.trigger"] {
+  padding-block: var(--sp-1);
+}

@@ -68,9 +68,14 @@ line has to make that impossible to misread.
 again next time, and a gate that could not run here is honest about it for ever rather than once.
 That is what keeps the cache from turning exit 2 into a permanent green.
 
-**A gate that declares no node runs every time**, and nothing has to be written down for that to be
-true. That is what makes the adoption safe: `scripts/graph/nodes.ts` says which gates never will and
-why, and which have not yet.
+**A gate that declares no node runs every time, and that is a property of this cache rather than a
+licence to skip the declaration.** Nothing has to be written down for the RUN to happen: a gate with
+no node is not in the plan's answer at all, so nothing can decide to keep it, and nothing can record
+it green either. What is not optional is the declaration. `check:graph` fails a script under
+`build/`, `generate/` or `check/` that declares no node and sits in neither list in
+`scripts/graph/nodes.ts`, and the list for what has not joined yet is **empty and stays that way**.
+So adoption is safe in the sense that a gate arriving without a node cannot go quietly green, and
+never in the sense that it is allowed to arrive without one.
 
 **`--release` is a full run that also compares.** It runs every selected gate, and then reports a
 gate that failed while the graph WOULD have kept it, separately from the failure count and exiting
@@ -178,11 +183,11 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 41 | two or more layers at once, or the repository root |
+| [`arena/`](./arena/AGENTS.md) | 42 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 7 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
-| [`core/`](./core/AGENTS.md) | 12 | `contracts/` and `assets/` only |
-| [`react/`](./react/AGENTS.md) | 4 | the React layer |
+| [`core/`](./core/AGENTS.md) | 13 | `contracts/` and `assets/` only |
+| [`react/`](./react/AGENTS.md) | 5 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at
 `<domain>/<gate>.ts`, so a gate landing outside the grid fails rather than running unnoticed.
@@ -204,15 +209,25 @@ last entries to the Angular domain, so a new gate is inserted rather than append
 also holds the two registrations nothing else would notice: the row in the domain table, which is
 the one a gate can be missing while running and passing, and the sibling suite, without which a
 gate that finds nothing and a gate that looks at nothing are the same run. A gate covered
-somewhere other than beside itself says so in `COVERED_ELSEWHERE`, with where.
+somewhere other than beside itself says so in `COVERED_ELSEWHERE` in
+`scripts/check/arena/check-all.test.ts`, with where.
 
-Two registrations are outside this file and are the two a contributor reaches the end without:
+**The per-domain count in the table above is a registration too**, and it is the one that reads
+like prose: that suite derives each number from `GATES` and fails when a domain gained a gate and
+its figure did not.
+
+Two more are outside this file, and they are the ones a contributor reaches the end without
+knowing they were owed:
 **declare the node**, or name the gate in one of the two lists in `../graph/nodes.ts`, and then
 **edit the generator upstream of it**, because an edge is declared downstream and a gate reading
 what a generator writes is named in that generator's `feeds`. And **the domain table this gate's
 row lands in is a stop on a budgeted route**, so a row written in the register the neighbouring
 rows are written in can cost more than `check:routes` has left; measure with
 `bun run check:routes` before the row rather than after the sweep.
+
+**A gate is finished when `check-all.test.ts` and `check:graph` are both green, and never when
+the paragraphs above read complete.** Between them those two hold every registration named here,
+which is why the list is not worth counting: run them and read what is still missing.
 
 `check-release` is the one script with no npm entry and no place in `GATES`: it is run by path
 before publishing, because it asserts what the *tag* hands out and there is nothing to assert

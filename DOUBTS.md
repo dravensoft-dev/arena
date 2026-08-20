@@ -102,6 +102,22 @@ will.
 
 ## Filed
 
+**Nothing server-renders an Angular page.** The consumer branch tells a project it may
+server-render or prerender, and both layers are written for it: neither reads a browser global
+while a module evaluates, and `check:architecture` fails one that starts to. What separates the
+two layers is the evidence under that claim. Much of the React suite renders through
+`react-dom/server`, so a regression there fails a run. Angular's suites go through a DOM instead,
+so its half rests on the code being right: the injected `DOCUMENT` token instead of the global, and
+`afterNextRender` for anything that measures.
+
+What it costs: a component that reaches the document in a way no gate models ships green and
+throws in the consumer's server build, where the stack names an import rather than the component,
+which is the hardest shape to trace back. A prerendered page is the same failure at build time.
+
+Re-derive what the gate covers with `bun run check:architecture`, and find what would have to
+change with `grep -rn "afterNextRender\|inject(DOCUMENT)" frameworks/angular/components`. Smoke-test
+a server render by hand when a change touches how a component reaches the document.
+
 **Nothing verifies that a component's emitted stylesheet paints what its manifest paints.** A
 manifest's class string and the per-component sheet compiled from it are two spellings of one
 appearance, and every check over them is a claim about text: which utility a manifest names,

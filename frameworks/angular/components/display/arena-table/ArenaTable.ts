@@ -3,8 +3,8 @@ import {
   contentChildren, effect, inject, input, output, untracked,
 } from '@angular/core';
 import type {
-  ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSort,
-  ArenaTableSortControl,
+  ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSlice,
+  ArenaTableSort, ArenaTableSortControl,
 } from '../../../Api.generated';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
@@ -44,10 +44,12 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
       </div>
     }
     <table [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
-           [attr.aria-label]="gridName()" (keydown)="onKeydown($event)">
+           [attr.aria-label]="gridName()" [attr.aria-rowcount]="rowCount()"
+           (keydown)="onKeydown($event)">
       @if (!narrow() && !empty()) {
         <thead>
-          <tr [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow">
+          <tr [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow"
+              [attr.aria-rowindex]="extent() ? 1 : null">
             @for (column of columns(); track $index; let i = $index) {
               <th scope="col" [class]="headerClass(column)" [attr.data-arena-part]="parts.th" [style.width]="column.width"
                   [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
@@ -89,6 +91,8 @@ export class ArenaTable {
   );
   /** Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. */
   readonly page = input<ArenaTablePage>();
+  /** Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. */
+  readonly slice = input<ArenaTableSlice>();
   /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
   readonly pageControl = input<ArenaTablePageControl, ArenaTablePageControl | undefined>(
     'auto',
@@ -135,6 +139,20 @@ export class ArenaTable {
   });
 
   protected readonly pager = computed(() => (this.pageControl() === 'none' ? undefined : this.page()));
+
+  protected readonly extent = computed(() => {
+    if (this.flat()) return null;
+    const sits = this.slice();
+    if (sits) return sits;
+    const paging = this.page();
+    return paging ? { total: paging.total, offset: (paging.index - 1) * paging.size } : null;
+  });
+
+  protected readonly rowCount = computed(() => {
+    const sits = this.extent();
+    if (sits === null) return null;
+    return sits.total < 0 ? -1 : sits.total + 1;
+  });
 
   protected readonly pageCount = computed(() => {
     const paging = this.page();
@@ -199,6 +217,7 @@ export class ArenaTable {
     this.state.columns = this.columns;
     this.state.narrow = this.narrow;
     this.state.rows = this.rows;
+    this.state.extent = this.extent;
 
     effect(() => {
       const paging = this.page();

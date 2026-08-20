@@ -112,7 +112,7 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
           <span className={styles.esc()} data-arena-part={manifest.parts.esc}>ESC</span>
         </div>
         <div ref={listRef} id={listboxId} role="listbox" aria-label="Commands" className={styles.list()} data-arena-part={manifest.parts.list}>
-          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty}>No results for "{q}".</div>}
+          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty}>{`No results for "${q}".`}</div>}
           {groups.map((group) => (
             <div key={group.name ?? ''} className={styles.group()} data-arena-part={manifest.parts.group}
               role={group.name ? 'group' : undefined} aria-label={group.name ?? undefined}>

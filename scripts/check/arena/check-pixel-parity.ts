@@ -1,9 +1,9 @@
-/* Captures the kitchen-sink page every layer draws for one appearance and fails on one differing
- * pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
+/* Captures the kitchen-sink page every layer draws, once per arrangement, and fails on one
+ * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
  * typography or a computed colour that moved in one layer alone passes every other gate. No
  * baseline: one browser renders both pages, so the question is whether they agree with EACH OTHER.
- * ALLOWED is the one relief and it is EMPTY, which is the claim: the appearance a consumer installs
- * is identical to the pixel in both layers. An entry would be per sink and bounded on count AND
+ * ALLOWED is the one relief and it is EMPTY, which is the claim: every appearance an arrangement
+ * declares is identical to the pixel in both layers. An entry would be per sink and bounded on count AND
  * delta, and one nothing spends is stale, so no blanket threshold ever absorbs a move. Motion,
  * focus and MEASUREMENT stop before the shutter, the third because the shutter reaches past the
  * viewport and hands width 0 to every live ResizeObserver: a chart redraws collapsed and the
@@ -33,6 +33,7 @@ export const node = {
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/angular/build/demo/**', 'contracts/design-generated/**',
     'intro/kitchen-sink.css', 'intro/styles.css', 'intro/toggle.css', 'intro/theme.js',
+    'plugin-style-store/**/plugin.css',
   ],
   writes: [],
   feeds: [],

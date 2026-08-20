@@ -40,7 +40,7 @@ export class ArenaStatCard {
     'neutral',
     { transform: (value) => value ?? 'neutral' },
   );
-  /** How the number moved. Absent renders no pill. */
+  /** How the number moved. Absent renders no marker. */
   readonly delta = input<ArenaStatDelta>();
   /** Small muted line under the value: context, e.g. "vs last week". */
   readonly sub = input<string>();

@@ -58,7 +58,7 @@ export function ArenaConfirmDialog({ open, onCancel, onConfirm, title, eyebrow =
           {children}
           {requireText && (
             <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock}>
-              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel}>Type "{requireText}" to confirm</div>
+              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel}>{`Type "${requireText}" to confirm`}</div>
               <input value={typed} onChange={(e) => setTyped(e.target.value)}
                 className={styles.input()} data-arena-part={manifest.parts.input} />
             </div>

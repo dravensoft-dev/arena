@@ -105,10 +105,16 @@ export const BRANCH_SWITCH = {
 
 export const CONSUMER_PACKAGE_PAGE = 'PACKAGE.md';
 
+export const CONSUMER_CATALOGUE_CARD = 'ENTRY.md';
+
+export const CONSUMER_CATALOGUE = 'plugin-style-store/catalogue/';
+
 export function isConsumerDocument(repoRelativePath: string) {
   if (Object.hasOwn(BRANCH_SWITCH, repoRelativePath)) return false;
   if (repoRelativePath.startsWith(SKILL_TREE)) return true;
   if (repoRelativePath.endsWith(CONSUMER_LAST_STOP)) return true;
+  if (basename(repoRelativePath) === CONSUMER_CATALOGUE_CARD
+    && repoRelativePath.startsWith(CONSUMER_CATALOGUE)) return true;
   if (basename(repoRelativePath) === CONSUMER_PACKAGE_PAGE && repoRelativePath.startsWith(CONSUMER_TREE)) return true;
   return basename(repoRelativePath) === CONSUMER_INDEX && repoRelativePath.startsWith(CONSUMER_TREE);
 }

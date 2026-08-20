@@ -14,14 +14,16 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSy
 import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, relative, resolve, sep } from 'node:path';
 import {
-  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, readPlugin, themeCss,
-  weightReports,
+  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, pluginValue, readPlugin,
+  themeCss, weightReports,
 } from './theme-css.ts';
 import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
-import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
-import type { IconScan } from './icon-css.ts';
+import {
+  scan, drawn, glyphNames, iconsCss, mergeShipped, shippedNames, woff2Source, WEIGHT_CLASSES,
+} from './icon-css.ts';
+import type { IconScan, ShippedIcons } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
@@ -39,6 +41,7 @@ export const PLUGIN_CSS = 'plugin.css';
 export const PLUGIN_LAYER = 'arena-plugin';
 export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
+export const ICON_MANIFEST = 'icons.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
 export const DEFAULT_SOURCE = 'src';
@@ -52,7 +55,8 @@ export const USAGE = [
   'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict[=<kind>,...]]',
   '',
   `  --config        the palettes and fonts this project declares; defaults to ${DEFAULT_CONFIG}`,
-  `  --src           a source tree to scan for Phosphor class names; repeatable, defaults to ${DEFAULT_SOURCE}`,
+  `  --src           a source tree of the project's own; repeatable, defaults to ${DEFAULT_SOURCE}`,
+  '                  a style plugin declared in the config is walked wherever it lives',
   `  -o, --out       where both stylesheets go; defaults to ${DEFAULT_OUT}`,
   `                  it writes ${THEME_SHEET} and ${ICONS_SHEET}, and you import them last`,
   '  --audit         report where your sources break a rule of the language: a class of your own',
@@ -269,6 +273,15 @@ export function readPlugins(config: ArenaConfig, from: string) {
   return { plugins, fatal };
 }
 
+export function iconManifest(root: string): ShippedIcons | null {
+  try {
+    const manifest = JSON.parse(readFileSync(join(root, ICON_MANIFEST), 'utf8'));
+    return manifest && typeof manifest === 'object' && manifest.pairs ? manifest : null;
+  } catch {
+    return null;
+  }
+}
+
 export function componentMap(root: string): ComponentMap | null {
   try {
     const map = JSON.parse(readFileSync(join(root, COMPONENT_MAP), 'utf8'));
@@ -378,9 +391,53 @@ export function gradientMark(options: ResolvedOptions) {
   }
 }
 
-export function auditStep(options: ResolvedOptions, arena: string | null = null) {
+export function auditFiles(paths: string[], dirs: string[]) {
+  const seen = new Set<string>();
+  const files: string[] = [];
+  for (const path of [...paths, ...dirs])
+    for (const file of sourceFiles(path) ?? []) {
+      const at = resolve(file);
+      if (seen.has(at)) continue;
+      seen.add(at);
+      files.push(file);
+    }
+  return files;
+}
+
+export function owningPlugin(file: string, dirs: string[]) {
+  const at = dirs
+    .filter((dir) => sourceScope(file, [dir]) === 'plugin')
+    .sort((one, two) => two.length - one.length);
+  return at[0] ?? null;
+}
+
+export function pluginTokenMaps(dirs: string[], catalogue: TokenCatalogue | null) {
+  const out = new Map<string, Map<string, string>>();
+  const answersOf = (dir: string) => {
+    try {
+      return readPlugin(pluginName(dir), JSON.parse(readFileSync(join(dir, PLUGIN_TOKENS), 'utf8'))).tokens;
+    } catch {
+      return {} as Record<string, unknown>;
+    }
+  };
+  const root = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+  dirs.forEach((dir, i) => {
+    const at = new Map(i === 0 ? root : out.get(dirs[0] ?? '') ?? root);
+    for (const [key, raw] of Object.entries(answersOf(dir))) {
+      const value = pluginValue(raw, catalogue);
+      if (value !== null) at.set(key, value);
+    }
+    out.set(dir, at);
+  });
+  return out;
+}
+
+export function auditStep(
+  options: ResolvedOptions, arena: string | null = null, catalogue: TokenCatalogue | null = null,
+) {
   if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
+  const tokensAt = pluginTokenMaps(dirs, catalogue);
   const declaredMark = gradientMark(options);
   const reports: Report[] = [];
   const painted = new Set<string>();
@@ -390,22 +447,21 @@ export function auditStep(options: ResolvedOptions, arena: string | null = null)
     const path = join(arena, 'css', 'components', sheetFor(part));
     return existsSync(path) ? readFileSync(path, 'utf8') : null;
   };
-  for (const path of options.paths) {
-    for (const file of sourceFiles(path) ?? []) {
-      scanned += 1;
-      const cited = toPosix(file);
-      const text = readFileSync(file, 'utf8');
-      const scope = sourceScope(resolve(file), dirs);
-      reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
-      if (scope !== 'plugin') continue;
-      for (const part of paintedParts(text)) painted.add(part);
-      if (!file.endsWith('.css')) continue;
-      for (const one of restatedFindings(text, sheetOf)) {
-        reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
-          + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
-          + 'counts a part as painted by reading source text, and a role is grown from that count, '
-          + 'so a restatement is evidence for a question nobody asked'));
-      }
+  for (const file of auditFiles(options.paths, dirs)) {
+    scanned += 1;
+    const cited = toPosix(file);
+    const text = readFileSync(file, 'utf8');
+    const scope = sourceScope(resolve(file), dirs);
+    reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
+    if (scope !== 'plugin') continue;
+    for (const part of paintedParts(text)) painted.add(part);
+    if (!file.endsWith('.css')) continue;
+    const owner = owningPlugin(resolve(file), dirs);
+    for (const one of restatedFindings(text, sheetOf, owner ? tokensAt.get(owner) ?? null : null)) {
+      reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
+        + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
+        + 'counts a part as painted by reading source text, and a role is grown from that count, '
+        + 'so a restatement is evidence for a question nobody asked'));
     }
   }
   return { reports, scanned, painted: [...painted].sort() };
@@ -508,15 +564,13 @@ export function iconsStep(options: ResolvedOptions,
 
   const found: IconScan = { pairs: new Map(), loose: new Set() };
   const reports: Report[] = [];
-  const ours: IconScan = { pairs: new Map(), loose: new Set() };
 
-  if (arena) {
-    for (const file of sourceFiles(arena) ?? []) {
-      if (dirname(file) === join(arena, 'bin')) continue;
-      const source = readFileSync(file, 'utf8');
-      scan(source, found);
-      scan(source, ours);
-    }
+  const shipped = arena ? iconManifest(arena) : null;
+  if (shipped) {
+    mergeShipped(shipped, found);
+  } else if (arena) {
+    reports.push(report('environment', `${ICON_MANIFEST} is not beside this package, so the icons Arena `
+      + 'draws itself were not counted and your sheet carries only what your own sources name'));
   } else {
     reports.push(report('environment', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
   }
@@ -571,8 +625,8 @@ export function iconsStep(options: ResolvedOptions,
     reports,
     fatal: [] as string[],
     wrote: `${out} (${kept} glyph(s), ${glyphNames(yours).size} named by your sources and `
-      + `${glyphNames(ours).size} by Arena's own components, ${sheets.length} weight(s), `
-      + `${css.length} bytes)` };
+      + `${shipped ? shippedNames(shipped).size : 0} drawn by Arena's own components, `
+      + `${sheets.length} weight(s), ${css.length} bytes)` };
 }
 
 export type ThemeEnvironment = {
@@ -617,7 +671,7 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
-  const audit = auditStep(options, arena);
+  const audit = auditStep(options, arena, arena ? packageCatalogue(arena) : null);
   for (const one of audit.reports) console.error(`arena-to-prod: ${one.message}`);
   if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `

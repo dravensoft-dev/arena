@@ -21,6 +21,28 @@ same problem differently, the contract is what makes the two answers comparable,
 implementation is the other's record. `bun run check:layer-independence` fails a file here that
 cites a sibling layer, by import or in prose.
 
+**It also reaches nothing outside `react`, `react-dom` and the two vendored styling utilities**,
+and `check:architecture` holds that list. The manifest therefore declares no runtime dependency at
+all, which is the whole of why a consumer may drop this layer into a single-page application, a
+server-rendered one, a static build or a fragment of somebody else's page without being handed a
+framework decision. A router, a store or a data client imported here is that decision made for
+them, and they meet it as a package they did not choose. Where a capability seems to need one,
+reach it through a member the consumer answers: the anchor components report through their own
+event and navigate nothing, which is that rule already applied.
+
+**Nothing here may read a browser global while the module evaluates**, and nothing may reach
+`useLayoutEffect`. Much of this layer's suite renders through `react-dom/server`, so a module-scope
+read fails at import time during a server render rather than at paint, and the stack names the
+import instead of the component. Read it inside a function or an effect, or guard it with a
+`typeof` check as `Theme.ts` does. The same gate holds both.
+
+**This layer ships no `'use client'` directive, and that is a decision.** Its components use hooks,
+so a React Server Components project has to draw the boundary itself, in one line, at the module of
+its own that imports Arena. Shipping the directive would draw it at every leaf instead, which
+places a boundary the consumer did not choose and cannot move. The consumer branch says so at the
+node where that architecture is picked; **do not add the directive here to make an error go away**,
+because the error is telling a consumer where their boundary is missing.
+
 ## Components compose their own class names
 
 Each component draws its appearance from the manifest that describes its surface, but never
@@ -230,6 +252,29 @@ carries what that leaves open.
 
 **Every `.prompt.md` carries examples and, where it adds value, a Do / Don't section.**
 
+## A run of text is one child
+
+**A render composes a run of text in ONE expression and never out of pieces.** A run of text has
+to reach the DOM as a single text node, and this layer makes a node per child, so
+`<div>Type "{word}" to confirm</div>` arrives as three. The browser shapes each node on its own, so
+three short strings and one long one are laid out by different measurements, and a page built the
+second way and a page built the first draw the same sentence differently. Write the run as a
+template literal: `` <div>{`Type "${word}" to confirm`}</div> ``.
+
+**It is invisible until an appearance moves the type.** The two spellings agree at every pixel
+under the appearance the package installs with, which is why this shipped: it took the second
+kitchen-sink arrangement, drawn under the plugin that answers every role differently, to move 157
+pixels across `ArenaConfirmDialog` and `ArenaTextarea` with every other gate green.
+[`../kitchen-sink/AGENTS.md`](../kitchen-sink/AGENTS.md) is why that arrangement exists.
+
+**An element between two runs is not this.** `<b>{count}</b>{` ${noun} selected`}` is a bold
+element followed by one text node, which is one run each and correct.
+
+`check:text-runs` holds the half a parser can decide, which is literal text beside an expression.
+**Two adjacent expressions are the same defect and the gate cannot see them**, because whether a
+call returns a string or an element is not a fact about source text; `{a}{fmt(b)}` is a run and
+`{a}{cond && <span/>}` is not, and they parse alike.
+
 ## The layer answers to a compiler
 
 `bun run check:react-types` runs `tsc` over `tsconfig.check.json`, strict, across every
@@ -321,6 +366,20 @@ bun run demos          # serves the repo root on :8000 and prints the entry poin
 bun run test:react     # the DOM-free suites
 bun run test:react-dom # the DOM suites, with the preload
 ```
+
+**One file, while you iterate on a red suite.** All three scripts take a suite name and never a
+path, so a single file is `bun test` carrying the same arguments that suite declares in `SUITES`
+in `scripts/check/arena/check-all.ts`, plus the path:
+
+```bash
+bun test <path>.test.tsx                                          # a DOM-free suite
+bun test --preload ./frameworks/react/test/Preload.js <path>.dom.test.tsx
+```
+
+Read those arguments off `SUITES` rather than off this block, which is the same reason the
+merged command is not restated here either. **Getting the second one wrong is the failure the
+section above describes**: the file runs, reports green, and every `onChange` it asserted fired
+zero times, so a narrowed run that passes is evidence of nothing until the preload is in it.
 
 `bun run check` runs every gate and the full suite; run it once when an implementation is
 finished rather than before every commit.

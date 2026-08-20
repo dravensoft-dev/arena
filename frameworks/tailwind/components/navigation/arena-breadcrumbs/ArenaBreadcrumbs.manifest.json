@@ -2,9 +2,9 @@
   "component": "ArenaBreadcrumbs",
   "slots": {
     "root": "flex items-center flex-wrap gap-inline",
-    "crumb": "font-face-label text-ctl-sm tracking-mono-nav text-ink-muted/(--level-ink-muted) no-underline",
-    "current": "font-face-label text-ctl-sm tracking-mono-nav text-ink-body font-bold",
-    "separator": "font-face-label text-ctl-sm text-neutral"
+    "crumb": "font-face-label text-trail tracking-trail text-ink-muted/(--level-ink-muted) no-underline",
+    "current": "font-face-label text-trail tracking-trail text-ink-body font-bold",
+    "separator": "font-face-label text-trail tracking-trail text-ink-muted/(--level-ink-muted)"
   },
   "variants": {
     "linked": {

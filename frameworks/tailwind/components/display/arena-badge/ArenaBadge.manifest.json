@@ -1,18 +1,18 @@
 {
   "component": "ArenaBadge",
   "slots": {
-    "root": "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill font-face-label text-ctl-xs font-bold tracking-badge case-label",
+    "root": "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label",
     "dot": "size-1.5 rounded-pill bg-current"
   },
   "variants": {
     "tone": {
       "neutral": { "root": "bg-base-300 text-ink-body/(--level-ink-body)" },
-      "accent": { "root": "bg-primary/14 text-primary" },
-      "gold": { "root": "bg-secondary/16 text-secondary" },
-      "success": { "root": "bg-success/16 text-success" },
-      "warning": { "root": "bg-warning/18 text-warning" },
-      "danger": { "root": "bg-error/14 text-error" },
-      "info": { "root": "bg-info/16 text-info" }
+      "accent": { "root": "bg-primary/14 text-ink-body/(--level-ink-body)" },
+      "gold": { "root": "bg-secondary/16 text-ink-body/(--level-ink-body)" },
+      "success": { "root": "bg-success/16 text-ink-body/(--level-ink-body)" },
+      "warning": { "root": "bg-warning/18 text-ink-body/(--level-ink-body)" },
+      "danger": { "root": "bg-error/14 text-ink-body/(--level-ink-body)" },
+      "info": { "root": "bg-info/16 text-ink-body/(--level-ink-body)" }
     }
   },
   "defaultVariants": { "tone": "neutral" }

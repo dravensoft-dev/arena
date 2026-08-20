@@ -70,11 +70,12 @@ already knows how to focus, activate and disable.
 open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generated.html`:
 - With `loading` set, the spinner turns; with `prefers-reduced-motion: reduce` forced in
   DevTools' Rendering pane, it keeps turning and only slows.
-- `active:scale-98` gives a real press response, and the focus ring is visible on keyboard
-  focus for every one of the four variants, including `ghost`, whose border is transparent.
+- `active:scale-98` gives a real press response, and the gold focus ring is visible on
+  keyboard focus, for every one of the four variants, including `ghost`, whose border is
+  transparent.
 - `full` spans the row. The host is bare, so it carries `display: contents` to stay out of
   layout; without that it blockifies to shrink-to-fit as a flex item and `w-full` measures the
-  shrunk host instead of the row. That defect shipped in batch 1 and this page is what found it.
+  shrunk host instead of the row.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

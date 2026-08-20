@@ -117,6 +117,7 @@ an application source and says nothing about it inside a declared plugin directo
 | Claim | Held by | Over |
 |---|---|---|
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
+| the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
@@ -179,11 +180,14 @@ difference between the two. An ask whose whole content is a difference the casca
 markup its own product writes, and no member Arena could add would carry it.
 
 **A role that does two jobs is a split waiting for its second product, not a name to be argued
-with.** `edge-marker` is the current case: it draws the edge of a chip and the edge of a
-photograph, and one product has already set it to nothing to take the border off its avatars,
-because no product wants a portrait outlined the way it wants a tag outlined. One product measured
-is that product's own by the rule above, and the entry is here so the next one is a count rather
-than a rediscovery.
+with.** `edge-marker` is the current case, and the count is now two products that moved it for two
+different reasons. It draws the edge of a chip, the edge of a photograph and the edge of a keyboard
+cap: one product set it to nothing to take the border off its avatars, because no product wants a
+portrait outlined the way it wants a tag outlined, and a second answered it with the muted text
+colour so a cap can be found on a screen where every other edge is a hairline. **Two products
+pulling one role in opposite directions is the shape a split has**, and the pair to separate is the
+edge a marker draws around a word from the edge a frame draws around a picture. `bw-marker` and
+`r-marker` carry the same load and are not yet measured moving with it.
 
 **A level is not a colour, so an ask that is a level is no evidence for a colour role.** The
 eyebrow of a card is the measured case. Two plugins paint it by hand, which reads as a count that
@@ -210,6 +214,18 @@ slot compiles to**, because a plugin declaration restating what the slot already
 count without changing a pixel, and one naming an alias raises it without asking a question the
 kernel could answer. The audit reads that comparison for a consumer and
 `check:style-plugin-coverage` reads it over `complete`, since a witness reaching a part by
-restating the part's own answer demonstrates nothing about reach. **The comparison is over text**,
-so a restatement written through a name that resolves to the same value is invisible to it, which
-is why the remeasurement is a reading and not only a gate.
+restating the part's own answer demonstrates nothing about reach.
+
+**The comparison resolves both sides against the plugin's own answers before it compares them**,
+which is what makes it worth standing a promotion on: a rule spelled `var(--fw-control)` over a
+slot painting `var(--fw-medium)` changes nothing in a plugin that answers the role with that step,
+and the two are the same value under two names rather than a decision anybody made. A plugin
+selects by part and answers by role, so almost every restatement it writes takes exactly that
+shape.
+
+**What the comparison still declines to say is bounded on the safe side**, and each case is a
+silence rather than a false report, because a silent miss costs a reader nothing and a false
+report costs them a search. A name no answer reaches stays as it is and the pair is skipped. A
+`var()` carrying a fallback is left whole rather than half read. And a property the slot paints
+twice, once plainly and once inside a support query, has no single answer for a flat declaration
+to restate, so the rule replacing both is a change and is reported as nothing at all.

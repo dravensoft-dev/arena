@@ -1,0 +1,102 @@
+{
+  "stylePlugins": [
+    "./design/booking"
+  ],
+  "palettes": [
+    {
+      "name": "light",
+      "default": true,
+      "polarity": "light",
+      "colors": {
+        "base-100": "#ffffff",
+        "base-200": "#f1f3f8",
+        "base-300": "#d8dce6",
+        "base-content": "#1a1a2b",
+        "primary": "#424dac",
+        "primary-content": "#ffffff",
+        "secondary": "#0a6b5e",
+        "secondary-content": "#ffffff",
+        "neutral": "#eceef4",
+        "neutral-content": "#565a6b",
+        "info": "#424dac",
+        "info-content": "#ffffff",
+        "success": "#1f6b34",
+        "success-content": "#ffffff",
+        "warning": "#8a5a00",
+        "warning-content": "#ffffff",
+        "error": "#a51c1c",
+        "error-content": "#ffffff",
+        "error-fill": "#a51c1c",
+        "cat-1": "#056aa5",
+        "cat-2": "#814403",
+        "cat-3": "#0e9988",
+        "cat-4": "#6f3a77",
+        "cat-5": "#9d7e0b",
+        "cat-6": "#9775b7",
+        "cat-7": "#c40147",
+        "cat-8": "#06683e"
+      }
+    },
+    {
+      "name": "dark",
+      "polarity": "dark",
+      "colors": {
+        "base-100": "#12141c",
+        "base-200": "#1a1d27",
+        "base-300": "#2c3140",
+        "base-content": "#e6e8f2",
+        "primary": "#8aa9ff",
+        "primary-content": "#0a1230",
+        "secondary": "#77cfbe",
+        "secondary-content": "#04201a",
+        "neutral": "#1f2330",
+        "neutral-content": "#9aa0b4",
+        "info": "#8aa9ff",
+        "info-content": "#0a1230",
+        "success": "#79cd93",
+        "success-content": "#08200f",
+        "warning": "#e2b463",
+        "warning-content": "#241703",
+        "error": "#f08a8a",
+        "error-content": "#2a0a0a",
+        "error-fill": "#d0706e",
+        "cat-1": "#0678ba",
+        "cat-2": "#985207",
+        "cat-3": "#07a694",
+        "cat-4": "#83518a",
+        "cat-5": "#aa8f3e",
+        "cat-6": "#ab77d9",
+        "cat-7": "#d61d53",
+        "cat-8": "#047647"
+      }
+    }
+  ],
+  "fonts": {
+    "display": {
+      "family": "Plus Jakarta Sans",
+      "src": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
+      "fallback": [
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "body": {
+      "family": "Inter",
+      "src": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      "fallback": [
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "mono": {
+      "family": "JetBrains Mono",
+      "src": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap",
+      "fallback": [
+        "ui-monospace",
+        "monospace"
+      ]
+    }
+  }
+}

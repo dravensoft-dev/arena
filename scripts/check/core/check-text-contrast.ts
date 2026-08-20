@@ -166,13 +166,14 @@ function main() {
     if (painted.length) ok = false;
     else console.log('  [PASS] every level clears the bar its property carries');
 
-    console.log(`\n${t.name} — a token drawn on a wash of its own colour, REPORTED AND NOT GATED`);
-    for (const one of washReports(washes, resolvedFor(effects, '', t.name), paletteColours(body))) {
-      console.log(`  [INFO] ${one.message}`);
+    const washed = washReports(washes, resolvedFor(effects, '', t.name), paletteColours(body));
+    console.log(`\n${t.name} — a token drawn on a wash of its own colour`);
+    for (const one of washed) console.log(`  [FAIL] ${one.message}`);
+    if (washed.length) ok = false;
+    else {
+      console.log('  [PASS] no slot paints an accent as ink on a wash of that same accent, so no '
+        + 'palette can be pushed to the top of its lightness range by one component\'s state');
     }
-    console.log('         The hover can never beat the resting ratio, so lowering the wash does not '
-      + 'repair it; what would is a hover that changes something other than the fill, which is a '
-      + 'decision about the danger convention rather than about a percentage.');
 
     for (const scope of scopesToMeasure(effects, t.name, scoped)) {
       const surfaces: [string, string][] = scope.surfaces

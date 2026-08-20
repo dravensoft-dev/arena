@@ -133,7 +133,7 @@ export function ArenaRadarChart({
           const at = arenaPolarPoint(cx, cy, labelR, i, n);
           return (
             <text key={i} x={at.x} y={at.y} textAnchor={arenaPolarAnchor(i, n)} dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--fs-xs)' }}>{labels[i] ?? ''}</text>
+              fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
           );
         })}
 
@@ -171,7 +171,7 @@ export function ArenaRadarChart({
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
             <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-              {series.length > 1 ? `${one.label}: ` : ''}{fmt(one.values[hover] as number)}
+              {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}
         </div>

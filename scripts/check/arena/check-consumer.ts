@@ -504,7 +504,7 @@ export function collect(base = root) {
       const valid = runCli(layer, plugged, base, ['--strict']);
       problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base, ['--strict'])));
       problems.push(...layerProblems(layer, valid));
-      problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['--src', 'design', '--audit'])));
+      problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['--audit'])));
       problems.push(...palettesProblems(layer, runCli(layer, palettes, base)));
     }
   } finally {

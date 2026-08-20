@@ -9,6 +9,7 @@ const rowStyles = arenaStyles(manifest);
 
 export interface ArenaTableRowInjected {
   rowIndex: number;
+  ariaRowIndex: number | null;
   columns: readonly ArenaTableColumn[];
   layout: 'table' | 'card';
   cursorCol: number | null;
@@ -33,7 +34,7 @@ export interface ArenaTableRowProps {
 
 export function ArenaTableRow({
   children, onClick, interactive = false, disabled = false,
-  rowIndex = 0, columns = [], layout = 'table', cursorCol = null, onCellFocus,
+  rowIndex = 0, ariaRowIndex = null, columns = [], layout = 'table', cursorCol = null, onCellFocus,
 }: ArenaTableRowProps & Partial<ArenaTableRowInjected>) {
 
   const cells = React.Children.toArray(children).map((child, ci) => (
@@ -81,6 +82,7 @@ export function ArenaTableRow({
   return (
     <tr onClick={activate}
       aria-disabled={onClick && disabled ? 'true' : undefined}
+      aria-rowindex={ariaRowIndex ?? undefined}
 
       className={rowClass} data-arena-part={manifest.parts.row}>
       {cells}

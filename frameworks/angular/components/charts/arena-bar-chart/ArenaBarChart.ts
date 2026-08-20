@@ -11,7 +11,7 @@ import {
   arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import {
   arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
@@ -33,7 +33,7 @@ const LINE_STYLE = { strokeWidth: 'var(--bw)' } as const satisfies Readonly<Reco
 
 const TICK_LABEL_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies Readonly<Record<string, string>>;
 
-const CATEGORY_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readonly<Record<string, string>>;
+const CATEGORY_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies Readonly<Record<string, string>>;
 
 const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } as const satisfies Readonly<Record<string, string>>;
 
@@ -80,7 +80,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
             (pointerleave)="onPointerLeave($event)" (pointercancel)="hover.set(null)" />
 
       @for (bar of bars(); track bar.index) {
-        <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" [attr.text-anchor]="bar.anchor"
+        <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" text-anchor="middle"
               fill="var(--text-muted)" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
       }
@@ -224,7 +224,6 @@ export class ArenaBarChart {
       index,
       hitX: arenaBandStart(bands, index),
       midX: arenaBandCenter(bands, index),
-      anchor: arenaCategoryAnchor(index, this.points()),
       label: labels[index] ?? '',
       marks: stacked
         ? arenaStackSegments(series, index).map((segment) => {

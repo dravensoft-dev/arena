@@ -1,7 +1,7 @@
 {
   "name": "menu-button",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/",
-  "description": "A button that opens a menu rather than acting immediately. Its own role/state contract is small; Escape and arrow-key behavior inside the open menu come from the ArenaMenu and Menubar pattern the source page defers to.",
+  "description": "A button that opens a menu rather than acting immediately. Its own role/state contract is small; Escape and arrow-key behavior inside the open menu come from the Menu and Menubar pattern the source page defers to.",
   "requires": {
     "roles.element": "button",
     "roles.haspopup": "aria-haspopup set to menu or true",

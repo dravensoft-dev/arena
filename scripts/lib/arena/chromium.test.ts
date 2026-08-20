@@ -5,13 +5,14 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, win32 } from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
-  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, REAP, WINDOWS_APPS, browserFlags,
-  candidates, findChromium, launchChromium,
+  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, WINDOWS_APPS, browserFlags,
+  candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
+  profileNeedle, running, sweepOrphans,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -34,59 +35,6 @@ import { hostBinary } from './host-binary.ts';
 
 function chromiumTempDirs() {
   return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-')));
-}
-
-const WHY_OBSERVED = 'to observe whether a reaped browser left a descendant behind';
-
-type Observer = { probe: string; query: (naming: string) => string[]; noMatch: number | null };
-
-const OBSERVERS: Record<'win32' | 'posix', Observer> = {
-  win32: {
-    probe: 'powershell',
-    query: (naming) => ['-NoProfile', '-NonInteractive', '-Command',
-      'Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine '
-      + `-and $_.CommandLine.Contains('${naming.replace(/'/g, "''")}') } `
-      + '| ForEach-Object { $_.ProcessId }'],
-    noMatch: null,
-  },
-  posix: {
-    probe: 'pgrep',
-    query: (naming) => ['-f', naming],
-    noMatch: 1,
-  },
-};
-
-export function observerFor(on: Platform = platform): Observer {
-  return OBSERVERS[on === 'win32' ? 'win32' : 'posix'];
-}
-
-export function profileNeedle(profilePath: string, lastSegment = basename) {
-  return lastSegment(profilePath);
-}
-
-type Seen = { looked: true; pids: string[] } | { looked: false; why: string };
-
-function processesNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}): Seen {
-  const observer = observerFor(where.on);
-  let probe;
-  try {
-    probe = hostBinary(observer.probe, WHY_OBSERVED, where);
-  } catch (e) {
-    return { looked: false, why: (e as Error).message };
-  }
-  try {
-    const out = execFileSync(probe, observer.query(profileNeedle(profilePath)),
-      { stdio: ['ignore', 'pipe', 'ignore'] });
-    return { looked: true, pids: out.toString().split(/\r?\n/).map((one) => one.trim()).filter(Boolean) };
-  } catch (e) {
-    const err = e as NodeJS.ErrnoException & { status?: number };
-    if (observer.noMatch !== null && err.status === observer.noMatch) return { looked: true, pids: [] };
-    return {
-      looked: false,
-      why: `${observer.probe} exited ${err.status ?? err.code}, which is neither a match nor the `
-        + `${observer.noMatch ?? 0} it reports for none.`,
-    };
-  }
 }
 
 function pidsNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}) {
@@ -455,3 +403,58 @@ test('a parent that dies ON the signal still leaves no descendant behind',
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+test('a profile carries the pid of the run that made it, so a sibling run is never mistaken for a leak', () => {
+  assert.equal(ownerOf(`${PROFILE_PREFIX}4321-ab12`), 4321);
+  assert.equal(ownerOf(`${PROFILE_PREFIX}ab12`), null,
+    'a name from before the owner was stamped parses to nothing and is left alone, because a '
+    + 'profile nobody claims is not the same fact as a profile whose claimant is gone');
+  assert.equal(ownerOf('some-other-temp-dir'), null);
+});
+
+test('a profile is an orphan when the run that made it is gone, and never while it is alive', () => {
+  const alive = (pid: number) => pid === 7;
+  assert.deepEqual(orphanProfiles([
+    `${PROFILE_PREFIX}7-live`, `${PROFILE_PREFIX}8-gone`, 'unrelated', `${PROFILE_PREFIX}nopid`,
+  ], alive), [`${PROFILE_PREFIX}8-gone`],
+  'the live run keeps its browser, the unrelated directory is not ours, and the unstamped one is '
+  + 'a question this cannot answer');
+});
+
+test('a pid that answers a signal is running, and one that answers nothing is not', () => {
+  assert.equal(running(process.pid), true);
+  const gone = spawnSync(process.execPath, ['-e', '']);
+  assert.equal(running(gone.pid as number), false,
+    'a process that has exited and been reaped holds no resources and its profile is collectable');
+});
+
+test('a sweep removes an orphan and leaves a live run alone', () => {
+  const at = mkdtempSync(join(tmpdir(), 'arena-sweep-'));
+  const gone = spawnSync(process.execPath, ['-e', '']);
+  const orphan = join(at, `${PROFILE_PREFIX}${gone.pid}-x`);
+  const mine = join(at, `${PROFILE_PREFIX}${process.pid}-x`);
+  const foreign = join(at, 'not-arenas-x');
+  for (const dir of [orphan, mine, foreign]) mkdirSync(dir);
+
+  sweepOrphans(at);
+
+  assert.equal(existsSync(orphan), false, 'the run that made it is gone, so nothing holds it');
+  assert.equal(existsSync(mine), true, 'this run is alive and its browser is in use');
+  assert.equal(existsSync(foreign), true, 'a directory Arena did not make is not Arena\'s to remove');
+  rmSync(at, { recursive: true, force: true });
+});
+
+test('a profile whose holders cannot be looked up is kept rather than removed', () => {
+  const at = mkdtempSync(join(tmpdir(), 'arena-sweep-'));
+  const gone = spawnSync(process.execPath, ['-e', '']);
+  const orphan = join(at, `${PROFILE_PREFIX}${gone.pid}-x`);
+  mkdirSync(orphan);
+
+  const seen = processesNaming(orphan, { env: { PATH: '' } });
+  assert.equal(seen.looked, false,
+    'with nothing on PATH the host cannot be asked which processes name a profile');
+  assert.equal(existsSync(orphan), true,
+    'removing a profile whose holders could not be found would leave a browser running against a '
+    + 'directory that is no longer there, which is worse than leaving the directory');
+  rmSync(at, { recursive: true, force: true });
+});

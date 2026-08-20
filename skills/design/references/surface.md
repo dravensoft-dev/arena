@@ -64,14 +64,21 @@ it instead of waiting for it.
   components, so the composition is yours and the silence about it is deliberate.
 - **No `<head>` in React.** That layer renders no title, description or canonical at all, and a
   React project carries its own through whatever its framework offers.
-- **No server render, no prerender, no sitemap.** Arena writes into the head of whatever page
-  your application renders; how that page reaches a reader stays yours.
+- **No prerender tooling and no sitemap.** How an application is assembled is the project's
+  answer rather than Arena's, and both layers are written for a server render;
+  [`cold-start.md`](./cold-start.md)'s ninth node answers each architecture with the evidence
+  behind it. What Arena ships no tooling for is producing the pages or listing them, and it
+  writes into the head of whatever page your application renders.
 - **No gate reads your application.** The audit reads source text, and only for what source text
   can show. One primary accent per view, a filled danger surface, and every rule about meaning
   are held because you hold them and by nothing else.
 - **The component list ends at the register.** A photo wall, a feed of posts, a slideshow, a
   document editor and a game map are markup you write, and the skin still travels;
   [`media-register.md`](./media-register.md) is what Arena hands you instead of a component.
+- **No date picker and no time picker.** The native `type="date"`, `"time"` and
+  `"datetime-local"` are the sanctioned controls: keyboard accessible, localized, and already
+  known to whoever drives a phone. Arena's job is to make them look like Arena, which it does
+  in both themes, and `ArenaInput`'s prompt in your layer is where they are written.
 - **No route into a component's own box.** No component takes a class or a style of yours, and
   the class names one renders are compiler output that no contract names. Your layout goes on a
   container you own.

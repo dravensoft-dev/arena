@@ -115,6 +115,23 @@
       }
     }
   },
+  "track-trail": {
+    "$type": "number",
+    "$value": "{ls.mono-nav}",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
+  "step-label": {
+    "$type": "dimension",
+    "$value": "{dz.text-2xs}"
+  },
+  "step-trail": {
+    "$type": "dimension",
+    "$value": "{dz.text-sm}"
+  },
   "step-eyebrow": {
     "$type": "dimension",
     "$value": "{dz.text-xs}"
@@ -179,6 +196,13 @@
   "pad-surface": {
     "$type": "dimension",
     "$value": "{sp.5}"
+  },
+  "pad-surface-head": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    }
   },
   "fill-surface": {
     "$type": "color",
@@ -267,6 +291,13 @@
   "bw-separator": {
     "$type": "dimension",
     "$value": "{bw}"
+  },
+  "bw-surface-head": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0,
+      "unit": "px"
+    }
   },
   "bw-marker": {
     "$type": "dimension",

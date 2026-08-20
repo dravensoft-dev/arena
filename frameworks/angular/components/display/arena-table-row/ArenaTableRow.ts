@@ -19,6 +19,7 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
     '[attr.data-arena-part]': 'narrow() ? parts.card : parts.row',
     '[attr.role]': 'role()',
     '[attr.aria-disabled]': 'inert()',
+    '[attr.aria-rowindex]': 'ariaRowIndex()',
     '[attr.tabindex]': 'cardStop()',
     '(keydown)': 'onKeydown($event)',
   },
@@ -45,6 +46,8 @@ export class ArenaTableRow {
     if (!this.table.narrow()) return null;
     return this.interactive() ? 'button' : 'presentation';
   });
+
+  protected readonly ariaRowIndex = computed(() => this.table.ariaRowIndexOf(this));
 
   protected readonly cardStop = computed(() => (this.table.narrow() && this.interactive() ? 0 : null));
 

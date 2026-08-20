@@ -296,11 +296,11 @@ export const IMPERATIVE_HANDLES = new Map([
     + 'the caller expects to be replaced is one keystroke short of useful without it.'],
 ]);
 
-export function angularSurface(source: string, className: string) {
+export function classMembers(source: string, className: string) {
   const decl = new RegExp(`export\\s+class\\s+${className}\\b[^{]*\\{`).exec(source);
   if (!decl) throw new UnrecognisedShape(`no "export class ${className}" in this source`);
   const body = braceBody(source, decl.index + decl[0].length - 1);
-  const members: SurfaceMember[] = [];
+  const declared: [string, string][] = [];
 
   for (const raw of splitTopLevel(stripComments(body), ';', { brackets: '(){}[]', closeBrace: true })) {
     const text = raw.trim();
@@ -325,9 +325,24 @@ export function angularSurface(source: string, className: string) {
     if (method && IMPERATIVE_HANDLES.has(`${className}.${method[1]}`)) continue;
     const m = /^readonly\s+([A-Za-z_$][\w$]*)\s*=\s*([\s\S]+)$/.exec(text);
     if (!m) throw new UnrecognisedShape(`unreadable class member: ${text}`);
-    members.push(classMember(captured(m), captured(m, 2)));
+    declared.push([captured(m), captured(m, 2)]);
   }
+  return { body, declared };
+}
+
+export function angularSurface(source: string, className: string) {
+  const { body, declared } = classMembers(source, className);
+  const members = declared.map(([name, initialiser]) => classMember(name, initialiser));
   return { members: [...members, ...templateSlots(componentTemplate(source))], docs: memberDocs(body) };
+}
+
+export function angularImplementation(source: string, className: string) {
+  const defaults = new Map<string, string>();
+  for (const [name, initialiser] of classMembers(source, className).declared) {
+    const initial = inputInitialValue(initialiser);
+    if (initial !== null) defaults.set(name, initial);
+  }
+  return { defaults };
 }
 
 export type SurfaceMember = {
@@ -348,7 +363,7 @@ export type SurfaceMember = {
 
 function classMember(name: string, initialiser: string): SurfaceMember {
   const init = initialiser.trim();
-  const generic = /^(input|output|model)(\.required)?\s*<([\s\S]*)>\s*\(([\s\S]*)\)$/.exec(init);
+  const generic = MEMBER_GENERIC.exec(init);
   if (generic) {
     const [, kind, required, type] = generic;
     if (kind === 'output') {
@@ -366,13 +381,30 @@ function classMember(name: string, initialiser: string): SurfaceMember {
     }
     return { name, required: Boolean(required), ...classify(generics[0] ?? '') };
   }
-  const bare = /^input\s*\(([\s\S]*)\)$/.exec(init);
-  if (bare) {
-
-    const firstArg = (splitTopLevel(captured(bare), ',')[0] ?? '').trim();
-    return { name, required: false, ...classify(literalType(firstArg, name)) };
+  if (INPUT_BARE.test(init)) {
+    return { name, required: false, ...classify(literalType(inputInitialValue(init) ?? '', name)) };
   }
   throw new UnrecognisedShape(`unreadable member initialiser for "${name}": ${init}`);
+}
+
+export const MEMBER_GENERIC = /^(input|output|model)(\.required)?\s*<([\s\S]*)>\s*\(([\s\S]*)\)$/;
+
+export const INPUT_BARE = /^input\s*\(([\s\S]*)\)$/;
+
+export function inputInitialValue(initialiser: string) {
+  const init = initialiser.trim();
+  const generic = MEMBER_GENERIC.exec(init);
+  if (generic) {
+    if (generic[1] !== 'input' || generic[2]) return null;
+    return firstArgument(captured(generic, 4));
+  }
+  const bare = INPUT_BARE.exec(init);
+  return bare ? firstArgument(captured(bare)) : null;
+}
+
+function firstArgument(args: string) {
+  const first = (splitTopLevel(args, ',')[0] ?? '').trim();
+  return first === '' ? null : first;
 }
 
 function literalType(arg: string, name: string) {

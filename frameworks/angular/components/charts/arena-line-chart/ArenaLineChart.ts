@@ -11,7 +11,7 @@ import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryAnchor, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
@@ -34,7 +34,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
 
 const TICK_LABEL_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies Readonly<Record<string, string>>;
 
-const POINT_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readonly<Record<string, string>>;
+const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies Readonly<Record<string, string>>;
 
 
 
@@ -96,7 +96,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--fs-xs)' } as const satisfies Readon
       }
 
       @for (point of axisPoints(); track point.index) {
-        <text [attr.x]="point.x" [attr.y]="pointLabelY()" [attr.text-anchor]="point.anchor"
+        <text [attr.x]="point.x" [attr.y]="pointLabelY()" text-anchor="middle"
               fill="var(--text-muted)" font-family="var(--font-body)"
               [style]="pointLabelStyle">{{ point.label }}</text>
       }
@@ -273,7 +273,7 @@ export class ArenaLineChart {
     const xScale = this.xScale();
     const labels = this.labels();
     const count = this.pointCount();
-    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), anchor: arenaCategoryAnchor(index, count), label: labels[index] ?? '' }));
+    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }));
   });
 
   protected readonly legend = computed(() => {

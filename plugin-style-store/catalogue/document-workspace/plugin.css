@@ -1,0 +1,57 @@
+/* A document workspace's appearance, painted through the part hooks the kernel exposes.
+   Everything answerable as a role is answered in plugin.tokens.json, so what is left here is
+   what this register unframes: a database that is a grid of records rather than a framed table,
+   and a tab marked by weight and a rule rather than by the accent. */
+
+/* A page tree row is quiet until the pointer is on it, and it never wears an accent. */
+[data-arena-part="side-nav.item"],
+[data-arena-part="side-nav.trigger"] {
+  color: color-mix(in oklab, var(--color-base-content) 82%, transparent);
+}
+
+[data-arena-part="side-nav.icon"],
+[data-arena-part="side-nav.caret"] {
+  color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+}
+
+[data-arena-part="side-nav.section-label"] {
+  font-weight: var(--fw-bold);
+}
+
+/* A database is a grid of records, not a framed table: the frame goes and the rules stay.
+   The frame itself is role-driven, so it is painted here only because this one surface
+   differs from every other surface in the product. */
+[data-arena-part="table"] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+[data-arena-part="table.th"] {
+  font-weight: var(--fw-control);
+}
+
+/* A crumb trail sits above the page and reads as chrome. The face, the size and the tracking are
+   roles now; what is left is how far the trail is held back, which is a level rather than a
+   colour and which no role carries. */
+[data-arena-part="breadcrumbs.crumb"],
+[data-arena-part="breadcrumbs.current"],
+[data-arena-part="breadcrumbs.separator"] {
+  color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+}
+
+[data-arena-part="breadcrumbs.current"] {
+  color: var(--ink-heading);
+}
+
+/* A tab is marked by weight and a dark rule, never by the accent. */
+[data-arena-part="tabs.tab"][aria-selected="true"] {
+  border-block-end-color: var(--ink-heading);
+  color: var(--ink-heading);
+}
+
+/* The palette is the product's front door and takes the room to say so. */
+[data-arena-part="command-palette.panel"] {
+  inline-size: min(var(--container-max), 92vw);
+}
+

@@ -151,6 +151,8 @@
      which an extension may move directly. --text-eyebrow points at a dz step today and is
      emitted as a reference for it, so it re-densifies like the control text it is. */
   --text-eyebrow: var(--step-eyebrow);
+  --text-label: var(--step-label);
+  --text-trail: var(--step-trail);
   --text-title-surface: var(--step-title-surface);
   --text-title-section: var(--step-title-section);
   --text-title-page: var(--step-title-page);
@@ -228,6 +230,7 @@
   --tracking-heading: var(--track-heading);
   --tracking-eyebrow: var(--track-eyebrow);
   --tracking-label-role: var(--track-label);
+  --tracking-trail: var(--track-trail);
   --tracking-normal: var(--ls-normal);
   --tracking-mono-nav: var(--ls-mono-nav);
   --tracking-uppercase-status: var(--ls-uppercase-status);
@@ -269,6 +272,7 @@
   /* The room a surface gives its own content, a role beside the rhythm steps because it answers
      the inside of a component where they answer the space between two. */
   --spacing-surface: var(--pad-surface);
+  --spacing-surface-head: var(--pad-surface-head);
 
   /* Air ROLES inside a component, beside the surface's own padding. The two control paddings are
      split because a control's axes are not one decision: width is where air lives and height is

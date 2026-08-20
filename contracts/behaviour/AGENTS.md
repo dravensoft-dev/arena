@@ -3,6 +3,14 @@
 > **For whoever writes or binds a behaviour pattern.** Using a component instead? What it must do is `contracts/behaviour/<pattern>.json` and
 > its own `<Name>.behaviour.json`, both of which read alone.
 
+**Arriving with a bug report rather than a change?** What the gate asserts is Bindings; what a
+green run does NOT claim is the section on the four structural limits, and the fourth of them is
+the one that answers a keyboard or focus defect that every gate is currently happy with. **When
+the pattern and both bindings turn out to be right and one layer alone is wrong**, the defect is
+that layer's rather than this level's, and it is answered through
+[`frameworks/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/AGENTS.md),
+named by URL because this page is served on the site and that one is not.
+
 `contracts/design/` answers *what is this value*. This directory answers *what must this
 component do*: which roles it carries, which keys it answers, where focus goes,
 what dismisses it.
@@ -70,6 +78,15 @@ A binding names a pattern and lists the requirements the component does not yet
 meet, each with a reason. `bun run check:behaviour` asserts that every component
 declares, that every named pattern and requirement exists, and that the two layers
 agree or the difference is written down.
+
+**An Angular binding carries one more key than a React one, and it is required.** `component`
+names the React counterpart, because an Angular directory is kebab and its file is the Angular
+class, so nothing in the path says which React component this is the twin of. Three readers
+depend on it: `validateBinding` rejects an Angular binding that omits it, `check:behaviour`
+rejects one naming a React component that does not exist, which is what catches both a typo and
+a React component that was dropped, and the coverage record behind `check:compliance` keys its
+Angular half by that name, so the pairing is what makes the two layers comparable at all. A
+React binding may carry the key; nothing reads it there, because the React name is the pairing.
 
 ### Flat bindings and cased bindings
 
@@ -154,7 +171,7 @@ Find the bindings that add one with
 `grep -rl '"also"' --include='*.behaviour.json' frameworks/`. Read the list rather than a figure
 written here, which drifts the first time another binding adds one.
 
-### What this layer cannot express, and what a green run does not claim
+### Why a reported defect can survive a green run, and the four limits that let it
 
 Four limits are structural. None is a defect waiting to be fixed; each is a property of what a
 binding is, and knowing them is what stops a green run being read as more than it says.

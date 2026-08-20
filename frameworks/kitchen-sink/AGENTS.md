@@ -51,23 +51,38 @@ sink that could reseed a component would be a second place a component is config
 first divergence it produced would look exactly like the divergence this whole arrangement
 exists to catch.
 
-## One arrangement, and it is the appearance a consumer installs
+## Two arrangements, and they are two appearances
 
-There is one fixture, `default`, so the pair `check:pixel-parity` opens is the unscoped appearance
-that ships. That is why `ALLOWED` in that gate is empty and the emptiness is the claim: nothing
-compared here needs a relief, and a single differing pixel fails.
+`default` is the appearance a consumer installs, drawn unscoped. `complete` is the witness plugin
+`plugin-style-store/complete/` renders, which answers every role differently and paints through
+every part hook, and the page wears `arena-complete` on `<html>` because the emitter turns any name
+but the root one into the scope class. Nothing else is needed to draw it: `intro/styles.css`, which
+every sink page links, already imports that plugin's token sheet and its `plugin.css`.
 
-**What a scoped style plugin paints is held as text rather than as a photograph.** `check:parts`
-fails a slot that reaches the DOM without its hook and fails two layers reaching different parts
-from one manifest, and `check:style-plugin-coverage` fails a role the witness plugin answers the
-way the root does or a part no rule in it paints. A second arrangement would open a scoped page in
-a browser as well, at two more captures per theme per layer, and that is a trade to make again
-deliberately rather than to inherit.
+**The second one exists because the first cannot see a value a layer hardcodes.** Anything one
+layer spells as a literal that happens to equal what `default` answers for a role reads as parity
+under `default`, at every pixel, and diverges in the first project that answers the role otherwise.
+That is the class `ArenaGrid.min` was in, and it reached a consumer. `complete` is the appearance
+that moves the most roles at once, so it is the cheapest second opinion available; a catalogue
+entry would move more of them still, and none of those is compiled, so no class exists and nothing
+here could render one.
+
+**It found something the day it was added**, which is the argument for the two more captures per
+theme per layer it costs: `ArenaConfirmDialog` and `ArenaTextarea` composed a run of text out of
+several children in one layer and one in the other, and the browser shaped the two differently at
+the type `complete` chooses and identically at the type `default` chooses.
+[`../react/AGENTS.md`](../react/AGENTS.md) carries that rule and `check:text-runs` holds it.
+
+**`ALLOWED` in the gate is still empty, and the emptiness is still the claim.** A second appearance
+is more to look at rather than a reason to look less closely, so a scoped page that differs is a
+defect in a layer and not a page owed a relief.
 
 The order and grouping are an arrangement's own, and one built for an appearance shows it doing
-its work on a layout that argues for it. What may **not** differ, the day there is a second, is the
-set: every fixture holds every component, so no page is compared over a smaller surface than its
-siblings.
+its work on a layout that argues for it: `default` groups by the category a component is registered
+under, because that appearance draws the region and the box is the grouping, and `complete` groups
+by what an appearance does to a thing, because a dialog beside a sheet beside a menu is where a role
+answered inconsistently shows. What may **not** differ is the set: every fixture holds every
+component, so no page is compared over a smaller surface than its siblings.
 
 ## A component that cannot stand alone
 

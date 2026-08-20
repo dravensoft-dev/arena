@@ -28,7 +28,7 @@ Editorial type, meaning prose and headings and never chrome (see the `dz` table 
 | `--fs-mega` | 150px | 1.5625 | the approved brand manual's `.big-glyph` specimen |
 
 Exposed in the Tailwind layer as `.text-xs`/`.text-sm`/`.text-md`/`.text-lg`/`.text-h4`/`.text-h3`/`.text-h2`/`.text-h1`/`.text-display`/`.text-hero`/`.text-mega` (`frameworks/tailwind/Theme.css`, `--text-*`).
-- **Spacing:** 4px base grid; generous rhythm in marketing (88px gutter), dense but breathable in product. The grid is the repertoire of lengths; which of them separates two components is the `rhythm` table below, and that is the one a reader choosing between two steps needs.
+- **Spacing:** 4px base grid; generous rhythm in marketing (88px gutter), dense but breathable in product. The grid is the repertoire of lengths; which of them separates two components is the `rhythm` table below, and that is the one a reader choosing between two steps needs. **The scale is open where `fs` and `rhythm` are closed, and a step is still earned rather than convenient**: it gains one when something is measured reaching for a length the grid does not hold, on the evidence a role is promoted by, and a length one site wants snaps to its nearest neighbour instead. That is what the widening gaps past `sp-6` are. They are lengths nothing has asked for, not lengths the scale refuses. `sp` has no table of its own here because a table on this page says which role a step plays and an `sp` step plays none; the values are `spacing.json`.
 - **Backgrounds:** **always flat.** Arena **does not use color gradients** on any surface: not heroes, not splash screens, not cards, not accents. Depth is built with the surface scale (`base-100`→`base-200`→`base-300`), the hairline border and the warm shadow, never with color transitions. (The only permitted use of `linear-gradient`: the `ArenaSkeleton`'s neutral *shimmer* animation, which is loading motion, not chromatic decoration.) No generic stock photos; real product imagery or striped placeholders.
 - **Borders:** hairline `1px` in `--color-base-300` (alias `--border`); emphasized border in `--line-strong`. The border, not the shadow, is used to separate content on flat surfaces.
 - **Shadows:** warm and deep, negative spread (`0 12px 28px -12px rgba(0,0,0,.6)`). There is no tinted glow: elevation is always the neutral warm shadow.
@@ -83,8 +83,8 @@ Chrome text, meaning a button label, an input's value, a hint, a validation erro
 | `--dz-text` | 14px | 13px | 14px | control text: buttons, inputs, selects, menu items, table cells |
 | `--dz-text-md` | 13px | 12px | 13px | secondary control text: tag chips, pagination, secondary buttons |
 | `--dz-text-sm` | 12px | 11px | 12px | secondary control text: hints, validation errors, badges, legends |
-| `--dz-text-xs` | 11px | 10px | 11px | micro control text: field labels, shortcuts, eyebrow labels |
-| `--dz-text-2xs` | 10px | 10px | 10px | column headers, row micro-labels |
+| `--dz-text-xs` | 11px | 10px | 11px | micro control text: field labels, shortcuts, eyebrow labels, a chart's category and point labels |
+| `--dz-text-2xs` | 10px | 10px | 10px | column headers, row micro-labels, a chart's axis ticks, and where `step-label` is born |
 
 **Comfortable grows the box and leaves the words alone**, and the asymmetry with compact is the
 point. Compact shrinks the text because an expert reading a dense table is trading legibility for
@@ -133,7 +133,7 @@ Letter-spacing across the system is one role hierarchy: **tracking decreases as 
 | `--ls-mono-nav` | `0.04em` | mono navigation: breadcrumbs, bulk-action counts |
 | `--ls-uppercase-status` | `0.06em` | uppercase status text: alerts, toasts, calendar hour labels |
 | `--ls-badge` | `0.1em` | badge and pill text |
-| `--ls-column-header` | `0.12em` | column header / micro-label |
+| `--ls-column-header` | `0.12em` | column header / micro-label, reached by answering `track-label` with it rather than named by any slot |
 | `--ls-field-label` | `0.14em` | form field label |
 | `--ls-label` | `0.22em` | mono uppercase labels: section eyebrows |
 | `--ls-wide` | `0.34em` | eyebrows (`intro/Arena - Overview.html`'s `.kicker`/`.eyebrow`) |

@@ -59,6 +59,22 @@ export function scan(source: string,
   return found;
 }
 
+export type ShippedIcons = { pairs: Record<string, string[]>; loose: string[] };
+
+export function mergeShipped(manifest: ShippedIcons, into: IconScan) {
+  for (const [weight, glyphs] of Object.entries(manifest.pairs ?? {})) {
+    let bucket = into.pairs.get(weight);
+    if (!bucket) { bucket = new Set<string>(); into.pairs.set(weight, bucket); }
+    for (const glyph of glyphs) bucket.add(glyph);
+  }
+  for (const glyph of manifest.loose ?? []) into.loose.add(glyph);
+  return into;
+}
+
+export function shippedNames(manifest: ShippedIcons) {
+  return new Set([...(manifest.loose ?? []), ...Object.values(manifest.pairs ?? {}).flat()]);
+}
+
 export function glyphNames(found: IconScan) {
   const names = new Set(found.loose);
   for (const glyphs of found.pairs.values()) for (const glyph of glyphs) names.add(glyph);

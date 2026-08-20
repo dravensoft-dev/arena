@@ -111,7 +111,8 @@
   --chart-pad-right:8px; /* The plot's right padding, one step of the base grid. */
   /*
      Holds the category labels. This is a CONSEQUENCE of the type scale, not a
-     chosen dimension: it is enough room for a label at --dz-text-2xs. If the type
+     chosen dimension: it is enough room for a label at --dz-text-xs, which is the step a
+     category label takes because a name under a plot is chrome and not prose. If the type
      scale moves, revisit it; it will not fail loudly.
      The labels stay on this edge whatever the data does, so a bar growing down from a
      zero line above the floor runs toward them. That is deliberate: a reader looks for

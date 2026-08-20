@@ -86,7 +86,7 @@ export function ArenaDoughnutChart({
         {shape !== 'pie' && hover !== null && segments[hover] && (
           <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
             fill="var(--bone)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-lg)' }}>
-            {segments[hover].percent}%
+            {`${segments[hover].percent}%`}
           </text>
         )}
       </svg>

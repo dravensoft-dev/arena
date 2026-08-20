@@ -34,7 +34,7 @@
     },
     "pressed": {
       "true": {
-        "root": "bg-primary/14 text-primary border-primary/38 hover:bg-primary/22"
+        "root": "bg-primary/14 text-ink-body/(--level-ink-body) border-primary/38 hover:bg-primary/22"
       },
       "false": {}
     }

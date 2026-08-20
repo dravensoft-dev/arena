@@ -117,7 +117,7 @@ export function ArenaPyramidChart({
 
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--fs-xs)' }}>{labels[i] ?? ''}</text>
+            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"
@@ -153,7 +153,7 @@ export function ArenaPyramidChart({
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
           {sides.map((one, s) => one.values[hover] !== undefined && (
             <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
-              {`${one.label}: `}{fmt(one.values[hover] as number)}
+              {`${one.label}: ${fmt(one.values[hover] as number)}`}
             </div>
           ))}
         </div>

@@ -20,6 +20,24 @@ would be if a `<Component>.variants.ts` reached four directories up into `framew
 for a manifest and a recipe: the class names a component composes are emitted into this layer
 beside the component, the way the contract types and the script tokens are. `bun run check:layer-independence` holds it, and `ALLOWED` is empty.
 
+**Outside itself it reaches only Angular, the CDK and `rxjs`**, and `check:architecture` holds that
+list for the same reason the sibling layer has one: a package imported here is a dependency every
+consumer installs, whatever architecture they chose.
+
+**`@angular/router` is inside that list and is the one entry that may not spread.** It is a
+declared peer marked optional, and it stays optional only while `metadata/` is the single place
+that imports it: an import anywhere else is loaded by every consumer of the main entry point, so
+the optional declaration stops being true at run time while the manifest still says it. The gate
+fails an import of it outside that directory, and fails the declaration being withdrawn. A project
+that answered no to being found from outside must not install a router to use a button.
+
+**Reach the document through the injected `DOCUMENT` token and never the global**, and put a
+measurement inside `afterNextRender`. A global read while the module evaluates throws during a
+server render at import time. This layer's suites run through a DOM rather than a server renderer,
+so here that claim is held by the code and by no run, which
+[`DOUBTS.md`](../../DOUBTS.md) files as a debt: **smoke-test a server render by hand** when a
+change touches how a component reaches the document.
+
 **Beside the components, the files that carry the theme, the icons and the CDK bridge:**
 - `theme/arena-tailwind.css`: one import that pulls Arena's tokens (including the self-hosted
   fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
@@ -31,7 +49,6 @@ beside the component, the way the contract types and the script tokens are. `bun
   the four other hardcoded ones are left alone. **It is verified against the installed
   `@angular/cdk`; read [CDK bridge](#cdk-bridge-supported-and-verified) for what that
   means and what it does not.**
-- `icons/IconManifest.ts`: the canonical Phosphor role→glyph map.
 
 **The files under `theme/` keep their lowercase names, and they do not share one reason.**
 `arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
@@ -42,8 +59,8 @@ adopter at all**: the assembly copies neither, `arena-tailwind.css` imports this
 `intro/styles.css` and so resolves nowhere else, and the pre-paint script a consumer pastes is
 carried inline on the npm page rather than read from here. **Nothing in this tree imports
 `arena-tailwind.css` either**, which makes it a file with no reader on either side. **Not
-exempt:** `theme/ArenaThemeService.ts` and `icons/IconManifest.ts` are reached through
-`frameworks/angular/index.ts`, which no adopter writes.
+exempt:** `theme/ArenaThemeService.ts` is reached through `frameworks/angular/index.ts`, which no
+adopter writes.
 
 - `theme/ArenaThemeService.ts` and `theme/no-fouc.html`: the signal theme service and the
   pre-paint snippet. It switches between **any number of named palettes**, because a
@@ -502,9 +519,22 @@ static `class` or an ARIA attribute, lands on the inert host and never on the st
 inside it, and neither layer offers a second route to it. That follows from the carve-out, not
 from anything a contract could restate, and it is the argument for host-binding being the default.
 
-## Three traps this layer's idiom sets
+## Four traps this layer's idiom sets
 
-All three are layer-wide and silent.
+All four are layer-wide and silent.
+
+**A resolving transform spells the default twice, and only one of the two runs for any given
+caller.** `input(X, { transform: (value) => value ?? Y })` is the layer's shape for an optional
+member, and Angular runs the transform only for an input that was **bound**: a consumer who writes
+`<arena-grid>` bare reads `X`, and one who writes `[min]="maybe()"` with nothing in it reads `Y`.
+So `X` and `Y` are one decision written in two places, and a disagreement between them is a
+component that answers the same markup two ways. **`check:optional-inputs` holds `X` and `Y` to the
+same text**, which is the only claim about the pair; the two gates that read one half each hold it
+against something else. `check:api` reads `X` for its type and, where it is a literal, against the
+contract's declared default, so a value the contract does not name fails there rather than here.
+`check:pixel-parity` draws every arrangement `frameworks/kitchen-sink/` declares, so an `X`
+hardcoding what one appearance answers for a role is caught by the arrangement drawn under
+another. **Neither of them reads `Y` at all**, and neither knows the two are one decision.
 
 **A bare boolean attribute resolves to `true`.** Every boolean input here is a signal
 `input(false, { transform: booleanAttribute })`, so `<arena-alert dismissible>` is `true`.

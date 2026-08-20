@@ -10,9 +10,10 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  discoveryProblems,
+  discoveryProblems, iconManifestProblems,
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -395,5 +396,35 @@ test('a wash of a colour the ink is not, stated once, is what a clean package lo
       + '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);\n  }\n}\n',
   });
   assert.deepEqual(bundledCssProblems(PKG, dir), []);
+  rmSync(dir, { recursive: true });
+});
+
+test('a package with no icons.json cannot tell a consumer what Arena draws for them', () => {
+  const problems = iconManifestProblems(PKG, mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no icons\.json/);
+  assert.match(problems[0] ?? '', /reading this package as text/);
+});
+
+test('an icons.json that does not parse says so rather than reading as an empty list', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  writeFileSync(join(dir, 'icons.json'), '{ not json');
+  const problems = iconManifestProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /does not parse/);
+});
+
+test('an icons.json that outlived its renders fails, which is what keeps the list honest', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-ghost'] }, loose: [] }));
+  const problems = iconManifestProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /is not what the renders say today/);
+});
+
+test('a list assembled from the renders it was derived from is the passing case', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  writeFileSync(join(dir, 'icons.json'), `${JSON.stringify(iconManifest('react'), null, 2)}\n`);
+  assert.deepEqual(iconManifestProblems(PKG, dir), []);
   rmSync(dir, { recursive: true });
 });

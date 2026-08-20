@@ -34,6 +34,7 @@ Action button. The main action uses `variant="primary"` (crimson), maximum one p
 Variants: primary · secondary · ghost · danger. Sizes sm/md/lg. Props: icon, iconRight, loading, full, disabled.
 
 - Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
+- Keyboard focus draws Arena's own gold ring, on every one of the four variants, including `ghost`, whose border is transparent. It comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.
 - Don't pass an element as `icon` or `iconRight`. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

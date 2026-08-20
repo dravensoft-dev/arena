@@ -1,10 +1,13 @@
 /* A signal input's WRITE type is what a template may bind, and for a defaulted input it is the
  * value's own type: undefined is not in it. So where React omits an optional prop, an Angular
  * consumer has to restate the default the component already owns, in a second place where it can
- * drift, and Arena is a library of optional members. The remedy is a transform that resolves an
- * absent value back to the default, which widens what may be bound and leaves what is read alone.
- * It is a layer-wide convention rather than a per-component choice, which is what this holds: a
- * defaulted input a consumer cannot leave unbound is one more member each adopter works around. */
+ * drift, and Arena is a library of optional members. The remedy is a transform resolving an absent
+ * value back to the default, and it spells that default TWICE, only one of which runs for any
+ * given caller: the transform never fires for an input nobody bound, so a bare element reads the
+ * initial value and a bound-but-absent one reads the fallback. So this holds both halves, that a
+ * defaulted input resolves an absence at all and that its two spellings are the same text. The
+ * fallback is read off the `value ?? X` shape alone, because a transform doing arithmetic has no
+ * fallback text to compare and a guess would report a disagreement that is not one. */
 
 import { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -27,6 +30,14 @@ export const node = {
 };
 
 export const TAKES_NO_ABSENCE = new Map<string, string>([]);
+
+const RESOLVES = /transform\s*:\s*\(\s*([A-Za-z_$][\w$]*)\s*(?::[^)]*)?\)\s*=>\s*\1\s*\?\?\s*([\s\S]*)$/;
+
+export function resolvedFallback(options: string) {
+  const found = RESOLVES.exec(options.trim());
+  if (!found) return null;
+  return (found[2] ?? '').replace(/[\s,}]+$/, '').trim();
+}
 
 export function optionalInputProblems(
   files: string[],
@@ -56,6 +67,16 @@ export function optionalInputProblems(
       const key = `${component}.${member}`;
       const carries = parsed.args.some((argument) => /transform\s*:/.test(argument));
       if (carries) {
+        const fallback = resolvedFallback(parsed.args.slice(1).join(','));
+        if (fallback !== null && fallback !== value) {
+          problems.push(
+            `${file}:${lineOf(source, match.index)}: ${key} declares its default twice and the two `
+            + `disagree -- the initial value is ${value} and the transform resolves an absent one `
+            + `to ${fallback}. The transform never runs for an input nobody bound, so a consumer `
+            + `who writes the element bare reads the initial value and one who binds an absent `
+            + 'value reads the fallback, and the component answers the same markup two ways',
+          );
+        }
         if (!exempt.has(key)) continue;
         claimed.add(key);
         problems.push(
