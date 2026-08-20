@@ -2,15 +2,16 @@
  * what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it says so
  * instead of falling back -- but it is no longer declared: laying a default under the environment
  * left the candidate list unreachable and its macOS entries dead from the day they were written.
- * `browserOrExit` is the single spelling of the strict-or-skip decision. Text is drawn against a
- * grey ramp and colour pinned to sRGB, because a gate comparing two renders asks about Arena and
- * subpixel antialiasing answers about the panel: it moves with how a tree is composited, so the
- * same text in the same place comes back fringed differently. Teardown reaps the GROUP whatever
- * the parent did, then waits for it to empty before removing the profile: the polite exit leaves
- * a zygote and a renderer, and a directory one still writes to fails with EBUSY. */
+ * `browserOrExit` is the single spelling of strict-or-skip. Colour is pinned to sRGB and text
+ * drawn against a grey ramp, because subpixel antialiasing answers about the panel rather than
+ * about Arena. Teardown reaps the GROUP whatever the parent did, then waits for it to empty
+ * before removing the profile, since a polite exit leaves a zygote and a directory one writes to
+ * fails with EBUSY. The tree is detached, so a run killed before teardown leaks it and the
+ * inotify instance it holds: a profile carries its launcher's pid and a launch reaps the gone. */
 
-import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { arenaEnv, cannotRun } from './arena-scripts-vars.ts';
@@ -131,8 +132,111 @@ export function browserFlags(profile: string, on: Platform = platform) {
   ];
 }
 
+export const PROFILE_PREFIX = 'arena-chromium-';
+
+const WHY_OBSERVED = 'to find the browsers a run that was interrupted left behind';
+
+type Observer = { probe: string; query: (naming: string) => string[]; noMatch: number | null };
+
+const OBSERVERS: Record<'win32' | 'posix', Observer> = {
+  win32: {
+    probe: 'powershell',
+    query: (naming) => ['-NoProfile', '-NonInteractive', '-Command',
+      'Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine '
+      + `-and $_.CommandLine.Contains('${naming.replace(/'/g, "''")}') } `
+      + '| ForEach-Object { $_.ProcessId }'],
+    noMatch: null,
+  },
+  posix: {
+    probe: 'pgrep',
+    query: (naming) => ['-f', naming],
+    noMatch: 1,
+  },
+};
+
+export function observerFor(on: Platform = platform): Observer {
+  return OBSERVERS[on === 'win32' ? 'win32' : 'posix'];
+}
+
+export function profileNeedle(profilePath: string, lastSegment = basename) {
+  return lastSegment(profilePath);
+}
+
+export type Seen = { looked: true; pids: string[] } | { looked: false; why: string };
+
+export function processesNaming(
+  profilePath: string, where: Parameters<typeof hostBinary>[2] = {},
+): Seen {
+  const observer = observerFor(where.on);
+  let probe;
+  try {
+    probe = hostBinary(observer.probe, WHY_OBSERVED, where);
+  } catch (e) {
+    return { looked: false, why: (e as Error).message };
+  }
+  try {
+    const out = execFileSync(probe, observer.query(profileNeedle(profilePath)),
+      { stdio: ['ignore', 'pipe', 'ignore'] });
+    return { looked: true, pids: out.toString().split(/\r?\n/).map((one) => one.trim()).filter(Boolean) };
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException & { status?: number };
+    if (observer.noMatch !== null && err.status === observer.noMatch) return { looked: true, pids: [] };
+    return {
+      looked: false,
+      why: `${observer.probe} exited ${err.status ?? err.code}, which is neither a match nor the `
+        + `${observer.noMatch ?? 0} it reports for none.`,
+    };
+  }
+}
+
+export function ownerOf(entry: string) {
+  const owner = new RegExp(`^${PROFILE_PREFIX}(\\d+)-`).exec(entry)?.[1];
+  return owner === undefined ? null : Number(owner);
+}
+
+export function orphanProfiles(entries: string[], alive: (pid: number) => boolean) {
+  return entries.filter((entry) => {
+    const owner = ownerOf(entry);
+    return owner !== null && !alive(owner);
+  });
+}
+
+export function running(pid: number) {
+  try { process.kill(pid, 0); return true; } catch (e) {
+    return (e as NodeJS.ErrnoException).code === 'EPERM';
+  }
+}
+
+export function reapProfile(profile: string, on: Platform = platform) {
+  const seen = processesNaming(profile, { on });
+  if (!seen.looked) return false;
+  for (const pid of seen.pids) {
+    const owner = Number(pid);
+    if (!Number.isInteger(owner)) continue;
+    if (on === 'win32') {
+      const why = 'to reap a browser process tree, which a signal cannot do on Windows';
+      try { spawnSync(hostBinary('taskkill', why, { on }), ['/pid', pid, '/T', '/F']); } catch {  }
+      continue;
+    }
+    try { process.kill(-owner, 'SIGKILL'); } catch {  }
+    try { process.kill(owner, 'SIGKILL'); } catch {  }
+  }
+  try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
+  return true;
+}
+
+export function sweepOrphans(at = tmpdir(), on: Platform = platform) {
+  let entries;
+  try { entries = readdirSync(at); } catch { return 0; }
+  let reaped = 0;
+  for (const entry of orphanProfiles(entries, running))
+    if (reapProfile(join(at, entry), on)) reaped += 1;
+  return reaped;
+}
+
 export async function launchChromium(exePath: string, on: Platform = platform): Promise<{ wsUrl: string; kill: () => Promise<void> }> {
-  const profile = mkdtempSync(join(tmpdir(), 'arena-chromium-'));
+  sweepOrphans(tmpdir(), on);
+  const profile = mkdtempSync(join(tmpdir(), `${PROFILE_PREFIX}${process.pid}-`));
 
   const child = spawn(exePath, browserFlags(profile, on), {
     stdio: ['ignore', 'ignore', 'pipe'],
