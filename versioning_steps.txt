@@ -47,3 +47,21 @@ bun scripts/check/arena/check-release.ts
 (all PASS)
 
 git push --follow-tags origin current-branch-name
+
+4. Pack the benches and attach them to the release page:
+
+cd ~/Dravensoft/arena-web-benches
+bun run pack vx.x.x
+gh release upload vx.x.x -R dravensoft-dev/arena dist/*.tar.gz
+
+(expected: eight tarballs, one per twin pair, and eight assets on the page.)
+
+The benches consume the published package, so they are packed AFTER the tag: one packed before
+it is a pair measured against a version that is not out, and the tarball is named for the release
+it hangs on. pack refuses a dirty tree, because a tarball matching no commit cannot be produced
+again, and it reads git archive, so each bench's own .gitignore is the whole of what "packed"
+means and no second exclusion list exists here to go stale.
+
+The release page itself is written by .github/workflows/release.yml from the commit log, and it
+is edited rather than replaced on a re-run, so uploading after it exists adds the assets without
+touching the notes.
