@@ -468,7 +468,7 @@ export const ROUTES: Route[] = [
       'paid once per project like the skin, the register and the seo routes, and taken before all '
       + 'three, because each of them asks how much of a thing nobody has shown the reader yet. What '
       + 'it buys is that a consumer stops learning the offer by running out of it. Arena ships a '
-      + 'token layer, a set of colour aliases, seventy-two roles, two densities, the components, '
+      + 'token layer, a set of colour aliases, the role tier, two densities, the components, '
       + 'five stylesheets for markup that is not one, a dozen exports carrying a compatibility '
       + 'promise, a head in one layer, a command that reports as well as writes, and a contract per '
       + 'pattern; the branch documented every one of them and named the whole of it nowhere, so '

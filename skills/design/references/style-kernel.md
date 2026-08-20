@@ -106,7 +106,7 @@ through your dark theme.
 | `shadow-*` | `shadow` | the same |
 | `dur-*`, `ease-*` | `dur`, `ease` | the same |
 | `pad-*`, `gap-*`, `gutter` | `sp` | [`spacing.json`](../../../contracts/design/spacing.json) |
-| `step-eyebrow` | `dz` | the same |
+| `step-eyebrow`, `step-label` | `dz` | the same |
 | `fw-*` | `fw` | [`typography.json`](../../../contracts/design/typography.json) |
 | `ff-*` | `font`, which resolves to the families your config declares | the same |
 | `track-*` | `ls` | the same |

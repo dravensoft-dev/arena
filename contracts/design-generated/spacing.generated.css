@@ -78,8 +78,8 @@
   --dz-text:14px; /* control text: buttons, inputs, selects, menu items, table cells */
   --dz-text-md:13px; /* secondary control text: tag chips, pagination, secondary buttons */
   --dz-text-sm:12px; /* secondary control text: hints, validation errors, badges, legends */
-  --dz-text-xs:11px; /* micro control text: field labels, shortcuts, eyebrow labels */
-  --dz-text-2xs:10px; /* column headers, row micro-labels */
+  --dz-text-xs:11px; /* micro control text: field labels, shortcuts, eyebrow labels, and the category and point labels of a chart, which are chrome under a plot rather than prose */
+  --dz-text-2xs:10px; /* column headers, row micro-labels, and a chart's axis ticks. It is also where step-label is born, so the whole label register sits here until a style plugin moves it */
   --dz-lh:1; /* glyph-tight line height: the control reset. Unlike every other dz member this is unitless, so it carries its own $type override: a line height is a number, not a dimension, the same distinction that puts lh in typography.json to begin with. Used wherever a box must be exactly its glyph (an icon inside a button, a standalone icon, an icon-only close/remove control), so the line box never throws the surrounding control out of alignment. */
 
   /*

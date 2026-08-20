@@ -161,6 +161,15 @@ hook, and a product's data visualisation is the one region of its screen a style
 re-skin. It wears the skin all the same, because every value a chart paints is a token the
 palette moves: the ramp, the surfaces, the muted ink, the mono face and the hairline.
 
+**Every mark of text inside a plot is set from the `dz` ladder, and none of it from `fs`.** A tick,
+a category name, a point label, a legend key and a tooltip are all chrome around data rather than
+prose somebody reads, which is the cut `contracts/design/Scales.md` states for the two ladders. It
+is also what makes the paragraph above true rather than nearly true: `fs` is one of the two ladders
+a style plugin may re-value directly, so a plot with a single mark on it had half its text moving
+with a plugin and half of it not, and the coherence a reader saw was whatever the plugin had not
+touched yet. On `dz` the plot moves with density, which is a property of the surface it sits on,
+and with nothing else.
+
 **A chart whose categories run down the plot carries no scrolling rail, and that is a decision
 rather than a gap.** `ArenaBarChart` overflows sideways when the points stop fitting, and sideways
 is a direction a page does not use. Down is the direction a page already scrolls, so a rail there

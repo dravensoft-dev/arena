@@ -83,8 +83,8 @@ Chrome text, meaning a button label, an input's value, a hint, a validation erro
 | `--dz-text` | 14px | 13px | 14px | control text: buttons, inputs, selects, menu items, table cells |
 | `--dz-text-md` | 13px | 12px | 13px | secondary control text: tag chips, pagination, secondary buttons |
 | `--dz-text-sm` | 12px | 11px | 12px | secondary control text: hints, validation errors, badges, legends |
-| `--dz-text-xs` | 11px | 10px | 11px | micro control text: field labels, shortcuts, eyebrow labels |
-| `--dz-text-2xs` | 10px | 10px | 10px | column headers, row micro-labels |
+| `--dz-text-xs` | 11px | 10px | 11px | micro control text: field labels, shortcuts, eyebrow labels, a chart's category and point labels |
+| `--dz-text-2xs` | 10px | 10px | 10px | column headers, row micro-labels, a chart's axis ticks, and where `step-label` is born |
 
 **Comfortable grows the box and leaves the words alone**, and the asymmetry with compact is the
 point. Compact shrinks the text because an expert reading a dense table is trading legibility for
