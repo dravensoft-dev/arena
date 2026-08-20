@@ -6,8 +6,8 @@
  * suites as well, a native path compared to a posix literal being the same defect wherever it
  * sits. Matches go through the lexer check:docs uses, so a construct in a comment or a string is
  * described rather than performed, bar the two whose construct IS a string and say so. It also
- * holds pr.yml to two rules: the OS matrix equals the declared list, and pr-gate's needs equal
- * every other job there, since a leg the one required check does not name gates nothing. */
+ * holds two workflows to one rule each: develop.yml's OS matrix equals the declared list, and
+ * pr-gate's needs equal every other job in pr.yml, since a job it misses gates nothing. */
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -32,6 +32,8 @@ export const node = {
 export const WORKFLOWS = '.github/workflows';
 
 export const PR_WORKFLOW = 'pr.yml';
+
+export const MATRIX_WORKFLOW = 'develop.yml';
 
 export const REQUIRED_JOB = 'pr-gate';
 
@@ -329,16 +331,16 @@ export function gateProblems(base = root, job = REQUIRED_JOB) {
 }
 
 export function matrixProblems(base = root, supported = SUPPORTED_OS) {
-  const path = join(base, WORKFLOWS, PR_WORKFLOW);
+  const path = join(base, WORKFLOWS, MATRIX_WORKFLOW);
   let text;
   try {
     text = readFileSync(path, 'utf8');
   } catch {
-    return [`${WORKFLOWS}/${PR_WORKFLOW} is missing, so nothing runs on a second operating system`];
+    return [`${WORKFLOWS}/${MATRIX_WORKFLOW} is missing, so nothing runs on a second operating system`];
   }
 
   const legs = matrixLegs(text);
-  if (legs.size === 0) return [`${WORKFLOWS}/${PR_WORKFLOW} declares no os matrix`];
+  if (legs.size === 0) return [`${WORKFLOWS}/${MATRIX_WORKFLOW} declares no os matrix`];
 
   const problems = [];
   for (const name of Object.keys(supported)) {
@@ -491,9 +493,9 @@ function main() {
 
   console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s) and ${covered} `
     + `suite(s) to the ${SUITE_RULES.length} that read one, every exception `
-    + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, the matrix `
-    + `runs exactly ${SUPPORTED_OS_NAMES.length} declared operating system(s) in a job `
-    + `${REQUIRED_JOB} waits for alongside every other, and ${tracked} `
+    + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, `
+    + `${MATRIX_WORKFLOW} runs exactly ${SUPPORTED_OS_NAMES.length} declared operating `
+    + `system(s), ${REQUIRED_JOB} waits for every other job in ${PR_WORKFLOW}, and ${tracked} `
     + `tracked path(s) are ones a Windows checkout can hold, the longest at ${longest} of the `
     + `${MAX_PATH - CLONE_ROOT_BUDGET} left after a clone root`);
 }

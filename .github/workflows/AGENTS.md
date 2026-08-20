@@ -2,13 +2,14 @@
 
 One guards a pull request, one guards `main`, one guards `develop`, two publish a package, one
 writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
-many, and this page carried the figure instead until the count and the directory disagreed: `portability.yml` ran the
-operating system matrix, was named in no diagram here, and is now a job of `Arena PR`, which is
-the same omission read twice. A number no assertion holds is the defect that rule exists to stop.
+many, and this page carried the figure instead until the count and the directory disagreed:
+`portability.yml` ran the operating system matrix, was named in no diagram here, and is now a job
+of `Arena develop`, which is the same omission read twice. A number no assertion holds is the
+defect that rule exists to stop.
 
 ```
-pull_request -> main          Arena PR
-push to develop               Arena develop
+pull_request -> main|develop  Arena PR
+push to develop               Arena develop         and the operating system matrix
 push to main                  Arena main            builds, and saves that build
    |
    +-- on success             Publish arena-react      restores it
@@ -32,10 +33,13 @@ build              bun run build:release, which assembles too, then one cache en
    +-- test-angular    if angular        the angular gates + the suites off the ngc emit
    +-- test-tailwind   if tailwind       the tailwind gates
    |
-portable           always, and off the build above: three operating systems, its own bun run build
-   |
 pr-gate            the only required check, and it waits for every job above
 ```
+
+**The operating system matrix is not here**, and `Arena develop` carries it. The reason is the
+event: this one fires on every push to an open pull request, and Arena takes pull requests from
+anyone, so a matrix here bills three operating systems per revision of every contribution rather
+than once per change that was accepted.
 
 **`build` is one job because the build is one thing.** The steps run in an order the graph derives
 and the order is not decorative: the Tailwind preset compiles against the token CSS, and every
@@ -130,10 +134,18 @@ so a re-run keeps the first run's build and stays green.
 
 ## Arena develop
 
-The same single job as `Arena main`, running the same five steps in the same order, and the
-only workflow that is a copy of another. It exists because work lands on `develop` before it
-lands on `main`, and a merge into `develop` would otherwise be verified by nothing but whichever
-pull request preceded it: `Arena PR` is scoped to pull requests targeting `main`.
+Two jobs. `verify` is the same five steps as `Arena main`, in the same order, and it is the only
+job here that is a copy of another. It exists because work lands on `develop` before it lands on
+`main`, and what lands there is not always what a pull request tested. `Arena PR` runs on pull
+requests into `develop` as well as into `main`, and each run tests the head at that moment; a
+merge commit resolved afterwards, and a push straight to the branch, are verified by this
+workflow and by nothing else.
+
+**`portable` is the operating system matrix**, three legs on their own `bun run build`, and this
+is where the question is asked. `check:portability` holds the legs equal to
+[`../../scripts/ci/arena/supported-os.ts`](../../scripts/ci/arena/supported-os.ts) and reads this
+file to do it. A merge request from `develop` to `main` is opened on a green `develop`, so a
+platform this matrix reddens is one that never reaches the branch the packages publish from.
 
 It is a separate file rather than a second branch on `Arena main`'s trigger, and the reason is
 the name. Both publish workflows fire on `workflow_run` of the workflow named `Arena main`, so a
@@ -141,11 +153,12 @@ the name. Both publish workflows fire on `workflow_run` of the workflow named `A
 `main`. Their `branches: [main]` filter refuses it, but the refusal is one file away from the
 event; a name of its own puts the answer in the workflow that asks.
 
-**It caches nothing**, so `bun install` is cold on every run, and it is the only workflow here
-that saves nothing either. `Arena PR` caches because a pull request is pushed to repeatedly and
-its four test jobs each need the one build, and `Arena main` because two publish workflows read
-what it built. `develop` is one job that runs once per merge and is read by nobody, where a cache
-saves a fraction of a run it would also have to be kept honest across.
+**`verify` caches nothing**, so `bun install` is cold on every run, and it saves nothing either.
+`Arena PR` caches because a pull request is pushed to repeatedly and its four test jobs each need
+the one build, and `Arena main` because two publish workflows read what it built. `verify` runs
+once per merge and is read by nobody, where a cache saves a fraction of a run it would also have
+to be kept honest across. `portable` restores a bun install cache per operating system and saves
+none of the build, because what it is asking is whether a fresh tree builds on that platform.
 
 **Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
 `--assemble`, so the two packages are part of the run the workflow already makes. Dropping the

@@ -2,7 +2,7 @@ name: Arena PR
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 permissions:
   contents: read
@@ -197,91 +197,11 @@ jobs:
       - name: gates
         run: bun scripts/check/arena/check-all.ts --domain=tailwind --no-tests
 
-  # Whether the tooling still runs on a machine that is not the one it was written on. One job
-  # with a matrix of its own, and deliberately not this whole workflow run three times over: five
-  # jobs across three operating systems at ten times the macOS minute rate is a cost nobody keeps
-  # paying, and a cost nobody keeps paying becomes a workflow somebody deletes.
-  #
-  # It is a job here rather than a workflow of its own so that pr-gate can read its result, which
-  # is the only thing needs can do and the only reason the arrangement matters: a green gate over
-  # a red operating system is worse than no gate. The event was already the same one, a merge
-  # request to main, which is what makes the price worth paying, since main is what the two
-  # packages are published from.
-  #
-  # The cost of that choice, stated rather than discovered: work that lands on develop and stays
-  # there is never asked this question. The merge request is what asks it, and nothing before.
-  #
-  # The legs are declared in scripts/ci/arena/supported-os.ts, and check:portability holds this
-  # matrix equal to that list, the names and the blocking flags both.
-  portable:
-    name: portability ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    # A leg whose platform is not yet blocking reports and does not gate. The flag lives in
-    # scripts/ci/arena/supported-os.ts with its reason, and check:portability holds this equal
-    # to it, so a leg cannot quietly stop counting and a supported one cannot quietly stop
-    # blocking. It flips to true when the platform is green, which is the whole definition.
-    #
-    # It is also what pr-gate reads: a failing leg carrying this flag hands needs a result of
-    # success, so the flag is the single place a platform stops gating, rather than one place
-    # here and a second one in the gate below.
-    continue-on-error: ${{ !matrix.blocking }}
-    strategy:
-      # Every leg reports. A failure on one is a fact about that platform, and cancelling the
-      # others would hide which platforms are fine, which is the whole question being asked.
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            blocking: true
-          - os: macos-latest
-            blocking: true
-          - os: windows-latest
-            blocking: true
-    steps:
-      - name: a path under %TEMP% outruns the 260-char budget before the tree does
-        if: runner.os == 'Windows'
-        run: git config --system core.longpaths true
-
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      # core.autocrlf is deliberately left at the runner default. Overriding it would prove
-      # .gitattributes works by not letting it be tested.
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
-
-      - uses: actions/cache@v6
-        with:
-          path: ~/.bun/install/cache
-          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-cache-${{ runner.os }}-
-
-      - name: install, which is the first thing a prebuilt native dependency can refuse
-        run: bun install --frozen-lockfile
-
-      - name: a browser, and CHROME_PATH is deliberately not exported
-        uses: browser-actions/setup-chrome@v1
-
-      - name: build every step
-        run: bun run build
-
-      - name: byte-identical to what the Linux tree committed
-        run: git diff --exit-code
-
-      - name: the tooling's own suites, where the injected-platform cases live
-        run: bun run test:scripts
-
-      - name: the gates whose answer can differ by platform
-        run: bun scripts/ci/arena/run-portability.ts
-
   pr-gate:
     name: pr-gate
     # Every other job in this workflow, and check:portability holds that list complete: a job
     # missing here is a job whose failure the one required check never sees.
-    needs: [changes, build, test-core, test-react, test-angular, test-tailwind, portable]
+    needs: [changes, build, test-core, test-react, test-angular, test-tailwind]
     if: always()
     runs-on: ubuntu-latest
     steps:

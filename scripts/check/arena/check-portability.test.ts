@@ -6,9 +6,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CLONE_ROOT_BUDGET, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES, WORKFLOWS,
-  checkoutProblems, declaredNeeds, gateProblems, inScope, inSuiteScope, jobBlocks, matrixProblems,
-  needsProblems, portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
+  CLONE_ROOT_BUDGET, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
+  WORKFLOWS, checkoutProblems, declaredNeeds, gateProblems, inScope, inSuiteScope, jobBlocks,
+  matrixLegs, matrixProblems, needsProblems, portabilityProblems, setupProblems, staleOwners,
+  trackedPaths, violations,
 } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
@@ -231,12 +232,16 @@ test('a workflow with no gate at all fails rather than passing for lack of anyth
   assert.match(problems[0] ?? '', /declares no pr-gate/);
 });
 
-test('the real pr.yml holds, and portable is one of the names, which is the point of the change', () => {
+test('the real pr.yml holds, and the matrix is deliberately not a name it waits for', () => {
   assert.deepEqual(gateProblems(), []);
   const gate = jobBlocks(readFileSync(join(repoRoot, WORKFLOWS, PR_WORKFLOW), 'utf8'))
     .get(REQUIRED_JOB) ?? '';
-  assert.ok(declaredNeeds(gate).includes('portable'),
-    'needs cannot cross workflows, so the matrix living in pr.yml is what lets the gate read it');
+  assert.ok(!declaredNeeds(gate).includes('portable'),
+    'needs cannot cross workflows, so a matrix in develop.yml is one pr-gate cannot read, and a '
+    + 'name here for a job that is not in this file would make the gate wait for nothing');
+  assert.ok(matrixLegs(readFileSync(join(repoRoot, WORKFLOWS, MATRIX_WORKFLOW), 'utf8')).size > 0,
+    'so the branch is what carries the answer instead: the matrix runs on the merge into develop '
+    + 'and a merge request to main is opened on a green develop');
 });
 
 test('a matrix that disagrees with the declaration fails, whichever way it disagrees', () => {

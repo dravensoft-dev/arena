@@ -5,11 +5,11 @@ import { join } from 'node:path';
 import { PORTABILITY_GATES, unknownGates, unreasonedGates } from './run-portability.ts';
 import { BLOCKING_OS, SUPPORTED_OS, SUPPORTED_OS_NAMES } from './supported-os.ts';
 import {
-  PR_WORKFLOW, WORKFLOWS, matrixLegs, matrixProblems,
+  MATRIX_WORKFLOW, WORKFLOWS, matrixLegs, matrixProblems,
 } from '../../check/arena/check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
-const workflow = () => readFileSync(join(repoRoot, WORKFLOWS, PR_WORKFLOW), 'utf8');
+const workflow = () => readFileSync(join(repoRoot, WORKFLOWS, MATRIX_WORKFLOW), 'utf8');
 
 test('every gate in the list is one check-all declares, so a rename fails here', () => {
   assert.deepEqual(unknownGates(), [],
@@ -65,23 +65,25 @@ test('the workflow exports no CHROME_PATH, so the candidate list is what CI prov
   assert.ok(!/^\s*CHROME_PATH:/m.test(workflow()));
 });
 
-test('the matrix is asked on a merge request to main, and by nothing else automatic', () => {
+test('the matrix is asked on a merge into develop, and by nothing else automatic', () => {
   const text = workflow();
   const triggers = text.slice(text.indexOf('\non:'), text.indexOf('\npermissions:'));
 
-  assert.match(triggers, /pull_request:\s*\n\s*branches:\s*\[main\]/,
-    'main is what the two packages are published from, so it is the last place worth asking '
-    + 'whether the tree still works on a machine that is not the one it was written on');
+  assert.match(triggers, /push:\s*\n\s*branches:\s*\[develop\]/,
+    'every change reaches main through develop, so a merge into it is the earliest event that '
+    + 'asks once per accepted change rather than once per revision of every open contribution');
   assert.ok(!/schedule:|cron:/.test(triggers),
     'nothing runs on a clock: a scheduled leg nobody reads is a cost with no reader');
-  assert.ok(!/\bpush:/.test(triggers),
-    'not on a push either, which is the cost of the choice and is stated in the workflow: work '
-    + 'that lands on develop and stays there is never asked this question');
+  assert.ok(!/pull_request/.test(triggers),
+    'not on a pull request either, which is the cost of the choice and is stated in the '
+    + 'workflow: a contributor learns their change is not portable after review and not during '
+    + 'it, and Arena takes pull requests from anyone, so that event bills three operating '
+    + 'systems per revision of every one of them');
   assert.ok(!/workflow_dispatch:/.test(triggers),
     'and not by hand either. A leg somebody can trigger is a leg somebody can trigger to make a '
-    + 'branch look ready, so the merge request is the only thing that asks.');
+    + 'branch look ready, so the merge is the only thing that asks.');
 
-  assert.deepEqual(triggers.match(/^\s{2}\w[\w-]*:/gm)?.map((one) => one.trim()), ['pull_request:'],
+  assert.deepEqual(triggers.match(/^\s{2}\w[\w-]*:/gm)?.map((one) => one.trim()), ['push:'],
     'one event, counted rather than described, so a trigger added without a reason fails here');
 });
 

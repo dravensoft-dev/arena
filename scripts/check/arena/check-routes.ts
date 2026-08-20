@@ -780,7 +780,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 54_300,
+    budget: 55_100,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -790,7 +790,13 @@ export const ROUTES: Route[] = [
       + 'while the publish workflows listen on one. A cold walk reached the procedure at all only '
       + 'by reading to the middle of a CI page. The sequence is the first stop because it is what '
       + 'a reader needs first, and the other two are what it sends them to rather than what they '
-      + 'open instead.',
+      + 'open instead. Raised to 55,100 when the operating system matrix moved off the pull '
+      + 'request and onto the merge into develop, because that move puts a precondition on this '
+      + 'route: needs does not cross workflows, so no required check on a merge request to main '
+      + 'reads a platform result, and what carries it instead is that the merge request is opened '
+      + 'on a green develop. A reader cutting a release who does not know that reads a green '
+      + 'required check as an answer about three operating systems, and it is an answer about '
+      + 'one.',
   },
 ];
 
