@@ -145,6 +145,7 @@ export const node = {
     'check:dimensions',
     'check:duplicate-constants',
     'check:style-plugin',
+    'check:style-plugin-coverage',
     'check:generated',
     'check:icons',
     'check:layer-independence',

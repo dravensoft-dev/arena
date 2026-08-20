@@ -14,8 +14,8 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSy
 import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, relative, resolve, sep } from 'node:path';
 import {
-  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, readPlugin, themeCss,
-  weightReports,
+  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, pluginValue, readPlugin,
+  themeCss, weightReports,
 } from './theme-css.ts';
 import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
@@ -404,9 +404,40 @@ export function auditFiles(paths: string[], dirs: string[]) {
   return files;
 }
 
-export function auditStep(options: ResolvedOptions, arena: string | null = null) {
+export function owningPlugin(file: string, dirs: string[]) {
+  const at = dirs
+    .filter((dir) => sourceScope(file, [dir]) === 'plugin')
+    .sort((one, two) => two.length - one.length);
+  return at[0] ?? null;
+}
+
+export function pluginTokenMaps(dirs: string[], catalogue: TokenCatalogue | null) {
+  const out = new Map<string, Map<string, string>>();
+  const answersOf = (dir: string) => {
+    try {
+      return readPlugin(pluginName(dir), JSON.parse(readFileSync(join(dir, PLUGIN_TOKENS), 'utf8'))).tokens;
+    } catch {
+      return {} as Record<string, unknown>;
+    }
+  };
+  const root = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+  dirs.forEach((dir, i) => {
+    const at = new Map(i === 0 ? root : out.get(dirs[0] ?? '') ?? root);
+    for (const [key, raw] of Object.entries(answersOf(dir))) {
+      const value = pluginValue(raw, catalogue);
+      if (value !== null) at.set(key, value);
+    }
+    out.set(dir, at);
+  });
+  return out;
+}
+
+export function auditStep(
+  options: ResolvedOptions, arena: string | null = null, catalogue: TokenCatalogue | null = null,
+) {
   if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
+  const tokensAt = pluginTokenMaps(dirs, catalogue);
   const declaredMark = gradientMark(options);
   const reports: Report[] = [];
   const painted = new Set<string>();
@@ -425,7 +456,8 @@ export function auditStep(options: ResolvedOptions, arena: string | null = null)
     if (scope !== 'plugin') continue;
     for (const part of paintedParts(text)) painted.add(part);
     if (!file.endsWith('.css')) continue;
-    for (const one of restatedFindings(text, sheetOf)) {
+    const owner = owningPlugin(resolve(file), dirs);
+    for (const one of restatedFindings(text, sheetOf, owner ? tokensAt.get(owner) ?? null : null)) {
       reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
         + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
         + 'counts a part as painted by reading source text, and a role is grown from that count, '
@@ -639,7 +671,7 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
-  const audit = auditStep(options, arena);
+  const audit = auditStep(options, arena, arena ? packageCatalogue(arena) : null);
   for (const one of audit.reports) console.error(`arena-to-prod: ${one.message}`);
   if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `

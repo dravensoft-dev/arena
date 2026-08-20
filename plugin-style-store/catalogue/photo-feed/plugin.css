@@ -27,11 +27,6 @@
   padding: 0;
 }
 
-/* A scrolling rail of stories carries no rule and no fade: the ring is the affordance. */
-[data-arena-part="scroller"] {
-  gap: var(--sp-4);
-}
-
 /* An avatar in this product never wears a ring of its own, because the story ring is the
    ring and two concentric rings read as an error. */
 [data-arena-part="avatar.box"] {

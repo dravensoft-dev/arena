@@ -17,6 +17,9 @@ import { kebab } from '../../utils/case.ts';
 import { categoryOf } from '../../lib/tailwind/manifest-surfaces.ts';
 import { MANIFESTS, partsOf } from '../arena/check-parts.ts';
 import { ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { readPlugin, resolvedPlugin } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 
 export const COMPLETE = 'plugin-style-store/complete/plugin.tokens.json';
 
@@ -24,7 +27,8 @@ export const COMPLETE_CSS = 'plugin-style-store/complete/plugin.css';
 
 export const node = {
   name: 'check:style-plugin-coverage',
-  reads: [ROLES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**'],
+  reads: [ROLES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**',
+    ...CSS_TARGETS],
   writes: [],
   feeds: [],
 };
@@ -75,8 +79,10 @@ export function sheetsByPart(base = repoRoot) {
   return out;
 }
 
-export function restatedInWitness(css: string, sheetOf: (part: string) => string | null) {
-  return restatedFindings(css, sheetOf).map(({ part, property, value }) =>
+export function restatedInWitness(
+  css: string, sheetOf: (part: string) => string | null, at: Map<string, string> | null = null,
+) {
+  return restatedFindings(css, sheetOf, at).map(({ part, property, value }) =>
     `${COMPLETE_CSS} sets ${property} to ${value} on [data-arena-part="${part}"] and the slot `
     + 'already paints exactly that, so the rule demonstrates no reach. The witness is what says the '
     + 'advertised surface is real, and a part reached by restating its own answer says the opposite '
@@ -96,6 +102,7 @@ export function collect(base = repoRoot) {
   const parts = [...new Set(MANIFESTS().flatMap((name) => Object.values(partsOf(name))))].sort();
   const witness = readFileSync(join(base, COMPLETE_CSS), 'utf8');
   const painted = paintedParts(witness);
+  const at = resolvedPlugin(readPlugin('complete', readJson(join(base, COMPLETE))), tokenCatalogue(base));
   const sheets = sheetsByPart(base);
   const sheetOf = (part: string) => {
     const path = sheets.get(part);
@@ -107,7 +114,7 @@ export function collect(base = repoRoot) {
       ...unreachedRoles(declared, movedRoles(root, complete)),
       ...unpaintedParts(parts, painted),
       ...phantomParts(parts, painted),
-      ...restatedInWitness(witness, sheetOf),
+      ...restatedInWitness(witness, sheetOf, at),
     ],
     roles: declared.length,
     parts: parts.length,

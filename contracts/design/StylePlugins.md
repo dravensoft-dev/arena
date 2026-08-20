@@ -214,6 +214,18 @@ slot compiles to**, because a plugin declaration restating what the slot already
 count without changing a pixel, and one naming an alias raises it without asking a question the
 kernel could answer. The audit reads that comparison for a consumer and
 `check:style-plugin-coverage` reads it over `complete`, since a witness reaching a part by
-restating the part's own answer demonstrates nothing about reach. **The comparison is over text**,
-so a restatement written through a name that resolves to the same value is invisible to it, which
-is why the remeasurement is a reading and not only a gate.
+restating the part's own answer demonstrates nothing about reach.
+
+**The comparison resolves both sides against the plugin's own answers before it compares them**,
+which is what makes it worth standing a promotion on: a rule spelled `var(--fw-control)` over a
+slot painting `var(--fw-medium)` changes nothing in a plugin that answers the role with that step,
+and the two are the same value under two names rather than a decision anybody made. A plugin
+selects by part and answers by role, so almost every restatement it writes takes exactly that
+shape.
+
+**What the comparison still declines to say is bounded on the safe side**, and each case is a
+silence rather than a false report, because a silent miss costs a reader nothing and a false
+report costs them a search. A name no answer reaches stays as it is and the pair is skipped. A
+`var()` carrying a fallback is left whole rather than half read. And a property the slot paints
+twice, once plainly and once inside a support query, has no single answer for a flat declaration
+to restate, so the rule replacing both is a change and is reported as nothing at all.
