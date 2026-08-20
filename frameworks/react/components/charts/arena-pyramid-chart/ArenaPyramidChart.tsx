@@ -117,7 +117,7 @@ export function ArenaPyramidChart({
 
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--fs-xs)' }}>{labels[i] ?? ''}</text>
+            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"

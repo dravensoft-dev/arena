@@ -152,7 +152,7 @@ export function ArenaLineChart({
 }
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaPointAt(xScale, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor={arenaCategoryAnchor(i, n)}
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--fs-xs)' }}>{labels[i] ?? ''}</text>
+            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         {
