@@ -44,7 +44,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 16_200,
+    budget: 17_100,
     reason:
       'the page every consumer route opens with, and the reason it is declared here rather than as '
       + 'the first stop of each of them: a paragraph added to a router that seven routes shared was '
@@ -57,7 +57,21 @@ export const ENTRIES: Entry[] = [
       + 'the two questions that decide an install rather than a screen, and the router had to '
       + 'say so: a row a reader matches on is how they learn a node exists at all, and a tree '
       + 'whose last nodes are unreachable from the page every route opens with is one only '
-      + 'somebody who already knew about it can walk.',
+      + 'somebody who already knew about it can walk. Raised again to 16,300 when the table '
+      + 'stopped asking one question twice. Two rows asked whether a component exists and both '
+      + 'answered a no with the media register, so a builder whose component is merely missing '
+      + 'was routed to a page about photo walls and feeds. One row asks it now and names the '
+      + 'three shapes a no has: a different register, a decision the surface page states, and a '
+      + 'component nobody has added, which is the other branch. Dropping the second row also '
+      + 'puts the kernel row back beside the one that answers with the same document. Raised '
+      + 'again to 17,100 for the two rows a consumer holding a defect needs. The accessibility '
+      + 'row named the per-component behaviour file beside the pattern, and that file is in '
+      + 'EXCLUDED_PATTERNS in scripts/lib/arena/package-assembly.ts, so the row sent a reader '
+      + 'holding only the package to something the package does not carry; the pattern files '
+      + 'themselves are exported by both builds and stay. The second row is the branch exit: '
+      + 'CONTRIBUTING.md takes a document that sends a reader somewhere empty and a question the '
+      + 'documentation did not answer, and no page on this branch named it, so a consumer who '
+      + 'proved the defect was Arena\'s had nowhere to put it.',
   },
   {
     name: 'contributor',
@@ -394,7 +408,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 4_000,
+    budget: 4_200,
     reason:
       'paid once per project like the skin and the register routes, and taken before the first '
       + 'screen for the same reason they are: the answer reaches the layer and the install rather '
@@ -421,7 +435,11 @@ export const ROUTES: Route[] = [
       + 'this page on purpose.'
       + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
       + 'against what is left, so every one of them names a number this route does not have. The '
-      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one. Raised to 4,200 when the section stopped '
+      + 'reading as a refusal of the architecture. It opened on there being no server render, which '
+      + 'is the one page a project consults while the layer choice is still cheap, and the tree '
+      + 'answers each architecture with the evidence behind it: Arena renders no page and lists '
+      + 'none, and which one produces it is the project\'s own answer.'
   },
   {
     name: 'consumer-surface',
@@ -429,7 +447,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 10_100,
+    budget: 10_700,
     reason:
       'paid once per project like the skin, the register and the seo routes, and taken before all '
       + 'three, because each of them asks how much of a thing nobody has shown the reader yet. What '
@@ -456,7 +474,17 @@ export const ROUTES: Route[] = [
       + 'here rather than per screen.'
       + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
       + 'against what is left, so every one of them names a number this route does not have. The '
-      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this '
+      + 'one. Raised again to 10,500 for the one line this section was missing. The page states '
+      + 'every line as a decision rather than a gap waiting to close, and the decision to ship '
+      + 'no date picker and no time picker sat in one component prompt three stops away, where '
+      + 'a project planning a form reaches it after it has planned one. A page promising the '
+      + 'whole line is falsified by any part of it kept somewhere else. Raised again to 10,700 '
+      + 'when the same section stopped answering a question that is the project\'s. It opened a '
+      + 'line with no server render, where the tree supports one and the cold start tree '
+      + 'answers each architecture with the evidence behind it: what Arena ships no tooling for '
+      + 'is producing the pages, and a headline naming the architecture instead reads as a '
+      + 'refusal on the one page a project consults before choosing.',
   },
   {
     name: 'consumer-page',
@@ -524,7 +552,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 23_300,
+    budget: 23_700,
     reason:
       'the first route on this branch that is declared as a tree, and the reason the shape exists. '
       + 'A reader here answers a question and walks one way: handed a document stating the palette '
@@ -561,7 +589,16 @@ export const ROUTES: Route[] = [
       + 'routed into writing one again, and nothing in the tree said which of its nodes a project '
       + 'already carrying Arena has spent. The exit is what makes the first node\'s two answers '
       + 'reach two different ends rather than the same one, and it is charged here because the '
-      + 'tree is where a reader is when they need it.',
+      + 'tree is where a reader is when they need it. Raised again to 23,600 when the catalogue '
+      + 'stopped being reachable only by refusing the interview. Node 4 was titled a last '
+      + 'resort and node 3 reached it from the row where the user will not answer, so a project '
+      + 'that would rather pick a measured register than invent one had no row anywhere and was '
+      + 'interviewed instead. Node 2 asks where the appearance comes from and a measured '
+      + 'register is one of its answers, so the row belongs there, and the node it reaches says '
+      + 'that two arrivals take it. It carries the verb as well: an entry is copied rather than '
+      + 'cited, and the one page saying so was the catalogue\'s own AGENTS.md, on the branch this '
+      + 'reader is told not to read, so a walk that reached the entry correctly then guessed at '
+      + 'what to do with it.',
   },
   {
     name: 'contributor-component',

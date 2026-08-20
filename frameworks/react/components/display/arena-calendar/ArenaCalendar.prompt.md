@@ -79,7 +79,7 @@ head that holds it.
 - Don't feed it multi-day or all-day events. There is no all-day row: an event running past midnight is clamped to the end of the day it started on.
 - Don't reach for `style` to place it. It takes none; wrap it in a `<div>` that owns the margin and the width.
 - Don't put anything but `ArenaCalendarEvent`s in it. Children are the event list, not a content area, and anything else is skipped by the placement pipeline and never renders.
-- Don't wrap it to add a month view or a mini datepicker and call it Arena. Both are real components with real specs; a hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
+- Don't wrap it to add a month view or a mini datepicker and call it Arena. Arena ships no month grid, and the date control is the native one, `type="date"` on `ArenaInput`; a hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
 
 **Two accepted limits, both measured rather than argued.**
 

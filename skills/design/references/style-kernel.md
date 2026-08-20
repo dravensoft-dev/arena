@@ -4,6 +4,10 @@ Arena keeps the questions and a repertoire of values. **Every answer is a style 
 appearance Arena installs with is one of them, so replacing it is the ordinary case rather than an
 escape hatch.
 
+**Eight registers are already measured, and picking one is a way to answer this page rather than
+a way around it.** `plugin-style-store/catalogue/` holds a directory each, and the fourth node
+of [`cold-start.md`](./cold-start.md) is where a product is matched against them.
+
 Read this once per project, before the first screen. The rules of the language are in
 [`../SKILL.md`](../SKILL.md) and hold whatever your appearance is.
 

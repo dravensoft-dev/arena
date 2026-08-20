@@ -73,7 +73,7 @@ The boolean is not ceremony. What a component draws may never be derived from wh
 - Don't reach past `colorId: 8`. There are eight slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
 - Don't feed it multi-day or all-day events. There is no all-day row: an event running past midnight is clamped to the end of the day it started on.
 - Don't project anything but `arena-calendar-event` into the default slot. Anything else lands in the grid as a track of its own.
-- Don't wrap it to add a month view or a mini datepicker and call it Arena.
+- Don't wrap it to add a month view or a mini datepicker and call it Arena. Arena ships no month grid, and the date control is the native one, `type="date"` on `arena-input`; a hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
 
 ## Verifying by hand
 

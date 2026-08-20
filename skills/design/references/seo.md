@@ -62,7 +62,8 @@ It is the one pattern in `contracts/behaviour/` that is not an accessibility req
 
 ## What Arena does not decide
 
-There is no server render, no prerender and no sitemap here. Arena writes the `<head>` of whatever
-page your application renders and describes the structures it draws; how that page reaches a
-reader, and what a crawler is handed when it asks for one, stay yours to answer. The three
+Arena renders no page and lists none. It writes the `<head>` of whatever page your application
+renders and describes the structures it draws; how that page reaches a reader, and what a
+crawler is handed when it asks for one, stay yours to answer. Which architecture produces it,
+and the evidence behind each, is the ninth node of [`cold-start.md`](./cold-start.md). The three
 properties above are the part Arena holds, and they are not the whole of the job.

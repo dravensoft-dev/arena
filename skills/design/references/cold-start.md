@@ -30,6 +30,7 @@ decision the agent made alone.
 | A document stating the palette, the type and the roles | 5 | nothing, and this is the case the rest of this page exists to reach |
 | A public URL to copy | 3, then 5 | every role that lives behind a state, and probably the register |
 | A screenshot | 3, then 5 | every role outside the one polarity, density and state it caught |
+| One of the registers Arena measured, picked rather than invented | 4 | the palette is still yours to state, and nothing else about the product is settled |
 | Nothing yet | 3 | the whole interview, which is the honest price |
 
 **A public site hides its own states.** Hover, focus, disabled, error, empty and loading are behind
@@ -70,11 +71,12 @@ shadow reads as two products sharing a screen.
 | The user answers them | 5 |
 | The user will not answer them | 4 |
 
-## 4. The last resort, and it is a real answer
+## 4. Start from a register Arena measured
 
-Ask for one thing only: a short description of the app. Then match that description against the
-catalogue in `plugin-style-store/catalogue/`, where each directory is a register measured on a real
-product and carrying its own `ENTRY.md`.
+**Two arrivals reach this node**, one that would rather pick than answer and one that will not
+answer at all, and it is a real answer to both. Ask for one thing only: a short description of
+the app. Then match that description against the catalogue in `plugin-style-store/catalogue/`,
+where each directory is a register measured on a real product and carrying its own `ENTRY.md`.
 
 **Match on one line rather than on the entries themselves.** Every `ENTRY.md` carries a line
 beginning `Take this entry when`, which says what that register is for in the terms a description
@@ -84,6 +86,9 @@ it, do not remember it.
 **Name the entry you picked and what it decides, and wait.** Say which register it is, what it
 answered for shape, air and depth, and what it leaves open. An entry chosen silently is the same
 failure as a screenshot read silently, with a better result and the same missing consent.
+
+**An entry is copied rather than cited.** Its `plugin.tokens.json` and its `plugin.css` become
+your project's own under `design/<name>/`, and node 10 is where they land.
 
 **The catalogue is in the Arena repository rather than in the package.** From an installed project,
 read it there.

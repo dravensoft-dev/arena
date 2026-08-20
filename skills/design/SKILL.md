@@ -135,11 +135,10 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
 | Which layer, which architecture, and what do I have to install? | the same tree's last three nodes: how much the product has to be found decides the layer and a peer, what it is assembled on is answered per architecture with the evidence for each, and the dependency list follows from both |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
-| Arena has no component for what I am building. Now what? | [`references/media-register.md`](./references/media-register.md): the pattern your markup binds, the parts the package ships for it, and the one rule that bends |
 | Which of those answers actually change how it looks? | the same document's table, measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
 | What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
-| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md), and [`references/media-register.md`](./references/media-register.md) when the answer is no |
+| Does a component like this exist at all, and what if it does not? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md), which also says which layers ship it. A no is one of three: your product is a different register and the markup is yours, [`references/media-register.md`](./references/media-register.md); Arena ships none on purpose, which [`references/surface.md`](./references/surface.md)'s last section states with the reason; or nobody has added one, which is the other branch, named at the top of this page |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
@@ -153,10 +152,11 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | Where does Arena stop? | the same document's last section, which is a list of decisions rather than gaps waiting to close |
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
-| What must this kind of component do to be accessible? | `contracts/behaviour/<pattern>.json`, and the component's own `<Name>.behaviour.json` |
+| What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
 | How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](../../frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](../../frameworks/angular/PACKAGE.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
+| Arena itself is wrong, or one of these pages sent me somewhere empty. Where does that go? | [`CONTRIBUTING.md`](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md), which takes issues and no external pull request, and says what makes one usable. A question this documentation did not answer is one of them |
 
 **Do not read these to build something.** `contracts/api/AGENTS.md`,
 `contracts/behaviour/AGENTS.md`, `frameworks/PACKAGING.md`, and each layer's own `AGENTS.md`
