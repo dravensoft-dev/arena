@@ -1,92 +1,19 @@
 /* What Tailwind's `@supports` emit does to a compiled rule, and the two repairs it needs. An
  * opacity modifier compiles to the colour at full strength with the mix behind the at-rule, which
  * is progressive enhancement until the wash washes the INK'S OWN colour: then the fallback paints
- * the glyph in the ground it stands on, and a pressed ArenaIconButton is a solid accent block with
- * nothing in it. `dropBlindFallbacks` takes that half out, so the background is invalid at
- * computed-value time and does not paint, which leaves the ink on the surface it was measured
- * against; no engine that resolves color-mix sees a change. `mergeSupports` is the second: one
- * rule states a condition once, because `bun build` keeps the FIRST block of a repeated condition
- * and discards the rest, measured on Bun 1.3.14. It merges into the LAST of a group, which is what
- * makes it safe, and refuses any move a plain declaration of the same property would start losing to. */
+ * the glyph in the ground it stands on. `dropBlindFallbacks` takes that half out, so the
+ * background is invalid at computed-value time and does not paint, which leaves the ink on the
+ * surface it was measured against; no engine resolving color-mix sees a change. `mergeSupports`
+ * is the second: one rule states a condition once, because `bun build` keeps the FIRST block of a
+ * repeated condition and discards the rest, measured on Bun 1.3.14. It merges into the LAST of a
+ * group, and refuses any move a plain declaration of the same property would start losing to. The
+ * block reader is a sibling of the shipped CLI, which reads these sheets and cannot import here. */
 
-export type CssBlock = {
-  selector: string;
-  parent: CssBlock | null;
-  decls: { name: string; value: string; from: number; to: number }[];
-  children: CssBlock[];
-  head: number;
-  open: number;
-  close: number;
-};
+import type { CssBlock } from '../../generate/core/arena-to-prod/css-blocks.ts';
+import { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf } from '../../generate/core/arena-to-prod/css-blocks.ts';
 
-export const COLOUR_VAR = /var\(\s*--([a-z0-9-]+)\s*\)/;
-export const MIXED_VAR = /color-mix\([^)]*var\(\s*--([a-z0-9-]+)\s*\)/;
-
-export function parseBlocks(css: string, from = 0, selector = '', parent: CssBlock | null = null): CssBlock {
-  const block: CssBlock = {
-    selector, parent, decls: [], children: [], head: from, open: from, close: css.length,
-  };
-  let text = '';
-  let start = -1;
-  let index = from;
-  const take = (end: number) => {
-    const trimmed = text.trim();
-    const colon = trimmed.indexOf(':');
-    if (colon > 0 && start >= 0) {
-      block.decls.push({
-        name: trimmed.slice(0, colon).trim(),
-        value: trimmed.slice(colon + 1).trim(),
-        from: start,
-        to: end,
-      });
-    }
-    text = '';
-    start = -1;
-  };
-  while (index < css.length) {
-    const char = css[index] as string;
-    if (char === '{') {
-      const child = parseBlocks(css, index + 1, text.trim(), block);
-      child.head = start < 0 ? index : start;
-      block.children.push(child);
-      index = child.close + 1;
-      text = '';
-      start = -1;
-      continue;
-    }
-    if (char === '}') {
-      block.close = index;
-      return block;
-    }
-    if (char === ';') {
-      take(index);
-      index += 1;
-      continue;
-    }
-    if (start < 0 && !/\s/.test(char)) start = index;
-    text += char;
-    index += 1;
-  }
-  return block;
-}
-
-export function selectorPath(block: CssBlock) {
-  const parts = [];
-  for (let at: CssBlock | null = block; at; at = at.parent) if (at.selector) parts.unshift(at.selector);
-  return parts.join(' ');
-}
-
-export function inkOf(block: CssBlock) {
-  for (let at: CssBlock | null = block; at; at = at.parent) {
-    for (let i = at.decls.length - 1; i >= 0; i -= 1) {
-      const decl = at.decls[i];
-      if (!decl || decl.name !== 'color') continue;
-      const named = COLOUR_VAR.exec(decl.value) ?? MIXED_VAR.exec(decl.value);
-      if (named) return named[1] as string;
-    }
-  }
-  return null;
-}
+export type { CssBlock };
+export { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf };
 
 function enhancedBy(block: CssBlock, after: number, property: string, token: string) {
   const following = block.children

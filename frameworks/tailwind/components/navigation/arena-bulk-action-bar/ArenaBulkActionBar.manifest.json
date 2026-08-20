@@ -13,7 +13,7 @@
   "variants": {
     "destructive": {
       "true": {
-        "action": "border-error text-error hover:bg-error/14"
+        "action": "border-error text-error hover:bg-hover"
       },
       "false": {
         "action": "border-edge-control-quiet text-ink-body/(--level-ink-body) hover:bg-base-200"

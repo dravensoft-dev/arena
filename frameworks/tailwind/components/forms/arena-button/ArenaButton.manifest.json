@@ -16,7 +16,7 @@
         "root": "bg-transparent text-ink-body/(--level-ink-body) border-transparent hover:bg-base-200"
       },
       "danger": {
-        "root": "bg-transparent border-error text-error hover:bg-error/14"
+        "root": "bg-transparent border-error text-error hover:bg-hover"
       }
     },
     "size": {

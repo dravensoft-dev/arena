@@ -15,7 +15,7 @@
   "variants": {
     "active": {
       "true": {
-        "item": "bg-primary/14 text-primary font-control",
+        "item": "bg-primary/14 text-ink-body/(--level-ink-body) font-control",
         "badge": "bg-primary text-primary-content"
       },
       "false": {

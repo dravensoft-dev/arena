@@ -99,7 +99,7 @@ test('the wash is measured against the ink that rides on it', () => {
   const colors = { 'base-100': '#ffffff', 'color-error': '#ff4b4b', error: '#ff4b4b' };
   const [only] = washReports(washesIn(HOVER), roles, colors);
   assert.match(only?.message ?? '', /14% wash of itself/);
-  assert.match(only?.message ?? '', /ceiling/);
+  assert.match(only?.message ?? '', /no wash percentage lifts it/);
 });
 
 test('a level is raised until it clears its bar, and never lowered', () => {
@@ -161,4 +161,53 @@ test('every decorative exemption is a part both layers still render aria-hidden'
         + 'renders it aria-hidden, so the exemption is excusing a mark somebody has to see');
     }
   }
+});
+
+const PRESSED = [
+  '  .arena-icon-button__root--pressed-true {',
+  '    border-color: var(--color-primary);',
+  '    @supports (color: color-mix(in lab, red, red)) {',
+  '      background-color: color-mix(in oklab, var(--color-primary) 14%, transparent);',
+  '      border-color: color-mix(in oklab, var(--color-primary) 38%, transparent);',
+  '    }',
+  '    color: var(--color-primary);',
+  '    &:hover {',
+  '      @media (hover: hover) {',
+  '        @supports (color: color-mix(in lab, red, red)) {',
+  '          background-color: color-mix(in oklab, var(--color-primary) 22%, transparent);',
+  '        }',
+  '      }',
+  '    }',
+  '  }',
+].join('\n');
+
+test('a wash written before the ink is still a wash of that ink, and both of them are found', () => {
+  assert.deepEqual(washesIn(PRESSED), [
+    { selector: '.arena-icon-button__root--pressed-true', variable: 'color-primary', percent: 14 },
+    { selector: '.arena-icon-button__root--pressed-true', variable: 'color-primary', percent: 22 },
+  ], 'the resting wash is declared above the color it washes, and a reader that keeps the last '
+    + 'color it passed sees neither it nor the ratio it costs');
+});
+
+const SIBLING = [
+  '  .arena-menu__item-default {',
+  '    color: var(--ink-body);',
+  '    &:hover {',
+  '      @media (hover: hover) {',
+  '        background-color: color-mix(in oklab, var(--color-primary) 14%, transparent);',
+  '      }',
+  '    }',
+  '    &:hover {',
+  '      @media (hover: hover) {',
+  '        color: var(--color-primary);',
+  '      }',
+  '    }',
+  '  }',
+].join('\n');
+
+test('two rules with one selector are one rule to a browser, so the ink can be declared beside the wash', () => {
+  assert.deepEqual(washesIn(SIBLING), [
+    { selector: '.arena-menu__item-default', variable: 'color-primary', percent: 14 },
+  ], 'the hovered item takes both blocks, so its ink on hover is the accent and not the body ink '
+    + 'the resting block declares');
 });

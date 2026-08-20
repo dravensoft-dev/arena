@@ -9,6 +9,8 @@
  * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any. */
 
 import { contrast } from './validate-palette.mjs';
+import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';
+import type { CssBlock } from './css-blocks.ts';
 import { composite } from './oklab.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
@@ -99,19 +101,53 @@ export function levelsIn(css: string, defaults: Record<string, number> = {}): Le
 
 export type Wash = { selector: string; variable: string; percent: number };
 
+const WASH_PERCENT = /color-mix\(in oklab,\s*var\(--[\w-]+\)\s*([\d.]+)%\s*,\s*transparent\)/;
+
+function washedClass(block: CssBlock) {
+  for (let at: CssBlock | null = block; at; at = at.parent)
+    if (at.selector.startsWith('.')) return at.selector;
+  return '';
+}
+
+function inkByPath(root: CssBlock) {
+  const inks = new Map<string, string>();
+  const walk = (block: CssBlock) => {
+    for (const decl of block.decls) {
+      if (decl.name !== 'color') continue;
+      const named = COLOUR_VAR.exec(decl.value)?.[1] ?? MIXED_VAR.exec(decl.value)?.[1];
+      if (named) inks.set(selectorPath(block), named);
+    }
+    for (const child of block.children) walk(child);
+  };
+  walk(root);
+  return inks;
+}
+
+function inkPainting(block: CssBlock, inks: Map<string, string>) {
+  for (let at: CssBlock | null = block; at; at = at.parent) {
+    const named = inks.get(selectorPath(at));
+    if (named) return named;
+  }
+  return null;
+}
+
 export function washesIn(css: string): Wash[] {
   const out: Wash[] = [];
-  let selector = '';
-  let ink = '';
-  for (const line of css.split('\n')) {
-    const named = SELECTOR.exec(line)?.[1];
-    if (named && named.startsWith('.')) { selector = named; ink = ''; }
-    const inked = INK.exec(line)?.[1];
-    if (inked) ink = inked;
-    const mix = MIX.exec(line);
-    if (!mix || mix[1] !== 'background-color' || mix[2] !== ink) continue;
-    out.push({ selector, variable: ink, percent: Number(mix[3]) });
-  }
+  const root = parseBlocks(css);
+  const inks = inkByPath(root);
+  const walk = (block: CssBlock) => {
+    for (const decl of block.decls) {
+      if (decl.name !== 'background-color') continue;
+      const mixed = MIXED_VAR.exec(decl.value)?.[1];
+      const percent = WASH_PERCENT.exec(decl.value)?.[1];
+      if (!mixed || !percent || inkPainting(block, inks) !== mixed) continue;
+      const selector = washedClass(block);
+      if (!selector) continue;
+      out.push({ selector, variable: mixed, percent: Number(percent) });
+    }
+    for (const child of block.children) walk(child);
+  };
+  walk(root);
   return out;
 }
 
@@ -129,8 +165,11 @@ export function washReports(
       const ratio = contrast(ink, painted);
       if (ratio >= TEXT_MIN) continue;
       out.push(report('wash', `--${wash.variable} is drawn on a ${wash.percent}% wash of itself `
-        + `at ${wash.selector}, which reads ${ratio.toFixed(2)}:1 over --color-${surface}, under `
-        + `${TEXT_MIN}:1. The resting ratio is the ceiling here, so no wash percentage lifts it`));
+        + `at ${wash.selector}, and reads ${ratio.toFixed(2)}:1 against that wash where it is `
+        + `composited over --color-${surface}, under ${TEXT_MIN}:1. The ink and the ground it `
+        + 'stands on are one colour, so the ratio cannot pass what the ink reads against the '
+        + 'surface itself: no wash percentage lifts it, and what does is a state that stops '
+        + 'painting the accent as its own ink'));
     }
   }
   return out;
