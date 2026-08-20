@@ -91,6 +91,7 @@
     "check:docs": "bun scripts/check/arena/check-docs.ts",
     "check:graph": "bun scripts/check/arena/check-graph.ts",
     "check:portability": "bun scripts/check/arena/check-portability.ts",
+    "check:workflow-scripts": "bun scripts/check/arena/check-workflow-scripts.ts",
     "check:generated": "bun scripts/check/arena/check-generated.ts",
     "check:skill-spec": "bun scripts/check/arena/check-skill-spec.ts",
     "check:skills": "bun scripts/check/arena/check-skills.ts",

@@ -2,13 +2,14 @@
 
 One guards a pull request, one guards `main`, one guards `develop`, two publish a package, one
 writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
-many, and this page carried the figure instead until the count and the directory disagreed: `portability.yml` ran the
-operating system matrix, was named in no diagram here, and is now a job of `Arena PR`, which is
-the same omission read twice. A number no assertion holds is the defect that rule exists to stop.
+many, and this page carried the figure instead until the count and the directory disagreed:
+`portability.yml` ran the operating system matrix, was named in no diagram here, and is now a job
+of `Arena develop`, which is the same omission read twice. A number no assertion holds is the
+defect that rule exists to stop.
 
 ```
-pull_request -> main          Arena PR
-push to develop               Arena develop
+pull_request -> main|develop  Arena PR
+push to develop               Arena develop         and the operating system matrix
 push to main                  Arena main            builds, and saves that build
    |
    +-- on success             Publish arena-react      restores it
@@ -32,10 +33,13 @@ build              bun run build:release, which assembles too, then one cache en
    +-- test-angular    if angular        the angular gates + the suites off the ngc emit
    +-- test-tailwind   if tailwind       the tailwind gates
    |
-portable           always, and off the build above: three operating systems, its own bun run build
-   |
 pr-gate            the only required check, and it waits for every job above
 ```
+
+**The operating system matrix is not here**, and `Arena develop` carries it. The reason is the
+event: this one fires on every push to an open pull request, and Arena takes pull requests from
+anyone, so a matrix here bills three operating systems per revision of every contribution rather
+than once per change that was accepted.
 
 **`build` is one job because the build is one thing.** The steps run in an order the graph derives
 and the order is not decorative: the Tailwind preset compiles against the token CSS, and every
@@ -130,10 +134,18 @@ so a re-run keeps the first run's build and stays green.
 
 ## Arena develop
 
-The same single job as `Arena main`, running the same five steps in the same order, and the
-only workflow that is a copy of another. It exists because work lands on `develop` before it
-lands on `main`, and a merge into `develop` would otherwise be verified by nothing but whichever
-pull request preceded it: `Arena PR` is scoped to pull requests targeting `main`.
+Two jobs. `verify` is the same five steps as `Arena main`, in the same order, and it is the only
+job here that is a copy of another. It exists because work lands on `develop` before it lands on
+`main`, and what lands there is not always what a pull request tested. `Arena PR` runs on pull
+requests into `develop` as well as into `main`, and each run tests the head at that moment; a
+merge commit resolved afterwards, and a push straight to the branch, are verified by this
+workflow and by nothing else.
+
+**`portable` is the operating system matrix**, three legs on their own `bun run build`, and this
+is where the question is asked. `check:portability` holds the legs equal to
+[`../../scripts/ci/arena/supported-os.ts`](../../scripts/ci/arena/supported-os.ts) and reads this
+file to do it. A merge request from `develop` to `main` is opened on a green `develop`, so a
+platform this matrix reddens is one that never reaches the branch the packages publish from.
 
 It is a separate file rather than a second branch on `Arena main`'s trigger, and the reason is
 the name. Both publish workflows fire on `workflow_run` of the workflow named `Arena main`, so a
@@ -141,11 +153,12 @@ the name. Both publish workflows fire on `workflow_run` of the workflow named `A
 `main`. Their `branches: [main]` filter refuses it, but the refusal is one file away from the
 event; a name of its own puts the answer in the workflow that asks.
 
-**It caches nothing**, so `bun install` is cold on every run, and it is the only workflow here
-that saves nothing either. `Arena PR` caches because a pull request is pushed to repeatedly and
-its four test jobs each need the one build, and `Arena main` because two publish workflows read
-what it built. `develop` is one job that runs once per merge and is read by nobody, where a cache
-saves a fraction of a run it would also have to be kept honest across.
+**`verify` caches nothing**, so `bun install` is cold on every run, and it saves nothing either.
+`Arena PR` caches because a pull request is pushed to repeatedly and its four test jobs each need
+the one build, and `Arena main` because two publish workflows read what it built. `verify` runs
+once per merge and is read by nobody, where a cache saves a fraction of a run it would also have
+to be kept honest across. `portable` restores a bun install cache per operating system and saves
+none of the build, because what it is asking is whether a fresh tree builds on that platform.
 
 **Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
 `--assemble`, so the two packages are part of the run the workflow already makes. Dropping the
@@ -184,6 +197,23 @@ change in one commit and the version bump land in another, so asking only about 
 would mean the change is never published at all. What each package carries is
 `scripts/ci/arena/package-inputs.ts`, whose suite holds the list to what the assemblers
 actually read.
+
+**A spec names a directory, and the guard asks the assembler which of it ships.** The suites
+beside the sources, the prompts, the demo entries and the prose about a directory all sit inside
+`frameworks/react/`, and none of them reaches a tarball, so `--carried` puts `excluded()` -- the
+assembler's own predicate, in `../../scripts/lib/arena/package-exclusions.ts` -- to every path git
+hands back. The question is asked of the part of a path **inside** the spec that reached it: a spec
+naming a file is read rather than walked, and `scripts/build/react/build-react-package.ts` is the
+assembler of the package it belongs to, sitting under a directory called `build`, which is one of
+the names that walk skips.
+
+**An empty list of paths stops the run.** `git` reads no pathspec as every path, so a guard whose
+script died answers "everything moved" and republishes a tree nothing touched -- which is what
+happened at 10.0.1 and 10.1.0, where `package-inputs.ts` reached `typescript` through the assembler
+and a job that installs nothing resolved a major the tree does not pin. It was silent because the
+call sat in `< <(...)`, and `set -e` never sees a command inside a process substitution. The list is
+now read into a variable whose failure is checked, and `check:workflow-scripts` refuses the import
+that made it fail.
 
 **Whatever it answers, the guard writes that answer to the run summary**: the version on the
 registry, the version in this tree, the decision, and the reason for it. The common answer is
@@ -278,6 +308,16 @@ So the newest version of a package is the version of the last Arena release that
 A gap in the sequence is the record of a release that left it alone, and two packages at
 different versions are two packages that last changed at different times. Both are always
 built from the same tree.
+
+## A job that runs a script installs, or the script imports nothing outside the tree
+
+Either half satisfies it. Bun answers a bare specifier in a job with no `bun install` by fetching
+it at whatever major the registry serves rather than the one `bun.lock` pins, so a script that
+reaches one is a script whose behaviour is decided elsewhere and can change with no commit here.
+The guard jobs of both publish workflows and the routing job of `pr.yml` deliberately skip the
+install, because the question each asks costs less than the install would; their scripts therefore
+import only `node:` builtins and files in this tree. `check:workflow-scripts` reads a job rather
+than a workflow and refuses the other combination.
 
 ## Notes on the runner
 

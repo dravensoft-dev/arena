@@ -1,0 +1,85 @@
+name: Proposal
+description: A change to a rule that binds every component, not a defect in one of them.
+labels: [proposal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A change that stays inside one component, one document or one suite does not need this
+        form. Open the pull request.
+        [CONTRIBUTING.md](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md)
+        says which is which, and what a change is not allowed to break.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What Arena cannot do today
+      description: >
+        The situation you are in, not the change you already picked. A rule binds every
+        component at once, so the problem is what decides whether the rule is what is wrong.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reach
+    attributes:
+      label: What it reaches
+      options:
+        - A design token or a token contract
+        - A component API contract
+        - A behaviour pattern a component binds
+        - A gate, or the claim a gate holds
+        - A member a consumer imports
+        - The style kernel or a style plugin role
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: The change itself, and which document decides the rule it touches.
+    validations:
+      required: true
+
+  - type: textarea
+    id: cost
+    attributes:
+      label: What it costs a project already on Arena
+      description: >
+        What breaks, what a consumer rewrites, and what a project on the current version sees
+        if it upgrades. Arena moves in majors and carries no deprecation window, so a break is
+        allowed and a break nobody described is not.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you weighed and refused
+      description: >
+        The other shapes this could take, each with the reason it lost. A refused option
+        without its reason is worth nothing, and it is what stops the next reader proposing it
+        again.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: intent
+    attributes:
+      label: Do you intend to write it
+      options:
+        - Yes, once the rule is agreed
+        - No, I am reporting the problem
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The Arena version you are on. `README.md` names the current one.
+      placeholder: 10.1.0
+    validations:
+      required: false

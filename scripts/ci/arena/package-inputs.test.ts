@@ -1,10 +1,25 @@
+/* The cross-check against the CSS chain lives here rather than beside the list, because the
+ * guard's own CLI must import nothing outside node: and this tree: it runs in a job with no
+ * install. A suite already reaches the assembler, and running one costs a job nothing. */
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { PACKAGE_INPUTS, SHARED_INPUTS, pathspecs, uncoveredChainEntries } from './package-inputs.ts';
-import { CSS_CHAIN, CLI_BINS } from '../../lib/arena/package-assembly.ts';
+import {
+  PACKAGE_INPUTS, PROSE_NAMES, SHARED_INPUTS, carried, carries, pathspecs,
+} from './package-inputs.ts';
+import { BEHAVIOUR_DIR, CSS_CHAIN, CLI_BINS, excluded } from '../../lib/arena/package-assembly.ts';
+import { EXCLUDED_NAMES, EXCLUDED_PATTERNS } from '../../lib/arena/package-exclusions.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+
+export function uncoveredChainEntries(inputs: Record<string, string> = SHARED_INPUTS, chain = CSS_CHAIN) {
+  const prefixes = Object.keys(inputs);
+  return chain
+    .map((c) => c.from)
+    .filter((from): from is string => from !== undefined)
+    .filter((from) => !prefixes.some((p) => (p.endsWith('/') ? from.startsWith(p) : from === p)));
+}
 
 test('every file the CSS chain copies is covered, so a chain that grows fails here', () => {
   assert.ok(CSS_CHAIN.length > 0);
@@ -22,6 +37,13 @@ test('the CLI each package ships as its bin is covered', () => {
     assert.ok(existsSync(join(repoRoot, 'scripts', 'generate', 'core', name)),
       'copyCli reads this directory, and the guard names it by that path');
   }
+});
+
+test('the behaviour contracts both packages carry are covered', () => {
+  assert.ok(`${BEHAVIOUR_DIR}/` in SHARED_INPUTS,
+    'copyBehaviourContracts writes this directory into contracts/behaviour/ of both packages, so a '
+    + 'contract edited alone changes both tarballs and must reach the guard');
+  assert.ok(existsSync(join(repoRoot, BEHAVIOUR_DIR)));
 });
 
 test('each package names its own layer, and both name the Tailwind layer they draw from', () => {
@@ -60,4 +82,40 @@ test('every entry carries a reason', () => {
 
 test('a layer no package is assembled from is refused rather than answered with nothing', () => {
   assert.throws(() => pathspecs('tailwind'), /no package is assembled/);
+});
+
+test('the assembler decides what a directory spec carries, so a rule it grows narrows the guard too', () => {
+  assert.ok(EXCLUDED_PATTERNS.length > 0);
+  for (const name of ['ArenaTable.slice.dom.test.tsx', 'ArenaTag.prompt.md', 'ArenaButton.card.html']) {
+    assert.equal(excluded(name), true, name);
+    assert.equal(carries(`frameworks/react/components/display/arena-x/${name}`, 'react'), false, name);
+  }
+  for (const dir of EXCLUDED_NAMES) {
+    assert.equal(carries(`frameworks/react/${dir}/Thing.tsx`, 'react'), false, dir);
+  }
+});
+
+test('a spec naming a file is read rather than walked, so its own directory name cannot drop it', () => {
+  assert.ok(excluded('build'), 'the assembler skips a directory called build, which is the trap');
+  assert.equal(carries('scripts/build/react/build-react-package.ts', 'react'), true,
+    'the assembler is an input of the package it assembles, and it lives under scripts/build/');
+  assert.equal(carries('scripts/build/angular/build-angular-package.ts', 'angular'), true);
+});
+
+test('prose about a directory is not a reason to republish, and PACKAGE.md is not prose', () => {
+  for (const [name, reason] of Object.entries(PROSE_NAMES)) {
+    assert.ok(reason.length > 10, `${name} has no usable reason`);
+    assert.equal(carries(`frameworks/react/components/display/${name}`, 'react'), false, name);
+    assert.equal(carries(`contracts/design/${name}`, 'react'), false, name);
+  }
+  assert.ok(!('PACKAGE.md' in PROSE_NAMES),
+    'each assembler copies PACKAGE.md in as the package README, so it is an input');
+  assert.equal(carries('frameworks/react/PACKAGE.md', 'react'), true);
+});
+
+test('a path no spec reaches is not carried, so a wider diff cannot leak in', () => {
+  assert.equal(carries('README.md', 'react'), false);
+  assert.equal(carries('.claude-plugin/plugin.json', 'react'), false);
+  assert.equal(carries('frameworks/angular/index.ts', 'react'), false);
+  assert.deepEqual(carried(['README.md', 'frameworks/react/index.ts', ''], 'react'), ['frameworks/react/index.ts']);
 });

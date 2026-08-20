@@ -10,8 +10,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  OUTWARD, POLICY, CONTRIBUTING, CONFIG, CONTEXT7, ROUTER, contributorBasenames, unwrapped,
-  missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
+  OUTWARD, POLICY, CONTRIBUTING, CONDUCT, CONFIG, CONTEXT7, ROUTER, contributorBasenames,
+  unwrapped, missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
   context7Problems, zeroScanProblems, markdown, LIMITS, CONTEXT7_KEYS,
 } from './check-community.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -31,6 +31,8 @@ const LINK = (path: string) => `https://github.com/dravensoft-dev/arena/blob/mai
 test('OUTWARD names every file a stranger meets, and says why each is there', () => {
   assert.ok(OUTWARD.has(CONTRIBUTING));
   assert.ok(OUTWARD.has(CONTEXT7));
+  assert.ok(OUTWARD.has(CONDUCT), 'the terms a contributor is held to are part of that surface');
+  assert.ok(OUTWARD.has('.github/ISSUE_TEMPLATE/proposal.yml'), 'so is where the argument arrives');
   for (const [rel, reason] of OUTWARD) {
     assert.ok(reason.length > 40, `${rel} carries no reason worth reading`);
   }

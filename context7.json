@@ -20,7 +20,8 @@
     "PACKAGING.md",
     "versioning_steps.md",
     "CONTRIBUTING.md",
-    "SECURITY.md"
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md"
   ],
   "rules": [
     "Tokens are the only styling layer.",

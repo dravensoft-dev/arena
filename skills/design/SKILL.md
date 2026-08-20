@@ -156,7 +156,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](../../frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](../../frameworks/angular/PACKAGE.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
-| Arena itself is wrong, or one of these pages sent me somewhere empty. Where does that go? | [`CONTRIBUTING.md`](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md), which takes issues and no external pull request, and says what makes one usable. A question this documentation did not answer is one of them |
+| Arena itself is wrong, or one of these pages sent me somewhere empty. Where does that go? | [`CONTRIBUTING.md`](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md), which takes an issue and a pull request alike, and says what makes either usable. A question this documentation did not answer is one of them |
 
 **Do not read these to build something.** `contracts/api/AGENTS.md`,
 `contracts/behaviour/AGENTS.md`, `frameworks/PACKAGING.md`, and each layer's own `AGENTS.md`

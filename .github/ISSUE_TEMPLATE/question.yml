@@ -30,6 +30,6 @@ body:
     id: version
     attributes:
       label: Version
-      placeholder: 9.0.2
+      placeholder: 10.1.0
     validations:
       required: false

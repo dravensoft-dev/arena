@@ -135,7 +135,7 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 10.1.0
+- **Repo/Claude Code plugin**: 10.1.1
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 
@@ -186,9 +186,11 @@ branch, and everything below is reached through it.
 
 ## Contributing and security
 
-Arena takes issues. [`CONTRIBUTING.md`](./CONTRIBUTING.md) says what an issue is
-for and which contributions are accepted, and [`SECURITY.md`](./SECURITY.md) is
-where a vulnerability goes.
+Arena takes pull requests from anyone. [`CONTRIBUTING.md`](./CONTRIBUTING.md) says
+which changes go straight to one and which start as a proposal, and what a change
+is not allowed to break. [`SECURITY.md`](./SECURITY.md) is where a vulnerability
+goes, and [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) is the Contributor Covenant
+this project holds to.
 
 ## About
 

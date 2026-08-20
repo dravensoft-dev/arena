@@ -1,13 +1,13 @@
-/* Holds the surface a stranger meets before any code: the governance policy, the security route,
- * the issue forms, and the context7.json that decides what an agent's documentation lookup gets
- * back. OUTWARD names each file with the reason it exists, because none of them is reachable from
- * the router and nothing else would notice one going missing. Two failures this exists for: a
- * contact link or an issue form pointing at a path the default branch does not carry, which reads
- * as a maintained project and answers 404; and context7.json drifting from SKILL.md, which is
- * worse than silent, since Context7 has no router and hands back whatever it indexed. Every
- * string in `rules` is therefore required to be a verbatim span of SKILL.md, compared with runs of
- * whitespace flattened so that rewrapping a paragraph is not a failure, which is what makes the
- * copy unable to go quietly false without making it hostage to where a line happens to break. */
+/* Holds the surface a stranger meets before any code: the governance policy, the terms it is held
+ * to, the security route, the issue forms, and the context7.json that decides what an agent's
+ * documentation lookup gets back. OUTWARD names each file with the reason it exists, since none of
+ * them is reachable from the router and nothing else would notice one going missing. Two failures
+ * this exists for: a contact link or an issue form pointing at a path the default branch does not
+ * carry, which reads as a maintained project and answers 404; and context7.json drifting from
+ * SKILL.md, which is worse than silent, since Context7 has no router and hands back whatever it
+ * indexed. Every string in `rules` is therefore required to be a verbatim span of SKILL.md,
+ * compared with runs of whitespace flattened so that rewrapping a paragraph is not a failure,
+ * which makes the copy unable to go quietly false without making it hostage to a line break. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
@@ -27,11 +27,12 @@ export const node = {
   feeds: [],
 };
 
-export const POLICY = 'does not take external pull requests';
+export const POLICY = 'takes external pull requests';
 
 export const CONFIG = '.github/ISSUE_TEMPLATE/config.yml';
 export const CONTRIBUTING = 'CONTRIBUTING.md';
 export const SECURITY = 'SECURITY.md';
+export const CONDUCT = 'CODE_OF_CONDUCT.md';
 export const CONTEXT7 = 'context7.json';
 export const ROUTER = 'skills/design/SKILL.md';
 
@@ -55,6 +56,12 @@ export const OUTWARD = new Map([
   ['.github/ISSUE_TEMPLATE/question.yml',
    'A question the documentation should have answered is a defect in the documentation, and this '
    + 'is where that report arrives.'],
+  ['.github/ISSUE_TEMPLATE/proposal.yml',
+   'Where the argument for a change arrives before the change does, which is what a patch to a '
+   + 'rule binding every component cannot carry on its own.'],
+  [CONDUCT,
+   'The terms a contributor is held to, and the address a report of them goes to. A repository '
+   + 'that takes work from strangers and names no such address answers nothing when it has to.'],
   [CONFIG,
    'Turns off the blank issue and names the contact links, which are the only routes a reporter '
    + 'sees before choosing a form.'],
