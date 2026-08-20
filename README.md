@@ -61,8 +61,11 @@ handed to a builder by [`skills/design/SKILL.md`](./skills/design/SKILL.md).
 
 ```bash
 bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
-bun add @phosphor-icons/web         # required: Arena renders icon class names, never SVG
 ```
+
+**That is the whole install.** Phosphor is a peer rather than a second
+command, because Arena renders icon class names and never SVG; the layer page
+below says which peers each package declares.
 
 Then write `arena.config.json`, run `bunx arena-to-prod`, and import what it
 writes. [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) and
@@ -90,9 +93,10 @@ the marketplace entry pinning `source.ref` to `vX.Y.Z`.
 
 ### As a standalone Agent Skill
 
-Hand any agent [`skills/design/SKILL.md`](./skills/design/SKILL.md). It is the router, and it
-answers each
-question with one file.
+Hand any agent [`skills/design/SKILL.md`](./skills/design/SKILL.md). It is the
+router, and it answers each question with one file. **It routes over this tree**,
+so an agent handed the file alone has the questions and reaches the answers by
+URL; one handed the clone or the plugin reaches them by path.
 
 **The packages work with this repository rather than instead of it.** Install
 the plugin, or hand over the skill, and the agent gets the guidelines, the
@@ -171,7 +175,7 @@ branch, and everything below is reached through it.
   carries the DTCG token type map, for whoever authors a token.
 - [`frameworks/react/AGENTS.md`](./frameworks/react/AGENTS.md): the React layer.
 - [`frameworks/angular/AGENTS.md`](./frameworks/angular/AGENTS.md): the Angular
-  layer, including how to adopt it.
+  layer, whose own last section hands adoption to the package page above.
 - [`frameworks/tailwind/AGENTS.md`](./frameworks/tailwind/AGENTS.md): the shared
   Tailwind layer.
 - [`frameworks/demos/AGENTS.md`](./frameworks/demos/AGENTS.md): the fixture

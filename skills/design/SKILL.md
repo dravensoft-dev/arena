@@ -21,20 +21,28 @@ every role whatever the product is. **When that is your product**, or one screen
 of a component: the pattern your markup binds, the parts the package already ships for it, and
 the one rule that bends.
 
-**This file routes. Read only what your task needs.**
+**This file routes. Read only what your task needs.** The rules below bind the code you write;
+the table under them routes. Read the rules once rather than per screen.
 
 ## Which job is this?
 
-**Building something with Arena** (a screen, a prototype, a component, an integration): stay
-here, and follow the table below. **If the project has no appearance of its own yet**, start at
-[`references/cold-start.md`](./references/cold-start.md) instead, which is the tree the next section
-sends you to and the only page that asks what this product looks like before anything answers.
+**Building something with Arena** (a screen, a prototype, a skin, an integration): stay here, and
+follow the table below. **On a project you have not walked yet**, start at
+[`references/cold-start.md`](./references/cold-start.md) instead, whose first question is whether
+the project already carries Arena: one that does is a short walk that reads the config and the
+plugin it already has, and one that does not is the only page asking what this product looks like
+before anything answers.
 
 **Changing Arena itself** (adding a component, moving a token, editing a contract or a gate):
 read [`AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/AGENTS.md) instead. It is the
-root of that branch and this file is not. It is named by its URL rather than by a path beside this
-one because that branch is the repository's and reaches nothing a package or this site carries, so
-a relative link to it resolves in a clone and nowhere else.
+root of that branch and this file is not, and it is named by URL because that branch is the
+repository's and reaches nothing a package or this site carries.
+
+**A value you answer is not a value you move**, which is what decides the branch when the job is
+an appearance: a role your project fills is this branch's whatever it paints, and a scale step
+every product reads is the other one's, the type and page rhythm ladders aside. **Every path here outside `references/` is a repository
+path**, carried by a clone and by the plugin, and read on the repository above when it is
+neither.
 
 **Everything here is one component at a time.**
 
@@ -42,18 +50,14 @@ a relative link to it resolves in a clone and nowhere else.
 
 **Before the first screen, and once per project rather than per screen**, settle what this product
 is and what it looks like, because a screen written ahead of that is written against decisions
-nobody made. [`references/cold-start.md`](./references/cold-start.md) is where that happens, and it
-is a tree rather than a list: its first question is whether the project already carries Arena, and
-its branches reach the four decisions a project settles once, the interview that comes before them
-when there is no appearance to read, the catalogue of measured style plugins a project can start
-from instead, the identity document every branch converges on before a file is written, and the two
-questions that decide an install rather than a screen: how much of the product has to be found from
-outside it, and what it is assembled on. Its last node derives the dependency list from those
-answers, so nothing has to be guessed at install time.
-
-**Walk it before the first file, on either branch.** The warm one reads the config and the plugin
-that are already there rather than writing over them; the cold one is what stops a screenshot
-becoming a palette while nobody is looking.
+nobody made. [`references/cold-start.md`](./references/cold-start.md) is where that happens, and
+it is a tree rather than a list, whose branches reach the four decisions a project settles once,
+the interview that comes before them when there is no appearance to read, the catalogue of
+measured style plugins a project can start from instead, the identity document every branch
+converges on before a file is written, and the two questions that decide an install rather than a
+screen: how much of the product has to be found from outside it, and what it is assembled on. Its
+last node derives the dependency list from those answers, so nothing has to be guessed at install
+time.
 
 Then, per screen:
 
@@ -67,9 +71,8 @@ Then, per screen:
 3. **The component's own `.prompt.md`**, linked from that index: its members as a table, its
    examples and its Do/Don't. Read one per component you actually write, and no more.
 
-[`frameworks/INDEX.md`](../../frameworks/INDEX.md) is the layer-neutral index beside those three, and
-it answers one question your layer's cannot: whether a component exists at all, and which layers
-ship it. Read it when you are looking for something you are not sure Arena has, and skip it when
+[`frameworks/INDEX.md`](../../frameworks/INDEX.md) is the layer-neutral index beside those three,
+and it answers the one question your layer's cannot, which the table below routes. Skip it when
 you already know what you are reaching for.
 
 A prompt states every member's type and default, so `contracts/api/components/<Name>.json` is
@@ -136,7 +139,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 | Which of those answers actually change how it looks? | the same document's table, measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
 | What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
-| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md) |
+| Does a component like this exist at all, and which layers ship it? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md), and [`references/media-register.md`](./references/media-register.md) when the answer is no |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | its `.prompt.md`, linked from that index |
@@ -189,8 +192,7 @@ decision above is
 
 **A brief names a product and never a palette, so the questions are always the same ones**, and a
 one-line brief is the normal case rather than the empty one. Which ones to ask, in what order, and
-what each answer unlocks is [`references/cold-start.md`](./references/cold-start.md), which is the
-tree named above and the one place those questions are written down. **Invoked with no guidance at
+what each answer unlocks is the tree named above. **Invoked with no guidance at
 all**, ask what the user wants to build and then walk that tree from its first node. Then act as an
 expert in the Arena language and produce either an HTML artifact or production code, whichever the
 answer calls for.

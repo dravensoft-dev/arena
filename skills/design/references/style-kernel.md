@@ -114,9 +114,14 @@ through your dark theme.
 that have one, which is not all of them.
 
 **What an answer may never be is a scale itself.** A scale step is shared by every use that wants
-that value, so moving one is not a style plugin but a different Arena. The type and page-rhythm
-ladders are the one exception, because they reach a page through classes you apply rather than
-through any role.
+that value, so moving one is not a style plugin but a different Arena. **The type and page-rhythm
+ladders are the one exception**, because they reach a page through classes you apply rather than
+through any role, and you answer them in the plugin beside the roles: a key named `fs-<step>` or
+`rhythm-<step>` is read as that step rather than as a role nothing ships. Both are dimensions and
+both carry a `$description`, because a step a plugin moves is a decision rather than a value. Move
+one step or every one of them, as the product needs: completeness binds a role, which disappears
+unanswered, and never a step, which keeps the value Arena ships. Every other scale key is refused
+by name, so a different type scale is answered here or it is not answered.
 
 The questions themselves are in
 [`../../../contracts/design/roles.json`](../../../contracts/design/roles.json): a name, a type, a
@@ -231,8 +236,8 @@ Stated so you can plan around it rather than discover it.
 - **Press travel and a resting edge have no role.** A control that stands on a hard bottom edge
   and drops into it when pressed is one product's whole identity, and it paints that by hand.
   `lift-control` and `press-scale` are the near miss and do not cover it.
-- **A scale is not yours to re-answer.** Where a component's size ramp runs out, the exit is your
-  own CSS on your own element, not a step moved under the kernel.
+- **A size ramp is not yours to re-answer**, the type and page rhythm ladders aside. Where a component's own
+  ramp runs out, the exit is your own CSS on your own element, not a step moved under the kernel.
 - **A document block family is markup you write.** Paragraph, heading, quote, callout, toggle,
   code and figure are the register of a document editor, and Arena is a product-application
   library.

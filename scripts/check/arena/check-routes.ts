@@ -287,7 +287,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 17_200,
+    budget: 17_500,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -332,7 +332,14 @@ export const ROUTES: Route[] = [
       + 'whether small text is the body face or the mono one each moved from the table of answers a '
       + 'project may inherit into the table of answers it has to make. A row in the second table is '
       + 'a decision this page is now obliged to name, and a page that kept the shorter version '
-      + 'would be telling a project that a decision it has to make was already made for it.',
+      + 'would be telling a project that a decision it has to make was already made for it. Raised '
+      + 'again to 17,500 when the one exception to the scale rule gained its mechanism. The page '
+      + 'named the type and page rhythm ladders as the case a plugin may move and then said nothing '
+      + 'about how, so the only prose carrying the key shape sat inside a role description in the '
+      + 'contracts, where the builder holding the question never reaches, and three readings of the '
+      + 'same page were each defensible. An exception a page names and does not answer costs more '
+      + 'than the paragraph answering it, because a reader either guesses or goes looking on the '
+      + 'branch that is not theirs.',
   },
   {
     name: 'consumer-register',
@@ -517,7 +524,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 23_000,
+    budget: 23_300,
     reason:
       'the first route on this branch that is declared as a tree, and the reason the shape exists. '
       + 'A reader here answers a question and walks one way: handed a document stating the palette '
@@ -548,7 +555,13 @@ export const ROUTES: Route[] = [
       + 'on, and an entry that departs has to say so in its own table or a reader takes its '
       + 'roles for the shared answer and inherits a decision nobody made. A row is worth the '
       + 'characters when it names a role this register answers differently, and it is worth '
-      + 'none when it restates the sheet sitting beside it.',
+      + 'none when it restates the sheet sitting beside it. Raised again to 23,300 when the warm '
+      + 'branch gained its exit. The node that reads what a project already carries handed the '
+      + 'reader on to the nodes that decide an install, so a project with an approved config was '
+      + 'routed into writing one again, and nothing in the tree said which of its nodes a project '
+      + 'already carrying Arena has spent. The exit is what makes the first node\'s two answers '
+      + 'reach two different ends rather than the same one, and it is charged here because the '
+      + 'tree is where a reader is when they need it.',
   },
   {
     name: 'contributor-component',

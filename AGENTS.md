@@ -8,7 +8,7 @@ on it, and a shared Tailwind layer. **The repository itself is not an npm packag
 
 ## Which job is this?
 
-**Building something with Arena** (a screen, a prototype, an integration): read
+**Building something with Arena** (a screen, a prototype, a skin, an integration): read
 [`skills/design/SKILL.md`](./skills/design/SKILL.md) instead. It is the root of that branch and
 this file is not, and the two are almost disjoint by design.
 
@@ -23,7 +23,7 @@ this table used to have no row for.
 | I am here because | Start at |
 |---|---|
 | something renders or behaves wrong and I do not know which layer owns it | [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md) when it is a role, a key, focus or dismissal, whose last section is why a defect outlives a green run; otherwise the layer, through [`frameworks/AGENTS.md`](./frameworks/AGENTS.md) |
-| I do not know whether Arena already has the thing I am about to add | [`frameworks/INDEX.md`](./frameworks/INDEX.md), one line per component and which layers ship it. It belongs to the other branch and it is still the only page that answers this, so read that one line and come back |
+| I do not know whether Arena already has the thing I am about to add | [`frameworks/INDEX.md`](./frameworks/INDEX.md), one line per component and which layers ship it. It belongs to the other branch and it is still the only page that answers this, so read that one line and come back; its own pointers are a builder's and not yours |
 | a value: a colour, a spacing step, a duration, a delay | [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), and [`TokenTypes.md`](./contracts/design/TokenTypes.md) for the shape it is authored in |
 | what a kind of component must DO: roles, keys, focus, dismissal | [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md) |
 | what a component PRESENTS: its members | [`contracts/api/AGENTS.md`](./contracts/api/AGENTS.md) |
@@ -39,8 +39,13 @@ this table used to have no row for.
 | a release, in the order the moves are made | [`versioning_steps.md`](./versioning_steps.md), and nothing else until it sends you there |
 | the npm channel: what a package is, what CI does with it | [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md) and [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) |
 | documentation | this page, the two sections below it |
-| whether the file in front of me is mine to edit at all | [`GENERATED.md`](./GENERATED.md), before the edit and not after the gate |
 | I am about to write down that something is wrong | [`DOUBTS.md`](./DOUBTS.md), which says what counts as a debt and which records beat a paragraph. It is not where a bug report starts; that is the first row |
+
+**Nothing below the table routes.** What follows binds a change on this branch whatever it is,
+so it is read once and not per task.
+
+**Whether the file in front of you is yours to edit is asked before every row rather than by one
+of them**, so [`GENERATED.md`](./GENERATED.md) is read before the edit and not after the gate.
 
 **A fresh clone builds first.** `bun install && bun run build`, or part of the tree does not
 exist and every gate that reads it reports its subject missing.

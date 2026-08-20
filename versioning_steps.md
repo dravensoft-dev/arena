@@ -77,6 +77,10 @@ Expected: all PASS.
 git push origin main --follow-tags
 ```
 
+**You never run `npm publish`.** Both packages are published by CI from the tag, so a release
+where the two npm versions moved and nobody ran a publish command is the release working. Confirm
+it on the npm page rather than in a terminal.
+
 **The branch is not incidental.** Every publish workflow hangs off a run of the workflow named
 `Arena main`, which fires on a push to `main`, so a release arrives there as one merge of
 `develop`. A tag pushed to any other branch is verified by nothing downstream and publishes

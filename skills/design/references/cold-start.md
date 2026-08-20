@@ -1,9 +1,10 @@
-# Before anything exists
+# Before the first screen
 
-Arena is written for a product that already has an appearance and wants to move it. This page is
-the other case: a project with no `arena.config.json`, no style plugin and no screens, where the
-appearance is about to be invented by whoever writes the first file. **Read this before any other
-page on this branch**, because every one of them assumes the decisions below have been made.
+This page is where a project settles what it looks like, and its first node splits the two ways of
+arriving: a project with no `arena.config.json`, no style plugin and no screens, where the
+appearance is invented by whoever writes the first file, and one already carrying all three, where
+it is context to acquire rather than to invent. **Read this before any other page this branch
+routes you to**, because every one of them assumes the decisions below have been made.
 
 **It is a tree rather than a list.** Each node asks one question, and the table under it says where
 each answer goes. Take the row your answer matches, go to the node it names, and read nothing else:
@@ -141,7 +142,10 @@ anything:
 Say what you found. A project whose plugin answers every role needs no style plugin work, and
 saying so is what stops an agent rewriting an appearance somebody already chose.
 
-Then go to 6, and skip the rows it says you may skip.
+Then go to 6, and skip the rows it says you may skip. **Stop there rather than going on to 8**,
+because the nodes past it decide an install a project carrying Arena has already made: the route
+from here is the per-screen one in [`../SKILL.md`](../SKILL.md). Reach 8 only when this screen is
+the first that has to be found from outside the product.
 
 ## 8. How much does it have to be found?
 
