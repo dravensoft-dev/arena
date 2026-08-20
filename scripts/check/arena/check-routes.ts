@@ -137,7 +137,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 48_000,
+    budget: 49_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -264,7 +264,16 @@ export const ROUTES: Route[] = [
       + 'between 8 and 18 rules its React twin did not for the same screens and the same config. '
       + 'The package ships the list its own renders draw now, and the page has to say so, because '
       + 'a reader who is told the two halves are answered the same way has no reason to trust '
-      + 'either.',
+      + 'either. Raised again to 49,000 when the config block stopped omitting the key that '
+      + 'decides the appearance. The block is announced as the whole file and a reader copies it '
+      + 'whole, so a project meaning to look like itself shipped the answers this package installs '
+      + 'with and nothing on the way said so: the consequence was stated sixty lines below the '
+      + 'block, which is past where somebody copying stops reading. The same raise pays for the '
+      + 'flag table saying that --src is repeatable and that a style plugin outside src has to be '
+      + 'passed as one of them. Every scope the audit row describes applies to a directory the run '
+      + 'actually walked, so a plugin left out is not walked: the run reports nothing about it, '
+      + 'names none of the parts it paints, and cannot fail on a restated rule. A command whose '
+      + 'failure mode is silence is the one a page has to spell, because nothing downstream will.',
   },
   {
     name: 'consumer-skin',
