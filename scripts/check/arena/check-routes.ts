@@ -62,7 +62,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 21_400,
+    budget: 22_400,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than '
@@ -71,7 +71,13 @@ export const ENTRIES: Entry[] = [
       + 'into is a promise the sources keep rather than a directory anybody edits, so a '
       + 'contributor reaches it by the change they are making and never by the file they are '
       + 'opening. It is the one subject where the page a reader would look for does not exist, '
-      + 'which is what the row buys.',
+      + 'which is what the row buys. Raised to 22,400 for the two rows that are not indexed the '
+      + 'way the rest of the table is. Every other row asks what you are changing, which a reader '
+      + 'arriving with a symptom cannot answer yet: nine cold walks of this branch produced one '
+      + 'that had two equally correct rows for a keyboard defect and picked by luck, and one that '
+      + 'planned a component that already shipped in three layers, because no row asks whether it '
+      + 'exists and the page that answers belongs to the other branch. A router indexed only by '
+      + 'intent serves the reader who already has one, and that reader is not the expensive case.',
   },
 ];
 

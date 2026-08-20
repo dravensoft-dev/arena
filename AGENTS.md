@@ -16,8 +16,14 @@ this file is not, and the two are almost disjoint by design.
 
 ## Where each decision goes
 
-| I am changing | Start at |
+**Most rows below are indexed by what you are changing. The first two are not**, because a
+reader arriving with a symptom does not know yet what they are changing, and that is the state
+this table used to have no row for.
+
+| I am here because | Start at |
 |---|---|
+| something renders or behaves wrong and I do not know which layer owns it | [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md) when it is a role, a key, focus or dismissal, whose last section is why a defect outlives a green run; otherwise the layer, through [`frameworks/AGENTS.md`](./frameworks/AGENTS.md) |
+| I do not know whether Arena already has the thing I am about to add | [`frameworks/INDEX.md`](./frameworks/INDEX.md), one line per component and which layers ship it. It belongs to the other branch and it is still the only page that answers this, so read that one line and come back |
 | a value: a colour, a spacing step, a duration, a delay | [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), and [`TokenTypes.md`](./contracts/design/TokenTypes.md) for the shape it is authored in |
 | what a kind of component must DO: roles, keys, focus, dismissal | [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md) |
 | what a component PRESENTS: its members | [`contracts/api/AGENTS.md`](./contracts/api/AGENTS.md) |
@@ -34,7 +40,7 @@ this file is not, and the two are almost disjoint by design.
 | the npm channel: what a package is, what CI does with it | [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md) and [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) |
 | documentation | this page, the two sections below it |
 | whether the file in front of me is mine to edit at all | [`GENERATED.md`](./GENERATED.md), before the edit and not after the gate |
-| nothing yet, and something looks wrong | [`DOUBTS.md`](./DOUBTS.md), which says what counts as a debt and where the records live |
+| I am about to write down that something is wrong | [`DOUBTS.md`](./DOUBTS.md), which says what counts as a debt and which records beat a paragraph. It is not where a bug report starts; that is the first row |
 
 **A fresh clone builds first.** `bun install && bun run build`, or part of the tree does not
 exist and every gate that reads it reports its subject missing.
