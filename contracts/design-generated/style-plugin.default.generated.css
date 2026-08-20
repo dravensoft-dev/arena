@@ -24,7 +24,9 @@
   --tt-label:uppercase;
   --track-eyebrow:0.22em;
   --track-label:0.14em;
+  --track-trail:0.04em;
   --step-label:var(--dz-text-2xs);
+  --step-trail:var(--dz-text-sm);
   --step-eyebrow:var(--dz-text-xs);
   --step-title-surface:19px;
   --step-title-section:24px;
@@ -39,6 +41,7 @@
   --container-max:1240px;
   --gutter:88px;
   --pad-surface:20px;
+  --pad-surface-head:0px;
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
   --fill-page:var(--color-base-100);
@@ -61,6 +64,7 @@
   --bw-control:1px;
   --bw-field:1px;
   --bw-separator:1px;
+  --bw-surface-head:0px;
   --bw-marker:1px;
   --shadow-surface-floating:0px 12px 28px -12px rgba(0,0,0,.6);
   --shadow-surface-rest:0px 0px 0px 0px rgba(0,0,0,0);
@@ -97,9 +101,11 @@
 }
 .arena-compact{
   --step-label:var(--dz-text-2xs);
+  --step-trail:var(--dz-text-sm);
   --step-eyebrow:var(--dz-text-xs);
 }
 .arena-comfortable{
   --step-label:var(--dz-text-2xs);
+  --step-trail:var(--dz-text-sm);
   --step-eyebrow:var(--dz-text-xs);
 }

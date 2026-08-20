@@ -1,7 +1,7 @@
 {
   "component": "ArenaTag",
   "slots": {
-    "root": "inline-flex items-center gap-1.5 rounded-pill border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold",
+    "root": "inline-flex items-center gap-1.5 rounded-marker border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold",
     "dot": "size-1.5 rounded-pill bg-current",
     "close": "inline-flex items-center bg-transparent border-none cursor-pointer p-0 text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)] leading-ctl"
   },

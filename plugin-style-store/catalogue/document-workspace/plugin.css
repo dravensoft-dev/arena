@@ -7,7 +7,6 @@
 [data-arena-part="side-nav.item"],
 [data-arena-part="side-nav.trigger"] {
   color: color-mix(in oklab, var(--color-base-content) 82%, transparent);
-  font-weight: var(--fw-control);
 }
 
 [data-arena-part="side-nav.icon"],
@@ -32,13 +31,12 @@
   font-weight: var(--fw-control);
 }
 
-/* A crumb trail sits above the page and reads as chrome.
-   The face is a role now; the tracking and the size are still this product's. */
+/* A crumb trail sits above the page and reads as chrome. The face, the size and the tracking are
+   roles now; what is left is how far the trail is held back, which is a level rather than a
+   colour and which no role carries. */
 [data-arena-part="breadcrumbs.crumb"],
 [data-arena-part="breadcrumbs.current"],
 [data-arena-part="breadcrumbs.separator"] {
-  letter-spacing: var(--track-label);
-  font-size: var(--dz-text-md);
   color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
 }
 

@@ -16,7 +16,7 @@ export interface ArenaStatCardProps {
 
   /** What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. */
   tone?: ArenaTone;
-  /** How the number moved. Absent renders no pill. */
+  /** How the number moved. Absent renders no marker. */
   delta?: ArenaStatDelta;
 
   /** Small muted line under the value: context, e.g. "vs last week". */

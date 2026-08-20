@@ -10,7 +10,7 @@
     "list": "max-h-80 overflow-auto p-1.5",
     "empty": "px-3 py-4.5 font-body text-md text-ink-muted/(--level-ink-muted)",
     "group": "flex flex-col",
-    "groupLabel": "px-3 pt-3 pb-1.5 font-face-label text-label font-bold tracking-column-header case-label text-ink-muted/(--level-ink-muted)",
+    "groupLabel": "px-3 pt-3 pb-1.5 font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "row": "flex items-center gap-items w-full text-left px-control-x py-2.5 rounded-control border-none cursor-pointer no-underline shadow-control-rest",
     "rowDefault": "bg-transparent text-ink-body/(--level-ink-body)",
     "rowActive": "bg-primary/14 text-ink-body/(--level-ink-body)",

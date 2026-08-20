@@ -14,21 +14,6 @@
   color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
 }
 
-/* Chrome is set in the product face, never in a console face. */
-[data-arena-part="breadcrumbs.crumb"],
-[data-arena-part="breadcrumbs.current"],
-[data-arena-part="breadcrumbs.separator"] {
-  letter-spacing: var(--track-heading);
-  font-size: var(--dz-text-md);
-  text-transform: none;
-}
-
-/* A widget is a card with a quiet head and a hairline under it. */
-[data-arena-part="chart-card.head"] {
-  border-block-end: var(--bw-separator) solid var(--edge-separator);
-  padding-block-end: var(--sp-2);
-}
-
 /* A card's eyebrow is held back, which is a level rather than a colour, so no role carries it
    and this composes the shade from the palette. */
 [data-arena-part="card.eyebrow"] {
@@ -61,7 +46,6 @@
   background: var(--arena-tag-cat, transparent);
   border-color: transparent;
   color: var(--color-primary-content);
-  border-radius: var(--r-marker);
   text-transform: var(--tt-label);
   letter-spacing: var(--track-label);
   font-weight: var(--fw-bold);

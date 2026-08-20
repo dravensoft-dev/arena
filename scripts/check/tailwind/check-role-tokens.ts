@@ -57,6 +57,10 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['text-ctl-2xs', 'text-label, when the slot is in the label register'],
   ['tracking-label', 'tracking-eyebrow, when the slot IS an eyebrow'],
   ['tracking-field-label', 'tracking-label-role, the tracking of the label register'],
+  ['tracking-column-header', 'tracking-label-role, since a column header is the register\'s own text'],
+  ['tracking-badge', 'tracking-label-role, when the slot is in the label register rather than a figure'],
+  ['tracking-uppercase-status', 'tracking-label-role, when the slot names a thing rather than reports a state'],
+  ['text-neutral', 'an ink role: text-ink-muted, text-ink-body or text-ink-heading, whichever text this is'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
@@ -64,6 +68,14 @@ export const SCALE_UTILITIES = new Map<string, string>([
 ]);
 
 export const SCALE_USES = new Map<string, string>([
+  ['ArenaSideNav:badge:tracking-badge', 'a nav counter, which is a figure in the mono face carrying no case role: the label register\'s tracking would open a number that is read one glyph at a time'],
+  ['ArenaBottomNav:badge:tracking-badge', 'the same counter on the other bar, for the same reason'],
+  ['ArenaAlert:action:tracking-uppercase-status', 'the word a reader presses to answer an alert, which is status text rather than a label: it says what happens next instead of what kind of thing this is'],
+  ['ArenaToast:action:tracking-uppercase-status', 'the same word on a toast'],
+  ['ArenaOnboarding:text:tracking-uppercase-status', 'the step a coachmark reports, which is a reading of where somebody is in a sequence'],
+  ['ArenaCalendar:hourLabel:tracking-uppercase-status', 'the hour down the side of a day, which is a clock being read rather than a column being named'],
+  ['ArenaAlert:icon:text-neutral', 'one branch of a tone variant whose other branches are the status colours, so the value is the tone the caller asked for rather than a colour this slot chose'],
+  ['ArenaAlert:action:text-neutral', 'the same tone on the word beside that glyph'],
   ['ArenaAvatar:box:rounded-md', 'one branch of a shape variant whose other branches are pill and none, so the value is the shape the caller asked for rather than a surface tier'],
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
@@ -120,8 +132,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSheet:trigger:text-h3', 'the same trigger and the same reason one axis over: the size follows the title it repeats, not the register the title tier is pitched at. The two entries move together or the slot is half on the tier'],
   ['ArenaStatCard:value:text-h2', 'the figure a stat card exists to show, which is data set large and not a title of anything. A style plugin re-pitching the titles on a page has said nothing about how big a number is, and binding this would have moved every dashboard the first time one did'],
 
-  ['ArenaChartCard:title:tracking-label', 'a chart tile\'s title is set in the label register at the label step, which is one step open of where track-label is born. Binding it would have tightened it, so it keeps the step until a role names the difference'],
-  ['ArenaStatCard:label:tracking-label', 'the same step for the same reason, on a stat card\'s label'],
 
   ['ArenaSideNav:badge:text-ctl-2xs', 'a nav counter, which is at the smallest control step because it is the smallest control text and not because it is a label: it carries the mono face and no case role, so text-label would pitch a figure at whatever a product decided its column headers should be'],
   ['ArenaBottomNav:badge:text-ctl-2xs', 'the same counter on the other bar, for the same reason'],

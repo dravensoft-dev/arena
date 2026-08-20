@@ -126,9 +126,22 @@
     "$type": "number",
     "$description": "The tracking of a label, born at the step the field-label slots already name.\nPaired with tt-label exactly as track-eyebrow is paired with tt-eyebrow, and separate from it for\nthe same reason: the two slots take opposite answers in the same style plugin."
   },
+  "track-trail": {
+    "$type": "number",
+    "$description": "The tracking of the trail above a page, paired with step-trail the way track-label is paired\nwith step-label. Born at ls.mono-nav, the step a crumb and the page it is on already name.\n\nThe separator names no tracking today and takes this one with them, because a trail whose mark\nbetween two crumbs tracks differently from the crumbs is a trail set twice. That is the single\nthing in this pair a slot did not already compute to, and what it comes to is a fraction of the\nspace after one glyph.\n\nCarries cssUnit em like every ls step, for the reason track-heading spells out: a bare number is\nnot a valid letter-spacing and resolves to normal in silence.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
   "step-label": {
     "$type": "dimension",
     "$description": "Which step on the ladder a label takes: a column header, a card's row label, a chart tile's name, the head of a menu group. Born at dz.text-2xs, which every slot in the register names outright today.\n\nIt completes the register rather than starting one. A label could already be re-faced through ff-label, re-cased through tt-label and re-tracked through track-label, and its size was the one decision of the four with no question behind it, so a style plugin that found the register too quiet had to reach through the part hook and write a font-size per part, in every project that felt the same way. Density is not the way out: comfortable deliberately leaves the text ladder alone, and dz.text-2xs is the one step compact does not move either.\n\nIt aliases a dz step rather than an fs one for the reason step-eyebrow does: a label is control text and re-densifies with the chrome around it. What it is not is a size for every mark that happens to sit at the same step. A nav counter, a rank and a timestamp are at dz.text-2xs because they are the smallest control text, not because they are labels, and they keep the step."
+  },
+  "step-trail": {
+    "$type": "dimension",
+    "$description": "Which step on the ladder the trail above a page takes: a crumb, the page it is on, and the mark\nbetween them. Born at dz.text-sm, which all three slots name outright today.\n\nIt is a register of its own rather than a member of the label one, and the census is what says\nso: every slot set in the label face carries the label case as well, and the three a trail draws\nare the only ones that do not. A crumb is chrome a reader scans on the way past rather than a\nsystem label, so a plugin that quietens its labels has said nothing about its navigation, and\nthree plugins were measured writing a size and a tracking through these parts by hand.\n\nIt aliases a dz step because a trail is chrome and re-densifies with the controls around it,\nwhich puts it in REDECLARED_GROUPS beside step-eyebrow and step-label for the reason those are\nthere: a role resolved at build time would freeze the base size and carry it into a compact\nregion."
   },
   "step-eyebrow": {
     "$type": "dimension",
@@ -185,6 +198,10 @@
   "pad-surface": {
     "$type": "dimension",
     "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA style plugin needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany style plugin. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy style plugin is a coherent thing to want.\n\nThe floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and\na coachmark is pinned to what it points at, so their padding is a fit constraint rather than a\nstatement about air, and giving a style plugin a lever there would let it push their content off the\nedge. They are recorded in SCALE_USES instead."
+  },
+  "pad-surface-head": {
+    "$type": "dimension",
+    "$description": "The air a surface leaves under its head, above the rule bw-surface-head draws. Nothing by\ndefault, for the reason that role gives: the property is painted so that a value can move it.\n\nSplit from pad-surface, which is the room a surface gives its own content, because the two are\nnot one decision. A head sitting hard on its rule reads as a caption and a head with room under\nit reads as a section, and a style plugin that opens a card up has said nothing about which of\nthose its tiles are. The two plugins drawing the rule spend this at the same moment, which is\nwhat says it belongs beside that question rather than inside it."
   },
   "fill-surface": {
     "$type": "color",
@@ -273,6 +290,10 @@
   "bw-separator": {
     "$type": "dimension",
     "$description": "The line that divides one thing from the next INSIDE a surface: a table row\nfrom the row under it, a sheet's head from its body, a tab strip from its panel. The critical\ndistinction from bw-surface, and the reason it is a separate role rather than the same one\napplied to an edge: a style plugin that groups by elevation instead of by line removes the\nenclosure, and a table whose rows lost their rules at the same time would stop being readable.\nA separator answers a different question, so it survives the change."
+  },
+  "bw-surface-head": {
+    "$type": "dimension",
+    "$description": "The rule a surface draws between its head and what it carries under it: a card's head over its\nbody, a chart tile's head over its plot. Nowhere by default, and the reason it is declared at all\nis the reason shadow-surface-rest is declared: a token can re-value a declaration a slot already\nmakes and cannot add one, so a head drawing no border could never be given one by any answer to\nany role, however the style plugin was written.\n\nSeparate from bw-separator, which is the line between one thing and the next INSIDE a surface, a\ntable row from the row under it. This is the line between a surface's chrome and its content, and\ntwo dashboards are measured drawing it by hand through chart-card.head while their tables keep\nthe rules Arena already gives them.\n\nIt takes its colour from edge-separator rather than from an edge role of its own, because what a\nboard re-decides is whether the line is drawn and not which grey it is."
   },
   "bw-marker": {
     "$type": "dimension",

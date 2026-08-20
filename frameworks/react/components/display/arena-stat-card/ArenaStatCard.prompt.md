@@ -1,6 +1,6 @@
-Single metric on the card surface: uppercase label, one big tabular-nums value, an optional delta pill and a context line. Use it in a row of 2–4 for a dashboard's top band; it is not a chart and holds one number.
+Single metric on the card surface: uppercase label, one big tabular-nums value, an optional delta chip and a context line. Use it in a row of 2–4 for a dashboard's top band; it is not a chart and holds one number.
 
-`label` and `value` are required. `delta` is optional, and the pill renders only when
+`label` and `value` are required. `delta` is optional, and the chip renders only when
 `delta.value` is truthy, a `delta` object carrying a `tone`/`direction` but an empty
 `value` renders nothing at all, per `contracts/api/components/ArenaStatCard.json`.
 
@@ -22,13 +22,13 @@ Single metric on the card surface: uppercase label, one big tabular-nums value, 
 | `label*` | primitive | `string` |  | Short uppercase microlabel, two words at most. |
 | `value*` | primitive | `string` |  | Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. |
 | `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. |
-| `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no pill. |
+| `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no marker. |
 | `sub` | primitive | `string` |  | Small muted line under the value: context, e.g. "vs last week". |
 | `icon` | primitive | `string` |  | A Phosphor class name for a small glyph beside the label, drawn muted. Arena renders the aria-hidden wrapper and the `<i>`. |
 
 <!-- @api end -->
 
-`tone` on the card colors the **value**; `delta.tone` colors the **pill**. They answer different questions: what the number *is* versus how it *moved*, and either can be set without the other:
+`tone` on the card colors the **value**; `delta.tone` colors the **chip**. They answer different questions: what the number *is* versus how it *moved*, and either can be set without the other:
 
 ```tsx
 <ArenaStatCard label="Average uptime" value="99.98%" tone="success" />
@@ -39,14 +39,14 @@ Single metric on the card surface: uppercase label, one big tabular-nums value, 
 **Do**
 - Set `tone` from what the metric *means*: latency dropping is `positive`, revenue dropping is `negative`. `direction` only draws the arrow.
 - Reach for the card's `tone` only when the value's current state is the point. A row where every number is colored says nothing; the color has to be scarce to read as a signal, and a band of four black numbers with one red one is the whole design.
-- Leave `tone` off (it defaults to `neutral`) when the movement is not good or bad. A gray pill claiming nothing beats a green one claiming wrongly.
+- Leave `tone` off (it defaults to `neutral`) when the movement is not good or bad. A gray chip claiming nothing beats a green one claiming wrongly.
 - Keep `label` to a short uppercase microlabel; it follows the same ≤2-word rule as table headers and eyebrows (H2/H6/H8).
 
 **Don't**
 - Don't assume up is good. That is the whole reason `direction` and `tone` are separate props; passing `tone: 'positive'` for every `up` re-creates the bug.
-- Don't fill the delta pill. Both signs are outline: filled red is reserved for `ArenaConfirmDialog`'s final irreversible confirmation, and a data pill has no business spending that signal.
+- Don't fill the delta chip. Both signs are outline: filled red is reserved for `ArenaConfirmDialog`'s final irreversible confirmation, and a data chip has no business spending that signal.
 - Don't put a sentence in `sub`: it is a short context fragment ("vs last week"), not a paragraph.
-- Don't use the card's `tone` to restate the delta. If the pill already says the movement was bad, coloring the value red says it twice and leaves you nothing to say when the *state* turns bad too.
+- Don't use the card's `tone` to restate the delta. If the chip already says the movement was bad, coloring the value red says it twice and leaves you nothing to say when the *state* turns bad too.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -51,6 +51,7 @@ export const EXCLUDED = new Map([
   ['bw-control', 'the same, as border-[length:var(--bw-control)]'],
   ['bw-field', 'the same, as border-[length:var(--bw-field)]'],
   ['bw-separator', 'the same, as border-t-[length:var(--bw-separator)] and its per-side siblings, which is the only shape a separator takes'],
+  ['bw-surface-head', 'the same, as border-b-[length:var(--bw-surface-head)], which is the only side the rule under a head is drawn on'],
   ['bw-marker', 'the same, as border-[length:var(--bw-marker)]'],
   ['lift-control', 'a travel distance rather than a length on the spacing grid, so no @theme namespace owns it; reached as hover:-translate-y-[var(--lift-control)], the shape check:arbitrary accepts for a value with no namespace'],
   ['dur-hover', 'v4 has no duration namespace, the same wall dur-mid meets; reached as duration-[var(--dur-hover)]'],

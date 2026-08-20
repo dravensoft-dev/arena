@@ -5,7 +5,7 @@
     "grid": "table w-full border-collapse",
     "body": "table-row-group",
     "headRow": "table-row bg-track",
-    "th": "table-cell px-row-px py-row-py text-left align-middle font-face-label text-label font-bold tracking-column-header case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "th": "table-cell px-row-px py-row-py text-left align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "thSortable": "cursor-pointer select-none hover:text-ink-body",
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
     "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-edge-separator px-row-px py-row-py",
@@ -20,7 +20,7 @@
     "sortField": "min-w-0 flex-1",
     "card": "flex flex-col gap-stack bg-surface border-[length:var(--bw-surface)] border-edge-surface rounded-surface p-row-px shadow-surface-rest",
     "cardRow": "flex items-baseline justify-between gap-items",
-    "cardLabel": "font-face-label text-label font-bold tracking-column-header case-label text-ink-muted/(--level-ink-muted)",
+    "cardLabel": "font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "cardValue": "min-w-0 text-right text-ctl font-body text-ink-body/(--level-ink-body)",
     "cardValueMono": "min-w-0 text-right text-ctl font-mono tabular-nums text-secondary",
     "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-edge-separator pt-2"

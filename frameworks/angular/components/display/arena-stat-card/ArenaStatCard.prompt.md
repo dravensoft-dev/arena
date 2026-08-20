@@ -1,17 +1,17 @@
 Arena metric tile. A mono micro-label, the number in display weight, and an optional
-delta pill. `label` and `value` are required. Two tone dimensions answer two different
+delta chip. `label` and `value` are required. Two tone dimensions answer two different
 questions about the same number, and neither implies the other:
 
 - `tone` says what state the number **IS in right now**: colors the value itself.
   A service at 99.98% uptime is healthy whether or not it improved this week, and
   two open incidents are two open incidents even when that is down from five.
 - `delta.tone` says whether the number's last change was **good**; `delta.direction`
-  says which way it pointed, colors the delta pill. Revenue down is bad, latency
+  says which way it pointed, colors the delta chip. Revenue down is bad, latency
   down is good, and the tile cannot know which metric it is showing.
 
 `delta` is one object (`ArenaStatDelta`), not three flat inputs, per the API capability contract
-(`contracts/api/components/ArenaStatCard.json`). The pill renders only when `delta.value` is
-truthy; a `delta` carrying a `tone`/`direction` but an empty `value` renders no pill at all.
+(`contracts/api/components/ArenaStatCard.json`). The chip renders only when `delta.value` is
+truthy; a `delta` carrying a `tone`/`direction` but an empty `value` renders no chip at all.
 
 A tile can legitimately show `tone="danger"` with `delta.tone="positive"` in the
 same breath, a bad state that is improving is still a bad state.
@@ -40,7 +40,7 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 | `label*` | primitive | `string` |  | Short uppercase microlabel, two words at most. |
 | `value*` | primitive | `string` |  | Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. |
 | `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. |
-| `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no pill. |
+| `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no marker. |
 | `sub` | primitive | `string` |  | Small muted line under the value: context, e.g. "vs last week". |
 | `icon` | primitive | `string` |  | A Phosphor class name for a small glyph beside the label, drawn muted. Arena renders the aria-hidden wrapper and the `<i>`. |
 
@@ -59,13 +59,13 @@ aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
 - Set `tone` for what the number currently IS, not for how it moved, reach for
   `delta.tone`/`delta.direction` for that instead. Conflating the two loses the
   distinction that "Open incidents" above depends on: the value stays `danger`
-  red while the pill still reads a positive green improvement.
+  red while the chip still reads a positive green improvement.
 - Don't hand `delta` a fresh object identity to change one field without meaning to,
   it is a single input, so `[delta]="{ value: v, direction: 'up' }"` in a template
   expression rebuilds the whole object every change-detection pass. Bind from a
   component property computed once instead.
 - Don't fill the negative delta or the danger value. Both are text/outline in
-  `--error`, the value slot carries no background at all, and the delta pill is
+  `--error`, the value slot carries no background at all, and the delta chip is
   `bg-transparent`, like every other danger surface in Arena except
   `ArenaConfirmDialog`'s final confirmation.
 - Don't put a chart in a stat card, `arena-chart-card` is the tile that holds one.

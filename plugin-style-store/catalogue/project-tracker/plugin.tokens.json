@@ -115,9 +115,22 @@
       }
     }
   },
+  "track-trail": {
+    "$type": "number",
+    "$value": "{ls.tight}",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "cssUnit": "em"
+      }
+    }
+  },
   "step-label": {
     "$type": "dimension",
     "$value": "{dz.text-2xs}"
+  },
+  "step-trail": {
+    "$type": "dimension",
+    "$value": "{dz.text-md}"
   },
   "step-eyebrow": {
     "$type": "dimension",
@@ -180,6 +193,10 @@
   "pad-surface": {
     "$type": "dimension",
     "$value": "{sp.4}"
+  },
+  "pad-surface-head": {
+    "$type": "dimension",
+    "$value": "{sp.2}"
   },
   "fill-surface": {
     "$type": "color",
@@ -280,6 +297,10 @@
       "value": 1,
       "unit": "px"
     }
+  },
+  "bw-surface-head": {
+    "$type": "dimension",
+    "$value": "{bw}"
   },
   "bw-marker": {
     "$type": "dimension",

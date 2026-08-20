@@ -19,15 +19,9 @@
   padding-block: var(--sp-5);
 }
 
-/* A trail above a listing is chrome. Arena pitches it at the navigation tracking and bolds the
-   page it is on, which reads as a second heading over a page that already has one. */
-[data-arena-part="breadcrumbs.crumb"],
-[data-arena-part="breadcrumbs.current"],
-[data-arena-part="breadcrumbs.separator"] {
-  font-size: var(--dz-text-2xs);
-  letter-spacing: normal;
-}
-
+/* A trail above a listing is chrome. Its size and its tracking are roles now; what is left is
+   that Arena bolds the page it is on, which reads as a second heading over a page that already
+   has one. */
 [data-arena-part="breadcrumbs.current"] {
   font-weight: var(--fw-control);
 }

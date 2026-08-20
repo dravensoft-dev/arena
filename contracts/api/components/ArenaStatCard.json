@@ -10,7 +10,7 @@
     "tone": { "form": "enum", "type": "ArenaTone", "default": "neutral",
               "description": "What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary." },
     "delta": { "form": "object", "type": "ArenaStatDelta",
-               "description": "How the number moved. Absent renders no pill." },
+               "description": "How the number moved. Absent renders no marker." },
     "sub": { "form": "primitive", "type": "string",
              "description": "Small muted line under the value: context, e.g. \"vs last week\"." },
     "icon": { "form": "primitive", "type": "string",

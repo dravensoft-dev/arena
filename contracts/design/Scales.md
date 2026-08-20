@@ -133,7 +133,7 @@ Letter-spacing across the system is one role hierarchy: **tracking decreases as 
 | `--ls-mono-nav` | `0.04em` | mono navigation: breadcrumbs, bulk-action counts |
 | `--ls-uppercase-status` | `0.06em` | uppercase status text: alerts, toasts, calendar hour labels |
 | `--ls-badge` | `0.1em` | badge and pill text |
-| `--ls-column-header` | `0.12em` | column header / micro-label |
+| `--ls-column-header` | `0.12em` | column header / micro-label, reached by answering `track-label` with it rather than named by any slot |
 | `--ls-field-label` | `0.14em` | form field label |
 | `--ls-label` | `0.22em` | mono uppercase labels: section eyebrows |
 | `--ls-wide` | `0.34em` | eyebrows (`intro/Arena - Overview.html`'s `.kicker`/`.eyebrow`) |
