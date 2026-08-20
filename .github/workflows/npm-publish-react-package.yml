@@ -89,8 +89,26 @@ jobs:
             exit 0
           fi
 
-          mapfile -t SPECS < <(bun scripts/ci/arena/package-inputs.ts "$LAYER")
-          CHANGED=$(git diff --name-only "v$PUBLISHED..HEAD" -- "${SPECS[@]}")
+          # A list this step could not read is a broken script and never a state, so it stops here.
+          # `< <(...)` is what hid the difference: a command inside a process substitution never
+          # trips set -e, an empty array expands to nothing under set -u, and git reads no pathspec
+          # as every path -- so a guard whose script had died answered "everything moved" and
+          # republished a tree nothing in it had touched.
+          if ! SPEC_TEXT=$(bun scripts/ci/arena/package-inputs.ts "$LAYER"); then
+            echo "package-inputs.ts could not say what $PACKAGE carries, so there is nothing to decide with."
+            exit 1
+          fi
+          mapfile -t SPECS <<< "$SPEC_TEXT"
+          if [ "${#SPECS[@]}" -eq 0 ]; then
+            echo "package-inputs.ts named no path for the $LAYER layer."
+            exit 1
+          fi
+
+          # A spec reaches a directory, and a directory holds the suites beside the sources, the
+          # prompts and the prose no package carries. --carried drops those through the assembler's
+          # own exclusion rule, so the guard and the tarball answer from one list.
+          CHANGED=$(git diff --name-only "v$PUBLISHED..HEAD" -- "${SPECS[@]}" \
+            | bun scripts/ci/arena/package-inputs.ts "$LAYER" --carried)
 
           if [ -z "$CHANGED" ]; then
             echo "publish=false" >> "$GITHUB_OUTPUT"

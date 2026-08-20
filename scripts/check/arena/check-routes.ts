@@ -722,7 +722,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 83_500,
+    budget: 84_500,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -741,7 +741,14 @@ export const ROUTES: Route[] = [
       + 'the per-domain count in its own table is one more that fails on its own, and it told a '
       + 'contributor that nothing has to be written down for a node-less gate to run, which is '
       + 'true of the cache and false of check:graph. That sentence sent a reader to write a gate '
-      + 'that goes red on the one rule the nearest page had just excused them from.',
+      + 'that goes red on the one rule the nearest page had just excused them from. Raised to '
+      + '84,500 when check:workflow-scripts landed, which is one row and the ordinary case this '
+      + 'budget is written around. The row runs longer than the median because its claim is a '
+      + 'failure this tree has already paid for rather than a rule somebody thought of: a job '
+      + 'that installs nothing resolved a pinned dependency to whatever the registry served, the '
+      + 'throw was swallowed by a process substitution, and the guard that reads a list of paths '
+      + 'read none. A contributor deciding whether their own gate owes that much needs the '
+      + 'failure and not the rule.',
   },
   {
     name: 'contributor-tailwind',
@@ -780,7 +787,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 55_100,
+    budget: 57_200,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -796,7 +803,13 @@ export const ROUTES: Route[] = [
       + 'reads a platform result, and what carries it instead is that the merge request is opened '
       + 'on a green develop. A reader cutting a release who does not know that reads a green '
       + 'required check as an answer about three operating systems, and it is an answer about '
-      + 'one.',
+      + 'one. Raised to 57,200 when the publish guard was made to fail closed. A reader cutting a '
+      + 'release has to know that "nothing this package carries has moved" is a real answer and '
+      + 'not a fault, and that the guard reaches it by asking the assembler which of a directory '
+      + 'ships rather than by keeping a second list of globs in step. The version of it that '
+      + 'could not read its own list of paths republished both packages from a diff of the whole '
+      + 'tree at 10.0.1 and 10.1.0 and wrote publish into the run summary while doing it, which '
+      + "is this route's failure mode exactly: nothing errored, and nobody was told.",
   },
 ];
 

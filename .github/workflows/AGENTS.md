@@ -198,6 +198,23 @@ would mean the change is never published at all. What each package carries is
 `scripts/ci/arena/package-inputs.ts`, whose suite holds the list to what the assemblers
 actually read.
 
+**A spec names a directory, and the guard asks the assembler which of it ships.** The suites
+beside the sources, the prompts, the demo entries and the prose about a directory all sit inside
+`frameworks/react/`, and none of them reaches a tarball, so `--carried` puts `excluded()` -- the
+assembler's own predicate, in `../../scripts/lib/arena/package-exclusions.ts` -- to every path git
+hands back. The question is asked of the part of a path **inside** the spec that reached it: a spec
+naming a file is read rather than walked, and `scripts/build/react/build-react-package.ts` is the
+assembler of the package it belongs to, sitting under a directory called `build`, which is one of
+the names that walk skips.
+
+**An empty list of paths stops the run.** `git` reads no pathspec as every path, so a guard whose
+script died answers "everything moved" and republishes a tree nothing touched -- which is what
+happened at 10.0.1 and 10.1.0, where `package-inputs.ts` reached `typescript` through the assembler
+and a job that installs nothing resolved a major the tree does not pin. It was silent because the
+call sat in `< <(...)`, and `set -e` never sees a command inside a process substitution. The list is
+now read into a variable whose failure is checked, and `check:workflow-scripts` refuses the import
+that made it fail.
+
 **Whatever it answers, the guard writes that answer to the run summary**: the version on the
 registry, the version in this tree, the decision, and the reason for it. The common answer is
 that there is nothing to publish, and an answer readable only by opening a log is one nobody
@@ -291,6 +308,16 @@ So the newest version of a package is the version of the last Arena release that
 A gap in the sequence is the record of a release that left it alone, and two packages at
 different versions are two packages that last changed at different times. Both are always
 built from the same tree.
+
+## A job that runs a script installs, or the script imports nothing outside the tree
+
+Either half satisfies it. Bun answers a bare specifier in a job with no `bun install` by fetching
+it at whatever major the registry serves rather than the one `bun.lock` pins, so a script that
+reaches one is a script whose behaviour is decided elsewhere and can change with no commit here.
+The guard jobs of both publish workflows and the routing job of `pr.yml` deliberately skip the
+install, because the question each asks costs less than the install would; their scripts therefore
+import only `node:` builtins and files in this tree. `check:workflow-scripts` reads a job rather
+than a workflow and refuses the other combination.
 
 ## Notes on the runner
 

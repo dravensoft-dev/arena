@@ -24,21 +24,9 @@ import { LLMS_INDEX } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
+import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusions.ts';
 
-export const EXCLUDED_NAMES = new Set(['node_modules', 'dist', 'vendor', 'test', 'build']);
-
-export const EXCLUDED_PATTERNS = [
-  /\.test\.(mjs|[jt]sx?)$/,
-  /\.card\.html$/,
-  /\.card\.entry\.[jt]sx?$/,
-  /\.demo\.generated\.html$/,
-  /\.demo\.entry\.generated\.[jt]sx?$/,
-  /\.behaviour\.json$/,
-  /\.prompt\.md$/,
-  /\.generated\.js$/,
-  /^tsconfig\..*\.json$/,
-  /^BehaviourDelegated\.json$/,
-];
+export { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded };
 
 export type CssChainEntry = { to: string; from?: string; content?: string; linked?: boolean };
 
@@ -70,10 +58,6 @@ export const arenaCssHeader = (name: string) => [
   '   style-plugin-default.css is the appearance rather than the language, and it is the one',
   '   entry a project replaces: write your own style plugin and it takes this one\'s place. */',
 ].join('\n');
-
-export function excluded(name: string) {
-  return EXCLUDED_NAMES.has(name) || EXCLUDED_PATTERNS.some((p) => p.test(name));
-}
 
 export function collectFiles(dir: string, keep: (path: string) => boolean = () => true) {
   if (!existsSync(dir)) return [];
