@@ -529,7 +529,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 70_000,
+    budget: 71_000,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
@@ -565,7 +565,18 @@ export const ROUTES: Route[] = [
       + 'because every optional member in the layer carries the shape, and it is charged at all '
       + 'because no gate holds the PAIR: the two halves are read by two gates that each know one '
       + 'of them and neither knows they are one decision. Measured on a consumer bench, where one '
-      + 'grid drew six columns against the five the same config drew beside it.',
+      + 'grid drew six columns against the five the same config drew beside it. Raised to 71,000 '
+      + 'when the ordered steps stopped omitting two things a new component cannot ship without. '
+      + 'The step naming each layer shape said trio and quartet and stopped there, while the '
+      + 'barrel chain that makes an Angular primitive typechecked at all sat two hundred lines '
+      + 'downstream under a heading about verifying the layer, so a contributor reading the steps '
+      + 'in order shipped a primitive check:angular never compiled and no adopter could import. '
+      + 'And no step said to write suites, which left the one fixture whose walk is bidirectional '
+      + 'outside the list entirely: a component owning a contentChildren query cannot ship '
+      + 'without an entry there, and the steps that claim each one produces what the next reads '
+      + 'never said so. Both belong to the route rather than to a layer, because the steps are '
+      + 'what a contributor reads once and in order, and a layer page is what they return to '
+      + 'after something has already gone wrong.',
   },
   {
     name: 'contributor-authoring',

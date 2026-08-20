@@ -49,11 +49,20 @@ a gate with nothing to check rather than something to fail.
 3. **Write the behaviour binding** beside each layer's source, `<Name>.behaviour.json`, naming a
    pattern `contracts/behaviour/` declares.
 4. **Implement it in each layer**, to that layer's shape: React's trio, Angular's quartet.
+   **The quartet is not the end of the Angular half**: the primitive is exported up its own
+   `index.ts`, its category's, `components/index.ts` and the layer's own, because `check:angular`
+   reaches a primitive **through** that chain. One missing from any link is never typechecked and
+   no adopter can import it from the layer root either, so the gap is quiet in a green run.
 5. **Author its appearance** as a Tailwind manifest, unless it draws geometry rather than a
    surface, which is what puts every chart drawing geometry outside.
 6. **Seed its playground fixture** in `demos/`, or `check:playgrounds` fails the contract that
    has none.
-7. **Run the generators**, `bun run build`, which writes the demo pages, the API types, the
+7. **Write its suites**, beside the source in each layer, to that layer's own naming: the
+   infix decides which invocation runs a React file, and Angular files carry the facet they
+   judge. A component owning a `contentChildren` query **also** owes a fixture in
+   `frameworks/angular/test/ProjectedUnderRepeat.test.ts`, whose walk is bidirectional, so an
+   absent one fails and a name left behind after the query goes fails as stale.
+8. **Run the generators**, `bun run build`, which writes the demo pages, the API types, the
    prompt tables and the consumer index tree, and commit what it writes under `frameworks/`
    only where the tree tracks it.
 
