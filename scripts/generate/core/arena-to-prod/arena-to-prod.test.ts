@@ -9,7 +9,7 @@ import {
   relativeFrom, toPosix, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
   ICON_MANIFEST,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
-  pluginCss, PLUGIN_LAYER_ORDER,
+  pluginCss, PLUGIN_LAYER_ORDER, auditStep, auditFiles, pluginDirs,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { STRICT_KINDS, report } from './reports.ts';
@@ -757,4 +757,32 @@ test('no plugin carrying css writes no sheet at all', () => {
 test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {
   assert.ok(OUTPUT_SHEETS.has(PLUGIN_SHEET));
   assert.equal(PLUGIN_CSS, 'plugin.css');
+});
+
+test('a style plugin the config declares is walked wherever it lives, so the bare command measures it', () => {
+  const root = project({ ...readable, stylePlugins: ['./design/andina'] });
+  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'design', 'andina', 'plugin.css'),
+    '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n'
+    + '[data-arena-part="chart-card.title"] { font-size: var(--fs-sm); }\n');
+  const audit = auditStep(resolved(parseArgs([
+    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
+  ])));
+  assert.deepEqual(audit.painted, ['chart-card.title', 'table.th'],
+    'the plugin directory is resolved from the config, so nothing has to name it a second time as a source');
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('a plugin under src is walked once, so a part it paints is not counted twice', () => {
+  const root = project({ ...readable, stylePlugins: ['./src/design/andina'] });
+  mkdirSync(join(root, 'src', 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'src', 'design', 'andina', 'plugin.css'),
+    '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n');
+  const options = resolved(parseArgs([
+    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
+  ]));
+  const files = auditFiles(options.paths, pluginDirs(options));
+  assert.equal(new Set(files).size, files.length,
+    'the walk is the union of the sources and the declared plugin directories, deduplicated by path');
+  rmSync(root, { recursive: true, force: true });
 });

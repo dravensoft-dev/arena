@@ -297,11 +297,11 @@ export const ROUTES: Route[] = [
       + 'whole, so a project meaning to look like itself shipped the answers this package installs '
       + 'with and nothing on the way said so: the consequence was stated sixty lines below the '
       + 'block, which is past where somebody copying stops reading. The same raise pays for the '
-      + 'flag table saying that --src is repeatable and that a style plugin outside src has to be '
-      + 'passed as one of them. Every scope the audit row describes applies to a directory the run '
-      + 'actually walked, so a plugin left out is not walked: the run reports nothing about it, '
-      + 'names none of the parts it paints, and cannot fail on a restated rule. A command whose '
-      + 'failure mode is silence is the one a page has to spell, because nothing downstream will.',
+      + 'flag table saying what --src names and what it does not. The command resolves a declared '
+      + 'style plugin from the config and walks it wherever it lives, so the flag names the trees '
+      + 'a project owns and nothing else, and the page says so because a reader who has to be told '
+      + 'to pass a directory the config already declares is a reader being asked to hold the tool '
+      + 'together.',
   },
   {
     name: 'consumer-skin',

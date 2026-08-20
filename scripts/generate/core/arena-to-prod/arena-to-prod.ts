@@ -55,7 +55,8 @@ export const USAGE = [
   'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict[=<kind>,...]]',
   '',
   `  --config        the palettes and fonts this project declares; defaults to ${DEFAULT_CONFIG}`,
-  `  --src           a source tree to scan for Phosphor class names; repeatable, defaults to ${DEFAULT_SOURCE}`,
+  `  --src           a source tree of the project's own; repeatable, defaults to ${DEFAULT_SOURCE}`,
+  '                  a style plugin declared in the config is walked wherever it lives',
   `  -o, --out       where both stylesheets go; defaults to ${DEFAULT_OUT}`,
   `                  it writes ${THEME_SHEET} and ${ICONS_SHEET}, and you import them last`,
   '  --audit         report where your sources break a rule of the language: a class of your own',
@@ -390,6 +391,19 @@ export function gradientMark(options: ResolvedOptions) {
   }
 }
 
+export function auditFiles(paths: string[], dirs: string[]) {
+  const seen = new Set<string>();
+  const files: string[] = [];
+  for (const path of [...paths, ...dirs])
+    for (const file of sourceFiles(path) ?? []) {
+      const at = resolve(file);
+      if (seen.has(at)) continue;
+      seen.add(at);
+      files.push(file);
+    }
+  return files;
+}
+
 export function auditStep(options: ResolvedOptions, arena: string | null = null) {
   if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
@@ -402,22 +416,20 @@ export function auditStep(options: ResolvedOptions, arena: string | null = null)
     const path = join(arena, 'css', 'components', sheetFor(part));
     return existsSync(path) ? readFileSync(path, 'utf8') : null;
   };
-  for (const path of options.paths) {
-    for (const file of sourceFiles(path) ?? []) {
-      scanned += 1;
-      const cited = toPosix(file);
-      const text = readFileSync(file, 'utf8');
-      const scope = sourceScope(resolve(file), dirs);
-      reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
-      if (scope !== 'plugin') continue;
-      for (const part of paintedParts(text)) painted.add(part);
-      if (!file.endsWith('.css')) continue;
-      for (const one of restatedFindings(text, sheetOf)) {
-        reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
-          + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
-          + 'counts a part as painted by reading source text, and a role is grown from that count, '
-          + 'so a restatement is evidence for a question nobody asked'));
-      }
+  for (const file of auditFiles(options.paths, dirs)) {
+    scanned += 1;
+    const cited = toPosix(file);
+    const text = readFileSync(file, 'utf8');
+    const scope = sourceScope(resolve(file), dirs);
+    reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
+    if (scope !== 'plugin') continue;
+    for (const part of paintedParts(text)) painted.add(part);
+    if (!file.endsWith('.css')) continue;
+    for (const one of restatedFindings(text, sheetOf)) {
+      reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
+        + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
+        + 'counts a part as painted by reading source text, and a role is grown from that count, '
+        + 'so a restatement is evidence for a question nobody asked'));
     }
   }
   return { reports, scanned, painted: [...painted].sort() };

@@ -391,9 +391,8 @@ what wins.
 bunx arena-to-prod
 ```
 
-One command and no arguments, for as long as everything it has to read is under `src`. It reads
-`arena.config.json` and your `src` tree, and writes two files into `src`. **A style plugin in a
-directory of its own is the case that needs one**, and the `--src` row below says which:
+One command and no arguments. It reads `arena.config.json`, your `src` tree and every style
+plugin directory that config declares, wherever those sit, and writes two files into `src`:
 
 - **`arena.generated.css`**, your palettes and your `@font-face` rules, led by an `@import` of
   the package's own stylesheet. **This file is where every colour comes from**: the package
@@ -442,7 +441,7 @@ yourself only under `--no-import`, where you are importing the package sheet by 
 | `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a report rather than writing anyway. Bare, it holds every kind; `--strict=contrast,audit` holds the kinds you name, out of `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers`, `audit`, `environment` and `restated`. **Name them when one of them is a decision you already made**: a brand under 4.5:1 is measured and deliberate, and one switch over all of them would make it the price of holding the rest in CI. `environment` says the run is outside an Arena package, so Arena's own icons went uncounted; `weight` says a role asks for a weight the face you loaded does not carry, so the browser draws it by smearing the nearest one; `wash` is the one kind `--strict` never holds: a token on a wash of its own colour clears AA at no percentage, and a build nobody can fix is not a gate; `restated` says a plugin rule restates the value that part's slot already paints, so it changes nothing. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
-| `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. **`--src` is repeatable, and a style plugin directory outside `src` has to be one of them.** Every scope rule in the `--audit` row applies to a directory the run actually walked, so a plugin left out is not walked: nothing it paints is reported, nothing it paints is named, and `--strict=restated` can never fire. The run succeeds and says nothing, which is the failure that looks like a pass. `--src src --src design` is the shape when the plugin lives in `design/`. |
+| `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. **`--src` is repeatable and names the trees of your own**, and a style plugin is not one of them: a directory your `stylePlugins` declares is resolved from the config and walked wherever it lives, so every scope rule in the `--audit` row reaches it whether or not it sits under `src`. One command and no arguments is the whole of it, and a plugin in `design/` costs nothing to remember. |
 
 **One report needs no flag, because it runs on every pass: a projection marker you write and do
 not import.** A slot such as `[footer]` or `[actions]` is gated on a query for its directive, so a

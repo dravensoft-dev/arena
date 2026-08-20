@@ -263,8 +263,8 @@ Beyond those, no gate reads your application, so the last step is the only one t
 thing you care about.
 
 - [ ] Answer every role in `plugin.tokens.json`, starting with the shapes.
-- [ ] Run `bunx arena-to-prod --src src --src design --audit`. Passing your plugin directory as a
-      source is what puts it in scope; without it the audit measures your application only.
+- [ ] Run `bunx arena-to-prod --audit`. Your plugin directory is in scope because the config
+      declares it, so the audit measures your application and your plugin together.
 - [ ] Read the report. Fix what it names, and re-run it until it names nothing.
 - [ ] Import the three files it writes, `arena.generated.css`, `icons.generated.css` and, when your
       plugin carries CSS, `plugin.generated.css`.
