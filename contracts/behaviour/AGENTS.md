@@ -8,7 +8,8 @@ green run does NOT claim is the section on the four structural limits, and the f
 the one that answers a keyboard or focus defect that every gate is currently happy with. **When
 the pattern and both bindings turn out to be right and one layer alone is wrong**, the defect is
 that layer's rather than this level's, and it is answered through
-[`frameworks/AGENTS.md`](../../frameworks/AGENTS.md).
+[`frameworks/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/AGENTS.md),
+named by URL because this page is served on the site and that one is not.
 
 `contracts/design/` answers *what is this value*. This directory answers *what must this
 component do*: which roles it carries, which keys it answers, where focus goes,
