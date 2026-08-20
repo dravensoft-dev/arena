@@ -21,6 +21,8 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { themeCss } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
+import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
+import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { NPM_SKILL } from '../../lib/arena/package-assembly.ts';
 import { ROUTER } from '../../lib/arena/llms-index.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
@@ -194,6 +196,33 @@ export function componentMapProblems(pkg: { layer: string; name: string }, dir: 
   return problems;
 }
 
+export function iconManifestProblems(pkg: { layer: string; name: string }, dir: string) {
+  const at = join(dir, MANIFEST_FILE);
+  if (!existsSync(at)) {
+    return [`${pkg.name}: no ${MANIFEST_FILE}, so a consumer's build has no way to learn which glyphs `
+      + 'Arena draws on their behalf but by reading this package as text, which is what sent every '
+      + 'project a rule for a glyph named in a sentence about the API'];
+  }
+  let shipped;
+  try {
+    shipped = readJson(at);
+  } catch (error) {
+    return [`${pkg.name}: ${MANIFEST_FILE} does not parse: ${(error as Error).message}`];
+  }
+  const fresh = iconManifest(pkg.layer);
+  if (shippedNames(fresh).size === 0) {
+    return [`${pkg.name}: a fresh read of the renders under frameworks/${pkg.layer}/components names no `
+      + 'glyph at all, and an empty result is a failure rather than a clean pass'];
+  }
+  if (JSON.stringify(shipped) !== JSON.stringify(fresh)) {
+    return [`${pkg.name}: ${MANIFEST_FILE} is not what the renders say today. It carries `
+      + `${shippedNames(shipped as never).size} glyph(s) and the components draw ${shippedNames(fresh).size}. `
+      + 'A list that outlives the renders it was derived from sends every consumer a subset cut to '
+      + 'the wrong set: run bun run build:packages'];
+  }
+  return [];
+}
+
 export function discoveryProblems(pkg: { layer: string; name: string }, dir: string) {
   const at = join(dir, NPM_SKILL);
   if (!existsSync(at)) {
@@ -314,6 +343,7 @@ export function collect(base = root) {
     problems.push(...manifestProblems(pkg, manifest, version));
     problems.push(...exportProblems(pkg, manifest, dir));
     problems.push(...componentMapProblems(pkg, dir));
+    problems.push(...iconManifestProblems(pkg, dir));
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...discoveryProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);

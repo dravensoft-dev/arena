@@ -155,6 +155,7 @@ export const NAMED_BUT_NOT_HERE = new Map([
   ['arena-button.css', THE_PACKAGE_SHIPS],
   ['arena-stat-card.css', THE_PACKAGE_SHIPS],
   ['components.json', THE_PACKAGE_SHIPS],
+  ['icons.json', THE_PACKAGE_SHIPS],
   ['UseDialogModal.js', THE_PACKAGE_SHIPS],
   ['ng-package.json', 'a file the Angular assembly stages under build/, which is git-ignored '
     + 'because it is written by the build rather than by a person'],

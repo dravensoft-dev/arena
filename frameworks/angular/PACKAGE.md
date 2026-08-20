@@ -402,7 +402,12 @@ files into `src`:
   a bundler copies is that whole file. Host a subset of your own there if the bytes matter, and the
   glyph list this file names is what to cut it to. Counting what Arena draws is the part you cannot
   do by hand: a component renders icons you never wrote, and leaving those out is an empty box
-  in a menu you did not know had one. **Every glyph you name also reaches the filled weight**,
+  in a menu you did not know had one. **The two halves are answered differently.** Your sources are
+  read as text, because there is nothing else to read them by. Arena's half is not: the package
+  ships `icons.json`, the list its own components draw, computed when the package was built from
+  the renders themselves, so the command reads a list instead of searching this package for
+  anything that looks like a class name. A search cannot tell a render from a sentence about one,
+  and it is the glyph list that a self-hosted subset gets cut to. **Every glyph you name also reaches the filled weight**,
   whichever weight you wrote it beside, because a navigation item draws its active destination
   filled and asks for a rule you never wrote: name the glyph the way its member documents it,
   `icon="ph-bold ph-receipt"`, and the sheet has both.

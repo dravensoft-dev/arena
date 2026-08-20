@@ -7,6 +7,7 @@ import {
   undrawnStep,
   parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
   relativeFrom, toPosix, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
+  ICON_MANIFEST,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
   pluginCss, PLUGIN_LAYER_ORDER,
 } from './arena-to-prod.ts';
@@ -309,7 +310,7 @@ test('the icons step writes one file holding every weight in use and nothing els
   assert.doesNotMatch(css, /\.ph-bold\.ph-moon/, 'a weight gains no glyph the sources did not name beside it');
   assert.match(css, /\.ph-fill\.ph-bell:before/,
     'fill is the exception: the navigation asks for it on its own, so the sheet carries every named glyph in it');
-  assert.match(step.wrote ?? '', /2 glyph\(s\), 2 named by your sources and 0 by Arena's own components, 2 weight\(s\)/);
+  assert.match(step.wrote ?? '', /2 glyph\(s\), 2 named by your sources and 0 drawn by Arena's own components, 2 weight\(s\)/);
 
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });
@@ -344,15 +345,31 @@ test('the font path is written relative to the stylesheet, so a bundler resolves
   rmSync(phosphorRootDir, { recursive: true });
 });
 
-test('the icons Arena draws itself are counted, because a consumer never names them', () => {
+test('the icons Arena draws itself come from the list the package ships, not from reading it', () => {
   const { root: phosphorRootDir, web } = phosphor();
   const arena = mkdtempSync(join(tmpdir(), 'arena-package-'));
-  writeFileSync(join(arena, 'index.js'), "const caret = 'ph-bold ph-sun';");
+  writeFileSync(join(arena, ICON_MANIFEST), JSON.stringify({ pairs: { bold: ['ph-sun'] }, loose: [] }));
+  writeFileSync(join(arena, 'index.d.ts'), '/** Phosphor class name, e.g. \'ph-bold ph-moon\'. */');
   const root = project();
 
   iconsStep(options(root), { phosphor: web, arena });
-  assert.match(readFileSync(join(root, 'src', ICONS_SHEET), 'utf8'), /ph-sun/);
+  const css = readFileSync(join(root, 'src', ICONS_SHEET), 'utf8');
+  assert.match(css, /ph-sun/, 'a glyph the package declares it draws reaches the sheet');
+  assert.doesNotMatch(css, /ph-moon/,
+    'a glyph named in a sentence about the API is not one anything draws, and reading the package '
+    + 'as text is what could not tell the two apart');
 
+  rmSync(arena, { recursive: true });
+  rmSync(root, { recursive: true });
+  rmSync(phosphorRootDir, { recursive: true });
+});
+
+test('a package with no list beside it says so rather than counting nothing in silence', () => {
+  const { root: phosphorRootDir, web } = phosphor();
+  const arena = mkdtempSync(join(tmpdir(), 'arena-package-'));
+  const root = project();
+  const step = iconsStep(options(root), { phosphor: web, arena });
+  assert.ok(step.reports.some((one) => one.message.includes(ICON_MANIFEST)));
   rmSync(arena, { recursive: true });
   rmSync(root, { recursive: true });
   rmSync(phosphorRootDir, { recursive: true });

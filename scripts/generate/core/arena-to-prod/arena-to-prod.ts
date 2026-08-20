@@ -20,8 +20,10 @@ import {
 import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import { POLARITIES } from './palette-keys.ts';
 import type { ComponentMap } from './components.ts';
-import { scan, drawn, glyphNames, iconsCss, woff2Source, WEIGHT_CLASSES } from './icon-css.ts';
-import type { IconScan } from './icon-css.ts';
+import {
+  scan, drawn, glyphNames, iconsCss, mergeShipped, shippedNames, woff2Source, WEIGHT_CLASSES,
+} from './icon-css.ts';
+import type { IconScan, ShippedIcons } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
@@ -39,6 +41,7 @@ export const PLUGIN_CSS = 'plugin.css';
 export const PLUGIN_LAYER = 'arena-plugin';
 export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
+export const ICON_MANIFEST = 'icons.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
 export const DEFAULT_SOURCE = 'src';
@@ -267,6 +270,15 @@ export function readPlugins(config: ArenaConfig, from: string) {
     }
   });
   return { plugins, fatal };
+}
+
+export function iconManifest(root: string): ShippedIcons | null {
+  try {
+    const manifest = JSON.parse(readFileSync(join(root, ICON_MANIFEST), 'utf8'));
+    return manifest && typeof manifest === 'object' && manifest.pairs ? manifest : null;
+  } catch {
+    return null;
+  }
 }
 
 export function componentMap(root: string): ComponentMap | null {
@@ -508,15 +520,13 @@ export function iconsStep(options: ResolvedOptions,
 
   const found: IconScan = { pairs: new Map(), loose: new Set() };
   const reports: Report[] = [];
-  const ours: IconScan = { pairs: new Map(), loose: new Set() };
 
-  if (arena) {
-    for (const file of sourceFiles(arena) ?? []) {
-      if (dirname(file) === join(arena, 'bin')) continue;
-      const source = readFileSync(file, 'utf8');
-      scan(source, found);
-      scan(source, ours);
-    }
+  const shipped = arena ? iconManifest(arena) : null;
+  if (shipped) {
+    mergeShipped(shipped, found);
+  } else if (arena) {
+    reports.push(report('environment', `${ICON_MANIFEST} is not beside this package, so the icons Arena `
+      + 'draws itself were not counted and your sheet carries only what your own sources name'));
   } else {
     reports.push(report('environment', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
   }
@@ -571,8 +581,8 @@ export function iconsStep(options: ResolvedOptions,
     reports,
     fatal: [] as string[],
     wrote: `${out} (${kept} glyph(s), ${glyphNames(yours).size} named by your sources and `
-      + `${glyphNames(ours).size} by Arena's own components, ${sheets.length} weight(s), `
-      + `${css.length} bytes)` };
+      + `${shipped ? shippedNames(shipped).size : 0} drawn by Arena's own components, `
+      + `${sheets.length} weight(s), ${css.length} bytes)` };
 }
 
 export type ThemeEnvironment = {

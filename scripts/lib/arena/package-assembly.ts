@@ -15,6 +15,8 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
+import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
+import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { DOMAIN } from './site-pages.ts';
@@ -272,6 +274,15 @@ export function writeComponentMap(dir: string, layer: string, root = repoRoot) {
       + 'would resolve every project to an empty subset and every screen would render unstyled');
   }
   return write(dir, MAP_FILE, `${JSON.stringify(map, null, 2)}\n`);
+}
+
+export function writeIconManifest(dir: string, layer: string, root = repoRoot) {
+  const manifest = iconManifest(layer, root);
+  if (shippedNames(manifest).size === 0) {
+    throw new Error(`package-assembly: derived no glyph for ${layer}, so a consumer's sheet would carry `
+      + 'nothing for the icons Arena draws on their behalf and every one of them would render as an empty box');
+  }
+  return write(dir, MANIFEST_FILE, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
 export function version(root = repoRoot) {

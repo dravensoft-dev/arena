@@ -137,7 +137,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 47_400,
+    budget: 48_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -255,7 +255,16 @@ export const ROUTES: Route[] = [
       + 'assumptions is the strict one, so the page says the peers are declared rather than '
       + 'hoisted and that the shipped command resolves the icon font through a symlinked store. '
       + 'It was verified by installing the packed tarball under that layout and running the '
-      + 'command, which is the evidence a claim about somebody else\'s tool needs.',
+      + 'command, which is the evidence a claim about somebody else\'s tool needs. Raised again to '
+      + '48,000 when the icon sheet stopped being half a promise. The page says the sheet holds '
+      + 'every glyph the project draws and every glyph Arena draws for it, and the glyph COUNT is '
+      + 'what a project is told to cut a self-hosted font subset to, so a list padded with names '
+      + 'that appear in a sentence about a member rather than in a render is the wrong list to cut '
+      + 'to. Measured across eight twin pairs of consumer benches, where the Angular half carried '
+      + 'between 8 and 18 rules its React twin did not for the same screens and the same config. '
+      + 'The package ships the list its own renders draw now, and the page has to say so, because '
+      + 'a reader who is told the two halves are answered the same way has no reason to trust '
+      + 'either.',
   },
   {
     name: 'consumer-skin',
