@@ -16,6 +16,7 @@ export class ArenaTableState {
   columns: Signal<readonly ArenaTableColumn[]> = signal([]);
   narrow: Signal<boolean> = signal(false);
   rows: Signal<readonly object[]> = signal([]);
+  extent: Signal<{ total: number; offset: number } | null> = signal(null);
 
   readonly cursor = signal<GridCursor>({ row: 0, col: 0 });
 
@@ -48,6 +49,13 @@ export class ArenaTableState {
   activate(rowIndex: number): void {
     const row = this.rows()[rowIndex - 1];
     if (row) this.entries().get(row)?.activate();
+  }
+
+  ariaRowIndexOf(row: object): number | null {
+    const sits = this.extent();
+    if (sits === null) return null;
+    const at = this.rowIndexOf(row);
+    return at === -1 ? null : sits.offset + at + 1;
   }
 
   rowIndexOf(row: object): number {

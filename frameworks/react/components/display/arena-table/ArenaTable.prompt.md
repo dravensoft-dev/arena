@@ -35,6 +35,7 @@ It is a **compound** component: `columns` says how each column is headed and set
 | `sort` | object | `ArenaTableSort` |  | Which column the rows are ordered by and which way. Controlled: ArenaTable draws the caret and the aria-sort, and the consumer does the ordering, because ArenaTable does not hold the rows. Absent, no header is a sort target. |
 | `onSortChange` | event | `ArenaTableSort` |  | A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not, which is why the member is controlled rather than a starting value. |
 | `page` | object | `ArenaTablePage` |  | Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. |
+| `slice` | object | `ArenaTableSlice` |  | Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. |
 | `onPageChange` | event | `number` |  | A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. |
 | `pageControl` | enum | `ArenaTablePageControl` | `"auto"` | Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. |
 | `sortControl` | enum | `ArenaTableSortControl` | `"auto"` | How the sort affordance is reached in CARD MODE, where there is no header row to activate and a `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for; 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. It is a member rather than something a consumer draws for themselves because the state it edits, ArenaTableSort, is Arena's: left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. |
@@ -43,6 +44,7 @@ It is a **compound** component: `columns` says how each column is headed and set
 <!-- @api end -->
 
 **Do / Don't**
+- **A grid showing part of a list owes its true size.** `page` pays that on its own; bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
 - **`page` is what the table knows and `pageControl` is what it draws.** Bind `page` whenever the list is longer than the screen, so the table sizes and resets it; pass `pageControl="none"` when you want the `ArenaPagination` somewhere else, or want one control over two tables. Withholding `page` to move the control is the shape this member exists to replace: it left the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as in "Recent deployments" or "Team members", and never "Table". There is nothing to derive it from, which is why it throws when omitted rather than falling back.
 - Put your own components in a cell: an `ArenaBadge` for a status, an `ArenaButton` for an action. That is what the compound shape is for. A column carries **no** `render`, and passing one does nothing.
@@ -168,6 +170,28 @@ listing every sortable column in each direction, and it reports through the same
 the header does. Set it to `none` for a table whose order is the document's rather than the
 reader's. The header row does **not** come back below the breakpoint: card mode exists for the
 one reason a grid does not fit.
+
+### A grid that shows part of a list says how big the list is
+
+`aria-rowcount` and `aria-rowindex` are what a reader moving through a grid is counted by, and the
+grid pattern's source page applies them whenever rows are not in the DOM. Binding `page` is enough:
+the count and each row's position are derived from it, so a paged table already reports row 41 of
+500 rather than row 1 of 20.
+
+Bind `slice` when the projection is not a page, which is what a scroller renders:
+
+```tsx
+<ArenaTable label="Recent deployments" columns={columns}
+            slice={{ total: 20_000, offset: firstVisible }}>
+  {visible.map(renderRow)}
+</ArenaTable>
+```
+
+`offset` counts from 0 and is the number of rows before the first one you projected; the header row
+takes index 1 and `ArenaTable` does that arithmetic, so an offset that already counted from 1 tells
+the reader they are one row further on than they are. `total: -1` is the answer for a list whose
+length nobody knows yet, and it reaches the attribute unchanged. Bound beside `page`, `slice` is
+what answers, because one position with two sources is a position two things can disagree about.
 
 ### `ArenaTableSort.column` is an index, and a column that moves takes the order with it
 

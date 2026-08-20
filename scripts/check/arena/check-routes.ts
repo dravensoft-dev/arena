@@ -107,7 +107,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 30_500,
+    budget: 32_700,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -150,7 +150,15 @@ export const ROUTES: Route[] = [
       + 'started naming the contributor branch by its URL. A relative path to it resolves in a '
       + 'clone and nowhere else, and this router is served on the site and read inside a package, '
       + 'so the one sentence sending a reader to the other branch was a 404 for everybody who did '
-      + 'not already have the tree.',
+      + 'not already have the tree. Raised again to 32,700 when a grid showing part of a list '
+      + 'started saying how big the list is. ArenaTable is the largest prompt this route can '
+      + 'reach and every screen that takes a table pays for it, which argues for keeping the '
+      + 'rest of that page short rather than for leaving the member out: a paged table is '
+      + 'already a subset of a grid, the source page its binding cites applies aria-rowcount '
+      + 'and aria-rowindex to exactly that condition, and a consumer nobody tells carries the '
+      + 'defect into every table they build. The arithmetic is the half that cannot live in a '
+      + 'member description: the header row takes index 1, so an offset counted from 1 is off '
+      + 'by one in a way no gate of ours and no gate of theirs reports.',
   },
   {
     name: 'consumer-install',
