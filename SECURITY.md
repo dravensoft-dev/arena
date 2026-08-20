@@ -6,13 +6,26 @@
 repository**, under Security, Report a vulnerability. That channel is private
 between you and Dravensoft until there is something to publish.
 
-Do not open a public issue for a vulnerability, and do not send a pull request
-that fixes one, because both describe the problem in the open before anyone can
-act on it.
+Do not open a public issue for a vulnerability, and do not send an ordinary pull
+request that fixes one, because both describe the problem in the open before
+anyone can act on it. There is a private route for a fix, and it is the section
+below.
 
 A report is easier to act on when it names the version, the layer, and the path
 from a consumer's code to the effect. A proof of concept is welcome and is not
 required.
+
+## Writing the fix
+
+**Say in the report that you want to write it.** Dravensoft then opens a draft
+advisory, which carries a temporary private fork of this repository, and that fork
+is where the patch is written, reviewed and run against the gates. It is the one
+place work on an unpublished vulnerability happens without describing the problem
+to everybody first, and what lands there merges and ships with the advisory that
+names you.
+
+Nothing obliges you to. A report alone is the whole of what is asked for, and it
+is acted on either way.
 
 ## What is supported
 

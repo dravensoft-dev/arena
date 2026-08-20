@@ -5,16 +5,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        Arena takes issues and does not take external pull requests.
+        A defect in one component, one document or one gate goes straight to a pull request,
+        and a report alone is just as welcome.
         [CONTRIBUTING.md](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md)
-        says why, and what makes a report usable.
+        says which changes need agreement first, and what makes a report usable.
 
   - type: input
     id: version
     attributes:
       label: Version
       description: The Arena version you are on. `README.md` names the current one.
-      placeholder: 9.0.2
+      placeholder: 10.1.0
     validations:
       required: true
 

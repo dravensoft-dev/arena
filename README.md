@@ -186,9 +186,11 @@ branch, and everything below is reached through it.
 
 ## Contributing and security
 
-Arena takes issues. [`CONTRIBUTING.md`](./CONTRIBUTING.md) says what an issue is
-for and which contributions are accepted, and [`SECURITY.md`](./SECURITY.md) is
-where a vulnerability goes.
+Arena takes pull requests from anyone. [`CONTRIBUTING.md`](./CONTRIBUTING.md) says
+which changes go straight to one and which start as a proposal, and what a change
+is not allowed to break. [`SECURITY.md`](./SECURITY.md) is where a vulnerability
+goes, and [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) is the Contributor Covenant
+this project holds to.
 
 ## About
 
