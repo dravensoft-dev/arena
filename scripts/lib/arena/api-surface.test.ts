@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   classify, reactSurface, angularSurface, templateSlots, braceBody, UnrecognisedShape, PLATFORM_TYPES, reactImplementation, literalValue, defaultProblems, IMPERATIVE_HANDLES,
+  angularImplementation, inputInitialValue,
 } from './api-surface.ts';
 
 test('the three primitives classify as primitives', () => {
@@ -544,4 +545,30 @@ test('an allowed handle is skipped, and any other public method still fails', ()
   const wrongClass = 'export class ArenaSelect {\n  readonly a = input<string>();\n  focus(): void { this.x(); }\n}';
   assert.throws(() => angularSurface(wrongClass, 'ArenaSelect'), UnrecognisedShape,
     'the allowance is keyed by component and method, so it does not leak to a sibling');
+});
+
+test('an input\'s initial value is read whichever of the three shapes declares it', () => {
+  assert.equal(inputInitialValue("input<G, G | undefined>('md', { transform: (v) => v ?? 'md' })"), "'md'");
+  assert.equal(inputInitialValue('input(0)'), '0');
+  assert.equal(inputInitialValue('input<string | undefined>(undefined)'), 'undefined');
+  assert.equal(inputInitialValue('input(ARENA_CHART_HEIGHT)'), 'ARENA_CHART_HEIGHT');
+});
+
+test('a member with no initial value to read answers nothing rather than an empty string', () => {
+  assert.equal(inputInitialValue('input.required<string>()'), null);
+  assert.equal(inputInitialValue('input<string>()'), null);
+  assert.equal(inputInitialValue('output<void>()'), null);
+  assert.equal(inputInitialValue('model<string>(\'a\')'), null);
+  assert.equal(inputInitialValue('signal(3)'), null);
+});
+
+test('angularImplementation answers the defaults a class declares and skips what has none', () => {
+  const source = "export class X {\n"
+    + "  readonly gap = input<G, G | undefined>('md', { transform: (v) => v ?? 'md' });\n"
+    + '  readonly lines = input(3);\n'
+    + '  readonly label = input.required<string>();\n'
+    + '  readonly picked = output<string>();\n'
+    + '}';
+  const { defaults } = angularImplementation(source, 'X');
+  assert.deepEqual([...defaults], [['gap', "'md'"], ['lines', '3']]);
 });
