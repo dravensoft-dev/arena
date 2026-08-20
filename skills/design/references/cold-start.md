@@ -162,8 +162,11 @@ components come from, and reaching it is what pulls the router in: it is declare
 for exactly this reason, so a project that never reaches for metadata never installs a router it
 does not use.
 
-[`seo.md`](./seo.md) is where the three properties behind that third row are written down. Read it
-when the answer is the third row, and skip it otherwise.
+[`seo.md`](./seo.md) is where the three properties behind that third row are written down, and
+node 6 sends every project there whatever it answered here. That is not a contradiction with this
+node: a no reached by choosing is a decision the project can defend later, and a no reached by
+never asking is announced by nothing. Read it on the third row to learn what you are taking on,
+and on the first to learn what you are declining.
 
 ## 9. What is it built on?
 
@@ -213,6 +216,7 @@ dependencies is the skill's to ask: past this table the stack is the project's o
 
 | Always | Which layer | Why |
 |---|---|---|
+| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 8 and 9 settled. This is Arena itself; everything under it is a peer, and a list of peers with the package missing installs nothing that draws |
 | `@phosphor-icons/web` | both | icons are class-name strings a component renders, and the font is never bundled |
 | `@angular/cdk` | Angular only | a peer of that layer, and **not** something a React project installs |
 | `@angular/core`, `@angular/common`, `@angular/platform-browser` | Angular only | the peers the layer is built on |
@@ -229,7 +233,12 @@ the symlinked store and writes both stylesheets. Nothing here needs a hoisting f
 
 Then, in this order, because each file is read by the next.
 
-- `arena.config.json`, with both palettes and the three font slots.
+- `arena.config.json`, with both palettes, the three font slots, and `stylePlugins` naming the
+  directory the next two bullets write, as `["./design/<name>"]`. **A plugin the config never
+  names is a plugin nothing loads**, and nothing reports it: the build succeeds and the product
+  wears the answers Arena installs with, which are Dravensoft's. `["default"]`, or leaving the
+  key out, is that same appearance chosen on purpose rather than by omission, and it is a
+  finished answer for a first screen or a tool nobody outside the team looks at.
 - `design/<name>/plugin.tokens.json`, answering every role. Shapes first, then space, then weight,
   then depth, and leave the colour roles at the answers
   [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
