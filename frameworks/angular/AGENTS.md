@@ -520,9 +520,20 @@ static `class` or an ARIA attribute, lands on the inert host and never on the st
 inside it, and neither layer offers a second route to it. That follows from the carve-out, not
 from anything a contract could restate, and it is the argument for host-binding being the default.
 
-## Three traps this layer's idiom sets
+## Four traps this layer's idiom sets
 
-All three are layer-wide and silent.
+All four are layer-wide and silent.
+
+**A resolving transform spells the default twice, and only one of the two runs for any given
+caller.** `input(X, { transform: (value) => value ?? Y })` is the layer's shape for an optional
+member, and Angular runs the transform only for an input that was **bound**: a consumer who writes
+`<arena-grid>` bare reads `X`, and one who writes `[min]="maybe()"` with nothing in it reads `Y`.
+So `X` and `Y` are one decision written in two places, and a disagreement between them is a
+component that answers the same markup two ways. It is invisible to every other gate: `check:api`
+reads an input's initial value for its **type** and never for its value, so a wrong `X` of the
+right type passes it, and `check:pixel-parity` renders one appearance, so an `X` hardcoding what
+that appearance answers for a role agrees at every pixel there and diverges in every project that
+answers the role otherwise. `check:optional-inputs` holds `X` and `Y` to the same text.
 
 **A bare boolean attribute resolves to `true`.** Every boolean input here is a signal
 `input(false, { transform: booleanAttribute })`, so `<arena-alert dismissible>` is `true`.

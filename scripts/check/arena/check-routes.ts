@@ -520,7 +520,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 69_500,
+    budget: 70_000,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop. It is '
       + 'allowed to cost more than any consumer route because it is paid by whoever changes Arena '
@@ -549,7 +549,15 @@ export const ROUTES: Route[] = [
       + 'mechanical half now, and this route is where its reader is told which escapes are '
       + 'correct rather than only that the gate failed. The roof carries what binds both layers '
       + 'and each layer carries its own envelope and its own peer, which is the split that keeps '
-      + 'the pair from going stale in one of them.',
+      + 'the pair from going stale in one of them. Raised to 70,000 when the Angular stop gained '
+      + 'the fourth trap: the layer writes an optional member's default twice, as the initial '
+      + 'value and again as the fallback of the transform that resolves an absence, and only one '
+      + 'of the two runs for any given caller. It is charged here rather than to a family page '
+      + 'because every optional member in the layer carries the shape, and it is charged at all '
+      + 'because no gate could see it: the pixel gate renders one appearance, so an initial value '
+      + 'hardcoding what that appearance answers for a role agrees at every pixel and diverges in '
+      + 'every project that answers the role otherwise. Measured on a consumer bench, where one '
+      + 'grid drew six columns against the five the same config drew beside it.',
   },
   {
     name: 'contributor-authoring',

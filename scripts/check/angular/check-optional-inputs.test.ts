@@ -1,11 +1,12 @@
-/* Covers check-optional-inputs.ts. The cases that matter are the three a looser reader gets
+/* Covers check-optional-inputs.ts. The cases that matter are the four a looser reader gets
  * wrong: a required input, which has no default to resolve; an input declared with no value at
- * all, whose write type already admits undefined; and a transform that is not booleanAttribute,
- * which is most of them and is still a resolution. */
+ * all, whose write type already admits undefined; a transform that is not booleanAttribute,
+ * which is most of them and is still a resolution; and an initial value that disagrees with the
+ * fallback beside it, which is the half that renders rather than the half that is declared. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { optionalInputProblems, TAKES_NO_ABSENCE } from './check-optional-inputs.ts';
+import { optionalInputProblems, resolvedFallback, TAKES_NO_ABSENCE } from './check-optional-inputs.ts';
 
 const reader = (files: Record<string, string>) => (path: string) => files[path] ?? '';
 
@@ -58,4 +59,29 @@ test('an exemption for an input that is gone fails as stale', () => {
 
 test('TAKES_NO_ABSENCE is empty, and that emptiness is the claim', () => {
   assert.equal(TAKES_NO_ABSENCE.size, 0);
+});
+
+test('the two spellings of one default must agree, and a stale initial value is what fails', () => {
+  const files = {
+    'ArenaGrid.ts': "readonly min = input<string, string | undefined>(\n"
+      + "    'calc(var(--sp-1) * 50)',\n"
+      + "    { transform: (value) => value ?? 'var(--grid-min)' },\n"
+      + '  );',
+  };
+  const { problems } = optionalInputProblems(Object.keys(files), reader(files), new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaGrid\.min declares its default twice and the two disagree/);
+  assert.match(problems[0] ?? '', /initial value is 'calc\(var\(--sp-1\) \* 50\)'/);
+  assert.match(problems[0] ?? '', /resolves an absent one to 'var\(--grid-min\)'/);
+});
+
+test('a transform doing more than resolving an absence has no fallback text to hold', () => {
+  const files = { 'A.ts': 'readonly count = input(0, { transform: (v) => Math.max(0, v ?? 0) });' };
+  assert.deepEqual(optionalInputProblems(Object.keys(files), reader(files), new Map()).problems, []);
+});
+
+test('the fallback is read off the transform whatever follows it in the options object', () => {
+  assert.equal(resolvedFallback("{ transform: (value) => value ?? 'md' }"), "'md'");
+  assert.equal(resolvedFallback('{ transform: (v: string | undefined) => v ?? 3 }'), '3');
+  assert.equal(resolvedFallback('{ transform: booleanAttribute }'), null);
 });

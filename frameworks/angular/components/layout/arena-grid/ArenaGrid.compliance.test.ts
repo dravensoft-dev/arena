@@ -29,10 +29,17 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-grid/ArenaGrid.behaviour.
   `,
 })
 class GridHost {
-  min = 'calc(var(--sp-1) * 50)';
+  min: string | undefined = undefined;
   gap: ArenaGridGap = 'md';
   maxWidth: string | undefined = undefined;
 }
+
+@Component({
+  standalone: true,
+  imports: [ArenaGrid],
+  template: `<arena-grid><span>One</span></arena-grid>`,
+})
+class BareGridHost {}
 
 function render(patch: Partial<GridHost> = {}) {
   const fixture = TestBed.createComponent(GridHost);
@@ -85,6 +92,38 @@ test('the track list is auto-fit over the min, clamped against the container', (
       'the default min must reach the track list as a token derivation, never as a literal');
   } finally {
     fixture.destroy();
+  }
+});
+
+test('an unbound min is the ROLE, which is the only reading a style plugin can answer', () => {
+  const fixture = TestBed.createComponent(BareGridHost);
+  fixture.detectChanges();
+  try {
+    const grid = fixture.nativeElement.querySelector('arena-grid') as HTMLElement;
+    assert.equal(grid.style.gridTemplateColumns,
+      'repeat(auto-fit, minmax(min(var(--grid-min), 100%), 1fr))',
+      'a transform resolves an absent value and never runs for an input nobody bound, so the '
+      + 'initial value is what an unbound grid reads: any other value pins the column count to '
+      + 'whatever the appearance the package installs with happens to answer');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('a bound-but-absent min and an unbound one reach the same track list', () => {
+  const bound = render({ min: undefined });
+  const bare = TestBed.createComponent(BareGridHost);
+  bare.detectChanges();
+  try {
+    assert.equal(
+      gridOf(bound).style.gridTemplateColumns,
+      (bare.nativeElement.querySelector('arena-grid') as HTMLElement).style.gridTemplateColumns,
+      'the two spellings of the default are one decision, and a grid that reads differently '
+      + 'depending on whether the caller wrote [min] has two',
+    );
+  } finally {
+    bound.destroy();
+    bare.destroy();
   }
 });
 
