@@ -30,7 +30,8 @@ this file is not, and the two are almost disjoint by design.
 | a browsable page or a specimen | [`intro/AGENTS.md`](./intro/AGENTS.md) |
 | the identity document a project fills in before its first screen | [`arena-from-scratch/AGENTS.md`](./arena-from-scratch/AGENTS.md) |
 | a style plugin Arena renders, or an entry a project starts from | [`plugin-style-store/AGENTS.md`](./plugin-style-store/AGENTS.md), and [`catalogue/`](./plugin-style-store/catalogue/AGENTS.md) beside it |
-| the npm channel, or a release | [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md) and [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) |
+| a release, in the order the moves are made | [`versioning_steps.md`](./versioning_steps.md), and nothing else until it sends you there |
+| the npm channel: what a package is, what CI does with it | [`frameworks/PACKAGING.md`](./frameworks/PACKAGING.md) and [`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) |
 | documentation | this page, the two sections below it |
 | whether the file in front of me is mine to edit at all | [`GENERATED.md`](./GENERATED.md), before the edit and not after the gate |
 | nothing yet, and something looks wrong | [`DOUBTS.md`](./DOUBTS.md), which says what counts as a debt and where the records live |

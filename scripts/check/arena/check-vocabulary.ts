@@ -46,6 +46,9 @@ export const README_MEANS = new Map([
     + 'the Angular layer\'s account of what the assembly emits'],
   ['scripts/check/arena/AGENTS.md', 'the file name check-agents.ts refuses on this branch, and the '
     + 'one check-packages.ts asserts a package ships'],
+  ['versioning_steps.md', 'the root README.md, and it is named because that file is one of the '
+    + 'surfaces a release moves: check-release.ts finds the plugin version in it by exact regex, '
+    + 'so the heading and the label are part of what a release must not reword'],
 ]);
 
 export type Claim = { rel: string; token: string; suffix: string };

@@ -162,7 +162,7 @@ must exist on the release commit. **Forgetting the `ref` fails silently**: the m
 advertises a new version while Claude Code keeps fetching the old tag and resolves the old
 version, so nothing errors and the update is never offered.
 `bun scripts/check/arena/check-release.ts` is what refuses that combination, and
-`versioning_steps.txt` is the order the moves are made in.
+`versioning_steps.md` is the order the moves are made in.
 
 Each workflow fires on a green `Arena main`, guards, and usually does nothing.
 
