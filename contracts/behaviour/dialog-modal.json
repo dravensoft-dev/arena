@@ -1,7 +1,7 @@
 {
   "name": "dialog-modal",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
-  "description": "A window that covers the app and takes the whole interaction until it is dismissed. Shared by ArenaDialog, ArenaConfirmDialog and ArenaOnboarding, which is the point: this contract was written three times implicitly before it was written once here.",
+  "description": "A window that covers the app and takes the whole interaction until it is dismissed. More than one component binds it, which is the point: written once here it is one contract each of them answers, rather than the same rules implied separately at each. Which components those are is each one's own <Name>.behaviour.json, because a binding travels with the component and a list here is stale the day one of them moves to a pattern of its own.",
   "requires": {
     "roles.element": "dialog",
     "roles.aria-modal": "true",

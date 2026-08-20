@@ -33,6 +33,16 @@ test('a pattern with an empty requires map is a problem', () => {
   assert.match(validatePattern('dialog-modal', { ...ok, requires: {} })[0] ?? '', /at least one requirement/);
 });
 
+test('a pattern description naming a component is a problem', () => {
+  const listed = { ...ok, description: 'Shared by ArenaDialog and ArenaOnboarding.' };
+  assert.match(validatePattern('dialog-modal', listed)[0] ?? '', /names ArenaDialog, ArenaOnboarding/);
+});
+
+test('a pattern description carrying no component name is not a problem', () => {
+  const clean = { ...ok, description: 'A window that takes the whole interaction until dismissed.' };
+  assert.deepEqual(validatePattern('dialog-modal', clean), []);
+});
+
 test('a requirement key must be dotted, so an exception can name exactly one leaf', () => {
   const flat = { ...ok, requires: { trap: true } };
   assert.match(validatePattern('dialog-modal', flat)[0] ?? '', /"trap" must be dotted/);

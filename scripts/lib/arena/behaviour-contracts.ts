@@ -26,6 +26,10 @@ export function validatePattern(fileStem: string, pattern: any) {
       problems.push(`${fileStem}: requirement "${key}" must be dotted (group.leaf) so an exception can name exactly one`);
     }
   }
+  const named = [...new Set(String(pattern.description ?? '').match(/\bArena[A-Z]\w*/g) ?? [])];
+  if (named.length > 0) {
+    problems.push(`${fileStem}: its description names ${named.join(', ')}. A pattern states what it is and never which components bind it: a binding declares itself in that component's own <Name>.behaviour.json, so a name here is stale the day that component moves to a pattern of its own, and nothing reports it.`);
+  }
   if ('additive' in pattern && pattern.additive !== true) {
     problems.push(`${fileStem}: "additive" is present and not true. It says a component adds this pattern to the one it already binds, so the only value that means anything is true; omit it for an ordinary pattern rather than declaring it false.`);
   }

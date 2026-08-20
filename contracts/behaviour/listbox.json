@@ -1,7 +1,7 @@
 {
   "name": "listbox",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
-  "description": "A list of selectable options presented on its own, not as a combobox popup. ArenaSelection can be single or multiple.",
+  "description": "A list of selectable options presented on its own, not as a combobox popup. Selection can be single or multiple.",
   "requires": {
     "roles.element": "listbox",
     "roles.option": "option",
