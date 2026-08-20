@@ -49,7 +49,6 @@ change touches how a component reaches the document.
   the four other hardcoded ones are left alone. **It is verified against the installed
   `@angular/cdk`; read [CDK bridge](#cdk-bridge-supported-and-verified) for what that
   means and what it does not.**
-- `icons/IconManifest.ts`: the canonical Phosphor role→glyph map.
 
 **The files under `theme/` keep their lowercase names, and they do not share one reason.**
 `arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
@@ -60,8 +59,8 @@ adopter at all**: the assembly copies neither, `arena-tailwind.css` imports this
 `intro/styles.css` and so resolves nowhere else, and the pre-paint script a consumer pastes is
 carried inline on the npm page rather than read from here. **Nothing in this tree imports
 `arena-tailwind.css` either**, which makes it a file with no reader on either side. **Not
-exempt:** `theme/ArenaThemeService.ts` and `icons/IconManifest.ts` are reached through
-`frameworks/angular/index.ts`, which no adopter writes.
+exempt:** `theme/ArenaThemeService.ts` is reached through `frameworks/angular/index.ts`, which no
+adopter writes.
 
 - `theme/ArenaThemeService.ts` and `theme/no-fouc.html`: the signal theme service and the
   pre-paint snippet. It switches between **any number of named palettes**, because a
