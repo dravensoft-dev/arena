@@ -115,6 +115,10 @@
       }
     }
   },
+  "step-label": {
+    "$type": "dimension",
+    "$value": "{dz.text-2xs}"
+  },
   "step-eyebrow": {
     "$type": "dimension",
     "$value": "{dz.text-2xs}"

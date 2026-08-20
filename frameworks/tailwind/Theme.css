@@ -151,6 +151,7 @@
      which an extension may move directly. --text-eyebrow points at a dz step today and is
      emitted as a reference for it, so it re-densifies like the control text it is. */
   --text-eyebrow: var(--step-eyebrow);
+  --text-label: var(--step-label);
   --text-title-surface: var(--step-title-surface);
   --text-title-section: var(--step-title-section);
   --text-title-page: var(--step-title-page);

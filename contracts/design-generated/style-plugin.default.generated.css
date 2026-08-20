@@ -24,6 +24,7 @@
   --tt-label:uppercase;
   --track-eyebrow:0.22em;
   --track-label:0.14em;
+  --step-label:var(--dz-text-2xs);
   --step-eyebrow:var(--dz-text-xs);
   --step-title-surface:19px;
   --step-title-section:24px;
@@ -95,8 +96,10 @@
   --edge-separator:var(--color-base-300);
 }
 .arena-compact{
+  --step-label:var(--dz-text-2xs);
   --step-eyebrow:var(--dz-text-xs);
 }
 .arena-comfortable{
+  --step-label:var(--dz-text-2xs);
   --step-eyebrow:var(--dz-text-xs);
 }

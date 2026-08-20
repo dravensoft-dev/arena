@@ -9,10 +9,6 @@
   font-weight: var(--fw-control);
 }
 
-[data-arena-part="side-nav.section-label"] {
-  font-size: var(--dz-text-2xs);
-}
-
 [data-arena-part="side-nav.badge"] {
   background: var(--fill-surface-sunken);
   color: color-mix(in oklab, var(--color-base-content) 62%, transparent);

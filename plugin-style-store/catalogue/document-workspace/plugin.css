@@ -17,7 +17,6 @@
 
 [data-arena-part="side-nav.section-label"] {
   font-weight: var(--fw-bold);
-  font-size: var(--dz-text-2xs);
 }
 
 /* A database is a grid of records, not a framed table: the frame goes and the rules stay.

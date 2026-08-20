@@ -12,7 +12,7 @@
     "label": "flex-1",
     "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "divider": "h-px my-1 bg-edge-separator",
-    "header": "font-face-label text-ctl-2xs tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-2.5 pt-2 pb-1"
+    "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-2.5 pt-2 pb-1"
   },
   "partOf": {
     "itemDefault": "item",

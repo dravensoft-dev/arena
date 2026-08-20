@@ -54,6 +54,7 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['text-h2', 'text-title-page or text-title-section, whichever this title is titling'],
   ['text-h3', 'text-title-section, when the slot is the head of a region on a page'],
   ['text-h4', 'text-title-surface, when the slot is the head of a card, a panel or a tile'],
+  ['text-ctl-2xs', 'text-label, when the slot is in the label register'],
   ['tracking-label', 'tracking-eyebrow, when the slot IS an eyebrow'],
   ['tracking-field-label', 'tracking-label-role, the tracking of the label register'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
@@ -121,6 +122,14 @@ export const SCALE_USES = new Map<string, string>([
 
   ['ArenaChartCard:title:tracking-label', 'a chart tile\'s title is set in the label register at the label step, which is one step open of where track-label is born. Binding it would have tightened it, so it keeps the step until a role names the difference'],
   ['ArenaStatCard:label:tracking-label', 'the same step for the same reason, on a stat card\'s label'],
+
+  ['ArenaSideNav:badge:text-ctl-2xs', 'a nav counter, which is at the smallest control step because it is the smallest control text and not because it is a label: it carries the mono face and no case role, so text-label would pitch a figure at whatever a product decided its column headers should be'],
+  ['ArenaBottomNav:badge:text-ctl-2xs', 'the same counter on the other bar, for the same reason'],
+  ['ArenaBottomNav:item:text-ctl-2xs', 'the words under a bar icon, which are the control\'s own label in the body face rather than the label register, and are held at the smallest step by the room the bar has'],
+  ['ArenaCalendar:time:text-ctl-2xs', 'a timestamp on an event, set in mono as a figure'],
+  ['ArenaPeopleList:rank:text-ctl-2xs', 'a position in a list, which is a figure'],
+  ['ArenaPeopleList:secondary:text-ctl-2xs', 'the second line under a name, which is held small by the row it shares rather than by a register'],
+  ['ArenaPeopleList:figure:text-ctl-2xs', 'the number beside that name, for the reason rank is'],
 ]);
 
 export function scaleUseKey(component: string, slot: string, utility: string) {

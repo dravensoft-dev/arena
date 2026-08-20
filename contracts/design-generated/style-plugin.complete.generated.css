@@ -24,6 +24,7 @@
   --tt-label:capitalize;
   --track-eyebrow:0.34em;
   --track-label:0em;
+  --step-label:var(--dz-text-xs);
   --step-eyebrow:var(--dz-text-sm);
   --step-title-surface:24px;
   --step-title-section:32px;
@@ -95,8 +96,10 @@
   --edge-separator:var(--color-neutral);
 }
 .arena-compact.arena-complete, .arena-compact .arena-complete, .arena-complete .arena-compact{
+  --step-label:var(--dz-text-xs);
   --step-eyebrow:var(--dz-text-sm);
 }
 .arena-comfortable.arena-complete, .arena-comfortable .arena-complete, .arena-complete .arena-comfortable{
+  --step-label:var(--dz-text-xs);
   --step-eyebrow:var(--dz-text-sm);
 }
