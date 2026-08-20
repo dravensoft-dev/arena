@@ -14,7 +14,7 @@ often the true answer that Arena publishes nothing until it is told to. A catalo
 page, a public listing and a documentation site are a yes, and a yes has consequences before the
 first component.
 
-## The answer is Angular's, and the router is why
+## Arena writes the head in one layer, and the router is why
 
 `@dravensoft/arena-angular/metadata` is a second entry point of the Angular package, apart from the
 one every component comes from. It is apart because reaching it means reaching `@angular/router`,
@@ -22,10 +22,14 @@ declared as an optional peer for exactly this reason: a project that reaches onl
 never installs a router it does not use.
 
 **`@dravensoft/arena-react` has no counterpart.** It writes no `<head>` at all, so a React project
-carries that itself, through whatever its own framework offers. **When the answer is yes and the
-framework is still open, Angular is the layer to build on.** That is a consequence of what Arena
-ships rather than a preference between the two, and it is worth knowing on the day the choice is
-still cheap.
+carries that itself, through whatever its own framework offers, and a React framework picked to be
+found generally offers one already. **What this decides is one piece rather than the stack**: on
+Angular Arena supplies it and on React your own framework does, so a yes here costs a dependency on
+one side and a wiring you were going to have anyway on the other. How the application is assembled
+stays the project's answer, in the ninth node of [`cold-start.md`](./cold-start.md), which is also
+where the asymmetry this page's reader is most exposed to is written down: a product that has to be
+found is a product that server-renders, and the two layers do not hold that claim with the same kind
+of evidence. Read it on the day the choice is still cheap.
 
 ## Three properties to know before you write a route
 

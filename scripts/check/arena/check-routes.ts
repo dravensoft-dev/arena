@@ -416,7 +416,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 4_200,
+    budget: 4_600,
     reason:
       'paid once per project like the skin and the register routes, and taken before the first '
       + 'screen for the same reason they are: the answer reaches the layer and the install rather '
@@ -448,6 +448,14 @@ export const ROUTES: Route[] = [
       + 'is the one page a project consults while the layer choice is still cheap, and the tree '
       + 'answers each architecture with the evidence behind it: Arena renders no page and lists '
       + 'none, and which one produces it is the project\'s own answer.'
+      + ' Raised again to 4,600 when the page stopped picking the framework. It told a project '
+      + 'whose framework was still open that Angular is the layer to build on, which is Arena\'s '
+      + 'own gap read back as the project\'s decision: what differs is that Arena supplies the '
+      + 'head on one layer and a React framework picked to be found supplies its own. The '
+      + 'sentence also sent that reader at the layer whose server rendering is held by the '
+      + 'weaker half of the evidence, and a product that has to be found is the one most '
+      + 'exposed to it, so the pointer to the node carrying that asymmetry is at the decision '
+      + 'rather than at the end of the page.'
   },
   {
     name: 'consumer-surface',

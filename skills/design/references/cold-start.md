@@ -162,7 +162,7 @@ screen. **Both layers draw the same components; only one of them writes the docu
 |---|---|---|
 | Nothing. It is behind a login, or it is a console | 9 | neither layer, and no metadata anything. This is the honest answer for most tools |
 | A title and a description per route | 9 | either layer. Angular has it in the package; React carries it through whatever its own framework offers |
-| Everything: canonical, `og:*`, a default that keeps a route out of an index until it says otherwise | 9, on Angular | `@dravensoft/arena-angular/metadata`, and `@angular/router` stops being optional |
+| Everything: canonical, `og:*`, a default that keeps a route out of an index until it says otherwise | 9 | on Angular, `@dravensoft/arena-angular/metadata`, where `@angular/router` stops being optional; on React, your own framework's head, since Arena writes none there |
 
 **The third row is a decision about the framework, and it is worth making while it is still cheap.**
 `@dravensoft/arena-react` writes no `<head>` at all, by design, so a React project answering that
