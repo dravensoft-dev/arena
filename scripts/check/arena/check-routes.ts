@@ -626,25 +626,26 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 82_000,
+    budget: 83_500,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
-      + 'claim in one table row. The headroom is deliberately a few gates wide: a budget a single '
-      + 'new row breaks reports the row rather than the growth it is there to report. Raised from '
-      + '88,000 when check:parts landed and one row spent the last of it, and again when '
-      + 'check:skill-spec landed and spent the next of it: that is the clause above happening '
-      + 'twice, and it is what the headroom is for. Raised to 96,000 when two rows landed in one '
-      + 'session, and to 99,000 when check:agents-spec landed and a cold walk measured what was '
-      + 'left: 842 characters against a median row of 774 and a longest of 3,542, so the clause '
-      + 'above was claiming a few gates of room over less than one. The measurement is the '
-      + 'argument, and it is worth more than the number: derive the two figures with awk over the '
-      + 'rows of the domain table rather than trusting these, because the row that breaks a budget '
-      + 'is the long one and the median is what says how often that happens. Raised to 103,000 '
-      + 'when check:site grew its claim by 281 characters and broke a budget that had 7 left: a '
-      + 'cold walk measured 99,274 against 99,000, with a median row of 901 and a longest of '
-      + '3,542, so what the break reported was the previous raise having been spent to the last '
-      + 'character rather than this sentence. The headroom is 3,726 again, four median rows.',
+      + 'claim in one table row. The headroom is deliberately a few rows wide: a budget a single '
+      + 'new row breaks reports the row rather than the growth it is there to report, and that '
+      + 'has happened often enough to be the ordinary case rather than the exception. **Do not '
+      + 'read a raise history here.** The one this string used to carry ended at a figure this '
+      + 'route does not have, because the budgets on this branch were re-measured against the '
+      + 'tree and clamped to it while the narratives were left behind, so a contributor arguing '
+      + 'a raise read a number nothing held. Only the argument in such a history travels, and '
+      + 'the argument is this: the measurement is worth more than the figure, so derive the '
+      + 'median and the longest row with awk over the rows of the domain table before writing '
+      + 'one, because the row that breaks a budget is the long one and the median is what says '
+      + 'how often that happens. Raised to 83,500 when the gate checklist stopped under-reporting '
+      + 'what a gate owes: it framed the registrations as a list plus two outside the file while '
+      + 'the per-domain count in its own table is one more that fails on its own, and it told a '
+      + 'contributor that nothing has to be written down for a node-less gate to run, which is '
+      + 'true of the cache and false of check:graph. That sentence sent a reader to write a gate '
+      + 'that goes red on the one rule the nearest page had just excused them from.',
   },
 ];
 
