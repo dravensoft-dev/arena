@@ -7,7 +7,10 @@
       "$value": { "value": 48, "unit": "px" },
       "$description": "48px clears WCAG 2.5.8's enhanced 44px target, which the 40px base does not,\nand that is the whole point of this file: the base meets the 24px minimum and this meets the\none a thumb actually wants."
     },
-    "ctl-h-sm": { "$value": { "value": 40, "unit": "px" } },
+    "ctl-h-sm": {
+      "$value": { "value": 44, "unit": "px" },
+      "$description": "44px, and not one step below the base ladder the way compact is: this is the\ntouch density, so its SMALLEST control still has to clear the 44px a thumb needs. A small control\nin a density chosen for a thumb is still pointed at with a thumb, and a ladder whose bottom rung\nmisses the floor the file above argues for is a ladder that does not hold it."
+    },
     "ctl-h-lg": { "$value": { "value": 56, "unit": "px" } },
     "row-py": { "$value": { "value": 16, "unit": "px" } },
     "row-px": { "$value": { "value": 20, "unit": "px" } },

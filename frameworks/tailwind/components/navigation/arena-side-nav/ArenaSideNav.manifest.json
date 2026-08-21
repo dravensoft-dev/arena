@@ -2,12 +2,12 @@
   "component": "ArenaSideNav",
   "slots": {
     "root": "flex flex-col gap-1",
-    "item": "flex items-center gap-items px-control-x py-2.5 rounded-control border-none cursor-pointer text-left no-underline font-body text-ctl shadow-control-rest",
+    "item": "flex items-center gap-items min-h-ctl-h px-control-x py-2.5 rounded-control border-none cursor-pointer text-left no-underline font-body text-ctl shadow-control-rest",
     "icon": "inline-flex text-[length:var(--icon-lg)]",
     "badge": "ms-auto inline-flex items-center justify-center min-w-5 px-1.5 rounded-pill font-mono text-ctl-2xs font-bold tracking-badge",
     "section": "flex flex-col gap-1",
     "sectionLabel": "ps-3 py-1.5 font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "trigger": "flex items-center gap-items px-control-x py-2.5 rounded-control border-none cursor-pointer text-left font-body text-ctl bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover",
+    "trigger": "flex items-center gap-items min-h-ctl-h px-control-x py-2.5 rounded-control border-none cursor-pointer text-left font-body text-ctl bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover",
     "triggerLabel": "flex-1",
     "caret": "inline-flex text-[length:var(--icon-md)]",
     "region": "flex flex-col gap-1"

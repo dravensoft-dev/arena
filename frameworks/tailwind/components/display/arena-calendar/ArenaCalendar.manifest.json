@@ -3,8 +3,8 @@
   "slots": {
     "root": "flex flex-col w-full font-body",
     "toolbar": "flex items-center gap-inline mb-3 flex-wrap",
-    "nav": "inline-flex items-center justify-center h-8.5 min-w-8.5 bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body) cursor-pointer text-[length:var(--icon-md)] shadow-control-rest",
-    "today": "inline-flex items-center justify-center h-8.5 px-control-x bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body) cursor-pointer font-body text-ctl-md font-control shadow-control-rest",
+    "nav": "inline-flex items-center justify-center h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body) cursor-pointer text-[length:var(--icon-md)] shadow-control-rest",
+    "today": "inline-flex items-center justify-center h-ctl-h-sm px-control-x bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body) cursor-pointer font-body text-ctl-md font-control shadow-control-rest",
     "heading": "m-0 ml-1 text-md font-semibold text-ink-heading",
     "actions": "ml-auto flex gap-inline flex-wrap",
     "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-edge-separator",

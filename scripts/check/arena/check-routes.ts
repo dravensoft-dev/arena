@@ -699,7 +699,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 63_000,
+    budget: 63_800,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -724,7 +724,11 @@ export const ROUTES: Route[] = [
       + 'guess: a keyword inherits no transform, a font stack ends in generic families that name '
       + 'nothing off the web, and a unit hint on a bare number is an instruction for one platform. '
       + 'The level describes something bigger rather than the same thing at more length, which is '
-      + 'the one reason this budget moves.',
+      + 'the one reason this budget moves. It also states, where the values are decided rather '
+      + 'than where a gate is registered, that target size is density\'s axis: what each density '
+      + 'clears, and that compact clears neither floor and is therefore not offerable to a thumb. A '
+      + 'reader picking a density for a phone needs that sentence in the specification and not in a '
+      + 'gate they have no reason to open.',
   },
   {
     name: 'contributor-gate',
@@ -732,7 +736,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 87_000,
+    budget: 88_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -764,7 +768,12 @@ export const ROUTES: Route[] = [
       + 'unheld. Measured the way this string says to, before the raise rather than after it: over '
       + '48 rows the median is 951 characters and the longest is 3,942, and the three new rows are '
       + '789, 856 and 677, so every one of them sits under the median and the raise pays for their '
-      + 'number rather than for their length.',
+      + 'number rather than for their length. Raised to 88,000 for the target-size row, measured '
+      + 'the same way: over 49 rows the median is still 951 and the longest still 3,942, and the new '
+      + 'row is 1,066. It runs a little past the median because its claim is a measurement rather '
+      + 'than a rule, and what a contributor needs from it is what it measures and what it refuses '
+      + 'to measure: the activation box rather than the painted one, only inside a named part, and '
+      + 'in the density nothing else in this repository draws.',
   },
   {
     name: 'contributor-tailwind',

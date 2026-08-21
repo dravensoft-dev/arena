@@ -41,7 +41,7 @@ export const node = {
     'check:appearance',
     'check:parts',
     'check:kitchen-sink',
-    'check:pixel-parity',
+    'check:target-size', 'check:pixel-parity',
     'check:behaviour',
     'check:compliance',
     'check:demos',

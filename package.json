@@ -118,6 +118,7 @@
     "check:compliance": "bun scripts/check/arena/check-compliance.ts",
     "check:api": "bun scripts/check/arena/check-api.ts",
     "check:kitchen-sink": "bun scripts/check/arena/check-kitchen-sink.ts",
+    "check:target-size": "bun scripts/check/arena/check-target-size.ts",
     "check:pixel-parity": "bun scripts/check/arena/check-pixel-parity.ts",
     "check:playgrounds": "bun scripts/check/arena/check-playgrounds.ts",
     "check:citations": "bun scripts/check/arena/check-citations.ts",

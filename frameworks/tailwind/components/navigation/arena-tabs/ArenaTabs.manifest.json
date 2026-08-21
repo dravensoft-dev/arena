@@ -2,7 +2,7 @@
   "component": "ArenaTabs",
   "slots": {
     "root": "flex gap-1 border-b-[length:var(--bw-separator)] border-edge-separator",
-    "tab": "relative px-4 py-2.5 bg-transparent border-none cursor-pointer font-body text-ctl transition-[color] duration-[var(--dur-hover)] ease-hover focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
+    "tab": "relative inline-flex items-center justify-center min-h-ctl-h px-4 py-2.5 bg-transparent border-none cursor-pointer font-body text-ctl transition-[color] duration-[var(--dur-hover)] ease-hover focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
     "panel": "block pt-[calc(var(--sp-1)*5.5)]"
   },
   "variants": {

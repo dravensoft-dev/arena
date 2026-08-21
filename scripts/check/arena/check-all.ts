@@ -91,6 +91,7 @@ export const GATES = [
   { name: 'check:script-types', file: 'arena/check-script-types.ts' },
   { name: 'check:script-reach', file: 'arena/check-script-reach.ts' },
   { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts' },
+  { name: 'check:target-size', file: 'arena/check-target-size.ts' },
   { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts' },
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },
   { name: 'check:packages', file: 'arena/check-packages.ts' },
