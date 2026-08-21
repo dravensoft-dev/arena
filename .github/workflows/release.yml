@@ -1,12 +1,21 @@
 name: Release notes
 
-# Unlike the two publish workflows, this file's name is nobody's identity and renaming it
-# revokes nothing. It follows the tag rather than "Arena main" because a release page describes
-# a tag, and a tag can be pushed at a commit whose main run is long past.
+# It follows a green "Arena main" rather than the push of the tag, so a page describing a release
+# is never written over a tree the gates have not passed. That puts it beside the publish
+# workflows, on the same event and with the same shape of guard: ask what there is to do, say the
+# answer in the run summary, and usually do nothing. The tag is not the one pointing at this
+# commit. A release arrives on main as one merge of develop and the tag sits on the merged commit,
+# so the question is whether this commit reaches the tag that its own plugin.json hands out.
+#
+# The gap is the same one the publish workflows carry: a tag pushed after its main run has already
+# finished raises no event here, and workflow_dispatch is the way through. Its input is the tag,
+# and that path also repairs a page whose notes were written before a subject was corrected.
 
 on:
-  push:
-    tags: ["v*"]
+  workflow_run:
+    workflows: ["Arena main"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       tag:
@@ -18,7 +27,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  group: release-${{ github.event.inputs.tag || github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: false
 
 env:
@@ -27,12 +36,14 @@ env:
 jobs:
   notes:
     name: describe the tag
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       # The whole history, and every tag: the page is the commit log between this tag and the
       # one below it in version order, and a shallow clone has neither.
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
           fetch-tags: true
 
@@ -41,19 +52,63 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - id: tag
+        name: is there a tag here to describe
+        env:
+          ASKED: ${{ github.event.inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          if ! git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
-            echo "$TAG is not a tag in this repository."
-            exit 1
+
+          say () {
+            echo "$1"
+            echo "$1" >> "$GITHUB_STEP_SUMMARY"
+          }
+          nothing () {
+            say "$1"
+            echo "write=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          # A hand dispatch names the tag and means it: it describes what it was given, and it
+          # writes over a page that exists, which is the only way one gets rewritten.
+          if [ -n "$ASKED" ]; then
+            if ! git rev-parse -q --verify "refs/tags/$ASKED" > /dev/null; then
+              say "$ASKED is not a tag in this repository."
+              exit 1
+            fi
+            say "Describing $ASKED, asked for by hand."
+            echo "tag=$ASKED"  >> "$GITHUB_OUTPUT"
+            echo "write=true"  >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          VERSION=$(jq -r .version .claude-plugin/plugin.json)
+          TAG="v$VERSION"
+
+          if ! git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
+            nothing "This commit hands out $VERSION and no $TAG exists, so this push carried no release."
+          fi
+
+          # Reachable rather than pointing at HEAD: the tag is on the develop commit that this
+          # merge brought to main, and --points-at would find nothing on every release.
+          if ! git merge-base --is-ancestor "$TAG" HEAD; then
+            nothing "$TAG is not reachable from $(git rev-parse --short HEAD), so this build is not the tree that tag names."
+          fi
+
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            nothing "$TAG already has a page. Dispatch this workflow by hand with the tag to write it again."
+          fi
+
+          say "Describing $TAG, which $(git rev-parse --short HEAD) reaches and which has no page yet."
+          echo "tag=$TAG"    >> "$GITHUB_OUTPUT"
+          echo "write=true"  >> "$GITHUB_OUTPUT"
 
       - name: the tag is pinned, and the plugin.json it serves hands out its version
+        if: steps.tag.outputs.write == 'true'
         run: bun scripts/check/arena/check-release.ts
 
       - name: write the page from the commit log
+        if: steps.tag.outputs.write == 'true'
         run: |
           set -euo pipefail
           bun scripts/ci/arena/release-notes.ts "${{ steps.tag.outputs.tag }}" > release-notes.md
@@ -61,6 +116,7 @@ jobs:
 
       # Editing rather than failing, so a re-run repairs a page instead of refusing to touch it.
       - name: publish the page
+        if: steps.tag.outputs.write == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

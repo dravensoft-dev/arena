@@ -824,7 +824,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 61_500,
+    budget: 62_900,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -858,7 +858,13 @@ export const ROUTES: Route[] = [
       + 'for a name that has never been published needs an explicitly selected allowed action since '
       + 'May 2026 and may not be possible at all before a first version exists. Both are things this '
       + 'route otherwise discovers at the worst moment, and the sequence itself carries them '
-      + 'rather than sending a reader to a CI page mid-release.',
+      + 'rather than sending a reader to a CI page mid-release. Raised to 62,900 when the release '
+      + 'page stopped following the push of the tag and started following a green Arena main. That '
+      + 'moves a step of this sequence: the tag now has to exist before that run finishes, which is '
+      + 'what --follow-tags buys, and a page that never appeared is written by dispatching the '
+      + 'workflow by hand and by nothing else. A reader who does not know it waits for a page that '
+      + 'no event is coming for, which is this route\'s failure mode again: nothing errored, and '
+      + 'nobody was told.',
   },
 ];
 

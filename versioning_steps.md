@@ -86,6 +86,11 @@ it on the npm page rather than in a terminal.
 `develop`. A tag pushed to any other branch is verified by nothing downstream and publishes
 nothing, and no step in CI reports the omission: the release simply does not happen.
 
+**The release page hangs off that same run**, so `--follow-tags` is what puts the tag in the
+repository before the run that describes it. A tag pushed after `Arena main` has already finished
+raises no event: the page is then written by dispatching `Release notes` by hand with the tag,
+and nothing else reports that it is missing.
+
 **Three packages publish and one of them is nobody's layer.** `@dravensoft/arena-contracts`
 carries the contract levels as JSON for a platform target outside this repository, so it is packed
 from `dist/contracts` and its guard asks about `contracts/` rather than about a directory under
@@ -122,6 +127,8 @@ hangs on. `pack` refuses a dirty tree, because a tarball matching no commit cann
 again, and it reads `git archive`, so each bench's own `.gitignore` is the whole of what packed
 means and no second exclusion list exists here to go stale.
 
-The release page itself is written by `.github/workflows/release.yml` from the commit log, and it
-is edited rather than replaced on a re-run, so uploading after it exists adds the assets without
-touching the notes.
+The release page itself is written by `.github/workflows/release.yml` from the commit log, once
+`Arena main` is green for the commit that carries the tag, so it appears alongside the published
+packages rather than at the moment the tag was pushed. It is edited rather than replaced when that
+workflow is dispatched again, so uploading after it exists adds the assets without touching the
+notes.

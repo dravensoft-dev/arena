@@ -16,8 +16,7 @@ push to main                  Arena main            builds, and saves that build
    +-- on success             Publish arena-angular    restores it
    +-- on success             Publish arena-contracts  restores it
    +-- on success             Publish the site         restores it
-
-push of a tag                 Release notes         follows the tag, not a build
+   +-- on success             Release notes            describes the tag this commit reaches
 ```
 
 ## Arena PR
@@ -297,10 +296,25 @@ own tokens rather than exported by hand, and it takes the one `pr.yml` already t
 
 ## Release notes
 
-**The only workflow that follows a tag rather than a build**, because a release page describes a
-tag, and a tag can be pushed at a commit whose `Arena main` run is long past. It checks out the
-whole history and every tag, since the page is the commit log between this tag and the one below
-it in version order, and a shallow clone carries neither.
+**It follows a green `Arena main`, like the four workflows above it**, so a page announcing a
+release is never written over a tree the gates have not passed. It followed the push of the tag
+until a red `test core` on the merge request that carried 10.2.0 sat next to a release page that
+was already up: the page describes a tag, but what a reader takes from it is that the tree is
+good, and the only run that answers that is the one on `main`. It checks out the whole history and
+every tag, since the page is the commit log between this tag and the one below it in version
+order, and a shallow clone carries neither.
+
+**The tag is the one this commit reaches, not the one pointing at it.** A release arrives on
+`main` as one merge of `develop` and the tag sits on the merged commit, so `--points-at HEAD`
+would find nothing on every release there has been. The guard asks for `v` and the version in the
+`plugin.json` this build hands out, then whether the commit reaches it, and it says which answer
+it got in the run summary the same way the publish guards do. Almost every answer is that the tag
+already has a page, which is the shape of "nothing to do" here.
+
+**A hand dispatch is the way to write a page again**, and it is also the way through the gap this
+event carries: `workflow_run` fires when `Arena main` finishes, so a tag pushed after that run is
+seen by nothing. Pushing `main` with `--follow-tags`, which `versioning_steps.md` is written
+around, is what keeps the tag there before the run that describes it.
 
 `../../scripts/ci/arena/release-notes.ts` writes the page. **GitHub's own `--generate-notes` is
 what it replaces**, and the reason is the shape of this history: every release arrives on `main`
@@ -310,9 +324,9 @@ defect, so the script groups them by the area each one names and prints them as 
 written. An em dash becomes a comma on the way out, because prose here punctuates without one
 and a release page is read by more people than any document in the tree.
 
-**A page that exists is edited rather than refused**, so a re-run repairs a release whose notes
-were written before a subject was corrected. `workflow_dispatch` takes the tag as an input, which
-is how the releases older than this workflow got their pages.
+**A page that exists is edited rather than replaced**, so the dispatch repairs a release whose
+notes were written before a subject was corrected, and the assets uploaded to it afterwards stay
+where they are. That input is also how the releases older than this workflow got their pages.
 
 It names no `CHROME_PATH`. `check:portability` fails when more than one workflow does, and
 `Arena main` is the one that may.
