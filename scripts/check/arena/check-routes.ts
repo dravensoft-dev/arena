@@ -699,7 +699,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 56_000,
+    budget: 60_500,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -714,7 +714,13 @@ export const ROUTES: Route[] = [
       + 'budget should ever move.'
       + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
       + 'against what is left, so every one of them names a number this route does not have. The '
-      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.'
+      + ' The last raise was bought by this level answering a second reader. contracts/design/ is '
+      + 'what a platform target reads first, and a target that is not a browser cannot derive from '
+      + 'a value and a unit what the reader asking for larger text does to it, so TokenTypes.md '
+      + 'states that axis, what each of its three words obliges on each platform, and why the '
+      + 'emission here does not follow it. The level describes something bigger rather than the '
+      + 'same thing at more length, which is the one reason this budget moves.',
   },
   {
     name: 'contributor-gate',

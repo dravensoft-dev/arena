@@ -1,6 +1,7 @@
 {
   "dz": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Compact density: for expert/high-volume views. Apply on a container:\n<div class=\"arena-compact\"> … </div>  (composes with .arena-light)",
     "ctl-h": { "$value": { "value": 32, "unit": "px" } },
     "ctl-h-sm": { "$value": { "value": 26, "unit": "px" } },
@@ -8,10 +9,10 @@
     "row-py": { "$value": { "value": 7, "unit": "px" } },
     "row-px": { "$value": { "value": 12, "unit": "px" } },
     "stack": { "$value": { "value": 8, "unit": "px" } },
-    "text": { "$value": { "value": 13, "unit": "px" } },
-    "text-md": { "$value": { "value": 12, "unit": "px" } },
-    "text-sm": { "$value": { "value": 11, "unit": "px" } },
-    "text-xs": { "$value": { "value": 10, "unit": "px" } },
-    "text-2xs": { "$value": { "value": 10, "unit": "px" } }
+    "text": { "$value": { "value": 13, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
+    "text-md": { "$value": { "value": 12, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
+    "text-sm": { "$value": { "value": 11, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
+    "text-xs": { "$value": { "value": 10, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
+    "text-2xs": { "$value": { "value": 10, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } }
   }
 }

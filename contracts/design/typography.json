@@ -51,6 +51,7 @@
   },
   "fs": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } },
     "$description": "Type scale (px)",
     "mega": {
       "$value": {
@@ -126,6 +127,7 @@
   },
   "lh": {
     "$type": "number",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "follows" } },
     "$description": "Line heights",
     "root": {
       "$value": 1.5,
@@ -147,6 +149,7 @@
   },
   "ls": {
     "$type": "number",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "follows" } },
     "$description": "Tracking. em is not a DTCG dimension unit, so tracking is a unitless number\n(a font-size multiplier) carrying an em render hint in $extensions. Sorted by\nvalue the roles form a hierarchy: tracking decreases as the text gets longer,\nfrom the shortest mono labels down through prose to the tightest display\nheadings.",
     "tight": {
       "$value": -0.02,

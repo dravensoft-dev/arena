@@ -38,6 +38,7 @@ export const GATES = [
   { name: 'check:architecture', file: 'arena/check-architecture.ts' },
   { name: 'check:duplication', file: 'arena/check-duplication.ts' },
   { name: 'check:dtcg', file: 'core/check-dtcg.ts' },
+  { name: 'check:user-scale', file: 'core/check-user-scale.ts' },
   { name: 'check:catalogue', file: 'core/check-catalogue.ts' },
   { name: 'check:style-plugin', file: 'core/check-style-plugin.ts' },
   { name: 'check:style-plugin-coverage', file: 'core/check-style-plugin-coverage.ts' },

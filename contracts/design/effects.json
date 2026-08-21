@@ -1,6 +1,7 @@
 {
   "r": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Radius: moderate, disciplined. Sharp enough to read bold, soft enough to be usable.",
     "xs": { "$value": { "value": 4, "unit": "px" } },
     "sm": { "$value": { "value": 6, "unit": "px" }, "$description": "buttons, inputs, chips" },
@@ -10,8 +11,8 @@
     "2xl": { "$value": { "value": 34, "unit": "px" }, "$description": "splash tile: distinct from xl's app icon tile" },
     "pill": { "$value": { "value": 999, "unit": "px" } }
   },
-  "bw": { "$type": "dimension", "$value": { "value": 1, "unit": "px" }, "$description": "Borders" },
-  "bw-strong": { "$type": "dimension", "$value": { "value": 2, "unit": "px" } },
+  "bw": { "$type": "dimension", "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } }, "$value": { "value": 1, "unit": "px" }, "$description": "Borders" },
+  "bw-strong": { "$type": "dimension", "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } }, "$value": { "value": 2, "unit": "px" } },
   "shadow": {
     "$type": "shadow",
     "$description": "Elevation: deep, warm-black shadows",
@@ -24,9 +25,10 @@
     "$value": { "colorSpace": "srgb", "components": [0.0784, 0.0627, 0.0627], "alpha": 0.6 },
     "$description": "Overlay scrim: backdrop for anything that covers the app (ArenaDialog,\nConfirmDialog, ArenaCommandPalette, ArenaOnboarding). The blur is what separates a\nmodal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim\nwith --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that\nblurs the product it is touring defeats itself."
   },
-  "scrim-blur": { "$type": "dimension", "$value": { "value": 6, "unit": "px" } },
+  "scrim-blur": { "$type": "dimension", "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } }, "$value": { "value": 6, "unit": "px" } },
   "focus": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Focus",
     "width": { "$value": { "value": 2, "unit": "px" } },
     "offset": { "$value": { "value": 2, "unit": "px" } }

@@ -1,6 +1,7 @@
 {
   "chart": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Chart plot geometry. Script-readable: JS arithmetic must consume these\nto produce an SVG position, and no CSS expression can compute a y attribute\nfrom a data value. They are emitted to both targets (the custom property and\nthe per-layer JS module), so they still appear in the Overview. Accepted cost:\na value bound at import time cannot re-densify, so chart geometry does not\nrespond to .arena-compact. It never did.",
     "height": {
       "$value": { "value": 280, "unit": "px" },

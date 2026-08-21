@@ -1,6 +1,7 @@
 {
   "sp": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "4px base grid",
     "0": { "$value": { "value": 0, "unit": "px" } },
     "1": {
@@ -34,6 +35,7 @@
   },
   "rhythm": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Page rhythm: the air BETWEEN two components, which Arena itself never\ndraws. Every component is an inner box carrying no outer margin, so the space between one\nand the next belongs to whoever places them, and a system that ships the grid without\nnaming any step on it leaves every adopter to pick their own. These are aliases of sp\nrather than fresh numbers, so a rhythm step cannot drift off the 4px grid, and the three\nof them are the steps ArenaGrid's gap variant had already chosen before they had names.\n\nDeliberately not part of dz, on the same cut that separates fs from dz: dz is how dense the\nCONTROLS are and re-densifies under .arena-compact, while this is how a PAGE breathes and\ndoes not. That is why rhythm-group and dz-stack are both 12px, the way fs-sm and dz-text-md\nare both 13px: same length, different question.",
     "group": { "$value": "{sp.3}", "$description": "Inside one group of related things: a label and its field, a card's own stacked children, a row of chips. Both sides read as one unit." },
     "component": { "$value": "{sp.4}", "$description": "Between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing." },
@@ -41,6 +43,7 @@
   },
   "layout": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Application frame. Example code, and therefore the numbers a consumer\ncopies. Arena draws neither of these itself: the sidebar is the console shell's\nand the bar is a phone shell's, and they are declared for the same reason --z-nav\nis, because the frame a consumer builds is part of the system and every one of\nthem otherwise invents its own number.",
     "sidebar": { "$value": { "value": 232, "unit": "px" }, "$description": "The width of the console shell's navigation column." },
     "bar": {
@@ -50,6 +53,7 @@
   },
   "bp": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Breakpoints: SHARED VALUES READ BY JS, not media queries.\nComponents style themselves with inline style objects, which cannot hold a\nmedia query, so responsive branches are JS (see UseArenaContainerWidth.ts).\nThese live here anyway so the thresholds stay a token, not a magic number\nretyped in four components. 768px is what DAMA hardcodes.",
     "sm": { "$value": { "value": 480, "unit": "px" } },
     "md": { "$value": { "value": 768, "unit": "px" } },
@@ -57,6 +61,7 @@
   },
   "dz": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Density (H7 rev.3): comfortable by default. Data-dense surfaces read these\ninstead of hard-coded px so a single scope switch re-densifies rows and controls.",
     "ctl-h": { "$value": { "value": 40, "unit": "px" }, "$description": "control height (buttons, inputs, switches row)" },
     "ctl-h-sm": { "$value": { "value": 32, "unit": "px" } },
@@ -64,16 +69,17 @@
     "row-py": { "$value": { "value": 12, "unit": "px" }, "$description": "table/list row vertical padding" },
     "row-px": { "$value": { "value": 16, "unit": "px" }, "$description": "row horizontal padding" },
     "stack": { "$value": { "value": 12, "unit": "px" }, "$description": "gap between stacked items" },
-    "text-lg": { "$value": { "value": 16, "unit": "px" }, "$description": "the largest control text: a data readout inside a chart, where the number is the content rather than a label" },
-    "text": { "$value": { "value": 14, "unit": "px" }, "$description": "control text: buttons, inputs, selects, menu items, table cells" },
-    "text-md": { "$value": { "value": 13, "unit": "px" }, "$description": "secondary control text: tag chips, pagination, secondary buttons" },
-    "text-sm": { "$value": { "value": 12, "unit": "px" }, "$description": "secondary control text: hints, validation errors, badges, legends" },
-    "text-xs": { "$value": { "value": 11, "unit": "px" }, "$description": "micro control text: field labels, shortcuts, eyebrow labels, and the category and point labels of a chart, which are chrome under a plot rather than prose" },
-    "text-2xs": { "$value": { "value": 10, "unit": "px" }, "$description": "column headers, row micro-labels, and a chart's axis ticks. It is also where step-label is born, so the whole label register sits here until a style plugin moves it" },
-    "lh": { "$type": "number", "$value": 1, "$description": "glyph-tight line height: the control reset. Unlike every other dz member this is unitless, so it carries its own $type override: a line height is a number, not a dimension, the same distinction that puts lh in typography.json to begin with. Used wherever a box must be exactly its glyph (an icon inside a button, a standalone icon, an icon-only close/remove control), so the line box never throws the surrounding control out of alignment." }
+    "text-lg": { "$value": { "value": 16, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } }, "$description": "the largest control text: a data readout inside a chart, where the number is the content rather than a label" },
+    "text": { "$value": { "value": 14, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } }, "$description": "control text: buttons, inputs, selects, menu items, table cells" },
+    "text-md": { "$value": { "value": 13, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } }, "$description": "secondary control text: tag chips, pagination, secondary buttons" },
+    "text-sm": { "$value": { "value": 12, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } }, "$description": "secondary control text: hints, validation errors, badges, legends" },
+    "text-xs": { "$value": { "value": 11, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } }, "$description": "micro control text: field labels, shortcuts, eyebrow labels, and the category and point labels of a chart, which are chrome under a plot rather than prose" },
+    "text-2xs": { "$value": { "value": 10, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } }, "$description": "column headers, row micro-labels, and a chart's axis ticks. It is also where step-label is born, so the whole label register sits here until a style plugin moves it" },
+    "lh": { "$type": "number", "$extensions": { "com.dravensoft.arena": { "userScale": "follows" } }, "$value": 1, "$description": "glyph-tight line height: the control reset. Unlike every other dz member this is unitless, so it carries its own $type override: a line height is a number, not a dimension, the same distinction that puts lh in typography.json to begin with. Used wherever a box must be exactly its glyph (an icon inside a button, a standalone icon, an icon-only close/remove control), so the line box never throws the surrounding control out of alignment." }
   },
   "avatar": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "ArenaAvatar diameters. The first family named after a component rather\nthan a role, and worth stating rather than glossing: dz and icon are named for\nroles. It earns its place because ArenaAvatar derives two values from its own\ndiameter (the initials at 0.4 and the presence dot at 0.28), and a derivation\nneeds something to derive from. If a second component ever wants the same\nladder, rename this for the role instead of duplicating it.",
     "xs": {
       "$value": { "value": 24, "unit": "px" },
@@ -95,6 +101,7 @@
   },
   "logo": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Brand lock-up scale: the mark's slot and the wordmark's size, in\nfour steps. These are tokens rather than an exemption for one reason: ArenaAppLogo\ntakes the mark and the name from its consumer, so once they are the consumer's\nbrand these numbers stop being Dravensoft's identity and become the system's\nanswer to 'how big is a small logo'. A scale is a scale, and Arena's scales are\ntokens.\n\nA fixed repertoire rather than one mark-to-text ratio, because no single ratio\nis right at every step: a small lock-up needs proportionally larger text to stay\nlegible, and one constant across the scale would either shrink the small\nwordmark below reading size or inflate the large one. The eight numbers are\ndeclared and the proportions that fall out (0.57, 0.60, 0.63, 0.63) are a\nconsequence rather than a rule.\n\nNo number here was invented. sm and md are exactly what the console's Shell and\nLoginScreen rendered before they migrated; lg and xl are the approved brand\nmanual's Primary · horizontal and its large specimen.",
     "mark-sm": { "$value": { "value": 30, "unit": "px" }, "$description": "beside a product name in an application frame" },
     "mark-md": { "$value": { "value": 40, "unit": "px" }, "$description": "a signed-out panel's lock-up" },

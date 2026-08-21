@@ -54,6 +54,7 @@
     "build:packages": "bun scripts/graph/run-build.ts --assemble",
     "build:site": "bun scripts/build/arena/build-site.ts",
     "check:dtcg": "bun scripts/check/core/check-dtcg.ts",
+    "check:user-scale": "bun scripts/check/core/check-user-scale.ts",
     "check:architecture": "bun scripts/check/arena/check-architecture.ts",
     "check:catalogue": "bun scripts/check/core/check-catalogue.ts",
     "check:style-plugin": "bun scripts/check/core/check-style-plugin.ts",

@@ -1,6 +1,7 @@
 {
   "calendar": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "ArenaCalendar time grid.",
     "hour-h": {
       "$value": { "value": 44, "unit": "px" },
@@ -30,6 +31,7 @@
   },
   "onboarding": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "ArenaOnboarding coachmark.",
     "width": {
       "$value": { "value": 320, "unit": "px" },
