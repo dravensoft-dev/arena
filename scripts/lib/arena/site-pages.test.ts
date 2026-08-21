@@ -11,7 +11,7 @@ import { repoRoot } from './repo-root.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
-  modules, missingModules, titleOf, url,
+  modules, missingModules, titleOf, url, directoryUrl,
 } from './site-pages.ts';
 
 test('the site is built for one domain, named once, and every URL is spelled from it', () => {
@@ -146,4 +146,10 @@ test('every public entry point lands on a page the site publishes or a directory
       `${label} points at ${path}, which the site neither publishes nor indexes, so the one list `
       + 'the landing page and the dev server both read offers a dead end');
   }
+});
+
+test('a directory is addressed with the trailing slash a host serves its index at', () => {
+  assert.equal(directoryUrl(''), `https://${DOMAIN}/`);
+  assert.equal(directoryUrl('intro/guidelines'), `https://${DOMAIN}/intro/guidelines/`);
+  for (const directory of indexedDirectories()) assert.match(directoryUrl(directory), /\/$/);
 });

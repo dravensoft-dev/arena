@@ -4,6 +4,8 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-angular)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-angular?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
+![The same Angular component under three style plugins, with the contracts that decide what it is](https://arena.dravensoft.org/hero.png)
+
 Arena is Dravensoft's design system. This package is its Angular layer: 73 components, standalone
 and `OnPush`, with signal inputs and outputs, styled by a shared Tailwind recipe per
 component, and shipped in Angular Package Format.
@@ -121,7 +123,7 @@ rather than assumed, and the command below resolves the icon font through the sy
 like any other dependency. No hoisting flag is needed under any of the three.
 
 That is the whole install. Angular, the CDK and `@phosphor-icons/web` are peer dependencies, so
-your package manager brings down whichever of them the project does not already have. **The package declares `engines: { node: ">=26" }`**, which is a floor this project holds itself to rather than one the code needs: the shipped command imports `node:fs`, `node:path` and `node:url` and nothing newer. A project on an older Node still installs, with the warning its package manager gives an unmet engine, and fails only if it runs the install strictly.
+your package manager brings down whichever of them the project does not already have. **The package declares `engines: { node: ">=22" }`**, and Angular's own floor is the stricter of the two, so it is the one that decides which Node your project runs. Arena never refuses a Node your framework accepts: the command it ships is plain JavaScript over `node:fs`, `node:path` and `node:url`, and a higher floor here would buy an engine warning on every install and nothing else.
 
 **An icon is a class name, not an element.** Every `icon` input takes a Phosphor class list,
 `"ph-bold ph-bell"`, and the component renders it. The stylesheet that turns those classes into

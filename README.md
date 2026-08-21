@@ -6,8 +6,11 @@
 [![npm angular](https://img.shields.io/npm/v/@dravensoft/arena-angular?style=flat-square&color=c5a059&label=arena-angular)](https://www.npmjs.com/package/@dravensoft/arena-angular)
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-react?style=flat-square&color=c5a059&label=downloads)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-react?style=flat-square&color=c5a059)](./LICENSE)
+[![build](https://img.shields.io/github/actions/workflow/status/dravensoft-dev/arena/main.yml?branch=main&style=flat-square&color=c5a059&label=build)](https://github.com/dravensoft-dev/arena/actions/workflows/main.yml)
 
 MIT License · Token-driven design system for React, Angular and Tailwind.
+
+![One ArenaButton drawn under three style plugins, with the API and behaviour contracts pointing at it and an agent reading the whole thing](https://arena.dravensoft.org/hero.png)
 
 ## What you get
 
@@ -113,6 +116,12 @@ The same pages come up locally with `bun run demos`, from the same list, and
 [`scripts/build/AGENTS.md`](./scripts/build/AGENTS.md) says what a fresh clone
 has to build before they mean anything.
 
+**An agent reads [`llms.txt`](https://arena.dravensoft.org/llms.txt) first**, which
+routes to the rules of the language and then to one corpus per framework,
+[React](https://arena.dravensoft.org/llms-react.txt) and
+[Angular](https://arena.dravensoft.org/llms-angular.txt). They are separate on purpose: every
+component ships under both names and the two documents are not interchangeable.
+
 ## Dependencies
 
 - **Fonts are self-hosted, and no CDN request is made.** Arena ships the Archivo
@@ -135,7 +144,7 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 10.1.1
+- **Repo/Claude Code plugin**: 10.1.2
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 

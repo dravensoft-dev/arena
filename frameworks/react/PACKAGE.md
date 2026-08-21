@@ -4,6 +4,8 @@
 [![downloads](https://img.shields.io/npm/dm/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![license](https://img.shields.io/npm/l/@dravensoft/arena-react?style=flat-square&color=c5a059)](https://github.com/dravensoft-dev/arena/blob/main/LICENSE)
 
+![The same React component under three style plugins, with the contracts that decide what it is](https://arena.dravensoft.org/hero.png)
+
 Arena is Dravensoft's design system. This package is its React layer: 73 components whose every
 value traces to a design token, with one stylesheet to import and no theme provider to wrap
 your tree in.
@@ -117,10 +119,10 @@ like any other dependency. No hoisting flag is needed under any of the three.
 
 That is the whole install. `react`, `react-dom` and `@phosphor-icons/web` are peer dependencies,
 so your package manager brings down whichever of them the project does not already have. **The
-package declares `engines: { node: ">=26" }`**, which is a floor this project holds itself to
-rather than one the code needs: the shipped command imports `node:fs`, `node:path` and `node:url`
-and nothing newer. A project on an older Node still installs, with whatever warning its package
-manager gives an unmet engine, and fails only if it installs strictly.
+package declares `engines: { node: ">=22" }`**, which is the oldest line Node still supports.
+The command it ships is plain JavaScript reading `node:fs`, `node:path` and `node:url`, so the
+floor is the support window rather than a capability, and a project on a supported Node installs
+without an engine warning.
 
 **An icon is a class name, not an element.** Every `icon` prop takes a Phosphor class list,
 `"ph-bold ph-bell"`, and the component renders it. The stylesheet that turns those classes into

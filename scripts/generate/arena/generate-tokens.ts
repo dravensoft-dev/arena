@@ -318,7 +318,7 @@ function renderLines(items: Emitted[]) {
   return lines;
 }
 
-async function block({ selector, source, dir = DESIGN_DIR }:
+export async function block({ selector, source, dir = DESIGN_DIR }:
 { selector: string; source: string; dir?: string }) {
   const buckets = new Map<string, Emitted[]>([['', []]]);
   for (const item of walk(await load(source, dir))) {

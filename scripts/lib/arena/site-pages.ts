@@ -21,6 +21,7 @@ import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
 
 export const DOMAIN = 'arena.dravensoft.org';
+export const REPOSITORY = 'https://github.com/dravensoft-dev/arena';
 export const SITE_DIR = 'dist/site';
 export const LAYERS = ['react', 'angular'];
 export const PLAYGROUND_SUFFIX = '.demo.generated.html';
@@ -233,4 +234,8 @@ export function titleOf(rel: string, base = root) {
 
 export function url(rel: string) {
   return `https://${DOMAIN}/${rel.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+export function directoryUrl(directory: string) {
+  return directory === '' ? `https://${DOMAIN}/` : `${url(directory)}/`;
 }

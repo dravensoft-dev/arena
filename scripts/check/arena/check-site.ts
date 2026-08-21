@@ -18,7 +18,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds, missingModules,
-  modules, url,
+  modules, url, directoryUrl,
 } from '../../lib/arena/site-pages.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
@@ -32,7 +32,7 @@ export const node = {
 export const REFERENCE = /(?:href|src)="([^"]+)"/g;
 export const MARKDOWN_LINK = /\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
 export const OFF_SITE = /^(?:https?:|mailto:|data:|#|\/\/)/;
-export const AUTHORED = ['index.html', '404.html', 'og.html'];
+export const AUTHORED = ['index.html', '404.html', 'og.html', 'hero.html'];
 export const FORBIDDEN = ['file://', 'localhost', '127.0.0.1'];
 export const VAR_USED = /var\((--[a-z0-9-]+)/g;
 export const VAR_DEFINED = /(--[a-z0-9-]+)\s*:/g;
@@ -162,13 +162,41 @@ export function domainProblems(out: string) {
   return named === DOMAIN ? [] : [`CNAME names ${named} and the site is built for ${DOMAIN}`];
 }
 
+export function located(base = root) {
+  return [...indexedDirectories(base).map(directoryUrl), ...pages(base).map(url)];
+}
+
 export function sitemapProblems(out: string, base = root) {
   const path = join(out, 'sitemap.xml');
   if (!existsSync(path)) return ['the output carries no sitemap.xml, which is the one thing a search engine is handed'];
   const xml = readFileSync(path, 'utf8');
-  return pages(base)
-    .filter((rel) => !xml.includes(url(rel)))
-    .map((rel) => `sitemap.xml names no entry for ${rel}, so a published page is one nothing points at`);
+  return located(base)
+    .filter((loc) => !xml.includes(`<loc>${loc}</loc>`))
+    .map((loc) => `sitemap.xml names no entry for ${loc}, so a published page is one nothing points at`);
+}
+
+export const CANONICAL = /<link rel="canonical" href="([^"]*)">/;
+
+export function ownUrl(rel: string) {
+  if (rel === 'index.html') return directoryUrl('');
+  if (rel.endsWith('/index.html')) return directoryUrl(rel.slice(0, -'/index.html'.length));
+  return url(rel);
+}
+
+export function canonicalProblems(out: string, files = htmlFiles(out)) {
+  const problems = [];
+  for (const page of files) {
+    const rel = relPosix(out, page);
+    const declared = CANONICAL.exec(readFileSync(page, 'utf8'))?.[1];
+    if (declared === undefined) continue;
+    if (declared === ownUrl(rel)) continue;
+    problems.push(
+      `${rel} declares ${declared} as its canonical, and that is not its own address. A page `
+      + 'handing a search engine another page as the one to keep is a page asking not to be found, '
+      + `and this one is at ${ownUrl(rel)}`,
+    );
+  }
+  return problems;
 }
 
 export function localhostProblems(out: string, files = htmlFiles(out)) {
@@ -263,6 +291,7 @@ function main() {
     ...missingModules(),
     ...domainProblems(out),
     ...sitemapProblems(out),
+    ...canonicalProblems(out, files),
     ...localhostProblems(out, files),
     ...tokenProblems(out, files),
     ...llmsProblems(out),
@@ -276,7 +305,8 @@ function main() {
     `check-site: ${files.length} page(s) and ${docs.length} document(s) published for ${DOMAIN}, `
     + `every href, src and markdown link resolving inside the output, all ${modules().length} `
     + `module(s) the pages import present with them, every declared page present and none `
-    + `unnamed, and the sitemap naming all ${pages().length} of them`,
+    + `unnamed, every canonical its own page's address, and the sitemap naming all `
+    + `${located().length} of them`,
   );
 }
 
