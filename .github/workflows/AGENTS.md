@@ -1,6 +1,6 @@
 # .github/workflows/
 
-One guards a pull request, one guards `main`, one guards `develop`, two publish a package, one
+One guards a pull request, one guards `main`, one guards `develop`, three publish a package, one
 writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
 many, and this page carried the figure instead until the count and the directory disagreed:
 `portability.yml` ran the operating system matrix, was named in no diagram here, and is now a job
@@ -54,8 +54,8 @@ that did nothing satisfies that by doing nothing. `build:release` passes `--forc
 so every step runs and a run that kept anything fails on its own.
 
 **`.cache/` is not in the paths `actions/cache` restores, and that is the load-bearing part.** The
-list is `frameworks/**/*.generated.*`, the two package `dist/` trees, `frameworks/angular/build`
-and `dist/site`, and `check:graph` holds it to every artifact a clone does not carry:
+list is `frameworks/**/*.generated.*`, the two layer `dist/` trees, `frameworks/angular/build`,
+`dist/contracts` and `dist/site`, and `check:graph` holds it to every artifact a clone does not carry:
 [`../../scripts/graph/AGENTS.md`](../../scripts/graph/AGENTS.md) says how. It was a list nothing
 held until `check:site` ran here over a `dist/site` no job had handed it. Adding
 `.cache` there would hand the next job the graph's recorded state and turn the whole gate from a
@@ -119,9 +119,9 @@ A domain that owns suites and reported no case fails the run, as does a tree tha
 contributed nothing and a case belonging to no domain. A reporter that quietly dropped a
 suite would otherwise print a confident table of zeros.
 
-**It saves its build, and that is the only reason the two publish workflows are cheap.** Both of
-them fire on this workflow's success, and each would otherwise build the same commit again, which
-is one push to `main` building Arena three times. The key is `arena-build-<os>-<sha>`, the commit rather than the
+**It saves its build, and that is the only reason the three publish workflows and the site are
+cheap.** All four fire on this workflow's success, and each would otherwise build the same commit
+again, which is one push to `main` building Arena five times. The key is `arena-build-<os>-<sha>`, the commit rather than the
 run, because the run that reads it is not this one and does not know its number. The save sits
 directly after the idempotency check, which is the last moment the tree is known to be exactly
 what the build wrote and nothing a gate has since touched.
@@ -148,20 +148,20 @@ file to do it. A merge request from `develop` to `main` is opened on a green `de
 platform this matrix reddens is one that never reaches the branch the packages publish from.
 
 It is a separate file rather than a second branch on `Arena main`'s trigger, and the reason is
-the name. Both publish workflows fire on `workflow_run` of the workflow named `Arena main`, so a
-`develop` push carrying that name would raise the publish question about a branch that is not
-`main`. Their `branches: [main]` filter refuses it, but the refusal is one file away from the
+the name. Every workflow downstream of a release fires on `workflow_run` of the workflow named
+`Arena main`, so a `develop` push carrying that name would raise the publish question about a
+branch that is not `main`. Their `branches: [main]` filter refuses it, but the refusal is one file away from the
 event; a name of its own puts the answer in the workflow that asks.
 
 **`verify` caches nothing**, so `bun install` is cold on every run, and it saves nothing either.
 `Arena PR` caches because a pull request is pushed to repeatedly and its four test jobs each need
-the one build, and `Arena main` because two publish workflows read what it built. `verify` runs
+the one build, and `Arena main` because four later workflows read what it built. `verify` runs
 once per merge and is read by nobody, where a cache saves a fraction of a run it would also have
 to be kept honest across. `portable` restores a bun install cache per operating system and saves
 none of the build, because what it is asking is whether a fresh tree builds on that platform.
 
 **Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
-`--assemble`, so the two packages are part of the run the workflow already makes. Dropping the
+`--assemble`, so all three packages are part of the run the workflow already makes. Dropping the
 assembly would not skip package work: `check:packages` reads no manifest and passes while saying so,
 which is a quieter green rather than a faster one, and `check:consumer` assembles a missing `dist/`
 itself. Assembling nothing is not publishing nothing, and nothing here publishes.
@@ -245,8 +245,8 @@ version" that does not require trusting the registry.
 **Restoring that build is a read, and a `workflow_run` run is allowed nothing else.** Only
 `push`, `workflow_dispatch` and a handful of their kind may write to the default branch's cache
 scope; every other event that resolves there, `workflow_run` among them, gets read access and no
-more. That is exactly the shape this needs: `Arena main` is a push and writes, both of these
-follow it and read.
+more. That is exactly the shape this needs: `Arena main` is a push and writes, and every workflow
+that follows it reads.
 
 **A miss is expected rather than exceptional, so the build stays in the file behind an `if`.**
 Seven days unread evicts the cache, and the hand dispatch above can ask about a commit whose run
@@ -284,7 +284,7 @@ failure is red.
 
 **The site is build output, so publishing from a branch is not an option**: the kitchen sinks and
 every playground are what `.gitignore` keeps out of the tree on purpose. It restores what
-`Arena main` saved for the same commit, the same hand-off the two package workflows use, and
+`Arena main` saved for the same commit, the same hand-off the three package workflows use, and
 falls back to a build of its own on a miss.
 
 `bun run build:site` copies rather than rewrites, so a page served from the domain is the page a
@@ -335,12 +335,12 @@ It names no `CHROME_PATH`. `check:portability` fails when more than one workflow
 
 **Because a package is published only when something it carries has changed.**
 
-Arena's version lives in one place, `.claude-plugin/plugin.json`, and both packages are
+Arena's version lives in one place, `.claude-plugin/plugin.json`, and every package is
 stamped from it at assembly. They are never hand-versioned, so a published package can never
 disagree with the tag it was cut from. What differs is not the number but **which numbers
 exist**.
 
-Suppose both packages are published at the version Arena currently carries. The next release
+Suppose the two layer packages are published at the version Arena currently carries. The next release
 changes the React layer and nothing in Angular: `@dravensoft/arena-react` is published at the
 new version, and `@dravensoft/arena-angular` keeps the one it has, because republishing it
 would ship an identical tree under a new number. The release after that touches Angular, so
@@ -349,16 +349,16 @@ that package.
 
 So the newest version of a package is the version of the last Arena release that changed it.
 A gap in the sequence is the record of a release that left it alone, and two packages at
-different versions are two packages that last changed at different times. Both are always
-built from the same tree.
+different versions are two packages that last changed at different times. All of them are
+always built from the same tree.
 
 ## A job that runs a script installs, or the script imports nothing outside the tree
 
 Either half satisfies it. Bun answers a bare specifier in a job with no `bun install` by fetching
 it at whatever major the registry serves rather than the one `bun.lock` pins, so a script that
 reaches one is a script whose behaviour is decided elsewhere and can change with no commit here.
-The guard jobs of both publish workflows and the routing job of `pr.yml` deliberately skip the
-install, because the question each asks costs less than the install would; their scripts therefore
+The guard jobs of the three publish workflows, the routing job of `pr.yml` and the whole of
+`release.yml` deliberately skip the install, because what each asks costs less than it would; their scripts therefore
 import only `node:` builtins and files in this tree. `check:workflow-scripts` reads a job rather
 than a workflow and refuses the other combination.
 
@@ -396,12 +396,12 @@ nothing to remember; a missing browser is a red run.
 **The cache is not an artifact.** `actions/cache` carries a build to the jobs that need it and
 nothing else, and it does that twice, with no `restore-keys` either time. Inside `Arena PR` the
 key is the run and its attempt, so it is never stale, and a restore that misses fails the job
-rather than testing an unbuilt tree. From `Arena main` to the two publish workflows the key is
-the commit, because the reader is a separate run, and a restore that misses builds instead,
+rather than testing an unbuilt tree. From `Arena main` to the four that follow it the key is the
+commit, because the reader is a separate run, and a restore that misses builds instead,
 because there is a real commit whose build has simply aged out. Both keys are exact for the same
 reason: a prefix fallback would hand a job somebody else's build.
 
-`upload-artifact` appears only in the two publish workflows, where the artifact is a release
+`upload-artifact` appears only in the three publish workflows, where the artifact is a release
 record rather than a hand-off. The two never trade places. A cache is evicted at seven days
 unread and is addressed by a key nobody keeps; an artifact is kept for ninety days and is the
 account of what shipped.
