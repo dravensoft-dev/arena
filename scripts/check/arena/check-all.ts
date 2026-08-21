@@ -59,6 +59,7 @@ export const GATES = [
   { name: 'check:radius', file: 'tailwind/check-radius-tokens.ts' },
   { name: 'check:roles', file: 'tailwind/check-role-tokens.ts' },
   { name: 'check:arbitrary', file: 'tailwind/check-arbitrary-values.ts' },
+  { name: 'check:safe-area', file: 'tailwind/check-safe-area.ts' },
   { name: 'check:component-css', file: 'tailwind/check-component-css.ts' },
   { name: 'check:dimensions', file: 'arena/check-dimension-literals.ts' },
   { name: 'check:states', file: 'arena/check-manifest-states.ts' },
