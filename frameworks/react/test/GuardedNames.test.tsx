@@ -1,4 +1,4 @@
-/* contracts/api/README.md requires a guarded name to be refused when it is blank AFTER TRIMMING:
+/* contracts/api/AGENTS.md requires a guarded name to be refused when it is blank AFTER TRIMMING:
  * a name of nothing but spaces satisfies a falsiness test and names nothing, and it is the one
  * input the guard exists to catch. The set is derived from the contracts rather than listed here,
  * so an eighth guarded name joins by being declared. */

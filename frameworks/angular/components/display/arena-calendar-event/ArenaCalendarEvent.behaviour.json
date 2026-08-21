@@ -21,5 +21,5 @@
       "exceptions": []
     }
   ],
-  "reason": "The chip's shape is declared rather than inferred: `interactive` decides it, and R6 in contracts/api/README.md is why -- \"is (click) subscribed?\" is not a question a component may ask. It is the same member arena-table-row carries, for the same reason, and the two compound-item families now have one shape. What differs is the cost each was avoiding: a dead tab stop on every row of every table there, and a screenful of buttons that do nothing on a read-only schedule here."
+  "reason": "The chip's shape is declared rather than inferred: `interactive` decides it, and R6 in contracts/api/MemberForms.md is why -- \"is (click) subscribed?\" is not a question a component may ask. It is the same member arena-table-row carries, for the same reason, and the two compound-item families now have one shape. What differs is the cost each was avoiding: a dead tab stop on every row of every table there, and a screenful of buttons that do nothing on a read-only schedule here."
 }
