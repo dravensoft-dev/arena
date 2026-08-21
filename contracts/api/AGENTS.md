@@ -56,6 +56,38 @@ demanding identical call-site syntax would demand something neither platform can
 This is the line that makes "zero API divergences" achievable rather than rhetorical:
 identical members, idiomatic binding.
 
+### A member a platform cannot express at all
+
+"Idiomatic binding" answers a platform that spells a member differently. It does not answer one
+that cannot spell it, and a platform target arriving here needs that answer before it writes
+anything: a hole a reader falls into is worse than a rule they disagree with.
+
+**The neutral contract stays neutral and gains nothing.** A member is not annotated with the
+platforms that can take it, because a platform column here would make every contract a list of
+targets and would put the question in the one file that exists to be free of them. **A layer that
+cannot bind a member declares that in its own binding, with its reason**, which is the shape
+`contracts/behaviour/` already found: `absent.json` exists so that a layer lacking a component
+records an absence rather than being silently uncovered.
+
+Two guards travel with the rule. **A member is unexpressible only when no idiom in that platform
+binds it**, never when binding it is merely inconvenient or unidiomatic; the bar is the one the
+`mark` slot sets, where two platforms with nothing in common syntactically both answer. And **a
+declaration may not weaken a behaviour binding**, which is this level's additivity rule applied to
+its own escape hatch: a member dropped because it is hard to express, whose absence voids a
+requirement, is the reshape being wrong rather than the platform being limited.
+
+**The mechanism lands with its first user and not before.** Both layers here express every member
+they are given, so `check:api` carries no exception map at all today, and a declaration key with no
+declaration would be a gate with no subject, which this repository fails rather than passes.
+
+What the audit already settles, so the first target does not re-derive it: `href` is expressible
+everywhere, because a native layer binds it to a navigation intent and only the modifier-key
+affordances centralised in `AnchorActivation` are about an address bar and browser tabs.
+`ArenaInputType`'s date and time steps are expressible and better, since both platforms ship a
+picker where the web borrows one. The genuinely unexpressible set is the form-association members
+on the two buttons, `type`, `form`, `name`, `value` and `autoFocus`, which exist because an HTML
+form submits itself and nothing native does.
+
 ### An imperative handle is not a member, and the gate is what keeps it rare
 
 **None of the nine forms is imperative**, and that is a property of what a contract can state
