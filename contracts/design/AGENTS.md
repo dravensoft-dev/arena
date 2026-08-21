@@ -110,9 +110,9 @@ and that therefore live in each platform's own idiom:
    composes each one with the token that applies when the device reports no inset, as
    `--pad-safe-bottom: max(var(--sp-3), env(safe-area-inset-bottom))`, so a phone shell reaches
    one custom property instead of writing the fallback four times and differently.
-   **Arena draws nothing that needs them**, and they are declared for the reason `--z-nav` and
-   `--layout-bar` are: the frame a consumer builds around Arena is part of the system, and the
-   alternative is every consumer inventing the same expression.
+   **A component pinned to a viewport edge pays that edge's inset itself**, and they are declared
+   for the reason `--z-nav` and `--layout-bar` are too: the frame a consumer builds around Arena
+   is part of the system, and the alternative is every consumer inventing that expression.
 
 The dividing line: **DTCG owns values; the composition layer owns how values are combined
 at runtime.** `contracts/design/colors.css` therefore holds no skin value, only references
