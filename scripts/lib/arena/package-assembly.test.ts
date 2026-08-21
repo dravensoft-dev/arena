@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, pluginIdentity, version, componentSheets, writeCssChain,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -112,6 +112,19 @@ test('the manifest takes its version and its identity from plugin.json, never fr
   assert.equal(base.publishConfig.access, 'public');
   assert.match(base.repository.url, /^git\+https:\/\/github\.com\//);
   assert.deepEqual(base.bin, CLI_BINS);
+});
+
+test('the identity half carries who published it and nothing about how it runs', () => {
+  const identity = pluginIdentity(repoRoot) as Record<string, unknown>;
+  const base = baseManifest(repoRoot) as Record<string, unknown>;
+  assert.equal(identity.version, version(repoRoot));
+  assert.equal('bin' in identity, false,
+    'a package whose consumer is Gradle or SwiftPM declares no command, and inheriting one here is '
+    + 'the silent route by which the CLI reappears in it');
+  assert.equal('engines' in identity, false,
+    'and no Node floor either, for the same reason: that consumer has no Node at all');
+  for (const key of Object.keys(identity)) assert.deepEqual(base[key], identity[key],
+    `baseManifest dropped ${key} from the identity it is built on`);
 });
 
 test('a reader of the npm page is told where a defect goes, from the one place the repository is named', () => {

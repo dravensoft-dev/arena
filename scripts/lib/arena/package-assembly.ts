@@ -283,7 +283,7 @@ export function keywords(...layer: string[]) {
   return [...layer, ...SHARED_KEYWORDS];
 }
 
-export function baseManifest(root = repoRoot) {
+export function pluginIdentity(root = repoRoot) {
   const plugin = readJson(join(root, '.claude-plugin', 'plugin.json'));
   return {
     version: plugin.version,
@@ -293,6 +293,12 @@ export function baseManifest(root = repoRoot) {
     bugs: { url: `${plugin.repository}/issues` },
     author: plugin.author,
     publishConfig: { access: 'public' },
+  };
+}
+
+export function baseManifest(root = repoRoot) {
+  return {
+    ...pluginIdentity(root),
     bin: { ...CLI_BINS },
     engines: { node: '>=22' },
   };
