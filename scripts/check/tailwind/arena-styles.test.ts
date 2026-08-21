@@ -132,3 +132,62 @@ test('a compound variant applies only when every condition it names holds', () =
     });
   }
 });
+
+test('a selection asked for twice composes once, and an absent group is the same selection', () => {
+  for (const manifest of manifests) {
+    const styles = arenaStyles(classesOf(manifest.component));
+    const groups = Object.keys(manifest.variants ?? {});
+    const asked = groups[0] === undefined ? {} : { [groups[0]]: undefined } as ArenaSelection;
+    assert.equal(styles({}), styles({}),
+      `${manifest.component}: the same selection composed twice, so every caller pays again`);
+    assert.equal(styles({}), styles(asked),
+      `${manifest.component}: a group left undefined resolves to its default, so it is not a `
+      + 'second selection and may not be a second entry');
+  }
+});
+
+test('two selections keep their own answers, so nothing one composes bleeds into the other', () => {
+  for (const manifest of manifests) {
+    const groups = Object.entries(manifest.variants ?? {});
+    const [group, values] = groups[0] ?? [];
+    if (!group || !values) continue;
+    const [one, other] = Object.keys(values);
+    if (!one || !other) continue;
+    const styles = arenaStyles(classesOf(manifest.component));
+    const first = styles({ [group]: one });
+    const second = styles({ [group]: other });
+    for (const slot of Object.keys(manifest.slots ?? {})) {
+      assert.equal(slotted(first, slot), slotted(styles({ [group]: one }), slot),
+        `${manifest.component}.${slot}: a kept answer changed under a later selection`);
+      assert.notEqual(first, second, `${manifest.component}: two selections share one answer`);
+    }
+  }
+});
+
+test('a refusal is never kept, so the second ask fails the way the first did', () => {
+  for (const manifest of manifests) {
+    const groups = Object.keys(manifest.variants ?? {});
+    const group = groups[0];
+    if (group === undefined) continue;
+    const styles = arenaStyles(classesOf(manifest.component));
+    const refused = new RegExp(`${manifest.component}: ${group}="chartreuse" is not in the manifest`);
+    assert.throws(() => styles({ [group]: 'chartreuse' }), refused);
+    assert.throws(() => styles({ [group]: 'chartreuse' }), refused,
+      `${manifest.component}: a value the manifest refuses was kept as an answer`);
+  }
+});
+
+test('a value spelled as a boolean and as its string are one selection, the way a manifest reads it', () => {
+  let seen = 0;
+  for (const manifest of manifests) {
+    const [group] = Object.entries(manifest.variants ?? {})
+      .find(([, values]) => Object.keys(values).every((v) => v === 'true' || v === 'false')) ?? [];
+    if (group === undefined) continue;
+    seen += 1;
+    const styles = arenaStyles(classesOf(manifest.component));
+    assert.equal(styles({ [group]: true }), styles({ [group]: 'true' }),
+      `${manifest.component}: a manifest resolves through String(value), so two spellings of one `
+      + 'value compose identically and may not be two entries');
+  }
+  assert.ok(seen > 0, 'no manifest carries a boolean variant group, so this proves nothing');
+});

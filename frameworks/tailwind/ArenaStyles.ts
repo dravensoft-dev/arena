@@ -22,8 +22,18 @@ export type ArenaSlots<M extends ArenaClassManifest> = { readonly [K in keyof M[
 
 export function arenaStyles<M extends ArenaClassManifest>(manifest: M) {
   const slotNames = Object.keys(manifest.slots);
+  const kept = new Map<string, ArenaSlots<M>>();
 
-  return (chosen: ArenaSelection = {}): ArenaSlots<M> => {
+  const asked = (chosen: ArenaSelection) => {
+    let key = '';
+    for (const group of Object.keys(chosen).sort()) {
+      const value = chosen[group];
+      if (value !== undefined) key += `${group} ${String(value)} `;
+    }
+    return key;
+  };
+
+  const compose = (chosen: ArenaSelection): ArenaSlots<M> => {
     const applied = new Map<string, string[]>();
     for (const slot of slotNames) {
       const base = manifest.slots[slot];
@@ -60,9 +70,18 @@ export function arenaStyles<M extends ArenaClassManifest>(manifest: M) {
 
     const out: Record<string, () => string> = {};
     for (const slot of slotNames) {
-      const names = applied.get(slot) ?? [];
-      out[slot] = () => names.join(' ');
+      const joined = (applied.get(slot) ?? []).join(' ');
+      out[slot] = () => joined;
     }
     return out as ArenaSlots<M>;
+  };
+
+  return (chosen: ArenaSelection = {}): ArenaSlots<M> => {
+    const key = asked(chosen);
+    const already = kept.get(key);
+    if (already) return already;
+    const composed = compose(chosen);
+    kept.set(key, composed);
+    return composed;
   };
 }

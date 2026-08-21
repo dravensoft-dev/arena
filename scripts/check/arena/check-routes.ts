@@ -740,7 +740,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 88_000,
+    budget: 88_500,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -777,7 +777,7 @@ export const ROUTES: Route[] = [
       + 'row is 1,066. It runs a little past the median because its claim is a measurement rather '
       + 'than a rule, and what a contributor needs from it is what it measures and what it refuses '
       + 'to measure: the activation box rather than the painted one, only inside a named part, and '
-      + 'in the density nothing else in this repository draws.',
+      + 'in the density nothing else in this repository draws. Raised to 88,500 when check:citations widened from one surface to three, which is the case the paragraph above does not cover: no row landed and one row grew, from 1,927 characters to 2,840, over the same 49 rows whose median is 951 and whose longest is 3,942. A gate states its whole claim in one row, so a claim that widens is a row that grows, and the only alternative on offer is a row describing a third of what the gate reads.',
   },
   {
     name: 'contributor-tailwind',

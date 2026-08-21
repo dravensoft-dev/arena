@@ -1,7 +1,7 @@
 {
   "name": "ArenaNumberFormat",
   "kind": "object",
-  "description": "How a chart writes each number before the prefix and the suffix are added. Every field is a primitive, so this stays a datum the component renders from rather than a function it calls, which is the distinction contracts/api/README.md draws when it refuses a formatter to a chart. It exists because \"format the numbers before binding them\" is not possible: what a chart is handed is number[], and the formatting has to reach the axis ticks, the tooltip and the accessible table, which the chart writes afterwards. Every field being absent is the raw JavaScript number, which is what a chart drew before this type existed.",
+  "description": "How a chart writes each number before the prefix and the suffix are added. Every field is a primitive, so this stays a datum the component renders from rather than a function it calls, which is why a chart takes a format and never a formatter. It exists because \"format the numbers before binding them\" is not possible: what a chart is handed is number[], and the formatting has to reach the axis ticks, the tooltip and the accessible table, which the chart writes afterwards. Every field being absent is the raw JavaScript number, which is what a chart drew before this type existed.",
   "fields": {
     "locale": { "form": "primitive", "type": "string",
                 "description": "A BCP-47 tag, such as \"es-BO\". Absent, the runtime's own default, which on a server is the SERVER's locale and on a client the reader's: pass it explicitly wherever a server render must match its hydration, the same hazard ArenaCalendar.timeZone carries." },

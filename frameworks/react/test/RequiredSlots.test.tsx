@@ -1,5 +1,5 @@
 /* check:api excludes slots from its required-ness comparison, for the reason
- * contracts/api/README.md gives -- no platform-neutral syntax declares projected content
+ * contracts/api/AGENTS.md gives -- no platform-neutral syntax declares projected content
  * mandatory -- so a contract declaring `"required": true` on a slot is held by nothing else.
  * This is that check. It is derived from the contracts
  * rather than listed here, so a fifth required slot joins it by being declared, and the count

@@ -200,7 +200,8 @@ two copies and never reads either for meaning. Verify with
   currently is, never as what went wrong or what is left over. That page says what counts as one
   and which records beat a paragraph, and every one of those records is a present-tense claim
   that fails the day it stops being true.
-- **A document cites code as `path/to/file:member(parameters)` and never by line number.** A line
+- **Prose cites code as `path/to/file:member(parameters)` and never by line number**, in a document,
+  a published `description` and a suite header alike. A line
   moves under the next edit and takes every citation with it in silence, while a member carries
   its own address: `scripts/utils/case.ts:kebab(name)` still resolves after the file is reordered
   around it. `check:citations` holds both halves, the path to a file that is there and the member
@@ -224,7 +225,7 @@ two copies and never reads either for meaning. Verify with
   stale copy of it fails something.**
 
 `bun run check:docs` holds the size rule, the punctuation rule and the comment rule, and
-`bun run check:citations` holds every path a document names to existing. **The present-tense rule
+`bun run check:citations` holds every path that prose names to existing. **The present-tense rule
 is the one no gate holds**, because nothing mechanical can judge it.
 
 ## Conventions

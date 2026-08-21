@@ -36,7 +36,7 @@ export const NEVER_SUBSCRIBES = new Map([
    'it reads every .md on the branch and every hand-written source, for the comment rule; narrowing '
    + 'that to manufacture a cache hit narrows what the gate claims and not what it costs'],
   ['scripts/check/arena/check-citations.ts',
-   'it resolves the code path in every citation in every .md, so its subject is the whole tree'],
+   'it resolves the code path in every citation in every prose passage the tree carries, a document, a contract value and a file header alike, so its subject is the whole tree'],
   ['scripts/check/arena/check-agents.ts',
    'it walks the branch for a level no chain of links reaches, so its subject is every document '
    + 'that could have carried the link and an absence sits in no spec'],

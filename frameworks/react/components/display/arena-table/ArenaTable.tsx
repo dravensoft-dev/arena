@@ -66,6 +66,12 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   return { column: index, direction };
 }
 
+const arenaSortOptions = (columns: readonly ArenaTableColumn[]): ArenaSelectOption[] =>
+  columns.flatMap((column, index) => (column.sortable
+    ? [{ value: arenaSortOptionValue(index, 'asc'), label: `${column.header} \u2191` },
+      { value: arenaSortOptionValue(index, 'desc'), label: `${column.header} \u2193` }]
+    : []));
+
 const arenaTableStyles = arenaStyles(manifest);
 
 export function ArenaTable({
@@ -118,13 +124,16 @@ export function ArenaTable({
   const gridRef = useRef<HTMLTableElement | null>(null);
   const [cursor, setCursor] = useState({ row: 0, col: 0 });
 
-  const cellCounts = rowEls.map((row) => (
-    React.isValidElement(row) ? React.Children.toArray(row.props.children).length : 0
-  ));
-  const rowLens = bare ? [] : [columns.length, ...cellCounts];
+  const gridRows = bare ? 0 : rowEls.length + 1;
+  const rowCells = (index: number): number => {
+    if (index < 0 || index >= gridRows) return 0;
+    if (index === 0) return columns.length;
+    const row = rowEls[index - 1];
+    return React.isValidElement(row) ? React.Children.toArray(row.props.children).length : 0;
+  };
 
-  const curRow = Math.min(Math.max(cursor.row, 0), Math.max(rowLens.length - 1, 0));
-  const curCol = Math.min(Math.max(cursor.col, 0), Math.max((rowLens[curRow] || 0) - 1, 0));
+  const curRow = Math.min(Math.max(cursor.row, 0), Math.max(gridRows - 1, 0));
+  const curCol = Math.min(Math.max(cursor.col, 0), Math.max(rowCells(curRow) - 1, 0));
 
   useEffect(() => {
     const g = gridRef.current;
@@ -147,12 +156,12 @@ export function ArenaTable({
     let row = curRow;
     let col = curCol;
     if (e.key === 'ArrowUp') row = Math.max(0, row - 1);
-    else if (e.key === 'ArrowDown') row = Math.min(rowLens.length - 1, row + 1);
+    else if (e.key === 'ArrowDown') row = Math.min(gridRows - 1, row + 1);
     else if (e.key === 'ArrowLeft') col = Math.max(0, col - 1);
-    else if (e.key === 'ArrowRight') col = Math.min(Math.max((rowLens[row] || 1) - 1, 0), col + 1);
+    else if (e.key === 'ArrowRight') col = Math.min(Math.max((rowCells(row) || 1) - 1, 0), col + 1);
 
     else if (e.key === 'Home') col = 0;
-    else if (e.key === 'End') col = Math.max((rowLens[row] || 1) - 1, 0);
+    else if (e.key === 'End') col = Math.max((rowCells(row) || 1) - 1, 0);
     else if (e.key === 'Enter' || e.key === ' ') {
 
       e.preventDefault();
@@ -166,7 +175,7 @@ export function ArenaTable({
       return;
     } else return;
 
-    col = Math.min(col, Math.max((rowLens[row] || 1) - 1, 0));
+    col = Math.min(col, Math.max((rowCells(row) || 1) - 1, 0));
 
     e.preventDefault();
 
@@ -182,17 +191,14 @@ export function ArenaTable({
     onFocus: (e: React.FocusEvent) => { if (e.target === e.currentTarget) onCellFocus(0, ci); },
   });
 
-  const sortable = columns.map((column, index) => ({ column, index })).filter((c) => c.column.sortable);
-  const sortBar = narrow && !bare && sortControl !== 'none' && Boolean(sort) && sortable.length > 0;
-  const sortOptions: ArenaSelectOption[] = sortable.flatMap(({ column, index }) => [
-    { value: arenaSortOptionValue(index, 'asc'), label: `${column.header} \u2191` },
-    { value: arenaSortOptionValue(index, 'desc'), label: `${column.header} \u2193` },
-  ]);
+  const sortBar = narrow && !bare && sortControl !== 'none' && Boolean(sort)
+    && columns.some((column) => column.sortable);
   const sortValue = sort ? arenaSortOptionValue(sort.column, sort.direction) : undefined;
 
+  const sortableClass = arenaTableStyles({ narrow: false }).thSortable();
   const headerClass = (c: ArenaTableColumn): string => {
     const base = arenaTableStyles({ narrow: false, align: c.align || 'left' }).th();
-    return c.sortable && sort ? `${base} ${arenaTableStyles({ narrow: false }).thSortable()}` : base;
+    return c.sortable && sort ? `${base} ${sortableClass}` : base;
   };
 
   return (
@@ -200,7 +206,7 @@ export function ArenaTable({
       {narrow && sortBar && (
         <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
           <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>
-            <ArenaSelect label="Sort by" options={sortOptions} value={sortValue}
+            <ArenaSelect label="Sort by" options={arenaSortOptions(columns)} value={sortValue}
               onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
           </div>
         </div>
@@ -213,16 +219,19 @@ export function ArenaTable({
           <thead>
             <tr aria-rowindex={extent ? 1 : undefined}
               className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
-              {columns.map((c, ci) => (
-                <th key={ci} scope="col" {...headerNav(ci)}
-                  aria-sort={sortStateOf(ci)}
-                  onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
-                  className={headerClass(c)} data-arena-part={manifest.parts.th}
-                  style={{ width: c.width }}>{c.header}{sortStateOf(ci) && sortStateOf(ci) !== 'none' && (
-                      <i aria-hidden="true"
-                        className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} />
-                    )}</th>
-              ))}
+              {columns.map((c, ci) => {
+                const state = sortStateOf(ci);
+                return (
+                  <th key={ci} scope="col" {...headerNav(ci)}
+                    aria-sort={state}
+                    onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
+                    className={headerClass(c)} data-arena-part={manifest.parts.th}
+                    style={{ width: c.width }}>{c.header}{state && state !== 'none' && (
+                        <i aria-hidden="true"
+                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} />
+                      )}</th>
+                );
+              })}
             </tr>
           </thead>
         )}
