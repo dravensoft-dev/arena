@@ -115,11 +115,20 @@ enforces that it does.
 ### Affordances are contracted, and they are not members
 
 Every component contract carries an `affordances` array beside `api`, from the closed set
-`hover` and `focus`. It names the pointer and focus states **the component's own render
-reacts to**: a button that tints under the pointer declares `hover`; a field that shows a
-ring when focus lands in it declares `focus`. An empty array is the answer for a component
-that presents neither, and the key is **mandatory** so that an absence can never be read as
-"not stated yet".
+`hover`, `focus` and `press`. It names the pointer, focus and activation states **the
+component's own render reacts to**: a button that tints under the pointer declares `hover`; a
+field that shows a ring when focus lands in it declares `focus`; a control that compresses under
+the press, or a chart that reveals a reading on a tap, declares `press`. An empty array is the
+answer for a component that presents none of them, and the key is **mandatory** so that an
+absence can never be read as "not stated yet".
+
+**`press` is the one of the three that a touch device has**, which is why it is named rather than
+folded into `hover`. A phone never hovers, so a component declaring `hover` alone declares that it
+reacts to nothing a thumb can do, and that is a statement about the component rather than about
+the browser reading it. The value tier answered the press before the contract did:
+`contracts/design/roles.json` carries `press-scale` and `lift-control`, and argues under
+`fill-hover` that a press "reads as the control's own motion" while a hover "is the surface
+answering".
 
 It is not a member, and it is here anyway, because the question is neutral and every layer
 needs the same answer to it. Neither of the other two contracts can hold it: `behaviour/` is
@@ -128,9 +137,9 @@ requirement; `design/` holds values. A component's affordances are a decision ab
 component, which is what this directory states.
 
 **What a layer may not do is invent one.** `check:states` reads this declaration and nothing
-else, in two one-way halves: a Tailwind manifest slot carrying a `hover:`/`focus:` modifier
-no covered contract declares is invented, and a React component implementing a state its
-contract does not declare is invented. Neither half reads the other layer. Neither runs the
+else, in two one-way halves: a Tailwind manifest slot carrying a `hover:`, `focus:` or
+`active:` modifier no covered contract declares is invented, and a React component implementing
+a state its contract does not declare is invented. Neither half reads the other layer. Neither runs the
 other way, because a declared affordance a layer does not implement itself may be the child it
 composes: `ArenaConfirmDialog` declares `focus` for its own input and renders Arena `ArenaButton`s for
 the rest, and a manifest, which has no composition and types those buttons out as its own

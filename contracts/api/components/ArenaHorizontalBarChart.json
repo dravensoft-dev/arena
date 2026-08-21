@@ -2,7 +2,8 @@
   "component": "ArenaHorizontalBarChart",
   "description": "Categorical bars running across the plot, with the categories down its left edge. The same data and the same table as ArenaBarChart with the axes transposed, which is a different component rather than an orientation flag because transposing changes what four of its members mean: the cursor answers the vertical arrows, the category gutter is its own token, height becomes the axis the data grows along, and there is no scrolling rail.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "labels": {

@@ -2,7 +2,8 @@
   "component": "ArenaRadarChart",
   "description": "Several measures on one shape: an axis per label around a polar grid, one closed polygon per series. Reads a profile rather than a magnitude, which is what makes it a different chart from bars over the same numbers. Dependency-free SVG with a visually-hidden table of the same numbers.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "labels": {

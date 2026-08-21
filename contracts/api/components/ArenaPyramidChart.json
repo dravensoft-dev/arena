@@ -2,7 +2,8 @@
   "component": "ArenaPyramidChart",
   "description": "A population pyramid: two counts per band, mirrored about a shared centre line, with the band names down the left edge. Diverging from a centre is the whole point rather than an option, which is why the two-series rule and the mirrored axis are the component instead of a flag on a bar chart. Dependency-free SVG with a visually-hidden table of the same numbers.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "labels": {

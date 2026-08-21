@@ -2,7 +2,8 @@
   "component": "ArenaBarChart",
   "description": "Categorical bars on one axis. Dependency-free SVG that reads the token layer directly, with a visually-hidden table of the same numbers.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "labels": {
