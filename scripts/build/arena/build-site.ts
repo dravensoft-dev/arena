@@ -19,7 +19,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE,
   entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
-  playgroundsOnDisk, playgroundSections, modules, titleOf, url,
+  playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
 } from '../../lib/arena/site-pages.ts';
 import { renderOgImage, OG_WIDTH, OG_HEIGHT } from '../../lib/arena/og-image.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
@@ -60,17 +60,19 @@ export const BODY = 'body{margin:0;background:var(--bg);color:var(--text-strong)
 const escape = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-const head = (title: string, description: string, canonical: string, depth: number) => {
+const head = (title: string, description: string, canonical: string | null, depth: number) => {
   const up = '../'.repeat(depth);
+  const addressed = canonical === null
+    ? '<meta name="robots" content="noindex">'
+    : `<link rel="canonical" href="${canonical}">\n<meta property="og:url" content="${canonical}">`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escape(title)}</title>
 <meta name="description" content="${escape(description)}">
-<link rel="canonical" href="${canonical}">
+${addressed}
 <meta property="og:type" content="website">
 <meta property="og:title" content="${escape(title)}">
 <meta property="og:description" content="${escape(description)}">
-<meta property="og:url" content="${canonical}">
 <meta property="og:image" content="https://${DOMAIN}/${OG_FILE}">
 <meta property="og:image:width" content="${OG_WIDTH}">
 <meta property="og:image:height" content="${OG_HEIGHT}">
@@ -84,7 +86,9 @@ const head = (title: string, description: string, canonical: string, depth: numb
 
 export type Section = { heading?: string; links: { href: string; label: string }[] };
 
-export function indexPage(title: string, sections: Section[], depth: number) {
+export function indexPage(
+  title: string, description: string, canonical: string, sections: Section[], depth: number,
+) {
   const blocks = sections.map(({ heading, links }) => {
     const items = links
       .map(({ href, label }) => `  <li><a href="${href}">${escape(label)}</a></li>`)
@@ -94,7 +98,7 @@ export function indexPage(title: string, sections: Section[], depth: number) {
       : `<h2 style="font-family:var(--font-display)">${escape(heading)}</h2>\n`;
     return `${headed}<ul style="line-height:2">\n${items}\n</ul>`;
   }).join('\n');
-  return `${head(title, title, `https://${DOMAIN}/`, depth)}
+  return `${head(title, description, canonical, depth)}
 <main style="max-width:60rem;margin:0 auto;padding:var(--sp-6)">
 <h1 style="font-family:var(--font-display)">${escape(title)}</h1>
 ${blocks}
@@ -105,6 +109,24 @@ ${blocks}
 
 export const TAGLINE = 'One design system, in React and in Angular, built to be operated by an AI agent.';
 
+export function structuredData() {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: 'Arena by Dravensoft',
+    alternateName: 'Arena',
+    description: TAGLINE,
+    url: `https://${DOMAIN}/`,
+    codeRepository: REPOSITORY,
+    license: 'https://opensource.org/license/mit',
+    programmingLanguage: ['TypeScript', 'CSS'],
+    runtimePlatform: ['React', 'Angular'],
+    applicationCategory: 'DeveloperApplication',
+    image: `https://${DOMAIN}/${OG_FILE}`,
+    author: { '@type': 'Organization', name: 'Dravensoft' },
+  });
+}
+
 export function landingPage(base = repoRoot) {
   const drawn = components('react', base).length;
   const links = entryPoints(base).filter((entry) => entry.public);
@@ -112,6 +134,7 @@ export function landingPage(base = repoRoot) {
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
     .join('\n');
   return `${head('Arena by Dravensoft', TAGLINE, `https://${DOMAIN}/`, 0)}
+<script type="application/ld+json">${structuredData()}</script>
 <main style="max-width:64rem;margin:0 auto;padding:var(--sp-8) var(--sp-6)">
 <h1 style="font-family:var(--font-display);font-size:var(--fs-hero);margin:0">Arena by Dravensoft</h1>
 <p style="font-size:var(--fs-lg);color:var(--mute);max-width:44rem">${escape(TAGLINE)}</p>
@@ -137,7 +160,7 @@ ${cards}
 <ul style="line-height:2">
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-react">@dravensoft/arena-react</a></li>
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-angular">@dravensoft/arena-angular</a></li>
-  <li><a href="https://github.com/dravensoft-dev/arena">The repository, MIT</a></li>
+  <li><a href="${REPOSITORY}">The repository, MIT</a></li>
 </ul>
 </main>
 </body></html>
@@ -164,7 +187,7 @@ p{font-family:var(--font-body);font-size:34px;margin:0;color:var(--mute);max-wid
 }
 
 export function notFoundPage() {
-  return `${head('Not found, Arena by Dravensoft', 'That page is not here.', `https://${DOMAIN}/`, 0)}
+  return `${head('Not found, Arena by Dravensoft', 'That page is not here.', null, 0)}
 <main style="max-width:40rem;margin:0 auto;padding:var(--sp-8) var(--sp-6)">
 <h1 style="font-family:var(--font-display)">That page is not here</h1>
 <p><a href="/">Back to the start</a></p>
@@ -178,9 +201,8 @@ export function robots() {
 }
 
 export function sitemap(base = repoRoot) {
-  const entries = ['', ...pages(base)]
-    .map((rel) => `  <url><loc>${rel ? url(rel) : `https://${DOMAIN}/`}</loc></url>`)
-    .join('\n');
+  const located = [...indexedDirectories(base).map(directoryUrl), ...pages(base).map(url)];
+  const entries = located.map((loc) => `  <url><loc>${loc}</loc></url>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
 }
 
@@ -238,7 +260,10 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     const rel = directory === '' ? 'index.html' : `${directory}/index.html`;
     const page = directory === ''
       ? landingPage(base)
-      : indexPage(titleFor(directory), sectionsFor(directory, base), depth);
+      : indexPage(
+        titleFor(directory), descriptionFor(directory), directoryUrl(directory),
+        sectionsFor(directory, base), depth,
+      );
     written.push(write(out, rel, page));
   }
 
@@ -258,6 +283,28 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   written.push(join(out, OG_FILE));
 
   return written;
+}
+
+function descriptionFor(directory: string) {
+  if (directory === 'intro/guidelines') {
+    return 'The specimens every Arena screen is drawn from: colour, type, spacing, effects and '
+      + 'icons, each showing the token a component reads rather than describing it.';
+  }
+  const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
+  if (drawn) {
+    return `Every Arena component under ${drawn[1]}, each on a page that draws it and lets you `
+      + 'change what it takes.';
+  }
+  const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
+  if (sink) {
+    return `Every Arena component under ${sink[1]} on one page, under each style plugin this `
+      + 'repository ships.';
+  }
+  const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
+  if (one) {
+    return `The ${one[2]} style plugin drawing every Arena component under ${one[1]} on one page.`;
+  }
+  return TAGLINE;
 }
 
 function titleFor(directory: string) {

@@ -12,9 +12,9 @@ import { join } from 'node:path';
 import {
   REFERENCE, OFF_SITE, AUTHORED, FORBIDDEN, referenced, resolves, htmlFiles,
   brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems, tokenProblems,
-  missingModuleProblems,
+  missingModuleProblems, canonicalProblems, ownUrl, located, sitemapProblems,
 } from './check-site.ts';
-import { DOMAIN, modules } from '../../lib/arena/site-pages.ts';
+import { DOMAIN, modules, pages, indexedDirectories } from '../../lib/arena/site-pages.ts';
 
 function out(files: Record<string, string>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-site-'));
@@ -135,4 +135,43 @@ test('a module a page imports and the output dropped is a problem, and an empty 
     'an output carrying none of the graph is a problem per module and never a clean pass');
   assert.match(problems[0] ?? '', /renders nothing at all/,
     'the line has to say what a reader sees, since every href on that page still answers 200');
+});
+
+test('a directory index is addressed by its directory, and every other page by its own path', () => {
+  assert.equal(ownUrl('index.html'), `https://${DOMAIN}/`);
+  assert.equal(ownUrl('intro/guidelines/index.html'), `https://${DOMAIN}/intro/guidelines/`);
+  assert.equal(ownUrl('intro/Arena - Overview.html'), `https://${DOMAIN}/intro/Arena%20-%20Overview.html`);
+});
+
+test('a page pointing its canonical at another page is the shape every index page shipped in', () => {
+  const canonical = (href: string) => `<html><head><link rel="canonical" href="${href}"></head></html>`;
+  const base = out({
+    'intro/guidelines/index.html': canonical(`https://${DOMAIN}/`),
+    'index.html': canonical(`https://${DOMAIN}/`),
+  });
+  const problems = canonicalProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /intro\/guidelines\/index\.html/);
+  assert.match(problems[0] ?? '', /not its own address/);
+});
+
+test('a page declaring no canonical is not a page declaring the wrong one, which is what a 404 owes', () => {
+  const base = out({ '404.html': '<html><head><meta name="robots" content="noindex"></head></html>' });
+  assert.deepEqual(canonicalProblems(base), []);
+});
+
+test('the sitemap owes the index pages a visitor lands on, and not only the leaves under them', () => {
+  const every = located();
+  for (const directory of indexedDirectories()) assert.ok(every.includes(directory === '' ? `https://${DOMAIN}/` : `https://${DOMAIN}/${directory}/`));
+  assert.equal(every.length, indexedDirectories().length + pages().length);
+});
+
+test('a sitemap naming a longer path does not stand in for the directory above it', () => {
+  const entry = (loc: string) => `<url><loc>${loc}</loc></url>`;
+  const base = out({
+    'sitemap.xml': `<urlset>${located().filter((loc) => loc !== `https://${DOMAIN}/intro/guidelines/`).map(entry).join('')}</urlset>`,
+  });
+  const problems = sitemapProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /intro\/guidelines\//);
 });
