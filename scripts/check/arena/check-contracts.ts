@@ -22,6 +22,8 @@ export const node = {
 export const LEVELS = ['api', 'behaviour', 'design'];
 export const GENERATED = 'design-generated';
 
+export const NPM_PAGE = 'NPM.md';
+
 export const SHAPE = new Map<string, { dirs: string[]; files: string[]; ext: string | null }>([
   ['api', { dirs: ['components', 'types'], files: ['AGENTS.md', 'MemberForms.md'], ext: null }],
   ['behaviour', { dirs: [], files: ['AGENTS.md'], ext: '.json' }],
@@ -30,7 +32,7 @@ export const SHAPE = new Map<string, { dirs: string[]; files: string[]; ext: str
 
 export function rootProblems(entries: string[]) {
   const problems = [];
-  const expected = new Set([...LEVELS, GENERATED, 'AGENTS.md']);
+  const expected = new Set([...LEVELS, GENERATED, 'AGENTS.md', NPM_PAGE]);
   for (const name of entries) {
     if (!expected.has(name)) {
       problems.push(

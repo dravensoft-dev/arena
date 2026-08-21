@@ -117,6 +117,30 @@ it **cannot re-theme and cannot re-densify**; and only `dimension`, `duration`
 and `number` are flaggable, because those are the only types whose value is a
 number.
 
+### What a platform that is not CSS cannot derive
+
+Three shapes in this map read one way on the web and another way everywhere else, and each is a
+place a target would otherwise guess:
+
+- **`keyword` inherits no transform.** It is Arena's one departure from 2025.10, so no DTCG tool
+  knows what to do with it. The value is a bare word and the closed set beside it is the whole of
+  what a target has to map: `ContentScale` on Compose takes five, `ContentMode` on SwiftUI takes
+  two, and the gap is the target's to record rather than to resolve silently.
+- **A `fontFamily` value is an ordered fallback list whose tail is a web idiom.** `system-ui`,
+  `ui-monospace`, `sans-serif` and `monospace` are CSS generic families and name nothing on a
+  platform that resolves a font by file or by system style. A target takes the head of the list and
+  drops the tail rather than mapping it.
+- **A `number` carrying a `cssUnit` hint is a render instruction for one platform.** Off the web it
+  is a bare multiplier and the hint is what says of what: `em` multiplies the element's own font
+  size, so tracking is `letterSpacing` in `em` on Compose and a kerning in points on SwiftUI, which
+  is the same number applied two different ways.
+
+**A script-readable token emits twice, and a target reads that the other way round.** Here the
+second emission exists because JS arithmetic needs a number where CSS would have taken a length. A
+target that computes its own layout needs only the number, so what is a duplicate on the web is the
+single useful form off it, and the `script` flag reads as "this value is arithmetic" rather than as
+"this value is emitted twice".
+
 ### `userScale`, what the user's text setting does to a value
 
 Every `dimension` in this directory declares what happens to it when the reader asks their device

@@ -88,6 +88,22 @@ picker where the web borrows one. The genuinely unexpressible set is the form-as
 on the two buttons, `type`, `form`, `name`, `value` and `autoFocus`, which exist because an HTML
 form submits itself and nothing native does.
 
+### Five members take a CSS length, and R4 says they may not
+
+`MemberForms.md` rule **R4** forbids a platform type in a contract. Five members break it in a way
+the rule did not anticipate, because the type they declare is `string`: `ArenaBoard.minColumn`,
+`ArenaDialog.width`, `ArenaFigure.ratio`, `ArenaGrid.min` and `ArenaScroller.itemWidth` each take a
+CSS length or a CSS ratio, and each defaults to one, `var(--grid-min)` and
+`calc(var(--sp-1) * 120)` among them. A `string` that must be CSS is a platform type wearing a
+neutral name, and it reaches a target with no CSS as a default it cannot express.
+
+They are not reshaped here, because reshaping them is a member change in both layers and every
+call site, and it is a decision about geometry rather than about contracts. What holds them
+meanwhile is `CSS_VALUED` in `scripts/check/arena/check-contracts-neutrality.ts`: the five are
+named there with what each measures, a sixth fails that gate, and an entry whose value has stopped
+being CSS fails it too. **This paragraph and that map die together**, which is the point of writing
+the debt where something asserts it rather than only here.
+
 ### An imperative handle is not a member, and the gate is what keeps it rare
 
 **None of the nine forms is imperative**, and that is a property of what a contract can state

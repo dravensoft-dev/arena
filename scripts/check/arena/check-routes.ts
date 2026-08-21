@@ -699,7 +699,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 60_500,
+    budget: 63_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -719,8 +719,12 @@ export const ROUTES: Route[] = [
       + 'what a platform target reads first, and a target that is not a browser cannot derive from '
       + 'a value and a unit what the reader asking for larger text does to it, so TokenTypes.md '
       + 'states that axis, what each of its three words obliges on each platform, and why the '
-      + 'emission here does not follow it. The level describes something bigger rather than the '
-      + 'same thing at more length, which is the one reason this budget moves.',
+      + 'emission here does not follow it. It also states the three shapes in the type map that read '
+      + 'one way on the web and another everywhere else, which is where a target would otherwise '
+      + 'guess: a keyword inherits no transform, a font stack ends in generic families that name '
+      + 'nothing off the web, and a unit hint on a bare number is an instruction for one platform. '
+      + 'The level describes something bigger rather than the same thing at more length, which is '
+      + 'the one reason this budget moves.',
   },
   {
     name: 'contributor-gate',
@@ -728,7 +732,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 84_500,
+    budget: 87_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -754,7 +758,13 @@ export const ROUTES: Route[] = [
       + 'that installs nothing resolved a pinned dependency to whatever the registry served, the '
       + 'throw was swallowed by a process substitution, and the guard that reads a list of paths '
       + 'read none. A contributor deciding whether their own gate owes that much needs the '
-      + 'failure and not the rule.',
+      + 'failure and not the rule. Raised to 87,000 when the contracts package landed with three '
+      + 'gates at once, which is a case this budget has not had to hold before: a channel out of '
+      + 'the repository is not one claim but three, and they arrive together or the artefact ships '
+      + 'unheld. Measured the way this string says to, before the raise rather than after it: over '
+      + '48 rows the median is 951 characters and the longest is 3,942, and the three new rows are '
+      + '789, 856 and 677, so every one of them sits under the median and the raise pays for their '
+      + 'number rather than for their length.',
   },
   {
     name: 'contributor-tailwind',
@@ -778,7 +788,7 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 38_000,
+    budget: 38_600,
     reason:
       'the route a bug report takes, which is the arrival the routing table had no row for until '
       + 'the symptom rows landed, and the one whose answer is most often that nothing in the code '
@@ -790,7 +800,10 @@ export const ROUTES: Route[] = [
       + 'field rather than only inside prose, and the rule about native semantics states the half '
       + 'that applies where there is no browser to supply them. Both are the level describing '
       + 'something bigger rather than describing the same thing at more length, which is the one '
-      + 'reason a budget moves.',
+      + 'reason a budget moves. The roof above it grew for the same kind of reason: contracts/ now '
+      + 'holds a page written for somebody who is not changing Arena at all, the one npm shows for '
+      + 'the contracts package, and the roof is where a reader is told that page exists and who it '
+      + 'is for.',
   },
   {
     name: 'contributor-release',
@@ -798,7 +811,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 57_200,
+    budget: 58_300,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -820,7 +833,12 @@ export const ROUTES: Route[] = [
       + 'ships rather than by keeping a second list of globs in step. The version of it that '
       + 'could not read its own list of paths republished both packages from a diff of the whole '
       + 'tree at 10.0.1 and 10.1.0 and wrote publish into the run summary while doing it, which '
-      + "is this route's failure mode exactly: nothing errored, and nobody was told.",
+      + "is this route's failure mode exactly: nothing errored, and nobody was told."
+      + ' Raised to 58,300 when a third package landed. The packaging page opened by saying there '
+      + 'were two, which stopped being true, and a reader cutting a release needs to know at that '
+      + 'point that the third is not a layer, that its consumer has no Node, and that the CSS '
+      + 'chain, the CLI and the peer dependencies the rest of that page is about apply to neither '
+      + 'of its files.',
   },
 ];
 

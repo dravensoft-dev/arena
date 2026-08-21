@@ -8,7 +8,7 @@ import {
   zeroContractLevelProblems,
 } from './check-contracts.ts';
 
-const ROOT_OK = ['AGENTS.md', 'api', 'behaviour', 'design', 'design-generated'];
+const ROOT_OK = ['AGENTS.md', 'NPM.md', 'api', 'behaviour', 'design', 'design-generated'];
 
 test('the declared shape is three levels and one generated sibling, and nothing else', () => {
   assert.deepEqual(LEVELS, ['api', 'behaviour', 'design']);
@@ -18,6 +18,13 @@ test('the declared shape is three levels and one generated sibling, and nothing 
 
 test('the real root shape has no problems', () => {
   assert.deepEqual(rootProblems(ROOT_OK), []);
+});
+
+test('the npm page is admitted here and nowhere else, because its reader is not on this branch', () => {
+  assert.deepEqual(rootProblems(ROOT_OK), []);
+  const without = rootProblems(ROOT_OK.filter((entry) => entry !== 'NPM.md'));
+  assert.equal(without.length, 1);
+  assert.match(without[0] ?? '', /NPM\.md is missing/);
 });
 
 test('a fourth directory beside the three is a problem, which is the case that passed every gate', () => {

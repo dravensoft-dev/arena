@@ -129,6 +129,13 @@ Established systems (Material 3, Fluent, Carbon, Polaris) are **light-by-default
 
 ## Why only design has a `-generated` sibling
 
+**[`NPM.md`](./NPM.md) beside this file is the fourth page here and the only one written for
+somebody who is not changing Arena.** It is the page npm shows for `@dravensoft/arena-contracts`,
+which carries these three levels as JSON and nothing else, so a platform target outside this
+repository reads the same values rather than re-typing them. `scripts/build/arena/build-contracts-package.ts`
+assembles it and three gates hold what it carries. Nothing else on this branch is written for that
+reader, which is why the page is here rather than a paragraph inside one of the others.
+
 `design-generated/` holds the five CSS files built from `design/`: four by Style
 Dictionary (`bun run generate:tokens`) and `fonts.generated.css` by `scripts/generate/core/fetch-fonts.ts`, which can
 also rebuild that one file alone, from the binaries already committed under `assets/fonts/`

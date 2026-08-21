@@ -54,6 +54,7 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/contracts
           key: arena-build-${{ runner.os }}-${{ github.sha }}
 
       - name: every gate

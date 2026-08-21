@@ -2,11 +2,14 @@
 
 | script | emits | why it exists |
 | --- | --- | --- |
+| `build-contracts-package.ts` | `dist/contracts/`, the assembled `@dravensoft/arena-contracts` | The channel `contracts/` leaves this repository by. It is the `arena` domain because it reads `.claude-plugin/plugin.json` and `LICENSE` at the root, and it writes to `dist/` rather than under `contracts/` because `check-contracts.ts` admits an exact set of entries there. The consumer is a build on another platform fetching a tarball over HTTPS, so the manifest declares no `bin`, no `engines`, no `types` and no dependency of any kind, and every export target is a bare string. `NOT_CARRIED` is the half worth reading: each exclusion says why, and a pathspec matching nothing in the tree fails, so the argument cannot outlive what it excludes. |
 | `build-intro.ts` | one `<page>.generated.js` per module entry an `intro/` page declares | Bundles what those pages import so the browser never has to resolve it. Everything the bundle reaches is inlined and its types are stripped, which is what lets a page under `intro/` read `scripts/lib/` at all. |
 
-This is the `arena` domain because it reads `scripts/lib/` and writes `intro/`, which belongs
-to no framework layer and is the repository's own front matter: the pages that explain
-Dravensoft's identity and Arena's fundamentals.
+Both are the `arena` domain and for the same reason stated twice over different paths: neither
+reads one framework layer. `build-intro.ts` reads `scripts/lib/` and writes `intro/`, which belongs
+to no layer and is the repository's own front matter: the pages that explain Dravensoft's identity
+and Arena's fundamentals. `build-contracts-package.ts` reads `contracts/` and the repository root,
+which is the row of the table in [`../../AGENTS.md`](../AGENTS.md) that admits the root at all.
 
 **Its output is tracked, and that is the whole reason the script exists.** The Claude Code
 plugin is served from the git tag, where nothing runs a build, so a page there is served
