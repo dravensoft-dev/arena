@@ -1,7 +1,7 @@
 {
   "component": "ArenaMenu",
   "description": "Dropdown menu of actions on a trigger -- overflow, more actions, context.",
-  "affordances": ["hover"],
+  "affordances": ["hover", "press"],
   "api": {
     "trigger": { "form": "slot", "required": true,
                  "description": "The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name." },

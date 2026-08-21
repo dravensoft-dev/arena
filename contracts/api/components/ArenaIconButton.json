@@ -1,7 +1,7 @@
 {
   "component": "ArenaIconButton",
   "description": "Icon-only button. Carries an accessible name in every state, not only on hover.",
-  "affordances": ["hover"],
+  "affordances": ["hover", "press"],
   "api": {
     "icon": { "form": "primitive", "type": "string", "required": true,
               "description": "Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name." },

@@ -1,7 +1,7 @@
 {
   "component": "ArenaIconButton",
   "slots": {
-    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest",
+    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "label": "font-body font-control text-ctl leading-ctl"
   },
   "variants": {
