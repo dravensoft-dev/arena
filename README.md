@@ -147,6 +147,7 @@ that means for an upgrade.
 - **Repo/Claude Code plugin**: 10.1.2
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
+- [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)
 
 ## Where to go next
 

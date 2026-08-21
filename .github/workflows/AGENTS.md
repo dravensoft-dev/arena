@@ -14,6 +14,7 @@ push to main                  Arena main            builds, and saves that build
    |
    +-- on success             Publish arena-react      restores it
    +-- on success             Publish arena-angular    restores it
+   +-- on success             Publish arena-contracts  restores it
    +-- on success             Publish the site         restores it
 
 push of a tag                 Release notes         follows the tag, not a build
@@ -166,7 +167,7 @@ assembly would not skip package work: `check:packages` reads no manifest and pas
 which is a quieter green rather than a faster one, and `check:consumer` assembles a missing `dist/`
 itself. Assembling nothing is not publishing nothing, and nothing here publishes.
 
-## Publish arena-react, Publish arena-angular
+## Publish arena-react, Publish arena-angular, Publish arena-contracts
 
 **A release moves the version in several places and the tag is the one the rest are pinned to.**
 It lives in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and the README's
@@ -176,6 +177,19 @@ advertises a new version while Claude Code keeps fetching the old tag and resolv
 version, so nothing errors and the update is never offered.
 `bun scripts/check/arena/check-release.ts` is what refuses that combination, and
 `versioning_steps.md` is the order the moves are made in.
+
+**The third of them publishes no layer.** `@dravensoft/arena-contracts` carries the three contract
+levels as JSON and nothing else, for a platform target outside this repository, and its consumer is
+a Gradle or SwiftPM build with no Node at all. That is why its manifest declares no `bin` and no
+`engines`, and why it is packed from `dist/contracts` rather than from a layer: nothing is
+assembled under `frameworks/` for it. Its guard entry in `package-inputs.ts` deliberately inherits
+none of `SHARED_INPUTS`, because five of those eight are false for a package with no stylesheet, no
+CLI and no component map, and inheriting them would republish it whenever a Tailwind manifest moved.
+
+**A build on another platform needs no npm client to consume it.** A published tarball is a plain
+HTTPS URL under `registry.npmjs.org`, which is the whole reason a registry was chosen over an asset
+attached to a tag: an asset carries no version of its own, so the guard's first question, is this
+version already published, cannot be asked at all.
 
 Each workflow fires on a green `Arena main`, guards, and usually does nothing.
 
@@ -246,6 +260,21 @@ Authentication is a trusted publisher over OIDC: no token lives in this reposito
 provenance is attested automatically, with no `--provenance` flag. **The file name of each
 workflow is its identity**, exactly and case-sensitively, because that is what the publisher
 configured on npmjs.com names. Renaming one revokes that package's right to publish.
+
+**The publish step is the one thing here that is npm and not Bun**, and that is a capability and
+not a preference: `bun publish` does not speak OIDC, so a tarball leaving through it would be
+unattested. Every job installs, builds, gates and packs with Bun, then takes Node and an npm the
+step itself refuses to run below, because provenance from an npm older than that is attested by
+nothing.
+
+**Configuring a publisher for a name that has never been published is where a new package starts,
+and it is the step this repository cannot do.** npm requires the organisation or user, the
+repository, the workflow filename and, for any configuration created after 20 May 2026, at least
+one explicitly selected allowed action; earlier ones were set to `npm publish` alone and did not
+have to choose. Whether npmjs.com accepts a publisher for a name with no versions on it is not
+documented either way, so the fallback is worth knowing before starting rather than halfway
+through: publish the first version by hand with a token, then configure the publisher and delete
+the token.
 
 The one error tolerated is `cannot publish over the previously published versions`. The
 registry read path the guard uses lags a successful publish by several minutes, so a re-run

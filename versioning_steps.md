@@ -86,6 +86,19 @@ it on the npm page rather than in a terminal.
 `develop`. A tag pushed to any other branch is verified by nothing downstream and publishes
 nothing, and no step in CI reports the omission: the release simply does not happen.
 
+**Three packages publish and one of them is nobody's layer.** `@dravensoft/arena-contracts`
+carries the contract levels as JSON for a platform target outside this repository, so it is packed
+from `dist/contracts` and its guard asks about `contracts/` rather than about a directory under
+`frameworks/`. Expect it to answer "no publish" on most releases for the ordinary reason: a release
+that moved a component and no contract moved nothing it carries.
+
+**A package publishing for the first time needs a step nothing here can take.** Its trusted
+publisher is configured by hand on npmjs.com, naming the workflow's filename exactly, and any
+configuration made after 20 May 2026 has to name at least one allowed action. Then dispatch that
+workflow by hand, because the automatic path cannot reach a workflow the default branch did not
+already carry. `.github/workflows/AGENTS.md` states that gap and the fallback if npmjs.com refuses
+a publisher for a name with no versions on it.
+
 ## 4. Pack the benches and attach them to the release page
 
 In the bench repository, `~/Dravensoft/arena-web-benches`, run its own `pack` script with the

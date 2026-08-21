@@ -824,7 +824,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 58_300,
+    budget: 61_500,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -851,7 +851,14 @@ export const ROUTES: Route[] = [
       + 'were two, which stopped being true, and a reader cutting a release needs to know at that '
       + 'point that the third is not a layer, that its consumer has no Node, and that the CSS '
       + 'chain, the CLI and the peer dependencies the rest of that page is about apply to neither '
-      + 'of its files.',
+      + 'of its files. Raised to 60,400 when that package gained a publisher of its own. A reader '
+      + 'cutting a release now has a third workflow, and two things about it are true of neither of '
+      + 'the others: its publish step is npm and not Bun, because bun publish does not speak OIDC '
+      + 'and a tarball leaving through it would be unattested, and configuring a trusted publisher '
+      + 'for a name that has never been published needs an explicitly selected allowed action since '
+      + 'May 2026 and may not be possible at all before a first version exists. Both are things this '
+      + 'route otherwise discovers at the worst moment, and the sequence itself carries them '
+      + 'rather than sending a reader to a CI page mid-release.',
   },
 ];
 

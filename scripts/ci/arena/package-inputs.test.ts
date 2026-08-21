@@ -119,3 +119,42 @@ test('a path no spec reaches is not carried, so a wider diff cannot leak in', ()
   assert.equal(carries('frameworks/angular/index.ts', 'react'), false);
   assert.deepEqual(carried(['README.md', 'frameworks/react/index.ts', ''], 'react'), ['frameworks/react/index.ts']);
 });
+
+test('the contracts package inherits nothing shared, because most of it is false for a bag of JSON', () => {
+  const specs = pathspecs('contracts');
+  for (const shared of ['scripts/generate/core/arena-to-prod/', 'scripts/lib/arena/component-map.ts',
+    'scripts/lib/arena/package-exclusions.ts', 'contracts/design-generated/']) {
+    assert.ok(!specs.includes(shared),
+      `${shared} is in SHARED_INPUTS and the contracts package carries no stylesheet, no CLI and no `
+      + 'component map, so inheriting it would republish a package whose payload did not change');
+  }
+  assert.ok(specs.includes('contracts/api/'), 'the API level ships in this package and in neither other');
+  assert.ok(specs.includes('scripts/build/arena/build-contracts-package.ts'), 'its assembler decides its payload');
+  assert.ok(!specs.some((s) => s.startsWith('frameworks/')),
+    'it is assembled from no layer at all, which is what makes it the one package a platform target reads');
+});
+
+test('a release that moved a component and no contract publishes no contracts', () => {
+  const moved = [
+    'frameworks/react/components/forms/arena-button/ArenaButton.tsx',
+    'frameworks/tailwind/components/forms/arena-button/ArenaButton.manifest.json',
+    'contracts/AGENTS.md',
+    'contracts/design/AGENTS.md',
+  ];
+  assert.deepEqual(carried(moved, 'contracts'), [],
+    'the prose under contracts/ is carried by no package, and nothing under frameworks/ reaches this one');
+  assert.ok(carried(moved, 'react').length > 0, 'the same diff does move what the React package carries');
+});
+
+test('a contract moving is what publishes it', () => {
+  assert.deepEqual(
+    carried(['contracts/design/spacing.json', 'contracts/behaviour/button.json',
+      'contracts/api/components/ArenaButton.json', 'contracts/NPM.md'], 'contracts'),
+    ['contracts/design/spacing.json', 'contracts/behaviour/button.json',
+      'contracts/api/components/ArenaButton.json', 'contracts/NPM.md'],
+  );
+});
+
+test('the throw names a package rather than a layer, because the third is not one', () => {
+  assert.throws(() => pathspecs('mobile'), /no package is assembled under the name "mobile"/);
+});
