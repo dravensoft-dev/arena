@@ -1,0 +1,55 @@
+/* ============================================================
+   Arena — Increased contrast, the fourth composition-layer derivation.
+   Whether the reader has asked for a stronger interface has no value
+   until there is a device, the same way env(safe-area-inset-*) has none
+   until there is a screen, so there is nothing here for DTCG to hold.
+   What Arena owns is how the values it DOES hold recompose when the
+   answer arrives, and this file is only that: every declaration below
+   points a ROLE at a different step of a scale Arena already carries.
+   It defines no value of its own, exactly as colors.css defines no
+   colour and environment.css defines no length.
+
+   Loaded after the roles a style plugin answers, so a plugin's own
+   step is what a boundary widens FROM. A project that re-values --bw
+   or --bw-strong gets its own two widths here rather than Arena's.
+
+   The three cases below are what the kernel can answer. The fourth is
+   an accent drawn as ink: whether one is, and which role does it, is a
+   style plugin's answer over a palette Arena does not know, so the
+   kernel cannot reassign it and does not pretend to. It is stated in
+   contracts/design/AGENTS.md as the plugin tier's to hold.
+   ============================================================ */
+
+@media (prefers-contrast: more) {
+  /* 1. A boundary that carries meaning thickens.
+     WCAG 1.4.11 measures a control's boundary at 3:1, and a hairline is
+     the first thing the reader asking for contrast is asking about. Every
+     bw role moves one step up the same ladder it already names, so a
+     boundary that was deliberately quiet stays quieter than one that was
+     not: what changes is the width and never which question is asked. */
+  :root {
+    --bw-surface: var(--bw-strong);
+    --bw-surface-head: var(--bw-strong);
+    --bw-control: var(--bw-strong);
+    --bw-field: var(--bw-strong);
+    --bw-separator: var(--bw-strong);
+    --bw-marker: var(--bw-strong);
+
+    /* 2. A translucent surface stops being translucent.
+       --scrim-blur IS the transparency effect: it is the backdrop blur a
+       scrim paints the page through, and taking it to zero is what iOS
+       calls Reduce Transparency and what Android asks for by the same
+       name. The scrim's own colour is not touched, because how dark a
+       product dims its page is a decision that tier owns. */
+    --scrim-blur: var(--sp-0);
+
+    /* 3. The focus ring widens.
+       Focus is the one indicator a keyboard reader cannot do without, and
+       it is drawn at the same width as an ordinary border, so at the
+       moment every border thickens it would otherwise stop standing out
+       against them. It takes the first step of the spacing grid rather
+       than a width of its own, since a ring is a length and Arena has one
+       ladder of those. */
+    --focus-width: var(--sp-1);
+  }
+}

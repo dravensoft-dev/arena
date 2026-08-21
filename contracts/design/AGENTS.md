@@ -126,6 +126,29 @@ and that therefore live in each platform's own idiom:
    for the reason `--z-nav` and `--layout-bar` are too: the frame a consumer builds around Arena
    is part of the system, and the alternative is every consumer inventing that expression.
 
+4. **Whether the reader asked for a stronger interface**, which `prefers-contrast` reports and no
+   token can hold: it has no value until there is a device, the same way an inset has none until
+   there is a screen. `contracts/design/contrast.css` composes the answer, and like the three above
+   it defines nothing: every declaration in it points a role at a different step of a ladder Arena
+   already carries. **Three cases, and each says which.** A boundary that carries meaning thickens,
+   every `bw` role moving to `bw-strong`, because WCAG 1.4.11 measures a control's boundary and a
+   hairline is the first thing that reader is asking about. A translucent surface stops being
+   translucent, `--scrim-blur` going to zero, which is the backdrop blur a scrim paints the page
+   through and is what Reduce Transparency means on either platform. And the focus ring widens,
+   because it is drawn at an ordinary border's width and would otherwise stop standing out at the
+   moment every border thickens.
+
+   **The fourth case is the style plugin's and the kernel does not pretend to it.** An accent drawn
+   as ink is the one text contrast this repository reports and does not gate, and whether a product
+   draws one, and through which role, is an answer over a palette Arena does not know. A kernel
+   reassigning it would be overruling a decision it cannot see. What holds it is the tier that made
+   it: a plugin raising an accent to ink owes the same 4.5:1 under this query that every other ink
+   owes without it.
+
+   Motion is the shape all four of these follow, and it is worth reading first: the reduced-motion
+   policy below states what each KIND of motion does rather than listing the animations, which is
+   why it survived a target that has no `@media` at all.
+
 The dividing line: **DTCG owns values; the composition layer owns how values are combined
 at runtime.** `contracts/design/colors.css` therefore holds no skin value, only references
 (`var(--color-primary)`) and `color-mix` compositions, and `environment.css` holds no length,

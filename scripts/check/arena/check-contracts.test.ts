@@ -69,19 +69,19 @@ test('a stray file inside a level is caught by extension, which is how every rea
 
 test('design keeps its three hand-authored stylesheets by name, because none is a token source', () => {
   assert.deepEqual(
-    levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css', 'palette.dark.json'], () => false),
+    levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'contrast.css', 'environment.css', 'reset.css', 'palette.dark.json'], () => false),
     [],
   );
 });
 
 test("a level's statement may be several documents, and every one of them is named or it is a stray", () => {
-  const problems = levelProblems('design', ['Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css'], () => false);
+  const problems = levelProblems('design', ['Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'contrast.css', 'environment.css', 'reset.css'], () => false);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /contracts\/design\/AGENTS\.md is missing/);
 });
 
 test('a fourth stylesheet is a problem until contracts/AGENTS.md names it, which is the point of listing them', () => {
-  const problems = levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css', 'motion.css'], () => false);
+  const problems = levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'contrast.css', 'environment.css', 'reset.css', 'motion.css'], () => false);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /contracts\/design\/motion\.css is neither AGENTS\.md nor Scales\.md/);
 });

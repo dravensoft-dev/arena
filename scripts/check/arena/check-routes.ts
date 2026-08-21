@@ -699,7 +699,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 63_800,
+    budget: 65_600,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -728,7 +728,11 @@ export const ROUTES: Route[] = [
       + 'than where a gate is registered, that target size is density\'s axis: what each density '
       + 'clears, and that compact clears neither floor and is therefore not offerable to a thumb. A '
       + 'reader picking a density for a phone needs that sentence in the specification and not in a '
-      + 'gate they have no reason to open.',
+      + 'gate they have no reason to open. And it names a fourth thing DTCG deliberately does not '
+      + 'model, beside the colour derivations, the font loading and the device geometry: whether the '
+      + 'reader asked for a stronger interface, which has no value until there is a device. Three '
+      + 'cases the kernel answers and one it refuses, because an accent drawn as ink is a decision '
+      + 'over a palette this level does not know.',
   },
   {
     name: 'contributor-gate',

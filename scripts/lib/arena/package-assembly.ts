@@ -37,6 +37,7 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design-generated/effects.generated.css', to: 'css/effects.css' },
   { from: 'contracts/design-generated/style-plugin.default.generated.css', to: 'css/style-plugin-default.css' },
   { from: 'contracts/design/colors.css', to: 'css/colors.css' },
+  { from: 'contracts/design/contrast.css', to: 'css/contrast.css' },
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
 
