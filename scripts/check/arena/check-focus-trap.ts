@@ -1,13 +1,13 @@
-/* The boundary wrap of a trap is Arena's own .focus() call and happy-dom honours it. The
- * INTERIOR is native sequential focus navigation, which happy-dom does not have: a suite
- * asserting it there passes identically against a perfect trap and against none. This gate
- * drives real Chromium over CDP and presses a real Tab, and it is the only one that does.
- * TRAPS names a page per layer binding dialog-modal, each layer answering the contract
- * separately, and every page opens its panel from its own fixture, so no button is found by
- * its text. The wait is for that panel to hold focus and not a fixed sleep, a sleep being a
- * guess about machine speed that reports a slow runner as a component that rendered nothing.
- * FOCUSABLE repeats :not([tabindex="-1"]) on every clause because a selector list is OR'd,
- * and writing it loose once made this gate call a correct combobox a broken trap. */
+/* The boundary wrap of a trap is Arena's own .focus() and happy-dom honours it; the INTERIOR
+ * is native sequential focus navigation, which happy-dom lacks, so a suite asserting it there
+ * passes identically against a perfect trap and against none. This gate drives real Chromium
+ * over CDP and presses a real Tab, the only one that does. TRAPS names a page per layer binding
+ * dialog-modal, each opening its panel from its own fixture, so no button is found by its text.
+ * No wait here is a span: a sleep guesses at machine speed and reports a slow runner as a
+ * component that rendered nothing. A keypress barrier is armed BEFORE the key, since CDP acks
+ * one only once handled and a snapshot taken after is the moved element already; and where a
+ * panel holds ONE stop, no move is possible and the subject is containment. FOCUSABLE repeats
+ * :not([tabindex="-1"]) per clause because a list is OR'd: loose once, it failed a combobox. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -62,9 +62,15 @@ export function heldExpression(bound: Deadline) {
   })`;
 }
 
+export const BEFORE = 'window.__arenaTrapBefore';
+
+export function armExpression() {
+  return `(() => { ${BEFORE} = document.activeElement; return true; })()`;
+}
+
 export function movedExpression(bound: Deadline) {
   return `new Promise((resolve) => {
-    const before = document.activeElement;
+    const before = ${BEFORE};
     const until = Date.now() + ${bound.ms};
     const tick = () => {
       if (document.activeElement !== before || Date.now() >= until) resolve(true);
@@ -185,12 +191,13 @@ async function walkOnce(cdp: Cdp, url: string): Promise<TrapWalk> {
       `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
     const ev = (expression: string) => evaluate(cdp, expression, sessionId);
-    const tab = async (shift: boolean) => {
+    const tab = async (shift: boolean, canMove: boolean) => {
       const modifiers = shift ? 8 : 0;
+      await ev(armExpression());
       for (const type of ['rawKeyDown', 'keyUp']) {
         await cdp.send('Input.dispatchKeyEvent', { type, windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab', modifiers }, sessionId);
       }
-      await ev(movedExpression(FOCUS_MOVED));
+      await ev(canMove ? movedExpression(FOCUS_MOVED) : heldExpression(FOCUS_MOVED));
     };
 
     const ready = await ev(heldExpression(PANEL_HELD));
@@ -217,10 +224,11 @@ async function walkOnce(cdp: Cdp, url: string): Promise<TrapWalk> {
       return { ...seen, ...waited, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
     }
 
+    const canMove = seen.focusables > 1;
     const reached = new Set();
     const forward = [];
     for (let press = 1; press <= seen.focusables + 1; press += 1) {
-      await tab(false);
+      await tab(false, canMove);
       const step = await ev(`(() => {
         const panel = document.querySelector(${JSON.stringify(PANEL)});
         const active = document.activeElement;
@@ -236,7 +244,7 @@ async function walkOnce(cdp: Cdp, url: string): Promise<TrapWalk> {
       panel.querySelector('[data-arena-trap-index="0"]').focus();
       return true;
     })()`);
-    await tab(true);
+    await tab(true, canMove);
     const back = await ev(`document.activeElement?.dataset?.arenaTrapIndex ?? null`);
 
     return {
