@@ -117,6 +117,83 @@ it **cannot re-theme and cannot re-densify**; and only `dimension`, `duration`
 and `number` are flaggable, because those are the only types whose value is a
 number.
 
+### What a platform that is not CSS cannot derive
+
+Three shapes in this map read one way on the web and another way everywhere else, and each is a
+place a target would otherwise guess:
+
+- **`keyword` inherits no transform.** It is Arena's one departure from 2025.10, so no DTCG tool
+  knows what to do with it. The value is a bare word and the closed set beside it is the whole of
+  what a target has to map: `ContentScale` on Compose takes five, `ContentMode` on SwiftUI takes
+  two, and the gap is the target's to record rather than to resolve silently.
+- **A `fontFamily` value is an ordered fallback list whose tail is a web idiom.** `system-ui`,
+  `ui-monospace`, `sans-serif` and `monospace` are CSS generic families and name nothing on a
+  platform that resolves a font by file or by system style. A target takes the head of the list and
+  drops the tail rather than mapping it.
+- **A `number` carrying a `cssUnit` hint is a render instruction for one platform.** Off the web it
+  is a bare multiplier and the hint is what says of what: `em` multiplies the element's own font
+  size, so tracking is `letterSpacing` in `em` on Compose and a kerning in points on SwiftUI, which
+  is the same number applied two different ways.
+
+**A script-readable token emits twice, and a target reads that the other way round.** Here the
+second emission exists because JS arithmetic needs a number where CSS would have taken a length. A
+target that computes its own layout needs only the number, so what is a duplicate on the web is the
+single useful form off it, and the `script` flag reads as "this value is arithmetic" rather than as
+"this value is emitted twice".
+
+### `userScale`, what the user's text setting does to a value
+
+Every `dimension` in this directory declares what happens to it when the reader asks their device
+for larger text, as `$extensions["com.dravensoft.arena"].userScale`, from a closed set of three.
+`check:user-scale` holds it: a dimension resolving no axis fails, a word outside the set fails, and
+an axis no token takes fails so the set cannot outlive its cases.
+
+**A group declares for the leaves under it and a leaf overrides its group.** DTCG 2025.10 admits
+`$extensions` on a group in §6.3.2 and defines no inheritance for it, so that inheritance is
+Arena's rule and is stated here rather than assumed from the specification. It is why the answer
+is nineteen declarations and not a hundred and thirty-two: a scale is one decision, and the
+`dz` ladders are the only groups where a leaf disagrees with the group it sits in.
+
+| Axis | What it obliges a target to do | Android | iOS |
+|---|---|---|---|
+| `scales` | re-emit the value multiplied by the platform's own text scale | `sp` rather than `dp` | a Dynamic Type text style, or a `CGFloat` scaled through `UIFontMetrics` |
+| `follows` | nothing: it is a multiplier of a size that already scales | a `TextUnit` in `em`, or a plain ratio | a ratio applied to the scaled size |
+| `fixed` | leave it where it is, and let the box around it grow instead | `dp` | points |
+
+**Every one of these is authored in px and emitted in px, and the axis changes nothing about a
+rendered page here.** That is deliberate rather than unfinished. A CSS platform could honour the
+axis by emitting `rem` for the `scales` set, and every gate would survive it: `check:dtcg` already
+admits `rem`, the serializer concatenates whatever unit it is handed, the reading floors read no
+font size, and `check:pixel-parity` holds no stored baseline and moves both layers together. What
+would not survive is the charts. `chart-tick-char` and `chart-label-gap` are px numbers JS reads to
+reserve room for text set at `--dz-text-2xs`, and this document already says a script-readable
+value is bound at import time and cannot re-densify. A user's text size is a third runtime axis
+with exactly that property, so scaling the text while the reserved room stays put clips every
+label with nothing reporting it. That is why every script-readable dimension takes `fixed` and why
+the emission is a separate question from the declaration.
+
+**What `fixed` does not mean is that the control never grows.** `dz-ctl-h` is a floor the content
+grows past, never a height the text is fitted into: a target that honours the axis lets a button
+containing scaled text become taller than 40px and never lets it become shorter. The same reading
+applies to `dz-row-py` and `dz-stack`.
+
+**Two families take an answer worth arguing.** `icon-*` scales, although this table's own row for
+it says a glyph rendered as a webfont is an icon and not type: that says it is off the `fs` ladder,
+not that it ignores the reader, and an icon set beside a label that does not grow with it becomes a
+dot at the largest accessibility size. `logo-text-*` is fixed, although it is a font size, because
+a wordmark is a mark rather than prose and a brand that resizes with a system setting is not the
+same brand.
+
+**The cap is the target's to state and Arena does not hold one.** Both platforms will scale text
+several times over at their accessibility sizes, and a control that grows without bound stops
+fitting a phone before an auditor ever sees it. What Arena states is which values move; how far
+they may move before a layout changes shape is a decision that belongs where the layout is.
+
+**`userScale` is orthogonal to the style-plugin tier**, which already owns the `fs` scale:
+`keyProblems()` in the shipped audit makes that scale one of only two a plugin may re-value. A
+plugin decides how big a step is; the axis decides what the reader's setting does to whatever size
+the plugin chose. Reading one for the other is the mistake this paragraph exists to stop.
+
 ### What is not in this map
 
 Tokens absent from this table are, by definition, part of the per-platform

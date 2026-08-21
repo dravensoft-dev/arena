@@ -13,8 +13,21 @@ import type { BehaviourBinding } from './behaviour-contracts.ts';
 const ok = {
   name: 'dialog-modal',
   source: 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/',
+  element: 'dialog',
   requires: { 'roles.element': 'dialog', 'focus.trap': true },
 };
+
+test('a pattern requiring roles.element and naming no element is a problem', () => {
+  const { element, ...bare } = ok;
+  assert.match(validatePattern('dialog-modal', bare)[0] ?? '', /declares no "element"/);
+});
+
+test('an element nobody required, and one the prose does not name, are both problems', () => {
+  const unasked = { ...ok, requires: { 'focus.trap': true } };
+  assert.match(validatePattern('dialog-modal', unasked)[0] ?? '', /requires no roles.element/);
+  const wrong = { ...ok, element: 'alertdialog' };
+  assert.match(validatePattern('dialog-modal', wrong)[0] ?? '', /which its roles.element does not name/);
+});
 
 test('a well-formed pattern has no problems', () => {
   assert.deepEqual(validatePattern('dialog-modal', ok), []);

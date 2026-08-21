@@ -144,9 +144,10 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 10.1.2
+- **Repo/Claude Code plugin**: 10.2.0
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
+- [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)
 
 ## Where to go next
 

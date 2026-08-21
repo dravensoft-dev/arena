@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import * as rules from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 import {
   collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
@@ -206,4 +209,23 @@ test('a root plugin that leaves a question unanswered fails', () => {
 
 test('a total root plugin passes', () => {
   assert.deepEqual(totalityProblems(['r-surface'], ['r-surface']), []);
+});
+
+test('the contrast composition defines nothing and only re-points a role at a step Arena carries', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design/contrast.css'), 'utf8');
+  const body = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const declarations = [...body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)]
+    .map(([, name, value]) => ({ name: name as string, value: (value as string).trim() }));
+
+  assert.ok(declarations.length > 0,
+    'a composition file declaring nothing composes nothing, and this one is the answer to prefers-contrast');
+  assert.match(body, /@media \(prefers-contrast: more\)/,
+    'the whole file is one query, so nothing in it applies to a reader who did not ask');
+
+  for (const { name, value } of declarations) {
+    assert.match(value, /^var\(--[\w-]+\)$/,
+      `${name} is assigned ${value}, and this layer holds no value of its own: it points a role at a `
+      + 'step of a ladder that is already in the token tier, the way colors.css holds no colour');
+    assert.notEqual(value, `var(${name})`, `${name} resolves to itself`);
+  }
 });

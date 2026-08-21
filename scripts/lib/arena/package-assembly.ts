@@ -37,6 +37,7 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design-generated/effects.generated.css', to: 'css/effects.css' },
   { from: 'contracts/design-generated/style-plugin.default.generated.css', to: 'css/style-plugin-default.css' },
   { from: 'contracts/design/colors.css', to: 'css/colors.css' },
+  { from: 'contracts/design/contrast.css', to: 'css/contrast.css' },
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
 
@@ -283,7 +284,7 @@ export function keywords(...layer: string[]) {
   return [...layer, ...SHARED_KEYWORDS];
 }
 
-export function baseManifest(root = repoRoot) {
+export function pluginIdentity(root = repoRoot) {
   const plugin = readJson(join(root, '.claude-plugin', 'plugin.json'));
   return {
     version: plugin.version,
@@ -293,6 +294,12 @@ export function baseManifest(root = repoRoot) {
     bugs: { url: `${plugin.repository}/issues` },
     author: plugin.author,
     publishConfig: { access: 'public' },
+  };
+}
+
+export function baseManifest(root = repoRoot) {
+  return {
+    ...pluginIdentity(root),
     bin: { ...CLI_BINS },
     engines: { node: '>=22' },
   };

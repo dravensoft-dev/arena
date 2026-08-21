@@ -2,6 +2,7 @@
   "name": "tooltip",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
   "description": "Additional information about another element, bound to that element's hover or focus state rather than independently interactive.",
+  "element": "tooltip",
   "requires": {
     "roles.element": "tooltip",
     "roles.describedby": "the triggering element references the tooltip with aria-describedby",

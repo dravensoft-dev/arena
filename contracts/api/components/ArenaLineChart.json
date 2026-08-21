@@ -2,7 +2,8 @@
   "component": "ArenaLineChart",
   "description": "One series over an ordered sequence, on one axis. Dependency-free SVG with a crosshair that snaps to the nearest point, and a visually-hidden table of the same numbers.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "labels": {

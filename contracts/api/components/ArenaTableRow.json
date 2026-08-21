@@ -1,7 +1,7 @@
 {
   "component": "ArenaTableRow",
   "description": "One row of an ArenaTable. The consumer writes one per row and one ArenaTableCell inside it per cell. Where the row sits, the columns its cells are set against and how the keyboard reaches them are ArenaTable's, not this component's, and are members of no contract: the same shape, and for the same reason, as an ArenaRadioGroup and its Radios sharing which one is checked.",
-  "affordances": ["hover"],
+  "affordances": ["hover", "press"],
   "api": {
     "content": { "form": "slot",
                  "description": "The row's cells. One ArenaTableCell per cell; a row may carry fewer or more than there are columns, and the grid's cursor is clamped against what is really there." },

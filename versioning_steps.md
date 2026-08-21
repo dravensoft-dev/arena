@@ -86,6 +86,24 @@ it on the npm page rather than in a terminal.
 `develop`. A tag pushed to any other branch is verified by nothing downstream and publishes
 nothing, and no step in CI reports the omission: the release simply does not happen.
 
+**The release page hangs off that same run**, so `--follow-tags` is what puts the tag in the
+repository before the run that describes it. A tag pushed after `Arena main` has already finished
+raises no event: the page is then written by dispatching `Release notes` by hand with the tag,
+and nothing else reports that it is missing.
+
+**Three packages publish and one of them is nobody's layer.** `@dravensoft/arena-contracts`
+carries the contract levels as JSON for a platform target outside this repository, so it is packed
+from `dist/contracts` and its guard asks about `contracts/` rather than about a directory under
+`frameworks/`. Expect it to answer "no publish" on most releases for the ordinary reason: a release
+that moved a component and no contract moved nothing it carries.
+
+**A package publishing for the first time needs a step nothing here can take.** Its trusted
+publisher is configured by hand on npmjs.com, naming the workflow's filename exactly, and any
+configuration made after 20 May 2026 has to name at least one allowed action. Then dispatch that
+workflow by hand, because the automatic path cannot reach a workflow the default branch did not
+already carry. `.github/workflows/AGENTS.md` states that gap and the fallback if npmjs.com refuses
+a publisher for a name with no versions on it.
+
 ## 4. Pack the benches and attach them to the release page
 
 In the bench repository, `~/Dravensoft/arena-web-benches`, run its own `pack` script with the
@@ -109,6 +127,8 @@ hangs on. `pack` refuses a dirty tree, because a tarball matching no commit cann
 again, and it reads `git archive`, so each bench's own `.gitignore` is the whole of what packed
 means and no second exclusion list exists here to go stale.
 
-The release page itself is written by `.github/workflows/release.yml` from the commit log, and it
-is edited rather than replaced on a re-run, so uploading after it exists adds the assets without
-touching the notes.
+The release page itself is written by `.github/workflows/release.yml` from the commit log, once
+`Arena main` is green for the commit that carries the tag, so it appears alongside the published
+packages rather than at the moment the tag was pushed. It is edited rather than replaced when that
+workflow is dispatched again, so uploading after it exists adds the assets without touching the
+notes.

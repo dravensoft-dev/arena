@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, version, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, pluginIdentity, version, componentSheets, writeCssChain,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -93,9 +93,12 @@ test('copyTree carries a nested tree and drops what is excluded', () => {
 
 test('the CSS chain leads with the reset and ends with the derivations', () => {
   assert.equal(CSS_CHAIN[0]?.to, 'css/reset.css');
-  assert.deepEqual(CSS_CHAIN.slice(-2).map((c) => c.to), ['css/colors.css', 'css/environment.css'],
-    'both hand-authored derivation sheets read tokens the generated ones declare, so both come '
-    + 'after them: colors.css derives from --color-base-content and environment.css from --sp-*');
+  assert.deepEqual(CSS_CHAIN.slice(-3).map((c) => c.to),
+    ['css/colors.css', 'css/contrast.css', 'css/environment.css'],
+    'every hand-authored derivation sheet reads tokens the generated ones declare, so all of them '
+    + 'come after: colors.css derives from --color-base-content, contrast.css re-points a role at a '
+    + 'step the effects sheet declares, and environment.css derives from --sp-*. contrast.css also '
+    + 'comes after the style plugin, because a plugin\'s own step is what a boundary widens from');
   for (const { from } of CSS_CHAIN) {
     assert.ok(from, 'every entry of the shipped chain is copied from somewhere');
     assert.equal(existsSync(join(repoRoot, from)), true, `${from} is in the chain and not in the tree`);
@@ -112,6 +115,19 @@ test('the manifest takes its version and its identity from plugin.json, never fr
   assert.equal(base.publishConfig.access, 'public');
   assert.match(base.repository.url, /^git\+https:\/\/github\.com\//);
   assert.deepEqual(base.bin, CLI_BINS);
+});
+
+test('the identity half carries who published it and nothing about how it runs', () => {
+  const identity = pluginIdentity(repoRoot) as Record<string, unknown>;
+  const base = baseManifest(repoRoot) as Record<string, unknown>;
+  assert.equal(identity.version, version(repoRoot));
+  assert.equal('bin' in identity, false,
+    'a package whose consumer is Gradle or SwiftPM declares no command, and inheriting one here is '
+    + 'the silent route by which the CLI reappears in it');
+  assert.equal('engines' in identity, false,
+    'and no Node floor either, for the same reason: that consumer has no Node at all');
+  for (const key of Object.keys(identity)) assert.deepEqual(base[key], identity[key],
+    `baseManifest dropped ${key} from the identity it is built on`);
 });
 
 test('a reader of the npm page is told where a defect goes, from the one place the repository is named', () => {
@@ -299,4 +315,19 @@ test('the package stylesheet imports the default plugin between the scales and t
     'a role answers with a scale alias, so the scales are declared before anything resolves against them');
   assert.ok(names.indexOf('css/style-plugin-default.css') < names.indexOf('css/colors.css'),
     'and ahead of the palette, so a colour reference is substituted in the scope that declares it');
+});
+
+test('the page this repository looks at carries every hand-authored sheet a package ships', () => {
+  const styles = readFileSync(join(repoRoot, 'intro/styles.css'), 'utf8');
+  const authored = CSS_CHAIN
+    .map((entry) => entry.from as string)
+    .filter((from) => from.startsWith('contracts/design/'));
+
+  assert.ok(authored.length > 0, 'a chain with no hand-authored sheet composes nothing at runtime');
+  for (const from of authored) {
+    assert.ok(styles.includes(from.replace('contracts/', '../contracts/')),
+      `${from} ships in both packages and intro/styles.css does not import it, so the pages this `
+      + 'repository renders and looks at are composed differently from every page a consumer gets. '
+      + 'That is how a composition sheet lands with nothing here able to see whether it works');
+  }
 });

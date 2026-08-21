@@ -6,9 +6,9 @@
     "number": "text-secondary",
     "divider": "w-px h-5.5 bg-edge-separator",
     "actions": "flex items-center gap-1.5 flex-1 flex-wrap",
-    "action": "inline-flex items-center gap-control h-8.5 px-control-x bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-control text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-hover shadow-control-rest",
+    "action": "inline-flex items-center gap-control h-ctl-h-sm px-control-x bg-transparent border-[length:var(--bw-control)] rounded-control cursor-pointer font-body font-control text-ctl-md transition-[background] duration-[var(--dur-hover)] ease-hover shadow-control-rest",
     "actionIcon": "inline-flex text-[length:var(--icon-md)]",
-    "clear": "bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) font-face-label text-ctl-xs tracking-label-role case-label"
+    "clear": "inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) font-face-label text-ctl-xs tracking-label-role case-label"
   },
   "variants": {
     "destructive": {

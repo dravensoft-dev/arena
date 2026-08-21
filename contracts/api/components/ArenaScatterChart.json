@@ -2,7 +2,8 @@
   "component": "ArenaScatterChart",
   "description": "Two quantities against each other, one mark per pair, and a third as the mark's size when a series carries one. The first chart here whose horizontal axis carries a value rather than a position, which is why it takes a series of parallel measurements and names every axis it draws. Dependency-free SVG with a visually-hidden table of the same numbers.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "series": {

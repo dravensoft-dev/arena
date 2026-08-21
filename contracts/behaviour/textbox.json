@@ -2,6 +2,7 @@
   "name": "textbox",
   "source": "https://www.w3.org/TR/wai-aria-1.2/#textbox",
   "description": "Free-form text entry, single- or multi-line. APG has no pattern page for it -- confirmed against the pattern index, not assumed -- so ARIA 1.2's role reference is the pattern's source instead.",
+  "element": "textbox",
   "requires": {
     "roles.element": "textbox",
     "roles.label": "an accessible name is required",

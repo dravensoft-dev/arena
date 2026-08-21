@@ -2,6 +2,7 @@
   "name": "combobox",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
   "description": "A text input paired with a popup of suggested or enumerated values. DOM focus always stays on the input; aria-activedescendant tracks the active option inside the popup.",
+  "element": "combobox",
   "requires": {
     "roles.element": "combobox",
     "roles.expanded": "aria-expanded set to false when the popup is hidden, true when visible",

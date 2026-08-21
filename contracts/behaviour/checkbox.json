@@ -2,6 +2,7 @@
   "name": "checkbox",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/",
   "description": "A two- or three-state toggle a user checks independently of any other control -- not mutually exclusive with a sibling the way a radio button is.",
+  "element": "checkbox",
   "requires": {
     "roles.element": "checkbox",
     "roles.label": "text content, aria-labelledby, or aria-label",

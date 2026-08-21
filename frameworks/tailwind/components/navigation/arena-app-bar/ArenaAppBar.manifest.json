@@ -9,7 +9,7 @@
   },
   "variants": {
     "sticky": {
-      "true": { "root": "sticky top-0 z-nav" },
+      "true": { "root": "sticky top-0 z-nav pt-[var(--pad-safe-top)]" },
       "false": {}
     }
   },

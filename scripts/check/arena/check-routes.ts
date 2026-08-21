@@ -699,7 +699,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 56_000,
+    budget: 65_600,
     reason:
       'the normative half of the tree, where a stop is read for what a value MEANS rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -714,7 +714,25 @@ export const ROUTES: Route[] = [
       + 'budget should ever move.'
       + ' The figures in this history predate the stop set being narrowed and the budget re-measured '
       + 'against what is left, so every one of them names a number this route does not have. The '
-      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.',
+      + 'arguments travel and the numbers do not: what the budget is is the field beside this one.'
+      + ' The last raise was bought by this level answering a second reader. contracts/design/ is '
+      + 'what a platform target reads first, and a target that is not a browser cannot derive from '
+      + 'a value and a unit what the reader asking for larger text does to it, so TokenTypes.md '
+      + 'states that axis, what each of its three words obliges on each platform, and why the '
+      + 'emission here does not follow it. It also states the three shapes in the type map that read '
+      + 'one way on the web and another everywhere else, which is where a target would otherwise '
+      + 'guess: a keyword inherits no transform, a font stack ends in generic families that name '
+      + 'nothing off the web, and a unit hint on a bare number is an instruction for one platform. '
+      + 'The level describes something bigger rather than the same thing at more length, which is '
+      + 'the one reason this budget moves. It also states, where the values are decided rather '
+      + 'than where a gate is registered, that target size is density\'s axis: what each density '
+      + 'clears, and that compact clears neither floor and is therefore not offerable to a thumb. A '
+      + 'reader picking a density for a phone needs that sentence in the specification and not in a '
+      + 'gate they have no reason to open. And it names a fourth thing DTCG deliberately does not '
+      + 'model, beside the colour derivations, the font loading and the device geometry: whether the '
+      + 'reader asked for a stronger interface, which has no value until there is a device. Three '
+      + 'cases the kernel answers and one it refuses, because an accent drawn as ink is a decision '
+      + 'over a palette this level does not know.',
   },
   {
     name: 'contributor-gate',
@@ -722,7 +740,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 84_500,
+    budget: 88_000,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -748,7 +766,18 @@ export const ROUTES: Route[] = [
       + 'that installs nothing resolved a pinned dependency to whatever the registry served, the '
       + 'throw was swallowed by a process substitution, and the guard that reads a list of paths '
       + 'read none. A contributor deciding whether their own gate owes that much needs the '
-      + 'failure and not the rule.',
+      + 'failure and not the rule. Raised to 87,000 when the contracts package landed with three '
+      + 'gates at once, which is a case this budget has not had to hold before: a channel out of '
+      + 'the repository is not one claim but three, and they arrive together or the artefact ships '
+      + 'unheld. Measured the way this string says to, before the raise rather than after it: over '
+      + '48 rows the median is 951 characters and the longest is 3,942, and the three new rows are '
+      + '789, 856 and 677, so every one of them sits under the median and the raise pays for their '
+      + 'number rather than for their length. Raised to 88,000 for the target-size row, measured '
+      + 'the same way: over 49 rows the median is still 951 and the longest still 3,942, and the new '
+      + 'row is 1,066. It runs a little past the median because its claim is a measurement rather '
+      + 'than a rule, and what a contributor needs from it is what it measures and what it refuses '
+      + 'to measure: the activation box rather than the painted one, only inside a named part, and '
+      + 'in the density nothing else in this repository draws.',
   },
   {
     name: 'contributor-tailwind',
@@ -772,14 +801,22 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 37_000,
+    budget: 38_600,
     reason:
       'the route a bug report takes, which is the arrival the routing table had no row for until '
       + 'the symptom rows landed, and the one whose answer is most often that nothing in the code '
       + 'is broken: a requirement no suite pins is unfalsifiable rather than unverified, and that '
       + 'paragraph is what a reader comes here for. It is budgeted apart from the component route '
       + 'because the two share no stop past the roof, and because this one is paid by whoever is '
-      + 'holding a defect rather than by whoever is adding a component.',
+      + 'holding a defect rather than by whoever is adding a component. The level answers a second '
+      + 'reader now, which is what the last raise bought: a pattern names the role it requires as a '
+      + 'field rather than only inside prose, and the rule about native semantics states the half '
+      + 'that applies where there is no browser to supply them. Both are the level describing '
+      + 'something bigger rather than describing the same thing at more length, which is the one '
+      + 'reason a budget moves. The roof above it grew for the same kind of reason: contracts/ now '
+      + 'holds a page written for somebody who is not changing Arena at all, the one npm shows for '
+      + 'the contracts package, and the roof is where a reader is told that page exists and who it '
+      + 'is for.',
   },
   {
     name: 'contributor-release',
@@ -787,7 +824,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 57_200,
+    budget: 62_900,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -809,7 +846,25 @@ export const ROUTES: Route[] = [
       + 'ships rather than by keeping a second list of globs in step. The version of it that '
       + 'could not read its own list of paths republished both packages from a diff of the whole '
       + 'tree at 10.0.1 and 10.1.0 and wrote publish into the run summary while doing it, which '
-      + "is this route's failure mode exactly: nothing errored, and nobody was told.",
+      + "is this route's failure mode exactly: nothing errored, and nobody was told."
+      + ' Raised to 58,300 when a third package landed. The packaging page opened by saying there '
+      + 'were two, which stopped being true, and a reader cutting a release needs to know at that '
+      + 'point that the third is not a layer, that its consumer has no Node, and that the CSS '
+      + 'chain, the CLI and the peer dependencies the rest of that page is about apply to neither '
+      + 'of its files. Raised to 60,400 when that package gained a publisher of its own. A reader '
+      + 'cutting a release now has a third workflow, and two things about it are true of neither of '
+      + 'the others: its publish step is npm and not Bun, because bun publish does not speak OIDC '
+      + 'and a tarball leaving through it would be unattested, and configuring a trusted publisher '
+      + 'for a name that has never been published needs an explicitly selected allowed action since '
+      + 'May 2026 and may not be possible at all before a first version exists. Both are things this '
+      + 'route otherwise discovers at the worst moment, and the sequence itself carries them '
+      + 'rather than sending a reader to a CI page mid-release. Raised to 62,900 when the release '
+      + 'page stopped following the push of the tag and started following a green Arena main. That '
+      + 'moves a step of this sequence: the tag now has to exist before that run finishes, which is '
+      + 'what --follow-tags buys, and a page that never appeared is written by dispatching the '
+      + 'workflow by hand and by nothing else. A reader who does not know it waits for a page that '
+      + 'no event is coming for, which is this route\'s failure mode again: nothing errored, and '
+      + 'nobody was told.',
   },
 ];
 

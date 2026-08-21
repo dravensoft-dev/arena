@@ -1,4 +1,4 @@
-/* A hover or focus affordance is a decision about the component, so the authority is
+/* A hover, focus or press affordance is a decision about the component, so the authority is
  * contracts/api/components/<Name>.json's `affordances` and no layer's source. Both halves run
  * one way only: a state modifier or an implementation the contract does not declare is
  * invented, while a declared affordance a layer does not implement may be composition.
@@ -43,11 +43,13 @@ export const EXEMPT = new Map<string, string>([]);
 const FAMILY_PATTERNS = {
   hover: /(?:^|:)hover:/,
   focus: /(?:^|:)focus(?:-visible|-within)?:/,
+  press: /(?:^|:)active:/,
 };
 
 const IMPLEMENTS_PATTERNS = {
   hover: /\bonMouseEnter\b|\bonMouseLeave\b|\bonPointerEnter\b|\bonPointerLeave\b|\bonPointerMove\b|:hover\b|\(mouseenter\)|\(mouseleave\)|\(pointerenter\)|\(pointerleave\)|\(pointermove\)/,
   focus: /\bonFocus\b|\bonBlur\b|:focus(?:-visible|-within)?\b|\(focus\)|\(blur\)/,
+  press: /\bonPointerDown\b|\bonPointerUp\b|\bonMouseDown\b|\bonMouseUp\b|:active\b|\(pointerdown\)|\(pointerup\)|\(mousedown\)|\(mouseup\)/,
 };
 
 export const FAMILIES = Object.keys(FAMILY_PATTERNS);
@@ -64,6 +66,7 @@ export function sourceImplements(sourceText: string): Record<string, boolean> {
   return {
     hover: IMPLEMENTS_PATTERNS.hover.test(sourceText),
     focus: IMPLEMENTS_PATTERNS.focus.test(sourceText),
+    press: IMPLEMENTS_PATTERNS.press.test(sourceText),
   };
 }
 
@@ -93,7 +96,7 @@ export function declaredAffordances(contract: ContractCandidate, where: string):
   if (!Array.isArray(contract.affordances)) {
     throw new Error(
       `check-manifest-states: ${where} declares no \`affordances\` array. Every contract states one, `
-      + 'and an empty array is how a component says it presents no hover or focus state.',
+      + 'and an empty array is how a component says it presents no hover, focus or press state.',
     );
   }
   const unknown = contract.affordances.filter((a) => !FAMILIES.includes(a));

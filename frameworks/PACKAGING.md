@@ -5,12 +5,21 @@
 
 Arena ships three ways from one tree. Two of them assume the consumer has this repository:
 the Claude Code plugin, served from the git tag, and the Agent Skill. The third does not,
-and this document is that one: **two npm packages a project installs with `bun add`**.
+and this document is that one: **the npm packages a project installs with `bun add`**.
 
 | package | assembled into | from |
 | --- | --- | --- |
 | `@dravensoft/arena-react` | `frameworks/react/dist/` | `frameworks/react/` |
 | `@dravensoft/arena-angular` | `frameworks/angular/dist/` | `frameworks/angular/` |
+| `@dravensoft/arena-contracts` | `dist/contracts/` | `contracts/` |
+
+**The third is not a layer and its consumer is not a web project.** It carries the three contract
+levels as JSON and nothing else: no code, no stylesheet, no dependency, and a manifest that declares
+no `bin` and no `engines`, because whoever installs it is a Gradle or SwiftPM build fetching a
+tarball over HTTPS and leaning on no npm semantics at all. It exists so a platform target outside
+this repository consumes the same values rather than re-typing them, and everything in the rest of
+this page about the other two, the CSS chain, the CLI, the peer dependencies, the skin a package
+never carries, is about a web package and none of it applies to that one.
 
 ```bash
 bun run build:release   # every source, and both packages assembled from them

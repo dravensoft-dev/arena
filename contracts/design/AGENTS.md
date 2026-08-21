@@ -33,6 +33,18 @@ the shape each value arrives in.
 - **Themes:** the language is **dark-first** but supports two switchable themes, **dark** (`:root`, default) and **light** (`.arena-light`, warm inverse). The same tokens change value per theme; components are never rewritten. (The Overview includes the toggle in its header.)
 - **Key values:** a warm black background (`--color-base-100`) under elevated surfaces (`--color-base-200` for cards, `--color-base-300` for panels and borders) and bone text (`--color-base-content`). A single primary accent (crimson, `--color-primary`) per view; gold (`--color-secondary`) reserved for focus, distinction and highlighted data. At most one dominant accent per screen. The literal values live in `contracts/design/palette.dark.json` and `contracts/design/palette.light.json`, from which `contracts/design-generated/palette.generated.css` is generated. See [Theming](#theming): the scale is the language, the hexes are the skin.
 - **Typography:** Archivo (display/headlines, 800–900), Familjen Grotesk (body, 400–600), Spline Sans Mono (data, labels, code). Negative tracking on display (`-0.02em`), wide tracking on mono labels (`0.22em`).
+- **Target size is density's axis, and comfortable is the density a thumb requires.** `--dz-ctl-h`
+  reads 40px at the base, 48px in `.arena-comfortable` and 32px in `.arena-compact`, and every rung
+  of the comfortable ladder clears the 44 points WCAG 2.5.8 asks at its enhanced level and Apple
+  asks for a tappable area. **The base clears 2.5.8's minimum alone, and compact clears neither, so
+  compact is not offerable to a thumb**: it is the expert density, chosen by whoever knows their
+  reader is pointing with a mouse. A target that is not offerable is a statement about who the
+  product is for and not a licence to make one smaller. `check:target-size` measures it in a real
+  browser at a phone viewport, over the page that already renders every component, in both scopes,
+  and what it measures is the box that activates rather than the box that is painted: a dense
+  control answers a thumb through a hit area that extends past its own edge, which is why a switch's
+  pill stays 22px tall and its target does not.
+
 - **Spacing, and the difference between a length and a rhythm:** the 4px grid (`sp`) is the repertoire of lengths a value may take, and it decides nothing on its own. What separates two components is `rhythm`, named steps aliased off that grid: `--rhythm-group` (12px) inside one group of related things, `--rhythm-component` (16px) between two peers, `--rhythm-section` (24px) between two sections of a page. **No Arena component draws this itself**, because every component is an inner box with no outer margin, so the family exists for the reason `--z-nav` and `--layout-bar` do: the space between components is part of the system, and the alternative is every consumer picking a number. What a package ships for it is `css/rhythm.css`, the one sheet whose classes go on an element the consumer wrote, documented where its reader is, on each layer's `PACKAGE.md`. It is not density. `.arena-compact` re-densifies `dz` and leaves `rhythm` alone, which is why `--rhythm-group` and `--dz-stack` can share a length and not a meaning. The rhythm step table, and what each one is for, is [`Scales.md`](./Scales.md), which carries no `sp` section because a repertoire of lengths is a list rather than a set of jobs: the grid itself is authored in `spacing.json` beside it.
 
 ### Danger convention (destructive actions and risk indicators)
@@ -110,9 +122,32 @@ and that therefore live in each platform's own idiom:
    composes each one with the token that applies when the device reports no inset, as
    `--pad-safe-bottom: max(var(--sp-3), env(safe-area-inset-bottom))`, so a phone shell reaches
    one custom property instead of writing the fallback four times and differently.
-   **Arena draws nothing that needs them**, and they are declared for the reason `--z-nav` and
-   `--layout-bar` are: the frame a consumer builds around Arena is part of the system, and the
-   alternative is every consumer inventing the same expression.
+   **A component pinned to a viewport edge pays that edge's inset itself**, and they are declared
+   for the reason `--z-nav` and `--layout-bar` are too: the frame a consumer builds around Arena
+   is part of the system, and the alternative is every consumer inventing that expression.
+
+4. **Whether the reader asked for a stronger interface**, which `prefers-contrast` reports and no
+   token can hold: it has no value until there is a device, the same way an inset has none until
+   there is a screen. `contracts/design/contrast.css` composes the answer, and like the three above
+   it defines nothing: every declaration in it points a role at a different step of a ladder Arena
+   already carries. **Three cases, and each says which.** A boundary that carries meaning thickens,
+   every `bw` role moving to `bw-strong`, because WCAG 1.4.11 measures a control's boundary and a
+   hairline is the first thing that reader is asking about. A translucent surface stops being
+   translucent, `--scrim-blur` going to zero, which is the backdrop blur a scrim paints the page
+   through and is what Reduce Transparency means on either platform. And the focus ring widens,
+   because it is drawn at an ordinary border's width and would otherwise stop standing out at the
+   moment every border thickens.
+
+   **The fourth case is the style plugin's and the kernel does not pretend to it.** An accent drawn
+   as ink is the one text contrast this repository reports and does not gate, and whether a product
+   draws one, and through which role, is an answer over a palette Arena does not know. A kernel
+   reassigning it would be overruling a decision it cannot see. What holds it is the tier that made
+   it: a plugin raising an accent to ink owes the same 4.5:1 under this query that every other ink
+   owes without it.
+
+   Motion is the shape all four of these follow, and it is worth reading first: the reduced-motion
+   policy below states what each KIND of motion does rather than listing the animations, which is
+   why it survived a target that has no `@media` at all.
 
 The dividing line: **DTCG owns values; the composition layer owns how values are combined
 at runtime.** `contracts/design/colors.css` therefore holds no skin value, only references

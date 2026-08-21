@@ -2,7 +2,8 @@
   "component": "ArenaSideNavItem",
   "description": "One destination in an ArenaSideNav. The consumer writes one per destination; the nesting depth it sits at, which id is currently active and how it reports `nav` are settled between it and its parent, and none of that is a member of this contract -- the same shape, and the same reason, as the name, checked state and selection callback an ArenaRadioGroup settles with each ArenaRadio. It used to be api/types/side-nav-item.json, a predefined object Arena read out of an array; it is an element the consumer writes now, which is what makes a section, a collapsible and arbitrary nesting expressible at all.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "id": {

@@ -2,7 +2,14 @@
  * `null` is the point: no single element can decide it, so a suite must assert it by
  * acting on the tree. A key in neither DECIDABLE nor BEHAVIOURAL throws.
  * DOM-generic on purpose: consumed from three runtimes, one with no DOM, which is what
- * GenericElement states: four members and never an HTMLElement. */
+ * GenericElement states: four members and never an HTMLElement. Which role a pattern
+ * requires is read from that pattern's own `element` field rather than restated here,
+ * so a pattern that lands needs no edit in this file and the two cannot disagree. */
+
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../arena/repo-root.ts';
+import { memoBy } from '../../utils/memo.ts';
 
 export type GenericElement = {
   tagName: string;
@@ -53,29 +60,21 @@ const INPUT_ROLE: Record<string, string> = {
 
 const NATIVELY_FOCUSABLE = new Set(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA']);
 
-export const ELEMENT_ROLE: Record<string, string> = {
-  alert: 'alert',
-  alertdialog: 'alertdialog',
-  button: 'button',
-  checkbox: 'checkbox',
-  combobox: 'combobox',
-  banner: 'banner',
-  contentinfo: 'contentinfo',
-  main: 'main',
-  'dialog-modal': 'dialog',
-  disclosure: 'button',
-  listbox: 'listbox',
-  'menu-button': 'button',
-  navigation: 'navigation',
-  progressbar: 'progressbar',
-  'scrollable-region': 'group',
-  select: 'combobox',
-  status: 'status',
-  switch: 'switch',
-  textbox: 'textbox',
-  toolbar: 'toolbar',
-  tooltip: 'tooltip',
-};
+export const PATTERN_DIR = 'contracts/behaviour';
+
+export const elementRoles = memoBy(
+  (root: string = repoRoot) => root,
+  (root: string = repoRoot) => {
+    const dir = join(root, PATTERN_DIR);
+    const roles: Record<string, string> = {};
+    for (const entry of readdirSync(dir).sort()) {
+      if (!entry.endsWith('.json')) continue;
+      const pattern = JSON.parse(readFileSync(join(dir, entry), 'utf8'));
+      if (pattern.element) roles[pattern.name] = pattern.element;
+    }
+    return roles;
+  },
+);
 
 export const LABEL_ACCEPTS_TEXT = new Set(['button', 'checkbox', 'disclosure', 'switch']);
 
@@ -233,11 +232,11 @@ export function evaluate(
 ) {
   const resolveId = given ?? undefined;
   if (key === 'roles.element') {
-    const wanted = ELEMENT_ROLE[patternName];
+    const wanted = elementRoles()[patternName];
     if (!wanted) {
       throw new Error(
-        `evaluate: pattern "${patternName}" requires roles.element but has no ELEMENT_ROLE entry. ` +
-        'Add one in scripts/lib/behaviour-compliance.ts naming the role that pattern requires.',
+        `evaluate: pattern "${patternName}" requires roles.element and declares no \`element\`. ` +
+        `Name the role in contracts/behaviour/${patternName}.json, beside its requires map.`,
       );
     }
     return roleOf(el, resolveId) === wanted;

@@ -26,6 +26,16 @@ export function validatePattern(fileStem: string, pattern: any) {
       problems.push(`${fileStem}: requirement "${key}" must be dotted (group.leaf) so an exception can name exactly one`);
     }
   }
+  const role = pattern.requires?.['roles.element'];
+  if (role !== undefined && !pattern.element) {
+    problems.push(`${fileStem}: requires roles.element and declares no "element". The requirement's value is prose a person reads, and a platform target reads this file with no browser behind it, so the role it must apply is named as a field of its own beside the prose rather than parsed back out of it.`);
+  }
+  if (role === undefined && pattern.element) {
+    problems.push(`${fileStem}: declares "element" and requires no roles.element. The field answers that requirement and nothing else, so one without the other is a role nobody asked for.`);
+  }
+  if (role !== undefined && pattern.element && !new RegExp(`\\b${pattern.element}\\b`, 'i').test(String(role))) {
+    problems.push(`${fileStem}: declares element "${pattern.element}", which its roles.element does not name: ${role}. The field and the prose answer the same question, so they are held to each other here rather than left to drift apart quietly.`);
+  }
   const named = [...new Set(String(pattern.description ?? '').match(/\bArena[A-Z]\w*/g) ?? [])];
   if (named.length > 0) {
     problems.push(`${fileStem}: its description names ${named.join(', ')}. A pattern states what it is and never which components bind it: a binding declares itself in that component's own <Name>.behaviour.json, so a name here is stale the day that component moves to a pattern of its own, and nothing reports it.`);

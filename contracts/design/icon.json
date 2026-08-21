@@ -1,6 +1,7 @@
 {
   "icon": {
     "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } },
     "$description": "Icon size. A glyph rendered as a webfont is still an icon, not type: an icon\nat 15px beside a label at 15px is not the same design decision as an icon at\n16px. Kept out of fs for that reason.",
     "sm": { "$value": { "value": 14, "unit": "px" } },
     "md": { "$value": { "value": 16, "unit": "px" } },

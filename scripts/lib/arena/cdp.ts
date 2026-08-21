@@ -3,8 +3,11 @@
  * a map of promises keyed by id, and everything the socket delivers that settles nothing
  * is an event a listener wanted. A command's params and its result are per-method and
  * this models neither: what it types is the envelope, which is the part every caller
- * shares. A session is present only for a command scoped to one target. * CdpSend is the half most callers use: the listener and the close belong to whoever
- * opened the socket, which is why a suite can stand in with a send alone. */
+ * shares. A session is present only for a command scoped to one target. CdpSend is the
+ * half most callers use: the listener and the close belong to whoever opened the socket,
+ * which is why a suite can stand in with a send alone. evaluate() is the one method with
+ * a reader of its own, because its answer to an expression that threw is a successful
+ * reply carrying an empty value, and reading that value alone loses the throw. */
 
 export type CdpFrame = { id: number; method: string; params: unknown; sessionId?: string };
 
@@ -23,6 +26,24 @@ export type Cdp = {
   on(handler: (message: CdpMessage) => void): void;
   close(): void;
 };
+
+export class PageThrew extends Error {
+  constructor(message: string) { super(message); this.name = 'PageThrew'; }
+}
+
+export const EVALUATE = 'Runtime.evaluate';
+
+export async function evaluate(cdp: CdpSend, expression: string, sessionId?: string) {
+  const answer = await cdp.send(EVALUATE, { expression, awaitPromise: true, returnByValue: true }, sessionId);
+  const thrown = answer?.exceptionDetails;
+  if (thrown) {
+    const said = thrown.exception?.description ?? thrown.text ?? 'the browser gave no description';
+    const head = expression.trim().split('\n')[0] ?? '';
+    const shown = head.length > 60 ? `${head.slice(0, 60)}...` : head;
+    throw new PageThrew(`${String(said).split('\n')[0]} (evaluating ${JSON.stringify(shown)})`);
+  }
+  return answer?.result?.value;
+}
 
 export function createDispatcher() {
   let id = 0;

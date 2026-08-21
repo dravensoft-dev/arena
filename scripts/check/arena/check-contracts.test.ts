@@ -8,7 +8,7 @@ import {
   zeroContractLevelProblems,
 } from './check-contracts.ts';
 
-const ROOT_OK = ['AGENTS.md', 'api', 'behaviour', 'design', 'design-generated'];
+const ROOT_OK = ['AGENTS.md', 'NPM.md', 'api', 'behaviour', 'design', 'design-generated'];
 
 test('the declared shape is three levels and one generated sibling, and nothing else', () => {
   assert.deepEqual(LEVELS, ['api', 'behaviour', 'design']);
@@ -18,6 +18,13 @@ test('the declared shape is three levels and one generated sibling, and nothing 
 
 test('the real root shape has no problems', () => {
   assert.deepEqual(rootProblems(ROOT_OK), []);
+});
+
+test('the npm page is admitted here and nowhere else, because its reader is not on this branch', () => {
+  assert.deepEqual(rootProblems(ROOT_OK), []);
+  const without = rootProblems(ROOT_OK.filter((entry) => entry !== 'NPM.md'));
+  assert.equal(without.length, 1);
+  assert.match(without[0] ?? '', /NPM\.md is missing/);
 });
 
 test('a fourth directory beside the three is a problem, which is the case that passed every gate', () => {
@@ -62,19 +69,19 @@ test('a stray file inside a level is caught by extension, which is how every rea
 
 test('design keeps its three hand-authored stylesheets by name, because none is a token source', () => {
   assert.deepEqual(
-    levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css', 'palette.dark.json'], () => false),
+    levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'contrast.css', 'environment.css', 'reset.css', 'palette.dark.json'], () => false),
     [],
   );
 });
 
 test("a level's statement may be several documents, and every one of them is named or it is a stray", () => {
-  const problems = levelProblems('design', ['Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css'], () => false);
+  const problems = levelProblems('design', ['Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'contrast.css', 'environment.css', 'reset.css'], () => false);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /contracts\/design\/AGENTS\.md is missing/);
 });
 
 test('a fourth stylesheet is a problem until contracts/AGENTS.md names it, which is the point of listing them', () => {
-  const problems = levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'environment.css', 'reset.css', 'motion.css'], () => false);
+  const problems = levelProblems('design', ['AGENTS.md', 'Scales.md', 'StylePlugins.md', 'TokenTypes.md', 'colors.css', 'contrast.css', 'environment.css', 'reset.css', 'motion.css'], () => false);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /contracts\/design\/motion\.css is neither AGENTS\.md nor Scales\.md/);
 });

@@ -2,7 +2,8 @@
   "component": "ArenaSideNavCollapsible",
   "description": "A named group inside an ArenaSideNav that shows and hides its own contents. It may contain items, sections and further collapsibles to any depth; the indent compounds with depth, which is why ArenaSideNav.indentStep is a step rather than a total. It binds the `disclosure` pattern and deliberately does NOT claim to be a treeview: there is no aria-level, no roving tab stop and no arrow navigation, because each collapsible is an independent disclosure. Its expanded state lives in the component, seeded by defaultExpanded, and it additionally opens itself when it COMES TO HOLD ArenaSideNav.active -- a transition, not a standing condition, which is what leaves a user free to collapse a group again while the route stays inside it. Implicit behaviour, stated here and in its .prompt.md rather than left to be discovered.",
   "affordances": [
-    "hover"
+    "hover",
+    "press"
   ],
   "api": {
     "id": {

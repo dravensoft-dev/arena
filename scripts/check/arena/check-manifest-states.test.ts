@@ -56,21 +56,27 @@ test('a substring that is not modifier-shaped does not false-positive', () => {
 test('a pointer spelling of hover counts as hover, because the affordance is the same one', () => {
 
   const pointer = "function X() { return <rect onPointerMove={() => {}} onPointerLeave={() => {}} />; }";
-  assert.deepEqual(sourceImplements(pointer), { hover: true, focus: false });
-  assert.deepEqual(sourceImplements('<path (pointerenter)="x()" />'), { hover: true, focus: false });
+  assert.deepEqual(sourceImplements(pointer), { hover: true, focus: false, press: false });
+  assert.deepEqual(sourceImplements('<path (pointerenter)="x()" />'), { hover: true, focus: false, press: false });
 
-  assert.deepEqual(sourceImplements('<rect onPointerDown={() => {}} />'), { hover: false, focus: false },
-    'a press is not a hover, and reading it as one would license an undeclared affordance');
+  assert.deepEqual(sourceImplements('<rect onPointerDown={() => {}} />'), { hover: false, focus: false, press: true },
+    'a press is its own affordance, and reading it as a hover would license the wrong one');
+});
+
+test('an active: modifier is a press, and the set is the three the gate reads', () => {
+  assert.deepEqual([...stateFamilies('active:scale-[var(--press-scale)]')], ['press']);
+  assert.deepEqual([...stateFamilies('motion-reduce:active:scale-100')], ['press']);
+  assert.deepEqual(FAMILIES, ['hover', 'focus', 'press']);
 });
 
 test('a component with onMouseEnter/onMouseLeave implements hover, not focus', () => {
   const src = "function X() { return <button onMouseEnter={() => {}} onMouseLeave={() => {}} />; }";
-  assert.deepEqual(sourceImplements(src), { hover: true, focus: false });
+  assert.deepEqual(sourceImplements(src), { hover: true, focus: false, press: false });
 });
 
 test('a component with onFocus/onBlur implements focus, not hover', () => {
   const src = "function X() { const [f,setF]=useState(false); return <input onFocus={()=>setF(true)} onBlur={()=>setF(false)} />; }";
-  assert.deepEqual(sourceImplements(src), { hover: false, focus: true });
+  assert.deepEqual(sourceImplements(src), { hover: false, focus: true, press: false });
 });
 
 test('an injected :hover in a template-literal style string counts as implementing hover', () => {
@@ -101,7 +107,7 @@ test('every contract MANIFEST_COVERS names exists, so no entry is stale', () => 
 });
 
 test('the affordance union is what licenses a slot, which is the whole point of covering several', () => {
-  assert.deepEqual([...affordancesFor(['ArenaTable', 'ArenaTableRow', 'ArenaTableCell'])].sort(), ['focus', 'hover']);
+  assert.deepEqual([...affordancesFor(['ArenaTable', 'ArenaTableRow', 'ArenaTableCell'])].sort(), ['focus', 'hover', 'press']);
   assert.deepEqual([...affordancesFor(['ArenaTableCell'])], ['focus'],
     'one of the covered contracts alone must still be narrower than the union, or this asserts nothing');
   assert.deepEqual([...affordancesFor(['ArenaPageHead'])], []);
@@ -110,7 +116,7 @@ test('the affordance union is what licenses a slot, which is the whole point of 
 
 test('a contract with no affordances array throws rather than reading as none', () => {
   assert.throws(() => declaredAffordances({}, 'X'), /declares no `affordances` array/);
-  assert.throws(() => declaredAffordances({ affordances: ['press'] }, 'X'), /unknown affordance/);
+  assert.throws(() => declaredAffordances({ affordances: ['drag'] }, 'X'), /unknown affordance/);
   assert.deepEqual([...declaredAffordances({ affordances: [] }, 'X')], []);
 });
 

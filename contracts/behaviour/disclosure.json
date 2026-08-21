@@ -2,6 +2,7 @@
   "name": "disclosure",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
   "description": "A button that shows and hides one section of content. The button is the whole widget: there is no roving tab stop, no arrow navigation and no relationship between one disclosure and the next -- two of them side by side are two independent buttons, which is exactly why a sidebar of nested groups is a stack of disclosures and NOT a treeview. What that costs is stated in every binding that names this pattern: no aria-level, no arrow keys, no set-size information.",
+  "element": "button",
   "requires": {
     "roles.element": "button (a native button element, or role=button where a button cannot be used)",
     "roles.label": "text content, aria-labelledby, or aria-label on the button",

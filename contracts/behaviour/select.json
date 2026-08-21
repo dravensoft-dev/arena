@@ -2,6 +2,7 @@
   "name": "select",
   "source": "https://www.w3.org/TR/html-aam-1.0/#el-select",
   "description": "A single-choice control the USER AGENT renders and operates: a native <select>. Its implicit role is combobox, which is why `combobox` looks like the right pattern and is not -- that one describes an AUTHORED combobox, where the popup is markup the component owns and must therefore describe through aria-expanded, aria-controls and aria-activedescendant. On a native select those attributes are the browser's business and authoring them is a claim the component cannot keep true, so binding `combobox` here forced three exceptions that recorded no defect. APG has no pattern for a native select -- confirmed against the pattern index, not assumed -- so HTML-AAM's element mapping is the source, the fourth pattern in this catalogue to cite something other than an APG patterns page. What is left for the author is exactly what this requires: use the element, and give it a name.",
+  "element": "combobox",
   "requires": {
     "roles.element": "combobox",
     "roles.label": "a <label> associated with the control, aria-label, or aria-labelledby"

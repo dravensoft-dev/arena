@@ -37,6 +37,13 @@ pattern; `none` and `absent` cite nothing, because there is nothing to adopt
 from when the claim is that no pattern applies. See below for why those two are
 two patterns and not one.
 
+**A pattern requiring `roles.element` also names that role as a field of its own**, `element`,
+beside the requires map. The requirement's value is prose a person reads, and six of them wrap
+the role in HTML guidance about when `<header>` or `<nav>` cannot be used; a target reading this
+directory with no browser behind it has to apply the role and has no way to parse it back out of
+that sentence. `validatePattern` holds the field and the prose to each other, so neither moves
+alone, and `behaviour-compliance.ts` reads the field rather than restating it.
+
 **That set is machine-checked**, which is what makes it safe to name here at
 all: `none aside, exactly the patterns with no APG pattern page cite something
 else`, in `scripts/lib/arena/behaviour-contracts.test.ts`, asserts it by literal value.
@@ -269,6 +276,13 @@ implicit in rendering that native element at all, with no consumer action needed
 state; a native `<input type="checkbox">`'s reflected checked state). The
 component asserted nothing; the browser's own accessibility mapping did the
 work, and that is exactly what the requirement asks for.
+
+**Off the web the same requirement is an explicit obligation**, and that is the half this rule
+does not state on its own. A platform with no implicit mapping has no element whose semantics
+could meet anything: what a browser did for free, a target there applies by hand. So a green
+`check:behaviour` and a green `check:compliance` are evidence about this tree and about no other,
+and the count they rest on says how much: a static scan of these same claims reports 60 of 118 as
+unmet, and every one of those 60 is a thing somebody else has to do.
 
 A requirement is an **exception** when the component gives no supported,
 documented way to reach it, which is not merely "no explicit prop", since a generic

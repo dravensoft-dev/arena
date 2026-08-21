@@ -6,8 +6,8 @@
     "body": "flex-1",
     "title": "font-body font-semibold text-ctl text-ink-heading",
     "message": "font-body text-sm text-ink-body/(--level-ink-body) leading-prose",
-    "action": "mt-2.5 bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
-    "close": "inline-flex items-center bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl"
+    "action": "mt-2.5 inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
+    "close": "inline-flex items-center justify-center size-ctl-h-sm shrink-0 bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl"
   },
   "variants": {
     "tone": {

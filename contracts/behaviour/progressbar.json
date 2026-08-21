@@ -2,6 +2,7 @@
   "name": "progressbar",
   "source": "https://www.w3.org/TR/wai-aria-1.2/#progressbar",
   "description": "A widget reporting the progress of a task that takes a long time and ends. APG has no pattern page for it -- confirmed against the pattern index, not assumed -- so ARIA 1.2's role reference is the pattern's source instead, as status and textbox already do. APG's Meter pattern is deliberately NOT the source: meter is a gauge reading a static measurement inside a known range, where progressbar reports work under way. Unlike status, this role carries no implicit live region, so politeness must be set explicitly or value changes are not announced at all.",
+  "element": "progressbar",
   "requires": {
     "roles.element": "progressbar",
     "roles.label": "an accessible name is required, from aria-label or aria-labelledby",

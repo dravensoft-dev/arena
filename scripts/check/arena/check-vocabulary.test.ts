@@ -42,10 +42,17 @@ test('every allowance names its file and says whose file it is', () => {
 });
 
 test('the walk skips a build directory under frameworks and keeps the one under scripts', () => {
-  assert.deepEqual([...SKIPPED_UNDER_FRAMEWORKS], ['dist', 'build', 'vendor']);
+  assert.deepEqual([...SKIPPED_UNDER_FRAMEWORKS], ['build', 'vendor']);
   assert.equal(skips('build', 'frameworks/angular'), true);
   assert.equal(skips('build', 'scripts'), false,
     'scripts/build is a phase directory, and skipping it hides every document in it');
+});
+
+test('a dist directory is skipped wherever it sits, not only under frameworks', () => {
+  assert.equal(skips('dist', 'frameworks/react'), true);
+  assert.equal(skips('dist', ''), true,
+    'the contracts package assembles into dist/ at the root, and a page copied in there is the '
+    + 'same page already walked where it was authored');
 });
 
 test('a convention nothing in the tree answers to fails, and one it holds passes', () => {

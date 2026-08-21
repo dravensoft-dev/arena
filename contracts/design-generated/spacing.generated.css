@@ -242,7 +242,13 @@
      one a thumb actually wants.
    */
   --dz-ctl-h:48px;
-  --dz-ctl-h-sm:40px;
+  /*
+     44px, and not one step below the base ladder the way compact is: this is the
+     touch density, so its SMALLEST control still has to clear the 44px a thumb needs. A small control
+     in a density chosen for a thumb is still pointed at with a thumb, and a ladder whose bottom rung
+     misses the floor the file above argues for is a ladder that does not hold it.
+   */
+  --dz-ctl-h-sm:44px;
   --dz-ctl-h-lg:56px;
   --dz-row-py:16px;
   --dz-row-px:20px;

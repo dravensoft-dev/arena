@@ -56,6 +56,54 @@ demanding identical call-site syntax would demand something neither platform can
 This is the line that makes "zero API divergences" achievable rather than rhetorical:
 identical members, idiomatic binding.
 
+### A member a platform cannot express at all
+
+"Idiomatic binding" answers a platform that spells a member differently. It does not answer one
+that cannot spell it, and a platform target arriving here needs that answer before it writes
+anything: a hole a reader falls into is worse than a rule they disagree with.
+
+**The neutral contract stays neutral and gains nothing.** A member is not annotated with the
+platforms that can take it, because a platform column here would make every contract a list of
+targets and would put the question in the one file that exists to be free of them. **A layer that
+cannot bind a member declares that in its own binding, with its reason**, which is the shape
+`contracts/behaviour/` already found: `absent.json` exists so that a layer lacking a component
+records an absence rather than being silently uncovered.
+
+Two guards travel with the rule. **A member is unexpressible only when no idiom in that platform
+binds it**, never when binding it is merely inconvenient or unidiomatic; the bar is the one the
+`mark` slot sets, where two platforms with nothing in common syntactically both answer. And **a
+declaration may not weaken a behaviour binding**, which is this level's additivity rule applied to
+its own escape hatch: a member dropped because it is hard to express, whose absence voids a
+requirement, is the reshape being wrong rather than the platform being limited.
+
+**The mechanism lands with its first user and not before.** Both layers here express every member
+they are given, so `check:api` carries no exception map at all today, and a declaration key with no
+declaration would be a gate with no subject, which this repository fails rather than passes.
+
+What the audit already settles, so the first target does not re-derive it: `href` is expressible
+everywhere, because a native layer binds it to a navigation intent and only the modifier-key
+affordances centralised in `AnchorActivation` are about an address bar and browser tabs.
+`ArenaInputType`'s date and time steps are expressible and better, since both platforms ship a
+picker where the web borrows one. The genuinely unexpressible set is the form-association members
+on the two buttons, `type`, `form`, `name`, `value` and `autoFocus`, which exist because an HTML
+form submits itself and nothing native does.
+
+### Five members take a CSS length, and R4 says they may not
+
+`MemberForms.md` rule **R4** forbids a platform type in a contract. Five members break it in a way
+the rule did not anticipate, because the type they declare is `string`: `ArenaBoard.minColumn`,
+`ArenaDialog.width`, `ArenaFigure.ratio`, `ArenaGrid.min` and `ArenaScroller.itemWidth` each take a
+CSS length or a CSS ratio, and each defaults to one, `var(--grid-min)` and
+`calc(var(--sp-1) * 120)` among them. A `string` that must be CSS is a platform type wearing a
+neutral name, and it reaches a target with no CSS as a default it cannot express.
+
+They are not reshaped here, because reshaping them is a member change in both layers and every
+call site, and it is a decision about geometry rather than about contracts. What holds them
+meanwhile is `CSS_VALUED` in `scripts/check/arena/check-contracts-neutrality.ts`: the five are
+named there with what each measures, a sixth fails that gate, and an entry whose value has stopped
+being CSS fails it too. **This paragraph and that map die together**, which is the point of writing
+the debt where something asserts it rather than only here.
+
 ### An imperative handle is not a member, and the gate is what keeps it rare
 
 **None of the nine forms is imperative**, and that is a property of what a contract can state
@@ -115,11 +163,20 @@ enforces that it does.
 ### Affordances are contracted, and they are not members
 
 Every component contract carries an `affordances` array beside `api`, from the closed set
-`hover` and `focus`. It names the pointer and focus states **the component's own render
-reacts to**: a button that tints under the pointer declares `hover`; a field that shows a
-ring when focus lands in it declares `focus`. An empty array is the answer for a component
-that presents neither, and the key is **mandatory** so that an absence can never be read as
-"not stated yet".
+`hover`, `focus` and `press`. It names the pointer, focus and activation states **the
+component's own render reacts to**: a button that tints under the pointer declares `hover`; a
+field that shows a ring when focus lands in it declares `focus`; a control that compresses under
+the press, or a chart that reveals a reading on a tap, declares `press`. An empty array is the
+answer for a component that presents none of them, and the key is **mandatory** so that an
+absence can never be read as "not stated yet".
+
+**`press` is the one of the three that a touch device has**, which is why it is named rather than
+folded into `hover`. A phone never hovers, so a component declaring `hover` alone declares that it
+reacts to nothing a thumb can do, and that is a statement about the component rather than about
+the browser reading it. The value tier answered the press before the contract did:
+`contracts/design/roles.json` carries `press-scale` and `lift-control`, and argues under
+`fill-hover` that a press "reads as the control's own motion" while a hover "is the surface
+answering".
 
 It is not a member, and it is here anyway, because the question is neutral and every layer
 needs the same answer to it. Neither of the other two contracts can hold it: `behaviour/` is
@@ -128,9 +185,9 @@ requirement; `design/` holds values. A component's affordances are a decision ab
 component, which is what this directory states.
 
 **What a layer may not do is invent one.** `check:states` reads this declaration and nothing
-else, in two one-way halves: a Tailwind manifest slot carrying a `hover:`/`focus:` modifier
-no covered contract declares is invented, and a React component implementing a state its
-contract does not declare is invented. Neither half reads the other layer. Neither runs the
+else, in two one-way halves: a Tailwind manifest slot carrying a `hover:`, `focus:` or
+`active:` modifier no covered contract declares is invented, and a React component implementing
+a state its contract does not declare is invented. Neither half reads the other layer. Neither runs the
 other way, because a declared affordance a layer does not implement itself may be the child it
 composes: `ArenaConfirmDialog` declares `focus` for its own input and renders Arena `ArenaButton`s for
 the rest, and a manifest, which has no composition and types those buttons out as its own

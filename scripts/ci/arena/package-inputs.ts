@@ -2,12 +2,12 @@
  * has moved since the version now on the registry. The version file is deliberately absent: a
  * release always moves it and the guard is only reached when the registry disagrees with it, so
  * naming it would leave "nothing this package carries has moved" an answer nothing could reach.
- * A spec names a directory, and a directory holds the suites, the prompts and the prose no package
- * carries; `carries` puts the assembler's own `excluded()` to the part of a path INSIDE the spec
- * that reached it, since a spec naming a file is read rather than walked and `build` is one of the
- * names that walk skips. It imports that rule and never the assembler: this runs in a job with no
- * install, where a bare specifier is answered by the registry at whatever major it serves rather
- * than the one bun.lock pins, and check:workflow-scripts is what refuses the alternative. */
+ * A spec names a directory holding prose no package carries, so `carries` puts the assembler's own
+ * `excluded()` to the part of a path INSIDE the spec that reached it. It imports that rule and
+ * never the assembler: this runs in a job with no install, where a bare specifier is answered by
+ * the registry rather than by bun.lock, and check:workflow-scripts refuses the alternative. The
+ * contracts entry spreads none of SHARED_INPUTS: five of those eight are false for a package with
+ * no stylesheet, no CLI and no component map, and inheriting them would republish it for nothing. */
 
 import { isMainModule } from '../../utils/main-module.ts';
 import { excluded } from '../../lib/arena/package-exclusions.ts';
@@ -24,6 +24,19 @@ export const SHARED_INPUTS = {
 };
 
 export const PACKAGE_INPUTS: Record<string, Record<string, string>> = {
+  contracts: {
+    'contracts/design/': 'the design values, carried as JSON. The three .css files under it are the '
+      + 'composition layer and this package carries none of them, which costs nothing here: a spec '
+      + 'names a directory and a stylesheet moving inside it republishes a package whose payload did '
+      + 'not change, which is the cheap direction to be wrong in',
+    'contracts/api/': 'the capability contracts and the types their members take',
+    'contracts/behaviour/': 'the behaviour patterns',
+    'contracts/NPM.md': 'the page npm shows, carried as README.md',
+    'scripts/build/arena/build-contracts-package.ts': 'the assembler, and the NOT_CARRIED map that '
+      + 'decides the payload',
+    'scripts/lib/arena/package-assembly.ts': 'pluginIdentity, the copy helpers and the behaviour copy',
+    'LICENSE': 'shipped verbatim',
+  },
   react: {
     ...SHARED_INPUTS,
     'frameworks/react/': 'the layer itself',
@@ -46,14 +59,14 @@ export const PROSE_NAMES: Record<string, string> = {
   'INDEX.md': 'the directory index the site and the skill read, carried by no package',
 };
 
-export function pathspecs(layer: string) {
-  const inputs = PACKAGE_INPUTS[layer];
-  if (!inputs) throw new Error(`package-inputs: no package is assembled from a layer called "${layer}"`);
+export function pathspecs(pkg: string) {
+  const inputs = PACKAGE_INPUTS[pkg];
+  if (!inputs) throw new Error(`package-inputs: no package is assembled under the name "${pkg}"`);
   return Object.keys(inputs).sort();
 }
 
-export function carries(path: string, layer: string) {
-  const specs = pathspecs(layer);
+export function carries(path: string, pkg: string) {
+  const specs = pathspecs(pkg);
   if (specs.some((spec) => !spec.endsWith('/') && spec === path)) return true;
 
   const dir = specs.find((spec) => spec.endsWith('/') && path.startsWith(spec));
@@ -65,8 +78,8 @@ export function carries(path: string, layer: string) {
   return !(inside[inside.length - 1]! in PROSE_NAMES);
 }
 
-export function carried(paths: Iterable<string>, layer: string) {
-  return [...paths].map((p) => p.trim()).filter(Boolean).filter((p) => carries(p, layer));
+export function carried(paths: Iterable<string>, pkg: string) {
+  return [...paths].map((p) => p.trim()).filter(Boolean).filter((p) => carries(p, pkg));
 }
 
 async function readStdin() {
@@ -77,15 +90,15 @@ async function readStdin() {
 
 async function main() {
   const args = process.argv.slice(2);
-  const layer = args.find((a) => !a.startsWith('--')) ?? '';
+  const pkg = args.find((a) => !a.startsWith('--')) ?? '';
   try {
     if (args.includes('--carried')) {
-      pathspecs(layer);
-      const kept = carried((await readStdin()).split('\n'), layer);
+      pathspecs(pkg);
+      const kept = carried((await readStdin()).split('\n'), pkg);
       if (kept.length > 0) console.log(kept.join('\n'));
       return;
     }
-    console.log(pathspecs(layer).join('\n'));
+    console.log(pathspecs(pkg).join('\n'));
   } catch (err) {
     console.error((err as Error).message);
     process.exit(1);

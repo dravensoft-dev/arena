@@ -21,8 +21,8 @@ import { SCRIPT_EXTENSIONS, SUITE_EXTENSIONS } from '../../lib/arena/domains.ts'
 import { EXEMPT as DELIBERATELY_ABSENT } from './check-citations.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git']);
-export const SKIPPED_UNDER_FRAMEWORKS = new Set(['dist', 'build', 'vendor']);
+export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', 'dist']);
+export const SKIPPED_UNDER_FRAMEWORKS = new Set(['build', 'vendor']);
 
 export const OUT_OF_SCOPE = new Map([
   ['docs/', 'a spec or a plan, which is deleted once executed, so a convention it names is a '
@@ -154,6 +154,7 @@ const THE_PACKAGE_SHIPS = 'a file the assembled package hands npm, which exists 
 
 export const NAMED_BUT_NOT_HERE = new Map([
   ['arena.config.example.json', THE_PACKAGE_SHIPS],
+  ['arena.contracts.json', THE_PACKAGE_SHIPS],
   ['arena.css', THE_PACKAGE_SHIPS],
   ['arena-button.css', THE_PACKAGE_SHIPS],
   ['arena-stat-card.css', THE_PACKAGE_SHIPS],
