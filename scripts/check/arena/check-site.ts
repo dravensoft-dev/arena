@@ -32,7 +32,7 @@ export const node = {
 export const REFERENCE = /(?:href|src)="([^"]+)"/g;
 export const MARKDOWN_LINK = /\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
 export const OFF_SITE = /^(?:https?:|mailto:|data:|#|\/\/)/;
-export const AUTHORED = ['index.html', '404.html', 'og.html'];
+export const AUTHORED = ['index.html', '404.html', 'og.html', 'hero.html'];
 export const FORBIDDEN = ['file://', 'localhost', '127.0.0.1'];
 export const VAR_USED = /var\((--[a-z0-9-]+)/g;
 export const VAR_DEFINED = /(--[a-z0-9-]+)\s*:/g;

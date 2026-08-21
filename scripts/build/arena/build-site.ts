@@ -21,7 +21,10 @@ import {
   entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
 } from '../../lib/arena/site-pages.ts';
-import { renderOgImage, OG_WIDTH, OG_HEIGHT } from '../../lib/arena/og-image.ts';
+import { renderPageImage } from '../../lib/arena/page-image.ts';
+import {
+  HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroStyles,
+} from '../../lib/arena/hero-page.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
 
 export const node = {
@@ -30,7 +33,7 @@ export const node = {
     'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
-    'plugin-style-store/**/plugin.css',
+    'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
     'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
@@ -42,6 +45,8 @@ export const node = {
 
 export const OG_FILE = 'og.png';
 export const OG_SOURCE = 'og.html';
+export const OG_WIDTH = 1200;
+export const OG_HEIGHT = 630;
 
 export const NEVER_COPIED = new Set(['node_modules', '.git']);
 
@@ -138,6 +143,10 @@ export function landingPage(base = repoRoot) {
 <main style="max-width:64rem;margin:0 auto;padding:var(--sp-8) var(--sp-6)">
 <h1 style="font-family:var(--font-display);font-size:var(--fs-hero);margin:0">Arena by Dravensoft</h1>
 <p style="font-size:var(--fs-lg);color:var(--mute);max-width:44rem">${escape(TAGLINE)}</p>
+
+<img src="./${HERO_FILE}" width="${HERO_WIDTH}" height="${HERO_HEIGHT}" alt="One ArenaButton under
+three style plugins, with the API and behaviour contracts pointing at it" style="max-width:100%;
+height:auto;margin:var(--sp-6) 0">
 
 <p style="max-width:44rem">Every value traces to a design token, every component's API and every
 accessibility pattern it binds is a contract file rather than a paragraph, and a gate holds the
@@ -278,9 +287,16 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   written.push(write(out, 'sitemap.xml', sitemap(base)));
   written.push(write(out, 'CNAME', `${DOMAIN}\n`));
 
-  const png = await renderOgImage(join(out, OG_SOURCE));
+  written.push(write(out, HERO_SHEET, await heroStyles()));
+  written.push(write(out, HERO_SOURCE, heroPage(components('react', base).length)));
+
+  const png = await renderPageImage(join(out, OG_SOURCE), OG_WIDTH, OG_HEIGHT);
   writeFileSync(join(out, OG_FILE), png);
   written.push(join(out, OG_FILE));
+
+  const hero = await renderPageImage(join(out, HERO_SOURCE), HERO_WIDTH, HERO_HEIGHT);
+  writeFileSync(join(out, HERO_FILE), hero);
+  written.push(join(out, HERO_FILE));
 
   return written;
 }

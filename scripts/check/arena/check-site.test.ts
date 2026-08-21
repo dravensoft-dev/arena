@@ -116,7 +116,7 @@ test('the token check reads the pages this build authors, and not the ones it co
 });
 
 test('the pages this gate authors are the ones nothing else declares', () => {
-  assert.deepEqual(AUTHORED, ['index.html', '404.html', 'og.html']);
+  assert.deepEqual(AUTHORED, ['index.html', '404.html', 'og.html', 'hero.html']);
 });
 
 test('an empty walk is a clean-looking pass over an output nobody opened', () => {
