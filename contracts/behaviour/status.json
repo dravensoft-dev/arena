@@ -2,6 +2,7 @@
   "name": "status",
   "source": "https://www.w3.org/TR/wai-aria-1.2/#status",
   "description": "Advisory information not important enough to justify an alert -- a status bar or a quiet inline update. APG has no pattern page for it -- confirmed against the pattern index, not assumed -- so ARIA 1.2's role reference is the pattern's source instead. Its implicit politeness is what separates it from alert: a status update queues behind whatever the user is already hearing, an alert does not.",
+  "element": "status",
   "requires": {
     "roles.element": "status",
     "live.politeness": "implicit aria-live=polite -- announced without interrupting the user",

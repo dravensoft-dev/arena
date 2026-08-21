@@ -2,6 +2,7 @@
   "name": "alertdialog",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/",
   "description": "A modal dialog that interrupts with an urgent message needing a response, of which a destructive-action confirmation is the archetype. It is dialog-modal's specialisation and not a rival to it: every requirement below is that pattern's, with role=\"alertdialog\" in place of role=\"dialog\", because the role is what tells assistive technology to announce the dialog's contents on open rather than its name alone. It is a pattern of its own rather than a carve-out inside dialog-modal because an exception names one requirement and cannot say why a component is RIGHT to deviate: a component binding dialog-modal and excepting roles.element is a correct component filed as a defect, and the exception carries no reason a reader can act on. Bind dialog-modal for a dialog that merely takes the interaction; bind this one only when the message is urgent and the response is consequential.",
+  "element": "alertdialog",
   "requires": {
     "roles.element": "alertdialog",
     "roles.aria-modal": "true",

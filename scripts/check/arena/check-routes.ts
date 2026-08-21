@@ -772,14 +772,19 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 37_000,
+    budget: 38_000,
     reason:
       'the route a bug report takes, which is the arrival the routing table had no row for until '
       + 'the symptom rows landed, and the one whose answer is most often that nothing in the code '
       + 'is broken: a requirement no suite pins is unfalsifiable rather than unverified, and that '
       + 'paragraph is what a reader comes here for. It is budgeted apart from the component route '
       + 'because the two share no stop past the roof, and because this one is paid by whoever is '
-      + 'holding a defect rather than by whoever is adding a component.',
+      + 'holding a defect rather than by whoever is adding a component. The level answers a second '
+      + 'reader now, which is what the last raise bought: a pattern names the role it requires as a '
+      + 'field rather than only inside prose, and the rule about native semantics states the half '
+      + 'that applies where there is no browser to supply them. Both are the level describing '
+      + 'something bigger rather than describing the same thing at more length, which is the one '
+      + 'reason a budget moves.',
   },
   {
     name: 'contributor-release',

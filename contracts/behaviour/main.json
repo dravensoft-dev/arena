@@ -2,6 +2,7 @@
   "name": "main",
   "source": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
   "description": "The landmark holding what the page is actually for, once the furniture around it is taken away. The third of the three landmarks a page frames itself with, from the same practice page banner and contentinfo are adopted from and for the same reason, since landmarks are a practice and not a widget. One per page, so no name is required: a reader jumping by landmark reaches it by its role. It carries one requirement the other two do not, and it is the whole reason a skip link works at all: the region has to be focusable programmatically, because sending focus to a container the platform will not focus leaves the focus where it was and the reader lands nowhere.",
+  "element": "main",
   "requires": {
     "roles.element": "main (native main at the top level of the document, or role=main when main cannot be used)",
     "focus.target": "the landmark is programmatically focusable, so an anchor pointing at it moves focus into it rather than only scrolling to it"

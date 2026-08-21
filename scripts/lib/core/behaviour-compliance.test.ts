@@ -6,7 +6,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import {
   roleOf, hasAccessibleName, isFocusable, evaluate,
-  DECIDABLE, BEHAVIOURAL, ELEMENT_ROLE, LABEL_ACCEPTS_TEXT, comparePattern,
+  DECIDABLE, BEHAVIOURAL, elementRoles, LABEL_ACCEPTS_TEXT, comparePattern,
   QUANTIFIED, NOT_QUANTIFIED, IDREF, IDREF_ATTRIBUTES, ATTRIBUTE_FOR,
 } from './behaviour-compliance.ts';
 
@@ -173,27 +173,27 @@ test('DECIDABLE and BEHAVIOURAL are disjoint', () => {
   assert.deepEqual(both, []);
 });
 
-test('every pattern requiring roles.element has an ELEMENT_ROLE entry', () => {
+test('every pattern requiring roles.element has an elementRoles() entry', () => {
   const missing = [...PATTERNS]
     .filter(([, p]) => 'roles.element' in (p.requires ?? {}))
     .map(([name]) => name)
-    .filter((name) => !(name in ELEMENT_ROLE));
+    .filter((name) => !(name in elementRoles()));
   assert.deepEqual(missing, []);
 });
 
-test('ELEMENT_ROLE names no pattern that does not require roles.element', () => {
-  const stale = Object.keys(ELEMENT_ROLE).filter(
+test('elementRoles() names no pattern that does not require roles.element', () => {
+  const stale = Object.keys(elementRoles()).filter(
     (name) => !PATTERNS.has(name) || !('roles.element' in (PATTERNS.get(name).requires ?? {})),
   );
   assert.deepEqual(stale, []);
 });
 
-test('every ELEMENT_ROLE value is the role its own pattern names', () => {
+test('every elementRoles() value is the role its own pattern names', () => {
 
-  for (const [name, role] of Object.entries(ELEMENT_ROLE)) {
+  for (const [name, role] of Object.entries(elementRoles())) {
     const prose = String(PATTERNS.get(name)?.requires?.['roles.element'] ?? '');
     assert.match(prose, new RegExp(`\\b${role}\\b`, 'i'),
-      `ELEMENT_ROLE.${name} is "${role}", which does not appear in that pattern's roles.element: ${prose}`);
+      `elementRoles().${name} is "${role}", which does not appear in that pattern's roles.element: ${prose}`);
   }
 });
 
@@ -218,7 +218,7 @@ test('the disclosure pattern is bound to the button role', () => {
   const pattern = readJson(join(PATTERN_DIR, 'disclosure.json'));
   assert.equal(pattern.name, 'disclosure');
   assert.match(pattern.source, /apg\/patterns\/disclosure/);
-  assert.equal(ELEMENT_ROLE.disclosure, 'button');
+  assert.equal(elementRoles().disclosure, 'button');
   assert.ok(LABEL_ACCEPTS_TEXT.has('disclosure'),
     'a disclosure button is named by its own text content');
 
@@ -241,10 +241,10 @@ test('evaluate maps menu-button roles.element to the button role', () => {
   assert.equal(evaluate(el('div', { role: 'menu' }), 'roles.element', 'button', 'menu-button'), false);
 });
 
-test('evaluate throws when a pattern requires roles.element with no ELEMENT_ROLE entry', () => {
+test('evaluate throws when a pattern requires roles.element and declares no element', () => {
   assert.throws(
     () => evaluate(el('div'), 'roles.element', 'widget', 'invented-pattern'),
-    /invented-pattern.*ELEMENT_ROLE/s,
+    /invented-pattern.*contracts\/behaviour\/invented-pattern\.json/s,
   );
 });
 

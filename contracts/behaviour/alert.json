@@ -2,6 +2,7 @@
   "name": "alert",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
   "description": "A brief, important message that announces itself without interrupting the user's task -- distinct from the alertdialog pattern beside it, because an alert never takes focus or blocks interaction, where an alertdialog does both. Reach for that one when the message needs an answer before the user can go on.",
+  "element": "alert",
   "requires": {
     "roles.element": "alert",
     "focus.unaffected": "an alert must not receive or move keyboard focus",

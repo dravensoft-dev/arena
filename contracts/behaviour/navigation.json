@@ -2,6 +2,7 @@
   "name": "navigation",
   "source": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
   "description": "A landmark grouping links used to navigate the page or site. There is no APG pattern page for it -- landmarks are a practice, not a widget -- so the landmark-regions practice page is the pattern's source.",
+  "element": "navigation",
   "requires": {
     "roles.element": "navigation (native nav, or role=navigation when nav cannot be used)",
     "roles.label": "when more than one navigation landmark exists on a page, each carries a unique aria-label or aria-labelledby -- unless two share an identical set of links, in which case they share one label"

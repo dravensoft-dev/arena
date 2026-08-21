@@ -2,6 +2,7 @@
   "name": "toolbar",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
   "description": "A container grouping a set of controls -- buttons, menu buttons, checkboxes, or similar -- that act on the current selection or view, sharing a single tab stop.",
+  "element": "toolbar",
   "requires": {
     "roles.element": "toolbar",
     "roles.label": "the toolbar element has aria-labelledby (referencing a visible label) or aria-label when no visible label exists",
