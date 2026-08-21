@@ -1,11 +1,15 @@
 /* What a page said while it was loading, collected before anything on the page runs. It is here
- * rather than in the gate that first needed it because both browser gates have to tell the same
- * two failures apart: a page that rendered nothing because the component draws nothing, and one
- * that rendered nothing because its bundle came back 404 and never ran. Without the resource
- * list those read identically, and the second sends a reader to look at a component that is
- * fine. It is registered through Page.addScriptToEvaluateOnNewDocument, so the listener is
- * installed ahead of the document's own scripts, and it listens in the capture phase because a
- * failed script or image fires an error event that does not bubble. */
+ * rather than in the gate that first needed it because every browser gate has to tell the same two
+ * failures apart: a page that rendered nothing because the component draws nothing, and one that
+ * rendered nothing because its bundle came back 404 and never ran. Without the resource list those
+ * read identically, and the second sends a reader to a component that is fine. It is registered
+ * through Page.addScriptToEvaluateOnNewDocument, ahead of the document's own scripts, and listens
+ * in the capture phase because a failed script or image fires an error that does not bubble. The
+ * findings below are those two failures written down: an unpainted page carries the wait actually
+ * SPENT and not only the bound that ended it, and a page that THREW is a sentence of its own,
+ * since nothing about it was slow and a reader sent to look at a render is reading the wrong file. */
+
+import type { Deadline } from './deadline.ts';
 
 export const COLLECT = `window.__arenaPageErrors = [];
 addEventListener('error', (e) => window.__arenaPageErrors.push(
@@ -30,6 +34,21 @@ export const REPORT = `(() => ({
       + ' ' + r.decodedBodySize + 'B')
     .slice(0, 8),
 }))()`;
+
+export type Painted = { ready: boolean; waitedMs: number };
+
+export function paintedProblem(what: string, bound: Deadline, painted: Painted,
+  consequence: string, silence?: Silence) {
+  if (painted.ready) return null;
+  return `${what} never signalled that it had painted, within ${bound.ms}ms, which is that size `
+    + `because ${bound.why}. The wait ended after ${painted.waitedMs}ms, ${consequence}`
+    + `${silenceOf(silence)}`;
+}
+
+export function threwProblem(what: string, threw: string, silence?: Silence) {
+  return `${what} threw while the gate was reading it: ${threw}. Nothing here timed out, so the `
+    + `expression or the page it ran in is what to look at${silenceOf(silence)}`;
+}
 
 export function silenceOf(silence?: Silence) {
   if (!silence) return '';

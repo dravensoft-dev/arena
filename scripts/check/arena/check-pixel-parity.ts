@@ -16,11 +16,13 @@ import { POLL_MS } from '../../lib/arena/wait-for.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
-import { connect } from '../../lib/arena/cdp.ts';
+import { connect, evaluate, PageThrew } from '../../lib/arena/cdp.ts';
 import type { Cdp } from '../../lib/arena/cdp.ts';
 import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { COLLECT, REPORT, silenceOf, type Silence } from '../../lib/arena/page-errors.ts';
+import {
+  COLLECT, REPORT, paintedProblem, silenceOf, threwProblem, type Painted, type Silence,
+} from '../../lib/arena/page-errors.ts';
 import { READY, PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { SINK_LAYERS } from '../../generate/arena/generate-kitchen-sink.ts';
 import { decode, difference, CHANNEL_NAMES } from '../../lib/arena/png.ts';
@@ -113,7 +115,8 @@ export function readyExpression(bound: Deadline) {
     const until = Date.now() + ${bound.ms};
     const started = Date.now();
     const tick = () => {
-      if (document.documentElement.hasAttribute(${JSON.stringify(READY)}))
+      const root = document.documentElement;
+      if (root && root.hasAttribute(${JSON.stringify(READY)}))
         resolve({ ready: true, waitedMs: Date.now() - started });
       else if (Date.now() >= until) resolve({ ready: false, waitedMs: Date.now() - started });
       else setTimeout(tick, ${POLL_MS});
@@ -254,12 +257,21 @@ async function capture(cdp: Cdp, url: string) {
     await withTimeout(settled, NAVIGATE.ms,
       `${url}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
-    const ev = (expression: string) => cdp.send('Runtime.evaluate',
-      { expression, awaitPromise: true, returnByValue: true }, sessionId);
+    const ev = (expression: string) => evaluate(cdp, expression, sessionId);
 
-    const painted = (await ev(readyExpression(PAINTED))).result.value;
-    const silence: Silence = (await ev(REPORT)).result.value;
-    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence };
+    let painted: Painted = { ready: false, waitedMs: 0 };
+    let threw: string | undefined;
+    try {
+      painted = await ev(readyExpression(PAINTED));
+    } catch (error) {
+      if (!(error instanceof PageThrew)) throw error;
+      threw = error.message;
+    }
+    const silence = await ev(REPORT).catch((error: unknown) => {
+      if (error instanceof PageThrew) return undefined;
+      throw error;
+    }) as Silence | undefined;
+    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw };
 
     await ev(STILL);
     await ev(stableHeightExpression(PAINTED));
@@ -284,14 +296,17 @@ async function capture(cdp: Cdp, url: string) {
       previous = next;
       if (Date.now() >= until) break;
     }
-    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence };
+    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw };
   } finally {
     try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
   }
 }
 
 export function paintProblem(name: string, layer: string,
-  shot: { painted: { ready: boolean; waitedMs: number }; settled: boolean; tries: number; silence: Silence }) {
+  shot: { painted: Painted; settled: boolean; tries: number; silence?: Silence; threw?: string }) {
+  if (shot.threw !== undefined) {
+    return threwProblem(`${name}: the ${layer} page`, shot.threw, shot.silence);
+  }
   if (shot.painted.ready && !shot.settled) {
     return `${name}: the ${layer} page never stopped changing. ${SETTLE_TRIES} captures in a row `
       + 'each differed from the one before it, so nothing here can be compared against the other '
@@ -299,13 +314,11 @@ export function paintProblem(name: string, layer: string,
       + 'this gate looks for. Something on it animates through a reduced-motion emulation, or '
       + 'redraws from a measurement that never converges';
   }
-  if (!shot.painted.ready) {
-    return `${name}: the ${layer} page never signalled that it had painted, within ${PAINTED.ms}ms, `
-      + `which is that size because ${PAINTED.why}. The wait ended after ${shot.painted.waitedMs}ms, `
-      + `so this says nothing about whether the two layers agree${silenceOf(shot.silence)}`;
-  }
-  if (shot.silence.errors.length > 0) {
-    return `${name}: the ${layer} page raised ${shot.silence.errors.length} error(s) while loading, so `
+  const unpainted = paintedProblem(`${name}: the ${layer} page`, PAINTED, shot.painted,
+    'so this says nothing about whether the two layers agree', shot.silence);
+  if (unpainted !== null) return unpainted;
+  if ((shot.silence?.errors.length ?? 0) > 0) {
+    return `${name}: the ${layer} page raised ${shot.silence?.errors.length} error(s) while loading, so `
       + `what it painted is not what it was asked to paint${silenceOf(shot.silence)}`;
   }
   return null;

@@ -8,7 +8,7 @@
 
 import { pathToFileURL } from 'node:url';
 import { browserOrExit, launchChromium } from './chromium.ts';
-import { connect } from './cdp.ts';
+import { connect, evaluate } from './cdp.ts';
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline } from './deadline.ts';
 
@@ -45,9 +45,7 @@ export async function renderPageImage(pagePath: string, width: number, height: n
     await withTimeout(settled, NAVIGATE.ms,
       `${url}: the load event never fired within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
-    await withTimeout(cdp.send('Runtime.evaluate',
-      { expression: 'document.fonts.ready.then(() => true)', awaitPromise: true, returnByValue: true },
-      sessionId), FONTS.ms,
+    await withTimeout(evaluate(cdp, 'document.fonts.ready.then(() => true)', sessionId), FONTS.ms,
       `${url}: the fonts never became ready within ${FONTS.ms}ms, which is that size because ${FONTS.why}`);
 
     const shot = await cdp.send('Page.captureScreenshot',

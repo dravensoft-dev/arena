@@ -16,14 +16,16 @@ import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
-import { connect } from '../../lib/arena/cdp.ts';
+import { connect, evaluate, PageThrew } from '../../lib/arena/cdp.ts';
 import type { Cdp } from '../../lib/arena/cdp.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { COLLECT } from '../../lib/arena/page-errors.ts';
+import {
+  COLLECT, REPORT, paintedProblem, threwProblem, type Painted, type Silence,
+} from '../../lib/arena/page-errors.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { SINK_LAYERS } from '../../generate/arena/generate-kitchen-sink.ts';
-import { PAINTED, readyExpression, sinksIn, pagePath, STILL } from './check-pixel-parity.ts';
+import { PAINTED, loaded, readyExpression, sinksIn, pagePath, STILL } from './check-pixel-parity.ts';
 
 export const node = {
   name: 'check:target-size',
@@ -39,6 +41,12 @@ export const node = {
 export const NAVIGATE: Deadline = deadline('target-size:navigate', 30_000,
   'the page fetches the whole component barrel and its layer\'s bundle, so the first navigation of '
   + 'a sweep pays for a cold HTTP cache');
+
+export const LOADED: Deadline = deadline('target-size:loaded', 30_000,
+  'the wait that follows a navigation is the load event and not the navigate call, which settles '
+  + 'at the commit: the response headers have arrived there and the parser may not have built a '
+  + 'documentElement yet, so a page read at that moment answers about a document with no root. '
+  + 'It is the same size as the navigate above because it is the same fetch being waited on');
 
 export const PHONE = { width: 390, height: 844, deviceScaleFactor: 1, mobile: true };
 
@@ -182,15 +190,31 @@ async function measure(cdp: Cdp, url: string, scope: Scope) {
     await cdp.send('Emulation.setDeviceMetricsOverride', PHONE, sessionId);
     await cdp.send('Page.enable', {}, sessionId);
     await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
+    const settled = loaded(cdp, sessionId);
     await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
       `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
-    const ev = (expression: string) => cdp.send('Runtime.evaluate',
-      { expression, awaitPromise: true, returnByValue: true }, sessionId);
-    const painted = (await ev(readyExpression(PAINTED))).result.value;
-    if (!painted.ready) return { rows: [], painted };
-    await ev(STILL);
-    const rows = (await ev(measureExpression(INTERACTIVE, scope.klass))).result.value ?? [];
-    return { rows, painted };
+    await withTimeout(settled, LOADED.ms,
+      `${url}: the load event never fired, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
+    const ev = (expression: string) => evaluate(cdp, expression, sessionId);
+
+    let painted: Painted = { ready: false, waitedMs: 0 };
+    let rows: Measured[] = [];
+    let threw: string | undefined;
+    try {
+      painted = await ev(readyExpression(PAINTED));
+      if (painted.ready) {
+        await ev(STILL);
+        rows = await ev(measureExpression(INTERACTIVE, scope.klass)) ?? [];
+      }
+    } catch (error) {
+      if (!(error instanceof PageThrew)) throw error;
+      threw = error.message;
+    }
+    const silence = await ev(REPORT).catch((error: unknown) => {
+      if (error instanceof PageThrew) return undefined;
+      throw error;
+    }) as Silence | undefined;
+    return { rows, painted, silence, threw };
   } finally {
     await cdp.send('Target.closeTarget', { targetId });
   }
@@ -215,11 +239,12 @@ async function main() {
       for (const layer of SINK_LAYERS) {
         for (const scope of SCOPES) {
           const url = `http://127.0.0.1:${server.port}/${pagePath(layer, sink)}`;
-          const { rows, painted } = await measure(cdp, url, scope);
-          if (!painted.ready) {
-            problems.push(`${scope.name}/${layer}: the page never signalled ready within ${PAINTED.ms}ms`);
-            continue;
-          }
+          const what = `${sink} ${scope.name}/${layer}: the page`;
+          const { rows, painted, silence, threw } = await measure(cdp, url, scope);
+          if (threw !== undefined) { problems.push(threwProblem(what, threw, silence)); continue; }
+          const unpainted = paintedProblem(what, PAINTED, painted,
+            'so this density was measured against nothing', silence);
+          if (unpainted !== null) { problems.push(unpainted); continue; }
           for (const row of rows) measured.push({ ...row, layer, scope: scope.name });
         }
       }
@@ -230,7 +255,7 @@ async function main() {
   }
 
   problems.push(
-    ...zeroMeasuredProblems(measured.length, SCOPES.length),
+    ...zeroMeasuredProblems(measured.length, new Set(measured.map((one) => one.scope)).size),
     ...undersized(measured),
     ...staleUnsizedProblems(measured),
   );
