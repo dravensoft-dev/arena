@@ -41,6 +41,7 @@ export const node = {
     'build:angular-tests',
     'check:angular',
     'check:arbitrary',
+    'check:community',
     'check:consumer',
     'check:packages',
   ],

@@ -28,6 +28,7 @@ export const node = {
     'build:react-package',
     'check:arbitrary',
     'check:classes',
+    'check:community',
     'check:dimensions',
     'check:duplicate-constants',
     'check:generated',

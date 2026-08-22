@@ -40,7 +40,7 @@ export const node = {
     'frameworks/angular/build/demo/**',
   ],
   writes: [`${SITE_DIR}/**`],
-  feeds: ['check:site'],
+  feeds: ['check:community', 'check:site'],
 };
 
 export const OG_FILE = 'og.png';

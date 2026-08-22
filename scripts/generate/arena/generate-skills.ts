@@ -49,6 +49,7 @@ export const node = {
     'check:parts',
     'check:arbitrary',
     'check:behaviour',
+    'check:community',
     'check:compliance',
     'check:dimensions',
     'check:duplicate-constants',

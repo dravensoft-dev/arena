@@ -78,7 +78,7 @@ export const node = {
     'LICENSE',
   ],
   writes: [`${DIST}/**`],
-  feeds: ['check:contracts-package'],
+  feeds: ['check:community', 'check:contracts-package'],
   releaseOnly: 'nothing in this repository consumes the assembled artefact, so a development loop pays '
     + 'nothing for it and bun run build:packages is where it is produced',
 };

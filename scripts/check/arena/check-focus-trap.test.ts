@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import {
   TRAPS, FOCUSABLE, walkProblems, PANEL_HELD, NAVIGATE, FOCUS_MOVED, heldExpression, movedExpression,
+  armExpression, BEFORE,
 } from './check-focus-trap.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -128,6 +129,27 @@ test('a keypress waits for focus to MOVE rather than for a span to pass', () => 
   const source = movedExpression(FOCUS_MOVED);
   assert.match(source, /activeElement !== before/, 'the condition is about the subject');
   assert.ok(source.includes(String(FOCUS_MOVED.ms)), 'and the span beside it is the bound');
+});
+
+test('the keypress barrier reads a snapshot the press cannot have moved', () => {
+  const armed = armExpression();
+  assert.match(armed, /document\.activeElement/, 'arming is what takes the snapshot');
+  assert.ok(armed.includes(BEFORE), 'and it parks it where the wait looks');
+  assert.ok(movedExpression(FOCUS_MOVED).includes(BEFORE),
+    'the wait reads the armed snapshot rather than taking its own: one taken after the key was '
+    + 'dispatched is already the moved element, so the wait asks for a second move that never '
+    + 'comes and spends its whole bound on every press');
+  assert.doesNotMatch(movedExpression(FOCUS_MOVED), /const before = document\.activeElement/,
+    'which is the line that made this gate a fixed sleep wearing the costume of a wait');
+});
+
+test('a panel holding one Tab stop is waited on for containment, not for a move', () => {
+  const held = heldExpression(FOCUS_MOVED);
+  assert.match(held, /contains\(document\.activeElement\)/,
+    'Tab in a one-stop panel returns to the element it started on, so a move is impossible and '
+    + 'asking for one spends the bound to learn what the stop count already said');
+  assert.ok(held.includes(String(FOCUS_MOVED.ms)),
+    'and the keypress bound is what it is spent against, not a second number spelled beside it');
 });
 
 test('a trap that never claimed focus on open is reported even when containment holds', () => {
