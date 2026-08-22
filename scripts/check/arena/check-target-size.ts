@@ -6,11 +6,12 @@
  * in. Only an element inside a data-arena-part is measured, since check:parts already asserts every
  * painted slot carries one and an unnamed control is the harness's own chrome. Two renders, and the
  * second is the point: nothing else here draws .arena-comfortable, the density Arena names as its
- * answer to WCAG 2.5.8. UNSIZED holds the one exception that is a geometry rather than a control
- * left small, with the measurement that produced it, and a stale entry fails. */
+ * answer to WCAG 2.5.8. UNSIZED excepts a geometry and not a control left small; ARGUED ties a
+ * floor to the token file arguing it. Each carries a reason, and a stale entry of either fails. */
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -34,7 +35,8 @@ export const node = {
     'frameworks/react/components/**/*.generated.js', 'frameworks/react/*.generated.js',
     'frameworks/react/vendor/**', 'frameworks/angular/build/demo/**',
     'frameworks/tailwind/consume/**', 'contracts/design-generated/**',
-    'contracts/design/*.css', 'assets/fonts/**', 'assets/rotor-crimson.svg',
+    'contracts/design/*.css', 'contracts/design/density.comfortable.json',
+    'assets/fonts/**', 'assets/rotor-crimson.svg',
     'intro/kitchen-sink.css', 'intro/styles.css', 'intro/toggle.css', 'intro/theme.js',
     'plugin-style-store/**/plugin.css',
   ],
@@ -81,6 +83,65 @@ export const UNSIZED = new Map<string, string>([
     + 'deciding that the month scrolls sideways below that width rather than shrinking, which is a '
     + 'decision about the calendar and not about the floor'],
 ]);
+
+export type Argued = { file: string; token: string; floor: number; why: string };
+
+export const ARGUED = new Map<string, Argued>([
+  ['comfortable', { file: 'contracts/design/density.comfortable.json', token: 'dz.ctl-h-sm', floor: 44,
+    why: 'this scope\'s floor is a number in SCOPES and the density it names is a number in a token '
+      + 'file, and nothing but this entry made them the same claim. The file argues its smallest '
+      + 'control clears what a thumb needs -- "a ladder whose bottom rung misses the floor the file '
+      + 'above argues for is a ladder that does not hold it" -- and the rung is ctl-h-sm. Lower it '
+      + 'and the density stops answering the floor this gate measures against, everywhere no '
+      + 'component happens to render small enough for the browser sweep to catch it' }],
+]);
+
+export function dimensionAt(json: unknown, token: string): number | null {
+  let at: unknown = json;
+  for (const step of token.split('.')) {
+    if (at === null || typeof at !== 'object' || !(step in at)) return null;
+    at = (at as Record<string, unknown>)[step];
+  }
+  const value = (at as { $value?: { value?: unknown; unit?: unknown } })?.$value;
+  if (typeof value?.value !== 'number' || value.unit !== 'px') return null;
+  return value.value;
+}
+
+export const onDisk = (base: string) => (rel: string) =>
+  (existsSync(join(base, rel)) ? readJson(join(base, rel)) : null);
+
+export function arguedProblems(scopes = SCOPES, argued = ARGUED, read = onDisk(root)) {
+  const problems: string[] = [];
+  for (const [name, one] of argued) {
+    const scope = scopes.find((s) => s.name === name);
+    if (!scope) {
+      problems.push(`ARGUED ties ${one.file} to a scope called ${name}, and SCOPES holds none: ${one.why}`);
+      continue;
+    }
+    if (scope.floor !== one.floor) {
+      problems.push(`ARGUED records ${name}'s floor as ${one.floor}px and SCOPES now draws it at `
+        + `${scope.floor}px, so the tie to ${one.token} was written against a floor that has moved: ${one.why}`);
+      continue;
+    }
+    const json = read(one.file);
+    if (json === null) {
+      problems.push(`ARGUED ties ${name}'s ${one.floor}px floor to ${one.file}, and that file is not `
+        + `there, so the argument it carried is gone: ${one.why}`);
+      continue;
+    }
+    const held = dimensionAt(json, one.token);
+    if (held === null) {
+      problems.push(`ARGUED reads ${one.token} from ${one.file} and it is not a px dimension there, `
+        + `so the tie names a token the file no longer spells: ${one.why}`);
+      continue;
+    }
+    if (held < one.floor) {
+      problems.push(`${one.file} sets ${one.token} to ${held}px and ${name}'s floor is ${one.floor}px, `
+        + `so the density's smallest control no longer clears the floor this gate measures against: ${one.why}`);
+    }
+  }
+  return problems;
+}
 
 export type Measured = { layer: string; scope: string; part: string; tag: string; role: string;
   width: number; height: number; exempt: string };
@@ -262,6 +323,7 @@ async function main() {
     ...zeroMeasuredProblems(measured.length, new Set(measured.map((one) => one.scope)).size),
     ...undersized(measured),
     ...staleUnsizedProblems(measured),
+    ...arguedProblems(),
   );
 
   if (problems.length) {
