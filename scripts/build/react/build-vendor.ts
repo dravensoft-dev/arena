@@ -43,6 +43,7 @@ export const node = {
     'check:focus-trap',
     'check:generated',
     'check:pixel-parity',
+    'check:target-size',
     'check:layer-independence',
     'check:script-tokens',
     'check:skills',

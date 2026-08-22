@@ -32,8 +32,10 @@ export const node = {
   reads: [
     'frameworks/react/kitchen-sink/**', 'frameworks/angular/kitchen-sink/**',
     'frameworks/react/components/**/*.generated.js', 'frameworks/react/playground/*.generated.js',
+    'frameworks/react/*.generated.js',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/angular/build/demo/**', 'contracts/design-generated/**',
+    'contracts/design/*.css', 'assets/fonts/**', 'assets/rotor-crimson.svg',
     'intro/kitchen-sink.css', 'intro/styles.css', 'intro/toggle.css', 'intro/theme.js',
     'plugin-style-store/**/plugin.css',
   ],
