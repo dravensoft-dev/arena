@@ -31,7 +31,7 @@ export const node = {
   name: 'check:pixel-parity',
   reads: [
     'frameworks/react/kitchen-sink/**', 'frameworks/angular/kitchen-sink/**',
-    'frameworks/react/components/**/*.generated.js', 'frameworks/react/playground/*.generated.js',
+    'frameworks/react/components/**/*.generated.js',
     'frameworks/react/*.generated.js',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/angular/build/demo/**', 'contracts/design-generated/**',
