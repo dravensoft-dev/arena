@@ -24,7 +24,7 @@ export const node = {
   name: 'check:community',
   reads: [
     'CONTRIBUTING.md', 'SECURITY.md', 'skills/design/SKILL.md', 'context7.json', '.github/**',
-    '**/*.md', '!frameworks/**/dist/**', '!frameworks/**/vendor/**', '!.claude/**',
+    '**/*.md', '!frameworks/**/dist/**', '!frameworks/**/vendor/**',
   ],
   writes: [],
   feeds: [],
