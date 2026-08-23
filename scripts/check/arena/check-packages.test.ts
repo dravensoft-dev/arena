@@ -384,6 +384,23 @@ test('a page named on the domain is judged against what the site actually publis
   rmSync(dir, { recursive: true });
 });
 
+test('the record the payload would write is held to the Agent Skills specification', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const manifest = {
+    name: 'arena', description: 'x', homepage: 'https://arena.dravensoft.org', version: '0.0.0',
+    package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md',
+  };
+  const dir = assembled({
+    'agent/skills/design/ROUTER.md': `${'body\n'.repeat(600)}`,
+    'agent/skill.json': JSON.stringify(manifest),
+    'agent/support.json': '{}',
+  });
+  const problems = payloadProblems(pkg, dir);
+  assert.ok(problems.some((one) => /the body is \d+ lines against the/.test(one)),
+    'a router past the ceiling the standard recommends is a record every client loads whole');
+  rmSync(dir, { recursive: true });
+});
+
 test('a link, a relative inline path and an absolute one are all targets; prose is not', () => {
   const found = targetsIn('see [a](./b.md) and `../c.md` and `https://d/e` but not `a word`');
   assert.deepEqual(found, ['./b.md', '../c.md', 'https://d/e']);

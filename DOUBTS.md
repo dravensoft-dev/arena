@@ -102,6 +102,35 @@ will.
 
 ## Filed
 
+**No install of Arena is ever run.** The consumer branch names four package managers and
+several bundlers, and `check:consumer` runs what a consumer runs by symlinking the assembled
+package into a fixture and calling the command with Node. Nothing installs the tarball with npm,
+pnpm, bun or yarn, and nothing puts it through a bundler, so the rows on the repertoire page that
+say a tool works say it because somebody once did it by hand or because the manifest resolves.
+
+What it costs: a manifest change that breaks under one layout ships green, and the failure lands
+in a consumer's first install, which is the point at which they have least reason to blame the
+package and least ability to diagnose it. It is also what holds several rows of
+`skills/design/references/stack.md` at "verified by hand once" and "allowed by the manifest, not
+exercised": an install matrix is the only thing that would move them, and promoting a row without
+one is the failure the evidence column exists to prevent.
+
+Re-derive what is claimed with `bun run check:support`, and what is actually exercised with
+`bun run check:consumer`.
+
+**The discovery record is the one artefact no gate here can observe.** `arena-to-prod --skill`
+writes into a consumer's own tree, and this repository holds no consumer tree. What runs here is
+the payload it writes from, held by `check:packages`, and a render of the record it would produce,
+held to the Agent Skills specification the same way.
+
+What it costs: a record that stops matching the package it came from is read by an agent anyway,
+which writes against a language one version old and reports nothing. `--skill-check` is the only
+instrument over it and the consumer is the only one who can run it, so a release moves the number
+and nothing here proves the record moved with it.
+
+Re-derive it by installing the packed package into a scratch project and running
+`npx arena-to-prod --skill && npx arena-to-prod --skill-check --strict=skill`.
+
 **Nothing server-renders an Angular page.** The consumer branch tells a project it may
 server-render or prerender, and both layers are written for it: neither reads a browser global
 while a module evaluates, and `check:architecture` fails one that starts to. What separates the

@@ -24,7 +24,11 @@ import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { carriedFiles, agentManifest } from '../../lib/arena/package-assembly.ts';
-import { servedDocs } from '../../lib/arena/llms-index.ts';
+import { servedDocs, unquote } from '../../lib/arena/llms-index.ts';
+import { record as skillRecord, SKILL_NAME } from '../../generate/core/arena-to-prod/skill.ts';
+import {
+  frontmatterOf, nameProblems, descriptionProblems, keyProblems, scalarProblems, bodyProblems,
+} from './check-skill-spec.ts';
 import {
   AGENT_DIR, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST, SUPPORT_FILE, LINK, INLINE,
   isRepoPath,
@@ -279,6 +283,23 @@ export function payloadProblems(pkg: { layer: string; name: string }, dir: strin
     if (JSON.stringify(manifest[key]) === JSON.stringify(value)) continue;
     problems.push(`${pkg.name}: ${AGENT_MANIFEST} states ${key} as `
       + `${JSON.stringify(manifest[key])} against ${JSON.stringify(value)}`);
+  }
+
+  const routerText = readFileSync(join(agent, ...ROUTER_FILE.split('/')), 'utf8');
+  const written = skillRecord(routerText, fresh, 'agent/skills/design', 'arena-to-prod --skill');
+  const front = frontmatterOf(written);
+  if (front === null) {
+    problems.push(`${pkg.name}: the record this payload would write carries no frontmatter, so no `
+      + 'scanner discovers it');
+  } else {
+    const at = `${pkg.name}: the record ${AGENT_DIR}/ would write`;
+    problems.push(
+      ...nameProblems(`${at}/${SKILL_NAME}/SKILL.md`, unquote(front.values.get('name') ?? '')),
+      ...descriptionProblems(at, unquote(front.values.get('description') ?? '')),
+      ...keyProblems(at, front.keys),
+      ...scalarProblems(at, front.values),
+      ...bodyProblems(at, front.body),
+    );
   }
 
   const served = new Set(servedDocs());
