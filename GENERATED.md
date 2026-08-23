@@ -28,6 +28,20 @@ is binary and one is built by a tool this repository does not contain.
 because the file is yours, the surrounding prose is yours, and one part of it is not. There is no
 convention that reveals it from outside. Read the file.
 
+## And one written into somebody else's repository
+
+**`arena-to-prod --skill` writes a discovery record into a consumer's own tree**, and it is the
+only file Arena generates that this repository never holds. It carries the frontmatter every
+scanner reads, a banner naming the command that wrote it, and the version of the package it came
+from. Nothing here can observe it: no gate of Arena's reads a consumer's project, so the only
+instrument over it is `--skill-check`, which the consumer runs and which reports that the record
+is absent, that another version wrote it, that it was edited by hand, or that a document it
+routes to is not there.
+
+**The payload it routes into is generated too.** `agent/` inside each package is assembled from
+this tree on every build, so the rule above holds there as well: a file in it is not one to edit,
+and a defect in one is a defect in the document it was copied from.
+
 ## The regions inside an authored file, and how each marks itself
 
 Each marks its boundary differently, and the third does not mark it at all.

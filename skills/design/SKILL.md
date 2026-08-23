@@ -41,8 +41,8 @@ repository's and reaches nothing a package or this site carries.
 **A value you answer is not a value you move**, which is what decides the branch when the job is
 an appearance: a role your project fills is this branch's whatever it paints, and a scale step
 every product reads is the other one's, the type and page rhythm ladders aside. **Every path here outside `references/` is a repository
-path**, carried by a clone and by the plugin, and read on the repository above when it is
-neither.
+path**, carried by a clone, by the plugin, and by the copy `arena-to-prod --skill`
+installs; read on the repository above otherwise.
 
 **Everything here is one component at a time.**
 

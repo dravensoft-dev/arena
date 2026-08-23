@@ -112,6 +112,12 @@ that pays for it, because a departure nobody recorded is one the next reader rep
   `references/`.** A prompt sits next to its component, carrying regions emitted from that
   component's contract, and a copy inside the skill directory would be a second answer to a
   question the contracts answer once.
+- **The corpus ships inside the tarball, where that same reference tree lives beside its code.**
+  A package pinned to the commit that produced its components cannot disagree with them, and a
+  router pointing at HEAD from a project on an older tag already does. `agent/` is generated on
+  every assembly rather than authored, `check:packages` holds every path in it to something a
+  consumer installs or a page the site publishes, and the discovery record a consumer writes from
+  it is stamped with the version it came from.
 - **This page routes where the convention's own example instructs.** A contributor route is three
   and four stops, and `check:routes` is what says what carrying the whole of it here would cost on
   every task. What stays is what an agent acts on, which is the commands.

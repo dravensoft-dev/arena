@@ -40,10 +40,13 @@ export const RUNNER_EXEMPT = new Map([
     + 'rather than one a consumer runs, and the pages carrying it are generated from the tree'],
 ]);
 
+export const ALSO_CONSUMER_FACING = ['README.md'];
+
 export function documents(base = root) {
   return walkFiles(base, { skip: (name) => skips(name) })
     .filter((path) => path.endsWith('.md'))
-    .filter((path) => isConsumerDocument(relPosix(base, path)));
+    .filter((path) => isConsumerDocument(relPosix(base, path))
+      || ALSO_CONSUMER_FACING.includes(relPosix(base, path)));
 }
 
 export function regionProblems(base = root) {

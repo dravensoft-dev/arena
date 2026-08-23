@@ -82,7 +82,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 22_400,
+    budget: 23_000,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than '
@@ -97,7 +97,13 @@ export const ENTRIES: Entry[] = [
       + 'that had two equally correct rows for a keyboard defect and picked by luck, and one that '
       + 'planned a component that already shipped in three layers, because no row asks whether it '
       + 'exists and the page that answers belongs to the other branch. A router indexed only by '
-      + 'intent serves the reader who already has one, and that reader is not the expensive case.',
+      + 'intent serves the reader who already has one, and that reader is not the expensive case. '
+      + 'Raised to 23,000 for the fifth declared departure. The corpus a package carries is the '
+      + 'reference tree shipped where the tree it is generated from already sits, so the '
+      + 'departure above it reads as contradicted by the one below unless both are written '
+      + 'down: a contributor who finds a prompt inside a tarball, and a page saying a copy '
+      + 'inside the skill directory is refused, has two rules and no way to tell which one '
+      + 'governs the change they are making.',
   },
 ];
 
@@ -171,7 +177,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 50_400,
+    budget: 51_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -316,7 +322,13 @@ export const ROUTES: Route[] = [
       + 'with the evidence behind it, and leaves the rest of the repertoire to the page that '
       + 'owns it: a project that cannot load a module has to learn it here rather than at the '
       + 'first import, and one that can is spared the other four axes on the route it pays per '
-      + 'project.',
+      + 'project. Raised again to 51,400 for the row naming the discovery record. This is the '
+      + 'only route a reader arriving from the registry can take, and the record is what puts '
+      + 'Arena where their editor looks: a package carrying the whole corpus and a page that '
+      + 'never names the one command that surfaces it ships a language nobody reaches, which is '
+      + 'the shape the stub it replaces already had. The row also says what --skill-check '
+      + 'reports, since a record that stops matching the package fails at nothing and is read by '
+      + 'an agent anyway.',
   },
   {
     name: 'consumer-skin',
@@ -717,7 +729,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what a machine writes and where the boundary runs inside one file',
     entry: 'contributor',
     stops: ['GENERATED.md'],
-    budget: 7_000,
+    budget: 7_900,
     reason:
       'paid once per contributor rather than per change, which is what lets it carry the whole '
       + 'surface rather than a pointer to it. It is the shortest contributor route on purpose: what '
@@ -731,7 +743,11 @@ export const ROUTES: Route[] = [
       + 'rather than a paragraph on a page a task chooses. The number is what the stops measure '
       + 'with room for one section, and it grows when a generator gains a shape rather than when '
       + 'the page gains a paragraph, since the shapes are derived from what each node declares it '
-      + 'writes.',
+      + 'writes. Raised to 7,900 when a generator gained the shape this page had no name for: '
+      + 'a file written into a repository that is not this one. Nothing here can observe such a '
+      + 'file, so the section says which instrument reads it and who runs that instrument, and '
+      + 'it names the payload as generated too, since a prompt found inside a package is one a '
+      + 'contributor would otherwise correct in the copy rather than in its source.',
   },
   {
     name: 'contributor-token',
@@ -864,7 +880,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 62_900,
+    budget: 63_300,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -904,7 +920,13 @@ export const ROUTES: Route[] = [
       + 'what --follow-tags buys, and a page that never appeared is written by dispatching the '
       + 'workflow by hand and by nothing else. A reader who does not know it waits for a page that '
       + 'no event is coming for, which is this route\'s failure mode again: nothing errored, and '
-      + 'nobody was told.',
+      + 'nobody was told. Raised to 63,300 for the one artefact of a release that no gate here '
+      + 'can observe. The command each package ships writes a discovery record into a consumer '
+      + 'tree, and nothing in this repository holds one, so the version it stamps is checked by '
+      + 'installing the packed package and running the command or it is checked by nobody: a '
+      + 'record carrying the previous number is what every project installing the release would '
+      + 'then be told to keep. This route\'s failure mode once more, and the sequence carries '
+      + 'the step rather than sending a reader to find it.',
   },
 ];
 
