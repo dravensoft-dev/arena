@@ -50,6 +50,7 @@ export const node = {
   feeds: [
     'check:arbitrary',
     'check:consumer',
+    'check:mcp',
     'check:packages',
     'check:react-types',
   ],

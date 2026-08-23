@@ -40,6 +40,12 @@ export const PACKAGE_INPUTS: Record<string, Record<string, string>> = {
     'scripts/lib/arena/package-assembly.ts': 'pluginIdentity, the copy helpers and the behaviour copy',
     'LICENSE': 'shipped verbatim',
   },
+  mcp: {
+    'scripts/generate/core/arena-mcp/': 'the server itself, transpiled whole into bin/',
+    'scripts/build/arena/build-mcp-package.ts': 'the assembler, and the manifest it stamps',
+    'mcp/NPM.md': 'the page npm shows, carried as README.md',
+    'LICENSE': 'shipped verbatim',
+  },
   react: {
     ...SHARED_INPUTS,
     'frameworks/react/': 'the layer itself',

@@ -96,6 +96,25 @@ hand, or that a document it routes to is not there; `--strict=skill` makes any o
 those fatal, which is how a project holds it in its own CI. It is the only thing
 in Arena that reads a consumer's project.
 
+### Over MCP
+
+```json
+{
+  "mcpServers": {
+    "arena": { "command": "npx", "args": ["-y", "@dravensoft/arena-mcp"] }
+  }
+}
+```
+
+`@dravensoft/arena-mcp` serves the router, the references and every component document to an
+agent that speaks the Model Context Protocol, as resources and as tools. **It carries no copy of
+the language**: it reads the payload of the Arena package your project already installs, so it
+cannot disagree with the components beside it.
+
+**Take the record above instead when you can.** It needs no server and no configuration, and
+every editor listed there scans for it. Take this one when you would rather configure a server
+once than write a file per project, or when your client speaks MCP and scans for no skill.
+
 ### As a Claude Code plugin
 
 ```

@@ -61,12 +61,16 @@ browser, and how a long run is narrowed.
 
 ## What this repo ships
 
-Three things at once, from the same tree:
+Five things at once, from the same tree:
 
 - a **Claude Code plugin**, `.claude-plugin/`, registering the `design` skill that
   `skills/design/SKILL.md` defines, **served from the git tag**;
 - two **npm packages**, `@dravensoft/arena-react` and `@dravensoft/arena-angular`, assembled by
-  `bun run build:packages` into `frameworks/<layer>/dist/`;
+  `bun run build:packages` into `frameworks/<layer>/dist/`, each carrying the corpus an agent
+  reads under `agent/` and the command that writes a discovery record from it;
+- `@dravensoft/arena-contracts` and `@dravensoft/arena-mcp`, assembled by the same command into
+  `dist/`. The second is the only package here with a runtime dependency and serves the corpus of
+  whichever of the two layers a project installed, carrying none of its own;
 - a standalone **Agent Skill**, `skills/design/SKILL.md`.
 
 **A published Arena carries the language and never the skin**, which is the decision the whole

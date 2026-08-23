@@ -70,6 +70,7 @@ export const GATES = [
   { name: 'check:structure', file: 'arena/check-structure.ts' },
   { name: 'check:contracts', file: 'arena/check-contracts.ts' },
   { name: 'check:contracts-package', file: 'arena/check-contracts-package.ts' },
+  { name: 'check:mcp', file: 'arena/check-mcp.ts' },
   { name: 'check:contracts-neutrality', file: 'arena/check-contracts-neutrality.ts' },
   { name: 'check:contracts-resolve', file: 'arena/check-contracts-resolve.ts' },
   { name: 'check:behaviour', file: 'arena/check-behaviour.ts' },

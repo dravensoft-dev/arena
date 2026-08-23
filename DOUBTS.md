@@ -102,6 +102,20 @@ will.
 
 ## Filed
 
+**No editor ever speaks to the MCP server.** A suite starts the process an editor starts, speaks
+the protocol at it and reads the answers back, so initialize, tools/list, tools/call,
+resources/list and resources/read are exercised against a real payload. What is not exercised is
+any client but that one: no editor's own handshake, no protocol version but the one the suite
+sends, and none of the methods the server does not implement.
+
+What it costs: a client that negotiates differently, or that calls a method this server answers
+badly rather than not at all, fails in the editor with nothing here in red. The failure lands as
+a broken configuration in somebody's editor, which is the point at which they have least reason
+to blame Arena and least ability to diagnose it.
+
+Re-derive what is exercised with `bun test scripts/check/arena/check-mcp-protocol.test.ts`, and
+what the server offers at all with `bun run check:mcp`.
+
 **No install of Arena is ever run.** The consumer branch names four package managers and
 several bundlers, and `check:consumer` runs what a consumer runs by symlinking the assembled
 package into a fixture and calling the command with Node. Nothing installs the tarball with npm,

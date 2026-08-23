@@ -82,7 +82,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 23_000,
+    budget: 23_400,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than '
@@ -103,7 +103,11 @@ export const ENTRIES: Entry[] = [
       + 'departure above it reads as contradicted by the one below unless both are written '
       + 'down: a contributor who finds a prompt inside a tarball, and a page saying a copy '
       + 'inside the skill directory is refused, has two rules and no way to tell which one '
-      + 'governs the change they are making.',
+      + 'governs the change they are making. Raised again to 23,400 when the artefact list stopped '
+      + 'saying three. It had named two npm packages since a third shipped, and a fourth landed '
+      + 'beside it: a contributor reading which of them a change moves was reading a list that '
+      + 'answered for half of them, and what a release moves is the one thing on this branch that '
+      + 'fails in silence when it is forgotten.',
   },
 ];
 
@@ -796,7 +800,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 89_600,
+    budget: 90_700,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -833,7 +837,13 @@ export const ROUTES: Route[] = [
       + 'row is 1,066. It runs a little past the median because its claim is a measurement rather '
       + 'than a rule, and what a contributor needs from it is what it measures and what it refuses '
       + 'to measure: the activation box rather than the painted one, only inside a named part, and '
-      + 'in the density nothing else in this repository draws. Raised to 88,500 when check:citations widened from one surface to three, which is the case the paragraph above does not cover: no row landed and one row grew, from 1,927 characters to 2,840, over the same 49 rows whose median is 951 and whose longest is 3,942. A gate states its whole claim in one row, so a claim that widens is a row that grows, and the only alternative on offer is a row describing a third of what the gate reads. Raised to 89,600 for the check:support row, measured the way this string says to: over 50 rows the median is 972 characters and the longest is still 3,942, and the new row is 1,030. It sits just past the median because what a contributor needs from it is a failure this branch already shipped rather than a rule somebody thought of: bunx was written into five consumer pages while the command they name is a Node program, so the documentation carried a runtime dependency Arena does not have and no gate could see it. The raise pays for one row, which is the ordinary case this budget is written around.',
+      + 'in the density nothing else in this repository draws. Raised to 88,500 when check:citations widened from one surface to three, which is the case the paragraph above does not cover: no row landed and one row grew, from 1,927 characters to 2,840, over the same 49 rows whose median is 951 and whose longest is 3,942. A gate states its whole claim in one row, so a claim that widens is a row that grows, and the only alternative on offer is a row describing a third of what the gate reads. Raised to 89,600 for the check:support row, measured the way this string says to: over 50 rows the median is 972 characters and the longest is still 3,942, and the new row is 1,030. It sits just past the median because what a contributor needs from it is a failure this branch already shipped rather than a rule somebody thought of: bunx was written into five consumer pages while the command they name is a Node program, so the documentation carried a runtime dependency Arena does not have and no gate could see it. The raise pays for one row, which is the ordinary case this budget is written around. '
+      + 'Raised to 90,700 for the check:mcp row, measured the same way: over 51 rows the median '
+      + 'is 994 characters and the longest is still 3,942, and the new row is 1,017. It sits at '
+      + 'the median, and what it buys is the one claim of that gate a contributor cannot infer '
+      + 'from the package it judges: the emptiness is the assertion. A server carrying no corpus '
+      + 'reads as an oversight until a gate says the corpus is refused and says why, and a '
+      + 'comment claiming it would hold nothing.',
   },
   {
     name: 'contributor-tailwind',
@@ -880,7 +890,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 63_300,
+    budget: 64_000,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -926,7 +936,12 @@ export const ROUTES: Route[] = [
       + 'installing the packed package and running the command or it is checked by nobody: a '
       + 'record carrying the previous number is what every project installing the release would '
       + 'then be told to keep. This route\'s failure mode once more, and the sequence carries '
-      + 'the step rather than sending a reader to find it.',
+      + 'the step rather than sending a reader to find it. Raised to 64,000 when a fourth '
+      + 'package landed, which is the case the third already argued and this route pays again: a '
+      + 'reader cutting a release has one more workflow, and what is true of this one is true of '
+      + 'none of the others. It is the only package here declaring a runtime dependency, and it '
+      + 'carries no document at all, so the two things a reader would otherwise check by opening '
+      + 'the tarball are the two a gate asserts instead.',
   },
 ];
 
