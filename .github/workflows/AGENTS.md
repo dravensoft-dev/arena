@@ -15,6 +15,7 @@ push to main                  Arena main            builds, and saves that build
    +-- on success             Publish arena-react      restores it
    +-- on success             Publish arena-angular    restores it
    +-- on success             Publish arena-contracts  restores it
+   +-- on success             Publish arena-mcp        restores it
    +-- on success             Publish the site         restores it
    +-- on success             Release notes            describes the tag this commit reaches
 ```
@@ -161,12 +162,12 @@ to be kept honest across. `portable` restores a bun install cache per operating 
 none of the build, because what it is asking is whether a fresh tree builds on that platform.
 
 **Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
-`--assemble`, so all three packages are part of the run the workflow already makes. Dropping the
+`--assemble`, so all four packages are part of the run the workflow already makes. Dropping the
 assembly would not skip package work: `check:packages` reads no manifest and passes while saying so,
 which is a quieter green rather than a faster one, and `check:consumer` assembles a missing `dist/`
 itself. Assembling nothing is not publishing nothing, and nothing here publishes.
 
-## Publish arena-react, Publish arena-angular, Publish arena-contracts
+## Publish arena-react, Publish arena-angular, Publish arena-contracts, Publish arena-mcp
 
 **A release moves the version in several places and the tag is the one the rest are pinned to.**
 It lives in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and the README's
@@ -176,6 +177,14 @@ advertises a new version while Claude Code keeps fetching the old tag and resolv
 version, so nothing errors and the update is never offered.
 `bun scripts/check/arena/check-release.ts` is what refuses that combination, and
 `versioning_steps.md` is the order the moves are made in.
+
+**The fourth publishes no language.** `@dravensoft/arena-mcp` is a server, and it is the one
+package here that declares a runtime dependency: the component libraries promise none, and a
+server nobody imports into a screen has no business putting one inside them. It carries no
+document at all, which `check:mcp` asserts rather than a comment claiming it, because the corpus
+it serves is the one inside whichever layer a consumer installed. Packed from `dist/mcp` for the
+same reason the contracts package is packed from its own directory: nothing is assembled under
+`frameworks/` for it.
 
 **The third of them publishes no layer.** `@dravensoft/arena-contracts` carries the three contract
 levels as JSON and nothing else, for a platform target outside this repository, and its consumer is

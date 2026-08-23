@@ -61,12 +61,16 @@ browser, and how a long run is narrowed.
 
 ## What this repo ships
 
-Three things at once, from the same tree:
+Five things at once, from the same tree:
 
 - a **Claude Code plugin**, `.claude-plugin/`, registering the `design` skill that
   `skills/design/SKILL.md` defines, **served from the git tag**;
 - two **npm packages**, `@dravensoft/arena-react` and `@dravensoft/arena-angular`, assembled by
-  `bun run build:packages` into `frameworks/<layer>/dist/`;
+  `bun run build:packages` into `frameworks/<layer>/dist/`, each carrying the corpus an agent
+  reads under `agent/` and the command that writes a discovery record from it;
+- `@dravensoft/arena-contracts` and `@dravensoft/arena-mcp`, assembled by the same command into
+  `dist/`. The second is the only package here with a runtime dependency and serves the corpus of
+  whichever of the two layers a project installed, carrying none of its own;
 - a standalone **Agent Skill**, `skills/design/SKILL.md`.
 
 **A published Arena carries the language and never the skin**, which is the decision the whole
@@ -112,6 +116,12 @@ that pays for it, because a departure nobody recorded is one the next reader rep
   `references/`.** A prompt sits next to its component, carrying regions emitted from that
   component's contract, and a copy inside the skill directory would be a second answer to a
   question the contracts answer once.
+- **The corpus ships inside the tarball, where that same reference tree lives beside its code.**
+  A package pinned to the commit that produced its components cannot disagree with them, and a
+  router pointing at HEAD from a project on an older tag already does. `agent/` is generated on
+  every assembly rather than authored, `check:packages` holds every path in it to something a
+  consumer installs or a page the site publishes, and the discovery record a consumer writes from
+  it is stamped with the version it came from.
 - **This page routes where the convention's own example instructs.** A contributor route is three
   and four stops, and `check:routes` is what says what carrying the whole of it here would cost on
   every task. What stays is what an agent acts on, which is the commands.

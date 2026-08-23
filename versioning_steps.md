@@ -63,6 +63,13 @@ skipped rebuild reports itself rather than shipping. It compares the manifest it
 against `plugin.json`, which is why the bump is step 1: run in the other order and this gate fails on the
 version you just wrote, and the only fix is to build again.
 
+
+**One artefact no gate here can observe.** `arena-to-prod --skill` writes a discovery record into
+a consumer's own tree, and nothing in this repository holds a consumer's tree. Install the packed
+package into a scratch project, run `npx arena-to-prod --skill` and then `--skill-check`, and
+confirm the record it writes carries this version. A record stamped with the previous one is what
+every project that installed the release would then be told to keep.
+
 ## 3. Tag it, and land it on `main`
 
 ```bash

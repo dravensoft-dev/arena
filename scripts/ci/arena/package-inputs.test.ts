@@ -86,13 +86,24 @@ test('a layer no package is assembled from is refused rather than answered with 
 
 test('the assembler decides what a directory spec carries, so a rule it grows narrows the guard too', () => {
   assert.ok(EXCLUDED_PATTERNS.length > 0);
-  for (const name of ['ArenaTable.slice.dom.test.tsx', 'ArenaTag.prompt.md', 'ArenaButton.card.html']) {
+  for (const name of ['ArenaTable.slice.dom.test.tsx', 'ArenaButton.card.html']) {
     assert.equal(excluded(name), true, name);
     assert.equal(carries(`frameworks/react/components/display/arena-x/${name}`, 'react'), false, name);
   }
   for (const dir of EXCLUDED_NAMES) {
     assert.equal(carries(`frameworks/react/${dir}/Thing.tsx`, 'react'), false, dir);
   }
+});
+
+test('a prompt is excluded beside its component and carried inside the payload, which is not a contradiction', () => {
+  assert.equal(excluded('ArenaTag.prompt.md'), true,
+    'the exclusion still holds: a prompt does not ship next to the component it documents');
+  assert.equal(carries('frameworks/react/components/display/arena-tag/ArenaTag.prompt.md', 'react'), true,
+    'and it does ship, under agent/, so an edit to one has to republish the package');
+  assert.equal(carries('frameworks/react/components/display/arena-tag/ArenaTag.prompt.md', 'angular'), false,
+    'the other layer carries its own prompts and not this one');
+  assert.equal(carries('frameworks/react/INDEX.md', 'react'), true,
+    'the same for an index, which the payload carries and the tarball once did not');
 });
 
 test('a spec naming a file is read rather than walked, so its own directory name cannot drop it', () => {

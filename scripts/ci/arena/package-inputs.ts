@@ -11,6 +11,7 @@
 
 import { isMainModule } from '../../utils/main-module.ts';
 import { excluded } from '../../lib/arena/package-exclusions.ts';
+import { inPayload } from '../../lib/arena/agent-payload.ts';
 
 export const SHARED_INPUTS = {
   'contracts/design/': 'reset.css and colors.css lead the stylesheet every package carries',
@@ -20,6 +21,8 @@ export const SHARED_INPUTS = {
   'scripts/lib/arena/package-assembly.ts': 'the exclusion list, the copy and the manifest template',
   'scripts/lib/arena/package-exclusions.ts': 'the rule that decides which of these paths is carried at all',
   'scripts/lib/arena/component-map.ts': 'the map of what a consumer writes to the sheet it costs, carried in both packages',
+  'skills/design/': 'the router and the references, carried into agent/ of both packages',
+  'scripts/lib/arena/agent-payload.ts': 'the spec that decides what the agent payload carries',
   'LICENSE': 'shipped verbatim in both packages',
 };
 
@@ -35,6 +38,12 @@ export const PACKAGE_INPUTS: Record<string, Record<string, string>> = {
     'scripts/build/arena/build-contracts-package.ts': 'the assembler, and the NOT_CARRIED map that '
       + 'decides the payload',
     'scripts/lib/arena/package-assembly.ts': 'pluginIdentity, the copy helpers and the behaviour copy',
+    'LICENSE': 'shipped verbatim',
+  },
+  mcp: {
+    'scripts/generate/core/arena-mcp/': 'the server itself, transpiled whole into bin/',
+    'scripts/build/arena/build-mcp-package.ts': 'the assembler, and the manifest it stamps',
+    'mcp/NPM.md': 'the page npm shows, carried as README.md',
     'LICENSE': 'shipped verbatim',
   },
   react: {
@@ -56,8 +65,9 @@ export const PACKAGE_INPUTS: Record<string, Record<string, string>> = {
 
 export const PROSE_NAMES: Record<string, string> = {
   'AGENTS.md': 'instructions to whoever edits the directory, carried by no package',
-  'INDEX.md': 'the directory index the site and the skill read, carried by no package',
 };
+
+export const LAYER_OF: Record<string, string> = { react: 'react', angular: 'angular' };
 
 export function pathspecs(pkg: string) {
   const inputs = PACKAGE_INPUTS[pkg];
@@ -68,6 +78,9 @@ export function pathspecs(pkg: string) {
 export function carries(path: string, pkg: string) {
   const specs = pathspecs(pkg);
   if (specs.some((spec) => !spec.endsWith('/') && spec === path)) return true;
+
+  const layer = LAYER_OF[pkg];
+  if (layer !== undefined && inPayload(path, layer)) return true;
 
   const dir = specs.find((spec) => spec.endsWith('/') && path.startsWith(spec));
   if (dir === undefined) return false;

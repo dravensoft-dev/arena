@@ -25,6 +25,8 @@ export const OPENING = /^#\s+.+\n+([\s\S]*?)(?:\n\n|$)/;
 export const WHEN = /Read this [^.]*\./;
 export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
+
+export const ASSEMBLED = 'dist/';
 export const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 export const DESCRIPTION = /^description:\s*(.+)$/m;
 
@@ -51,7 +53,7 @@ export function under(layer: string, base: string, keep: (rel: string) => boolea
   if (!existsSync(dir)) return [];
   return walkFiles(dir)
     .map((path) => relPosix(base, path))
-    .filter((rel) => !rel.includes(BUILD_INTERMEDIATE))
+    .filter((rel) => !rel.includes(BUILD_INTERMEDIATE) && !rel.includes(ASSEMBLED))
     .filter(keep)
     .sort();
 }

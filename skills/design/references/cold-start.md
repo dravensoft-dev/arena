@@ -141,7 +141,7 @@ anything:
   not answer is a property that disappears rather than a plainer look.
 - Read its `plugin.css`, if it has one, to see which decisions the project paints by hand. Those
   are the ones no role reaches, and they are the ones your new screen has to keep.
-- Run `bunx arena-to-prod --audit` and report what it names before you write anything. It reads the
+- Run `arena-to-prod --audit` and report what it names before you write anything. It reads the
   project's own sources and its declared plugin directories for the rules source text can show.
 
 Say what you found. A project whose plugin answers every role needs no style plugin work, and

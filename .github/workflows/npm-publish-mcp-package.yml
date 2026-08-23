@@ -1,0 +1,252 @@
+name: Publish arena-mcp
+
+# The file name is this workflow's identity: it is what the trusted publisher for
+# @dravensoft/arena-mcp names on npmjs.com, exactly and case-sensitively. Renaming
+# it revokes the package's right to publish.
+
+on:
+  workflow_run:
+    workflows: ["Arena main"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-mcp
+  cancel-in-progress: false
+
+env:
+  BUN_VERSION: 1.3.14
+  PACKAGE: "@dravensoft/arena-mcp"
+  PKG: mcp
+
+jobs:
+  guard:
+    name: is there anything to publish
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.decide.outputs.publish }}
+      version: ${{ steps.decide.outputs.version }}
+      published: ${{ steps.decide.outputs.published }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - id: decide
+        run: |
+          set -euo pipefail
+          VERSION=$(jq -r .version .claude-plugin/plugin.json)
+          PUBLISHED=$(npm view "$PACKAGE" version 2>/dev/null || true)
+          echo "version=$VERSION"     >> "$GITHUB_OUTPUT"
+          echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
+
+          decision () {
+            {
+              echo "## $PACKAGE"
+              echo
+              echo "| | |"
+              echo "|---|---|"
+              echo "| Registry | ${PUBLISHED:-none} |"
+              echo "| This tree | $VERSION |"
+              echo "| Decision | **$1** |"
+              echo
+              echo "$2"
+            } >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          if [ "$PUBLISHED" = "$VERSION" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "$PACKAGE is already at $VERSION; nothing to publish."
+            decision "no publish" "The registry already serves $VERSION."
+            exit 0
+          fi
+
+          if [ -z "$PUBLISHED" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "$PACKAGE has never been published; publishing $VERSION."
+            decision "publish" "$PACKAGE has never been published."
+            exit 0
+          fi
+
+          # The baseline is the tag of the version now on the registry, not the previous
+          # commit: a contract can change in one commit and the version bump land in another,
+          # and asking only about this push would never publish that change.
+          if ! git rev-parse -q --verify "refs/tags/v$PUBLISHED" > /dev/null; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "v$PUBLISHED does not resolve here, so there is no baseline to diff against."
+            echo "Handing the decision to check-release, which refuses a release the tag does not serve."
+            decision "publish" "v$PUBLISHED does not resolve here, so there is no baseline to diff against, and check-release decides."
+            exit 0
+          fi
+
+          # A list this step could not read is a broken script and never a state, so it stops here.
+          # `< <(...)` is what hid the difference: a command inside a process substitution never
+          # trips set -e, an empty array expands to nothing under set -u, and git reads no pathspec
+          # as every path -- so a guard whose script had died answered "everything moved" and
+          # republished a tree nothing in it had touched.
+          if ! SPEC_TEXT=$(bun scripts/ci/arena/package-inputs.ts "$PKG"); then
+            echo "package-inputs.ts could not say what $PACKAGE carries, so there is nothing to decide with."
+            exit 1
+          fi
+          mapfile -t SPECS <<< "$SPEC_TEXT"
+          if [ "${#SPECS[@]}" -eq 0 ]; then
+            echo "package-inputs.ts named no path for the $PKG package."
+            exit 1
+          fi
+
+          # A spec reaches a directory, and the server tree holds its own suites, which no
+          # package carries. --carried drops those through the assembler's own exclusion rule,
+          # so the guard and the tarball answer from one list.
+          CHANGED=$(git diff --name-only "v$PUBLISHED..HEAD" -- "${SPECS[@]}" \
+            | bun scripts/ci/arena/package-inputs.ts "$PKG" --carried)
+
+          if [ -z "$CHANGED" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing $PACKAGE carries has moved since v$PUBLISHED, so it keeps that version"
+            echo "while Arena moves to $VERSION. That divergence is expected and documented in"
+            echo ".github/workflows/AGENTS.md."
+            decision "no publish" "Nothing $PACKAGE carries has moved since v$PUBLISHED, so it keeps that version while Arena moves to $VERSION."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "Changed since v$PUBLISHED:"
+            echo "$CHANGED"
+            decision "publish" "Changed since v$PUBLISHED: $(echo "$CHANGED" | wc -l | tr -d ' ') file(s)"
+          fi
+
+  publish:
+    name: publish to npm
+    needs: [guard]
+    if: needs.guard.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+
+      - name: the tag exists and the plugin.json it serves hands out this version
+        run: bun scripts/check/arena/check-release.ts
+
+      # Arena main built this exact commit and saved the result under this key. A workflow_run
+      # run resolves to the default branch and reads that scope, so the hand-off is a restore
+      # rather than a second build. The key is the commit and there are no restore-keys: a
+      # prefix fallback would hand this job the assembled tree of another release.
+      - name: the build Arena main already made for this commit
+        id: build
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            frameworks/**/*.generated.*
+            frameworks/react/dist
+            frameworks/angular/dist
+            frameworks/angular/build
+            dist/mcp
+          key: arena-build-${{ runner.os }}-${{ github.event.workflow_run.head_sha || github.sha }}
+
+      # A miss is expected rather than exceptional: a cache is evicted after seven days
+      # unread, and a hand dispatch can ask about a commit whose run is long past.
+      - name: assemble the package, if that cache was not there
+        if: steps.build.outputs.cache-hit != 'true'
+        run: bun run build:release
+
+      # The payload is the tree's own contract set byte for byte, and the manifest leans on no
+      # npm semantics. Both are the tarball's whole claim, so both are asked before it is packed.
+      - name: hold the payload and the manifest
+        run: bun run check:mcp
+
+      - name: pack, so the artifact is byte-identical to what leaves the machine
+        id: pack
+        run: |
+          set -euo pipefail
+          cd dist/mcp
+          TARBALL=$(npm pack --silent)
+          echo "tarball=dist/mcp/$TARBALL" >> "$GITHUB_OUTPUT"
+
+      - name: record what is about to be published
+        run: |
+          set -euo pipefail
+          jq -n \
+            --arg package "$PACKAGE" \
+            --arg version "${{ needs.guard.outputs.version }}" \
+            --arg published "${{ needs.guard.outputs.published }}" \
+            --arg commit "${{ github.event.workflow_run.head_sha || github.sha }}" \
+            --arg run "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '{package: $package, version: $version, previous: $published, commit: $commit, run: $run}' \
+            > publish-record.json
+          cat publish-record.json
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: arena-mcp-${{ needs.guard.outputs.version }}
+          path: |
+            ${{ steps.pack.outputs.tarball }}
+            publish-record.json
+          retention-days: 90
+
+      # Provenance is generated automatically for a trusted publisher, with no --provenance
+      # flag, and needs an npm newer than the one the image ships. bun publish is not an
+      # alternative here: it does not speak OIDC, so the tarball would leave unattested.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          registry-url: https://registry.npmjs.org
+      - name: npm new enough for trusted publishing
+        run: |
+          set -euo pipefail
+          npm install -g npm@latest
+          HAVE=$(npm --version)
+          NEED=11.5.1
+          if [ "$(printf '%s\n%s\n' "$NEED" "$HAVE" | sort -V | head -1)" != "$NEED" ]; then
+            echo "npm $HAVE is older than $NEED, and provenance would be attested by nothing"
+            exit 1
+          fi
+          echo "npm $HAVE"
+
+      - name: publish
+        run: |
+          set -uo pipefail
+          set +e
+          OUT=$(npm publish "./${{ steps.pack.outputs.tarball }}" 2>&1)
+          CODE=$?
+          set -e
+          echo "$OUT"
+          if [ $CODE -ne 0 ] && echo "$OUT" | grep -q "cannot publish over the previously published versions"; then
+            echo "$PACKAGE is already at ${{ needs.guard.outputs.version }}. The registry read path the"
+            echo "guard used had not caught up yet, which it can lag by several minutes. Nothing to do."
+            exit 0
+          fi
+          exit $CODE
+
+      - name: what the registry now serves
+        run: |
+          set -euo pipefail
+          {
+            echo "\`$PACKAGE@${{ needs.guard.outputs.version }}\` is on the registry, from commit"
+            echo "\`${{ github.event.workflow_run.head_sha || github.sha }}\`."
+            echo
+            echo "A build on another platform reaches it over plain HTTPS, with no npm client:"
+            echo "\`https://registry.npmjs.org/$PACKAGE/-/arena-mcp-${{ needs.guard.outputs.version }}.tgz\`"
+          } >> "$GITHUB_STEP_SUMMARY"

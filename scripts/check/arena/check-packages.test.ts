@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  discoveryProblems, iconManifestProblems,
+  payloadProblems, unresolvedTarget, targetsIn, SITE_BASE, iconManifestProblems,
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -333,26 +333,77 @@ test('every component the tree declares is one this gate would look for', () => 
   assert.deepEqual([...declared].sort(), declared, 'the list is sorted, so a diff of it reads');
 });
 
-test('a package shipping no discovery stub is one no agent can find Arena through', () => {
+test('a package shipping no payload is one that ships the components and none of the language', () => {
   const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
   const empty = assembled({ 'package.json': '{}' });
-  const problems = discoveryProblems(pkg, empty);
+  const problems = payloadProblems(pkg, empty);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /no skills\/arena\/SKILL\.md/);
+  assert.match(problems[0] ?? '', /no agent\/ directory/);
   rmSync(empty, { recursive: true });
 });
 
-test('a stub that carries no frontmatter, no package name or no route is not a stub', () => {
+test('a payload missing the router, the manifest or the support record is reported per file', () => {
   const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
-  const bare = assembled({ 'skills/arena/SKILL.md': '# Arena\n' });
-  assert.equal(discoveryProblems(pkg, bare).length, 3, 'each of the three is its own finding');
+  const bare = assembled({ 'agent/skills/design/ROUTER.md': '# Arena\n' });
+  assert.equal(payloadProblems(pkg, bare).length, 2, 'the manifest and the support record');
   rmSync(bare, { recursive: true });
+});
 
-  const whole = assembled({
-    'skills/arena/SKILL.md': '---\nname: arena\n---\n@dravensoft/arena-react and skills/design/SKILL.md\n',
+test('a repository path surviving the rewrite is a dead route, and it is reported as one', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const stale = assembled({
+    'agent/skills/design/ROUTER.md': 'read `frameworks/react/INDEX.md` first\n',
+    'agent/skill.json': '{}',
+    'agent/support.json': '{}',
   });
-  assert.deepEqual(discoveryProblems(pkg, whole), []);
-  rmSync(whole, { recursive: true });
+  const problems = payloadProblems(pkg, stale);
+  assert.ok(problems.some((one) => /still names the repository path/.test(one)),
+    'a surviving repository path is the failure this gate exists for');
+  rmSync(stale, { recursive: true });
+});
+
+test('a target inside the payload is judged by whether it is there', () => {
+  const dir = assembled({
+    'agent/skills/design/ROUTER.md': 'x',
+    'agent/skills/design/references/page.md': 'y',
+  });
+  const agent = join(dir, 'agent');
+  assert.equal(unresolvedTarget('./references/page.md', 'skills/design/ROUTER.md', agent, new Set()), null);
+  assert.match(unresolvedTarget('./references/gone.md', 'skills/design/ROUTER.md', agent, new Set()) ?? '',
+    /resolves to nothing a consumer installs/);
+  rmSync(dir, { recursive: true });
+});
+
+test('a page named on the domain is judged against what the site actually publishes', () => {
+  const dir = assembled({ 'agent/skills/design/ROUTER.md': 'x' });
+  const agent = join(dir, 'agent');
+  const served = new Set(['skills/design/references/page.md']);
+  assert.equal(unresolvedTarget(`${SITE_BASE}skills/design/references/page.md`, 'skills/design/ROUTER.md', agent, served), null);
+  assert.match(unresolvedTarget(`${SITE_BASE}nowhere/at/all.md`, 'skills/design/ROUTER.md', agent, served) ?? '',
+    /the site publishes nothing there/);
+  rmSync(dir, { recursive: true });
+});
+
+test('the record the payload would write is held to the Agent Skills specification', () => {
+  const pkg = { layer: 'react', name: '@dravensoft/arena-react' };
+  const manifest = {
+    name: 'arena', description: 'x', homepage: 'https://arena.dravensoft.org', version: '0.0.0',
+    package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md',
+  };
+  const dir = assembled({
+    'agent/skills/design/ROUTER.md': `${'body\n'.repeat(600)}`,
+    'agent/skill.json': JSON.stringify(manifest),
+    'agent/support.json': '{}',
+  });
+  const problems = payloadProblems(pkg, dir);
+  assert.ok(problems.some((one) => /the body is \d+ lines against the/.test(one)),
+    'a router past the ceiling the standard recommends is a record every client loads whole');
+  rmSync(dir, { recursive: true });
+});
+
+test('a link, a relative inline path and an absolute one are all targets; prose is not', () => {
+  const found = targetsIn('see [a](./b.md) and `../c.md` and `https://d/e` but not `a word`');
+  assert.deepEqual(found, ['./b.md', '../c.md', 'https://d/e']);
 });
 
 const PKG = { layer: 'react', name: '@dravensoft/arena-react' };

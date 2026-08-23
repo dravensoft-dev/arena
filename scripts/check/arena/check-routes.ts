@@ -44,7 +44,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 17_100,
+    budget: 17_400,
     reason:
       'the page every consumer route opens with, and the reason it is declared here rather than as '
       + 'the first stop of each of them: a paragraph added to a router that seven routes shared was '
@@ -71,12 +71,18 @@ export const ENTRIES: Entry[] = [
       + 'themselves are exported by both builds and stay. The second row is the branch exit: '
       + 'CONTRIBUTING.md takes a document that sends a reader somewhere empty and a question the '
       + 'documentation did not answer, and no page on this branch named it, so a consumer who '
-      + 'proved the defect was Arena\'s had nowhere to put it.',
+      + 'proved the defect was Arena\'s had nowhere to put it. Raised again to 17,400 for the '
+      + 'row naming the repertoire. Arena is built with bun, React 18 and Angular 22, and every '
+      + 'command on this branch was written in the runner Arena happens to use, so a reader with '
+      + 'no row to match on learned a toolchain by copying one: what the row names is the page '
+      + 'that separates what Arena supports from what Arena is made of, and it is asked before a '
+      + 'builder knows which situation they are in, which is what earns a row here rather than '
+      + 'in the node that would otherwise own it.',
   },
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 22_400,
+    budget: 23_400,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than '
@@ -91,7 +97,17 @@ export const ENTRIES: Entry[] = [
       + 'that had two equally correct rows for a keyboard defect and picked by luck, and one that '
       + 'planned a component that already shipped in three layers, because no row asks whether it '
       + 'exists and the page that answers belongs to the other branch. A router indexed only by '
-      + 'intent serves the reader who already has one, and that reader is not the expensive case.',
+      + 'intent serves the reader who already has one, and that reader is not the expensive case. '
+      + 'Raised to 23,000 for the fifth declared departure. The corpus a package carries is the '
+      + 'reference tree shipped where the tree it is generated from already sits, so the '
+      + 'departure above it reads as contradicted by the one below unless both are written '
+      + 'down: a contributor who finds a prompt inside a tarball, and a page saying a copy '
+      + 'inside the skill directory is refused, has two rules and no way to tell which one '
+      + 'governs the change they are making. Raised again to 23,400 when the artefact list stopped '
+      + 'saying three. It had named two npm packages since a third shipped, and a fourth landed '
+      + 'beside it: a contributor reading which of them a change moves was reading a list that '
+      + 'answered for half of them, and what a release moves is the one thing on this branch that '
+      + 'fails in silence when it is forgotten.',
   },
 ];
 
@@ -165,7 +181,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 49_000,
+    budget: 51_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -301,7 +317,22 @@ export const ROUTES: Route[] = [
       + 'style plugin from the config and walks it wherever it lives, so the flag names the trees '
       + 'a project owns and nothing else, and the page says so because a reader who has to be told '
       + 'to pass a directory the config already declares is a reader being asked to hold the tool '
-      + 'together.',
+      + 'together. Raised again to 50,400 when the page stopped documenting the runner Arena '
+      + 'happens to be built with as the one a consumer needs. The command it tells them to run '
+      + 'was written in that runner and nowhere else, and the shipped file is a Node program '
+      + 'reading three node modules, so a reader on this route learned a dependency Arena does '
+      + 'not have by copying the only line that names one. The region carries the two axes a '
+      + 'reader cannot act without, what runs the command and how the package is loaded, each '
+      + 'with the evidence behind it, and leaves the rest of the repertoire to the page that '
+      + 'owns it: a project that cannot load a module has to learn it here rather than at the '
+      + 'first import, and one that can is spared the other four axes on the route it pays per '
+      + 'project. Raised again to 51,400 for the row naming the discovery record. This is the '
+      + 'only route a reader arriving from the registry can take, and the record is what puts '
+      + 'Arena where their editor looks: a package carrying the whole corpus and a page that '
+      + 'never names the one command that surfaces it ships a language nobody reaches, which is '
+      + 'the shape the stub it replaces already had. The row also says what --skill-check '
+      + 'reports, since a record that stops matching the package fails at nothing and is read by '
+      + 'an agent anyway.',
   },
   {
     name: 'consumer-skin',
@@ -503,6 +534,31 @@ export const ROUTES: Route[] = [
       + 'refusal on the one page a project consults before choosing.',
   },
   {
+    name: 'consumer-stack',
+    who: 'a project settling what it installs Arena with and what assembles it: the router, then '
+      + 'the page naming every axis, every answer Arena supports on it, and how much evidence '
+      + 'each of those answers has',
+    entry: 'consumer',
+    stops: ['skills/design/references/stack.md'],
+    budget: 10_300,
+    reason:
+      'paid once per project like the surface, skin, register and seo routes, and taken beside the '
+      + 'cold start tree rather than after it, because a toolchain settled after the first screen '
+      + 'is settled against code already written. What it buys is that a reader stops inheriting '
+      + 'Arena. Arena is built with bun, React 18 and Angular 22, and a branch that says nothing '
+      + 'about the difference documents its own build as a requirement: every command here was '
+      + 'written in one runner, no page named the peer ranges the manifests declare, and one '
+      + 'package manager that installs this appeared nowhere at all, so the honest answer and the '
+      + 'unasked question were indistinguishable. The evidence column is most of what the page '
+      + 'costs and all of what makes it usable: an answer allowed by a manifest and never '
+      + 'exercised is worth having and is not worth the same as one a suite runs, and a page that '
+      + 'flattened the two would trade a silence a reader can notice for a confidence they '
+      + 'cannot. What it deliberately does not carry is the layer decision and the render '
+      + 'architecture, which are nodes eight and nine of the cold start tree: naming them here '
+      + 'would give a project two places to answer one thing, and the tree is where the answer '
+      + 'reaches a peer dependency rather than a preference.',
+  },
+  {
     name: 'consumer-page',
     who: 'anybody writing markup that is not a component, which is every project: the router, then '
       + 'the page saying what colour their own markup takes, what column it sits in and how much '
@@ -677,7 +733,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what a machine writes and where the boundary runs inside one file',
     entry: 'contributor',
     stops: ['GENERATED.md'],
-    budget: 7_000,
+    budget: 7_900,
     reason:
       'paid once per contributor rather than per change, which is what lets it carry the whole '
       + 'surface rather than a pointer to it. It is the shortest contributor route on purpose: what '
@@ -691,7 +747,11 @@ export const ROUTES: Route[] = [
       + 'rather than a paragraph on a page a task chooses. The number is what the stops measure '
       + 'with room for one section, and it grows when a generator gains a shape rather than when '
       + 'the page gains a paragraph, since the shapes are derived from what each node declares it '
-      + 'writes.',
+      + 'writes. Raised to 7,900 when a generator gained the shape this page had no name for: '
+      + 'a file written into a repository that is not this one. Nothing here can observe such a '
+      + 'file, so the section says which instrument reads it and who runs that instrument, and '
+      + 'it names the payload as generated too, since a prompt found inside a package is one a '
+      + 'contributor would otherwise correct in the copy rather than in its source.',
   },
   {
     name: 'contributor-token',
@@ -740,7 +800,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 88_500,
+    budget: 90_700,
     reason:
       'the route this repository asks a contributor to take most often after the component one, '
       + 'and the one whose last stop grows every time a gate lands, since a gate states its whole '
@@ -777,7 +837,13 @@ export const ROUTES: Route[] = [
       + 'row is 1,066. It runs a little past the median because its claim is a measurement rather '
       + 'than a rule, and what a contributor needs from it is what it measures and what it refuses '
       + 'to measure: the activation box rather than the painted one, only inside a named part, and '
-      + 'in the density nothing else in this repository draws. Raised to 88,500 when check:citations widened from one surface to three, which is the case the paragraph above does not cover: no row landed and one row grew, from 1,927 characters to 2,840, over the same 49 rows whose median is 951 and whose longest is 3,942. A gate states its whole claim in one row, so a claim that widens is a row that grows, and the only alternative on offer is a row describing a third of what the gate reads.',
+      + 'in the density nothing else in this repository draws. Raised to 88,500 when check:citations widened from one surface to three, which is the case the paragraph above does not cover: no row landed and one row grew, from 1,927 characters to 2,840, over the same 49 rows whose median is 951 and whose longest is 3,942. A gate states its whole claim in one row, so a claim that widens is a row that grows, and the only alternative on offer is a row describing a third of what the gate reads. Raised to 89,600 for the check:support row, measured the way this string says to: over 50 rows the median is 972 characters and the longest is still 3,942, and the new row is 1,030. It sits just past the median because what a contributor needs from it is a failure this branch already shipped rather than a rule somebody thought of: bunx was written into five consumer pages while the command they name is a Node program, so the documentation carried a runtime dependency Arena does not have and no gate could see it. The raise pays for one row, which is the ordinary case this budget is written around. '
+      + 'Raised to 90,700 for the check:mcp row, measured the same way: over 51 rows the median '
+      + 'is 994 characters and the longest is still 3,942, and the new row is 1,017. It sits at '
+      + 'the median, and what it buys is the one claim of that gate a contributor cannot infer '
+      + 'from the package it judges: the emptiness is the assertion. A server carrying no corpus '
+      + 'reads as an oversight until a gate says the corpus is refused and says why, and a '
+      + 'comment claiming it would hold nothing.',
   },
   {
     name: 'contributor-tailwind',
@@ -824,7 +890,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 62_900,
+    budget: 64_000,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -864,7 +930,18 @@ export const ROUTES: Route[] = [
       + 'what --follow-tags buys, and a page that never appeared is written by dispatching the '
       + 'workflow by hand and by nothing else. A reader who does not know it waits for a page that '
       + 'no event is coming for, which is this route\'s failure mode again: nothing errored, and '
-      + 'nobody was told.',
+      + 'nobody was told. Raised to 63,300 for the one artefact of a release that no gate here '
+      + 'can observe. The command each package ships writes a discovery record into a consumer '
+      + 'tree, and nothing in this repository holds one, so the version it stamps is checked by '
+      + 'installing the packed package and running the command or it is checked by nobody: a '
+      + 'record carrying the previous number is what every project installing the release would '
+      + 'then be told to keep. This route\'s failure mode once more, and the sequence carries '
+      + 'the step rather than sending a reader to find it. Raised to 64,000 when a fourth '
+      + 'package landed, which is the case the third already argued and this route pays again: a '
+      + 'reader cutting a release has one more workflow, and what is true of this one is true of '
+      + 'none of the others. It is the only package here declaring a runtime dependency, and it '
+      + 'carries no document at all, so the two things a reader would otherwise check by opening '
+      + 'the tarball are the two a gate asserts instead.',
   },
 ];
 

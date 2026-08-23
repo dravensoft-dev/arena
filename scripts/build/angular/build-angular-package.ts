@@ -19,13 +19,15 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
-  NPM_SKILL, npmSkill, copyBehaviourContracts,
+  copyAgentPayload, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
+import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 
 export const NAME = '@dravensoft/arena-angular';
 export const LAYER = 'frameworks/angular';
+export const LAYER_NAME = 'angular';
 export const STAGING = 'frameworks/angular/build/package';
 
 export const node = {
@@ -34,6 +36,8 @@ export const node = {
     `${LAYER}/**`, '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
+    'skills/design/SKILL.md', 'skills/design/references/*.md',
+    'frameworks/INDEX.md', 'contracts/design/roles.json',
     'scripts/generate/core/arena-to-prod/**', '!scripts/generate/core/arena-to-prod/*.test.ts',
   ],
   writes: [`${LAYER}/dist/**`, `${STAGING}/**`],
@@ -43,6 +47,7 @@ export const node = {
     'check:arbitrary',
     'check:community',
     'check:consumer',
+    'check:mcp',
     'check:packages',
   ],
   releaseOnly: 'ng-packagr costs more than a development loop should pay for an artefact only a release '
@@ -57,22 +62,11 @@ export function manifest(root = repoRoot) {
     keywords: keywords('angular'),
     sideEffects: false,
     ...baseManifest(root),
-    peerDependencies: {
-      '@angular/core': '>=20',
-      '@angular/common': '>=20',
-      '@angular/platform-browser': '>=20',
-      '@angular/cdk': '>=20',
-      '@angular/router': '>=20',
-      '@phosphor-icons/web': '^2.1.2',
-    },
-    peerDependenciesMeta: OPTIONAL_PEERS,
+    peerDependencies: PEERS.angular,
+    peerDependenciesMeta: OPTIONAL_PEERS.angular,
     dependencies: RUNTIME_DEPENDENCIES,
   };
 }
-
-export const OPTIONAL_PEERS = {
-  '@angular/router': { optional: true },
-};
 
 export const SECONDARY_ENTRY_POINTS = ['metadata'];
 
@@ -193,7 +187,7 @@ export function buildAngularPackage(root = repoRoot) {
   written.push(write(dist, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
-  written.push(write(dist, NPM_SKILL, npmSkill(NAME)));
+  written.push(...copyAgentPayload(dist, LAYER_NAME, NAME));
   written.push(...copyBehaviourContracts(dist, root));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 

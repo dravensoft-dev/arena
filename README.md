@@ -70,10 +70,50 @@ bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 command, because Arena renders icon class names and never SVG; the layer page
 below says which peers each package declares.
 
-Then write `arena.config.json`, run `bunx arena-to-prod`, and import what it
-writes. [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) and
+Then write `arena.config.json`, run `npx arena-to-prod` (or `bunx`, or
+`pnpm exec`), and import what it writes. [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) and
 [`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) are the whole
 of it, and they are the pages npm shows.
+
+### In an IDE
+
+```bash
+npx arena-to-prod --skill        # or: bunx / pnpm exec / yarn dlx
+```
+
+One file, `.agents/skills/arena/SKILL.md`, which is the location VS Code,
+Copilot, Cursor, Codex, Gemini CLI and Zed all scan. **It is not a copy of the
+language**: the corpus travels inside the package, and the record routes into it,
+so an agent reads the rules, the style kernel and every component's usage
+document without a clone and without a network. `--skill=.github/skills` writes a
+different scanned location, `--global` writes one for every project you open, and
+`--vendor` copies the documents beside the record for a tree where
+`node_modules` is not checked out.
+
+**`npx arena-to-prod --skill-check` reads it back.** It reports that the record
+is absent, that another version of the package wrote it, that it was edited by
+hand, or that a document it routes to is not there; `--strict=skill` makes any of
+those fatal, which is how a project holds it in its own CI. It is the only thing
+in Arena that reads a consumer's project.
+
+### Over MCP
+
+```json
+{
+  "mcpServers": {
+    "arena": { "command": "npx", "args": ["-y", "@dravensoft/arena-mcp"] }
+  }
+}
+```
+
+`@dravensoft/arena-mcp` serves the router, the references and every component document to an
+agent that speaks the Model Context Protocol, as resources and as tools. **It carries no copy of
+the language**: it reads the payload of the Arena package your project already installs, so it
+cannot disagree with the components beside it.
+
+**Take the record above instead when you can.** It needs no server and no configuration, and
+every editor listed there scans for it. Take this one when you would rather configure a server
+once than write a file per project, or when your client speaks MCP and scans for no skill.
 
 ### As a Claude Code plugin
 
@@ -144,7 +184,7 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 10.2.2
+- **Repo/Claude Code plugin**: 10.2.3
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 - [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)

@@ -41,8 +41,8 @@ repository's and reaches nothing a package or this site carries.
 **A value you answer is not a value you move**, which is what decides the branch when the job is
 an appearance: a role your project fills is this branch's whatever it paints, and a scale step
 every product reads is the other one's, the type and page rhythm ladders aside. **Every path here outside `references/` is a repository
-path**, carried by a clone and by the plugin, and read on the repository above when it is
-neither.
+path**, carried by a clone, by the plugin, and by the copy `arena-to-prod --skill`
+installs; read on the repository above otherwise.
 
 **Everything here is one component at a time.**
 
@@ -82,7 +82,7 @@ only for the reasoning behind one, and you will rarely need it.
 
 Every one of these is a rule of the language rather than a preference, and most are enforced
 inside Arena by a gate over Arena's own tree. **No gate reads your application**, so in your code
-these hold because you hold them. What comes closest is `bunx arena-to-prod --audit`, which reads
+these hold because you hold them. What comes closest is `arena-to-prod --audit`, which reads
 your sources for the five of these that source text can show: a class of your own on an Arena
 component, one wrapped in your router's link, a raw value where a token belongs, an icon as an
 element, an emoji. It reports rather than fails unless you add `--strict`, and it decides nothing
@@ -134,6 +134,7 @@ about the rest, so breaking one of those is still a defect nothing will report.
 |---|---|
 | I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
 | Which layer, which architecture, and what do I have to install? | the same tree's last three nodes: how much the product has to be found decides the layer and a peer, what it is assembled on is answered per architecture with the evidence for each, and the dependency list follows from both |
+| What may I build this with, and how sure is Arena about each answer? | [`references/stack.md`](./references/stack.md): the package manager, the runner, the module format, the bundler and the framework version, each answer carrying the evidence it actually has. Arena is built with bun, React 18 and Angular 22, and none of that is a requirement on you |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Which of those answers actually change how it looks? | the same document's table, measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |

@@ -16,7 +16,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { literalRanges } from '../../lib/arena/comments.ts';
-import { OPTIONAL_PEERS } from '../../build/angular/build-angular-package.ts';
+import { OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 
 export type Envelope = { layer: string; source: string[]; allowed: string[]; why: string };
 
@@ -165,7 +165,7 @@ export function envelopeProblems(envelope: Envelope, base = root) {
   return problems;
 }
 
-export function optionalPeerProblems(optional: Record<string, unknown> = OPTIONAL_PEERS, base = root) {
+export function optionalPeerProblems(optional: Record<string, unknown> = OPTIONAL_PEERS.angular, base = root) {
   const problems = [];
   if (!Object.hasOwn(optional, ROUTER))
     problems.push(
@@ -250,7 +250,7 @@ export function architectureProblems(base = root) {
 
   for (const envelope of ENVELOPES) problems.push(...envelopeProblems(envelope, base));
   problems.push(
-    ...optionalPeerProblems(OPTIONAL_PEERS, base),
+    ...optionalPeerProblems(OPTIONAL_PEERS.angular, base),
     ...moduleScopeProblems(base),
     ...hostileApiProblems(base),
   );

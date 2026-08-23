@@ -79,6 +79,10 @@ export const NEVER_SUBSCRIBES = new Map([
   ['scripts/generate/core/arena-to-prod',
    'the CLI both npm packages ship, and its siblings. It runs in a consumer project against their '
    + 'config, so nothing in this tree is its input and no build here produces its output'],
+  ['scripts/generate/core/arena-mcp',
+   'the server @dravensoft/arena-mcp ships, and its siblings. It runs in a consumer project and '
+   + 'serves the payload of the Arena package installed beside it, so nothing in this tree is its '
+   + 'input either; build:mcp-package is the node that copies it, and check:mcp reads what it wrote'],
 ]);
 
 export const neverSubscribesReason = (path: string) =>
