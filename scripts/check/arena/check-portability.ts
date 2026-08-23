@@ -125,7 +125,7 @@ export const RULES: Rule[] = [
     pattern: /(?<![\w$])relative\(/g,
     owners: [
       'scripts/utils/posix-path.ts',
-      'scripts/generate/core/arena-to-prod/arena-to-prod.ts',
+      'scripts/generate/core/arena-to-prod/posix.ts',
     ],
     why: 'relative answers in the host separator and relPosix is the one spelling of the answer, '
       + 'because a repo-relative path is read back by something assuming a forward slash: a prefix '
@@ -153,7 +153,7 @@ export const RULES: Rule[] = [
     owners: [
       'scripts/utils/posix-path.ts',
       'scripts/utils/posix-path.test.ts',
-      'scripts/generate/core/arena-to-prod/arena-to-prod.ts',
+      'scripts/generate/core/arena-to-prod/posix.ts',
     ],
     why: 'the host separator is a backslash on one machine and a slash on the other, so writing it '
       + 'down anywhere else is a comparison that holds on the machine it was written on: a repo-'
