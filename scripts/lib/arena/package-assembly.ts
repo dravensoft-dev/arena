@@ -25,6 +25,7 @@ import { parseDecls } from './css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusions.ts';
+import { NODE_ENGINE } from './support-matrix.ts';
 
 export { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded };
 
@@ -301,7 +302,7 @@ export function baseManifest(root = repoRoot) {
   return {
     ...pluginIdentity(root),
     bin: { ...CLI_BINS },
-    engines: { node: '>=22' },
+    engines: { node: NODE_ENGINE },
   };
 }
 

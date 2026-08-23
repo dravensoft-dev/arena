@@ -48,7 +48,7 @@ test('every entry names the router it opens and the reason for its budget', () =
 test('every route names the reader it is paid by, the entry it opens with, and the reason for its budget', () => {
   assert.deepEqual(ROUTES.map((r) => r.name), [
     'consumer-component', 'consumer-install', 'consumer-skin', 'consumer-register', 'consumer-seo',
-    'consumer-surface', 'consumer-page', 'consumer-coldstart',
+    'consumer-surface', 'consumer-stack', 'consumer-page', 'consumer-coldstart',
     'contributor-component', 'contributor-authoring', 'contributor-token', 'contributor-gate',
     'contributor-tailwind', 'contributor-behaviour', 'contributor-release',
   ]);

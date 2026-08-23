@@ -23,6 +23,7 @@ import {
   writeComponentMap, writeIconManifest, keywords,
   NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
+import { PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
@@ -165,11 +166,7 @@ export function manifest(root = repoRoot) {
       './contracts/behaviour/*': './contracts/behaviour/*',
       './package.json': './package.json',
     },
-    peerDependencies: {
-      react: '^18 || ^19',
-      'react-dom': '^18 || ^19',
-      '@phosphor-icons/web': '^2.1.2',
-    },
+    peerDependencies: PEERS.react,
   };
 }
 

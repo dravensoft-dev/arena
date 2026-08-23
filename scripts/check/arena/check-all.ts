@@ -32,6 +32,7 @@ export const GATES = [
   { name: 'check:generated', file: 'arena/check-generated.ts' },
   { name: 'check:skill-spec', file: 'arena/check-skill-spec.ts' },
   { name: 'check:skills', file: 'arena/check-skills.ts' },
+  { name: 'check:support', file: 'arena/check-support.ts' },
   { name: 'check:prompts', file: 'arena/check-prompts.ts' },
   { name: 'check:routes', file: 'arena/check-routes.ts' },
   { name: 'check:vocabulary', file: 'arena/check-vocabulary.ts' },

@@ -21,6 +21,7 @@ import {
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
   NPM_SKILL, npmSkill, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
+import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 
@@ -57,22 +58,11 @@ export function manifest(root = repoRoot) {
     keywords: keywords('angular'),
     sideEffects: false,
     ...baseManifest(root),
-    peerDependencies: {
-      '@angular/core': '>=20',
-      '@angular/common': '>=20',
-      '@angular/platform-browser': '>=20',
-      '@angular/cdk': '>=20',
-      '@angular/router': '>=20',
-      '@phosphor-icons/web': '^2.1.2',
-    },
-    peerDependenciesMeta: OPTIONAL_PEERS,
+    peerDependencies: PEERS.angular,
+    peerDependenciesMeta: OPTIONAL_PEERS.angular,
     dependencies: RUNTIME_DEPENDENCIES,
   };
 }
-
-export const OPTIONAL_PEERS = {
-  '@angular/router': { optional: true },
-};
 
 export const SECONDARY_ENTRY_POINTS = ['metadata'];
 
