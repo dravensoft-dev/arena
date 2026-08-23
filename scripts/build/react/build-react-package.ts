@@ -21,7 +21,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, keywords,
-  NPM_SKILL, npmSkill, copyBehaviourContracts,
+  copyAgentPayload, copyBehaviourContracts,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -30,6 +30,7 @@ import { CONSUME } from '../tailwind/build-tailwind.ts';
 
 export const NAME = '@dravensoft/arena-react';
 export const LAYER = 'frameworks/react';
+export const LAYER_NAME = 'react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
 export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
@@ -41,6 +42,8 @@ export const node = {
     `${LAYER}/**`, '!frameworks/react/dist/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
+    'skills/design/SKILL.md', 'skills/design/references/*.md',
+    'frameworks/INDEX.md', 'contracts/design/roles.json',
     'scripts/generate/core/arena-to-prod/**', '!scripts/generate/core/arena-to-prod/*.test.ts',
   ],
   writes: [`${LAYER}/dist/**`],
@@ -194,7 +197,7 @@ export async function buildReactPackage(root = repoRoot) {
   written.push(write(dir, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));
-  written.push(write(dir, NPM_SKILL, npmSkill(NAME)));
+  written.push(...copyAgentPayload(dir, LAYER_NAME, NAME));
   written.push(...copyBehaviourContracts(dir, root));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
   written.push(write(dir, 'package.json', `${JSON.stringify(manifest(root), null, 2)}\n`));

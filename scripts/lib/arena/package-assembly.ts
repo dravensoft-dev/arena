@@ -19,13 +19,19 @@ import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
-import { DOMAIN } from './site-pages.ts';
-import { LLMS_INDEX } from './llms-index.ts';
+import { DOMAIN, REPOSITORY } from './site-pages.ts';
+import { LLMS_INDEX, FRONTMATTER, unquote } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusions.ts';
 import { NODE_ENGINE } from './support-matrix.ts';
+import { AXES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE as ENGINE } from './support-matrix.ts';
+import {
+  AGENT_DIR, ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST,
+  SUPPORT_FILE, carriedSpecs, matchesSpec,
+  rewrite, type Bases,
+} from './agent-payload.ts';
 
 export { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded };
 
@@ -180,6 +186,74 @@ them: a copy inside a tarball is a second router that goes stale on its own sche
 so a screen written against half the language renders exactly as well as one written against all
 of it. What differs is a reader.
 `;
+}
+
+export function agentBases(): Bases {
+  return { site: `https://${DOMAIN}`, repository: `${REPOSITORY}/blob/main` };
+}
+
+export function carriedFiles(layer: string, root = repoRoot) {
+  const specs = carriedSpecs(layer);
+  const roots = [...new Set(specs.map((spec) => spec.split('/')[0] ?? ''))];
+  const found = new Set<string>();
+  for (const one of roots) {
+    const at = join(root, one);
+    if (!existsSync(at)) continue;
+    for (const file of walkFiles(at, { skip: (name) => name === 'dist' || name === 'build' || name.startsWith('.') })) {
+      const rel = relPosix(root, file);
+      if (specs.some((spec) => matchesSpec(rel, spec))) found.add(rel);
+    }
+  }
+  return [...found].sort();
+}
+
+export function agentManifest(layer: string, name: string, root = repoRoot) {
+  const router = readFileSync(join(root, ...ROUTER_SOURCE.split('/')), 'utf8');
+  const front = FRONTMATTER.exec(router)?.[1] ?? '';
+  const described = /^description:\s*(.*)$/m.exec(front)?.[1] ?? '';
+  return {
+    name: 'arena',
+    description: unquote(described.trim()),
+    homepage: `https://${DOMAIN}`,
+    version: version(root),
+    package: name,
+    layer,
+    router: ROUTER_FILE,
+  };
+}
+
+export function agentSupport(layer: string) {
+  return {
+    engine: { node: ENGINE },
+    builtAgainst: BUILT_AGAINST[layer as keyof typeof BUILT_AGAINST] ?? null,
+    peers: PEERS[layer as keyof typeof PEERS] ?? {},
+    optionalPeers: OPTIONAL_PEERS[layer as keyof typeof OPTIONAL_PEERS] ?? {},
+    axes: AXES.map(({ axis, question, rows }) => ({ axis, question, rows })),
+  };
+}
+
+export function copyAgentPayload(dir: string, layer: string, name: string, root = repoRoot) {
+  const bases = agentBases();
+  const written = [];
+  const files = carriedFiles(layer, root);
+  if (files.length === 0) {
+    throw new Error('package-assembly: the agent payload collected 0 file(s), so the package would '
+      + 'ship a router whose every stop is a dead path and nothing would report it');
+  }
+  for (const rel of files) {
+    const source = readFileSync(join(root, ...rel.split('/')), 'utf8');
+    const content = rel.endsWith('.md') ? rewrite(source, rel, layer, bases) : source;
+    written.push(write(dir, `${AGENT_DIR}/${rel}`, content));
+  }
+
+  const router = readFileSync(join(root, ...ROUTER_SOURCE.split('/')), 'utf8');
+  const body = router.replace(FRONTMATTER, '').replace(/^\n+/, '');
+  written.push(write(dir, `${AGENT_DIR}/${ROUTER_FILE}`, rewrite(body, ROUTER_FILE, layer, bases)));
+  written.push(write(dir, `${AGENT_DIR}/${AGENT_MANIFEST}`,
+    `${JSON.stringify(agentManifest(layer, name, root), null, 2)}\n`));
+  written.push(write(dir, `${AGENT_DIR}/${SUPPORT_FILE}`,
+    `${JSON.stringify(agentSupport(layer), null, 2)}\n`));
+  return written;
 }
 
 export const BEHAVIOUR_DIR = 'contracts/behaviour';
