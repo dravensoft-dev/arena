@@ -114,3 +114,7 @@ export function preludeSheet(shared: string, keyframes: string) {
   const withoutBanner = shared.replace(/^\/\*![^]*?\*\/\n?/, '').replace(/^@layer properties;\n?/m, '').trim();
   return `${LAYER_ORDER}\n${keyframes.trim()}\n\n${withoutBanner}\n`;
 }
+
+export function preflightSheet(base: string) {
+  return LAYER_ORDER + base.replace(/^@layer [^{};]*;\n/gm, '');
+}

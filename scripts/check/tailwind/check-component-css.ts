@@ -18,7 +18,7 @@ import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
-import { PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
+import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
 export const node = {
@@ -141,6 +141,22 @@ export function keyframeDepths(css: string) {
   return found;
 }
 
+export function layerOrderProblems(file: string, css: string) {
+  if (/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) return [];
+  return [`${file}: no layer order declaration ending in the reserved plugin layer, so `
+    + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
+    + 'compiled component rule outranks it'];
+}
+
+export function preflightProblems(base = root) {
+  const path = join(base, PREFLIGHT);
+  if (!existsSync(path)) {
+    return [`${PREFLIGHT} was never emitted; without it a form control falls back to the browser's `
+      + 'own size and every measurement over it is off'];
+  }
+  return layerOrderProblems(PREFLIGHT, readFileSync(path, 'utf8'));
+}
+
 export function preludeProblems(base = root) {
   const path = join(base, PRELUDE);
   if (!existsSync(path)) {
@@ -170,11 +186,7 @@ export function preludeProblems(base = root) {
     }
     declared.add(name);
   }
-  if (!/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) {
-    problems.push(`${PRELUDE}: no layer order declaration ending in the reserved plugin layer, so `
-      + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
-      + 'compiled component rule outranks it');
-  }
+  problems.push(...layerOrderProblems(PRELUDE, css));
   for (const directive of ['@apply', '@utility', '@reference', '@source', '@theme']) {
     if (css.includes(directive)) problems.push(`${PRELUDE}: carries ${directive}, a compile-time directive a browser cannot read`);
   }
@@ -211,7 +223,8 @@ export function collect(base = root) {
   }
   return {
     manifests,
-    problems: [...sheetProblems(manifests, base), ...preludeProblems(base), ...specimenProblems(manifests, base)],
+    problems: [...sheetProblems(manifests, base), ...preludeProblems(base), ...preflightProblems(base),
+      ...specimenProblems(manifests, base)],
   };
 }
 
