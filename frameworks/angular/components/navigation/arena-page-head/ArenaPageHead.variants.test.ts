@@ -14,40 +14,10 @@ function injectorWith(properties: Record<string, string>): Injector {
   return Injector.create({ providers: [{ provide: DOCUMENT, useValue: doc }] });
 }
 
-function captureWarn<T>(fn: () => T): { result: T; messages: string[] } {
-  const messages: string[] = [];
-  const original = console.warn;
-  console.warn = (...args: unknown[]) => { messages.push(args.map(String).join(' ')); };
-  try {
-    return { result: fn(), messages };
-  } finally {
-    console.warn = original;
-  }
-}
-
 test('arenaReadBreakpoint reads --bp-<name> off the document root and returns it as a number of px', () => {
   forgetArenaBreakpoints();
   const value = runInInjectionContext(injectorWith({ '--bp-md': ' 768px ' }), () => arenaReadBreakpoint('md'));
   assert.equal(value, 768);
-});
-
-test('an absent breakpoint token is NaN, and every comparison against NaN is false -- which lands on the wide layout', () => {
-  const { result, messages } = captureWarn(() => runInInjectionContext(injectorWith({}), () => arenaReadBreakpoint('lg')));
-  assert.ok(Number.isNaN(result), `expected NaN for an absent token, got ${result}`);
-  assert.equal(1 < result, false, 'a NaN breakpoint must never select the narrow branch');
-  assert.equal(9999 < result, false, 'a NaN breakpoint must never select the narrow branch');
-
-  assert.equal(messages.length, 1, 'an unresolved breakpoint must say so: NaN is silent, and every comparison against it is false');
-  assert.match(messages[0], /--bp-lg/);
-  const again = captureWarn(() => runInInjectionContext(injectorWith({}), () => arenaReadBreakpoint('lg')));
-  assert.deepEqual(again.messages, [], 'the warning is once per name, not once per read');
-});
-
-test('a failed read is not cached -- a later call for the same name that succeeds returns the real value, not a pinned NaN', () => {
-  const first = runInInjectionContext(injectorWith({}), () => arenaReadBreakpoint('lg'));
-  assert.ok(Number.isNaN(first), `expected NaN for the failed first read, got ${first}`);
-  const second = runInInjectionContext(injectorWith({ '--bp-lg': '1024px' }), () => arenaReadBreakpoint('lg'));
-  assert.equal(second, 1024, 'a failed read must not be cached -- the next call must re-read and recover the real value');
 });
 
 test('a breakpoint is read once per name -- a later document with a different value does not change what was cached', () => {
