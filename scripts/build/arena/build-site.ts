@@ -112,7 +112,7 @@ ${blocks}
 `;
 }
 
-export const TAGLINE = 'One design system, in React and in Angular, built to be operated by an AI agent.';
+export const TAGLINE = 'One design system, in React and in Angular, from one contract.';
 
 export function structuredData() {
   return JSON.stringify({
@@ -164,6 +164,7 @@ bun add @phosphor-icons/web</code></pre>
 <h2 style="font-family:var(--font-display)">See it</h2>
 <ul style="line-height:2">
 ${cards}
+  <li><a href="https://github.com/dravensoft-dev/arena-web-benches">Eight products drawn twice, once in React and once in Angular</a></li>
 </ul>
 <h2 style="font-family:var(--font-display)">Take it</h2>
 <ul style="line-height:2">
