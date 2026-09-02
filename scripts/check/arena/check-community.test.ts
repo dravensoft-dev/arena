@@ -13,6 +13,7 @@ import {
   OUTWARD, POLICY, CONTRIBUTING, CONDUCT, CONFIG, CONTEXT7, ROUTER, contributorBasenames,
   unwrapped, missingProblems, policyProblems, templateProblems, securityProblems, configProblems,
   context7Problems, zeroScanProblems, markdown, LIMITS, CONTEXT7_KEYS,
+  taglineProblems, TAGLINE_SOURCE,
 } from './check-community.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -226,4 +227,54 @@ test('every key this tree writes is one the schema defines', () => {
   for (const key of Object.keys(config)) {
     assert.ok(CONTEXT7_KEYS.includes(key), `${key} is not in the schema's set`);
   }
+});
+
+const SAID = 'One design system, in React and in Angular, from one contract.';
+const SITE = (tagline: string) => `export const TAGLINE = '${tagline}';\n`;
+const CONTEXT7_WITH = (description: string) => `${JSON.stringify({ description }, null, 2)}\n`;
+
+test('three copies carrying one sentence is the passing case', () => {
+  const base = tree({
+    [TAGLINE_SOURCE]: SITE(SAID),
+    'README.md': `# Arena by Dravensoft\n\n**${SAID}**\n\nMIT License.\n`,
+    [CONTEXT7]: CONTEXT7_WITH(`${SAID} Every value is a design token.`),
+  });
+  assert.deepEqual(taglineProblems(base), []);
+});
+
+test('a README headline that has drifted names both copies', () => {
+  const base = tree({
+    [TAGLINE_SOURCE]: SITE(SAID),
+    'README.md': '# Arena by Dravensoft\n\n**One design system, built for an AI agent.**\n',
+    [CONTEXT7]: CONTEXT7_WITH(SAID),
+  });
+  const problems = taglineProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /README\.md opens with "One design system, built for an AI agent\."/);
+  assert.match(problems[0] ?? '', /from one contract/);
+});
+
+test('a description that does not open with the tagline is what an agent gets back', () => {
+  const base = tree({
+    [TAGLINE_SOURCE]: SITE(SAID),
+    'README.md': `# Arena by Dravensoft\n\n**${SAID}**\n`,
+    [CONTEXT7]: CONTEXT7_WITH('A token-driven design system.'),
+  });
+  const problems = taglineProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /does not open with the tagline/);
+});
+
+test('a site builder declaring no TAGLINE leaves the other two held by nothing', () => {
+  const base = tree({
+    [TAGLINE_SOURCE]: 'export const DOMAIN = "arena.dravensoft.org";\n',
+    'README.md': `# Arena by Dravensoft\n\n**${SAID}**\n`,
+  });
+  const problems = taglineProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /declares no TAGLINE/);
+});
+
+test('this tree states one tagline in all three of its homes', () => {
+  assert.deepEqual(taglineProblems(repoRoot), []);
 });

@@ -23,7 +23,8 @@ import { ignoredRoots } from './check-citations.ts';
 export const node = {
   name: 'check:community',
   reads: [
-    'CONTRIBUTING.md', 'SECURITY.md', 'skills/design/SKILL.md', 'context7.json', '.github/**',
+    'CONTRIBUTING.md', 'SECURITY.md', 'skills/design/SKILL.md', 'context7.json',
+    'scripts/build/arena/build-site.ts', '.github/**',
     '**/*.md', '!frameworks/**/dist/**', '!frameworks/**/vendor/**',
   ],
   writes: [],
@@ -180,6 +181,7 @@ export function configProblems(base = root) {
 }
 
 export type Context7 = {
+  description?: string;
   excludeFolders?: string[];
   excludeFiles?: string[];
   rules?: string[];
@@ -282,6 +284,49 @@ export function context7Problems(base = root, ignored = ignoredRoots(base)) {
   return problems;
 }
 
+export const TAGLINE_SOURCE = 'scripts/build/arena/build-site.ts';
+export const TAGLINE_DECLARED = /^export const TAGLINE = '([^']+)';$/m;
+export const TAGLINE_HEADLINE = /^\*\*(.+)\*\*$/m;
+
+export function taglineProblems(base = root) {
+  const source = join(base, TAGLINE_SOURCE);
+  if (!existsSync(source)) return [];
+  const declared = TAGLINE_DECLARED.exec(readFileSync(source, 'utf8'))?.[1];
+  if (declared === undefined) {
+    return [
+      `${TAGLINE_SOURCE} declares no TAGLINE, and it is the copy the landing page, the card and `
+      + 'the structured data all render. With it gone the sentence has two homes and no owner',
+    ];
+  }
+
+  const problems = [];
+  const readme = join(base, 'README.md');
+  if (existsSync(readme)) {
+    const headline = TAGLINE_HEADLINE.exec(readFileSync(readme, 'utf8'))?.[1];
+    if (headline !== declared) {
+      problems.push(
+        `README.md opens with "${headline ?? 'no bold headline of its own'}" and ${TAGLINE_SOURCE} `
+        + `renders "${declared}". One sentence with three homes goes stale in two of them, and the `
+        + 'repository headline is the copy a stranger meets first',
+      );
+    }
+  }
+
+  const path = join(base, CONTEXT7);
+  if (existsSync(path)) {
+    const { description } = readJson(path) as Context7;
+    if (description === undefined || !description.startsWith(declared)) {
+      problems.push(
+        `${CONTEXT7} gives the description "${description ?? ''}", which does not open with the `
+        + `tagline "${declared}". Context7 has no router, so that description is the whole of what `
+        + 'an agent asking about Arena gets back before it reads a line of this tree',
+      );
+    }
+  }
+
+  return problems;
+}
+
 export function zeroScanProblems(found: unknown[]) {
   return found.length === 0
     ? ['found 0 documents; an empty walk reports every exclusion stale and every rule absent, '
@@ -298,6 +343,7 @@ function main() {
     ...templateProblems(),
     ...securityProblems(),
     ...configProblems(),
+    ...taglineProblems(),
     ...context7Problems(),
   ];
   if (problems.length > 0) {
