@@ -1,6 +1,6 @@
 # Arena by Dravensoft
 
-**One design system, in React and in Angular, built to be operated by an AI agent.**
+**One design system, in React and in Angular, from one contract.**
 
 [![npm react](https://img.shields.io/npm/v/@dravensoft/arena-react?style=flat-square&color=c5a059&label=arena-react)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![npm angular](https://img.shields.io/npm/v/@dravensoft/arena-angular?style=flat-square&color=c5a059&label=arena-angular)](https://www.npmjs.com/package/@dravensoft/arena-angular)

@@ -1,7 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
   "projectTitle": "Arena by Dravensoft",
-  "description": "One design system, in React and in Angular, built to be operated by an AI agent. Every value is a design token, and every component API and accessibility pattern it binds is a contract a gate holds.",
+  "description": "One design system, in React and in Angular, from one contract. Every value is a design token, and every component API and the accessibility pattern it binds is a contract a gate holds.",
   "branch": "main",
   "folders": [],
   "excludeFolders": [

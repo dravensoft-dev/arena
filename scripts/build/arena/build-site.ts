@@ -112,7 +112,7 @@ ${blocks}
 `;
 }
 
-export const TAGLINE = 'One design system, in React and in Angular, built to be operated by an AI agent.';
+export const TAGLINE = 'One design system, in React and in Angular, from one contract.';
 
 export function structuredData() {
   return JSON.stringify({
