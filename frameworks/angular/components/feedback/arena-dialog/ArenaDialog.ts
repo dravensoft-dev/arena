@@ -27,7 +27,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().scrim()',
-    '[attr.data-arena-part]': 'parts.scrim',
+    '[attr.data-arena-part]': 'open() ? parts.scrim : null',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',

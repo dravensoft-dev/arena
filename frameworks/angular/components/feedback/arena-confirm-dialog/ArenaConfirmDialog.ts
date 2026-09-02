@@ -29,7 +29,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
-    '[attr.data-arena-part]': 'parts.root',
+    '[attr.data-arena-part]': 'open() ? parts.root : null',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
   },

@@ -87,7 +87,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
-    '[attr.data-arena-part]': 'parts.root',
+    '[attr.data-arena-part]': 'open() ? parts.root : null',
     '(click)': 'onScrimClick()',
   },
   template: `
