@@ -83,6 +83,8 @@ playground's height moves with every knob, so there is no fixed box to declare f
 |---|---|
 | **that a declaring page fits the viewport it declares** | **nothing. Open it** |
 | the browsable pages' own runtime modules parse and export what they claim | `browser-modules.test.ts`, under `scripts/check/arena/` |
+| that `styles.css` states the layer order before it opens `arena-plugin` | `intro-cascade.test.ts`, under `scripts/check/arena/` |
+| **that a style plugin then paints anything** | **nothing. Open a page and press the third toggle** |
 | every page bundle matches the source it was built from, and every module entry is a bundle | `check:intro` |
 | `support.js` stays tracked and unedited | `check:generated`, by literal name |
 | **that a specimen's stylesheet path resolves** | **nothing. An unstyled page that happens to fit its box passes outright** |
