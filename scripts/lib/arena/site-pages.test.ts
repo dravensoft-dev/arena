@@ -5,14 +5,28 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
+  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, phosphorDrops, treePages,
 } from './site-pages.ts';
+
+function benchOut(products: string[]) {
+  const out = mkdtempSync(join(tmpdir(), 'arena-benches-'));
+  if (products.length > 0) {
+    mkdirSync(join(out, BENCHES_DIR), { recursive: true });
+    writeFileSync(join(out, BENCHES_DIR, BENCHES_MANIFEST), JSON.stringify({
+      arena: '10.2.1',
+      pairs: products.map((product) => ({ product, skin: product })),
+    }));
+  }
+  return out;
+}
 
 test('the site is built for one domain, named once, and every URL is spelled from it', () => {
   assert.equal(DOMAIN, 'arena.dravensoft.org');
@@ -152,4 +166,58 @@ test('a directory is addressed with the trailing slash a host serves its index a
   assert.equal(directoryUrl(''), `https://${DOMAIN}/`);
   assert.equal(directoryUrl('intro/guidelines'), `https://${DOMAIN}/intro/guidelines/`);
   for (const directory of indexedDirectories()) assert.match(directoryUrl(directory), /\/$/);
+});
+
+test('a manifest beside the applications declares the pairs, and no manifest declares nothing', () => {
+  const empty = benchOut([]);
+  assert.deepEqual(benchPairs(empty), []);
+  assert.deepEqual(benchPages(empty), []);
+  assert.deepEqual(benchDirectories(empty), [],
+    'a clone builds a site without benches, so the absent case has to be the quiet one');
+
+  const out = benchOut(['notion', 'etsy']);
+  assert.deepEqual(benchPages(out), [
+    'web-benches/etsy/angular/index.html', 'web-benches/etsy/react/index.html',
+    'web-benches/notion/angular/index.html', 'web-benches/notion/react/index.html',
+  ]);
+  assert.deepEqual(benchDirectories(out), [BENCHES_DIR]);
+});
+
+test('a bench page is declared beside the tree pages and never instead of one', () => {
+  const out = benchOut(['etsy']);
+  assert.deepEqual(pages(repoRoot, out), [...treePages(repoRoot), ...benchPages(out)]);
+  assert.deepEqual(pages(repoRoot, benchOut([])), treePages(repoRoot),
+    'with no manifest the declaration is the tree\'s own, which is what a developer run builds');
+  assert.ok(indexedDirectories(repoRoot, out).includes(BENCHES_DIR));
+});
+
+test('a half is a page and never an indexed directory, or the build overwrites it', () => {
+  for (const directory of indexedDirectories(repoRoot, benchOut(['etsy', 'notion']))) {
+    assert.equal(/^web-benches\/[^/]+\/[^/]+$/.test(directory), false,
+      'an indexed directory is handed a generated index.html, and that file is the half\'s own');
+  }
+});
+
+test('the module graph is walked from the tree alone, since a bench arrives only in CI', () => {
+  for (const rel of modules()) {
+    assert.ok(!rel.startsWith(`${BENCHES_DIR}/`),
+      'moduleGraph is memoised by base, so a declaration varying with the output cannot enter it');
+  }
+});
+
+test('the Phosphor drop is the site\'s own trade, read off the name and never the directory', () => {
+  for (const kept of ['Phosphor-jz52g8q4.woff2', 'Phosphor-Bold-548r3k1w.woff2',
+    'Phosphor-KLBJTFWE.woff', 'Phosphor-9pk63hq0.woff', 'Phosphor-Fill-5QWK7REW.woff2']) {
+    assert.equal(phosphorDrops(kept), false, `${kept} is a format a browser fetches`);
+  }
+  for (const dropped of ['Phosphor-znwj6k7p.ttf', 'Phosphor-Bold-m0yxxyn4.svg',
+    'Phosphor-2TTV6TYS.ttf', 'Phosphor-Fill-65SPMP3X.svg', 'Phosphor-Y4JO5C3F.svg']) {
+    assert.equal(phosphorDrops(dropped), true, `${dropped} is fetched by nothing`);
+  }
+  for (const spared of ['index-87jrphe1.css', 'main-CRTIYFBW.js', 'styles-XD7IFMRJ.css', 'p1.jpg']) {
+    assert.equal(phosphorDrops(spared), false, `${spared} is not a Phosphor binary`);
+  }
+  assert.equal(phosphorDrops('Phosphor.json'), false,
+    'a React half hashes these at the top level and an Angular one under media/, so the rule reads '
+    + 'the name; it reads the four font formats and leaves everything else where it is');
 });

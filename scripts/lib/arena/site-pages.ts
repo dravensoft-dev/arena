@@ -29,6 +29,10 @@ export const SINK_PAGE = 'index.generated.html';
 export const PLAYGROUND_INDEX = 'components';
 export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
 export const PHOSPHOR_KEEP = ['style.css', '.woff2', '.woff'];
+export const PHOSPHOR_FORMATS = ['.svg', '.ttf', '.woff', '.woff2'];
+
+export const BENCHES_DIR = 'web-benches';
+export const BENCHES_MANIFEST = 'benches.json';
 
 export const COPIED = [
   'intro',
@@ -132,7 +136,7 @@ export function guidelinePages(base = root) {
   return walkFiles(dir).filter((path) => path.endsWith('.html')).map((path) => relPosix(base, path)).sort();
 }
 
-export function pages(base = root) {
+export function treePages(base = root) {
   const playgrounds = LAYERS.flatMap((layer) => [...playgroundsOnDisk(layer, base).values()]);
   return [
     'intro/Arena - Overview.html',
@@ -143,13 +147,40 @@ export function pages(base = root) {
   ];
 }
 
+export type Bench = { product: string; skin: string };
+export type Benches = { arena: string; pairs: Bench[] };
+
+export function benches(out: string): Benches | null {
+  const path = join(out, BENCHES_DIR, BENCHES_MANIFEST);
+  if (!existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, 'utf8')) as Benches;
+}
+
+export function benchPairs(out: string) {
+  return [...(benches(out)?.pairs ?? [])].sort(byKey(({ product }) => product));
+}
+
+export function benchPages(out: string) {
+  return benchPairs(out)
+    .flatMap(({ product }) => LAYERS.map((layer) => `${BENCHES_DIR}/${product}/${layer}/index.html`))
+    .sort(byCodeUnit);
+}
+
+export function benchDirectories(out: string) {
+  return benchPairs(out).length === 0 ? [] : [BENCHES_DIR];
+}
+
+export function pages(base = root, out = join(base, SITE_DIR)) {
+  return [...treePages(base), ...benchPages(out)];
+}
+
 export const moduleGraph = memoBy((base: string = root) => base, (base: string = root) => {
   const carried: string[] = [];
   const absent: string[] = [];
   const seen = new Set<string>();
   const queue: { from: string; target: string }[] = [];
 
-  for (const page of pages(base)) {
+  for (const page of treePages(base)) {
     const path = join(base, page);
     if (!existsSync(path)) continue;
     for (const target of pageModules(readFileSync(path, 'utf8'))) queue.push({ from: path, target });
@@ -190,18 +221,25 @@ export function missingModules(base = root) {
   return moduleGraph(base).absent;
 }
 
-export function indexedDirectories(base = root) {
+export function indexedDirectories(base = root, out = join(base, SITE_DIR)) {
   return [
     '',
     'intro/guidelines',
     ...LAYERS.map((layer) => `frameworks/${layer}/kitchen-sink`),
     ...LAYERS.map((layer) => componentsDir(layer)),
     ...LAYERS.flatMap((layer) => sinkNames(base).map((name) => `frameworks/${layer}/kitchen-sink/${name}`)),
+    ...benchDirectories(out),
   ];
 }
 
 export function phosphorKeeps(name: string) {
   return PHOSPHOR_KEEP.some((keep) => (keep.startsWith('.') ? name.endsWith(keep) : name === keep));
+}
+
+export function phosphorDrops(name: string) {
+  return name.startsWith('Phosphor')
+    && PHOSPHOR_FORMATS.some((format) => name.endsWith(format))
+    && !phosphorKeeps(name);
 }
 
 export function phosphorFiles(base = root) {
