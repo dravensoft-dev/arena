@@ -144,7 +144,7 @@ decides nothing about whether the gate passes:
 | `ARENA_CHECK_STRICT` | Whether a missing dependency fails or skips. Compared against the exact string `1`. |
 | `CI` | The same, compared against the exact string `true`. Recognised and never declared: claiming it would tell the scripts they run on a runner. Note that a runner setting `CI=1` rather than `CI=true` buys nothing here. |
 | `PORT` | The port `bun run demos` serves on. The gates' own server binds an ephemeral port and ignores it. |
-| `ARENA_BENCHES` | The directory of built benches `build:site` copies to `web-benches/`. **Recognised and never declared**, for the reason `CHROME_PATH` is: a declared value would not be an override but a claim that sixteen built applications sit on this machine, and the site a clone builds carries none. Unset, the site is the site without benches, and `check:site` holds the asymmetry honest by asserting that the output then declares no half and carries none. |
+| `ARENA_BENCHES` | The directory of built benches `build:site` copies to `web-benches/`. **Recognised and never declared**, for the reason `CHROME_PATH` is. Unset, the site is the site without them, which is what a clone builds. |
 
 **A real environment variable wins over a declared one**, so an override stays a shell prefix
 rather than an edit to a versioned file: `CHROME_PATH=/opt/chrome bun run check:focus-trap`. The one
