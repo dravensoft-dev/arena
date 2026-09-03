@@ -69,8 +69,34 @@ jobs:
         if: steps.build.outputs.cache-hit != 'true'
         run: bun run build:release
 
+      # Decision 3 of the spec this came from: the commit built is that repository's main at this
+      # moment, not a SHA pinned here. A push there changes what this publishes with no commit
+      # here saying so, and rebuilding an old commit does not reproduce its site. actions/checkout
+      # writes only under the workspace, so the second repository lands inside this one; nothing
+      # build:site or check:site walks reaches the root, and .gitignore keeps a local rehearsal
+      # of these four steps from dirtying the tree.
+      - name: the benches, at their main
+        uses: actions/checkout@v7
+        with:
+          repository: dravensoft-dev/arena-web-benches
+          ref: main
+          path: web-benches
+
+      - name: one install resolves the sixteen
+        run: bun install --frozen-lockfile
+        working-directory: web-benches
+
+      # Sixteen or none: this exits non-zero on the first half that does not build, and leaves
+      # nothing behind, so build:site below finds no directory and publishes the site without them
+      # only if this step is skipped. It is not skipped, so a failure here stops the publication.
+      - name: the sixteen halves, into one shape
+        run: bun run build
+        working-directory: web-benches
+
       - name: assemble what gets served
         run: bun run build:site
+        env:
+          ARENA_BENCHES: ${{ github.workspace }}/web-benches/dist
 
       - name: hold every link, every declared page and the domain it is built for
         run: bun run check:site
