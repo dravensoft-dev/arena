@@ -6,15 +6,33 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   REFERENCE, OFF_SITE, AUTHORED, FORBIDDEN, referenced, resolves, htmlFiles,
   brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems, tokenProblems,
-  missingModuleProblems, canonicalProblems, ownUrl, located, sitemapProblems,
+  missingModuleProblems, canonicalProblems, ownUrl, located, sitemapProblems, benchProblems,
 } from './check-site.ts';
-import { DOMAIN, modules, pages, indexedDirectories } from '../../lib/arena/site-pages.ts';
+import {
+  DOMAIN, BENCHES_DIR, BENCHES_MANIFEST, modules, pages, indexedDirectories,
+} from '../../lib/arena/site-pages.ts';
+
+function benchOut(halves: Record<string, string[]>) {
+  const files: Record<string, string> = {
+    [`${BENCHES_DIR}/${BENCHES_MANIFEST}`]: JSON.stringify({
+      arena: '10.2.1',
+      pairs: Object.keys(halves).map((product) => ({ product, label: product, skin: product })),
+    }),
+  };
+  for (const [product, layers] of Object.entries(halves)) {
+    for (const layer of layers) {
+      files[`${BENCHES_DIR}/${product}/${layer}/index.html`] = '<html><head><base href="./"></head></html>';
+    }
+  }
+  return out(files);
+}
 
 function out(files: Record<string, string>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-site-'));
@@ -106,7 +124,7 @@ test('a custom property nothing defines renders unstyled while every link still 
   assert.match(problems[0] ?? '', /renders unstyled/);
 });
 
-test('the token check reads the pages this build authors, and not the ones it copies', () => {
+test('the token check reads what this build authors and the directory index of anything it copies', () => {
   const base = out({
     'copied/page.html': '<main style="color:var(--invented)">x</main>',
     'tokens.css': ':root{--real: 1px}',
@@ -174,4 +192,69 @@ test('a sitemap naming a longer path does not stand in for the directory above i
   const problems = sitemapProblems(base);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /intro\/guidelines\//);
+});
+
+test('an output declaring pairs and carrying every half of them is the passing shape', () => {
+  const base = benchOut({ etsy: ['react', 'angular'], notion: ['react', 'angular'] });
+  assert.deepEqual(benchProblems(base), []);
+});
+
+test('an output declaring none and carrying none passes, which is what a clone builds', () => {
+  assert.deepEqual(benchProblems(out({ 'index.html': '<html></html>' })), [],
+    'a developer run has no benches, so the absent case is the one this must not turn red');
+});
+
+test('a declared half with nothing behind it fails, which is how fifteen reads', () => {
+  const base = benchOut({ etsy: ['react'], notion: ['react', 'angular'] });
+  const problems = benchProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /web-benches\/etsy\/angular\/index\.html/);
+  assert.match(problems[0] ?? '', /nothing to compare/);
+});
+
+test('a half nothing declares fails, since the index links every pair it knows', () => {
+  const base = benchOut({ etsy: ['react', 'angular'] });
+  mkdirSync(join(base, BENCHES_DIR, 'clickup', 'react'), { recursive: true });
+  writeFileSync(join(base, BENCHES_DIR, 'clickup', 'react', 'index.html'), '<html></html>');
+  const problems = benchProblems(base);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /clickup\/react/);
+});
+
+test('applications with no manifest beside them is the asymmetry this closes', () => {
+  const base = benchOut({ etsy: ['react', 'angular'] });
+  rmSync(join(base, BENCHES_DIR, BENCHES_MANIFEST));
+  assert.equal(benchProblems(base).length, 2,
+    'a copy that landed without its manifest declares nothing and carries two halves, and without '
+    + 'this the absent case passes by proving nothing');
+});
+
+test('a bench half is declared as a page, so the orphan check does not meet it as one', () => {
+  const base = benchOut({ etsy: ['react', 'angular'] });
+  const declared = pages(repoRoot, base);
+  assert.ok(declared.includes('web-benches/etsy/react/index.html'));
+  assert.ok(indexedDirectories(repoRoot, base).includes(BENCHES_DIR));
+});
+
+test('a property read with a fallback is a property that resolves, so the gate stays quiet', () => {
+  const base = out({
+    'index.html': '<main style="font-family:var(--default-font-family, Arial, sans-serif)">x</main>',
+    'tokens.css': ':root{--sp-6: 24px}',
+  });
+  assert.deepEqual(tokenProblems(base), [],
+    'Tailwind emits var(--x, <value>) on purpose and the fallback IS the value, so the page this '
+    + 'reports renders exactly as drawn; the sixteen foreign halves are what brought the shape in');
+
+  const bare = out({
+    'index.html': '<main style="font-family:var(--default-font-family)">x</main>',
+    'tokens.css': ':root{--sp-6: 24px}',
+  });
+  assert.equal(tokenProblems(bare).length, 1, 'without a fallback it still resolves to nothing');
+});
+
+test('the generated index of the benches is not a half, so it is not an undeclared one', () => {
+  const base = benchOut({ etsy: ['react', 'angular'] });
+  writeFileSync(join(base, BENCHES_DIR, 'index.html'), '<html></html>');
+  assert.deepEqual(benchProblems(base), [],
+    'this build writes that page itself, and a half is one directory deeper');
 });

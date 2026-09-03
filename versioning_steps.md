@@ -72,17 +72,28 @@ every project that installed the release would then be told to keep.
 
 ## 3. Tag it, and land it on `main`
 
+**The tag goes on the tip of `develop`, and `main` reaches it through the merge that lands the
+release.** `main` takes no push at all: its ruleset requires a pull request and `pr-gate` as a
+status check, and it names no bypass, so a direct push is refused whoever makes it. Both the
+release page and the publish guards are written for a tag placed this way, because each asks
+whether the commit it is building reaches the tag and never whether the tag points at it.
+
 ```bash
 git tag -a vx.x.x -m "Arena vx.x.x"
 
 bun scripts/check/arena/check-release.ts
 ```
 
-Expected: all PASS.
+Expected: every gated check PASS. `tag is on origin/main` is an INFO rather than a gate and
+reports in the negative here, since the branch has not seen the tag yet.
 
 ```bash
-git push origin main --follow-tags
+git push origin develop --follow-tags
 ```
+
+That push runs `Arena develop`, which is where the operating system matrix is, and it is also what
+puts the tag in the repository. Open a pull request from `develop` to `main` on a green one, wait
+for `pr-gate`, and merge it. The merge is the push to `main` that everything below hangs off.
 
 **You never run `npm publish`.** Both packages are published by CI from the tag, so a release
 where the two npm versions moved and nobody ran a publish command is the release working. Confirm
@@ -93,8 +104,8 @@ it on the npm page rather than in a terminal.
 `develop`. A tag pushed to any other branch is verified by nothing downstream and publishes
 nothing, and no step in CI reports the omission: the release simply does not happen.
 
-**The release page hangs off that same run**, so `--follow-tags` is what puts the tag in the
-repository before the run that describes it. A tag pushed after `Arena main` has already finished
+**The release page hangs off that same run**, so pushing the tag with `develop` is what puts it
+in the repository before the run that describes it. A tag pushed after `Arena main` has already finished
 raises no event: the page is then written by dispatching `Release notes` by hand with the tag,
 and nothing else reports that it is missing.
 
@@ -111,10 +122,30 @@ workflow by hand, because the automatic path cannot reach a workflow the default
 already carry. `.github/workflows/AGENTS.md` states that gap and the fallback if npmjs.com refuses
 a publisher for a name with no versions on it.
 
-## 4. Pack the benches and attach them to the release page
+## 4. Move the benches onto this version
 
-In the bench repository, `~/Dravensoft/arena-web-benches`, run its own `pack` script with the
-version, then upload what it wrote:
+The benches install Arena from the registry, so this step waits for the publish workflows to
+finish and then moves every half to the version they published. In the bench repository,
+`~/Dravensoft/arena-web-benches`, the version is written in the manifest `pack` and `build` both
+read and in each half's own manifest, and the lockfile moves in the same commit: the site builds
+the halves with `--frozen-lockfile`, so pins that travel without it take the whole publication
+down rather than resolving to something older.
+
+**Nothing on this side fires when that repository is pushed.** `Publish the site` builds its
+default branch at the moment it runs, so the halves the domain serves are the ones that existed at
+the last `Arena main`, and a bench that moved after it reaches the domain only when this workflow
+is dispatched by hand:
+
+```bash
+gh workflow run pages.yml -R dravensoft-dev/arena
+```
+
+The homepage states the version every half installs, read from that manifest, so the domain is
+where this step is confirmed rather than in either tree.
+
+## 5. Pack the benches and attach them to the release page
+
+In the bench repository, run its own `pack` script with the version, then upload what it wrote:
 
 ```bash
 gh release upload vx.x.x -R dravensoft-dev/arena dist/*.tar.gz
@@ -128,11 +159,11 @@ One tarball per twin pair, and one asset on the page for each. Count what was pr
 `ls dist/*.tar.gz | wc -l` rather than against a number written here, because how many pairs
 exist is the bench repository's answer and not this page's.
 
-The benches consume the published package, so they are packed AFTER the tag: one packed before it
-is a pair measured against a version that is not out, and the tarball is named for the release it
-hangs on. `pack` refuses a dirty tree, because a tarball matching no commit cannot be produced
-again, and it reads `git archive`, so each bench's own `.gitignore` is the whole of what packed
-means and no second exclusion list exists here to go stale.
+The benches consume the published package, so they are packed after step 4 and not before: a pair
+packed while it still pins the previous version is measured against a version that is not the one
+the tarball is named for. `pack` refuses a dirty tree, because a tarball matching no commit
+cannot be produced again, and it reads `git archive`, so each bench's own `.gitignore` is the
+whole of what packed means and no second exclusion list exists here to go stale.
 
 The release page itself is written by `.github/workflows/release.yml` from the commit log, once
 `Arena main` is green for the commit that carries the tag, so it appears alongside the published

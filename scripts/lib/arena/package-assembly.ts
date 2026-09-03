@@ -18,6 +18,7 @@ import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
+import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
 import { LLMS_INDEX, FRONTMATTER, unquote } from './llms-index.ts';
@@ -146,7 +147,7 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   }));
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
-    { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${base}` },
+    { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
     ...CONSUMER_SHEETS.map(({ from, to }) => ({
       to, content: readFileSync(join(root, ...(from ?? '').split('/')), 'utf8'),
     })),

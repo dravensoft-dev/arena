@@ -1,6 +1,6 @@
 # Arena by Dravensoft
 
-**One design system, in React and in Angular, built to be operated by an AI agent.**
+**One design system, in React and in Angular, from one contract.**
 
 [![npm react](https://img.shields.io/npm/v/@dravensoft/arena-react?style=flat-square&color=c5a059&label=arena-react)](https://www.npmjs.com/package/@dravensoft/arena-react)
 [![npm angular](https://img.shields.io/npm/v/@dravensoft/arena-angular?style=flat-square&color=c5a059&label=arena-angular)](https://www.npmjs.com/package/@dravensoft/arena-angular)
@@ -45,6 +45,17 @@ canonical and the `og:*` pair, with no route indexed until it says so. That
 import path is a second entry point, so a project that never asks for metadata
 never installs the router behind it. React writes no `<head>` at all, and both
 layers publish the breadcrumb trail they draw in `schema.org` terms.
+
+## Eight products, drawn twice
+
+[The benches](https://arena.dravensoft.org/web-benches/) are a set of templates that implement
+Arena: Calendly, ClickUp, Duolingo, Etsy, Grafana, Instagram, Notion and Superhuman, each mocked
+twice, once in React and once in Angular, from one `arena.config.json` and one `design/` directory
+per pair. Every half installs Arena from npm and answers a style plugin of its own, so what a pair
+shows is a project's appearance rather than Arena's, and the two halves of a pair are the same
+screen under both framework names. That address is where they run, and
+[`dravensoft-dev/arena-web-benches`](https://github.com/dravensoft-dev/arena-web-benches) is where
+they are written.
 
 ## Why an agent can operate it
 
@@ -184,7 +195,7 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 10.2.3
+- **Repo/Claude Code plugin**: 10.2.4
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 - [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)

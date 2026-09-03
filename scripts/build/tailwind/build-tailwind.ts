@@ -17,7 +17,7 @@ import {
 } from '../../lib/tailwind/component-css.ts';
 import { dropBlindFallbacks, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
 import {
-  componentSheet, matchingBrace, preludeSheet, splitUtilities,
+  componentSheet, matchingBrace, preflightSheet, preludeSheet, splitUtilities,
 } from '../../lib/tailwind/component-sheets.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -180,7 +180,8 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const barrel = `${BANNER}@import './${basename(PREFLIGHT)}';\n`
     + `@import './${basename(PRELUDE)}';\n${imports.join('\n')}\n`;
   out.set(join(root, BARREL), barrel);
-  out.set(join(root, PREFLIGHT), BANNER + splitCompiledSheet(readFileSync(generatedPath({ root }), 'utf8')).base);
+  out.set(join(root, PREFLIGHT),
+    BANNER + preflightSheet(splitCompiledSheet(readFileSync(generatedPath({ root }), 'utf8')).base));
 
   return out;
 }

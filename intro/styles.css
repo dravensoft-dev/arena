@@ -1,3 +1,14 @@
+/* The layer order, stated before the first @import because the import below opens
+   arena-plugin and this is the first stylesheet every page here links. A @layer block met
+   before the order statement registers that name as the LOWEST layer of the document, so
+   every plugin rule contesting a compiled component rule loses and nothing reports it,
+   which contracts/design/StylePlugins.md states and this file is the one place that has to
+   answer. The two lines are LAYER_ORDER in scripts/lib/tailwind/component-sheets.ts, the same
+   string arena-to-prod writes ahead of a consumer's plugin sheet, repeated rather than cited
+   because a browser reads this file and not that one. */
+@layer properties;
+@layer theme, base, components, utilities, arena-plugin;
+
 @import "../contracts/design/reset.css";
 @import "../contracts/design-generated/fonts.generated.css";
 @import "../contracts/design-generated/palette.generated.css";

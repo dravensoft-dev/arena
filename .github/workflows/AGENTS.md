@@ -303,6 +303,28 @@ own tokens rather than exported by hand, and it takes the one `pr.yml` already t
 `browser-actions/setup-chrome` with `CHROME_PATH` deliberately unexported, since
 `check:portability` fails when a second workflow names it.
 
+**It is also the only job here that builds a second repository.** The benches are written in
+`dravensoft-dev/arena-web-benches`, and this job checks that repository out into the workspace,
+installs it, builds every half and hands the directory it wrote to `build:site` as
+`ARENA_BENCHES`. Those steps sit before `build:site` because it copies what is there when it runs.
+[`../../scripts/check/AGENTS.md`](../../scripts/check/AGENTS.md) is where that variable is
+declared and where an unset one is answered.
+
+**What is built there is that repository's default branch at the moment this runs, and not a
+commit pinned here.** So a push to it changes what this publishes with no commit in this
+repository saying so, and a hand dispatch aimed at an older commit here does not reproduce the
+site that commit published. The alternative is a revision written into this file, which buys that
+reproducibility with a second place to move on every bench change and a published site that is
+stale between the two moves. **Nothing here fires on a push to that repository**, so a bench
+change reaches the domain at the next `Arena main` or at a hand dispatch of this workflow, and at
+no other moment.
+
+**A half that does not build stops the publication.** The build step leaves nothing behind when it
+fails, so the alternative to every pair being served is none of them being served rather than a
+site quietly listing fewer than the manifest declares, which `check:site` would refuse anyway. A
+site carrying no benches at all is a different state and a reachable one: it is what an unset
+`ARENA_BENCHES` publishes, and it is what a clone builds.
+
 ## Release notes
 
 **It follows a green `Arena main`, like the four workflows above it**, so a page announcing a
@@ -322,8 +344,9 @@ already has a page, which is the shape of "nothing to do" here.
 
 **A hand dispatch is the way to write a page again**, and it is also the way through the gap this
 event carries: `workflow_run` fires when `Arena main` finishes, so a tag pushed after that run is
-seen by nothing. Pushing `main` with `--follow-tags`, which `versioning_steps.md` is written
-around, is what keeps the tag there before the run that describes it.
+seen by nothing. `main` takes no push of its own, so the tag rides `develop` with `--follow-tags`
+and is in the repository before the merge that starts the run describing it, which is the order
+`versioning_steps.md` is written around.
 
 `../../scripts/ci/arena/release-notes.ts` writes the page. **GitHub's own `--generate-notes` is
 what it replaces**, and the reason is the shape of this history: every release arrives on `main`

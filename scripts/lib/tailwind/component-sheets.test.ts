@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LAYER_ORDER, componentSheet, dedent, matchingBrace, ownersOf, preludeSheet, splitUtilities, topLevelChildren,
+  LAYER_ORDER, componentSheet, dedent, matchingBrace, ownersOf, preflightSheet, preludeSheet, splitUtilities,
+  topLevelChildren,
 } from './component-sheets.ts';
 
 const compiled = `/*! tailwindcss */
@@ -99,6 +100,17 @@ test('the prelude declares the layer order and carries the keyframes, and states
   assert.match(prelude, /@keyframes arena-fade/);
   assert.match(prelude, /@property --tw-shadow/);
   assert.ok(!prelude.includes('/*!'), 'the compiler banner is replaced by the generator\'s own');
+});
+
+test('the preflight states the same order as the prelude, and states it once', () => {
+  const preflight = preflightSheet('@layer properties;\n@layer theme, base, components, utilities;\n@layer base {\n  hr { border: 0 }\n}\n');
+  assert.ok(preflight.startsWith(LAYER_ORDER),
+    'the preflight is what a playground page links directly, so an order of its own that stops at '
+    + 'utilities leaves the plugin layer to be registered by whichever sheet opens it first');
+  assert.equal(preflight.match(/^@layer [^{};]*;$/gm)?.length, 2,
+    'the split brings its own order statement, and a second one below cannot move a layer the first '
+    + 'has already registered');
+  assert.match(preflight, /@layer base \{/);
 });
 
 test('the reserved layer is declared last, after utilities', () => {

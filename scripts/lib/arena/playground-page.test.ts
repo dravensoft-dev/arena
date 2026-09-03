@@ -20,12 +20,18 @@ test('all three toggles are static markup outside any framework, so a re-render 
   const dock = toggleDock();
   assert.match(dock, /class="dtoggle themebtn"/);
   assert.match(dock, /id="density"/);
+  assert.match(dock, /id="style-plugin"/,
+    'the third position is the style plugin, and a dock that drops it leaves the pages showing one '
+    + 'appearance of a system whose whole claim is that the appearance is replaceable');
   assert.match(page(), /dtoggle-dock/);
 });
 
-test('the theme and density scripts load, or the URL stops reproducing the view', () => {
+test('the theme, density and style plugin scripts load, or the URL stops reproducing the view', () => {
   assert.match(page(), new RegExp(`<script src="${UP}intro/theme\\.js">`));
   assert.match(page(), new RegExp(`<script src="${UP}intro/density\\.js">`));
+  assert.match(page(), new RegExp(`<script src="${UP}intro/style-plugin\\.js">`),
+    'the button is markup and does nothing on its own: without this script it carries no listener, '
+    + 'reads no ?plugin= and restores nothing, and a dead control reads as a broken system');
 });
 
 test('a page declares no card, because its height moves with every knob', () => {

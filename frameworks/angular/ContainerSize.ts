@@ -37,6 +37,10 @@ function warnUnresolved(name: string): void {
     + " Arena's stylesheet is missing, or it loads after this ran.");
 }
 
+function warnAfterTheFirstRender(name: string): void {
+  afterNextRender(() => warnUnresolved(name));
+}
+
 export function forgetArenaBreakpoints(): void {
   breakpoints.clear();
   warned.clear();
@@ -68,7 +72,7 @@ export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   const raw = doc.defaultView?.getComputedStyle(doc.documentElement).getPropertyValue(`--bp-${name}`);
   const value = Number.parseFloat(raw ?? '');
   if (!Number.isFinite(value)) {
-    warnUnresolved(name);
+    warnAfterTheFirstRender(name);
     return Number.NaN;
   }
   breakpoints.set(name, value);
