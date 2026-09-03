@@ -23,7 +23,7 @@ function benchOut(halves: Record<string, string[]>) {
   const files: Record<string, string> = {
     [`${BENCHES_DIR}/${BENCHES_MANIFEST}`]: JSON.stringify({
       arena: '10.2.1',
-      pairs: Object.keys(halves).map((product) => ({ product, skin: product })),
+      pairs: Object.keys(halves).map((product) => ({ product, label: product, skin: product })),
     }),
   };
   for (const [product, layers] of Object.entries(halves)) {
@@ -124,7 +124,7 @@ test('a custom property nothing defines renders unstyled while every link still 
   assert.match(problems[0] ?? '', /renders unstyled/);
 });
 
-test('the token check reads the pages this build authors, and not the ones it copies', () => {
+test('the token check reads what this build authors and the directory index of anything it copies', () => {
   const base = out({
     'copied/page.html': '<main style="color:var(--invented)">x</main>',
     'tokens.css': ':root{--real: 1px}',
@@ -234,4 +234,27 @@ test('a bench half is declared as a page, so the orphan check does not meet it a
   const declared = pages(repoRoot, base);
   assert.ok(declared.includes('web-benches/etsy/react/index.html'));
   assert.ok(indexedDirectories(repoRoot, base).includes(BENCHES_DIR));
+});
+
+test('a property read with a fallback is a property that resolves, so the gate stays quiet', () => {
+  const base = out({
+    'index.html': '<main style="font-family:var(--default-font-family, Arial, sans-serif)">x</main>',
+    'tokens.css': ':root{--sp-6: 24px}',
+  });
+  assert.deepEqual(tokenProblems(base), [],
+    'Tailwind emits var(--x, <value>) on purpose and the fallback IS the value, so the page this '
+    + 'reports renders exactly as drawn; the sixteen foreign halves are what brought the shape in');
+
+  const bare = out({
+    'index.html': '<main style="font-family:var(--default-font-family)">x</main>',
+    'tokens.css': ':root{--sp-6: 24px}',
+  });
+  assert.equal(tokenProblems(bare).length, 1, 'without a fallback it still resolves to nothing');
+});
+
+test('the generated index of the benches is not a half, so it is not an undeclared one', () => {
+  const base = benchOut({ etsy: ['react', 'angular'] });
+  writeFileSync(join(base, BENCHES_DIR, 'index.html'), '<html></html>');
+  assert.deepEqual(benchProblems(base), [],
+    'this build writes that page itself, and a half is one directory deeper');
 });

@@ -34,7 +34,7 @@ export const MARKDOWN_LINK = /\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
 export const OFF_SITE = /^(?:https?:|mailto:|data:|#|\/\/)/;
 export const AUTHORED = ['index.html', '404.html', 'og.html', 'hero.html'];
 export const FORBIDDEN = ['file://', 'localhost', '127.0.0.1'];
-export const VAR_USED = /var\((--[a-z0-9-]+)/g;
+export const VAR_USED = /var\(\s*(--[a-z0-9-]+)\s*(,?)/g;
 export const VAR_DEFINED = /(--[a-z0-9-]+)\s*:/g;
 
 export function definedTokens(out: string) {
@@ -54,6 +54,7 @@ export function tokenProblems(out: string, files = htmlFiles(out), defined = def
     if (!AUTHORED.includes(rel) && !rel.endsWith('/index.html')) continue;
     for (const match of readFileSync(page, 'utf8').matchAll(VAR_USED)) {
       const name = match[1] ?? '';
+      if (match[2] === ',') continue;
       if (!defined.has(name)) {
         problems.push(
           `${rel} reads ${name}, and no stylesheet in the output defines it. A custom property `
@@ -142,8 +143,9 @@ export function missingModuleProblems(out: string, base = root) {
 export function benchProblems(out: string) {
   const declared = benchPages(out);
   const dir = join(out, BENCHES_DIR);
+  const half = new RegExp(`^${BENCHES_DIR}/[^/]+/[^/]+/index\\.html$`);
   const carried = existsSync(dir)
-    ? walkFiles(dir).map((path) => relPosix(out, path)).filter((rel) => rel.endsWith('/index.html'))
+    ? walkFiles(dir).map((path) => relPosix(out, path)).filter((rel) => half.test(rel))
     : [];
   const problems = [];
   for (const rel of declared) {
