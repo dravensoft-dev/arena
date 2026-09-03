@@ -39,6 +39,11 @@ node_modules/
 # check:generated scans no .md.
 /frameworks/**/*.generated.*
 
+# The benches, checked out and built by the Pages workflow. actions/checkout writes only under
+# the workspace, so a second repository lands inside this one; nothing build:site or check:site
+# walks reaches the root, and this keeps a local rehearsal of those steps from dirtying the tree.
+/web-benches/
+
 # Logs
 *.log
 npm-debug.log*

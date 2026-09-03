@@ -17,8 +17,8 @@ import { relPosix, isInside } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds, missingModules,
-  modules, url, directoryUrl,
+  DOMAIN, SITE_DIR, LAYERS, BENCHES_DIR, pages, benchPages, indexedDirectories, missingPlaygrounds,
+  missingModules, modules, url, directoryUrl,
 } from '../../lib/arena/site-pages.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
@@ -34,7 +34,7 @@ export const MARKDOWN_LINK = /\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
 export const OFF_SITE = /^(?:https?:|mailto:|data:|#|\/\/)/;
 export const AUTHORED = ['index.html', '404.html', 'og.html', 'hero.html'];
 export const FORBIDDEN = ['file://', 'localhost', '127.0.0.1'];
-export const VAR_USED = /var\((--[a-z0-9-]+)/g;
+export const VAR_USED = /var\(\s*(--[a-z0-9-]+)\s*(,?)/g;
 export const VAR_DEFINED = /(--[a-z0-9-]+)\s*:/g;
 
 export function definedTokens(out: string) {
@@ -54,6 +54,7 @@ export function tokenProblems(out: string, files = htmlFiles(out), defined = def
     if (!AUTHORED.includes(rel) && !rel.endsWith('/index.html')) continue;
     for (const match of readFileSync(page, 'utf8').matchAll(VAR_USED)) {
       const name = match[1] ?? '';
+      if (match[2] === ',') continue;
       if (!defined.has(name)) {
         problems.push(
           `${rel} reads ${name}, and no stylesheet in the output defines it. A custom property `
@@ -139,15 +140,38 @@ export function missingModuleProblems(out: string, base = root) {
       + 'answers 200 at all of them, and renders nothing at all');
 }
 
+export function benchProblems(out: string) {
+  const declared = benchPages(out);
+  const dir = join(out, BENCHES_DIR);
+  const half = new RegExp(`^${BENCHES_DIR}/[^/]+/[^/]+/index\\.html$`);
+  const carried = existsSync(dir)
+    ? walkFiles(dir).map((path) => relPosix(out, path)).filter((rel) => half.test(rel))
+    : [];
+  const problems = [];
+  for (const rel of declared) {
+    if (carried.includes(rel)) continue;
+    problems.push(`${rel} is a half the manifest beside it declares and the output does not carry. `
+      + 'A pair is the comparison, so a gallery published with one half of one missing is a '
+      + 'comparison with nothing to compare');
+  }
+  for (const rel of carried) {
+    if (declared.includes(rel)) continue;
+    problems.push(`${rel} is a half the output carries and the manifest beside it does not `
+      + 'declare, so the index links every pair it knows and this one is reachable from nothing. '
+      + 'An artifact copied in without its manifest is this in sixteen lines');
+  }
+  return problems;
+}
+
 export function missingPageProblems(out: string, base = root) {
-  return pages(base)
+  return pages(base, out)
     .filter((rel) => !existsSync(join(out, rel)))
     .map((rel) => `${rel} is a page the site declares and the output does not carry`);
 }
 
 export function orphanProblems(out: string, base = root, files = htmlFiles(out)) {
-  const declared = new Set(pages(base).map((rel) => rel.split('/').join('/')));
-  const indexes = new Set(indexedDirectories(base)
+  const declared = new Set(pages(base, out).map((rel) => rel.split('/').join('/')));
+  const indexes = new Set(indexedDirectories(base, out)
     .map((directory) => (directory === '' ? 'index.html' : `${directory}/index.html`)));
   return files
     .map((path) => relPosix(out, path))
@@ -162,15 +186,15 @@ export function domainProblems(out: string) {
   return named === DOMAIN ? [] : [`CNAME names ${named} and the site is built for ${DOMAIN}`];
 }
 
-export function located(base = root) {
-  return [...indexedDirectories(base).map(directoryUrl), ...pages(base).map(url)];
+export function located(base = root, out = join(root, SITE_DIR)) {
+  return [...indexedDirectories(base, out).map(directoryUrl), ...pages(base, out).map(url)];
 }
 
 export function sitemapProblems(out: string, base = root) {
   const path = join(out, 'sitemap.xml');
   if (!existsSync(path)) return ['the output carries no sitemap.xml, which is the one thing a search engine is handed'];
   const xml = readFileSync(path, 'utf8');
-  return located(base)
+  return located(base, out)
     .filter((loc) => !xml.includes(`<loc>${loc}</loc>`))
     .map((loc) => `sitemap.xml names no entry for ${loc}, so a published page is one nothing points at`);
 }
@@ -287,6 +311,7 @@ function main() {
     ...missingPageProblems(out),
     ...missingModuleProblems(out),
     ...orphanProblems(out, root, files),
+    ...benchProblems(out),
     ...missingPlaygrounds(),
     ...missingModules(),
     ...domainProblems(out),
@@ -306,7 +331,7 @@ function main() {
     + `every href, src and markdown link resolving inside the output, all ${modules().length} `
     + `module(s) the pages import present with them, every declared page present and none `
     + `unnamed, every canonical its own page's address, and the sitemap naming all `
-    + `${located().length} of them`,
+    + `${located(root, out).length} of them`,
   );
 }
 
