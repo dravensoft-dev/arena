@@ -344,8 +344,9 @@ already has a page, which is the shape of "nothing to do" here.
 
 **A hand dispatch is the way to write a page again**, and it is also the way through the gap this
 event carries: `workflow_run` fires when `Arena main` finishes, so a tag pushed after that run is
-seen by nothing. Pushing `main` with `--follow-tags`, which `versioning_steps.md` is written
-around, is what keeps the tag there before the run that describes it.
+seen by nothing. `main` takes no push of its own, so the tag rides `develop` with `--follow-tags`
+and is in the repository before the merge that starts the run describing it, which is the order
+`versioning_steps.md` is written around.
 
 `../../scripts/ci/arena/release-notes.ts` writes the page. **GitHub's own `--generate-notes` is
 what it replaces**, and the reason is the shape of this history: every release arrives on `main`

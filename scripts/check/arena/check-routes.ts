@@ -890,7 +890,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 64_000,
+    budget: 67_700,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -941,7 +941,16 @@ export const ROUTES: Route[] = [
       + 'reader cutting a release has one more workflow, and what is true of this one is true of '
       + 'none of the others. It is the only package here declaring a runtime dependency, and it '
       + 'carries no document at all, so the two things a reader would otherwise check by opening '
-      + 'the tarball are the two a gate asserts instead.',
+      + 'the tarball are the two a gate asserts instead. Raised to 67,700 for two preconditions '
+      + 'this route reaches nowhere else. The branch takes no push: main requires a pull request '
+      + 'and a status check and names no bypass, so the tag rides develop and the release lands '
+      + 'as a merge, and a sequence that spells a push to main spells a command the branch '
+      + 'refuses. And the benches are a step of the release rather than an afterthought of it: '
+      + 'they install Arena from the registry, so they move to the published version after the '
+      + 'publish workflows finish and are packed only then, and the workflow serving them builds '
+      + 'their default branch at the moment it runs, so the domain shows that move on a hand '
+      + 'dispatch and on nothing else. Both are this route\'s failure mode again, where the wrong '
+      + 'order errors nowhere.',
   },
 ];
 
