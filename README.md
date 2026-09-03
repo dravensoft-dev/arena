@@ -48,12 +48,14 @@ layers publish the breadcrumb trail they draw in `schema.org` terms.
 
 ## Eight products, drawn twice
 
-[`dravensoft-dev/arena-web-benches`](https://github.com/dravensoft-dev/arena-web-benches) is a set
-of templates that implement Arena: Calendly, ClickUp, Duolingo, Etsy, Grafana, Instagram, Notion
-and Superhuman, each mocked twice, once in React and once in Angular, from one
-`arena.config.json` and one `design/` directory per pair. Every half installs Arena from npm and
-answers a style plugin of its own, so what a pair shows is a project's appearance rather than
-Arena's, and the two halves of a pair are the same screen under both framework names.
+[The benches](https://arena.dravensoft.org/web-benches/) are a set of templates that implement
+Arena: Calendly, ClickUp, Duolingo, Etsy, Grafana, Instagram, Notion and Superhuman, each mocked
+twice, once in React and once in Angular, from one `arena.config.json` and one `design/` directory
+per pair. Every half installs Arena from npm and answers a style plugin of its own, so what a pair
+shows is a project's appearance rather than Arena's, and the two halves of a pair are the same
+screen under both framework names. That address is where they run, and
+[`dravensoft-dev/arena-web-benches`](https://github.com/dravensoft-dev/arena-web-benches) is where
+they are written.
 
 ## Why an agent can operate it
 
