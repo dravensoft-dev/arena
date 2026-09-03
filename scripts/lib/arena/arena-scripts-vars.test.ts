@@ -19,6 +19,14 @@ test('CHROME_PATH is recognised and never declared, so the candidate list stays 
   assert.equal(arenaEnv({ CHROME_PATH: '/opt/other' }).CHROME_PATH, '/opt/other');
 });
 
+test('ARENA_BENCHES is recognised and never declared, so a run with no benches looks like one', () => {
+  assert.equal(Object.hasOwn(DECLARED, 'ARENA_BENCHES'), false,
+    'a declared directory would not be an override but a claim that sixteen built applications sit '
+    + 'on this machine, and the site without benches is what every clone builds');
+  assert.equal(arenaEnv({}).ARENA_BENCHES, undefined);
+  assert.equal(arenaEnv({ ARENA_BENCHES: '/tmp/benches' }).ARENA_BENCHES, '/tmp/benches');
+});
+
 test('a variable the repository does not declare passes through untouched', () => {
   assert.equal(arenaEnv({ CI: 'true' }).CI, 'true');
   assert.equal(arenaEnv({}).CI, undefined);

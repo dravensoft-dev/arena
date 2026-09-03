@@ -17,10 +17,12 @@ import { reset, write, copy } from '../../lib/arena/package-assembly.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE,
+  DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE, BENCHES_DIR,
   entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
+  benches, benchPairs, phosphorDrops,
 } from '../../lib/arena/site-pages.ts';
+import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { renderPageImage } from '../../lib/arena/page-image.ts';
 import {
   HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroStyles,
@@ -50,12 +52,19 @@ export const OG_HEIGHT = 630;
 
 export const NEVER_COPIED = new Set(['node_modules', '.git']);
 
-export function copyAll(from: string, out: string, rel: string) {
+export const BENCHES_REPOSITORY = 'https://github.com/dravensoft-dev/arena-web-benches';
+
+export function copyAll(from: string, out: string, rel: string, drop = (_name: string) => false) {
   const written = [];
-  for (const file of walkFiles(from, { skip: (name) => NEVER_COPIED.has(name) })) {
+  for (const file of walkFiles(from, { skip: (name) => NEVER_COPIED.has(name) || drop(name) })) {
     written.push(copy(file, out, `${rel}/${relPosix(from, file)}`));
   }
   return written;
+}
+
+export function benchesDirectory(env = arenaEnv()) {
+  const named = env.ARENA_BENCHES;
+  return named !== undefined && named !== '' && existsSync(named) ? named : null;
 }
 
 export const BODY = 'body{margin:0;background:var(--bg);color:var(--text-strong);'
@@ -132,8 +141,33 @@ export function structuredData() {
   });
 }
 
-export function landingPage(base = repoRoot) {
+export function benchesSection(out: string) {
+  const pairs = benchPairs(out);
+  if (pairs.length === 0) return '';
+  const version = benches(out)?.arena ?? '';
+  const rows = pairs.map(({ product, label }) => `<li>${escape(label)}: `
+    + LAYERS.map((layer) => `<a href="./${BENCHES_DIR}/${product}/${layer}/">${layer}</a>`).join(', ')
+    + '</li>').join('\n');
+  return `
+<h2 style="font-family:var(--font-display)">Benches</h2>
+<p style="max-width:44rem">Products drawn twice, once under React and once under Angular, each pair
+from one <code>arena.config.json</code> and one style plugin of its own. What a pair shows is that
+project's appearance rather than Arena's, and both halves are applications you can use rather than
+pictures of them.</p>
+<ul style="line-height:2">
+${rows}
+</ul>
+<p style="max-width:44rem">Every half installs Arena ${escape(version)} from the registry rather
+than reading the repository that publishes this page, so a pair draws a released Arena and a fix
+made after that release reaches it at the next one.</p>
+<p style="max-width:44rem">Opening both halves of a pair at once is the comparison, and that is a
+local act: <a href="${BENCHES_REPOSITORY}">clone them</a> and run one command.</p>
+`;
+}
+
+export function landingPage(base = repoRoot, out = join(base, SITE_DIR)) {
   const drawn = components('react', base).length;
+  const pairs = benchPairs(out);
   const links = entryPoints(base).filter((entry) => entry.public);
   const cards = links
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
@@ -163,9 +197,10 @@ bun add @phosphor-icons/web</code></pre>
 
 <h2 style="font-family:var(--font-display)">See it</h2>
 <ul style="line-height:2">
-${cards}
-  <li><a href="https://github.com/dravensoft-dev/arena-web-benches">Eight products drawn twice, once in React and once in Angular</a></li>
+${cards}${pairs.length > 0 ? '' : `
+  <li><a href="${BENCHES_REPOSITORY}">Products drawn twice, once in React and once in Angular</a></li>`}
 </ul>
+${benchesSection(out)}
 <h2 style="font-family:var(--font-display)">Take it</h2>
 <ul style="line-height:2">
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-react">@dravensoft/arena-react</a></li>
@@ -210,15 +245,21 @@ export function robots() {
   return `User-agent: *\nAllow: /\n\nSitemap: https://${DOMAIN}/sitemap.xml\n`;
 }
 
-export function sitemap(base = repoRoot) {
-  const located = [...indexedDirectories(base).map(directoryUrl), ...pages(base).map(url)];
+export function sitemap(base = repoRoot, out = join(base, SITE_DIR)) {
+  const located = [...indexedDirectories(base, out).map(directoryUrl), ...pages(base, out).map(url)];
   const entries = located.map((loc) => `  <url><loc>${loc}</loc></url>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
 }
 
-function sectionsFor(directory: string, base: string): Section[] {
+function sectionsFor(directory: string, base: string, out: string): Section[] {
   if (directory === 'intro/guidelines') {
     return [{ links: guidelineLinks(base) }];
+  }
+  if (directory === BENCHES_DIR) {
+    return benchPairs(out).map(({ product, label }) => ({
+      heading: label,
+      links: LAYERS.map((layer) => ({ href: `${product}/${layer}/`, label: layer })),
+    }));
   }
   const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
   if (drawn) return playgroundSections(drawn[1] ?? '', base);
@@ -247,6 +288,9 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     if (existsSync(join(base, tree))) written.push(...copyAll(join(base, tree), out, tree));
   }
 
+  const bench = benchesDirectory();
+  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR, phosphorDrops));
+
   for (const layer of LAYERS) {
     const sinks = join(base, 'frameworks', layer, 'kitchen-sink');
     if (existsSync(sinks)) {
@@ -265,14 +309,14 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
 
   for (const rel of phosphorFiles(base)) written.push(copy(join(base, rel), out, rel));
 
-  for (const directory of indexedDirectories(base)) {
+  for (const directory of indexedDirectories(base, out)) {
     const depth = directory === '' ? 0 : directory.split('/').length;
     const rel = directory === '' ? 'index.html' : `${directory}/index.html`;
     const page = directory === ''
-      ? landingPage(base)
+      ? landingPage(base, out)
       : indexPage(
         titleFor(directory), descriptionFor(directory), directoryUrl(directory),
-        sectionsFor(directory, base), depth,
+        sectionsFor(directory, base, out), depth,
       );
     written.push(write(out, rel, page));
   }
@@ -285,7 +329,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   written.push(write(out, OG_SOURCE, ogPage()));
   written.push(write(out, '404.html', notFoundPage()));
   written.push(write(out, 'robots.txt', robots()));
-  written.push(write(out, 'sitemap.xml', sitemap(base)));
+  written.push(write(out, 'sitemap.xml', sitemap(base, out)));
   written.push(write(out, 'CNAME', `${DOMAIN}\n`));
 
   written.push(write(out, HERO_SHEET, await heroStyles()));
@@ -303,6 +347,11 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
 }
 
 function descriptionFor(directory: string) {
+  if (directory === BENCHES_DIR) {
+    return 'Products drawn twice from one arena.config.json and one style plugin of their own, '
+      + 'once under React and once under Angular, each half a running application rather than a '
+      + 'picture of one.';
+  }
   if (directory === 'intro/guidelines') {
     return 'The specimens every Arena screen is drawn from: colour, type, spacing, effects and '
       + 'icons, each showing the token a component reads rather than describing it.';
@@ -325,6 +374,7 @@ function descriptionFor(directory: string) {
 }
 
 function titleFor(directory: string) {
+  if (directory === BENCHES_DIR) return 'Benches, Arena by Dravensoft';
   if (directory === 'intro/guidelines') return 'Guidelines, Arena by Dravensoft';
   const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
   if (drawn) return `Playgrounds, ${drawn[1]}`;
