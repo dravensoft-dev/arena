@@ -147,7 +147,7 @@ export function treePages(base = root) {
   ];
 }
 
-export type Bench = { product: string; skin: string };
+export type Bench = { product: string; label: string; skin: string };
 export type Benches = { arena: string; pairs: Bench[] };
 
 export function benches(out: string): Benches | null {

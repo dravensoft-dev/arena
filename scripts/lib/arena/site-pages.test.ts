@@ -22,7 +22,7 @@ function benchOut(products: string[]) {
     mkdirSync(join(out, BENCHES_DIR), { recursive: true });
     writeFileSync(join(out, BENCHES_DIR, BENCHES_MANIFEST), JSON.stringify({
       arena: '10.2.1',
-      pairs: products.map((product) => ({ product, skin: product })),
+      pairs: products.map((product) => ({ product, label: product, skin: product })),
     }));
   }
   return out;
