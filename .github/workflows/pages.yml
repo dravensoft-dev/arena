@@ -69,12 +69,11 @@ jobs:
         if: steps.build.outputs.cache-hit != 'true'
         run: bun run build:release
 
-      # Decision 3 of the spec this came from: the commit built is that repository's main at this
-      # moment, not a SHA pinned here. A push there changes what this publishes with no commit
-      # here saying so, and rebuilding an old commit does not reproduce its site. actions/checkout
-      # writes only under the workspace, so the second repository lands inside this one; nothing
-      # build:site or check:site walks reaches the root, and .gitignore keeps a local rehearsal
-      # of these four steps from dirtying the tree.
+      # The ref is a branch, so what is built is that repository's main at this moment rather than
+      # a revision pinned here; AGENTS.md beside this file says what that buys and what it costs.
+      # actions/checkout writes only under the workspace, so the second repository lands inside
+      # this one; nothing build:site or check:site walks reaches the root, and .gitignore keeps a
+      # local rehearsal of these four steps from dirtying the tree.
       - name: the benches, at their main
         uses: actions/checkout@v7
         with:
@@ -87,8 +86,7 @@ jobs:
         working-directory: web-benches
 
       # Sixteen or none: this exits non-zero on the first half that does not build, and leaves
-      # nothing behind, so build:site below finds no directory and publishes the site without them
-      # only if this step is skipped. It is not skipped, so a failure here stops the publication.
+      # nothing behind for build:site to find.
       - name: the sixteen halves, into one shape
         run: bun run build
         working-directory: web-benches
