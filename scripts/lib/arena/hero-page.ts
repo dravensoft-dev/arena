@@ -1,12 +1,12 @@
 /* The picture Arena is recognised by, and its argument in one frame: one component, the contracts
- * that decide what it is, and the three appearances a consuming project can give it. Every part is
+ * that decide what it is, and the eight appearances a consuming project can give it. Every part is
  * the real thing rather than a drawing of one. The button carries the classes ArenaButton renders
  * and is painted by the stylesheet the packages ship; each copy is scoped to a style plugin out of
  * the catalogue, compiled here by the builder that writes the two plugins the site already loads,
- * so a skin whose radius or weight moves moves the picture. Two carry a palette of their own,
- * because a palette is the half Arena never ships: the middle one is Arena's, the course one is the
- * worked answer in arena-from-scratch/identity.example.html, and the third stands for a project
- * that has not written its config yet. */
+ * so a skin whose radius or weight moves moves the picture. The eight palettes are the ones the
+ * eight published benches wear, copied from their own arena.config.json, because a palette is the
+ * half Arena never ships and a made-up one would be Arena inventing the thing it says it does not
+ * carry. Nothing holds them to those files; the benches are another repository. */
 
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
 
@@ -14,12 +14,17 @@ export const HERO_SHEET = 'hero.css';
 export const HERO_SOURCE = 'hero.html';
 export const HERO_FILE = 'hero.png';
 export const HERO_WIDTH = 1400;
-export const HERO_HEIGHT = 820;
+export const HERO_HEIGHT = 860;
 
 export const HERO_SKINS = [
-  { name: 'storefront', primary: '#7b4fd6', content: '#ffffff' },
-  { name: 'observability-console', primary: '', content: '' },
+  { name: 'booking', primary: '#424dac', content: '#ffffff' },
+  { name: 'project-tracker', primary: '#6c4ee3', content: '#ffffff' },
   { name: 'language-course', primary: '#58cc02', content: '#ffffff' },
+  { name: 'storefront', primary: '#9c431b', content: '#ffffff' },
+  { name: 'photo-feed', primary: '#4a9eff', content: '#0b1a2b' },
+  { name: 'observability-console', primary: '#ff9243', content: '#1a1206' },
+  { name: 'document-workspace', primary: '#0b6bcb', content: '#ffffff' },
+  { name: 'inbox', primary: '#a396ff', content: '#151033' },
 ];
 
 export const skinClass = (name: string) => `arena-${name}`;
@@ -69,7 +74,7 @@ overflow:hidden;font-family:var(--font-body);color:var(--text-strong)}
 .mark img{width:60px;height:60px}
 .mark b{font-family:var(--font-display);font-size:82px;font-weight:700;letter-spacing:-0.02em}
 .mark span{font-size:34px;color:var(--mute)}
-.tally{position:absolute;left:494px;top:110px;width:746px;text-align:center;font-size:40px;
+.tally{position:absolute;left:474px;top:110px;width:792px;text-align:center;font-size:40px;
 color:var(--mute)}
 .tally b{font-family:var(--font-display);font-size:46px;color:var(--text-strong);font-weight:700}
 .contract{position:absolute;left:88px;width:318px}
@@ -79,20 +84,20 @@ color:var(--mute)}
 letter-spacing:0.01em}
 .contract span{display:block;margin-top:12px;font-size:24px;color:var(--mute);line-height:1.35}
 svg.wires{position:absolute;inset:0;width:${HERO_WIDTH}px;height:${HERO_HEIGHT}px}
-.bubble{position:absolute;left:444px;top:172px;width:852px;height:356px;
+.bubble{position:absolute;left:414px;top:190px;width:912px;height:410px;
 border:2px solid var(--mute);border-radius:50%}
-.component{position:absolute;left:494px;top:238px;width:746px;text-align:center;
+.component{position:absolute;left:474px;top:232px;width:792px;text-align:center;
 font-family:var(--font-mono);font-size:29px;color:var(--text-strong);letter-spacing:0.01em}
-.split{position:absolute;left:494px;top:300px;width:746px;display:flex;
-align-items:flex-start;gap:22px}
-.slice{flex:1;display:flex;flex-direction:column;align-items:center;gap:22px}
-.slice .arena-button__root{height:94px;font-size:33px;white-space:nowrap}
-.slice span{font-family:var(--font-mono);font-size:18px;color:var(--mute);white-space:nowrap}
-.robot{position:absolute;left:498px;top:596px;font-size:132px;color:var(--mute);line-height:1}
-.reads{position:absolute;left:664px;top:614px;font-size:30px;color:var(--mute);max-width:648px;
+.split{position:absolute;left:474px;top:288px;width:792px;display:grid;
+grid-template-columns:repeat(4,1fr);gap:26px 18px}
+.slice{display:flex;flex-direction:column;align-items:center;gap:14px}
+.slice .arena-button__root{height:70px;font-size:25px;white-space:nowrap}
+.slice span{font-family:var(--font-mono);font-size:13px;color:var(--mute);white-space:nowrap}
+.robot{position:absolute;left:498px;top:644px;font-size:132px;color:var(--mute);line-height:1}
+.reads{position:absolute;left:664px;top:662px;font-size:30px;color:var(--mute);max-width:648px;
 line-height:1.4;margin:0}
 .reads b{color:var(--text-strong);font-weight:600}
-.layers{position:absolute;left:88px;top:664px;display:flex;align-items:center;gap:44px;
+.layers{position:absolute;left:88px;top:712px;display:flex;align-items:center;gap:44px;
 color:var(--mute)}
 .layers div{display:flex;align-items:center;gap:16px;font-size:30px}
 .layers svg{width:66px;height:66px;color:var(--mute)}
@@ -110,12 +115,12 @@ color:var(--mute)}
 <svg class="wires" viewBox="0 0 ${HERO_WIDTH} ${HERO_HEIGHT}" fill="none">
 <defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
 orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--crimson)"></path></marker></defs>
-<path d="M418 212 C 462 224, 456 290, 494 322" stroke="var(--crimson)" stroke-width="4"
+<path d="M398 212 C 446 228, 436 292, 470 314" stroke="var(--crimson)" stroke-width="4"
 marker-end="url(#tip)"></path>
-<path d="M418 444 C 462 436, 456 392, 494 366" stroke="var(--crimson)" stroke-width="4"
+<path d="M398 444 C 430 446, 448 446, 470 446" stroke="var(--crimson)" stroke-width="4"
 marker-end="url(#tip)"></path>
-<circle cx="666" cy="552" r="16" stroke="var(--mute)" stroke-width="2"></circle>
-<circle cx="628" cy="586" r="11" stroke="var(--mute)" stroke-width="2"></circle>
+<circle cx="666" cy="600" r="16" stroke="var(--mute)" stroke-width="2"></circle>
+<circle cx="628" cy="634" r="11" stroke="var(--mute)" stroke-width="2"></circle>
 </svg>
 
 <div class="bubble"></div>
