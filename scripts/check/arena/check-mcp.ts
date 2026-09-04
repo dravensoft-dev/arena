@@ -1,15 +1,16 @@
-/* The MCP package against what it promises. Four claims. It declares the dependencies it
- * actually imports and no others, since a server that resolves at build and throws at spawn is
- * the shape an editor reports as a broken configuration rather than a missing package. Its bin
- * resolves to a file that is there. It carries NO corpus, which is the whole of its design: a
- * document inside it would be a third copy of the language ageing on a schedule of its own, and
- * the emptiness is what this gate asserts rather than a comment claiming it. And the catalogue it
- * would build from a real payload reaches every component the tree declares, since a server that
- * serves half the library answers the other half with silence. dist/ is git-ignored, so the last
- * two skip when nothing has been assembled. */
+/* The MCP package against what it promises. Five claims. It declares the dependencies it actually
+ * imports and no others, since a server that resolves at build and throws at spawn is the shape an
+ * editor reports as a broken configuration rather than a missing package. Its bin resolves to a
+ * file that is there. It carries the corpus, one per layer, which is where the language travels
+ * now that the framework packages carry components and nothing else: a package shipping the
+ * transport and none of the documents installs cleanly and answers every question with silence.
+ * Every path inside that corpus resolves to something the package carries or the site publishes,
+ * since a rewritten link landing nowhere is the one failure a reader cannot tell from an empty
+ * answer. And the catalogue built from it reaches every component the tree declares. dist/ is
+ * git-ignored, so everything but the first skips when nothing has been assembled. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -19,13 +20,14 @@ import {
   DIST, SOURCE, ENTRY, BIN, NAME, RUNTIME_DEPENDENCIES, manifest, sources,
 } from '../../build/arena/build-mcp-package.ts';
 import { catalogue } from '../../generate/core/arena-mcp/catalogue.ts';
-import { manifestIn } from '../../generate/core/arena-mcp/payload.ts';
-import { AGENT_DIR } from '../../lib/arena/agent-payload.ts';
-import { LAYERS } from '../../lib/arena/layers.ts';
+import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
+import { servedDocs } from '../../lib/arena/llms-index.ts';
+import { LINK, INLINE, isRepoPath } from '../../lib/arena/agent-payload.ts';
+import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
 export const node = {
   name: 'check:mcp',
-  reads: [`${SOURCE}/**`, `${DIST}/**`, 'frameworks/Components.json', 'frameworks/*/dist/agent/**'],
+  reads: [`${SOURCE}/**`, `${DIST}/**`, 'frameworks/Components.json'],
   writes: [],
   feeds: [],
 };
@@ -81,28 +83,70 @@ export function binProblems(dir: string) {
        + 'does not exist'];
 }
 
-export const CORPUS = /\.(md|prompt\.md)$/;
+export const SITE_BASE = 'https://arena.dravensoft.org/';
+
+export function targetsIn(text: string) {
+  const targets = [...text.matchAll(LINK)].map((one) => one[1] ?? '');
+  for (const one of text.matchAll(INLINE)) {
+    const inner = one[1] ?? '';
+    if (inner.startsWith('http') || inner.startsWith('./') || inner.startsWith('../')) targets.push(inner);
+  }
+  return targets.filter(Boolean);
+}
+
+export function unresolvedTarget(target: string, from: string, agent: string, served: Set<string>) {
+  if (target.startsWith(SITE_BASE)) {
+    const rel = target.slice(SITE_BASE.length).replace(/[#?].*$/, '');
+    if (rel.includes('*') || rel.includes('<')) return null;
+    return served.has(rel) || existsSync(join(root, ...rel.split('/')))
+      ? null
+      : `${rel} is named as a page on the domain and this tree does not carry it, `
+        + 'so the site publishes nothing there';
+  }
+  if (/^[a-z]+:/i.test(target) || target.startsWith('#')) return null;
+  if (target.includes('*') || target.includes('<')) return null;
+  const at = join(dirname(join(agent, from)), target);
+  return existsSync(at) ? null : `${target} resolves to nothing a consumer installs`;
+}
 
 export function corpusProblems(dir: string) {
-  return walkFiles(dir)
-    .map((path) => relPosix(dir, path))
-    .filter((rel) => rel !== 'README.md' && CORPUS.test(rel))
-    .map((rel) => `${NAME} carries ${rel}. This package serves the corpus its consumer already `
-      + 'installs and carries none of its own: a document inside it is a third copy of the language, '
-      + 'ageing on a release schedule of its own, which is the thing the design refuses');
+  const problems = [];
+  const served = new Set(servedDocs());
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null) {
+      problems.push(`${NAME} carries no corpus for the ${layer} layer. The framework packages ship `
+        + 'the components and none of the language, so a half missing here is a half no agent can '
+        + 'read, and the package installs and starts anyway');
+      continue;
+    }
+    for (const file of walkFiles(payload).filter((one) => one.endsWith('.md'))) {
+      const from = relPosix(payload, file);
+      const text = readFileSync(file, 'utf8');
+      for (const bare of text.matchAll(INLINE)) {
+        const inner = bare[1] ?? '';
+        if (isRepoPath(inner) && !inner.includes(' ')) {
+          problems.push(`${NAME}: ${layer}/${from} still names the repository path `
+            + `${JSON.stringify(inner)}. A consumer has no such path, so the rewrite left a reader `
+            + 'somewhere that does not exist and nothing at install time would say so');
+        }
+      }
+      for (const target of targetsIn(text)) {
+        const problem = unresolvedTarget(target, from, payload, served);
+        if (problem) problems.push(`${NAME}: ${layer}/${from} names ${problem}`);
+      }
+    }
+  }
+  return problems;
 }
 
-export function payloadDir(layer: string, base = root) {
-  return join(base, 'frameworks', layer, 'dist', AGENT_DIR);
-}
-
-export function catalogueProblems(base = root) {
+export function catalogueProblems(dir: string, base = root) {
   const declared = readJson(join(base, 'frameworks', 'Components.json')) as Record<string, string[]>;
   const expected = Object.values(declared).flat().length;
   const problems = [];
-  for (const layer of LAYERS.filter((one) => one !== 'tailwind')) {
-    const payload = payloadDir(layer, base);
-    if (!existsSync(payload)) continue;
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null) continue;
     const found = manifestIn(payload);
     if (found === null) { problems.push(`${payload} carries no manifest`); continue; }
     const served = catalogue(payload, found).entries
@@ -117,10 +161,12 @@ export function catalogueProblems(base = root) {
 
 export function collect(base = root) {
   const dir = assembled(base);
-  const problems = [...dependencyProblems(base), ...catalogueProblems(base)];
+  const problems = [...dependencyProblems(base)];
   if (!existsSync(dir)) return { problems, assembled: false };
   return {
-    problems: [...problems, ...binProblems(dir), ...corpusProblems(dir)],
+    problems: [
+      ...problems, ...binProblems(dir), ...corpusProblems(dir), ...catalogueProblems(dir, base),
+    ],
     assembled: true,
   };
 }
@@ -133,8 +179,9 @@ function main() {
     process.exit(1);
   }
   console.log(`check-mcp: ${NAME} declares the ${Object.keys(RUNTIME_DEPENDENCIES).length} dependency `
-    + `it imports, ${built ? 'ships its bin and carries no corpus' : 'is not assembled, so the bin and '
-    + 'the corpus rule went unread'}, and would serve every component the tree declares`);
+    + `it imports${built ? ', ships its bin, carries one corpus per layer whose every path resolves, '
+    + 'and would serve every component the tree declares' : ' and is not assembled, so the bin and '
+    + 'the corpus rules went unread'}`);
 }
 
 if (isMainModule(import.meta.url)) main();

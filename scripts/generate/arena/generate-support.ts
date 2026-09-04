@@ -19,7 +19,7 @@ export const node = {
   reads: [TARGET, 'scripts/lib/arena/support-matrix.ts'],
   writes: [TARGET],
   feeds: [
-    'build:angular-package', 'build:react-package', 'build:site',
+    'build:mcp-package', 'build:site',
     'check:community', 'check:routes', 'check:support',
   ],
 };

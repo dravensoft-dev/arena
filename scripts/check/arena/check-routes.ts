@@ -82,7 +82,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 23_400,
+    budget: 23_600,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than '
@@ -326,13 +326,12 @@ export const ROUTES: Route[] = [
       + 'with the evidence behind it, and leaves the rest of the repertoire to the page that '
       + 'owns it: a project that cannot load a module has to learn it here rather than at the '
       + 'first import, and one that can is spared the other four axes on the route it pays per '
-      + 'project. Raised again to 51,400 for the row naming the discovery record. This is the '
-      + 'only route a reader arriving from the registry can take, and the record is what puts '
-      + 'Arena where their editor looks: a package carrying the whole corpus and a page that '
-      + 'never names the one command that surfaces it ships a language nobody reaches, which is '
-      + 'the shape the stub it replaces already had. The row also says what --skill-check '
-      + 'reports, since a record that stops matching the package fails at nothing and is read by '
-      + 'an agent anyway.',
+      + 'project. Raised again to 51,400 for the rows naming where the language is. This is the '
+      + 'only route a reader arriving from the registry can take, and the package they installed '
+      + 'carries none of it: a page that never names the four ways to reach it ships a language '
+      + 'nobody reaches. The rows also say that a corpus and the components it describes are two '
+      + 'version numbers, since a served document that stops matching the package fails at '
+      + 'nothing and is read by an agent anyway.',
   },
   {
     name: 'consumer-skin',
@@ -841,9 +840,9 @@ export const ROUTES: Route[] = [
       + 'Raised to 90,700 for the check:mcp row, measured the same way: over 51 rows the median '
       + 'is 994 characters and the longest is still 3,942, and the new row is 1,017. It sits at '
       + 'the median, and what it buys is the one claim of that gate a contributor cannot infer '
-      + 'from the package it judges: the emptiness is the assertion. A server carrying no corpus '
-      + 'reads as an oversight until a gate says the corpus is refused and says why, and a '
-      + 'comment claiming it would hold nothing.',
+      + 'from the package it judges: which of the four packages carries the language. A corpus '
+      + 'in the server rather than beside the components reads as an oversight until a gate says '
+      + 'where it belongs and why, and a comment claiming it would hold nothing.',
   },
   {
     name: 'contributor-tailwind',
@@ -890,7 +889,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 67_700,
+    budget: 68_100,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -931,12 +930,12 @@ export const ROUTES: Route[] = [
       + 'workflow by hand and by nothing else. A reader who does not know it waits for a page that '
       + 'no event is coming for, which is this route\'s failure mode again: nothing errored, and '
       + 'nobody was told. Raised to 63,300 for the one artefact of a release that no gate here '
-      + 'can observe. The command each package ships writes a discovery record into a consumer '
-      + 'tree, and nothing in this repository holds one, so the version it stamps is checked by '
-      + 'installing the packed package and running the command or it is checked by nobody: a '
-      + 'record carrying the previous number is what every project installing the release would '
-      + 'then be told to keep. This route\'s failure mode once more, and the sequence carries '
-      + 'the step rather than sending a reader to find it. Raised to 64,000 when a fourth '
+      + 'can observe. The corpus ships in one package and the components in another, so a '
+      + 'project installs two version numbers and nothing here installs either: the pair is '
+      + 'checked by installing both packed packages and calling arena_start or it is checked by '
+      + 'nobody, and a corpus that did not travel answers every question with silence. This '
+      + 'route\'s failure mode once more, and the sequence carries the step rather than sending '
+      + 'a reader to find it. Raised to 64,000 when a fourth '
       + 'package landed, which is the case the third already argued and this route pays again: a '
       + 'reader cutting a release has one more workflow, and what is true of this one is true of '
       + 'none of the others. It is the only package here declaring a runtime dependency, and it '

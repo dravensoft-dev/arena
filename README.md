@@ -86,27 +86,6 @@ Then write `arena.config.json`, run `npx arena-to-prod` (or `bunx`, or
 [`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) are the whole
 of it, and they are the pages npm shows.
 
-### In an IDE
-
-```bash
-npx arena-to-prod --skill        # or: bunx / pnpm exec / yarn dlx
-```
-
-One file, `.agents/skills/arena/SKILL.md`, which is the location VS Code,
-Copilot, Cursor, Codex, Gemini CLI and Zed all scan. **It is not a copy of the
-language**: the corpus travels inside the package, and the record routes into it,
-so an agent reads the rules, the style kernel and every component's usage
-document without a clone and without a network. `--skill=.github/skills` writes a
-different scanned location, `--global` writes one for every project you open, and
-`--vendor` copies the documents beside the record for a tree where
-`node_modules` is not checked out.
-
-**`npx arena-to-prod --skill-check` reads it back.** It reports that the record
-is absent, that another version of the package wrote it, that it was edited by
-hand, or that a document it routes to is not there; `--strict=skill` makes any of
-those fatal, which is how a project holds it in its own CI. It is the only thing
-in Arena that reads a consumer's project.
-
 ### Over MCP
 
 ```json
@@ -117,14 +96,16 @@ in Arena that reads a consumer's project.
 }
 ```
 
-`@dravensoft/arena-mcp` serves the router, the references and every component document to an
-agent that speaks the Model Context Protocol, as resources and as tools. **It carries no copy of
-the language**: it reads the payload of the Arena package your project already installs, so it
-cannot disagree with the components beside it.
+`@dravensoft/arena-mcp` is where the language travels. It serves the router, the
+references and every component document to an agent that speaks the Model
+Context Protocol, as resources and as tools, and the layer it serves is the one
+your project installed. The component packages carry the code, the stylesheets
+and the contracts your own markup answers to, and none of the prose.
 
-**Take the record above instead when you can.** It needs no server and no configuration, and
-every editor listed there scans for it. Take this one when you would rather configure a server
-once than write a file per project, or when your client speaks MCP and scans for no skill.
+**A corpus and the components it describes are two packages and two version
+numbers**, so they can disagree. `arena_start` reads the version of the Arena
+package in your project, compares it with the server's, and says so when the two
+differ. Where they do, the components are right and the text is old.
 
 ### As a Claude Code plugin
 
@@ -152,10 +133,11 @@ router, and it answers each question with one file. **It routes over this tree**
 so an agent handed the file alone has the questions and reaches the answers by
 URL; one handed the clone or the plugin reaches them by path.
 
-**The packages work with this repository rather than instead of it.** Install
-the plugin, or hand over the skill, and the agent gets the guidelines, the
-contracts and every component's usage document, which is what turns "integrate
-Arena" into a task it finishes on its own.
+**A component package is code, and the language reaches an agent by one of the
+three routes above.** Install the MCP server, install the plugin, or hand over
+the skill, and the agent gets the guidelines, the contracts and every component's
+usage document, which is what turns "integrate Arena" into a task it finishes on
+its own.
 
 ## See it
 

@@ -112,17 +112,23 @@ See it before you install it: **https://arena.dravensoft.org** has the guideline
 and a playground for every component. Source and full documentation:
 **https://github.com/dravensoft-dev/arena**
 
-**An agent building with Arena needs the repository, and this is a prerequisite rather than a
-recommendation.** The rules every component answers to, the usage document of each one, and the
-style kernel a project answers to make Arena look like its own product are all there and none of
-them is in this tarball. Install the **Claude Code plugin**, or clone the repository and point your
-agent at \`skills/design/SKILL.md\`, before you ask for the first screen. Over HTTP the same route
-starts at **https://arena.dravensoft.org/llms.txt**.
+**An agent building with Arena needs the language, and this tarball does not carry it.** The rules
+every component answers to, the usage document of each one, and the style kernel a project answers
+to make Arena look like its own product are none of them in here. What is in here is the code, and
+the two things markup of your own is held to: \`contracts/behaviour/\`, one file per accessibility
+pattern, and \`arena.tokens.json\`.
 
-Without them an agent guesses, and **no gate reads your application**, so nothing reports the
-difference: the screen renders, and the rules it breaks are the ones only a reader notices.
+**Reach the language before you ask for the first screen**, by any one of four routes. Install
+**\`@dravensoft/arena-mcp\`** and configure it in your editor: it carries the whole corpus, both
+halves of it, serves the one your project installed a document at a time, and says so when its
+version and this package's differ. Install the **Claude Code plugin**. Clone the repository and
+point your agent at \`skills/design/SKILL.md\`. Or work over HTTP, starting at
+**https://arena.dravensoft.org/llms.txt**.
 
-The package is the code. The repository is the language.`,
+Without one of them an agent guesses, and **no gate reads your application**, so nothing reports
+the difference: the screen renders, and the rules it breaks are the ones only a reader notices.
+
+The package is the code. The server, the plugin and the repository are the language.`,
 
   page: () => `## The page around the components
 

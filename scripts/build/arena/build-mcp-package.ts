@@ -1,9 +1,12 @@
 /* Assembles @dravensoft/arena-mcp into dist/mcp/. It is the only package here with a runtime
  * dependency, and it is a package of its own for exactly that reason: the component libraries
  * promise none, and a server nobody imports into a screen has no business putting one inside
- * them. It carries NO corpus. The language ships in the framework package a project already
- * depends on, so this server resolves that payload at run time and cannot go stale against the
- * components beside it; what it carries is transport. The sources go through emitCli, so a
+ * them. It carries the corpus, once per layer under agent/<layer>/, because the framework
+ * packages carry the components and nothing else and this is where the language travels now. It
+ * carries both layers rather than the one a project installed, since a package cannot know at
+ * assembly time which half it will be asked for; the server picks. What that costs is a corpus
+ * that can disagree with the components beside it, which is why the server reads the installed
+ * package's version and says so when the two differ. The sources go through emitCli, so a
  * relative specifier lands as .mjs and Node never has to strip a type under node_modules. */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -13,6 +16,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
+  copyAgentPayload,
 } from '../../lib/arena/package-assembly.ts';
 import { PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
@@ -22,6 +26,7 @@ export const SOURCE = 'scripts/generate/core/arena-mcp';
 export const NPM_PAGE = 'mcp/NPM.md';
 export const ENTRY = 'bin/arena-mcp.mjs';
 export const BIN = 'arena-mcp';
+export const LAYERS = ['react', 'angular'];
 
 export const RUNTIME_DEPENDENCIES = {
   '@modelcontextprotocol/server': '^2.0.0',
@@ -30,7 +35,13 @@ export const RUNTIME_DEPENDENCIES = {
 
 export const node = {
   name: 'build:mcp-package',
-  reads: [`${SOURCE}/**`, `!${SOURCE}/*.test.ts`, NPM_PAGE, '.claude-plugin/plugin.json', 'LICENSE'],
+  reads: [
+    `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, NPM_PAGE, '.claude-plugin/plugin.json', 'LICENSE',
+    'skills/design/SKILL.md', 'skills/design/references/*.md',
+    'frameworks/INDEX.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
+    'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
+    'frameworks/*/components/**/*.prompt.md',
+  ],
   writes: [`${DIST}/**`],
   feeds: ['check:community', 'check:mcp'],
   releaseOnly: 'nothing in this repository consumes the assembled artefact, so a development loop pays '
@@ -45,8 +56,8 @@ export function manifest(root = repoRoot) {
   return {
     name: NAME,
     description: 'Arena by Dravensoft over the Model Context Protocol: the router, the references '
-      + 'and every component document of the Arena package your project already installs, served '
-      + 'to an agent in your editor. It carries no copy of the language.',
+      + 'and every component document, in React and in Angular, served to an agent in your '
+      + 'editor. It carries the language the component packages leave out.',
     keywords: mcpKeywords(),
     ...pluginIdentity(root),
     type: 'module',
@@ -84,6 +95,8 @@ export function buildMcpPackage(root = repoRoot) {
     throw new Error(`build-mcp-package: nothing was written to ${ENTRY}, which the manifest declares `
       + 'as the bin, so the package would install a command that is not there');
   }
+
+  for (const layer of LAYERS) written.push(...copyAgentPayload(dir, layer, NAME, root));
 
   written.push(copy(join(root, ...NPM_PAGE.split('/')), dir, 'README.md'));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));

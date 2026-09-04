@@ -97,17 +97,23 @@ See it before you install it: **https://arena.dravensoft.org** has the guideline
 and a playground for every component. Source and full documentation:
 **https://github.com/dravensoft-dev/arena**
 
-**An agent building with Arena needs the repository, and this is a prerequisite rather than a
-recommendation.** The rules every component answers to, the usage document of each one, and the
-style kernel a project answers to make Arena look like its own product are all there and none of
-them is in this tarball. Install the **Claude Code plugin**, or clone the repository and point your
-agent at `skills/design/SKILL.md`, before you ask for the first screen. Over HTTP the same route
-starts at **https://arena.dravensoft.org/llms.txt**.
+**An agent building with Arena needs the language, and this tarball does not carry it.** The rules
+every component answers to, the usage document of each one, and the style kernel a project answers
+to make Arena look like its own product are none of them in here. What is in here is the code, and
+the two things markup of your own is held to: `contracts/behaviour/`, one file per accessibility
+pattern, and `arena.tokens.json`.
 
-Without them an agent guesses, and **no gate reads your application**, so nothing reports the
-difference: the screen renders, and the rules it breaks are the ones only a reader notices.
+**Reach the language before you ask for the first screen**, by any one of four routes. Install
+**`@dravensoft/arena-mcp`** and configure it in your editor: it carries the whole corpus, both
+halves of it, serves the one your project installed a document at a time, and says so when its
+version and this package's differ. Install the **Claude Code plugin**. Clone the repository and
+point your agent at `skills/design/SKILL.md`. Or work over HTTP, starting at
+**https://arena.dravensoft.org/llms.txt**.
 
-The package is the code. The repository is the language.
+Without one of them an agent guesses, and **no gate reads your application**, so nothing reports
+the difference: the screen renders, and the rules it breaks are the ones only a reader notices.
+
+The package is the code. The server, the plugin and the repository are the language.
 
 <!-- @shared repository end -->
 
@@ -469,7 +475,6 @@ yourself only under `--no-import`, where you are importing the package sheet by 
 | `--audit` | Report where your own sources break a rule of the language: a class of yours on a component Arena draws, a stylesheet rule reaching an `arena-` slot, or one reaching a `data-arena-part` hook from outside a style plugin; an Arena component wrapped in your router's own link; a raw colour, a bare pixel length or a gradient where a token belongs, raw meaning a hex, channels or a name; an icon passed as an element; an emoji. **Every rule is read in a scope**: inside a directory your `stylePlugins` declares, a part hook is what you are meant to select and a gradient is yours to paint, so neither is reported there; the compiled `arena-` class name and a raw value are reported in both, because the hook is the contract and the class is output. The run also names the parts your plugins paint, which is where the evidence for promoting one into a role comes from. **No gate reads your application**, so this is the only automatic signal there is, and it is a report rather than a failure until you pass `--strict`. It decides only what source text shows, so it never claims to have checked one primary per view or a filled danger surface. **A comment is prose** and declares nothing, so a note about a value costs no allowance. Exempt a line it is wrong about with an `arena-audit allow` comment on that line, and it reports the allowance once there is nothing left on the line to exempt.  Reported for the templates it can read, the same way it reads your TypeScript. |
 | `--undrawn` | Name the components this package ships that your sources draw nowhere. It is the answer to "which of them have I not used yet", and it walks your sources a second time to answer it, which is the only flag here that costs a pass of its own. A component Arena draws on your behalf counts as undrawn, because you never wrote it. |
 | `--strict` | Exit 1 on a report rather than writing anyway. Bare, it holds every kind; `--strict=contrast,audit` holds the kinds you name, out of `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers`, `audit`, `environment` and `restated`. **Name them when one of them is a decision you already made**: a brand under 4.5:1 is measured and deliberate, and one switch over all of them would make it the price of holding the rest in CI. `environment` says the run is outside an Arena package, so Arena's own icons went uncounted; `weight` says a role asks for a weight the face you loaded does not carry, so the browser draws it by smearing the nearest one; `wash` is the one kind `--strict` never holds: a token on a wash of its own colour clears AA at no percentage, and a build nobody can fix is not a gate; `restated` says a plugin rule restates the value that part's slot already paints, so it changes nothing. |
-| `--skill`, `--skill-check` | Write the discovery record every IDE agent scans for, `.agents/skills/arena/SKILL.md`, and do nothing else: no config is read and no stylesheet is written, because a project that wants the language has no reason to own an `arena.config.json` yet. **The record is not a copy of the language**: the corpus travels inside this package and the record routes into it, so an agent reads the rules, the style kernel and every component's usage document with no clone and no network. `--skill=.github/skills` writes a different scanned location, `--global` writes one for every project you open, and `--vendor` copies the documents beside the record for a tree where `node_modules` is not checked out. `--skill-check` reads it back and reports that it is absent, that another version of this package wrote it, that it was edited by hand, or that a document it routes to is not there; `--strict=skill` makes any of those fatal. **It is the only thing in Arena that reads your project**, and it reads only this one file. |
 | `--no-import` | Omit the `@import` of the package stylesheet, for when you would rather import `@dravensoft/arena-angular/arena.css` yourself. |
 | `--config`, `--src`, `--out` | The config file, the trees to scan and where the two files go. They default to `arena.config.json`, `src` and `src`. **`--src` is repeatable and names the trees of your own**, and a style plugin is not one of them: a directory your `stylePlugins` declares is resolved from the config and walked wherever it lives, so every scope rule in the `--audit` row reaches it whether or not it sits under `src`. One command and no arguments is the whole of it, and a plugin in `design/` costs nothing to remember. |
 

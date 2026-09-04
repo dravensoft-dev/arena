@@ -29,6 +29,7 @@ export const node = {
   feeds: [
     'build:angular-package',
     'build:react-package',
+    'build:mcp-package',
     'check:appearance',
     'check:parts',
     'check:arbitrary',

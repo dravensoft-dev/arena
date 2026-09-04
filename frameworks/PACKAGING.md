@@ -285,6 +285,12 @@ suite beside them asserts both by name.
 The absent tests are deliberate. A consumer installs components, not suites, and every claim
 those suites make is already proven in this repository before a package is cut.
 
+The absent prompts are the same decision one level up. A component package is what a screen
+imports; the prose an agent reads is a package of its own, `@dravensoft/arena-mcp`, and
+`copyAgentPayload` in `scripts/lib/arena/package-assembly.ts` is what writes it there, one corpus
+per layer under `agent/<layer>/`. `check:packages` fails a component package that carries one, and
+`check:mcp` fails an MCP package that does not.
+
 ## `dist/` is git-ignored, and every gate skips it
 
 A package is served from the registry and rebuilt from the tagged sources, so committing it

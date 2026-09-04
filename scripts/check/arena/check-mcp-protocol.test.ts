@@ -10,10 +10,11 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { AGENT_DIR } from '../../generate/core/arena-mcp/payload.ts';
+import { DIST } from '../../build/arena/build-mcp-package.ts';
 import { ROUTER_URI, SCHEME } from '../../generate/core/arena-mcp/catalogue.ts';
 
 export const SERVER = 'scripts/generate/core/arena-mcp/arena-mcp.ts';
-export const PAYLOAD = join('frameworks', 'react', 'dist', AGENT_DIR);
+export const PAYLOAD = join(...DIST.split('/'), AGENT_DIR, 'react');
 export const PROTOCOL = '2025-06-18';
 export const DEADLINE = 30_000;
 

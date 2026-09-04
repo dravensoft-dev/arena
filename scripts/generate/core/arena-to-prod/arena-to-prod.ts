@@ -28,10 +28,6 @@ import {
 import type { IconScan, ShippedIcons } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
-import {
-  RECORD, SKILL_NAME, AGENT_DIR, DEFAULT_LOCATIONS, readManifest, routerOf, routerBase, record,
-  recordAt, locationsFor, copyTree, unresolved, relPosix, installedAt, PACKAGE_PAGE,
-} from './skill.ts';
 import { auditText, paintedParts, sourceScope } from './audit.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
@@ -74,17 +70,6 @@ export const USAGE = [
   `                  ${STRICT_KINDS.join(', ')}`,
   '  --no-import     omit the @import of the package stylesheet from the theme output',
   '',
-  '  --skill         write the discovery record every IDE agent scans for, and do nothing else.',
-  `                  Defaults to ${DEFAULT_LOCATIONS[0]}/${SKILL_NAME}, which VS Code, Copilot,`,
-  `                  Cursor, Codex, Gemini CLI and Zed all read; --skill=<dir> writes a second`,
-  `                  scanned location instead, out of ${DEFAULT_LOCATIONS.join(', ')}`,
-  '  --skill-check   read that record instead of writing it, and report that it is absent, that',
-  '                  another version of this package wrote it, that it was edited by hand, or',
-  '                  that a document it routes to is not there',
-  '  --global        write it under your home directory rather than this project. Implies',
-  '                  --vendor, since a path into one project\'s node_modules means nothing outside it',
-  '  --vendor        copy the documents beside the record instead of routing into this package,',
-  '                  for a tree where node_modules is not checked out',
 ].join('\n');
 
 export type ResolvedOptions = {
@@ -95,11 +80,6 @@ export type ResolvedOptions = {
   paths: string[];
   config: string;
   out: string;
-  skill: boolean;
-  skillCheck: boolean;
-  skillDirs: string[];
-  global: boolean;
-  vendor: boolean;
 };
 
 export type CliOptions = Partial<ResolvedOptions> & { help?: boolean; error?: string };
@@ -118,11 +98,6 @@ export function resolved(options: CliOptions): ResolvedOptions {
     paths,
     config,
     out,
-    skill: Boolean(options.skill),
-    skillCheck: Boolean(options.skillCheck),
-    skillDirs: options.skillDirs ?? [],
-    global: Boolean(options.global),
-    vendor: Boolean(options.vendor) || Boolean(options.global),
   };
 }
 
@@ -135,9 +110,8 @@ export function strictKinds(value: string) {
 
 export function parseArgs(argv: string[]): CliOptions {
   const paths: string[] = [];
-  const skillDirs: string[] = [];
   const options: CliOptions = {
-    strict: [], audit: false, undrawn: false, importHeader: true, paths, skillDirs,
+    strict: [], audit: false, undrawn: false, importHeader: true, paths,
   };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -150,11 +124,6 @@ export function parseArgs(argv: string[]): CliOptions {
       options.strict = named.kinds;
       continue;
     }
-    if (arg === '--skill') { options.skill = true; continue; }
-    if (arg.startsWith('--skill=')) { options.skill = true; skillDirs.push(arg.slice('--skill='.length)); continue; }
-    if (arg === '--skill-check') { options.skillCheck = true; continue; }
-    if (arg === '--global') { options.global = true; continue; }
-    if (arg === '--vendor') { options.vendor = true; continue; }
     if (arg === '--audit') { options.audit = true; continue; }
     if (arg === '--undrawn') { options.undrawn = true; continue; }
     if (arg === '--no-import') { options.importHeader = false; continue; }
@@ -181,9 +150,6 @@ export function parseArgs(argv: string[]): CliOptions {
     if (arg.startsWith('--out=')) { options.out = arg.slice('--out='.length); continue; }
     if (arg.startsWith('-')) return { error: `unknown flag: ${arg}` };
     return { error: `unexpected argument: ${arg}; every path this command takes is named by a flag` };
-  }
-  if (options.skill && options.skillCheck) {
-    return { error: '--skill writes the record and --skill-check reads it; name one' };
   }
   options.config ??= DEFAULT_CONFIG;
   options.out ??= DEFAULT_OUT;
@@ -673,90 +639,6 @@ export type Environment = {
   map?: ComponentMap | null;
 };
 
-export const SKILL_COMMAND = 'arena-to-prod --skill';
-
-export function skillSources(arena: string | null) {
-  if (arena === null) {
-    return { fatal: ['this command is not running from inside an installed Arena package, so there '
-      + 'is no payload to write a record from. Run it through the package: npx arena-to-prod --skill'] };
-  }
-  const manifest = readManifest(arena);
-  if (manifest === null) {
-    return { fatal: [`${join(arena, AGENT_DIR)} carries no payload, so this package predates the `
-      + 'record. Update Arena and run this again'] };
-  }
-  const router = join(arena, AGENT_DIR, ...routerOf(arena).split('/'));
-  if (!existsSync(router)) {
-    return { fatal: [`${router} is named by the payload manifest and is not there`] };
-  }
-  return { manifest, router: readFileSync(router, 'utf8'), arena };
-}
-
-export function skillStep(options: ResolvedOptions, arena: string | null, cwd = process.cwd()) {
-  const sources = skillSources(arena);
-  if (sources.fatal) return { code: 2, fatal: sources.fatal, wrote: [] as string[] };
-  const { manifest, router } = sources;
-  const wrote: string[] = [];
-
-  for (const into of locationsFor(options.skillDirs, options.global, cwd)) {
-    mkdirSync(into, { recursive: true });
-    if (options.vendor) {
-      rmSync(join(into, AGENT_DIR), { recursive: true, force: true });
-      copyTree(join(sources.arena, AGENT_DIR), join(into, AGENT_DIR));
-      const page = join(sources.arena, PACKAGE_PAGE);
-      if (existsSync(page)) writeFileSync(join(into, PACKAGE_PAGE), readFileSync(page));
-    }
-    const base = routerBase(installedAt(cwd, manifest.package, sources.arena), into, options.vendor);
-    const text = record(router, manifest, base, SKILL_COMMAND);
-    writeFileSync(recordAt(into), text);
-    wrote.push(recordAt(into));
-    const dead = unresolved(text, into);
-    if (dead.length > 0) {
-      return { code: 1, wrote, fatal: [`${recordAt(into)} routes to ${dead.length} path(s) that are `
-        + `not there, the first being ${dead[0]}. The record is written and it is not usable`] };
-    }
-  }
-  return { code: 0, fatal: [] as string[], wrote };
-}
-
-export function skillCheckStep(options: ResolvedOptions, arena: string | null, cwd = process.cwd()) {
-  const sources = skillSources(arena);
-  if (sources.fatal) return { code: 2, findings: sources.fatal, read: 0 };
-  const { manifest, router } = sources;
-  const findings: string[] = [];
-  const locations = locationsFor(options.skillDirs, options.global, cwd);
-
-  for (const into of locations) {
-    const at = recordAt(into);
-    if (!existsSync(at)) {
-      findings.push(`${relPosix(cwd, at)} is not there, so no agent in this project can discover `
-        + 'Arena and none of them will report it. Write it with arena-to-prod --skill');
-      continue;
-    }
-    const found = readFileSync(at, 'utf8');
-    const stamped = /^\s*version:\s*(.+)$/m.exec(found)?.[1]?.trim();
-    if (stamped !== undefined && stamped !== manifest.version) {
-      findings.push(`${relPosix(cwd, at)} was written from ${manifest.package}@${stamped} and the `
-        + `installed one is ${manifest.version}. The language it carries is that old: run `
-        + 'arena-to-prod --skill');
-      continue;
-    }
-    const base = routerBase(installedAt(cwd, manifest.package, sources.arena), into,
-      existsSync(join(into, AGENT_DIR)));
-    if (found !== record(router, manifest, base, SKILL_COMMAND)) {
-      findings.push(`${relPosix(cwd, at)} is not what this package would write. It was edited by `
-        + 'hand, and the next run of arena-to-prod --skill replaces it');
-      continue;
-    }
-    const dead = unresolved(found, into);
-    if (dead.length > 0) {
-      findings.push(`${relPosix(cwd, at)} routes to ${dead.length} path(s) that are not there, the `
-        + `first being ${dead[0]}. An agent following it reads nothing and reports nothing`);
-    }
-  }
-  return { code: findings.length > 0 ? 1 : 0, findings, read: locations.length };
-}
-
 export function main(argv: string[], environment: Environment = {}) {
   const parsed = parseArgs(argv);
   if (parsed.help) { console.log(USAGE); return 0; }
@@ -765,22 +647,6 @@ export function main(argv: string[], environment: Environment = {}) {
 
   const arena = ('arena' in environment ? environment.arena : hostPackage()) ?? null;
 
-  if (options.skill || options.skillCheck) {
-    if (options.skill) {
-      const step = skillStep(options, arena);
-      for (const line of step.fatal) console.error(`arena-to-prod: ${line}`);
-      for (const one of step.wrote) console.log(`arena-to-prod: wrote ${one}`);
-      if (step.code === 0) {
-        console.log('arena-to-prod: your agent discovers Arena from that file. Nothing else in your '
-          + 'tree changed, and arena-to-prod --skill-check reports when it stops matching this package');
-      }
-      return step.code;
-    }
-    const step = skillCheckStep(options, arena);
-    for (const line of step.findings) console.error(`arena-to-prod: ${line}`);
-    console.log(`arena-to-prod: read ${step.read} location(s), ${step.findings.length || 'no'} finding(s)`);
-    return options.strict.includes('skill') && step.findings.length > 0 ? 1 : 0;
-  }
   const packageName = environment.packageName
     ?? (arena ? hostPackageName(arena) : null)
     ?? '@dravensoft/arena-react';
