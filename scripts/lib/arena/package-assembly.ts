@@ -21,7 +21,7 @@ import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
-import { LLMS_INDEX, FRONTMATTER, unquote } from './llms-index.ts';
+import { FRONTMATTER, unquote } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
@@ -29,8 +29,8 @@ import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusion
 import { NODE_ENGINE } from './support-matrix.ts';
 import { AXES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE as ENGINE } from './support-matrix.ts';
 import {
-  AGENT_DIR, ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST,
-  SUPPORT_FILE, carriedSpecs, matchesSpec,
+  ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST,
+  SUPPORT_FILE, carriedSpecs, matchesSpec, payloadDir,
   rewrite, type Bases,
 } from './agent-payload.ts';
 
@@ -157,38 +157,6 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   ];
 }
 
-export const NPM_SKILL = 'skills/arena/SKILL.md';
-
-export const NPM_SKILL_NAME = 'arena';
-
-export function npmSkill(name: string) {
-  return `---
-name: ${NPM_SKILL_NAME}
-license: MIT
-description: "Arena by Dravensoft, a token-driven design system with React and Angular component
- libraries on a shared Tailwind layer. Use when a project depends on ${name} and you are about to
- write or restyle a screen with it. This file is the discovery record only: the rules, the
- component documents and the style kernel are in the repository, and this says how to reach them."
----
-
-# Arena is installed here, and its language is not
-
-**${name} ships the components and not the language.** The rules every component answers to, the
-usage document of each one, and the style kernel a project answers to make Arena look like its own
-product are in the repository. None of them is in this package, and this file is not a copy of
-them: a copy inside a tarball is a second router that goes stale on its own schedule.
-
-**Reach them before you write a screen.** Either install the Claude Code plugin from
-\`https://github.com/dravensoft-dev/arena\`, or clone that repository and read
-\`skills/design/SKILL.md\`. Working over HTTP instead, start at
-\`https://${DOMAIN}/${LLMS_INDEX}\`, which indexes the same route and has one corpus per framework.
-
-**Without them an agent guesses, and nothing reports it.** No gate reads a consumer's application,
-so a screen written against half the language renders exactly as well as one written against all
-of it. What differs is a reader.
-`;
-}
-
 export function agentBases(): Bases {
   return { site: `https://${DOMAIN}`, repository: `${REPOSITORY}/blob/main` };
 }
@@ -235,24 +203,25 @@ export function agentSupport(layer: string) {
 
 export function copyAgentPayload(dir: string, layer: string, name: string, root = repoRoot) {
   const bases = agentBases();
+  const at = payloadDir(layer);
   const written = [];
   const files = carriedFiles(layer, root);
   if (files.length === 0) {
-    throw new Error('package-assembly: the agent payload collected 0 file(s), so the package would '
-      + 'ship a router whose every stop is a dead path and nothing would report it');
+    throw new Error(`package-assembly: the ${layer} payload collected 0 file(s), so the package `
+      + 'would carry a router whose every stop is a dead path and nothing would report it');
   }
   for (const rel of files) {
     const source = readFileSync(join(root, ...rel.split('/')), 'utf8');
     const content = rel.endsWith('.md') ? rewrite(source, rel, layer, bases) : source;
-    written.push(write(dir, `${AGENT_DIR}/${rel}`, content));
+    written.push(write(dir, `${at}/${rel}`, content));
   }
 
   const router = readFileSync(join(root, ...ROUTER_SOURCE.split('/')), 'utf8');
   const body = router.replace(FRONTMATTER, '').replace(/^\n+/, '');
-  written.push(write(dir, `${AGENT_DIR}/${ROUTER_FILE}`, rewrite(body, ROUTER_FILE, layer, bases)));
-  written.push(write(dir, `${AGENT_DIR}/${AGENT_MANIFEST}`,
+  written.push(write(dir, `${at}/${ROUTER_FILE}`, rewrite(body, ROUTER_FILE, layer, bases)));
+  written.push(write(dir, `${at}/${AGENT_MANIFEST}`,
     `${JSON.stringify(agentManifest(layer, name, root), null, 2)}\n`));
-  written.push(write(dir, `${AGENT_DIR}/${SUPPORT_FILE}`,
+  written.push(write(dir, `${at}/${SUPPORT_FILE}`,
     `${JSON.stringify(agentSupport(layer), null, 2)}\n`));
   return written;
 }

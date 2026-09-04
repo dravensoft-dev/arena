@@ -66,11 +66,12 @@ Five things at once, from the same tree:
 - a **Claude Code plugin**, `.claude-plugin/`, registering the `design` skill that
   `skills/design/SKILL.md` defines, **served from the git tag**;
 - two **npm packages**, `@dravensoft/arena-react` and `@dravensoft/arena-angular`, assembled by
-  `bun run build:packages` into `frameworks/<layer>/dist/`, each carrying the corpus an agent
-  reads under `agent/` and the command that writes a discovery record from it;
+  `bun run build:packages` into `frameworks/<layer>/dist/`, each carrying its components, its
+  stylesheets, the behaviour contracts a consumer's own markup answers, the `arena-to-prod`
+  command, and none of the language;
 - `@dravensoft/arena-contracts` and `@dravensoft/arena-mcp`, assembled by the same command into
-  `dist/`. The second is the only package here with a runtime dependency and serves the corpus of
-  whichever of the two layers a project installed, carrying none of its own;
+  `dist/`. The second is the only package here with a runtime dependency, and it is where the
+  corpus travels: one under `agent/<layer>/` per layer, and it serves the one a project installed;
 - a standalone **Agent Skill**, `skills/design/SKILL.md`.
 
 **A published Arena carries the language and never the skin**, which is the decision the whole
@@ -116,12 +117,14 @@ that pays for it, because a departure nobody recorded is one the next reader rep
   `references/`.** A prompt sits next to its component, carrying regions emitted from that
   component's contract, and a copy inside the skill directory would be a second answer to a
   question the contracts answer once.
-- **The corpus ships inside the tarball, where that same reference tree lives beside its code.**
-  A package pinned to the commit that produced its components cannot disagree with them, and a
-  router pointing at HEAD from a project on an older tag already does. `agent/` is generated on
-  every assembly rather than authored, `check:packages` holds every path in it to something a
-  consumer installs or a page the site publishes, and the discovery record a consumer writes from
-  it is stamped with the version it came from.
+- **The corpus ships in a package of its own rather than beside the components it describes.**
+  A component package is what a screen imports and a corpus is what an agent reads: different
+  readers, different sizes, different reasons to change, and every project installing Arena pays
+  for both. What it costs is that a corpus in a package of its own can disagree with the
+  components, so `arena_start` compares the two versions and says so. `agent/<layer>/` is
+  generated on every assembly, `check:mcp` holds every path in it to something the package carries
+  or the site publishes, and `check:packages` holds the component packages to carrying none of
+  it.
 - **This page routes where the convention's own example instructs.** A contributor route is three
   and four stops, and `check:routes` is what says what carrying the whole of it here would cost on
   every task. What stays is what an agent acts on, which is the commands.

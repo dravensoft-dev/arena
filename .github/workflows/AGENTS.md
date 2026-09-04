@@ -178,12 +178,11 @@ version, so nothing errors and the update is never offered.
 `bun scripts/check/arena/check-release.ts` is what refuses that combination, and
 `versioning_steps.md` is the order the moves are made in.
 
-**The fourth publishes no language.** `@dravensoft/arena-mcp` is a server, and it is the one
-package here that declares a runtime dependency: the component libraries promise none, and a
-server nobody imports into a screen has no business putting one inside them. It carries no
-document at all, which `check:mcp` asserts rather than a comment claiming it, because the corpus
-it serves is the one inside whichever layer a consumer installed. Packed from `dist/mcp` for the
-same reason the contracts package is packed from its own directory: nothing is assembled under
+**The fourth is where the language publishes.** `@dravensoft/arena-mcp` is a server, and it is the
+one package here that declares a runtime dependency: the component libraries promise none, and a
+server nobody imports into a screen has no business putting one inside them. It carries the corpus,
+one per layer, which `check:mcp` asserts. So a prompt moving republishes this package and no other.
+Packed from `dist/mcp` for the same reason the contracts package is: nothing is assembled under
 `frameworks/` for it.
 
 **The third of them publishes no layer.** `@dravensoft/arena-contracts` carries the three contract

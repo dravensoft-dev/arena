@@ -95,15 +95,18 @@ test('the assembler decides what a directory spec carries, so a rule it grows na
   }
 });
 
-test('a prompt is excluded beside its component and carried inside the payload, which is not a contradiction', () => {
+test('a prompt republishes the package that carries it, and only that one', () => {
+  const prompt = 'frameworks/react/components/display/arena-tag/ArenaTag.prompt.md';
   assert.equal(excluded('ArenaTag.prompt.md'), true,
-    'the exclusion still holds: a prompt does not ship next to the component it documents');
-  assert.equal(carries('frameworks/react/components/display/arena-tag/ArenaTag.prompt.md', 'react'), true,
-    'and it does ship, under agent/, so an edit to one has to republish the package');
-  assert.equal(carries('frameworks/react/components/display/arena-tag/ArenaTag.prompt.md', 'angular'), false,
-    'the other layer carries its own prompts and not this one');
-  assert.equal(carries('frameworks/react/INDEX.md', 'react'), true,
-    'the same for an index, which the payload carries and the tarball once did not');
+    'a prompt does not ship next to the component it documents');
+  assert.equal(carries(prompt, 'mcp'), true,
+    'it ships under agent/react/ of the server, so an edit to one has to republish that package');
+  assert.equal(carries(prompt, 'react'), false,
+    'and the component package carries no prose, so nothing there moved');
+  assert.equal(carries('frameworks/angular/INDEX.md', 'mcp'), true,
+    'the server carries both layers, so an index of either one is an input of it');
+  assert.equal(carries('skills/design/SKILL.md', 'mcp'), true,
+    'and so is the router, which no component package carries any more');
 });
 
 test('a spec naming a file is read rather than walked, so its own directory name cannot drop it', () => {

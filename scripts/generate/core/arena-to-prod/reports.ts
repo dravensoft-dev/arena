@@ -7,7 +7,7 @@
  * configuration can clear, so making it fatal would only buy a project a build it cannot fix. */
 
 export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers',
-  'audit', 'environment', 'restated', 'skill'] as const;
+  'audit', 'environment', 'restated'] as const;
 
 export const UNHOLDABLE_KINDS = ['wash'] as const;
 

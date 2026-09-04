@@ -156,6 +156,7 @@ export const NAMED_BUT_NOT_HERE = new Map([
   ['arena.config.example.json', THE_PACKAGE_SHIPS],
   ['arena.contracts.json', THE_PACKAGE_SHIPS],
   ['arena.css', THE_PACKAGE_SHIPS],
+  ['arena.tokens.json', THE_PACKAGE_SHIPS],
   ['arena-button.css', THE_PACKAGE_SHIPS],
   ['arena-stat-card.css', THE_PACKAGE_SHIPS],
   ['components.json', THE_PACKAGE_SHIPS],

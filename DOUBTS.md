@@ -132,18 +132,21 @@ one is the failure the evidence column exists to prevent.
 Re-derive what is claimed with `bun run check:support`, and what is actually exercised with
 `bun run check:consumer`.
 
-**The discovery record is the one artefact no gate here can observe.** `arena-to-prod --skill`
-writes into a consumer's own tree, and this repository holds no consumer tree. What runs here is
-the payload it writes from, held by `check:packages`, and a render of the record it would produce,
-held to the Agent Skills specification the same way.
+**Nothing compares a served corpus against the components it describes.** The corpus travels in
+`@dravensoft/arena-mcp` and the components in the framework packages, so the two carry version
+numbers of their own and a project can install any pair of them. What holds them together is one
+sentence the server says: `arena_start` reads the installed package's version, compares it with
+its own and reports a difference. Nothing refuses to serve, nothing repeats the warning on the
+document a client actually reads, and no gate in this repository can install two packages to try
+it.
 
-What it costs: a record that stops matching the package it came from is read by an agent anyway,
-which writes against a language one version old and reports nothing. `--skill-check` is the only
-instrument over it and the consumer is the only one who can run it, so a release moves the number
-and nothing here proves the record moved with it.
+What it costs: an agent that never calls `arena_start`, or a client that shows its text once and
+scrolls it away, reads a member list one version old with nothing saying so, and writes against it.
+The failure lands as a member that does not exist, in a project where the components are right, and
+the reader has no reason to suspect the document rather than their own code.
 
-Re-derive it by installing the packed package into a scratch project and running
-`npx arena-to-prod --skill && npx arena-to-prod --skill-check --strict=skill`.
+Re-derive what is compared with `bun test scripts/generate/core/arena-mcp/payload.test.ts`, and
+what the server says with `bun run check:mcp`.
 
 **Nothing server-renders an Angular page.** The consumer branch tells a project it may
 server-render or prerender, and both layers are written for it: neither reads a browser global

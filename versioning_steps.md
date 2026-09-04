@@ -64,11 +64,12 @@ against `plugin.json`, which is why the bump is step 1: run in the other order a
 version you just wrote, and the only fix is to build again.
 
 
-**One artefact no gate here can observe.** `arena-to-prod --skill` writes a discovery record into
-a consumer's own tree, and nothing in this repository holds a consumer's tree. Install the packed
-package into a scratch project, run `npx arena-to-prod --skill` and then `--skill-check`, and
-confirm the record it writes carries this version. A record stamped with the previous one is what
-every project that installed the release would then be told to keep.
+**One artefact no gate here can observe.** The corpus travels in `@dravensoft/arena-mcp` and the
+components in the framework packages, so a project installs two version numbers and nothing in this
+repository installs either. Install the packed MCP package into a scratch project that depends on
+the packed React one, point an editor at it, and call `arena_start`: it names the layer it picked
+and reports a version difference when there is one. A server that answers with silence is a corpus
+that did not travel, and `check:mcp` reads the assembled tree rather than an installed one.
 
 ## 3. Tag it, and land it on `main`
 

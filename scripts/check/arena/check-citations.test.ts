@@ -30,7 +30,7 @@ const NONE = new Map();
 
 test('EXEMPT names what is absent on purpose, and nothing else', () => {
   assert.deepEqual([...EXEMPT.keys()],
-    ['skills/arena/SKILL.md', 'frameworks/angular/BehaviourDelegated.json']);
+    ['frameworks/angular/BehaviourDelegated.json']);
   for (const reason of EXEMPT.values()) assert.ok(reason.length > 40, 'an entry states its reason');
 });
 

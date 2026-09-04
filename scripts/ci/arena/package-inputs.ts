@@ -21,8 +21,6 @@ export const SHARED_INPUTS = {
   'scripts/lib/arena/package-assembly.ts': 'the exclusion list, the copy and the manifest template',
   'scripts/lib/arena/package-exclusions.ts': 'the rule that decides which of these paths is carried at all',
   'scripts/lib/arena/component-map.ts': 'the map of what a consumer writes to the sheet it costs, carried in both packages',
-  'skills/design/': 'the router and the references, carried into agent/ of both packages',
-  'scripts/lib/arena/agent-payload.ts': 'the spec that decides what the agent payload carries',
   'LICENSE': 'shipped verbatim in both packages',
 };
 
@@ -44,6 +42,13 @@ export const PACKAGE_INPUTS: Record<string, Record<string, string>> = {
     'scripts/generate/core/arena-mcp/': 'the server itself, transpiled whole into bin/',
     'scripts/build/arena/build-mcp-package.ts': 'the assembler, and the manifest it stamps',
     'mcp/NPM.md': 'the page npm shows, carried as README.md',
+    'skills/design/': 'the router and the references, carried into agent/<layer>/ of this package',
+    'frameworks/INDEX.md': 'the layer-neutral catalogue the router routes through',
+    'contracts/design/roles.json': 'the style roles a project answers, carried beside the router',
+    'contracts/behaviour/': 'the patterns the corpus links, carried so the link resolves inside it',
+    'scripts/lib/arena/agent-payload.ts': 'the spec that decides what the corpus carries and how a '
+      + 'path in it is rewritten',
+    'scripts/lib/arena/package-assembly.ts': 'copyAgentPayload, which writes the corpus',
     'LICENSE': 'shipped verbatim',
   },
   react: {
@@ -67,7 +72,7 @@ export const PROSE_NAMES: Record<string, string> = {
   'AGENTS.md': 'instructions to whoever edits the directory, carried by no package',
 };
 
-export const LAYER_OF: Record<string, string> = { react: 'react', angular: 'angular' };
+export const PAYLOAD_LAYERS: Record<string, string[]> = { mcp: ['react', 'angular'] };
 
 export function pathspecs(pkg: string) {
   const inputs = PACKAGE_INPUTS[pkg];
@@ -79,8 +84,8 @@ export function carries(path: string, pkg: string) {
   const specs = pathspecs(pkg);
   if (specs.some((spec) => !spec.endsWith('/') && spec === path)) return true;
 
-  const layer = LAYER_OF[pkg];
-  if (layer !== undefined && inPayload(path, layer)) return true;
+  const layers = PAYLOAD_LAYERS[pkg] ?? [];
+  if (layers.some((layer) => inPayload(path, layer))) return true;
 
   const dir = specs.find((spec) => spec.endsWith('/') && path.startsWith(spec));
   if (dir === undefined) return false;

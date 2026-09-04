@@ -23,16 +23,7 @@ import { themeCss } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
-import { carriedFiles, agentManifest } from '../../lib/arena/package-assembly.ts';
-import { servedDocs, unquote } from '../../lib/arena/llms-index.ts';
-import { record as skillRecord, SKILL_NAME } from '../../generate/core/arena-to-prod/skill.ts';
-import {
-  frontmatterOf, nameProblems, descriptionProblems, keyProblems, scalarProblems, bodyProblems,
-} from './check-skill-spec.ts';
-import {
-  AGENT_DIR, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST, SUPPORT_FILE, LINK, INLINE,
-  isRepoPath,
-} from '../../lib/arena/agent-payload.ts';
+import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 
 export const node = {
@@ -231,92 +222,21 @@ export function iconManifestProblems(pkg: { layer: string; name: string }, dir: 
   return [];
 }
 
-export const SITE_BASE = 'https://arena.dravensoft.org/';
-
-export function targetsIn(text: string) {
-  const targets = [...text.matchAll(LINK)].map((one) => one[1] ?? '');
-  for (const one of text.matchAll(INLINE)) {
-    const inner = one[1] ?? '';
-    if (inner.startsWith('http') || inner.startsWith('./') || inner.startsWith('../')) targets.push(inner);
-  }
-  return targets.filter(Boolean);
-}
-
-export function unresolvedTarget(target: string, from: string, agent: string, served: Set<string>) {
-  if (target.startsWith(SITE_BASE)) {
-    const rel = target.slice(SITE_BASE.length).replace(/[#?].*$/, '');
-    if (rel.includes('*') || rel.includes('<')) return null;
-    return served.has(rel) || existsSync(join(root, ...rel.split('/')))
-      ? null
-      : `${rel} is named as a page on the domain and this tree does not carry it, `
-        + 'so the site publishes nothing there';
-  }
-  if (/^[a-z]+:/i.test(target) || target.startsWith('#')) return null;
-  if (target.includes('*') || target.includes('<')) return null;
-  const at = join(dirname(join(agent, from)), target);
-  return existsSync(at) ? null : `${target} resolves to nothing a consumer installs`;
-}
+export const CARRIED_BY_PACKAGE = ['arena.tokens.json', BEHAVIOUR];
 
 export function payloadProblems(pkg: { layer: string; name: string }, dir: string) {
-  const agent = join(dir, AGENT_DIR);
-  if (!existsSync(agent)) {
-    return [`${pkg.name}: no ${AGENT_DIR}/ directory, so the package ships the components and none `
-      + 'of the language, and an agent in a project that depends on Arena has nothing to read'];
-  }
   const problems = [];
-  for (const file of [ROUTER_FILE, AGENT_MANIFEST, SUPPORT_FILE]) {
-    if (!existsSync(join(agent, file))) problems.push(`${pkg.name}: ${AGENT_DIR}/ carries no ${file}`);
+  if (existsSync(join(dir, AGENT_DIR))) {
+    problems.push(`${pkg.name}: carries an ${AGENT_DIR}/ directory. The corpus ships in `
+      + '@dravensoft/arena-mcp and a second copy here is one that ages against it with nothing '
+      + 'comparing the two');
   }
-  if (problems.length > 0) return problems;
-
-  const expected = carriedFiles(pkg.layer);
-  for (const rel of expected) {
-    if (!existsSync(join(agent, ...rel.split('/')))) {
-      problems.push(`${pkg.name}: ${AGENT_DIR}/ is missing ${rel}, which the payload declares it `
-        + 'carries. A router whose stop is absent sends a reader nowhere and reports nothing');
-    }
-  }
-
-  const manifest = readJson(join(agent, AGENT_MANIFEST)) as Record<string, unknown>;
-  const fresh = agentManifest(pkg.layer, pkg.name);
-  for (const [key, value] of Object.entries(fresh)) {
-    if (JSON.stringify(manifest[key]) === JSON.stringify(value)) continue;
-    problems.push(`${pkg.name}: ${AGENT_MANIFEST} states ${key} as `
-      + `${JSON.stringify(manifest[key])} against ${JSON.stringify(value)}`);
-  }
-
-  const routerText = readFileSync(join(agent, ...ROUTER_FILE.split('/')), 'utf8');
-  const written = skillRecord(routerText, fresh, 'agent/skills/design', 'arena-to-prod --skill');
-  const front = frontmatterOf(written);
-  if (front === null) {
-    problems.push(`${pkg.name}: the record this payload would write carries no frontmatter, so no `
-      + 'scanner discovers it');
-  } else {
-    const at = `${pkg.name}: the record ${AGENT_DIR}/ would write`;
-    problems.push(
-      ...nameProblems(`${at}/${SKILL_NAME}/SKILL.md`, unquote(front.values.get('name') ?? '')),
-      ...descriptionProblems(at, unquote(front.values.get('description') ?? '')),
-      ...keyProblems(at, front.keys),
-      ...scalarProblems(at, front.values),
-      ...bodyProblems(at, front.body),
-    );
-  }
-
-  const served = new Set(servedDocs());
-  for (const file of walkFiles(agent).filter((one) => one.endsWith('.md'))) {
-    const from = relPosix(agent, file);
-    const text = readFileSync(file, 'utf8');
-    for (const bare of text.matchAll(INLINE)) {
-      const inner = bare[1] ?? '';
-      if (isRepoPath(inner) && !inner.includes(' ')) {
-        problems.push(`${pkg.name}: ${from} still names the repository path ${JSON.stringify(inner)}. `
-          + 'A consumer has no such path, so the rewrite left a reader somewhere that does not exist '
-          + 'and nothing at install time would say so');
-      }
-    }
-    for (const target of targetsIn(text)) {
-      const problem = unresolvedTarget(target, from, agent, served);
-      if (problem) problems.push(`${pkg.name}: ${from} names ${problem}`);
+  for (const spec of CARRIED_BY_PACKAGE) {
+    const found = walkFiles(dir).some((file) => matchesSpec(relPosix(dir, file), spec));
+    if (!found) {
+      problems.push(`${pkg.name}: carries nothing matching ${spec}, and that is not language but `
+        + 'contract: it is what markup a consumer writes themselves is held to, and the page that '
+        + 'tells them to bind it ships in this same tarball');
     }
   }
   return problems;

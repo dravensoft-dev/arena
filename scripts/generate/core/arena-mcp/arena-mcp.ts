@@ -1,32 +1,36 @@
 #!/usr/bin/env node
-/* Arena over MCP, and it is transport rather than a second copy of anything. The corpus it
- * serves is the one the framework package a project installed already carries, so this server
- * cannot disagree with the components beside it and cannot go stale on a schedule of its own.
- * Everything is offered twice, as a resource and through a tool, because a client that reads
- * resources and a client that only calls tools are both real and the corpus is useless to the
- * second one otherwise. The router is the entry point here as it is everywhere else: read it,
- * then one component at a time. */
+/* Arena over MCP, and it is where the language travels: the framework packages carry the
+ * components and none of it. This package carries both layers and serves the one the project
+ * installed, so the first thing arena_start says is which half was picked and whether it agrees
+ * with the components beside it. Everything is offered twice, as a resource and through a tool,
+ * because a client that reads resources and a client that only calls tools are both real and the
+ * corpus is useless to the second one otherwise. The router is the entry point here as it is
+ * everywhere else: read it, then one component at a time. */
 
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { McpServer } from '@modelcontextprotocol/server';
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import * as z from 'zod/v4';
-import { resolvePayload, manifestIn, type Manifest } from './payload.ts';
+import {
+  resolvePayload, manifestIn, disagreement, LAYERS, type Manifest, type Installed,
+} from './payload.ts';
 import { catalogue, search, textOf, ROUTER_URI, SCHEME, type Entry } from './catalogue.ts';
 
 export const NAME = 'arena';
 
 export const USAGE = [
-  'usage: arena-mcp [--payload <dir>]',
+  'usage: arena-mcp [--layer react|angular] [--payload <dir>]',
   '',
-  '  --payload   the agent/ directory of an installed Arena package, or a directory holding one.',
-  '              Defaults to the Arena package installed above the working directory: this server',
-  '              carries no copy of the language and serves the one your project depends on',
+  '  --layer     which half of the corpus to serve. Defaults to the framework package installed',
+  '              above the working directory, which is what a project with one of them needs',
+  '  --payload   a corpus directory to serve instead of the ones this package carries. For a',
+  '              build of Arena that is not installed anywhere',
 ].join('\n');
 
 export function parseArgs(argv: string[]) {
   let payload: string | null = null;
+  let layer: string | null = null;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === undefined) continue;
@@ -38,23 +42,32 @@ export function parseArgs(argv: string[]) {
       continue;
     }
     if (arg.startsWith('--payload=')) { payload = arg.slice('--payload='.length); continue; }
+    if (arg === '--layer' || arg.startsWith('--layer=')) {
+      const next = arg.startsWith('--layer=') ? arg.slice('--layer='.length) : argv[++i];
+      if (!next) return { error: `--layer needs one of ${LAYERS.join(', ')}` };
+      if (!LAYERS.includes(next)) return { error: `${next} is not a layer: ${LAYERS.join(', ')}` };
+      layer = next;
+      continue;
+    }
     return { error: `unknown argument: ${arg}` };
   }
-  return { payload };
+  return { payload, layer };
 }
 
 export function listing(entries: Entry[]) {
   return entries.map((one) => `${one.uri}\n  ${one.title}`).join('\n');
 }
 
-export function opening(manifest: Manifest, entries: Entry[]) {
+export function opening(manifest: Manifest, entries: Entry[], installed: Installed | null = null) {
   const components = entries.filter((one) => one.uri.startsWith(`${SCHEME}://component/`)).length;
+  const drift = disagreement(manifest, installed);
   return `Arena ${manifest.version}, the ${manifest.layer} layer, from ${manifest.package}. `
     + `${components} component document(s). Read ${ROUTER_URI} before the first screen: it carries `
-    + 'the rules of the language and routes every other question. Then one component at a time.';
+    + 'the rules of the language and routes every other question. Then one component at a time.'
+    + (drift === null ? '' : `\n\n${drift}`);
 }
 
-export function build(payload: string, manifest: Manifest) {
+export function build(payload: string, manifest: Manifest, installed: Installed | null = null) {
   const { entries, byUri } = catalogue(payload, manifest);
   const server = new McpServer({ name: NAME, version: manifest.version });
 
@@ -72,7 +85,7 @@ export function build(payload: string, manifest: Manifest) {
     description: 'Where to begin with Arena: what is installed, and the one document to read '
       + 'before writing a screen. Call this first.',
     inputSchema: z.object({}),
-  }, async () => ({ content: [{ type: 'text' as const, text: opening(manifest, entries) }] }));
+  }, async () => ({ content: [{ type: 'text' as const, text: opening(manifest, entries, installed) }] }));
 
   server.registerTool('arena_list', {
     description: 'Every Arena document this project carries, as addressable URIs: the router, the '
@@ -120,14 +133,14 @@ export async function main(argv: string[], cwd = process.cwd()) {
   if ('help' in parsed) { console.log(USAGE); return 0; }
   if (parsed.error) { console.error(`arena-mcp: ${parsed.error}\n\n${USAGE}`); return 2; }
 
-  const resolved = resolvePayload(parsed.payload ?? null, cwd);
+  const resolved = resolvePayload(parsed.payload ?? null, cwd, parsed.layer ?? null);
   if (resolved.error !== undefined) { console.error(`arena-mcp: ${resolved.error}`); return 2; }
 
   const payload = resolved.payload;
   const manifest = manifestIn(payload);
   if (manifest === null) { console.error(`arena-mcp: ${payload} carries no manifest`); return 2; }
 
-  const { server } = build(payload, manifest);
+  const { server } = build(payload, manifest, resolved.installed);
   await server.connect(new StdioServerTransport());
   return 0;
 }
