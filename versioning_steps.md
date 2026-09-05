@@ -19,9 +19,17 @@ it in silence.
 | `.claude-plugin/marketplace.json` | the `version` member |
 | `.claude-plugin/marketplace.json` | the `ref` member, which names the tag as `vx.x.x` |
 | `README.md` | the `- **Repo/Claude Code plugin**: x.x.x` line under the `## Latest project artifacts` heading |
+| `server.json` | the `version` member |
+| `server.json` | the `packages[0].version` member, which is the version of `@dravensoft/arena-mcp` the MCP registry hands out |
 
 `check-release.ts` finds the README pair by exact regex, so the heading and the label are the
 parts that must not be reworded.
+
+**`server.json` is held by a different gate.** `check-release.ts` never reads it, and
+`bun run check:mcp` does: it fails when either of those two members disagrees with
+`.claude-plugin/plugin.json`. A bump that forgets this file is caught in step 2 rather than here,
+and the file matters because it is the manifest the MCP registry serves to a reader who never
+reaches this tree.
 
 **Two rules that gate live only in the gate**, so they are stated here rather than discovered:
 the `homepage` of the plugin and of the marketplace entry must both be the site's own URL, and

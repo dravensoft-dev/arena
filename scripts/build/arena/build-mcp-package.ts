@@ -27,6 +27,7 @@ export const NPM_PAGE = 'mcp/NPM.md';
 export const ENTRY = 'bin/arena-mcp.mjs';
 export const BIN = 'arena-mcp';
 export const LAYERS = ['react', 'angular'];
+export const REGISTRY_NAME = 'io.github.dravensoft-dev/arena';
 
 export const RUNTIME_DEPENDENCIES = {
   '@modelcontextprotocol/server': '^2.0.0',
@@ -55,6 +56,7 @@ export function mcpKeywords(shared = SHARED_KEYWORDS) {
 export function manifest(root = repoRoot) {
   return {
     name: NAME,
+    mcpName: REGISTRY_NAME,
     description: 'Arena by Dravensoft over the Model Context Protocol: the router, the references '
       + 'and every component document, in React and in Angular, served to an agent in your '
       + 'editor. It carries the language the component packages leave out.',
