@@ -240,6 +240,33 @@ jobs:
           fi
           exit $CODE
 
+      # The MCP registry hosts metadata and never a tarball, and it proves the entry by reading
+      # mcpName out of the package.json npm serves, so this runs after publish and can never run
+      # before it. The binary is pinned and its checksum verified: the recipe the registry
+      # publishes downloads `latest`, and a moving binary inside a publishing job is a dependency
+      # nobody reads. The retry is for npm's read path, which lags a publish by minutes, which is
+      # the same lag the publish step above already recovers from.
+      - name: the registry entry, from the manifest this tree carries
+        env:
+          MCP_PUBLISHER: 1.8.1
+          MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+        run: |
+          set -euo pipefail
+          curl -fsSL -o mcp-publisher.tar.gz \
+            "https://github.com/modelcontextprotocol/registry/releases/download/v${MCP_PUBLISHER}/mcp-publisher_linux_amd64.tar.gz"
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher.tar.gz" | sha256sum -c -
+          tar -xzf mcp-publisher.tar.gz mcp-publisher
+
+          ./mcp-publisher validate
+          ./mcp-publisher login github-oidc
+
+          for attempt in 1 2 3; do
+            if ./mcp-publisher publish; then exit 0; fi
+            echo "attempt $attempt did not take; npm may not be serving $PACKAGE@${{ needs.guard.outputs.version }} yet"
+            sleep 100
+          done
+          ./mcp-publisher publish
+
       - name: what the registry now serves
         run: |
           set -euo pipefail
@@ -249,4 +276,7 @@ jobs:
             echo
             echo "A build on another platform reaches it over plain HTTPS, with no npm client:"
             echo "\`https://registry.npmjs.org/$PACKAGE/-/arena-mcp-${{ needs.guard.outputs.version }}.tgz\`"
+            echo
+            echo "The MCP registry entry \`io.github.dravensoft-dev/arena\` now points at that version:"
+            echo "\`https://registry.modelcontextprotocol.io/v0/servers?search=dravensoft\`"
           } >> "$GITHUB_STEP_SUMMARY"

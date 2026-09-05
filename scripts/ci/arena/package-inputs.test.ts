@@ -172,3 +172,13 @@ test('a contract moving is what publishes it', () => {
 test('the throw names a package rather than a layer, because the third is not one', () => {
   assert.throws(() => pathspecs('mobile'), /no package is assembled under the name "mobile"/);
 });
+
+test('server.json reaches the mcp guard, or the registry entry never moves again', () => {
+  assert.ok(pathspecs('mcp').includes('server.json'),
+    'the registry entry is sent from server.json by the publish job, and that job runs only when '
+    + 'the guard says publish, so a server.json the guard cannot see is an entry frozen at whatever '
+    + 'version it was first sent at');
+  assert.ok(carries('server.json', 'mcp'));
+  assert.deepEqual(carried(['server.json', 'README.md'], 'mcp'), ['server.json']);
+  assert.ok(!carries('server.json', 'react'), 'no framework package has anything to do with it');
+});

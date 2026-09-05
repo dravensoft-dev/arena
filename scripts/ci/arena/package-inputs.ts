@@ -42,6 +42,10 @@ export const PACKAGE_INPUTS: Record<string, Record<string, string>> = {
     'scripts/generate/core/arena-mcp/': 'the server itself, transpiled whole into bin/',
     'scripts/build/arena/build-mcp-package.ts': 'the assembler, and the manifest it stamps',
     'mcp/NPM.md': 'the page npm shows, carried as README.md',
+    'server.json': 'the manifest the MCP registry reads, sent by the publish job of this package '
+      + 'and by no other. The tarball does not carry it, and it is named here anyway: the entry '
+      + 'moves only inside a run that published, so a server.json edit the guard cannot see is one '
+      + 'the registry never hears about',
     'skills/design/': 'the router and the references, carried into agent/<layer>/ of this package',
     'frameworks/INDEX.md': 'the layer-neutral catalogue the router routes through',
     'contracts/design/roles.json': 'the style roles a project answers, carried beside the router',
