@@ -889,7 +889,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 68_100,
+    budget: 69_600,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. It is budgeted now '
@@ -949,7 +949,14 @@ export const ROUTES: Route[] = [
       + 'publish workflows finish and are packed only then, and the workflow serving them builds '
       + 'their default branch at the moment it runs, so the domain shows that move on a hand '
       + 'dispatch and on nothing else. Both are this route\'s failure mode again, where the wrong '
-      + 'order errors nowhere.',
+      + 'order errors nowhere. Raised to 69,600 when a release gained a version surface no gate on '
+      + 'this route reads and a publish job gained a second registry. server.json states the '
+      + 'version twice and check-release.ts never opens it, so a reader who bumps by that page '
+      + 'alone passes step 1 and fails step 2, and the sequence has to say which gate catches it. '
+      + 'And what the publish job sends is no longer only a tarball: the MCP registry entry goes '
+      + 'out of the same job under the same OIDC identity, so a reader cutting a release owes it '
+      + 'the same attention as the npm half and reaches that fact nowhere else. This route\'s '
+      + 'failure mode both times, where what is not known errors nowhere.',
   },
 ];
 
