@@ -185,6 +185,16 @@ one per layer, which `check:mcp` asserts. So a prompt moving republishes this pa
 Packed from `dist/mcp` for the same reason the contracts package is: nothing is assembled under
 `frameworks/` for it.
 
+**The fourth also publishes an entry that is not a tarball.** The MCP registry hosts metadata and
+points at npm, and it proves the entry by reading `mcpName` out of the `package.json` npm serves, so
+the step that sends it runs after `publish` in the same job and under the `id-token: write` that job
+already declares: the identity that attests the tarball is the one that owns the
+`io.github.dravensoft-dev` namespace, which is why that namespace was chosen over one a DNS record
+would have had to prove a second time. `server.json` is what is sent, `check:mcp` holds it to
+`.claude-plugin/plugin.json`, and `scripts/ci/arena/package-inputs.ts` names it so an edit to it
+reaches the guard. The publisher binary is pinned to a release and its checksum verified in the
+step, because a publishing job is the last place a moving dependency belongs.
+
 **The third of them publishes no layer.** `@dravensoft/arena-contracts` carries the three contract
 levels as JSON and nothing else, for a platform target outside this repository, and its consumer is
 a Gradle or SwiftPM build with no Node at all. That is why its manifest declares no `bin` and no
