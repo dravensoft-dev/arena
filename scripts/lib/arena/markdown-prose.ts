@@ -60,6 +60,24 @@ export function fencedLines(source: string) {
   return lines;
 }
 
+export function unfenced(source: string) {
+  const kept: string[] = [];
+  let fence = null;
+
+  for (const raw of source.split('\n')) {
+    const opening = OPENS_FENCE.exec(raw);
+    const closing = CLOSES_FENCE.exec(raw);
+    const run = closing?.[1] ?? '';
+
+    if (fence && closing && run[0] === fence[0] && run.length >= fence.length) { fence = null; continue; }
+    if (fence) continue;
+    if (opening) { fence = opening[1]; continue; }
+    kept.push(raw);
+  }
+
+  return kept.join('\n');
+}
+
 export function proseSegments(source: string) {
   const segments: { line: number; column: number; text: string }[] = [];
   let line = 1;

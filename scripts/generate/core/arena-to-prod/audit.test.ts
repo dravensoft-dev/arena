@@ -6,7 +6,7 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, statedRung,
+  LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS,
 } from './audit.ts';
 
@@ -385,4 +385,69 @@ test('the components a link may wrap are the ones whose contract takes an href, 
     + 'literal and this is what keeps it from drifting. It reports only these because the finding '
     + 'tells a reader to pass the href to the component instead: a component with no href member '
     + 'cannot take that advice, and the app bar documents wrapping its brand in a link of your own');
+});
+
+
+test('a second primary action on one screen is reported, and the first one is not', () => {
+  assert.equal(rules('<ArenaButton variant="primary">Save</ArenaButton>'), '');
+  const two = rules('<ArenaButton variant="primary">Save</ArenaButton>\n'
+    + '<ArenaButton variant="primary">Publish</ArenaButton>');
+  assert.match(two, /one-primary/);
+  assert.equal(two.split('\n').length, 1, 'the first primary is the one the screen is for, so only '
+    + 'the ones after it are findings');
+  assert.match(two, /line 1/);
+});
+
+test('a primary variant is read in either layer idiom, and an expression is not read at all', () => {
+  assert.match(rules('<arena-button variant="primary"></arena-button>\n'
+    + '<arena-button variant="primary"></arena-button>', 'src/app.html'), /one-primary/);
+  assert.match(rules('<arena-button [variant]="\'primary\'"></arena-button>\n'
+    + '<arena-button [variant]="\'primary\'"></arena-button>', 'src/app.html'), /one-primary/);
+  assert.equal(rules('<ArenaButton variant={kind}>a</ArenaButton>\n'
+    + '<ArenaButton variant={kind}>b</ArenaButton>'), '',
+    'a variant an expression decides is not a variant this file states, and reporting it would '
+    + 'report the one screen that cannot be read');
+});
+
+test('a variant of your own that happens to be primary on a tag Arena does not draw is not counted', () => {
+  assert.equal(rules('<MyButton variant="primary">a</MyButton>\n'
+    + '<MyButton variant="primary">b</MyButton>'), '');
+});
+
+test('a filled danger surface is reported, and the tint and the outline are not', () => {
+  assert.match(auditText('src/a.css', '.mine { background: var(--danger); }').join('\n'),
+    /danger-fill/);
+  assert.match(auditText('src/a.css', '.mine { background-color: var(--color-error-fill); }').join('\n'),
+    /danger-fill/);
+  assert.equal(auditText('src/a.css', '.mine { background: var(--danger-soft); }').join('\n'), '',
+    'a soft tint is the surface a project of your own may carry');
+  assert.equal(auditText('src/a.css', '.mine { border-color: var(--danger); color: var(--danger); }').join('\n'), '',
+    'the border and the content in danger are what the rule asks for');
+});
+
+test('a filled danger surface is read in an inline style, and only in an application source', () => {
+  assert.match(rules('<div style={{ backgroundColor: \'var(--danger)\' }} />'), /danger-fill/);
+  assert.equal(auditText('plugin/skin.css', '.confirm { background: var(--danger-fill); }',
+    'plugin').join('\n').includes('danger-fill'), false,
+    'the one filled danger surface in the system is a part a style plugin paints, so the scope '
+    + 'that owns it is the scope that may draw it');
+});
+
+test('a fill and a token are read as one pair, so a danger token elsewhere on the line is not a fill', () => {
+  assert.equal(fillsWithDanger('  border: 1px solid var(--danger);'), false);
+  assert.equal(fillsWithDanger('  background: var(--danger);'), true);
+  assert.equal(fillsWithDanger('  background: var(--danger-soft);'), false);
+  assert.equal(fillsWithDanger('  background: var(--surface-card);'), false);
+});
+
+test('every rule tag the audit can emit is declared, and every declared tag is one it emits', () => {
+  const source = readFileSync(join(repoRoot, 'scripts/generate/core/arena-to-prod/audit.ts'), 'utf8');
+  const CALL = /\bat\((?:[^()]|\([^()]*\))*?,\s*'([a-z-]+)'/g;
+  const emitted = new Set([...source.matchAll(CALL)].map((m) => m[1]));
+
+  assert.ok(emitted.size > 0, 'no tag was found in the module, so this checked nothing');
+  assert.deepEqual([...emitted].sort(), [...RULE_TAGS].sort(),
+    'RULE_TAGS is what every other surface reads to say which rule of the language a gate holds, '
+    + 'so a tag the module emits and this list does not carry is a rule nothing can claim, and a '
+    + 'tag on this list the module never emits is a claim nothing answers');
 });

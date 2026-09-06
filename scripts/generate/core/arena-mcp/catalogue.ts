@@ -14,12 +14,14 @@ export const SCHEME = 'arena';
 export const ROUTER_URI = `${SCHEME}://router`;
 export const SUPPORT_URI = `${SCHEME}://support`;
 export const ROLES_URI = `${SCHEME}://roles`;
+export const RULES_URI = `${SCHEME}://rules`;
 export const LAYER_INDEX_URI = `${SCHEME}://index`;
 export const CATALOGUE_URI = `${SCHEME}://index/all`;
 
 export const REFERENCE_DIR = 'skills/design/references';
 export const NEUTRAL_INDEX = 'frameworks/INDEX.md';
 export const ROLES = 'contracts/design/roles.json';
+export const RULES = 'rules.json';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const INDEX = 'INDEX.md';
 
@@ -43,6 +45,10 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
     { uri: SUPPORT_URI, rel: SUPPORT, mime: 'application/json',
       title: 'What Arena supports on every axis, with the evidence behind each answer' },
   ];
+  if (files.includes(RULES)) {
+    found.push({ uri: RULES_URI, rel: RULES, mime: 'application/json',
+      title: 'Every rule of the language, and whether arena_check reports the code you write for it' });
+  }
   if (files.includes(ROLES)) {
     found.push({ uri: ROLES_URI, rel: ROLES, mime: 'application/json',
       title: 'Every style role a project answers, with a type and no value' });

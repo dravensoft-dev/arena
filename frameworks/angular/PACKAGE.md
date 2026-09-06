@@ -521,7 +521,8 @@ the build instead. That list is then yours to keep current.
 {
   "scripts": {
     "prebuild": "arena-to-prod",
-    "prestart": "arena-to-prod"
+    "prestart": "arena-to-prod",
+    "arena:audit": "arena-to-prod --audit --strict=audit,restated,markers,glyph"
   }
 }
 ```
@@ -529,6 +530,15 @@ the build instead. That list is then yours to keep current.
 Both bun and npm run a `pre<name>` script ahead of the script it names, so wiring it once is
 what keeps the two files from ever going stale. They are build products of your config and your
 sources, so ignore them in version control the way you ignore the rest of your build.
+
+**The second script is the one that reads your own sources.** `arena-to-prod` writes the
+stylesheets whatever it finds, because a build has to run. `--audit` adds the report, and
+`--strict` turns the kinds you name into a non-zero exit. The four named there are the ones a
+project decides nothing about: a rule of the language broken in your markup, a style plugin
+restating what a shipped slot already paints, an Angular projection marker written without its
+directive, and a glyph Phosphor does not draw. `contrast` and `ramp` are left out on purpose,
+since a brand measured under 4.5:1 is a decision its owner made. Run it in the same job that runs
+your tests.
 
 ## Switch palettes
 

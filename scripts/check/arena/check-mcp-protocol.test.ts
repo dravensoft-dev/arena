@@ -66,7 +66,7 @@ test('an editor can initialize, list and read, which is the whole of what it doe
 
     const tools = await mcp.call('tools/list', {});
     assert.deepEqual((tools.result?.tools ?? []).map((one: { name: string }) => one.name).sort(),
-      ['arena_find', 'arena_list', 'arena_read', 'arena_start']);
+      ['arena_check', 'arena_find', 'arena_list', 'arena_read', 'arena_start']);
 
     const resources = await mcp.call('resources/list', {});
     assert.ok((resources.result?.resources ?? []).length > 40,
@@ -80,6 +80,25 @@ test('an editor can initialize, list and read, which is the whole of what it doe
 
     const absent = await mcp.call('tools/call', { name: 'arena_read', arguments: { uri: `${SCHEME}://component/Nope` } });
     assert.equal(absent.result?.isError, true, 'a document that is not there is an error rather than silence');
+
+    const broken = await mcp.call('tools/call', {
+      name: 'arena_check',
+      arguments: { source: '<ArenaButton className="mine">Go</ArenaButton>' },
+    });
+    assert.match(broken.result?.content?.[0]?.text ?? '', /own-class/,
+      'the rule module has to reach the server from inside the package, and bin/ is flat, so this '
+      + 'is the assertion that a working import in the repository is a working import once shipped');
+
+    const clean = await mcp.call('tools/call', {
+      name: 'arena_check',
+      arguments: { source: '<ArenaButton variant="primary">Go</ArenaButton>' },
+    });
+    assert.match(clean.result?.content?.[0]?.text ?? '', /No finding/);
+
+    const rules = await mcp.call('resources/read', { uri: `${SCHEME}://rules` });
+    assert.match(rules.result?.contents?.[0]?.text ?? '', /"held": "own-class"/,
+      'a rule says which finding arena_check reports for it, and this is the pairing that keeps '
+      + 'the corpus from claiming enforcement the module does not carry');
   } finally {
     mcp.stop();
   }

@@ -43,10 +43,21 @@ not installed anywhere.
 | `arena_list` | Every Arena document, as addressable URIs |
 | `arena_find` | Which documents answer a question, by words in their name and their opening |
 | `arena_read` | One document by its URI, for a client that calls tools and does not read resources |
+| `arena_check` | The code you just wrote, against the rules of the language, before you save it |
 
 Every one of those documents is also offered as an MCP resource, under an `arena://` URI: the
-router, one per reference, the component indexes, one per component, the style roles and the
-support record. **Read the router first.** It carries the rules of the language and routes every
+router, one per reference, the component indexes, one per component, the style roles, the rules of
+the language and the support record.
+
+**`arena_check` is the half that reads your code rather than Arena's.** Pass it the source text
+and it reports what the rules of the language say about it: a class of your own on a component, a
+raw value where a token belongs, a gradient, a filled danger surface, a second primary action, an
+icon as an element, an emoji, a component wrapped in a link of your own, and a heading outline
+with a rung missing. It reads text rather than files, so a screen that is still in the
+conversation can be checked before it is written down. `arena://rules` names every rule of the
+language, says which ones this tool reports, and says of each of the rest why a source text cannot
+show it. A style plugin of your own is judged by `arena-to-prod --audit` in the framework package
+instead, which reads your config and knows which directories are plugins. **Read the router first.** It carries the rules of the language and routes every
 other question, and the route past it is one component at a time rather than a corpus read whole.
 
 **A corpus can disagree with the components beside it**, which is the price of carrying it here

@@ -96,6 +96,22 @@ export function binProblems(dir: string) {
        + 'does not exist'];
 }
 
+export const ESCAPING_SPECIFIER = /\bfrom\s+'(\.\.\/[^']*)'/g;
+
+export function flatProblems(dir: string) {
+  const problems = [];
+  for (const file of walkFiles(join(dir, 'bin')).filter((path) => path.endsWith('.mjs'))) {
+    const escaping = [...readFileSync(file, 'utf8').matchAll(ESCAPING_SPECIFIER)].map((m) => m[1]);
+    for (const specifier of escaping) {
+      problems.push(`${NAME}: ${relPosix(dir, file)} imports ${specifier}, and bin/ is flat, so `
+        + 'that specifier resolves above the directory every emitted module sits in. The rule '
+        + 'module is copied beside the server rather than referenced where it lives, and a '
+        + 'specifier that escaped the copy is a command that throws at its first spawn');
+    }
+  }
+  return problems;
+}
+
 export const SITE_BASE = 'https://arena.dravensoft.org/';
 
 export function targetsIn(text: string) {
@@ -250,7 +266,8 @@ export function collect(base = root) {
   if (!existsSync(dir)) return { problems, assembled: false };
   return {
     problems: [
-      ...problems, ...binProblems(dir), ...corpusProblems(dir), ...catalogueProblems(dir, base),
+      ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
+      ...catalogueProblems(dir, base),
     ],
     assembled: true,
   };

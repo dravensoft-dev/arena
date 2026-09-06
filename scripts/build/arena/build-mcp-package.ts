@@ -29,6 +29,21 @@ export const BIN = 'arena-mcp';
 export const LAYERS = ['react', 'angular'];
 export const REGISTRY_NAME = 'io.github.dravensoft-dev/arena';
 
+export const AUDIT_SOURCE = 'scripts/generate/core/arena-to-prod/audit.ts';
+export const AUDIT_FILE = 'bin/audit.mjs';
+export const AUDIT_SPECIFIER = "'../arena-to-prod/audit.mjs'";
+export const AUDIT_BESIDE = "'./audit.mjs'";
+
+export function beside(emitted: string) {
+  if (!emitted.includes(AUDIT_SPECIFIER)) {
+    throw new Error(`build-mcp-package: the server does not import ${AUDIT_SPECIFIER}, and this `
+      + 'step exists to put that module beside it. The rule module is the one thing the server '
+      + 'reads from outside its own directory, and bin/ is flat, so a rename that moves the '
+      + 'specifier has to move this constant with it rather than shipping a dead import.');
+  }
+  return emitted.split(AUDIT_SPECIFIER).join(AUDIT_BESIDE);
+}
+
 export const RUNTIME_DEPENDENCIES = {
   '@modelcontextprotocol/server': '^2.0.0',
   zod: '^4.2.0',
@@ -37,7 +52,8 @@ export const RUNTIME_DEPENDENCIES = {
 export const node = {
   name: 'build:mcp-package',
   reads: [
-    `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, NPM_PAGE, '.claude-plugin/plugin.json', 'LICENSE',
+    `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, NPM_PAGE,
+    '.claude-plugin/plugin.json', 'LICENSE',
     'skills/design/SKILL.md', 'skills/design/references/*.md',
     'frameworks/INDEX.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
@@ -91,8 +107,12 @@ export function buildMcpPackage(root = repoRoot) {
 
   for (const file of sources(root)) {
     const rel = relPosix(join(root, SOURCE), file);
-    written.push(write(dir, `bin/${rel.replace(/\.ts$/, '.mjs')}`, emitCli(readFileSync(file, 'utf8'))));
+    const emitted = emitCli(readFileSync(file, 'utf8'));
+    const text = rel === 'arena-mcp.ts' ? beside(emitted) : emitted;
+    written.push(write(dir, `bin/${rel.replace(/\.ts$/, '.mjs')}`, text));
   }
+  written.push(write(dir, AUDIT_FILE,
+    emitCli(readFileSync(join(root, ...AUDIT_SOURCE.split('/')), 'utf8'))));
   if (!written.some((path) => path.endsWith(ENTRY.split('/').at(-1) ?? ''))) {
     throw new Error(`build-mcp-package: nothing was written to ${ENTRY}, which the manifest declares `
       + 'as the bin, so the package would install a command that is not there');

@@ -44,7 +44,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 17_400,
+    budget: 18_000,
     reason:
       'the page every consumer route opens with, and the reason it is declared here rather than as '
       + 'the first stop of each of them: a paragraph added to a router that seven routes shared was '
@@ -77,7 +77,13 @@ export const ENTRIES: Entry[] = [
       + 'no row to match on learned a toolchain by copying one: what the row names is the page '
       + 'that separates what Arena supports from what Arena is made of, and it is asked before a '
       + 'builder knows which situation they are in, which is what earns a row here rather than '
-      + 'in the node that would otherwise own it.',
+      + 'in the node that would otherwise own it. Raised again to 18,000 when the rules list '
+      + 'stopped being written by hand. Every statement of the rules is emitted from one '
+      + 'declaration now, so each rule says whether a gate reads the reader\'s own sources for it, '
+      + 'and the rule the page had stated only in its delivery paragraph joined the list it '
+      + 'belongs to. What the number buys is a claim that cannot go stale: this page said no gate '
+      + 'reads your application while the audit already did, and nothing failed, because the '
+      + 'sentence and the check had no common source.',
   },
   {
     name: 'contributor',

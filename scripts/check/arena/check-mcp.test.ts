@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import {
   collect, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
-  REGISTRY_DESCRIPTION_LIMIT,
+  REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER,
 } from './check-mcp.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest,
@@ -193,4 +193,29 @@ test('a schema that is not the one this tree is written against is refused by th
   const dir = TREE(SERVER({ $schema: 'https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json' }));
   assert.ok(registryProblems(dir).some((one) => /declares the schema/.test(one)));
   rmSync(dir, { recursive: true });
+});
+
+
+test('a specifier that escapes the flat bin is reported, since bin/ has no directory above it', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-mcp-flat-'));
+  try {
+    mkdirSync(join(dir, 'bin'), { recursive: true });
+    writeFileSync(join(dir, 'bin', 'clean.mjs'), "import { x } from './audit.mjs';\n");
+    assert.deepEqual(flatProblems(dir), []);
+
+    writeFileSync(join(dir, 'bin', 'escaping.mjs'), "import { x } from '../arena-to-prod/audit.mjs';\n");
+    const problems = flatProblems(dir);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /escaping\.mjs/);
+    assert.match(problems[0] ?? '', /bin\/ is flat/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the pattern reads a specifier and not a path that happens to sit in a string', () => {
+  const of = (text: string) => [...text.matchAll(ESCAPING_SPECIFIER)].map((one) => one[1]);
+  assert.deepEqual(of("import { a } from '../b/c.mjs';"), ['../b/c.mjs']);
+  assert.deepEqual(of("import { a } from './c.mjs';"), []);
+  assert.deepEqual(of("const note = '../b/c.mjs';"), []);
 });

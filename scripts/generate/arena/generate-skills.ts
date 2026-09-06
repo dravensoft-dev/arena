@@ -66,7 +66,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
-  ],
+    'check:register'],
 };
 
 const GENERATED = '<!-- GENERATED from the contracts by bun run generate:skills.'
