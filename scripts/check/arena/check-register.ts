@@ -48,8 +48,6 @@ export const EXEMPT = new Map<string, string>([]);
 export const NOT_YET_REWRITTEN = new Map<string, string>([
   ['skills/design/references/cold-start.md',
    'the tree a project walks before its first screen, and the longest page on this branch'],
-  ['skills/design/references/media-register.md',
-   'the page a builder reaches when no component fits what they are drawing'],
   ['skills/design/references/seo.md', 'what Arena writes into the document head, and which layer does'],
   ['skills/design/references/stack.md', 'what a project may build Arena with, and how sure Arena is'],
   ['skills/design/references/style-kernel.md', 'how a project answers the style roles'],
