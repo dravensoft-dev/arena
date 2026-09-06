@@ -1,8 +1,7 @@
 Arena data table for dense surfaces: headers in mono/uppercase, rows separated by a
 hairline. Standalone, `OnPush`, signal inputs.
 
-It is a **compound** primitive: `columns` says how each column is headed and set, and you
-write one `<tr arena-table-row>` per row with one `<td arena-table-cell>` per cell inside it.
+The table is a **compound** primitive. `columns` says how each column is headed and set, and you write one `<tr arena-table-row>` per row with one `<td arena-table-cell>` per cell inside it.
 Cells are **positional**: the nth cell takes the nth column.
 
 ```html
@@ -39,85 +38,53 @@ Cells are **positional**: the nth cell takes the nth column.
 
 <!-- @api end -->
 
-**Do / Don't**
-- **A grid showing part of a list owes its true size.** `page` pays that on its own; bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
-- **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever
-  the list is longer than the screen, so the table sizes and resets it; pass
-  `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one
-  control over two tables. Withholding `[page]` to move the control is the shape this member
+**Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
+- **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one control over two tables. Withholding `[page]` to move the control is the shape this member
   exists to replace: it left the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as
-  in "Recent deployments" or "Team members", and never "Table". Nothing can derive it, which is why
-  it **throws** rather than falling back, and why `input.required` alone is not the guard:
-  that only proves something was bound, and `[label]="row.title"` with an empty title
-  satisfies it.
+  in "Recent deployments" or "Team members", and never "Table". Nothing can derive it, which is why it **throws** rather than falling back. `input.required` alone is not the guard: it only proves something was bound, and `[label]="row.title"` with an empty title satisfies it.
 - Put your own components in a cell: an `arena-badge` for a status, an `arena-button` for
-  an action. That is what the compound shape is for; a column carries no render function.
-- Numeric data and codes in `mono` columns with `align: 'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel: gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, put `.arena-num` on it, which is the same face and the same digit alignment with no colour.
-- Mark the actions column `mobileLayout: 'block'`. Its buttons name themselves, and pairing
-  them with an "ACTIONS" label reads as a mistake.
+  an action. The compound shape is for exactly that, and a column carries no render function.
+- Numeric data and codes in `mono` columns with `align: 'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, put `.arena-num` on it, which is the same face and the same digit alignment with no colour.
+- Mark the actions column `mobileLayout: 'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive="false"` to "keep it looking like a table" on a phone. A table
   narrower than its content is unreadable; card mode is the honest fallback.
-- Row activation is `(click)` on the row, and it carries no payload, because you wrote that
-  element inside your own `@for`, so you already hold the row it is about.
+- Row activation is `(click)` on the row, and it carries no payload. You wrote that element inside your own `@for`, so you already hold the row it is about.
 
 ### Responsive
 
-Below `--bp-md` the table renders one card per row. The threshold is measured on the
-table's **container**, never the viewport and never a media query, so a table inside a narrow
-panel goes card-mode on a wide monitor, which is what you want. Before anything has been
+Below `--bp-md` the table renders one card per row. The threshold is measured on the table's **container**, never the viewport and never a media query. A table inside a narrow panel goes card-mode on a wide monitor, which is what you want. Before anything has been
 measured the wide shape renders, so the card shape never flashes on first paint.
 
 ### Keyboard
 
-The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid, arrows move
-by cell (the header row is row 0 and is navigable, as APG prescribes), `Home` and `End` go
-to the first and last cell of the **current row**, and `Enter` activates the cursor's row by
-emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
+The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid, and arrows move by cell. The header row is row 0 and is navigable, as APG prescribes. `Home` and `End` go to the first and last cell of the **current row**, and `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
 own place in the page Tab sequence, so nothing you own is silenced.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
 columns, and the cursor is clamped against the row it is actually in.
 
 Card mode answers none of this, and it does not have to: a card is a list item, and a list is
-traversed with Tab. A card row carrying `interactive` is a `role="button"` tab stop of its own
-with an Enter and Space handler, which is `ArenaTableRow`'s `card-interactive` case rather than a
-clause of this component's binding. A card row without it is inert, because a dead tab stop on
+traversed with Tab. A card row carrying `interactive` is a `role="button"` tab stop of its own with an Enter and Space handler. That is `ArenaTableRow`'s `card-interactive` case rather than a clause of this component's binding. A card row without it is inert, because a dead tab stop on
 every row of every table is worse than the gap it would close. The shape follows the member and
 never whether anything is listening, which is why `interactive` exists at all.
 
 ### Why there is always a real `<table>`, at both widths
 
 The rows are **authored** by the consumer, as `<tr arena-table-row>`, and the width that decides the
-shape is measured at runtime. So the elements cannot change with the shape: a `<tr>` that is not a
-DOM child of a table is dropped outright by the HTML parser, which is what a server render and its
-re-parse put it through. A shape that appears and disappears under the rows is therefore not
-available here, and the single shape that survives both widths is a real `<table>` always, restyled
-by CSS into cards below `--bp-md`.
+shape is measured at runtime. So the elements cannot change with the shape. A `<tr>` that is not a DOM child of a table is dropped outright by the HTML parser, which is what a server render and its re-parse put it through. A shape that appears and disappears under the rows is therefore not available here. The single shape that survives both widths is a real `<table>` always, restyled by CSS into cards below `--bp-md`.
 
-That also settles a second constraint that used to point the other way: Angular indexes projection
-slots in template order and hands the content to the **first** matching one, so a `wide` branch and a
-`card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
+That also settles a second constraint that used to point the other way. Angular indexes projection slots in template order and hands the content to the **first** matching one, so a `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
 and one `<ng-content>`, and nothing to choose between.
 
 `role="grid"` is still written, because APG's grid is not the `table` a `<table>` maps to and the
-roving tab stop is the difference. Nothing under it is: a `<tr>` is a row, a `<th scope="col">` is a
-columnheader and a `<td>` inside the grid is a gridcell, so none of the three is written back onto
-the element that already means it. Below `--bp-md` the whole table declares `role="presentation"` and
-drops its `aria-label`, which is what takes those mappings back off it -- a name would make the
-element ineligible for the role and bring the table back in the reader's ear while the screen shows a
-stack of cards.
+roving tab stop is the difference. Nothing under it is. A `<tr>` is a row, a `<th scope="col">` is a columnheader and a `<td>` inside the grid is a gridcell, so none of the three is written back onto the element that already means it. Below `--bp-md` the whole table declares `role="presentation"` and drops its `aria-label`, which is what takes those mappings back off it. A name would make the element ineligible for the role and bring the table back in the reader's ear while the screen shows a stack of cards.
 
 The empty state is still a block **beside** the table rather than a cell spanning it, and the table
-left behind is presentational. One measured cost stands: the `<table>` sits inside the bordered
-frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of
-pixels earlier than the declared breakpoint. The host itself is a plain block.
+left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1–5 were checked in real
-Chromium: one Tab in, the gold inset ring on the focused cell, the arrow walk,
-`Home`/`End` inside the row, `Enter` on a data row, one Tab out onto the actions button, and
-zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
+`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 were checked in real Chromium. One Tab in, the gold inset ring on the focused cell, the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
 it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
@@ -134,7 +101,7 @@ it *looks* were not, and are why this list stays:
 ### Sorting and paging
 
 Both are **controlled**, and for the same reason: `arena-table` does not hold the rows, so it
-cannot order them and cannot cut them. It draws the affordance and tells you what was asked.
+cannot order them and cannot cut them. The component draws the affordance and tells you what was asked.
 
 ```html
 <arena-table label="Recent deployments" [columns]="columns"
@@ -145,14 +112,9 @@ cannot order them and cannot cut them. It draws the affordance and tells you wha
 Mark a column `sortable: true` and pass `sort`. Without `sort` no header is a target however
 many columns declare it, because a control drawing a direction it does not know is worse than
 no control. Activating the sorted column flips it; activating a different one starts it
-ascending. It costs **no tab stop**: the header row is already row 0 of the grid's roving
-cursor, so Enter and Space act on the cell the reader is already on, and `aria-sort` says which
-column and which way.
+ascending. Sorting costs **no tab stop**. The header row is already row 0 of the grid's roving cursor, so Enter and Space act on the cell the reader is already on. `aria-sort` says which column and which way.
 
-**Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort`
-bound and at least one `sortable` column, card mode draws one compact select above the cards,
-listing every sortable column in each direction, and it reports through the same `sortChange`
-the header does. Set it to `none` for a table whose order is the document's rather than the
+**Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort` bound and at least one `sortable` column, card mode draws one compact select above the cards, listing every sortable column in each direction. It reports through the same `sortChange` the header does. Set it to `none` for a table whose order is the document's rather than the
 reader's. The header row does **not** come back below the breakpoint: card mode exists for the
 one reason a grid does not fit.
 
@@ -172,9 +134,7 @@ Bind `slice` when the projection is not a page, which is what a scroller renders
 </arena-table>
 ```
 
-`offset` counts from 0 and is the number of rows before the first one you projected; the header row
-takes index 1 and `arena-table` does that arithmetic, so an offset that already counted from 1 tells
-the reader they are one row further on than they are. `total: -1` is the answer for a list whose
+`offset` counts from 0, and it is the number of rows before the first one you projected. The header row takes index 1 and `arena-table` does that arithmetic, so an offset that already counted from 1 tells the reader they are one row further on than they are. `total: -1` is the answer for a list whose
 length nobody knows yet, and it reaches the attribute unchanged. Bound beside `page`, `slice` is
 what answers, because one position with two sources is a position two things can disagree about.
 
@@ -193,9 +153,7 @@ const COLUMNS = [
 ];
 ```
 
-Arena cannot check that, but it does catch the loudest way to get it wrong: a `sort.column`
-aimed at a column that declares no `sortable` **warns once**, naming the column it landed on,
-instead of drawing no caret and saying nothing.
+Arena cannot check that, and it does catch the loudest way to get it wrong. A `sort.column` aimed at a column that declares no `sortable` **warns once**, naming the column it landed on, instead of drawing no caret and saying nothing.
 
 `page` is `{ index, size, total }`. `total` is the count across every page and is required,
 because the rows you project are one page and nothing about the whole list can be read from
@@ -203,14 +161,9 @@ them. ArenaTable draws its own `arena-pagination` below the grid and names it fr
 what makes two paged tables on one dashboard tellable apart.
 
 The one thing ArenaTable emits on its own is `pageChange` with 1, when the total drops far enough
-that the current page is **past the end**. It is bounded: a filter that leaves the page valid is
-silent, so nothing loops.
+that the current page is **past the end**. The correction is bounded. A filter that leaves the page valid is silent, so nothing loops.
 
-**That is not the reset you write beside a filter, and expecting it to be is the mistake this
-paragraph exists to stop.** Filter ten pages down to five while the reader is on the third and
-the page is still in range, so ArenaTable says nothing and the reader is left on page three of
-results they never asked for. ArenaTable cannot tell that from removing one row from page three of
-ten, which must move nobody, because a count is all it has. **Whether a change of criterion
+**The correction is not the reset you write beside a filter.** Expecting it to be is the mistake this paragraph exists to stop. Filter ten pages down to five while the reader is on the third, and the page is still in range. ArenaTable says nothing, and the reader is left on page three of results they never asked for. ArenaTable cannot tell that from removing one row from page three of ten, which must move nobody. A count is all the table has. **Whether a change of criterion
 returns the reader to page one is yours**, and it belongs beside the criterion:
 
 ```ts

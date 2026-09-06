@@ -40,9 +40,8 @@ rows in one list that disagreed about their size would be a defect rather than a
 
 **Do / Don't**
 - **Do** say what the list is OF in `label`: "Ruby league standings", "Reviewers on this pull
-  request". It is the name a screen-reader user navigates by, and "People" tells them nothing.
-- **Do** set `ordered` when the order is the meaning and the rows are numbered. It picks the
-  element, `<ol>` against `<ul>`, which is where that claim lives.
+  request". The label is the name a screen-reader user navigates by, and "People" tells them nothing.
+- **Do** set `ordered` when the order is the meaning and the rows are numbered. The member picks the element, `<ol>` against `<ul>`, which is where that claim lives.
 - **Don't** reach for this to show one person. A single face beside a name is `arena-avatar` and
   your own markup.
 - **Don't** use it for a feed of events: `arena-activity-feed` is somebody did something to

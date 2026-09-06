@@ -9,8 +9,7 @@ here, so a row is written the same way whatever list it lands in.
   action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" size="sm" />} />
 ```
 
-`name` is the row's text, the initials the face falls back to and the image's alt text at once,
-because a name spelt differently in any of those is the same person announced as two.
+`name` is the row's text, the initials the face falls back to, and the image's alt text at once. A name spelt differently in any of those is the same person announced as two.
 
 <!-- @api GENERATED from contracts/api/components/ArenaPersonRow.json. Edit the contract, not this table. -->
 
@@ -29,8 +28,7 @@ because a name spelt differently in any of those is the same person announced as
 <!-- @api end -->
 
 **Do / Don't**
-- Put the unit in `figure`: "1815 XP", "12 open", "38%". It is one value a reader says out loud,
-  and formatting it where the data is beats formatting it here.
+- Put the unit in `figure`: "1815 XP", "12 open", "38%". The value is one a reader says out loud, and formatting it where the data is beats formatting it here.
 - Use `current` for the reader's own row. It fills the row and announces itself, which is what a
   highlight has to do to be worth drawing.
 - Use `secondary` for a handle, a role or a reason, and keep it to a line: it truncates rather

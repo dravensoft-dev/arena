@@ -33,13 +33,10 @@ when it draws it, so the accessible table reads the numbers you passed and the p
 shape they make. A tick on the axis is a magnitude for the same reason: a tick reading -600 would
 say the left side is a debt rather than a count.
 
-A negative value is not corrected. It crosses the centre line and draws on the other side, which
-is what the number says, and the table says the same thing. A pyramid that quietly took the
+A negative value is not corrected. The bar crosses the centre line and draws on the other side, which is what the number says. The table says the same thing. A pyramid that quietly took the
 magnitude would be the only place in Arena where the picture and the table can disagree.
 
-The axis reaches the same distance on both sides, measured from the larger one. That is the whole
-point: two halves scaled to their own maxima would look balanced whatever the data said, which is
-the comparison this chart exists to make.
+The axis reaches the same distance on both sides, measured from the larger one. The shared scale is the whole point. Two halves scaled to their own maxima would look balanced whatever the data said, and the comparison is what this chart exists to make.
 
 ### Reading it without a pointer
 

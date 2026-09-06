@@ -34,8 +34,7 @@ what a card does when it is picked up is a question about your data rather than 
 <!-- @api end -->
 
 **Do / Don't**
-- **Do** say what the columns are columns OF in `label`. It is the name a keyboard user lands on,
-  and "Board" tells them nothing.
+- **Do** say what the columns are columns OF in `label`. The label is the name a keyboard user lands on, and "Board" tells them nothing.
 - **Do** leave `minColumn` alone unless a card needs more room than a grid cell: the default is
   the same width a card takes in a grid or a rail.
 - **Don't** wrap it in a scroll container of your own. The board is the scrolling region, and a

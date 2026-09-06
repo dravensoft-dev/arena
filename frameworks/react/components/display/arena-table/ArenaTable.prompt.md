@@ -43,16 +43,15 @@ It is a **compound** component: `columns` says how each column is headed and set
 
 <!-- @api end -->
 
-**Do / Don't**
-- **A grid showing part of a list owes its true size.** `page` pays that on its own; bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
+**Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
 - **`page` is what the table knows and `pageControl` is what it draws.** Bind `page` whenever the list is longer than the screen, so the table sizes and resets it; pass `pageControl="none"` when you want the `ArenaPagination` somewhere else, or want one control over two tables. Withholding `page` to move the control is the shape this member exists to replace: it left the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as in "Recent deployments" or "Team members", and never "Table". There is nothing to derive it from, which is why it throws when omitted rather than falling back.
 - Put your own components in a cell: an `ArenaBadge` for a status, an `ArenaButton` for an action. That is what the compound shape is for. A column carries **no** `render`, and passing one does nothing.
 - `key` goes on the `ArenaTableRow`. It is React's own reconciliation, not an Arena member; there is no `getRowKey`.
-- Numeric data and codes in `mono` columns with `align:'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel: gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, take the face alone: `style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}`, which aligns a column of figures by digit the way the table does.
+- Numeric data and codes in `mono` columns with `align:'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, take the face alone: `style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}`, which aligns a column of figures by digit the way the table does.
 - Statuses with `ArenaBadge`, not loose text.
 - Don't use it for layout; it's for real tabular data.
-- Mark the actions column `mobileLayout:'block'`. Its buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
+- Mark the actions column `mobileLayout:'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive={false}` to "keep it looking like a table" on a phone. A table narrower than its content is unreadable; card mode is the honest fallback.
 - Row activation is `onClick` on the `ArenaTableRow`, and it carries no payload, because you wrote that element and already hold the row it is about.
 - Pass `empty` whenever the table can legitimately have no rows. With nothing passed React falls back to the string **`No data.`**, which is a placeholder rather than an answer: it says the query returned nothing and never says what was being asked for. The fallback is this layer's own convenience and nothing contracts it, because a table's empty state is editorial the way `label` is, and a layer that renders nothing instead is equally correct.
@@ -149,7 +148,7 @@ Serve the tree with `bun run demos`, open
 ### Sorting and paging
 
 Both are **controlled**, and for the same reason: `ArenaTable` does not hold the rows, so it
-cannot order them and cannot cut them. It draws the affordance and tells you what was asked.
+cannot order them and cannot cut them. The component draws the affordance and tells you what was asked.
 
 ```tsx
 <ArenaTable label="Recent deployments" columns={columns}
@@ -160,9 +159,7 @@ cannot order them and cannot cut them. It draws the affordance and tells you wha
 Mark a column `sortable: true` and pass `sort`. Without `sort` no header is a target however
 many columns declare it, because a control drawing a direction it does not know is worse than
 no control. Activating the sorted column flips it; activating a different one starts it
-ascending. It costs **no tab stop**: the header row is already row 0 of the grid's roving
-cursor, so Enter and Space act on the cell the reader is already on, and `aria-sort` says which
-column and which way.
+ascending. Sorting costs **no tab stop**. The header row is already row 0 of the grid's roving cursor, so Enter and Space act on the cell the reader is already on. `aria-sort` says which column and which way.
 
 **Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort`
 bound and at least one `sortable` column, card mode draws one compact select above the cards,
@@ -208,9 +205,7 @@ const COLUMNS = [
 ];
 ```
 
-Arena cannot check that, but it does catch the loudest way to get it wrong: a `sort.column`
-aimed at a column that declares no `sortable` **warns once**, naming the column it landed on,
-instead of drawing no caret and saying nothing.
+Arena cannot check that, and it does catch the loudest way to get it wrong. A `sort.column` aimed at a column that declares no `sortable` **warns once**, naming the column it landed on, instead of drawing no caret and saying nothing.
 
 `page` is `{ index, size, total }`. `total` is the count across every page and is required,
 because the rows you project are one page and nothing about the whole list can be read from
@@ -218,14 +213,9 @@ them. ArenaTable draws its own `ArenaPagination` below the grid and names it fro
 what makes two paged tables on one dashboard tellable apart.
 
 The one thing ArenaTable emits on its own is `onPageChange` with 1, when the total drops far enough
-that the current page is **past the end**. It is bounded: a filter that leaves the page valid is
-silent, so nothing loops.
+that the current page is **past the end**. The correction is bounded. A filter that leaves the page valid is silent, so nothing loops.
 
-**That is not the reset you write beside a filter, and expecting it to be is the mistake this
-paragraph exists to stop.** Filter ten pages down to five while the reader is on the third and
-the page is still in range, so ArenaTable says nothing and the reader is left on page three of
-results they never asked for. ArenaTable cannot tell that from removing one row from page three of
-ten, which must move nobody, because a count is all it has. **Whether a change of criterion
+**The correction is not the reset you write beside a filter.** Expecting it to be is the mistake this paragraph exists to stop. Filter ten pages down to five while the reader is on the third, and the page is still in range. ArenaTable says nothing, and the reader is left on page three of results they never asked for. ArenaTable cannot tell that from removing one row from page three of ten, which must move nobody. A count is all the table has. **Whether a change of criterion
 returns the reader to page one is yours**, and it belongs beside the criterion:
 
 ```tsx

@@ -41,14 +41,9 @@ nobody.
 
 **A press that starts on one of those controls belongs to that control, by pointer and by keyboard
 alike.** Clicking a button inside the card runs the button's handler and stops there; typing Enter
-in a field inside it never opens the card. Both paths ask the same question, and the question is
-"did this press start on a control", not "did it land on the card's own element": a click anywhere
-else on the card, its title, its body, the space between them, is the card being pressed and
-activates it.
+in a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them.
 
-**A card can also hand the press over entirely, by leaving `interactive` off.** Then it draws no
-role, no tab stop and no handler at all: it is a surface, and the control inside it is the only
-activation target on it.
+**A card can also hand the press over entirely, by leaving `interactive` off.** The card then draws no role, no tab stop and no handler at all. The card is a surface, and the control inside it is the only activation target on it.
 
 ```tsx
 <ArenaCard title="Acme Corp">
@@ -86,10 +81,7 @@ nothing and the card is a plain link that navigates the document.
 is invalid and reachable by nobody. Give the card the `href` and route in `onClick`.
 
 Choose between the two by what the press DOES. A card that goes somewhere is `href`; a card
-that changes local state is `interactive` with `onClick`. And a card whose body holds controls
-of its own is `interactive`, not `href`: the anchor wraps the whole surface, so a button inside
-it is a control inside a link, which is exactly the nesting `interactive` was made a
-`role="button"` div to avoid.
+that changes local state is `interactive` with `onClick`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

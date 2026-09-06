@@ -18,11 +18,7 @@ through `navigate`, which carries the clicked `ArenaCrumb` alone: route from the
 does not navigate underneath you. The rest keep working for a consumer who wires no listener
 at all.
 
-`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. That
-is the same branch the last crumb already takes, minus its `aria-current`: a level of the trail
-that leads nowhere is not a link and does not take the pointer or the hover either. What it must
-never be is an anchor to the page it sits on, which is a dead edge in the crawl graph and a target
-the keyboard can reach and nothing happens on.
+`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. The last crumb already takes that branch, minus its `aria-current`. A level of the trail that leads nowhere is not a link, and it does not take the pointer or the hover either. What a crumb must never be is an anchor to the page it sits on. Such an anchor is a dead edge in the crawl graph, and a target the keyboard can reach and nothing happens on.
 
 **Do not put `routerLink` on `arena-breadcrumbs`.** `RouterLink` decides whether it is on an
 anchor from the host's `tagName`, and the anchor here is inside the component, so it would

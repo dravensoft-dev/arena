@@ -35,7 +35,7 @@ does when it is picked up is a question about their data, not about this frame.
 
 **Do / Don't**
 - Say what the columns are columns OF in `label`: "Sprint 32 tasks by status", "Candidates by
-  stage". It is the name a keyboard user lands on, and "Board" tells them nothing.
+  stage". The label is the name a keyboard user lands on, and "Board" tells them nothing.
 - Raise `minColumn` when a card needs more room than a grid cell, and leave it alone otherwise:
   the default is the same width a card takes in a grid or a rail.
 - Don't wrap it in your own scroll container. The board is the scrolling region, and a second one

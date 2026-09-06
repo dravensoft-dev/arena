@@ -1,6 +1,6 @@
-Week or day schedule on a time grid: a toolbar, one column per day, events positioned by their wall-clock span. Use it for an agenda someone reads against the clock: bookings, classes, shifts. It is not a date picker (use `arena-input type="date"`) and not a month planner (Arena ships no month grid).
+Week or day schedule on a time grid: a toolbar, one column per day, events positioned by their wall-clock span. Use it for an agenda someone reads against the clock: bookings, classes, shifts. The component is not a date picker, which is `arena-input type="date"`. It is not a month planner either, since Arena ships no month grid.
 
-**The events are its content.** Write one `<arena-calendar-event>` per event; `arena-calendar` reads each one's `start`, `end` and `colorId`, works out where the chip goes, and each chip reads that placement back out. There is no `events` input, and no throw for projecting nothing: a calendar with no children is a legitimately empty schedule, not a caller's mistake.
+**The events are its content.** Write one `<arena-calendar-event>` per event. `arena-calendar` reads each one's `start`, `end` and `colorId` and works out where the chip goes, and each chip reads that placement back out. There is no `events` input, and no throw for projecting nothing: a calendar with no children is a legitimately empty schedule, not a caller's mistake.
 
 ```html
 <arena-calendar timeZone="Europe/Madrid" (rangeChange)="refetch($event)">
@@ -33,15 +33,13 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 <!-- @api end -->
 
-`timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own**: a class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima, and only an explicit `timeZone="Europe/Madrid"` says so. It is also **not safe under server rendering**: on a server it resolves to the *server's* zone and then to the client's on hydration.
+`timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. The default is also **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration.
 
 The anchor is internal, so prev/Today/next work with nothing wired. `rangeChange` reports the new anchor date; take it as the cue to refetch. Bind `anchorDate` only when you want to drive the date yourself: it is a `linkedSignal` source, so it wins whenever it changes and resets any navigation the reader had done.
 
-**The toolbar's actions slot needs its marker directive.** `<ng-content select="[actions]">` is drawn only when `contentChild(ArenaActions)` resolves, so a consumer who writes `actions` on an element without importing `ArenaActions` from the layer root gets no toolbar actions and no error. That is the one failure mode of every marker slot in this layer.
+**The toolbar's actions slot needs its marker directive.** `<ng-content select="[actions]">` is drawn only when `contentChild(ArenaActions)` resolves. A consumer who writes `actions` on an element without importing `ArenaActions` from the layer root gets no toolbar actions and no error. The silent miss is the one failure mode of every marker slot in this layer.
 
-**The range in the toolbar is a label, not a heading.** It says which dates are on screen and is
-rewritten every time the reader steps a week, so a document outline built on it would carry
-"13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
+**The range in the toolbar is a label, not a heading.** The caption says which dates are on screen, and it is rewritten every time the reader steps a week. A document outline built on it would carry "13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
 an `aria-label` composed from the same range, which is what a reader arriving by name lands on.
 The heading that says what this calendar IS belongs outside it, on the `arena-section` or the page
 head that holds it.
@@ -52,19 +50,19 @@ head that holds it.
 <arena-calendar dayInteractive (dateClick)="openDay($event)">
 ```
 
-The boolean is not ceremony. What a component draws may never be derived from whether a listener is bound, because a subscriber list is private here, so the day's cursor, which is a render, follows the boolean and not your binding. **With it on, each day header becomes a `<button>`** carrying the full date as its label, so a keyboard reaches a day at the one element that already names it; the column background takes the same click but stays pointer-only, because it is the same date reachable above.
+The boolean is not ceremony. What a component draws may never be derived from whether a listener is bound, because a subscriber list is private here. The day's cursor is a render, so it follows the boolean rather than your binding. **With it on, each day header becomes a `<button>`** carrying the full date as its label, so a keyboard reaches a day at the one element that already names it. The column background takes the same click and stays pointer-only, because it is the same date reachable above.
 
-**Keyboard.** The grid is one tab stop, not one per event (`dayInteractive` adds the header strip's, above it). Tab lands on a single hour cell; **a row is a day**, so Left/Right move a day and Up/Down move an hour, Home/End jump to the first/last hour of the focused day, and focus clamps at every edge. Enter steps into the first event overlapping the focused hour, Escape steps back out to the cell.
+**Keyboard.** The grid is one tab stop, not one per event (`dayInteractive` adds the header strip's, above it). Tab lands on a single hour cell, and **a row is a day**. Left and Right move a day, Up and Down move an hour, and Home and End jump to the first and last hour of the focused day. Focus clamps at every edge. Enter steps into the first event overlapping the focused hour, Escape steps back out to the cell.
 
-**A chip is not a DOM child of its day column, and `aria-owns` is why that does not matter.** This layer cannot project one set of children into several positions, so every chip is a child of the grid and each day column claims its own through `aria-owns`, which is what the `grid` pattern actually asks for, since it constrains the accessibility tree and not the DOM. It is the shape Arena renders everywhere, so a chip sits in the same place in every layer. Two consequences are real: the day columns are CSS grid **tracks** rather than flex items, because a chip's horizontal placement is a percentage of the whole grid and unequal columns would slide the last day's chips off; and anything projected that is not an `arena-calendar-event` becomes a **grid item** and adds a column, so project nothing else.
+**A chip is not a DOM child of its day column, and `aria-owns` is why that does not matter.** This layer cannot project one set of children into several positions. Every chip is a child of the grid, and each day column claims its own through `aria-owns`. The `grid` pattern asks for exactly that, since it constrains the accessibility tree rather than the DOM. The arrangement is the shape Arena renders everywhere, so a chip sits in the same place in every layer. Two consequences are real. The day columns are CSS grid **tracks** rather than flex items. A chip's horizontal placement is a percentage of the whole grid, and unequal columns would slide the last day's chips off. And anything projected that is not an `arena-calendar-event` becomes a **grid item** and adds a column, so project nothing else.
 
 **The chip body is Arena's, and there is nothing you can put inside it.** An `arena-calendar-event` carries `id`, `title`, `start`, `end` and `colorId`, and Arena draws all of it. There is no per-event template, because a structural directive returning markup is not a member of any Arena contract.
 
-**So a consumer cannot mark an event cancelled or tentative at all.** Colour is spoken for by identity, and the non-chromatic channel a strikethrough or a dashed border would have used is not reachable. Say it in the `title` (`'Ballet I, cancelled'`), or do not render an event for it and show it somewhere that is not the schedule.
+**So a consumer cannot mark an event cancelled or tentative at all.** Colour is spoken for by identity. The non-chromatic channel a strikethrough or a dashed border would have used is not reachable. Say it in the `title` (`'Ballet I, cancelled'`), or do not render an event for it and show it somewhere that is not the schedule.
 
 **Do**
 - Give an entity a stable `colorId` and reuse it everywhere that entity appears, which is what makes the ramp identity rather than decoration.
-- Let `dayStart` default. It follows the earliest event, so a schedule that begins at 16:00 does not open on eight empty morning rows.
+- Let `dayStart` default. The first row follows the earliest event, so a schedule that begins at 16:00 does not open on eight empty morning rows.
 - Set `weekStartsOn` and `hideEmptyWeekend` to your locale and product. The defaults (Monday, Sunday hidden until used) are defaults, not the system's opinion.
 - Preformat every `title` you pass. The calendar does no locale and no truncation of your own text beyond the chip's ellipsis.
 
@@ -73,7 +71,7 @@ The boolean is not ceremony. What a component draws may never be derived from wh
 - Don't reach past `colorId: 8`. There are eight slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
 - Don't feed it multi-day or all-day events. There is no all-day row: an event running past midnight is clamped to the end of the day it started on.
 - Don't project anything but `arena-calendar-event` into the default slot. Anything else lands in the grid as a track of its own.
-- Don't wrap it to add a month view or a mini datepicker and call it Arena. Arena ships no month grid, and the date control is the native one, `type="date"` on `arena-input`; a hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
+- Don't wrap it to add a month view or a mini datepicker and call it Arena. Arena ships no month grid, and the date control is the native one, `type="date"` on `arena-input`. A hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
 
 ## Verifying by hand
 
@@ -87,13 +85,11 @@ nowhere else. `bun run build:angular-demo && bun run demos`, then open
    a chip with a panel as well as one without, since they are different elements.
 3. Arrow keys move by day and hour, and clamp at all four edges.
 4. **Every chip sits inside its own day column**, with an even gutter each side.
-   This is the one claim no suite can make: read a day column's track boundaries
-   and the chip's own `getBoundingClientRect().left` and confirm. A chip crossing
+   The placement is the one claim no suite can make. Read a day column's track boundaries and the chip's own `getBoundingClientRect().left`, and confirm. A chip crossing
    a column border means the tracks are no longer equal.
 5. On a chip carrying a kebab, the title stops before the button and ellipsises
    there. Check a full-width chip and a half-width one.
-6. A short event, 30 minutes or less, still shows its whole title. Its chip is
-   at the height floor, and that floor is an outer height under `border-box`.
+6. A short event, 30 minutes or less, still shows its whole title. That event's chip is at the height floor, and the floor is an outer height under `border-box`.
 7. A chip sharing its slot with an overlap draws no time label; one that has the
    column to itself does.
 8. On a chip that shares its column and is at least 56px tall, the kebab sits at
@@ -101,9 +97,7 @@ nowhere else. `bun run build:angular-demo && bun run demos`, then open
    panel in that case too: it hangs below the chip and every control is clickable.
 9. The now line is drawn over the chips rather than under them, being the last child of
    the grid and carries no z-index of its own.
-10. **Enter and Space on a focused day header fire `dateClick`.** That is the
-    browser's own activation of a `<button>`, so no suite can claim it: happy-dom
-    has no such behaviour and a test for it would pass against a `<div>` too. Tab
+10. **Enter and Space on a focused day header fire `dateClick`.** That is the browser's own activation of a `<button>`, so no suite can claim it. happy-dom has no such behaviour, and a test for it would pass against a `<div>` too. Tab
     through the headers, fire both keys, and confirm one more Tab past the last one
     lands on the grid's single roving cell.
 

@@ -73,14 +73,11 @@ every modifier key and add a second tab stop over the row's own link. Navigate i
 ### `active` is an id, and there is no route matcher
 
 `active` names one of the ids you gave the items, and the item whose id matches is the one
-marked `aria-current="page"`. It is **not** a path, and there is no `activeMatch` to say
-whether it should be compared against each `href` whole or by prefix.
+marked `aria-current="page"`. The member is **not** a path, and there is no `activeMatch` to say whether it should be compared against each `href` whole or by prefix.
 
 That was asked for and refused, and the reason is not that Arena would have to import
 `@angular/router`: it would not, since a prefix comparison is arithmetic over data you pass
-in. The reason is that the member would change what a *different* member means depending on
-its own value, so `active` would name an id under one setting and a path under another, and
-nothing could check which one a caller meant. A member that redefines its neighbour is a
+in. The reason is that the member would change what a *different* member means depending on its own value. `active` would name an id under one setting and a path under another, and nothing could check which one a caller meant. A member that redefines its neighbour is a
 member that cannot be read in isolation.
 
 Compute the active id yourself. The `NavigationEnd` bridge that turns `router.url` into a

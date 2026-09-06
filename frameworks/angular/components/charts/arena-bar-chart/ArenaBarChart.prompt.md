@@ -1,6 +1,5 @@
 Arena bar chart. One axis, hand-written SVG, every colour a token, so it re-themes
-with the rest of Arena and costs no dependency. It takes series, and a series names
-itself. Identity comes from a series' `slot` (one colour for the whole series) or its
+with the rest of Arena and costs no dependency. The chart takes series, and a series names itself. Identity comes from a series' `slot` (one colour for the whole series) or its
 `slots` (a colour per bar, **in ramp order, never cycled**); meaning comes from its
 `tone`. Passing both warns and `tone` wins, because a chart carries identity or meaning,
 never both. A series with no identity of its own takes the slot its position gives it,
@@ -40,8 +39,7 @@ readonly health = computed<ArenaSeries[]>(() => [{ label: 'Errors', values: this
 <!-- @api end -->
 
 `valueSuffix` is appended to the tick labels, the tooltip and the numbers table together,
-so a unit written once appears everywhere. It is appended verbatim, write the space
-yourself:
+so a unit written once appears everywhere. The suffix is appended verbatim, so write the space yourself:
 
 ```html
 <arena-bar-chart label="Latency by region" [labels]="regions()" [series]="latency()" valueSuffix=" ms" />
@@ -78,9 +76,7 @@ tooltip is positioned against.
   the label at its own index, so a surplus label is silently dropped rather than drawn
   without a bar to sit under. A series shorter than its neighbours simply stops: a
   missing number is not a zero, so it draws no bar and leaves an empty cell in the table.
-- Don't build the `series` array inline in the template if the data changes. A new array
-  literal on every change detection cycle is a new reference every cycle; hold it in a
-  `computed()` or a field so the chart re-reads only when the numbers actually move.
+- Don't build the `series` array inline in the template if the data changes. A new array literal on every change detection cycle is a new reference every cycle. Hold it in a `computed()` or a field, so the chart re-reads only when the numbers actually move.
 
 
 ### When the points stop fitting
@@ -91,19 +87,14 @@ in a rail that scrolls and starts anchored to the most recent point. Marker spac
 legibility constant rather than something that yields to the viewport: thirty days in 390px
 is unreadable at any font size.
 
-Arena computes the minimum width from its own axis padding, so nothing outside needs to know
-what that padding is, and the rail is the chart's own box rather than the card's: an
-`arena-chart-card` around it needs no change. The rail carries `tabindex="0"` and a
+Arena computes the minimum width from its own axis padding, so nothing outside needs to know what that padding is. The rail is the chart's own box rather than the card's, so an `arena-chart-card` around it needs no change. The rail carries `tabindex="0"` and a
 `role="group"` named after the chart whether it overflows or not.
 
-`height` is the plot's height in px, the `--chart-height` token by default. It is a number
-rather than a length string, because the chart does arithmetic with it to place every mark.
+`height` is the plot's height in px, the `--chart-height` token by default. The member is a number rather than a length string, because the chart does arithmetic with it to place every mark.
 
 ### Reading the bars without a pointer
 
-The rail is one keyboard region and it is the plot's only tab stop. Inside it, Arrow Left and
-Arrow Right move a data cursor from bar to bar, clamping at the ends rather than wrapping,
-Home and End jump to the first and the last, and Escape clears it. The cursor drives exactly
+The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from bar to bar, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
 what hover drives: the emphasised bar and its tooltip.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
@@ -112,40 +103,27 @@ however correct it is. A screen reader gets the visually hidden table of the sam
 which is already there; a sighted keyboard user gets the cursor. There is no third copy of the
 numbers for either of them to disagree with.
 
-On a touch screen the rule is tap to read, drag to scroll: a tap reads the bar under the
-finger, a drag scrolls the rail, and a reading stays up until the next tap because a lifted
-finger has no leave event to clear it. Nothing captures the pointer and nothing calls
+On a touch screen the rule is tap to read and drag to scroll. A tap reads the bar under the finger and a drag scrolls the rail. A reading stays up until the next tap, because a lifted finger has no leave event to clear it. Nothing captures the pointer and nothing calls
 `preventDefault`, so the page keeps scrolling over the chart the way it does over anything else.
 
 ### The legend, and when there is one
 
 A chart of two or more series draws a row of keys below the plot, one swatch and one series name
-each, in the order the series were given. A chart of one series draws none: `label` already names
-the chart, the table's single value column is already headed by that series' own name, and a
-one-row legend would restate both while spending plot height to do it. There is no member for
+each, in the order the series were given. A chart of one series draws none. `label` already names the chart, and the table's single value column is already headed by that series' own name. A one-row legend would restate both while spending plot height to do it. There is no member for
 this; the number of series is the whole rule.
 
 The strip comes out of the plot rather than being added to the box, so `height` stays the height
-of the whole component whether a legend is drawn or not. That is what keeps a grid of tiles
-aligned when one of them gains a second series.
+of the whole component whether a legend is drawn or not. The reserved row is what keeps a grid of tiles aligned when one of them gains a second series.
 
-It is `aria-hidden`, deliberately. It is a key for a reader who can see the colours, and those
-same names are already the column headers of the numbers table, so a focusable copy of them would
-be a second source for one fact. Its rows take no focus, and the plot still has exactly one tab
-stop.
+The legend is `aria-hidden`, deliberately. The legend is a key for a reader who can see the colours. Those same names are already the column headers of the numbers table, so a focusable copy would be a second source for one fact. The legend's rows take no focus, and the plot still has exactly one tab stop.
 
 ### Grouped or stacked
 
 `stack` puts the series inside one band per category, each sitting on the one below it, instead of
 standing them side by side. Reach for it when the series are parts of one total and the total is
-what the reader is there for. Leave it off when the comparison is between the series: only the
-first segment starts at the zero line, so every one above it is a length a reader has to measure
-against a moving base, which is the thing bar charts are good at and stacks are not.
+what the reader is there for. Leave it off when the comparison is between the series. Only the first segment starts at the zero line, so every one above it is a length a reader has to measure against a moving base. Measuring against a fixed base is the thing bar charts are good at and stacks are not.
 
-Positive and negative values stack on their own runs, so a category holding both grows in both
-directions from the zero line and the axis is sized from the two sums rather than from the largest
-single value. That is the same divergent axis a grouped chart already had; a stack just gives it
-more to hold.
+Positive and negative values stack on their own runs. A category holding both grows in both directions from the zero line, and the axis is sized from the two sums rather than from the largest single value. The divergent axis is the one a grouped chart already had, and a stack gives it more to hold.
 
 A series with no value at a category contributes no segment, and the segment above it sits on the
 one below rather than floating over a gap. A missing number is not a zero here either, so a hole

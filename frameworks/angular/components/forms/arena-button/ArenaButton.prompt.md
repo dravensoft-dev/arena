@@ -50,8 +50,7 @@ already knows how to focus, activate and disable.
   bare `<button>` inside a form silently defaults to `submit`, which is the footgun this member
   exists to make explicit. Use `form` only when the button is **not** a descendant of the form
   it submits.
-- Reach for `tabStop="false"` only inside a composite that manages its own focus (a grid with
-  a roving tab stop, a menu) where reaching this control by Tab would be a second way in. It
+- Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in. It
   writes `tabindex="-1"` and the control stays programmatically focusable. A positive tab order
   is not expressible and never should be.
 - Don't use `disabled` to mean "this action is not available yet" on a control the user must
@@ -59,9 +58,7 @@ already knows how to focus, activate and disable.
   keeping it enabled and reporting the reason on activation.
 - Don't wrap `<arena-button>` in another button or an anchor. It renders a real `<button>`, and
   nesting interactive elements is invalid regardless of how it looks.
-- Don't rely on click delegation from an ancestor. `click` is an output named after a native
-  DOM event, and Angular then registers **both** the output subscription and a host DOM
-  listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
+- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM event. Angular then registers **both** the output subscription and a host DOM listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
   `stopPropagation()` to make it fire once, which is the whole reason the event does not reach
   ancestors. Bind `(click)` on the `<arena-button>` itself. `type="submit"` still submits: the
   default action is untouched, only propagation is.

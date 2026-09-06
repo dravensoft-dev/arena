@@ -1,7 +1,4 @@
-One cell of an `arena-table-row`. It is an **attribute on a real `<td>`**, not an element of its
-own. It draws the cell box, the padding, the alignment and the mono/gold treatment its column asks
-for, and in card mode either a label/value pair or a full-width block, and shows whatever you put in
-it.
+One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**, not an element of its own. The cell draws the cell box: the padding, the alignment and the mono or gold treatment its column asks for. In card mode it draws either a label and value pair or a full-width block. The cell shows whatever you put in it.
 
 ```html
 <td arena-table-cell>{{ d.p95 }}</td>
@@ -23,26 +20,18 @@ it.
 
 **Do / Don't**
 - Put a value in it, or one of Arena's own components: an `arena-badge` for a status, an
-  `arena-button` for an action. This is why the table is a compound primitive at all: a
-  column's render function would be per-item projection, which this library does not do, but
-  a cell **you** instantiate is just an element you wrote.
-- Don't set alignment, width or the mono face here. Those are the column's, so a column stays
-  consistent down its whole length; a cell that styled itself would drift from its header.
-- Don't add a `role` or a `tabindex`. A `<td>` inside the grid already maps to a gridcell, and
-  the roving tab stop belongs to the enclosing grid and is read from the shared state; adding your
-  own would put a second tab stop inside a composite that must have exactly one.
+  `arena-button` for an action. This is why the table is a compound primitive at all. A column's render function would be per-item projection, which this library does not do. A cell **you** instantiate is just an element you wrote.
+- Don't set alignment, width or the mono face here. Those belong to the column, so a column stays consistent down its whole length. A cell that styled itself would drift from its header.
+- Don't add a `role` or a `tabindex`. A `<td>` inside the grid already maps to a gridcell. The roving tab stop belongs to the enclosing grid and is read from the shared state. Adding your own would put a second tab stop inside a composite that must have exactly one.
 - A control you put in a cell **is** a page-level tab stop, and that is deliberate. Arena
   cannot silence markup it does not own, and silencing it would take away a route a keyboard
   user has. Reaching it must cost exactly one Tab; step 2 of the by-hand checklist in
   `ArenaTable.prompt.md` is the standing check.
-- Don't use it outside an `arena-table-row`. It injects that row's state, so outside one it
-  is a DI error rather than a cell that quietly renders wrong.
+- Don't use it outside an `arena-table-row`. The cell injects that row's state. Outside one it is a DI error, rather than a cell that quietly renders wrong.
 
 ### `href` makes the cell a real destination, and the row keeps its own
 
-`href` draws an `<a>` around the cell's content, inside the cell box. That is the one place HTML
-admits it: an anchor around the whole row would break the row and cell structure the grid is made
-of, and an anchor may not contain the `arena-button` a cell's own contract invites into it.
+`href` draws an `<a>` around the cell's content, inside the cell box. The cell is the one place HTML admits it. An anchor around the whole row would break the row and cell structure the grid is made of, and an anchor may not contain the `arena-button` a cell's own contract invites into it.
 
 ```html
 <td arena-table-cell [href]="'/ventas/' + v.id" (navigate)="router.navigate(['/ventas', v.id])">
@@ -50,25 +39,18 @@ of, and an anchor may not contain the `arena-button` a cell's own contract invit
 </td>
 ```
 
-It carries the anchor convention the four members before it carry, and does not restate it: a
-**primary click with no modifier** is cancelled and reported through `(navigate)`, so your router
-owns it; ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report
-nothing at all, because the reader asked for a new tab or for the address.
+The member carries the anchor convention the four members before it carry, without restating it. A **primary click with no modifier** is cancelled and reported through `(navigate)`, so your router owns it. Ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing at all, because the reader asked for a new tab or for the address.
 
-**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** That is not a
-special case written for this member: it is the same rule the row already applies to a checkbox or a
-button you put in a cell, that a press landing on a control inside the row was never the row's. So a
+**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** That is not a special case written for this member. The behaviour is the rule the row already applies to a checkbox or a button you put in a cell. A press landing on a control inside the row was never the row's. So a
 table can have a link in its first column and a clickable row under it, and one press runs one
 destination. A cell with no `href` in the same row still activates it.
 
-**The anchor is a tab stop of its own**, one Tab from the cell rather than a step-in the grid does
-not have, which is the answer this table already gives for any control you draw in a cell. The
+**The anchor is a tab stop of its own**, one Tab from the cell rather than a step-in the grid does not have. A tab stop of its own is the answer this table already gives for any control you draw in a cell. The
 grid's `Enter` is the cell's and still activates the row; the anchor's `Enter` is the anchor's.
 
 ### What is shared, and therefore not yours
 
-Its column, its layout and its place in the grid's keyboard order come from `ArenaTableState` and
-`ArenaTableRowState`, which the table and the row provide and this component injects. None of it
+The cell's column, its layout and its place in the grid's keyboard order come from `ArenaTableState` and `ArenaTableRowState`. The table and the row provide those, and this component injects them. None of it
 is a member of `contracts/api/components/ArenaTableCell.json`, and a consumer never writes one.
 The cell's whole API is what you project into it.
 

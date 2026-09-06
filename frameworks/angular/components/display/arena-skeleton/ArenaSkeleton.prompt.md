@@ -1,5 +1,4 @@
-Arena loading placeholder. It reserves the layout the real content will occupy, so a
-table or a dashboard fills in rather than jumping. `variant="text"` with `lines`
+Arena loading placeholder. The placeholder reserves the layout the real content will occupy, so a table or a dashboard fills in rather than jumping. `variant="text"` with `lines`
 renders a stack whose last line is short, the way a paragraph ends; `line`, `block`
 and `circle` are single shapes. `width`, `height` and `radius` are CSS strings that
 override the per-variant defaults; each applies only where the shape has
@@ -47,13 +46,7 @@ something to override; see the table below.
 - Don't wrap a single `<arena-skeleton>` in a live region of your own, because it already
   carries `role="status"`. A set of several is a different case: see below.
 
-**A set of siblings is several announcements, on purpose.** Every variant carries its
-own `role="status"`/`aria-label="Loading"` host bindings, with no exception for `circle`,
-so a circle beside a text stack is two announcements and twenty rows of the same pair are
-forty, each placeholder announces its own pending replacement, and the component has no
-way to know where a set of them begins and ends. That repetition is between sibling
-`<arena-skeleton>` elements only: a `variant="text"` stack already renders as one row per
-line inside a single host, so its `lines` never repeat the announcement among themselves.
+**A set of siblings is several announcements, on purpose.** Every variant carries its own `role="status"` and `aria-label="Loading"` host bindings, with no exception for `circle`. A circle beside a text stack is two announcements, and twenty rows of the same pair are forty. Each placeholder announces its own pending replacement, and the component has no way to know where a set of them begins and ends. That repetition is between sibling `<arena-skeleton>` elements only. A `variant="text"` stack already renders as one row per line inside a single host, so its `lines` never repeat the announcement among themselves.
 When several skeletons stand for one block of content, wrap the set yourself in a single
 labelled region and hide the individual placeholders from the accessibility tree:
 

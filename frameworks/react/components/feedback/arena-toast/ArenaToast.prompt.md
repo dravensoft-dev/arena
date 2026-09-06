@@ -44,8 +44,7 @@ Writing the clock yourself is still fine, and then it is three branches rather t
 `ARENA_TOAST_DISMISS`, exported beside the component. The longer interval keys off `actionLabel`,
 which is what actually renders the button, because a notice carrying one asks the reader to decide
 rather than only to read. `arenaToastDelay(notice, ARENA_TOAST_DISMISS)` is that rule on its own
-and answers `null` for a notice that must not be taken away. They are tokens, so a host that reads
-them stays in step with a release that moves one; a host that retypes 4200 does not.
+and answers `null` for a notice that must not be taken away. The two are tokens, so a host that reads them stays in step with a release that moves one. A host that retypes 4200 does not.
 
 **Do / Don't**
 - `persist` on every error/critical toast; the close uses the standard `ph-x` icon (H4).

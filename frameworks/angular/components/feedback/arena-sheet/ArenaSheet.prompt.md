@@ -37,10 +37,7 @@ slots higher, and the scrim is how it says so.
 
 <!-- @api end -->
 
-**Closed and collapsed are two different states, and both exist.** `open` decides whether the panel
-is on the page at all; `collapsed` folds the body away and leaves the header and the footer where
-they were. That is what the pattern buys: a reader can put the cart out of the way and still see
-what it is and still check out, without losing it. The body is hidden rather than removed, so the
+**Closed and collapsed are two different states, and both exist.** `open` decides whether the panel is on the page at all. `collapsed` folds the body away and leaves the header and the footer where they were. The two states are what the pattern buys. A reader can put the cart out of the way, still see what it is and still check out, without losing it. The body is hidden rather than removed, so the
 fold control's `aria-controls` never points at nothing.
 
 `title` is required and **guarded at runtime**: a blank one throws rather than rendering a nameless
@@ -57,8 +54,7 @@ a panel that swallowed Escape from across the page would break a dialog open som
 **Do / Don't**
 - **Do** own both booleans. Neither folds nor closes itself, so a template that ignores
   `collapsedChange` gets a caret that turns and a body that does not move.
-- **Do** put the one action the panel exists for in the `footer` slot. It sits outside the folding
-  body, so a folded panel still carries it.
+- **Do** put the one action the panel exists for in the `footer` slot. The footer sits outside the folding body, so a folded panel still carries it.
 - **Don't** reach for it as a menu or a popover. It spans a whole edge and stays; `arena-menu` is
   the transient list that hangs off a trigger.
 - **Don't** open two at once on the same edge. They share a stacking slot and one lands on the

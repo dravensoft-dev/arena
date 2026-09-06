@@ -33,8 +33,7 @@ and no nesting at all. It is not `arena-tabs` either, which mounts every panel a
 tablist/tab/tabpanel, and not `arena-segmented-control`, which is a radio group that chooses rather
 than navigates.
 
-Its geometry is Arena's tokens rather than a number: `--layout-bar` for the height, `--z-nav` for the
-stacking slot, and `--pad-safe-bottom` so the row clears the home indicator on a device that has one.
+The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
 
 **`ariaLabel` is required and guarded at runtime**, trimmed before it decides, so a blank one throws.
@@ -51,8 +50,7 @@ share a page and each needs its own name.
   anchor already inside.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. It covers the bottom of the viewport, and a wide screen
-  has a sidebar's room.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px:

@@ -2,7 +2,7 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 **The events are its children.** Write one `<ArenaCalendarEvent>` per event; `ArenaCalendar` reads each one's `start`, `end` and `colorId`, works out where the chip goes and injects that back into the element. There is no `events` array, and no throw for omitting one: an `ArenaCalendar` with no children is a legitimately empty schedule, a week with nothing booked in it, rather than a caller's mistake.
 
-`timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own**: a class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima, and only an explicit `timeZone="Europe/Madrid"` says so. Events carry ISO datetimes and are read in that zone.
+`timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. Events carry ISO datetimes and are read in that zone.
 
 Two things this default is not. It is not a `'UTC'` fallback, which would be arbitrary, wrong for almost every reader, and would produce silently the very defect the member exists to prevent. And it is **not safe under server rendering**: on a server it resolves to the *server's* zone and then to the client's on hydration, so a server-rendered calendar must pass `timeZone` explicitly. Same shape as `useArenaContainerWidth` reporting `null` before it has measured.
 
@@ -44,9 +44,7 @@ Two things this default is not. It is not a `'UTC'` fallback, which would be arb
 
 The anchor is internal, so prev/Today/next work with nothing wired. `onRangeChange` reports the new anchor date; take it as the cue to refetch. Pass `anchorDate` only when you want to drive the date yourself; it wins whenever it changes.
 
-**The range in the toolbar is a label, not a heading.** It says which dates are on screen and is
-rewritten every time the reader steps a week, so a document outline built on it would carry
-"13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
+**The range in the toolbar is a label, not a heading.** The caption says which dates are on screen, and it is rewritten every time the reader steps a week. A document outline built on it would carry "13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
 an `aria-label` composed from the same range, which is what a reader arriving by name lands on.
 The heading that says what this calendar IS belongs outside it, on the `ArenaSection` or the page
 head that holds it.
@@ -69,7 +67,7 @@ head that holds it.
 
 **Do**
 - Give an entity a stable `colorId` and reuse it everywhere that entity appears, which is what makes the ramp identity rather than decoration.
-- Let `dayStart` default. It follows the earliest event, so a schedule that begins at 16:00 does not open on eight empty morning rows.
+- Let `dayStart` default. The first row follows the earliest event, so a schedule that begins at 16:00 does not open on eight empty morning rows.
 - Set `weekStartsOn` and `hideEmptyWeekend` to your locale and product. The defaults (Monday, Sunday hidden until used) are defaults, not the system's opinion.
 - Preformat every `title` you pass. The calendar does no locale and no truncation of your own text beyond the chip's ellipsis.
 

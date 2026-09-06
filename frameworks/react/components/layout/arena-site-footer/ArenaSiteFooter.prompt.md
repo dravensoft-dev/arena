@@ -34,8 +34,7 @@ everything between them.
 - **Do** put the licence and the year in `note`. It is the line under the columns, in the muted
   ink, and it renders nothing at all when absent.
 - **Don't** put a second `<footer>` at the top level of the page. Contentinfo is one per page.
-- **Don't** reach for it as a card's footer. That is a slot on the card, and a `<footer>` inside a
-  section is not this landmark.
+- **Don't** reach for it as a card's footer. The card's own footer is a slot on the card, and a `<footer>` inside a section is not this landmark.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

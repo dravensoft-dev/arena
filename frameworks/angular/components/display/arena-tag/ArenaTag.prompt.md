@@ -31,25 +31,16 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: the chip's border and
-  text render in `--error`, never a fill. That is the danger convention; the
-  only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
-- The leading dot is filled (`bg-current`, coloured by `tone`) even for
-  `tone="danger"`, though the chip itself is outline, a tone dot is an
-  identity mark, the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s
-  presence dot, not a danger surface. convention section.
+  text render in `--error`, never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
+- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot. convention section.
 - Use `removable` only when removing the tag is a real user action (applied
   filters), not on informational tags, and handle `(remove)`, or the × has
   nothing wired to it.
 - Reach for `disabled` when removal is temporarily unavailable and the tag must
-  stay on screen, a filter the user's permissions lock. The × keeps its place
-  in the Tab sequence and announces itself as unavailable, which is why this is
-  `aria-disabled` and not the native `disabled` attribute, and `remove` is never
-  emitted while it is set. Without `removable` there is no × and it does nothing.
+  stay on screen, a filter the user's permissions lock. The × keeps its place in the Tab sequence and announces itself as unavailable, which is why this is `aria-disabled` rather than the native `disabled` attribute. `remove` is never emitted while it is set. Without `removable` there is no × and it does nothing.
 - Don't use `disabled` to mean "this tag is greyed out". A tag with no `×` is
   already inert; the state is about the remove action alone.
-- Don't use a tag as a button. It is a status/emphasis label; an action belongs
-  on an `arena-button`, not on the chip itself, the dismiss `×` is the one
-  exception, and it is a real `<button>` gated on `removable`.
+- Don't use a tag as a button. The chip is a status or emphasis label. An action belongs on an `arena-button` rather than on the chip itself. The dismiss `×` is the one exception, and it is a real `<button>` gated on `removable`.
 - Don't add a `tone` outside the taxonomy: the five tones are the whole set.
 - Reach for `colorId` when the colour identifies rather than warns, and give the same entity the
   same slot on every screen: the ramp is the one the charts and `arena-calendar-event` read, so a

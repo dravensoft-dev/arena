@@ -21,13 +21,9 @@ value has to be the platform's.
 **Each row is a `<dt>` and a `<dd>` in a wrapper**, which is the shape a definition list takes when
 the pair has to sit on one line.
 
-**`numeric` is what keeps a money column from jittering.** It sets the value in the mono face with
-tabular numerals, so a column of figures aligns by digit as it changes. It is per row because a
-summary mixes an address with a price and only one of them is a figure.
+**`numeric` is what keeps a money column from jittering.** The member sets the value in the mono face with tabular numerals. A column of figures then aligns by digit as it changes. The member is per row, because a summary mixes an address with a price and only one of them is a figure.
 
-**`total` is a member and not the last row.** The rule above it and the heading register are what
-say a total is a total; deriving that from position would make the last adjustment in a list look
-like one.
+**`total` is a member and not the last row.** The rule above it and the heading register are what say a total is a total. Deriving that from position would make the last adjustment in a list look like one.
 
 **Do / Don't**
 - **Do** format the value before you pass it. Every value is a string, which is what a summary row

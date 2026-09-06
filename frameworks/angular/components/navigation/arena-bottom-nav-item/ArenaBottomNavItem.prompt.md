@@ -25,9 +25,7 @@ nothing about that is a member here.
 
 <!-- @api end -->
 
-**`icon` is required here where a sidebar leaves it optional**, and the active weight is not a
-member: the destination whose `id` matches the bar's `active` has whatever weight the string carries
-swapped for `ph-fill`, so pass one string per destination rather than two and a conditional. Passing
+**`icon` is required here where a sidebar leaves it optional**, and the active weight is not a member. The destination whose `id` matches the bar's `active` has whatever weight the string carries swapped for `ph-fill`. Pass one string per destination rather than two and a conditional. Passing
 `ph-fill` yourself changes nothing, because the swap is idempotent.
 
 **`label` is drawn, not hidden.** A bar of glyphs alone asks every reader to have learnt the icons.
@@ -36,7 +34,7 @@ swapped for `ph-fill`, so pass one string per destination rather than two and a 
 destination that navigates must be a link; an item that only opens a local sheet is a button.
 
 `badge` is a number, and Arena applies the two rules: zero draws nothing, and anything above 99 reads
-`99+` so the column cannot widen. It is announced, so the destination reads "Orders 12".
+`99+` so the column cannot widen. The badge is announced, so the destination reads "Orders 12".
 
 `disabled` draws the destination and refuses it, through `aria-disabled` rather than the native
 attribute, so a reader still hears that it exists.

@@ -31,21 +31,12 @@ a presence dot.
 - The presence dot is filled (`bg-success`/`bg-warning`/`bg-error`/`bg-base-content/(--level-presence)`)
   even though danger is outline everywhere else, presence is its own semantic
   family, not a danger surface. convention section.
-- Don't put an avatar in place of an icon. It represents a person or an entity; a
-  role or an action is an icon.
+- Don't put an avatar in place of an icon. The avatar represents a person or an entity. A role or an action is an icon.
 
-**Three things products asked this component for, and what each one measured.** Each is
-recorded here because reading the code does not answer it, and every one of them was refused
-with a reason rather than deferred.
+**Three things products asked this component for, and what each one measured.** Each is recorded here because reading the code does not answer it. Every one of them was refused with a reason rather than deferred.
 
-- **A size past `lg`.** A profile header several times `lg` is a consumer-product measurement,
-  and `lg` is already the largest step this scale names, the one a profile header in an
-  application wears. The repertoire is four steps and not a length, so the product that wants a
-  150px portrait re-values the scale inside its own scope, which is one line and stays that
-  product's.
-- **A ring around it.** The ask is a story ring, whose two states are a gradient and a grey, and
-  a `ring` member taking a tone would hand that product two solid rings and lose the mark it was
-  built for: an appearance selects the ring by its part and never by the value of a variant. A
+- **A size past `lg`.** A profile header several times `lg` is a consumer-product measurement. `lg` is already the largest step this scale names, the one a profile header in an application wears. The repertoire is four steps rather than a length. A product that wants a 150px portrait re-values the scale inside its own scope, which is one line and stays that product's.
+- **A ring around it.** The ask is a story ring, whose two states are a gradient and a grey. A `ring` member taking a tone would hand that product two solid rings and lose the mark it was built for. An appearance selects the ring by its part, never by the value of a variant. A
   ring drawn as two padded circles around the avatar is markup the product owns, and it is
   exactly what the one product that wanted it wrote.
 - **A group of them.** An assignee stack is negative margin over the sizes this component already

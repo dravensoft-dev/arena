@@ -32,8 +32,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: border and text render
-  in `--color-error`, never a fill. That is the danger convention; the only
-  filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
+  in `--color-error`, never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
 - The leading dot is filled (`currentColor`, so it always matches the tone)
   even for `tone="danger"`, though the chip itself is outline, a tone dot is
   an identity mark, the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s

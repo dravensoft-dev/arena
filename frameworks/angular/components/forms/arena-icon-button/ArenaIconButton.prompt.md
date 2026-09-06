@@ -42,12 +42,8 @@ activate and disable.
   button without it announces nothing at all, which is why this input has no default.
 - **`pressed` is what makes it a toggle, and its absence is a state of its own.** Bound, Arena
   writes `aria-pressed` and draws the on state with the accent tint a current `arena-side-nav`
-  item takes; unbound, the control is not a toggle at all. Never default it to `false`: on a
-  plain button `aria-pressed="false"` announces a toggle that is off rather than a button, so
-  every icon button in the app would read as an unpressed toggle.
-- **A toggle keeps its `label` in both states.** Changing the name to carry the state is the
-  workaround `pressed` exists to end: a screen reader then announces a different control instead
-  of the same one in another state. Name what it does, not what pressing it will do next.
+  item takes; unbound, the control is not a toggle at all. Never default it to `false`. On a plain button, `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
+- **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end. A screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
 - `icon` is a Phosphor class-name string Arena draws inside an `aria-hidden` `<i>`, never a slot.
   That is the single-icon convention, and it is why this component projects nothing.
 - The `title` is dropped the moment `showLabel` is set. A title beside a visible label makes the
@@ -61,11 +57,8 @@ activate and disable.
   destructive action needs a word, so use `<arena-button variant="danger">`.
 - `size` reads the same density tokens `arena-button` does, so the two re-densify together in a
   toolbar. Set the same `size` on both or they will not line up.
-- Reach for `tabStop="false"` only inside a composite that manages its own focus (a grid with a
-  roving tab stop, a menu) where reaching this control by Tab would be a second way in.
-- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM
-  event, and Angular then registers **both** the output subscription and a host DOM listener, so
-  a consumer's `(click)` would fire twice on every press. The inner button calls
+- Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in.
+- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM event. Angular then registers **both** the output subscription and a host DOM listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
   `stopPropagation()` to make it fire once, which is the whole reason the event does not reach
   ancestors. Bind `(click)` on the `<arena-icon-button>` itself; `type="submit"` still submits,
   because the default action is untouched and only propagation is.

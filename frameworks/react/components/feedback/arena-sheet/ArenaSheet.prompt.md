@@ -30,10 +30,7 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 
 <!-- @api end -->
 
-**Closed and collapsed are two different states, and both exist.** `open` decides whether the panel
-is on the page at all; `collapsed` folds the body away and leaves the header and the footer where
-they were. That is what the pattern buys: a reader can put the cart out of the way and still see
-what it is and still check out, without losing it.
+**Closed and collapsed are two different states, and both exist.** `open` decides whether the panel is on the page at all. `collapsed` folds the body away and leaves the header and the footer where they were. The two states are what the pattern buys. A reader can put the cart out of the way, still see what it is and still check out, without losing it.
 
 `title` is required and guarded rather than defaulted. It heads the panel, and it is also the
 accessible name of the fold control, so a screen-reader user hears "Cart, collapse" rather than
@@ -46,8 +43,7 @@ swallowed Escape from across the page would break the dialog a reader has open s
 **Do / Don't**
 - **Do** own both booleans. Neither folds nor closes itself, so a handler that ignores
   `onCollapsedChange` gets a caret that turns and a body that does not move.
-- **Do** put the one action the panel exists for in `footer`. It sits outside the folding body, so
-  a folded panel still carries it.
+- **Do** put the one action the panel exists for in `footer`. The footer sits outside the folding body, so a folded panel still carries it.
 - **Don't** reach for it as a menu or a popover. It spans a whole edge and stays; `ArenaMenu` is the
   transient list that hangs off a trigger.
 - **Don't** open two at once on the same edge. They share a stacking slot and one lands on the

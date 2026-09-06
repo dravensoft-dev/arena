@@ -1,7 +1,5 @@
 One person inside an `arena-people-list`: a face, a name, an optional line under it, an optional
-position in front and an optional figure behind. Standalone, `OnPush`, signal inputs. The host
-takes itself out of layout and the component renders the real `<li>`, so the row is a list item
-of the list around it rather than an element between the two.
+position in front and an optional figure behind. Standalone, `OnPush`, signal inputs. The host takes itself out of layout and the component renders the real `<li>`. The row is then a list item of the list around it, rather than an element between the two.
 
 ```html
 <arena-person-row [rank]="4" name="Priya Raman" src="/img/priya.jpg" figure="1815 XP" current />
@@ -11,9 +9,7 @@ of the list around it rather than an element between the two.
 </arena-person-row>
 ```
 
-The control at the end is projected with the `action` marker. `name` is the row's text, the
-initials the face falls back to and the image's alt text at once, because a name spelt
-differently in any of those is the same person announced as two.
+The control at the end is projected with the `action` marker. `name` is the row's text, the initials the face falls back to, and the image's alt text at once. A name spelt differently in any of those is the same person announced as two.
 
 <!-- @api GENERATED from contracts/api/components/ArenaPersonRow.json. Edit the contract, not this table. -->
 
@@ -34,10 +30,8 @@ differently in any of those is the same person announced as two.
 **Do / Don't**
 - **Do** bind `rank`, `[rank]="4"`, rather than writing `rank="4"`: it takes a number and an
   unbound attribute hands it the string.
-- **Do** put the unit in `figure`: "1815 XP", "12 open", "38%". It is one value a reader says out
-  loud, and formatting it where the data is beats formatting it here.
-- **Do** use `current` for the reader's own row. It fills the row and announces itself through
-  `aria-current`, which is what a highlight has to do to be worth drawing.
+- **Do** put the unit in `figure`: "1815 XP", "12 open", "38%". The value is one a reader says out loud, and formatting it where the data is beats formatting it here.
+- **Do** use `current` for the reader's own row. The state fills the row and announces itself through `aria-current`, which is what a highlight has to do to be worth drawing.
 - **Don't** wrap the row in a link. A row is not an activation target; project the control
   instead, where it keeps its own name and its own keyboard.
 - **Don't** use it outside `arena-people-list`. The row pulls its size from the list, so one on

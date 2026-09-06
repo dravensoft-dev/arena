@@ -20,8 +20,7 @@ and `<arena-main>` itself occupies nothing.
 
 <!-- @api end -->
 
-**It draws no box, and that is the whole design.** The recipe carries one declaration, `display:
-block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
+**The component draws no box, and that is the whole design.** The recipe carries one declaration, `display: block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
 whose main landmark is swapped for a plain `<div>` looks identical. Where things go stays the
 container you own, which is what `PACKAGE.md` says and what this deliberately does not reopen.
 What it says is only what the region IS.
@@ -39,11 +38,7 @@ and a reader jumping by landmark gets the first one. It carries no name for the 
 reaches it by its role, while a page has several navs and each needs saying which.
 
 **It is focusable programmatically, and that is not decoration.** The `<main>` takes
-`tabindex="-1"`, which keeps it out of the tab order and lets focus be sent to it. An anchor
-pointing at a container the platform will not focus scrolls the page and leaves focus exactly
-where it was, so the next Tab continues from the nav the reader was trying to escape. That is the
-failure that makes most skip links look like they work, and it is why the requirement sits on the
-landmark rather than on the link.
+`tabindex="-1"`, which keeps it out of the tab order and lets focus be sent to it. An anchor pointing at a container the platform will not focus scrolls the page and leaves focus exactly where it was. The next Tab then continues from the nav the reader was trying to escape. That failure is what makes most skip links look like they work, and it is why the requirement sits on the landmark rather than on the link.
 
 **Its id is a constant Arena writes, `arena-main`.** Nothing is coordinated at the call site
 because a page has one main: `arena-skip-link` points at that id and this writes it. Write your
@@ -62,8 +57,7 @@ own anchor against the same id if you need a second route in.
 `/frameworks/angular/components/layout/arena-main/ArenaMain.demo.generated.html`:
 - The page looks the same with the component and with a plain `<div>` in its place.
 - The accessibility pane shows one `main` landmark.
-- Clicking a link to `#arena-main` moves focus into the region, which the focus ring on the next
-  Tab is what proves: focus continues from inside the main rather than from the nav.
+- Clicking a link to `#arena-main` moves focus into the region. The focus ring on the next Tab is what proves it: focus continues from inside the main rather than from the nav.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

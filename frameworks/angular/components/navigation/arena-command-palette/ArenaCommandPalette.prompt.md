@@ -47,17 +47,11 @@ active as you arrow through it.
 
 ### Groups and routes
 
-`group` heads a command's section. Commands with no group list first and ungrouped, then each
-group in the order its first command appears, so a palette built by concatenating four
-collections gets its headings back without the caller reordering anything. The heading is
+`group` heads a command's section. Commands with no group list first and ungrouped, then each group in the order its first command appears. A palette built by concatenating four collections gets its headings back without the caller reordering anything. The heading is
 drawn and also announced as the group's name, so it carries `aria-hidden` on the visible copy
 rather than being read twice.
 
-`route` says where running a command goes. With it the row renders an `<a href>`, so
-ctrl-click, middle-click and open-in-new-tab work, which is what an accelerator over a list of
-destinations owes a keyboard user. It keeps `role="option"`, because the listbox pattern
-requires that of every row and losing it would break the arrow walk for the whole list: a
-screen reader announces the row as an option rather than as a link, and that is the trade.
+`route` says where running a command goes. With it the row renders an `<a href>`, so ctrl-click, middle-click and open-in-new-tab work. An accelerator over a list of destinations owes a keyboard user exactly that. The row keeps `role="option"`, because the listbox pattern requires that of every row and losing it would break the arrow walk for the whole list. A screen reader announces the row as an option rather than as a link, and that is the trade.
 
 **With `route`, the mouse and the keyboard do the same thing, and that is the point.** The
 row's plain activation reports through `(run)`, so a host that navigates in its `(run)` handler
@@ -65,21 +59,13 @@ navigates exactly once, whichever way the reader activated the row. A modified c
 destination itself and **leaves the palette open**, because a reader who asked for a second tab
 did not ask to leave this one.
 
-`maxResults` caps how many matches the list shows. **Reach for it instead of trimming
-`commands` before you pass them**, which is the thing that does not work: a list cut to the
-forty most recent invoices cannot match the one from March, and the query never gets the
-chance. The cap runs after the search, so the rows are still the best the whole set has.
+`maxResults` caps how many matches the list shows. **Reach for it instead of trimming `commands` before you pass them**, which is the thing that does not work. A list cut to the forty most recent invoices cannot match the one from March, and the query never gets the chance. The cap runs after the search, so the rows are still the best the whole set has.
 
-There is still no ranking member. A scoring function would be a `functionInput` in a contract
-that declares no `kind: "input"`, and a better order is an improvement inside the component
-rather than something a caller supplies; `maxResults` changes how many rows are shown and
-never which ones come first.
+There is still no ranking member. A scoring function would be a `functionInput` in a contract that declares no `kind: "input"`. A better order is an improvement inside the component rather than something a caller supplies. `maxResults` changes how many rows are shown and never which ones come first.
 
 ### The shortcut is yours, and that is deliberate
 
-The palette is named after Cmd/Ctrl+K and binds nothing. A global key binding belongs to the
-application: it has to know which other surface owns the key, whether a dialog is already up,
-and whether the reader is typing in a field. A component that took the key would fight the
+The palette is named after Cmd/Ctrl+K and binds nothing. A global key binding belongs to the application. The application has to know which other surface owns the key, whether a dialog is already up, and whether the reader is typing in a field. A component that took the key would fight the
 host for it and win by accident of load order. Three lines in the shell:
 
 ```ts

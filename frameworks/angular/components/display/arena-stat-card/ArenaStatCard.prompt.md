@@ -54,15 +54,12 @@ aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
 ```
 
 **Do / Don't**
-- Set `delta.tone` deliberately for every delta. It defaults to neutral, and a neutral
-  delta on a metric where the direction matters is a missed signal, not a safe one.
+- Set `delta.tone` deliberately for every delta. The member defaults to neutral. A neutral delta on a metric where the direction matters is a missed signal rather than a safe one.
 - Set `tone` for what the number currently IS, not for how it moved, reach for
   `delta.tone`/`delta.direction` for that instead. Conflating the two loses the
   distinction that "Open incidents" above depends on: the value stays `danger`
   red while the chip still reads a positive green improvement.
-- Don't hand `delta` a fresh object identity to change one field without meaning to,
-  it is a single input, so `[delta]="{ value: v, direction: 'up' }"` in a template
-  expression rebuilds the whole object every change-detection pass. Bind from a
+- Don't hand `delta` a fresh object identity to change one field without meaning to. It is a single input, so `[delta]="{ value: v, direction: 'up' }"` in a template expression rebuilds the whole object every change-detection pass. Bind from a
   component property computed once instead.
 - Don't fill the negative delta or the danger value. Both are text/outline in
   `--error`, the value slot carries no background at all, and the delta chip is

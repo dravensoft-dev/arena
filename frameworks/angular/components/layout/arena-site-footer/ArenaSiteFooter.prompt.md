@@ -38,8 +38,7 @@ contents stop at the page width, so the two ends of a page line up with each oth
   read to identify.
 - **Do** put the licence and the year in `note`. It renders nothing at all when absent.
 - **Don't** put a second `<footer>` at the top level of the page. Contentinfo is one per page.
-- **Don't** reach for it as a card's footer. That is a slot on the card, and a `<footer>` inside a
-  section is not this landmark.
+- **Don't** reach for it as a card's footer. The card's own footer is a slot on the card, and a `<footer>` inside a section is not this landmark.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-site-footer/ArenaSiteFooter.demo.generated.html`:

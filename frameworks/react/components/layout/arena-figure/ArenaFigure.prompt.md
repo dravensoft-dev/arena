@@ -27,8 +27,7 @@ element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platfo
 them. An image's alternative is editorial: it says what the picture means on this page, which
 nothing can derive from a file name.
 
-**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once, so a shop
-crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
+**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
 only for the figure whose shape is not the plugin's to decide, such as a video.
 
 **`fallback` is a state and not an error.** It draws centred and at rest when there is no media,
@@ -44,10 +43,8 @@ real `<figcaption>` in a real `<figure>`, so the association is the platform's.
   decorative and the caption already says everything.
 - **Do** let the frame crop. That is what `fit-media` is, and a style plugin that would rather letterbox
   re-answers it for the whole page at once.
-- **Don't** wrap it in a box of your own to size it. It fills the column it is in and takes its
-  shape from `ratio`.
-- **Don't** put a control in the overlay and expect it to be reachable before the caption. It is
-  in the frame, which comes first in the reading order.
+- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from `ratio`.
+- **Don't** put a control in the overlay and expect it to be reachable before the caption. The slot is in the frame, which comes first in the reading order.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

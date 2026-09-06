@@ -40,14 +40,11 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 - Don't go past eight categories. The ramp is eight slots and is never cycled: a ninth slice would repeat the last slot and claim two categories are one.
 - Don't compare two doughnuts side by side. Reading angle differences across charts is the thing people are worst at; use grouped bars.
 - Don't omit `labels`, `series` or `label`. All three are required props, and `ArenaDoughnutChart` throws from its render rather than drawing an empty ring. A required member absent is a caller bug that fails hard in every layer, not a state to render.
-- Don't pass more `labels` than the series has values. A slice is drawn per value and takes the label at its own index, so a surplus label is silently dropped rather than given a legend row with no slice behind it.
+- Don't pass more `labels` than the series has values. A slice is drawn per value and takes the label at its own index. A surplus label is silently dropped rather than given a legend row with no slice behind it.
 
 ### Reading a slice back, and reading a legend on a phone
 
-`onSliceActivate` carries the index **in `values`**, and that is the whole member. A slice worth
-zero paints no path, so the shapes on screen and the entries in the array are two different
-lists; a consumer indexing `querySelectorAll('path')` has to reproduce that omission from
-outside to translate one into the other, and the next release breaks it in silence. Both the arc
+`onSliceActivate` carries the index **in `values`**, and that is the whole member. A slice worth zero paints no path, so the shapes on screen and the entries in the array are two different lists. A consumer indexing `querySelectorAll('path')` has to reproduce that omission from outside to translate one into the other, and the next release breaks it in silence. Both the arc
 and its legend row report, so the zero-valued entry, which has no arc, is still reachable.
 
 Every legend row is a real `<button type="button">`, so `onSliceActivate` is reachable by
@@ -57,23 +54,14 @@ follow the keyboard. The ring itself takes no data cursor and needs none: a ring
 ordered sequence to arrow along, and its rows are already one tab stop each, so a keyboard
 user reaches a slice directly instead of walking to it.
 
-`legendLayout` decides how each legend row arranges its label and its figure: `inline` on one
-line, `stacked` with the label above, `auto` measuring the legend column and stacking when the
-row does not give. The default is `auto`, and it matters because the two do not degrade equally:
-on one line the figure does not yield, so at 390px the label is what gets cut, and a column of
-numbers with nothing saying what they count is the opposite of a legend.
+`legendLayout` decides how each legend row arranges its label and its figure. `inline` puts them on one line, `stacked` puts the label above, and `auto` measures the legend column and stacks when the row does not give. The default is `auto`, and the default matters because the two do not degrade equally. On one line the figure does not yield, so at 390px the label is what gets cut. A column of numbers with nothing saying what they count is the opposite of a legend.
 
 ### Ring or solid
 
 `shape` decides whether the hole stays. `pie` is this same chart, the same slices in the same
-order with the same legend and the same table, filled to the centre. There is no ratio member:
-the hole is 62% of the outer radius and that number is deliberately not a token, on the recorded
-ground that a multiplier deriving one dimension from another stays inline, so handing it to a
-caller one value at a time would move a design decision out of the chart.
+order with the same legend and the same table, filled to the centre. There is no ratio member. The hole is 62% of the outer radius, and that number is deliberately not a token. The recorded ground is that a multiplier deriving one dimension from another stays inline. Handing it to a caller one value at a time would move a design decision out of the chart.
 
-A pie draws no centre percentage, and that is the trade rather than an oversight. There is
-nowhere to put it once the hole is gone, and printing it over a wedge would put `--bone` on a
-`--color-cat` slot, a pair nothing checks for contrast because nothing had ever drawn it. The
+A pie draws no centre percentage, and that is the trade rather than an oversight. There is nowhere to put the total once the hole is gone. Printing it over a wedge would put `--bone` on a `--color-cat` slot, which is a pair nothing checks for contrast because nothing had ever drawn it. The
 figure is still in the legend row and in the accessible table, which is where every other number
 this chart writes already lives.
 

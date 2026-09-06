@@ -39,9 +39,7 @@ are two decisions and not three:
 
 ## Do / Don't
 
-- **Do** write `name` in the case your brand wears. Arena sets the face, the weight and the
-  tracking of the wordmark and never its case: a name is text you wrote, and a component
-  that shouted it would be renaming the company in CSS.
+- **Do** write `name` in the case your brand wears. Arena sets the face, the weight and the tracking of the wordmark, and never its case. A name is text you wrote, and a component that shouted it would be renaming the company in CSS.
 - **Do** pass the mark as an asset, so the call site names which brand it renders.
 - **Do** give the mark an empty `alt`, the wordmark beside it is the accessible name,
   and a mark announced separately reads the brand twice.

@@ -22,8 +22,7 @@ slideshow. Standalone, `OnPush`, signal I/O. The host **is** the scrolling regio
 <!-- @api end -->
 
 **Nothing moves on its own.** `snap` and `flow` both describe where a scroll SETTLES, not anything
-that animates: `snap` lands on an item, `flow` lands wherever the reader left it. That is why no
-pause control is owed under WCAG 2.2.2 and why `prefers-reduced-motion` has nothing to answer here.
+that animates: `snap` lands on an item, `flow` lands wherever the reader left it. Nothing moves on its own, so no pause control is owed under WCAG 2.2.2 and `prefers-reduced-motion` has nothing to answer here.
 
 **`itemWidth` reaches the children as a custom property on the host**, because a row sets its
 items' width and cannot reach inside them. Every child is laid out at that width exactly as it was
@@ -43,8 +42,7 @@ projected content is there rather than at construction, which is the only moment
   grid. The role is there so the two agree.
 - **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
   the reader gains nothing from.
-- **Don't** wrap the children in cells of your own to set their width. That is what `itemWidth` is,
-  and a wrapper puts a box between the row and the card it is laying out.
+- **Don't** wrap the children in cells of your own to set their width. The width is what `itemWidth` is, and a wrapper puts a box between the row and the card it is laying out.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-scroller/ArenaScroller.demo.generated.html`:

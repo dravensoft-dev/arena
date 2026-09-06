@@ -28,13 +28,9 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
   decoration, and it makes the one row that matters invisible.
 - Don't put controls in a row. A feed reports; an action on an event belongs on the thing
   itself.
-- The dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though
-  danger is outline everywhere else, a tone dot is an identity mark, the same family as
-  `ArenaTag`'s own dot and `ArenaAvatar`'s presence dot, not a danger surface.
+- The dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though danger is outline everywhere else. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaTag`'s own dot and `ArenaAvatar`'s presence dot.
 
-**No row escape hatch**, on either layer. The API contract declares no per-item renderer,
-because Angular has no binding for per-item projection, that would need a structural
-directive and `ngTemplateOutlet`, which Arena does not ask a consumer to write. A consumer
+**No row escape hatch**, on either layer. The API contract declares no per-item renderer, because Angular has no binding for per-item projection. Per-item projection would need a structural directive and `ngTemplateOutlet`, which Arena does not ask a consumer to write. A consumer
 needing a different row imports the exported `arenaActivityFeedStyles` and composes the slots
 themselves.
 

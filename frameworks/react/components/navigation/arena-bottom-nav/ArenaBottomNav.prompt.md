@@ -30,8 +30,7 @@ nesting at all. It is not `ArenaTabs` either, which mounts every panel at once a
 tablist/tab/tabpanel, and not an `ArenaSegmentedControl`, which is a radio group that chooses rather than
 navigates.
 
-Its geometry is Arena's tokens rather than a number: `--layout-bar` for the height, `--z-nav` for the
-stacking slot, and `--pad-safe-bottom` so the row clears the home indicator on a device that has one.
+The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
 
 **`ariaLabel` is required and guarded**, trimmed before it decides. A phone shell usually carries
@@ -47,8 +46,7 @@ own name.
   outside cannot see it, ignores the modifiers and adds a second tab stop.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. It covers the bottom of the viewport, and a wide screen
-  has a sidebar's room.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

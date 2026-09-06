@@ -1,10 +1,7 @@
-Arena doughnut, parts of one whole, hand-written SVG, every colour a token. It takes exactly
-one series, whose values are read as shares of their own total. The legend is not optional:
+Arena doughnut, parts of one whole, hand-written SVG, every colour a token. The chart takes exactly one series, whose values are read as shares of their own total. The legend is not optional:
 slices are categories, and identity is never colour alone. Colours come from the categorical
 ramp in order and are never cycled; a slice cannot be a status, so `tone` has no meaning on
-this chart's series. The ring starts at 12 o'clock, the hole is 62% of the outer radius, and
-hovering either a slice or its legend row dims the others and reads that slice's percentage
-in the hole. Focusing a legend row does the same, because every row is a real button. The
+this chart's series. The ring starts at 12 o'clock and the hole is 62% of the outer radius. Hovering either a slice or its legend row dims the others and reads that slice's percentage in the hole. Focusing a legend row does the same, because every row is a real button. The
 numbers are also a real table for anyone who cannot see the ring.
 
 ```ts
@@ -44,9 +41,7 @@ and never was: what you bind is `ArenaSeries[]`, and the writing happens on labe
 generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is the
 old behaviour.
 
-`label` names the chart for a screen reader and captions the numbers table; it is required
-and guarded, because a fallback of "Doughnut chart" identifies the chart type and not the
-chart, and two rings on one page would announce identically. The series' own `label` names
+`label` names the chart for a screen reader and captions the numbers table. The member is required and guarded, because a fallback of "Doughnut chart" identifies the chart type rather than the chart. Two rings on one page would announce identically. The series' own `label` names
 its value column in that same table.
 
 The series' `slots` overrides the ramp order, for when a category must keep the same colour
@@ -65,13 +60,13 @@ measured.
 
 **Do / Don't**
 - Keep it to five or six slices. Past that the arcs stop being comparable and a bar chart
-  reads better. That is not a rendering limit; it is what the shape can carry.
+  reads better. The ceiling is not a rendering limit. The ceiling is what the shape can carry.
 - Make sure the values really are parts of one whole. Two doughnuts whose slices come from
   different totals are two charts that look like one.
 - Don't ask for a ninth colour. The ramp has eight slots and is never cycled, so a ninth
   slice repeats slot 8 rather than silently claiming two categories are one, fold the tail
   into "Other" instead.
-- Don't use it for change over time. That is `arena-line-chart`.
+- Don't use it for change over time. The component for that is `arena-line-chart`.
 - Don't pass a second series. A ring of two series is a sunburst, which is a different chart
   and not this one: the second warns in development and is ignored.
 - Don't reach for `tone` on the series. A slice is a category by definition, so a tone here
@@ -79,16 +74,10 @@ measured.
 - Don't omit `labels`, `series` or `label`. All three are required inputs, and Angular throws
   NG0950 on the first read rather than drawing an empty ring. A chart with no data is a
   caller bug, not a state to render.
-- Don't pass more `labels` than the series has values. A slice is drawn per value and takes
-  the label at its own index, so a surplus label is silently dropped rather than given a
-  legend row with no slice behind it.
-- Don't place it on a surface other than `--surface-card`. The gap between slices is that
-  surface showing through a `--surface-card` stroke, not a border on the slice; on a
-  different background the gaps read as stripes of the wrong colour.
+- Don't pass more `labels` than the series has values. A slice is drawn per value and takes the label at its own index. A surplus label is silently dropped rather than given a legend row with no slice behind it.
+- Don't place it on a surface other than `--surface-card`. The gap between slices is that surface showing through a `--surface-card` stroke, rather than a border on the slice. On a different background the gaps read as stripes of the wrong colour.
 
-**The legend is keyboard-reachable, one row at a time.** Every legend row is a real
-`<button type="button">`, reset to look like text, so `(sliceActivate)` is reachable by
-keyboard and each row answers Enter and Space without the component binding either. Focus on
+**The legend is keyboard-reachable, one row at a time.** Every legend row is a real `<button type="button">`, reset to look like text. `(sliceActivate)` is reachable by keyboard, and each row answers Enter and Space without the component binding either. Focus on
 a row moves the same emphasis the pointer does, so the dimmed slices and the centre
 percentage follow the keyboard as well as the mouse.
 
@@ -96,41 +85,22 @@ The legend column keeps `role="group"` and `aria-label="Doughnut chart legend"` 
 no tab stop of its own. Carrying one, as an `overflow: auto` scroll region with nothing
 focusable inside it, lets a keyboard user scroll the legend and activate nothing: WCAG 2.1.1
 with a real victim. Since the rows take focus the stop would be dead anyway, and a focusable
-child scrolls its own overflow ancestor into view. `role="group"` is chosen over the WAI scrollable-region pattern's `role="region"` because a region is meant to
-be a landmark a user jumps to directly, and this column is one row of a small chart rather
-than a page landmark; `aria-label` names it either way.
+child scrolls its own overflow ancestor into view. `role="group"` is chosen over the WAI scrollable-region pattern's `role="region"` because a region is meant to be a landmark a user jumps to directly. This column is one row of a small chart rather than a page landmark, and `aria-label` names it either way.
 
-The ring itself takes no data cursor and needs none. A ring has no ordered sequence to arrow
-along, and its rows are already one tab stop each, so a keyboard user reaches a slice
-directly instead of walking to it. That is the one place this chart parts company with
-`arena-bar-chart` and `arena-line-chart`, which have an axis and therefore a cursor.
+The ring itself takes no data cursor and needs none. A ring has no ordered sequence to arrow along, and its rows are already one tab stop each. A keyboard user reaches a slice directly instead of walking to it. The missing cursor is the one place this chart parts company with `arena-bar-chart` and `arena-line-chart`, which have an axis and therefore a cursor.
 
 ### Reading a slice back, and reading a legend on a phone
 
-`(sliceActivate)` carries the index **in `values`**, and that is the whole member. A slice worth
-zero paints no path, so the shapes on screen and the entries in the array are two different
-lists; a consumer indexing `querySelectorAll('path')` has to reproduce that omission from
-outside to translate one into the other, and the next release breaks it in silence. Both the arc
-and its legend row report, so the zero-valued entry, which has no arc, is still reachable, and
-reachable by keyboard because the row is a button.
+`(sliceActivate)` carries the index **in `values`**, and that is the whole member. A slice worth zero paints no path, so the shapes on screen and the entries in the array are two different lists. A consumer indexing `querySelectorAll('path')` has to reproduce that omission from outside to translate one into the other, and the next release breaks it in silence. Both the arc and its legend row report. The zero-valued entry has no arc and is still reachable, by keyboard as well, because the row is a button.
 
-`legendLayout` decides how each legend row arranges its label and its figure: `inline` on one
-line, `stacked` with the label above, `auto` measuring the legend column and stacking when the
-row does not give. The default is `auto`, and it matters because the two do not degrade equally:
-on one line the figure does not yield, so at 390px the label is what gets cut, and a column of
-numbers with nothing saying what they count is the opposite of a legend.
+`legendLayout` decides how each legend row arranges its label and its figure. `inline` puts them on one line, `stacked` puts the label above, and `auto` measures the legend column and stacks when the row does not give. The default is `auto`, and the default matters because the two do not degrade equally. On one line the figure does not yield, so at 390px the label is what gets cut. A column of numbers with nothing saying what they count is the opposite of a legend.
 
 ### Ring or solid
 
 `shape` decides whether the hole stays. `pie` is this same chart, the same slices in the same
-order with the same legend and the same table, filled to the centre. There is no ratio member:
-the hole is 62% of the outer radius and that number is deliberately not a token, on the recorded
-ground that a multiplier deriving one dimension from another stays inline, so handing it to a
-caller one value at a time would move a design decision out of the chart.
+order with the same legend and the same table, filled to the centre. There is no ratio member. The hole is 62% of the outer radius, and that number is deliberately not a token. The recorded ground is that a multiplier deriving one dimension from another stays inline. Handing it to a caller one value at a time would move a design decision out of the chart.
 
-A pie draws no centre percentage, and that is the trade rather than an oversight. There is
-nowhere to put it once the hole is gone, and printing it over a wedge would put `--bone` on a
-`--color-cat` slot, a pair nothing checks for contrast because nothing had ever drawn it. The
+A pie draws no centre percentage, and that is the trade rather than an oversight. There is nowhere to put the total once the hole is gone. Printing it over a wedge would put `--bone` on a `--color-cat` slot, which is a pair nothing checks for contrast because nothing had ever drawn it. The
 figure is still in the legend row and in the accessible table, which is where every other number
 this chart writes already lives.
 

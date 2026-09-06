@@ -38,7 +38,7 @@ defect rather than a design, so there is nowhere to write that.
 
 **Do / Don't**
 - Say what the list is OF in `label`: "Ruby league standings", "Reviewers on this pull request".
-  It is the name a screen-reader user navigates by, and "People" tells them nothing.
+  The label is the name a screen-reader user navigates by, and "People" tells them nothing.
 - Set `ordered` when the order is the meaning and the rows are numbered. A standings list read
   in any other order is a different claim; a set of suggestions is a set.
 - Don't reach for this to show one person. A single face beside a name is `ArenaAvatar` and your

@@ -34,16 +34,14 @@ from `@dravensoft/arena-angular` for the `actions` input's element type.
 `clearable` (default `true`) gates whether Clear is drawn. Every layer gates on this member
 and never on whether anything listens for `clear`.
 
-### It stacks when its own container is narrow
+### The bar stacks when its own container is narrow
 
 `layout` defaults to `auto`, which measures **the bar's own container** rather than the viewport
 and drops the count, the actions and Clear onto separate rows below `--bp-sm`. Set `inline` when
 the bar sits somewhere you know is wide.
 
 **Stacking reorders nothing**, and that is the whole reason the member exists rather than a
-consumer reaching in with CSS. Reordering the bar's children by position moves what is on screen
-and leaves the tab sequence where it was, so the focus order and the reading order stop matching,
-and it breaks again the next time anything inside the bar moves. Both layers assert that the
+consumer reaching in with CSS. Reordering the bar's children by position moves what is on screen and leaves the tab sequence where it was. The focus order and the reading order stop matching, and they break again the next time anything inside the bar moves. Both layers assert that the
 control order is identical in the two shapes.
 
 **Do / Don't**

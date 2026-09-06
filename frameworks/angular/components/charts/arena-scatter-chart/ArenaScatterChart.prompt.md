@@ -1,4 +1,4 @@
-Two quantities against each other, one mark per pair. The first chart here whose horizontal axis carries a value rather than a position, which is why it takes a different series type and why it names both of its axes.
+Two quantities against each other, one mark per pair. The first chart here whose horizontal axis carries a value rather than a position. A value on the horizontal axis is why it takes a different series type, and why it names both of its axes.
 
 ```ts
 readonly clouds = computed<ArenaPointSeries[]>(() => [
@@ -33,35 +33,21 @@ readonly clouds = computed<ArenaPointSeries[]>(() => [
 
 ### Why the series type is a different one
 
-`ArenaPointSeries` is not a variant of `ArenaSeries`, because the two disagree about what a mark
-is: an `ArenaSeries` value takes its place on the axis from its index, and a pair carries both
-coordinates. Folding them together would give every chart in the library a member most of them
-cannot use, and would let a caller hand an indexed series to a chart with no index to read it
-against.
+`ArenaPointSeries` is not a variant of `ArenaSeries`, because the two disagree about what a mark is. An `ArenaSeries` value takes its place on the axis from its index, and a pair carries both coordinates. Folding them together would give every chart in the library a member most of them cannot use. Folding would also let a caller hand an indexed series to a chart with no index to read it against.
 
-It carries two parallel arrays rather than an array of `{ x, y }`, and that is a rule and not a
-preference: a predefined object may hold an array of primitives and may not hold an array of
-objects, because an array of objects reopens a nesting depth the reader has no bottom for. The
-pairing by index is the same one `labels` and `values` already make on every other chart here,
-and so is the rule when the two do not line up: **a mark is drawn only where both arrays have a
-value**. A pair with half a coordinate is not a point, and inventing the other half is the one
+The series carries two parallel arrays rather than an array of `{ x, y }`, and that is a rule rather than a preference. A predefined object may hold an array of primitives and may not hold an array of objects. An array of objects reopens a nesting depth the reader has no bottom for. The pairing by index is the one `labels` and `values` already make on every other chart here. So is the rule when the two do not line up: **a mark is drawn only where both arrays have a value**. A pair with half a coordinate is not a point, and inventing the other half is the one
 thing a chart may not do.
 
 ### Both axes need naming
 
-`xLabel` and `yLabel` are required. Every other chart here has one quantity and one set of
-categories that name themselves; a scatter measures two things, and a table with bare X and Y
-columns says which is which to nobody. They head the accessible table's columns and they name
-the two figures in the tooltip.
+`xLabel` and `yLabel` are required. Every other chart here has one quantity and one set of categories that name themselves. A scatter measures two things, and a table with bare X and Y columns says which is which to nobody. The two names head the accessible table's columns, and they name the two figures in the tooltip.
 
-`valueSuffix` and `valuePrefix` reach BOTH axes, so leave them off when the two quantities are
-not in the same unit, which on a scatter is the common case.
+`valueSuffix` and `valuePrefix` reach BOTH axes. Leave them off when the two quantities are not in the same unit, which on a scatter is the common case.
 
 ### Reading it without a pointer
 
 The cursor walks the marks in the order the accessible table lists them: series by series, and
-within a series in the order given. That is deliberate, and it is why the two readings of this
-chart agree. Walking them sorted by x was refused: it jumps between series and reads as one
+within a series in the order given. The shared axis is deliberate, and it is why the two readings of this chart agree. Walking them sorted by x was refused: it jumps between series and reads as one
 sequence where there are several, and a scatter has no sequence of its own.
 
 ArrowLeft and ArrowRight move it, Home and End jump to the ends, Escape clears it. The vertical
@@ -69,18 +55,13 @@ pair does nothing and is not consumed, so the page keeps its own scroll.
 
 ### A third quantity, as the size of the mark
 
-A series that carries `r` turns this into a bubble chart. It is a third parallel array, paired
-with `x` and `y` at the same index, for the reason those two are arrays and not an array of pairs.
+A series that carries `r` turns this into a bubble chart. The member is a third parallel array, paired with `x` and `y` at the same index, for the reason those two are arrays rather than an array of pairs.
 
-**The mapping is by area, not by radius**, and that is the whole of the member. A reader compares
-the blot, and doubling a radius quadruples the blot, so mapping the value onto the radius directly
-would show a value four times larger as sixteen times the ink. `arenaRadiusAt` interpolates the
+**The mapping is by area, not by radius**, and that is the whole of the member. A reader compares the blot, and doubling a radius quadruples the blot. Mapping the value onto the radius directly would show a value four times larger as sixteen times the ink. `arenaRadiusAt` interpolates the
 squared radius instead, so four times the value really is four times the area, and the suite
 asserts that ratio rather than a table of radii.
 
-`sizeLabel` becomes required the moment any series carries `r`. It is guarded at render rather
-than declared required in the contract, because a scatter with no sizes has no third quantity to
-name and a member required only sometimes cannot say so in a contract. A column headed "Size"
+`sizeLabel` becomes required the moment any series carries `r`. The member is guarded at render rather than declared required in the contract. A scatter with no sizes has no third quantity to name, and a member required only sometimes cannot say so in a contract. A column headed "Size"
 would satisfy the table mechanically and tell a reader nothing, which is the reason `label` is
 guarded too.
 
@@ -89,9 +70,7 @@ and its table cell empty. An unmeasured size is not a size of zero, and the mark
 because its POSITION was measured.
 
 `sizeLegend` draws three sample bubbles under the series names, at the smallest, middle and
-largest size in the data. Reach for it whenever `r` is doing real work: area is the one encoding
-nobody reads off a scale by eye, so without a key a reader can see that one blot is bigger and
-cannot say by how much. It costs plot height, like the series strip and for the same reason.
+largest size in the data. Reach for it whenever `r` is doing real work. Area is the one encoding nobody reads off a scale by eye. Without a key, a reader can see that one blot is bigger and cannot say by how much. The key costs plot height, like the series strip and for the same reason.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -7,8 +7,7 @@ notice goes: `arena-toast-host` is the box that places it, and the clock belongs
 raised the notice. `ArenaToastQueue`, provided in root, is that queue: inject it, call
 `raise(notice)`, render `toasts()` into the host, and the dismissal rule is already inside it. `ARENA_TOAST_DISMISS`, exported beside the component, carries the two intervals to run
 it off: `.default` for a notice that only has to be read, `.actionable` for one carrying a button,
-which asks the reader to decide rather than only to read. They are tokens, so a host that reads
-them stays in step with a release that moves one; a host that retypes 4200 does not. The
+which asks the reader to decide rather than only to read. The two are tokens, so a host that reads them stays in step with a release that moves one. A host that retypes 4200 does not. The
 component's only say in the matter is `data-persist`, which it sets when the notice must not be
 taken away on a timer.
 
