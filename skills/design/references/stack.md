@@ -2,14 +2,14 @@
 
 **Arena is built with bun, React 18, Angular 22 and TypeScript. None of that is a requirement on
 you**, and this page exists because the two are easy to read as one thing. What a design system is
-built with leaks into its documentation as a default nobody chose, and an agent that inherits it
-picks a toolchain for the wrong reason: not because the product needs it, but because the sample
-command happened to be written that way.
+built with leaks into its documentation as a default nobody chose. An agent that inherits the
+default picks a toolchain for the wrong reason. Not because the product needs it, but because the
+sample command happened to be written that way.
 
 So this page is the repertoire. Every axis a project settles before its first screen, every answer
 Arena supports on that axis, and **how much evidence each answer actually has**. Read this once per
-project, beside [`cold-start.md`](./cold-start.md) and before the first screen, and choose each axis
-on what the product needs rather than on what Arena happens to be made of.
+project, beside [`cold-start.md`](./cold-start.md) and before the first screen. Choose each axis on
+what the product needs rather than on what Arena happens to be made of.
 
 ## The evidence column, and why it is there
 
@@ -37,8 +37,8 @@ need one of those rows to be certain, run it early and small rather than late an
 | You may choose | Evidence | What is true |
 |---|---|---|
 | npm | verified by hand once | the packages declare their peers rather than assuming a flat tree, so no hoisting flag is needed |
-| pnpm | verified by hand once | the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise: installed under it, the command still resolves the icon font through the symlinked store |
-| bun | verified by hand once | the same install. Bun is also what Arena is built with, which is a fact about Arena rather than a requirement on you |
+| pnpm | verified by hand once | the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the icon font through the symlinked store |
+| bun | verified by hand once | the install npm takes, unchanged. Bun is also what Arena is built with, which is a fact about Arena rather than a requirement on you |
 | yarn | allowed by the manifest, not exercised | nothing here works against it: the peers are declared, there is no install script to trust, and no flat tree is assumed. Nobody has run it, which is why it says allowed rather than yes |
 
 **What runs the command?**
@@ -59,9 +59,9 @@ need one of those rows to be certain, run it early and small rather than late an
 
 | You may choose | Evidence | What is true |
 |---|---|---|
-| an import from a module of yours | verified by hand once | the idiom this page shows. It is an instruction to a bundler rather than to TypeScript, which is why a project may need a declaration before it typechecks |
+| an import from a module of yours | verified by hand once | the idiom this page shows. The import is an instruction to a bundler rather than to TypeScript, which is why a project may need a declaration before it typechecks |
 | an @import from a stylesheet of yours | allowed by the manifest, not exercised | what the package hands you is a barrel of relative imports, so whatever resolves those resolves all of it |
-| the global styles list a framework CLI takes | allowed by the manifest, not exercised | the same file named as a global style rather than imported from a module, which is how a CLI-driven workspace usually takes one |
+| the global styles list a framework CLI takes | allowed by the manifest, not exercised | the barrel named as a global style rather than imported from a module, which is how a CLI-driven workspace usually takes one |
 | a link element | allowed by the manifest, not exercised | this one needs the package directory served as it stands, because the barrel reaches its parts by relative path |
 
 **What assembles it?**
@@ -109,22 +109,23 @@ installs nothing that draws**, and an Arena package with a peer missing fails at
 Two of those rows carry more than a number.
 
 **The icon font is a peer in both layers.** Icons are Phosphor class-name strings a component
-renders, and no package bundles the font, so a project that skips this peer renders components with
-empty squares where the icons go and nothing reports it.
+renders, and no package bundles the font. A project that skips this peer renders components with
+empty squares where the icons go, and nothing reports it.
 
 **One peer is conditional.** The router is required only once a project reaches the entry point that
-writes the document head, which is why it is declared optional: a project that never reaches for
-metadata never installs a router it does not use. [`seo.md`](./seo.md) is where that decision is
+writes the document head, and that is why it is declared optional. A project that never reaches
+for metadata never installs a router it does not use. [`seo.md`](./seo.md) is where that decision is
 made, and node 8 of [`cold-start.md`](./cold-start.md) is where it is reached.
 
 ## What this page does not decide
 
-**Which layer you take, and how the application is assembled.** Those are questions with their own
+**Which layer you take, and how the application is assembled.** Both are questions with their own
 nodes, and duplicating them here would give a project two places to answer one thing. Node 8 of
 [`cold-start.md`](./cold-start.md) decides the layer, because how much of the product has to be
-found from outside it is what settles both the layer and one peer. Node 9 of the same tree answers
-the render architecture, a single-page application, server rendering with hydration, static
-generation, server components or a microfrontend, with what is true of each and what you carry.
+found from outside it is what settles both the layer and one peer. Node 9 of that tree answers
+the render architecture. The answers are a single-page application, server rendering with
+hydration, static generation, server components or a microfrontend, each with what is true of it
+and what you carry.
 
 **How much of Arena you take.** [`surface.md`](./surface.md) is the whole offer in one table, with
 three steps a project may stop at and the line where Arena stops on purpose.
@@ -136,13 +137,12 @@ the same style plugin travels whatever installs it and whatever assembles it.
 ## Where the repertoire stops
 
 - **No matrix is installed on every run.** The package-manager and bundler rows are claims about
-  somebody else's tool, and nothing here revalidates them per release. That is why they carry the
-  evidence they carry rather than a stronger word.
+  somebody else's tool, and nothing here revalidates them per release. Each row carries the
+  evidence it carries rather than a stronger word for that reason.
 - **No version is pinned upward for you.** The React range is closed at the majors that have been
   rendered, because an open range would promise a major nobody has seen. The Angular floor is open
   above it, so a version past the exercised one resolves and is untested: that is a permission, not
   a promise.
 - **No project of yours is read.** No gate here opens your application, so every rule of the
-  language holds because you hold it. The closest thing is the command's own audit, which reads your
-  source text for the five rules source text can show and reports rather than fails unless you ask
-  it to.
+  language holds because you hold it. The closest thing is the command's own audit. The audit reads your source text for the rules a source text can show,
+  and reports rather than fails unless you ask it to.

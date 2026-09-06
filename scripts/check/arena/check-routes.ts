@@ -461,7 +461,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 4_600,
+    budget: 4_700,
     reason:
       'paid once per project like the skin and the register routes, and taken before the first '
       + 'screen for the same reason they are: the answer reaches the layer and the install rather '
@@ -508,7 +508,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 10_700,
+    budget: 10_800,
     reason:
       'paid once per project like the skin, the register and the seo routes, and taken before all '
       + 'three, because each of them asks how much of a thing nobody has shown the reader yet. What '
@@ -545,7 +545,7 @@ export const ROUTES: Route[] = [
       + 'line with no server render, where the tree supports one and the cold start tree '
       + 'answers each architecture with the evidence behind it: what Arena ships no tooling for '
       + 'is producing the pages, and a headline naming the architecture instead reads as a '
-      + 'refusal on the one page a project consults before choosing.',
+      + 'refusal on the one page a project consults before choosing. Raised to 10,800 when this page was rewritten into the register check:register holds. The page is one table whose second column answers a whole part of Arena in a paragraph, so every cell was a list joined by colons and semicolons, read by somebody deciding whether to take that part at all. Eighteen findings before and none after, for 73 characters. Raised to 4,700 when this page was rewritten into the register check:register holds. Thirteen findings before and none after, for 77 characters, most of them spent splitting the paragraph that decided one piece of the stack and named the asymmetry between the two layers in the same sentence.',
   },
   {
     name: 'consumer-stack',

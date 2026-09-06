@@ -46,9 +46,6 @@ export const SENTENCE_END = /(?<=[.!?])\s+/;
 export const EXEMPT = new Map<string, string>([]);
 
 export const NOT_YET_REWRITTEN = new Map<string, string>([
-  ['skills/design/references/seo.md', 'what Arena writes into the document head, and which layer does'],
-  ['skills/design/references/stack.md', 'what a project may build Arena with, and how sure Arena is'],
-  ['skills/design/references/surface.md', 'what Arena hands over, and where it stops'],
   ['frameworks/*/PACKAGE.md',
    'the two npm pages, whose shared half is emitted from generate-npm-pages.ts and whose other '
    + 'half is written per layer, so the register moves in both halves at once'],
