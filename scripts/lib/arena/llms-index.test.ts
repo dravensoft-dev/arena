@@ -66,12 +66,15 @@ test('the router and the cross-layer index lead every corpus, since that is the 
 });
 
 test('every reference is on every corpus and in the index, since each is a decision before the first screen', () => {
-  assert.ok(references().length > 1, 'a reference tree nobody reached would pass every assertion below');
-  for (const rel of references()) {
-    assert.ok(servedDocs().includes(rel), `${rel} is off servedDocs, so it reaches no corpus and no index`);
-    assert.ok(index().includes(docUrl(rel)), `the index an agent fetches first does not name ${rel}`);
-    for (const layer of LAYERS) {
-      const text = corpus(layer);
+  const refs = references();
+  const served = servedDocs();
+  const listed = index();
+  const corpora = LAYERS.map((layer) => corpus(layer));
+  assert.ok(refs.length > 1, 'a reference tree nobody reached would pass every assertion below');
+  for (const rel of refs) {
+    assert.ok(served.includes(rel), `${rel} is off servedDocs, so it reaches no corpus and no index`);
+    assert.ok(listed.includes(docUrl(rel)), `the index an agent fetches first does not name ${rel}`);
+    for (const text of corpora) {
       assert.ok(text.indexOf(`<!-- ${ROUTER} -->`) < text.indexOf(`<!-- ${rel} -->`));
       assert.ok(text.indexOf(`<!-- ${rel} -->`) < text.indexOf(`<!-- ${LAYER_INDEX} -->`),
         'a decision taken before the components is concatenated before them');
