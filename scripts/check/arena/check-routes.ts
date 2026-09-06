@@ -354,7 +354,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 17_500,
+    budget: 17_700,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -406,7 +406,7 @@ export const ROUTES: Route[] = [
       + 'contracts, where the builder holding the question never reaches, and three readings of the '
       + 'same page were each defensible. An exception a page names and does not answer costs more '
       + 'than the paragraph answering it, because a reader either guesses or goes looking on the '
-      + 'branch that is not theirs.',
+      + 'branch that is not theirs. Raised to 17,700 when this page was rewritten into the register check:register holds. Most of it paid for itself and one table did not: the column saying where the steps of a scale live answered eight of its twelve rows with the words "the same", meaning the file in the row above, so a reader who matched on one row held no other. The rows are grouped under the file each of them reads now, which costs about a hundred characters and makes every row answerable alone.',
   },
   {
     name: 'consumer-register',
