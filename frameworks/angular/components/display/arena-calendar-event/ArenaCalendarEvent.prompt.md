@@ -54,7 +54,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 
 **The boolean is what draws the kebab, not the slot being filled.** Unlike the calendar's toolbar, this slot needs no marker directive. `select="[actions]"` is a plain CSS selector, and only `contentChild` detection would need `ArenaActions` imported. `actionsEnabled` with nothing projected draws a kebab over an empty panel. An empty panel is a consumer mistake rather than a state Arena hides, and it is the same call `arena-alert`'s and `arena-toast`'s `dismissible` already record.
 
-**The panel's content is in the tree only while the panel is open.** That is what keeps the grid at one tab stop. The panel is therefore not a place to keep state, because it is created and destroyed with every open.
+**The panel's content is in the tree only while the panel is open.** Unmounting is what keeps the grid at one tab stop. The panel is therefore not a place to keep state, because it is created and destroyed with every open.
 
 **Do**
 - Give the same entity the same `colorId` everywhere it appears.

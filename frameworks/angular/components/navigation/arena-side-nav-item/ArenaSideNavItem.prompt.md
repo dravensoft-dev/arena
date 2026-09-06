@@ -28,7 +28,7 @@ type="button">`. Both carry the same row styling, the same `aria-current="page"`
 both report through the enclosing nav's `nav` output. The anchor's native navigation is **not**
 suppressed, so a middle-click or a ctrl-click behaves as a link should.
 
-That is also why the binding is `none` rather than `button`. No single interactive pattern applies to a component that renders two different elements. What the rendered element carries comes from
+Two elements are also why the binding is `none` rather than `button`. No single interactive pattern applies to a component that renders two different elements. What the rendered element carries comes from
 the platform and from `ArenaSideNav`'s own `navigation` binding.
 
 `id` and `label` are both **required and guarded at runtime**. `icon` is a Phosphor class name that

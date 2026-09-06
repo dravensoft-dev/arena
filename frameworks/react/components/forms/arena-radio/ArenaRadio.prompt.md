@@ -21,8 +21,7 @@ One option inside an `ArenaRadioGroup`. Selected shows a crimson dot inside the 
 
 <!-- @api end -->
 
-**Do / Don't**
-- Always render an ArenaRadio inside an `ArenaRadioGroup`, because the group injects the shared name and the selected state, so a standalone ArenaRadio is never selected and never groups.
+**Do / Don't** - Always render an ArenaRadio inside an `ArenaRadioGroup`. The group injects the shared name and the selected state, so a standalone ArenaRadio is never selected and never groups.
 - To toggle a single thing on/off, use `ArenaSwitch` or `ArenaCheckbox`, not a standalone ArenaRadio.
 - Don't pass `style` or stray DOM attributes. ArenaRadio declares `value`, `label`, `hint` and `disabled`, and renders nothing else. To lay options out differently, style the container you put the group in.
 

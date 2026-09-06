@@ -19,17 +19,15 @@ One cell of an `ArenaTableRow`. The cell draws the cell box: the padding, the al
 <!-- @api end -->
 
 **Do / Don't**
-- Put a value in it, or one of Arena's own components: an `ArenaBadge` for a status, an `ArenaButton` for an action. This member is why `ArenaTable` is a compound component at all: a column-level `render` function would be per-item projection, which the library does not do, where a cell **you** instantiate is just an element you wrote.
+- Put a value in it, or one of Arena's own components: an `ArenaBadge` for a status, an `ArenaButton` for an action. This member is why `ArenaTable` is a compound component at all. A column-level `render` function would be per-item projection, which the library does not do. A cell **you** instantiate is just an element you wrote.
 - Don't set alignment, width or the mono face here. Those belong to the column, so a column stays consistent down its whole length. A cell that styled itself would drift from its header.
-- Don't add a `role` or a `tabIndex`. `role="gridcell"` and the roving tab stop belong to the enclosing `ArenaTable`'s grid and are injected; adding your own would put a second tab stop inside a composite that must have one.
+- Don't add a `role` or a `tabIndex`. `role="gridcell"` and the roving tab stop belong to the enclosing `ArenaTable`'s grid, and both are injected. Adding your own would put a second tab stop inside a composite that must have one.
 - A control you put in a cell **is** a page-level tab stop, and that is deliberate. Arena cannot silence markup it does not own, and silencing it would take away a route a keyboard user has. Reaching it must cost exactly one Tab; step 2 of "Verifying the grid by hand" in `ArenaTable.prompt.md` is the standing check.
-- Don't use it outside an `ArenaTableRow`. It renders, but with no column it has no alignment, no header to pair with in card mode, and no place in the keyboard order.
+- Don't use it outside an `ArenaTableRow`. The cell renders. With no column it has no alignment, no header to pair with in card mode, and no place in the keyboard order.
 
 ### `href` makes the cell a real destination, and the row keeps its own
 
-`href` draws an `<a>` around the cell's content, inside the cell box. That is the one place HTML
-admits it: an anchor around the whole row would break the row and cell structure the grid is made
-of, and an anchor may not contain the `ArenaButton` a cell's own contract invites into it.
+`href` draws an `<a>` around the cell's content, inside the cell box. The cell is the one place HTML admits it. An anchor around the whole row would break the row and cell structure the grid is made of. An anchor may not contain the `ArenaButton` a cell's own contract invites into it.
 
 ```tsx
 <ArenaTableCell href={`/sales/${sale.id}`} onNavigate={() => navigate(`/sales/${sale.id}`)}>
@@ -37,12 +35,9 @@ of, and an anchor may not contain the `ArenaButton` a cell's own contract invite
 </ArenaTableCell>
 ```
 
-It carries the anchor convention the four members before it carry, and does not restate it: a
-**primary click with no modifier** is cancelled and reported through `onNavigate`, so your router
-owns it; ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report
-nothing at all, because the reader asked for a new tab or for the address.
+The member carries the anchor convention the four members before it carry, without restating it. A **primary click with no modifier** is cancelled and reported through `onNavigate`, so your router owns it. Ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing at all. The reader asked for a new tab or for the address.
 
-**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** That is not a special case written for this member. The behaviour is the rule the row already applies to a checkbox or a button you put in a cell. A press landing on a control inside the row was never the row's. So a
+**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** The behaviour is not a special case written for this member. The behaviour is the rule the row already applies to a checkbox or a button you put in a cell. A press landing on a control inside the row was never the row's. So a
 table can have a link in its first column and a clickable row under it, and one press runs one
 destination. A cell with no `href` in the same row still activates it.
 
@@ -51,7 +46,7 @@ grid's `Enter` is the cell's and still activates the row; the anchor's `Enter` i
 
 ### What is injected, and therefore not yours
 
-`column`, `layout`, `tabIndex`, `focused` and `onCellFocus` arrive from `ArenaTableRow` (fed by `ArenaTable`) through `cloneElement`. They are not part of this component's API, are not in `contracts/api/components/ArenaTableCell.json`, and a consumer never writes one, in the same shape as `ArenaRadioGroup` injecting `name`/`checked`/`onSelect` into each `ArenaRadio`.
+`column`, `layout`, `tabIndex`, `focused` and `onCellFocus` arrive from `ArenaTableRow` (fed by `ArenaTable`) through `cloneElement`. None of them is part of this component's API, none is in `contracts/api/components/ArenaTableCell.json`, and a consumer never writes one. `ArenaRadioGroup` injects `name`, `checked` and `onSelect` into each `ArenaRadio` in the same shape.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -19,10 +19,7 @@ row settles on.
 
 <!-- @api end -->
 
-**Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. A child that is an
-Arena component may render no box of its own, which makes a `> *` rule land on the card in one
-layer and on nothing in the other, and the two layers then lay the same markup out differently
-with every gate green. The item is the box both layers agree about.
+**Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. A child that is an Arena component may render no box of its own. A `> *` rule then lands on the card in one layer and on nothing in the other. The two layers lay the same markup out differently, with every gate green. The item is the box both layers agree about.
 
 **The item draws nothing.** No surface, no line and no padding: a width and a snap point. Whatever is
 visible in the cell came from what you put in it.

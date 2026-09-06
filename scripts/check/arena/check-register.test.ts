@@ -86,11 +86,9 @@ test('the branch this gate reads is the consumer one, and the router with it', (
 });
 
 test('an allowance names a pathspec, and a document under one is excused by it', () => {
-  assert.equal(
-    excusedBy('frameworks/react/components/forms/arena-radio/ArenaRadio.prompt.md'),
-    'frameworks/*/components/**/*.prompt.md',
-  );
   assert.equal(excusedBy('AGENTS.md'), null, 'the other branch is not this gate\'s subject');
+  assert.equal(excusedBy('frameworks/react/PACKAGE.md'), 'frameworks/*/PACKAGE.md',
+    'a pathspec excuses every document under it, and the two npm pages move together');
   const excused = scoped().filter((rel) => excusedBy(rel) !== null);
   const held = scoped().filter((rel) => excusedBy(rel) === null);
   assert.equal(excused.length + held.length, scoped().length,

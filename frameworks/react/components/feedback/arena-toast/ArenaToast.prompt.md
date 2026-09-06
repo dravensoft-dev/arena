@@ -22,14 +22,12 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 
 <!-- @api end -->
 
-The action is a label and an event, never one object: an object member is pure data with known
-fields, and a callback is not data; `ArenaAlert` takes the same pair for the same reason.
+The action is a label and an event, never one object. An object member is pure data with known fields, and a callback is not data. `ArenaAlert` takes the same pair for the same reason.
 
 **`dismissible` is what shows the ×**, not the presence of `onClose`. A handler alone renders no
 close button, because a layer that cannot detect a listener could not implement the other rule.
 
-**`useArenaToasts()` is the clock, and it ships here.** It holds the notices, their identity and
-their order, and it runs the dismissal rule; you keep the host, the placement and the markup:
+**`useArenaToasts()` is the clock, and it ships here.** The hook holds the notices, their identity and their order, and it runs the dismissal rule. You keep the host, the placement and the markup:
 
 ```tsx
 const { toasts, raise, dismiss } = useArenaToasts();
@@ -39,17 +37,13 @@ const { toasts, raise, dismiss } = useArenaToasts();
 </ArenaToastHost>
 ```
 
-Writing the clock yourself is still fine, and then it is three branches rather than two:
-`persist` holds a notice, `danger` holds one whatever `persist` says, and everything else runs on
-`ARENA_TOAST_DISMISS`, exported beside the component. The longer interval keys off `actionLabel`,
-which is what actually renders the button, because a notice carrying one asks the reader to decide
-rather than only to read. `arenaToastDelay(notice, ARENA_TOAST_DISMISS)` is that rule on its own
+Writing the clock yourself is still fine, and then it is three branches rather than two. `persist` holds a notice, and `danger` holds one whatever `persist` says. Everything else runs on `ARENA_TOAST_DISMISS`, exported beside the component. The longer interval keys off `actionLabel`, which is what actually renders the button. A notice carrying one asks the reader to decide rather than only to read. `arenaToastDelay(notice, ARENA_TOAST_DISMISS)` is that rule on its own
 and answers `null` for a notice that must not be taken away. The two are tokens, so a host that reads them stays in step with a release that moves one. A host that retypes 4200 does not.
 
 **Do / Don't**
 - `persist` on every error/critical toast; the close uses the standard `ph-x` icon (H4).
 - Don't cram long messages into all caps, and don't use the ArenaToast for destructive confirmations (that's `ArenaConfirmDialog`).
-- Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` but no `position` of its own; CSS only honors `z-index` on a positioned box or a flex/grid item, so on plain static flow the token does nothing and the one thing that must float above everything quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
+- Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex or grid item. On plain static flow the token does nothing, and the one thing that must float above everything quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

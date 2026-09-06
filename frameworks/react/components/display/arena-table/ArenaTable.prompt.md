@@ -1,6 +1,6 @@
 Data table for dense surfaces. Headers in mono/uppercase, rows separated by hairline. Wrap it in `.arena-compact` for expert density without touching props.
 
-It is a **compound** component: `columns` says how each column is headed and set, and you write one `<ArenaTableRow>` per row with one `<ArenaTableCell>` per cell inside it. Cells are **positional**: the nth `ArenaTableCell` takes the nth column.
+The table is a **compound** component. `columns` says how each column is headed and set, and you write one `<ArenaTableRow>` per row with one `<ArenaTableCell>` per cell inside it. Cells are **positional**: the nth `ArenaTableCell` takes the nth column.
 
 ```tsx
 <ArenaTable
@@ -44,21 +44,21 @@ It is a **compound** component: `columns` says how each column is headed and set
 <!-- @api end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
-- **`page` is what the table knows and `pageControl` is what it draws.** Bind `page` whenever the list is longer than the screen, so the table sizes and resets it; pass `pageControl="none"` when you want the `ArenaPagination` somewhere else, or want one control over two tables. Withholding `page` to move the control is the shape this member exists to replace: it left the table knowing nothing about paging at all.
+- **`page` is what the table knows and `pageControl` is what it draws.** Bind `page` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `ArenaPagination` somewhere else, or want one control over two tables. Withholding `page` to move the control is the shape this member exists to replace: it left the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as in "Recent deployments" or "Team members", and never "Table". There is nothing to derive it from, which is why it throws when omitted rather than falling back.
-- Put your own components in a cell: an `ArenaBadge` for a status, an `ArenaButton` for an action. That is what the compound shape is for. A column carries **no** `render`, and passing one does nothing.
-- `key` goes on the `ArenaTableRow`. It is React's own reconciliation, not an Arena member; there is no `getRowKey`.
+- Put your own components in a cell: an `ArenaBadge` for a status, an `ArenaButton` for an action. The compound shape is for exactly that. A column carries **no** `render`, and passing one does nothing.
+- `key` goes on the `ArenaTableRow`. The key is React's own reconciliation rather than an Arena member, and there is no `getRowKey`.
 - Numeric data and codes in `mono` columns with `align:'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, take the face alone: `style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}`, which aligns a column of figures by digit the way the table does.
 - Statuses with `ArenaBadge`, not loose text.
 - Don't use it for layout; it's for real tabular data.
 - Mark the actions column `mobileLayout:'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive={false}` to "keep it looking like a table" on a phone. A table narrower than its content is unreadable; card mode is the honest fallback.
 - Row activation is `onClick` on the `ArenaTableRow`, and it carries no payload, because you wrote that element and already hold the row it is about.
-- Pass `empty` whenever the table can legitimately have no rows. With nothing passed React falls back to the string **`No data.`**, which is a placeholder rather than an answer: it says the query returned nothing and never says what was being asked for. The fallback is this layer's own convenience and nothing contracts it, because a table's empty state is editorial the way `label` is, and a layer that renders nothing instead is equally correct.
+- Pass `empty` whenever the table can legitimately have no rows. With nothing passed, React falls back to the string **`No data.`**, which is a placeholder rather than an answer. The fallback says the query returned nothing, and never says what was being asked for. The fallback is this layer's own convenience and nothing contracts it. A table's empty state is editorial the way `label` is, and a layer that renders nothing instead is equally correct.
 
 ### Responsive
 
-Below `--bp-md` the table renders one card per row. The threshold is measured on the table's **container**, not the viewport, so a table inside a narrow panel goes card-mode on a wide monitor, which is what you want. Set `responsive={false}` to keep the table shape at every size.
+Below `--bp-md` the table renders one card per row. The threshold is measured on the table's **container** rather than the viewport. A table inside a narrow panel goes card-mode on a wide monitor, which is what you want. Set `responsive={false}` to keep the table shape at every size.
 
 Each column picks its card-mode layout with `mobileLayout`:
 
@@ -84,48 +84,32 @@ Each column picks its card-mode layout with `mobileLayout`:
 
 ### Keyboard
 
-The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid, arrows move by cell (the header row is row 0 and is navigable, as APG prescribes), `Home` and `End` go to the first and last cell of the **current row**, and `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onClick`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced.
+The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid, and arrows move by cell. The header row is row 0 and is navigable, as APG prescribes. `Home` and `End` go to the first and last cell of the **current row**, and `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onClick`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced.
 
-The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row, no `role="grid"`, only the `empty` block, because a column head standing over a "no results" sentence describes a table that is not there.
+The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row and no `role="grid"`, only the `empty` block. A column head standing over a "no results" sentence describes a table that is not there.
 
-Card mode answers none of this. A card is a list item, and a list is traversed with Tab, and a card whose row carries `interactive` becomes a `role="button"` tab stop of its own with an Enter and Space handler, which is `ArenaTableRow`'s `card-interactive` case, not a clause of this component's binding, which carries no exception in either shape. A card row without `interactive` is inert in both shapes.
+Card mode answers none of this. A card is a list item, and a list is traversed with Tab. A card whose row carries `interactive` becomes a `role="button"` tab stop of its own with an Enter and Space handler. The tab stop is `ArenaTableRow`'s `card-interactive` case rather than a clause of this component's binding, which carries no exception in either shape. A card row without `interactive` is inert in both shapes.
 
 ### The markup, at both widths
 
-There is always a real `<table>`, and card mode restyles the same `<tr>`s and `<td>`s rather than
-drawing a second tree of divs, so a crawler reads a table at every width. `role="grid"` is written,
-because the roving tab stop is what makes it a grid rather than a table; the row, columnheader and
-gridcell under it are not, because the elements mean them already. Below `--bp-md`, and with no
+There is always a real `<table>`, and card mode restyles the same `<tr>`s and `<td>`s rather than drawing a second tree of divs. A crawler reads a table at every width. `role="grid"` is written, because the roving tab stop is what makes it a grid rather than a table. The row, columnheader and gridcell under it are not written, because the elements mean them already. Below `--bp-md`, and with no
 rows, it declares `role="presentation"` and drops its name, which leaves nothing of it in a
 reader's ear.
 
 ## Verifying the grid by hand
 
-`ArenaTable` has render suites: one walks the grid cell by cell and renders both declared shapes,
-and another covers the markup: the roles, the name, the `label` guard, the tab-stop count, and
-that the removed members reach nothing.
-The rule that a `grid` component was hand-tested *instead* is retired: a grid suite asserts at
-every cell that focus landed where the arrow should take it and that exactly one `tabindex="0"`
-exists and is that cell, with each edge clamp one extra press. **The bill is the press count**,
-since every press re-renders the grid through `act()`, which is why the fixture stays small and
-explicitly sized. What is below is what no suite can reach, since happy-dom
+`ArenaTable` has render suites. One walks the grid cell by cell and renders both declared shapes. Another covers the markup: the roles, the name, the `label` guard, the tab-stop count, and that the removed members reach nothing.
+The rule that a `grid` component was hand-tested *instead* is retired. A grid suite asserts at every cell that focus landed where the arrow should take it, and that exactly one `tabindex="0"` exists and is that cell. Each edge clamp costs one extra press. **The bill is the press count**, since every press re-renders the grid through `act()`. The bill is why the fixture stays small and explicitly sized. What is below is what no suite can reach, since happy-dom
 implements no layout and no native sequential focus navigation, and only a person checks it.
 
 Serve the tree with `bun run demos`, open
 `frameworks/react/components/display/arena-table/ArenaTable.demo.generated.html`, and check all of:
 
 1. Tab reaches the table ONCE, and one more Tab leaves it. No cell is a stop of its
-   own. Controls YOU drew inside a cell are the exception and are meant to be: they
-   are yours, Arena cannot silence markup it does not own, and taking them out of the
-   Tab sequence would remove a route a keyboard user has today.
-2. From a cell, Tab reaches a control inside a cell in **ONE** press, not two. A
-   second press means the grid pulled focus back onto the cell, and only a real browser
-   shows it: `focusin` bubbles, so a control inside a `<td>` fires that cell's focus
-   handler, moves the roving cursor, and the focus effect takes the focus back. Nothing automatic can hold this. `renderToStaticMarkup` runs
+   own. Controls YOU drew inside a cell are the exception and are meant to be. Those controls are yours and Arena cannot silence markup it does not own. Taking them out of the Tab sequence would remove a route a keyboard user has today.
+2. From a cell, Tab reaches a control inside a cell in **ONE** press, not two. A second press means the grid pulled focus back onto the cell, and only a real browser shows it. `focusin` bubbles, so a control inside a `<td>` fires that cell's focus handler, moves the roving cursor, and the focus effect takes the focus back. Nothing automatic can hold this. `renderToStaticMarkup` runs
    no effects and dispatches no focus, and a component binding `grid` may not have a
-   render suite, so this step IS the guard. It matters MORE under the compound shape
-   than before: a control in a cell is now the expected way to build a status or an
-   actions column, not an edge case. The demo page's own cells hold an `ArenaBadge`, which
+   render suite, so this step IS the guard. The step matters MORE under the compound shape than before. A control in a cell is now the expected way to build a status or an actions column, rather than an edge case. The demo page's own cells hold an `ArenaBadge`, which
    is not focusable. Check this one on any table whose cells hold a real `ArenaButton`
    rather than a badge, since a focusable control in a cell is what the second press
    is about.
@@ -140,9 +124,7 @@ Serve the tree with `bun run demos`, open
    the header row.
 6. Card mode answers none of the grid keyboard, and it is not supposed to. That page
    renders the SAME table twice, the second time in a 340px container, so card mode is
-   already on screen. Check that a card whose row carries `interactive` is a single tab stop
-   that announces itself as a button and activates on Enter and Space, and that a card
-   whose row has none took no `role`, `tabindex` or key handler by accident. `interactive`
+   already on screen. Check that a card whose row carries `interactive` is a single tab stop that announces itself as a button and activates on Enter and Space. Check that a card whose row has none took no `role`, `tabindex` or key handler by accident. `interactive`
    is what decides that, never whether `onClick` was passed: Arena derives no render from a bound listener.
 
 ### Sorting and paging
@@ -161,10 +143,7 @@ many columns declare it, because a control drawing a direction it does not know 
 no control. Activating the sorted column flips it; activating a different one starts it
 ascending. Sorting costs **no tab stop**. The header row is already row 0 of the grid's roving cursor, so Enter and Space act on the cell the reader is already on. `aria-sort` says which column and which way.
 
-**Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort`
-bound and at least one `sortable` column, card mode draws one compact select above the cards,
-listing every sortable column in each direction, and it reports through the same `onSortChange`
-the header does. Set it to `none` for a table whose order is the document's rather than the
+**Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort` bound and at least one `sortable` column, card mode draws one compact select above the cards. The select lists every sortable column in each direction, and reports through the same `onSortChange` the header does. Set it to `none` for a table whose order is the document's rather than the
 reader's. The header row does **not** come back below the breakpoint: card mode exists for the
 one reason a grid does not fit.
 
@@ -184,9 +163,7 @@ Bind `slice` when the projection is not a page, which is what a scroller renders
 </ArenaTable>
 ```
 
-`offset` counts from 0 and is the number of rows before the first one you projected; the header row
-takes index 1 and `ArenaTable` does that arithmetic, so an offset that already counted from 1 tells
-the reader they are one row further on than they are. `total: -1` is the answer for a list whose
+`offset` counts from 0, and it is the number of rows before the first one you projected. The header row takes index 1 and `ArenaTable` does that arithmetic. An offset that already counted from 1 tells the reader they are one row further on than they are. `total: -1` is the answer for a list whose
 length nobody knows yet, and it reaches the attribute unchanged. Bound beside `page`, `slice` is
 what answers, because one position with two sources is a position two things can disagree about.
 

@@ -28,7 +28,7 @@ the accessible name and the column layout, so there is no wrapper inside it.
 **The children pull, and the parent does not push.** `arena-radio` injects a `ArenaRadioGroupState` the group provides. The option reads the shared name and the selected value from that state, and reports a choice back through it. Nothing is injected into the option. So none of that coordination is a member of either contract, and an option outside a group is a DI error rather than a silently inert control.
 
 **Do / Don't**
-- **`ariaLabel` is required.** It names *what is being chosen*, "Deployment target", not
+- **`ariaLabel` is required.** The label names *what is being chosen*, such as "Deployment target", rather than
   "Options". Each option's own label says what that option is, never what the set is for, so a
   group without this is announced unlabelled.
 - `ariaLabel` is not `name`. `name` is the radios' shared form name and never reaches a screen reader. The name is generated per instance when omitted, which matters because **two groups sharing one name rove as a single group**.

@@ -1,6 +1,5 @@
 The frame of a board: columns side by side, sharing the room equally and never narrower than
-`minColumn`, scrolling sideways once they no longer fit. It is one tab stop with a group role and
-a name, which is what makes a scrolling region reachable by keyboard at all.
+`minColumn`, scrolling sideways once they no longer fit. The frame is one tab stop with a group role and a name, which is what makes a scrolling region reachable by keyboard at all.
 
 ```tsx
 <ArenaBoard label="Sprint 32 tasks by status">
@@ -18,8 +17,7 @@ a name, which is what makes a scrolling region reachable by keyboard at all.
 **The cards are yours.** A board's card carries the product's own fields, so Arena draws the
 frame, the column and its head, and stops. `ArenaCard` is a good card; so is your own.
 
-**Nothing moves.** There is no drag and drop here, and reordering is the consumer's: what a card
-does when it is picked up is a question about their data, not about this frame.
+**Nothing moves.** There is no drag and drop here, and reordering is the consumer's. What a card does when it is picked up is a question about their data rather than about this frame.
 
 <!-- @api GENERATED from contracts/api/components/ArenaBoard.json. Edit the contract, not this table. -->
 
@@ -36,12 +34,10 @@ does when it is picked up is a question about their data, not about this frame.
 **Do / Don't**
 - Say what the columns are columns OF in `label`: "Sprint 32 tasks by status", "Candidates by
   stage". The label is the name a keyboard user lands on, and "Board" tells them nothing.
-- Raise `minColumn` when a card needs more room than a grid cell, and leave it alone otherwise:
-  the default is the same width a card takes in a grid or a rail.
+- Raise `minColumn` when a card needs more room than a grid cell, and leave it alone otherwise. The default is the same width a card takes in a grid or a rail.
 - Don't wrap it in your own scroll container. The board is the scrolling region, and a second one
   around it takes the keyboard's scroll away from the one that announces itself.
-- Don't use it for a fixed set of panels that always fit. That is `ArenaGrid`, which wraps rather
-  than scrolling.
+- Don't use it for a fixed set of panels that always fit. The component for that is `ArenaGrid`, which wraps rather than scrolling.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

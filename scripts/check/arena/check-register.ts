@@ -49,10 +49,6 @@ export const NOT_YET_REWRITTEN = new Map<string, string>([
   ['frameworks/*/PACKAGE.md',
    'the two npm pages, whose shared half is emitted from generate-npm-pages.ts and whose other '
    + 'half is written per layer, so the register moves in both halves at once'],
-  ['frameworks/*/components/**/*.prompt.md',
-   'the authored half of every component prompt, which is the opening line, the examples and the '
-   + 'Do and Don\'t. It is rewritten one component at a time, and the generated halves of the '
-   + 'same file are emitted already'],
   ['plugin-style-store/catalogue/*/ENTRY.md',
    'the measured style plugins a project can start from, one card each'],
 ]);

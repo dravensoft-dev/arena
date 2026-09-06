@@ -41,7 +41,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 
 The member carries the anchor convention the four members before it carry, without restating it. A **primary click with no modifier** is cancelled and reported through `(navigate)`, so your router owns it. Ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing at all. The reader asked for a new tab or for the address.
 
-**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** That is not a special case written for this member. The behaviour is the rule the row already applies to a checkbox or a button you put in a cell. A press landing on a control inside the row was never the row's. So a
+**Inside a row carrying `interactive`, the anchor wins and the row does not fire.** The behaviour is not a special case written for this member. The behaviour is the rule the row already applies to a checkbox or a button you put in a cell. A press landing on a control inside the row was never the row's. So a
 table can have a link in its first column and a clickable row under it, and one press runs one
 destination. A cell with no `href` in the same row still activates it.
 

@@ -21,7 +21,7 @@ rendered inside.
 
 <!-- @api end -->
 
-**The content is required, and it is the only slot in the repository that is.** A section renders a heading naming the group, so a childless one labels nothing. It **throws** at content-init rather than rendering. Slot required-ness is not comparable between layers and no gate can catch a caller
+**The content is required, and it is the only slot in the repository that is.** A section renders a heading naming the group, so a childless one labels nothing. The section **throws** at content-init rather than rendering. Slot required-ness is not comparable between layers and no gate can catch a caller
 who omits it, which is why the guard is runtime code and not a declaration.
 
 A section is a container, so it **re-provides** the family's state at `depth + 1`. Everything inside it indents one step, including a nested section or a collapsible. The section's own heading is indented at its **own** depth, so it lines up with its siblings rather than with its children.

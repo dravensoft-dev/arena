@@ -26,8 +26,7 @@ a presence dot.
 **Do / Don't**
 - Always pass `name`, even with `src`: it is the image's `alt` text and the fallback
   when the image fails to load.
-- Don't use the presence dot as a status badge for anything but presence, the
-  offline tone is a muted grey by design and reads as "not here", not as "disabled".
+- Don't use the presence dot as a status badge for anything but presence. The offline tone is a muted grey by design, and it reads as "not here" rather than as "disabled".
 - The presence dot is filled (`bg-success`/`bg-warning`/`bg-error`/`bg-base-content/(--level-presence)`)
   even though danger is outline everywhere else, presence is its own semantic
   family, not a danger surface. convention section.

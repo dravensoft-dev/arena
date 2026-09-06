@@ -1,5 +1,4 @@
-A named group of items inside an `ArenaSideNav` -- a subheading plus the items under it. It
-**wraps** what you write; it never replaces it.
+A named group of items inside an `ArenaSideNav` -- a subheading plus the items under it. The section **wraps** what you write, and never replaces it.
 
 ```tsx
 <ArenaSideNav ariaLabel="Primary" active={route} onNav={(id) => setRoute(id)}>
@@ -22,12 +21,7 @@ A named group of items inside an `ArenaSideNav` -- a subheading plus the items u
 
 <!-- @api end -->
 
-The heading reads `label`, in the mono uppercase micro-label treatment, and is the group's
-accessible name -- an `aria-labelledby` on the `role="group"` wrapper points at that same
-heading element, so the grouping a sighted user sees is the grouping a screen reader
-announces. Every item inside indents one step deeper than the section itself, and that
-indent is `indentStep` (from the enclosing `ArenaSideNav`) applied again, not a second value of
-its own -- see `ArenaSideNav.indentStep`.
+The heading reads `label`, in the mono uppercase micro-label treatment, and it is the group's accessible name. An `aria-labelledby` on the `role="group"` wrapper points at that same heading element, so the grouping a sighted user sees is the grouping a screen reader announces. Every item inside indents one step deeper than the section itself. That indent is `indentStep` from the enclosing `ArenaSideNav`, applied again, rather than a second value of its own. See `ArenaSideNav.indentStep`.
 
 ## Do / Don't
 
@@ -35,15 +29,9 @@ its own -- see `ArenaSideNav.indentStep`.
   `ArenaSideNavItem` at the root needs no section at all.
 - **Do** nest an `ArenaSideNavSection` inside another, or inside an `ArenaSideNavCollapsible`, when the
   navigation tree is more than two levels deep. Depth is injected, not counted by hand.
-- **Don't** write a section with no children. It is not a legal shape and throws --
-  allowing an empty one would give the component two shapes a single behaviour binding
-  cannot describe.
-- **Don't** leave `label` blank. It is required and guarded: a blank label leaves the group
-  with no accessible name, which is the defect the guard exists to catch.
-- **Don't** wrap its children in a fragment or a component of your own. `ArenaSideNavSection`
-  injects into the children it is handed, and `React.Children.toArray` does not see
-  through a `<>...</>` -- write items as siblings, or in an array, the same limit
-  `ArenaSideNav` itself carries.
+- **Don't** write a section with no children. A childless section is not a legal shape and throws. Allowing an empty one would give the component two shapes a single behaviour binding cannot describe.
+- **Don't** leave `label` blank. The label is required and guarded. A blank one leaves the group with no accessible name, which is the defect the guard exists to catch.
+- **Don't** wrap its children in a fragment or a component of your own. `ArenaSideNavSection` injects into the children it is handed, and `React.Children.toArray` does not see through a `<>...</>`. Write items as siblings or in an array. `ArenaSideNav` itself carries the same limit.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

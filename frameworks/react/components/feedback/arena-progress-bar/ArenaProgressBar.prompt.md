@@ -8,8 +8,7 @@ Progress bar (H1). Gives visible status to measurable processes outside the spla
 ```
 
 `shape="radial"` draws the same meter as a ring: the figure sits in the middle and the label
-under it. Reach for it where the meter is the tile rather than a line in one, a completion
-ring on a dashboard or a node on a path, and keep the bar for a row.
+under it. Reach for it where the meter is the tile rather than a line in one, such as a completion ring on a dashboard or a node on a path. Keep the bar for a row.
 
 The middle is a slot, so a ring measures something of yours instead of showing a number.
 Turn the figure off yourself when you fill it: the two share that space, and no component
@@ -47,29 +46,20 @@ which is what that name means everywhere else in this library. `showPercentage` 
 **Do**
 - Use *determinate* mode whenever a real percentage exists; it communicates remaining time.
 - Align `tone` with the state (success when done, danger if it fails).
-- Put a ring where it has room to be read: a ring's own size is its whole geometry, so `size`
-  moves the diameter and the band together and there is nothing else to tune.
+- Put a ring where it has room to be read. A ring's own size is its whole geometry, so `size` moves the diameter and the band together, and there is nothing else to tune.
 - Pass a `label`: it is drawn beside the meter **and** is its accessible name. Without one
   the bar is announced as the generic "Progress", which tells a screen-reader user nothing
   about which of the page's bars it is.
 
 **Don't**
 - Don't use `indeterminate` for processes you do know: it degrades visibility (H1).
-- Don't pass markup as `label`. It is a plain string, precisely so the accessible name is the
-  same words the sighted reader sees.
+- Don't pass markup as `label`. The label is a plain string, precisely so the accessible name is the same words the sighted reader sees.
 - Don't replace a result ArenaToast with the bar; the bar reports progress, the ArenaToast reports the outcome.
-- Don't expect the bar to narrate every step. It carries `aria-live="polite"` because
-  `role="progressbar"` has no implicit live region, and the percentage is repeated inside that
-  region as visually-hidden text so the announcement is an ordinary content change rather than
-  an attribute-only one, but a bar that ticks continuously is chatty by construction. Announce
+- Don't expect the bar to narrate every step. The bar carries `aria-live="polite"`, because `role="progressbar"` has no implicit live region. The percentage is repeated inside that region as visually-hidden text, so the announcement is an ordinary content change rather than an attribute-only one. A bar that ticks continuously is chatty by construction. Announce
   a milestone that matters with an `ArenaToast`.
 - Don't project a control into a bar's middle: a bar has no middle and draws nothing for it.
-- Don't reach for a ring to save room. A ring at `sm` is smaller than a bar is long and
-  harder to read, and the figure inside it is the point: a meter nobody can read a number off
-  is a decoration.
-- Don't read `showPercentage={false}` as silence. It drops the number beside the label; the
-  region keeps its own copy, because hiding a number visually is a layout choice and not a
-  reason to stop reporting progress.
+- Don't reach for a ring to save room. A ring at `sm` is smaller than a bar is long, and harder to read. The figure inside it is the point, because a meter nobody can read a number off is a decoration.
+- Don't read `showPercentage={false}` as silence. The member drops the number beside the label. The region keeps its own copy, because hiding a number visually is a layout choice rather than a reason to stop reporting progress.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

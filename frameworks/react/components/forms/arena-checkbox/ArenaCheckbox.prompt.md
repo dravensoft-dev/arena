@@ -24,7 +24,7 @@ A single checkbox. Checked shows a crimson fill with a check. `onChange` carries
 
 **Do / Don't**
 - Read the boolean the handler hands you (`onChange={next => …}`); there is no event to reach into, so `e.target.checked` reaches nothing.
-- Use `name` and `value` together when the checkbox is submitted by a real form: `value` is the string sent under `name` while the box is ticked, and it is not the checked state.
+- Use `name` and `value` together when the checkbox is submitted by a real form. `value` is the string sent under `name` while the box is ticked, and it is not the checked state.
 - To toggle a setting that takes effect immediately, prefer `ArenaSwitch`; an ArenaCheckbox states a choice a form will submit.
 - Don't pass `style` or stray DOM attributes. ArenaCheckbox declares `checked`, `label`, `disabled`, `required`, `name` and `value`, and renders nothing else. To place or size it, style the container you put it in.
 

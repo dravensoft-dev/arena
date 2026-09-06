@@ -27,22 +27,16 @@ Actions menu on a trigger (overflow "⋮", more actions, context). Don't confuse
 
 An entry has no `onClick` of its own. Activating one reports `onSelect(item)` --
 the whole item, not a key into the list -- so the handler switches on whatever
-field it finds useful, usually `label`. There is deliberately no `id`:
-`{ divider:true }` and `{ header:'Text' }` are legitimate entries carrying neither
-a label nor anything to identify, and a required `id` would force a meaningless
-one onto every rule and every group heading. A `disabled` entry reports nothing,
+field it finds useful, usually `label`. There is deliberately no `id`. `{ divider:true }` and `{ header:'Text' }` are legitimate entries carrying neither a label nor anything to identify. A required `id` would force a meaningless one onto every rule and every group heading. A `disabled` entry reports nothing,
 and a divider or a header cannot be activated at all.
 
 `icon` is a **Phosphor class-name string**, never markup: Arena draws the `<i>`
-and the caller names the glyph. What that costs is the general price of the
-single-icon convention: an entry carries no markup of a consumer's own,
-so a row with an avatar, a coloured dot or a two-line body has no expression
-here. `items` is required and throws when absent; an empty array is a caller
+and the caller names the glyph. What that costs is the general price of the single-icon convention. An entry carries no markup of a consumer's own, so a row with an avatar, a coloured dot or a two-line body has no expression here. `items` is required and throws when absent; an empty array is a caller
 saying "no entries right now" and renders.
 
 **Do / Don't**
 - The trigger must have an accessible name (use `ArenaIconButton label`).
-- **The trigger must be a control, not a picture of one.** An `ArenaAvatar`, a `<span>` or anything else that takes no focus receives the handlers and answers no key, so the menu opens on a pointer and a reader on a keyboard never reaches it. Arena reports that once at runtime; pass an `ArenaIconButton`, an `ArenaButton`, or your own element carrying a button role and a tabindex.
+- **The trigger must be a control, not a picture of one.** An `ArenaAvatar`, a `<span>` or anything else that takes no focus receives the handlers and answers no key. The menu opens on a pointer, and a reader on a keyboard never reaches it. Arena reports that once at runtime; pass an `ArenaIconButton`, an `ArenaButton`, or your own element carrying a button role and a tabindex.
 - Destructive actions go last and are marked `destructive`.
 - To choose a value from a form, use `ArenaSelect`, not an ArenaMenu.
 - Don't reach for a per-entry callback -- there is none. Read `onSelect`'s item.

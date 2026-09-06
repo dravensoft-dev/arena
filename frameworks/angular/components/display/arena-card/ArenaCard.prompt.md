@@ -41,7 +41,7 @@ it would close.
 
 **An interactive card is a `role="button"` div and never a `<button>` element.** A card body is where a consumer puts their own controls. A control nested inside a control is reachable by nobody.
 
-**A press that starts on one of those controls belongs to that control.** That holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and stops there. Enter typed into a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them. That covers the `action` slot too, where a header button is the common case.
+**A press that starts on one of those controls belongs to that control.** The rule holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and stops there. Enter typed into a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them. That covers the `action` slot too, where a header button is the common case.
 
 **A card can also hand the press over entirely, by leaving `interactive` off.** The card then draws no role, no tab stop and no handler at all. The card is a surface, and the control inside it is the only activation target on it.
 
@@ -109,7 +109,7 @@ outside a single-page application.
 consequence for you is that a click delegated from an ancestor of the card never sees an
 activation the card handled.
 
-**Do not put `routerLink` on `arena-card`.** It would not work. `RouterLink` decides whether it is on an anchor from the host's `tagName`, and `arena-card` is neither an `<a>` nor a registered custom element. `RouterLink` ignores every modifier key and lands a second tab stop on the host, over the anchor the card already draws inside itself. The cancelled anchor is the reason `(click)` reports the activation at all.
+**Do not put `routerLink` on `arena-card`.** `routerLink` would not work. `RouterLink` decides whether it is on an anchor from the host's `tagName`, and `arena-card` is neither an `<a>` nor a registered custom element. `RouterLink` ignores every modifier key and lands a second tab stop on the host, over the anchor the card already draws inside itself. The cancelled anchor is the reason `(click)` reports the activation at all.
 
 Choose between the two by what the press DOES. A card that goes somewhere is `href`; a card
 that changes local state is `interactive` with `(click)`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.

@@ -23,12 +23,10 @@ panel `ArenaTabs` renders below the strip.
 **Do / Don't**
 - Do give every tab a `value` and a `label`. Both are required and both are guarded: a blank one
   throws rather than drawing a nameless tab.
-- Do write tabs as siblings or in an array. Don't wrap them in a fragment or in a component of your
-  own, `React.Children.toArray` cannot see through either, so `ArenaTabs` would have nothing to inject
-  into and the strip would render inert.
+- Do write tabs as siblings or in an array. Don't wrap them in a fragment or in a component of your own, because `React.Children.toArray` cannot see through either. `ArenaTabs` would have nothing to inject into, and the strip would render inert.
 - Don't render the panel yourself. `ArenaTabs` draws exactly one, wired to the selected tab; a second
   one would be a panel no tab controls.
-- Don't reach for `style`. It takes none.
+- Don't reach for `style`. The component takes none.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -1,4 +1,4 @@
-Bulk actions (H7). Appears when there's a selection and operates on the set. Combine it with `ArenaConfirmDialog` for destructive actions. `actions` is an array of `{ id, label, icon?, destructive? }`, where `id` is a stable identity so a host can switch on it rather than on the label, and `icon` is a Phosphor class name Arena draws, never a node. Activating one fires `onRun` with the action; there is no per-action `onClick`.
+Bulk actions (H7). Appears when there's a selection and operates on the set. Combine it with `ArenaConfirmDialog` for destructive actions. `actions` is an array of `{ id, label, icon?, destructive? }`. `id` is a stable identity, so a host can switch on it rather than on the label. `icon` is a Phosphor class name Arena draws, never a node. Activating one fires `onRun` with the action; there is no per-action `onClick`.
 
 ```tsx
 <ArenaBulkActionBar count={selected.length} noun="deployments" onRun={(action) => run(action)} onClear={() => setSelected([])}

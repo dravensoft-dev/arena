@@ -1,9 +1,7 @@
 Power-user accelerator (H7). Open it with Cmd/Ctrl+K from the host and pass it the list of
 commands. `open` and `commands` are both required; the component throws from its render if
 either is absent. Each command's `icon` is a Phosphor class name Arena draws, not a node.
-Activating a command emits `onRun` with the command that ran, after `onClose` has already
-fired, the host discriminates which command ran by switching on `id`, which is required on
-every `ArenaCommand`.
+Activating a command emits `onRun` with the command that ran, after `onClose` has already fired. The host discriminates which command ran by switching on `id`, which is required on every `ArenaCommand`.
 
 ```tsx
 const [open, setOpen] = useState(false);
@@ -43,9 +41,7 @@ rather than being read twice.
 
 `route` says where running a command goes. With it the row renders an `<a href>`, so ctrl-click, middle-click and open-in-new-tab work. An accelerator over a list of destinations owes a keyboard user exactly that. The row keeps `role="option"`, because the listbox pattern requires that of every row and losing it would break the arrow walk for the whole list. A screen reader announces the row as an option rather than as a link, and that is the trade.
 
-**With `route`, the mouse and the keyboard do the same thing, and that is the point.** The
-row's plain activation reports through `onRun`, so a host that navigates in its `onRun` handler
-navigates exactly once, whichever way the reader activated the row. A modified click opens the
+**With `route`, the mouse and the keyboard do the same thing, and that is the point.** The row's plain activation reports through `onRun`. A host that navigates in its `onRun` handler navigates exactly once, whichever way the reader activated the row. A modified click opens the
 destination itself and **leaves the palette open**, because a reader who asked for a second tab
 did not ask to leave this one.
 

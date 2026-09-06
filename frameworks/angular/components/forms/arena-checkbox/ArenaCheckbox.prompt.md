@@ -25,9 +25,9 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
 <!-- @api end -->
 
 **Do / Don't**
-- It is **controlled**. `checked` is what the consumer owns and pushes back in; the component
+- The control is **controlled**. `checked` is what the consumer owns and pushes back in; the component
   never holds a copy, so a `(change)` you ignore is a checkbox that visibly does not move.
-- **Always pass `label`.** It is optional in the contract, but the accessible name comes from the
+- **Always pass `label`.** The member is optional in the contract, and the accessible name comes from the
   wrapping `<label>`'s own text, so a checkbox without one announces nothing. If the name must
   live elsewhere on screen, the control is the wrong shape; reach for a labelled group instead.
 - `change` carries the new boolean, not the DOM event. `change` is an output named after a native DOM event, so Angular would register both the output subscription and a host DOM listener. A consumer's `(change)` would then fire twice, and the inner input calls `stopPropagation()` to make it fire once. The cost is that a native `change` never reaches an ancestor, bind on the

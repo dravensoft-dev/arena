@@ -28,20 +28,14 @@ Base container. Use `eyebrow` (crimson mono) + `title` (Archivo) for the header.
 
 <!-- @api end -->
 
-**`interactive` makes the whole card one activation target**, which is the ordinary shape of a
-list on a phone, and it is a declared boolean rather than "is `onClick` bound?", because Arena never derives what it draws from what a consumer listens for,
-the same one `ArenaTableRow.interactive` gives. Arena writes `role="button"`, a tab stop and an
+**`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `onClick` bound?". Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` gives the same answer. Arena writes `role="button"`, a tab stop and an
 Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap
 it would close.
 
-**An interactive card is a `role="button"` div and never a `<button>` element**, because a card
-body is where you put your own controls and a control nested inside a control is reachable by
-nobody.
+**An interactive card is a `role="button"` div and never a `<button>` element.** A card body is where you put your own controls. A control nested inside a control is reachable by nobody.
 
-**A press that starts on one of those controls belongs to that control, by pointer and by keyboard
-alike.** Clicking a button inside the card runs the button's handler and stops there; typing Enter
-in a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them.
+**A press that starts on one of those controls belongs to that control.** The rule holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and stops there. Typing Enter in a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them.
 
 **A card can also hand the press over entirely, by leaving `interactive` off.** The card then draws no role, no tab stop and no handler at all. The card is a surface, and the control inside it is the only activation target on it.
 
@@ -55,15 +49,13 @@ in a field inside it never opens the card. Both paths ask the same question, and
 Reach for `interactive` when the whole surface is the target and a control inside it is a second
 route to the same place. Leave it off when the press means something narrower than "this card".
 
-**Don't**
-- Don't put an interactive card inside another activation target, and don't put your only route to something inside one: a card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.
+**Don't** - Don't put an interactive card inside another activation target, and don't put your only route to something inside one. A card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.
 - Don't pass `style` or stray DOM attributes. ArenaCard declares its `content` and `action` slots plus `title`, `eyebrow`, `floating`, `accent`, `interactive` and `disabled`, and renders nothing else. To size, constrain or shadow a card differently, wrap it in your own element (a fixed-width `<div>`, a `maxWidth` box) rather than reaching through the card.
 
 ### A card that navigates
 
 `href` makes the whole card a real `<a>`: openable in a new tab, address copyable, announced
-as a link. It is the same split, and the same reason, as `ArenaSideNavItem`'s own `href`, and it
-implies interaction on its own, so `interactive` is not also needed. With `disabled` it
+as a link. The split and the reason are `ArenaSideNavItem`'s own `href`. An `href` implies interaction on its own, so `interactive` is not also needed. With `disabled` it
 refuses activation through `aria-disabled` and prevents the anchor's default.
 
 ```tsx

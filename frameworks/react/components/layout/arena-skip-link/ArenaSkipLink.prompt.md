@@ -1,6 +1,5 @@
 The one control on a page that exists for a keyboard alone: it lets a reader step over everything
-repeated on every screen and land in the content. It returns the anchor itself, so what the page
-sees is the element, with no wrapper around it.
+repeated on every screen and land in the content. The component returns the anchor itself, so what the page sees is the element, with no wrapper around it.
 
 ```tsx
 <ArenaSkipLink label="Skip to content" />
@@ -23,14 +22,11 @@ sees is the element, with no wrapper around it.
 
 **Place it first, above everything it exists to skip.** Placement is the one of the four details the link cannot do for itself. Placement decides whether the link works at all. Tab order follows the document, so a skip link written under a nav of nine destinations is reached on the tenth Tab. By then the reader has already been through everything the link was going to save them. Write it as the first element of the shell.
 
-**The other three are Arena's.** The link is invisible until focus reaches it. The link becomes visible the moment it does. Opacity does that rather than mounting. The link stays reachable by Tab at every moment, and nothing appears or disappears from the tree. The link is fixed at the top of the page, on the layering slot directly above `nav`. A link that lands under a sticky header is a link nobody can read. And the region it points at is focusable programmatically, which `ArenaMain` carries: an
+**Arena owns the other three.** Arena keeps the link out of sight until the link takes focus. The link becomes visible the moment it does. Opacity does that rather than mounting. The link stays reachable by Tab at every moment, and nothing appears or disappears from the tree. The link is fixed at the top of the page, on the layering slot directly above `nav`. A link that lands under a sticky header is a link nobody can read. And the region it points at is focusable programmatically, which `ArenaMain` carries: an
 anchor pointing at a container the platform will not focus scrolls the page and leaves focus
 behind.
 
-**It points at the page's `ArenaMain`, by an id Arena writes on both sides.** There is nothing to
-coordinate at the call site and no id to pass, because a page has one main landmark. A page with a
-skip link and no `ArenaMain` has a link to nowhere, and nothing can detect that from inside either
-component, so it is the one thing to check by hand.
+**The link points at the page's `ArenaMain`, by an id Arena writes on both sides.** There is nothing to coordinate at the call site and no id to pass. A page has one main landmark. A page with a skip link and no `ArenaMain` has a link to nowhere. Nothing can detect that from inside either component, so it is the one thing to check by hand.
 
 **Do**
 - Say where the reader lands, in the application's own words. "Skip to content" and "Skip to the

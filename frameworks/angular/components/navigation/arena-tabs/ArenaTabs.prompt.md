@@ -58,7 +58,7 @@ is expensive, guard it inside the view rather than expecting the tab to defer it
 - With no tabs at all it draws an **empty tablist and no tabpanel**, and guards nothing. A root
   promises nothing an empty render would break, but it must not ship an invalid one.
 - Don't use it for steps in a sequence, or for anything a person should be able to open in a new
-  window. Those are `arena-side-nav` items or links rather than tabs.
+  window. Destinations are `arena-side-nav` items or links rather than tabs.
 - Don't fill the selected tab. The selected tab is marked by a crimson underline and by weight. A filled tab spends the view's primary accent on navigation.
 
 **By hand, in real Chromium**: the keyboard is asserted for real, but the ink and the ring are not.

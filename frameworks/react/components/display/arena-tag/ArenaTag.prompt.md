@@ -33,13 +33,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: border and text render
   in `--color-error`, never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
-- The leading dot is filled (`currentColor`, so it always matches the tone)
-  even for `tone="danger"`, though the chip itself is outline, a tone dot is
-  an identity mark, the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s
-  presence dot, not a danger surface.
-- Use `removable` only when removing the chip is a real user action (applied
-  filters), not on informational tags, and pass `onRemove` alongside it, or
-  the × renders with nothing to call.
+- The leading dot is filled with `currentColor`, so it always matches the tone, even for `tone="danger"` where the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
+- Use `removable` only when removing the chip is a real user action, such as applied filters, rather than on informational tags. Pass `onRemove` alongside it, or the × renders with nothing to call.
 - Reach for `disabled` when removal is temporarily unavailable and the chip must
   stay on screen, a filter the user's permissions lock. The × keeps its place
   in the Tab sequence and announces itself as unavailable, which is why this is
@@ -51,9 +46,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
   explicit button (Cancel), not with the ph-x icon.
 - Don't add a `tone` outside the taxonomy: `neutral`, `primary`, `success`,
   `warning`, `danger` are the whole set.
-- Reach for `colorId` when the colour identifies rather than warns, and give the
-  same entity the same slot on every screen: the ramp is the one the charts and
-  `ArenaCalendarEvent` read, so a label, a series and a schedule chip agree.
+- Reach for `colorId` when the colour identifies rather than warns, and give the same entity the same slot on every screen. The ramp is the one the charts and `ArenaCalendarEvent` read, so a label, a series and a schedule chip agree.
   Derive the slot from a stable key with `arenaCatSlotFor` rather than from the
   position of a row, which moves when the list is sorted.
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a

@@ -22,10 +22,7 @@ a default worth having, since an `ArenaPagination` that assumes page 1 of 1 draw
 one-page control over a set whose size nobody told it.
 
 `ariaLabel` names the landmark and is **required**, throwing when absent, in the
-same shape as `ArenaTable.label` and `ArenaSegmentedControl.ariaLabel`. A `"ArenaPagination"`
-default narrows the gap rather than closing it: two paginated tables in one
-dashboard is a routine layout, and a caller who omits the name still leaves two
-landmarks called "Pagination" that a screen-reader user cannot tell apart.
+same shape as `ArenaTable.label` and `ArenaSegmentedControl.ariaLabel`. A `"ArenaPagination"` default narrows the gap rather than closing it. Two paginated tables in one dashboard is a routine layout, and a caller who omits the name still leaves two landmarks called "Pagination" that a screen-reader user cannot tell apart.
 Nothing can derive it, so nothing
 defaults it. Name what is being paged ("Deployments"), never the widget
 ("Pages").
@@ -33,7 +30,7 @@ defaults it. Name what is being paged ("Deployments"), never the widget
 **Do / Don't**
 - Place it under the table/list, aligned to the right or centered.
 - For continuous feeds use "load more" or infinite scroll, not ArenaPagination.
-- Don't reach for `style` to place it. It takes none; wrap it in a `<div>` that owns the margin.
+- Don't reach for `style` to place it. The component takes none. Wrap it in a `<div>` that owns the margin.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

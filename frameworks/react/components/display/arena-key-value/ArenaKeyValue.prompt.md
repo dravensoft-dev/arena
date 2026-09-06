@@ -1,5 +1,4 @@
-A list of terms and the values against them, with an optional summed row ruled off at the bottom:
-a basket summary, an order, an invoice, a panel of facts about a resource.
+A list of terms and the values against them, with an optional summed row ruled off at the bottom. The list suits a basket summary, an order, an invoice, or a panel of facts about a resource.
 
 ```tsx
 <ArenaKeyValue
@@ -22,8 +21,7 @@ a basket summary, an order, an invoice, a panel of facts about a resource.
 
 <!-- @api end -->
 
-**It renders a real `<dl>`**, so the association between a term and its value is the platform's
-rather than a class name's. Each row is a `<dt>` and a `<dd>` in a wrapper, which is the shape a
+**The component renders a real `<dl>`**, so the association between a term and its value is the platform's rather than a class name's. Each row is a `<dt>` and a `<dd>` in a wrapper, which is the shape a
 definition list takes when the pair has to sit on one line.
 
 **`numeric` is what keeps a money column from jittering.** The member sets the value in the mono face with tabular numerals. A column of figures then aligns by digit as it changes. The member is per row, because a summary mixes an address with a price and only one of them is a figure.

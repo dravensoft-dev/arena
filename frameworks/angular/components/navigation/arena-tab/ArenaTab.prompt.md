@@ -27,7 +27,7 @@ style choice, a tabpanel may not sit inside a tablist, so the two cannot be one 
 **Do / Don't**
 - **`value` and `label` are both required.** `value` is what the parent's `change` carries;
   `label` is what the button reads.
-- **The panel only works inside `arena-tabs`.** It injects the parent's state to learn whether it is selected and which ids wire it to its button. On its own it has nothing to inject, and Angular reports it as a missing provider.
+- **The panel only works inside `arena-tabs`.** The panel injects the parent's state to learn whether it is selected and which ids wire it to its button. On its own it has nothing to inject, and Angular reports it as a missing provider.
 - **Values must be distinct within one strip.** The parent resolves both ids by finding the tab
   with that value, so a duplicate makes two panels answer to one button.
 - **The panel's content mounts whether or not the panel is selected**, and it is hidden rather than removed when it is not. Anything expensive belongs behind a guard inside the content, not behind the tab.

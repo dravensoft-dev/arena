@@ -1,6 +1,5 @@
 A named group inside an `ArenaSideNav` that shows and hides its own contents -- a real
-`<button>` that toggles the region under it. It is the `disclosure` pattern, and it is
-**not** a treeview.
+`<button>` that toggles the region under it. The component binds the `disclosure` pattern, and it is **not** a treeview.
 
 ```tsx
 <ArenaSideNav ariaLabel="Primary" active={route} onNav={(id) => setRoute(id)}>
@@ -30,19 +29,11 @@ A named group inside an `ArenaSideNav` that shows and hides its own contents -- 
 <!-- @api end -->
 
 The trigger carries `aria-expanded` and an `aria-controls` naming the region it toggles.
-The region is **always rendered** and hidden while collapsed, so `aria-controls` never
-points at nothing; both `hidden` and the inline `display` are driven by the same state,
-because an inline `display: flex` would otherwise beat `[hidden]`'s `display: none` and
-leave a "hidden" region on screen. Enter and Space work because the trigger is a native
+The region is **always rendered** and hidden while collapsed, so `aria-controls` never points at nothing. Both `hidden` and the inline `display` are driven by the same state. An inline `display: flex` would otherwise beat `[hidden]`'s `display: none` and leave a "hidden" region on screen. Enter and Space work because the trigger is a native
 `<button type="button">` and nothing here intercepts either key.
 
 `id` is required, and it is what both DOM ids are derived from: the trigger is
-`${id}-trigger` and the region is `${id}-region`. Two attributes have to name elements
-that exist -- the trigger's `aria-controls` and the region's `aria-labelledby` -- and
-neither is conditional, so there is no shape of this component in which the id goes
-unused. A group is a thing you name anyway. A side benefit of deriving both from your
-value rather than generating them: you can point an `aria-describedby`, a deep link or a
-test hook at either element, which a `useId()` value would make impossible.
+`${id}-trigger` and the region is `${id}-region`. Two attributes have to name elements that exist: the trigger's `aria-controls` and the region's `aria-labelledby`. Neither is conditional, so there is no shape of this component in which the id goes unused. A group is a thing you name anyway. Deriving both from your value rather than generating them has a side benefit. You can point an `aria-describedby`, a deep link or a test hook at either element, which a `useId()` value would make impossible.
 `ArenaSideNavSection` needs none of this -- its heading id is internal -- so it generates its
 own and declares no `id` at all.
 
@@ -56,62 +47,31 @@ otherwise, or unless it holds the active destination, which the next section cov
 
 ## The group opens itself around the active destination
 
-**This is implicit behaviour, and it is stated here rather than left to be discovered.**
-When the subtree a collapsible holds contains an `ArenaSideNavItem` whose `id` is the enclosing
-`ArenaSideNav`'s `active`, the group opens -- on the first render, including the server pass,
-and again on every later route change that moves the active destination into it. You do
+**The behaviour below is implicit, and it is stated here rather than left to be discovered.** The group opens when the subtree a collapsible holds contains an `ArenaSideNavItem` whose `id` is the enclosing `ArenaSideNav`'s `active`. That happens on the first render, including the server pass, and again on every later route change that moves the active destination into it. You do
 not have to compute `defaultExpanded` from the route yourself.
 
 Two consequences worth holding on to:
 
-- **`onToggle` does not fire for it.** It reports the button press and nothing else,
-  because the automatic expansion is Arena's decision rather than the user's -- persisting
-  it as a user preference would record something the user never chose.
-- **You can still collapse it.** The state is the component's own, not derived from the
-  route, so a group holding the active item shuts when you press its trigger and stays
-  shut until the active destination moves into it again.
-- **And it stays shut while the active destination moves *within* it.** The auto-expand
-  fires on the group coming to hold the active item -- a transition -- not on it holding
-  one. So if you collapse a group and the route then moves from one item inside it to
-  another inside the same group, nothing has changed about whether the group holds the
-  active destination, the group does not reopen, and the current item is hidden inside a
-  shut group until the route leaves and returns. That is the price of letting you collapse
-  a group holding the active item at all: a rule that reopened it on every route change
-  would take that away.
+- **`onToggle` does not fire for it.** The output reports the button press and nothing else, because the automatic expansion is Arena's decision rather than the user's. Persisting it as a user preference would record something the user never chose.
+- **You can still collapse it.** The state is the component's own rather than derived from the route. A group holding the active item shuts when you press its trigger, and stays shut until the active destination moves into it again.
+- **And it stays shut while the active destination moves *within* it.** The auto-expand fires on the group coming to hold the active item. The opening is a transition rather than a standing condition. So collapse a group, and let the route move from one item inside it to another inside the same group. Nothing has changed about whether the group holds the active destination, so the group does not reopen. The current item stays hidden inside a shut group until the route leaves and returns. The price of letting you collapse a group holding the active item at all is exactly that. A rule that reopened it on every route change would take that away.
 
 ## Do / Don't
 
-- **Do** give the collapsible an `id` distinct from any destination's. It names the group,
-  not a place -- the group opens around the active item by matching the `ArenaSideNavItem`
-  elements inside it, never by comparing its own id to `active`.
+- **Do** give the collapsible an `id` distinct from any destination's. The id names the group rather than a place. The group opens around the active item by matching the `ArenaSideNavItem` elements inside it, never by comparing its own id to `active`.
 - **Do** nest freely. A collapsible may hold sections and further collapsibles, and each
   level indents one `indentStep` deeper than the last, compounded -- see `ArenaSideNav.indentStep`.
 - **Don't** expect arrow keys, `aria-level` or a roving tab stop. Each collapsible is an
   independent disclosure, so Tab moves through the triggers and the visible links in order
   and a collapsed region is skipped because it is hidden. If you genuinely need treeview
   semantics, this is not the component.
-- **Don't** drive `defaultExpanded` from state you update on every toggle. It is a seed
-  read once; wire `onToggle` to your own store if you want the group's state to persist,
-  and leave `defaultExpanded` as that store's initial value.
-- **Don't** leave `id` or `label` blank. Both are required and guarded: a blank `label`
-  leaves the trigger with no accessible name, and a blank `id` produces the id pair
-  `-trigger`/`-region`, which every other blank-id collapsible on the page would share.
-- **Don't** wrap its children in a fragment or a component of your own. It injects into
-  the children it is handed, and `React.Children.toArray` does not see through a `<>...</>`
-  -- the same limit `ArenaSideNav` and `ArenaSideNavSection` carry.
+- **Don't** drive `defaultExpanded` from state you update on every toggle. The member is a seed read once. Wire `onToggle` to your own store if you want the group's state to persist, and leave `defaultExpanded` as that store's initial value.
+- **Don't** leave `id` or `label` blank. Both are required and guarded. A blank `label` leaves the trigger with no accessible name. A blank `id` produces the id pair `-trigger` and `-region`, which every other blank-id collapsible on the page would share.
+- **Don't** wrap its children in a fragment or a component of your own. The component injects into the children it is handed, and `React.Children.toArray` does not see through a `<>...</>`. `ArenaSideNav` and `ArenaSideNavSection` carry the same limit.
 
 ## Verifying the disclosure by hand
 
-**Two halves of this component are not machine-checkable, and neither is unverified
-because it is unimportant.** happy-dom does not synthesise a click from a keydown on a
-native button, so no suite can prove Enter and Space actually toggle the region -- what
-is proved instead is that the trigger is a native `<button type="button">`, that no handler
-of ours cancels either key, and that a click toggles, which together make the platform's
-activation the only remaining link. And
-happy-dom has no sequential focus navigation at all, so a Tab keypress plus
-`document.activeElement` would pass identically against a correct implementation and
-against none; that suite asserts the structural half instead (the links sit inside
-`[hidden]` while collapsed, and nothing adds a `tabindex`).
+**Two halves of this component are not machine-checkable, and neither is unverified because it is unimportant.** happy-dom does not synthesise a click from a keydown on a native button. No suite can prove Enter and Space actually toggle the region. What is proved instead is that the trigger is a native `<button type="button">`, that no handler of ours cancels either key, and that a click toggles. Together those make the platform's activation the only remaining link. And happy-dom has no sequential focus navigation at all, so a Tab keypress plus `document.activeElement` would pass identically against a correct implementation and against none. That suite asserts the structural half instead: the links sit inside `[hidden]` while collapsed, and nothing adds a `tabindex`.
 
 Serve the tree with `bun run demos`, open
 `frameworks/react/components/navigation/arena-side-nav-collapsible/ArenaSideNavCollapsible.demo.generated.html`, and check all of:
@@ -124,7 +84,7 @@ Serve the tree with `bun run demos`, open
    to `false`, and the two links vanish. Press Enter again and all three reverse. Check
    the caret and `aria-expanded` *together* -- a caret driven by a second piece of state
    could disagree with the attribute and only the eye would catch it.
-3. Repeat step 2 with **Space**. It must behave identically. Space activates a native
+3. Repeat step 2 with **Space**. The layer beside this one behaves identically. Space activates a native
    button on key*up* rather than key*down*, so a handler that intercepted only one of the
    two keys would show up here and nowhere else.
 4. With the group **expanded**, Tab forward from the trigger. Focus must go
@@ -133,9 +93,7 @@ Serve the tree with `bun run demos`, open
 5. With the group **collapsed**, Tab forward from the trigger. Focus must go
    `Deployments` -> `Settings` directly, skipping both hidden links. Landing on
    `Production` while it is invisible is the defect this step exists for.
-6. The indent compounds with depth and is real, measurable padding, not a margin trick:
-   the root item sits at 12px, the trigger one step in at 24px, and the items inside it
-   at 36px, each step one `indentStep` of `--sp-1`.
+6. The indent compounds with depth, and it is real measurable padding rather than a margin trick. The root item sits at 12px, the trigger one step in at 24px, and the items inside it at 36px. Each step is one `indentStep` of `--sp-1`.
 
 **Verified in Chromium 150 on 2026-07-26**, all six. Steps 2 through 5 were additionally
 driven through CDP with real `ArenaInput.dispatchKeyEvent` key events, and the observed

@@ -37,8 +37,7 @@ consumer who wires no handler.
 **Do / Don't**
 - The last item is the current location: no link, styled in `--bone`.
 - Don't replace tabs with breadcrumbs or vice versa; they coexist (tabs = sibling sections, breadcrumbs = depth).
-- Don't reach for `onNavigate` to call `preventDefault()` -- it never receives the click
-  event, and it does not need to: Arena has already cancelled the anchor by the time it fires.
+- Don't reach for `onNavigate` to call `preventDefault()`. The handler never receives the click event and does not need to. Arena has already cancelled the anchor by the time it fires.
 - Don't wrap a crumb in your router's `Link`. `items` is data and the anchor is Arena's;
   navigate in `onNavigate` instead.
 

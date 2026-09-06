@@ -18,7 +18,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const MIN_WORDS = 8;
 export const LIMIT = 3;
-export const FAMILY_LIMIT = 45;
+export const FAMILY_LIMIT = 47;
 
 export const OUT_OF_SCOPE = 'docs/';
 
@@ -35,7 +35,12 @@ export const FAMILY_DEBT =
   + 'than paid: the prompt is the consumer\'s last stop and a reader opens exactly one, so moving '
   + 'the rule up a level would charge every build for a family it is not using. The limit is what '
   + 'the largest family costs today, so the debt cannot grow while it waits for a generator to '
-  + 'emit the shared block the way an @api region is emitted.';
+  + 'emit the shared block the way an @api region is emitted. Raised from 45 to 47 when the '
+  + 'prompts were rewritten into the register check:register holds. The shared prose did not '
+  + 'grow and the unit did: a rule two charts both state ran as one long sentence and now runs '
+  + 'as two short ones, so the same words are counted twice. A count that moves because the '
+  + 'sentence got shorter is a count about the register rather than about the debt, which is '
+  + 'why the number moved and the argument above did not.';
 
 export function documents(base = root) {
   const git = hostBinary('git', 'to read the documents the tree versions, so a build product left '

@@ -30,21 +30,14 @@ const [step, setStep] = useState(0);
 
 <!-- @api end -->
 
-**Behaviour.** The coachmark is a modal dialog and behaves like one: opening moves focus to
-the first control inside it, Tab is trapped at both ends of that set, closing restores focus
-to whatever had it before, and **Escape dismisses through `onSkip`**: the same channel the
-scrim click uses, so Escape joins the mouse path rather than replacing it. There is no
+**Behaviour.** The coachmark is a modal dialog and behaves like one. Opening moves focus to the first control inside it, Tab is trapped at both ends of that set, and closing restores focus to whatever had it before. **Escape dismisses through `onSkip`**, the same channel the scrim click uses, so Escape joins the mouse path rather than replacing it. There is no
 separate "dismiss" callback to wire.
 
 **The accessible name is a fallback chain**, `step.title ?? step.eyebrow ?? "Step N of M"`,
 **A caller who wants a useful name still supplies a
-step `title`**: a positional name is a floor, not a substitute. The progress dots inside the
-panel carry a name of their own, `Progress: step N of M`, so an untitled step announces the
-dialog and its dots as two different things rather than as the same string twice.
+step `title`**: a positional name is a floor, not a substitute. The progress dots inside the panel carry a name of their own, `Progress: step N of M`. An untitled step announces the dialog and its dots as two different things, rather than as the same string twice.
 
-**Checked in Chromium by hand**, because native sequential focus navigation is the browser's
-and no suite in this repo drives one: with the tour open, Tab repeatedly through Back / Skip /
-Next and confirm focus never leaves the coachmark, then Shift+Tab back through it. The
+**Checked in Chromium by hand**, because native sequential focus navigation is the browser's and no suite in this repo drives one. With the tour open, Tab repeatedly through Back, Skip and Next, and confirm focus never leaves the coachmark. Then Shift+Tab back through it. The
 boundary wraps at either end are covered by a render suite; the interior is this check.
 
 **Do / Don't**
@@ -55,17 +48,13 @@ boundary wraps at either end are covered by a render suite; the interior is this
 
 ## Verifying the focus trap by hand
 
-A suite proves the boundary wrap: Arena's own `.focus()` call. It cannot prove the
-**interior**, that Tab from a middle control reaches the next one: that is the
-browser's native sequential focus navigation, which happy-dom does not implement. A
+A suite proves the boundary wrap: Arena's own `.focus()` call. A suite cannot prove the **interior**, meaning that Tab from a middle control reaches the next one. The interior is the browser's native sequential focus navigation, which happy-dom does not implement. A
 browser-driven gate stays refused, so this list is the check.
 
 Serve the tree with `bun run demos` and open
 `frameworks/react/components/feedback/arena-onboarding/ArenaOnboarding.demo.generated.html`.
 
-**Start by pressing Escape.** That card renders with the tour already open, because a
-specimen has to show something, and pressing "Start tour" while `open` is already
-`true` correctly does nothing, because the hook keys its effect on `open` changing. Skipping
+**Start by pressing Escape.** That card renders with the tour already open, because a specimen has to show something. Pressing "Start tour" while `open` is already `true` correctly does nothing, because the hook keys its effect on `open` changing. Skipping
 this step measures the closed-to-open transition that never happened.
 
 Then, with the tour closed:
@@ -76,9 +65,7 @@ Then, with the tour closed:
 2. **Tab once.** Focus moves to **Next**. Native navigation, not Arena's.
 3. **Tab again.** Focus wraps back to Skip.
 4. **Shift+Tab.** Focus wraps from Skip to Next.
-5. **Escape.** The tour closes through `onSkip`, the same channel the Skip button and
-   the scrim click use, which is how `dialog-modal`'s `keyboard.Escape` is met without adding
-   a member, and focus returns to "Start tour".
+5. **Escape.** The tour closes through `onSkip`, the same channel the Skip button and the scrim click use. One channel is how `dialog-modal`'s `keyboard.Escape` is met without adding a member, and focus returns to "Start tour".
 
 Driving this through CDP: Enter must be `keyDown` with `text: '\r'`; a `rawKeyDown`
 does not activate a button.

@@ -97,7 +97,7 @@ nowhere else. `bun run build:angular-demo && bun run demos`, then open
    panel in that case too: it hangs below the chip and every control is clickable.
 9. The now line is drawn over the chips rather than under them, being the last child of
    the grid and carries no z-index of its own.
-10. **Enter and Space on a focused day header fire `dateClick`.** That is the browser's own activation of a `<button>`, so no suite can claim it. happy-dom has no such behaviour, and a test for it would pass against a `<div>` too. Tab
+10. **Enter and Space on a focused day header fire `dateClick`.** The browser's own activation of a `<button>` does that, so no suite can claim it. happy-dom has no such behaviour, and a test for it would pass against a `<div>` too. Tab
     through the headers, fire both keys, and confirm one more Tab past the last one
     lands on the grid's single roving cell.
 

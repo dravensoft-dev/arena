@@ -36,7 +36,7 @@ a number. Turn the figure off yourself when you fill it, because the two share t
 
 `progressPercentage` is **clamped to 0 through 100 and rounded**, so a caller cannot report 143% or a fraction. One number drives `aria-valuenow` and the fill's width, which is the point. What a sighted user sees and what a screen reader is told cannot drift apart.
 
-**`indeterminate` is a different claim, not a styling flag.** It drops `aria-valuenow` altogether, because ARIA expresses indeterminacy by *omitting* the value rather than by reporting zero. Zero is a determinate claim that no progress has been made. `aria-valuemin` and
+**`indeterminate` is a different claim, not a styling flag.** The flag drops `aria-valuenow` altogether, because ARIA expresses indeterminacy by *omitting* the value rather than by reporting zero. Zero is a determinate claim that no progress has been made. `aria-valuemin` and
 `aria-valuemax` stay, because they are still true. The flag also hides the percentage whatever `showPercentage` says, because there is no percentage to show.
 
 **The live region is explicit, and it has content to announce.** `role="progressbar"` carries no

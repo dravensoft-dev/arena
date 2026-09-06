@@ -54,9 +54,7 @@ a real `<textarea>`, named by a real `<label for>`.
   and no suite can see it, because happy-dom has no layout and reports `scrollHeight` as `0`.
 - `rows` is the *initial* height and still applies under `autoResize`; it is what the box is
   before it has content to measure.
-- `required` and `readOnly` land on the native attributes rather than on `aria-required` and
-  `aria-readonly`; a native control already reports both, and writing them twice is two claims
-  that can disagree. `aria-multiline` is likewise absent on purpose: a `<textarea>` is multiline
+- `required` and `readOnly` land on the native attributes rather than on `aria-required` and `aria-readonly`. A native control already reports both, and writing them twice is two claims that can disagree. `aria-multiline` is likewise absent on purpose: a `<textarea>` is multiline
   by being one.
 - `change` is an output named after a native DOM event, so the control calls `stopPropagation()`
   on the native `change` and a commit does not read as a second edit. Bind on the

@@ -1,4 +1,4 @@
-One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside it per cell. It only makes sense as a child of `ArenaTable`, which injects where the row sits, which columns its cells are set against, and how the keyboard reaches them.
+One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside it per cell. The row only makes sense as a child of `ArenaTable`. The table injects where the row sits, which columns its cells are set against, and how the keyboard reaches them.
 
 ```tsx
 <ArenaTableRow key={d.build} interactive onClick={() => openDeploy(d)}>
@@ -22,18 +22,18 @@ One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside 
 <!-- @api end -->
 
 **Do / Don't**
-- Put `key` on the row. It is React's own reconciliation, not an Arena member; `ArenaTable` has no `getRowKey`.
+- Put `key` on the row. The key is React's own reconciliation rather than an Arena member. `ArenaTable` has no `getRowKey`.
 - `onClick` takes no argument. You wrote this element inside your own `.map()`, so you already hold the row it is about; a payload would hand you back what you just had.
 - Cells are **positional**: the nth `ArenaTableCell` reads the nth entry of `ArenaTable`'s `columns`. Keep them in the same order.
 - Don't write a bare `<td>` or a `<div>` as a child. `ArenaTableRow` injects a cell's column, layout and keyboard props into each child, and only `ArenaTableCell` knows what to do with them.
 - Don't reach for the row to style a cell: alignment, width and the mono/gold treatment are the **column's**, so they stay the same all the way down.
-- **Pass `interactive` alongside `onClick`, or the row is inert.** The flag is what makes the card shape a `role="button"` tab stop with an Enter/Space handler; without it the row draws and activates nothing. It is a member rather than "is `onClick` bound?" because no render follows from whether a listener is bound: derived that way, a clickable card row renders pointer-only in a layer that cannot ask the question, and nothing says so.
-- Wire it only when the whole row means something to activate. A row with one actionable thing in it wants an `ArenaButton` in a cell instead, and a table whose rows are all `interactive` puts a tab stop on every one of them.
+- **Pass `interactive` alongside `onClick`, or the row is inert.** The flag is what makes the card shape a `role="button"` tab stop with an Enter and Space handler. Without it the row draws and activates nothing. The flag is a member rather than "is `onClick` bound?", because no render follows from whether a listener is bound. Derived that way, a clickable card row renders pointer-only in a layer that cannot ask the question, and nothing says so.
+- Wire it only when the whole row means something to activate. A row with one actionable thing in it wants an `ArenaButton` in a cell instead. A table whose rows are all `interactive` puts a tab stop on every one of them.
 - **A control inside a cell keeps its own activation.** A selection checkbox in the first column and a row action in the last are the canonical table. An activation that starts on a link, a button, a field or anything carrying an interactive role does not reach the row. The checkbox ticks and the reader stays where they are, and the action fires once rather than twice. Only a press that lands on the row itself activates it.
 
 ### What is injected, and therefore not yours
 
-`rowIndex`, `columns`, `layout`, `cursorCol`, `gridFocused` and `onCellFocus` arrive from `ArenaTable` through `cloneElement`. They are not part of this component's API, are not in `contracts/api/components/ArenaTableRow.json`, and a consumer never writes one, in the same shape as `ArenaRadioGroup` injecting `name`/`checked`/`onSelect` into each `ArenaRadio`.
+`rowIndex`, `columns`, `layout`, `cursorCol`, `gridFocused` and `onCellFocus` arrive from `ArenaTable` through `cloneElement`. None of them is part of this component's API, none is in `contracts/api/components/ArenaTableRow.json`, and a consumer never writes one. `ArenaRadioGroup` injects `name`, `checked` and `onSelect` into each `ArenaRadio` in the same shape.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

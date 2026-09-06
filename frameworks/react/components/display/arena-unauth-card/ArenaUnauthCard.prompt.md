@@ -1,5 +1,4 @@
-The panel every signed-out screen needs. It is a frame, not a form: no `email`, no
-`password`, no `onSubmit`, no validation. Fields are composed from `ArenaInput` and
+The panel every signed-out screen needs. The panel is a frame rather than a form. There is no `email`, no `password`, no `onSubmit` and no validation. Fields are composed from `ArenaInput` and
 `ArenaButton`, which is what lets the same component serve "Welcome back", "Check your
 inbox", "This link expired" and "Enter your two-factor code".
 
@@ -34,7 +33,7 @@ supply. `brand`, `footer` and the children default slot stay nodes.
 
 <!-- @api end -->
 
-**It does not centre itself**: the product owns the page. The wrapper is three lines,
+**The panel does not centre itself.** The product owns the page. The wrapper is three lines,
 and writing them is what keeps a split layout beside an illustration possible:
 
 ```tsx
@@ -48,7 +47,7 @@ and writing them is what keeps a split layout beside an illustration possible:
 - **Do** stack the fields yourself, in a flex column with a `--sp` gap. The panel does
   not decide how many fields there are or how they space.
 - **Do** put a "sign in with Google" button, an "or" divider or a resend timer straight
-  into `children`. It is a card, so it is composed into; none of those needs a prop.
+  into `children`. The panel is a card, so it is composed into. None of those needs a prop.
 - **Don't** give it credentials or a submit handler. The moment it knows about a
   password it stops being the panel the other screens use.
 - **Don't** centre it from inside, and don't wrap it in something that assumes it owns

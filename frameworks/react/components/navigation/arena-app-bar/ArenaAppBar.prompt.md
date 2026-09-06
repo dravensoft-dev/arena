@@ -1,5 +1,5 @@
 The band across the top of every screen: the site's identity, the way through it, and the controls
-that follow the reader everywhere. It is the banner landmark, so there is one per page.
+that follow the reader everywhere. The bar is the banner landmark, so a page carries one.
 
 ```tsx
 <ArenaAppBar
@@ -28,12 +28,9 @@ that follow the reader everywhere. It is the banner landmark, so there is one pe
 carries for markup you wrote yourself.
 
 **The nav landmark is yours, and that is deliberate.** The links are your router's, and Arena never
-wraps one. A page with a side nav as well has two navigation landmarks, and naming them apart is a
-judgement about your page rather than about this component, so the `<nav aria-label>` goes in the
-slot.
+wraps one. A page with a side nav as well has two navigation landmarks. Naming them apart is a judgement about your page rather than about this component, so the `<nav aria-label>` goes in the slot.
 
-**`sticky` takes the navigation layer of the stacking order.** A dialog, a sheet and a command
-palette all still cover it, which is what keeps a modal from sliding under the bar.
+**`sticky` takes the navigation layer of the stacking order.** A dialog, a sheet and a command palette all still cover it. The stacking order is what keeps a modal from sliding under the bar.
 
 **Do / Don't**
 - **Do** wrap the brand in your own link if it should lead home. The bar draws no anchor.

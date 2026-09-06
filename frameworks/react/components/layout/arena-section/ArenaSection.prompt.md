@@ -24,14 +24,10 @@ A named region of a page: a heading, what sits around it, and the group it names
 
 <!-- @api end -->
 
-**`title` and `children` are both required, and both are guarded at runtime.** A section is a
-heading over a group: with no heading it is a stack, which `css/rhythm.css` already ships as
-`.arena-stack`, and with no children the heading names nothing. The title guard trims first,
+**`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which `css/rhythm.css` already ships as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
 because the value it exists to catch is a present and useless one rather than an absent one.
 
-**It renders a plain `<section>` and claims no landmark.** A `<section>` becomes a `region` in the
-accessibility tree only once it has an accessible name, and a page where every section announced
-itself would bury the two or three landmarks that matter. The heading is the structure a reader
+**The component renders a plain `<section>` and claims no landmark.** A `<section>` becomes a `region` in the accessibility tree only once it has an accessible name. A page where every section announced itself would bury the two or three landmarks that matter. The heading is the structure a reader
 navigates by, and it is the platform's own.
 
 **A section nests, and `headingLevel` is how.** The default is `h2`, the section rung of the title

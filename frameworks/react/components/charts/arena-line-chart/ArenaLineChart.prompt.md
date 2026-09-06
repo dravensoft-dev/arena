@@ -44,9 +44,9 @@ A line for a value over an ordered sequence, time, builds, releases. Hovering an
 - Pass `valueSuffix` so the axis, the tooltip and the accessible table all carry the unit. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
-- Don't pass `tone` together with `slot` on one series: identity or meaning, never both. It warns in development and `tone` wins.
+- Don't pass `tone` together with `slot` on one series: identity or meaning, never both. The pair warns in development, and `tone` wins.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed. Several series on one scale is what `series` is for; several series that do not share a scale are several charts.
-- Don't turn `area` on for more than one series. It is refused past one and warns in development, because two fills occlude each other and the reader cannot tell which value either edge belongs to. Use plain lines, or small multiples.
+- Don't turn `area` on for more than one series. A second fill is refused and warns in development. Two fills occlude each other, and the reader cannot tell which value either edge belongs to. Use plain lines, or small multiples.
 - Use `valuePrefix` for a currency that goes in front, and `valueFormat` for the number itself: locale, fraction digits, grouping, compaction. Formatting before you pass them is not an option, because what you pass is `ArenaSeries[]` and the writing happens on labels Arena generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is what a chart always did.
 - Don't omit `labels`, `series` or `label`. All three are required props, and `ArenaLineChart` throws from its render rather than drawing an empty box. A required member absent is a caller bug that fails hard in every layer, not a state to render.
 - Don't pass more `labels` than a series has values. A point is drawn per value and takes the label at its own index, so a surplus label is silently dropped rather than drawn with no point above it. A series shorter than its neighbours ends its line there rather than dropping to zero, because a missing number is not a zero.

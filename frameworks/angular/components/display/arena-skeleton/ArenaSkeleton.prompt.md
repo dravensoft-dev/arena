@@ -40,9 +40,7 @@ something to override; see the table below.
 - `radius` only affects `variant="block"`. Passing it to `circle`, `line` or `text`
   has no effect, a circle is always a perfect circle, and the rows stay a fixed
   small radius.
-- Don't animate a skeleton that will be on screen for more than a moment or two: the
-  shimmer stops entirely under `prefers-reduced-motion`, and it is decoration, not a
-  progress report. Use `<arena-progress-bar>` when there is real progress to report.
+- Don't animate a skeleton that will be on screen for more than a moment or two. The shimmer stops entirely under `prefers-reduced-motion`, and it is decoration rather than a progress report. Use `<arena-progress-bar>` when there is real progress to report.
 - Don't wrap a single `<arena-skeleton>` in a live region of your own, because it already
   carries `role="status"`. A set of several is a different case: see below.
 

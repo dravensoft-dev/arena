@@ -1,6 +1,4 @@
-The honest carousel: a row that scrolls, with no arrows pretending to be a slideshow. It is one
-tab stop with a group role and a name, which is what a scrolling region needs to be reachable by
-keyboard at all.
+The honest carousel: a row that scrolls, with no arrows pretending to be a slideshow. The row is one tab stop with a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all.
 
 ```tsx
 <ArenaScroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
@@ -26,8 +24,7 @@ that animates: `snap` lands on an item, `flow` lands wherever the reader left it
 
 **`itemWidth` reaches the children as a custom property**, because a row sets its items' width and
 cannot reach inside them. Every child is laid out at that width exactly as it was written; nothing
-is wrapped. Its default is `--grid-min`, the same role `ArenaGrid` reads, so a wall of cards and a
-row of the same cards agree about how wide a card is and a style plugin re-answers both at once.
+is wrapped. The default is `--grid-min`, the role `ArenaGrid` reads. A wall of cards and a row of the same cards agree about how wide a card is, and a style plugin re-answers both at once.
 
 **`label` is required and guarded after trimming.** Focus lands on the row itself, and a group
 announced as a group tells a reader that focus moved and nothing about where. `children` is

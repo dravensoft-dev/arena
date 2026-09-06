@@ -34,7 +34,7 @@ nothing can derive from a file name.
 **`ratio` defaults to the role.** A style plugin answers the shape of every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
 only for the figure whose shape is not the plugin's to decide, such as a video.
 
-**`fallback` is a state and not an error.** It draws centred and at rest when there is no media.
+**`fallback` is a state and not an error.** The fallback draws centred and at rest when there is no media.
 With neither media nor fallback the frame is an empty box of the right shape, which is what a
 loading wall wants.
 

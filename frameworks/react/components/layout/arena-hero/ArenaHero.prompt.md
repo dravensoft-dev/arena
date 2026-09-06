@@ -1,5 +1,4 @@
-The opening of a landing page: one line the page is built around, what sits above and below it,
-the actions it asks for, and a figure beside or behind it. The hero's title takes the hero register, which is the top rung of the title ladder and the only one above a page head.
+The opening of a landing page. The hero holds one line the page is built around and what sits above and below that line. The hero also holds the actions it asks for, and a figure beside or behind it. The hero's title takes the hero register, which is the top rung of the title ladder and the only one above a page head.
 
 ```tsx
 <ArenaHero

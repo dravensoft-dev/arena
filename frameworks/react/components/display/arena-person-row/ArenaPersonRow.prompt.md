@@ -1,6 +1,5 @@
 One person inside an `ArenaPeopleList`: a face, a name, an optional line under it, an optional
-position in front and an optional figure behind. Its size comes from the list rather than from
-here, so a row is written the same way whatever list it lands in.
+position in front and an optional figure behind. The row's size comes from the list rather than from here, so a row is written the same way whatever list it lands in.
 
 ```tsx
 <ArenaPersonRow rank={4} name="Priya Raman" src="/img/priya.jpg" figure="1815 XP" current />
@@ -29,10 +28,8 @@ here, so a row is written the same way whatever list it lands in.
 
 **Do / Don't**
 - Put the unit in `figure`: "1815 XP", "12 open", "38%". The value is one a reader says out loud, and formatting it where the data is beats formatting it here.
-- Use `current` for the reader's own row. It fills the row and announces itself, which is what a
-  highlight has to do to be worth drawing.
-- Use `secondary` for a handle, a role or a reason, and keep it to a line: it truncates rather
-  than wrapping, because a list of people reads down the names.
+- Use `current` for the reader's own row. The state fills the row and announces itself, which is what a highlight has to do to be worth drawing.
+- Use `secondary` for a handle, a role or a reason, and keep it to a line. The line truncates rather than wrapping, because a list of people reads down the names.
 - Don't wrap the row in a link. A row is not an activation target; put the control in `action`,
   where it keeps its own name and its own keyboard.
 - Don't pass `rank` to say the list is ordered. The number is drawn where you put it, and whether

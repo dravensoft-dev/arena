@@ -1,5 +1,4 @@
-The band across the bottom of every screen: what a page says about itself once it has finished. It
-is the contentinfo landmark, so there is one per page.
+The band across the bottom of every screen: what a page says about itself once it has finished. The footer is the contentinfo landmark, so a page carries one.
 
 ```tsx
 <ArenaSiteFooter note="© 2026 Meridian Roasters. Roasted in Bilbao.">
@@ -24,15 +23,12 @@ is the contentinfo landmark, so there is one per page.
 anyone picked, the same way `ArenaGrid` decides its own. Nothing is wrapped: a column of links, a
 signup form and an address all land as they were written.
 
-**The band matches the bar at the top.** The fill and the hairline run edge to edge and the
-contents stop at the page width, so the two ends of a page line up with each other and with
-everything between them.
+**The band matches the bar at the top.** The fill and the hairline run edge to edge, and the contents stop at the page width. The two ends of a page then line up with each other and with everything between them.
 
 **Do / Don't**
 - **Do** give each column its own heading. A list of links with no name is a list a reader has to
   read to identify.
-- **Do** put the licence and the year in `note`. It is the line under the columns, in the muted
-  ink, and it renders nothing at all when absent.
+- **Do** put the licence and the year in `note`. The slot is the line under the columns, in the muted ink, and it renders nothing at all when absent.
 - **Don't** put a second `<footer>` at the top level of the page. Contentinfo is one per page.
 - **Don't** reach for it as a card's footer. The card's own footer is a slot on the card, and a `<footer>` inside a section is not this landmark.
 
