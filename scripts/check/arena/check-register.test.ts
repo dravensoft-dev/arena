@@ -86,13 +86,18 @@ test('the branch this gate reads is the consumer one, and the router with it', (
 });
 
 test('an allowance names a pathspec, and a document under one is excused by it', () => {
-  assert.equal(excusedBy('skills/design/references/page.md'), 'skills/design/references/page.md');
   assert.equal(
     excusedBy('frameworks/react/components/forms/arena-radio/ArenaRadio.prompt.md'),
     'frameworks/*/components/**/*.prompt.md',
   );
-  assert.equal(excusedBy('skills/design/SKILL.md'), null,
-    'the router is the first page rewritten into this register, so nothing excuses it any more');
+  assert.equal(excusedBy('AGENTS.md'), null, 'the other branch is not this gate\'s subject');
+  const excused = scoped().filter((rel) => excusedBy(rel) !== null);
+  const held = scoped().filter((rel) => excusedBy(rel) === null);
+  assert.equal(excused.length + held.length, scoped().length,
+    'every document this gate reads is either excused by one entry or held by the register');
+  assert.ok(held.length > 0,
+    'a rewritten document leaves the map, so this list grows and the entries shrink. Naming one '
+    + 'here would make every rewrite a suite edit, which is the chore this derivation avoids');
 });
 
 test('an allowance whose every document already reads in this register fails as stale', () => {
