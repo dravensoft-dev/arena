@@ -5,7 +5,9 @@
  * from the route rather than written a second time. There is deliberately no single llms-full:
  * one file would be most of a megabyte and would hand an agent BOTH framework idioms of every
  * component, which is the drift the consumer-branch work was written to end. The router says to
- * read your own layer and no other, and a corpus that ignores it undoes that in one fetch. */
+ * read your own layer and no other, and a corpus that ignores it undoes that in one fetch.
+ * Deriving lifts a sentence out of a document: a full stop inside a code span, a link or an
+ * emphasis does not end one, and a marker whose partner stayed behind is not published. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -22,7 +24,10 @@ export const REFERENCE_DIR = 'skills/design/references';
 export const REFERENCE_LINK = /\.\/references\/([A-Za-z0-9-]+\.md)/g;
 export const HEADLINE = /^#\s+(.+)$/m;
 export const OPENING = /^#\s+.+\n+([\s\S]*?)(?:\n\n|$)/;
-export const WHEN = /Read this [^.]*\./;
+export const WHEN = /Read this /;
+export const PARAGRAPH = /\n\s*\n/;
+export const EMPHASIS = /^(\*\*|\*)/;
+export const INLINE_LINK = /\[([^\]]*)\]\((?:[^()]|\([^()]*\))*\)/g;
 export const LAYER_INDEX = `frameworks/${INDEX}`;
 export const BUILD_INTERMEDIATE = 'build/package';
 
@@ -85,16 +90,91 @@ export function headline(rel: string, base = root) {
   return HEADLINE.exec(readFileSync(join(base, rel), 'utf8'))?.[1]?.trim() ?? nameOf(rel);
 }
 
+export function paragraphs(text: string) {
+  return text.split(PARAGRAPH).map((part) => part.replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
+
+export function sentenceEnd(flat: string, from = 0) {
+  let code = false;
+  let bracket = 0;
+  let target = 0;
+  const emphasis: string[] = [];
+  for (let i = 0; i < flat.length; i += 1) {
+    if (flat[i] === '`') { code = !code; continue; }
+    if (code) continue;
+    if (target > 0) {
+      if (flat[i] === '(') target += 1;
+      else if (flat[i] === ')') target -= 1;
+      continue;
+    }
+    if (flat[i] === '[') { bracket += 1; continue; }
+    if (flat[i] === ']') {
+      if (bracket > 0) bracket -= 1;
+      if (flat[i + 1] === '(') { target = 1; i += 1; }
+      continue;
+    }
+    const marker = EMPHASIS.exec(flat.slice(i))?.[1];
+    if (marker) {
+      if (emphasis.at(-1) === marker) emphasis.pop();
+      else emphasis.push(marker);
+      i += marker.length - 1;
+      continue;
+    }
+    if (flat[i] !== '.' || (i + 1 < flat.length && !/\s/.test(flat[i + 1] ?? ''))) continue;
+    if (i >= from && bracket === 0 && emphasis.length === 0) return i;
+  }
+  return -1;
+}
+
+export function balance(text: string) {
+  const marks: { at: number; len: number; paired: boolean }[] = [];
+  const open: number[] = [];
+  let code = false;
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] === '`') { code = !code; continue; }
+    if (code) continue;
+    const marker = EMPHASIS.exec(text.slice(i))?.[1];
+    if (!marker) continue;
+    const last = open.at(-1);
+    if (last !== undefined && marks[last]?.len === marker.length) {
+      open.pop();
+      marks[last]!.paired = true;
+      marks.push({ at: i, len: marker.length, paired: true });
+    } else {
+      open.push(marks.length);
+      marks.push({ at: i, len: marker.length, paired: false });
+    }
+    i += marker.length - 1;
+  }
+  const drop = new Set<number>();
+  for (const mark of marks) {
+    if (mark.paired) continue;
+    for (let k = 0; k < mark.len; k += 1) drop.add(mark.at + k);
+  }
+  let kept = '';
+  for (let i = 0; i < text.length; i += 1) if (!drop.has(i)) kept += text[i];
+  return kept;
+}
+
+export function lift(fragment: string) {
+  return balance(fragment.replace(INLINE_LINK, '$1')).replace(/\s+/g, ' ').trim();
+}
+
 export function opening(rel: string, base = root) {
   const paragraph = OPENING.exec(readFileSync(join(base, rel), 'utf8'))?.[1] ?? '';
   const flat = paragraph.replace(/\s+/g, ' ').trim();
-  const stop = flat.search(/\.(?:\s|$)/);
-  return stop < 0 ? flat : flat.slice(0, stop + 1);
+  const stop = sentenceEnd(flat);
+  return lift(stop < 0 ? flat : flat.slice(0, stop + 1));
 }
 
 export function when(rel: string, base = root) {
-  const flat = readFileSync(join(base, rel), 'utf8').replace(/\s+/g, ' ');
-  return WHEN.exec(flat)?.[0] ?? '';
+  for (const flat of paragraphs(readFileSync(join(base, rel), 'utf8'))) {
+    const start = flat.search(WHEN);
+    if (start < 0) continue;
+    const stop = sentenceEnd(flat, start);
+    return lift(stop < 0 ? flat.slice(start) : flat.slice(start, stop + 1));
+  }
+  return '';
 }
 
 export function blurb(rel: string, base = root) {

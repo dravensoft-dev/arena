@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {
   LLMS_INDEX, ROUTER, INDEX, REFERENCE_DIR, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl,
   summary, categoryIndexes, prompts, layerDocs, servedDocs, references, headline, blurb, index,
-  corpus, nameOf, categoryOf,
+  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -91,9 +91,49 @@ test('a reference the router does not link is a reference nothing serves, so the
 test('a reference names itself and says when it is read, so no second copy of either is written here', () => {
   for (const rel of references()) {
     assert.ok(headline(rel).length > 10, `${rel} carries no heading to be named by`);
-    assert.match(blurb(rel), /Read this [^.]*\./,
+    assert.ok(when(rel).startsWith('Read this'),
       `${rel} states no sentence saying when it is read, so the index can only guess`);
+    for (const half of [opening(rel), when(rel)]) {
+      assert.ok(half.endsWith('.'),
+        `${rel} is described by "${half}", which stops before its sentence does`);
+    }
   }
+});
+
+test('a blurb is lifted whole, so it closes every span it opens and links to nothing of its own', () => {
+  const even = (text: string, mark: string) => (text.split(mark).length - 1) % 2 === 0;
+  for (const rel of references()) {
+    const text = blurb(rel);
+    assert.ok(even(text, '`'), `${rel} is described by an unclosed code span, so the index an agent `
+      + `fetches first is markdown that stops parsing where the lift cut it: ${text}`);
+    assert.ok(even(text, '**'), `${rel} is described by an emphasis whose partner stayed behind in `
+      + `the document, so what reaches the reader is literal asterisks: ${text}`);
+    assert.ok(!text.includes(']('), `${rel} carries a link inside its description. Every entry has `
+      + 'one link of its own, and a second one is written relative to the document it was lifted '
+      + `from: llmsProblems reads absolute targets only, so it resolves in a clone and 404s here: ${text}`);
+    assert.ok(!/\[[^\]]*$/.test(text), `${rel} is described by an unclosed link label: ${text}`);
+  }
+  assert.ok(index().includes(blurb(references()[0] ?? '')), 'the index publishes what this reads');
+});
+
+test('a full stop inside a span, a link or an emphasis is punctuation rather than an ending', () => {
+  const cut = (text: string, from = 0) => text.slice(0, sentenceEnd(text, from) + 1);
+  assert.equal(cut('Read it beside `cold-start.md` and stop.'),
+    'Read it beside `cold-start.md` and stop.');
+  assert.equal(cut('Read it beside [`a.md`](./a.md) and stop. Then go.'),
+    'Read it beside [`a.md`](./a.md) and stop.');
+  assert.equal(cut('**Built with bun. None of that binds you**, and so on. More.'),
+    '**Built with bun. None of that binds you**, and so on.',
+    'the clause that qualifies the claim is inside the emphasis, and cutting early publishes only the claim');
+  assert.equal(sentenceEnd('No ending here'), -1);
+  assert.equal(cut('First. Second.', 7), 'First. Second.', 'a cut asked for later still ends a sentence');
+});
+
+test('what a fragment cannot close it does not publish, and it takes a label over a link', () => {
+  assert.equal(balance('routes you to**, because'), 'routes you to, because');
+  assert.equal(balance('**both ends** kept'), '**both ends** kept');
+  assert.equal(balance('a `*` inside code is not a marker'), 'a `*` inside code is not a marker');
+  assert.equal(lift('beside [`cold-start.md`](./cold-start.md) and on'), 'beside `cold-start.md` and on');
 });
 
 test('a build intermediate is never a document, however much it looks like one', () => {
