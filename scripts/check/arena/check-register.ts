@@ -46,9 +46,6 @@ export const SENTENCE_END = /(?<=[.!?])\s+/;
 export const EXEMPT = new Map<string, string>([]);
 
 export const NOT_YET_REWRITTEN = new Map<string, string>([
-  ['frameworks/*/PACKAGE.md',
-   'the two npm pages, whose shared half is emitted from generate-npm-pages.ts and whose other '
-   + 'half is written per layer, so the register moves in both halves at once'],
   ['plugin-style-store/catalogue/*/ENTRY.md',
    'the measured style plugins a project can start from, one card each'],
 ]);

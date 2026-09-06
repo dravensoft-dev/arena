@@ -196,7 +196,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 51_400,
+    budget: 51_700,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -346,7 +346,7 @@ export const ROUTES: Route[] = [
       + 'carries none of it: a page that never names the four ways to reach it ships a language '
       + 'nobody reaches. The rows also say that a corpus and the components it describes are two '
       + 'version numbers, since a served document that stops matching the package fails at '
-      + 'nothing and is read by an agent anyway.',
+      + 'nothing and is read by an agent anyway. Raised to 51,700 when both npm pages were rewritten into the register check:register holds. Two hundred and nine findings before and none after, for 177 characters on the charged stop. Thirty-seven of the sentences sit inside a @shared region, so they moved in generate-npm-pages.ts and landed on both pages at once; the rest are the half each layer writes for itself. The densest of them were the flag table and the audit paragraph, where a list of what a run reports ran as one sentence with four semicolons, which is the shape a reader scanning for one flag cannot scan.',
   },
   {
     name: 'consumer-skin',
