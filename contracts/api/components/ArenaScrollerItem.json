@@ -1,6 +1,6 @@
 {
   "component": "ArenaScrollerItem",
-  "description": "One cell of an ArenaScroller: the box that carries the width the row decided and the point the row settles on. It exists because a row cannot reach inside its children to size them, and a child that is an Arena component may render no box of its own at all, so a rule aimed at the row's direct children lands on nothing in one layer and on the card in the other. The item is the box both layers agree about.",
+  "description": "One cell of an ArenaScroller: the box that carries the width the row decided and the point the row settles on. The item exists because a row cannot reach inside its children to size them. A child that is an Arena component may render no box of its own at all. A rule aimed at the row's direct children then lands on nothing in one layer and on the card in the other. The item is the box both layers agree about.",
   "affordances": [],
   "api": {
     "content": { "form": "slot",

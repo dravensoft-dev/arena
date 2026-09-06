@@ -1,6 +1,4 @@
-An event feed. The component knows the grammar: someone did something to something,
-then, and gives each part its own ink: `actor` in `--bone`, `action` in `--bone-dim`,
-`target` in mono `--gold`, `time` in mono `--mute` pushed right. A tone dot leads
+An event feed. The component knows the grammar: someone did something to something, then. Each part takes its own ink. `actor` is `--bone`, `action` is `--bone-dim`, `target` is mono `--gold`, and `time` is mono `--mute` pushed right. A tone dot leads
 each row.
 
 ```tsx
@@ -25,23 +23,18 @@ each row.
 `tone` is ArenaBadge's vocabulary: `neutral · accent · gold · success · warning · danger ·
 info`, and defaults to `accent`.
 
-**There is no row escape hatch.** There is no `renderItem`, because per-item projection has
-no expression every framework Arena ships for can offer, and Arena declares only what all of
-them can implement. A consumer places no markup of their own inside one row: the event must fit `actor` / `action` / `target` / `time` / `tone`,
-or it does not belong in this component.
+**There is no row escape hatch.** There is no `renderItem`, because per-item projection has no expression every framework Arena ships for can offer. Arena declares only what all of them can implement. A consumer places no markup of their own inside one row. The event must fit `actor`, `action`, `target`, `time` and `tone`, or it does not belong in this component.
 
 ## Do / Don't
 
-- **Do** put it inside an `ArenaCard` when it is a panel's content. It renders no surface of
-  its own; the first row has no top rule for exactly that reason.
+- **Do** put it inside an `ArenaCard` when it is a panel's content. The feed renders no surface of its own, and the first row has no top rule for exactly that reason.
 - **Do** give each item a stable `id`. Index keys reorder badly on a feed that prepends.
-- **Don't** use `tone` decoratively. It is the event's status, and status colours mean
-  what they mean everywhere else in the system.
+- **Don't** use `tone` decoratively. The tone is the event's status, and status colours mean what they mean everywhere else in the system.
 - **Don't** put an action button in the row. A feed reports; it does not operate. If a
   row needs an affordance: that is an `ArenaTable`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

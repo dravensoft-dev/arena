@@ -42,21 +42,21 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 
 Rules: validates on `blur` by default; use `validateOn="change"` only for live feedback (passwords, availability). Mark required fields with `required`.
 
-`validate` is the **ninth form**, a `functionInput`: the consumer hands Arena a function it calls on the field's value and whose result it uses. It takes the value as a string and returns the error message, or nothing when the value is valid. It is the only inbound function in the library, and it is legal only because `ArenaInput` is a data-entry control.
+`validate` is the **ninth form**, a `functionInput`: the consumer hands Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string, and returns the error message or nothing when the value is valid. The function is the only inbound one in the library, and it is legal only because `ArenaInput` is a data-entry control.
 
-`onChange` and `onBlur` carry the **value as a string**, not the `ChangeEvent`/`FocusEvent`, because a platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
+`onChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
 
 `icon` is a **Phosphor class name Arena draws** (`icon="ph-bold ph-magnifying-glass"`), not a node you pass in; Arena renders the `<i>` and hides it from assistive tech. `prefix` is likewise **static text Arena draws** before the value (`prefix="git@"`).
 
-The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onChange` and `onBlur`. That is the whole API: there is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread, so global attributes, `className`, `dir`, `tabIndex`, ARIA and `data-*`, do not reach the `<input>`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onChange`.
+The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onChange` and `onBlur`. The members above are the whole API. There is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<input>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onChange`.
 
-**`id` is the one global attribute that is a member**, because the component generates one from `label` to wire the label's `htmlFor`, and with no way to override it an external `<label>`, an `aria-describedby` or a form library addressing the field by name would have no path at all. Pass it and it wins; omit it and the label-derived value is still generated.
+**`id` is the one global attribute that is a member.** The component generates one from `label` to wire the label's `htmlFor`. With no way to override it, an external `<label>`, an `aria-describedby` or a form library addressing the field by name would have no path at all. Pass it and it wins; omit it and the label-derived value is still generated.
 
-**`readOnly` and `disabled` look different because they mean different things.** A disabled field is dimmed and out of the conversation. A read-only field is at **full contrast**: its value is the point, and drops to the panel surface so it reads as a fact rather than a well you can type into. Reach for `readOnly` whenever the value must stay legible and copyable, and for `disabled` only when the field is genuinely inapplicable right now.
+**`readOnly` and `disabled` look different because they mean different things.** A disabled field is dimmed and out of the conversation. A read-only field is at **full contrast**, because its value is the point. The field drops to the panel surface, so it reads as a fact rather than a well you can type into. Reach for `readOnly` whenever the value must stay legible and copyable, and for `disabled` only when the field is genuinely inapplicable right now.
 
 ### Dates and times
 
-Use the native types. Arena deliberately ships **no `DatePicker` and no `TimePicker`**: the native control is the sanctioned approach: it is keyboard accessible, localized, and it is what a phone user already knows how to drive. Arena's job is to make it look like Arena, which it does, in both themes.
+Use the native types. Arena deliberately ships **no `DatePicker` and no `TimePicker`**. The native control is the sanctioned approach. The native control is keyboard accessible and localized, and it is what a phone user already knows how to drive. Arena's job is to make it look like Arena, which it does, in both themes.
 
 ```tsx
 <ArenaInput label="Deploy date" type="date" required />
@@ -71,8 +71,8 @@ Use the native types. Arena deliberately ships **no `DatePicker` and no `TimePic
 - Set `min` / `max` (they are members) so the browser does the range validation for free.
 
 **Don't**
-- Don't build a custom calendar popover to replace it. That is a deliberate non-goal: a custom picker is a large accessibility surface to re-earn, and the native one already has it.
-- Don't fake a date field with `type="text"` and a mask. It loses the picker, the mobile keyboard and the locale.
+- Don't build a custom calendar popover to replace it. The absence is a deliberate non-goal. A custom picker is a large accessibility surface to re-earn, and the native one already has it.
+- Don't fake a date field with `type="text"` and a mask. A text input loses the picker, the mobile keyboard and the locale.
 - Don't reach for a wrapper attribute or an inline `style` to size the field; wrap it in a container you control instead.
 
 ### Taking focus, the one handle on the component
@@ -92,12 +92,10 @@ function completeSale() {
 <ArenaInput ref={search} label="Search" value={query} onChange={setQuery} />
 ```
 
-They are a handle rather than props because no member is imperative, and an `autoFocus` prop
-would answer a different question: it fires once at mount, and chaining sales needs focus back
-after **every** completion. These two are the whole handle; `ArenaInput` exposes nothing else.
+The two are a handle rather than props, because no member is imperative. An `autoFocus` prop would answer a different question: it fires once at mount, and chaining sales needs focus back after **every** completion. These two are the whole handle; `ArenaInput` exposes nothing else.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

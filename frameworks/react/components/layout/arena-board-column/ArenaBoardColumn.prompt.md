@@ -1,5 +1,4 @@
-One column of an `ArenaBoard`: a named head with a count and a control, the stack of whatever you
-put in it, and a footer for the one action that adds to it.
+One column of an `ArenaBoard`. The column is a named head with a count and a control. Under the head sit the stack of whatever you put in it and a footer for the one action that adds to it.
 
 ```tsx
 <ArenaBoardColumn title="In progress" count={3} summary="13 pts" colorId={1}
@@ -13,8 +12,7 @@ put in it, and a footer for the one action that adds to it.
 because one of those children may be a placeholder and none of them is Arena's to read.
 
 `colorId` takes the same ramp slot `ArenaTag` and the charts take, so a status keeps its colour
-between a board, a table and a chart. It inks the head's mark; the colour also reaches the column
-as `--arena-board-column-cat`, so a style plugin can fill the whole head with it.
+between a board, a table and a chart. The member inks the head's mark. The colour also reaches the column as `--arena-board-column-cat`, so a style plugin can fill the whole head with it.
 
 <!-- @api GENERATED from contracts/api/components/ArenaBoardColumn.json. Edit the contract, not this table. -->
 
@@ -33,18 +31,15 @@ as `--arena-board-column-cat`, so a style plugin can fill the whole head with it
 
 <!-- @api end -->
 
-**Do / Don't**
-- Give the same entity the same `colorId` everywhere: a status that is slot 3 on the board and
-  slot 3 in the chart beside it is one thing said twice, which is what the ramp is for.
+**Do / Don't** - Give the same entity the same `colorId` everywhere. A status that is slot 3 on the board and slot 3 in the chart beside it is one thing said twice, which is what the ramp is for.
 - Put the add action in `footer`, not in the head. A new card lands at the bottom, and a control
   that adds where the eye is not looking is a control nobody presses twice.
 - Don't count the children yourself in the head. Pass `count` from the same data you mapped over,
   or the number and the stack drift the first time one of them is filtered.
-- Don't reach for a column outside a board. It is a cell of the board's grid and takes its width
-  from it; on its own it is a card with a heading, which is `ArenaCard`.
+- Don't reach for a column outside a board. The column is a cell of the board's grid and takes its width from it. On its own it is a card with a heading, which is `ArenaCard`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

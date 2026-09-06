@@ -21,13 +21,12 @@ One option inside an `ArenaRadioGroup`. Selected shows a crimson dot inside the 
 
 <!-- @api end -->
 
-**Do / Don't**
-- Always render an ArenaRadio inside an `ArenaRadioGroup`, because the group injects the shared name and the selected state, so a standalone ArenaRadio is never selected and never groups.
+**Do / Don't** - Always render an ArenaRadio inside an `ArenaRadioGroup`. The group injects the shared name and the selected state, so a standalone ArenaRadio is never selected and never groups.
 - To toggle a single thing on/off, use `ArenaSwitch` or `ArenaCheckbox`, not a standalone ArenaRadio.
 - Don't pass `style` or stray DOM attributes. ArenaRadio declares `value`, `label`, `hint` and `disabled`, and renders nothing else. To lay options out differently, style the container you put the group in.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -6,8 +6,8 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, statedRung,
-  UNMODELLED_UNITS,
+  LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
+  UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
 } from './audit.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -385,4 +385,109 @@ test('the components a link may wrap are the ones whose contract takes an href, 
     + 'literal and this is what keeps it from drifting. It reports only these because the finding '
     + 'tells a reader to pass the href to the component instead: a component with no href member '
     + 'cannot take that advice, and the app bar documents wrapping its brand in a link of your own');
+});
+
+
+test('a second primary action on one screen is reported, and the first one is not', () => {
+  assert.equal(rules('<ArenaButton variant="primary">Save</ArenaButton>'), '');
+  const two = rules('<ArenaButton variant="primary">Save</ArenaButton>\n'
+    + '<ArenaButton variant="primary">Publish</ArenaButton>');
+  assert.match(two, /one-primary/);
+  assert.equal(two.split('\n').length, 1, 'the first primary is the one the screen is for, so only '
+    + 'the ones after it are findings');
+  assert.match(two, /line 1/);
+});
+
+test('a primary variant is read in either layer idiom, and an expression is not read at all', () => {
+  assert.match(rules('<arena-button variant="primary"></arena-button>\n'
+    + '<arena-button variant="primary"></arena-button>', 'src/app.html'), /one-primary/);
+  assert.match(rules('<arena-button [variant]="\'primary\'"></arena-button>\n'
+    + '<arena-button [variant]="\'primary\'"></arena-button>', 'src/app.html'), /one-primary/);
+  assert.equal(rules('<ArenaButton variant={kind}>a</ArenaButton>\n'
+    + '<ArenaButton variant={kind}>b</ArenaButton>'), '',
+    'a variant an expression decides is not a variant this file states, and reporting it would '
+    + 'report the one screen that cannot be read');
+});
+
+test('a variant of your own that happens to be primary on a tag Arena does not draw is not counted', () => {
+  assert.equal(rules('<MyButton variant="primary">a</MyButton>\n'
+    + '<MyButton variant="primary">b</MyButton>'), '');
+});
+
+test('a filled danger surface is reported, and the tint and the outline are not', () => {
+  assert.match(auditText('src/a.css', '.mine { background: var(--danger); }').join('\n'),
+    /danger-fill/);
+  assert.match(auditText('src/a.css', '.mine { background-color: var(--color-error-fill); }').join('\n'),
+    /danger-fill/);
+  assert.equal(auditText('src/a.css', '.mine { background: var(--danger-soft); }').join('\n'), '',
+    'a soft tint is the surface a project of your own may carry');
+  assert.equal(auditText('src/a.css', '.mine { border-color: var(--danger); color: var(--danger); }').join('\n'), '',
+    'the border and the content in danger are what the rule asks for');
+});
+
+test('a filled danger surface is read in an inline style, and only in an application source', () => {
+  assert.match(rules('<div style={{ backgroundColor: \'var(--danger)\' }} />'), /danger-fill/);
+  assert.equal(auditText('plugin/skin.css', '.confirm { background: var(--danger-fill); }',
+    'plugin').join('\n').includes('danger-fill'), false,
+    'the one filled danger surface in the system is a part a style plugin paints, so the scope '
+    + 'that owns it is the scope that may draw it');
+});
+
+test('a fill and a token are read as one pair, so a danger token elsewhere on the line is not a fill', () => {
+  assert.equal(fillsWithDanger('  border: 1px solid var(--danger);'), false);
+  assert.equal(fillsWithDanger('  background: var(--danger);'), true);
+  assert.equal(fillsWithDanger('  background: var(--danger-soft);'), false);
+  assert.equal(fillsWithDanger('  background: var(--surface-card);'), false);
+});
+
+test('every rule tag the audit can emit is declared, and every declared tag is one it emits', () => {
+  const source = readFileSync(join(repoRoot, 'scripts/generate/core/arena-to-prod/audit.ts'), 'utf8');
+  const CALL = /\bat\((?:[^()]|\([^()]*\))*?,\s*'([a-z-]+)'/g;
+  const emitted = new Set([...source.matchAll(CALL)].map((m) => m[1]));
+
+  assert.ok(emitted.size > 0, 'no tag was found in the module, so this checked nothing');
+  assert.deepEqual([...emitted].sort(), [...RULE_TAGS].sort(),
+    'RULE_TAGS is what every other surface reads to say which rule of the language a gate holds, '
+    + 'so a tag the module emits and this list does not carry is a rule nothing can claim, and a '
+    + 'tag on this list the module never emits is a claim nothing answers');
+});
+
+test('a style hoisted into a constant is styling, so the raw-value rules read it there too', () => {
+  const hoisted = ['const zone = {', "  background: 'var(--danger)',", "  padding: '16px',", '};',
+    'export default function A() {', '  return <div style={zone}>x</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', hoisted).map((one) => one.rule), ['danger-fill', 'raw-value'],
+    'style={{ ... }} and const zone = { ... } are the same declaration written two ways, and '
+    + 'hoisting is what React authors do the moment an object outgrows the attribute. A rule that '
+    + 'reads only the attribute is a rule any screen escapes by moving three lines up');
+
+  const annotated = ['const panel: CSSProperties = {', "  background: '#ff0000',", '};',
+    'export default function A() {', '  return <div style={panel}>x</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', annotated).map((one) => one.rule), ['raw-value'],
+    'the annotation says it is styling even before anything uses it');
+
+  const nested = ['const styles = {', "  card: { background: '#123456' },", '};',
+    'export default function A() {', '  return <div style={styles.card}>x</div>;', '}'].join('\n');
+  assert.deepEqual(nested.length && findings('src/App.tsx', nested).map((one) => one.rule), ['raw-value'],
+    'a table of styles reached by member is still reached');
+});
+
+test('an object that never reaches a style attribute is data, and data is not judged as paint', () => {
+  const config = ['const config = {', "  cache: '16px',", "  tag: '#abcdef',", '};',
+    'export default function A() {', '  return <div>{config.tag}</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', config), [],
+    'a hex in a fixture, an id or a cache key is not a colour somebody painted with, and a rule '
+    + 'that cannot tell the two apart costs more than the one it catches');
+
+  const tokens = ['const ok: CSSProperties = {', "  background: 'var(--fill-surface)',",
+    "  padding: 'var(--sp-6)',", '};', 'export default function A() {',
+    '  return <div style={ok}>x</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', tokens), [], 'a hoisted object of tokens is clean');
+});
+
+test('what a style attribute names is what gets read, and a key is not a name', () => {
+  assert.deepEqual([...styleIdentifiers('<div style={zone}>')], ['zone']);
+  assert.deepEqual([...styleIdentifiers('<div style={{ background: shade }}>')], ['shade'],
+    'background is the property being set, not a binding that could hold a style');
+  assert.deepEqual([...styleObjectLines('const zone = {\n  a: 1,\n};\n<div style={zone}/>')].sort(),
+    [1, 2, 3], 'the whole body counts, not the line the brace opens on');
 });

@@ -35,45 +35,31 @@ readonly ranges: ArenaSegmentOption[] = [
 ];
 ```
 
-**It replaces a Material control that got one thing wrong, and this one must not inherit it.**
-`MatButtonToggleGroup` applies `role="group"` even in its exclusive single-selection mode, the
-delegated entry carried a `roles.group` exception saying so, citing Material's own docs. Arena
-renders `role="radiogroup"` itself, so this binding has **no exceptions**, and the compliance suite
-asserts the role by name rather than by pattern so that a regression reads as what it is.
+**The component replaces a Material control that got one thing wrong, and this one must not inherit it.** `MatButtonToggleGroup` applies `role="group"` even in its exclusive single-selection mode. The delegated entry carried a `roles.group` exception saying so, citing Material's own docs. Arena renders `role="radiogroup"` itself, so this binding has **no exceptions**. The compliance suite asserts the role by name rather than by pattern, so that a regression reads as what it is.
 
 **Do / Don't**
 - **`ariaLabel` is required** and names what is being *filtered*, "Time range", not "Filter". A
   radio group with no accessible name is announced unlabelled, and a name that only says the
   control is a filter satisfies the requirement while telling a screen-reader user nothing.
-- **Two to four options with one-word labels.** The track stops being compact past that; a longer
-  set is `arena-radio-group`, and a set that switches *views* rather than filtering one is
-  `arena-tabs`.
-- It works controlled or not: pass `value` and it is yours, or pass `defaultValue` and the track
-  remembers its own choice. With neither, **the first option is selected**: a filter showing
+- **Two to four options with one-word labels.** The track stops being compact past that. A longer set is `arena-radio-group`, and a set that switches *views* rather than filtering one is `arena-tabs`.
+- The track works controlled or not. Pass `value` and the choice is yours, or pass `defaultValue` and the track remembers its own. With neither, **the first option is selected**: a filter showing
   nothing selected over an unfiltered list is lying about itself.
 - **The roving tab stop, the arrow keys and Space are the platform's.** Each segment is a native
   `<input type="radio">` inside its `<label>`, sharing one `name`. Arena authors no `tabindex`.
 - `name` is the radios' shared form name, generated per instance when omitted, and never reaches a
   screen reader. Two tracks sharing one name rove as a single group.
 - The focus ring is on the **track**, through `focus-within:`, because the element that takes focus
-  is an `opacity-0 size-0` input. That is the whole reason the ring is not on the segment.
-- Don't reach for it as a form field. It is a filter; a mutually exclusive answer inside a form,
-  with labels that need room, is `arena-radio-group`.
-- Don't give the selected segment the brand colour. It lifts on `bg-neutral` with a shadow instead,
-  and no state of the control reaches for `primary` at all.
+  is an `opacity-0 size-0` input. One tab stop is the whole reason the ring is not on the segment.
+- Don't reach for it as a form field. The track is a filter. A mutually exclusive answer inside a form, with labels that need room, is `arena-radio-group`.
+- Don't give the selected segment the brand colour. The selected segment lifts on `bg-neutral` with a shadow instead, and no state of the control reaches for `primary` at all.
 
-**By hand, in real Chromium**: the platform behaviour above is what happy-dom cannot show. Run
-`bun run demos` and open
-`/frameworks/angular/components/navigation/arena-segmented-control/ArenaSegmentedControl.demo.generated.html`:
-- Tab into the track **once**: the ring appears around the whole track, not around a segment, and
-  Tab again leaves it rather than walking the segments.
+**By hand, in real Chromium**: the platform behaviour above is what happy-dom cannot show. Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-segmented-control/ArenaSegmentedControl.demo.generated.html`: - Tab into the track **once**. The ring appears around the whole track rather than around a segment, and Tab again leaves it rather than walking the segments.
 - Arrow keys move the selection along the track and wrap at both ends.
-- The selected segment's shadow reads as a lift against the track's own surface at `sm` as well as
-  `md`, `sm` is the size that decides whether the lift is visible at all.
+- The selected segment's shadow reads as a lift against the track's own surface at `sm` as well as `md`. `sm` is the size that decides whether the lift is visible at all.
 - Two tracks on the page select independently, which is the generated `name` working.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

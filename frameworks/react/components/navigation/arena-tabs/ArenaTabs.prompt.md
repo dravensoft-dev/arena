@@ -28,24 +28,20 @@ A row of tabs and the one panel they switch between. The active tab has a crimso
   strip would render inert.
 - Don't render your own panel, and don't switch on the value yourself. Arena renders one tabpanel
   per tab and shows exactly one of them; a panel of your own is a panel no tab controls.
-- **Do expect every tab's content to mount immediately.** Arena renders all the panels and hides the
-  inactive ones, because the `tabs` pattern requires *each* tab to have an `aria-controls`
-  referencing its tabpanel, and a reference to an id nothing renders is not a reference. So a
+- **Do expect every tab's content to mount immediately.** Arena renders all the panels and hides the inactive ones. The `tabs` pattern requires *each* tab to have an `aria-controls` referencing its tabpanel, and a reference to an id nothing renders is not a reference. So a
   panel's effects run on mount, not on first selection.
 - **Don't put a cost you only want to pay on selection inside a `<ArenaTab>`'s children**: a fetch, a
   chart that measures itself, a subscription. Guard it on the value you already have from
   `onChange`, or render that view's body only once its tab has been chosen. Arena cannot make this
   decision for you: deferring the mount is what dangles the other tabs' `aria-controls`.
-- Don't reach for `style` to space the strip. It takes none; the panel already carries the gap
-  below the underline.
+- Don't reach for `style` to space the strip. The component takes none, because the panel already carries the gap below the underline.
 
-**Checked by hand, because a suite cannot hold it:** happy-dom has no sequential focus navigation,
-so nothing asserts that Tab from a tab reaches the panel rather than the next tab. Serve the tree
+**Checked by hand, because a suite cannot hold it.** happy-dom has no sequential focus navigation, so nothing asserts that Tab from a tab reaches the panel rather than the next tab. Serve the tree
 with `bun run demos`, open `frameworks/react/components/navigation/arena-tabs/ArenaTabs.demo.generated.html`,
 and check it in a real browser.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

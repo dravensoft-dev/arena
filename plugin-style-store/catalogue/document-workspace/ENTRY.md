@@ -1,8 +1,6 @@
 # A document workspace
 
-The register of a product somebody writes in: a page tree down the side, a document in the middle,
-a database that is a grid of records, and as little chrome as the job allows. It is measured on a
-commercial document workspace, and what is written down here is what the measurement found.
+The register of a product somebody writes in. The product carries a page tree down the side, a document in the middle, a database that is a grid of records, and as little chrome as the job allows. The entry is measured on a commercial document workspace, and what is written down here is what the measurement found.
 
 Take this entry when the product is mostly text the user made, and when the interface succeeds by
 being hard to notice.
@@ -21,8 +19,7 @@ being hard to notice.
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | no shrink, no rise, the fast duration on an out curve | the least physical of the four, and the quickest, because the interface is trying to keep up with typing |
 | What shape a picture is | `aspect-media`, `fit-media` | a wide landscape, filled | a cover image at the head of a document rather than a picture in a grid |
 
-The widest prose measure and the largest gutter are the pair that carry this register. They are what
-turn the same components into a reading surface rather than a console.
+The widest prose measure and the largest gutter are the pair that carry this register. The two are what turn the same components into a reading surface rather than a console.
 
 ## The page it assumes
 
@@ -40,10 +37,7 @@ The side navigation family, the table, the tabs, the breadcrumbs, the command pa
 the grid and the figure, the tag, the checkbox and the input.
 `frameworks/react/INDEX.md` names each under its category.
 
-The document itself is markup you write. A paragraph, a heading, a quote, a callout, a toggle, a
-code block and a figure are the block family of a document editor, and
-`skills/design/references/style-kernel.md` says in as many words that the kernel does not reach
-them. The skin still travels, so those blocks are written against the same tokens.
+The document itself is markup you write. A paragraph, a heading, a quote, a callout, a toggle, a code block and a figure are the block family of a document editor. `skills/design/references/style-kernel.md` says in as many words that the kernel does not reach them. The skin still travels, so those blocks are written against the same tokens.
 
 ## What it does not bring
 

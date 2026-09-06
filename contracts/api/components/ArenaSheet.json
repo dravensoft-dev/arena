@@ -1,6 +1,6 @@
 {
   "component": "ArenaSheet",
-  "description": "A non-modal panel anchored to one edge of the page: a cart, a filter drawer, a detail pane. It carries no scrim, traps no focus and takes nothing away from the page behind it, which is the whole difference from a dialog. Its header stays on screen while its body folds away, so a reader keeps the panel without keeping its bulk.",
+  "description": "A non-modal panel anchored to one edge of the page: a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no focus and takes nothing away from the page behind it, which is the whole difference from a dialog. The sheet's header stays on screen while its body folds away, so a reader keeps the panel without keeping its bulk.",
   "affordances": ["hover", "focus"],
   "api": {
     "open": { "form": "primitive", "type": "boolean", "required": true,

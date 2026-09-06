@@ -29,6 +29,7 @@ import {
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-to-prod/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { WEIGHT_CLASSES } from '../../generate/core/arena-to-prod/icon-css.ts';
+import { RULE_TAGS } from '../../generate/core/arena-to-prod/audit.ts';
 import { captured } from '../../utils/captures.ts';
 
 export const node = {
@@ -78,31 +79,38 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '    onClick={() => go()}\n'
         + '    className="mine"\n'
         + '    icon={<Plus />}\n'
+        + '    variant="primary"\n'
         + '  >\n'
         + '    Go \u{1F680}\n'
         + '  </ArenaButton>\n'
+        + '  <ArenaButton variant="primary">Publish</ArenaButton>\n'
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
         + '</div>);\n',
-      'src/app.css': '.arena-button__label { color: #fff; }\n',
+      'src/app.css': '.arena-button__label { color: #fff; }\n'
+        + '.mine { background: var(--danger); }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'emoji'],
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'emoji', 'one-primary',
+      'danger-fill'],
   },
   angular: {
     files: {
       'src/app.html': '<arena-button\n'
         + '  class="mine"\n'
         + '  icon="ph-bold ph-bell"\n'
+        + '  variant="primary"\n'
         + '>Go \u{1F680}</arena-button>\n'
+        + '<arena-button variant="primary">Publish</arena-button>\n'
         + '<a\n'
         + '  routerLink="/x"\n'
         + '>\n'
         + '  <arena-card></arena-card>\n'
         + '</a>\n',
-      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
+      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n'
+        + '.mine { background: var(--color-error-fill); }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'emoji'],
+    rules: ['own-class', 'router-link', 'raw-value', 'emoji', 'one-primary', 'danger-fill'],
   },
 };
 
@@ -357,7 +365,8 @@ export function auditProblems(layer: string, reported: CliRun, strict: CliRun, r
 }
 
 export function cleanAuditProblems(layer: string, clean: CliRun) {
-  const found = clean.stderr.split('\n').filter((line) => /\((own-class|router-link|raw-value|icon-element|emoji)\)/.test(line));
+  const tagged = new RegExp(`\\((${RULE_TAGS.join('|')})\\)`);
+  const found = clean.stderr.split('\n').filter((line) => tagged.test(line));
   return found.length === 0
     ? []
     : [`${layer}: --audit reported ${found.length} finding(s) over sources that break no rule, and a `

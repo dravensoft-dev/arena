@@ -1,6 +1,5 @@
 Arena's signed-out panel. A frame: the lock-up, an eyebrow, a title, whatever the screen
-is actually for, and a footer. It knows nothing about credentials, so one component
-serves sign-in, "check your inbox", "this link expired" and two-factor entry.
+is actually for, and a footer. The panel knows nothing about credentials, so one component serves sign-in, "check your inbox", "this link expired" and two-factor entry.
 
 ```html
 <div style="display:flex;min-height:100vh;align-items:center;justify-content:center">
@@ -32,10 +31,7 @@ serves sign-in, "check your inbox", "this link expired" and two-factor entry.
 
 <!-- @api end -->
 
-Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside
-`ArenaUnauthCard` in the host component's `imports`,
-`brand` and `footer` are directives, not plain attributes, because they are how the panel
-detects that something was actually projected into each slot. Both wrappers carry their
+Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside `ArenaUnauthCard` in the host component's `imports`. `brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
 own margin, so a card that omits one ships no dead space for it.
 
 **Do / Don't**
@@ -51,6 +47,6 @@ own margin, so a card that omits one ships no dead space for it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

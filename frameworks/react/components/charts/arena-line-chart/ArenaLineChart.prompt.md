@@ -38,15 +38,15 @@ A line for a value over an ordered sequence, time, builds, releases. Hovering an
 <!-- @api end -->
 
 **Do**
-- Give `label` and give every series its own `label`. They are two different names: `label` is the chart's, and it becomes the accessible name and the table caption; a series' `label` heads that series' column in the same table.
+- Give `label` and give every series its own `label`. The two are different names. `label` is the chart's, and it becomes the accessible name and the table caption. A series' `label` heads that series' column in the same table.
 - Use a line for ordered data. If the categories have no order, bars compare them more honestly.
 - Turn `area` on for a single series to give the trend weight.
-- Pass `valueSuffix` so the axis, the tooltip and the accessible table all carry the unit. It is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
+- Pass `valueSuffix` so the axis, the tooltip and the accessible table all carry the unit. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
-- Don't pass `tone` together with `slot` on one series: identity or meaning, never both. It warns in development and `tone` wins.
+- Don't pass `tone` together with `slot` on one series: identity or meaning, never both. The pair warns in development, and `tone` wins.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed. Several series on one scale is what `series` is for; several series that do not share a scale are several charts.
-- Don't turn `area` on for more than one series. It is refused past one and warns in development, because two fills occlude each other and the reader cannot tell which value either edge belongs to. Use plain lines, or small multiples.
+- Don't turn `area` on for more than one series. A second fill is refused and warns in development. Two fills occlude each other, and the reader cannot tell which value either edge belongs to. Use plain lines, or small multiples.
 - Use `valuePrefix` for a currency that goes in front, and `valueFormat` for the number itself: locale, fraction digits, grouping, compaction. Formatting before you pass them is not an option, because what you pass is `ArenaSeries[]` and the writing happens on labels Arena generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is what a chart always did.
 - Don't omit `labels`, `series` or `label`. All three are required props, and `ArenaLineChart` throws from its render rather than drawing an empty box. A required member absent is a caller bug that fails hard in every layer, not a state to render.
 - Don't pass more `labels` than a series has values. A point is drawn per value and takes the label at its own index, so a surplus label is silently dropped rather than drawn with no point above it. A series shorter than its neighbours ends its line there rather than dropping to zero, because a missing number is not a zero.
@@ -60,9 +60,7 @@ scrolls and starts anchored to the most recent point. Marker spacing is a legibi
 rather than something that yields to the viewport: thirty days in 390px is unreadable at any
 font size.
 
-Arena computes the minimum width from its own axis padding, so nothing outside needs to know
-what that padding is, and the rail is the chart's own box rather than the card's: a
-`ArenaChartCard` around it needs no change. The rail takes `tabIndex={0}` and a `role="group"`
+Arena computes the minimum width from its own axis padding, so nothing outside needs to know what that padding is. The rail is the chart's own box rather than the card's, so a `ArenaChartCard` around it needs no change. The rail takes `tabIndex={0}` and a `role="group"`
 named after the chart whether it overflows or not.
 
 `height` is the plot's height in px, the `--chart-height` token by default. A number rather
@@ -70,9 +68,7 @@ than a length string, because the chart does arithmetic with it to place every m
 
 ### Reading the line without a pointer
 
-The rail is one keyboard region and it is the plot's only tab stop. Inside it, Arrow Left and
-Arrow Right move a data cursor from point to point, clamping at the ends rather than wrapping,
-Home and End jump to the first and the last, and Escape clears it. The cursor drives exactly
+The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from point to point, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
 what hover drives: the enlarged point, the crosshair and the tooltip.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
@@ -84,30 +80,20 @@ copy of the numbers for either of them to disagree with.
 ### The legend, and when there is one
 
 A chart of two or more series draws a row of keys below the plot, one swatch and one series name
-each, in the order the series were given. A chart of one series draws none: `label` already names
-the chart, the table's single value column is already headed by that series' own name, and a
-one-row legend would restate both while spending plot height to do it. There is no member for
+each, in the order the series were given. A chart of one series draws none. `label` already names the chart, and the table's single value column is already headed by that series' own name. A one-row legend would restate both while spending plot height to do it. There is no member for
 this; the number of series is the whole rule.
 
 The strip comes out of the plot rather than being added to the box, so `height` stays the height
-of the whole component whether a legend is drawn or not. That is what keeps a grid of tiles
-aligned when one of them gains a second series.
+of the whole component whether a legend is drawn or not. The reserved row is what keeps a grid of tiles aligned when one of them gains a second series.
 
-It is `aria-hidden`, deliberately. It is a key for a reader who can see the colours, and those
-same names are already the column headers of the numbers table, so a focusable copy of them would
-be a second source for one fact. Its rows take no focus, and the plot still has exactly one tab
-stop.
+The legend is `aria-hidden`, deliberately. The legend is a key for a reader who can see the colours. Those same names are already the column headers of the numbers table, so a focusable copy would be a second source for one fact. The legend's rows take no focus, and the plot still has exactly one tab stop.
 
 ### Straight or smooth
 
-`curve` draws the series as a smooth curve instead of straight segments. It changes the path
-string and nothing else: the points sit where they sat, the crosshair snaps to the same one, the
-tooltip reads the same numbers and the data cursor walks the same sequence.
+`curve` draws the series as a smooth curve instead of straight segments. The member changes the path string and nothing else. The points sit where they sat, the crosshair snaps to the same one, the tooltip reads the same numbers and the data cursor walks the same sequence.
 
 The interpolation is monotone cubic rather than Catmull-Rom, and that choice is the whole reason
-this member is safe to use on real data. A Catmull-Rom curve overshoots, so between two measured
-points it draws a peak or a trough nobody measured, and a chart that draws data which does not
-exist is the one thing a chart may not do. A monotone curve stays inside the band its own two
+this member is safe to use on real data. A Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured. A chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two
 points define, flattens at a turning point instead of sailing past it, and never crosses zero
 unless the values do.
 
@@ -117,6 +103,6 @@ smooth line between two counts implies values between them that were never count
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -1,5 +1,4 @@
-The page's principal landmark and nothing else. It returns the `<main>` itself, so what a parent
-lays out is the element, with no wrapper around it.
+The page's principal landmark and nothing else. The component returns the `<main>` itself, so what a parent lays out is the element, with no wrapper around it.
 
 ```tsx
 <ArenaSkipLink label="Skip to content" />
@@ -19,33 +18,22 @@ lays out is the element, with no wrapper around it.
 
 <!-- @api end -->
 
-**It draws no box, and that is the whole design.** The recipe carries one declaration, `display:
-block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
+**The component draws no box, and that is the whole design.** The recipe carries one declaration, `display: block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
 whose main landmark is swapped for a plain `<div>` looks identical. Where things go stays the
 container you own, which is what `PACKAGE.md` says and what this deliberately does not reopen.
 What it says is only what the region IS.
 
-**`.arena-shell__main` goes on a `<div>` around it, never on the component.** It takes no
-`className`, by the same rule every component here follows, so the `<main>` it renders is Arena's
-element rather than yours and there is no element here for the class to land on. Wrap it, put the
+**`.arena-shell__main` goes on a `<div>` around it, never on the component.** The component takes no `className`, by the rule every component here follows. The `<main>` it renders is Arena's element rather than yours, so there is no element here for the class to land on. Wrap it, put the
 class on the wrapper, and the shell has a child that can take the slack. Omitting the class
 because the component refuses it is the shape that gets shipped, and it reads as a footer floating
 halfway up a short page.
 
 **One per page.** A landmark that appears twice is two answers to "where does the content start",
-and a reader jumping by landmark gets the first one. It carries no name for the same reason
-`ArenaAppBar` carries none and `ArenaSideNav` requires one: a page has one main and a reader
-reaches it by its role, while a page has several navs and each needs saying which.
+and a reader jumping by landmark gets the first one. The landmark carries no name, for the reason `ArenaAppBar` carries none and `ArenaSideNav` requires one. A page has one main and a reader reaches it by its role, while a page has several navs and each needs saying which.
 
-**It is focusable programmatically, and that is not decoration.** The `<main>` takes
-`tabIndex={-1}`, which keeps it out of the tab order and lets focus be sent to it. An anchor
-pointing at a container the platform will not focus scrolls the page and leaves focus exactly
-where it was, so the next Tab continues from the nav the reader was trying to escape. That is the
-failure that makes most skip links look like they work, and it is why the requirement sits on the
-landmark rather than on the link.
+**The landmark is focusable programmatically, and that is not decoration.** The `<main>` takes `tabIndex={-1}`, which keeps it out of the tab order and lets focus be sent to it. An anchor pointing at a container the platform will not focus scrolls the page and leaves focus exactly where it was. The next Tab then continues from the nav the reader was trying to escape. That failure is what makes most skip links look like they work, and it is why the requirement sits on the landmark rather than on the link.
 
-**Its id is a constant Arena writes, `arena-main`.** Nothing is coordinated at the call site
-because a page has one main: `ArenaSkipLink` points at that id and this writes it. Write your own
+**The id is a constant Arena writes, `arena-main`.** Nothing is coordinated at the call site, because a page has one main. `ArenaSkipLink` points at that id, and this component writes it. Write your own
 anchor against the same id if you need a second route in.
 
 **Do**
@@ -54,8 +42,7 @@ anchor against the same id if you need a second route in.
 - Give it the layout it needs from the container around it, or from an `ArenaGrid` inside.
 
 **Don't**
-- Don't reach for it as a wrapper for a section of a page. That is `ArenaSection`, which names a
-  region and draws the heading for it.
+- Don't reach for it as a wrapper for a section of a page. The component for that is `ArenaSection`, which names a region and draws the heading for it.
 - Don't write a second one for a route that renders inside another. The landmark is the shell's,
   once.
 
@@ -63,11 +50,10 @@ anchor against the same id if you need a second route in.
 `/frameworks/react/components/layout/arena-main/ArenaMain.demo.generated.html`:
 - The page looks the same with the component and with a plain `<div>` in its place.
 - The accessibility pane shows one `main` landmark.
-- Clicking a link to `#arena-main` moves focus into the region, which the focus ring on the next
-  Tab is what proves: focus continues from inside the main rather than from the nav.
+- Clicking a link to `#arena-main` moves focus into the region. The focus ring on the next Tab is what proves it: focus continues from inside the main rather than from the nav.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

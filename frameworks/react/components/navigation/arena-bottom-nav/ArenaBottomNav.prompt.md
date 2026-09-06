@@ -24,14 +24,9 @@ one reports.
 
 <!-- @api end -->
 
-**It is not an `ArenaSideNav` lying down.** A sidebar is a stack of indented rows with the glyph before the
-label and arbitrary nesting; this is a row of equal columns with the glyph above the label and no
-nesting at all. It is not `ArenaTabs` either, which mounts every panel at once and announces
-tablist/tab/tabpanel, and not an `ArenaSegmentedControl`, which is a radio group that chooses rather than
-navigates.
+**The bar is not an `ArenaSideNav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `ArenaTabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it an `ArenaSegmentedControl`, which is a radio group that chooses rather than navigates.
 
-Its geometry is Arena's tokens rather than a number: `--layout-bar` for the height, `--z-nav` for the
-stacking slot, and `--pad-safe-bottom` so the row clears the home indicator on a device that has one.
+The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
 
 **`ariaLabel` is required and guarded**, trimmed before it decides. A phone shell usually carries
@@ -47,11 +42,10 @@ own name.
   outside cannot see it, ignores the modifiers and adds a second tab stop.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. It covers the bottom of the viewport, and a wide screen
-  has a sidebar's room.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

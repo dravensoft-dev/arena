@@ -29,9 +29,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 `destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline.
 
-`title` is **required** and throws when missing. It is what names the dialog for
-assistive technology, the panel's `aria-labelledby` points at it, and nothing can
-derive a name for a confirmation, because its subject is editorial.
+`title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
 
 Two things dismiss it, and both go through `onCancel`: **Escape** and the Cancel
 button. A click on the scrim does **not**, and that is the point of the component,
@@ -44,37 +42,30 @@ page behind the scrim.
 ### Do / Don't
 
 - **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, and it is the only surface entitled to it.
-- **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white: you get 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
+- **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
 - **Don't** reach for `destructive` on a merely important action. A filled red competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton variant="danger">` outline is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
-- **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is, so a screen that mounts one confirmation and feeds it a subject per row fails on the first render: mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.
-- **Don't** put a `tabIndex={-1}` on a control the user has to reach: it is how the trap decides what is focusable, so a control held out of the Tab order is one the wrap skips over.
+- **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is. A screen that mounts one confirmation and feeds it a subject per row fails on the first render, so mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.
+- **Don't** put a `tabIndex={-1}` on a control the user has to reach. The Tab order is how the trap decides what is focusable, so a control held out of it is one the wrap skips over.
 ## Verifying the focus trap by hand
 
 A suite proves the boundary wrap: Arena's own `.focus()` call, which happy-dom
-honours. It cannot prove the **interior**, that Tab from a middle control reaches
-the next one, because that is the browser's native sequential focus navigation. A
+honours. A suite cannot prove the **interior**, meaning that Tab from a middle control reaches the next one. The interior is the browser's native sequential focus navigation. A
 browser-driven gate stays refused, so the interior is a person's job.
 
 Serve the tree with `bun run demos` and open
 `frameworks/react/components/feedback/arena-confirm-dialog/ArenaConfirmDialog.demo.generated.html`.
 
 **Start by pressing Escape.** That card renders with `open` already `true`, because a
-specimen has to show something. Pressing the trigger while the dialog is already open
-is correctly a no-op, because the hook keys its effect on `open` changing, precisely so a
-re-render never steals focus back from a field the user is typing in, so a check that
-skips this step measures nothing and looks like a defect.
+specimen has to show something. Pressing the trigger while the dialog is already open is correctly a no-op, because the hook keys its effect on `open` changing. The key is precisely so a re-render never steals focus back from a field the user is typing in. A check that skips this step measures nothing and looks like a defect.
 
 Then, with the dialog closed:
 
 1. **Tab to "Delete project…" and press Enter.** Focus must land on the require-text
    **input**, the first focusable in the panel.
 2. **Tab once.** Focus moves to **Cancel**. Native navigation, not Arena's.
-3. **Tab again.** Focus wraps back to the input. Note that Cancel is the *last*
-   focusable, not "Delete permanently": the confirm button is `disabled` until the
-   word is typed, and the trap recomputes what is focusable on every key rather than
-   caching it. Type `DELETE` and repeat: the wrap must now pass through the confirm
+3. **Tab again.** Focus wraps back to the input. Note that Cancel is the *last* focusable rather than "Delete permanently". The confirm button is `disabled` until the word is typed, and the trap recomputes what is focusable on every key rather than caching it. Type `DELETE` and repeat: the wrap must now pass through the confirm
    button.
 4. **Shift+Tab from the input.** Focus wraps to the last focusable.
 5. **Escape.** The dialog closes and focus returns to the trigger. The scrim stays
@@ -85,6 +76,6 @@ does not activate a button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

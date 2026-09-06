@@ -26,24 +26,19 @@ The card a chart sits on: an uppercase muted microlabel, optional actions on the
 <!-- @api end -->
 
 **Do**
-- Let `title` and the chart's own `label` say the same thing when the card holds one chart. They are not redundant: `title` is what a sighted reader sees on the tile, `label` is what a screen reader hears and what captions the numbers table, and neither is derivable from the other.
+- Let `title` and the chart's own `label` say the same thing when the card holds one chart. The two are not redundant. `title` is what a sighted reader sees on the tile. `label` is what a screen reader hears and what captions the numbers table, and neither is derivable from the other.
 - Keep `title` to a short uppercase microlabel, like every other label in Arena (H2/H6/H8).
 - Put the range picker or the export button in `actions`, not above the card.
-- Pass several controls as siblings, in a fragment. The head row and the actions row both
-  wrap, and they wrap their own children: a `<div>` of your own holding three buttons is one
-  flex item that can never wrap, and overflows the tile at 390px.
+- Pass several controls as siblings, in a fragment. The head row and the actions row both wrap, and they wrap their own children. A `<div>` of your own holding three buttons is one flex item that can never wrap, and it overflows the tile at 390px.
 
 **Don't**
 - Don't pass a heading into `title` expecting an element: it renders a label on purpose, because a dashboard is a grid of tiles and not a document outline. A tile that genuinely is a region of the page asks for its rung with `headingLevel`, and `h3` is the one a chart card inside a section takes.
-- Don't nest an `ArenaChartCard` inside an `ArenaCard`. It *is* the card surface; nesting doubles the border and the padding.
+- Don't nest an `ArenaChartCard` inside an `ArenaCard`. The component *is* the card surface, and nesting doubles the border and the padding.
 
-The card's own inner padding is not something a chart inside it needs to know. A chart that
-overflows scrolls in its own rail rather than in the card's box, so `minPointSpacing` needs no
-cooperation from here, and there is no member for the padding because nothing outside has to
-reproduce it.
+The card's own inner padding is not something a chart inside it needs to know. A chart that overflows scrolls in its own rail rather than in the card's box, so `minPointSpacing` needs no cooperation from here. There is no member for the padding, because nothing outside has to reproduce it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

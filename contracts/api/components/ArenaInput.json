@@ -1,7 +1,7 @@
 {
   "component": "ArenaInput",
   "kind": "input",
-  "description": "Text field with validation. Focus is a gold ring; error crimson; valid green with a check. The four states are ordered and the order is normative: error, then focus, then valid, then neutral: an errored field stays crimson while it has focus, because the validation signal must not disappear at the moment the user acts on it.",
+  "description": "Text field with validation. Focus is a gold ring, error crimson, and valid green with a check. The four states are ordered and the order is normative: error, then focus, then valid, then neutral. An errored field stays crimson while it has focus, because the validation signal must not disappear at the moment the user acts on it.",
   "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "description": "Field label above the control." },

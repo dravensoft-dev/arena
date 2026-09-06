@@ -1,6 +1,4 @@
-The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and no `position` of its
-own, and CSS only honors `z-index` on a positioned box or a flex item, so a `<ArenaToast>` dropped into
-static flow quietly stops floating. This is what makes it a flex item.
+The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex item, so a `<ArenaToast>` dropped into static flow quietly stops floating. The column is what makes a notice a flex item.
 
 ```tsx
 <ArenaToastHost>
@@ -29,25 +27,18 @@ flips the stack with the text. A bottom placement stands off `max(var(--sp-6),
 var(--pad-safe-bottom))`, so on a phone the stack clears the home indicator instead of sitting
 under it.
 
-**It owns no clock, and it counts nothing.** The queue that produced these notices already holds
-their ids, their order and how many there are, so the timer and any ceiling stay there. Take the
+**The host owns no clock, and it counts nothing.** The queue that produced these notices already holds their ids, their order and how many there are. The timer and any ceiling stay there. Take the
 interval from `ARENA_TOAST_DISMISS`, exported beside `ArenaToast`, rather than typing a number:
 `if (!t.persist) setTimeout(dismiss, t.actionLabel ? ARENA_TOAST_DISMISS.actionable : ARENA_TOAST_DISMISS.default);`.
 
-**Do / Don't**
-- **Do** mount exactly one per placement, at the root of the app, outside anything that scrolls or
-  transforms: a `transform` on an ancestor makes it the containing block for a fixed child, and the
-  stack then scrolls away with that ancestor instead of staying put.
-- **Do** leave the notices in the order they were raised. The stack is a plain column, so what is
-  read is what is seen, and reversing the array to put the newest on top puts it last in the
-  reading order.
+**Do / Don't** - **Do** mount exactly one per placement, at the root of the app, outside anything that scrolls or transforms. A `transform` on an ancestor makes it the containing block for a fixed child, and the stack then scrolls away with that ancestor instead of staying put.
+- **Do** leave the notices in the order they were raised. The stack is a plain column, so what is read is what is seen. Reversing the array to put the newest on top puts it last in the reading order.
 - **Don't** wrap a `<ArenaToast>` in a `<div>` inside it. The gap is a flex gap between the notices
   themselves, and a wrapper takes the flex-item role away from the notice.
-- **Don't** put anything but notices in it. It is one positioned box with a z-index above every
-  overlay in the system; anything else parked there covers the whole app.
+- **Don't** put anything but notices in it. The host is one positioned box with a z-index above every overlay in the system. Anything else parked there covers the whole app.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

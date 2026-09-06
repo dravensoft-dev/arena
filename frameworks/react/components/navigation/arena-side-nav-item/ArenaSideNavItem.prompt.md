@@ -26,41 +26,30 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 present ⇒ an `<a>`, absent ⇒ a `<button>`. The active item, the one whose `id`
 matches `ArenaSideNav.active`, takes `aria-current="page"`, `--crimson-soft` behind
 `--crimson` text at `--fw-semibold`; the rest are transparent, `--mute`,
-`--fw-medium`. Everything about *where* the item sits, its nesting depth, which id
-is active, the indent step and the handler that reports `nav`, is injected by
-`ArenaSideNav` and is not part of this component's API. You never write those.
+`--fw-medium`. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent step and the handler that reports `nav`, and none of it is part of this component's API. You never write those.
 
 ## Do / Don't
 
-- **Do** give it an `id` and a `label`. Both are required and both are guarded against
-  a *blank* value as well as an absent one: `label` is the link's whole accessible
-  name, and a blank `id` can never match `active`, so it is an omission wearing a value.
-- **Do** give it an `href` when it navigates, even in a single-page app. It is what
-  lets the destination be opened in a new tab, copied, and announced as a link. An
+- **Do** give it an `id` and a `label`. Both are required, and both are guarded against a *blank* value as well as an absent one. `label` is the link's whole accessible name. A blank `id` can never match `active`, so it is an omission wearing a value.
+- **Do** give it an `href` when it navigates, even in a single-page app. The `href` is what lets the destination be opened in a new tab, copied, and announced as a link. An
   item that only changes local state is correctly a `<button>`.
 - **Do** name the glyph, not the markup. `icon` is a Phosphor class name and Arena
   draws the `<i>`.
 - **Do** pass a count as `badge`, a number rather than a string. Arena draws it at the
   trailing edge, draws nothing at zero, and reads `99+` above ninety-nine; a value you
   have already formatted takes both rules away.
-- **Don't** expect to put your own markup inside one. The single-icon convention's
-  stated price is exactly this: an item is an icon, a label and a count, so a row with
-  an avatar or a two-line body has no expression here.
+- **Don't** expect to put your own markup inside one. The single-icon convention's stated price is exactly this. An item is an icon, a label and a count, so a row with an avatar or a two-line body has no expression here.
 - **Don't** wrap items in a fragment. Arena injects into the children it is handed,
   and `React.Children.toArray` does not see through a `<>…</>`; write them as
   siblings, or in an array. A wrapper component of your own has the same effect, and
   it is the same limit `ArenaTable` and `ArenaRadioGroup` already carry.
-- **Don't** render one outside an `ArenaSideNav`. It renders, but nothing injects the active
-  id or the handler, so it is a link that reports nothing and never marks itself current.
+- **Don't** render one outside an `ArenaSideNav`. The item renders, and nothing injects the active id or the handler. The item is a link that reports nothing and never marks itself current.
 
-- **`disabled` draws the destination and refuses it.** It reflects through `aria-disabled` rather
-  than by not rendering the item: an unavailable destination a user can see, and hear announced as
-  unavailable, is what tells them it exists: a feature behind a plan they do not have is worth
-  showing. The anchor keeps its `href`, so the shape does not change; what changes is that the
+- **`disabled` draws the destination and refuses it.** The member reflects through `aria-disabled` rather than by not rendering the item. An unavailable destination a user can see, and hear announced as unavailable, is what tells them it exists. A feature behind a plan they do not have is worth showing. The anchor keeps its `href`, so the shape does not change; what changes is that the
   click is prevented and `onActivate` never fires.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

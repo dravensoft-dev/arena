@@ -1,12 +1,7 @@
 Arena breadcrumb trail. Mono, wide-tracked, with the last crumb as the current page --
-not a link, and carrying `aria-current="page"`. The landmark is a real `<nav>` inside a bare
-`display: contents` host, with `aria-label` bound to the required `ariaLabel` input, the same
-carve-out `arena-pagination` takes, because the `navigation` pattern offers `role="navigation"`
-only for when a `<nav>` cannot be used. Use it where a hierarchy is deeper than tabs can show.
+not a link, and carrying `aria-current="page"`. The landmark is a real `<nav>` inside a bare `display: contents` host, with `aria-label` bound to the required `ariaLabel` input. `arena-pagination` takes the same carve-out. The `navigation` pattern offers `role="navigation"` only for when a `<nav>` cannot be used. Use it where a hierarchy is deeper than tabs can show.
 
-**A consumer attribute written on `<arena-breadcrumbs>` lands on the inert host, not on the
-styled `<nav>`**, which is the price every carve-out pays and is why the default is to
-host-bind.
+**A consumer attribute written on `<arena-breadcrumbs>` lands on the inert host, not on the styled `<nav>`.** Every carve-out pays that price, and it is why the default is to host-bind.
 
 `ariaLabel` is **required**: `input.required`, so Angular throws when it is missing. A constant
 like `"Breadcrumb"` written straight into the `host` block names the
@@ -18,15 +13,9 @@ through `navigate`, which carries the clicked `ArenaCrumb` alone: route from the
 does not navigate underneath you. The rest keep working for a consumer who wires no listener
 at all.
 
-`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. That
-is the same branch the last crumb already takes, minus its `aria-current`: a level of the trail
-that leads nowhere is not a link and does not take the pointer or the hover either. What it must
-never be is an anchor to the page it sits on, which is a dead edge in the crawl graph and a target
-the keyboard can reach and nothing happens on.
+`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. The last crumb already takes that branch, minus its `aria-current`. A level of the trail that leads nowhere is not a link, and it does not take the pointer or the hover either. What a crumb must never be is an anchor to the page it sits on. Such an anchor is a dead edge in the crawl graph, and a target the keyboard can reach and nothing happens on.
 
-**Do not put `routerLink` on `arena-breadcrumbs`.** `RouterLink` decides whether it is on an
-anchor from the host's `tagName`, and the anchor here is inside the component, so it would
-ignore every modifier key and add a second tab stop over the crumb's own link. Route in the
+**Do not put `routerLink` on `arena-breadcrumbs`.** `RouterLink` decides whether it is on an anchor from the host's `tagName`, and the anchor here is inside the component. `RouterLink` would ignore every modifier key and add a second tab stop over the crumb's own link. Route in the
 handler instead:
 
 ```html
@@ -63,19 +52,16 @@ go(crumb: ArenaCrumb): void {
 - Don't use breadcrumbs for steps in a flow. A trail describes where something *is*,
   not how far through it you are -- that is the coachmark's dots or a stepper.
 - Don't truncate the middle of a trail to save space. Wrap it; the row already does.
-- Don't reach for `(navigate)` to call `preventDefault()` -- it never receives the click
-  event, and it does not need to: Arena has already cancelled the anchor by the time it fires.
+- Don't reach for `(navigate)` to call `preventDefault()`. The output never receives the click event and does not need to. Arena has already cancelled the anchor by the time it fires.
 - Don't route on a modified click. `(navigate)` never fires for one, and if it did, opening
   in the current tab is the opposite of what the reader asked for.
 
 **Accessibility note:** the trail renders no `<ol>`/`<li>` wrapper, so a
 screen reader gets no "list, N items" orientation cue that the WAI-ARIA APG's breadcrumb
-structure would otherwise give. `nav[aria-label="Breadcrumb"]` and `aria-current="page"`
-are what make the trail operable and named; the list semantics were judged a secondary
-nicety, not an operability gap, and left out on that basis rather than by oversight.
+structure would otherwise give. `nav[aria-label="Breadcrumb"]` and `aria-current="page"` are what make the trail operable and named. The list semantics were judged a secondary nicety rather than an operability gap, and left out on that basis rather than by oversight.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

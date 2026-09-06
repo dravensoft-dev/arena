@@ -23,15 +23,11 @@ does, all the way to one.
 
 <!-- @api end -->
 
-**It replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count
-needs a threshold, and a threshold is a number somebody invented: six filter bars written by hand
-end up with three different ones and none of them matches `--bp-*`. Here the floor is `min` and it
+**The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six filter bars written by hand end up with three different ones, and none of them matches `--bp-*`. Here the floor is `min` and it
 is clamped with `min(<min>, 100%)`, so a minimum wider than the container gives one full-width
 column rather than an overflow.
 
-`gap` is four named steps, `none`, `sm`, `md`, `lg`, and not a length. Rhythm is what the spacing
-scale is for, and a grid is where a hand-picked gap shows worst: two grids on one page with gaps a
-step apart read as a mistake.
+`gap` is four named steps, `none`, `sm`, `md`, `lg`, and not a length. Rhythm is what the spacing scale is for, and a grid is where a hand-picked gap shows worst. Two grids on one page with gaps a step apart read as a mistake.
 
 `maxWidth` caps the grid and centres it. Leave it off inside a page and set it on the one grid that
 is the page's own reading width.
@@ -41,20 +37,16 @@ is the page's own reading width.
   an `ArenaCard`, a chart and a definition list all land the same way.
 - **Do** reach for it for a page's own layout. A component that has to fit the room it was given
   measures its container with `useArenaContainerWidth`, which is a different question.
-- **Don't** use it for a row of two or three controls. That is a flex row, and a grid there gives
-  every control the same width whether or not that helps.
+- **Don't** use it for a row of two or three controls. A toolbar is a flex row, and a grid there gives every control the same width whether or not that helps.
 - **Don't** put a `min` on it that no card ever reaches. The count only drops when the room runs
   out, so a minimum nobody meets pins the grid at one column forever.
 - **Don't** nest one to make a two-level layout. Two grids nested pick their counts independently
   and the cells stop lining up; give the outer one the cells it actually has.
-- **Don't** wait for a fixed column count. A photo wall three across and a pair of lesson choices
-  are both `grid-template-columns: repeat(N, 1fr)` on an element of your own, one line each, and a
-  count Arena took would contradict what this component is: the number comes from the room rather
-  than from a breakpoint somebody picked. Two products measured wanting one, and neither would
+- **Don't** wait for a fixed column count. A photo wall three across and a pair of lesson choices are both `grid-template-columns: repeat(N, 1fr)` on an element of your own, one line each. A count Arena took would contradict what this component is: the number comes from the room rather than from a breakpoint somebody picked. Two products measured wanting one, and neither would
   have written less than the line they wrote.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

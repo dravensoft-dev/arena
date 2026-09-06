@@ -21,14 +21,10 @@ rendered inside.
 
 <!-- @api end -->
 
-**Its content is required, and it is the only slot in the repository that is.** A section renders a
-heading naming the group, so a childless one labels nothing, it **throws** at content-init rather
-than rendering. Slot required-ness is not comparable between layers and no gate can catch a caller
+**The content is required, and it is the only slot in the repository that is.** A section renders a heading naming the group, so a childless one labels nothing. The section **throws** at content-init rather than rendering. Slot required-ness is not comparable between layers and no gate can catch a caller
 who omits it, which is why the guard is runtime code and not a declaration.
 
-It is a container, so it **re-provides** the family's state at `depth + 1`: everything inside it
-indents one step, including a nested section or a collapsible. Its own heading is indented at its
-**own** depth, so it lines up with its siblings rather than with its children.
+A section is a container, so it **re-provides** the family's state at `depth + 1`. Everything inside it indents one step, including a nested section or a collapsible. The section's own heading is indented at its **own** depth, so it lines up with its siblings rather than with its children.
 
 The binding is `none`: the group carries no interactive affordance of its own, and every control
 inside it belongs to a child.
@@ -43,6 +39,6 @@ inside it belongs to a child.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

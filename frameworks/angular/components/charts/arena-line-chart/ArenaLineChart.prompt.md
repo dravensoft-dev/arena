@@ -1,5 +1,5 @@
 Arena line chart, a value over an ordered sequence, hand-written SVG, every colour a token.
-It takes series, one polyline each over the same sequence, and a series names itself. An
+The chart takes series, one polyline each over the same sequence, and a series names itself. An
 optional 18% area tint sits under the line, for one series only. The crosshair snaps to the
 nearest point rather than drifting between them, and the numbers are also a real table for
 anyone who cannot see the line. Identity comes from a series' `slot`, meaning from its
@@ -41,8 +41,7 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 <!-- @api end -->
 
 `valueSuffix` is appended to the tick labels, the tooltip and the numbers table together,
-so a unit written once appears everywhere. It is appended verbatim, write the space
-yourself:
+so a unit written once appears everywhere. The suffix is appended verbatim, so write the space yourself:
 
 ```html
 <arena-line-chart label="Request latency" [labels]="days()" [series]="p95()" valueSuffix=" ms" />
@@ -73,8 +72,7 @@ tooltip is positioned against.
 - Don't plot two series by stacking two line charts. Put both in `series` and they share
   one scale, one axis and one table. Two series that do *not* share a scale are two
   charts, and no member will make them one.
-- Don't turn `area` on past one series. It is refused and warns in development, because
-  two fills occlude each other and the reader cannot tell which value either edge belongs to.
+- Don't turn `area` on past one series. The combination is refused and warns in development. Two fills occlude each other, and the reader cannot tell which value either edge belongs to.
 - Don't omit `labels`, `series` or `label`. All three are required inputs, and Angular
   throws NG0950 on the first read rather than drawing an empty box. A chart with no data
   is a caller bug, not a state to render.
@@ -82,9 +80,7 @@ tooltip is positioned against.
   the label at its own index, so a surplus label is silently dropped rather than drawn with
   no point above it. A series shorter than its neighbours ends its line there rather than
   dropping to zero, because a missing number is not a zero.
-- Don't build the `series` array inline in the template if the data changes. A new array
-  literal on every change detection cycle is a new reference every cycle; hold it in a
-  `computed()` or a field so the chart re-reads only when the numbers actually move.
+- Don't build the `series` array inline in the template if the data changes. A new array literal on every change detection cycle is a new reference every cycle. Hold it in a `computed()` or a field, so the chart re-reads only when the numbers actually move.
 - Don't express a condition as an attribute string. `area` carries the
   `booleanAttribute` transform, so a bare `area` and `[area]="true"` both mean true, and
   the one literal string `"false"` means false. Every *other* string is true, `"0"`,
@@ -100,19 +96,14 @@ in a rail that scrolls and starts anchored to the most recent point. Marker spac
 legibility constant rather than something that yields to the viewport: thirty days in 390px
 is unreadable at any font size.
 
-Arena computes the minimum width from its own axis padding, so nothing outside needs to know
-what that padding is, and the rail is the chart's own box rather than the card's: an
-`arena-chart-card` around it needs no change. The rail carries `tabindex="0"` and a
+Arena computes the minimum width from its own axis padding, so nothing outside needs to know what that padding is. The rail is the chart's own box rather than the card's, so an `arena-chart-card` around it needs no change. The rail carries `tabindex="0"` and a
 `role="group"` named after the chart whether it overflows or not.
 
-`height` is the plot's height in px, the `--chart-height` token by default. It is a number
-rather than a length string, because the chart does arithmetic with it to place every mark.
+`height` is the plot's height in px, the `--chart-height` token by default. The member is a number rather than a length string, because the chart does arithmetic with it to place every mark.
 
 ### Reading the line without a pointer
 
-The rail is one keyboard region and it is the plot's only tab stop. Inside it, Arrow Left and
-Arrow Right move a data cursor from point to point, clamping at the ends rather than wrapping,
-Home and End jump to the first and the last, and Escape clears it. The cursor drives exactly
+The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from point to point, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
 what hover drives: the enlarged point, the crosshair and the tooltip.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
@@ -121,38 +112,26 @@ however correct it is. A screen reader gets the visually hidden table of the sam
 which is already there; a sighted keyboard user gets the cursor. There is no third copy of the
 numbers for either of them to disagree with.
 
-On a touch screen the rule is tap to read, drag to scroll: a tap reads the point nearest the
-finger, a drag scrolls the rail, and a reading stays up until the next tap because a lifted
-finger has no leave event to clear it. Nothing captures the pointer and nothing calls
+On a touch screen the rule is tap to read and drag to scroll. A tap reads the point nearest the finger and a drag scrolls the rail. A reading stays up until the next tap, because a lifted finger has no leave event to clear it. Nothing captures the pointer and nothing calls
 `preventDefault`, so the page keeps scrolling over the chart the way it does over anything else.
 
 ### The legend, and when there is one
 
 A chart of two or more series draws a row of keys below the plot, one swatch and one series name
-each, in the order the series were given. A chart of one series draws none: `label` already names
-the chart, the table's single value column is already headed by that series' own name, and a
-one-row legend would restate both while spending plot height to do it. There is no member for
+each, in the order the series were given. A chart of one series draws none. `label` already names the chart, and the table's single value column is already headed by that series' own name. A one-row legend would restate both while spending plot height to do it. There is no member for
 this; the number of series is the whole rule.
 
 The strip comes out of the plot rather than being added to the box, so `height` stays the height
-of the whole component whether a legend is drawn or not. That is what keeps a grid of tiles
-aligned when one of them gains a second series.
+of the whole component whether a legend is drawn or not. The reserved row is what keeps a grid of tiles aligned when one of them gains a second series.
 
-It is `aria-hidden`, deliberately. It is a key for a reader who can see the colours, and those
-same names are already the column headers of the numbers table, so a focusable copy of them would
-be a second source for one fact. Its rows take no focus, and the plot still has exactly one tab
-stop.
+The legend is `aria-hidden`, deliberately. The legend is a key for a reader who can see the colours. Those same names are already the column headers of the numbers table, so a focusable copy would be a second source for one fact. The legend's rows take no focus, and the plot still has exactly one tab stop.
 
 ### Straight or smooth
 
-`curve` draws the series as a smooth curve instead of straight segments. It changes the path
-string and nothing else: the points sit where they sat, the crosshair snaps to the same one, the
-tooltip reads the same numbers and the data cursor walks the same sequence.
+`curve` draws the series as a smooth curve instead of straight segments. The member changes the path string and nothing else. The points sit where they sat, the crosshair snaps to the same one, the tooltip reads the same numbers and the data cursor walks the same sequence.
 
 The interpolation is monotone cubic rather than Catmull-Rom, and that choice is the whole reason
-this member is safe to use on real data. A Catmull-Rom curve overshoots, so between two measured
-points it draws a peak or a trough nobody measured, and a chart that draws data which does not
-exist is the one thing a chart may not do. A monotone curve stays inside the band its own two
+this member is safe to use on real data. A Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured. A chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two
 points define, flattens at a turning point instead of sailing past it, and never crosses zero
 unless the values do.
 
@@ -162,6 +141,6 @@ smooth line between two counts implies values between them that were never count
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

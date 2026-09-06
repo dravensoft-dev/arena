@@ -22,9 +22,7 @@ Single selection among options that are all visible at once. `ArenaRadioGroup` h
 
 <!-- @api end -->
 
-`ariaLabel` names the group and is **required**, throwing when absent. It says what is being
-chosen, not that a choice is happening: each `ArenaRadio`'s own label already says what that option
-is, and nothing else in the group says what the SET is for. `name` is not a substitute: it is the shared form name
+`ariaLabel` names the group and is **required**, throwing when absent. The label says what is being chosen rather than that a choice is happening. Each `ArenaRadio`'s own label already says what that option is, and nothing else in the group says what the SET is for. `name` is not a substitute: it is the shared form name
 for the underlying native radios and never reaches a screen reader. One is generated when you
 omit it.
 
@@ -37,6 +35,6 @@ omit it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

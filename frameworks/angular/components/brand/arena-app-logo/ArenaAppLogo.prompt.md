@@ -30,14 +30,10 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
   brings its own dimensions breaks the ratio the lock-up exists to hold.
 - Give the projected element the `mark` attribute, `<ng-content select="[mark]" />` only
   projects an element marked that way; an `<img>` with no `mark` attribute projects nowhere.
-- The slot stretches the projected mark with child variants (`*:block *:w-full *:h-full`)
-  rather than reaching into the node, Angular has no `cloneElement`, and the CSS
-  descendant combinator reaches the same result through the platform's own idiom.
+- The slot stretches the projected mark with child variants (`*:block *:w-full *:h-full`) rather than reaching into the node. Angular has no `cloneElement`, and the CSS descendant combinator reaches the same result through the platform's own idiom.
 - Use `dim` for the second ink of a two-part wordmark, and pass no space between the
   parts, `name="Draven" dim="soft"` renders Dravensoft in two inks, one word.
-- Write `name` in the case your brand wears. Arena sets the face, the weight and the
-  tracking of the wordmark and never its case: a name is text you wrote, and a component
-  that shouted it would be renaming the company in CSS.
+- Write `name` in the case your brand wears. Arena sets the face, the weight and the tracking of the wordmark, and never its case. A name is text you wrote, and a component that shouted it would be renaming the company in CSS.
 - Don't ship it with a mark that is not yours. Nothing defaults here on purpose: Arena is
   MIT and a default mark would be someone else's trademark travelling in your build.
 - Don't reach for a fifth size. Four steps are the repertoire; a size between them is a
@@ -45,6 +41,6 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -34,14 +34,12 @@ what a card does when it is picked up is a question about your data rather than 
 <!-- @api end -->
 
 **Do / Don't**
-- **Do** say what the columns are columns OF in `label`. It is the name a keyboard user lands on,
-  and "Board" tells them nothing.
+- **Do** say what the columns are columns OF in `label`. The label is the name a keyboard user lands on, and "Board" tells them nothing.
 - **Do** leave `minColumn` alone unless a card needs more room than a grid cell: the default is
   the same width a card takes in a grid or a rail.
 - **Don't** wrap it in a scroll container of your own. The board is the scrolling region, and a
   second one around it takes the keyboard's scroll away from the one that announces itself.
-- **Don't** use it for a fixed set of panels that always fit. That is `arena-grid`, which wraps
-  rather than scrolling.
+- **Don't** use it for a fixed set of panels that always fit. The component for that is `arena-grid`, which wraps rather than scrolling.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-board/ArenaBoard.demo.generated.html`:
@@ -51,6 +49,6 @@ what a card does when it is picked up is a question about your data rather than 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

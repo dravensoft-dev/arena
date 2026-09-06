@@ -1,6 +1,6 @@
 {
   "component": "ArenaFigure",
-  "description": "A framed piece of media with an optional caption: an image, a video, or a stand-in for the one that has not arrived. The frame is a shape and a corner a style plugin answers, and it clips whatever is put in it, so a wall of figures reads as a wall rather than as whatever sizes the pictures happened to be.",
+  "description": "A framed piece of media with an optional caption: an image, a video, or a stand-in for the one that has not arrived. The frame is a shape and a corner a style plugin answers. The frame clips whatever is put in it, so a wall of figures reads as a wall rather than as whatever sizes the pictures happened to be.",
   "affordances": [],
   "api": {
     "media": { "form": "slot",

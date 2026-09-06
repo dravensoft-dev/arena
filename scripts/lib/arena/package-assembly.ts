@@ -26,10 +26,11 @@ import { parseDecls } from './css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusions.ts';
+import { RULES } from './language-rules.ts';
 import { NODE_ENGINE } from './support-matrix.ts';
 import { AXES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE as ENGINE } from './support-matrix.ts';
 import {
-  ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST,
+  ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST, RULES_FILE as AGENT_RULES,
   SUPPORT_FILE, carriedSpecs, matchesSpec, payloadDir,
   rewrite, type Bases,
 } from './agent-payload.ts';
@@ -201,6 +202,10 @@ export function agentSupport(layer: string) {
   };
 }
 
+export function agentRules(rules = RULES) {
+  return rules.map(({ id, short, body, held, unheld }) => ({ id, short, body, held, unheld }));
+}
+
 export function copyAgentPayload(dir: string, layer: string, name: string, root = repoRoot) {
   const bases = agentBases();
   const at = payloadDir(layer);
@@ -223,6 +228,8 @@ export function copyAgentPayload(dir: string, layer: string, name: string, root 
     `${JSON.stringify(agentManifest(layer, name, root), null, 2)}\n`));
   written.push(write(dir, `${at}/${SUPPORT_FILE}`,
     `${JSON.stringify(agentSupport(layer), null, 2)}\n`));
+  written.push(write(dir, `${at}/${AGENT_RULES}`,
+    `${JSON.stringify(agentRules(), null, 2)}\n`));
   return written;
 }
 

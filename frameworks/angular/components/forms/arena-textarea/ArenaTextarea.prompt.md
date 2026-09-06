@@ -45,25 +45,16 @@ a real `<textarea>`, named by a real `<label for>`.
 **Do / Don't**
 - It is **controlled**, and Angular will not force the DOM back: ignore `change` and the box keeps
   what the user typed. Wire the signal.
-- There is **no validator here**, unlike `arena-input`. `error` is the only route to the error
-  state, and it is the consumer's to compute, which is why the field has two state arms rather
-  than three and there is no valid (green check) state at all.
+- There is **no validator here**, unlike `arena-input`. `error` is the only route to the error state, and it is the consumer's to compute. So the field has two state arms rather than three, and there is no valid green-check state at all.
 - The counter needs **both** `counter` and `maxLength`. A `maxLength` alone caps the field; it
   does not ask for the count to be shown. Past nine tenths of the cap the counter switches to the
   warning slot, a different slot, not a variant, which is why Arena draws two.
 - `autoResize` forces `resize: none` and grows the box from its own `scrollHeight`.
-  **It resizes on mount and on every programmatic change, not only while typing**, through an
-  `afterRenderEffect` that reads `value()`, so a draft loaded from a server or a template
-  inserted by a button sizes the box immediately. **`scrollHeight` is content plus padding and never the border**, so a
-  border-box element needs `offsetHeight - clientHeight` added or the box lands short and keeps a
-  permanent scrollbar: measured before the fix at 720x340, `scrollHeight` 199 set as the height
-  left `clientHeight` 197 and a scrollbar on a box just grown past it. Both layers carry the term,
+  **The box resizes on mount and on every programmatic change, not only while typing.** An `afterRenderEffect` reads `value()`. A draft loaded from a server, or a template inserted by a button, sizes the box immediately. **`scrollHeight` is content plus padding and never the border.** A border-box element needs `offsetHeight - clientHeight` added, or the box lands short and keeps a permanent scrollbar. Measured before the fix at 720x340: `scrollHeight` 199 set as the height left `clientHeight` 197, and a scrollbar on a box just grown past it. Both layers carry the term,
   and no suite can see it, because happy-dom has no layout and reports `scrollHeight` as `0`.
 - `rows` is the *initial* height and still applies under `autoResize`; it is what the box is
   before it has content to measure.
-- `required` and `readOnly` land on the native attributes rather than on `aria-required` and
-  `aria-readonly`; a native control already reports both, and writing them twice is two claims
-  that can disagree. `aria-multiline` is likewise absent on purpose: a `<textarea>` is multiline
+- `required` and `readOnly` land on the native attributes rather than on `aria-required` and `aria-readonly`. A native control already reports both, and writing them twice is two claims that can disagree. `aria-multiline` is likewise absent on purpose: a `<textarea>` is multiline
   by being one.
 - `change` is an output named after a native DOM event, so the control calls `stopPropagation()`
   on the native `change` and a commit does not read as a second edit. Bind on the
@@ -74,9 +65,7 @@ a real `<textarea>`, named by a real `<label for>`.
   prefix differs from `arena-input`'s `in-`, so the two never collide on a form that labels
   both the same.
 
-**By hand, in real Chromium**: none of these is provable in happy-dom, and the first one cannot
-be: happy-dom has no layout, so `scrollHeight` is `0` and a growing box and a broken one look
-identical to any suite. Run `bun run demos` and open
+**By hand, in real Chromium.** None of these is provable in happy-dom, and the first one cannot be. happy-dom has no layout, so `scrollHeight` is `0`, and a growing box and a broken one look identical to any suite. Run `bun run demos` and open
 `/frameworks/angular/components/forms/arena-textarea/ArenaTextarea.demo.generated.html`:
 - **`autoResize`**: the box grows line by line as you type and shrinks again when you delete, with
   no scrollbar ever appearing. The one seeded with a long value is already tall on load; that is
@@ -89,6 +78,6 @@ identical to any suite. Run `bun run demos` and open
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

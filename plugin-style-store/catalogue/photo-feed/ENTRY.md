@@ -1,8 +1,6 @@
 # A photo feed
 
-The register of a product where the picture is the content and everything else gets out of its way:
-a scrolling column of posts, a rail of stories, a viewer that opens a picture at full size. It is
-measured on a commercial photo feed, and what is written down here is what the measurement found.
+The register of a product where the picture is the content and everything else gets out of its way. The product carries a scrolling column of posts, a rail of stories, and a viewer that opens a picture at full size. The entry is measured on a commercial photo feed, and what is written down here is what the measurement found.
 
 Take this entry when the thing on screen is the thing being looked at, rather than a container the
 reader looks past.
@@ -31,26 +29,18 @@ A two column grid with a narrow icon rail and a main column on `minmax(0, 1fr)`.
 column the feed is itself two columns, the posts and a narrower aside, capped at `container-max`.
 The rail is sticky.
 
-Air between posts is the section step, which is larger than any other register spends between two
-adjacent things, because a post is a whole object rather than a row. Density stays at the default:
+Air between posts is the section step, which is larger than any other register spends between two adjacent things. A post is a whole object rather than a row. Density stays at the default:
 this register neither compacts nor grows its controls, since almost none of the screen is a control.
 
 ## The components it leans on
 
-Very few, and that is the register rather than a gap: the avatar, the button and icon button, the
-menu, the dialog, the scroller for the story rail, and the people list. `frameworks/react/INDEX.md`
+Very few, and that is the register rather than a gap. The list is the avatar, the button and icon button, the menu, the dialog, the scroller for the story rail, and the people list. `frameworks/react/INDEX.md`
 names each under its category.
 
-The post, the wall and the viewer are markup you write, and
-`skills/design/references/media-register.md` is what Arena hands you instead of a component: the
-behaviour contract each element binds, the figure component for the frame, the parts already
-shipped for a viewer, and the one rule that bends here.
+The post, the wall and the viewer are markup you write. `skills/design/references/media-register.md` is what Arena hands you instead of a component. That page carries the behaviour contract each element binds, the figure component for the frame, the parts already shipped for a viewer, and the one rule that bends here.
 
 ## What it does not bring
 
-The palette and the fonts are the consumer's, and this register is the one where that matters least,
-because most of the screen is a photograph and takes its colour from the photograph.
+The palette and the fonts are the consumer's, and this register is the one where that matters least. Most of the screen is a photograph and takes its colour from the photograph.
 
-The copy, the brand mark, and whether anything has to be found from outside are still open. This is
-also the register most likely to answer yes to that last one, so settle it before the first route
-rather than after.
+The copy, the brand mark, and whether anything has to be found from outside are still open. This register is also the one most likely to answer yes to that last question, so settle it before the first route rather than after.

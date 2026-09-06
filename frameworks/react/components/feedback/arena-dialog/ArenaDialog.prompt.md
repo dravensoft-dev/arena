@@ -23,24 +23,16 @@ Modal for confirmations and short forms. Overlay with blur.
 
 <!-- @api end -->
 
-`title` is **required** and throws when missing. It is what names the dialog for
-assistive technology, the panel's `aria-labelledby` points at it, and nothing
-can derive a name for a dialog, because its subject is editorial. `open` is
+`title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a dialog, because its subject is editorial. `open` is
 required too and throws when absent; `open={false}` is the closed state and is
 not an absence.
 
 `width` is a **CSS string**, not a number; pass a token expression
-(`width="calc(var(--sp-1) * 200)"`), never a bare `520`. A named size is not one of the things it takes: `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default, so Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
+(`width="calc(var(--sp-1) * 200)"`), never a bare `520`. A named size is not one of the things it takes. `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
 `92vw` regardless, so a wide dialog still fits a narrow viewport.
 
 Arena dismisses the dialog two ways, and both report through `onClose`: **Escape**
-and a click on the backdrop. A third path is yours rather than Arena's, a button
-in `footer` wired to the same handler, and it is worth naming only so the count
-is not mistaken: `close` is one event with two sources inside the component, which
-is what `contracts/api/components/ArenaDialog.json` declares. Opening
-moves focus to the first focusable element inside the panel; closing returns it
-to whatever had focus before, so a keyboard user lands back on the control that
-opened the dialog. Tab and Shift+Tab wrap at the panel's edges rather than
+and a click on the backdrop. A third path is yours rather than Arena's: a button in `footer` wired to the same handler. The third path is worth naming only so the count is not mistaken. `close` is one event with two sources inside the component, which is what `contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first focusable element inside the panel. Closing returns it to whatever had focus before, so a keyboard user lands back on the control that opened the dialog. Tab and Shift+Tab wrap at the panel's edges rather than
 walking out into the page behind the scrim.
 
 - **Do** give every dialog a `title` that says what it is about, not what it is
@@ -49,16 +41,12 @@ walking out into the page behind the scrim.
   never the only way out.
 - **Don't** render a second modal inside an `ArenaDialog`. The trap is per panel, and
   two of them nested fight over the same Tab key.
-- **Don't** put a `tabIndex={-1}` on content the user has to reach: it is how the
-  trap decides what is focusable, so a control held out of the Tab order is a
-  control the wrap skips over.
+- **Don't** put a `tabIndex={-1}` on content the user has to reach. The Tab order is how the trap decides what is focusable, so a control held out of it is one the wrap skips over.
 
 ## Verifying the focus trap by hand
 
 A suite proves the boundary wrap, because that is Arena's own `.focus()` call and
-happy-dom honours it. It cannot prove the **interior**: that Tab from a control in
-the middle reaches the next one, because that is the browser's native sequential
-focus navigation, which Arena does not implement and happy-dom does not have. A
+happy-dom honours it. A suite cannot prove the **interior**, meaning that Tab from a control in the middle reaches the next one. The interior is the browser's native sequential focus navigation, which Arena does not implement and happy-dom does not have. A
 browser-driven gate was refused as this repo's fourth non-portable gate, so the
 interior is checked by a person against this list.
 
@@ -67,9 +55,7 @@ Serve the tree with `bun run demos`, open
 
 1. **Tab to "Open dialog" and press Enter.** Focus must land on **Cancel**, the
    first focusable inside the panel, not stay on the trigger.
-2. **Tab once.** Focus moves to **Deploy**. This is the step no suite can make:
-   Cancel is the first focusable and not the last, so Arena's handler does nothing
-   and the browser moves focus on its own. If this fails, the trap is fighting
+2. **Tab once.** Focus moves to **Deploy**. The step below is the one no suite can make. Cancel is the first focusable rather than the last, so Arena's handler does nothing and the browser moves focus on its own. If this fails, the trap is fighting
    native navigation rather than bounding it.
 3. **Tab again.** Focus wraps from Deploy back to Cancel. This one is Arena's.
 4. **Shift+Tab.** Focus wraps from Cancel back to Deploy.
@@ -81,6 +67,6 @@ carrying `text: '\r'`. Tab and Escape are fine as `rawKeyDown`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

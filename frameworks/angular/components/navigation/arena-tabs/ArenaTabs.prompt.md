@@ -28,14 +28,10 @@ view and `arena-tabs` draws the tablist, places the panels, and owns the keyboar
 
 <!-- @api end -->
 
-**The children pull; the parent pushes nothing.** `arena-tabs` provides an injectable
-`ArenaTabsState` and each `arena-tab` injects it and pulls, its selected state, and the two ids
-wiring it to its button. Nothing is pushed, and **no member of either contract describes any of it**. The state
+**The children pull, and the parent pushes nothing.** `arena-tabs` provides an injectable `ArenaTabsState`. Each `arena-tab` injects it and pulls its selected state and the two ids wiring it to its button. Nothing is pushed, and **no member of either contract describes any of it**. The state
 object is not exported from the barrel: it is coordination, not API.
 
-**Every panel mounts.** One `arena-tab` renders one tabpanel, and the unselected ones are hidden
-rather than removed, because each tab's `aria-controls` must reference a tabpanel that exists,
-a reference pointing at nothing is worse than an absent one. The consequence is real and the
+**Every panel mounts.** One `arena-tab` renders one tabpanel, and the unselected ones are hidden rather than removed. Each tab's `aria-controls` must reference a tabpanel that exists, and a reference pointing at nothing is worse than an absent one. The consequence is real and the
 contract states it: **a panel's side effects run immediately**, not on first selection. If a view
 is expensive, guard it inside the view rather than expecting the tab to defer it.
 
@@ -62,9 +58,8 @@ is expensive, guard it inside the view rather than expecting the tab to defer it
 - With no tabs at all it draws an **empty tablist and no tabpanel**, and guards nothing. A root
   promises nothing an empty render would break, but it must not ship an invalid one.
 - Don't use it for steps in a sequence, or for anything a person should be able to open in a new
-  window. Those are `arena-side-nav` items or links, not tabs.
-- Don't fill the selected tab. It is marked by a crimson underline and by weight; a filled tab
-  spends the view's primary accent on navigation.
+  window. Destinations are `arena-side-nav` items or links rather than tabs.
+- Don't fill the selected tab. The selected tab is marked by a crimson underline and by weight. A filled tab spends the view's primary accent on navigation.
 
 **By hand, in real Chromium**: the keyboard is asserted for real, but the ink and the ring are not.
 Run `bun run demos` and open
@@ -78,6 +73,6 @@ Run `bun run demos` and open
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

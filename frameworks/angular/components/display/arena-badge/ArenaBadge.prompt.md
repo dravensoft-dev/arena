@@ -36,20 +36,15 @@ The host **is** the chip: it binds the root slot, so an attribute you write on
 - Don't reach for a badge when the label can be dismissed or acted on: that is
   `arena-tag`, which owns `removable` and a real `<button>`. A badge has no
   interactive affordance at all, and its behaviour binding says so.
-- Don't write a `class` or an ARIA attribute on `<arena-badge>` expecting it to
-  reach the chip: the root slot is host-bound, so the host **is** the chip and a
-  static `class` on it is overwritten by Arena's own styling. Wrap it in your own element
+- Don't write a `class` or an ARIA attribute on `<arena-badge>` expecting it to reach the chip. The root slot is host-bound, so the host **is** the chip, and a static `class` on it is overwritten by Arena's own styling. Wrap it in your own element
   when you need to position it.
 
-**By hand, in a real browser** (`bun run demos`, then this component's own
-playground or any page composing it):
-- Each of the seven tones reads as its own colour against `--surface-card`, and
-  the mono uppercase treatment survives at the smallest text size.
+**By hand, in a real browser** (`bun run demos`, then this component's own playground or any page composing it): - Each of the seven tones reads as its own colour against `--surface-card`. The mono uppercase treatment survives at the smallest text size.
 - With `dot`, the dot takes the tone's own ink (`bg-current`) rather than a
   second colour.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

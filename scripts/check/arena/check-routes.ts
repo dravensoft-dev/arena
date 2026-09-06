@@ -44,7 +44,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 17_400,
+    budget: 18_600,
     reason:
       'the page every consumer route opens with, and the reason it is declared here rather than as '
       + 'the first stop of each of them: a paragraph added to a router that seven routes shared was '
@@ -77,7 +77,22 @@ export const ENTRIES: Entry[] = [
       + 'no row to match on learned a toolchain by copying one: what the row names is the page '
       + 'that separates what Arena supports from what Arena is made of, and it is asked before a '
       + 'builder knows which situation they are in, which is what earns a row here rather than '
-      + 'in the node that would otherwise own it.',
+      + 'in the node that would otherwise own it. Raised again to 18,000 when the rules list '
+      + 'stopped being written by hand. Every statement of the rules is emitted from one '
+      + 'declaration now, so each rule says whether a gate reads the reader\'s own sources for it, '
+      + 'and the rule the page had stated only in its delivery paragraph joined the list it '
+      + 'belongs to. What the number buys is a claim that cannot go stale: this page said no gate '
+      + 'reads your application while the audit already did, and nothing failed, because the '
+      + 'sentence and the check had no common source. Raised again to 18,600 when this page was '
+      + 'rewritten into the register check:register holds, which is the first measurement of what '
+      + 'that register costs: 661 characters on a page whose every sentence now carries one claim, '
+      + 'runs under thirty words and names its own subject. The saving a rewrite was expected to '
+      + 'return did not arrive here and the reason is worth the row: naming a subject spends '
+      + 'characters, splitting a sentence spends a verb, and the subordination this page carried '
+      + 'was holding claims rather than padding. What the number buys is measured on the gate '
+      + 'rather than argued: thirty-six findings before and none after. A page whose prose is '
+      + 'already flat has nothing left to spend, so the next raise here is a claim rather than a '
+      + 'register.',
   },
   {
     name: 'contributor',
@@ -123,7 +138,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 32_700,
+    budget: 32_800,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -174,14 +189,14 @@ export const ROUTES: Route[] = [
       + 'and aria-rowindex to exactly that condition, and a consumer nobody tells carries the '
       + 'defect into every table they build. The arithmetic is the half that cannot live in a '
       + 'member description: the header row takes index 1, so an offset counted from 1 is off '
-      + 'by one in a way no gate of ours and no gate of theirs reports.',
+      + 'by one in a way no gate of ours and no gate of theirs reports. Raised again to 32,800 when the component descriptions were rewritten into the register check:register holds. A description is emitted into the layer-neutral index, into the category index this route charges, and into the type declarations both packages ship, so it is consumer prose that happens to live in a contract. The navigation category is where the raise lands, because the components whose descriptions carried the most subordination are its own: a nav item, a collapsible and a bottom-nav item each said what the parent settles, why it is not a member, and which other component has the same arrangement, in one sentence. Fifty-six findings over thirty descriptions before, and none after, for twenty-three characters on the charged stop.',
   },
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 51_400,
+    budget: 51_700,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and the two measurements. It shares the '
@@ -331,7 +346,7 @@ export const ROUTES: Route[] = [
       + 'carries none of it: a page that never names the four ways to reach it ships a language '
       + 'nobody reaches. The rows also say that a corpus and the components it describes are two '
       + 'version numbers, since a served document that stops matching the package fails at '
-      + 'nothing and is read by an agent anyway.',
+      + 'nothing and is read by an agent anyway. Raised to 51,700 when both npm pages were rewritten into the register check:register holds. Two hundred and nine findings before and none after, for 177 characters on the charged stop. Thirty-seven of the sentences sit inside a @shared region, so they moved in generate-npm-pages.ts and landed on both pages at once; the rest are the half each layer writes for itself. The densest of them were the flag table and the audit paragraph, where a list of what a run reports ran as one sentence with four semicolons, which is the shape a reader scanning for one flag cannot scan.',
   },
   {
     name: 'consumer-skin',
@@ -339,7 +354,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 17_500,
+    budget: 17_700,
     reason:
       'paid once per project and never per screen, like the install route, which is what lets it '
       + 'carry the whole surface the kernel exposes rather than a pointer to it. What it buys is '
@@ -391,7 +406,7 @@ export const ROUTES: Route[] = [
       + 'contracts, where the builder holding the question never reaches, and three readings of the '
       + 'same page were each defensible. An exception a page names and does not answer costs more '
       + 'than the paragraph answering it, because a reader either guesses or goes looking on the '
-      + 'branch that is not theirs.',
+      + 'branch that is not theirs. Raised to 17,700 when this page was rewritten into the register check:register holds. Most of it paid for itself and one table did not: the column saying where the steps of a scale live answered eight of its twelve rows with the words "the same", meaning the file in the row above, so a reader who matched on one row held no other. The rows are grouped under the file each of them reads now, which costs about a hundred characters and makes every row answerable alone.',
   },
   {
     name: 'consumer-register',
@@ -446,7 +461,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 4_600,
+    budget: 4_700,
     reason:
       'paid once per project like the skin and the register routes, and taken before the first '
       + 'screen for the same reason they are: the answer reaches the layer and the install rather '
@@ -493,7 +508,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 10_700,
+    budget: 10_800,
     reason:
       'paid once per project like the skin, the register and the seo routes, and taken before all '
       + 'three, because each of them asks how much of a thing nobody has shown the reader yet. What '
@@ -530,7 +545,7 @@ export const ROUTES: Route[] = [
       + 'line with no server render, where the tree supports one and the cold start tree '
       + 'answers each architecture with the evidence behind it: what Arena ships no tooling for '
       + 'is producing the pages, and a headline naming the architecture instead reads as a '
-      + 'refusal on the one page a project consults before choosing.',
+      + 'refusal on the one page a project consults before choosing. Raised to 10,800 when this page was rewritten into the register check:register holds. The page is one table whose second column answers a whole part of Arena in a paragraph, so every cell was a list joined by colons and semicolons, read by somebody deciding whether to take that part at all. Eighteen findings before and none after, for 73 characters. Raised to 4,700 when this page was rewritten into the register check:register holds. Thirteen findings before and none after, for 77 characters, most of them spent splitting the paragraph that decided one piece of the stack and named the asymmetry between the two layers in the same sentence.',
   },
   {
     name: 'consumer-stack',
@@ -623,7 +638,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 23_700,
+    budget: 24_000,
     reason:
       'the first route on this branch that is declared as a tree, and the reason the shape exists. '
       + 'A reader here answers a question and walks one way: handed a document stating the palette '
@@ -669,7 +684,7 @@ export const ROUTES: Route[] = [
       + 'that two arrivals take it. It carries the verb as well: an entry is copied rather than '
       + 'cited, and the one page saying so was the catalogue\'s own AGENTS.md, on the branch this '
       + 'reader is told not to read, so a walk that reached the entry correctly then guessed at '
-      + 'what to do with it.',
+      + 'what to do with it. Raised again to 23,900 when the tree was rewritten into the register check:register holds. The tree is the page a reader walks one node at a time, so a node that carried its question, its cost and its exception in one sentence was the worst place on this branch for that shape: a reader who matches on one row reads that row alone. Thirty-five findings before and none after, for 199 characters. Raised again to 24,000 for the catalogue entry this route charges its worst branch. Fifty-eight findings over the eight cards before and none after, for 29 characters on the largest of them. A card opens on what the register is, in a list of four things after a colon, which is the one sentence a reader matching a description against their own product actually compares.',
   },
   {
     name: 'contributor-component',

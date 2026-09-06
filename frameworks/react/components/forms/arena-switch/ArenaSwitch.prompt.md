@@ -33,14 +33,9 @@ const [dark, setDark] = useState(false);
 once, for the direction the activation moved. There is no `onChange`: read the direction
 from which handler fired, not from an event argument.
 
-For **high-impact** toggles (H5) add `confirm`: an activate no longer fires
-`onFuncOn`/`onFuncOff` at all, it calls `onRequestChange()` instead (also payload-less;
-the requested value is always `!state`), so the host can open an ArenaConfirmDialog and push
-`state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
+For **high-impact** toggles (H5) add `confirm`. An activate no longer fires `onFuncOn` or `onFuncOff` at all, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
 never whether a handler was passed: `confirm` set with no `onRequestChange` is a switch that
-does nothing at all. That is the accepted cost of the rule that no render or behaviour follows
-from whether a listener is bound, and it is the one worth paying, because what it replaced
-applied a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
+does nothing at all. The cost is the accepted one of the rule that no render or behaviour follows from whether a listener is bound. The cost is worth paying, because what it replaced applied a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
 is precisely the question a component may not ask. The behaviour is pinned, so the fallback
 cannot come back unnoticed.
 
@@ -58,9 +53,7 @@ const [pending, setPending] = useState(false);
 </ArenaConfirmDialog>
 ```
 
-`orientation` (`'horizontal'` default | `'vertical'`) lays the track along the other axis,
-reach for `vertical` only where the surrounding layout is itself vertical (a narrow
-settings rail), never as a decorative variant. `size` (`'sm' | 'md' | 'lg' | 'xl' | '2xl'`,
+`orientation`, which is `'horizontal'` by default or `'vertical'`, lays the track along the other axis. Reach for `vertical` only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as a decorative variant. `size` (`'sm' | 'md' | 'lg' | 'xl' | '2xl'`,
 default `'md'`) scales the track and knob together; `'md'` matches the pre-redesign
 component's only size exactly, so an existing call site that names no `size` renders
 unchanged.
@@ -89,6 +82,6 @@ resolves (typically `ArenaConfirmDialog`'s `onConfirm`), not from a transition e
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

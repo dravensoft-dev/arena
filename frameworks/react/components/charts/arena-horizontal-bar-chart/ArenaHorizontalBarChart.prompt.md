@@ -1,4 +1,4 @@
-Categorical bars running across the plot, with the category names down its left edge. Same data, same accessible table and same series as `ArenaBarChart`, with the axes transposed. Reach for it when the category names are worth reading: across the bottom of a vertical chart they get rotated or truncated, and here they have a gutter of their own.
+Categorical bars running across the plot, with the category names down its left edge. Same data, same accessible table and same series as `ArenaBarChart`, with the axes transposed. Reach for this chart when the category names are worth reading. Across the bottom of a vertical chart they get rotated or truncated, and here they have a gutter of their own.
 
 ```tsx
 <ArenaHorizontalBarChart label="Open issues by area"
@@ -37,17 +37,12 @@ vertical chart does not pay 52px for names it does not draw. `height` stops bein
 and becomes the axis the categories run down. And there is no scrolling rail.
 
 That last one is deliberate rather than missing. `ArenaBarChart` overflows sideways into a rail
-when the points stop fitting, and sideways is a direction a page does not use. Down is the
-direction a page already scrolls, so a rail here would take the page's own scroll away from
-anyone passing through the chart, which is the reasoning that already keeps `touch-action` off
-the horizontal one. A chart of many categories asks for the room instead: give `height` what the
+when the points stop fitting, and sideways is a direction a page does not use. Down is the direction a page already scrolls. A rail here would take the page's own scroll away from anyone passing through the chart, which is the reasoning that already keeps `touch-action` off the horizontal one. A chart of many categories asks for the room instead: give `height` what the
 data needs.
 
 ### Reading the bars without a pointer
 
-The plot is one keyboard region and the only tab stop. ArrowUp and ArrowDown move a data cursor
-from category to category, clamping at the ends rather than wrapping, Home and End jump to the
-first and the last, and Escape clears it. ArrowLeft and ArrowRight do nothing and are not
+The plot is one keyboard region and the only tab stop. ArrowUp and ArrowDown move a data cursor from category to category, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. ArrowLeft and ArrowRight do nothing and are not
 consumed, because this chart has no sequence along that axis and swallowing a key it cannot use
 would strand a reader.
 
@@ -57,6 +52,6 @@ cursor.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

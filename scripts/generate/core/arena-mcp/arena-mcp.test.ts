@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseArgs, listing, opening, build, isProgram, USAGE, NAME } from './arena-mcp.ts';
+import {
+  parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS,
+} from './arena-mcp.ts';
 import { manifestIn, bundledPayload } from './payload.ts';
 import { catalogue, SCHEME, ROUTER_URI } from './catalogue.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
@@ -85,4 +87,21 @@ test('the catalogue built from the assembled payload reaches every kind of docum
   for (const kind of ['component', 'reference', 'category']) {
     assert.ok(kinds.has(kind), `no ${kind} document is offered`);
   }
+});
+
+
+test('arena_check reports the rules of the language over text, and says so when it finds none', () => {
+  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
+  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /1 finding/);
+  assert.match(checked('<ArenaButton variant="primary">Go</ArenaButton>'), /^No finding\./);
+});
+
+test('the name a check is given decides whether the text is read as a stylesheet', () => {
+  assert.equal(/raw-value/.test(checked('.mine { color: #fff; }')), false,
+    `${CHECKED_AS} is markup, and a hex in markup is a string rather than a declaration`);
+  assert.match(checked('.mine { color: #fff; }', 'src/app.css'), /raw-value/);
+});
+
+test('a check says which half of a project it read, because it resolves no config', () => {
+  assert.match(checked('<ArenaButton>Go</ArenaButton>'), /style plugin of your own is not/);
 });

@@ -1,6 +1,5 @@
 The one control on a page that exists for a keyboard alone: it lets a reader step over everything
-repeated on every screen and land in the content. It returns the anchor itself, so what the page
-sees is the element, with no wrapper around it.
+repeated on every screen and land in the content. The component returns the anchor itself, so what the page sees is the element, with no wrapper around it.
 
 ```tsx
 <ArenaSkipLink label="Skip to content" />
@@ -21,24 +20,13 @@ sees is the element, with no wrapper around it.
 
 <!-- @api end -->
 
-**Place it first, above everything it exists to skip.** That is the one of the four details it
-cannot do for itself, and it is the one that decides whether the link works at all: tab order
-follows the document, so a skip link written under a nav of nine destinations is reached on the
-tenth Tab, by which point the reader has already been through everything the link was going to
-save them. Write it as the first element of the shell.
+**Place it first, above everything it exists to skip.** Placement is the one of the four details the link cannot do for itself. Placement decides whether the link works at all. Tab order follows the document, so a skip link written under a nav of nine destinations is reached on the tenth Tab. By then the reader has already been through everything the link was going to save them. Write it as the first element of the shell.
 
-**The other three are Arena's.** It is invisible until it takes focus and visible the moment it
-does, through opacity rather than through mounting, so it is reachable by Tab at every moment and
-nothing appears or disappears from the tree. It is fixed at the top of the page, on the layering
-slot directly above `nav`, because a link that lands under a sticky header is a link nobody can
-read. And the region it points at is focusable programmatically, which `ArenaMain` carries: an
+**Arena owns the other three.** Arena keeps the link out of sight until the link takes focus. The link becomes visible the moment it does. Opacity does that rather than mounting. The link stays reachable by Tab at every moment, and nothing appears or disappears from the tree. The link is fixed at the top of the page, on the layering slot directly above `nav`. A link that lands under a sticky header is a link nobody can read. And the region it points at is focusable programmatically, which `ArenaMain` carries: an
 anchor pointing at a container the platform will not focus scrolls the page and leaves focus
 behind.
 
-**It points at the page's `ArenaMain`, by an id Arena writes on both sides.** There is nothing to
-coordinate at the call site and no id to pass, because a page has one main landmark. A page with a
-skip link and no `ArenaMain` has a link to nowhere, and nothing can detect that from inside either
-component, so it is the one thing to check by hand.
+**The link points at the page's `ArenaMain`, by an id Arena writes on both sides.** There is nothing to coordinate at the call site and no id to pass. A page has one main landmark. A page with a skip link and no `ArenaMain` has a link to nowhere. Nothing can detect that from inside either component, so it is the one thing to check by hand.
 
 **Do**
 - Say where the reader lands, in the application's own words. "Skip to content" and "Skip to the
@@ -54,12 +42,12 @@ component, so it is the one thing to check by hand.
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/react/components/layout/arena-skip-link/ArenaSkipLink.demo.generated.html`:
 - With the page freshly loaded, the first Tab reveals it and nothing else has focus before it.
-- It draws over whatever is beneath it rather than pushing the page down.
+- The link draws over whatever is beneath it rather than pushing the page down.
 - Enter moves focus into the main region, and the Tab after that continues from inside it.
 - A second Tab away from it makes it invisible again with no layout moving.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

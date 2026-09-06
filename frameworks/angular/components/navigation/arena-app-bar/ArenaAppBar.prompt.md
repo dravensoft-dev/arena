@@ -32,9 +32,7 @@ banner landmark has to be that element.
 **The three slots are attributes**, `brand`, `nav` and `actions`, projected through the marker
 directives. Each takes one element, so wrap a row of controls in a container of your own.
 
-**The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge
-to edge; the contents stop at the page width with a gutter either side, so they line up with
-everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
+**The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
 carries for markup you wrote yourself.
 
 **The nav landmark is yours, and that is deliberate.** The links are your router's, and Arena never
@@ -57,6 +55,6 @@ judgement about your page rather than about this component.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

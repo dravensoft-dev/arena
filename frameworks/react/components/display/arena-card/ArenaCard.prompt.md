@@ -28,27 +28,16 @@ Base container. Use `eyebrow` (crimson mono) + `title` (Archivo) for the header.
 
 <!-- @api end -->
 
-**`interactive` makes the whole card one activation target**, which is the ordinary shape of a
-list on a phone, and it is a declared boolean rather than "is `onClick` bound?", because Arena never derives what it draws from what a consumer listens for,
-the same one `ArenaTableRow.interactive` gives. Arena writes `role="button"`, a tab stop and an
+**`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `onClick` bound?". Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` gives the same answer. Arena writes `role="button"`, a tab stop and an
 Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap
 it would close.
 
-**An interactive card is a `role="button"` div and never a `<button>` element**, because a card
-body is where you put your own controls and a control nested inside a control is reachable by
-nobody.
+**An interactive card is a `role="button"` div and never a `<button>` element.** A card body is where you put your own controls. A control nested inside a control is reachable by nobody.
 
-**A press that starts on one of those controls belongs to that control, by pointer and by keyboard
-alike.** Clicking a button inside the card runs the button's handler and stops there; typing Enter
-in a field inside it never opens the card. Both paths ask the same question, and the question is
-"did this press start on a control", not "did it land on the card's own element": a click anywhere
-else on the card, its title, its body, the space between them, is the card being pressed and
-activates it.
+**A press that starts on one of those controls belongs to that control.** The rule holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and stops there. Typing Enter in a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them.
 
-**A card can also hand the press over entirely, by leaving `interactive` off.** Then it draws no
-role, no tab stop and no handler at all: it is a surface, and the control inside it is the only
-activation target on it.
+**A card can also hand the press over entirely, by leaving `interactive` off.** The card then draws no role, no tab stop and no handler at all. The card is a surface, and the control inside it is the only activation target on it.
 
 ```tsx
 <ArenaCard title="Acme Corp">
@@ -60,15 +49,13 @@ activation target on it.
 Reach for `interactive` when the whole surface is the target and a control inside it is a second
 route to the same place. Leave it off when the press means something narrower than "this card".
 
-**Don't**
-- Don't put an interactive card inside another activation target, and don't put your only route to something inside one: a card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.
+**Don't** - Don't put an interactive card inside another activation target, and don't put your only route to something inside one. A card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.
 - Don't pass `style` or stray DOM attributes. ArenaCard declares its `content` and `action` slots plus `title`, `eyebrow`, `floating`, `accent`, `interactive` and `disabled`, and renders nothing else. To size, constrain or shadow a card differently, wrap it in your own element (a fixed-width `<div>`, a `maxWidth` box) rather than reaching through the card.
 
 ### A card that navigates
 
 `href` makes the whole card a real `<a>`: openable in a new tab, address copyable, announced
-as a link. It is the same split, and the same reason, as `ArenaSideNavItem`'s own `href`, and it
-implies interaction on its own, so `interactive` is not also needed. With `disabled` it
+as a link. The split and the reason are `ArenaSideNavItem`'s own `href`. An `href` implies interaction on its own, so `interactive` is not also needed. With `disabled` it
 refuses activation through `aria-disabled` and prevents the anchor's default.
 
 ```tsx
@@ -86,13 +73,10 @@ nothing and the card is a plain link that navigates the document.
 is invalid and reachable by nobody. Give the card the `href` and route in `onClick`.
 
 Choose between the two by what the press DOES. A card that goes somewhere is `href`; a card
-that changes local state is `interactive` with `onClick`. And a card whose body holds controls
-of its own is `interactive`, not `href`: the anchor wraps the whole surface, so a button inside
-it is a control inside a link, which is exactly the nesting `interactive` was made a
-`role="button"` div to avoid.
+that changes local state is `interactive` with `onClick`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

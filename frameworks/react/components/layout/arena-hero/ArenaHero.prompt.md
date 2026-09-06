@@ -1,6 +1,4 @@
-The opening of a landing page: one line the page is built around, what sits above and below it,
-the actions it asks for, and a figure beside or behind it. Its title takes the hero register, the
-top rung of the title ladder and the only one above a page head.
+The opening of a landing page. The hero holds one line the page is built around and what sits above and below that line. The hero also holds the actions it asks for, and a figure beside or behind it. The hero's title takes the hero register, which is the top rung of the title ladder and the only one above a page head.
 
 ```tsx
 <ArenaHero
@@ -31,28 +29,19 @@ top rung of the title ladder and the only one above a page head.
 
 <!-- @api end -->
 
-**`split` falls to one column with no breakpoint deciding when.** The threshold is derived from
-`--grid-min`, the role that already answers how narrow a card may get, so a style plugin that widens the
-grid minimum widens when a hero splits: one decision about how dense a page is rather than two
-that can disagree.
+**`split` falls to one column with no breakpoint deciding when.** The threshold is derived from `--grid-min`, the role that already answers how narrow a card may get. A style plugin that widens the grid minimum widens when a hero splits, which is one decision about how dense a page is rather than two that can disagree.
 
 **`bleed` lays the words on the figure**, which is the arrangement that makes the media overlay
 role load-bearing. Give the figure something that fills its box, and give the words `align="center"`
 unless the picture has an empty corner they can sit in.
 
-**It claims no `banner` landmark.** Banner is the site header, one per page, and a hero is content
-inside the main region rather than the furniture around it. The heading is what a reader navigates
+**The hero claims no `banner` landmark.** Banner is the site header, one per page, and a hero is content inside the main region rather than the furniture around it. The heading is what a reader navigates
 to.
 
-**A page carrying a hero and a page head has two candidates for one `h1`, and the ladder says
-which yields.** The hero is the rung above, so it keeps the `h1` and the page head takes
-`headingLevel="h2"`. Neither component reads the page to work that out, because what an Arena
-component renders never follows from what sits above it, so the screen that carries both is the
-screen that has to say so. On its own the hero is right as it stands.
+**A page carrying a hero and a page head has two candidates for one `h1`.** The ladder says which yields. The hero is the rung above, so it keeps the `h1` and the page head takes `headingLevel="h2"`. Neither component reads the page to work that out. What an Arena component renders never follows from what sits above it, so the screen that carries both is the screen that has to say so. On its own the hero is right as it stands.
 
 **Do / Don't**
-- **Do** keep the lede to a sentence or two. It is held to a reading width rather than the
-  column's, because a line that runs the whole width of a hero loses its return sweep.
+- **Do** keep the lede to a sentence or two. The lead is held to a reading width rather than the column's, because a line that runs the whole width of a hero loses its return sweep.
 - **Do** put one primary action beside one secondary. The row is sized for that shape.
 - **Don't** leave a second `h1` on the page. The hero already opened it, so the page head beside
   it steps down and anything you write of your own starts at `h2`.
@@ -61,6 +50,6 @@ screen that has to say so. On its own the hero is right as it stands.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

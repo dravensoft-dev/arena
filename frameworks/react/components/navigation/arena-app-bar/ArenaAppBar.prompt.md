@@ -1,5 +1,5 @@
 The band across the top of every screen: the site's identity, the way through it, and the controls
-that follow the reader everywhere. It is the banner landmark, so there is one per page.
+that follow the reader everywhere. The bar is the banner landmark, so a page carries one.
 
 ```tsx
 <ArenaAppBar
@@ -24,18 +24,13 @@ that follow the reader everywhere. It is the banner landmark, so there is one pe
 
 <!-- @api end -->
 
-**The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge
-to edge; the contents stop at the page width with a gutter either side, so they line up with
-everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
+**The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
 carries for markup you wrote yourself.
 
 **The nav landmark is yours, and that is deliberate.** The links are your router's, and Arena never
-wraps one. A page with a side nav as well has two navigation landmarks, and naming them apart is a
-judgement about your page rather than about this component, so the `<nav aria-label>` goes in the
-slot.
+wraps one. A page with a side nav as well has two navigation landmarks. Naming them apart is a judgement about your page rather than about this component, so the `<nav aria-label>` goes in the slot.
 
-**`sticky` takes the navigation layer of the stacking order.** A dialog, a sheet and a command
-palette all still cover it, which is what keeps a modal from sliding under the bar.
+**`sticky` takes the navigation layer of the stacking order.** A dialog, a sheet and a command palette all still cover it. The stacking order is what keeps a modal from sliding under the bar.
 
 **Do / Don't**
 - **Do** wrap the brand in your own link if it should lead home. The bar draws no anchor.
@@ -48,6 +43,6 @@ palette all still cover it, which is what keeps a modal from sliding under the b
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

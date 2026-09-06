@@ -1,7 +1,5 @@
 Arena chart tile, the card a chart sits on, with a mono microlabel and an optional
-action slot. Its title is a label and not a heading by default: a dashboard is a grid of
-tiles, and a dozen tiles each opening a rung invents a document outline where the page
-holds one region. The chart inside carries the accessible name through its own
+action slot. The card's title is a label rather than a heading by default. A dashboard is a grid of tiles, and a dozen tiles each opening a rung invents a document outline where the page holds one region. The chart inside carries the accessible name through its own
 `role="img"`, so nothing goes unnamed by it. A tile that genuinely is a region of the page
 says so with `headingLevel`, and `h3` is the rung a chart card inside a section takes.
 
@@ -25,10 +23,7 @@ says so with `headingLevel`, and `h3` is the rung a chart card inside a section 
 
 <!-- @api end -->
 
-Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaChartCard` in the
-host component's `imports`,
-`actions` is a directive, not a plain attribute, because it is how the card
-detects that actions were projected at all. Without it the attribute is inert, the
+Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaChartCard` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the card detects that actions were projected at all. Without it the attribute is inert, the
 head row never renders when there is no title, and the button silently disappears.
 `ArenaActions` is shared: every primitive with a plural, toolbar-shaped projected slot
 imports the same directive rather than declaring its own, `arena-page-head` is the
@@ -38,25 +33,18 @@ The head row (title plus actions) renders only when one of them is actually pres
 With neither, no empty row ships dead space above the chart.
 
 **Do / Don't**
-- Mark **each** control with `actions`, as siblings. The head row and the actions row both
-  wrap their own children, so a single wrapper holding three buttons is one flex item that
-  can never wrap and overflows the tile on a phone. `arena-page-head` says the same thing
+- Mark **each** control with `actions`, as siblings. The head row and the actions row both wrap their own children. A single wrapper holding three buttons is one flex item that can never wrap, and it overflows the tile on a phone. `arena-page-head` says the same thing
   about the same slot.
-- Keep the title short and in the tile's own words. It is a label, not a sentence.
+- Keep the title short and in the tile's own words. The title is a label, not a sentence.
 - Let `title` and the chart's own `label` say the same thing when the card holds one chart.
-  They are not redundant: `title` is what a sighted reader sees on the tile, `label` is what
-  a screen reader hears and what captions the numbers table, and neither is derivable from
-  the other.
+  The two are not redundant. `title` is what a sighted reader sees on the tile. `label` is what a screen reader hears and what captions the numbers table, and neither is derivable from the other.
 - Don't put two charts in one card. A card is one question answered once.
 - Don't reach for this as a general card: that is `mat-card` wearing Arena.
 
-The card's own inner padding is not something a chart inside it needs to know. A chart that
-overflows scrolls in its own rail rather than in the card's box, so `minPointSpacing` needs no
-cooperation from here, and there is no member for the padding because nothing outside has to
-reproduce it.
+The card's own inner padding is not something a chart inside it needs to know. A chart that overflows scrolls in its own rail rather than in the card's box, so `minPointSpacing` needs no cooperation from here. There is no member for the padding, because nothing outside has to reproduce it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

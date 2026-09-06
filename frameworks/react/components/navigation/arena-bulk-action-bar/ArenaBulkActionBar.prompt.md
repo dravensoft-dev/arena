@@ -1,4 +1,4 @@
-Bulk actions (H7). Appears when there's a selection and operates on the set. Combine it with `ArenaConfirmDialog` for destructive actions. `actions` is an array of `{ id, label, icon?, destructive? }`, where `id` is a stable identity so a host can switch on it rather than on the label, and `icon` is a Phosphor class name Arena draws, never a node. Activating one fires `onRun` with the action; there is no per-action `onClick`.
+Bulk actions (H7). Appears when there's a selection and operates on the set. Combine it with `ArenaConfirmDialog` for destructive actions. `actions` is an array of `{ id, label, icon?, destructive? }`. `id` is a stable identity, so a host can switch on it rather than on the label. `icon` is a Phosphor class name Arena draws, never a node. Activating one fires `onRun` with the action; there is no per-action `onClick`.
 
 ```tsx
 <ArenaBulkActionBar count={selected.length} noun="deployments" onRun={(action) => run(action)} onClear={() => setSelected([])}
@@ -27,16 +27,14 @@ Bulk actions (H7). Appears when there's a selection and operates on the set. Com
 
 `clearable` (default `true`) gates the Clear control; pass `clearable={false}` to hide it entirely.
 
-### It stacks when its own container is narrow
+### The bar stacks when its own container is narrow
 
 `layout` defaults to `auto`, which measures **the bar's own container** rather than the viewport
 and drops the count, the actions and Clear onto separate rows below `--bp-sm`. Set `inline` when
 the bar sits somewhere you know is wide.
 
 **Stacking reorders nothing**, and that is the whole reason the member exists rather than a
-consumer reaching in with CSS. Reordering the bar's children by position moves what is on screen
-and leaves the tab sequence where it was, so the focus order and the reading order stop matching,
-and it breaks again the next time anything inside the bar moves. Both layers assert that the
+consumer reaching in with CSS. Reordering the bar's children by position moves what is on screen and leaves the tab sequence where it was. The focus order and the reading order stop matching, and they break again the next time anything inside the bar moves. Both layers assert that the
 control order is identical in the two shapes.
 
 **Do / Don't**
@@ -46,6 +44,6 @@ control order is identical in the two shapes.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -1,7 +1,4 @@
-Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I/O. It exists
-because a consumer's own content has to go inside **one** item of something Arena draws: the
-moment there is one element per view, per-item projection stops being the problem it would be
-otherwise.
+Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I/O. The component exists because a consumer's own content has to go inside **one** item of something Arena draws. The moment there is one element per view, per-item projection stops being the problem it would be otherwise.
 
 ```html
 <arena-tabs [value]="view()" (change)="view.set($event)">
@@ -24,24 +21,18 @@ otherwise.
 
 <!-- @api end -->
 
-**It draws the panel, not the button.** `arena-tabs` renders the tablist and every tab button in
-it from this component's `label`; `arena-tab`'s own host **is** the tabpanel. That split is not a
+**The component draws the panel, not the button.** `arena-tabs` renders the tablist and every tab button in it from this component's `label`. `arena-tab`'s own host **is** the tabpanel. That split is not a
 style choice, a tabpanel may not sit inside a tablist, so the two cannot be one element.
 
 **Do / Don't**
 - **`value` and `label` are both required.** `value` is what the parent's `change` carries;
   `label` is what the button reads.
-- **It only works inside `arena-tabs`.** It injects the parent's state to learn whether it is
-  selected and which ids wire it to its button; on its own it has nothing to inject and Angular
-  reports it as a missing provider.
+- **The panel only works inside `arena-tabs`.** The panel injects the parent's state to learn whether it is selected and which ids wire it to its button. On its own it has nothing to inject, and Angular reports it as a missing provider.
 - **Values must be distinct within one strip.** The parent resolves both ids by finding the tab
   with that value, so a duplicate makes two panels answer to one button.
-- **Its content mounts whether or not it is selected**, and is hidden rather than removed when it
-  is not. Anything expensive belongs behind a guard inside the content, not behind the tab.
-- It binds the `none` pattern, and that is not an absence: every requirement that applies to a tab
-  is a clause of the `tabs` pattern, which `arena-tabs` binds and its suite verifies.
-- Don't reach for `arena-tab` to make a panel you place yourself. It renders where the parent puts
-  it, which is after the tablist and nowhere else.
+- **The panel's content mounts whether or not the panel is selected**, and it is hidden rather than removed when it is not. Anything expensive belongs behind a guard inside the content, not behind the tab.
+- The panel binds the `none` pattern, and that is not an absence. Every requirement that applies to a tab is a clause of the `tabs` pattern, which `arena-tabs` binds and its suite verifies.
+- Don't reach for `arena-tab` to make a panel you place yourself. The panel renders where the parent puts it, which is after the tablist and nowhere else.
 
 **By hand, in real Chromium**: checked from the parent's page, since a tab alone renders nothing
 useful. Run `bun run demos` and open
@@ -50,6 +41,6 @@ useful. Run `bun run demos` and open
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

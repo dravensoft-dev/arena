@@ -30,26 +30,18 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 
 <!-- @api end -->
 
-`onChange` carries the **new text as a string**, not the `ChangeEvent`, because a platform
-event type never travels in a payload, so the event does not reach you. Read the
+`onChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the
 value directly (`onChange={setNotes}`); there is no `e.target` and no `preventDefault()`.
 
 The members are `label`, `id`, `hint`, `error`, `required`, `counter`, `autoResize`, `value`,
 `disabled`, `readOnly`, `placeholder`, `name`, `maxLength` and `rows`, plus `onChange`.
-That is the whole API: there is no `TextareaHTMLAttributes` heritage clause and no
-`{...rest}` spread, so global attributes, `className`, `dir`, `tabIndex`, ARIA and
-`data-*`, do not reach the `<textarea>`, and neither does a consumer `style` object.
+The members above are the whole API. There is no `TextareaHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<textarea>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object.
 
-**`id` is the one global attribute that is a member**, because the component
-generates one from `label` to wire the label's `htmlFor` and a consumer had no way to
-override it, which left an external `<label>`, an `aria-describedby` or a form library
-addressing the field by name with no path at all. Pass it and it wins; omit it and the
+**`id` is the one global attribute that is a member.** The component generates one from `label` to wire the label's `htmlFor`, and a consumer had no way to override it. That left an external `<label>`, an `aria-describedby` or a form library addressing the field by name with no path at all. Pass it and it wins; omit it and the
 label-derived value is still generated.
 
 **`readOnly` and `disabled` look different because they mean different things.** A
-disabled field is dimmed and out of the conversation. A read-only one is at **full
-contrast**: its value is the point, and drops to the panel surface so it reads as a
-fact rather than a well you can type into. Reach for `readOnly` whenever the value must
+disabled field is dimmed and out of the conversation. A read-only one is at **full contrast**, because its value is the point. The field drops to the panel surface, so it reads as a fact rather than a well you can type into. Reach for `readOnly` whenever the value must
 stay legible and copyable, and for `disabled` only when the field is genuinely
 inapplicable right now.
 
@@ -57,13 +49,12 @@ inapplicable right now.
 - Real multi-line content (descriptions, notes, messages). For a single line use `ArenaInput`.
 - With `maxLength`, enable `counter` so the limit is visible; the counter renders only
   when both are set.
-- Pass `label` when the field needs a visible name; it is also what the generated `id` is
-  derived from, so a field with neither a `label` nor an `id` has no association to offer.
+- Pass `label` when the field needs a visible name. The label is also what the generated `id` is derived from. A field with neither a `label` nor an `id` has no association to offer.
 - Don't reach for a wrapper attribute or an inline `style` to size the field; compose it
   inside a container you control instead.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

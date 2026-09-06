@@ -16,8 +16,22 @@ import {
   resolvePayload, manifestIn, disagreement, LAYERS, type Manifest, type Installed,
 } from './payload.ts';
 import { catalogue, search, textOf, ROUTER_URI, SCHEME, type Entry } from './catalogue.ts';
+import { auditText } from '../arena-to-prod/audit.ts';
 
 export const NAME = 'arena';
+
+export const CHECKED_AS = 'src/App.tsx';
+
+export const CHECK_SCOPE = 'Read as an application source, so a style plugin of your own is not '
+  + 'judged here: run arena-to-prod --audit for that half, which reads your config and knows '
+  + 'which directories are plugins.';
+
+export function checked(source: string, path: string = CHECKED_AS) {
+  const found = auditText(path, source);
+  return found.length === 0
+    ? `No finding. ${CHECK_SCOPE}`
+    : `${found.length} finding(s):\n${found.join('\n')}\n\n${CHECK_SCOPE}`;
+}
 
 export const USAGE = [
   'usage: arena-mcp [--layer react|angular] [--payload <dir>]',
@@ -68,14 +82,14 @@ export function opening(manifest: Manifest, entries: Entry[], installed: Install
 }
 
 export function build(payload: string, manifest: Manifest, installed: Installed | null = null) {
-  const { entries, byUri } = catalogue(payload, manifest);
+  const { entries, byUri, byRel } = catalogue(payload, manifest);
   const server = new McpServer({ name: NAME, version: manifest.version });
 
   for (const entry of entries) {
     server.registerResource(entry.uri, entry.uri,
       { title: entry.title, description: entry.title, mimeType: entry.mime },
       async (uri) => {
-        const text = textOf(payload, entry);
+        const text = textOf(payload, entry, byRel);
         if (text === null) throw new Error(`${entry.rel} is named by the payload and is not there`);
         return { contents: [{ uri: uri.href, text }] };
       });
@@ -119,11 +133,27 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
           text: `${uri} is not a document this payload carries. arena_list names every one` }],
       };
     }
-    const text = textOf(payload, entry);
+    const text = textOf(payload, entry, byRel);
     return text === null
       ? { isError: true, content: [{ type: 'text' as const, text: `${entry.rel} is not there` }] }
       : { content: [{ type: 'text' as const, text }] };
   });
+
+  server.registerTool('arena_check', {
+    description: 'Check code you just wrote against the rules of the Arena language, before you '
+      + 'save it. Pass the source text. Reports a class of your own on a component, a raw value '
+      + 'where a token belongs, a gradient, a filled danger surface, a second primary action, an '
+      + 'icon as an element, an emoji, a component wrapped in a link of your own, and a heading '
+      + 'outline with a rung missing. Returns one line per finding, or says it found none. Every '
+      + `rule it can report is in ${SCHEME}://rules, with the ones it cannot.`,
+    inputSchema: z.object({
+      source: z.string().describe('the code to check, as text'),
+      path: z.string().optional().describe('the file name it will be saved as, which decides '
+        + `whether it is read as a stylesheet or as markup. Defaults to ${CHECKED_AS}`),
+    }),
+  }, async ({ source, path }) => ({
+    content: [{ type: 'text' as const, text: checked(source, path ?? CHECKED_AS) }],
+  }));
 
   return { server, entries };
 }

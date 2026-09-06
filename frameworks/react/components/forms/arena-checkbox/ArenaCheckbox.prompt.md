@@ -24,12 +24,12 @@ A single checkbox. Checked shows a crimson fill with a check. `onChange` carries
 
 **Do / Don't**
 - Read the boolean the handler hands you (`onChange={next => …}`); there is no event to reach into, so `e.target.checked` reaches nothing.
-- Use `name` and `value` together when the checkbox is submitted by a real form: `value` is the string sent under `name` while the box is ticked, and it is not the checked state.
+- Use `name` and `value` together when the checkbox is submitted by a real form. `value` is the string sent under `name` while the box is ticked, and it is not the checked state.
 - To toggle a setting that takes effect immediately, prefer `ArenaSwitch`; an ArenaCheckbox states a choice a form will submit.
 - Don't pass `style` or stray DOM attributes. ArenaCheckbox declares `checked`, `label`, `disabled`, `required`, `name` and `value`, and renders nothing else. To place or size it, style the container you put it in.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

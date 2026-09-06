@@ -40,9 +40,8 @@ rows in one list that disagreed about their size would be a defect rather than a
 
 **Do / Don't**
 - **Do** say what the list is OF in `label`: "Ruby league standings", "Reviewers on this pull
-  request". It is the name a screen-reader user navigates by, and "People" tells them nothing.
-- **Do** set `ordered` when the order is the meaning and the rows are numbered. It picks the
-  element, `<ol>` against `<ul>`, which is where that claim lives.
+  request". The label is the name a screen-reader user navigates by, and "People" tells them nothing.
+- **Do** set `ordered` when the order is the meaning and the rows are numbered. The member picks the element, `<ol>` against `<ul>`, which is where that claim lives.
 - **Don't** reach for this to show one person. A single face beside a name is `arena-avatar` and
   your own markup.
 - **Don't** use it for a feed of events: `arena-activity-feed` is somebody did something to
@@ -57,6 +56,6 @@ rows in one list that disagreed about their size would be a defect rather than a
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

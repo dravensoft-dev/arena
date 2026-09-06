@@ -1,7 +1,5 @@
 Arena progress bar, determinate by default, indeterminate for a wait with no percentage.
-Standalone, `OnPush`, signal I/O. The host is the column the meter sits in: as a bar, an
-optional head row carrying the label and the percentage with the track below it; as a ring,
-the ring with the figure inside it and the label under that. The host shrinks to the ring
+Standalone, `OnPush`, signal I/O. The host is the column the meter sits in. As a bar, it is an optional head row carrying the label and the percentage, with the track below. As a ring, it is the ring with the figure inside it and the label under that. The host shrinks to the ring
 rather than filling the row, which is the one layout difference between the two shapes.
 
 ```html
@@ -16,8 +14,7 @@ rather than filling the row, which is the one layout difference between the two 
 ```
 
 A ring's middle is projected content, so it can measure something of yours instead of showing
-a number. Turn the figure off yourself when you fill it: the two share that space, and this
-component decides nothing from what was projected, because the other layer cannot see it either.
+a number. Turn the figure off yourself when you fill it, because the two share that space. This component decides nothing from what was projected, since the other layer cannot see it either.
 
 <!-- @api GENERATED from contracts/api/components/ArenaProgressBar.json. Edit the contract, not this table. -->
 
@@ -37,21 +34,14 @@ component decides nothing from what was projected, because the other layer canno
 
 <!-- @api end -->
 
-`progressPercentage` is **clamped to 0–100 and rounded**, so a caller cannot report 143% or a
-fraction; the same number drives `aria-valuenow` and the fill's width, which is the point,
-what a sighted user sees and what a screen reader is told cannot drift apart.
+`progressPercentage` is **clamped to 0 through 100 and rounded**, so a caller cannot report 143% or a fraction. One number drives `aria-valuenow` and the fill's width, which is the point. What a sighted user sees and what a screen reader is told cannot drift apart.
 
-**`indeterminate` is a different claim, not a styling flag.** It drops `aria-valuenow`
-altogether, because ARIA expresses indeterminacy by *omitting* the value rather than by
-reporting zero: zero is a determinate claim that no progress has been made. `aria-valuemin` and
-`aria-valuemax` stay, because they are still true. It also hides the percentage whatever
-`showPercentage` says: there is no percentage to show.
+**`indeterminate` is a different claim, not a styling flag.** The flag drops `aria-valuenow` altogether, because ARIA expresses indeterminacy by *omitting* the value rather than by reporting zero. Zero is a determinate claim that no progress has been made. `aria-valuemin` and
+`aria-valuemax` stay, because they are still true. The flag also hides the percentage whatever `showPercentage` says, because there is no percentage to show.
 
 **The live region is explicit, and it has content to announce.** `role="progressbar"` carries no
 implicit politeness the way `role="status"` does, so the track sets `aria-live="polite"` itself.
-A live region reports changes to its **content**, so the percentage is repeated inside the track
-as visually-hidden text: reporting progress through the `aria-valuenow` attribute alone leaves a
-polite region whose content never changes, and whether an AT announces that at all varies by AT.
+A live region reports changes to its **content**, so the percentage is repeated inside the track as visually-hidden text. Reporting progress through the `aria-valuenow` attribute alone leaves a polite region whose content never changes, and whether an AT announces that at all varies by AT.
 `showPercentage` governs the visible number beside the label and never this copy.
 
 `label` names the bar for assistive technology and heads it visually. With none, the accessible
@@ -67,31 +57,23 @@ supply one for anything a user is waiting on.
 - **Do** put a ring where the meter is the tile rather than a line in one: a completion ring on
   a dashboard, a node on a path. `size` moves its diameter and its band together, so there is
   nothing else to tune.
-- **Don't** use this for a wait with no measurable end and no room for a label. That is
-  `arena-spinner`. An indeterminate ring turns, which is close to what a spinner does, and the
+- **Don't** use this for a wait with no measurable end and no room for a label. The component for that is `arena-spinner`. An indeterminate ring turns, which is close to what a spinner does, and the
   difference is that this one is still a labelled meter and reports a range.
 - **Don't** project into a bar: a bar has no middle and the projection is dropped.
 - **Don't** reach for a ring to save room. A ring at `sm` is smaller than a bar is long and
   harder to read, and the figure inside it is the point.
-- **Don't** put two bars in one row expecting them to read as one process. They are two live
-  regions, and a screen reader will announce both.
+- **Don't** put two bars in one row expecting them to read as one process. The two are separate live regions, and a screen reader will announce both.
 
-**By hand, in real Chromium**: the sweep is an animation and happy-dom has none. Run
-`bun run demos` and open
-`/frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.demo.generated.html`:
-- The indeterminate sweep travels left to right, continuously, and **slows** rather than stops
-  under `prefers-reduced-motion`, motion that reports work in progress must keep reporting it.
+**By hand, in real Chromium**: the sweep is an animation and happy-dom has none. Run `bun run demos` and open `/frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.demo.generated.html`: - The indeterminate sweep travels left to right, continuously. The sweep **slows** rather than stops under `prefers-reduced-motion`, because motion that reports work in progress must keep reporting it.
 - The determinate fill animates its width on `--dur-state`/`--ease-state` when the value changes,
   and does not
   animate on first paint.
 - Each tone inks the fill only; the track behind it stays `--color-base-300` in all five.
 - The three sizes differ in track height alone; the head row does not move with them.
-- With `shape="radial"` the arc sweeps clockwise from twelve o'clock, its band is the weight of
-  the bar it replaces, and an indeterminate ring turns a fixed quarter arc, slowing rather than
-  stopping under `prefers-reduced-motion` for the reason the sweep gives.
+- With `shape="radial"` the arc sweeps clockwise from twelve o'clock, and its band is the weight of the bar it replaces. An indeterminate ring turns a fixed quarter arc, slowing rather than stopping under `prefers-reduced-motion` for the reason the sweep gives.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

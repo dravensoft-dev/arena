@@ -27,14 +27,9 @@ between the two still works.
 
 <!-- @api end -->
 
-**It is not an `arena-side-nav` lying down.** A sidebar is a stack of indented rows with the glyph
-before the label and arbitrary nesting; this is a row of equal columns with the glyph above the label
-and no nesting at all. It is not `arena-tabs` either, which mounts every panel at once and announces
-tablist/tab/tabpanel, and not `arena-segmented-control`, which is a radio group that chooses rather
-than navigates.
+**The bar is not an `arena-side-nav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `arena-tabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it `arena-segmented-control`, which is a radio group that chooses rather than navigates.
 
-Its geometry is Arena's tokens rather than a number: `--layout-bar` for the height, `--z-nav` for the
-stacking slot, and `--pad-safe-bottom` so the row clears the home indicator on a device that has one.
+The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
 
 **`ariaLabel` is required and guarded at runtime**, trimmed before it decides, so a blank one throws.
@@ -51,13 +46,9 @@ share a page and each needs its own name.
   anchor already inside.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. It covers the bottom of the viewport, and a wide screen
-  has a sidebar's room.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px:
-- Primary click, ctrl+click, middle click and Enter on the same destination: the first and the last
-  report once and navigate once, the other two open a tab and report nothing.
+**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px: - Try primary click, ctrl+click, middle click and Enter on the same destination. The first and the last report once and navigate once, and the other two open a tab and report nothing.
 - The active destination's glyph is filled and its label takes the primary ink; the others do not.
 - With the browser emulating a device inset, the row lifts by it and the bar grows rather than the
   labels moving under the home indicator.
@@ -65,6 +56,6 @@ share a page and each needs its own name.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

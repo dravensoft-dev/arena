@@ -38,10 +38,7 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 
 <!-- @api end -->
 
-Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState`
-in the host component's `imports`,
-`secondaryAction` is a directive, not a plain attribute, because it is how the error
-state detects that a secondary action was projected at all.
+Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState` in the host component's `imports`. `secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
 
 **Do / Don't**
 - Always pass `retryLabel` when a retry could work. An error state with no retry is a
@@ -57,6 +54,6 @@ state detects that a secondary action was projected at all.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

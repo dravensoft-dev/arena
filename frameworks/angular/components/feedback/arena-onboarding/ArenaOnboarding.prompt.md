@@ -1,9 +1,7 @@
 Arena guided tour. A coachmark with progress dots, Skip and Next, floating bottom-right
 over an unblurred scrim, a tour that blurs the product it is touring defeats itself.
-It is controlled: the host owns `index` and answers `next`, `back`, `skip` and `done`.
-Clicking the scrim reports `skip`. It is a real modal, binding `dialog-modal`:
-focus moves into the panel when the tour opens and returns to whatever opened it when the
-tour closes, Tab and Shift+Tab cycle inside the panel, and Escape reports `skip`.
+The tour is controlled. The host owns `index` and answers `next`, `back`, `skip` and `done`.
+Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-modal`. Focus moves into the panel when the tour opens, and returns to whatever opened it when the tour closes. Tab and Shift+Tab cycle inside the panel, and Escape reports `skip`.
 
 ```html
 <arena-onboarding [open]="touring()" [steps]="steps" [index]="step()"
@@ -48,6 +46,6 @@ tour closes, Tab and Shift+Tab cycle inside the panel, and Escape reports `skip`
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

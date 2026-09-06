@@ -16,6 +16,7 @@ export const ROUTER_SOURCE = 'skills/design/SKILL.md';
 export const ROUTER_FILE = 'skills/design/ROUTER.md';
 export const MANIFEST_FILE = 'skill.json';
 export const SUPPORT_FILE = 'support.json';
+export const RULES_FILE = 'rules.json';
 export const REFERENCE_DIR = 'skills/design/references';
 
 export const LAYER_NEUTRAL_INDEX = 'frameworks/INDEX.md';

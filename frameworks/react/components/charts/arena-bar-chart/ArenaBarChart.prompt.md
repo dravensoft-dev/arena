@@ -39,11 +39,11 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 <!-- @api end -->
 
 **Do**
-- Give `label` and give every series its own `label`. They are two different names: `label` is the chart's, and it becomes the accessible name and the table caption; a series' `label` heads that series' column in the same table.
+- Give `label` and give every series its own `label`. The two are different names. `label` is the chart's, and it becomes the accessible name and the table caption. A series' `label` heads that series' column in the same table.
 - Default to one identity color for the series. Per-bar `slots` is for when each bar is genuinely a different thing, not for decoration.
 - Assign slots in order (1, 2, 3) and let a ninth category fold into "Other". The ramp is eight slots and is never cycled.
-- Reach for `tone` only when the series *is* a state: failed builds, error rate. That is what makes red mean red. It goes on the series, because it is that series that is a state.
-- Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. It is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
+- Reach for `tone` only when the series *is* a state: failed builds, error rate. One meaning per colour is what makes red mean red. The tone goes on the series, because the series is what is in a state.
+- Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
 - Don't pass `tone` together with `slot`/`slots` on one series. A chart carries identity or meaning, never both; it warns in development and `tone` wins.
@@ -63,9 +63,7 @@ scrolls and starts anchored to the most recent point. Marker spacing is a legibi
 rather than something that yields to the viewport: thirty days in 390px is unreadable at any
 font size.
 
-Arena computes the minimum width from its own axis padding, so nothing outside needs to know
-what that padding is, and the rail is the chart's own box rather than the card's: a
-`ArenaChartCard` around it needs no change. The rail takes `tabIndex={0}` and a `role="group"`
+Arena computes the minimum width from its own axis padding, so nothing outside needs to know what that padding is. The rail is the chart's own box rather than the card's, so a `ArenaChartCard` around it needs no change. The rail takes `tabIndex={0}` and a `role="group"`
 named after the chart whether it overflows or not.
 
 `height` is the plot's height in px, the `--chart-height` token by default. A number rather
@@ -73,9 +71,7 @@ than a length string, because the chart does arithmetic with it to place every m
 
 ### Reading the bars without a pointer
 
-The rail is one keyboard region and it is the plot's only tab stop. Inside it, Arrow Left and
-Arrow Right move a data cursor from bar to bar, clamping at the ends rather than wrapping,
-Home and End jump to the first and the last, and Escape clears it. The cursor drives exactly
+The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from bar to bar, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
 what hover drives: the emphasised bar and its tooltip.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
@@ -87,32 +83,21 @@ copy of the numbers for either of them to disagree with.
 ### The legend, and when there is one
 
 A chart of two or more series draws a row of keys below the plot, one swatch and one series name
-each, in the order the series were given. A chart of one series draws none: `label` already names
-the chart, the table's single value column is already headed by that series' own name, and a
-one-row legend would restate both while spending plot height to do it. There is no member for
+each, in the order the series were given. A chart of one series draws none. `label` already names the chart, and the table's single value column is already headed by that series' own name. A one-row legend would restate both while spending plot height to do it. There is no member for
 this; the number of series is the whole rule.
 
 The strip comes out of the plot rather than being added to the box, so `height` stays the height
-of the whole component whether a legend is drawn or not. That is what keeps a grid of tiles
-aligned when one of them gains a second series.
+of the whole component whether a legend is drawn or not. The reserved row is what keeps a grid of tiles aligned when one of them gains a second series.
 
-It is `aria-hidden`, deliberately. It is a key for a reader who can see the colours, and those
-same names are already the column headers of the numbers table, so a focusable copy of them would
-be a second source for one fact. Its rows take no focus, and the plot still has exactly one tab
-stop.
+The legend is `aria-hidden`, deliberately. The legend is a key for a reader who can see the colours. Those same names are already the column headers of the numbers table, so a focusable copy would be a second source for one fact. The legend's rows take no focus, and the plot still has exactly one tab stop.
 
 ### Grouped or stacked
 
 `stack` puts the series inside one band per category, each sitting on the one below it, instead of
 standing them side by side. Reach for it when the series are parts of one total and the total is
-what the reader is there for. Leave it off when the comparison is between the series: only the
-first segment starts at the zero line, so every one above it is a length a reader has to measure
-against a moving base, which is the thing bar charts are good at and stacks are not.
+what the reader is there for. Leave it off when the comparison is between the series. Only the first segment starts at the zero line, so every one above it is a length a reader has to measure against a moving base. Measuring against a fixed base is the thing bar charts are good at and stacks are not.
 
-Positive and negative values stack on their own runs, so a category holding both grows in both
-directions from the zero line and the axis is sized from the two sums rather than from the largest
-single value. That is the same divergent axis a grouped chart already had; a stack just gives it
-more to hold.
+Positive and negative values stack on their own runs. A category holding both grows in both directions from the zero line, and the axis is sized from the two sums rather than from the largest single value. The divergent axis is the one a grouped chart already had, and a stack gives it more to hold.
 
 A series with no value at a category contributes no segment, and the segment above it sits on the
 one below rather than floating over a gap. A missing number is not a zero here either, so a hole
@@ -123,6 +108,6 @@ because a rounded joint reads as the end of something.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -1,5 +1,4 @@
-A named region of a page: a heading, what sits around it, and the group it names. It is the
-middle rung of the title ladder, under a page head and over a card.
+A named region of a page: a heading, what sits around it, and the group it names. The section register is the middle rung of the title ladder, under a page head and over a card.
 
 ```tsx
 <ArenaSection eyebrow="This week" title="Landed recently"
@@ -25,38 +24,31 @@ middle rung of the title ladder, under a page head and over a card.
 
 <!-- @api end -->
 
-**`title` and `children` are both required, and both are guarded at runtime.** A section is a
-heading over a group: with no heading it is a stack, which `css/rhythm.css` already ships as
-`.arena-stack`, and with no children the heading names nothing. The title guard trims first,
+**`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which `css/rhythm.css` already ships as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
 because the value it exists to catch is a present and useless one rather than an absent one.
 
-**It renders a plain `<section>` and claims no landmark.** A `<section>` becomes a `region` in the
-accessibility tree only once it has an accessible name, and a page where every section announced
-itself would bury the two or three landmarks that matter. The heading is the structure a reader
+**The component renders a plain `<section>` and claims no landmark.** A `<section>` becomes a `region` in the accessibility tree only once it has an accessible name. A page where every section announced itself would bury the two or three landmarks that matter. The heading is the structure a reader
 navigates by, and it is the platform's own.
 
 **A section nests, and `headingLevel` is how.** The default is `h2`, the section rung of the title
 ladder and the right answer directly under a page head. A section inside another section takes
 `headingLevel="h3"`, and the card register under it goes a rung further, or a reader walking
-headings meets peers where the page holds a hierarchy. Nothing on screen moves with the value: the
-title's class is the same at every rung, so the register a style plugin sets is untouched by the
-level the outline takes. `none` is refused here, since a section is a heading over a group.
+headings meets peers where the page holds a hierarchy. Nothing on screen moves with the value. The title's class is the same at every rung, so the register a style plugin sets is untouched by the level the outline takes. `none` is refused here, since a section is a heading over a group.
 
 `rhythm` is the distance from the head to the body, in the same three named steps the page rhythm
-scale carries, plus `none`. It is not the air between one section and the next: Arena draws no
-outer margin on anything, so that stays yours to place with `.arena-stack--section`.
+scale carries, plus `none`. The padding is not the air between one section and the next. Arena draws no outer margin on anything, so that air stays yours to place with `.arena-stack--section`.
 
 **Do / Don't**
 - **Do** let the description carry the sentence. Putting it in the action slot puts prose in a row
   sized for controls, and that row is what wraps first on a narrow screen.
 - **Do** nest a section inside a page that already has an `ArenaPageHead`. The two registers are a
   step apart on purpose, and a style plugin moves them together.
-- **Don't** reach for it when there is no title. That is `.arena-stack`, and the guard says so.
+- **Don't** reach for it when there is no title. The air between them is `.arena-stack`, and the guard says so.
 - **Don't** put a heading of your own inside the body at the level this one took. The section
   already opened one, and a reader walking headings will read two peers where there is one region.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

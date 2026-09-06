@@ -69,19 +69,17 @@ Return the message, or the empty string when the value is good.
   error that is present-and-blank suppresses the validator and shows the hint. Every use of the
   resolved error reads its truthiness rather than its nullness, which is what
   `ArenaInput.json` contracts. Pass `undefined`, not `''`, to mean "no controlled error".
-- `validate` runs on blur by default. Its message appears only once the field is **touched**, so
-  an untouched form never accuses the user of anything. `validateOn="change"` touches on the
+- `validate` runs on blur by default. The message appears only once the field is **touched**, so an untouched form never accuses the user of anything. `validateOn="change"` touches on the
   first keystroke instead; reach for it on a field with a cheap, obvious rule.
 - The valid state (green ring, check) is either `valid` set by the consumer, or a touched field
-  whose validator returned nothing. It is not "the field has a value".
+  whose validator returned nothing. The member is not "the field has a value".
 - The focus ring is the field's, not the control's: the `field` slot carries `focus-within:`,
   so there is no focus signal to keep in sync with the DOM.
 - `id` is derived from `label` as `in-<slug>` when you do not pass one; the derivation
   `ArenaInput.json` states, so the same markup gets the same id in every layer. Pass `id` when two
   fields share a label.
 - `required` and `readOnly` land on the native attributes rather than on `aria-required` and
-  `aria-readonly`. Those are what a native control's accessibility tree already reports, and
-  writing both would be two claims that can disagree.
+  `aria-readonly`. A native control's accessibility tree already reports both. Writing both would be two claims that can disagree.
 - `icon`, `prefix` and the status glyphs are decoration and all four are `aria-hidden`. The error
   message beside the glyph is what carries the state, so nothing announces a Phosphor
   ligature beside the message it duplicates.
@@ -89,14 +87,12 @@ Return the message, or the empty string when the value is good.
   one field is one too many.
 - `type` is the `ArenaInputType` enum. `checkbox` and `radio` are not among them: those are
   `<arena-checkbox>` and `ArenaRadio`, their own components.
-- Don't reach for `change` to run an expensive query. It fires per keystroke by design; debounce
-  in the consumer, where the interval is a decision about that query rather than about the field.
+- Don't reach for `change` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-input/ArenaInput.demo.generated.html`:
 - `type="date"`: the picker indicator is **visible** on the dark field and brightens on hover.
-  That is Arena's own `[&::-webkit-calendar-picker-indicator]:` styling reading
-  `--picker-invert`; without it the browser draws a black glyph on a dark surface. Toggle
+  Arena's own `[&::-webkit-calendar-picker-indicator]:` styling reads `--picker-invert` for that. Without it the browser draws a black glyph on a dark surface. Toggle
   `.arena-light` on `<html>` and it must invert with the theme.
 - The gold focus ring appears on the field group, not on the input, and a valid field keeps its
   green border while showing that ring.
@@ -119,12 +115,10 @@ completeSale(): void {
 }
 ```
 
-They are methods rather than members because no member is imperative, and `autoFocus` would
-answer a different question: it fires once at mount, and chaining sales needs focus back after
-**every** completion. These two are the whole surface; `ArenaInput` exposes no other method.
+The two are methods rather than members, because no member is imperative. `autoFocus` would answer a different question: it fires once at mount, and chaining sales needs focus back after **every** completion. These two are the whole surface; `ArenaInput` exposes no other method.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

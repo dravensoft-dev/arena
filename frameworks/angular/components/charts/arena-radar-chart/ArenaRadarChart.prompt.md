@@ -1,4 +1,4 @@
-Several measures on one shape: an axis per label around a polar grid, one closed polygon per series. It reads a profile rather than a magnitude, which is what makes it a different chart from bars over the same numbers.
+Several measures on one shape: an axis per label around a polar grid, one closed polygon per series. A radar reads a profile rather than a magnitude, which is what makes it a different chart from bars over the same numbers.
 
 ```ts
 readonly profile = computed<ArenaSeries[]>(() => [
@@ -35,9 +35,7 @@ radial charts on one page never begin in different places. Every axis shares one
 that starts at the centre, so the rings are readable across all of them.
 
 A radius cannot be negative, so a value below zero is drawn at the centre rather than on the
-opposite axis, where it would land as a different datum entirely. That floor is this chart's own,
-the way the doughnut keeps one: `arenaScaleValue` maps and does not clamp, and where a value may
-not go is the chart's rule and not the scale's. The accessible table still reads the number that
+opposite axis, where it would land as a different datum entirely. That floor is this chart's own, the way the doughnut keeps one. `arenaScaleValue` maps and does not clamp, and where a value may not go is the chart's rule rather than the scale's. The accessible table still reads the number that
 was passed.
 
 Keep the axis count small. Past eight or so the labels collide, which is a limit of the form and
@@ -50,14 +48,12 @@ reader cannot tell which polygon an overlap belongs to.
 ### Reading it without a pointer
 
 The cursor walks the AXES, so one press reads every series on that axis at once. ArrowLeft and
-ArrowRight move it, Home and End jump to the ends, Escape clears it. Going around is a sequence,
-which is why this chart takes a cursor where the doughnut refuses one: a ring of slices has no
-order to walk, and a ring of axes does.
+ArrowRight move it, Home and End jump to the ends, Escape clears it. Going around is a sequence, which is why this chart takes a cursor where the doughnut refuses one. A ring of slices has no order to walk, and a ring of axes does.
 
 ArrowUp and ArrowDown do nothing and are not consumed, so the page keeps its own scroll.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

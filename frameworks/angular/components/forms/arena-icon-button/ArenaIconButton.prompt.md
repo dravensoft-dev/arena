@@ -1,8 +1,5 @@
 Arena icon-only button, an action compact enough to carry no visible text, and an accessible
-name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
-bare and out of layout: Arena's own styling lands on a real `<button>` inside it, because the element
-carrying the behaviour contract must be the element the browser already knows how to focus,
-activate and disable.
+name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays bare and out of layout, and Arena's own styling lands on a real `<button>` inside it. The element carrying the behaviour contract must be the element the browser already knows how to focus, activate and disable.
 
 ```html
 <arena-icon-button icon="ph-bold ph-trash" label="Delete project" (click)="confirmDelete()" />
@@ -37,19 +34,12 @@ activate and disable.
 <!-- @api end -->
 
 **Do / Don't**
-- `label` is **required and is the accessible name**, not a decoration. It is the `aria-label` in
-  every state, the visible text under `showLabel`, and the `title` when there is none. An icon
+- `label` is **required and is the accessible name**, not a decoration. The member is the `aria-label` in every state, the visible text under `showLabel`, and the `title` when there is none. An icon
   button without it announces nothing at all, which is why this input has no default.
-- **`pressed` is what makes it a toggle, and its absence is a state of its own.** Bound, Arena
-  writes `aria-pressed` and draws the on state with the accent tint a current `arena-side-nav`
-  item takes; unbound, the control is not a toggle at all. Never default it to `false`: on a
-  plain button `aria-pressed="false"` announces a toggle that is off rather than a button, so
-  every icon button in the app would read as an unpressed toggle.
-- **A toggle keeps its `label` in both states.** Changing the name to carry the state is the
-  workaround `pressed` exists to end: a screen reader then announces a different control instead
-  of the same one in another state. Name what it does, not what pressing it will do next.
+- **`pressed` is what makes it a toggle, and its absence is a state of its own.** Bound, Arena writes `aria-pressed`. Arena draws the on state with the accent tint a current `arena-side-nav` item takes. Unbound, the control is not a toggle at all. Never default it to `false`. On a plain button, `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
+- **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end. A screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
 - `icon` is a Phosphor class-name string Arena draws inside an `aria-hidden` `<i>`, never a slot.
-  That is the single-icon convention, and it is why this component projects nothing.
+  One icon is the convention, and it is why this component projects nothing.
 - The `title` is dropped the moment `showLabel` is set. A title beside a visible label makes the
   browser draw a tooltip repeating what is already on screen.
 - Don't rely on the `title` alone on a touch or keyboard surface, because a title appears on pointer
@@ -61,11 +51,8 @@ activate and disable.
   destructive action needs a word, so use `<arena-button variant="danger">`.
 - `size` reads the same density tokens `arena-button` does, so the two re-densify together in a
   toolbar. Set the same `size` on both or they will not line up.
-- Reach for `tabStop="false"` only inside a composite that manages its own focus (a grid with a
-  roving tab stop, a menu) where reaching this control by Tab would be a second way in.
-- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM
-  event, and Angular then registers **both** the output subscription and a host DOM listener, so
-  a consumer's `(click)` would fire twice on every press. The inner button calls
+- Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in.
+- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM event. Angular then registers **both** the output subscription and a host DOM listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
   `stopPropagation()` to make it fire once, which is the whole reason the event does not reach
   ancestors. Bind `(click)` on the `<arena-icon-button>` itself; `type="submit"` still submits,
   because the default action is untouched and only propagation is.
@@ -82,6 +69,6 @@ open `/frameworks/angular/components/forms/arena-icon-button/ArenaIconButton.dem
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

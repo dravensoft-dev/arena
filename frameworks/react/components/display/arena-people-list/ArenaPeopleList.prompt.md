@@ -38,7 +38,7 @@ defect rather than a design, so there is nowhere to write that.
 
 **Do / Don't**
 - Say what the list is OF in `label`: "Ruby league standings", "Reviewers on this pull request".
-  It is the name a screen-reader user navigates by, and "People" tells them nothing.
+  The label is the name a screen-reader user navigates by, and "People" tells them nothing.
 - Set `ordered` when the order is the meaning and the rows are numbered. A standings list read
   in any other order is a different claim; a set of suggestions is a set.
 - Don't reach for this to show one person. A single face beside a name is `ArenaAvatar` and your
@@ -50,6 +50,6 @@ defect rather than a design, so there is nowhere to write that.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

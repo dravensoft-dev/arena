@@ -31,11 +31,10 @@ element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platfo
 them. An image's alternative is editorial: it says what the picture means on this page, which
 nothing can derive from a file name.
 
-**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once, so a shop
-crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
+**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
 only for the figure whose shape is not the plugin's to decide, such as a video.
 
-**`fallback` is a state and not an error.** It draws centred and at rest when there is no media.
+**`fallback` is a state and not an error.** The fallback draws centred and at rest when there is no media.
 With neither media nor fallback the frame is an empty box of the right shape, which is what a
 loading wall wants.
 
@@ -44,10 +43,8 @@ loading wall wants.
   decorative and the caption already says everything.
 - **Do** remember the host carries no box. Put your layout on the element around it, which is the
   same rule every `display: contents` primitive in this package carries.
-- **Don't** wrap it in a box of your own to size it. It fills the column it is in and takes its
-  shape from `ratio`.
-- **Don't** put a control in the overlay and expect it to be reachable before the caption. It is
-  in the frame, which comes first in the reading order.
+- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from `ratio`.
+- **Don't** put a control in the overlay and expect it to be reachable before the caption. The slot is in the frame, which comes first in the reading order.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-figure/ArenaFigure.demo.generated.html`:
@@ -58,6 +55,6 @@ loading wall wants.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

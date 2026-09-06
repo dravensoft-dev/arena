@@ -1,6 +1,6 @@
 {
   "component": "ArenaToastHost",
-  "description": "The fixed box a stack of notices renders into. It decides where the stack sits, how far it stands off the viewport edges and how much air separates two notices, and it decides nothing else: it reads no notice, counts none, and owns no clock.",
+  "description": "The fixed box a stack of notices renders into. The host decides where the stack sits, how far it stands off the viewport edges and how much air separates two notices. The host decides nothing else: it reads no notice, counts none, and owns no clock.",
   "affordances": [],
   "api": {
     "placement": { "form": "enum", "type": "ArenaToastPlacement", "default": "bottom-end",

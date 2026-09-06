@@ -29,13 +29,13 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 <!-- @api end -->
 
-- **`pressed` is what makes it a toggle, and leaving it off is a state of its own.** Passed, Arena writes `aria-pressed` and draws the on state with the accent tint a current `ArenaSideNav` item takes; omitted, the control is not a toggle at all. Never default it to `false`: on a plain button `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
-- **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end: a screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
+- **`pressed` is what makes it a toggle, and leaving it off is a state of its own.** Passed, Arena writes `aria-pressed`. Arena draws the on state with the accent tint a current `ArenaSideNav` item takes. Omitted, the control is not a toggle at all. Never default it to `false`. On a plain button, `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
+- **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end. A screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
 - Pass `icon` as a Phosphor class name: `icon="ph-bold ph-plus"`. Arena draws the `<i>` and hides it; `label` is what a screen reader announces.
 - Don't pass an element as the icon. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

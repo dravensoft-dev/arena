@@ -3,11 +3,14 @@
  * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here
  * rather than holding a second copy that would drift. It depends on nothing but its own siblings,
  * because inside a package scripts/ does not exist. It decides what source text shows and nothing
- * else: filled danger and the render rules are not visible from outside. A line carrying an allow
- * marker is exempt, and a marker over a line with nothing to exempt is stale. Every rule is read
- * in a SCOPE, because an audit that cannot say where a project's appearance lives has given up
- * half of what it reports: a declared style plugin directory may select a part hook and may paint
- * a gradient, and an application source may do neither. */
+ * else: the render rules are not visible from outside, and a filled danger surface is visible
+ * only where a project paints one of its own. A line carrying an allow marker is exempt, and a
+ * marker over a line with nothing to exempt is stale. Every rule is read in a SCOPE, because an
+ * audit that cannot say where a project's appearance lives has given up half of what it reports:
+ * a declared plugin directory may select a part hook and paint a gradient, and a source may not. */
+
+export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element', 'one-primary',
+  'outline-gap', 'own-class', 'raw-value', 'router-link'] as const;
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
@@ -215,9 +218,27 @@ export function namesAnAlias(line: string) {
   return COMPAT_ALIASES.some((alias) => new RegExp(`var\\(\\s*--${alias}\\s*[,)]`).test(line));
 }
 
+export const DANGER_FILL_TOKENS = ['--danger', '--danger-strong', '--danger-fill',
+  '--color-error', '--color-error-fill'];
+
+export const FILL_PROPERTY = /(?:^|[\s;{"'])(?:background|background-color|backgroundColor)\s*:/;
+
+export const DANGER_FILL_MESSAGE = 'a filled danger surface. Danger is outline in Arena: leave the '
+  + 'background transparent and read var(--danger) for the border and the content. The one filled '
+  + 'danger surface in the system is the final confirmation inside ArenaConfirmDialog, and '
+  + 'var(--danger-soft) is the tint a surface of your own may carry';
+
+export function fillsWithDanger(line: string) {
+  if (!FILL_PROPERTY.test(line)) return false;
+  return DANGER_FILL_TOKENS.some((token) => new RegExp(`var\\(\\s*${token}\\s*[,)]`).test(line));
+}
+
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
 const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
+const STYLE_ANNOTATION = /:\s*(?:React\.)?CSSProperties\b/;
+const BINDING = /^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)/;
+const IDENTIFIER = /[A-Za-z_$][\w$]*/g;
 
 export const PAINTED_PART = /\[data-arena-part\s*=\s*"([^"]+)"\]/g;
 
@@ -277,6 +298,14 @@ export function statedRung(attributes: string) {
   const stated = STATED_HEADING_LEVEL.exec(attributes)?.[1];
   if (stated === undefined) return undefined;
   return stated === 'none' ? null : Number(stated.slice(1));
+}
+
+export const STATED_PRIMARY = /(?:^|\s)\[?variant\]?\s*=\s*["']\{?\s*'?primary'?\s*\}?["']/;
+
+export function primaryMessage(first: number) {
+  return `a second primary action on this screen, and the first is on line ${first}. Crimson is `
+    + 'the voice, so at most one variant="primary" stands in a view. Make the others secondary or '
+    + 'ghost, and keep the primary for the one action the screen is for';
 }
 
 export const LINKABLE_TAGS = new Set([
@@ -358,6 +387,7 @@ export function structuralFindings(text: string): Finding[] {
   const found: Finding[] = [];
   const rungs: number[] = [];
   let firstRung = 0;
+  const primaries: number[] = [];
   for (const m of text.matchAll(OPEN_TAG)) {
     const name = m[1] ?? '';
     const start = m.index ?? 0;
@@ -380,6 +410,8 @@ export function structuralFindings(text: string): Finding[] {
     if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
       found.push(at(lineAt(text, start), 'own-class', OWN_CLASS_MESSAGE));
 
+    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
+
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
     const inside = text.slice(ends).replace(/^\s*(?:\{\s*\/\*[\s\S]*?\*\/\s*\}\s*|<!--[\s\S]*?-->\s*)*/, '');
@@ -389,11 +421,13 @@ export function structuralFindings(text: string): Finding[] {
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
+  for (const line of primaries.slice(1))
+    found.push(at(line, 'one-primary', primaryMessage(primaries[0] as number)));
   return found;
 }
 
 export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app',
-  gradientMark = false): Finding[] {
+  gradientMark = false, inStyleObject = false): Finding[] {
   const found: Finding[] = [];
 
   if (isStylesheet && OWN_RULE.test(line))
@@ -406,7 +440,7 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
       + 'it from anywhere else is appearance nobody can find; move it into a directory the config '
       + 'declares in stylePlugins'));
 
-  const styled = isStylesheet || INLINE_STYLE.test(line);
+  const styled = isStylesheet || INLINE_STYLE.test(line) || inStyleObject;
   if (styled && RAW_HEX.test(line))
     found.push(at(0, 'raw-value', 'a raw hex where a token belongs. Read the value through its '
       + 'custom property, as var(--crimson)'));
@@ -421,6 +455,9 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
   if (styled && scope === 'app' && !gradientMark && GRADIENT.test(line))
     found.push(at(0, 'raw-value', 'a gradient. Depth comes from the base-100 to base-300 surface '
       + 'scale, the hairline border and the warm shadow'));
+
+  if (styled && scope === 'app' && fillsWithDanger(line))
+    found.push(at(0, 'danger-fill', DANGER_FILL_MESSAGE));
 
   if (ICON_ELEMENT.test(line))
     found.push(at(0, 'icon-element', 'an icon passed as an element. An icon is a Phosphor '
@@ -439,12 +476,57 @@ export function bracketFindings(text: string, lines: string[]): Finding[] {
   });
 }
 
+export function styleIdentifiers(text: string) {
+  const names = new Set<string>();
+  const attribute = /\bstyle\s*=\s*\{/g;
+  for (let opener = attribute.exec(text); opener; opener = attribute.exec(text)) {
+    const from = opener.index + opener[0].length;
+    let depth = 1;
+    let to = from;
+    for (; to < text.length && depth > 0; to += 1) {
+      if (text[to] === '{') depth += 1;
+      else if (text[to] === '}') depth -= 1;
+    }
+    const expression = text.slice(from, to - 1);
+    for (const found of expression.matchAll(IDENTIFIER)) {
+      if (/^\s*:/.test(expression.slice((found.index ?? 0) + found[0].length))) continue;
+      names.add(found[0]);
+    }
+  }
+  return names;
+}
+
+export function styleObjectLines(text: string) {
+  const names = styleIdentifiers(text);
+  const lines = text.split('\n');
+  const inside = new Set<number>();
+  lines.forEach((line, index) => {
+    const declared = BINDING.exec(line)?.[1];
+    if (!declared || (!names.has(declared) && !STYLE_ANNOTATION.test(line))) return;
+    const open = line.indexOf('{');
+    if (open === -1) return;
+    let depth = 0;
+    for (let scan = index; scan < lines.length; scan += 1) {
+      for (const character of (lines[scan] ?? '').slice(scan === index ? open : 0)) {
+        if (character === '{') depth += 1;
+        else if (character === '}') depth -= 1;
+      }
+      inside.add(scan + 1);
+      if (depth <= 0) return;
+    }
+  });
+  return inside;
+}
+
 export function findings(relPath: string, text: string, scope: Scope = 'app',
   gradientMark = false): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
-  const perLine = withoutComments(text).split('\n').flatMap((line, index) =>
-    lineFindings(line, isStylesheet, scope, gradientMark).map((one) => at(index + 1, one.rule, one.message)));
+  const stripped = withoutComments(text);
+  const painted = isStylesheet ? new Set<number>() : styleObjectLines(stripped);
+  const perLine = stripped.split('\n').flatMap((line, index) =>
+    lineFindings(line, isStylesheet, scope, gradientMark, painted.has(index + 1))
+      .map((one) => at(index + 1, one.rule, one.message)));
   return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }

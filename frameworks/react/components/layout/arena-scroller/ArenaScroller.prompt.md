@@ -1,6 +1,4 @@
-The honest carousel: a row that scrolls, with no arrows pretending to be a slideshow. It is one
-tab stop with a group role and a name, which is what a scrolling region needs to be reachable by
-keyboard at all.
+The honest carousel: a row that scrolls, with no arrows pretending to be a slideshow. The row is one tab stop with a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all.
 
 ```tsx
 <ArenaScroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
@@ -22,13 +20,11 @@ keyboard at all.
 <!-- @api end -->
 
 **Nothing moves on its own.** `snap` and `flow` both describe where a scroll SETTLES, not anything
-that animates: `snap` lands on an item, `flow` lands wherever the reader left it. That is why no
-pause control is owed under WCAG 2.2.2 and why `prefers-reduced-motion` has nothing to answer here.
+that animates: `snap` lands on an item, `flow` lands wherever the reader left it. Nothing moves on its own, so no pause control is owed under WCAG 2.2.2 and `prefers-reduced-motion` has nothing to answer here.
 
 **`itemWidth` reaches the children as a custom property**, because a row sets its items' width and
 cannot reach inside them. Every child is laid out at that width exactly as it was written; nothing
-is wrapped. Its default is `--grid-min`, the same role `ArenaGrid` reads, so a wall of cards and a
-row of the same cards agree about how wide a card is and a style plugin re-answers both at once.
+is wrapped. The default is `--grid-min`, the role `ArenaGrid` reads. A wall of cards and a row of the same cards agree about how wide a card is, and a style plugin re-answers both at once.
 
 **`label` is required and guarded after trimming.** Focus lands on the row itself, and a group
 announced as a group tells a reader that focus moved and nothing about where. `children` is
@@ -41,11 +37,10 @@ required and guarded too: an empty row is a tab stop over nothing.
   grid. The role is there so the two agree.
 - **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
   the reader gains nothing from.
-- **Don't** wrap the children in cells of your own to set their width. That is what `itemWidth` is,
-  and a wrapper puts a box between the row and the card it is laying out.
+- **Don't** wrap the children in cells of your own to set their width. The width is what `itemWidth` is, and a wrapper puts a box between the row and the card it is laying out.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

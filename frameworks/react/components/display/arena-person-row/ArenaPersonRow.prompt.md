@@ -1,6 +1,5 @@
 One person inside an `ArenaPeopleList`: a face, a name, an optional line under it, an optional
-position in front and an optional figure behind. Its size comes from the list rather than from
-here, so a row is written the same way whatever list it lands in.
+position in front and an optional figure behind. The row's size comes from the list rather than from here, so a row is written the same way whatever list it lands in.
 
 ```tsx
 <ArenaPersonRow rank={4} name="Priya Raman" src="/img/priya.jpg" figure="1815 XP" current />
@@ -9,8 +8,7 @@ here, so a row is written the same way whatever list it lands in.
   action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" size="sm" />} />
 ```
 
-`name` is the row's text, the initials the face falls back to and the image's alt text at once,
-because a name spelt differently in any of those is the same person announced as two.
+`name` is the row's text, the initials the face falls back to, and the image's alt text at once. A name spelt differently in any of those is the same person announced as two.
 
 <!-- @api GENERATED from contracts/api/components/ArenaPersonRow.json. Edit the contract, not this table. -->
 
@@ -29,12 +27,9 @@ because a name spelt differently in any of those is the same person announced as
 <!-- @api end -->
 
 **Do / Don't**
-- Put the unit in `figure`: "1815 XP", "12 open", "38%". It is one value a reader says out loud,
-  and formatting it where the data is beats formatting it here.
-- Use `current` for the reader's own row. It fills the row and announces itself, which is what a
-  highlight has to do to be worth drawing.
-- Use `secondary` for a handle, a role or a reason, and keep it to a line: it truncates rather
-  than wrapping, because a list of people reads down the names.
+- Put the unit in `figure`: "1815 XP", "12 open", "38%". The value is one a reader says out loud, and formatting it where the data is beats formatting it here.
+- Use `current` for the reader's own row. The state fills the row and announces itself, which is what a highlight has to do to be worth drawing.
+- Use `secondary` for a handle, a role or a reason, and keep it to a line. The line truncates rather than wrapping, because a list of people reads down the names.
 - Don't wrap the row in a link. A row is not an activation target; put the control in `action`,
   where it keeps its own name and its own keyboard.
 - Don't pass `rank` to say the list is ordered. The number is drawn where you put it, and whether
@@ -43,6 +38,6 @@ because a name spelt differently in any of those is the same person announced as
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

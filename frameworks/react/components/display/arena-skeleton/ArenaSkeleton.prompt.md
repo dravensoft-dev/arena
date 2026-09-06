@@ -35,20 +35,13 @@ Loading placeholder for asynchronous data (H1). Use it in tables and dashboards 
 - A `variant="text"` stack is one `<ArenaSkeleton>` and one announcement no matter how many `lines` it
   renders: the first example above (`lines={4}`) is a single `role="status"`, not four. The
   repetition below is between sibling `<ArenaSkeleton>` elements, never within one stack.
-- Don't wrap a *single* `<ArenaSkeleton>` in a live region of your own, because it already carries
-  `role="status"`, so a wrapper adds a second announcement of the same wait. The wrapper in
+- Don't wrap a *single* `<ArenaSkeleton>` in a live region of your own. The placeholder already carries `role="status"`, so a wrapper adds a second announcement of the same wait. The wrapper in
   the example above is for a **set** of siblings, which is the different case below.
-- Every `<ArenaSkeleton>` announces itself (`role="status"`, `aria-label="Loading"`), so several
-  siblings, a circle beside a text stack, several independent skeletons in a list, are that
-  many announcements, because the component cannot know where one set of placeholders begins
-  and ends. A set standing for one block of content should be announced once, by you: wrap it in
-  a single `role="status" aria-label="…"` naming *what* is loading, and mark the container holding
-  the individual skeletons `aria-hidden="true"` so their own announcements never reach the
-  accessibility tree.
+- Every `<ArenaSkeleton>` announces itself, through `role="status"` and `aria-label="Loading"`. Several siblings are that many announcements, whether they are a circle beside a text stack or several independent skeletons in a list. The component cannot know where one set of placeholders begins and ends. A set standing for one block of content should be announced once, by you. Wrap it in a single `role="status" aria-label="…"` naming *what* is loading. Mark the container holding the individual skeletons `aria-hidden="true"`, so their own announcements never reach the accessibility tree.
 - Don't leave it up indefinitely: if the load fails, replace it with `ArenaErrorState`, not an eternal skeleton.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

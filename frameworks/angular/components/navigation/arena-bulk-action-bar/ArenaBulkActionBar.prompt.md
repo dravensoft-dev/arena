@@ -1,8 +1,4 @@
-Arena bulk actions bar. It renders only when `count` is above zero, states the size of
-the selection in mono, and offers actions that operate on the set. A destructive
-action stays outline in `--error` -- transparent at rest, the soft `--danger-soft`
-tint only on hover -- like every risk trigger but one; the filled danger surface stays
-`arena-confirm-dialog`'s alone. `count` and `actions` are required. Import `ArenaBulkAction`
+Arena bulk actions bar. The bar renders only when `count` is above zero. The bar states the size of the selection in mono, and offers actions that operate on the set. A destructive action stays outline in `--error`, transparent at rest, with the soft `--danger-soft` tint only on hover. Every risk trigger takes that treatment but one, since the filled danger surface stays `arena-confirm-dialog`'s alone. `count` and `actions` are required. Import `ArenaBulkAction`
 from `@dravensoft/arena-angular` for the `actions` input's element type.
 
 ```html
@@ -34,16 +30,14 @@ from `@dravensoft/arena-angular` for the `actions` input's element type.
 `clearable` (default `true`) gates whether Clear is drawn. Every layer gates on this member
 and never on whether anything listens for `clear`.
 
-### It stacks when its own container is narrow
+### The bar stacks when its own container is narrow
 
 `layout` defaults to `auto`, which measures **the bar's own container** rather than the viewport
 and drops the count, the actions and Clear onto separate rows below `--bp-sm`. Set `inline` when
 the bar sits somewhere you know is wide.
 
 **Stacking reorders nothing**, and that is the whole reason the member exists rather than a
-consumer reaching in with CSS. Reordering the bar's children by position moves what is on screen
-and leaves the tab sequence where it was, so the focus order and the reading order stop matching,
-and it breaks again the next time anything inside the bar moves. Both layers assert that the
+consumer reaching in with CSS. Reordering the bar's children by position moves what is on screen and leaves the tab sequence where it was. The focus order and the reading order stop matching, and they break again the next time anything inside the bar moves. Both layers assert that the
 control order is identical in the two shapes.
 
 **Do / Don't**
@@ -51,11 +45,10 @@ control order is identical in the two shapes.
   will act on by accident.
 - Put the destructive action last, and confirm it with `arena-confirm-dialog` -- the bar
   starts the action, it does not finish it.
-- Don't hide the bar behind a menu. Its whole job is to be visible the moment a
-  selection exists.
+- Don't hide the bar behind a menu. The bar's whole job is to be visible the moment a selection exists.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

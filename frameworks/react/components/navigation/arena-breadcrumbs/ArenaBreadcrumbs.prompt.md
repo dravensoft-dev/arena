@@ -32,22 +32,17 @@ reported through `onNavigate(crumb)`, which carries the crumb alone and no DOM e
 from there and the browser does not navigate underneath you. The rest keep working for a
 consumer who wires no handler.
 
-`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. That
-is the same branch the last crumb already takes, minus its `aria-current`: a level of the trail
-that leads nowhere is not a link and does not take the pointer or the hover either. What it must
-never be is an anchor to the page it sits on, which is a dead edge in the crawl graph and a target
-the keyboard can reach and nothing happens on.
+`href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. The last crumb already takes that branch, minus its `aria-current`. A level of the trail that leads nowhere is not a link, and it does not take the pointer or the hover either. What a crumb must never be is an anchor to the page it sits on. Such an anchor is a dead edge in the crawl graph, and a target the keyboard can reach and nothing happens on.
 
 **Do / Don't**
 - The last item is the current location: no link, styled in `--bone`.
 - Don't replace tabs with breadcrumbs or vice versa; they coexist (tabs = sibling sections, breadcrumbs = depth).
-- Don't reach for `onNavigate` to call `preventDefault()` -- it never receives the click
-  event, and it does not need to: Arena has already cancelled the anchor by the time it fires.
+- Don't reach for `onNavigate` to call `preventDefault()`. The handler never receives the click event and does not need to. Arena has already cancelled the anchor by the time it fires.
 - Don't wrap a crumb in your router's `Link`. `items` is data and the anchor is Arena's;
   navigate in `onNavigate` instead.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

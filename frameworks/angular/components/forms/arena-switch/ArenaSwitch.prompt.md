@@ -43,24 +43,20 @@ supplies the state.
   `funcOn` you ignore is a switch that visibly does not move.
 - **`label` is required** and is the accessible name, the `aria-label` on the control and the
   text beside it. There is no unlabelled shape, which is why the input has no default.
-- The events are three, and they are directional rather than a single toggle: `funcOn` and
-  `funcOff` say which way it went, so a handler needs no copy of the old value to read.
+- The events are three, and they are directional rather than a single toggle. `funcOn` and `funcOff` say which way it went, so a handler needs no copy of the old value to read.
 - `confirm` **replaces** the two: nothing is applied, `requestChange` fires instead, and the host
   opens an `ArenaConfirmDialog` and sets `state` itself on confirmation. The requested value is always
   the negation of the current one, so the event carries no payload.
 - **`confirm` alone diverts the activation**, never whether anything is listening.
   `confirm` set with no `(requestChange)` binding is a switch that
-  does nothing at all. That is the accepted cost of that rule and the one worth paying, because what
-  it replaced applied a guarded change silently. **No runtime guard can catch it**: "is anything
+  does nothing at all. The cost of that rule is accepted and worth paying. What it replaced applied a guarded change silently. **No runtime guard can catch it**: "is anything
   subscribed?" is precisely the question Arena never asks, because at least one framework cannot answer it. The behaviour is
   pinned, so the fallback cannot come back unnoticed.
 - `iconOn` and `iconOff` are Phosphor class-name strings drawn inside the knob, and only the
-  current state's glyph is in the DOM. They are decoration; the knob is `aria-hidden`, and
-  `aria-checked` is what carries the state.
+  current state's glyph is in the DOM. The two are decoration. The knob is `aria-hidden`, and `aria-checked` is what carries the state.
 - Use a switch for an immediate effect and `<arena-checkbox>` for a pending form value. A switch
   inside a form that only applies on submit is the wrong control.
-- `orientation="vertical"` transposes the track. It exists for a dense sidebar; in a form row it
-  reads as a mistake.
+- `orientation="vertical"` transposes the track. The size exists for a dense sidebar. In a form row it reads as a mistake.
 - Don't disable a switch to mean "you may not change this yet". A disabled switch is unreachable
   by Tab and announces no reason; `confirm` is the affordance for a change that needs a gate.
 
@@ -70,8 +66,7 @@ open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generat
   the track's
   colour crossfades with it.
 - Under `prefers-reduced-motion: reduce`, forced in DevTools' Rendering pane, **the knob stops
-  travelling and the track colour still crossfades**. That is the intended answer for a state
-  change: the travel is decorative and the colour is the report. `motion-reduce:transition-none`
+  travelling and the track colour still crossfades**. The colour is the intended answer for a state change. The travel is decorative and the colour is the report. `motion-reduce:transition-none`
   on the `knob` slot is what does it.
 - At every size the knob clears the track's padding on both ends, and the vertical transpose
   travels down rather than across.
@@ -81,6 +76,6 @@ open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generat
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `class` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -19,13 +19,9 @@ row settles on.
 
 <!-- @api end -->
 
-**Why the cell is a component rather than a rule on the row's children.** A row cannot reach
-inside its children to size them, so the width has to land on the child itself. A child that is an
-Arena component may render no box of its own, which makes a `> *` rule land on the card in one
-layer and on nothing in the other, and the two layers then lay the same markup out differently
-with every gate green. The item is the box both layers agree about.
+**Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. A child that is an Arena component may render no box of its own. A `> *` rule then lands on the card in one layer and on nothing in the other. The two layers lay the same markup out differently, with every gate green. The item is the box both layers agree about.
 
-**It draws nothing.** No surface, no line, no padding: a width and a snap point. Whatever is
+**The item draws nothing.** No surface, no line and no padding: a width and a snap point. Whatever is
 visible in the cell came from what you put in it.
 
 **Do / Don't**
@@ -37,6 +33,6 @@ visible in the cell came from what you put in it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page, and no gate reads your application to enforce them.** An Arena component is not a styling surface: put no `className` of your own on it, read every value through its token rather than a raw colour or a bare `16px`, and never wrap it in your router's own link. The rest of the rules are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md).
+**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->
