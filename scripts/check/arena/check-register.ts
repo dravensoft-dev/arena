@@ -1,19 +1,20 @@
 /* Holds the consumer branch to a register a small model can parse. Every claim on that branch was
- * true and most of them were carried by one long sentence: a rule, its exception, its reason and
- * the distinction it turns on, joined by four subordinate clauses and referred to two paragraphs
- * later as "it". A reader with the whole page in view resolves that; a reader with a 32,000 token
- * window and a screen half written does not, and the failure is silent, because the model produces
- * a screen rather than a question. Three claims are measurable and each is measured: how long one
- * sentence runs, how many clauses hang off it, and whether it names its own subject. The prose is
- * read the way check:duplication reads it, so a generated region is judged where it is emitted and
- * a fence is what a reader copies rather than prose. */
+ * true and most were carried by one long sentence: a rule, its exception, its reason and the
+ * distinction it turns on, joined by four clauses and referred to two paragraphs later as "it". A
+ * reader holding the whole page resolves that, and a model holding a 32,000 token window and a
+ * half written screen does not, so the failure is silent: it produces a screen rather than a
+ * question. Three things are measurable and each is measured: how long a sentence runs, how many
+ * clauses hang off it, and whether it names its own subject. Only a subordinator counts, because a
+ * comma before `and` is as often a list as a claim and a gate calling one the other reports a
+ * message that is false. Prose is read the way check:duplication reads it, so a generated region
+ * is judged where it is emitted and a fence is what a reader copies. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { unfenced } from '../../lib/arena/markdown-prose.ts';
 import { FRONTMATTER } from '../../lib/arena/llms-index.ts';
-import { authored, documents } from './check-duplication.ts';
+import { REGION_OPENS, REGION_CLOSES, documents } from './check-duplication.ts';
 import { isConsumerDocument, BRANCH_SWITCH } from './check-docs.ts';
 import { matchesSpec } from '../../graph/pathspecs.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -21,11 +22,12 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 export const MAX_WORDS = 30;
 export const MAX_CLAUSES = 1;
 
-export const CLAUSE_OPENERS = [', which', ', and', ', so', ', because', ', rather than', ', while'];
+export const CLAUSE_OPENERS = [', which', ', so', ', because', ', rather than', ', while',
+  ', since', ', though'];
 
-export const BARE_SUBJECTS = ['it', 'they', 'its', 'their', 'these', 'those'];
+export const BARE_SUBJECTS = ['it', 'they', 'its', 'their'];
 
-export const DEICTIC_SUBJECTS = ['this', 'that'];
+export const DEICTIC_SUBJECTS = ['this', 'that', 'these', 'those'];
 
 export const DEICTIC_VERBS = [
   'is', 'are', 'was', 'were', 'does', 'do', 'did', 'has', 'have', 'had', 'will', 'would', 'can',
@@ -44,9 +46,6 @@ export const SENTENCE_END = /(?<=[.!?])\s+/;
 export const EXEMPT = new Map<string, string>([]);
 
 export const NOT_YET_REWRITTEN = new Map<string, string>([
-  ['skills/design/SKILL.md',
-   'the page every consumer route opens with, and the one whose register the rest are measured '
-   + 'against, so it is rewritten first and alone'],
   ['skills/design/references/cold-start.md',
    'the tree a project walks before its first screen, and the longest page on this branch'],
   ['skills/design/references/media-register.md',
@@ -98,12 +97,23 @@ export function blanked(source: string) {
   return source.replace(FRONTMATTER, (front) => front.replace(/[^\n]/g, ''));
 }
 
+export function unregioned(source: string) {
+  const kept = [];
+  let inside = false;
+  for (const line of source.split('\n')) {
+    if (!inside && REGION_OPENS.test(line)) { inside = true; kept.push(''); continue; }
+    if (inside) { inside = !REGION_CLOSES.test(line); kept.push(''); continue; }
+    kept.push(line);
+  }
+  return kept.join('\n');
+}
+
 export function blocks(source: string) {
   const found: { line: number; text: string }[] = [];
   let line = 0;
   let open: { line: number; parts: string[] } | null = null;
 
-  for (const raw of unfenced(authored(blanked(source))).split('\n')) {
+  for (const raw of unfenced(unregioned(blanked(source))).split('\n')) {
     line += 1;
     if (raw.trim() === '') { if (open) { found.push({ line: open.line, text: open.parts.join(' ') }); open = null; } continue; }
     if (raw.startsWith('|')) {

@@ -44,7 +44,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 18_000,
+    budget: 18_600,
     reason:
       'the page every consumer route opens with, and the reason it is declared here rather than as '
       + 'the first stop of each of them: a paragraph added to a router that seven routes shared was '
@@ -83,7 +83,16 @@ export const ENTRIES: Entry[] = [
       + 'and the rule the page had stated only in its delivery paragraph joined the list it '
       + 'belongs to. What the number buys is a claim that cannot go stale: this page said no gate '
       + 'reads your application while the audit already did, and nothing failed, because the '
-      + 'sentence and the check had no common source.',
+      + 'sentence and the check had no common source. Raised again to 18,600 when this page was '
+      + 'rewritten into the register check:register holds, which is the first measurement of what '
+      + 'that register costs: 661 characters on a page whose every sentence now carries one claim, '
+      + 'runs under thirty words and names its own subject. The saving a rewrite was expected to '
+      + 'return did not arrive here and the reason is worth the row: naming a subject spends '
+      + 'characters, splitting a sentence spends a verb, and the subordination this page carried '
+      + 'was holding claims rather than padding. What the number buys is measured on the gate '
+      + 'rather than argued: thirty-six findings before and none after. A page whose prose is '
+      + 'already flat has nothing left to spend, so the next raise here is a claim rather than a '
+      + 'register.',
   },
   {
     name: 'contributor',

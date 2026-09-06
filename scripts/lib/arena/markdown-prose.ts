@@ -6,7 +6,8 @@
  * that opened it, and a code span only on a backtick run of exactly its own
  * length, which may be lines below. A code span is prose's neighbour and not a
  * fence, which is what lets a document name a thing it refuses without offering
- * it. Kept dependency-free so it runs under plain node. */
+ * it. A third split blanks the fenced lines in place, so a gate reporting a line number after a
+ * fence names the line a reader opens the file at. Dependency-free, so it runs under plain node. */
 
 const OPENS_FENCE = /^ {0,3}(`{3,}|~{3,})/;
 const CLOSES_FENCE = /^ {0,3}(`+|~+)[ \t]*$/;
@@ -69,9 +70,9 @@ export function unfenced(source: string) {
     const closing = CLOSES_FENCE.exec(raw);
     const run = closing?.[1] ?? '';
 
-    if (fence && closing && run[0] === fence[0] && run.length >= fence.length) { fence = null; continue; }
-    if (fence) continue;
-    if (opening) { fence = opening[1]; continue; }
+    if (fence && closing && run[0] === fence[0] && run.length >= fence.length) { fence = null; kept.push(''); continue; }
+    if (fence) { kept.push(''); continue; }
+    if (opening) { fence = opening[1]; kept.push(''); continue; }
     kept.push(raw);
   }
 
