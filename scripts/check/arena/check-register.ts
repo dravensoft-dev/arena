@@ -1,13 +1,13 @@
 /* Holds the consumer branch to a register a small model can parse. Every claim on that branch was
  * true and most were carried by one long sentence: a rule, its exception, its reason and the
  * distinction it turns on, joined by four clauses and referred to two paragraphs later as "it". A
- * reader holding the whole page resolves that, and a model holding a 32,000 token window and a
- * half written screen does not, so the failure is silent: it produces a screen rather than a
- * question. Three things are measurable and each is measured: how long a sentence runs, how many
- * clauses hang off it, and whether it names its own subject. Only a subordinator counts, because a
- * comma before `and` is as often a list as a claim and a gate calling one the other reports a
- * message that is false. Prose is read the way check:duplication reads it, so a generated region
- * is judged where it is emitted and a fence is what a reader copies. */
+ * reader holding the whole page resolves that, and a model holding a half written screen does not,
+ * so the failure is silent: it produces a screen rather than a question. Three things are
+ * measurable and each is measured: how long a sentence runs, how many clauses hang off it, and
+ * whether it names its own subject. Only a subordinator counts, because a comma before `and` is as
+ * often a list as a claim. Prose is read the way check:duplication reads it, so a generated region
+ * is judged where it is emitted. NOT_YET_REWRITTEN is empty, which is the state it was written to
+ * reach: an entry whose documents already read in this register failed as a stale allowance. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -46,8 +46,6 @@ export const SENTENCE_END = /(?<=[.!?])\s+/;
 export const EXEMPT = new Map<string, string>([]);
 
 export const NOT_YET_REWRITTEN = new Map<string, string>([
-  ['plugin-style-store/catalogue/*/ENTRY.md',
-   'the measured style plugins a project can start from, one card each'],
 ]);
 
 export const node = {
@@ -186,9 +184,9 @@ export function staleExemptProblems(docs: string[]) {
     .map((rel) => `${rel}: is exempt here and is not a consumer document this gate reads`);
 }
 
-export function staleSpecProblems(clean: Map<string, boolean>) {
+export function staleSpecProblems(clean: Map<string, boolean>, entries = NOT_YET_REWRITTEN) {
   const problems = [];
-  for (const [spec, reason] of NOT_YET_REWRITTEN) {
+  for (const [spec, reason] of entries) {
     const read = clean.get(spec);
     if (read === undefined)
       problems.push(`${spec}: awaits the rewrite and matches no document this gate reads, so the `
@@ -221,10 +219,12 @@ function main() {
   if (problems.length) process.exit(1);
   const docs = scoped();
   const waiting = docs.filter((rel) => excusedBy(rel) !== null).length;
+  const left = waiting === 0
+    ? 'and nothing is excused'
+    : `${waiting} await the rewrite under ${NOT_YET_REWRITTEN.size} entr(ies), each with its reason`;
   console.log(`check-register: ${docs.length - waiting} consumer document(s) hold to one claim a `
     + `sentence, ${MAX_WORDS} words and ${MAX_CLAUSES} subordinate clause, and name their own `
-    + `subject; ${waiting} await the rewrite under ${NOT_YET_REWRITTEN.size} entr(ies), each with `
-    + 'its reason');
+    + `subject, ${left}`);
 }
 
 if (isMainModule(import.meta.url)) main();

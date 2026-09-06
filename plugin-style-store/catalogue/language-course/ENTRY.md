@@ -1,8 +1,6 @@
 # A language course
 
-The register of a product that teaches by repetition and wants to be pressed: a lesson path, a
-streak, a progress bar, and one big button that is the whole screen's reason. It is measured on a
-commercial language course, and what is written down here is what the measurement found.
+The register of a product that teaches by repetition and wants to be pressed. The product carries a lesson path, a streak, a progress bar, and one big button that is the whole screen's reason. The entry is measured on a commercial language course, and what is written down here is what the measurement found.
 
 Take this entry when the product is used in short bursts, mostly by a thumb, and when getting the
 next thing pressed matters more than getting more onto the screen.
@@ -24,10 +22,7 @@ next thing pressed matters more than getting more onto the screen.
 ## What the kernel could not answer, and this entry paints
 
 The voice of this register is one gesture: a control stands on a hard bottom edge and drops into it
-when pressed. `lift-control` is a hover rise and `press-scale` is a press shrink, and neither is a
-press travel, so `plugin.css` beside this file paints it through the button and icon button part
-hooks. It is the clearest measured case of the kernel not reaching something, and it costs a few
-rules rather than a fork.
+when pressed. `lift-control` is a hover rise and `press-scale` is a press shrink, and neither is a press travel. `plugin.css` beside this file paints the travel through the button and icon button part hooks. The travel is the clearest measured case of the kernel not reaching something, and it costs a few rules rather than a fork.
 
 ## The page it assumes
 
@@ -36,8 +31,7 @@ a main column on `minmax(0, 1fr)`. The rail is sticky rather than scrolling with
 main column is a single centred stack and never a board.
 
 Air between components is the component step almost everywhere, because this register has few
-things on screen and gives each of them room. It expects the comfortable density class, which grows
-the controls to a touch target, and it is the one entry of the four that does.
+things on screen and gives each of them room. The entry expects the comfortable density class, which grows the controls to a touch target. This entry is the one of the four that does.
 
 ## The components it leans on
 
@@ -45,14 +39,10 @@ Few, and the fewness is the register: the button and the icon button, the card, 
 the avatar, and the people list for a leaderboard. `frameworks/react/INDEX.md` names each under
 its category.
 
-The lesson path itself is markup you write. It is a game map rather than furniture, so Arena hands
-you the pattern instead of a component, and `skills/design/references/media-register.md` is that
-handover.
+The lesson path itself is markup you write. A lesson path is a game map rather than furniture, so Arena hands you the pattern instead of a component. `skills/design/references/media-register.md` is that handover.
 
 ## What it does not bring
 
-The palette and the fonts are the consumer's. The ones shipped here are the measurement's, and the
-display face carrying the weight is doing more work in this register than in any other, so a
-replacement face that has no black weight changes the product more than it looks like it will.
+The palette and the fonts are the consumer's. The ones shipped here are the measurement's, and the display face carrying the weight is doing more work in this register than in any other. A replacement face that has no black weight changes the product more than it looks like it will.
 
 The copy, the brand mark and the question of being found from outside are all still open.

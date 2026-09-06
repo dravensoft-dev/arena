@@ -638,7 +638,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 23_900,
+    budget: 24_000,
     reason:
       'the first route on this branch that is declared as a tree, and the reason the shape exists. '
       + 'A reader here answers a question and walks one way: handed a document stating the palette '
@@ -684,7 +684,7 @@ export const ROUTES: Route[] = [
       + 'that two arrivals take it. It carries the verb as well: an entry is copied rather than '
       + 'cited, and the one page saying so was the catalogue\'s own AGENTS.md, on the branch this '
       + 'reader is told not to read, so a walk that reached the entry correctly then guessed at '
-      + 'what to do with it. Raised again to 23,900 when the tree was rewritten into the register check:register holds. The tree is the page a reader walks one node at a time, so a node that carried its question, its cost and its exception in one sentence was the worst place on this branch for that shape: a reader who matches on one row reads that row alone. Thirty-five findings before and none after, for 199 characters.',
+      + 'what to do with it. Raised again to 23,900 when the tree was rewritten into the register check:register holds. The tree is the page a reader walks one node at a time, so a node that carried its question, its cost and its exception in one sentence was the worst place on this branch for that shape: a reader who matches on one row reads that row alone. Thirty-five findings before and none after, for 199 characters. Raised again to 24,000 for the catalogue entry this route charges its worst branch. Fifty-eight findings over the eight cards before and none after, for 29 characters on the largest of them. A card opens on what the register is, in a list of four things after a colon, which is the one sentence a reader matching a description against their own product actually compares.',
   },
   {
     name: 'contributor-component',

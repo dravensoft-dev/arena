@@ -1,9 +1,6 @@
 # A project tracker
 
-The register of a tool a team runs its work in: a space tree down the side, a board of columns, a
-table of records, widgets that count things, and a feed of what changed. It is measured on a
-commercial project tracker, and what is written down here is what the measurement found rather than
-what the product says about itself.
+The register of a tool a team runs its work in. The tool carries a space tree down the side, a board of columns, a table of records, widgets that count things, and a feed of what changed. The entry is measured on a commercial project tracker, and what is written down here is what the measurement found rather than what the product says about itself.
 
 Take this entry when the thing being built is a console somebody keeps open all day and the screen
 has to hold more than it comfortably fits.
@@ -22,9 +19,7 @@ has to hold more than it comfortably fits.
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | a slight shrink, a one pixel rise, a middle duration on an out curve | the feedback is confirmation and never celebration |
 | What shape a picture is | `aspect-media`, `fit-media` | a landscape crop, filled | an attachment thumbnail is a preview of a document rather than a picture somebody chose |
 
-The colour roles are answered the way every measured product answers them, so the palette in
-`arena.config.json` beside this file is what makes it look like a brand rather than like this
-entry.
+The colour roles are answered the way every measured product answers them. The palette in `arena.config.json` beside this file is what makes it look like a brand rather than like this entry.
 
 ## The page it assumes
 
@@ -34,16 +29,11 @@ than narrowing. The main column carries a bar of chrome at the top, a breadcrumb
 and the work below that.
 
 The measured product writes that grid itself, on elements of its own, which is what Arena expects:
-the pieces are shipped and the shape is not. Air between two components comes from the rhythm
-classes on your own containers, and this register spends the group step between rows of a widget
-and the component step between widgets. It expects the compact density class on the desk and never
-the comfortable one.
+the pieces are shipped and the shape is not. Air between two components comes from the rhythm classes on your own containers. This register spends the group step between rows of a widget, and the component step between widgets. The entry expects the compact density class on the desk, and never the comfortable one.
 
 ## The components it leans on
 
-Almost the whole product register, which is why it is the entry that reaches furthest into Arena:
-the side navigation family, the board, the table, the chart cards and the stat cards, the command
-palette, the tag, the bulk action bar and the activity feed. `frameworks/react/INDEX.md` names
+Almost the whole product register, which is why this is the entry that reaches furthest into Arena. The entry takes the side navigation family, the board, the table, and the chart and stat cards. The entry also takes the command palette, the tag, the bulk action bar and the activity feed. `frameworks/react/INDEX.md` names
 each under the category it is filed under.
 
 Nothing in this register falls outside Arena's component list, so no part of this screen is markup

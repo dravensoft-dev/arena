@@ -86,25 +86,27 @@ test('the branch this gate reads is the consumer one, and the router with it', (
 });
 
 test('an allowance names a pathspec, and a document under one is excused by it', () => {
+  const specs = ['frameworks/*/components/**/*.prompt.md'];
+  assert.equal(
+    excusedBy('frameworks/react/components/forms/arena-radio/ArenaRadio.prompt.md', specs),
+    specs[0], 'a pathspec excuses every document under it');
+  assert.equal(excusedBy('skills/design/SKILL.md', specs), null);
   assert.equal(excusedBy('AGENTS.md'), null, 'the other branch is not this gate\'s subject');
-  const spec = [...NOT_YET_REWRITTEN.keys()][0] ?? '';
-  assert.ok(scoped().some((rel) => excusedBy(rel) === spec),
-    'every entry left in the map still matches a document this gate reads');
-  const excused = scoped().filter((rel) => excusedBy(rel) !== null);
-  const held = scoped().filter((rel) => excusedBy(rel) === null);
-  assert.equal(excused.length + held.length, scoped().length,
-    'every document this gate reads is either excused by one entry or held by the register');
-  assert.ok(held.length > 0,
-    'a rewritten document leaves the map, so this list grows and the entries shrink. Naming one '
-    + 'here would make every rewrite a suite edit, which is the chore this derivation avoids');
+});
+
+test('the map is empty, which is the state it was written to reach', () => {
+  assert.equal(NOT_YET_REWRITTEN.size, 0);
+  assert.ok(scoped().every((rel) => excusedBy(rel) === null),
+    'every document this gate reads is held by the register rather than excused from it');
 });
 
 test('an allowance whose every document already reads in this register fails as stale', () => {
-  const one = [...NOT_YET_REWRITTEN.keys()][0] ?? '';
-  assert.equal(staleSpecProblems(new Map([[one, false]])).length, NOT_YET_REWRITTEN.size - 1,
-    'every entry the run did not reach is reported as matching nothing');
-  assert.match(staleSpecProblems(new Map([[one, true]]))[0] ?? '',
+  const entries = new Map([['skills/**/*.md', 'a reason']]);
+  assert.deepEqual(staleSpecProblems(new Map([['skills/**/*.md', false]]), entries), [],
+    'an entry the run found prose under is doing its job');
+  assert.match(staleSpecProblems(new Map([['skills/**/*.md', true]]), entries)[0] ?? '',
     /An allowance is not an exemption/);
+  assert.match(staleSpecProblems(new Map(), entries)[0] ?? '', /matches no document/);
 });
 
 test('an empty scan and a stale exemption are failures rather than a quiet pass', () => {
