@@ -19,7 +19,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
 } from '../../build/arena/build-mcp-package.ts';
-import { catalogue } from '../../generate/core/arena-mcp/catalogue.ts';
+import { catalogue, textOf, MARKDOWN_LINK, ADDRESSED } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs } from '../../lib/arena/llms-index.ts';
 import { LINK, INLINE, isRepoPath } from '../../lib/arena/agent-payload.ts';
@@ -241,6 +241,28 @@ export function corpusProblems(dir: string) {
   return problems;
 }
 
+export function servedLinkProblems(dir: string) {
+  const problems = [];
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null) continue;
+    const manifest = manifestIn(payload);
+    if (manifest === null) continue;
+    const { entries, byRel } = catalogue(payload, manifest);
+    for (const entry of entries) {
+      for (const link of (textOf(payload, entry, byRel) ?? '').matchAll(MARKDOWN_LINK)) {
+        const target = link[1] ?? '';
+        if (ADDRESSED.test(target)) continue;
+        problems.push(`${NAME}: ${layer} serves ${entry.uri} carrying the link ${target}, which is a `
+          + 'path into a checkout and not an address this server answers. A document is written in a '
+          + 'tree and read over a scheme, and a reader who follows one of these spends a call to be '
+          + 'told the payload has no such thing');
+      }
+    }
+  }
+  return problems;
+}
+
 export function catalogueProblems(dir: string, base = root) {
   const declared = readJson(join(base, 'frameworks', 'Components.json')) as Record<string, string[]>;
   const expected = Object.values(declared).flat().length;
@@ -267,7 +289,7 @@ export function collect(base = root) {
   return {
     problems: [
       ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
-      ...catalogueProblems(dir, base),
+      ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
     ],
     assembled: true,
   };
@@ -282,7 +304,8 @@ function main() {
   }
   console.log(`check-mcp: ${NAME} declares the ${Object.keys(RUNTIME_DEPENDENCIES).length} dependency `
     + `it imports and states ${REGISTRY_NAME} at the version ${PLUGIN_MANIFEST} hands out`
-    + `${built ? ', ships its bin, carries one corpus per layer whose every path resolves, '
+    + `${built ? ', ships its bin, carries one corpus per layer whose every path resolves, serves '
+    + 'every one of them with its links addressed as this server answers them, '
     + 'and would serve every component the tree declares' : ', and is not assembled, so the bin and '
     + 'the corpus rules went unread'}`);
 }

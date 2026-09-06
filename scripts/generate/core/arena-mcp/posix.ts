@@ -19,3 +19,17 @@ export function byCodeUnit(a: string, b: string) {
   if (a === b) return 0;
   return a < b ? -1 : 1;
 }
+
+export function dirPosix(rel: string) {
+  return rel.split('/').slice(0, -1).join('/');
+}
+
+export function resolvePosix(from: string, target: string) {
+  const out: string[] = [];
+  for (const part of `${from}/${target}`.split('/')) {
+    if (part === '' || part === '.') continue;
+    if (part === '..') out.pop();
+    else out.push(part);
+  }
+  return out.join('/');
+}

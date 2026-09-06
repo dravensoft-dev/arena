@@ -4,10 +4,13 @@
  * component, and one that fetches the router has paid for the rules. The names are derived from
  * the tree rather than listed here, so a component added to Arena is one this server serves
  * without being told. A payload carrying no component at all is an error, since an empty
- * catalogue answers every question with silence. */
+ * catalogue answers every question with silence. A document is written in a tree and served
+ * over a scheme, so the links it carries are resolved against the catalogue on the way out: a
+ * relative path is correct in a clone and answers nothing here, and a reader who follows one
+ * spends a call to be told the server has no such thing. */
 
 import { walk, relPosix, readIn, SUPPORT, type Manifest } from './payload.ts';
-import { byCodeUnit } from './posix.ts';
+import { byCodeUnit, dirPosix, resolvePosix } from './posix.ts';
 
 export const SCHEME = 'arena';
 
@@ -89,11 +92,30 @@ export function catalogue(payload: string, manifest: Manifest) {
       + 'a component would be answered with silence. Check that the Arena package it came from is '
       + 'whole');
   }
-  return { entries: found, byUri: new Map(found.map((one) => [one.uri, one])) };
+  return { entries: found, byUri: new Map(found.map((one) => [one.uri, one])), byRel: relIndex(found) };
 }
 
-export function textOf(payload: string, entry: Entry) {
-  return readIn(payload, entry.rel);
+export const MARKDOWN_LINK = /\]\(([^)\s]+)\)/g;
+export const ADDRESSED = /^(?:[a-z][a-z0-9+.-]*:|#|\/)/i;
+
+export function relIndex(found: Entry[]) {
+  return new Map(found.map((one) => [one.rel, one.uri]));
+}
+
+export function withUris(text: string, rel: string, byRel: Map<string, string>) {
+  return text.replace(MARKDOWN_LINK, (whole, target: string) => {
+    if (ADDRESSED.test(target)) return whole;
+    const cut = target.indexOf('#');
+    const path = cut === -1 ? target : target.slice(0, cut);
+    const uri = byRel.get(resolvePosix(dirPosix(rel), path));
+    return uri === undefined ? whole : `](${uri}${cut === -1 ? '' : target.slice(cut)})`;
+  });
+}
+
+export function textOf(payload: string, entry: Entry, byRel: Map<string, string>) {
+  const text = readIn(payload, entry.rel);
+  if (text === null || entry.mime !== 'text/markdown') return text;
+  return withUris(text, entry.rel, byRel);
 }
 
 export const WORD = /[a-z0-9]+/g;
@@ -112,9 +134,10 @@ export function score(entry: Entry, wanted: Set<string>, summary: string) {
 export function search(payload: string, found: Entry[], query: string, limit = 8) {
   const wanted = words(query);
   if (wanted.size === 0) return [];
+  const byRel = relIndex(found);
   return found
     .map((entry) => {
-      const text = textOf(payload, entry) ?? '';
+      const text = textOf(payload, entry, byRel) ?? '';
       const summary = text.slice(0, 400);
       return { entry, hits: score(entry, wanted, summary) };
     })

@@ -82,14 +82,14 @@ export function opening(manifest: Manifest, entries: Entry[], installed: Install
 }
 
 export function build(payload: string, manifest: Manifest, installed: Installed | null = null) {
-  const { entries, byUri } = catalogue(payload, manifest);
+  const { entries, byUri, byRel } = catalogue(payload, manifest);
   const server = new McpServer({ name: NAME, version: manifest.version });
 
   for (const entry of entries) {
     server.registerResource(entry.uri, entry.uri,
       { title: entry.title, description: entry.title, mimeType: entry.mime },
       async (uri) => {
-        const text = textOf(payload, entry);
+        const text = textOf(payload, entry, byRel);
         if (text === null) throw new Error(`${entry.rel} is named by the payload and is not there`);
         return { contents: [{ uri: uri.href, text }] };
       });
@@ -133,7 +133,7 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
           text: `${uri} is not a document this payload carries. arena_list names every one` }],
       };
     }
-    const text = textOf(payload, entry);
+    const text = textOf(payload, entry, byRel);
     return text === null
       ? { isError: true, content: [{ type: 'text' as const, text: `${entry.rel} is not there` }] }
       : { content: [{ type: 'text' as const, text }] };

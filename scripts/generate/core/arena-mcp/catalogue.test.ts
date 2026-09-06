@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  entries, catalogue, search, nameOf, categoryOf, words, textOf,
+  entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
   ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, SCHEME,
 } from './catalogue.ts';
 import type { Manifest } from './payload.ts';
@@ -48,10 +48,52 @@ test('every kind of document in a payload gets a URI of its own', () => {
 
 test('a URI resolves to the document it names', () => {
   const dir = payload();
-  const { byUri } = catalogue(dir, MANIFEST);
+  const { byUri, byRel } = catalogue(dir, MANIFEST);
   const input = byUri.get(`${SCHEME}://component/ArenaInput`);
   assert.ok(input);
-  assert.match(textOf(dir, input) ?? '', /single-line text field/);
+  assert.match(textOf(dir, input, byRel) ?? '', /single-line text field/);
+  rmSync(dir, { recursive: true });
+});
+
+test('a document served over the scheme carries links written in it, not links to a checkout', () => {
+  const dir = payload({
+    'frameworks/react/components/forms/INDEX.md':
+      '# Forms\n\n- [ArenaInput](./arena-input/ArenaInput.prompt.md)\n'
+      + '- [the page](../../../../../skills/design/references/page.md)\n',
+  });
+  const { byUri, byRel } = catalogue(dir, MANIFEST);
+  const forms = byUri.get(`${SCHEME}://category/forms`);
+  assert.ok(forms);
+  const text = textOf(dir, forms, byRel) ?? '';
+  assert.match(text, /\]\(arena:\/\/component\/ArenaInput\)/,
+    'a relative path is right in a clone and answers nothing over a scheme, and a reader who '
+    + 'follows one spends a call to be told the server carries no such thing');
+  assert.match(text, /\]\(arena:\/\/reference\/page\)/, 'climbing out of the tree resolves too');
+  assert.doesNotMatch(text, /\]\(\.\.?\//, 'nothing relative survives being served');
+  rmSync(dir, { recursive: true });
+});
+
+test('only what the catalogue answers for is rewritten, and a fragment rides along', () => {
+  const byRel = relIndex([
+    { uri: `${SCHEME}://component/ArenaInput`, rel: 'a/b/ArenaInput.prompt.md', title: '', mime: 'text/markdown' },
+  ]);
+  const at = 'a/INDEX.md';
+  assert.equal(withUris('[x](./b/ArenaInput.prompt.md)', at, byRel), `[x](${SCHEME}://component/ArenaInput)`);
+  assert.equal(withUris('[x](./b/ArenaInput.prompt.md#members)', at, byRel),
+    `[x](${SCHEME}://component/ArenaInput#members)`);
+  assert.equal(withUris('[x](https://arena.dravensoft.org/a.md)', at, byRel),
+    '[x](https://arena.dravensoft.org/a.md)', 'an address that already resolves is left alone');
+  assert.equal(withUris('[x](#members)', at, byRel), '[x](#members)', 'so is one into this same page');
+  assert.equal(withUris('[x](./nothing.md)', at, byRel), '[x](./nothing.md)',
+    'a target the payload does not carry is not invented a URI for');
+});
+
+test('a json resource is served as it was written, since it carries no markdown link', () => {
+  const dir = payload();
+  const { byUri, byRel } = catalogue(dir, MANIFEST);
+  const roles = byUri.get(ROLES_URI);
+  assert.ok(roles);
+  assert.equal(textOf(dir, roles, byRel), '{}');
   rmSync(dir, { recursive: true });
 });
 
