@@ -7,7 +7,7 @@ import {
   auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
-  UNMODELLED_UNITS,
+  UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
 } from './audit.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -450,4 +450,44 @@ test('every rule tag the audit can emit is declared, and every declared tag is o
     'RULE_TAGS is what every other surface reads to say which rule of the language a gate holds, '
     + 'so a tag the module emits and this list does not carry is a rule nothing can claim, and a '
     + 'tag on this list the module never emits is a claim nothing answers');
+});
+
+test('a style hoisted into a constant is styling, so the raw-value rules read it there too', () => {
+  const hoisted = ['const zone = {', "  background: 'var(--danger)',", "  padding: '16px',", '};',
+    'export default function A() {', '  return <div style={zone}>x</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', hoisted).map((one) => one.rule), ['danger-fill', 'raw-value'],
+    'style={{ ... }} and const zone = { ... } are the same declaration written two ways, and '
+    + 'hoisting is what React authors do the moment an object outgrows the attribute. A rule that '
+    + 'reads only the attribute is a rule any screen escapes by moving three lines up');
+
+  const annotated = ['const panel: CSSProperties = {', "  background: '#ff0000',", '};',
+    'export default function A() {', '  return <div style={panel}>x</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', annotated).map((one) => one.rule), ['raw-value'],
+    'the annotation says it is styling even before anything uses it');
+
+  const nested = ['const styles = {', "  card: { background: '#123456' },", '};',
+    'export default function A() {', '  return <div style={styles.card}>x</div>;', '}'].join('\n');
+  assert.deepEqual(nested.length && findings('src/App.tsx', nested).map((one) => one.rule), ['raw-value'],
+    'a table of styles reached by member is still reached');
+});
+
+test('an object that never reaches a style attribute is data, and data is not judged as paint', () => {
+  const config = ['const config = {', "  cache: '16px',", "  tag: '#abcdef',", '};',
+    'export default function A() {', '  return <div>{config.tag}</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', config), [],
+    'a hex in a fixture, an id or a cache key is not a colour somebody painted with, and a rule '
+    + 'that cannot tell the two apart costs more than the one it catches');
+
+  const tokens = ['const ok: CSSProperties = {', "  background: 'var(--fill-surface)',",
+    "  padding: 'var(--sp-6)',", '};', 'export default function A() {',
+    '  return <div style={ok}>x</div>;', '}'].join('\n');
+  assert.deepEqual(findings('src/App.tsx', tokens), [], 'a hoisted object of tokens is clean');
+});
+
+test('what a style attribute names is what gets read, and a key is not a name', () => {
+  assert.deepEqual([...styleIdentifiers('<div style={zone}>')], ['zone']);
+  assert.deepEqual([...styleIdentifiers('<div style={{ background: shade }}>')], ['shade'],
+    'background is the property being set, not a binding that could hold a style');
+  assert.deepEqual([...styleObjectLines('const zone = {\n  a: 1,\n};\n<div style={zone}/>')].sort(),
+    [1, 2, 3], 'the whole body counts, not the line the brace opens on');
 });

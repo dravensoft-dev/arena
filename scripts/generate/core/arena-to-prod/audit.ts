@@ -236,6 +236,9 @@ export function fillsWithDanger(line: string) {
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
 const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
+const STYLE_ANNOTATION = /:\s*(?:React\.)?CSSProperties\b/;
+const BINDING = /^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)/;
+const IDENTIFIER = /[A-Za-z_$][\w$]*/g;
 
 export const PAINTED_PART = /\[data-arena-part\s*=\s*"([^"]+)"\]/g;
 
@@ -424,7 +427,7 @@ export function structuralFindings(text: string): Finding[] {
 }
 
 export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app',
-  gradientMark = false): Finding[] {
+  gradientMark = false, inStyleObject = false): Finding[] {
   const found: Finding[] = [];
 
   if (isStylesheet && OWN_RULE.test(line))
@@ -437,7 +440,7 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
       + 'it from anywhere else is appearance nobody can find; move it into a directory the config '
       + 'declares in stylePlugins'));
 
-  const styled = isStylesheet || INLINE_STYLE.test(line);
+  const styled = isStylesheet || INLINE_STYLE.test(line) || inStyleObject;
   if (styled && RAW_HEX.test(line))
     found.push(at(0, 'raw-value', 'a raw hex where a token belongs. Read the value through its '
       + 'custom property, as var(--crimson)'));
@@ -473,12 +476,57 @@ export function bracketFindings(text: string, lines: string[]): Finding[] {
   });
 }
 
+export function styleIdentifiers(text: string) {
+  const names = new Set<string>();
+  const attribute = /\bstyle\s*=\s*\{/g;
+  for (let opener = attribute.exec(text); opener; opener = attribute.exec(text)) {
+    const from = opener.index + opener[0].length;
+    let depth = 1;
+    let to = from;
+    for (; to < text.length && depth > 0; to += 1) {
+      if (text[to] === '{') depth += 1;
+      else if (text[to] === '}') depth -= 1;
+    }
+    const expression = text.slice(from, to - 1);
+    for (const found of expression.matchAll(IDENTIFIER)) {
+      if (/^\s*:/.test(expression.slice((found.index ?? 0) + found[0].length))) continue;
+      names.add(found[0]);
+    }
+  }
+  return names;
+}
+
+export function styleObjectLines(text: string) {
+  const names = styleIdentifiers(text);
+  const lines = text.split('\n');
+  const inside = new Set<number>();
+  lines.forEach((line, index) => {
+    const declared = BINDING.exec(line)?.[1];
+    if (!declared || (!names.has(declared) && !STYLE_ANNOTATION.test(line))) return;
+    const open = line.indexOf('{');
+    if (open === -1) return;
+    let depth = 0;
+    for (let scan = index; scan < lines.length; scan += 1) {
+      for (const character of (lines[scan] ?? '').slice(scan === index ? open : 0)) {
+        if (character === '{') depth += 1;
+        else if (character === '}') depth -= 1;
+      }
+      inside.add(scan + 1);
+      if (depth <= 0) return;
+    }
+  });
+  return inside;
+}
+
 export function findings(relPath: string, text: string, scope: Scope = 'app',
   gradientMark = false): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
-  const perLine = withoutComments(text).split('\n').flatMap((line, index) =>
-    lineFindings(line, isStylesheet, scope, gradientMark).map((one) => at(index + 1, one.rule, one.message)));
+  const stripped = withoutComments(text);
+  const painted = isStylesheet ? new Set<number>() : styleObjectLines(stripped);
+  const perLine = stripped.split('\n').flatMap((line, index) =>
+    lineFindings(line, isStylesheet, scope, gradientMark, painted.has(index + 1))
+      .map((one) => at(index + 1, one.rule, one.message)));
   return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
