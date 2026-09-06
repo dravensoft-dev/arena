@@ -1,6 +1,5 @@
 Arena's signed-out panel. A frame: the lock-up, an eyebrow, a title, whatever the screen
-is actually for, and a footer. It knows nothing about credentials, so one component
-serves sign-in, "check your inbox", "this link expired" and two-factor entry.
+is actually for, and a footer. The panel knows nothing about credentials, so one component serves sign-in, "check your inbox", "this link expired" and two-factor entry.
 
 ```html
 <div style="display:flex;min-height:100vh;align-items:center;justify-content:center">
@@ -32,10 +31,7 @@ serves sign-in, "check your inbox", "this link expired" and two-factor entry.
 
 <!-- @api end -->
 
-Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside
-`ArenaUnauthCard` in the host component's `imports`,
-`brand` and `footer` are directives, not plain attributes, because they are how the panel
-detects that something was actually projected into each slot. Both wrappers carry their
+Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside `ArenaUnauthCard` in the host component's `imports`. `brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
 own margin, so a card that omits one ships no dead space for it.
 
 **Do / Don't**

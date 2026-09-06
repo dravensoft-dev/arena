@@ -1,4 +1,4 @@
-Week or day schedule on a time grid: a toolbar, one column per day, events positioned by their wall-clock span. Use it for an agenda someone reads against the clock: bookings, classes, shifts. The component is not a date picker, which is `arena-input type="date"`. It is not a month planner either, since Arena ships no month grid.
+Week or day schedule on a time grid: a toolbar, one column per day, events positioned by their wall-clock span. Use it for an agenda someone reads against the clock: bookings, classes, shifts. The component is not a date picker, which is `arena-input type="date"`. The component is not a month planner either, since Arena ships no month grid.
 
 **The events are its content.** Write one `<arena-calendar-event>` per event. `arena-calendar` reads each one's `start`, `end` and `colorId` and works out where the chip goes, and each chip reads that placement back out. There is no `events` input, and no throw for projecting nothing: a calendar with no children is a legitimately empty schedule, not a caller's mistake.
 

@@ -1,6 +1,5 @@
 One destination in an `arena-bottom-nav`: glyph above label, an equal share of the bar's width.
-Standalone, `OnPush`, signal I/O. It renders no wrapper of its own, so the host declares
-`display: contents` and the anchor or the button inside is what the bar lays out.
+Standalone, `OnPush`, signal I/O. The item renders no wrapper of its own. The host declares `display: contents`, and the anchor or the button inside is what the bar lays out.
 
 Which destination is active and how this one reports are settled with the parent it injects, so
 nothing about that is a member here.
@@ -43,12 +42,9 @@ attribute, so a reader still hears that it exists.
 - **Do** keep the label to one word where you can. The column is a fifth of a phone, and a long one
   truncates.
 - **Don't** format the badge yourself. A string would take the two rules away.
-- **Don't** write it outside an `arena-bottom-nav`. It injects the bar, so without one there is no
-  provider and Angular throws rather than rendering a destination that can never be current.
+- **Don't** write it outside an `arena-bottom-nav`. The item injects the bar. Without one there is no provider, and Angular throws rather than rendering a destination that can never be current.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px:
-- A destination with a badge of 0 shows none, one of 4821 shows `99+`, and neither widens its column.
+**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px: - A destination with a badge of 0 shows none, and one of 4821 shows `99+`. Neither widens its column.
 - Tab reaches every destination once, in source order, and the disabled one announces itself as
   disabled rather than being skipped.
 - A five-word label truncates with an ellipsis instead of pushing its neighbours out of line.

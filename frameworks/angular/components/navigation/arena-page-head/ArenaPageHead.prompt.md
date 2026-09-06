@@ -1,6 +1,5 @@
 Arena page header: the display-weight title, an optional subtitle, and the page's
-actions. It measures **itself**, not the viewport, and stacks below `--bp-sm`, a page
-head inside a narrow panel stacks there too, on any screen. Actions are projected, so the
+actions. The head measures **itself** rather than the viewport, and stacks below `--bp-sm`. A page head inside a narrow panel stacks there too, on any screen. Actions are projected, so the
 head lays out controls the consumer wrote rather than declaring a second button API of its own.
 
 ```html
@@ -29,23 +28,14 @@ head lays out controls the consumer wrote rather than declaring a second button 
 the title; below `--bp-sm` the row always stacks and `align` has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.
 
-Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaPageHead` in the
-host component's `imports`,
-`actions` is a directive, not a plain attribute, because it is how the page head
-detects that actions were projected at all. Without it the attribute is inert, the
+Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaPageHead` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. Without it the attribute is inert, the
 actions wrapper never renders, and the buttons silently disappear. `ArenaActions` is
 shared: every primitive with a plural, toolbar-shaped projected slot imports the same
 directive rather than declaring its own.
 
-The measurement helper is public too. `arenaContainerWidth()` is exported from
-`@dravensoft/arena-angular` for a consumer building their own responsive component: call it
-from an injection context (a field initializer or the constructor), render the wide layout
-while the width is still `null`, and compare against the breakpoint token rather than writing
-a media query.
+The measurement helper is public too. `arenaContainerWidth()` is exported from `@dravensoft/arena-angular` for a consumer building their own responsive component. Call it from an injection context, such as a field initializer or the constructor. Render the wide layout while the width is still `null`, and compare against the breakpoint token rather than writing a media query.
 
-`arenaContainerWidth()` measures the caller's own host by default and takes an `ElementRef` when
-the box to measure is a different one, so a component whose responsive question is about an
-inner panel does not have to make that panel a component of its own. The injection context is
+`arenaContainerWidth()` measures the caller's own host by default, and takes an `ElementRef` when the box to measure is a different one. A component whose responsive question is about an inner panel does not have to make that panel a component of its own. The injection context is
 required either way, and not because of the element: `DestroyRef` disconnects the observer and
 `afterNextRender` decides when there is a box to measure at all. For page CSS rather than a
 component, write the media query yourself against the same three thresholds Arena uses,
@@ -53,16 +43,10 @@ component, write the media query yourself against the same three thresholds Aren
 of them to import.
 
 **Do / Don't**
-- Exactly one `arena-page-head` per screen. It emits the `h1`, and a page with two
-  `h1`s has no outline. Under an `arena-hero`, which is the one rung above it on the title
-  ladder, it takes `headingLevel="h2"` and leaves the page's single `h1` to the hero: it cannot
-  see the hero, because what an Arena component renders never follows from what sits above it.
-- Keep the subtitle to one line of orientation. It is not the place for instructions.
-- Don't write a media query to stack it. It already stacks, on its own width, which is
-  the measurement that is right more often.
-- Mark **each** control with `actions`, as siblings. Arena lays them out in a wrapping
-  row, and that row wraps its own children: a single `<div actions>` holding three buttons is
-  one flex item, so it can never wrap, and three buttons overflow the page at 390px. One
+- Exactly one `arena-page-head` per screen. The head emits the `h1`, and a page with two `h1`s has no outline. Under an `arena-hero`, which is the one rung above it on the title ladder, the head takes `headingLevel="h2"` and leaves the page's single `h1` to the hero. The head cannot see the hero, because what an Arena component renders never follows from what sits above it.
+- Keep the subtitle to one line of orientation. The head is not the place for instructions.
+- Don't write a media query to stack it. The head already stacks, on its own width, which is the measurement that is right more often.
+- Mark **each** control with `actions`, as siblings. Arena lays them out in a wrapping row, and that row wraps its own children. A single `<div actions>` holding three buttons is one flex item, so it can never wrap, and three buttons overflow the page at 390px. One
   element per control is what makes the wrap reachable at all.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

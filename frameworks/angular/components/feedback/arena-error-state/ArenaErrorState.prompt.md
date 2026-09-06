@@ -38,10 +38,7 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 
 <!-- @api end -->
 
-Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState`
-in the host component's `imports`,
-`secondaryAction` is a directive, not a plain attribute, because it is how the error
-state detects that a secondary action was projected at all.
+Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState` in the host component's `imports`. `secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
 
 **Do / Don't**
 - Always pass `retryLabel` when a retry could work. An error state with no retry is a

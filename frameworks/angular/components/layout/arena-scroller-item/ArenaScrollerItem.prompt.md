@@ -19,10 +19,7 @@ decided and the point the row settles on. Standalone, `OnPush`. The host **is** 
 
 <!-- @api end -->
 
-**Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. Several Arena
-components take their host out of layout with `display: contents`, so a rule aimed at the row's
-direct children lands on an element with no box, and whether it lands at all then depends on
-which component the caller put in the row, with every gate green. The item is the box that is
+**Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. Several Arena components take their host out of layout with `display: contents`, so a rule aimed at the row's direct children lands on an element with no box. Whether it lands at all then depends on which component the caller put in the row, with every gate green. The item is the box that is
 always there, and its own host carries a real one.
 
 **The item draws nothing.** No surface, no line and no padding: a width and a snap point. Whatever is

@@ -39,7 +39,7 @@ an Enter/Space handler, and draws the surface's own hover and focus states. With
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap
 it would close.
 
-**An interactive card is a `role="button"` div and never a `<button>` element.** A card body is where a consumer puts their own controls, and a control nested inside a control is reachable by nobody.
+**An interactive card is a `role="button"` div and never a `<button>` element.** A card body is where a consumer puts their own controls. A control nested inside a control is reachable by nobody.
 
 **A press that starts on one of those controls belongs to that control.** That holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and stops there. Enter typed into a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them. That covers the `action` slot too, where a header button is the common case.
 
@@ -105,7 +105,7 @@ browser's and fire nothing, which is why the member is worth having over `intera
 nothing and the card is a plain link that navigates the document, which is the right shape
 outside a single-page application.
 
-**`(click)` on `arena-card` is two bindings wearing one name, and the card resolves it.** Angular subscribes the binding to the component's `click` output. It *also* adds a native listener for the DOM event of the same name. A click that reaches the host is counted twice. The card stops propagation on its own anchor. Stopping propagation is what makes `(click)` fire exactly once for the activation it owns, and not at all for the ones it leaves to the browser. Both halves are pinned; the
+**`(click)` on `arena-card` is two bindings wearing one name, and the card resolves it.** Angular subscribes the binding to the component's `click` output. Angular *also* adds a native listener for the DOM event of the same name. A click that reaches the host is counted twice. The card stops propagation on its own anchor. Stopping propagation is what makes `(click)` fire exactly once for the activation it owns, and not at all for the ones it leaves to the browser. Both halves are pinned; the
 consequence for you is that a click delegated from an ancestor of the card never sees an
 activation the card handled.
 

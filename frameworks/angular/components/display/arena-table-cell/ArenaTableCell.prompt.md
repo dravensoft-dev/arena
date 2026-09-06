@@ -20,7 +20,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 
 **Do / Don't**
 - Put a value in it, or one of Arena's own components: an `arena-badge` for a status, an
-  `arena-button` for an action. This is why the table is a compound primitive at all. A column's render function would be per-item projection, which this library does not do. A cell **you** instantiate is just an element you wrote.
+  `arena-button` for an action. The cell is why the table is a compound primitive at all. A column's render function would be per-item projection, which this library does not do. A cell **you** instantiate is just an element you wrote.
 - Don't set alignment, width or the mono face here. Those belong to the column, so a column stays consistent down its whole length. A cell that styled itself would drift from its header.
 - Don't add a `role` or a `tabindex`. A `<td>` inside the grid already maps to a gridcell. The roving tab stop belongs to the enclosing grid and is read from the shared state. Adding your own would put a second tab stop inside a composite that must have exactly one.
 - A control you put in a cell **is** a page-level tab stop, and that is deliberate. Arena
@@ -31,7 +31,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 
 ### `href` makes the cell a real destination, and the row keeps its own
 
-`href` draws an `<a>` around the cell's content, inside the cell box. The cell is the one place HTML admits it. An anchor around the whole row would break the row and cell structure the grid is made of, and an anchor may not contain the `arena-button` a cell's own contract invites into it.
+`href` draws an `<a>` around the cell's content, inside the cell box. The cell is the one place HTML admits it. An anchor around the whole row would break the row and cell structure the grid is made of. An anchor may not contain the `arena-button` a cell's own contract invites into it.
 
 ```html
 <td arena-table-cell [href]="'/ventas/' + v.id" (navigate)="router.navigate(['/ventas', v.id])">
@@ -39,7 +39,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 </td>
 ```
 
-The member carries the anchor convention the four members before it carry, without restating it. A **primary click with no modifier** is cancelled and reported through `(navigate)`, so your router owns it. Ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing at all, because the reader asked for a new tab or for the address.
+The member carries the anchor convention the four members before it carry, without restating it. A **primary click with no modifier** is cancelled and reported through `(navigate)`, so your router owns it. Ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing at all. The reader asked for a new tab or for the address.
 
 **Inside a row carrying `interactive`, the anchor wins and the row does not fire.** That is not a special case written for this member. The behaviour is the rule the row already applies to a checkbox or a button you put in a cell. A press landing on a control inside the row was never the row's. So a
 table can have a link in its first column and a clickable row under it, and one press runs one

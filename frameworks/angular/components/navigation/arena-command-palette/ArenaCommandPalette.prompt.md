@@ -4,9 +4,7 @@ arrow to a command, Enter to run it, Escape to leave, or hover a row to select i
 its label. `open` and `commands` are both `input.required`; the host must always bind
 both. Each command's `icon` is a Phosphor class name Arena draws, not projected content.
 The host owns `open` and the shortcut that sets it, and decides whether running a
-command also closes the palette. The search field is an ARIA 1.2 combobox
-wired to the row list as its listbox popup, so a screen reader announces which row is
-active as you arrow through it.
+command also closes the palette. The search field is an ARIA 1.2 combobox wired to the row list as its listbox popup. A screen reader announces which row is active as you arrow through it.
 
 ```html
 <arena-command-palette [open]="paletteOpen()" [commands]="commands"
@@ -37,8 +35,7 @@ active as you arrow through it.
   component does not assume it for you.
 - Don't put destructive actions in the palette without a confirmation behind them. A
   palette entry is one Enter away from running.
-- Don't make the palette the only way to reach something. It is an accelerator, not
-  navigation.
+- Don't make the palette the only way to reach something. The palette is an accelerator, not navigation.
 - Don't express a condition as an attribute string. `open` carries the
   `booleanAttribute` transform, so a bare `open` and `[open]="true"` both
   mean true, and the one literal string `"false"` means false. Every *other* string is
@@ -53,9 +50,7 @@ rather than being read twice.
 
 `route` says where running a command goes. With it the row renders an `<a href>`, so ctrl-click, middle-click and open-in-new-tab work. An accelerator over a list of destinations owes a keyboard user exactly that. The row keeps `role="option"`, because the listbox pattern requires that of every row and losing it would break the arrow walk for the whole list. A screen reader announces the row as an option rather than as a link, and that is the trade.
 
-**With `route`, the mouse and the keyboard do the same thing, and that is the point.** The
-row's plain activation reports through `(run)`, so a host that navigates in its `(run)` handler
-navigates exactly once, whichever way the reader activated the row. A modified click opens the
+**With `route`, the mouse and the keyboard do the same thing, and that is the point.** The row's plain activation reports through `(run)`. A host that navigates in its `(run)` handler navigates exactly once, whichever way the reader activated the row. A modified click opens the
 destination itself and **leaves the palette open**, because a reader who asked for a second tab
 did not ask to leave this one.
 

@@ -1,7 +1,4 @@
-One option inside an `arena-radio-group`. Standalone, `OnPush`, signal I/O. The host stays bare
-and out of layout: the root is a real `<label>` wrapping a real `<input type="radio">`, which is
-what gives the option its role, its name and its place in the group's arrow cycle without a line
-of authored ARIA.
+One option inside an `arena-radio-group`. Standalone, `OnPush`, signal I/O. The host stays bare and out of layout. The root is a real `<label>` wrapping a real `<input type="radio">`. That pairing gives the option its role, its name and its place in the group's arrow cycle, without a line of authored ARIA.
 
 ```html
 <arena-radio value="production" label="Production" hint="Serves real traffic" />
@@ -42,10 +39,7 @@ of authored ARIA.
 - To toggle one thing on and off, this is the wrong control: use `arena-switch` for an immediate
   effect and `arena-checkbox` for a pending form value.
 
-**By hand, in real Chromium**: the option's own visuals, on the group's page (`bun run demos`,
-`/frameworks/angular/components/forms/arena-radio-group/ArenaRadioGroup.demo.generated.html`):
-- Selecting changes **only** the ring's border colour and adds the dot; the ring's size and
-  surface do not move, so the row does not shift by a pixel.
+**By hand, in real Chromium**, the option's own visuals, on the group's page (`bun run demos`, `/frameworks/angular/components/forms/arena-radio-group/ArenaRadioGroup.demo.generated.html`): - Selecting changes **only** the ring's border colour and adds the dot. The ring's size and surface do not move, so the row does not shift by a pixel.
 - With a hint present, the ring stays level with the first line of the label rather than centring
   against both lines.
 - `disabled` dims the whole option, label and hint included, and the cursor is not-allowed over

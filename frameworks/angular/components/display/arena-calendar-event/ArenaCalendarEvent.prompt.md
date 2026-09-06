@@ -34,7 +34,7 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 
 **`interactive` is what makes the chip a button, not `(click)`.** The shape cannot be derived from whether anything is subscribed. Activation is a member you declare, the same one `arena-table-row` carries. **Bind `interactive` alongside `(click)`, or the chip is inert**: a `<div>` with no role, nothing to activate and nothing to disable, which is what a read-only schedule wants.
 
-**A `(click)` binding on `<arena-calendar-event>` is the DOM event, not the output.** Angular binds a native event name to the DOM even when a component declares an output of that name. A click that bubbles out of an inert chip still reaches your handler. An interactive chip stops propagation before it can; an inert one does not, because it claims nothing and the click belongs to the day underneath it. Listen for activation on a chip you have declared `interactive`.
+**A `(click)` binding on `<arena-calendar-event>` is the DOM event, not the output.** Angular binds a native event name to the DOM. The binding holds even when a component declares an output of that name. A click that bubbles out of an inert chip still reaches your handler. An interactive chip stops propagation before it can; an inert one does not, because it claims nothing and the click belongs to the day underneath it. Listen for activation on a chip you have declared `interactive`.
 
 **An interactive chip is not a page-level tab stop, and that is on purpose.** The grid is one tab stop. Enter from the hour cell an event overlaps steps into the chip, and Escape steps back out to the cell.
 

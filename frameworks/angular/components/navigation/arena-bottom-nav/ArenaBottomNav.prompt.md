@@ -27,11 +27,7 @@ between the two still works.
 
 <!-- @api end -->
 
-**It is not an `arena-side-nav` lying down.** A sidebar is a stack of indented rows with the glyph
-before the label and arbitrary nesting; this is a row of equal columns with the glyph above the label
-and no nesting at all. It is not `arena-tabs` either, which mounts every panel at once and announces
-tablist/tab/tabpanel, and not `arena-segmented-control`, which is a radio group that chooses rather
-than navigates.
+**The bar is not an `arena-side-nav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `arena-tabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it `arena-segmented-control`, which is a radio group that chooses rather than navigates.
 
 The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
@@ -52,10 +48,7 @@ share a page and each needs its own name.
   truncate before anyone has read them.
 - **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px:
-- Primary click, ctrl+click, middle click and Enter on the same destination: the first and the last
-  report once and navigate once, the other two open a tab and report nothing.
+**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px: - Try primary click, ctrl+click, middle click and Enter on the same destination. The first and the last report once and navigate once, and the other two open a tab and report nothing.
 - The active destination's glyph is filled and its label takes the primary ink; the others do not.
 - With the browser emulating a device inset, the row lifts by it and the bar grows rather than the
   labels moving under the home indicator.

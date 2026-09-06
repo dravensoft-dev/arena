@@ -59,7 +59,7 @@ aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
   `delta.tone`/`delta.direction` for that instead. Conflating the two loses the
   distinction that "Open incidents" above depends on: the value stays `danger`
   red while the chip still reads a positive green improvement.
-- Don't hand `delta` a fresh object identity to change one field without meaning to. It is a single input, so `[delta]="{ value: v, direction: 'up' }"` in a template expression rebuilds the whole object every change-detection pass. Bind from a
+- Don't hand `delta` a fresh object identity to change one field without meaning to. `delta` is a single input, so `[delta]="{ value: v, direction: 'up' }"` in a template expression rebuilds the whole object every change-detection pass. Bind from a
   component property computed once instead.
 - Don't fill the negative delta or the danger value. Both are text/outline in
   `--error`, the value slot carries no background at all, and the delta chip is

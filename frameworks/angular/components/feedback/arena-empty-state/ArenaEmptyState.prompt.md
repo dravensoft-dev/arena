@@ -31,10 +31,7 @@ Arena draws itself, not projected content.
 
 <!-- @api end -->
 
-Import `ArenaAction` from `@dravensoft/arena-angular` alongside `ArenaEmptyState` in the
-host component's `imports`,
-`action` is a directive, not a plain attribute, because it is how the empty
-state detects that an action was projected at all. `ArenaAction` is shared: every
+Import `ArenaAction` from `@dravensoft/arena-angular` alongside `ArenaEmptyState` in the host component's `imports`. `action` is a directive rather than a plain attribute, because it is how the empty state detects that an action was projected at all. `ArenaAction` is shared: every
 primitive that projects a single action through `[action]` (`ArenaEmptyState`,
 `ArenaErrorState`) imports the same directive rather than declaring its own.
 

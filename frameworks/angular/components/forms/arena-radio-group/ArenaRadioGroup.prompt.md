@@ -25,28 +25,17 @@ the accessible name and the column layout, so there is no wrapper inside it.
 
 <!-- @api end -->
 
-**The children pull; the parent does not push.** `arena-radio` injects a
-`ArenaRadioGroupState` the group provides and reads the shared name and the selected value from it,
-reporting a choice back through it. Nothing is injected into the option, which is why none of that
-coordination is a member of either contract and why an option outside a group is a DI error rather
-than a silently inert control.
+**The children pull, and the parent does not push.** `arena-radio` injects a `ArenaRadioGroupState` the group provides. The option reads the shared name and the selected value from that state, and reports a choice back through it. Nothing is injected into the option. So none of that coordination is a member of either contract, and an option outside a group is a DI error rather than a silently inert control.
 
 **Do / Don't**
 - **`ariaLabel` is required.** It names *what is being chosen*, "Deployment target", not
   "Options". Each option's own label says what that option is, never what the set is for, so a
   group without this is announced unlabelled.
-- `ariaLabel` is not `name`. `name` is the radios' shared form name and never reaches a screen
-  reader; it is generated per instance when omitted, which matters because **two groups sharing one
-  name rove as a single group**.
-- **The roving tab stop, the arrow keys and Space are the platform's, not Arena's.** The options
-  are native `<input type="radio">` sharing one `name`, and that is the entire mechanism: the
-  browser gives the group one tab stop, lands focus on the checked option, and moves selection with
-  the arrows. Arena authors **no `tabindex` anywhere**: doing so would fight it.
-- It works controlled or not. Pass `value` and it is yours; omit it and the group remembers the
+- `ariaLabel` is not `name`. `name` is the radios' shared form name and never reaches a screen reader. The name is generated per instance when omitted, which matters because **two groups sharing one name rove as a single group**.
+- **The roving tab stop, the arrow keys and Space are the platform's, not Arena's.** The options are native `<input type="radio">` sharing one `name`, and that is the entire mechanism. The browser gives the group one tab stop, lands focus on the checked option, and moves selection with the arrows. Arena authors **no `tabindex` anywhere**: doing so would fight it.
+- The group works controlled or not. Pass `value` and it is yours; omit it and the group remembers the
   last choice itself. `change` fires either way.
-- Wrapping an `arena-radio` in your own component or a `@for` block is fine, because projection reaches
-  it however deep, because the child resolves the group through DI rather than by being a direct
-  child. Nothing here inspects its own children, so nothing between them can break it.
+- Wrapping an `arena-radio` in your own component or a `@for` block is fine, because projection reaches it however deep. The child resolves the group through DI rather than by being a direct child. Nothing here inspects its own children, so nothing between them can break it.
 - Don't put a lone `arena-radio` outside a group. A single radio is a checkbox with worse
   semantics, and this one will throw for want of its provider.
 
@@ -58,9 +47,7 @@ so this is the only place it is checked at all. Run `bun run demos` and open
 - Arrow Down/Right and Up/Left move the selection and wrap at both ends.
 - The disabled option is skipped while arrowing, and cannot be reached by Tab.
 - Tab in and the focused option's **ring** takes a gold focus ring, though the focused element
-  is the `opacity-0 size-0` native input. The `ring` slot carries
-  `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling, so the
-  input must stay after the ring in the template, and moving it removes the ring silently.
+  is the `opacity-0 size-0` native input. The `ring` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
   `arena-checkbox` draws the identical ring the identical way.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

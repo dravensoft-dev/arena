@@ -39,8 +39,7 @@ what a card does when it is picked up is a question about your data rather than 
   the same width a card takes in a grid or a rail.
 - **Don't** wrap it in a scroll container of your own. The board is the scrolling region, and a
   second one around it takes the keyboard's scroll away from the one that announces itself.
-- **Don't** use it for a fixed set of panels that always fit. That is `arena-grid`, which wraps
-  rather than scrolling.
+- **Don't** use it for a fixed set of panels that always fit. The component for that is `arena-grid`, which wraps rather than scrolling.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-board/ArenaBoard.demo.generated.html`:

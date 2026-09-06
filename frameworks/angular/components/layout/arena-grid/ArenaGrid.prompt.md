@@ -25,8 +25,7 @@ element you place.
 
 **The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six filter bars written by hand end up with three different ones, and none of them matches `--bp-*`. Here the floor is `min` and it
 is clamped with `min(<min>, 100%)`, so a minimum wider than the container gives one full-width
-column rather than an overflow. **This is also the answer to a media query in a `styles:` block**,
-which cannot read a `var()` and so has to restate a threshold Arena already holds.
+column rather than an overflow. **The component is also the answer to a media query in a `styles:` block.** Such a query cannot read a `var()`. The query has to restate a threshold Arena already holds.
 
 `gap` is four named steps, `none`, `sm`, `md`, `lg`, and not a length. Rhythm is what the spacing scale is for, and a grid is where a hand-picked gap shows worst. Two grids on one page with gaps a step apart read as a mistake.
 

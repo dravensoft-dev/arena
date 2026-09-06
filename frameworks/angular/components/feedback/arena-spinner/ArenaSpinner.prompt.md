@@ -19,16 +19,14 @@ and the accessible name all sit on it, with the spinning ring a decorative `aria
 
 <!-- @api end -->
 
-It reports **no value at all**: no `aria-valuenow`, no `aria-valuemin`, no `aria-valuemax`,
-because a spinner is indeterminate by definition and ARIA expresses that by omitting the value.
+The spinner reports **no value at all**: no `aria-valuenow`, no `aria-valuemin` and no `aria-valuemax`. A spinner is indeterminate by definition, and ARIA expresses that by omitting the value.
 Reporting zero would be a determinate claim that nothing has happened.
 
 **The live region is explicit**, the same way `arena-progress-bar`'s is: `role="progressbar"`
 carries no implicit politeness, `MatProgressSpinner` set no `aria-live` at all, and that was the
 exception the delegated binding carried. This clears it.
 
-`label` defaults to `Loading`, which is a name rather than an absence, but it is a name that
-says what the component is instead of what the user is waiting for. Set it.
+`label` defaults to `Loading`, which is a name rather than an absence. The default is a name that says what the component is instead of what the user is waiting for. Set it.
 
 `tone="on-accent"` exists for a spinner sitting **on** a filled brand surface, inside a loading
 button, on a crimson banner, where the accent ink would disappear into its own background.
@@ -49,8 +47,7 @@ button, on a crimson banner, where the accent ink would disappear into its own b
 - The ring rotates continuously on `--loop-spin`, and **slows** to `--loop-reduced` under
   `prefers-reduced-motion` rather than stopping, motion reporting work in progress keeps
   reporting it.
-- The gap in the ring is the transparent top border, so the rotation is legible at every size;
-  at `sm` it must still read as a ring rather than a dot.
+- The gap in the ring is the transparent top border, so the rotation is legible at every size. At `sm` it must still read as a ring rather than a dot.
 - `on-accent` is the only tone that stays legible on a filled crimson surface, the card puts
   all four on one to show it.
 

@@ -1,5 +1,4 @@
-One column of an `arena-board`: a named head with a count and a control, the stack of whatever you
-project into it, and a footer for the one action that adds to it. Standalone, `OnPush`, signal
+One column of an `arena-board`. The column is a named head with a count and a control. Under the head sit the stack of whatever you project into it and a footer for the one action that adds to it. Standalone, `OnPush`, signal
 inputs. The host steps out of layout and the component renders the real `<section>`, so the column
 is a cell of the board's grid rather than an element between the two.
 
@@ -14,9 +13,7 @@ is a cell of the board's grid rather than an element between the two.
 ```
 
 The head's control is projected with the `action` marker and the footer's with `footer`;
-everything else you project is the stack. `count` is passed rather than counted, because Arena
-never decides what it draws from what you projected: one of those children may be a placeholder
-and none of them is Arena's to read.
+everything else you project is the stack. `count` is passed rather than counted, because Arena never decides what it draws from what you projected. One of those children may be a placeholder, and none of them is Arena's to read.
 
 <!-- @api GENERATED from contracts/api/components/ArenaBoardColumn.json. Edit the contract, not this table. -->
 
@@ -38,8 +35,7 @@ and none of them is Arena's to read.
 **Do / Don't**
 - **Do** bind the numbers, `[count]="3"` and `[colorId]="1"`, rather than writing them as bare
   attributes: both take a number and an unbound attribute hands them the string.
-- **Do** give the same entity the same `colorId` everywhere: a status that is slot 3 on the board
-  and slot 3 in the chart beside it is one thing said twice, which is what the ramp is for.
+- **Do** give the same entity the same `colorId` everywhere. A status that is slot 3 on the board and slot 3 in the chart beside it is one thing said twice, which is what the ramp is for.
 - **Do** put the add action in `footer`, not in the head. A new card lands at the bottom.
 - **Don't** count the projected children yourself. Pass `count` from the same data you looped
   over, or the number and the stack drift the first time one of them is filtered.

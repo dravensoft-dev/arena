@@ -28,17 +28,13 @@ you place. The section register is the middle rung of the title ladder, under a 
 
 <!-- @api end -->
 
-**`title` and the content slot are both required, and both are guarded at runtime.** A section is a
-heading over a group: with no heading it is a stack, which `css/rhythm.css` already ships as
-`.arena-stack`, and with no children the heading names nothing. The title guard trims first,
+**`title` and the content slot are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which `css/rhythm.css` already ships as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
 because the value it exists to catch is a present and useless one rather than an absent one.
 
 **The action slot is the `action` attribute**, projected through the marker directive every Arena
 component with a trailing slot uses. Anything else you write lands in the body.
 
-**The host is a plain section element and claims no landmark.** A section becomes a `region` in the
-accessibility tree only once it has an accessible name, and a page where every section announced
-itself would bury the two or three landmarks that matter. The heading is the structure a reader
+**The host is a plain section element and claims no landmark.** A section becomes a `region` in the accessibility tree only once it has an accessible name. A page where every section announced itself would bury the two or three landmarks that matter. The heading is the structure a reader
 navigates by, and it is the platform's own.
 
 **A section nests, and `headingLevel` is how.** The default is `h2`, which is the section rung of
@@ -64,8 +60,7 @@ scale carries, plus `none`. The padding is not the air between one section and t
 - The action sits on the title's own baseline, and drops under it rather than squeezing when the
   head runs out of room.
 - The four rhythm steps are visibly four distances between the head and the body.
-- With a screen reader running, the heading is announced as a level two, a section set to `h3`
-  announces as a level three, and the section announces no landmark of its own at either.
+- With a screen reader running, the heading is announced as a level two, and a section set to `h3` announces as a level three. The section announces no landmark of its own at either.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

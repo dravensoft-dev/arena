@@ -32,9 +32,7 @@ uppercase mono action; `dismissible` adds the single `ph-x` close control.
 <!-- @api end -->
 
 **Do / Don't**
-- Use `tone="danger"` only for a condition the user must act on. It renders
-  `role="alert"`, which interrupts a screen reader; every other tone renders
-  `role="status"`, which does not.
+- Use `tone="danger"` only for a condition the user must act on. The danger tone renders `role="alert"`, which interrupts a screen reader. Every other tone renders `role="status"`, which does not.
 - Don't use an alert for something transient: that is `MatSnackBar` wearing Arena.
 - Don't stack more than one alert in the same region. Two competing alerts read as
   one broken page; summarise instead.

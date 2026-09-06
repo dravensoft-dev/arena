@@ -1,8 +1,4 @@
-Arena bulk actions bar. It renders only when `count` is above zero, states the size of
-the selection in mono, and offers actions that operate on the set. A destructive
-action stays outline in `--error` -- transparent at rest, the soft `--danger-soft`
-tint only on hover -- like every risk trigger but one; the filled danger surface stays
-`arena-confirm-dialog`'s alone. `count` and `actions` are required. Import `ArenaBulkAction`
+Arena bulk actions bar. The bar renders only when `count` is above zero. The bar states the size of the selection in mono, and offers actions that operate on the set. A destructive action stays outline in `--error`, transparent at rest, with the soft `--danger-soft` tint only on hover. Every risk trigger takes that treatment but one, since the filled danger surface stays `arena-confirm-dialog`'s alone. `count` and `actions` are required. Import `ArenaBulkAction`
 from `@dravensoft/arena-angular` for the `actions` input's element type.
 
 ```html
@@ -49,8 +45,7 @@ control order is identical in the two shapes.
   will act on by accident.
 - Put the destructive action last, and confirm it with `arena-confirm-dialog` -- the bar
   starts the action, it does not finish it.
-- Don't hide the bar behind a menu. Its whole job is to be visible the moment a
-  selection exists.
+- Don't hide the bar behind a menu. The bar's whole job is to be visible the moment a selection exists.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

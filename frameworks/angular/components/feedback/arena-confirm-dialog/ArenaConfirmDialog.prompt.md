@@ -1,6 +1,4 @@
-Arena confirmation for a high-consequence action. It does not close on click-outside,
-losing a half-finished decision to a stray click is the failure this component exists
-to prevent. `requireText` makes the user type a word before the confirm button
+Arena confirmation for a high-consequence action. The dialog does not close on click-outside. Losing a half-finished decision to a stray click is the failure this component exists to prevent. `requireText` makes the user type a word before the confirm button
 enables. `destructive` turns the eyebrow red and gives the confirm button Arena's
 **only filled danger surface**.
 
@@ -44,17 +42,13 @@ close, and Tab wraps at the panel's edges.
   confirmation, it is a speed bump.
 - **Bind `title`, never write it as a static attribute.** `title="Delete project X"`
   compiles and does set the input, and it also lands on the host as the native HTML
-  `title` attribute. The host here is the fixed full-viewport scrim, and a native
-  `title` on it would be a tooltip target the size of the page, which is why this host
-  clears the attribute (`'[attr.title]': 'null'`). The layer holds that rule in both
+  `title` attribute. The host here is the fixed full-viewport scrim. A native `title` on it would be a tooltip target the size of the page, which is why this host clears the attribute (`'[attr.title]': 'null'`). The layer holds that rule in both
   directions: a primitive taking the input and not clearing it fails, and so does one
   clearing an attribute it takes no input for. `[title]="'Delete project X'"` or
   `[title]="projectName()"` sets the input alone, and it is the spelling that says so.
 - Use `requireText` when the action is genuinely irreversible, and use the name of the
   thing being destroyed as the word.
-- **Don't hold one in the template with an empty `title` while it is closed.** Both are
-  required inputs whatever the other is, so a screen that keeps one confirmation and feeds it a
-  subject per row fails on the first render: put it behind an `@if` on the subject instead. Keep
+- **Don't hold one in the template with an empty `title` while it is closed.** Both are required inputs whatever the other is. A screen that keeps one confirmation and feeds it a subject per row fails on the first render, so put it behind an `@if` on the subject instead. Keep
   the subject through a cancel and toggle only `open`, or focus never returns to the control
   that opened it.
 - Don't reach for `destructive` on a merely inconvenient action. The filled red is the

@@ -22,11 +22,7 @@ Dravensoft's by accident.
 
 <!-- @api end -->
 
-`size` picks both halves at once, the mark's slot and the wordmark's size. It is a
-fixed repertoire, not a ratio: `sm` (30/17) sits beside a product name in an
-application frame, `md` (40/24) heads a signed-out panel, `lg` (54/34) is the brand
-manual's Primary · horizontal, and `xl` (124/78) is the hero case, where the lock-up
-is the only thing on the screen. All eight numbers are `--logo-*` tokens.
+`size` picks both halves at once, the mark's slot and the wordmark's size. The scale is a fixed repertoire rather than a ratio. `sm` (30/17) sits beside a product name in an application frame, and `md` (40/24) heads a signed-out panel. `lg` (54/34) is the brand manual's Primary horizontal, and `xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.
 
 The manual's three variants are expressible without a `variant` prop, because they
 are two decisions and not three:
@@ -48,9 +44,7 @@ are two decisions and not three:
 - **Don't** look for a component that renders the mark on its own. Arena ships none:
   the mark is a brand asset (`assets/rotor-*.svg`), and the lock-up is this component,
   which takes that asset as `mark` alongside a product `name`.
-- **Don't** mix the variants. A crimson mark beside an undivided `Dravensoft` is half
-  of Primary and half of Monochrome, no variant at all, and precisely the defect that
-  existed in the console before this component held the rule.
+- **Don't** mix the variants. A crimson mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. It is precisely the defect that existed in the console before this component held the rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

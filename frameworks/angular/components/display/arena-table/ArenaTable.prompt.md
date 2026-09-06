@@ -65,7 +65,7 @@ The grid is **not assumed rectangular**. A row may carry fewer or more cells tha
 columns, and the cursor is clamped against the row it is actually in.
 
 Card mode answers none of this, and it does not have to: a card is a list item, and a list is
-traversed with Tab. A card row carrying `interactive` is a `role="button"` tab stop of its own with an Enter and Space handler. That is `ArenaTableRow`'s `card-interactive` case rather than a clause of this component's binding. A card row without it is inert, because a dead tab stop on
+traversed with Tab. A card row carrying `interactive` is a `role="button"` tab stop of its own with an Enter and Space handler. The tab stop is `ArenaTableRow`'s `card-interactive` case rather than a clause of this component's binding. A card row without it is inert, because a dead tab stop on
 every row of every table is worse than the gap it would close. The shape follows the member and
 never whether anything is listening, which is why `interactive` exists at all.
 
@@ -74,17 +74,17 @@ never whether anything is listening, which is why `interactive` exists at all.
 The rows are **authored** by the consumer, as `<tr arena-table-row>`, and the width that decides the
 shape is measured at runtime. So the elements cannot change with the shape. A `<tr>` that is not a DOM child of a table is dropped outright by the HTML parser, which is what a server render and its re-parse put it through. A shape that appears and disappears under the rows is therefore not available here. The single shape that survives both widths is a real `<table>` always, restyled by CSS into cards below `--bp-md`.
 
-That also settles a second constraint that used to point the other way. Angular indexes projection slots in template order and hands the content to the **first** matching one, so a `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
+That also settles a second constraint that used to point the other way. Angular indexes projection slots in template order and hands the content to the **first** matching one. A `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
 and one `<ng-content>`, and nothing to choose between.
 
 `role="grid"` is still written, because APG's grid is not the `table` a `<table>` maps to and the
-roving tab stop is the difference. Nothing under it is. A `<tr>` is a row, a `<th scope="col">` is a columnheader and a `<td>` inside the grid is a gridcell, so none of the three is written back onto the element that already means it. Below `--bp-md` the whole table declares `role="presentation"` and drops its `aria-label`, which is what takes those mappings back off it. A name would make the element ineligible for the role and bring the table back in the reader's ear while the screen shows a stack of cards.
+roving tab stop is the difference. Nothing under it is. A `<tr>` is a row, a `<th scope="col">` is a columnheader and a `<td>` inside the grid is a gridcell. None of the three is written back onto the element that already means it. Below `--bp-md` the whole table declares `role="presentation"` and drops its `aria-label`, which is what takes those mappings back off it. A name would make the element ineligible for the role and bring the table back in the reader's ear while the screen shows a stack of cards.
 
 The empty state is still a block **beside** the table rather than a cell spanning it, and the table
 left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 were checked in real Chromium. One Tab in, the gold inset ring on the focused cell, the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
+`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 were checked in real Chromium. One Tab in, then the gold inset ring on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
 it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
@@ -114,7 +114,7 @@ many columns declare it, because a control drawing a direction it does not know 
 no control. Activating the sorted column flips it; activating a different one starts it
 ascending. Sorting costs **no tab stop**. The header row is already row 0 of the grid's roving cursor, so Enter and Space act on the cell the reader is already on. `aria-sort` says which column and which way.
 
-**Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort` bound and at least one `sortable` column, card mode draws one compact select above the cards, listing every sortable column in each direction. It reports through the same `sortChange` the header does. Set it to `none` for a table whose order is the document's rather than the
+**Below `--bp-md` the header row is gone, so `sortControl` is the affordance.** With `sort` bound and at least one `sortable` column, card mode draws one compact select above the cards. The select lists every sortable column in each direction. The select reports through the same `sortChange` the header does. Set it to `none` for a table whose order is the document's rather than the
 reader's. The header row does **not** come back below the breakpoint: card mode exists for the
 one reason a grid does not fit.
 
@@ -134,7 +134,7 @@ Bind `slice` when the projection is not a page, which is what a scroller renders
 </arena-table>
 ```
 
-`offset` counts from 0, and it is the number of rows before the first one you projected. The header row takes index 1 and `arena-table` does that arithmetic, so an offset that already counted from 1 tells the reader they are one row further on than they are. `total: -1` is the answer for a list whose
+`offset` counts from 0, and it is the number of rows before the first one you projected. The header row takes index 1 and `arena-table` does that arithmetic. An offset that already counted from 1 tells the reader they are one row further on than they are. `total: -1` is the answer for a list whose
 length nobody knows yet, and it reaches the attribute unchanged. Bound beside `page`, `slice` is
 what answers, because one position with two sources is a position two things can disagree about.
 

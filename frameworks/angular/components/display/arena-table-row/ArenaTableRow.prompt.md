@@ -1,4 +1,4 @@
-One row of an `arena-table`. The row is an **attribute on a real `<tr>`**, not an element of its own, and its cells are attributes on real `<td>`s. Write one per row. The row only makes sense inside a table. It injects the shared `ArenaTableState`, and outside one that is a DI error rather than a silently inert row.
+One row of an `arena-table`. The row is an **attribute on a real `<tr>`**, not an element of its own, and its cells are attributes on real `<td>`s. Write one per row. The row only makes sense inside a table. The row injects the shared `ArenaTableState`. Outside a table that is a DI error, rather than a silently inert row.
 
 ```html
 <tr arena-table-row interactive (click)="openDeploy(d)">
@@ -51,7 +51,7 @@ you write IS the row. An `<arena-table-row>` wrapping a `<tr>` does not work, an
 
 An Angular output named after a native DOM event collides with a host listener for that event, and the collision was measured here rather than guessed. With `'(click)'` in the `host` block, the listener is wired to this component's own `click` **output**, so `emit()` re-enters the handler. The
 listener is therefore added to the host element directly, in the constructor, which also puts it
-**before** the one Angular adds for the consumer's own `(click)`. That order is what makes `stopImmediatePropagation()` work. It stops a native click on a cell being delivered a second time alongside the output, and it keeps a press that started on a control inside the row from reaching the row at all. One is the only passing number and two is the defect, and the count is
+**before** the one Angular adds for the consumer's own `(click)`. That order is what makes `stopImmediatePropagation()` work. The order stops a native click on a cell being delivered a second time alongside the output. The order also keeps a press that started on a control inside the row from reaching the row at all. One is the only passing number and two is the defect, and the count is
 asserted so it cannot drift back.
 
 ### Card mode is a button when the row says so, and presentational when it does not
@@ -59,7 +59,7 @@ asserted so it cannot drift back.
 Below `--bp-md` the row is still a `<tr>`, and CSS restyles it into a card. One set of elements is authored, and the width that decides the shape changes at runtime, so the markup cannot change with it. `interactive` decides what that card is. With it, the card is a `role="button"` tab stop with an Enter and Space handler, which is the binding's `card-interactive` case. Without it, the card takes `role="presentation"` and no tab stop, which is `card-inert`. The presentation role is a removal rather than an affordance: it
 takes back the row mapping the element carries natively, so nothing describes a stack of cards as a
 table. The shape follows the member and never whether anything is listening, which no render may follow from and
-which `OutputEmitterRef.listeners` could not answer here anyway. That is the whole reason `interactive` is a member rather than an inference. Making every card row a button would put a dead tab stop on every row of every table that is not clickable. Deriving it from a bound `(click)` would make the row's shape depend on a subscriber list the platform keeps private.
+which `OutputEmitterRef.listeners` could not answer here anyway. The two costs are the whole reason `interactive` is a member rather than an inference. Making every card row a button would put a dead tab stop on every row of every table that is not clickable. Deriving it from a bound `(click)` would make the row's shape depend on a subscriber list the platform keeps private.
 `arena-calendar-event` answers the same question the other way, which is the useful contrast. A chip is `tabindex="-1"` and never a page tab stop, so always-a-button costs no dead stop there, where always-a-div would delete Enter-into-the-chip.
 
 ### What is shared, and therefore not yours

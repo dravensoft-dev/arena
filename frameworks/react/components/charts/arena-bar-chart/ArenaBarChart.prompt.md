@@ -42,7 +42,7 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 - Give `label` and give every series its own `label`. The two are different names. `label` is the chart's, and it becomes the accessible name and the table caption. A series' `label` heads that series' column in the same table.
 - Default to one identity color for the series. Per-bar `slots` is for when each bar is genuinely a different thing, not for decoration.
 - Assign slots in order (1, 2, 3) and let a ninth category fold into "Other". The ramp is eight slots and is never cycled.
-- Reach for `tone` only when the series *is* a state: failed builds, error rate. That is what makes red mean red. It goes on the series, because it is that series that is a state.
+- Reach for `tone` only when the series *is* a state: failed builds, error rate. One meaning per colour is what makes red mean red. The tone goes on the series, because the series is what is in a state.
 - Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
