@@ -1,6 +1,6 @@
 {
   "component": "ArenaSideNavSection",
-  "description": "A named group of navigation items inside an ArenaSideNav. It wraps what the consumer wrote and never replaces it; its accessible name is the same heading a sighted user reads. A section always has children -- a childless one is guarded against at runtime, because two shapes would be one more thing a single behaviour binding cannot describe. Having sections at all is optional: loose SideNavItems at the root are legal and may sit beside them.",
+  "description": "A named group of navigation items inside an ArenaSideNav. The section wraps what the consumer wrote and never replaces it, and its accessible name is the same heading a sighted user reads. A section always has children. A childless one is guarded against at runtime, because two shapes would be one more thing a single behaviour binding cannot describe. Having sections at all is optional: loose SideNavItems at the root are legal and may sit beside them.",
   "affordances": [],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,

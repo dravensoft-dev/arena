@@ -1,6 +1,6 @@
 {
   "component": "ArenaTableCell",
-  "description": "One cell of an ArenaTableRow. It draws the cell box (the padding, the alignment and the mono/gold treatment its column asks for, and in card mode the label/value pair or the full-width block), and shows whatever the consumer put in it. Its column config, its layout and its place in the grid's keyboard order come from ArenaTable and ArenaTableRow and are members of no contract.",
+  "description": "One cell of an ArenaTableRow. The cell draws the cell box, which is the padding, the alignment and the mono or gold treatment its column asks for. In card mode the cell draws the label and value pair or the full-width block instead. The cell shows whatever the consumer put in it. The cell's column config, its layout and its place in the grid's keyboard order come from ArenaTable and ArenaTableRow, and are members of no contract.",
   "affordances": ["focus"],
   "api": {
     "content": { "form": "slot",

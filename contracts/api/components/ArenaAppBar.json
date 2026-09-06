@@ -1,6 +1,6 @@
 {
   "component": "ArenaAppBar",
-  "description": "The band across the top of every screen: the site's identity, the way through it, and the controls that follow the reader everywhere. It is the banner landmark, so there is one per page, and its contents line up with the page under it because the bar spans the viewport and the band inside it does not.",
+  "description": "The band across the top of every screen: the site's identity, the way through it, and the controls that follow the reader everywhere. ArenaAppBar is the banner landmark, so a page carries one. The bar's contents line up with the page under it, because the bar spans the viewport and the band inside it does not.",
   "affordances": [],
   "api": {
     "brand": { "form": "slot",

@@ -9,9 +9,9 @@ components are named here rather than described so that finding yours costs one 
 a guess.
 
 **Read [`../../skills/design/SKILL.md`](../../skills/design/SKILL.md) before you write anything
-from here.** It carries the one thing no page below it does: the rules of the language, which hold
-in your code because you hold them and which no gate reads your application to enforce. A screen
-built from this tree alone breaks them where nothing will report it.
+from here.** That page carries the one thing no page below it does, which is the rules of the
+language. The router marks which of them `arena-to-prod --audit` reads your own sources for.
+A screen built from this tree alone breaks the rest where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
   [`PACKAGE.md`](./PACKAGE.md).

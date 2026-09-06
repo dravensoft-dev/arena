@@ -1,6 +1,6 @@
 {
   "component": "ArenaBottomNavItem",
-  "description": "One destination in an ArenaBottomNav. The consumer writes one per destination; which id is currently active and how it reports `nav` are settled between it and its parent, and none of that is a member of this contract, the same shape and the same reason as ArenaSideNavItem and as the name an ArenaRadioGroup settles with each ArenaRadio. It draws its glyph above its label and takes an equal share of the bar's width, however many destinations there are.",
+  "description": "One destination in an ArenaBottomNav. The consumer writes one per destination. Which id is currently active and how the item reports `nav` are settled between it and its parent, and neither is a member of this contract. The shape and the reason are ArenaSideNavItem's, and the name an ArenaRadioGroup settles with each ArenaRadio is the same arrangement again. The item draws its glyph above its label and takes an equal share of the bar's width, however many destinations there are.",
   "affordances": ["hover", "focus"],
   "api": {
     "id": { "form": "primitive", "type": "string", "required": true,

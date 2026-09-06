@@ -1,6 +1,6 @@
 {
   "component": "ArenaBoard",
-  "description": "The frame of a board: columns side by side, as wide as the room allows and never narrower than one column's minimum, scrolling sideways when they no longer fit. It is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all. It draws no card and moves nothing: what a column holds is the consumer's, and reordering is theirs too.",
+  "description": "The frame of a board: columns side by side, as wide as the room allows and never narrower than one column's minimum, scrolling sideways when they no longer fit. The frame is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all. ArenaBoard draws no card and moves nothing. What a column holds is the consumer's, and reordering is theirs too.",
   "affordances": ["focus"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,

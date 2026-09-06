@@ -1,6 +1,6 @@
 {
   "component": "ArenaUnauthCard",
-  "description": "The panel a signed-out screen needs: sign in, check your inbox, this link expired, a two-factor code. It knows nothing about credentials on purpose; the fields are composed inside it.",
+  "description": "The panel a signed-out screen needs: sign in, check your inbox, this link expired, a two-factor code. The card knows nothing about credentials on purpose, and the fields are composed inside it.",
   "affordances": [],
   "api": {
     "brand": { "form": "slot",

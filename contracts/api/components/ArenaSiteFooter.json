@@ -1,6 +1,6 @@
 {
   "component": "ArenaSiteFooter",
-  "description": "The band across the bottom of every screen: what a page says about itself once it has finished. It is the contentinfo landmark, so there is one per page, and like the bar at the top its contents line up with the page above them.",
+  "description": "The band across the bottom of every screen: what a page says about itself once it has finished. ArenaSiteFooter is the contentinfo landmark, so a page carries one. Like the bar at the top, its contents line up with the page above them.",
   "affordances": [],
   "api": {
     "content": { "form": "slot",

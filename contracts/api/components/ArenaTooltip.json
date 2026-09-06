@@ -1,6 +1,6 @@
 {
   "component": "ArenaTooltip",
-  "description": "A short label revealed on pointer intent. Bone over dark for contrast. It waits before appearing and before withdrawing, so a pointer crossing a toolbar reveals nothing.",
+  "description": "A short label revealed on pointer intent. Bone over dark for contrast. The tooltip waits before appearing and before withdrawing, so a pointer crossing a toolbar reveals nothing.",
   "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,

@@ -1,6 +1,6 @@
 {
   "component": "ArenaBottomNav",
-  "description": "The bar of destinations pinned to the bottom edge of a phone screen. A compound component: the consumer writes one ArenaBottomNavItem per destination, and the coordination that tells each child which id is active and how to report `nav` is the parent's. That coordination is a member of no contract and each layer wires it in its own idiom. It is a row of equal columns with the glyph above the label, which is what separates it from a sidebar's stack of indented rows.",
+  "description": "The bar of destinations pinned to the bottom edge of a phone screen. A compound component: the consumer writes one ArenaBottomNavItem per destination. The coordination that tells each child which id is active and how to report `nav` is the parent's. That coordination is a member of no contract, and each layer wires it in its own idiom. The bar is a row of equal columns with the glyph above the label, which is what separates it from a sidebar's stack of indented rows.",
   "affordances": [],
   "api": {
     "active": { "form": "primitive", "type": "string",

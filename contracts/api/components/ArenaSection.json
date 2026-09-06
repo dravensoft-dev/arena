@@ -1,6 +1,6 @@
 {
   "component": "ArenaSection",
-  "description": "A named region of a page: a heading, optionally an eyebrow above it, a line under it and an action beside it, over whatever the region holds. It wraps what the consumer wrote and never replaces it. The title register is the section one, a step above a card's and a step below a page's, so a style plugin re-pitching the hierarchy moves this with the other two rather than leaving a page with three heads that disagree.",
+  "description": "A named region of a page: a heading, optionally an eyebrow above it, a line under it and an action beside it, over whatever the region holds. The section wraps what the consumer wrote and never replaces it. The title register is the section one, a step above a card's and a step below a page's. A style plugin re-pitching the hierarchy moves this with the other two, rather than leaving a page with three heads that disagree.",
   "affordances": [],
   "api": {
     "title": { "form": "primitive", "type": "string", "required": true,

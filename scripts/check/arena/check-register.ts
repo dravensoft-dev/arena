@@ -49,14 +49,6 @@ export const NOT_YET_REWRITTEN = new Map<string, string>([
   ['frameworks/*/PACKAGE.md',
    'the two npm pages, whose shared half is emitted from generate-npm-pages.ts and whose other '
    + 'half is written per layer, so the register moves in both halves at once'],
-  ['frameworks/INDEX.md',
-   'the layer-neutral catalogue, emitted whole from generate-skills.ts, so its register is '
-   + 'rewritten in that script and never in the file'],
-  ['frameworks/*/INDEX.md',
-   'the two layer indexes, emitted from the same script and rewritten with the catalogue above'],
-  ['frameworks/*/components/*/INDEX.md',
-   'the category indexes, emitted from the same script from one header per category, so all of '
-   + 'them move when that header does'],
   ['frameworks/*/components/**/*.prompt.md',
    'the authored half of every component prompt, which is the opening line, the examples and the '
    + 'Do and Don\'t. It is rewritten one component at a time, and the generated halves of the '

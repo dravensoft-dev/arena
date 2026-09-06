@@ -95,9 +95,8 @@ import { ArenaButton, ArenaTag } from '${PACKAGES.angular}';
 
 Every component is standalone: put its class in the host component's \`imports\`, then write its
 \`arena-\` element. A member is a signal input, an event is an output under the name the contract
-gives it, and the main slot is content projection. A named slot is a marker directive, which goes
-in \`imports\` as well, because a component cannot tell an un-imported marker from an unfilled
-slot. An icon is a Phosphor class-name string, never an element.`,
+gives it, and the main slot is content projection. A named slot is a marker directive, and it goes
+in \`imports\` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, never an element.`,
 };
 
 const INDEX_HEADER = `${GENERATED}
@@ -105,14 +104,14 @@ const INDEX_HEADER = `${GENERATED}
 # Arena components
 
 Every component Arena ships, by the category it is filed under. **This page answers one question:
-whether a component exists at all, and which layers ship it.** It is not a stop on the way to
-writing one: what a member is called where you are building, and how to write it, is your own
-layer's index and then the component's own prompt, and reading this page first buys nothing when
-you already know what you are reaching for.
+whether a component exists at all, and which layers ship it.** This page is not a stop on the way
+to writing one. What a member is called where you are building, and how to write it, is your own
+layer's index and then the component's own prompt. Reading this page first buys nothing when you
+already know what you are reaching for.
 
 **The rules of the language every component below answers to are stated in
 [\`../skills/design/SKILL.md\`](../skills/design/SKILL.md) before any component on this page.**
-Nothing here restates them, so a screen built from this page alone breaks the rules where nothing
+Nothing here restates them. A screen built from this page alone breaks the rules where nothing
 will report it.
 
 | Layer | Index | Package |
@@ -140,9 +139,9 @@ components are named here rather than described so that finding yours costs one 
 a guess.
 
 **Read [\`../../skills/design/SKILL.md\`](../../skills/design/SKILL.md) before you write anything
-from here.** It carries the one thing no page below it does: the rules of the language, which hold
-in your code because you hold them and which no gate reads your application to enforce. A screen
-built from this tree alone breaks them where nothing will report it.
+from here.** That page carries the one thing no page below it does, which is the rules of the
+language. The router marks which of them \`arena-to-prod --audit\` reads your own sources for.
+A screen built from this tree alone breaks the rest where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
   [\`PACKAGE.md\`](./PACKAGE.md).

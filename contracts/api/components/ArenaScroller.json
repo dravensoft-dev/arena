@@ -1,6 +1,6 @@
 {
   "component": "ArenaScroller",
-  "description": "A row that scrolls sideways because it holds more than fits, with no arrows pretending to be a slideshow. It is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all: without it, everything past the right edge belongs to the pointer alone. Each child is laid out at one width so the row reads as a rail rather than as a line of whatever the children happened to measure.",
+  "description": "A row that scrolls sideways because it holds more than fits, with no arrows pretending to be a slideshow. The row is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all. Without that, everything past the right edge belongs to the pointer alone. Each child is laid out at one width, so the row reads as a rail rather than as a line of whatever the children happened to measure.",
   "affordances": ["focus"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,

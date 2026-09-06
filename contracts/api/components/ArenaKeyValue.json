@@ -1,6 +1,6 @@
 {
   "component": "ArenaKeyValue",
-  "description": "A list of terms and the values against them, with an optional summed row ruled off at the bottom: a basket summary, an order, an invoice, a panel of facts about a resource. It renders a real definition list, so the association between a term and its value is the platform's rather than a class name's.",
+  "description": "A list of terms and the values against them, with an optional summed row ruled off at the bottom. The list suits a basket summary, an order, an invoice, or a panel of facts about a resource. The component renders a real definition list, so the association between a term and its value is the platform's rather than a class name's.",
   "affordances": [],
   "api": {
     "rows": { "form": "array", "of": "ArenaKeyValueRow", "required": true,

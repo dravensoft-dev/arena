@@ -1,6 +1,6 @@
 {
   "component": "ArenaPersonRow",
-  "description": "One person in an ArenaPeopleList: a face, a name, an optional line under it, an optional position in front and an optional figure behind. Its size comes from the list rather than from here.",
+  "description": "One person in an ArenaPeopleList. The row is a face, a name, an optional line under it, an optional position in front and an optional figure behind. The row's size comes from the list rather than from here.",
   "affordances": [],
   "api": {
     "name": { "form": "primitive", "type": "string", "required": true,

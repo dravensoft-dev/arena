@@ -138,7 +138,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 32_700,
+    budget: 32_800,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately NOT a stop: it answers whether a component exists at '
@@ -189,7 +189,7 @@ export const ROUTES: Route[] = [
       + 'and aria-rowindex to exactly that condition, and a consumer nobody tells carries the '
       + 'defect into every table they build. The arithmetic is the half that cannot live in a '
       + 'member description: the header row takes index 1, so an offset counted from 1 is off '
-      + 'by one in a way no gate of ours and no gate of theirs reports.',
+      + 'by one in a way no gate of ours and no gate of theirs reports. Raised again to 32,800 when the component descriptions were rewritten into the register check:register holds. A description is emitted into the layer-neutral index, into the category index this route charges, and into the type declarations both packages ship, so it is consumer prose that happens to live in a contract. The navigation category is where the raise lands, because the components whose descriptions carried the most subordination are its own: a nav item, a collapsible and a bottom-nav item each said what the parent settles, why it is not a member, and which other component has the same arrangement, in one sentence. Fifty-six findings over thirty descriptions before, and none after, for twenty-three characters on the charged stop.',
   },
   {
     name: 'consumer-install',

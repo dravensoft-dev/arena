@@ -1,6 +1,6 @@
 {
   "component": "ArenaBoardColumn",
-  "description": "One column of an ArenaBoard: a named head with a count and a control, a stack of whatever the consumer puts in it, and a footer for the one action that adds to it. The cards are the consumer's own, because a card on a board carries that product's fields and nothing general is left once they are removed.",
+  "description": "One column of an ArenaBoard. The column is a named head with a count and a control. Under the head sits a stack of whatever the consumer puts in it, and a footer for the one action that adds to it. The cards are the consumer's own, because a card on a board carries that product's fields and nothing general is left once they are removed.",
   "affordances": [],
   "api": {
     "title": { "form": "primitive", "type": "string", "required": true,
