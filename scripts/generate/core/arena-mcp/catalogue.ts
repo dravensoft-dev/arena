@@ -119,16 +119,29 @@ export function textOf(payload: string, entry: Entry, byRel: Map<string, string>
 }
 
 export const WORD = /[a-z0-9]+/g;
+export const CAMEL = /([a-z0-9])([A-Z])/g;
+
+export const IN_NAME = 8;
+export const IN_TITLE = 4;
+export const IN_OPENING = 1;
 
 export function words(text: string) {
-  return new Set((text.toLowerCase().match(WORD) ?? []));
+  return new Set((text.replace(CAMEL, '$1 $2').toLowerCase().match(WORD) ?? []));
 }
 
 export function score(entry: Entry, wanted: Set<string>, summary: string) {
-  const haystack = words(`${nameOf(entry.rel)} ${entry.title} ${summary}`);
+  const name = words(nameOf(entry.rel));
+  const title = words(entry.title);
+  const opening = words(summary);
   let hits = 0;
-  for (const one of wanted) if (haystack.has(one)) hits += 1;
-  return hits;
+  let rank = 0;
+  for (const one of wanted) {
+    const weight = name.has(one) ? IN_NAME : title.has(one) ? IN_TITLE : opening.has(one) ? IN_OPENING : 0;
+    if (weight === 0) continue;
+    hits += 1;
+    rank += weight;
+  }
+  return { hits, rank };
 }
 
 export function search(payload: string, found: Entry[], query: string, limit = 8) {
@@ -139,9 +152,9 @@ export function search(payload: string, found: Entry[], query: string, limit = 8
     .map((entry) => {
       const text = textOf(payload, entry, byRel) ?? '';
       const summary = text.slice(0, 400);
-      return { entry, hits: score(entry, wanted, summary) };
+      return { entry, ...score(entry, wanted, summary) };
     })
     .filter((one) => one.hits > 0)
-    .sort((a, b) => b.hits - a.hits || byCodeUnit(a.entry.uri, b.entry.uri))
+    .sort((a, b) => b.rank - a.rank || byCodeUnit(a.entry.uri, b.entry.uri))
     .slice(0, limit);
 }

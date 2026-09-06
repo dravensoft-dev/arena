@@ -130,6 +130,33 @@ test('search ranks by how many words of the question a document answers', () => 
   rmSync(dir, { recursive: true });
 });
 
+test('a document named for the word outranks one that merely mentions it', () => {
+  const dir = payload({
+    'frameworks/react/components/forms/INDEX.md': '# Forms\n\nevery form component on a page\n',
+    'frameworks/react/components/forms/arena-input/ArenaInput.prompt.md': 'A field on a page\n',
+  });
+  const found = search(dir, entries(dir, MANIFEST), 'page');
+  assert.equal(found[0]?.entry.uri, `${SCHEME}://reference/page`);
+  rmSync(dir, { recursive: true });
+});
+
+test('a name answers for its parts, so a component is found by the word it is named after', () => {
+  const dir = payload({
+    'frameworks/react/components/display/INDEX.md': '# Display\n',
+    'frameworks/react/components/display/arena-badge/ArenaBadge.prompt.md': 'A small count beside a label\n',
+  });
+  const found = search(dir, entries(dir, MANIFEST), 'badge');
+  assert.equal(found[0]?.entry.uri, `${SCHEME}://component/ArenaBadge`);
+  rmSync(dir, { recursive: true });
+});
+
+test('the number a search reports is the words answered and not what they weighed', () => {
+  const dir = payload();
+  const found = search(dir, entries(dir, MANIFEST), 'page');
+  assert.equal(found.find((one) => one.entry.uri === `${SCHEME}://reference/page`)?.hits, 1);
+  rmSync(dir, { recursive: true });
+});
+
 test('a question with no words finds nothing rather than everything', () => {
   const dir = payload();
   assert.deepEqual(search(dir, entries(dir, MANIFEST), '   ...   '), []);
