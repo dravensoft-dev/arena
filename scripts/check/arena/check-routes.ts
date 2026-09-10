@@ -15,6 +15,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { resolveSpecs } from '../../graph/pathspecs.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const BUDGET_SLACK = 0.85;
 
@@ -420,7 +421,7 @@ export const node = {
   feeds: [],
 };
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', 'dist', 'build', 'vendor']);
+export const SKIPPED_ANYWHERE = withForeignTrees('dist', 'build', 'vendor');
 
 export function skips(name: string) {
   return SKIPPED_ANYWHERE.has(name);

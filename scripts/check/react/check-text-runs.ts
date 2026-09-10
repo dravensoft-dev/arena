@@ -14,6 +14,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 
 export const COMPONENT_ROOT = 'frameworks/react/components';
 
@@ -31,7 +32,7 @@ export const node = {
 export const SPLIT_RUN = new Map<string, string>([]);
 
 export function sourceFiles(root: string) {
-  return walkFiles(root, { skip: (name) => name === 'dist' || name === 'node_modules' })
+  return walkFiles(root, { skip: (name) => name === 'dist' || isForeignTree(name) })
     .filter((path) => path.endsWith('.tsx'))
     .filter((path) => !path.includes('.test.') && !path.includes('.generated.'));
 }

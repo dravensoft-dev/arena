@@ -79,6 +79,11 @@ stdin or are imported.
 silently, because the wrong path still exists. That module is
 the one place that counts, which is why moving *it* is the one move needing care.
 
+**Never spell what a walk skips because it is not this repository.** Compose
+`withForeignTrees(...)` from `lib/arena/foreign-trees.ts` and add only what the walk skips for
+its own reasons. A skip set spelled per walk goes short in some of them, and a walk missing
+`.claude` reads a git worktree there as a second copy of the tree.
+
 **A library never imports a gate.** `lib/` is the bottom of the graph: `arena/layers.ts`,
 `core/arena-tokens.ts` and the rest are there because more than one gate reads them, and a
 gate reaching down is the only direction allowed. Across domains the same holds in both

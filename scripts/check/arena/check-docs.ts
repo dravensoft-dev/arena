@@ -19,6 +19,7 @@ import { proseSegments, fencedLines, unfenced } from '../../lib/arena/markdown-p
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const MAX_DOCUMENT_CHARS = 60_000;
 export const MAX_CELL_CHARS = 2_000;
@@ -58,7 +59,7 @@ export const COMMENT_RULE_SKIPS = new Map([
    + 'and stripping it would take the specimen out of the pages that render it'],
 ]);
 export const SCANNED_TREES = ['scripts', 'frameworks', '.github'];
-const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git', 'dist']);
+const SKIPPED_DIRECTORIES = withForeignTrees('dist');
 
 export const READ_DESPITE_THE_DOT = new Set(['.gitkeep', '.github']);
 

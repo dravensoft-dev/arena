@@ -22,6 +22,7 @@ import { memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts'
 import type { ComponentContract, MemberSpec, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { Fixture, FixtureChild } from '../../lib/arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:playgrounds',
@@ -358,7 +359,7 @@ const CITING_TREES = LAYERS.map((layer) => join('frameworks', layer));
 const PATH_LIKE = /frameworks\/[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)+/g;
 const PAGE_LIKE = /\b[A-Za-z][A-Za-z0-9]*\.(?:card|demo)(?:\.generated)?\.(?:html|json|entry\.tsx|entry\.ts)\b/g;
 
-const CITING_SKIP = new Set(['node_modules', 'dist', 'build', 'vendor']);
+const CITING_SKIP = withForeignTrees('dist', 'build', 'vendor');
 
 const scanned = (dir: string) =>
   (existsSync(dir) ? walkFiles(dir, { skip: (name) => CITING_SKIP.has(name) }) : []);

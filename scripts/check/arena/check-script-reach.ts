@@ -16,6 +16,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { captured } from '../../utils/captures.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const ANCHOR_FILE = 'frameworks/angular/test/Compliance.ts';
 
@@ -25,7 +26,7 @@ export const SCANNED_TREES = ['frameworks', 'intro', 'contracts'];
 
 export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs'];
 
-export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'build', 'vendor']);
+export const SKIPPED_DIRECTORIES = withForeignTrees('dist', 'build', 'vendor');
 
 const ANCHOR_DECL = /export const ([A-Z][A-Z0-9_]*) = join\(([A-Z][A-Z0-9_]*)((?:\s*,\s*'[^']*')*)\s*\)/g;
 const IMPORTED_BUILD = /(?:const\s*\{([^}]*)\}\s*=\s*)?(?:await\s+)?import\(\s*[^)]*join\(([A-Z][A-Z0-9_]*)((?:\s*,\s*'[^']*')*)\s*\)/g;

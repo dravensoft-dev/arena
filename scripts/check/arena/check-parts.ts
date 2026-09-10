@@ -18,6 +18,7 @@ import { kebab } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { classesManifest } from '../../lib/tailwind/component-css.ts';
 import { categoryOf, coveredContracts, everyComponent, hasOwnManifest } from '../../lib/tailwind/manifest-surfaces.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:parts',
@@ -36,7 +37,7 @@ export const LAYERS = { react: '.tsx', angular: '.ts' } as const;
 
 export type Layer = keyof typeof LAYERS;
 
-const SKIPPED_DIRECTORIES = new Set(['dist', 'node_modules']);
+const SKIPPED_DIRECTORIES = withForeignTrees('dist');
 const SKIPPED_INFIXES = ['.test.', '.generated.', '.demo.', '.card.'];
 
 const CLASS_SITE = {

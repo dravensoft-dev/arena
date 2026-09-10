@@ -28,6 +28,7 @@ import {
   HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroStyles,
 } from '../../lib/arena/hero-page.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'build:site',
@@ -50,7 +51,7 @@ export const OG_SOURCE = 'og.html';
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
-export const NEVER_COPIED = new Set(['node_modules', '.git']);
+export const NEVER_COPIED = withForeignTrees();
 
 export const BENCHES_REPOSITORY = 'https://github.com/dravensoft-dev/arena-web-benches';
 

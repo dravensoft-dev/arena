@@ -20,8 +20,9 @@ import { findComments } from '../../lib/arena/comments.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { allowsHeader } from './check-docs.ts';
 import { strands } from './check-contracts-neutrality.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', '.claude']);
+export const SKIPPED_ANYWHERE = withForeignTrees();
 
 export const SKIPPED_UNDER_FRAMEWORKS = new Set(['dist', 'build', 'vendor']);
 

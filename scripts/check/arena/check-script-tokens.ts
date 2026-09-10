@@ -15,6 +15,7 @@ import { emittedTree } from '../../lib/arena/layers.ts';
 import { numericConstants } from './check-duplicate-constants.ts';
 import { captured } from '../../utils/captures.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:script-tokens',
@@ -110,7 +111,7 @@ export function cssDiscoveryProblems(existingProblems: string[], cssFileCount: n
 
 const SCAN_EXT = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
-const SKIP_DIRS = new Set(['node_modules', 'vendor', 'dist']);
+const SKIP_DIRS = withForeignTrees('vendor', 'dist');
 
 export function sourceFiles(dir: string): string[] {
   const emitted = emittedTree();

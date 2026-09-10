@@ -16,6 +16,7 @@ import { blankComments, expressionLeaves, readValue, skipString } from './check-
 import { HAND_DRAWN, categoryOf, inScope, manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:appearance',
@@ -34,7 +35,7 @@ export const EXEMPT = new Map<string, string>([]);
 const REACT_COMPONENTS = join(repoRoot, 'frameworks/react/components');
 const ANGULAR_COMPONENTS = join(repoRoot, 'frameworks/angular/components');
 
-const SKIPPED_DIRECTORIES = new Set(['dist', 'node_modules']);
+const SKIPPED_DIRECTORIES = withForeignTrees('dist');
 const SKIPPED_INFIXES = ['.test.', '.generated.', '.demo.'];
 const SOURCE_EXTENSIONS = ['.tsx', '.jsx', '.ts'];
 

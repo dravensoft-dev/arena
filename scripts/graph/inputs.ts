@@ -11,10 +11,11 @@ import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { walkFiles } from '../utils/walk-files.ts';
 import { relPosix } from '../utils/posix-path.ts';
+import { withForeignTrees } from '../lib/arena/foreign-trees.ts';
 
 export type Stamp = { size: number; mtimeMs: number; hash: string };
 
-export const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git', '.cache']);
+export const SKIPPED_DIRECTORIES = withForeignTrees('.cache');
 
 export const sha256 = (data: string | Uint8Array) => createHash('sha256').update(data).digest('hex');
 
