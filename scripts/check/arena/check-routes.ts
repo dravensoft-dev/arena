@@ -339,14 +339,15 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 92_000,
+    budget: 86_000,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
       + 'headroom is a few rows wide on purpose: a budget a single new row breaks reports the row '
       + 'rather than the growth it is there to report. A row states the claim and the failure the '
       + 'gate exists for, and the rest of its argument belongs to the gate\'s own reason strings, '
-      + 'which its paired suite asserts by name. Before writing a row, measure the median and the '
+      + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
+      + 'become the page. Before writing a row, measure the median and the '
       + 'longest row of the domain table, because the row that breaks a budget is the long one and '
       + 'the median is what says how often that happens.',
   },

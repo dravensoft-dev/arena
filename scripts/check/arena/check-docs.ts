@@ -1,13 +1,13 @@
-/* Holds the documentation norms nothing else checks: every .md under
- * MAX_DOCUMENT_CHARS unless SIZE_ALLOWANCE raises it, no banned punctuation in
- * a document's prose, the comment rule, which lets scripts and tests carry one
- * header of at most HEADER_MAX_LINES and every other hand-written source none,
- * the branch boundary, which keeps a contributor path out of a consumer's last
- * stop and, through RULE_OWNERS, a rule off the branch that does not own it,
- * FOREIGN_CODE, which keeps another design system out of the examples a reader
- * copies, and the claim a consumer page makes about what SHIPS: how many
- * components. SIZE_ALLOWANCE is empty, and that emptiness is the claim: a
- * document falling back inside the shared limit fails. */
+/* Holds the documentation norms nothing else checks: every .md under MAX_DOCUMENT_CHARS
+ * unless SIZE_ALLOWANCE raises it, every table cell under MAX_CELL_CHARS since a document
+ * cap does not cap a row, no banned punctuation in prose, the comment rule, which lets
+ * scripts and tests carry one header of at most HEADER_MAX_LINES and every other
+ * hand-written source none, the branch boundary, which keeps a contributor path out of a
+ * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
+ * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
+ * the claim a consumer page makes about what SHIPS: how many components. SIZE_ALLOWANCE is
+ * empty, and that emptiness is the claim: a document falling back inside the shared limit
+ * fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -15,12 +15,13 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { findComments } from '../../lib/arena/comments.ts';
-import { proseSegments, fencedLines } from '../../lib/arena/markdown-prose.ts';
+import { proseSegments, fencedLines, unfenced } from '../../lib/arena/markdown-prose.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
 export const MAX_DOCUMENT_CHARS = 60_000;
+export const MAX_CELL_CHARS = 2_000;
 export const HEADER_MAX_LINES = 10;
 export const QUOTED_RUN_CHARS = 90;
 
@@ -293,6 +294,34 @@ export function documentSizeProblems(root = ROOT, allowance = SIZE_ALLOWANCE) {
   return { problems, scanned: scanned.length };
 }
 
+export const TABLE_ROW = /^ {0,3}\|/;
+
+export function tableCells(source: string) {
+  return unfenced(source).split('\n').flatMap((text, index) => TABLE_ROW.test(text)
+    ? text.trim().replace(/^\||\|$/g, '').split(/(?<!\\)\|/)
+      .map((cell) => ({ line: index + 1, chars: cell.trim().length }))
+    : []);
+}
+
+export function cellSizeProblems(root = ROOT) {
+  const problems = [];
+  let cells = 0;
+  for (const path of documents(root)) {
+    const rel = relPosix(root, path);
+    if (exempt(SIZE_EXEMPT, rel)) continue;
+    for (const { line, chars } of tableCells(readFileSync(path, 'utf8'))) {
+      cells += 1;
+      if (chars <= MAX_CELL_CHARS) continue;
+      problems.push(
+        `${rel}:${line}: a table cell of ${chars} characters, over the ${MAX_CELL_CHARS} limit. A `
+        + 'document cap does not cap a row, and a cell that needs a paragraph is a level nobody '
+        + 'wrote: keep the claim in the row and move the argument to where it is enforced',
+      );
+    }
+  }
+  return { problems, cells };
+}
+
 export function staleAllowanceProblems(sizes: Map<string, number>, allowance = SIZE_ALLOWANCE) {
   const problems = [];
   for (const [rel, { limit, reason }] of allowance) {
@@ -462,8 +491,9 @@ function main() {
   });
   const foreign = foreignCodeProblems();
   const counts = componentCountProblems();
+  const cells = cellSizeProblems();
   const problems = [
-    ...empty, ...branchSwitchProblems(), ...sizes.problems, ...punctuation.problems,
+    ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
     ...counts.problems,
   ];
@@ -475,7 +505,8 @@ function main() {
   }
   console.log(
     `check-docs: ${sizes.scanned} document(s) inside their limit, ${MAX_DOCUMENT_CHARS} characters `
-    + `bar ${SIZE_ALLOWANCE.size} on the record, and clear of `
+    + `bar ${SIZE_ALLOWANCE.size} on the record, ${cells.cells} table cell(s) inside `
+    + `${MAX_CELL_CHARS}, and clear of `
     + `banned punctuation; ${comments.scanned} hand-written source(s) hold to the comment rule; `
     + `${branch.scanned} consumer document(s) cite no contributor path, offer no foreign framework `
     + `in a fenced example, and neither branch states one of the other's ${RULE_OWNERS.length} `

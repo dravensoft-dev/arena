@@ -16,7 +16,7 @@ import {
   isConsumerDocument, BRANCH_SWITCH, branchSwitchProblems,
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
-  COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS,
+  COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -61,6 +61,24 @@ test('both document rules report how many documents they actually read', () => {
   const root = tree({ 'README.md': 'a', 'docs/a.md': 'b', 'x/y/Z.md': 'c', 'notes.txt': 'd' });
   assert.equal(documentSizeProblems(root, NO_ALLOWANCE).scanned, 3);
   assert.equal(punctuationProblems(root).scanned, 3);
+  rmSync(root, { recursive: true });
+});
+
+test('a table cell over its limit is reported by line, and a fenced table or a long line is not a cell', () => {
+  const cell = (n: number) => 'x'.repeat(n);
+  const root = tree({
+    'AGENTS.md': [
+      '| gate | fails when |', '| --- | --- |',
+      `| \`a.ts\` | ${cell(MAX_CELL_CHARS)} |`,
+      `| \`b.ts\` | ${cell(MAX_CELL_CHARS + 1)} |`,
+      `| \`c.ts\` | ${cell(10)} \\| ${cell(MAX_CELL_CHARS - 20)} |`,
+      '', '```', `| ${cell(MAX_CELL_CHARS + 1)} |`, '```', '', cell(MAX_CELL_CHARS * 2), '',
+    ].join('\n'),
+  });
+  const { problems, cells } = cellSizeProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^AGENTS\.md:4: a table cell of 2001 characters, over the 2000 limit/);
+  assert.equal(cells, 10, 'an escaped pipe stays inside its cell and a fence holds no table');
   rmSync(root, { recursive: true });
 });
 
