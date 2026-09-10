@@ -14,6 +14,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const ROUTER = 'AGENTS.md';
 
@@ -23,7 +24,7 @@ export const SURVIVORS = new Map([
    + 'to neither.'],
 ]);
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', '.claude']);
+export const SKIPPED_ANYWHERE = withForeignTrees();
 export const SKIPPED_UNDER_FRAMEWORKS = new Set(['dist', 'vendor']);
 
 export const LINK = /\]\(([^)\s]+)/g;

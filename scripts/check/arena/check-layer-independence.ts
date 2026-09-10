@@ -16,6 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:layer-independence',
@@ -64,7 +65,7 @@ export const EXEMPT = new Map<string, string>([]);
 const SCAN_EXT = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.json', '.css', '.html', '.md']);
 export const MODULE_EXT = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs']);
 export const REFERENCE_EXT = new Set([...MODULE_EXT, '.html']);
-const SKIP_DIRS = new Set(['node_modules', 'vendor', 'build', 'dist']);
+const SKIP_DIRS = withForeignTrees('vendor', 'build', 'dist');
 
 export function layerFiles(layerDir: string): string[] {
   return walkFiles(layerDir, { skip: (name) => SKIP_DIRS.has(name) })

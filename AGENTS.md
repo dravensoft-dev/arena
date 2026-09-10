@@ -237,7 +237,8 @@ two copies and never reads either for meaning. Verify with
   are allowed, in a gate's own reason string, or in the component's `.prompt.md`. **Somewhere a
   stale copy of it fails something.**
 
-`bun run check:docs` holds the size rule, the punctuation rule and the comment rule, and
+`bun run check:docs` holds the size rule, for a document and for a table cell, the punctuation
+rule and the comment rule, and
 `bun run check:citations` holds every path that prose names to existing. **The present-tense rule
 is the one no gate holds**, because nothing mechanical can judge it.
 

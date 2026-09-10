@@ -15,10 +15,11 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { scanFile } from '../../generate/core/arena-to-prod/audit.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export { isLegalBracket, scanText, findMarkers, markerAllowlist, scanFile } from '../../generate/core/arena-to-prod/audit.ts';
 
-export const SKIPPED_NAMES = new Set(['node_modules', 'dist', 'vendor']);
+export const SKIPPED_NAMES = withForeignTrees('dist', 'vendor');
 
 const EXTENSIONS = ['.json', '.ts', '.tsx', '.jsx', '.html', '.md'];
 

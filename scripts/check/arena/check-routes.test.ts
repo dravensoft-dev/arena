@@ -1,7 +1,7 @@
 /* The gate reads the real tree, so these drive its pure functions over a temporary one with the
  * shapes a real mistake takes: a stop reaching nothing, a budget broken from either side, a branch
- * that costs nothing, a route opening with an entry nobody declared, and a walk that found no
- * document. ROUTES and ENTRIES are asserted by name, the declared reads are asserted equal to the
+ * that costs nothing, a route opening with an entry nobody declared, a walk that found no
+ * document, and a reason carrying the history of its number. ROUTES and ENTRIES are asserted by name, the declared reads are asserted equal to the
  * routers and stops, and the whole cost of every route is asserted to be its entry plus its worst
  * branch, which is the sum a reader actually pays and the one a split model could quietly lose. */
 
@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import {
   ROUTES, ENTRIES, BUDGET_SLACK, node, branchesOf, documents, largestReached, measure, measureEntry,
   entryProblems, unreachedProblems, overBudgetProblems, staleBudgetProblems, zeroScanProblems,
-  routeProblems,
+  routeProblems, reasonProblems, REASON_MAX_CHARS,
 } from './check-routes.ts';
 
 function tree(files: Record<string, string>) {
@@ -154,6 +154,21 @@ test('the floor and the ceiling reach an entry too, so a shared router cannot bl
   assert.match(overBudgetProblems(entry.name, entry.reason, 800, charged, total, 'entry')[0] ?? '',
     /argue the entry's budget up here/);
   assert.match(staleBudgetProblems(entry.name, 2_000, total)[0] ?? '', /An allowance is not an exemption/);
+});
+
+test('a reason states why its number is right today, never what it was, and stays short', () => {
+  assert.deepEqual(reasonProblems('test-route', 'the stops measure this with room for one section'), []);
+  assert.match(reasonProblems('test-route', 'x'.repeat(REASON_MAX_CHARS + 1))[0] ?? '',
+    /is a raise history read by every contributor/);
+  for (const figure of ['44,600', '44_600', '44600'])
+    assert.match(reasonProblems('test-route', `the route costs ${figure} at most`)[0] ?? '',
+      new RegExp(`names the figure ${figure}`));
+  assert.deepEqual(reasonProblems('test-route', 'one component, three stops and a 430px viewport'), [],
+    'a small count or a measurement is not a budget figure');
+  assert.match(reasonProblems('test-route', 'Raised again when the page grew')[0] ?? '',
+    /says "Raised"/);
+  for (const one of [...ENTRIES, ...ROUTES])
+    assert.deepEqual(reasonProblems(one.name, one.reason), [], `${one.name} carries a history`);
 });
 
 test('a route opening with an entry nobody declared is reported rather than charged from its second page', () => {

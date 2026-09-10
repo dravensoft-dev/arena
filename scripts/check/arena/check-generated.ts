@@ -13,6 +13,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { findComments } from '../../lib/arena/comments.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:generated',
@@ -27,7 +28,7 @@ export const node = {
 
 
 const SCANNED_EXTENSIONS = ['.mjs', '.jsx', '.tsx', '.ts', '.js', '.css'];
-const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git', 'build', 'dist', '.cache']);
+const SKIPPED_DIRECTORIES = withForeignTrees('build', 'dist', '.cache');
 
 export const UNMARKED = {
   'intro/support.js':

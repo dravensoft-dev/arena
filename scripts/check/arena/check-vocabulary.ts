@@ -20,8 +20,9 @@ import { fencedLines } from '../../lib/arena/markdown-prose.ts';
 import { SCRIPT_EXTENSIONS, SUITE_EXTENSIONS } from '../../lib/arena/domains.ts';
 import { EXEMPT as DELIBERATELY_ABSENT } from './check-citations.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
-export const SKIPPED_ANYWHERE = new Set(['node_modules', '.git', 'dist']);
+export const SKIPPED_ANYWHERE = withForeignTrees('dist');
 export const SKIPPED_UNDER_FRAMEWORKS = new Set(['build', 'vendor']);
 
 export const OUT_OF_SCOPE = new Map([

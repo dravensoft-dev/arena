@@ -8,6 +8,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { verdictFor, zeroProjectProblems } from '../../lib/arena/typecheck.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:react-types',
@@ -22,7 +23,7 @@ export const PROJECTS = [
 
 export const SOURCE_EXTENSIONS = ['.ts', '.tsx'];
 
-export const CANDIDATE_SKIP = new Set(['node_modules', 'dist', 'build']);
+export const CANDIDATE_SKIP = withForeignTrees('dist', 'build');
 
 export function candidates(root = repoRoot) {
   return walkFiles(join(root, 'frameworks/react'), { skip: (name) => CANDIDATE_SKIP.has(name) })

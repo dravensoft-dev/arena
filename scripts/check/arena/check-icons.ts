@@ -10,6 +10,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:icons',
@@ -27,7 +28,7 @@ export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
 
 export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts', 'docs'];
 export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.html', '.json', '.md', '.css'];
-export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'build', '.git', 'vendor']);
+export const SKIPPED_DIRECTORIES = withForeignTrees('dist', 'build', 'vendor');
 
 export const ICON_TOKEN = /\bph(?:-[a-z0-9]+)+\b/g;
 
