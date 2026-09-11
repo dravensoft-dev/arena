@@ -1,15 +1,17 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, inject, input, output,
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input, output,
 } from '@angular/core';
 import type { ArenaSelectOption } from '../../../Api.generated';
 import { arenaSelectStyles } from './ArenaSelect.variants';
 import manifest from './ArenaSelect.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 
 @Component({
   selector: 'arena-select',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ArenaControlBinding],
   host: {
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
@@ -23,15 +25,15 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
       @if (icon(); as glyph) {
         <i [class]="styles().iconWrap() + ' ' + glyph" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"></i>
       }
-      <select [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="disabled()"
+      <select [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
               [required]="required()" [attr.name]="name()"
               [attr.aria-invalid]="hasError()" [attr.aria-describedby]="describedBy()"
               (change)="onChange($event)">
         @if (placeholder(); as text) {
-          <option value="" [disabled]="true" [selected]="!value()">{{ text }}</option>
+          <option value="" [disabled]="true" [selected]="!drawn()">{{ text }}</option>
         }
         @for (option of options(); track option.value) {
-          <option [value]="option.value" [selected]="option.value === value()">{{ option.label }}</option>
+          <option [value]="option.value" [selected]="option.value === drawn()">{{ option.label }}</option>
         }
       </select>
       <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true">&#9662;</span>
@@ -45,6 +47,12 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
 })
 export class ArenaSelect {
   protected readonly parts = manifest.parts;
+  private readonly binding = inject(ArenaControlBinding);
+  protected readonly drawn = computed(() => (this.binding.bound() ? (this.binding.value() as string | undefined) : this.value()));
+  protected readonly off = computed(() => this.disabled() || this.binding.disabled());
+  private readonly warned = effect(() => {
+    if (this.binding.bound() && this.value() !== undefined) arenaWarnDoubleBinding('ArenaSelect', 'value');
+  });
 
   /** Field label above the control. */
   readonly label = input<string>();
@@ -82,13 +90,15 @@ export class ArenaSelect {
   protected readonly describedBy = computed(() => (this.error() || this.hint() ? this.noteId : null));
 
   protected readonly styles = computed(() => arenaSelectStyles({
-    disabled: this.disabled(),
+    disabled: this.off(),
     hasIcon: Boolean(this.icon()),
     state: this.hasError() ? 'error' : this.valid() ? 'valid' : 'neutral',
   }));
 
   protected onChange(event: Event): void {
     event.stopPropagation();
-    this.change.emit((event.target as HTMLSelectElement).value);
+    const value = (event.target as HTMLSelectElement).value;
+    this.change.emit(value);
+    this.binding.onChange(value);
   }
 }

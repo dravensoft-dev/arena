@@ -1,9 +1,10 @@
 import {
   ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, booleanAttribute, computed,
-  input, output, viewChild,
+  effect, inject, input, output, viewChild,
 } from '@angular/core';
 import { arenaTextareaStyles } from './ArenaTextarea.variants';
 import manifest from './ArenaTextarea.classes.generated';
+import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 
 export const ARENA_COUNTER_WARNING_SHARE = 0.9;
 
@@ -24,6 +25,7 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
   selector: 'arena-textarea',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ArenaControlBinding],
   host: {
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
@@ -37,9 +39,9 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
       }</label>
     }
     <textarea #control [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="controlId()" [attr.rows]="rows()"
-              [attr.maxlength]="maxLength()" [disabled]="disabled()" [required]="required()"
+              [attr.maxlength]="maxLength()" [disabled]="off()" [required]="required()"
               [readOnly]="readOnly()" [attr.placeholder]="placeholder()" [attr.name]="name()"
-              [attr.aria-invalid]="hasError()" [value]="value() ?? ''"
+              [attr.aria-invalid]="hasError()" [value]="drawn() ?? ''"
               (input)="onInput($event)" (change)="onNativeChange($event)"></textarea>
     <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
       @if (shownError(); as message) {
@@ -57,6 +59,12 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
 })
 export class ArenaTextarea {
   protected readonly parts = manifest.parts;
+  private readonly binding = inject(ArenaControlBinding);
+  protected readonly drawn = computed(() => (this.binding.bound() ? (this.binding.value() as string | undefined) : this.value()));
+  protected readonly off = computed(() => this.disabled() || this.binding.disabled());
+  private readonly warned = effect(() => {
+    if (this.binding.bound() && this.value() !== undefined) arenaWarnDoubleBinding('ArenaTextarea', 'value');
+  });
 
   /** Field label; the counter and error sit under the field. */
   readonly label = input<string>();
@@ -96,11 +104,11 @@ export class ArenaTextarea {
   protected readonly styles = computed(() => arenaTextareaStyles({
     state: this.hasError() ? 'error' : 'neutral',
     resize: this.autoResize() ? 'none' : 'vertical',
-    disabled: this.disabled(),
+    disabled: this.off(),
     readonly: this.readOnly(),
   }));
 
-  protected readonly length = computed(() => (this.value() ?? '').length);
+  protected readonly length = computed(() => (this.drawn() ?? '').length);
 
   protected readonly counterText = computed(() => {
     const cap = this.maxLength();
@@ -119,7 +127,7 @@ export class ArenaTextarea {
 
   constructor() {
     afterRenderEffect(() => {
-      this.value();
+      this.drawn();
       if (this.autoResize()) this.grow();
     });
   }
@@ -128,6 +136,7 @@ export class ArenaTextarea {
     const target = event.target as HTMLTextAreaElement;
     if (this.autoResize()) this.fit(target);
     this.change.emit(target.value);
+    this.binding.onChange(target.value);
   }
 
   protected onNativeChange(event: Event): void {

@@ -1,10 +1,11 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output,
+  ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input, output,
 } from '@angular/core';
 import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { arenaSwitchStyles } from './ArenaSwitch.variants';
 import manifest from './ArenaSwitch.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 
 export type SwitchFootprint = `${ArenaOrientation}-${ArenaSwitchSize}`;
 export type SwitchThumb = `${'on' | 'off'}-${ArenaOrientation}`;
@@ -21,12 +22,13 @@ export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): Sw
   selector: 'arena-switch',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ArenaControlBinding],
   host: { '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root', },
   template: `
     <button type="button" role="switch" [class]="styles().track()" [attr.data-arena-part]="parts.track"
-            [attr.aria-checked]="state()" [attr.aria-label]="label()"
-            [disabled]="disabled()" (click)="activate()">
+            [attr.aria-checked]="drawn()" [attr.aria-label]="label()"
+            [disabled]="off()" (click)="activate()">
       <span [class]="styles().knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
         @if (glyph()) {
           <i [class]="glyphClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
@@ -43,6 +45,12 @@ export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): Sw
 })
 export class ArenaSwitch {
   protected readonly parts = manifest.parts;
+  private readonly binding = inject(ArenaControlBinding);
+  protected readonly drawn = computed(() => (this.binding.bound() ? (this.binding.value() as boolean) : this.state()));
+  protected readonly off = computed(() => this.disabled() || this.binding.disabled());
+  private readonly warned = effect(() => {
+    if (this.binding.bound() && this.state() !== false) arenaWarnDoubleBinding('ArenaSwitch', 'state');
+  });
   protected readonly locale = inject(ARENA_LOCALE);
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
@@ -74,27 +82,32 @@ export class ArenaSwitch {
   /** A change was requested while `confirm` is set: the host opens an ArenaConfirmDialog and, on confirmation, flips `state` (the requested value is always the negation of the current one). */
   readonly requestChange = output<void>();
 
-  protected readonly glyph = computed(() => (this.state() ? this.iconOn() : this.iconOff()));
+  protected readonly glyph = computed(() => (this.drawn() ? this.iconOn() : this.iconOff()));
 
   protected readonly styles = computed(() => arenaSwitchStyles({
     size: this.size(),
     orientation: this.orientation(),
-    checked: this.state(),
-    disabled: this.disabled(),
+    checked: this.drawn(),
+    disabled: this.off(),
     footprint: arenaFootprintFor(this.orientation(), this.size()),
-    thumb: arenaThumbFor(this.state(), this.orientation()),
+    thumb: arenaThumbFor(this.drawn(), this.orientation()),
   }));
 
   protected readonly glyphClass = computed(() => `${this.styles().icon()} ${this.glyph() ?? ''}`.trim());
   protected readonly guardClass = computed(() => `ph-bold ph-shield-check ${this.styles().guard()}`);
 
   protected activate(): void {
-    if (this.disabled()) return;
+    if (this.off()) return;
     if (this.confirm()) {
       this.requestChange.emit();
       return;
     }
-    if (this.state()) this.funcOff.emit();
-    else this.funcOn.emit();
+    if (this.drawn()) {
+      this.funcOff.emit();
+      this.binding.onChange(false);
+    } else {
+      this.funcOn.emit();
+      this.binding.onChange(true);
+    }
   }
 }

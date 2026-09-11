@@ -1,10 +1,11 @@
 import {
-  ChangeDetectionStrategy, Component, ElementRef, booleanAttribute, computed, input, output, signal,
-  viewChild,
+  ChangeDetectionStrategy, Component, ElementRef, booleanAttribute, computed, effect, inject,
+  input, output, signal, viewChild,
 } from '@angular/core';
 import type { ArenaInputType, ArenaValidateOn } from '../../../Api.generated';
 import { arenaInputStyles } from './ArenaInput.variants';
 import manifest from './ArenaInput.classes.generated';
+import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 
 export function arenaInputIdFor(id: string | undefined, label: string | undefined): string | null {
   if (id) return id;
@@ -15,6 +16,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
   selector: 'arena-input',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ArenaControlBinding],
   host: {
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
@@ -35,7 +37,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
         <span [class]="styles().prefix()" [attr.data-arena-part]="parts.prefix">{{ text }}</span>
       }
       <input #control [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.id]="controlId()" [attr.type]="type()"
-             [value]="value() ?? ''" [disabled]="disabled()" [readOnly]="readOnly()"
+             [value]="drawn() ?? ''" [disabled]="off()" [readOnly]="readOnly()"
              [required]="required()" [attr.aria-invalid]="hasError()"
              [attr.placeholder]="placeholder()" [attr.name]="name()"
              [attr.autocomplete]="autoComplete()" [attr.min]="min()" [attr.max]="max()"
@@ -56,6 +58,12 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
 })
 export class ArenaInput {
   protected readonly parts = manifest.parts;
+  private readonly binding = inject(ArenaControlBinding);
+  protected readonly drawn = computed(() => (this.binding.bound() ? (this.binding.value() as string | undefined) : this.value()));
+  protected readonly off = computed(() => this.disabled() || this.binding.disabled());
+  private readonly warned = effect(() => {
+    if (this.binding.bound() && this.value() !== undefined) arenaWarnDoubleBinding('ArenaInput', 'value');
+  });
 
   /** Field label above the control. */
   readonly label = input<string>();
@@ -130,7 +138,7 @@ export class ArenaInput {
 
   protected readonly styles = computed(() => arenaInputStyles({
     state: this.hasError() ? 'error' : this.isValid() ? 'valid' : 'neutral',
-    disabled: this.disabled(),
+    disabled: this.off(),
     readonly: this.readOnly(),
   }));
 
@@ -143,6 +151,7 @@ export class ArenaInput {
   protected onInput(event: Event): void {
     const text = (event.target as HTMLInputElement).value;
     this.change.emit(text);
+    this.binding.onChange(text);
     if (this.validateOn() === 'change') {
       this.touched.set(true);
       this.runValidate(text);
