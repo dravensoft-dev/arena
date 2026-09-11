@@ -71,7 +71,7 @@ will report it.
 |---|---|---|---|---|
 | `ArenaAlert` | A tone-coloured message with an optional icon, a single action, and optional dismissal. | `tone` `title` `content` `icon` `actionLabel` `action` `dismissible` `close` | alert, status | angular, react |
 | `ArenaConfirmDialog` | Confirmation of a high-consequence action. Never closes on click-outside. `requireText` locks the confirm button until a word is typed. | `open*` `title*` `eyebrow` `content` `confirmLabel` `cancelLabel` `destructive` `requireText` `cancel` `confirm` | alertdialog | angular, react |
-| `ArenaDialog` | Modal dialog over a blurred scrim. Takes the whole interaction until dismissed. | `open*` `title*` `eyebrow` `width` `content` `footer` `close` | dialog-modal | angular, react |
+| `ArenaDialog` | Modal dialog over a blurred scrim. Takes the whole interaction until dismissed. | `open*` `title*` `eyebrow` `width` `content` `footer` `fillBelow` `close` | dialog-modal | angular, react |
 | `ArenaEmptyState` | A placeholder for an empty collection: an icon, a title, a message, and an optional action. | `icon` `title*` `headingLevel` `message` `action` | none | angular, react |
 | `ArenaErrorState` | Section/screen-level failure, with recovery and an optional diagnostic code. | `icon` `title` `headingLevel` `message` `code` `retryLabel` `retry` `secondaryAction` | alert | angular, react |
 | `ArenaOnboarding` | Guided coachmark tour (H10): presents features within the product with progress dots, Skip and Next. Controlled: the host owns index and answers the four events. | `open*` `steps*` `index` `anchor` `next` `back` `skip` `done` | dialog-modal | angular, react |

@@ -15,9 +15,20 @@
       "false": {
         "scrim": "hidden"
       }
+    },
+    "fill": {
+      "true": {
+        "scrim": "items-stretch justify-stretch",
+        "panel": "flex flex-col w-full h-full max-w-none rounded-none shadow-none pr-[var(--pad-safe-right)] pl-[var(--pad-safe-left)]",
+        "head": "sticky top-0 bg-surface-floating pt-[calc(var(--sp-1)*5.5+var(--pad-safe-top))]",
+        "body": "flex-1 overflow-y-auto",
+        "foot": "sticky bottom-0 bg-surface-floating pb-[max(calc(var(--sp-1)*5.5),var(--pad-safe-bottom))]"
+      },
+      "false": {}
     }
   },
   "defaultVariants": {
-    "open": false
+    "open": false,
+    "fill": false
   }
 }

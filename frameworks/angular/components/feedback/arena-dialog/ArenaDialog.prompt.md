@@ -25,6 +25,7 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 | `width` | primitive | `string` | `"calc(var(--sp-1) * 120)"` | A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. |
 | `content` | slot |  |  | The dialog's body. |
 | `footer` | slot |  |  | The action row, right-aligned. |
+| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. |
 | `close` | event |  |  | The dialog was dismissed -- by Escape or by a scrim click. No payload. |
 
 <!-- @api end -->

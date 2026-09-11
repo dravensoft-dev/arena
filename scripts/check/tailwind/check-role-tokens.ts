@@ -68,6 +68,7 @@ export const SCALE_UTILITIES = new Map<string, string>([
 ]);
 
 export const SCALE_USES = new Map<string, string>([
+  ['ArenaDialog:panel:shadow-none', 'the panel of a dialog filling a narrow screen, which is the screen and has no depth: the literal cancels the deep role the panel paints everywhere else rather than answering a role of its own'],
   ['ArenaSideNav:badge:tracking-badge', 'a nav counter, which is a figure in the mono face carrying no case role: the label register\'s tracking would open a number that is read one glyph at a time'],
   ['ArenaBottomNav:badge:tracking-badge', 'the same counter on the other bar, for the same reason'],
   ['ArenaAlert:action:tracking-uppercase-status', 'the word a reader presses to answer an alert, which is status text rather than a label: it says what happens next instead of what kind of thing this is'],
