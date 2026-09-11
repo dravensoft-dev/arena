@@ -38,19 +38,34 @@ export const ENVELOPES: Envelope[] = [
     layer: 'angular',
     source: ['ts'],
     allowed: ['@angular/core', '@angular/common', '@angular/platform-browser', '@angular/cdk',
-      '@angular/router', 'rxjs', 'tslib'],
+      '@angular/router', '@angular/forms', 'rxjs', 'tslib'],
     why:
       'the same claim on the other layer, with the CDK inside the envelope because the overlay '
       + 'primitives are built on it and it is a declared peer. The router is in this list and is '
       + 'the one entry that may not spread: it belongs to the metadata entry point alone, which is '
       + 'what keeps it optional, and OPTIONAL_PEER_RULE below is the half of that claim this gate '
-      + 'holds.',
+      + 'holds. Forms is the second entry that may not spread, and belongs to the forms entry point '
+      + 'alone for the same reason.',
   },
 ];
 
 export const ROUTER = '@angular/router';
 
 export const ROUTER_ONLY_UNDER = 'frameworks/angular/metadata/';
+
+export const FORMS = '@angular/forms';
+
+export const OPTIONAL_ENTRIES = [
+  { peer: ROUTER, under: ROUTER_ONLY_UNDER },
+  { peer: FORMS, under: 'frameworks/angular/forms/' },
+];
+
+const WHY_OPTIONAL = new Map([
+  [ROUTER, 'reaching it is a choice a project makes when it decides the product has to be found from '
+    + 'outside, and a required peer installs a router into every project that answered no.'],
+  [FORMS, 'binding Arena\'s controls to Angular forms is a choice a project makes, and a required peer '
+    + 'installs a forms library into every project that binds its controls by hand.'],
+]);
 
 export const BROWSER_GLOBALS = ['window', 'document', 'localStorage', 'sessionStorage',
   'navigator', 'matchMedia', 'ResizeObserver', 'IntersectionObserver'];
@@ -167,22 +182,47 @@ export function envelopeProblems(envelope: Envelope, base = root) {
 
 export function optionalPeerProblems(optional: Record<string, unknown> = OPTIONAL_PEERS.angular, base = root) {
   const problems = [];
-  if (!Object.hasOwn(optional, ROUTER))
-    problems.push(
-      `${ROUTER} is no longer declared optional. It is optional because reaching it is a choice a `
-      + 'project makes when it decides the product has to be found from outside, and a required '
-      + 'peer installs a router into every project that answered no.',
-    );
+  for (const { peer } of OPTIONAL_ENTRIES)
+    if (!Object.hasOwn(optional, peer))
+      problems.push(`${peer} is no longer declared optional. It is optional because ${WHY_OPTIONAL.get(peer)}`);
 
   for (const rel of shipped('angular', base)) {
-    if (rel.startsWith(ROUTER_ONLY_UNDER)) continue;
-    if (!importsIn(readFileSync(join(base, rel), 'utf8')).includes(ROUTER)) continue;
-    problems.push(
-      `${rel} imports ${ROUTER} and does not sit under ${ROUTER_ONLY_UNDER}. The peer is optional `
-      + 'only while the router is reachable from that entry point alone: an import anywhere else '
-      + 'is loaded by every consumer of the main entry point, so the optional declaration becomes '
-      + 'a promise the package breaks at run time rather than at install time.',
-    );
+    const imported = importsIn(readFileSync(join(base, rel), 'utf8'));
+    for (const { peer, under } of OPTIONAL_ENTRIES) {
+      if (rel.startsWith(under) || !imported.includes(peer)) continue;
+      problems.push(
+        `${rel} imports ${peer} and does not sit under ${under}. The peer is optional `
+        + 'only while it is reachable from that entry point alone: an import anywhere else '
+        + 'is loaded by every consumer of the main entry point, so the optional declaration becomes '
+        + 'a promise the package breaks at run time rather than at install time.',
+      );
+    }
+  }
+  return problems;
+}
+
+const RELATIVE = /(?:^|\n)\s*(?:import|export)\b[^;\n]*?from\s*['"](\.{1,2}\/[^'"]+)['"]/g;
+
+export function rootClosureProblems(base = root) {
+  const layer = join(base, 'frameworks', 'angular');
+  const seen = new Set<string>();
+  const queue = [join(layer, 'index.ts')];
+  const problems = [];
+  while (queue.length) {
+    const file = queue.shift();
+    if (file === undefined || seen.has(file) || !existsSync(file)) continue;
+    seen.add(file);
+    const text = withoutComments(readFileSync(file, 'utf8'));
+    const imported = importsIn(text);
+    for (const { peer } of OPTIONAL_ENTRIES)
+      if (imported.includes(peer))
+        problems.push(`${relPosix(base, file)} is reached from the package root and imports ${peer}, so every `
+          + 'consumer of the main entry point loads an optional peer');
+    for (const hit of text.matchAll(RELATIVE)) {
+      const target = join(file, '..', hit[1] ?? '');
+      for (const candidate of [target, `${target}.ts`, join(target, 'index.ts')])
+        if (existsSync(candidate) && candidate.endsWith('.ts')) { queue.push(candidate); break; }
+    }
   }
   return problems;
 }
@@ -251,6 +291,7 @@ export function architectureProblems(base = root) {
   for (const envelope of ENVELOPES) problems.push(...envelopeProblems(envelope, base));
   problems.push(
     ...optionalPeerProblems(OPTIONAL_PEERS.angular, base),
+    ...rootClosureProblems(base),
     ...moduleScopeProblems(base),
     ...hostileApiProblems(base),
   );
@@ -267,7 +308,7 @@ function main() {
   const total = [...counted.values()].reduce((sum, one) => sum + one, 0);
   console.log(`check-architecture: ${total} shipped source(s) across ${counted.size} layer(s) `
     + 'import inside their envelope, read no browser global while the module evaluates, reach no '
-    + 'API a server render cannot answer, and keep the router optional');
+    + 'API a server render cannot answer, and keep the router and forms optional');
 }
 
 if (isMainModule(import.meta.url)) main();

@@ -214,7 +214,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 10_300,
+    budget: 10_400,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
