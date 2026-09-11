@@ -14,7 +14,7 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 |---|---|---|---|---|
 | `size` | enum | `ArenaControlSize` | `"md"` | Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. |
 | `tone` | enum | `ArenaSpinnerTone` | `"accent"` | Colour of the ring. 'on-accent' inside a filled button; 'accent' on a page surface. |
-| `label` | primitive | `string` | `"Loading"` | Accessible name, announced by the status role. Say what is loading when you can. |
+| `label` | primitive | `string` |  | Accessible name, announced by the status role. Say what is loading when you can. Absent, the provided locale's spinnerLabel answers it, which reads Loading by default. |
 
 <!-- @api end -->
 
@@ -30,6 +30,8 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 - Don't pass `style` or stray DOM attributes. ArenaSpinner declares three members and renders nothing else; wrap it in your own element if you need to position it.
 
 **On the tone vocabulary.** `ArenaProgressBar` ships `accent | gold | success | danger | info`; `ArenaSpinner` ships `accent | gold | neutral | on-accent`. The overlap (`accent`, `gold`) resolves to the same tokens, so the two read as one family. The divergence is deliberate in both directions; see Don't, above.
+
+**Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

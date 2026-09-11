@@ -4,6 +4,7 @@ import manifest from './ArenaToast.classes.generated.ts';
 
 import type { ArenaToastTone } from '../../../Api.generated';
 import { dismissDefault, dismissActionable } from '../../../Tokens.generated.js';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export interface ArenaToastProps {
 
@@ -41,6 +42,7 @@ const toneOf = (tone: string | undefined): ArenaTone =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'neutral');
 
 export function ArenaToast({ title, message, tone = 'neutral', actionLabel, onAction, dismissible = false, onClose, persist = false }: ArenaToastProps) {
+  const locale = useArenaLocale();
   const pinned = persist || tone === 'danger';
   const styles = arenaToastStyles({ tone: toneOf(tone) });
   return (
@@ -50,7 +52,7 @@ export function ArenaToast({ title, message, tone = 'neutral', actionLabel, onAc
         {title && (
           <div className={styles.title()} data-arena-part={manifest.parts.title}>
             {title}
-            {pinned && <span title="Does not auto-dismiss" className={styles.pinned()} data-arena-part={manifest.parts.pinned}>Pinned</span>}
+            {pinned && <span title={locale.toastPinnedHint} className={styles.pinned()} data-arena-part={manifest.parts.pinned}>{locale.toastPinned}</span>}
           </div>
         )}
         {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
@@ -59,7 +61,7 @@ export function ArenaToast({ title, message, tone = 'neutral', actionLabel, onAc
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label="Close" className={styles.close()} data-arena-part={manifest.parts.close}>
+        <button onClick={onClose} aria-label={locale.toastClose} className={styles.close()} data-arena-part={manifest.parts.close}>
           <i className="ph-bold ph-x" />
         </button>
       )}

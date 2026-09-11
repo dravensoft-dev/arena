@@ -9,9 +9,9 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  BROWSER_GLOBALS, ENVELOPES, ROUTER, ROUTER_ONLY_UNDER, SSR_HOSTILE, architectureProblems,
+  BROWSER_GLOBALS, ENVELOPES, FORMS, OPTIONAL_ENTRIES, ROUTER, ROUTER_ONLY_UNDER, SSR_HOSTILE, architectureProblems,
   deferred, envelopeProblems, hostileApiProblems, importsIn, masked, moduleScopeProblems, node,
-  optionalPeerProblems, packageOf, shipped, topLevelStatements, withoutComments, zeroScanProblems,
+  optionalPeerProblems, packageOf, rootClosureProblems, shipped, topLevelStatements, withoutComments, zeroScanProblems,
 } from './check-architecture.ts';
 
 function tree(files: Record<string, string>) {
@@ -106,13 +106,13 @@ test('an API a server render cannot answer is reported wherever it sits', () => 
 
 test('the router keeps the promise its optional declaration makes, at both ends', () => {
   assert.match(optionalPeerProblems({})[0] ?? '', /no longer declared optional/);
-  assert.deepEqual(optionalPeerProblems({ [ROUTER]: { optional: true } }, react('')), []);
+  assert.deepEqual(optionalPeerProblems({ [ROUTER]: { optional: true }, [FORMS]: { optional: true } }, react('')), []);
 
   const base = tree({
     'frameworks/angular/Toasts.ts': `import { Router } from '${ROUTER}';\n`,
     [`${ROUTER_ONLY_UNDER}Strategy.ts`]: `import { TitleStrategy } from '${ROUTER}';\n`,
   });
-  const problems = optionalPeerProblems({ [ROUTER]: { optional: true } }, base);
+  const problems = optionalPeerProblems({ [ROUTER]: { optional: true }, [FORMS]: { optional: true } }, base);
   assert.equal(problems.length, 1, 'the metadata entry point may import it and nothing else may');
   assert.match(problems[0] ?? '', /frameworks\/angular\/Toasts\.ts/);
 });
@@ -137,4 +137,37 @@ test('the repository is inside its own envelope, over more than nothing', () => 
   const { problems, counted } = architectureProblems();
   assert.deepEqual(problems, []);
   for (const [layer, n] of counted) assert.ok(n > 20, `${layer} was measured over its real tree`);
+});
+
+test('forms is an optional peer that only the forms entry point may import', () => {
+  assert.deepEqual(OPTIONAL_ENTRIES, [
+    { peer: '@angular/router', under: 'frameworks/angular/metadata/' },
+    { peer: '@angular/forms', under: 'frameworks/angular/forms/' },
+  ]);
+  assert.ok(ENVELOPES.find((one) => one.layer === 'angular')?.allowed.includes('@angular/forms'));
+  const base = tree({
+    'frameworks/angular/components/forms/arena-input/ArenaInput.ts': "import { NgModel } from '@angular/forms';\n",
+    'frameworks/angular/forms/ArenaInputControl.ts': "import { NG_VALUE_ACCESSOR } from '@angular/forms';\n",
+  });
+  const problems = optionalPeerProblems({ [ROUTER]: { optional: true }, [FORMS]: { optional: true } }, base);
+  assert.equal(problems.length, 1, 'the forms entry point may import it and nothing else may');
+  assert.match(problems[0] ?? '', /ArenaInput\.ts imports @angular\/forms and does not sit under frameworks\/angular\/forms\//);
+});
+
+test('withdrawing the forms peer\'s optional declaration fails', () => {
+  assert.match(optionalPeerProblems({ [ROUTER]: { optional: true } }, react('')).join('\n'), /@angular\/forms is no longer declared optional/);
+});
+
+test('the package root\'s import closure reaches no optional peer', () => {
+  const dirty = tree({
+    'frameworks/angular/index.ts': "export * from './ControlBinding';\n",
+    'frameworks/angular/ControlBinding.ts': "import { NgControl } from '@angular/forms';\n",
+  });
+  assert.match(rootClosureProblems(dirty).join('\n'), /ControlBinding\.ts.*@angular\/forms/);
+  const clean = tree({
+    'frameworks/angular/index.ts': "export * from './ControlBinding';\n",
+    'frameworks/angular/ControlBinding.ts': "import { signal } from '@angular/core';\n",
+    'frameworks/angular/forms/ArenaInputControl.ts': "import { NG_VALUE_ACCESSOR } from '@angular/forms';\n",
+  });
+  assert.deepEqual(rootClosureProblems(clean), []);
 });

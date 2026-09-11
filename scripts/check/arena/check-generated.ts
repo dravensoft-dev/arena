@@ -93,6 +93,18 @@ export const UNTRACKED = {
     'the contract types, emitted per layer from contracts/api/types/ so a component\'s import '
     + 'never crosses the boundary. check:api holds it to the contracts.',
   'frameworks/angular/Api.generated.ts': 'the same file, emitted into the other layer.',
+  'frameworks/react/ArenaLocale.generated.js':
+    'the compiled sibling of ArenaLocale.ts, which the demo pages load; build:demos writes it and '
+    + 'check:demos holds it to the source.',
+  'frameworks/react/LocaleDefaults.generated.js':
+    'the compiled sibling of LocaleDefaults.generated.ts, which the demo pages load.',
+  'frameworks/react/Phrase.generated.js':
+    'the compiled sibling of Phrase.ts, which the demo pages load; build:demos writes it and '
+    + 'check:demos holds it to the source.',
+  'frameworks/react/LocaleDefaults.generated.ts':
+    'the words Arena draws when a consumer provides no locale, emitted from the field defaults of '
+    + 'contracts/api/types/arena-locale.json. check:api holds it to the contract.',
+  'frameworks/angular/LocaleDefaults.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/Tokens.generated.js':
     'the design values JavaScript reads as numbers rather than through CSS, emitted from '
     + 'contracts/design/. check:script-tokens holds it to the source and to the CSS.',

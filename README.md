@@ -85,7 +85,7 @@ full and says which of them a gate reads your own sources for.
 - A press that starts on a control keeps to that control.
 - Two themes, dark first.
 - A chart carries identity or meaning, never both.
-- Copy is English, formal and direct.
+- Copy is formal and direct, in the product's language.
 - A required member absent is a caller bug.
 - No render follows from whether you bound a listener or filled a slot.
 - A few components answer with a method rather than a member.
@@ -198,7 +198,7 @@ package publishes only when something it ships changed.
 that means for an upgrade.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 11.0.3
+- **Repo/Claude Code plugin**: 11.1.0
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 - [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)

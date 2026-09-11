@@ -4,6 +4,8 @@ import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaCo
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCalendar.classes.generated.ts';
 import { arenaCatColor } from '../../../DataVisuals.ts';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 import { calendarGutterW, calendarHourH } from '../../../Tokens.generated.js';
 
 import type { ArenaCalendarView, ArenaCatSlot } from '../../../Api.generated';
@@ -50,8 +52,9 @@ export interface ArenaCalendarProps {
 }
 
 import {
+  arenaVisibleDetails,
   arenaAddDays, arenaDefaultDayStart, arenaFormatHM, arenaLayoutDay, arenaNowMinutes, arenaParseHM,
-  arenaPlaceEvents, arenaRangeTitle, arenaShowsTime, arenaStacksActions, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf, arenaFormatDate,
+  arenaPlaceEvents, arenaRangeTitle, arenaShowsTime, arenaStacksActions, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf, arenaFormatDate, ARENA_DATE_OPTIONS,
 } from './CalendarInternals.ts';
 
 const TRACKS = (n: number) => `repeat(${n}, minmax(0, 1fr))`;
@@ -64,6 +67,7 @@ export function ArenaCalendar({
   dayInteractive = false, onDateClick, onRangeChange, actions,
 }: ArenaCalendarProps) {
 
+  const locale = useArenaLocale();
   const zone = timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [ref, width] = useArenaContainerWidth<HTMLElement>();
   const [anchor, setAnchor] = useState(() => anchorDate || arenaTodayIso(zone));
@@ -198,8 +202,9 @@ export function ArenaCalendar({
   };
 
   const styles = arenaCalendarStyles({ dayInteractive });
+  const range = arenaRangeTitle(days, locale.locale);
   const navBtn = (dir: number) => (
-    <button type="button" aria-label={dir < 0 ? 'Previous' : 'Next'}
+    <button type="button" aria-label={dir < 0 ? locale.calendarPrevious : locale.calendarNext}
       onClick={() => goto(arenaAddDays(anchor, dir * step))}
       className={styles.nav()} data-arena-part={manifest.parts.nav}>
       <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} aria-hidden="true" />
@@ -207,16 +212,16 @@ export function ArenaCalendar({
   );
 
   return (
-    <section ref={ref} aria-label={`Schedule, ${arenaRangeTitle(days)}`}
+    <section ref={ref} aria-label={arenaPhrase(locale.calendarRegion, { range })}
       className={styles.root()} data-arena-part={manifest.parts.root}>
 
       <div className={styles.toolbar()} data-arena-part={manifest.parts.toolbar}>
         {navBtn(-1)}
         <button type="button" onClick={() => goto(today)}
-          className={styles.today()} data-arena-part={manifest.parts.today}>Today</button>
+          className={styles.today()} data-arena-part={manifest.parts.today}>{locale.calendarToday}</button>
         {navBtn(1)}
         <div className={styles.heading()} data-arena-part={manifest.parts.heading}>
-          {arenaRangeTitle(days)}
+          {range}
         </div>
         {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
       </div>
@@ -228,11 +233,11 @@ export function ArenaCalendar({
           return (
             <DayHead key={d} onClick={activateDay(d)}
               type={dayInteractive ? 'button' : undefined}
-              aria-label={dayInteractive ? arenaFormatDate(d, { weekday: 'long', day: 'numeric', month: 'long' }) : undefined}
+              aria-label={dayInteractive ? arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.dayName) : undefined}
               className={styles.dayHead()} data-arena-part={manifest.parts.dayHead}>
-              <div className={styles.weekday()} data-arena-part={manifest.parts.weekday}>{arenaFormatDate(d, { weekday: 'short' })}</div>
+              <div className={styles.weekday()} data-arena-part={manifest.parts.weekday}>{arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.weekdayShort)}</div>
               <div className={arenaCalendarStyles({ today: isToday }).dayNumber()} data-arena-part={manifest.parts.dayNumber}>
-                {arenaFormatDate(d, { day: 'numeric' })}
+                {arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.dayNumber)}
               </div>
             </DayHead>
           );
@@ -256,7 +261,7 @@ export function ArenaCalendar({
           {
 
 }
-          <div ref={gridRef} role="grid" aria-label={`Schedule grid, ${arenaRangeTitle(days)}`}
+          <div ref={gridRef} role="grid" aria-label={arenaPhrase(locale.calendarGrid, { range })}
             onKeyDown={onGridKeyDown}
             className={styles.grid()} data-arena-part={manifest.parts.grid} style={{ gridTemplateColumns: TRACKS(days.length) }}>
             {hours.map((m) => (
@@ -265,7 +270,7 @@ export function ArenaCalendar({
 
             {days.map((d, di) => (
               <div key={d} role="row"
-                aria-label={arenaFormatDate(d, { weekday: 'long', day: 'numeric', month: 'long' })}
+                aria-label={arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.dayName)}
                 aria-owns={ownedIds(di) || undefined}
                 onClick={activateDay(d)}
                 className={arenaCalendarStyles({ firstColumn: di === 0, dayInteractive }).column()} data-arena-part={manifest.parts.column}>
@@ -305,8 +310,9 @@ export function ArenaCalendar({
                   right: `${100 - leftShare - widthShare}%` },
                 color: arenaCatColor(p.ev.colorId ?? 1),
                 timeLabel: `${arenaFormatHM(p.startMin)} – ${arenaFormatHM(p.endMin)}`,
-                dateLabel: arenaFormatDate(days[di] ?? '', { weekday: 'long', day: 'numeric', month: 'long' }),
+                dateLabel: arenaFormatDate(days[di] ?? '', locale.locale, ARENA_DATE_OPTIONS.dayName),
                 showTime: arenaShowsTime(rawH, slotFor(p.cols)),
+                shownDetails: arenaVisibleDetails(rawH, slotFor(p.cols), (p.ev.details ?? []).length),
                 actionsBelow: arenaStacksActions(rawH, slotFor(p.cols)),
               });
             })}

@@ -4,6 +4,7 @@ import type { ArenaCatSlot, ArenaTagTone } from '../../../Api.generated';
 import { arenaCatColor } from '../../../DataVisuals.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTag.classes.generated.ts';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export interface ArenaTagProps {
   /** The tag's label. */
@@ -24,13 +25,14 @@ export interface ArenaTagProps {
 const arenaTagStyles = arenaStyles(manifest);
 
 export function ArenaTag({ children, tone = 'neutral', colorId, removable = false, disabled = false, onRemove }: ArenaTagProps) {
+  const locale = useArenaLocale();
   const styles = arenaTagStyles({ tone: colorId ? 'identity' : tone, disabled });
   return (
     <span className={styles.root()} data-arena-part={manifest.parts.root}
       style={colorId ? { '--arena-tag-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
       <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
       {children}
-      {removable && <button type="button" className={styles.close()} data-arena-part={manifest.parts.close} aria-label="Remove"
+      {removable && <button type="button" className={styles.close()} data-arena-part={manifest.parts.close} aria-label={locale.tagRemove}
         aria-disabled={disabled ? 'true' : undefined}
         onClick={disabled ? undefined : onRemove}><i className="ph-bold ph-x" aria-hidden="true" /></button>}
     </span>

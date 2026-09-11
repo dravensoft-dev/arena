@@ -439,6 +439,49 @@ To avoid a flash on first paint, apply the class before your stylesheet loads:
 Set the list to your own palettes and `DEFAULT` to the one your config marks default. The two are what the theme surface takes. A build carrying three or four palettes states them once, and the snippet cannot drift from the app. The default reaches `:root` and wears no class, so a
 snippet naming the wrong one puts a class on the very palette that must not have it. **The media query is the half a stored-value-only snippet gets wrong.** On a first visit nothing is stored. The theme surface falls back to the first palette whose polarity matches the device. A snippet that reads only storage paints the default first and is corrected after the app boots, which is the flash it exists to prevent.
 
+## Arena's own words, in your language
+
+A component draws a few words of its own: a close button's name, `Today` on a calendar, a
+pager's arrows, a table's empty line, a chart's name. `ArenaLocaleProvider` answers all of them,
+and the calendar formats its dates in the `locale` it carries:
+
+```tsx
+<ArenaLocaleProvider value={{ locale: 'es-ES', calendarToday: 'Hoy', paginationPrevious: 'Anterior', paginationNext: 'Siguiente', onboardingStep: 'Paso {current} de {total}' }}>
+  <App />
+</ArenaLocaleProvider>
+```
+
+**A word resolves in this order: the component's own member, then your locale, then the English
+default.** A field you leave out keeps its default, which is `ARENA_DEFAULT_LOCALE`, and a tree with
+no provider reads exactly that. A `{name}` in a field is a value Arena fills, and your language may
+put it anywhere in the sentence. `useArenaLocale` reads what a subtree was given, and
+`arenaMergeLocale` is the merge the provider applies. The provider renders on a server and switches
+language on re-render. A chart's numbers are not words: they follow its own `valueFormat.locale`.
+Hour labels keep a 24-hour clock whatever the locale says.
+
+## Confirmations raised from code
+
+`useArenaConfirm()` asks from a handler and awaits the answer; you render the one open request
+once, with the dialog you already have:
+
+```tsx
+const confirms = useArenaConfirm();
+const open = confirms.current;
+// …
+{open && (
+  <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
+    confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
+    destructive={open.destructive} requireText={open.requireText}
+    onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
+    {open.message}
+  </ArenaConfirmDialog>
+)}
+```
+
+`await confirms.ask({ title: 'Delete the project?', destructive: true })` answers `true` or
+`false`. One request is open at a time, in the order asked. A blank title throws at once, and every
+pending request answers `false` when the component that holds the queue unmounts.
+
 ## What the package ships besides the components
 
 Every component is imported from the package root, and its types ship with it, emitted from the
@@ -452,6 +495,7 @@ in the table below, each answering a question a consumer cannot answer from outs
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime |
 | `arenaCatColor(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface` |
 | `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, and `toasts` is what you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
+| `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
 | `arenaToastDelay(notice, dismiss)` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
 | `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses |
@@ -477,6 +521,7 @@ zero-friction path:
 | `css/page.css` | `.arena-shell` and `.arena-band` are the column your page sits in. The shell fills the window, so a footer never floats halfway up it. `.arena-shell__main` goes on the one child that should take the slack, and the band centres its contents at the page width with a gutter either side. Both lengths are the same pair a style plugin re-answers, so one written for reading narrows the page you already shipped |
 | `css/prose.css` | `.arena-prose`, the width of a reading column as a measure in `ch` rather than a pixel width, so it tracks the font size the way a measure has to. Put it on an article or a section you wrote; a style plugin written for reading narrows it and every page you already shipped follows |
 | `css/rhythm.css` | `.arena-stack` and `.arena-row`, the air between components as named steps rather than a number you pick. A stack is a column. `.arena-stack` alone is the step between two peers. `.arena-stack--group` is the one for things that read as one unit, and `.arena-stack--section` the one between two sections of a page. A row is a wrapping line, grouped by default, and `.arena-row--component` opens it to the wider step. The modifiers that carry no length line the items up instead: `.arena-stack--start`, `.arena-stack--end`, `.arena-row--start`, `.arena-row--baseline` and `.arena-row--between`. Put one on a container of your own, which is where your layout goes anyway |
+| `css/tailwind-theme.css` | Arena's theme and utilities for markup of your own compiled with `tailwindcss` v4. Import it right after `@import 'tailwindcss'`: every utility then resolves to Arena's scale, `case-eyebrow`, `case-label`, `fit-media` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import |
 
 **The rest of what ships under `css/` is not a choice.** The token layer is six sheets: `css/reset.css`, `css/typography.css`, `css/spacing.css`, `css/effects.css`, `css/colors.css` and `css/environment.css`. `arena.css` imports them in the order they have to be in, and `css/prelude.css` is what a single component sheet pulls in for itself. The one that IS a decision is `css/style-plugin-default.css`, the appearance this package installs with. The sheet arrives through `arena.css` like the rest. A `stylePlugins` list of your own that does not name `default` does not receive it, which is the point of writing one.
 

@@ -31,7 +31,7 @@ The table is a **compound** component. `columns` says how each column is headed 
 | `label*` | primitive | `string` |  | Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". |
 | `columns*` | array | `readonly ArenaTableColumn[]` |  | The columns, in order. A column heads and sets its cells; it never says what goes in them. |
 | `children` | slot |  |  | The rows. One ArenaTableRow per row. Where a row sits, the columns its cells are set against and how the keyboard reaches them are ArenaTable's to decide and no row's to declare; how that reaches a row is each layer's own idiom. |
-| `empty` | slot |  |  | What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a "no results" sentence describes a table that is not there, and a role="grid" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Every layer falls back to the string 'No data.' when nothing is given, each in its own idiom for a default. Unlike ArenaTable.label this one IS derivable: 'No data.' states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it. |
+| `empty` | slot |  |  | What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a "no results" sentence describes a table that is not there, and a role="grid" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Absent, the provided locale's tableEmpty answers it. Unlike ArenaTable.label this one IS derivable: a sentence saying the list is empty states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it. |
 | `sort` | object | `ArenaTableSort` |  | Which column the rows are ordered by and which way. Controlled: ArenaTable draws the caret and the aria-sort, and the consumer does the ordering, because ArenaTable does not hold the rows. Absent, no header is a sort target. |
 | `onSortChange` | event | `ArenaTableSort` |  | A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not, which is why the member is controlled rather than a starting value. |
 | `page` | object | `ArenaTablePage` |  | Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. |
@@ -54,7 +54,7 @@ The table is a **compound** component. `columns` says how each column is headed 
 - Mark the actions column `mobileLayout:'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive={false}` to "keep it looking like a table" on a phone. A table narrower than its content is unreadable; card mode is the honest fallback.
 - Row activation is `onClick` on the `ArenaTableRow`, and it carries no payload, because you wrote that element and already hold the row it is about.
-- Pass `empty` whenever the table can legitimately have no rows. With nothing passed, React falls back to the string **`No data.`**, which is a placeholder rather than an answer. The fallback says the query returned nothing, and never says what was being asked for. The fallback is this layer's own convenience and nothing contracts it. A table's empty state is editorial the way `label` is, and a layer that renders nothing instead is equally correct.
+- Pass `empty` whenever the table can legitimately have no rows. With nothing passed, the table says the locale's `tableEmpty`, **`No data.`** by default, which is a placeholder rather than an answer. The fallback says the query returned nothing, and never says what was being asked for. A table's empty state is editorial the way `label` is.
 
 ### Responsive
 
@@ -198,6 +198,8 @@ returns the reader to page one is yours**, and it belongs beside the criterion:
 ```tsx
 const applyStatus = (next: string) => { setStatus(next); setPageIndex(1); };  // your own state; `page` is the whole {index, size, total}
 ```
+
+**Words.** The locale's `tableSortBy` labels the card layout's sort select.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

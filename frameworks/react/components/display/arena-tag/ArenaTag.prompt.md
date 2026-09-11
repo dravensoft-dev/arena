@@ -56,6 +56,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
   appearance decision: the ramp colour reaches the element as `--arena-tag-cat`,
   so a style plugin fills `tag` with it and no member is needed here.
 
+**Words.** `tagRemove` names the remove button.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

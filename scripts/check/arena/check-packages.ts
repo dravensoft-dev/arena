@@ -25,6 +25,9 @@ import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
+import { SECONDARY_ENTRY_POINTS } from '../../build/angular/build-angular-package.ts';
+import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
+import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
 
 export const node = {
   name: 'check:packages',
@@ -32,6 +35,7 @@ export const node = {
     'frameworks/react/dist/**', 'frameworks/angular/dist/**', 'frameworks/Components.json',
     '.claude-plugin/plugin.json', 'contracts/design/palette.*.json',
     'contracts/design-generated/palette.generated.css',
+    ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
   ],
   writes: [],
   feeds: [],
@@ -167,6 +171,15 @@ export function exportProblems(pkg: { layer: string; name: string }, manifest: P
   return problems;
 }
 
+export function entryPointProblems(pkg: { layer: string; name: string }, manifest: PackageManifest) {
+  if (pkg.layer !== 'angular') return [];
+  const keys = Object.keys(manifest.exports ?? {});
+  return SECONDARY_ENTRY_POINTS
+    .filter((entry) => !keys.includes(`./${entry}`))
+    .map((entry) => `${pkg.name}: the secondary entry point ${entry} has no ./${entry} exports key, so `
+      + `an import of ${pkg.name}/${entry} fails to resolve in every consumer`);
+}
+
 export function componentMapProblems(pkg: { layer: string; name: string }, dir: string) {
   const at = join(dir, MAP_FILE);
   if (!existsSync(at)) {
@@ -276,6 +289,99 @@ export function styleProblems(pkg: { layer: string; name: string }, dir: string)
   return { problems, walked: seen.size };
 }
 
+export const COMPILED_BY_CONSUMER = new Map([
+  ['css/tailwind-theme.css', 'the one sheet a consumer\'s own Tailwind compiles: a theme and a set of '
+    + 'utilities, which emits nothing until markup names a utility'],
+]);
+
+const DIRECTIVES = ['@theme', '@utility', '@apply', '@source', '@reference'];
+
+export function directiveProblems(pkg: { layer: string; name: string }, dir: string) {
+  const problems = [];
+  for (const path of shippedSheets(dir)) {
+    const rel = relPosix(dir, path);
+    if (COMPILED_BY_CONSUMER.has(rel)) continue;
+    const css = readFileSync(path, 'utf8');
+    for (const directive of DIRECTIVES.filter((one) => css.includes(one))) {
+      problems.push(`${pkg.name}: ${rel} carries ${directive}, a compile-time directive: a browser cannot read `
+        + 'it, and a consumer\'s Tailwind would compile it a second time');
+    }
+  }
+  for (const rel of COMPILED_BY_CONSUMER.keys()) {
+    if (!existsSync(join(dir, rel))) {
+      problems.push(`${pkg.name}: COMPILED_BY_CONSUMER names ${rel} and the package does not ship it, so the `
+        + 'allowance excuses a sheet that is not there');
+    }
+  }
+  return problems;
+}
+
+export const THEME_SHEET = 'css/tailwind-theme.css';
+
+export function themeSheetProblems(pkg: { layer: string; name: string }, dir: string, expected: string) {
+  const path = join(dir, THEME_SHEET);
+  if (!existsSync(path)) return [`${pkg.name}: ships no ${THEME_SHEET}`];
+  if (readFileSync(path, 'utf8') === expected) return [];
+  return [`${pkg.name}: ${THEME_SHEET} is stale against frameworks/tailwind/Theme.css; run bun run build:packages`];
+}
+
+export function consumerEntry(dir: string) {
+  return "@import 'tailwindcss' source(none);\n"
+    + `@import '${toPosix(join(dir, THEME_SHEET))}';\n`
+    + '@theme { --color-brand: var(--color-primary); }\n'
+    + '@source inline("bg-base-100 p-4 bg-brand bg-red-500");\n';
+}
+
+export function themeCompileProblems(
+  pkg: { layer: string; name: string }, dir: string, compile: (entry: string) => string = (entry) => compileEntry(entry),
+) {
+  const css = compile(consumerEntry(dir));
+  const problems = [];
+  const rule = (cls: string) => new RegExp(`\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? null;
+  if (!/var\(--color-base-100\)/.test(rule('bg-base-100') ?? '')) {
+    problems.push(`${pkg.name}: a consumer's bg-base-100 does not resolve to --color-base-100 through ${THEME_SHEET}`);
+  }
+  if (!/--spacing/.test(rule('p-4') ?? '')) {
+    problems.push(`${pkg.name}: a consumer's p-4 does not resolve to Arena's spacing scale through ${THEME_SHEET}`);
+  }
+  if (rule('bg-brand') === null) {
+    problems.push(`${pkg.name}: a key a consumer declares below the import of ${THEME_SHEET} does not survive, `
+      + 'so a project part way through a migration loses its own keys');
+  }
+  if (rule('bg-red-500') !== null) {
+    problems.push(`${pkg.name}: bg-red-500 compiles through ${THEME_SHEET}, so Tailwind's own palette is still `
+      + 'reachable and a namespace was not cleared');
+  }
+  if (!/@layer theme\s*\{[\s\S]*--color-base-100:\s*var\(--color-base-100\)/.test(css)) {
+    problems.push(`${pkg.name}: the theme's self-reference is not emitted inside @layer theme, so it no longer loses `
+      + 'to the unlayered token sheets and resolves against itself');
+  }
+  return problems;
+}
+
+export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir: string) {
+  const problems = [];
+  const seen = new Set<string>();
+  const queue = ['arena.css'];
+  while (queue.length) {
+    const from = queue.shift();
+    if (from === undefined || seen.has(from)) continue;
+    seen.add(from);
+    const full = join(dir, from);
+    if (!existsSync(full)) continue;
+    const css = readFileSync(full, 'utf8');
+    for (const specifier of importsIn(css)) queue.push(toPosix(join(dirname(from), specifier ?? '')));
+    for (const block of topLevelBlocks(css, '@layer')) {
+      if (/--(?!tw-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
+        problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
+          + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
+        break;
+      }
+    }
+  }
+  return problems;
+}
+
 export function shippedSheets(dir: string) {
   return walkFiles(dir).filter((path) => path.endsWith('.css'));
 }
@@ -343,12 +449,17 @@ export function collect(base = root) {
     const manifest = readJson(manifestPath);
     problems.push(...manifestProblems(pkg, manifest, version));
     problems.push(...exportProblems(pkg, manifest, dir));
+    problems.push(...entryPointProblems(pkg, manifest));
     problems.push(...componentMapProblems(pkg, dir));
     problems.push(...iconManifestProblems(pkg, dir));
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...payloadProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
     problems.push(...bundledCssProblems(pkg, dir));
+    problems.push(...directiveProblems(pkg, dir));
+    problems.push(...themeSheetProblems(pkg, dir, tailwindThemeSheet(base)));
+    problems.push(...themeCompileProblems(pkg, dir));
+    problems.push(...unlayeredTokenProblems(pkg, dir));
     sheets += shippedSheets(dir).length;
   }
 

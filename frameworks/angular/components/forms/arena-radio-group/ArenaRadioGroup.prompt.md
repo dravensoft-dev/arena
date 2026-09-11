@@ -21,6 +21,7 @@ the accessible name and the column layout, so there is no wrapper inside it.
 | `content` | slot |  |  | The Radios. An option never holds a selected state of its own -- the group owns it, and how the two are wired is each layer's business rather than this contract's. |
 | `value` | primitive | `string` |  | The selected option's value. |
 | `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
+| `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
 | `change` | event | `string` |  | A different option was chosen; carries its value. |
 
 <!-- @api end -->
@@ -49,6 +50,8 @@ so this is the only place it is checked at all. Run `bun run demos` and open
 - Tab in and the focused option's **ring** takes a gold focus ring, though the focused element
   is the `opacity-0 size-0` native input. The `ring` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
   `arena-checkbox` draws the identical ring the identical way.
+
+**With reactive forms.** `ArenaRadioGroupControl` from `@dravensoft/arena-angular/forms` goes on the group rather than on a radio, and the form control holds the chosen radio's `value`. Disabling the form control disables the group, and with it every radio inside. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -12,6 +12,7 @@ import type {
   ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSlice,
   ArenaTableSort, ArenaTableSortControl,
 } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export type { ArenaTableColumn };
 
@@ -26,7 +27,7 @@ export interface ArenaTableProps {
   /** The rows. One ArenaTableRow per row. Where a row sits, the columns its cells are set against and how the keyboard reaches them are ArenaTable's to decide and no row's to declare; how that reaches a row is each layer's own idiom. */
   children?: React.ReactNode;
 
-  /** What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a "no results" sentence describes a table that is not there, and a role="grid" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Every layer falls back to the string 'No data.' when nothing is given, each in its own idiom for a default. Unlike ArenaTable.label this one IS derivable: 'No data.' states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it. */
+  /** What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a "no results" sentence describes a table that is not there, and a role="grid" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Absent, the provided locale's tableEmpty answers it. Unlike ArenaTable.label this one IS derivable: a sentence saying the list is empty states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it. */
   empty?: React.ReactNode;
 
   /** ArenaCard mode below --bp-md. Set false only when the columns are meaningless apart. */
@@ -75,9 +76,10 @@ const arenaSortOptions = (columns: readonly ArenaTableColumn[]): ArenaSelectOpti
 const arenaTableStyles = arenaStyles(manifest);
 
 export function ArenaTable({
-  columns, children, empty = 'No data.', responsive = true, label,
+  columns, children, empty, responsive = true, label,
   sort, sortControl = 'auto', onSortChange, page, slice, pageControl = 'auto', onPageChange,
 }: ArenaTableProps) {
+  const locale = useArenaLocale();
   if (!label?.trim()) throw new Error('ArenaTable: `label` is required');
   if (columns == null) throw new Error('ArenaTable: `columns` is required');
   const [ref, width] = useArenaContainerWidth();
@@ -206,7 +208,7 @@ export function ArenaTable({
       {narrow && sortBar && (
         <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
           <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>
-            <ArenaSelect label="Sort by" options={arenaSortOptions(columns)} value={sortValue}
+            <ArenaSelect label={locale.tableSortBy} options={arenaSortOptions(columns)} value={sortValue}
               onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
           </div>
         </div>
@@ -250,7 +252,7 @@ export function ArenaTable({
         </tbody>
       </table>
       {bare && (
-        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty}>{empty}</div>
+        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty}>{empty ?? locale.tableEmpty}</div>
       )}
       {!bare && page && pageControl !== 'none' && (
         <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager}>

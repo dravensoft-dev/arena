@@ -16,6 +16,8 @@ import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
 import type { ArenaLinePoint } from '../ChartScales.ts';
 import type { ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export interface ArenaScatterChartProps {
 
@@ -55,6 +57,7 @@ export function ArenaScatterChart({
   series, label, xLabel, yLabel, sizeLabel, sizeLegend = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaScatterChartProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaScatterChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!xLabel) throw new Error('ArenaScatterChart: `xLabel` is required (both axes carry a quantity, and a table of bare X and Y columns names neither)');
   if (!yLabel) throw new Error('ArenaScatterChart: `yLabel` is required (both axes carry a quantity, and a table of bare X and Y columns names neither)');
@@ -82,7 +85,7 @@ export function ArenaScatterChart({
   const yAxis = arenaAxisModel(yScale, domains.y, fmt);
 
   const colors = series.map((one, s) => arenaPointSeriesColor(one, s + 1));
-  const table = arenaPointTable(series, xLabel, yLabel, sizeLabel ?? '', fmt);
+  const table = arenaPointTable(locale.chartTableSeries, series, xLabel, yLabel, sizeLabel ?? '', fmt);
   const n = arenaPointCount(series);
 
   const marks: Array<{ seriesIndex: number; at: ArenaLinePoint; x: number; y: number; r: number; size?: number }> = [];
@@ -101,7 +104,7 @@ export function ArenaScatterChart({
     }
   });
 
-  const name = `${label} — scatter chart`;
+  const name = arenaPhrase(locale.scatterChartName, { label });
 
   const onPointer = (e: React.PointerEvent<SVGRectElement>, phase: string) => {
     if (!arenaPointerUpdates(e.pointerType, phase)) return;

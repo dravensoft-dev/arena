@@ -5,10 +5,11 @@ import {
 import type { ArenaCatSlot } from '../../../Api.generated';
 import { arenaCatColor, arenaCatTint } from '../../../DataVisuals';
 import { arenaPublished } from '../../../ProjectedInputs';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton';
 import { ArenaCalendarState } from '../arena-calendar/ArenaCalendarState';
 import {
-  type EventTimes, arenaFormatDate, arenaFormatHM, arenaShowsTime, arenaStacksActions,
+  type EventTimes, ARENA_DATE_OPTIONS, arenaFormatDate, arenaVisibleDetails, arenaFormatHM, arenaShowsTime, arenaStacksActions,
 } from '../arena-calendar/CalendarInternals';
 import { arenaCalendarEventStyles } from './ArenaCalendarEvent.variants';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated';
@@ -38,6 +39,9 @@ let seq = 0;
               @if (showTime()) {
                 <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
               }
+              @for (line of drawnDetails(); track $index) {
+                <span [class]="styles().detail()" [attr.data-arena-part]="parts.detail">{{ line }}</span>
+              }
             </button>
           } @else {
             <span #focusable tabindex="-1" [class]="bodyClass()" [attr.data-arena-part]="parts.chipBody" (click)="onActivate($event)">
@@ -45,10 +49,16 @@ let seq = 0;
               @if (showTime()) {
                 <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
               }
+              @for (line of drawnDetails(); track $index) {
+                <span [class]="styles().detail()" [attr.data-arena-part]="parts.detail">{{ line }}</span>
+              }
+              @for (line of shedDetails(); track $index) {
+                <span [class]="styles().detailShed()" [attr.data-arena-part]="parts.detailShed">{{ line }}</span>
+              }
             </span>
           }
           <span #kebabWrap [class]="kebabClass()" [attr.data-arena-part]="parts.kebabWrap">
-            <arena-icon-button icon="ph-bold ph-dots-three-vertical" label="Actions" size="sm"
+            <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" size="sm"
                                [tabStop]="false" (click)="togglePanel()" />
             @if (panelOpen()) {
               <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" [style.zIndex]="1">
@@ -67,6 +77,9 @@ let seq = 0;
           @if (showTime()) {
             <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
           }
+          @for (line of drawnDetails(); track $index) {
+            <span [class]="styles().detail()" [attr.data-arena-part]="parts.detail">{{ line }}</span>
+          }
         </button>
       } @else {
         <div #focusable [id]="domId" tabindex="-1" [class]="chipClass()" [attr.data-arena-part]="parts.chip"
@@ -76,6 +89,12 @@ let seq = 0;
           <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
           @if (showTime()) {
             <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
+          }
+          @for (line of drawnDetails(); track $index) {
+            <span [class]="styles().detail()" [attr.data-arena-part]="parts.detail">{{ line }}</span>
+          }
+          @for (line of shedDetails(); track $index) {
+            <span [class]="styles().detailShed()" [attr.data-arena-part]="parts.detailShed">{{ line }}</span>
           }
         </div>
       }
@@ -95,6 +114,8 @@ export class ArenaCalendarEvent {
   readonly end = input.required<string>();
   /** Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. */
   readonly colorId = input<ArenaCatSlot>();
+  /** Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. */
+  readonly details = input<readonly string[], readonly string[] | undefined>([], { transform: (value) => value ?? [] });
   /** Whether the chip can be activated. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */
   readonly interactive = input(false, { transform: booleanAttribute });
   /** Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for, because projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. */
@@ -111,6 +132,7 @@ export class ArenaCalendarEvent {
   protected readonly domId = `arena-calendar-event-${seq++}`;
 
   private readonly state = inject(ArenaCalendarState);
+  protected readonly locale = inject(ARENA_LOCALE);
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusable = viewChild<ElementRef<HTMLElement>>('focusable');
   private readonly kebabWrap = viewChild<ElementRef<HTMLElement>>('kebabWrap');
@@ -147,6 +169,13 @@ export class ArenaCalendarEvent {
     return at !== null && arenaShowsTime(this.heightPx(), this.state.slotWidth(at.cols));
   });
 
+  protected readonly shown = computed(() => {
+    const at = this.placement();
+    return at === null ? 0 : arenaVisibleDetails(this.heightPx(), this.state.slotWidth(at.cols), this.details().length);
+  });
+  protected readonly drawnDetails = computed(() => this.details().slice(0, this.shown()));
+  protected readonly shedDetails = computed(() => this.details().slice(this.shown()));
+
   protected readonly actionsBelow = computed(() => {
     const at = this.placement();
     return at !== null && arenaStacksActions(this.heightPx(), this.state.slotWidth(at.cols));
@@ -166,8 +195,8 @@ export class ArenaCalendarEvent {
   protected readonly label = computed(() => {
     const at = this.placement();
     if (!at) return null;
-    const day = arenaFormatDate(at.dayIso, { weekday: 'long', day: 'numeric', month: 'long' });
-    return `${this.heading()}, ${day}, ${this.timeLabel()}`;
+    const day = arenaFormatDate(at.dayIso, this.locale.locale, ARENA_DATE_OPTIONS.dayName);
+    return [this.heading(), day, this.timeLabel(), ...this.details()].join(', ');
   });
 
   protected readonly inert = computed(() => (this.disabled() ? 'true' : null));

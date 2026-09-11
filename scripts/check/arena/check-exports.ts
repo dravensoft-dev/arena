@@ -30,6 +30,11 @@ const THE_DOCUMENTED_SURFACE_IS_ABOVE_IT = 'an implementation detail of a surfac
   + 'name. A consumer reaches the named one and receives this through it';
 
 export const INTERNAL = new Map<string, string>([
+  ['ArenaControlBinding', 'the seam between a data-entry control and the directive the forms '
+    + 'entry point puts on it. A consumer imports a form directive and never this; it reaches the '
+    + 'root only because a secondary entry point reaches its primary by the package name'],
+  ['arenaWarnDoubleBinding', 'the warning a control raises when its own value member and a form '
+    + 'directive bind it at once. A consumer receives its output and calls nothing here'],
   ['arenaWarnOnce', 'the once-per-message warning helper every layer uses to report a caller '
     + 'mistake without flooding a console. A consumer calls nothing here: they receive its output'],
   ['forgetArenaWarnings', 'the test seam that clears what arenaWarnOnce has already said, so a '

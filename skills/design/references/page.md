@@ -26,6 +26,10 @@ Both are legitimate. The difference is what happens when the skin changes. A sty
 re-answers a role, so markup painted through one follows the appearance it is handed. An alias
 resolves to a palette colour and follows the palette instead.
 
+**Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
+`css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
+element resolves to the token a component reads. Tailwind's own defaults stop resolving at all.
+
 **Nineteen of the kernel's roles are colours**, and these are the ones a page of yours reaches
 for. Each role's full description is one entry in
 [`contracts/design/roles.json`](../../../contracts/design/roles.json).
@@ -143,7 +147,9 @@ you pick.
 **The three lengths are also custom properties**: `--rhythm-group`, `--rhythm-component` and
 `--rhythm-section`. So a grid of your own, or a rule the classes do not cover, spends the same
 step rather than a fresh number. Reach for the class first: it carries the display and the direction
-with the gap, and a `gap` you write yourself is a rule that can drift off the step.
+with the gap, and a `gap` you write yourself is a rule that can drift off the step. With the
+Tailwind theme sheet imported, the steps are utilities too: `gap-group`, `gap-component` and
+`gap-section`.
 
 **The miss this replaces has one shape, and it is small enough to look like nothing.** A column of your own carries `display: flex`, `flex-direction: column` and a `gap`. The column
 holds a title over its identifier inside a table cell, or a label over the value under it.

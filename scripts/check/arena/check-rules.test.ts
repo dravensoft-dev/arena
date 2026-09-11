@@ -71,3 +71,11 @@ test('the surfaces are the router, the repository page and the Context7 index', 
   assert.ok(TARGETS.includes(CONTEXT7), 'the index carries no comment syntax and is written whole');
   assert.deepEqual(emitProblems(), [], 'every surface equals a fresh emit on this tree');
 });
+
+test('the copy rule is about the product\'s language, and Arena\'s words answer to the locale', () => {
+  const copy = RULES.find((one) => one.id === 'copy-is-direct');
+  assert.ok(copy, 'copy-is-direct is declared');
+  assert.equal(copy.short, 'Copy is formal and direct, in the product\'s language.');
+  assert.match(copy.body, /Arena's words follow the locale\./);
+  assert.equal(RULES.some((one) => one.id === 'copy-is-english'), false);
+});

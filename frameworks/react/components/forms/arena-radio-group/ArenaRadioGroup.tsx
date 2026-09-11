@@ -18,20 +18,23 @@ export interface ArenaRadioGroupProps {
 
   /** A different option was chosen; carries its value. */
   onChange?: (value: string) => void;
+
+  /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
+  disabled?: boolean;
 }
 
 
 const arenaRadioStyles = arenaStyles(manifest);
 
-export function ArenaRadioGroup({ value, onChange, name, ariaLabel, children }: ArenaRadioGroupProps) {
+export function ArenaRadioGroup({ value, onChange, name, ariaLabel, children, disabled = false }: ArenaRadioGroupProps) {
   if (!ariaLabel?.trim()) throw new Error('ArenaRadioGroup: `ariaLabel` is required');
   const gname = name || 'rg-' + Math.random().toString(36).slice(2, 7);
   const items = React.Children.map(children, (child) =>
     React.isValidElement(child)
-      ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onChange })
+      ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onChange, disabled: disabled || Boolean(child.props.disabled) })
       : child);
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={arenaRadioStyles().group()} data-arena-part={manifest.parts.group}>
+    <div role="radiogroup" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaRadioStyles().group()} data-arena-part={manifest.parts.group}>
       {items}
     </div>
   );

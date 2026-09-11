@@ -2,6 +2,7 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPagination.classes.generated.ts';
 import { arenaPageWindow } from './PaginationWindow.ts';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export interface ArenaPaginationProps {
 
@@ -22,6 +23,7 @@ export interface ArenaPaginationProps {
 const arenaPaginationStyles = arenaStyles(manifest);
 
 export function ArenaPagination({ page, pageCount, ariaLabel, onChange }: ArenaPaginationProps) {
+  const locale = useArenaLocale();
 
   if (!ariaLabel?.trim()) throw new Error('ArenaPagination: `ariaLabel` is required');
   if (page == null) throw new Error('ArenaPagination: `page` is required');
@@ -29,7 +31,7 @@ export function ArenaPagination({ page, pageCount, ariaLabel, onChange }: ArenaP
   const styles = arenaPaginationStyles();
   const go = (p: number) => { if (p >= 1 && p <= pageCount && p !== page) onChange && onChange(p); };
   const nav = (dir: number, dis: boolean) => (
-    <button onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? 'Previous' : 'Next'}
+    <button onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? locale.paginationPrevious : locale.paginationNext}
       className={styles.nav()} data-arena-part={manifest.parts.nav}>
       <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
     </button>

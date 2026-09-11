@@ -106,6 +106,8 @@ shortens the total instead of pretending the category was measured.
 Only the outermost segment of each direction is rounded. The joints inside a bar stay square,
 because a rounded joint reads as the end of something.
 
+**Words.** The chart's accessible name is `barChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableCategory`.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

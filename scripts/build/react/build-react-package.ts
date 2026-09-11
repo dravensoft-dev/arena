@@ -27,18 +27,20 @@ import { PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
+import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 
 export const NAME = '@dravensoft/arena-react';
 export const LAYER = 'frameworks/react';
 export const LAYER_NAME = 'react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
-export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
+export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'Phrase.ts', 'ArenaLocale.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
 export const DIST_PROJECT = 'frameworks/react/tsconfig.dist.json';
 
 export const node = {
   name: 'build:react-package',
   reads: [
+    ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
     `${LAYER}/**`, '!frameworks/react/dist/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
@@ -187,6 +189,7 @@ export async function buildReactPackage(root = repoRoot) {
   for (const to of writeCssChain(dir, NAME, componentSheets(sheet, splitCompiledSheet), root))
     written.push(join(dir, to));
   written.push(join(dir, 'arena.css'));
+  written.push(write(dir, 'css/tailwind-theme.css', tailwindThemeSheet(root)));
 
   for (const rel of copyCli(dir, root)) written.push(join(dir, rel));
 

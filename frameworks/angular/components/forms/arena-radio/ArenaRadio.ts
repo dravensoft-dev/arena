@@ -28,7 +28,7 @@ import manifest from './ArenaRadio.classes.generated';
         </span>
       }
       <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
-             [attr.value]="value()" [checked]="checked()" [disabled]="disabled()"
+             [attr.value]="value()" [checked]="checked()" [disabled]="off()"
              (change)="onChange($event)" />
     </label>
   `,
@@ -49,13 +49,14 @@ export class ArenaRadio {
 
   protected readonly groupName = computed(() => this.group.groupName());
   protected readonly checked = computed(() => this.group.selected() === this.value());
+  protected readonly off = computed(() => this.disabled() || this.group.disabled());
 
   protected readonly styles = computed(() => arenaRadioStyles({
-    checked: this.checked(), disabled: this.disabled(),
+    checked: this.checked(), disabled: this.off(),
   }));
 
   protected onChange(event: Event): void {
     event.stopPropagation();
-    if (!this.disabled()) this.group.choose(this.value());
+    if (!this.off()) this.group.choose(this.value());
   }
 }

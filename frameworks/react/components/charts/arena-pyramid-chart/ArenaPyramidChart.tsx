@@ -15,6 +15,8 @@ import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUp
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
 
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export interface ArenaPyramidChartProps {
 
@@ -45,6 +47,7 @@ export function ArenaPyramidChart({
   labels, series, label, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaPyramidChartProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaPyramidChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaPyramidChart: `labels` is required');
   if (!series) throw new Error('ArenaPyramidChart: `series` is required');
@@ -64,9 +67,9 @@ export function ArenaPyramidChart({
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, away);
   const colors = sides.map((one, s) => arenaSeriesColors(one, n, s + 1));
-  const table = arenaChartTable('Category', sides, labels, fmt);
+  const table = arenaChartTable(locale.chartTableCategory, sides, labels, fmt);
 
-  const name = `${label} — horizontal bar chart`;
+  const name = arenaPhrase(locale.pyramidChartName, { label });
 
   const onPointer = (e: React.PointerEvent<SVGRectElement>, phase: string) => {
     if (!arenaPointerUpdates(e.pointerType, phase)) return;

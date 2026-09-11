@@ -3,6 +3,7 @@ import manifest from '../arena-calendar/ArenaCalendar.classes.generated.ts';
 import React from 'react';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
 import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
 
@@ -37,6 +38,9 @@ export interface ArenaCalendarEventProps {
 
   /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. */
   onClick?: () => void;
+
+  /** Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. */
+  details?: readonly string[];
 }
 
 
@@ -47,6 +51,7 @@ export interface ArenaCalendarEventInjected {
   timeLabel: string;
   dateLabel: string;
   showTime: boolean;
+  shownDetails: number;
   actionsBelow: boolean;
   tabIndex: number;
   defaultPanelOpen: boolean;
@@ -58,10 +63,11 @@ export const ArenaCalendarEvent = React.forwardRef<
 HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 >(function ArenaCalendarEvent({
   id, title, start, end, colorId, onClick, interactive = false, disabled = false,
-  actionsEnabled = false, actions,
-  box, domId, color, timeLabel, dateLabel, showTime, actionsBelow, tabIndex, defaultPanelOpen,
+  actionsEnabled = false, actions, details = [],
+  box, domId, color, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
 
+  const locale = useArenaLocale();
   const ink = color ?? arenaCatColor(colorId ?? 1);
 
   if (!id) throw new Error('ArenaCalendarEvent: `id` is required');
@@ -118,8 +124,15 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
       {showTime && (
         <span className={styles.time()} data-arena-part={manifest.parts.time}>{timeLabel}</span>
       )}
+      {details.slice(0, shownDetails).map((line, i) => (
+        <span key={`d${i}`} className={styles.detail()} data-arena-part={manifest.parts.detail}>{line}</span>
+      ))}
+      {!interactive && details.slice(shownDetails).map((line, i) => (
+        <span key={`s${i}`} className={styles.detailShed()} data-arena-part={manifest.parts.detailShed}>{line}</span>
+      ))}
     </>
   );
+  const name = [title, dateLabel, timeLabel, ...details].join(', ');
 
   return (
     <ArenaTag ref={bodyIsButton ? undefined : setFocusable}
@@ -127,7 +140,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
       type={interactive && !hasPanel ? 'button' : undefined}
       tabIndex={bodyIsButton ? undefined : tabIndex}
       onClick={hasPanel ? undefined : activate}
-      aria-label={interactive && !hasPanel ? `${title}, ${dateLabel}, ${timeLabel}` : undefined}
+      aria-label={interactive && !hasPanel ? name : undefined}
       aria-disabled={interactive && !hasPanel && disabled ? 'true' : undefined}
       onKeyDown={hasPanel ? (e) => {
 
@@ -156,7 +169,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
           {interactive ? (
             <button type="button" ref={setFocusable} tabIndex={tabIndex}
               onClick={activate}
-              aria-label={`${title}, ${dateLabel}, ${timeLabel}`}
+              aria-label={name}
               aria-disabled={disabled ? 'true' : undefined}
 
               className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
@@ -169,7 +182,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
             </span>
           )}
           <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap}>
-            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label="Actions" size="sm"
+            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} size="sm"
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (

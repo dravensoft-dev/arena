@@ -20,6 +20,7 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 | `start*` | primitive | `string` |  | ISO datetime the event begins. |
 | `end*` | primitive | `string` |  | ISO datetime the event ends. |
 | `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. |
+| `details` | array | `readonly string[]` | `[]` | Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. |
 | `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
 | `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for, because projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
 | `actions` | slot |  |  | The action panel's content, revealed by the chip's action button. Rendered only while the panel is open, so a consumer's own controls never sit permanently in the grid's Tab sequence. |
@@ -69,6 +70,10 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 - Don't use `disabled` to make a chip inert. In this layer nothing does (see the divergence above), and `disabled` means "a button that announces it cannot be pressed right now", which reads differently to a screen reader.
 - Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle.
 - Don't reach for `style` or `class` to place it. The chip's geometry is the calendar's, and a `class` on the host lands on an element that declares `display: contents`.
+
+**Words.** `calendarEventActions` names the button that opens the action panel.
+
+**Details.** `details` puts the people involved, a room or a capacity under the time, one line per entry, each cut to a single line. The calendar decides how many fit: the last detail goes first as the chip shrinks, then the time label, and the title stays. Nothing is lost to a screen reader. An activatable chip names every detail after its time, and an inert one keeps the lines it cannot draw in its text, hidden from sight.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

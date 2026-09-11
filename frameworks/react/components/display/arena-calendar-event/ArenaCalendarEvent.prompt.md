@@ -20,6 +20,7 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 | `start*` | primitive | `string` |  | ISO datetime the event begins. |
 | `end*` | primitive | `string` |  | ISO datetime the event ends. |
 | `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. |
+| `details` | array | `readonly string[]` | `[]` | Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. |
 | `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
 | `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for, because projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
 | `actions` | slot |  |  | The action panel's content, revealed by the chip's action button. Rendered only while the panel is open, so a consumer's own controls never sit permanently in the grid's Tab sequence. |
@@ -108,6 +109,10 @@ implement. Serve the tree with `bun run demos`, open
 Reserving the kebab's 34px band is what stops the title being drawn underneath it, and on a full-width chip it costs nothing. On a chip sharing its slot (`cols: 2`, about 78px outer) it leaves a **36.58px** content box. A title like `Client review, Northwind` then renders as `Clien…`. **A tall one does not meet it.** At 56px or more the kebab moves to the chip's bottom-right, the reserve is dropped, and the title gets the whole **64.6px**. Truncation measured falls from 74% to 54% rather than to the 18% its kebab-less neighbours show, because that figure belongs to their shorter titles. 56px is the sum that makes title and kebab fit without overlap, so it reaches
 events of roughly 75 minutes or more. What remains is a 30 or 60 minute event sharing its column, and both remaining options cost more than the gap. Showing the kebab only on hover or focus fails a touch reader, and the chip is a `grid` cell whose hover is not a given. Not rendering it below some width makes `actionsEnabled` a request rather than a guarantee, and silently removes the only route to the consumer's actions. **A member that sometimes does nothing is worse than a truncated
 title.**
+
+**Words.** `calendarEventActions` names the button that opens the action panel.
+
+**Details.** `details` puts the people involved, a room or a capacity under the time, one line per entry, each cut to a single line. The calendar decides how many fit: the last detail goes first as the chip shrinks, then the time label, and the title stays. Nothing is lost to a screen reader. An activatable chip names every detail after its time, and an inert one keeps the lines it cannot draw in its text, hidden from sight.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

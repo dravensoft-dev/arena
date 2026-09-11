@@ -1,0 +1,14 @@
+{
+  "name": "ArenaConfirmRequest",
+  "kind": "object",
+  "description": "A confirmation asked for from code rather than from a template, drawn by the ArenaConfirmDialog the consumer renders once at the head of the queue. Every field means what the dialog's member of the same name means; an absent label reaches the dialog absent and the dialog answers it through the locale.",
+  "fields": {
+    "title": { "form": "primitive", "type": "string", "required": true, "description": "Names the dialog. Required: asking with a blank title is refused at once." },
+    "message": { "form": "primitive", "type": "string", "description": "The dialog's body text." },
+    "eyebrow": { "form": "primitive", "type": "string", "description": "The short kicker above the title." },
+    "confirmLabel": { "form": "primitive", "type": "string", "description": "The confirming button." },
+    "cancelLabel": { "form": "primitive", "type": "string", "description": "The cancelling button." },
+    "destructive": { "form": "primitive", "type": "boolean", "default": false, "description": "Whether confirming is the final irreversible step, drawn as the one filled danger surface." },
+    "requireText": { "form": "primitive", "type": "string", "description": "Text the reader must type before the confirming button is enabled." }
+  }
+}

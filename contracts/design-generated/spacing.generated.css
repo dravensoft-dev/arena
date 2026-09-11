@@ -167,6 +167,13 @@
    */
   --calendar-time-min-h:32px;
   /*
+     The height one detail line adds to what a chip needs before it may draw
+     it. Measured: the time label's line box, which the detail lines share, reads
+     16px in both layers at --dz-text-2xs, already on the 4px scale. Script-readable
+     because it is compared against a projected pixel height, like time-min-h.
+   */
+  --calendar-detail-line-h:16px;
+  /*
      The narrowest column share a chip may occupy and still draw its time
      label. Measured: the label is 78.02px at --dz-text-2xs, and a chip's content box
      is its share less 18px -- 4px of gutter to its neighbour, 12px of its own

@@ -3,6 +3,7 @@ import {
   Component,
   DOCUMENT,
   ElementRef,
+  Injector,
   afterRenderEffect,
   booleanAttribute,
   computed,
@@ -11,6 +12,7 @@ import {
   inject,
   input,
   output,
+  runInInjectionContext,
   untracked,
   viewChild,
 } from '@angular/core';
@@ -20,6 +22,8 @@ import { arenaDialogStyles } from './ArenaDialog.variants';
 import manifest from './ArenaDialog.classes.generated';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
+import type { ArenaBreakpoint } from '../../../Api.generated';
 
 @Component({
   selector: 'arena-dialog',
@@ -35,7 +39,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   template: `
     @if (open()) {
       <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
-           [attr.aria-labelledby]="titleId" [style.width]="width()"
+           [attr.aria-labelledby]="titleId" [style.width]="fill() ? null : width()"
            (click)="$event.stopPropagation()">
         <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
           @if (eyebrow(); as label) {
@@ -63,6 +67,8 @@ export class ArenaDialog {
   readonly eyebrow = input<string>();
   /** A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. */
   readonly width = input<string>();
+  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. */
+  readonly fillBelow = input<ArenaBreakpoint>();
   /** The dialog was dismissed -- by Escape or by a scrim click. No payload. */
   readonly close = output<void>();
 
@@ -71,7 +77,15 @@ export class ArenaDialog {
 
   protected readonly titleId = `${inject(ArenaIdGenerator).next('arena-dialog')}-title`;
   protected readonly footer = contentChild(ArenaFooter);
-  protected readonly styles = computed(() => arenaDialogStyles({ open: this.open() }));
+  private readonly measured = arenaContainerWidth();
+  private readonly injector = inject(Injector);
+  protected readonly fill = computed(() => {
+    const below = this.fillBelow();
+    const width = this.measured();
+    if (below === undefined || width === null) return false;
+    return width < runInInjectionContext(this.injector, () => arenaReadBreakpoint(below));
+  });
+  protected readonly styles = computed(() => arenaDialogStyles({ open: this.open(), fill: this.fill() }));
 
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 

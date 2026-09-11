@@ -5,6 +5,7 @@ export class ArenaSideNavState {
   depth: Signal<number> = signal(0);
   activeId: Signal<string | undefined> = signal(undefined);
   indentStep: Signal<number> = signal(3);
+  collapsed: Signal<boolean> = signal(false);
   activate: (id: string) => void = () => {};
 
   private readonly ids = signal<readonly string[]>([]);

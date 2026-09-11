@@ -79,6 +79,8 @@ below is provable by a suite. Run `bun run demos` and open `/frameworks/angular/
   gone.
 - Disabled dims the whole column, label included, and the control refuses the pointer.
 
+**With reactive forms.** `ArenaSelectControl` from `@dravensoft/arena-angular/forms` binds the select to a form control holding the chosen option's `value`. A form value that matches no option leaves the placeholder selected. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

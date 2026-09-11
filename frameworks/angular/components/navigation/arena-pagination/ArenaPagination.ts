@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { arenaPageWindow } from './PaginationWindow';
 import { arenaPaginationStyles } from './ArenaPagination.variants';
 import manifest from './ArenaPagination.classes.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 @Component({
   selector: 'arena-pagination',
@@ -11,7 +12,7 @@ import manifest from './ArenaPagination.classes.generated';
   template: `
     <nav [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="label()">
       <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [disabled]="page() <= 1"
-              aria-label="Previous" (click)="go(page() - 1)">
+              [attr.aria-label]="locale.paginationPrevious" (click)="go(page() - 1)">
         <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
       </button>
       @for (slot of slots(); track $index) {
@@ -24,7 +25,7 @@ import manifest from './ArenaPagination.classes.generated';
         }
       }
       <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [disabled]="page() >= pageCount()"
-              aria-label="Next" (click)="go(page() + 1)">
+              [attr.aria-label]="locale.paginationNext" (click)="go(page() + 1)">
         <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
       </button>
     </nav>
@@ -32,6 +33,7 @@ import manifest from './ArenaPagination.classes.generated';
 })
 export class ArenaPagination {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** The current page, 1-based. */
   readonly page = input.required<number>();

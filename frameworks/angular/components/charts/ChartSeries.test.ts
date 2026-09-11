@@ -329,7 +329,7 @@ test('a pair needs both halves, so the shorter array ends the series', () => {
 
   const ragged: ArenaPointSeries[] = [{ label: 'Half', x: [1, 2, 3], y: [10, 20] }];
   assert.equal(arenaPointCount(ragged), 2, 'a third x with no y is not a point, and inventing the y is the one thing a chart may not do');
-  assert.equal(arenaPointTable(ragged, 'X', 'Y', 'Size', String).rows.length, 2, 'and the table says the same');
+  assert.equal(arenaPointTable('Series', ragged, 'X', 'Y', 'Size', String).rows.length, 2, 'and the table says the same');
 });
 
 test('the mark count is every pair across every series, because the cursor walks them all', () => {
@@ -354,7 +354,7 @@ test('both domains still put zero on a tick, which is what the two rules are dra
 
 test('the table lists a row per pair with the series named on every one, in the order given', () => {
 
-  const table = arenaPointTable(PAIRS, 'Requests', 'Latency', 'Size', (v: number) => `${v}`);
+  const table = arenaPointTable('Series', PAIRS, 'Requests', 'Latency', 'Size', (v: number) => `${v}`);
   assert.deepEqual(table.columns, ['Series', 'Requests', 'Latency']);
   assert.equal(table.rows.length, 5);
   assert.deepEqual(table.rows[0], { header: 'Staging', cells: ['12', '240'] });
@@ -385,13 +385,13 @@ test('tone still wins over slot on a point series, and still warns', () => {
 
 test('a size column appears only when a series carries one, so a plain scatter keeps three columns', () => {
 
-  const plain = arenaPointTable(PAIRS, 'X', 'Y', 'Size', String);
+  const plain = arenaPointTable('Series', PAIRS, 'X', 'Y', 'Size', String);
   assert.deepEqual(plain.columns, ['Series', 'X', 'Y']);
   assert.equal(arenaPointSized(PAIRS), false);
 
   const sized: ArenaPointSeries[] = [{ label: 'A', x: [1, 2], y: [3, 4], r: [10, 20] }];
   assert.equal(arenaPointSized(sized), true);
-  assert.deepEqual(arenaPointTable(sized, 'X', 'Y', 'Weight', String).columns, ['Series', 'X', 'Y', 'Weight']);
+  assert.deepEqual(arenaPointTable('Series', sized, 'X', 'Y', 'Weight', String).columns, ['Series', 'X', 'Y', 'Weight']);
 });
 
 test('an unmeasured size leaves an empty cell and keeps its mark, because the POSITION was measured', () => {
@@ -400,7 +400,7 @@ test('an unmeasured size leaves an empty cell and keeps its mark, because the PO
     { label: 'Sized', x: [1, 2], y: [3, 4], r: [10] },
     { label: 'Unsized', x: [5], y: [6] },
   ];
-  const rows = arenaPointTable(holed, 'X', 'Y', 'Weight', String).rows;
+  const rows = arenaPointTable('Series', holed, 'X', 'Y', 'Weight', String).rows;
   assert.equal(rows.length, 3, 'every pair still has a row: a missing size is not a missing point');
   assert.deepEqual(rows[1]?.cells, ['2', '4', ''], 'the second pair has no size, and says so rather than saying zero');
   assert.deepEqual(rows[2]?.cells, ['5', '6', '']);

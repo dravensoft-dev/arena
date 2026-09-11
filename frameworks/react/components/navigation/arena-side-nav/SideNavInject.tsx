@@ -5,6 +5,7 @@ export interface ArenaSideNavInjected {
   indentStep: number;
   activeId?: string;
   onActivate?: (id: string) => void;
+  collapsed?: boolean;
 }
 
 export function arenaInjectInto(children: React.ReactNode, injected: ArenaSideNavInjected): React.ReactNode[] {

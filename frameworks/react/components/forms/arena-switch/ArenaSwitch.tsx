@@ -3,6 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSwitch.classes.generated.ts';
 
 import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export interface ArenaSwitchProps {
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
@@ -37,6 +38,7 @@ export function ArenaSwitch({
   iconOn, iconOff, label, disabled = false, confirm = false,
   onFuncOn, onFuncOff, onRequestChange,
 }: ArenaSwitchProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaSwitch: `label` is required (a switch must have an accessible name)');
   const icon = state ? iconOn : iconOff;
   const styles = arenaSwitchStyles({
@@ -65,7 +67,7 @@ export function ArenaSwitch({
       {label && (
         <span onClick={activate} className={styles.label()} data-arena-part={manifest.parts.label}>
           {label}
-          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} data-arena-part={manifest.parts.guard} aria-hidden="true" title="Requires confirmation" />}
+          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} data-arena-part={manifest.parts.guard} aria-hidden="true" title={locale.switchConfirmHint} />}
         </span>
       )}
     </span>

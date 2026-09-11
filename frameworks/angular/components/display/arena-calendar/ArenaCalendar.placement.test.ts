@@ -16,8 +16,9 @@ import { Component, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { assertNoNode } from '../../../test/NodeAssert';
 import { CHECKS } from '../../../test/Compliance';
-import { calendarHourH } from '../../../Tokens.generated';
+import { calendarDetailLineH, calendarHourH, calendarTimeMinH, calendarTimeMinW } from '../../../Tokens.generated';
 import { ArenaCalendar } from './ArenaCalendar';
+import { ARENA_DATE_OPTIONS, arenaFormatDate, arenaRangeTitle, arenaVisibleDetails } from './CalendarInternals';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent';
 
 const { scanValue } = await import(
@@ -243,4 +244,28 @@ test('the geometry the gate cannot see holds to the same rule the gate enforces'
   } finally {
     fixture.destroy();
   }
+});
+
+test('arenaFormatDate formats in the locale it is given, and caches per locale', () => {
+  assert.equal(arenaFormatDate('2026-03-16', 'en-GB', ARENA_DATE_OPTIONS.dayName), 'Monday 16 March');
+  assert.equal(arenaFormatDate('2026-03-16', 'es-ES', ARENA_DATE_OPTIONS.dayName), 'lunes, 16 de marzo');
+  assert.equal(arenaFormatDate('2026-03-16', 'en-GB', ARENA_DATE_OPTIONS.dayName), 'Monday 16 March');
+});
+
+test('arenaRangeTitle follows the locale and keeps its en dash', () => {
+  const days = ['2026-03-16', '2026-03-17', '2026-03-18', '2026-03-19', '2026-03-20'];
+  assert.equal(arenaRangeTitle(days, 'en-GB'), '16 \u2013 20 Mar 2026');
+  assert.equal(arenaRangeTitle(days, 'es-ES'), '16 \u2013 20 mar 2026');
+});
+
+test('details shed last first, then the time label, and never more than exist', () => {
+  const line = calendarDetailLineH;
+  assert.equal(arenaVisibleDetails(calendarTimeMinH - 1, null, 3), 0, 'no time label, so no detail');
+  assert.equal(arenaVisibleDetails(calendarTimeMinH, null, 3), 0, 'the time label, and not one line more');
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + line - 1, null, 3), 0);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + line, null, 3), 1);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 2 * line, null, 3), 2);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 10 * line, null, 3), 3);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 10 * line, calendarTimeMinW - 1, 3), 0, 'too narrow for the time, so too narrow for details');
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 10 * line, null, 0), 0);
 });

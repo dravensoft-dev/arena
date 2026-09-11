@@ -1,6 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, booleanAttribute, computed,
-  input, signal, viewChild,
+  afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
@@ -22,6 +21,8 @@ import {
 } from '../ChartLegendStyles';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
 
@@ -139,6 +140,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
   `,
 })
 export class ArenaLineChart {
+  protected readonly locale = inject(ARENA_LOCALE);
   /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. */
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
@@ -211,7 +213,7 @@ export class ArenaLineChart {
   });
 
   protected readonly name = computed(() => {
-    return `${this.label()} — line chart`;
+    return arenaPhrase(this.locale.lineChartName, { label: this.label() });
   });
 
   private readonly domain = computed(() => arenaSeriesDomain(this.series()));
@@ -283,7 +285,7 @@ export class ArenaLineChart {
   });
 
   protected readonly table = computed(() => arenaChartTable(
-    'Point', this.series(), this.labels(), this.write(),
+    this.locale.chartTablePoint, this.series(), this.labels(), this.write(),
   ));
 
   protected readonly active = computed(() => {

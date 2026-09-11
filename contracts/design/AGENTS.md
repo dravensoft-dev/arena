@@ -14,7 +14,7 @@ re-derive them. This document states what the values MEAN;
 the shape each value arrives in.
 
 ## Content fundamentals (voice and copy)
-- **Language:** English (en-US neutral).
+- **Language:** Arena's documentation and its defaults are English (en-US neutral). A product's copy is in the product's language, and every word Arena draws of its own is answered through the locale a consumer provides.
 - **Register:** formal and direct in enterprise product and formal documentation; a closer, more casual register only in marketing material. Never mix registers on the same surface.
 - **Tone:** confident and direct, never boastful. State capability without empty adjectives. E.g.: *"Delivery ready for review"* > *"Amazing delivery completed!"*.
 - **Casing:** titles in **UPPERCASE with tracking** only for eyebrows/mono labels (`.22em`); section headings in Archivo weight 800–900 in normal case (Sentence case). Buttons in Sentence case, not Title Case.

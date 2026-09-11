@@ -15,6 +15,8 @@ import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUp
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export interface ArenaRadarChartProps {
 
@@ -48,6 +50,7 @@ export function ArenaRadarChart({
   labels, series, label, fill = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaRadarChartProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaRadarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaRadarChart: `labels` is required');
   if (!series) throw new Error('ArenaRadarChart: `series` is required');
@@ -68,10 +71,10 @@ export function ArenaRadarChart({
   const reach = (value: number) => Math.max(0, arenaScaleValue(radial, value));
 
   const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1)[0] as string);
-  const table = arenaChartTable('Axis', series, labels, fmt);
+  const table = arenaChartTable(locale.chartTableAxis, series, labels, fmt);
   const rings = arenaRadarRings(domain);
 
-  const name = `${label} — radar chart`;
+  const name = arenaPhrase(locale.radarChartName, { label });
 
   const onPointer = (e: React.PointerEvent<SVGRectElement>, phase: string) => {
     if (!arenaPointerUpdates(e.pointerType, phase)) return;

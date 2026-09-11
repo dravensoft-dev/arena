@@ -45,6 +45,8 @@ and answers `null` for a notice that must not be taken away. The two are tokens,
 - Don't cram long messages into all caps, and don't use the ArenaToast for destructive confirmations (that's `ArenaConfirmDialog`).
 - Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex or grid item. On plain static flow the token does nothing, and the one thing that must float above everything quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
 
+**Words.** `toastClose` names the close button; `toastPinned` is the mark a toast that does not dismiss itself carries, and `toastPinnedHint` its title.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

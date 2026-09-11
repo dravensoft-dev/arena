@@ -1,6 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, booleanAttribute, computed, input, signal,
-  viewChild,
+  afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import {
@@ -24,6 +23,8 @@ import {
 } from '../ChartLegendStyles';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 const BAR_RADIUS = chartBarRadius;
 
@@ -119,6 +120,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
   `,
 })
 export class ArenaBarChart {
+  protected readonly locale = inject(ARENA_LOCALE);
   /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. */
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one group of bars per category. One series is the common case and draws exactly what it drew before; two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. The ramp clamps at its last slot rather than cycling, so a ninth series folds into "Other" upstream, never into a colour already spent. */
@@ -175,7 +177,7 @@ export class ArenaBarChart {
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 
   protected readonly name = computed(() => {
-    return `${this.label()} — bar chart`;
+    return arenaPhrase(this.locale.barChartName, { label: this.label() });
   });
 
   private readonly domain = computed(
@@ -267,7 +269,7 @@ export class ArenaBarChart {
   });
 
   protected readonly table = computed(() => arenaChartTable(
-    'Category', this.series(), this.labels(), this.write(),
+    this.locale.chartTableCategory, this.series(), this.labels(), this.write(),
   ));
 
   protected readonly active = computed(() => {

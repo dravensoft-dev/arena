@@ -1,5 +1,5 @@
 import {
-  calendarActionsBelowMinH, calendarTimeMinH, calendarTimeMinW,
+  calendarActionsBelowMinH, calendarDetailLineH, calendarTimeMinH, calendarTimeMinW,
 } from '../../../Tokens.generated';
 
 export interface ArenaZonedParts {
@@ -35,6 +35,12 @@ export function arenaShowsTime(chipHeight: number, slotWidth: number | null): bo
 
 export function arenaStacksActions(chipHeight: number, slotWidth: number | null): boolean {
   return chipHeight >= calendarActionsBelowMinH && !arenaShowsTime(chipHeight, slotWidth);
+}
+
+export function arenaVisibleDetails(chipHeight: number, slotWidth: number | null, details: number): number {
+  if (details <= 0 || !arenaShowsTime(chipHeight, slotWidth)) return 0;
+  const room = Math.floor((chipHeight - calendarTimeMinH) / calendarDetailLineH);
+  return Math.max(0, Math.min(details, room));
 }
 
 const warned = new Set<string>();
@@ -179,33 +185,39 @@ export function arenaDefaultDayStart<T>(placements: readonly ArenaPlacement<T>[]
 
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
-function dateFormatter(options?: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-  const key = JSON.stringify(options ?? {});
+function dateFormatter(locale: string, options?: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale}|${JSON.stringify(options ?? {})}`;
   let formatter = dateFormatters.get(key);
   if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', ...options });
+    formatter = new Intl.DateTimeFormat(locale, { timeZone: 'UTC', ...options });
     dateFormatters.set(key, formatter);
   }
   return formatter;
 }
 
-export function arenaFormatDate(isoDate: string, options?: Intl.DateTimeFormatOptions): string {
-  return dateFormatter(options).format(asUtcDate(isoDate));
+export const ARENA_DATE_OPTIONS = {
+  weekdayShort: { weekday: 'short' },
+  dayNumber: { day: 'numeric' },
+  dayName: { weekday: 'long', day: 'numeric', month: 'long' },
+} as const satisfies Record<string, Intl.DateTimeFormatOptions>;
+
+export function arenaFormatDate(isoDate: string, locale: string, options?: Intl.DateTimeFormatOptions): string {
+  return dateFormatter(locale, options).format(asUtcDate(isoDate));
 }
 
-export function arenaRangeTitle(days: readonly string[]): string {
+export function arenaRangeTitle(days: readonly string[], locale: string): string {
   if (!days.length) return '';
   const first = days[0];
   const last = days[days.length - 1];
   if (first === last) {
-    return arenaFormatDate(first, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    return arenaFormatDate(first, locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   }
   const from = asUtcDate(first);
   const to = asUtcDate(last);
   const sameYear = from.getUTCFullYear() === to.getUTCFullYear();
   const sameMonth = sameYear && from.getUTCMonth() === to.getUTCMonth();
-  const left = sameMonth ? arenaFormatDate(first, { day: 'numeric' })
-    : sameYear ? arenaFormatDate(first, { day: 'numeric', month: 'short' })
-      : arenaFormatDate(first, { day: 'numeric', month: 'short', year: 'numeric' });
-  return `${left} – ${arenaFormatDate(last, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  const left = sameMonth ? arenaFormatDate(first, locale, { day: 'numeric' })
+    : sameYear ? arenaFormatDate(first, locale, { day: 'numeric', month: 'short' })
+      : arenaFormatDate(first, locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  return `${left} – ${arenaFormatDate(last, locale, { day: 'numeric', month: 'short', year: 'numeric' })}`;
 }

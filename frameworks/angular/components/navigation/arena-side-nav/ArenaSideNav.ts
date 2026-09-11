@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, computed, inject, input, numberAttribute, output, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, numberAttribute, output, signal,
 } from '@angular/core';
 import { ArenaSideNavState } from './ArenaSideNavState';
 import { arenaSideNavStyles } from './ArenaSideNav.variants';
@@ -27,6 +27,8 @@ export class ArenaSideNav {
   readonly ariaLabel = input.required<string>();
   /** How far each nesting level indents, as a MULTIPLIER of --sp-1 rather than a length: the row at depth N is padded calc(var(--sp-1) * 3 + var(--sp-1) * indentStep * N). A CSS string was rejected -- a caller-supplied "1.5rem" is neither a token nor a derivation of one, so it would stop re-densifying inside .arena-compact, and no gate would catch it because the gate that forbids a bare length scans source and not the values a caller passes in. */
   readonly indentStep = input(3, { transform: numberAttribute });
+  /** Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name; a badge becomes a dot whose count joins the name; a section's label is hidden and stays the group's name; a collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. */
+  readonly collapsed = input(false, { transform: booleanAttribute });
   /** An item was activated, carrying its id. It carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself, and under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. */
   readonly nav = output<string>();
 
@@ -40,12 +42,13 @@ export class ArenaSideNav {
     return name;
   });
 
-  protected readonly styles = computed(() => arenaSideNavStyles());
+  protected readonly styles = computed(() => arenaSideNavStyles({ collapsed: this.collapsed() }));
 
   constructor() {
     this.state.depth = signal(0);
     this.state.activeId = this.active;
     this.state.indentStep = this.indentStep;
+    this.state.collapsed = this.collapsed;
     this.state.activate = (id: string) => this.nav.emit(id);
   }
 }

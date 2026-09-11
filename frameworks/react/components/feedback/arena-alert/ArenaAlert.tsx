@@ -3,6 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaAlert.classes.generated.ts';
 
 import type { ArenaAlertTone } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export interface ArenaAlertProps {
   /** The severity: colour, default icon, and (for danger) the alert role. */
@@ -37,6 +38,7 @@ const toneOf = (tone: string | undefined): ArenaTone =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'info');
 
 export function ArenaAlert({ tone = 'info', title, children, icon, actionLabel, onAction, dismissible, onClose }: ArenaAlertProps) {
+  const locale = useArenaLocale();
   const at = toneOf(tone);
   const styles = arenaAlertStyles({ tone: at, titled: Boolean(title) });
   return (
@@ -50,7 +52,7 @@ export function ArenaAlert({ tone = 'info', title, children, icon, actionLabel, 
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label="Dismiss" className={styles.close()} data-arena-part={manifest.parts.close}>
+        <button onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close}>
           <i className="ph-bold ph-x" />
         </button>
       )}

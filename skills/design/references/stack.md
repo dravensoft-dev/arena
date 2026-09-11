@@ -102,6 +102,7 @@ installs nothing that draws**, and an Arena package with a peer missing fails at
 | `@dravensoft/arena-angular` | `@angular/platform-browser` | `>=20` | always |
 | `@dravensoft/arena-angular` | `@angular/cdk` | `>=20` | always |
 | `@dravensoft/arena-angular` | `@angular/router` | `>=20` | until you reach what needs it |
+| `@dravensoft/arena-angular` | `@angular/forms` | `>=20` | until you reach what needs it |
 | `@dravensoft/arena-angular` | `@phosphor-icons/web` | `^2.1.2` | always |
 
 <!-- @support peers end -->

@@ -50,6 +50,8 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
 - Tab to the control and the **box** takes a gold focus ring, even though the element the
   browser focused is the `opacity-0 size-0` native input. The `box` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling inside the same `<label>`. The input must stay after the box in the template, and moving it removes the ring with nothing failing.
 
+**With reactive forms.** `ArenaCheckboxControl` from `@dravensoft/arena-angular/forms` binds the box to a form control holding a boolean, which replaces `checked` while the form is bound. The native `value` member is untouched: it is what a submitted form posts, not what the control holds. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

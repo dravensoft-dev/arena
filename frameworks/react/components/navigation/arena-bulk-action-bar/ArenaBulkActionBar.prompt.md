@@ -16,7 +16,7 @@ Bulk actions (H7). Appears when there's a selection and operates on the set. Com
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `count*` | primitive | `number` |  | How many rows are selected. Zero renders no bar at all. |
-| `noun` | primitive | `string` | `"items"` | What is being counted, plural: "items", "projects". |
+| `noun` | primitive | `string` |  | What is being counted, plural: "items", "projects". Absent, the provided locale's bulkActionBarNoun answers it. |
 | `actions*` | array | `readonly ArenaBulkAction[]` |  | The actions offered for the current selection. |
 | `onRun` | event | `ArenaBulkAction` |  | An action was activated, carrying which one. |
 | `layout` | enum | `ArenaBulkActionBarLayout` | `"auto"` | Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. |
@@ -41,6 +41,8 @@ control order is identical in the two shapes.
 - Mark `destructive` on irreversible actions and chain it with `ArenaConfirmDialog`.
 - Don't fire bulk actions without confirmation or without leaving `onClear` to undo the selection.
 - Don't reach for `clearable={false}` casually: a selection whose edges the user cannot see is one they act on by accident.
+
+**Words.** `bulkActionBarLabel` names the toolbar; `bulkActionBarClear` is the clear button's text and `bulkActionBarClearLabel` its name. The count is `bulkActionBarCount`, whose `{count}` is drawn in bold and whose `{noun}` is `noun`, or the locale's `bulkActionBarNoun` when `noun` is absent.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

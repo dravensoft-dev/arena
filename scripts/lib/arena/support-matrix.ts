@@ -36,13 +36,14 @@ export const PEERS = {
     '@angular/platform-browser': '>=20',
     '@angular/cdk': '>=20',
     '@angular/router': '>=20',
+    '@angular/forms': '>=20',
     '@phosphor-icons/web': '^2.1.2',
   },
 } satisfies Record<string, Record<string, string>>;
 
 export const OPTIONAL_PEERS = {
   react: {},
-  angular: { '@angular/router': { optional: true } },
+  angular: { '@angular/router': { optional: true }, '@angular/forms': { optional: true } },
 } satisfies Record<string, Record<string, { optional: boolean }>>;
 
 export const BUILT_AGAINST = {

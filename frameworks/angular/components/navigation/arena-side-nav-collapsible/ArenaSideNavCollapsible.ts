@@ -17,18 +17,23 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
     '[attr.id]': 'null',
   },
   template: `
-    <button type="button" [id]="triggerId()" [class]="styles().trigger()" [attr.data-arena-part]="parts.trigger"
-            [style.paddingInlineStart]="indent()"
-            [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
-            (click)="press()" (keydown)="onKeydown($event)">
-      @if (icon(); as glyph) {
-        <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
-      }
-      <span [class]="styles().triggerLabel()" [attr.data-arena-part]="parts.triggerLabel">{{ heading() }}</span>
-      <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
-    </button>
+    @if (rail()) {
+      <div aria-hidden="true" [class]="styles().separator()" [attr.data-arena-part]="parts.separator"></div>
+    } @else {
+      <button type="button" [id]="triggerId()" [class]="styles().trigger()" [attr.data-arena-part]="parts.trigger"
+              [style.paddingInlineStart]="indent()"
+              [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
+              (click)="press()" (keydown)="onKeydown($event)">
+        @if (icon(); as glyph) {
+          <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+        }
+        <span [class]="styles().triggerLabel()" [attr.data-arena-part]="parts.triggerLabel">{{ heading() }}</span>
+        <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+      </button>
+    }
     <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" role="group"
-         [attr.aria-labelledby]="triggerId()" [hidden]="!expanded()">
+         [attr.aria-labelledby]="rail() ? null : triggerId()" [attr.aria-label]="rail() ? heading() : null"
+         [hidden]="!rail() && !expanded()">
       <ng-content />
     </div>
   `,
@@ -66,13 +71,15 @@ export class ArenaSideNavCollapsible {
     return text;
   });
 
-  protected readonly indent = computed(() => arenaIndentFor(this.parent.indentStep(), this.parent.depth()));
-  protected readonly styles = computed(() => arenaSideNavStyles());
+  protected readonly indent = computed(() => (this.parent.collapsed() ? null : arenaIndentFor(this.parent.indentStep(), this.parent.depth())));
+  protected readonly rail = computed(() => this.parent.collapsed());
+  protected readonly styles = computed(() => arenaSideNavStyles({ collapsed: this.parent.collapsed() }));
 
   constructor() {
     this.own.depth = computed(() => this.parent.depth() + 1);
     this.own.activeId = this.parent.activeId;
     this.own.indentStep = this.parent.indentStep;
+    this.own.collapsed = this.parent.collapsed;
     this.own.activate = (id: string) => this.parent.activate(id);
     this.parent.adopt(this.own);
     inject(DestroyRef).onDestroy(() => this.parent.orphan(this.own));

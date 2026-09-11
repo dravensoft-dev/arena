@@ -26,7 +26,7 @@ useEffect(() => {
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the palette is shown. Closed renders nothing. |
 | `commands*` | array | `readonly ArenaCommand[]` |  | Every command the palette can find. Filtered by label and hint as the user types. |
-| `placeholder` | primitive | `string` | `"Search for an action or project…"` | The search field's placeholder. |
+| `placeholder` | primitive | `string` |  | The search field's placeholder. Absent, the provided locale's commandPalettePlaceholder answers it. |
 | `maxResults` | primitive | `number` |  | How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. |
 | `onClose` | event |  |  | The palette asked to be closed: Escape, the scrim, or a command having been run. |
 | `onRun` | event | `ArenaCommand` |  | A command was activated, carrying which one. Emitted after close. For a command with `route` it fires for a primary click with no modifier and for Enter, both of which cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice; a modified or middle click on such a row is the browser's, fires nothing and does not close the palette. |
@@ -54,6 +54,8 @@ There is still no ranking member. A scoring function would be a `functionInput` 
 The palette is named after Cmd/Ctrl+K and binds nothing, which is why the example above wires
 the key in the host. A global key binding belongs to the application. The application has to know which other surface owns the key, whether a dialog is already up, and whether the reader is typing in a field. A component that took the key would fight the host for it and win by accident of
 mount order.
+
+**Words.** `commandPaletteDialog` names the dialog and `commandPaletteList` the list; `commandPaletteEscape` is the key hint. The field shows `placeholder`, or the locale's `commandPalettePlaceholder` when it is absent, and that text names it; `commandPaletteSearch` names it only when the placeholder is empty. `commandPaletteEmpty` is the empty line, with what was typed in `{query}`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -21,10 +21,10 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
 | `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
-| `eyebrow` | primitive | `string` | `"Confirm"` | Small uppercase label above the title. |
+| `eyebrow` | primitive | `string` |  | Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. |
 | `content` | slot |  |  | The dialog body: the question and any detail. |
-| `confirmLabel` | primitive | `string` | `"Confirm"` | The confirm button's label. |
-| `cancelLabel` | primitive | `string` | `"Cancel"` | The cancel button's label. |
+| `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
+| `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
 | `destructive` | primitive | `boolean` | `false` | Gives the confirm button Arena's only filled danger surface. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `cancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |
@@ -60,6 +60,10 @@ close, and Tab wraps at the panel's edges.
   true, `"0"`, `"off"` and `"no"` all give you the destructive button. Whether an
   action is irreversible is a computed fact, so bind it:
   `[destructive]="isIrreversible"`. Keep the bare attribute for a constant true.
+
+**Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
+
+**Asked from code.** A service that needs a yes or a no before it goes on asks `ArenaConfirmQueue` rather than holding an `open` signal of its own. `ask` returns the answer as a promise, and the one open request is rendered once, in the shell, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

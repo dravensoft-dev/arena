@@ -56,6 +56,15 @@ export function catSlotEnumProblems(catSlots: number, values: unknown) {
   return [`contracts/api/types/arena-cat-slot.json: ArenaCatSlot is [${actual.join(', ')}], but the --color-cat-* ramp in contracts/design/palette.dark.json has ${catSlots} slot(s), so it must be [${expected.join(', ')}] — the contract type restates the ramp and has to follow it`];
 }
 
+export function breakpointEnumProblems(keys: readonly string[], values: unknown) {
+  const actual = Array.isArray(values) ? values : [];
+  const matches = actual.length === keys.length && keys.every((key, i) => actual[i] === key);
+  if (matches) return [];
+  return [`contracts/api/types/arena-breakpoint.json: ArenaBreakpoint is [${actual.join(', ')}], but the bp group in `
+    + `contracts/design/spacing.json declares [${keys.join(', ')}], so it must be exactly that, in order: the contract `
+    + 'type restates the token group and has to follow it'];
+}
+
 export const SHADOW_EXEMPT = new Map<string, string>([
 
 ]);
@@ -198,6 +207,15 @@ async function main() {
     } catch (err) {
       problems.push(`contracts/api/types/arena-cat-slot.json: unreadable (${(err as Error).message}) — ArenaCatSlot restates the --color-cat-* ramp and must exist`);
     }
+  }
+
+  try {
+    const bp = readJson(join(root, 'contracts/design/spacing.json')).bp ?? {};
+    const keys = Object.keys(bp).filter((key) => !key.startsWith('$'));
+    const breakpoint = readJson(join(root, 'contracts/api/types/arena-breakpoint.json'));
+    problems.push(...breakpointEnumProblems(keys, breakpoint.values));
+  } catch (err) {
+    problems.push(`contracts/api/types/arena-breakpoint.json: unreadable (${(err as Error).message}) — ArenaBreakpoint restates the bp group and must exist`);
   }
 
   if (problems.length) {

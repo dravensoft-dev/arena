@@ -52,6 +52,8 @@ How wide the window is comes from the design layer rather than from this compone
 - With a screen reader, move by landmark: the two strips on the card announce as *Environments*
   and *Deployments*, never as two identical ones.
 
+**Words.** `paginationPrevious` and `paginationNext` name the arrows. The landmark's name is `ariaLabel` and is always yours.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

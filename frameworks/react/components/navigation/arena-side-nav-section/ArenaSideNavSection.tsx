@@ -18,7 +18,7 @@ const arenaSideNavStyles = arenaStyles(manifest);
 
 export function ArenaSideNavSection({
   label, children,
-  depth = 0, activeId, indentStep = 3, onActivate,
+  depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
 }: ArenaSideNavSectionProps & Partial<ArenaSideNavInjected>) {
 
   if (!label?.trim()) throw new Error('ArenaSideNavSection: `label` is required');
@@ -27,12 +27,13 @@ export function ArenaSideNavSection({
     throw new Error('ArenaSideNavSection: a section with no children is not a legal shape');
   }
   const labelId = useId();
-  const styles = arenaSideNavStyles();
+  const styles = arenaSideNavStyles({ collapsed });
   return (
     <div role="group" aria-labelledby={labelId} className={styles.section()} data-arena-part={manifest.parts.section}>
+      {collapsed && <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />}
       <div id={labelId} className={styles.sectionLabel()} data-arena-part={manifest.parts.sectionLabel}
-        style={{ paddingInlineStart: arenaIndentFor(indentStep, depth) }}>{label}</div>
-      {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate })}
+        style={collapsed ? undefined : { paddingInlineStart: arenaIndentFor(indentStep, depth) }}>{label}</div>
+      {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
     </div>
   );
 }

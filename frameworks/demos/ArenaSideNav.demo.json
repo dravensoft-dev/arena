@@ -47,14 +47,16 @@
               "component": "ArenaSideNavItem",
               "members": {
                 "id": "usage",
-                "label": "Usage"
+                "label": "Usage",
+                "icon": "ph-bold ph-gauge"
               }
             },
             {
               "component": "ArenaSideNavItem",
               "members": {
                 "id": "billing",
-                "label": "Billing"
+                "label": "Billing",
+                "icon": "ph-bold ph-receipt"
               }
             }
           ]

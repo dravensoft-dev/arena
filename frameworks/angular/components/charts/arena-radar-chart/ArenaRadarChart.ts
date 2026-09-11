@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, input, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import {
@@ -22,6 +22,8 @@ import {
 } from '../ChartLegendStyles';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
 
@@ -121,6 +123,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
   `,
 })
 export class ArenaRadarChart {
+  protected readonly locale = inject(ARENA_LOCALE);
   /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. The ramp clamps at its last slot rather than cycling. */
@@ -165,7 +168,7 @@ export class ArenaRadarChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return `${this.label()} — radar chart`;
+    return arenaPhrase(this.locale.radarChartName, { label: this.label() });
   });
 
   private readonly axes = computed(() => arenaSeriesPointCount(this.series()));
@@ -254,7 +257,7 @@ export class ArenaRadarChart {
   });
 
   protected readonly table = computed(() => arenaChartTable(
-    'Axis', this.series(), this.labels(), this.write(),
+    this.locale.chartTableAxis, this.series(), this.labels(), this.write(),
   ));
 
   protected readonly active = computed(() => {

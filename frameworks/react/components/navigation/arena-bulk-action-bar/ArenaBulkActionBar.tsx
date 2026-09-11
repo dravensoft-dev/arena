@@ -4,6 +4,8 @@ import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaCo
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBulkActionBar.classes.generated.ts';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhraseParts } from '../../../Phrase.ts';
 
 export type { ArenaBulkAction };
 
@@ -12,7 +14,7 @@ export interface ArenaBulkActionBarProps {
   /** How many rows are selected. Zero renders no bar at all. */
   count: number;
 
-  /** What is being counted, plural: "items", "projects". */
+  /** What is being counted, plural: "items", "projects". Absent, the provided locale's bulkActionBarNoun answers it. */
   noun?: string;
 
   /** The actions offered for the current selection. */
@@ -34,7 +36,9 @@ export interface ArenaBulkActionBarProps {
 
 const barStyles = arenaStyles(manifest);
 
-export function ArenaBulkActionBar({ count, noun = 'items', actions, layout = 'auto', onRun, onClear, clearable = true }: ArenaBulkActionBarProps) {
+export function ArenaBulkActionBar({ count, noun, actions, layout = 'auto', onRun, onClear, clearable = true }: ArenaBulkActionBarProps) {
+  const locale = useArenaLocale();
+  const counted = noun ?? locale.bulkActionBarNoun;
   if (count == null) throw new Error('ArenaBulkActionBar: `count` is required');
   if (actions == null) throw new Error('ArenaBulkActionBar: `actions` is required');
   if (!count) return null;
@@ -64,11 +68,13 @@ export function ArenaBulkActionBar({ count, noun = 'items', actions, layout = 'a
   };
 
   return (
-    <div role="toolbar" aria-label="Actions on the selection"
+    <div role="toolbar" aria-label={locale.bulkActionBarLabel}
       ref={barRef} onKeyDown={onKeyDown}
       className={styles.root()} data-arena-part={manifest.parts.root}>
       <span className={styles.count()} data-arena-part={manifest.parts.count}>
-        <b className={styles.number()} data-arena-part={manifest.parts.number}>{count}</b>{` ${noun} selected`}
+        {arenaPhraseParts(locale.bulkActionBarCount).map((part, i) => ('slot' in part && part.slot === 'count'
+          ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number}>{count}</b>
+          : <React.Fragment key={i}>{'text' in part ? part.text : counted}</React.Fragment>))}
       </span>
       {!narrow && (
         <span aria-hidden="true" className={styles.divider()} data-arena-part={manifest.parts.divider} />
@@ -83,10 +89,10 @@ export function ArenaBulkActionBar({ count, noun = 'items', actions, layout = 'a
         ))}
       </div>
       {clearable && (
-        <button onClick={() => onClear && onClear()} aria-label="Clear selection"
+        <button onClick={() => onClear && onClear()} aria-label={locale.bulkActionBarClearLabel}
           tabIndex={actions.length === at ? 0 : -1} onFocus={() => setCursor(actions.length)}
           className={styles.clear()} data-arena-part={manifest.parts.clear}>
-          Clear
+          {locale.bulkActionBarClear}
         </button>
       )}
     </div>

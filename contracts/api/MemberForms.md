@@ -146,9 +146,10 @@ type cannot carry an undescribed bag. A per-event `meta` bag on a calendar event
 this refuses, and it is **nothing at all** rather than a member of the component. The per-item
 convention leaves such an object no per-item render function, which is the only route by which
 a consumer's own record could come back out, and the other mechanical guard on the eighth form
-is that a consumer-data member must have a consumer. With no route out it is dead API, so
-`ArenaCalendarEvent` declares `id`, `title`, `start`, `end` and `colorId` and nothing else. What a
-consumer cannot express through those is recorded in `ArenaCalendar.prompt.md`, not hidden.
+is that a consumer-data member must have a consumer. With no route out it is dead API. What R1
+leaves a consumer who needs more on a chip is `ArenaCalendarEvent.details`, an array of primitives
+Arena draws and sheds, and what a consumer still cannot express is recorded in
+`ArenaCalendar.prompt.md`, not hidden.
 
 **R2. Who draws decides data versus slot.** If Arena draws the content, knowing its
 fields and owning its markup, it is an object or an array of objects. If the consumer draws
@@ -422,11 +423,12 @@ contract type follows. `enumLiteral()` in `generate-api-types.ts` renders a nume
 which is what lets the type render at all.
 
 So the rule survives with its test attached: a closed set that restates a token-derived value
-may be an enum **only** while something machine-checks the restatement. `ArenaCatSlot` is the only
-type in `contracts/api/types/` that does this, and the assertion is written as that one named case
-rather than as a mechanism: a second such type would need its own tie, and whether a general
-mechanism is worth building is a question for whoever brings the second one, not a facility
-already waiting for it.
+may be an enum **only** while something machine-checks the restatement. Two types in
+`contracts/api/types/` do this, and each is its own named case in `check:script-tokens` rather
+than an instance of a mechanism: `ArenaCatSlot` against the ramp through `catSlotEnumProblems()`,
+and `ArenaBreakpoint` against the keys of the `bp` group in `contracts/design/spacing.json`, in
+order, through `breakpointEnumProblems()`. Whether a general mechanism is worth building is a
+question for whoever brings a third, not a facility already waiting for it.
 
 A `description` on a type or on one of its fields is carried into the generated modules
 as a doc comment, and `generate-api-types.ts` reads `contracts/api/types/` only. Group-level prose is

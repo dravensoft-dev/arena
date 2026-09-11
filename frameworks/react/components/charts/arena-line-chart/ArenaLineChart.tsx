@@ -16,6 +16,8 @@ import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUp
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export interface ArenaLineChartProps {
 
@@ -55,6 +57,7 @@ export function ArenaLineChart({
   labels, series, label, area = false, curve = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaLineChartProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaLineChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaLineChart: `labels` is required');
   if (!series) throw new Error('ArenaLineChart: `series` is required');
@@ -87,13 +90,13 @@ export function ArenaLineChart({
   const xScale = arenaPointScale(n, box.x, box.w);
   const axis = arenaAxisModel(yScale, domain, fmt);
   const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1)[0] as string);
-  const table = arenaChartTable('Point', series, labels, fmt);
+  const table = arenaChartTable(locale.chartTablePoint, series, labels, fmt);
 
   const plotted = series.map(
     (one) => one.values.map((value, i) => ({ x: arenaPointAt(xScale, i), y: arenaScaleValue(yScale, value) })),
   );
 
-  const name = `${label} — line chart`;
+  const name = arenaPhrase(locale.lineChartName, { label });
 
   const onPointer = (e: React.PointerEvent<SVGRectElement>, phase: string) => {
     if (!n || !arenaPointerUpdates(e.pointerType, phase)) return;

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { arenaSkeletonStyles } from './ArenaSkeleton.variants';
 import manifest from './ArenaSkeleton.classes.generated';
 import type { ArenaSkeletonVariant } from '../../../Api.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'lastLine' {
   return row === total && total > 1 ? 'lastLine' : 'line';
@@ -18,7 +19,7 @@ export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'last
     '[style.height]': 'hostHeight()',
     '[style.borderRadius]': 'hostRadius()',
     role: 'status',
-    'aria-label': 'Loading',
+    '[attr.aria-label]': 'locale.skeletonLabel',
   },
   template: `
     @if (stacked()) {
@@ -31,6 +32,7 @@ export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'last
 })
 export class ArenaSkeleton {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** The shape the placeholder reserves. */
   readonly variant = input<ArenaSkeletonVariant, ArenaSkeletonVariant | undefined>(

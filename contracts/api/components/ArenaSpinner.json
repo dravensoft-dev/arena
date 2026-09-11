@@ -7,7 +7,6 @@
               "description": "Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text." },
     "tone": { "form": "enum", "type": "ArenaSpinnerTone", "default": "accent",
               "description": "Colour of the ring. 'on-accent' inside a filled button; 'accent' on a page surface." },
-    "label": { "form": "primitive", "type": "string", "default": "Loading",
-               "description": "Accessible name, announced by the status role. Say what is loading when you can." }
+    "label": { "form": "primitive", "type": "string", "description": "Accessible name, announced by the status role. Say what is loading when you can. Absent, the provided locale's spinnerLabel answers it, which reads Loading by default." }
   }
 }

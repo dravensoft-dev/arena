@@ -5,6 +5,7 @@ import { arenaIndentFor } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
+import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip.tsx';
 
 export interface ArenaSideNavItemProps {
 
@@ -32,13 +33,16 @@ const arenaSideNavStyles = arenaStyles(manifest);
 
 export function ArenaSideNavItem({
   id, label, icon, badge, href, disabled = false,
-  depth = 0, activeId, indentStep = 3, onActivate,
+  depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
 }: ArenaSideNavItemProps & Partial<ArenaSideNavInjected>) {
 
   if (!id) throw new Error('ArenaSideNavItem: `id` is required');
   if (!label) throw new Error('ArenaSideNavItem: `label` is required');
+  if (collapsed && !icon) {
+    throw new Error(`ArenaSideNavItem: \`icon\` is required while ArenaSideNav is collapsed, and the item "${id}" has none`);
+  }
   const on = id === activeId;
-  const styles = arenaSideNavStyles({ active: on });
+  const styles = arenaSideNavStyles({ active: on, collapsed });
 
   const shared = {
     'aria-current': on ? 'page' as const : undefined,
@@ -53,15 +57,26 @@ export function ArenaSideNavItem({
     },
     className: styles.item(),
     'data-arena-part': manifest.parts.item,
-    style: { paddingInlineStart: arenaIndentFor(indentStep, depth) },
+    style: collapsed ? undefined : { paddingInlineStart: arenaIndentFor(indentStep, depth) },
   };
 
   const glyph = icon
     ? <i className={`${on ? arenaActiveWeight(icon) : icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />
     : null;
   const count = arenaBadgeCount(badge);
-  const tally = count === null ? null : <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{count}</span>;
-  return href
-    ? <a href={href} {...shared}>{glyph}{label}{tally}</a>
-    : <button type="button" {...shared}>{glyph}{label}{tally}</button>;
+  const tally = count === null || collapsed ? null : <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{count}</span>;
+  const dot = collapsed && count !== null
+    ? <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
+    : null;
+  const name = collapsed
+    ? (
+      <span className={styles.itemLabel()} data-arena-part={manifest.parts.itemLabel}>
+        {count !== null ? `${label} ${count}` : label}
+      </span>
+    )
+    : label;
+  const row = href
+    ? <a href={href} {...shared}>{glyph}{name}{tally}{dot}</a>
+    : <button type="button" {...shared}>{glyph}{name}{tally}{dot}</button>;
+  return collapsed ? <ArenaTooltip label={label}>{row}</ArenaTooltip> : row;
 }

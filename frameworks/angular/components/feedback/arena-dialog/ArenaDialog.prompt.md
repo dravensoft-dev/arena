@@ -25,6 +25,7 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 | `width` | primitive | `string` | `"calc(var(--sp-1) * 120)"` | A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. |
 | `content` | slot |  |  | The dialog's body. |
 | `footer` | slot |  |  | The action row, right-aligned. |
+| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. |
 | `close` | event |  |  | The dialog was dismissed -- by Escape or by a scrim click. No payload. |
 
 <!-- @api end -->
@@ -80,6 +81,8 @@ third path is yours, a button in `[footer]` wired to the same handler, and it ad
 Driving it through CDP costs an afternoon on one gotcha: a `rawKeyDown` does not activate a
 button. Enter must be dispatched as `keyDown` carrying `text: '\r'`. Tab and Escape are fine as
 `rawKeyDown`.
+
+**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -18,6 +18,9 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
     '[attr.aria-labelledby]': 'labelId',
   },
   template: `
+    @if (rail()) {
+      <div aria-hidden="true" [class]="styles().separator()" [attr.data-arena-part]="parts.separator"></div>
+    }
     <div [id]="labelId" [class]="styles().sectionLabel()" [attr.data-arena-part]="parts.sectionLabel" [style.paddingInlineStart]="indent()">{{ heading() }}</div>
     <ng-content />
   `,
@@ -43,13 +46,15 @@ export class ArenaSideNavSection {
     return text;
   });
 
-  protected readonly indent = computed(() => arenaIndentFor(this.parent.indentStep(), this.parent.depth()));
-  protected readonly styles = computed(() => arenaSideNavStyles());
+  protected readonly indent = computed(() => (this.parent.collapsed() ? null : arenaIndentFor(this.parent.indentStep(), this.parent.depth())));
+  protected readonly rail = computed(() => this.parent.collapsed());
+  protected readonly styles = computed(() => arenaSideNavStyles({ collapsed: this.parent.collapsed() }));
 
   constructor() {
     this.own.depth = computed(() => this.parent.depth() + 1);
     this.own.activeId = this.parent.activeId;
     this.own.indentStep = this.parent.indentStep;
+    this.own.collapsed = this.parent.collapsed;
     this.own.activate = (id: string) => this.parent.activate(id);
     this.parent.adopt(this.own);
     inject(DestroyRef).onDestroy(() => this.parent.orphan(this.own));

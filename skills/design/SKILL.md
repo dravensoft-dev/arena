@@ -138,8 +138,8 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
   exclusive.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
   identity. The status colours are meaning. A status colour is never a series colour.
-- **Copy is English, formal and direct.** Use concrete action verbs and no boastful adjectives. An
-  error is blame-free and says what to do next.
+- **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
+  is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails
   hard rather than drawing something empty, so an absent member is loud on the first render.
 - **No render follows from whether you bound a listener or filled a slot.** A member decides,
@@ -154,7 +154,7 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
 | Question | Read |
 |---|---|
 | I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
-| Which layer, which architecture, and what do I have to install? | [`references/cold-start.md`](./references/cold-start.md), at its last three nodes. How much the product has to be found decides the layer and a peer. What the product is assembled on is answered per architecture, with the evidence for each. The dependency list follows from both answers |
+| Which layer, which architecture, and what do I have to install? | [`references/cold-start.md`](./references/cold-start.md), at its last four nodes. How much the product has to be found decides the layer and a peer. What the product is assembled on is answered per architecture, with the evidence for each. The dependency list follows from the answers |
 | What may I build this with, and how sure is Arena about each answer? | [`references/stack.md`](./references/stack.md): the package manager, the runner, the module format, the bundler and the framework version, each answer carrying the evidence it actually has. Arena is built with bun, React 18 and Angular 22, and none of that is a requirement on you |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Which of those answers actually change how it looks? | the table in [`references/style-kernel.md`](./references/style-kernel.md), measured over eight products built on this kernel |

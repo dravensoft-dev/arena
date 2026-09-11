@@ -25,6 +25,8 @@
     "chipBody": "flex flex-col bg-transparent border-none p-0 m-0 text-left font-body",
     "title": "text-ctl-sm font-semibold text-ink-heading whitespace-nowrap overflow-hidden text-ellipsis",
     "time": "font-mono text-ctl-2xs text-ink-muted/(--level-ink-muted)",
+    "detail": "block truncate font-body text-ctl-2xs text-ink-muted/(--level-ink-muted)",
+    "detailShed": "sr-only",
     "kebabWrap": "absolute right-0",
     "panel": "absolute top-full right-0 flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface rounded-control shadow-surface-floating"
   },

@@ -15,6 +15,8 @@ import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUp
 import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.generated.js';
 
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export interface ArenaBarChartProps {
 
@@ -51,6 +53,7 @@ export function ArenaBarChart({
   labels, series, label, stack = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaBarChartProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaBarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaBarChart: `labels` is required');
   if (!series) throw new Error('ArenaBarChart: `series` is required');
@@ -78,9 +81,9 @@ export function ArenaBarChart({
   const bands = arenaBandScale(n, box.x, box.w, chartBarGap);
   const axis = arenaAxisModel(yScale, domain, fmt);
   const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1));
-  const table = arenaChartTable('Category', series, labels, fmt);
+  const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
-  const name = `${label} — bar chart`;
+  const name = arenaPhrase(locale.barChartName, { label });
 
   const onPointer = (e: React.PointerEvent<SVGRectElement>, phase: string) => {
     if (!arenaPointerUpdates(e.pointerType, phase)) return;
