@@ -19,17 +19,20 @@ export interface ArenaSideNavProps {
 
   /** An item was activated, carrying its id. It carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself, and under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. */
   onNav?: (id: string) => void;
+
+  /** Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name; a badge becomes a dot whose count joins the name; a section's label is hidden and stays the group's name; a collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. */
+  collapsed?: boolean;
 }
 
 
 const arenaSideNavStyles = arenaStyles(manifest);
 
-export function ArenaSideNav({ children, active, ariaLabel, indentStep = 3, onNav }: ArenaSideNavProps) {
+export function ArenaSideNav({ children, active, ariaLabel, indentStep = 3, onNav, collapsed = false }: ArenaSideNavProps) {
 
   if (!ariaLabel?.trim()) throw new Error('ArenaSideNav: `ariaLabel` is required');
   return (
-    <nav aria-label={ariaLabel} className={arenaSideNavStyles().root()} data-arena-part={manifest.parts.root}>
-      {arenaInjectInto(children, { depth: 0, activeId: active, indentStep, onActivate: onNav })}
+    <nav aria-label={ariaLabel} className={arenaSideNavStyles({ collapsed }).root()} data-arena-part={manifest.parts.root}>
+      {arenaInjectInto(children, { depth: 0, activeId: active, indentStep, onActivate: onNav, collapsed })}
     </nav>
   );
 }

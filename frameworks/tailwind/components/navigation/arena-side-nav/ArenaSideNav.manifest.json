@@ -1,7 +1,7 @@
 {
   "component": "ArenaSideNav",
   "slots": {
-    "root": "flex flex-col gap-1",
+    "root": "flex flex-col gap-1 transition-[width] duration-[var(--dur-state)] ease-state motion-reduce:transition-none",
     "item": "flex items-center gap-items min-h-ctl-h px-control-x py-2.5 rounded-control border-none cursor-pointer text-left no-underline font-body text-ctl shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "icon": "inline-flex text-[length:var(--icon-lg)]",
     "badge": "ms-auto inline-flex items-center justify-center min-w-5 px-1.5 rounded-pill font-mono text-ctl-2xs font-bold tracking-badge",
@@ -10,7 +10,10 @@
     "trigger": "flex items-center gap-items min-h-ctl-h px-control-x py-2.5 rounded-control border-none cursor-pointer text-left font-body text-ctl bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "triggerLabel": "flex-1",
     "caret": "inline-flex text-[length:var(--icon-md)]",
-    "region": "flex flex-col gap-1"
+    "region": "flex flex-col gap-1",
+    "itemLabel": "min-w-0",
+    "dot": "absolute top-1 end-1 w-2 h-2 rounded-pill bg-primary",
+    "separator": "border-t-[length:var(--bw-separator)] border-edge-separator my-1"
   },
   "variants": {
     "active": {
@@ -22,9 +25,21 @@
         "item": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:bg-hover",
         "badge": "bg-base-300 text-ink-body/(--level-ink-body)"
       }
+    },
+    "collapsed": {
+      "true": {
+        "root": "w-[calc(var(--dz-ctl-h)+var(--sp-3)*2)]",
+        "item": "relative w-full justify-center px-0",
+        "itemLabel": "sr-only",
+        "sectionLabel": "sr-only"
+      },
+      "false": {
+        "root": "w-full"
+      }
     }
   },
   "defaultVariants": {
-    "active": false
+    "active": false,
+    "collapsed": false
   }
 }

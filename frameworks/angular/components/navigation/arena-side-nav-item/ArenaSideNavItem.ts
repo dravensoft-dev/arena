@@ -6,40 +6,64 @@ import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNa
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
+import { NgTemplateOutlet } from '@angular/common';
+import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip';
 
 @Component({
   selector: 'arena-side-nav-item',
   standalone: true,
+  imports: [NgTemplateOutlet, ArenaTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
     '[attr.id]': 'null',
   },
   template: `
-    @if (href(); as url) {
-      <a [class]="styles().item()" [attr.data-arena-part]="parts.item" [href]="url" [style.paddingInlineStart]="indent()"
-         [attr.aria-current]="current()" [attr.aria-disabled]="off()"
-         (click)="activateAnchor($event)">
-        @if (glyphClass(); as glyph) {
-          <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
-        }
-        {{ name() }}
-        @if (count(); as tally) {
-          <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
-        }
-      </a>
+    <ng-template #row>
+      @if (href(); as url) {
+        <a [class]="styles().item()" [attr.data-arena-part]="parts.item" [href]="url" [style.paddingInlineStart]="indent()"
+           [attr.aria-current]="current()" [attr.aria-disabled]="off()"
+           (click)="activateAnchor($event)">
+          @if (glyphClass(); as glyph) {
+            <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          }
+          @if (rail()) {
+            <span [class]="styles().itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
+          } @else {
+            {{ name() }}
+          }
+          @if (tally(); as count) {
+            <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ count }}</span>
+          }
+          @if (dotted()) {
+            <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
+          }
+        </a>
+      } @else {
+        <button type="button" [class]="styles().item()" [attr.data-arena-part]="parts.item" [style.paddingInlineStart]="indent()"
+                [attr.aria-current]="current()" [attr.aria-disabled]="off()"
+                (click)="activate($event)">
+          @if (glyphClass(); as glyph) {
+            <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          }
+          @if (rail()) {
+            <span [class]="styles().itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
+          } @else {
+            {{ name() }}
+          }
+          @if (tally(); as count) {
+            <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ count }}</span>
+          }
+          @if (dotted()) {
+            <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
+          }
+        </button>
+      }
+    </ng-template>
+    @if (rail()) {
+      <arena-tooltip [label]="name()"><ng-container [ngTemplateOutlet]="row" /></arena-tooltip>
     } @else {
-      <button type="button" [class]="styles().item()" [attr.data-arena-part]="parts.item" [style.paddingInlineStart]="indent()"
-              [attr.aria-current]="current()" [attr.aria-disabled]="off()"
-              (click)="activate($event)">
-        @if (glyphClass(); as glyph) {
-          <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
-        }
-        {{ name() }}
-        @if (count(); as tally) {
-          <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
-        }
-      </button>
+      <ng-container [ngTemplateOutlet]="row" />
     }
   `,
 })
@@ -77,19 +101,29 @@ export class ArenaSideNavItem {
     return key === this.nav.activeId();
   });
 
+  protected readonly rail = computed(() => this.nav.collapsed());
+
   protected readonly glyphClass = computed(() => {
     const glyph = this.icon();
-    if (!glyph) return null;
+    if (!glyph) {
+      if (this.rail()) {
+        throw new Error(`ArenaSideNavItem: \`icon\` is required while ArenaSideNav is collapsed, and the item "${this.id()}" has none`);
+      }
+      return null;
+    }
     return `${this.styles().icon()} ${this.on() ? arenaActiveWeight(glyph) : glyph}`;
   });
 
   protected readonly current = computed(() => (this.on() ? 'page' : null));
-  protected readonly indent = computed(() => arenaIndentFor(this.nav.indentStep(), this.nav.depth()));
-  protected readonly styles = computed(() => arenaSideNavStyles({ active: this.on() }));
+  protected readonly indent = computed(() => (this.rail() ? null : arenaIndentFor(this.nav.indentStep(), this.nav.depth())));
+  protected readonly styles = computed(() => arenaSideNavStyles({ active: this.on(), collapsed: this.rail() }));
 
   protected readonly off = computed(() => (this.disabled() ? 'true' : null));
 
   protected readonly count = computed(() => arenaBadgeCount(this.badge()));
+  protected readonly tally = computed(() => (this.rail() ? null : this.count()));
+  protected readonly dotted = computed(() => this.rail() && this.count() !== null);
+  protected readonly shownName = computed(() => (this.dotted() ? `${this.name()} ${this.count()}` : this.name()));
 
   constructor() {
     effect((onCleanup) => {

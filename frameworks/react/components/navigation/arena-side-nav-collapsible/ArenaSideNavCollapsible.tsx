@@ -42,7 +42,7 @@ export function arenaSubtreeHasItem(children: React.ReactNode, id: string | unde
 
 export function ArenaSideNavCollapsible({
   id, label, icon, defaultExpanded = false, children, onToggle,
-  depth = 0, activeId, indentStep = 3, onActivate,
+  depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
 }: ArenaSideNavCollapsibleProps & Partial<ArenaSideNavInjected>) {
 
   if (!id) throw new Error('ArenaSideNavCollapsible: `id` is required');
@@ -62,7 +62,17 @@ export function ArenaSideNavCollapsible({
     if (onToggle) onToggle(next);
   };
 
-  const styles = arenaSideNavStyles();
+  const styles = arenaSideNavStyles({ collapsed });
+  if (collapsed) {
+    return (
+      <div className={styles.section()} data-arena-part={manifest.parts.section}>
+        <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />
+        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region}>
+          {arenaInjectInto(children, { depth, activeId, indentStep, onActivate, collapsed })}
+        </div>
+      </div>
+    );
+  }
   const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" /> : null;
 
   return (
@@ -83,7 +93,7 @@ export function ArenaSideNavCollapsible({
 }
       <div id={regionId} role="group" aria-labelledby={triggerId} hidden={!expanded}
         className={styles.region()} data-arena-part={manifest.parts.region}>
-        {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate })}
+        {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
       </div>
     </div>
   );
