@@ -55,6 +55,7 @@ test('every ignore pattern carries a reason, and each names a real tree', () => 
     'frameworks/react/DataVisuals.generated.js',
     'frameworks/react/Index.generated.ts',
     'frameworks/react/LocaleDefaults.generated.ts',
+    'frameworks/react/Phrase.generated.js',
     'frameworks/react/StructuredData.generated.js',
     'frameworks/react/Theme.generated.js',
     'frameworks/react/Tokens.generated.js',

@@ -26,6 +26,7 @@ export const PAIRED = [
   'AnchorActivation.ts',
   'WarnOnce.ts',
   'ToastClock.ts',
+  'Phrase.ts',
   'DataVisuals.ts',
   'StructuredData.ts',
   'components/charts/ChartScales.ts',

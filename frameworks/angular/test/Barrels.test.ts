@@ -30,6 +30,13 @@ const PRIVATE = new Map([
 ]);
 
 const ROOT_PRIVATE = new Map([
+  ['LocaleDefaults.generated.ts',
+   'generated from the locale contract, and reached through ArenaLocale.ts, which re-exports the '
+   + 'one name in it a consumer holds.'],
+  ['Phrase.ts',
+   'the substitution behind every sentence Arena draws with a value in it. A consumer provides '
+   + 'the template through the locale and never calls it; exporting it would promise a helper '
+   + 'nobody outside this layer has a reason to hold.'],
   ['Tokens.generated.ts',
    'generated bare numbers a component reads to compute a position. `Api.generated.ts` is '
    + 'exported because a consumer needs those types to type their own data; nobody types data '
