@@ -295,6 +295,14 @@
   letter-spacing: var(--track-eyebrow);
   text-wrap: balance;
 }
+.arena-complete [data-arena-part="calendar.detail"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="calendar.detail-shed"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
 .arena-complete [data-arena-part="calendar.grid"] {
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);

@@ -52,6 +52,7 @@ export interface ArenaCalendarProps {
 }
 
 import {
+  arenaVisibleDetails,
   arenaAddDays, arenaDefaultDayStart, arenaFormatHM, arenaLayoutDay, arenaNowMinutes, arenaParseHM,
   arenaPlaceEvents, arenaRangeTitle, arenaShowsTime, arenaStacksActions, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf, arenaFormatDate, ARENA_DATE_OPTIONS,
 } from './CalendarInternals.ts';
@@ -311,6 +312,7 @@ export function ArenaCalendar({
                 timeLabel: `${arenaFormatHM(p.startMin)} – ${arenaFormatHM(p.endMin)}`,
                 dateLabel: arenaFormatDate(days[di] ?? '', locale.locale, ARENA_DATE_OPTIONS.dayName),
                 showTime: arenaShowsTime(rawH, slotFor(p.cols)),
+                shownDetails: arenaVisibleDetails(rawH, slotFor(p.cols), (p.ev.details ?? []).length),
                 actionsBelow: arenaStacksActions(rawH, slotFor(p.cols)),
               });
             })}
