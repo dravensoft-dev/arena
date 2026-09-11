@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaSideNav } from './ArenaSideNav';
+import { assertNoNode } from '../../../test/NodeAssert';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem';
 import { ArenaSideNavSection } from '../arena-side-nav-section/ArenaSideNavSection';
 import { ArenaSideNavCollapsible } from '../arena-side-nav-collapsible/ArenaSideNavCollapsible';
@@ -71,7 +72,7 @@ test('a section keeps its label as the group name, and a collapsible flattens un
     const groups = [...root.querySelectorAll('[role="group"]')];
     assert.ok(groups.some((g) => document.getElementById(g.getAttribute('aria-labelledby') ?? '')?.textContent?.trim() === 'Sales'));
     assert.ok(groups.some((g) => g.getAttribute('aria-label') === 'Admin'));
-    assert.equal(root.querySelector('[aria-expanded]'), null, 'no disclosure trigger is drawn');
+    assertNoNode(root.querySelector('[aria-expanded]'), 'no disclosure trigger is drawn');
     assert.ok(rowNamed(root, 'Users'), 'the collapsible\'s items render at the rail level');
   } finally { fixture.destroy(); }
 });

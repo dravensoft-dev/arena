@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaTooltip } from './ArenaTooltip';
 import { arenaTooltipRedundant } from './TooltipName';
+import { assertNoNode } from '../../../test/NodeAssert';
 
 @Component({
   standalone: true,
@@ -50,6 +51,6 @@ test('a tooltip that says something new describes as it always has', () => {
     const bubble = bubbleFor(trigger);
     assert.ok(bubble, 'the trigger references its bubble');
     assert.equal(bubble.textContent?.trim(), 'Ships the build');
-    assert.equal(bubble.querySelector('[aria-hidden]'), null);
+    assertNoNode(bubble.querySelector('[aria-hidden]'), 'a tooltip saying something new hides nothing');
   } finally { fixture.destroy(); }
 });
