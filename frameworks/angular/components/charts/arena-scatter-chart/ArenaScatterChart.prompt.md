@@ -72,6 +72,8 @@ because its POSITION was measured.
 `sizeLegend` draws three sample bubbles under the series names, at the smallest, middle and
 largest size in the data. Reach for it whenever `r` is doing real work. Area is the one encoding nobody reads off a scale by eye. Without a key, a reader can see that one blot is bigger and cannot say by how much. The key costs plot height, like the series strip and for the same reason.
 
+**Words.** The chart's accessible name is `scatterChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableSeries`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

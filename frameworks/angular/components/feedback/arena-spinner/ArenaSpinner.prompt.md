@@ -26,7 +26,7 @@ Reporting zero would be a determinate claim that nothing has happened.
 carries no implicit politeness, `MatProgressSpinner` set no `aria-live` at all, and that was the
 exception the delegated binding carried. This clears it.
 
-`label` defaults to `Loading`, which is a name rather than an absence. The default is a name that says what the component is instead of what the user is waiting for. Set it.
+An absent `label` reads the locale's `spinnerLabel`, `Loading` by default, which is a name rather than an absence. That name says what the component is instead of what the user is waiting for. Set it.
 
 `tone="on-accent"` exists for a spinner sitting **on** a filled brand surface, inside a loading
 button, on a crimson banner, where the accent ink would disappear into its own background.
@@ -50,6 +50,8 @@ button, on a crimson banner, where the accent ink would disappear into its own b
 - The gap in the ring is the transparent top border, so the rotation is legible at every size. At `sm` it must still read as a ring rather than a dot.
 - `on-accent` is the only tone that stays legible on a filled crimson surface, the card puts
   all four on one to show it.
+
+**Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does. Each one is a field of the locale a consumer provides once, in English until one does.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -54,7 +54,7 @@ The table is a **compound** component. `columns` says how each column is headed 
 - Mark the actions column `mobileLayout:'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive={false}` to "keep it looking like a table" on a phone. A table narrower than its content is unreadable; card mode is the honest fallback.
 - Row activation is `onClick` on the `ArenaTableRow`, and it carries no payload, because you wrote that element and already hold the row it is about.
-- Pass `empty` whenever the table can legitimately have no rows. With nothing passed, React falls back to the string **`No data.`**, which is a placeholder rather than an answer. The fallback says the query returned nothing, and never says what was being asked for. The fallback is this layer's own convenience and nothing contracts it. A table's empty state is editorial the way `label` is, and a layer that renders nothing instead is equally correct.
+- Pass `empty` whenever the table can legitimately have no rows. With nothing passed, the table says the locale's `tableEmpty`, **`No data.`** by default, which is a placeholder rather than an answer. The fallback says the query returned nothing, and never says what was being asked for. A table's empty state is editorial the way `label` is.
 
 ### Responsive
 
@@ -198,6 +198,8 @@ returns the reader to page one is yours**, and it belongs beside the criterion:
 ```tsx
 const applyStatus = (next: string) => { setStatus(next); setPageIndex(1); };  // your own state; `page` is the whole {index, size, total}
 ```
+
+**Words.** The locale's `tableSortBy` labels the card layout's sort select.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

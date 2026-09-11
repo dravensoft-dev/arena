@@ -40,6 +40,8 @@ Loading placeholder for asynchronous data (H1). Use it in tables and dashboards 
 - Every `<ArenaSkeleton>` announces itself, through `role="status"` and `aria-label="Loading"`. Several siblings are that many announcements, whether they are a circle beside a text stack or several independent skeletons in a list. The component cannot know where one set of placeholders begins and ends. A set standing for one block of content should be announced once, by you. Wrap it in a single `role="status" aria-label="…"` naming *what* is loading. Mark the container holding the individual skeletons `aria-hidden="true"`, so their own announcements never reach the accessibility tree.
 - Don't leave it up indefinitely: if the load fails, replace it with `ArenaErrorState`, not an eternal skeleton.
 
+**Words.** `skeletonLabel` is the name every placeholder announces. Each one is a field of the locale a consumer provides once, in English until one does.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

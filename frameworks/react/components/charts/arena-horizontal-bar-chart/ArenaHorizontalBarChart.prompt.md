@@ -50,6 +50,8 @@ Nothing inside the graphic is focusable. A `role="img"` subtree is presentationa
 reader gets the visually hidden table of the same numbers and a sighted keyboard user gets the
 cursor.
 
+**Words.** The chart's accessible name is `horizontalBarChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableCategory`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

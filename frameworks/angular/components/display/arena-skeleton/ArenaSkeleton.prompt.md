@@ -61,6 +61,8 @@ That turns two announcements into one and gives a screen-reader user a name for 
 loading rather than only that something is. Nothing about it is particular to this layer:
 it is a composition decision you make per set.
 
+**Words.** `skeletonLabel` is the name every placeholder announces. Each one is a field of the locale a consumer provides once, in English until one does.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
