@@ -66,6 +66,8 @@ If you drive this through CDP rather than by hand, one gotcha costs an afternoon
 a `rawKeyDown` does not activate a button. Enter must be dispatched as `keyDown`
 carrying `text: '\r'`. Tab and Escape are fine as `rawKeyDown`.
 
+**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. The same dialog fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
