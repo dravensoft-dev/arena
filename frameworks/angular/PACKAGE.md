@@ -452,6 +452,26 @@ To avoid a flash on first paint, apply the class in `index.html` before your sty
 Set the list to your own palettes and `DEFAULT` to the one your config marks default. The two are what the theme surface takes. A build carrying three or four palettes states them once, and the snippet cannot drift from the app. The default reaches `:root` and wears no class, so a
 snippet naming the wrong one puts a class on the very palette that must not have it. **The media query is the half a stored-value-only snippet gets wrong.** On a first visit nothing is stored. The theme surface falls back to the first palette whose polarity matches the device. A snippet that reads only storage paints the default first and is corrected after the app boots, which is the flash it exists to prevent.
 
+## Arena's own words, in your language
+
+A component draws a few words of its own: a close button's name, `Today` on a calendar, a
+pager's arrows, a table's empty line, a chart's name. `provideArenaLocale` answers all of them,
+and the calendar formats its dates in the `locale` it carries:
+
+```ts
+bootstrapApplication(App, {
+  providers: [provideArenaLocale({ locale: 'es-ES', calendarToday: 'Hoy', paginationPrevious: 'Anterior', paginationNext: 'Siguiente', onboardingStep: 'Paso {current} de {total}' })],
+});
+```
+
+**A word resolves in this order: the component's own member, then your locale, then the English
+default.** A field you leave out keeps its default, which is `ARENA_DEFAULT_LOCALE`. A `{name}` in a
+field is a value Arena fills, and your language may put it anywhere in the sentence. Inject
+`ARENA_LOCALE` to read what a subtree was given; `arenaMergeLocale` is the merge the provider
+applies. The value is fixed for the life of its injector, as `LOCALE_ID` is, so switching language
+means re-creating the subtree. A chart's numbers are not words: they follow its own
+`valueFormat.locale`. Hour labels keep a 24-hour clock whatever the locale says.
+
 ## What the package ships besides the components
 
 Every component is standalone, so import the ones a template uses. **A parent does not bring its children with it.** A table wants `ArenaTableRow` and `ArenaTableCell` in the same `imports` array. So does every other family whose parts are separate elements. Everything else that reaches the

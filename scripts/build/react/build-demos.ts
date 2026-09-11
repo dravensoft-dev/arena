@@ -22,7 +22,7 @@ export const ROOT_MODULES = [
   'frameworks/react/AnchorActivation.ts', 'frameworks/react/DataVisuals.ts',
   'frameworks/react/StructuredData.ts', 'frameworks/react/Theme.ts',
   'frameworks/react/UseArenaContainerWidth.ts', 'frameworks/react/UseDialogModal.ts',
-  'frameworks/react/WarnOnce.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/Tv.generated.ts',
+  'frameworks/react/WarnOnce.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/LocaleDefaults.generated.ts', 'frameworks/react/Tv.generated.ts',
   'frameworks/react/ArenaStyles.generated.ts',
 ];
 

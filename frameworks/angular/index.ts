@@ -9,4 +9,5 @@ export * from './ProjectionMarkers';
 export * from './WarnOnce';
 export * from './ToastClock';
 export * from './ArenaToastQueue';
+export * from './ArenaLocale';
 export * from './theme/ArenaThemeService';
