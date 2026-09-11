@@ -422,11 +422,12 @@ contract type follows. `enumLiteral()` in `generate-api-types.ts` renders a nume
 which is what lets the type render at all.
 
 So the rule survives with its test attached: a closed set that restates a token-derived value
-may be an enum **only** while something machine-checks the restatement. `ArenaCatSlot` is the only
-type in `contracts/api/types/` that does this, and the assertion is written as that one named case
-rather than as a mechanism: a second such type would need its own tie, and whether a general
-mechanism is worth building is a question for whoever brings the second one, not a facility
-already waiting for it.
+may be an enum **only** while something machine-checks the restatement. Two types in
+`contracts/api/types/` do this, and each is its own named case in `check:script-tokens` rather
+than an instance of a mechanism: `ArenaCatSlot` against the ramp through `catSlotEnumProblems()`,
+and `ArenaBreakpoint` against the keys of the `bp` group in `contracts/design/spacing.json`, in
+order, through `breakpointEnumProblems()`. Whether a general mechanism is worth building is a
+question for whoever brings a third, not a facility already waiting for it.
 
 A `description` on a type or on one of its fields is carried into the generated modules
 as a doc comment, and `generate-api-types.ts` reads `contracts/api/types/` only. Group-level prose is

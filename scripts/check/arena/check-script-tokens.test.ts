@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import {
-  cssCounterpart, importedNames, catSlotEnumProblems, zeroGeneratedCssProblems, cssDiscoveryProblems,
+  cssCounterpart, importedNames, catSlotEnumProblems, breakpointEnumProblems, zeroGeneratedCssProblems, cssDiscoveryProblems,
   shadowedTokenProblems, staleShadowExemptions, SHADOW_EXEMPT, sourceFiles,
 } from './check-script-tokens.ts';
 import { buildScriptModules } from '../../generate/arena/generate-tokens.ts';
@@ -173,4 +173,10 @@ test('a dist tree is assembled output, so the gate never reads its copy of a lay
   writeFileSync(join(root, 'angular', 'dist', 'Widget.ts'), 'export const gap = 8;\n');
   assert.deepEqual([...sourceFiles(root)], [join(root, 'angular', 'Widget.ts')]);
   rmSync(root, { recursive: true });
+});
+
+test('ArenaBreakpoint restates the bp group, in order, and a fourth breakpoint fails until it follows', () => {
+  assert.deepEqual(breakpointEnumProblems(['sm', 'md', 'lg'], ['sm', 'md', 'lg']), []);
+  assert.match(breakpointEnumProblems(['sm', 'md', 'lg', 'xl'], ['sm', 'md', 'lg']).join('\n'), /arena-breakpoint\.json.*\[sm, md, lg, xl\]/);
+  assert.match(breakpointEnumProblems(['sm', 'md', 'lg'], ['md', 'sm', 'lg']).join('\n'), /arena-breakpoint\.json/);
 });

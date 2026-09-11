@@ -1,0 +1,6 @@
+{
+  "name": "ArenaBreakpoint",
+  "kind": "enum",
+  "description": "One of the breakpoints Arena's components branch on, named as the --bp-* tokens name them. A member taking one compares the width of its own container against that token.",
+  "values": ["sm", "md", "lg"]
+}
