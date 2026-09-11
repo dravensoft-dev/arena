@@ -115,7 +115,7 @@ export class ArenaCalendarEvent {
   /** Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. */
   readonly colorId = input<ArenaCatSlot>();
   /** Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. */
-  readonly details = input<readonly string[]>([]);
+  readonly details = input<readonly string[], readonly string[] | undefined>([], { transform: (value) => value ?? [] });
   /** Whether the chip can be activated. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */
   readonly interactive = input(false, { transform: booleanAttribute });
   /** Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for, because projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. */
