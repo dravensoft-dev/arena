@@ -116,7 +116,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 54_300,
+    budget: 55_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and what each of them costs. It is the only '

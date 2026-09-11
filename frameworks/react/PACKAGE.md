@@ -459,6 +459,29 @@ put it anywhere in the sentence. `useArenaLocale` reads what a subtree was given
 language on re-render. A chart's numbers are not words: they follow its own `valueFormat.locale`.
 Hour labels keep a 24-hour clock whatever the locale says.
 
+## Confirmations raised from code
+
+`useArenaConfirm()` asks from a handler and awaits the answer; you render the one open request
+once, with the dialog you already have:
+
+```tsx
+const confirms = useArenaConfirm();
+const open = confirms.current;
+// …
+{open && (
+  <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
+    confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
+    destructive={open.destructive} requireText={open.requireText}
+    onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
+    {open.message}
+  </ArenaConfirmDialog>
+)}
+```
+
+`await confirms.ask({ title: 'Delete the project?', destructive: true })` answers `true` or
+`false`. One request is open at a time, in the order asked. A blank title throws at once, and every
+pending request answers `false` when the component that holds the queue unmounts.
+
 ## What the package ships besides the components
 
 Every component is imported from the package root, and its types ship with it, emitted from the
@@ -472,6 +495,7 @@ in the table below, each answering a question a consumer cannot answer from outs
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime |
 | `arenaCatColor(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface` |
 | `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, and `toasts` is what you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
+| `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
 | `arenaToastDelay(notice, dismiss)` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
 | `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses |
