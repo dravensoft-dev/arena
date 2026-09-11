@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderApiModule, docComment, fieldType, API_TARGETS, buildApiModules } from './generate-api-types.ts';
+import { renderApiModule, docComment, fieldType, API_TARGETS, buildApiModules, LOCALE_TARGETS, renderLocaleDefaults } from './generate-api-types.ts';
 
 test('an enum renders as a string-literal union', () => {
   const out = renderApiModule([{ name: 'ArenaDirection', kind: 'enum', values: ['up', 'down'] }]);
@@ -78,9 +78,10 @@ test('an unknown kind is refused rather than silently skipped', () => {
 
 test('both layers receive the identical body -- one contract, two import paths', () => {
   const modules = buildApiModules();
-  assert.deepEqual([...modules.keys()], API_TARGETS);
-  const [a, b] = [...modules.values()];
+  assert.deepEqual([...modules.keys()], [...API_TARGETS, ...LOCALE_TARGETS]);
+  const [a, b, c, d] = [...modules.values()];
   assert.equal(a, b);
+  assert.equal(c, d);
 });
 
 test('API_TARGETS names one file per layer, and neither lives under contracts/api/', () => {
@@ -88,4 +89,35 @@ test('API_TARGETS names one file per layer, and neither lives under contracts/ap
     'frameworks/react/Api.generated.ts',
     'frameworks/angular/Api.generated.ts',
   ]);
+});
+
+test('renderLocaleDefaults writes every ArenaLocale field default, in declaration order', () => {
+  const body = renderLocaleDefaults([{
+    name: 'ArenaLocale', kind: 'object', fields: {
+      locale: { form: 'primitive', type: 'string', required: true, default: 'en-GB' },
+      tagRemove: { form: 'primitive', type: 'string', required: true, default: 'Remove' },
+    },
+  }]);
+  assert.match(body, /import type \{ ArenaLocale \} from '\.\/Api\.generated';/);
+  assert.match(body, /export const ARENA_DEFAULT_LOCALE: ArenaLocale = Object\.freeze\(\{\n {2}locale: "en-GB",\n {2}tagRemove: "Remove",\n\}\);/);
+});
+
+test('renderLocaleDefaults refuses a field with no string default and names it', () => {
+  assert.throws(() => renderLocaleDefaults([{
+    name: 'ArenaLocale', kind: 'object',
+    fields: { tagRemove: { form: 'primitive', type: 'string', required: true } },
+  }]), /ArenaLocale\.tagRemove/);
+});
+
+test('renderLocaleDefaults refuses a tree that declares no ArenaLocale', () => {
+  assert.throws(() => renderLocaleDefaults([]), /ArenaLocale/);
+});
+
+test('buildApiModules emits the locale defaults into both layers', () => {
+  assert.deepEqual(LOCALE_TARGETS, [
+    'frameworks/react/LocaleDefaults.generated.ts',
+    'frameworks/angular/LocaleDefaults.generated.ts',
+  ]);
+  const modules = buildApiModules();
+  for (const path of LOCALE_TARGETS) assert.match(modules.get(path) ?? '', /ARENA_DEFAULT_LOCALE/, path);
 });
