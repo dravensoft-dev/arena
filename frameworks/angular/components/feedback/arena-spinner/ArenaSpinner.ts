@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import type { ArenaControlSize, ArenaSpinnerTone } from '../../../Api.generated';
 import { arenaSpinnerStyles } from './ArenaSpinner.variants';
 import manifest from './ArenaSpinner.classes.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 @Component({
   selector: 'arena-spinner',
@@ -12,12 +13,14 @@ import manifest from './ArenaSpinner.classes.generated';
     '[attr.data-arena-part]': 'parts.root',
     role: 'progressbar',
     'aria-live': 'polite',
-    '[attr.aria-label]': 'label()',
+    '[attr.aria-label]': 'name()',
   },
   template: `<span [class]="styles().circle()" [attr.data-arena-part]="parts.circle" aria-hidden="true"></span>`,
 })
 export class ArenaSpinner {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
+  protected readonly name = computed(() => this.label() ?? this.locale.spinnerLabel);
 
   /** Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. */
   readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
@@ -29,8 +32,8 @@ export class ArenaSpinner {
     'accent',
     { transform: (value) => value ?? 'accent' },
   );
-  /** Accessible name, announced by the status role. Say what is loading when you can. */
-  readonly label = input<string, string | undefined>('Loading', { transform: (value) => value ?? 'Loading' });
+  /** Accessible name, announced by the status role. Say what is loading when you can. Absent, the provided locale's spinnerLabel answers it, which reads Loading by default. */
+  readonly label = input<string>();
 
   protected readonly styles = computed(() => arenaSpinnerStyles({ tone: this.tone(), size: this.size() }));
 }

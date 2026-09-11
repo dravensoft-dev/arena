@@ -1,8 +1,10 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import { arenaBulkActionBarStyles } from './ArenaBulkActionBar.variants';
 import manifest from './ArenaBulkActionBar.classes.generated';
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhraseParts } from '../../../Phrase';
 
 @Component({
   selector: 'arena-bulk-action-bar',
@@ -12,13 +14,13 @@ import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.gen
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "count() > 0 ? 'toolbar' : null",
-    '[attr.aria-label]': "count() > 0 ? 'Actions on the selection' : null",
+    '[attr.aria-label]': 'count() > 0 ? locale.bulkActionBarLabel : null',
     '(keydown)': 'onKeydown($event)',
   },
   template: `
     @if (count() > 0) {
       <span [class]="styles().count()" [attr.data-arena-part]="parts.count">
-        <b [class]="styles().number()" [attr.data-arena-part]="parts.number">{{ count() }}</b> {{ noun() }} selected
+        @for (part of countParts(); track $index) {@if (part.bold) {<b [class]="styles().number()" [attr.data-arena-part]="parts.number">{{ part.text }}</b>} @else {{{ part.text }}}}
       </span>
       <span [class]="styles().divider()" [attr.data-arena-part]="parts.divider" aria-hidden="true"></span>
       <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions">
@@ -33,20 +35,24 @@ import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.gen
         }
       </div>
       @if (clearable()) {
-        <button type="button" [class]="styles().clear()" [attr.data-arena-part]="parts.clear" aria-label="Clear selection"
+        <button type="button" [class]="styles().clear()" [attr.data-arena-part]="parts.clear" [attr.aria-label]="locale.bulkActionBarClearLabel"
                 [attr.tabindex]="actions().length === at() ? 0 : -1" (focus)="cursor.set(actions().length)"
-                (click)="clear.emit()">Clear</button>
+                (click)="clear.emit()">{{ locale.bulkActionBarClear }}</button>
       }
     }
   `,
 })
 export class ArenaBulkActionBar {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
+  protected readonly countParts = computed(() => arenaPhraseParts(this.locale.bulkActionBarCount).map((part) => ('text' in part
+    ? { bold: false, text: part.text }
+    : part.slot === 'count' ? { bold: true, text: String(this.count()) } : { bold: false, text: this.noun() ?? this.locale.bulkActionBarNoun })));
 
   /** How many rows are selected. Zero renders no bar at all. */
   readonly count = input.required<number>();
-  /** What is being counted, plural: "items", "projects". */
-  readonly noun = input<string, string | undefined>('items', { transform: (value) => value ?? 'items' });
+  /** What is being counted, plural: "items", "projects". Absent, the provided locale's bulkActionBarNoun answers it. */
+  readonly noun = input<string>();
   /** The actions offered for the current selection. */
   readonly actions = input.required<readonly ArenaBulkAction[]>();
   /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */

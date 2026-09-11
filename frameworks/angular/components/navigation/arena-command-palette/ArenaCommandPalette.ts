@@ -20,6 +20,7 @@ import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
 import type { ArenaCommand } from '../../../Api.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 export function arenaFilterCommands(commands: readonly ArenaCommand[], query: string): ArenaCommand[] {
   const needle = query.toLowerCase();
@@ -96,10 +97,10 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
            (click)="$event.stopPropagation()">
         <div [class]="styles().search()" [attr.data-arena-part]="parts.search">
           <i [class]="styles().searchIcon() + ' ph-bold ph-magnifying-glass'" [attr.data-arena-part]="parts.searchIcon" aria-hidden="true"></i>
-          <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="query()" [attr.placeholder]="placeholder()"
+          <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="query()" [attr.placeholder]="hint()"
                  role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
                  [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="activeId()"
-                 [attr.aria-label]="placeholder() || 'Search commands'"
+                 [attr.aria-label]="hint() || 'Search commands'"
                  (input)="onQuery($event)" (keydown)="onKey($event)" />
           <span [class]="styles().esc()" [attr.data-arena-part]="parts.esc">ESC</span>
         </div>
@@ -156,16 +157,15 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
 })
 export class ArenaCommandPalette {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
+  protected readonly hint = computed(() => this.placeholder() ?? this.locale.commandPalettePlaceholder);
 
   /** Whether the palette is shown. Closed renders nothing. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
   /** Every command the palette can find. Filtered by label and hint as the user types. */
   readonly commands = input.required<readonly ArenaCommand[]>();
-  /** The search field's placeholder. */
-  readonly placeholder = input<string, string | undefined>(
-    'Search for an action or project…',
-    { transform: (value) => value ?? 'Search for an action or project…' },
-  );
+  /** The search field's placeholder. Absent, the provided locale's commandPalettePlaceholder answers it. */
+  readonly placeholder = input<string>();
   /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
   readonly maxResults = input<number>();
   /** The palette asked to be closed: Escape, the scrim, or a command having been run. */

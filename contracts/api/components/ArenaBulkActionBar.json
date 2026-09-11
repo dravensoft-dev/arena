@@ -5,8 +5,7 @@
   "api": {
     "count": { "form": "primitive", "type": "number", "required": true,
                "description": "How many rows are selected. Zero renders no bar at all." },
-    "noun": { "form": "primitive", "type": "string", "default": "items",
-              "description": "What is being counted, plural: \"items\", \"projects\"." },
+    "noun": { "form": "primitive", "type": "string", "description": "What is being counted, plural: \"items\", \"projects\". Absent, the provided locale's bulkActionBarNoun answers it." },
     "actions": { "form": "array", "of": "ArenaBulkAction", "required": true,
                  "description": "The actions offered for the current selection." },
     "run": { "form": "event", "payload": "ArenaBulkAction",

@@ -14,6 +14,7 @@ import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
 import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -64,7 +65,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
       <tbody [class]="styles().body()" [attr.data-arena-part]="parts.body" [attr.role]="groupRole()"><ng-content /></tbody>
     </table>
     @if (empty()) {
-      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty"><ng-content select="[empty]">No data.</ng-content></div>
+      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty"><ng-content select="[empty]">{{ locale.tableEmpty }}</ng-content></div>
     } @else if (pager(); as paging) {
       <div [class]="styles().pager()" [attr.data-arena-part]="parts.pager">
         <arena-pagination [page]="paging.index" [pageCount]="pageCount()"
@@ -75,6 +76,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
 })
 export class ArenaTable {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". */
   readonly label = input.required<string>();

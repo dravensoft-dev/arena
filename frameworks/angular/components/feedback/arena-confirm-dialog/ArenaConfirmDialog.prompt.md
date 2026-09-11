@@ -21,10 +21,10 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
 | `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
-| `eyebrow` | primitive | `string` | `"Confirm"` | Small uppercase label above the title. |
+| `eyebrow` | primitive | `string` |  | Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. |
 | `content` | slot |  |  | The dialog body: the question and any detail. |
-| `confirmLabel` | primitive | `string` | `"Confirm"` | The confirm button's label. |
-| `cancelLabel` | primitive | `string` | `"Cancel"` | The cancel button's label. |
+| `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
+| `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
 | `destructive` | primitive | `boolean` | `false` | Gives the confirm button Arena's only filled danger surface. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `cancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |

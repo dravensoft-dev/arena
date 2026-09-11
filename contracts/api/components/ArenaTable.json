@@ -24,7 +24,7 @@
     },
     "empty": {
       "form": "slot",
-      "description": "What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a \"no results\" sentence describes a table that is not there, and a role=\"grid\" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Every layer falls back to the string 'No data.' when nothing is given, each in its own idiom for a default. Unlike ArenaTable.label this one IS derivable: 'No data.' states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it."
+      "description": "What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a \"no results\" sentence describes a table that is not there, and a role=\"grid\" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Absent, the provided locale's tableEmpty answers it. Unlike ArenaTable.label this one IS derivable: a sentence saying the list is empty states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it."
     },
     "sort": {
       "form": "object",

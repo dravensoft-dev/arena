@@ -5,6 +5,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCommandPalette.classes.generated.ts';
 
 import type { ArenaCommand } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export type { ArenaCommand };
 
@@ -16,7 +17,7 @@ export interface ArenaCommandPaletteProps {
   /** Every command the palette can find. Filtered by label and hint as the user types. */
   commands: readonly ArenaCommand[];
 
-  /** The search field's placeholder. */
+  /** The search field's placeholder. Absent, the provided locale's commandPalettePlaceholder answers it. */
   placeholder?: string;
 
   /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
@@ -63,7 +64,9 @@ export function arenaCommandGroups(ordered: readonly ArenaCommand[]): ArenaComma
   return groups;
 }
 
-export function ArenaCommandPalette({ open, commands, placeholder = 'Search for an action or project…', maxResults, onClose, onRun }: ArenaCommandPaletteProps) {
+export function ArenaCommandPalette({ open, commands, placeholder, maxResults, onClose, onRun }: ArenaCommandPaletteProps) {
+  const locale = useArenaLocale();
+  const hint = placeholder ?? locale.commandPalettePlaceholder;
   if (open == null) throw new Error('ArenaCommandPalette: `open` is required');
   if (commands == null) throw new Error('ArenaCommandPalette: `commands` is required');
   const [q, setQ] = useState('');
@@ -104,9 +107,9 @@ export function ArenaCommandPalette({ open, commands, placeholder = 'Search for 
         className={styles.panel()} data-arena-part={manifest.parts.panel}>
         <div className={styles.search()} data-arena-part={manifest.parts.search}>
           <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} aria-hidden="true" />
-          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={placeholder}
+          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
-            aria-controls={listboxId} aria-label={placeholder || 'Search commands'}
+            aria-controls={listboxId} aria-label={hint || 'Search commands'}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
             className={styles.input()} data-arena-part={manifest.parts.input} />
           <span className={styles.esc()} data-arena-part={manifest.parts.esc}>ESC</span>
