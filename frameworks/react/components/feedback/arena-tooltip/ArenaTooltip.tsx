@@ -2,6 +2,7 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { delayOpen, delayClose } from '../../../Tokens.generated.js';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTooltip.classes.generated.ts';
+import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName.ts';
 
 export interface ArenaTooltipProps {
 
@@ -24,14 +25,21 @@ export function ArenaTooltip({ children, label }: ArenaTooltipProps) {
     );
   }
   const [show, setShow] = useState(false);
+  const [quiet, setQuiet] = useState(false);
 
   const bubbleId = `tooltip-${useId().replace(/:/g, '')}`;
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clear = () => { if (timer.current !== null) { clearTimeout(timer.current); timer.current = null; } };
-  const schedule = (next: boolean, ms: number) => { clear(); timer.current = setTimeout(() => setShow(next), ms); };
+  const wrapRef = useRef<HTMLElement | null>(null);
+  const reveal = (next: boolean) => {
+    const trigger = wrapRef.current?.firstElementChild;
+    if (next) setQuiet(trigger ? arenaTooltipRedundant(arenaAccessibleText(trigger), label) : false);
+    setShow(next);
+  };
+  const schedule = (next: boolean, ms: number) => { clear(); timer.current = setTimeout(() => reveal(next), ms); };
 
-  const now = (next: boolean) => { clear(); setShow(next); };
+  const now = (next: boolean) => { clear(); reveal(next); };
   useEffect(() => () => clear(), []);
 
   useEffect(() => {
@@ -45,7 +53,6 @@ export function ArenaTooltip({ children, label }: ArenaTooltipProps) {
   const describedBy = show ? [own, bubbleId].filter(Boolean).join(' ') : own;
   const described = React.cloneElement(children, { 'aria-describedby': describedBy });
 
-  const wrapRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const el = wrapRef.current && wrapRef.current.firstElementChild;
     if (!el) return;
@@ -62,7 +69,7 @@ export function ArenaTooltip({ children, label }: ArenaTooltipProps) {
       {described}
       {show && (
         <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble}>
-          {label}
+          {quiet ? <span aria-hidden="true">{label}</span> : label}
         </span>
       )}
     </span>

@@ -18,6 +18,9 @@ import { ANGULAR_COMPONENTS } from './Compliance';
 const LAYER = join(ANGULAR_COMPONENTS, '..');
 
 const PRIVATE = new Map([
+  ['feedback/arena-tooltip/TooltipName.ts',
+   'the redundancy test the tooltip runs on its own trigger when it opens; nothing outside the '
+   + 'component calls it, and it is typechecked through the tooltip that imports it.'],
   ['display/arena-calendar/CalendarInternals.ts',
    'date and geometry arithmetic the family consumes and no consumer calls: `arena-calendar` '
    + 'reads event times through it and `arena-calendar-event` reads its two fit thresholds. A '

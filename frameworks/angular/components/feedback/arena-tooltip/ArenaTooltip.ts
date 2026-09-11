@@ -1,6 +1,6 @@
 import {
   ChangeDetectionStrategy, Component, DOCUMENT, DestroyRef, ElementRef, Injector, TemplateRef,
-  ViewContainerRef, computed, inject, input, viewChild,
+  ViewContainerRef, computed, inject, input, signal, viewChild,
 } from '@angular/core';
 import {
   type ConnectedPosition, type OverlayRef, createFlexibleConnectedPositionStrategy,
@@ -11,6 +11,7 @@ import { delayClose, delayOpen, sp2 } from '../../../Tokens.generated';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
 import manifest from './ArenaTooltip.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName';
 
 export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = [
   { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -sp2 },
@@ -42,7 +43,7 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   template: `
     <ng-content />
     <ng-template #bubble>
-      <span [class]="styles().bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">{{ label() }}</span>
+      <span [class]="styles().bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">@if (quiet()) {<span aria-hidden="true">{{ label() }}</span>} @else {{{ label() }}}</span>
     </ng-template>
   `,
 })
@@ -54,6 +55,7 @@ export class ArenaTooltip {
 
   protected readonly bubbleId = inject(ArenaIdGenerator).next('arena-tooltip');
   protected readonly styles = computed(() => arenaTooltipStyles({ anchored: true }));
+  protected readonly quiet = signal(false);
 
   private readonly bubble = viewChild.required<TemplateRef<unknown>>('bubble');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -104,6 +106,8 @@ export class ArenaTooltip {
 
   private attach(): void {
     if (this.ref) return;
+    const trigger = this.trigger();
+    this.quiet.set(trigger ? arenaTooltipRedundant(arenaAccessibleText(trigger), this.label()) : false);
     const ref = createOverlayRef(this.injector, {
       positionStrategy: createFlexibleConnectedPositionStrategy(this.injector, this.host)
         .withPositions(ARENA_TOOLTIP_POSITIONS)
