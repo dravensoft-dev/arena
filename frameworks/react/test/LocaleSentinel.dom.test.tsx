@@ -53,7 +53,7 @@ export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaL
 }
 
 const SENTINEL = /⟦\w+⟧/g;
-const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓−·…"'?!]*$/;
+const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!]*$/;
 const NAMED = ['aria-label', 'aria-roledescription', 'title'];
 
 export function strayWords(host: Element, allowed: readonly string[]): string[] {
@@ -234,7 +234,11 @@ for (const [name, one] of Object.entries(CASES)) {
       const host = mount(<ArenaLocaleProvider value={locale}>{render()}</ArenaLocaleProvider>);
       if (name === 'ArenaCommandPalette') {
         const input = host.ownerDocument.querySelector('input');
-        act(() => { if (input) { input.value = 'zzz'; input.dispatchEvent(new Event('input', { bubbles: true })); } });
+        act(() => {
+          if (!input) return;
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, 'zzz');
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
       }
       const found = strayWords(host.ownerDocument.body, [...one.consumer, ...(one.accept?.() ?? [])]);
       cleanup();

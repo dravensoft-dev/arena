@@ -6,6 +6,7 @@ import manifest from './ArenaCommandPalette.classes.generated.ts';
 
 import type { ArenaCommand } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export type { ArenaCommand };
 
@@ -103,19 +104,19 @@ export function ArenaCommandPalette({ open, commands, placeholder, maxResults, o
   return (
     <div onClick={onClose} className={styles.root()} data-arena-part={manifest.parts.root}>
       <div ref={panelRef} onKeyDown={onPanelKeyDown}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="ArenaCommand palette"
+        onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={locale.commandPaletteDialog}
         className={styles.panel()} data-arena-part={manifest.parts.panel}>
         <div className={styles.search()} data-arena-part={manifest.parts.search}>
           <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} aria-hidden="true" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
-            aria-controls={listboxId} aria-label={hint || 'Search commands'}
+            aria-controls={listboxId} aria-label={hint || locale.commandPaletteSearch}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
             className={styles.input()} data-arena-part={manifest.parts.input} />
-          <span className={styles.esc()} data-arena-part={manifest.parts.esc}>ESC</span>
+          <span className={styles.esc()} data-arena-part={manifest.parts.esc}>{locale.commandPaletteEscape}</span>
         </div>
-        <div ref={listRef} id={listboxId} role="listbox" aria-label="Commands" className={styles.list()} data-arena-part={manifest.parts.list}>
-          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty}>{`No results for "${q}".`}</div>}
+        <div ref={listRef} id={listboxId} role="listbox" aria-label={locale.commandPaletteList} className={styles.list()} data-arena-part={manifest.parts.list}>
+          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
           {groups.map((group) => (
             <div key={group.name ?? ''} className={styles.group()} data-arena-part={manifest.parts.group}
               role={group.name ? 'group' : undefined} aria-label={group.name ?? undefined}>

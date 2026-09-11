@@ -19,6 +19,8 @@ import { onboardingWidth, onboardingHeightReserve, sp3, sp4 } from '../../../Tok
 
 const SSR_VIEWPORT_H = 900;
 import type { ArenaOnboardingAnchor, ArenaOnboardingStep } from '../../../Api.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 @Component({
   selector: 'arena-onboarding',
@@ -46,20 +48,20 @@ import type { ArenaOnboardingAnchor, ArenaOnboardingStep } from '../../../Api.ge
           <div [class]="styles().body()" [attr.data-arena-part]="parts.body">{{ body }}</div>
         }
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
-          <div [class]="styles().dots()" [attr.data-arena-part]="parts.dots" [attr.aria-label]="'Progress: step ' + (index() + 1) + ' of ' + steps().length">
+          <div [class]="styles().dots()" [attr.data-arena-part]="parts.dots" [attr.aria-label]="progressName()">
             @for (dot of steps(); track $index) {
               <span [class]="styles().dot() + ' ' + ($index === index() ? styles().dotOn() : styles().dotOff())"
                     [attr.data-arena-part]="parts.dot"></span>
             }
           </div>
           @if (index() > 0) {
-            <button type="button" [class]="styles().text()" [attr.data-arena-part]="parts.text" (click)="back.emit()">Back</button>
+            <button type="button" [class]="styles().text()" [attr.data-arena-part]="parts.text" (click)="back.emit()">{{ locale.onboardingBack }}</button>
           }
           @if (!last()) {
-            <button type="button" [class]="styles().text()" [attr.data-arena-part]="parts.text" (click)="skip.emit()">Skip</button>
+            <button type="button" [class]="styles().text()" [attr.data-arena-part]="parts.text" (click)="skip.emit()">{{ locale.onboardingSkip }}</button>
           }
           <button type="button" [class]="styles().next()" [attr.data-arena-part]="parts.next" (click)="last() ? done.emit() : next.emit()">
-            {{ last() ? 'Got it' : 'Next' }}
+            {{ last() ? locale.onboardingDone : locale.onboardingNext }}
           </button>
         </div>
       </div>
@@ -68,6 +70,7 @@ import type { ArenaOnboardingAnchor, ArenaOnboardingStep } from '../../../Api.ge
 })
 export class ArenaOnboarding {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** Whether the tour is shown. Closed renders nothing, scrim included. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
@@ -89,13 +92,14 @@ export class ArenaOnboarding {
   private readonly doc = inject(DOCUMENT);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
+  protected readonly progressName = computed(() => arenaPhrase(this.locale.onboardingProgress, { current: this.index() + 1, total: this.steps().length }));
   protected readonly visible = computed(() => this.open() && this.steps().length > 0);
   protected readonly step = computed<ArenaOnboardingStep>(() => this.steps()[this.index()] ?? {});
   protected readonly last = computed(() => this.index() === this.steps().length - 1);
 
   protected readonly label = computed(() => {
     const current = this.step();
-    return current.title ?? current.eyebrow ?? `Step ${this.index() + 1} of ${this.steps().length}`;
+    return current.title ?? current.eyebrow ?? arenaPhrase(this.locale.onboardingStep, { current: this.index() + 1, total: this.steps().length });
   });
 
   protected readonly styles = computed(() => arenaOnboardingStyles({

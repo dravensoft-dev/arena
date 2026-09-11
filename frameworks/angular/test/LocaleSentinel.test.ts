@@ -56,7 +56,7 @@ export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaL
 }
 
 const SENTINEL = /⟦\w+⟧/g;
-const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓−·…"'?!]*$/;
+const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!]*$/;
 const NAMED = ['aria-label', 'aria-roledescription', 'title'];
 
 export function strayWords(host: Element, allowed: readonly string[]): string[] {

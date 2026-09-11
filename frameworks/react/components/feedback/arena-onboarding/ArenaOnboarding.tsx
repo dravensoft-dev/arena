@@ -7,6 +7,8 @@ const SSR_VIEWPORT_H = 900;
 import { useArenaDialogModal } from '../../../UseDialogModal.ts';
 
 import type { ArenaOnboardingStep, ArenaOnboardingAnchor } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export type { ArenaOnboardingStep };
 
@@ -41,6 +43,7 @@ export interface ArenaOnboardingProps {
 const arenaOnboardingStyles = arenaStyles(manifest);
 
 export function ArenaOnboarding({ open, steps, index = 0, onNext, onBack, onSkip, onDone, anchor }: ArenaOnboardingProps) {
+  const locale = useArenaLocale();
   if (open == null) throw new Error('ArenaOnboarding: `open` is required');
   if (steps == null) throw new Error('ArenaOnboarding: `steps` is required');
 
@@ -50,7 +53,7 @@ export function ArenaOnboarding({ open, steps, index = 0, onNext, onBack, onSkip
   const step = steps[index] || {};
   const last = index === steps.length - 1;
 
-  const label = step.title ?? step.eyebrow ?? `Step ${index + 1} of ${steps.length}`;
+  const label = step.title ?? step.eyebrow ?? arenaPhrase(locale.onboardingStep, { current: index + 1, total: steps.length });
 
   const W = onboardingWidth;
   const EDGE = sp4;
@@ -74,16 +77,16 @@ export function ArenaOnboarding({ open, steps, index = 0, onNext, onBack, onSkip
         {step.title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{step.title}</div>}
         {step.body && <div className={styles.body()} data-arena-part={manifest.parts.body}>{step.body}</div>}
         <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
-          <div className={styles.dots()} data-arena-part={manifest.parts.dots} aria-label={'Progress: step ' + (index + 1) + ' of ' + steps.length}>
+          <div className={styles.dots()} data-arena-part={manifest.parts.dots} aria-label={arenaPhrase(locale.onboardingProgress, { current: index + 1, total: steps.length })}>
             {steps.map((_, i) => (
               <span key={i} className={`${styles.dot()} ${i === index ? styles.dotOn() : styles.dotOff()}`}
                 data-arena-part={manifest.parts.dot} />
             ))}
           </div>
-          {index > 0 && <button onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text}>Back</button>}
-          {!last && <button onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text}>Skip</button>}
+          {index > 0 && <button onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text}>{locale.onboardingBack}</button>}
+          {!last && <button onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text}>{locale.onboardingSkip}</button>}
           <button onClick={last ? onDone : onNext} className={styles.next()} data-arena-part={manifest.parts.next}>
-            {last ? 'Got it' : 'Next'}
+            {last ? locale.onboardingDone : locale.onboardingNext}
           </button>
         </div>
       </div>

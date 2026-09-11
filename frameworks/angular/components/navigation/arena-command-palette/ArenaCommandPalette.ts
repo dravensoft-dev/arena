@@ -21,6 +21,7 @@ import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from 
 import type { ArenaCommand } from '../../../Api.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 export function arenaFilterCommands(commands: readonly ArenaCommand[], query: string): ArenaCommand[] {
   const needle = query.toLowerCase();
@@ -93,18 +94,18 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
   },
   template: `
     @if (open()) {
-      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" aria-label="ArenaCommand palette"
+      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" [attr.aria-label]="locale.commandPaletteDialog"
            (click)="$event.stopPropagation()">
         <div [class]="styles().search()" [attr.data-arena-part]="parts.search">
           <i [class]="styles().searchIcon() + ' ph-bold ph-magnifying-glass'" [attr.data-arena-part]="parts.searchIcon" aria-hidden="true"></i>
           <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="query()" [attr.placeholder]="hint()"
                  role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
                  [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="activeId()"
-                 [attr.aria-label]="hint() || 'Search commands'"
+                 [attr.aria-label]="hint() || locale.commandPaletteSearch"
                  (input)="onQuery($event)" (keydown)="onKey($event)" />
-          <span [class]="styles().esc()" [attr.data-arena-part]="parts.esc">ESC</span>
+          <span [class]="styles().esc()" [attr.data-arena-part]="parts.esc">{{ locale.commandPaletteEscape }}</span>
         </div>
-        <div #list [class]="styles().list()" [attr.data-arena-part]="parts.list" [id]="listboxId" role="listbox" aria-label="Commands">
+        <div #list [class]="styles().list()" [attr.data-arena-part]="parts.list" [id]="listboxId" role="listbox" [attr.aria-label]="locale.commandPaletteList">
           @for (group of groups(); track group.name ?? '') {
           <div [class]="styles().group()" [attr.data-arena-part]="parts.group" [attr.role]="group.name ? 'group' : null"
                [attr.aria-label]="group.name">
@@ -149,7 +150,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
           }
         </div>
         @if (filtered().length === 0) {
-          <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty">No results for "{{ query() }}".</div>
+          <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty">{{ emptyLine() }}</div>
         }
       </div>
     }
@@ -158,6 +159,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
 export class ArenaCommandPalette {
   protected readonly parts = manifest.parts;
   protected readonly locale = inject(ARENA_LOCALE);
+  protected readonly emptyLine = computed(() => arenaPhrase(this.locale.commandPaletteEmpty, { query: this.query() }));
   protected readonly hint = computed(() => this.placeholder() ?? this.locale.commandPalettePlaceholder);
 
   /** Whether the palette is shown. Closed renders nothing. */
