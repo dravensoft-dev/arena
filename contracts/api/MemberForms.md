@@ -146,9 +146,10 @@ type cannot carry an undescribed bag. A per-event `meta` bag on a calendar event
 this refuses, and it is **nothing at all** rather than a member of the component. The per-item
 convention leaves such an object no per-item render function, which is the only route by which
 a consumer's own record could come back out, and the other mechanical guard on the eighth form
-is that a consumer-data member must have a consumer. With no route out it is dead API, so
-`ArenaCalendarEvent` declares `id`, `title`, `start`, `end` and `colorId` and nothing else. What a
-consumer cannot express through those is recorded in `ArenaCalendar.prompt.md`, not hidden.
+is that a consumer-data member must have a consumer. With no route out it is dead API. What R1
+leaves a consumer who needs more on a chip is `ArenaCalendarEvent.details`, an array of primitives
+Arena draws and sheds, and what a consumer still cannot express is recorded in
+`ArenaCalendar.prompt.md`, not hidden.
 
 **R2. Who draws decides data versus slot.** If Arena draws the content, knowing its
 fields and owning its markup, it is an object or an array of objects. If the consumer draws

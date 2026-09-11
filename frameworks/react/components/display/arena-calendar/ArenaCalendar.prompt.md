@@ -97,6 +97,8 @@ not a chip is still silently skipped by the placement lookup.
 
 **Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it.
 
+**What a chip can carry.** A chip draws its title, its time and `details`, a list of short lines the calendar sheds as the chip shrinks. A per-detail icon or tone, a template of your own and a colour beyond the eight ramp slots stay outside what a chip can carry.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
