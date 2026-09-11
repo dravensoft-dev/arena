@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { arenaAlertStyles } from './ArenaAlert.variants';
 import manifest from './ArenaAlert.classes.generated';
 import type { ArenaAlertTone } from '../../../Api.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 const TONE_ICONS: Record<ArenaAlertTone, string> = {
   info: 'ph-fill ph-info',
@@ -33,7 +34,7 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
       }
     </div>
     @if (dismissible()) {
-      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Dismiss" (click)="close.emit()">
+      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.alertDismiss" (click)="close.emit()">
         <i class="ph-bold ph-x" aria-hidden="true"></i>
       </button>
     }
@@ -41,6 +42,7 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
 })
 export class ArenaAlert {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** The severity: colour, default icon, and (for danger) the alert role. */
   readonly tone = input<ArenaAlertTone, ArenaAlertTone | undefined>(

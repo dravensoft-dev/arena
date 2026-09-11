@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { avatarLg, avatarMd, avatarSm, avatarXs } from '../../../Tokens.generated';
 import { arenaAvatarStyles } from './ArenaAvatar.variants';
 import manifest from './ArenaAvatar.classes.generated';
 import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../../../Api.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
   xs: avatarXs, sm: avatarSm, md: avatarMd, lg: avatarLg,
@@ -27,12 +28,17 @@ const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
       }
     </span>
     @if (status(); as presence) {
-      <span [class]="styles().status()" [attr.data-arena-part]="parts.status" [attr.aria-label]="presence" [title]="presence"></span>
+      <span [class]="styles().status()" [attr.data-arena-part]="parts.status" [attr.aria-label]="presenceName(presence)" [title]="presenceName(presence)"></span>
     }
   `,
 })
 export class ArenaAvatar {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
+
+  protected presenceName(status: ArenaAvatarStatus): string {
+    return { online: this.locale.avatarOnline, busy: this.locale.avatarBusy, away: this.locale.avatarAway, offline: this.locale.avatarOffline }[status];
+  }
 
   /** Image URL. Absent renders initials from `name`. */
   readonly src = input<string>();

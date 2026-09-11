@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import type { ArenaToastTone } from '../../../Api.generated';
 import { dismissDefault, dismissActionable } from '../../../Tokens.generated';
 import { arenaToastStyles } from './ArenaToast.variants';
 import manifest from './ArenaToast.classes.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
 
@@ -22,7 +23,7 @@ export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismis
     <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
       @if (title(); as heading) {
         <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}@if (pinned()) {
-          <span [class]="styles().pinned()" [attr.data-arena-part]="parts.pinned" title="Does not auto-dismiss">Pinned</span>
+          <span [class]="styles().pinned()" [attr.data-arena-part]="parts.pinned" [title]="locale.toastPinnedHint">{{ locale.toastPinned }}</span>
         }</div>
       }
       @if (message(); as text) {
@@ -33,7 +34,7 @@ export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismis
       }
     </div>
     @if (dismissible()) {
-      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Close" (click)="close.emit()">
+      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.toastClose" (click)="close.emit()">
         <i class="ph-bold ph-x" aria-hidden="true"></i>
       </button>
     }
@@ -41,6 +42,7 @@ export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismis
 })
 export class ArenaToast {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** The bold lead line. */
   readonly title = input<string>();

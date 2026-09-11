@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import type { ArenaCatSlot, ArenaTagTone } from '../../../Api.generated';
 import { arenaCatColor } from '../../../DataVisuals';
 import { arenaTagStyles } from './ArenaTag.variants';
 import manifest from './ArenaTag.classes.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 @Component({
   selector: 'arena-tag',
@@ -15,7 +16,7 @@ import manifest from './ArenaTag.classes.generated';
     <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
     <ng-content />
     @if (removable()) {
-      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Remove"
+      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.tagRemove"
               [attr.aria-disabled]="disabled() ? 'true' : null" (click)="onRemove()">
         <i class="ph-bold ph-x" aria-hidden="true"></i>
       </button>
@@ -24,6 +25,7 @@ import manifest from './ArenaTag.classes.generated';
 })
 export class ArenaTag {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** The tag's emphasis colour. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. */
   readonly tone = input<ArenaTagTone, ArenaTagTone | undefined>(

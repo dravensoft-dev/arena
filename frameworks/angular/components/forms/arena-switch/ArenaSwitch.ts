@@ -1,9 +1,10 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, input, output,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output,
 } from '@angular/core';
 import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { arenaSwitchStyles } from './ArenaSwitch.variants';
 import manifest from './ArenaSwitch.classes.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 export type SwitchFootprint = `${ArenaOrientation}-${ArenaSwitchSize}`;
 export type SwitchThumb = `${'on' | 'off'}-${ArenaOrientation}`;
@@ -35,13 +36,14 @@ export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): Sw
     <span [class]="styles().label()" [attr.data-arena-part]="parts.label" (click)="activate()">
       {{ label() }}
       @if (confirm()) {
-        <i [class]="guardClass()" [attr.data-arena-part]="parts.guard" aria-hidden="true" title="Requires confirmation"></i>
+        <i [class]="guardClass()" [attr.data-arena-part]="parts.guard" aria-hidden="true" [title]="locale.switchConfirmHint"></i>
       }
     </span>
   `,
 })
 export class ArenaSwitch {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });

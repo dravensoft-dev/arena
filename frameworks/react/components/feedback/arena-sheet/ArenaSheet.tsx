@@ -3,6 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSheet.classes.generated.ts';
 
 import type { ArenaSheetPlacement } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 export interface ArenaSheetProps {
 
@@ -40,6 +41,7 @@ export function ArenaSheet({
   open, placement = 'bottom', title, collapsed = false, onCollapsedChange,
   dismissible = false, onClose, children, footer,
 }: ArenaSheetProps) {
+  const locale = useArenaLocale();
 
   if (!title || title.trim() === '') throw new Error('ArenaSheet: `title` is required, and names the panel and the control that folds it');
 
@@ -67,7 +69,7 @@ export function ArenaSheet({
             aria-hidden="true" />
         </button>
         {dismissible && (
-          <button type="button" onClick={onClose} aria-label="Close" className={styles.close()} data-arena-part={manifest.parts.close}>
+          <button type="button" onClick={onClose} aria-label={locale.sheetClose} className={styles.close()} data-arena-part={manifest.parts.close}>
             <i className="ph-bold ph-x" aria-hidden="true" />
           </button>
         )}

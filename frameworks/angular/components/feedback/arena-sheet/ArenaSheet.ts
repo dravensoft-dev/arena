@@ -6,6 +6,7 @@ import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaSheetStyles } from './ArenaSheet.variants';
 import manifest from './ArenaSheet.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 
 @Component({
   selector: 'arena-sheet',
@@ -27,7 +28,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
           <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
         </button>
         @if (dismissible()) {
-          <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" aria-label="Close" (click)="close.emit()">
+          <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.sheetClose" (click)="close.emit()">
             <i class="ph-bold ph-x" aria-hidden="true"></i>
           </button>
         }
@@ -44,6 +45,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
 })
 export class ArenaSheet {
   protected readonly parts = manifest.parts;
+  protected readonly locale = inject(ARENA_LOCALE);
 
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
