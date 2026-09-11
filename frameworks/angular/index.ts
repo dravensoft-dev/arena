@@ -10,4 +10,5 @@ export * from './WarnOnce';
 export * from './ToastClock';
 export * from './ArenaToastQueue';
 export * from './ArenaLocale';
+export * from './ControlBinding';
 export * from './theme/ArenaThemeService';
