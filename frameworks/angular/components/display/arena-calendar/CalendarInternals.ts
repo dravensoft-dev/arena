@@ -189,6 +189,12 @@ function dateFormatter(options?: Intl.DateTimeFormatOptions): Intl.DateTimeForma
   return formatter;
 }
 
+export const ARENA_DATE_OPTIONS = {
+  weekdayShort: { weekday: 'short' },
+  dayNumber: { day: 'numeric' },
+  dayName: { weekday: 'long', day: 'numeric', month: 'long' },
+} as const satisfies Record<string, Intl.DateTimeFormatOptions>;
+
 export function arenaFormatDate(isoDate: string, options?: Intl.DateTimeFormatOptions): string {
   return dateFormatter(options).format(asUtcDate(isoDate));
 }
