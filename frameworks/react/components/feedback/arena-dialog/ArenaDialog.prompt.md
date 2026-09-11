@@ -66,7 +66,7 @@ If you drive this through CDP rather than by hand, one gotcha costs an afternoon
 a `rawKeyDown` does not activate a button. Enter must be dispatched as `keyDown`
 carrying `text: '\r'`. Tab and Escape are fine as `rawKeyDown`.
 
-**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. The same dialog fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
+**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

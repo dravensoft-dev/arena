@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { TestBed } from '@angular/core/testing';
 import { ArenaDialog } from './ArenaDialog';
 import manifest from './ArenaDialog.classes.generated';
+import { assertSameNode } from '../../../test/NodeAssert';
 
 const FILL = manifest.variants.fill.true.panel;
 const BP_MD = '768px';
@@ -75,7 +76,7 @@ test('focus moves into the panel on open and returns to the opener on close, in 
       fixture.componentRef.setInput('open', false);
       fixture.detectChanges();
       await fixture.whenStable();
-      assert.equal(document.activeElement, opener, `width ${width}: focus returned to the opener`);
+      assertSameNode(document.activeElement, opener, `width ${width}: focus returned to the opener`);
     } finally { fixture.destroy(); restore(); opener.remove(); }
   }
 });
