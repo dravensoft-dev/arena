@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, booleanAttribute, computed, input, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
@@ -20,6 +20,8 @@ import {
 } from '../ChartLegendStyles';
 import type { ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
 
@@ -136,6 +138,7 @@ const MARK_STYLE = {
   `,
 })
 export class ArenaScatterChart {
+  protected readonly locale = inject(ARENA_LOCALE);
   /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against: that is what ArenaPointSeries is for and why it is a separate type from ArenaSeries. The ramp clamps at its last slot rather than cycling. */
   readonly series = input.required<readonly ArenaPointSeries[]>();
   /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
@@ -186,7 +189,7 @@ export class ArenaScatterChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return `${this.label()} — scatter chart`;
+    return arenaPhrase(this.locale.scatterChartName, { label: this.label() });
   });
 
   private readonly domains = computed(() => arenaPointSeriesDomain(this.series()));
@@ -284,7 +287,7 @@ export class ArenaScatterChart {
   });
 
   protected readonly table = computed(() => arenaPointTable(
-    this.series(), this.xLabel(), this.yLabel(), this.sizeLabel() ?? '', this.write(),
+    this.locale.chartTableSeries, this.series(), this.xLabel(), this.yLabel(), this.sizeLabel() ?? '', this.write(),
   ));
 
   protected readonly active = computed(() => {

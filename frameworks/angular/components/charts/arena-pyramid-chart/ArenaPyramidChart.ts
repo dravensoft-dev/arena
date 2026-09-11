@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, computed, input, signal,
+  ChangeDetectionStrategy, Component, computed, inject, input, signal,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import {
@@ -22,6 +22,8 @@ import {
 } from '../ChartLegendStyles';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 const BAR_RADIUS = chartBarRadius;
 
@@ -119,6 +121,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
   `,
 })
 export class ArenaPyramidChart {
+  protected readonly locale = inject(ARENA_LOCALE);
   /** One label per band, in the same order as both series' `values`, running down the left edge. On a population pyramid these are the age brackets, oldest first or youngest first as the data is given: the chart does not reorder them, because which end is the top is a decision about the population and not about the drawing. */
   readonly labels = input.required<readonly string[]>();
   /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it, so the accessible table reads the numbers that were passed and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
@@ -162,7 +165,7 @@ export class ArenaPyramidChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return `${this.label()} — horizontal bar chart`;
+    return arenaPhrase(this.locale.pyramidChartName, { label: this.label() });
   });
 
   private readonly sides = computed(() => arenaTwoSeries(this.series(), 'ArenaPyramidChart'));
@@ -240,7 +243,7 @@ export class ArenaPyramidChart {
   });
 
   protected readonly table = computed(() => arenaChartTable(
-    'Category', this.sides(), this.labels(), this.write(),
+    this.locale.chartTableCategory, this.sides(), this.labels(), this.write(),
   ));
 
   protected readonly active = computed(() => {

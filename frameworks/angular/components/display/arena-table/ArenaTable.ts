@@ -164,7 +164,7 @@ export class ArenaTable {
 
   protected readonly styles = computed(() => arenaTableStyles({ narrow: this.narrow() }));
 
-  protected readonly sortLabel = 'Sort by';
+  protected readonly sortLabel = this.locale.tableSortBy;
 
   protected readonly sortable = computed(() => this.columns()
     .map((column, index) => ({ column, index }))

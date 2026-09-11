@@ -8,6 +8,8 @@ import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend.ts';
 import { arenaChartTable, arenaOneSeries, arenaSeriesColors } from '../ChartSeries.ts';
 
 import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
+import { arenaPhrase } from '../../../Phrase.ts';
 
 export interface ArenaDoughnutChartProps {
 
@@ -44,6 +46,7 @@ export function ArenaDoughnutChart({
   labels, series, label, valueSuffix, valuePrefix, valueFormat,
   shape = 'doughnut', legendLayout = 'auto', onSliceActivate,
 }: ArenaDoughnutChartProps) {
+  const locale = useArenaLocale();
   if (!label) throw new Error('ArenaDoughnutChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaDoughnutChart: `labels` is required');
   if (!series) throw new Error('ArenaDoughnutChart: `series` is required');
@@ -66,8 +69,8 @@ export function ArenaDoughnutChart({
   const cy = height / 2;
   const { outer: rOuter, inner: rInner } = arenaDoughnutRadii(plotW, height, shape);
 
-  const name = shape === 'pie' ? `${label} — pie chart` : `${label} — doughnut chart`;
-  const table = arenaChartTable('Category', series.slice(0, 1), labels, fmt);
+  const name = arenaPhrase(shape === 'pie' ? locale.doughnutChartPieName : locale.doughnutChartName, { label });
+  const table = arenaChartTable(locale.chartTableCategory, series.slice(0, 1), labels, fmt);
 
   const segments = arenaDoughnutSlices(values);
 
@@ -94,7 +97,7 @@ export function ArenaDoughnutChart({
       {
 
 }
-      <div role="group" aria-label={shape === 'pie' ? 'Pie chart legend' : 'Doughnut chart legend'}
+      <div role="group" aria-label={shape === 'pie' ? locale.doughnutChartPieLegend : locale.doughnutChartLegend}
         style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'calc(var(--sp-1) * 1.5)', overflow: 'auto' }}>
         {values.map((_, i) => (
           <button key={i} type="button" onPointerEnter={() => setHover(i)} onPointerLeave={() => setHover(null)}

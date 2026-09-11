@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
 import { arenaDoughnutSlices } from '../ChartScales';
@@ -7,6 +7,8 @@ import { arenaDoughnutRadii } from '../ChartAxis';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend';
 import { arenaChartTable, arenaOneSeries, arenaSeriesColors } from '../ChartSeries';
 import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
 
@@ -108,6 +110,7 @@ const LEGEND_VALUE_STYLE = {
   `,
 })
 export class ArenaDoughnutChart {
+  protected readonly locale = inject(ARENA_LOCALE);
   /** One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. */
   readonly labels = input.required<readonly string[]>();
   /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `slots`. */
@@ -161,12 +164,12 @@ export class ArenaDoughnutChart {
   );
 
   protected readonly name = computed(() => {
-    return this.shape() === 'pie' ? `${this.label()} — pie chart` : `${this.label()} — doughnut chart`;
+    return arenaPhrase(this.shape() === 'pie' ? this.locale.doughnutChartPieName : this.locale.doughnutChartName, { label: this.label() });
   });
 
   protected readonly arenaPlotWidth = computed(() => arenaLegendPlotWidth(this.width()));
   protected readonly centre = computed(() => (this.shape() === 'pie' ? null : this.active()));
-  protected readonly legendName = computed(() => (this.shape() === 'pie' ? 'Pie chart legend' : 'Doughnut chart legend'));
+  protected readonly legendName = computed(() => (this.shape() === 'pie' ? this.locale.doughnutChartPieLegend : this.locale.doughnutChartLegend));
   protected readonly centreX = computed(() => this.arenaPlotWidth() / 2);
   protected readonly centreY = computed(() => this.height / 2);
 
@@ -193,7 +196,7 @@ export class ArenaDoughnutChart {
   });
 
   protected readonly table = computed(() => arenaChartTable(
-    'Category', this.series().slice(0, 1), this.labels(), this.write(),
+    this.locale.chartTableCategory, this.series().slice(0, 1), this.labels(), this.write(),
   ));
 
   protected readonly active = computed(() => {

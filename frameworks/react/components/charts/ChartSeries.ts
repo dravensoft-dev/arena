@@ -209,6 +209,7 @@ export function arenaPointSizeRange(series: readonly ArenaPointSeries[]): { min:
 }
 
 export function arenaPointTable(
+  seriesHeading: string,
   series: readonly ArenaPointSeries[],
   xHeading: string,
   yHeading: string,
@@ -228,7 +229,7 @@ export function arenaPointTable(
       rows.push({ header: one.label, cells });
     }
   }
-  const columns = ['Series', xHeading, yHeading];
+  const columns = [seriesHeading, xHeading, yHeading];
   if (sized) columns.push(sizeHeading);
   return { columns, rows };
 }

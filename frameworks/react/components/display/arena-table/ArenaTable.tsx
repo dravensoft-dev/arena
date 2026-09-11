@@ -208,7 +208,7 @@ export function ArenaTable({
       {narrow && sortBar && (
         <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
           <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>
-            <ArenaSelect label="Sort by" options={arenaSortOptions(columns)} value={sortValue}
+            <ArenaSelect label={locale.tableSortBy} options={arenaSortOptions(columns)} value={sortValue}
               onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
           </div>
         </div>
