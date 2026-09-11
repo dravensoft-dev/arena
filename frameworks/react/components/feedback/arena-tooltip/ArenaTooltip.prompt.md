@@ -59,6 +59,8 @@ that re-parents its content, is outside what an effect reading `firstElementChil
 **The bubble is in flow, so an ancestor with `overflow: hidden` clips it** and it cannot leave a
 scroll container. Nothing in `contracts/behaviour/tooltip.json` requires it to escape one, so this is a bounded capability limit rather than a defect. Fixing it means a portal or a popover, which is a new capability. Place a tooltip where its trigger is not inside a clipping ancestor.
 
+**When the label repeats the name.** A trigger whose accessible name already says the label, such as an icon button named by that word, still references the tooltip. The bubble draws the same text and contributes no description, so a screen reader does not announce the word twice.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
