@@ -11,6 +11,11 @@ test('topLevelBlocks takes whole blocks, nested braces included, and ignores com
   assert.deepEqual(topLevelBlocks(css, '@utility'), ['@utility u {\n  @media (x) { color: red; }\n}']);
 });
 
+test('topLevelBlocks skips a statement that opens no block', () => {
+  const css = '@layer theme, base;\n@layer base {\n  a { color: red; }\n}\n';
+  assert.deepEqual(topLevelBlocks(css, '@layer'), ['@layer base {\n  a { color: red; }\n}']);
+});
+
 test('the sheet carries the themes and the utilities and nothing a browser or a second Tailwind would trip on', () => {
   const sheet = tailwindThemeSheet();
   assert.match(sheet, /--color-\*: initial;/);

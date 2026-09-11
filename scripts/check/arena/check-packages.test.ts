@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -443,4 +443,45 @@ test('every secondary entry point is an exports key of the assembled Angular pac
   assert.deepEqual(entryPointProblems(pkg, { exports: { '.': {}, './metadata': {}, './forms': {} } }), []);
   assert.match(entryPointProblems(pkg, { exports: { '.': {}, './metadata': {} } }).join('\n'), /\.\/forms/);
   assert.deepEqual(entryPointProblems({ layer: 'react', name: '@dravensoft/arena-react' }, { exports: { '.': {} } }), []);
+});
+
+function distTree(files: Record<string, string>) {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  for (const [rel, text] of Object.entries(files)) {
+    mkdirSync(join(dir, rel, '..'), { recursive: true });
+    writeFileSync(join(dir, rel), text);
+  }
+  return dir;
+}
+
+const REACT_PKG = { layer: 'react', name: '@dravensoft/arena-react' };
+
+test('no packaged sheet but the consumer\'s theme carries a compile-time directive', () => {
+  assert.deepEqual([...COMPILED_BY_CONSUMER.keys()], ['css/tailwind-theme.css']);
+  const leaky = distTree({ 'arena.css': ':root{}', 'css/tailwind-theme.css': '@theme { --a: 1; }', 'css/leak.css': '.x { @apply p-4; }' });
+  assert.match(directiveProblems(REACT_PKG, leaky).join('\n'), /css\/leak\.css.*@apply/);
+  const clean = distTree({ 'arena.css': ':root{}', 'css/tailwind-theme.css': '@theme { --a: 1; }' });
+  assert.deepEqual(directiveProblems(REACT_PKG, clean), []);
+});
+
+test('an allowance for a sheet the package no longer ships fails as stale', () => {
+  assert.match(directiveProblems(REACT_PKG, distTree({ 'arena.css': ':root{}' })).join('\n'), /tailwind-theme\.css/);
+});
+
+test('the packaged theme equals a fresh assembly', () => {
+  assert.deepEqual(themeSheetProblems(REACT_PKG, distTree({ 'css/tailwind-theme.css': 'A' }), 'A'), []);
+  assert.match(themeSheetProblems(REACT_PKG, distTree({ 'css/tailwind-theme.css': 'B' }), 'A').join('\n'), /stale/);
+});
+
+test('a consumer compile resolves Arena\'s scale, keeps a later key, and reaches none of Tailwind\'s defaults', () => {
+  const compiled = '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--spacing-4)}.bg-brand{background-color:var(--color-brand)}';
+  const dir = distTree({ 'css/tailwind-theme.css': '' });
+  assert.deepEqual(themeCompileProblems(REACT_PKG, dir, () => compiled), []);
+  assert.match(themeCompileProblems(REACT_PKG, dir, () => `${compiled}.bg-red-500{color:red}`).join('\n'), /bg-red-500/);
+  assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('.bg-brand', '.bg-other')).join('\n'), /below the import/);
+});
+
+test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': ':root{--color-base-100:#141010}' })), []);
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
 });

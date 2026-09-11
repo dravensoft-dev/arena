@@ -13,7 +13,7 @@ export const THEME_SOURCES = {
 
 const blankComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
 
-export function topLevelBlocks(css: string, atRule: '@theme' | '@utility'): string[] {
+export function topLevelBlocks(css: string, atRule: string): string[] {
   const text = blankComments(css);
   const blocks: string[] = [];
   let depth = 0;
@@ -24,6 +24,8 @@ export function topLevelBlocks(css: string, atRule: '@theme' | '@utility'): stri
     if (depth !== 0 || !text.startsWith(atRule, at)) continue;
     const open = text.indexOf('{', at);
     if (open === -1) break;
+    const semi = text.indexOf(';', at);
+    if (semi !== -1 && semi < open) continue;
     let inner = 1;
     let close = open + 1;
     for (; close < text.length && inner > 0; close += 1) {
