@@ -24,6 +24,7 @@ import {
 import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
+import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 
 export const NAME = '@dravensoft/arena-angular';
 export const LAYER = 'frameworks/angular';
@@ -33,6 +34,7 @@ export const STAGING = 'frameworks/angular/build/package';
 export const node = {
   name: 'build:angular-package',
   reads: [
+    ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
     `${LAYER}/**`, '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
@@ -184,6 +186,7 @@ export function buildAngularPackage(root = repoRoot) {
     { from: 'frameworks/angular/theme/arena-cdk.css', to: 'css/arena-cdk.css' },
   ], root)) written.push(join(dist, to));
   written.push(join(dist, 'arena.css'));
+  written.push(write(dist, 'css/tailwind-theme.css', tailwindThemeSheet(root)));
 
   for (const rel of copyCli(dist, root)) written.push(join(dist, rel));
 
