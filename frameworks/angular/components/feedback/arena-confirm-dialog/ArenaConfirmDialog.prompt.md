@@ -61,7 +61,7 @@ close, and Tab wraps at the panel's edges.
   action is irreversible is a computed fact, so bind it:
   `[destructive]="isIrreversible"`. Keep the bare attribute for a constant true.
 
-**Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

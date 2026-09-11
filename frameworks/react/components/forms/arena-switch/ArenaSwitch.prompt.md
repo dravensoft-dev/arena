@@ -80,7 +80,7 @@ routes through `onRequestChange()` alone; flip `state` from wherever the confirm
 resolves (typically `ArenaConfirmDialog`'s `onConfirm`), not from a transition event that
 `confirm` suppresses.
 
-**Words.** `switchConfirmHint` is the title of the guard glyph a switch with `confirm` draws. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `switchConfirmHint` is the title of the guard glyph a switch with `confirm` draws.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

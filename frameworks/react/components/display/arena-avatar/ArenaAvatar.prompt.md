@@ -35,7 +35,7 @@ Visual identity of a person or entity. With `src` it shows the image; without it
   ships, plus an overflow count, in about five lines. One product built it, and it is the one ask
   on this list a consumer composes out of what is already here.
 
-**Words.** The presence dot is named by `avatarOnline`, `avatarBusy`, `avatarAway` or `avatarOffline`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** The presence dot is named by `avatarOnline`, `avatarBusy`, `avatarAway` or `avatarOffline`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -74,7 +74,7 @@ Then, with the dialog closed:
 Driving this through CDP: Enter must be `keyDown` with `text: '\r'`; a `rawKeyDown`
 does not activate a button.
 
-**Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

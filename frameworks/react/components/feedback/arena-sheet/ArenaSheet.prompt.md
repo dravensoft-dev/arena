@@ -44,7 +44,7 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
   is the whole point of a non-modal panel and the whole reason a confirmation is not one.
 
-**Words.** `sheetClose` names the close button. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `sheetClose` names the close button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

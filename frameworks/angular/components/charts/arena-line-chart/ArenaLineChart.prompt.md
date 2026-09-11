@@ -139,7 +139,7 @@ Reach for it when the underlying quantity really is continuous, a temperature or
 sampled at intervals. Leave it off when the points are discrete events counted per bucket: a
 smooth line between two counts implies values between them that were never counted.
 
-**Words.** The chart's accessible name is `lineChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTablePoint`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** A line chart is named by the locale's `lineChartName`, where `{label}` stands for `label`; `chartTablePoint` heads the first column of the table it writes for a screen reader.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

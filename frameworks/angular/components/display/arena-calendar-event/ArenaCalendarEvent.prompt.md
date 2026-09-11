@@ -70,7 +70,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 - Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle.
 - Don't reach for `style` or `class` to place it. The chip's geometry is the calendar's, and a `class` on the host lands on an element that declares `display: contents`.
 
-**Words.** `calendarEventActions` names the button that opens the action panel. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `calendarEventActions` names the button that opens the action panel.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -95,7 +95,7 @@ be equal for a chip to land on its own day. And a click on a chip does not reach
 reports no date: activate the day from its header or its background. Anything projected that is
 not a chip is still silently skipped by the placement lookup.
 
-**Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

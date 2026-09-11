@@ -65,7 +65,7 @@ Escape reaches the panel only while focus is inside it. Nothing here took focus 
 - Tab from the last control in the panel leaves it and lands on the page; nothing is trapped.
 - At 390px the bottom panel clears the home indicator when the browser emulates a device inset.
 
-**Words.** `sheetClose` names the close button. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `sheetClose` names the close button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -48,7 +48,7 @@ cannot use would strand a reader.
 The legend under the plot is what names the two sides, and it appears here always, because a
 pyramid is two series by definition.
 
-**Words.** The chart's accessible name is `pyramidChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableCategory`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** The chart's accessible name is `pyramidChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableCategory`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -109,7 +109,7 @@ Reserving the kebab's 34px band is what stops the title being drawn underneath i
 events of roughly 75 minutes or more. What remains is a 30 or 60 minute event sharing its column, and both remaining options cost more than the gap. Showing the kebab only on hover or focus fails a touch reader, and the chip is a `grid` cell whose hover is not a given. Not rendering it below some width makes `actionsEnabled` a request rather than a guarantee, and silently removes the only route to the consumer's actions. **A member that sometimes does nothing is worse than a truncated
 title.**
 
-**Words.** `calendarEventActions` names the button that opens the action panel. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `calendarEventActions` names the button that opens the action panel.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

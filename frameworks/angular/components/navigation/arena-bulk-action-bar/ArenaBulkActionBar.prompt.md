@@ -47,7 +47,7 @@ control order is identical in the two shapes.
   starts the action, it does not finish it.
 - Don't hide the bar behind a menu. The bar's whole job is to be visible the moment a selection exists.
 
-**Words.** `bulkActionBarLabel` names the toolbar; `bulkActionBarClear` is the clear button's text and `bulkActionBarClearLabel` its name. The count is `bulkActionBarCount`, whose `{count}` is drawn in bold and whose `{noun}` is `noun`, or the locale's `bulkActionBarNoun` when `noun` is absent. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `bulkActionBarLabel` names the toolbar; `bulkActionBarClear` is the clear button's text and `bulkActionBarClearLabel` its name. The count is `bulkActionBarCount`, whose `{count}` is drawn in bold and whose `{noun}` is `noun`, or the locale's `bulkActionBarNoun` when `noun` is absent.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

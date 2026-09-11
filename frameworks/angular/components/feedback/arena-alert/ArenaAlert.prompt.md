@@ -42,7 +42,7 @@ uppercase mono action; `dismissible` adds the single `ph-x` close control.
   true, `"0"`, `"off"` and `"no"` all suppress nothing. Bind the expression
   (`[dismissible]="canDismiss"`) and keep the bare attribute for a constant true.
 
-**Words.** `alertDismiss` names the dismiss button. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `alertDismiss` names the dismiss button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

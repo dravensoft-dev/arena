@@ -73,7 +73,7 @@ onKey(event: KeyboardEvent): void {
 }
 ```
 
-**Words.** `commandPaletteDialog` names the dialog and `commandPaletteList` the list; `commandPaletteEscape` is the key hint. The field shows `placeholder`, or the locale's `commandPalettePlaceholder` when it is absent, and that text names it; `commandPaletteSearch` names it only when the placeholder is empty. `commandPaletteEmpty` is the empty line, with what was typed in `{query}`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `commandPaletteDialog` names the dialog and `commandPaletteList` the list; `commandPaletteEscape` is the key hint. The field shows `placeholder`, or the locale's `commandPalettePlaceholder` when it is absent, and that text names it; `commandPaletteSearch` names it only when the placeholder is empty. `commandPaletteEmpty` is the empty line, with what was typed in `{query}`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

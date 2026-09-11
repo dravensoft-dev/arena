@@ -74,7 +74,7 @@ open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generat
   icons are usable at all.
 - Clicking the label toggles; clicking the label of a disabled switch does not.
 
-**Words.** `switchConfirmHint` is the title of the guard glyph a switch with `confirm` draws. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `switchConfirmHint` is the title of the guard glyph a switch with `confirm` draws.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

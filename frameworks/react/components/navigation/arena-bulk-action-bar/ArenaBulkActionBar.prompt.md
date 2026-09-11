@@ -42,7 +42,7 @@ control order is identical in the two shapes.
 - Don't fire bulk actions without confirmation or without leaving `onClear` to undo the selection.
 - Don't reach for `clearable={false}` casually: a selection whose edges the user cannot see is one they act on by accident.
 
-**Words.** `bulkActionBarLabel` names the toolbar; `bulkActionBarClear` is the clear button's text and `bulkActionBarClearLabel` its name. The count is `bulkActionBarCount`, whose `{count}` is drawn in bold and whose `{noun}` is `noun`, or the locale's `bulkActionBarNoun` when `noun` is absent. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `bulkActionBarLabel` names the toolbar; `bulkActionBarClear` is the clear button's text and `bulkActionBarClearLabel` its name. The count is `bulkActionBarCount`, whose `{count}` is drawn in bold and whose `{noun}` is `noun`, or the locale's `bulkActionBarNoun` when `noun` is absent.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

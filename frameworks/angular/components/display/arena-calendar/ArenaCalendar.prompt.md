@@ -101,7 +101,7 @@ nowhere else. `bun run build:angular-demo && bun run demos`, then open
     through the headers, fire both keys, and confirm one more Tab past the last one
     lands on the grid's single roving cell.
 
-**Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

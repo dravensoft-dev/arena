@@ -32,7 +32,7 @@ defaults it. Name what is being paged ("Deployments"), never the widget
 - For continuous feeds use "load more" or infinite scroll, not ArenaPagination.
 - Don't reach for `style` to place it. The component takes none. Wrap it in a `<div>` that owns the margin.
 
-**Words.** `paginationPrevious` and `paginationNext` name the arrows. The landmark's name is `ariaLabel` and is always yours. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `paginationPrevious` and `paginationNext` name the arrows. The landmark's name is `ariaLabel` and is always yours.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

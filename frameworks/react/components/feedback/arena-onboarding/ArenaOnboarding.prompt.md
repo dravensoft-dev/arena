@@ -70,7 +70,7 @@ Then, with the tour closed:
 Driving this through CDP: Enter must be `keyDown` with `text: '\r'`; a `rawKeyDown`
 does not activate a button.
 
-**Words.** `onboardingBack`, `onboardingSkip`, `onboardingNext` and `onboardingDone` are the buttons. A step with no title and no eyebrow is named by `onboardingStep`, and the dots by `onboardingProgress`, both with `{current}` counting from one and `{total}` the number of steps. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `onboardingBack`, `onboardingSkip`, `onboardingNext` and `onboardingDone` are the buttons. A step with no title and no eyebrow is named by `onboardingStep`, and the dots by `onboardingProgress`, both with `{current}` counting from one and `{total}` the number of steps.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

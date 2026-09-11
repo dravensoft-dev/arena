@@ -31,7 +31,7 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 
 **On the tone vocabulary.** `ArenaProgressBar` ships `accent | gold | success | danger | info`; `ArenaSpinner` ships `accent | gold | neutral | on-accent`. The overlap (`accent`, `gold`) resolves to the same tokens, so the two read as one family. The divergence is deliberate in both directions; see Don't, above.
 
-**Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

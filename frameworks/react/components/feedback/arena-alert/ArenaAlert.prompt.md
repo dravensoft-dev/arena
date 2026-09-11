@@ -34,7 +34,7 @@ Persistent message on the page (status notice, system condition, context). Stays
   ×, pass it explicitly; `onClose` alone (with `dismissible` absent) renders no ×.
 - Reserve `danger` for blocking conditions; for full-page errors use `ArenaErrorState`.
 
-**Words.** `alertDismiss` names the dismiss button. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `alertDismiss` names the dismiss button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -106,7 +106,7 @@ shortens the total instead of pretending the category was measured.
 Only the outermost segment of each direction is rounded. The joints inside a bar stay square,
 because a rounded joint reads as the end of something.
 
-**Words.** The chart's accessible name is `barChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableCategory`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** The chart's accessible name is `barChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableCategory`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

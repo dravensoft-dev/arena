@@ -61,7 +61,7 @@ That turns two announcements into one and gives a screen-reader user a name for 
 loading rather than only that something is. Nothing about it is particular to this layer:
 it is a composition decision you make per set.
 
-**Words.** `skeletonLabel` is the name every placeholder announces. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `skeletonLabel` is the name every placeholder announces.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

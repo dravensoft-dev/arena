@@ -69,7 +69,7 @@ because its POSITION was measured.
 `sizeLegend` draws three sample bubbles under the series names, at the smallest, middle and
 largest size in the data. Reach for it whenever `r` is doing real work. Area is the one encoding nobody reads off a scale by eye. Without a key, a reader can see that one blot is bigger and cannot say by how much. The key costs plot height, like the series strip and for the same reason.
 
-**Words.** The chart's accessible name is `scatterChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableSeries`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** The chart's accessible name is `scatterChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableSeries`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

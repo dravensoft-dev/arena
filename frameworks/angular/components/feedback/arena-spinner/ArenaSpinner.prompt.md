@@ -51,7 +51,7 @@ button, on a crimson banner, where the accent ink would disappear into its own b
 - `on-accent` is the only tone that stays legible on a filled crimson surface, the card puts
   all four on one to show it.
 
-**Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -52,7 +52,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
   ramp colour reaches the host as `--arena-tag-cat`, so a style plugin fills `tag` with it and no
   member is needed here.
 
-**Words.** `tagRemove` names the remove button. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `tagRemove` names the remove button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

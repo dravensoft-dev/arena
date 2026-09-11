@@ -44,7 +44,7 @@ Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-mod
   true, `"0"`, `"off"` and `"no"` all leave the tour open. Bind the expression
   (`[open]="touring()"`) rather than relying on the literal.
 
-**Words.** `onboardingBack`, `onboardingSkip`, `onboardingNext` and `onboardingDone` are the buttons. A step with no title and no eyebrow is named by `onboardingStep`, and the dots by `onboardingProgress`, both with `{current}` counting from one and `{total}` the number of steps. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `onboardingBack`, `onboardingSkip`, `onboardingNext` and `onboardingDone` are the buttons. A step with no title and no eyebrow is named by `onboardingStep`, and the dots by `onboardingProgress`, both with `{current}` counting from one and `{total}` the number of steps.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

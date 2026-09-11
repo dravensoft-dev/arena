@@ -60,7 +60,7 @@ this page shows is the rest. Run `bun run demos` and open
   the body column rather than inside it.
 - Stacked against an open dialog, a toast paints above it.
 
-**Words.** `toastClose` names the close button; `toastPinned` is the mark a toast that does not dismiss itself carries, and `toastPinnedHint` its title. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `toastClose` names the close button; `toastPinned` is the mark a toast that does not dismiss itself carries, and `toastPinnedHint` its title.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

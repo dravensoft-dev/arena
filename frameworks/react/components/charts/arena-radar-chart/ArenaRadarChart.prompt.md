@@ -54,7 +54,7 @@ ArrowRight move it, Home and End jump to the ends, Escape clears it. Going aroun
 
 ArrowUp and ArrowDown do nothing and are not consumed, so the page keeps its own scroll.
 
-**Words.** The chart's accessible name is `radarChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableAxis`. Numbers are not words: they follow `valueFormat.locale`. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** The chart's accessible name is `radarChartName`, with its `label` in `{label}`, and its data table's first heading is `chartTableAxis`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

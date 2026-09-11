@@ -35,7 +35,7 @@ exposed as a mono chip.
   detail goes; the message is for a person.
 - Don't use this for a validation failure on a field: that belongs on the field.
 
-**Words.** `title` answers first; when it is absent, the locale's `errorStateTitle` does. Each one is a field of the locale a consumer provides once, in English until one does.
+**Words.** `title` answers first; when it is absent, the locale's `errorStateTitle` does.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
