@@ -18,6 +18,11 @@
       "$description": "The shortest chip that still draws its time label. Below it there is no\nroom for a second line. Script-readable because it is compared against a\nprojected pixel height; it was a bare 32 in the render body, invisible to\ncheck:dimensions, which reads governed CSS properties and never a comparison.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
+    "detail-line-h": {
+      "$value": { "value": 16, "unit": "px" },
+      "$description": "The height one detail line adds to what a chip needs before it may draw\nit. Measured: the time label's line box, which the detail lines share, reads\n16px in both layers at --dz-text-2xs, already on the 4px scale. Script-readable\nbecause it is compared against a projected pixel height, like time-min-h.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
     "time-min-w": {
       "$value": { "value": 100, "unit": "px" },
       "$description": "The narrowest column share a chip may occupy and still draw its time\nlabel. Measured: the label is 78.02px at --dz-text-2xs, and a chip's content box\nis its share less 18px -- 4px of gutter to its neighbour, 12px of its own\npadding, 2px of its left border -- so 96.02px, rounded up to the 4px scale. The\nthreshold is on the share rather than on the chip so that ArenaCalendar never has to\nknow ArenaCalendarEvent's padding.",

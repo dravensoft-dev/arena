@@ -1,5 +1,5 @@
 import {
-  calendarActionsBelowMinH, calendarTimeMinH, calendarTimeMinW,
+  calendarActionsBelowMinH, calendarDetailLineH, calendarTimeMinH, calendarTimeMinW,
 } from '../../../Tokens.generated';
 
 export interface ArenaZonedParts {
@@ -35,6 +35,12 @@ export function arenaShowsTime(chipHeight: number, slotWidth: number | null): bo
 
 export function arenaStacksActions(chipHeight: number, slotWidth: number | null): boolean {
   return chipHeight >= calendarActionsBelowMinH && !arenaShowsTime(chipHeight, slotWidth);
+}
+
+export function arenaVisibleDetails(chipHeight: number, slotWidth: number | null, details: number): number {
+  if (details <= 0 || !arenaShowsTime(chipHeight, slotWidth)) return 0;
+  const room = Math.floor((chipHeight - calendarTimeMinH) / calendarDetailLineH);
+  return Math.max(0, Math.min(details, room));
 }
 
 const warned = new Set<string>();

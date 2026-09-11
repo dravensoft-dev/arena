@@ -4,7 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaCalendar } from './ArenaCalendar.tsx';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent.tsx';
-import { ARENA_DATE_OPTIONS, arenaFormatDate, arenaRangeTitle, arenaShowsTime, arenaStacksActions } from './CalendarInternals.ts';
+import { ARENA_DATE_OPTIONS, arenaFormatDate, arenaRangeTitle, arenaShowsTime, arenaStacksActions, arenaVisibleDetails } from './CalendarInternals.ts';
+import { calendarDetailLineH, calendarTimeMinH, calendarTimeMinW } from '../../../Tokens.generated.js';
 
 const EVENTS: React.ComponentProps<typeof ArenaCalendarEvent>[] = [
   { id: 'a', title: 'Standup', start: '2026-07-20T09:00:00Z', end: '2026-07-20T09:30:00Z', colorId: 1 },
@@ -339,4 +340,16 @@ test('arenaRangeTitle follows the locale and keeps its en dash', () => {
   const days = ['2026-03-16', '2026-03-17', '2026-03-18', '2026-03-19', '2026-03-20'];
   assert.equal(arenaRangeTitle(days, 'en-GB'), '16 \u2013 20 Mar 2026');
   assert.equal(arenaRangeTitle(days, 'es-ES'), '16 \u2013 20 mar 2026');
+});
+
+test('details shed last first, then the time label, and never more than exist', () => {
+  const line = calendarDetailLineH;
+  assert.equal(arenaVisibleDetails(calendarTimeMinH - 1, null, 3), 0, 'no time label, so no detail');
+  assert.equal(arenaVisibleDetails(calendarTimeMinH, null, 3), 0, 'the time label, and not one line more');
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + line - 1, null, 3), 0);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + line, null, 3), 1);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 2 * line, null, 3), 2);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 10 * line, null, 3), 3);
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 10 * line, calendarTimeMinW - 1, 3), 0, 'too narrow for the time, so too narrow for details');
+  assert.equal(arenaVisibleDetails(calendarTimeMinH + 10 * line, null, 0), 0);
 });

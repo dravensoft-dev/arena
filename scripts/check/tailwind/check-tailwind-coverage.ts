@@ -83,6 +83,7 @@ export const EXCLUDED = new Map([
   ['chart-label-gap', 'script-readable: subtracted from a pad or a height in JS to place an SVG text x/y, never a utility'],
   ['chart-ring-inset', 'script-readable: subtracted from half the plot box in JS to size the doughnut\'s outer radius, never a utility'],
   ['calendar-hour-h', 'script-readable in both layers: JS projects a minute-of-day onto a pixel offset from it, and the chip and the hour cell it sits over must agree to the pixel, which only one shared number gives them'],
+  ['calendar-detail-line-h', 'script-readable: compared against a chip\'s projected pixel height to decide how many detail lines it draws, and never rendered as a length through the @theme spacing scale this gate checks'],
   ['calendar-gutter-w', 'script-readable: JS subtracts it from the measured container width to get the grid\'s width. Also rendered directly as var(--calendar-gutter-w) in both layers — React inline, Angular through the shared manifest\'s w-[var(--calendar-gutter-w)] and pl-[var(--calendar-gutter-w)] — for the hour-label column\'s width and the header strip\'s padding-left, never through the @theme spacing scale this gate checks'],
   ['calendar-time-min-h', 'script-readable in both layers: compared in JS against a chip\'s projected pixel height to decide whether its time label fits vertically. Never rendered as a length'],
   ['calendar-time-min-w', 'script-readable in both layers: compared in JS against a chip\'s column share to decide whether its time label fits horizontally. Never rendered as a length'],
