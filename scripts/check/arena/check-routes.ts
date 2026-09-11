@@ -116,7 +116,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 52_800,
+    budget: 54_300,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and what each of them costs. It is the only '
@@ -262,17 +262,18 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 24_000,
+    budget: 25_000,
     reason:
       'the route declared as a tree, and the reason that shape exists: a reader answers a question '
       + 'and walks one way, so the route is charged its worst branch and never the sum. Handed a '
       + 'document stating the palette and the type, a reader reads the tree and goes on; choosing a '
       + 'measured register instead, they read the tree and one catalogue entry, and that stop is a '
       + 'glob so the charge is the largest entry rather than the first. The tree carries the '
-      + 'decisions that reach an install rather than a screen, whether the product has to be found '
-      + 'and what it is assembled on, so its last node derives the dependency list from answers '
-      + 'instead of asking about dependencies. A description is matched against the one line every '
-      + 'entry carries, which keeps the second stop at a single entry as the catalogue grows. The '
+      + 'decisions that reach an install rather than a screen, whether the product has to be found, '
+      + 'what it is assembled on and what the code around Arena imports, so its last node derives '
+      + 'the dependency list from answers instead of asking about dependencies. A description is '
+      + 'matched against the one line every entry carries, which keeps the second stop at a single '
+      + 'entry as the catalogue grows. The '
       + 'alternative to reading it is an agent inferring a palette from a screenshot, which costs '
       + 'nothing here and costs the project every screen.',
   },

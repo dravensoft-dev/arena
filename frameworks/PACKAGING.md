@@ -98,11 +98,12 @@ were told about and resents one they find.
   class name the consumer supplies and a component renders, so the font has to be installed
   and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
 
-**A second peer exists and it is optional, which is a different kind of thing.** The Angular
-package declares `@angular/router` under `peerDependenciesMeta` as optional, and an adopter who
-never installs it installs cleanly and is told nothing. It is reachable only through the
-**secondary entry point** `@dravensoft/arena-angular/metadata`: the primary entry point names it
-nowhere, which is a claim `grep '@angular/router' frameworks/angular/dist/fesm2022/dravensoft-arena-angular.mjs`
+**Two more peers exist and both are optional, which is a different kind of thing.** The Angular
+package declares `@angular/router` and `@angular/forms` under `peerDependenciesMeta` as optional,
+and an adopter who never installs them installs cleanly and is told nothing. Each is reachable only
+through its own **secondary entry point**, `@dravensoft/arena-angular/metadata` and
+`@dravensoft/arena-angular/forms`: the primary entry point names neither, which is a claim
+`grep -E '@angular/(router|forms)' frameworks/angular/dist/fesm2022/dravensoft-arena-angular.mjs`
 re-derives against the assembled package. That separation is the whole reason the entry point
 exists rather than the provider sitting in the root barrel: a bundler **resolves** an import
 before it eliminates it, so a router named anywhere in the primary graph is a router every
@@ -111,9 +112,9 @@ is opt-in at the import site, and an adopter pays for it by asking for it.
 
 **That claim is held at both ends now, and the two halves fail at different times.** The grep above
 re-derives it against the assembled package, which is what a released tarball actually promises;
-`check:architecture` holds it against the sources, failing an import of the router from anywhere
-outside `frameworks/angular/metadata/` and failing the optional declaration being withdrawn from
-`OPTIONAL_PEERS`. The source half is the one that reports the mistake on the change that made it,
+`check:architecture` holds it against the sources, failing an import of either peer from outside
+its entry point or from the root's import closure, and failing an optional declaration being
+withdrawn from `OPTIONAL_PEERS`. The source half is the one that reports the mistake on the change that made it,
 before an assembly exists to grep. **A dependency is the one part of a design system an adopter
 cannot route around**, so what either half prevents is a project that answered no to being found
 from outside installing a router in order to use a button.

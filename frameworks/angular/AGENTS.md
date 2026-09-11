@@ -30,6 +30,7 @@ that imports it: an import anywhere else is loaded by every consumer of the main
 the optional declaration stops being true at run time while the manifest still says it. The gate
 fails an import of it outside that directory, and fails the declaration being withdrawn. A project
 that answered no to being found from outside must not install a router to use a button.
+**`@angular/forms` is the second such entry**, held to `forms/` the same way.
 
 **Reach the document through the injected `DOCUMENT` token and never the global**, and put a
 measurement inside `afterNextRender`. A global read while the module evaluates throws during a

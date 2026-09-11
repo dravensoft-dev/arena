@@ -87,7 +87,7 @@ answered for shape, air and depth, and what it leaves open. An entry chosen sile
 failure as a screenshot read silently, with a better result and the same missing consent.
 
 **An entry is copied rather than cited.** The entry's `plugin.tokens.json` and `plugin.css` become
-your project's own under `design/<name>/`, and node 10 is where they land.
+your project's own under `design/<name>/`, and node 11 is where they land.
 
 **The catalogue is in the Arena repository rather than in the package.** From an installed project,
 read it there.
@@ -213,7 +213,17 @@ the last stylesheet loaded wins. One thing works in your favour. A palette other
 default emits as a plain class, so your own subtree can carry its own theme without touching the
 host. Take this row knowing the host is being changed, or give the fragment a document of its own.
 
-## 10. Now write it
+## 10. What does the code you write around Arena bring with it?
+
+Arena's components carry their own appearance, so this node is about everything else a project
+writes: its own markup, and on Angular its forms. **Take every row that is true**, then go to 11.
+
+| If your code | Take | What it gets you |
+|---|---|---|
+| draws markup of its own, styled with CSS of its own | the tokens through `var()`, and `css/rhythm.css` for the air between components: `.arena-stack` and `.arena-row`, with `--group` and `--section` for the steps either side | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
+| is an Angular project binding Arena's controls with `@angular/forms` | `@dravensoft/arena-angular/forms`, and `ARENA_FORM_CONTROLS` in the component's `imports` | `formControlName` and `ngModel` on every data-entry control. Reaching that entry point makes `@angular/forms` required |
+
+## 11. Now write it
 
 **What the answers made necessary.** Nothing here is a preference, and no further question about
 dependencies is the skill's to ask: past this table the stack is the project's own.
@@ -229,6 +239,7 @@ dependencies is the skill's to ask: past this table the stack is the project's o
 | Added by an answer | When | From which node |
 |---|---|---|
 | `@angular/router` | the third row of node 8, on Angular | the router is an optional peer until the metadata entry point is reached, and reaching that entry point makes it required |
+| `@angular/forms` | the second row of node 10 | an optional peer until the forms entry point is reached, like the router above it |
 
 **Any of npm, bun or pnpm installs this.** The packages declare their peers rather than assuming a
 flat tree. The strict layout of pnpm is the one worth naming, because it is the one that would

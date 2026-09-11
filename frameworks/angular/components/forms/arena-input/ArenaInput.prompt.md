@@ -117,6 +117,8 @@ completeSale(): void {
 
 The two are methods rather than members, because no member is imperative. `autoFocus` would answer a different question: it fires once at mount, and chaining sales needs focus back after **every** completion. These two are the whole surface; `ArenaInput` exposes no other method.
 
+**With reactive forms.** `ArenaInputControl` from `@dravensoft/arena-angular/forms` binds this input to `formControlName`, `formControl` or `ngModel`, carrying a string, or a number when `type` is `number`. A field emptied while `type` is `number` reports `null`, so a required validator sees it as missing. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

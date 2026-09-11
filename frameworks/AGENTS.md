@@ -297,7 +297,7 @@ each layer's knob model to the other's. It opens none of them.
 | a layer imports only what its envelope declares | `check:architecture`, `ENVELOPES` |
 | no source reads a browser global while the module evaluates | the same gate, with two escapes it names |
 | no source reaches an API a server render cannot answer | the same gate, `SSR_HOSTILE` |
-| the router peer stays optional, and stays inside the metadata entry point | the same gate, both halves |
+| the router and forms peers stay optional, each inside its own entry point | the same gate, which also walks the package root's import closure |
 | **that a server render of a real page actually succeeds** | **nothing under Angular. React's suites render through `react-dom/server`; Angular's run through a DOM, so its half is held by the code and not by a run** |
 
 ## The architecture envelope is a promise a consumer already acted on

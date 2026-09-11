@@ -51,6 +51,8 @@ so this is the only place it is checked at all. Run `bun run demos` and open
   is the `opacity-0 size-0` native input. The `ring` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
   `arena-checkbox` draws the identical ring the identical way.
 
+**With reactive forms.** `ArenaRadioGroupControl` from `@dravensoft/arena-angular/forms` goes on the group rather than on a radio, and the form control holds the chosen radio's `value`. Disabling the form control disables the group, and with it every radio inside. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

@@ -472,6 +472,34 @@ applies. The value is fixed for the life of its injector, as `LOCALE_ID` is, so 
 means re-creating the subtree. A chart's numbers are not words: they follow its own
 `valueFormat.locale`. Hour labels keep a 24-hour clock whatever the locale says.
 
+## Reactive forms
+
+`@dravensoft/arena-angular/forms` binds every data-entry control to `@angular/forms`, which is an
+optional peer: install it, and add the directives once.
+
+```ts
+import { ReactiveFormsModule } from '@angular/forms';
+import { ARENA_FORM_CONTROLS } from '@dravensoft/arena-angular/forms';
+
+@Component({
+  imports: [ReactiveFormsModule, ArenaInput, ArenaSwitch, ...ARENA_FORM_CONTROLS],
+  template: `<arena-input label="Name" formControlName="name" [error]="name.touched ? messageFor(name.errors) : ''" />`,
+})
+```
+
+`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`,
+`arena-select`, `arena-checkbox`, `arena-radio-group` and `arena-switch`. Each directive is also
+exported alone (`ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`,
+`ArenaCheckboxControl`, `ArenaRadioGroupControl`, `ArenaSwitchControl`). The input carries a
+`string`, or a `number` when its `type` is `number`, and an emptied number field reports `null`.
+The checkbox and the switch carry a `boolean`, and the others a `string`. `disable()` disables the control,
+and leaving it marks it touched.
+
+**While a form binds a control, the form's value is drawn** and the control's own `value`,
+`checked` or `state` is ignored; binding both warns once. A switch with `confirm` reports nothing
+when pressed: confirm, then call `setValue`. **Arena never turns a validator's error into words**,
+because copy is yours: pass `error` from your own messages, as above.
+
 ## What the package ships besides the components
 
 Every component is standalone, so import the ones a template uses. **A parent does not bring its children with it.** A table wants `ArenaTableRow` and `ArenaTableCell` in the same `imports` array. So does every other family whose parts are separate elements. Everything else that reaches the
