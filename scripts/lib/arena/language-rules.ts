@@ -128,10 +128,10 @@ export const RULES: LanguageRule[] = [
       + 'text. Passing a slot and a tone together warns in development, and the tone wins',
   },
   {
-    id: 'copy-is-english',
-    short: 'Copy is English, formal and direct.',
-    body: 'Use concrete action verbs and no boastful adjectives. An error is blame-free and says '
-      + 'what to do next.',
+    id: 'copy-is-direct',
+    short: 'Copy is formal and direct, in the product\'s language.',
+    body: 'Concrete verbs, no boasting; an error is blame-free and says what to do next. Arena\'s '
+      + 'words follow the locale.',
     held: null,
     unheld: 'whether a sentence is direct, blame-free and says what to do next is a judgement no '
       + 'pattern makes',

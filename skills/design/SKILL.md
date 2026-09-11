@@ -138,8 +138,8 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
   exclusive.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
   identity. The status colours are meaning. A status colour is never a series colour.
-- **Copy is English, formal and direct.** Use concrete action verbs and no boastful adjectives. An
-  error is blame-free and says what to do next.
+- **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
+  is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails
   hard rather than drawing something empty, so an absent member is loud on the first render.
 - **No render follows from whether you bound a listener or filled a slot.** A member decides,
