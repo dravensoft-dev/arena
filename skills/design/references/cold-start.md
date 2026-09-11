@@ -220,6 +220,7 @@ writes: its own markup, and on Angular its forms. **Take every row that is true*
 
 | If your code | Take | What it gets you |
 |---|---|---|
+| draws markup of its own with Tailwind v4 | `@import 'tailwindcss';` and then `@import '@dravensoft/arena-<layer>/css/tailwind-theme.css';`. Declare a key of your own below that import, never above it | every utility resolves to Arena's scale and none to Tailwind's defaults. Arena's own utilities work by name: `case-eyebrow`, `case-label`, `fit-media` and the ones its components animate with. The air between components is `gap-group`, `gap-component` and `gap-section` |
 | draws markup of its own, styled with CSS of its own | the tokens through `var()`, and `css/rhythm.css` for the air between components: `.arena-stack` and `.arena-row`, with `--group` and `--section` for the steps either side | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
 | is an Angular project binding Arena's controls with `@angular/forms` | `@dravensoft/arena-angular/forms`, and `ARENA_FORM_CONTROLS` in the component's `imports` | `formControlName` and `ngModel` on every data-entry control. Reaching that entry point makes `@angular/forms` required |
 

@@ -116,7 +116,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 55_400,
+    budget: 55_800,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and what each of them costs. It is the only '
@@ -234,7 +234,7 @@ export const ROUTES: Route[] = [
       + 'air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md'],
-    budget: 14_200,
+    budget: 14_600,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -262,7 +262,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 25_000,
+    budget: 25_500,
     reason:
       'the route declared as a tree, and the reason that shape exists: a reader answers a question '
       + 'and walks one way, so the route is charged its worst branch and never the sum. Handed a '
