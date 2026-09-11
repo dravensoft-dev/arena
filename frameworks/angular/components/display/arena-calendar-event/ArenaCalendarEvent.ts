@@ -5,10 +5,11 @@ import {
 import type { ArenaCatSlot } from '../../../Api.generated';
 import { arenaCatColor, arenaCatTint } from '../../../DataVisuals';
 import { arenaPublished } from '../../../ProjectedInputs';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton';
 import { ArenaCalendarState } from '../arena-calendar/ArenaCalendarState';
 import {
-  type EventTimes, arenaFormatDate, arenaFormatHM, arenaShowsTime, arenaStacksActions,
+  type EventTimes, ARENA_DATE_OPTIONS, arenaFormatDate, arenaFormatHM, arenaShowsTime, arenaStacksActions,
 } from '../arena-calendar/CalendarInternals';
 import { arenaCalendarEventStyles } from './ArenaCalendarEvent.variants';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated';
@@ -48,7 +49,7 @@ let seq = 0;
             </span>
           }
           <span #kebabWrap [class]="kebabClass()" [attr.data-arena-part]="parts.kebabWrap">
-            <arena-icon-button icon="ph-bold ph-dots-three-vertical" label="Actions" size="sm"
+            <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" size="sm"
                                [tabStop]="false" (click)="togglePanel()" />
             @if (panelOpen()) {
               <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" [style.zIndex]="1">
@@ -111,6 +112,7 @@ export class ArenaCalendarEvent {
   protected readonly domId = `arena-calendar-event-${seq++}`;
 
   private readonly state = inject(ArenaCalendarState);
+  protected readonly locale = inject(ARENA_LOCALE);
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusable = viewChild<ElementRef<HTMLElement>>('focusable');
   private readonly kebabWrap = viewChild<ElementRef<HTMLElement>>('kebabWrap');
@@ -166,7 +168,7 @@ export class ArenaCalendarEvent {
   protected readonly label = computed(() => {
     const at = this.placement();
     if (!at) return null;
-    const day = arenaFormatDate(at.dayIso, { weekday: 'long', day: 'numeric', month: 'long' });
+    const day = arenaFormatDate(at.dayIso, this.locale.locale, ARENA_DATE_OPTIONS.dayName);
     return `${this.heading()}, ${day}, ${this.timeLabel()}`;
   });
 

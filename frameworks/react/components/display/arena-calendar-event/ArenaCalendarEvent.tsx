@@ -3,6 +3,7 @@ import manifest from '../arena-calendar/ArenaCalendar.classes.generated.ts';
 import React from 'react';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
 import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
+import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
 
@@ -62,6 +63,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
   box, domId, color, timeLabel, dateLabel, showTime, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
 
+  const locale = useArenaLocale();
   const ink = color ?? arenaCatColor(colorId ?? 1);
 
   if (!id) throw new Error('ArenaCalendarEvent: `id` is required');
@@ -169,7 +171,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
             </span>
           )}
           <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap}>
-            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label="Actions" size="sm"
+            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} size="sm"
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (

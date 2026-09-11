@@ -18,6 +18,7 @@ import { assertNoNode } from '../../../test/NodeAssert';
 import { CHECKS } from '../../../test/Compliance';
 import { calendarHourH } from '../../../Tokens.generated';
 import { ArenaCalendar } from './ArenaCalendar';
+import { ARENA_DATE_OPTIONS, arenaFormatDate, arenaRangeTitle } from './CalendarInternals';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent';
 
 const { scanValue } = await import(
@@ -243,4 +244,16 @@ test('the geometry the gate cannot see holds to the same rule the gate enforces'
   } finally {
     fixture.destroy();
   }
+});
+
+test('arenaFormatDate formats in the locale it is given, and caches per locale', () => {
+  assert.equal(arenaFormatDate('2026-03-16', 'en-GB', ARENA_DATE_OPTIONS.dayName), 'Monday 16 March');
+  assert.equal(arenaFormatDate('2026-03-16', 'es-ES', ARENA_DATE_OPTIONS.dayName), 'lunes, 16 de marzo');
+  assert.equal(arenaFormatDate('2026-03-16', 'en-GB', ARENA_DATE_OPTIONS.dayName), 'Monday 16 March');
+});
+
+test('arenaRangeTitle follows the locale and keeps its en dash', () => {
+  const days = ['2026-03-16', '2026-03-17', '2026-03-18', '2026-03-19', '2026-03-20'];
+  assert.equal(arenaRangeTitle(days, 'en-GB'), '16 \u2013 20 Mar 2026');
+  assert.equal(arenaRangeTitle(days, 'es-ES'), '16 \u2013 20 mar 2026');
 });

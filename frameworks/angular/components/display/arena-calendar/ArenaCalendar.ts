@@ -6,11 +6,13 @@ import {
 import type { ArenaCalendarView } from '../../../Api.generated';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import { ArenaActions } from '../../../ProjectionMarkers';
+import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { arenaPhrase } from '../../../Phrase';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent';
 import { ArenaCalendarState, type ChipPlacement, type HourSlot } from './ArenaCalendarState';
 import {
   arenaAddDays, arenaDefaultDayStart, arenaFormatDate, arenaFormatHM, arenaLayoutDay, arenaNowMinutes, arenaParseHM, arenaPlaceEvents,
-  arenaRangeTitle, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf,
+  arenaRangeTitle, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf, ARENA_DATE_OPTIONS,
 } from './CalendarInternals';
 import { arenaCalendarStyles } from './ArenaCalendar.variants';
 import manifest from './ArenaCalendar.classes.generated';
@@ -24,13 +26,13 @@ const MINUTE = 60000;
   providers: [ArenaCalendarState],
   host: { style: 'display: contents' },
   template: `
-    <section #frame [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="'Schedule, ' + title()">
+    <section #frame [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="regionName()">
       <div [class]="styles().toolbar()" [attr.data-arena-part]="parts.toolbar">
-        <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" aria-label="Previous" (click)="step(-1)">
+        <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [attr.aria-label]="locale.calendarPrevious" (click)="step(-1)">
           <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
         </button>
-        <button type="button" [class]="styles().today()" [attr.data-arena-part]="parts.today" (click)="goto(today())">Today</button>
-        <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" aria-label="Next" (click)="step(1)">
+        <button type="button" [class]="styles().today()" [attr.data-arena-part]="parts.today" (click)="goto(today())">{{ locale.calendarToday }}</button>
+        <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [attr.aria-label]="locale.calendarNext" (click)="step(1)">
           <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
         </button>
         <div [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</div>
@@ -65,7 +67,7 @@ const MINUTE = 60000;
           </div>
 
           <div role="grid" [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [style.gridTemplateColumns]="tracks()"
-               [attr.aria-label]="'Schedule grid, ' + title()" (keydown)="onKeydown($event)">
+               [attr.aria-label]="gridName()" (keydown)="onKeydown($event)">
             @for (hour of hours(); track hour) {
               <div aria-hidden="true" [class]="styles().rule()" [attr.data-arena-part]="parts.rule" [style.top.px]="state.y(hour)"></div>
             }
@@ -121,6 +123,7 @@ export class ArenaCalendar {
   readonly rangeChange = output<string>();
 
   protected readonly state = inject(ArenaCalendarState);
+  protected readonly locale = inject(ARENA_LOCALE);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -215,7 +218,9 @@ export class ArenaCalendar {
       && this.nowMin() >= this.firstMin() && this.nowMin() <= this.endMin(),
   );
 
-  protected readonly title = computed(() => arenaRangeTitle(this.days()));
+  protected readonly title = computed(() => arenaRangeTitle(this.days(), this.locale.locale));
+  protected readonly regionName = computed(() => arenaPhrase(this.locale.calendarRegion, { range: this.title() }));
+  protected readonly gridName = computed(() => arenaPhrase(this.locale.calendarGrid, { range: this.title() }));
 
   protected readonly tracks = computed(
     () => `repeat(${this.days().length}, minmax(0, 1fr))`,
@@ -256,15 +261,15 @@ export class ArenaCalendar {
   }
 
   protected arenaWeekdayOf(day: string): string {
-    return arenaFormatDate(day, { weekday: 'short' });
+    return arenaFormatDate(day, this.locale.locale, ARENA_DATE_OPTIONS.weekdayShort);
   }
 
   protected dayNumberOf(day: string): string {
-    return arenaFormatDate(day, { day: 'numeric' });
+    return arenaFormatDate(day, this.locale.locale, ARENA_DATE_OPTIONS.dayNumber);
   }
 
   protected dayLabel(day: string): string {
-    return arenaFormatDate(day, { weekday: 'long', day: 'numeric', month: 'long' });
+    return arenaFormatDate(day, this.locale.locale, ARENA_DATE_OPTIONS.dayName);
   }
 
   protected dayNumberClass(day: string): string {

@@ -163,11 +163,11 @@ export function arenaDefaultDayStart(placements: ArenaPlacement<ArenaCalendarEve
 }
 
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
-function dateFormatter(opts?: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-  const key = JSON.stringify(opts ?? {});
+function dateFormatter(locale: string, opts?: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale}|${JSON.stringify(opts ?? {})}`;
   let f = dateFormatters.get(key);
   if (!f) {
-    f = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', ...opts });
+    f = new Intl.DateTimeFormat(locale, { timeZone: 'UTC', ...opts });
     dateFormatters.set(key, f);
   }
   return f;
@@ -179,20 +179,20 @@ export const ARENA_DATE_OPTIONS = {
   dayName: { weekday: 'long', day: 'numeric', month: 'long' },
 } as const satisfies Record<string, Intl.DateTimeFormatOptions>;
 
-export const arenaFormatDate = (isoDate: string, opts?: Intl.DateTimeFormatOptions): string =>
-  dateFormatter(opts).format(asUtcDate(isoDate));
+export const arenaFormatDate = (isoDate: string, locale: string, opts?: Intl.DateTimeFormatOptions): string =>
+  dateFormatter(locale, opts).format(asUtcDate(isoDate));
 
-export function arenaRangeTitle(days: string[]): string {
+export function arenaRangeTitle(days: string[], locale: string): string {
   const a = days[0];
   const b = days[days.length - 1];
   if (a === undefined || b === undefined) return '';
-  if (a === b) return arenaFormatDate(a, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  if (a === b) return arenaFormatDate(a, locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   const A = asUtcDate(a);
   const B = asUtcDate(b);
   const sameYear = A.getUTCFullYear() === B.getUTCFullYear();
   const sameMonth = sameYear && A.getUTCMonth() === B.getUTCMonth();
-  const left = sameMonth ? arenaFormatDate(a, { day: 'numeric' })
-    : sameYear ? arenaFormatDate(a, { day: 'numeric', month: 'short' })
-      : arenaFormatDate(a, { day: 'numeric', month: 'short', year: 'numeric' });
-  return `${left} – ${arenaFormatDate(b, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  const left = sameMonth ? arenaFormatDate(a, locale, { day: 'numeric' })
+    : sameYear ? arenaFormatDate(a, locale, { day: 'numeric', month: 'short' })
+      : arenaFormatDate(a, locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  return `${left} – ${arenaFormatDate(b, locale, { day: 'numeric', month: 'short', year: 'numeric' })}`;
 }

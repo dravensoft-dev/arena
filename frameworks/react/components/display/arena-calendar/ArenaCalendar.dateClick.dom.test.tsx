@@ -45,7 +45,7 @@ test('with dayInteractive, a day header is a button that reports its own date', 
     assert.equal(head.getAttribute('type'), 'button', `day head ${i} would submit a surrounding form`);
     assert.equal(
       head.getAttribute('aria-label'),
-      arenaFormatDate(DAYS[i]!, { weekday: 'long', day: 'numeric', month: 'long' }),
+      arenaFormatDate(DAYS[i]!, 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
       `day head ${i} announces its two text nodes rather than the date it stands for`,
     );
   });

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaCalendar } from './ArenaCalendar.tsx';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent.tsx';
-import { arenaFormatDate, arenaShowsTime, arenaStacksActions } from './CalendarInternals.ts';
+import { ARENA_DATE_OPTIONS, arenaFormatDate, arenaRangeTitle, arenaShowsTime, arenaStacksActions } from './CalendarInternals.ts';
 
 const EVENTS: React.ComponentProps<typeof ArenaCalendarEvent>[] = [
   { id: 'a', title: 'Standup', start: '2026-07-20T09:00:00Z', end: '2026-07-20T09:30:00Z', colorId: 1 },
@@ -114,7 +114,7 @@ test('an event colours its chip from colorId, not from the old slot field', () =
 });
 
 test('the day affordance follows dayInteractive and never the listener -- R6', () => {
-  const dayLabel = arenaFormatDate('2026-07-20', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dayLabel = arenaFormatDate('2026-07-20', 'en-GB', ARENA_DATE_OPTIONS.dayName);
   const head = new RegExp(`<button[^>]*aria-label="${dayLabel}"`);
   const column = /role="row"[^>]*arena-calendar__column--day-interactive-true/;
 
@@ -327,4 +327,16 @@ test('an unstacked chip keeps the top-right kebab and its reserve', () => {
   assert.doesNotMatch(plain, /\barena-calendar__kebab-wrap--actions-below-true\b/, 'the kebab left its conventional corner');
   assert.match(plain, /arena-calendar__chip--reserve-true/,
     'the unstacked chip lost the reserve that keeps its title clear of the kebab');
+});
+
+test('arenaFormatDate formats in the locale it is given, and caches per locale', () => {
+  assert.equal(arenaFormatDate('2026-03-16', 'en-GB', ARENA_DATE_OPTIONS.dayName), 'Monday 16 March');
+  assert.equal(arenaFormatDate('2026-03-16', 'es-ES', ARENA_DATE_OPTIONS.dayName), 'lunes, 16 de marzo');
+  assert.equal(arenaFormatDate('2026-03-16', 'en-GB', ARENA_DATE_OPTIONS.dayName), 'Monday 16 March');
+});
+
+test('arenaRangeTitle follows the locale and keeps its en dash', () => {
+  const days = ['2026-03-16', '2026-03-17', '2026-03-18', '2026-03-19', '2026-03-20'];
+  assert.equal(arenaRangeTitle(days, 'en-GB'), '16 \u2013 20 Mar 2026');
+  assert.equal(arenaRangeTitle(days, 'es-ES'), '16 \u2013 20 mar 2026');
 });
