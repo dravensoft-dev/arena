@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import {
   manifest, ngPackageConfig, libTsconfig, withAssets, ngPackagrBin, annotatePure,
-  NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS,
+  NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
 } from './build-angular-package.ts';
 import { version, collectFiles, CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -47,11 +47,11 @@ test('the manifest names the package and takes its version from plugin.json', ()
 test('Angular, the CDK and Phosphor are the peers; tslib is the only real dependency', () => {
   const m = manifest(repoRoot);
   assert.deepEqual(Object.keys(m.peerDependencies).sort(),
-    ['@angular/cdk', '@angular/common', '@angular/core', '@angular/platform-browser',
+    ['@angular/cdk', '@angular/common', '@angular/core', '@angular/forms', '@angular/platform-browser',
      '@angular/router', '@phosphor-icons/web']);
-  assert.deepEqual(m.peerDependenciesMeta, { '@angular/router': { optional: true } },
-    'the router is reachable only through the metadata entry point, so a project that never '
-    + 'imports that subpath must install cleanly without it and be told nothing');
+  assert.deepEqual(m.peerDependenciesMeta, { '@angular/router': { optional: true }, '@angular/forms': { optional: true } },
+    'the router and forms are each reachable only through their own entry point, so a project that '
+    + 'never imports that subpath must install cleanly without it and be told nothing');
   assert.deepEqual(m.dependencies, RUNTIME_DEPENDENCIES,
     'tailwind-variants runs on every render to compose a slot class, so a consumer cannot be asked to bring it');
 });
@@ -95,4 +95,15 @@ test('every variants file the layer ships is one the annotation matches', () => 
 test('a missing ng-packagr is reported rather than assumed', () => {
   assert.equal(ngPackagrBin('/nowhere-at-all'), null);
   assert.ok(ngPackagrBin(repoRoot), 'ng-packagr is a devDependency and should be installed');
+});
+
+test('a secondary entry point reaches its primary by the package name, never by a relative path', () => {
+  const source = "import { ArenaControlBinding } from '../ControlBinding';\n"
+    + "import { ArenaInput } from '../components/forms/arena-input/ArenaInput';\n"
+    + "import { ArenaSwitchControl } from './ArenaSwitchControl';\n";
+  assert.equal(rewriteEntryImports(source),
+    "import { ArenaControlBinding } from '@dravensoft/arena-angular';\n"
+    + "import { ArenaInput } from '@dravensoft/arena-angular';\n"
+    + "import { ArenaSwitchControl } from './ArenaSwitchControl';\n");
+  assert.deepEqual(SECONDARY_ENTRY_POINTS, ['metadata', 'forms']);
 });

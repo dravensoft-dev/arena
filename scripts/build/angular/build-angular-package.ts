@@ -65,7 +65,14 @@ export function manifest(root = repoRoot) {
   };
 }
 
-export const SECONDARY_ENTRY_POINTS = ['metadata'];
+export const SECONDARY_ENTRY_POINTS = ['metadata', 'forms'];
+
+export function rewriteEntryImports(source: string) {
+  return source.replace(/(from\s*')\.\.\/[^']+(')/g, `$1${NAME}$2`);
+}
+
+const inSecondaryEntry = (rel: string) =>
+  SECONDARY_ENTRY_POINTS.some((entry) => rel.startsWith(`${entry}/`)) && !rel.includes('.test.');
 
 export const RUNTIME_DEPENDENCIES = {
   tslib: '^2.8.1',
@@ -126,6 +133,7 @@ function stage(root: string) {
   for (const file of collectFiles(layer, (p) => !p.endsWith('.card.html') && !p.includes('/playground/'))) {
     const rel = relPosix(layer, file);
     const source = readFileSync(file, 'utf8');
+    if (inSecondaryEntry(rel)) { staged.push(write(dir, rel, rewriteEntryImports(source))); continue; }
     if (!rel.endsWith(VARIANTS)) { staged.push(write(dir, rel, source)); continue; }
     const pure = annotatePure(source);
     variants += 1;

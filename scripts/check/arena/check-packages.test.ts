@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems,
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -436,4 +436,11 @@ test('a list assembled from the renders it was derived from is the passing case'
   writeFileSync(join(dir, 'icons.json'), `${JSON.stringify(iconManifest('react'), null, 2)}\n`);
   assert.deepEqual(iconManifestProblems(PKG, dir), []);
   rmSync(dir, { recursive: true });
+});
+
+test('every secondary entry point is an exports key of the assembled Angular package', () => {
+  const pkg = { layer: 'angular', name: '@dravensoft/arena-angular' };
+  assert.deepEqual(entryPointProblems(pkg, { exports: { '.': {}, './metadata': {}, './forms': {} } }), []);
+  assert.match(entryPointProblems(pkg, { exports: { '.': {}, './metadata': {} } }).join('\n'), /\.\/forms/);
+  assert.deepEqual(entryPointProblems({ layer: 'react', name: '@dravensoft/arena-react' }, { exports: { '.': {} } }), []);
 });

@@ -25,6 +25,7 @@ import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
+import { SECONDARY_ENTRY_POINTS } from '../../build/angular/build-angular-package.ts';
 
 export const node = {
   name: 'check:packages',
@@ -165,6 +166,15 @@ export function exportProblems(pkg: { layer: string; name: string }, manifest: P
   }
   if (!existsSync(join(dir, 'README.md'))) problems.push(`${pkg.name}: no README.md, which is the page npm shows`);
   return problems;
+}
+
+export function entryPointProblems(pkg: { layer: string; name: string }, manifest: PackageManifest) {
+  if (pkg.layer !== 'angular') return [];
+  const keys = Object.keys(manifest.exports ?? {});
+  return SECONDARY_ENTRY_POINTS
+    .filter((entry) => !keys.includes(`./${entry}`))
+    .map((entry) => `${pkg.name}: the secondary entry point ${entry} has no ./${entry} exports key, so `
+      + `an import of ${pkg.name}/${entry} fails to resolve in every consumer`);
 }
 
 export function componentMapProblems(pkg: { layer: string; name: string }, dir: string) {
@@ -343,6 +353,7 @@ export function collect(base = root) {
     const manifest = readJson(manifestPath);
     problems.push(...manifestProblems(pkg, manifest, version));
     problems.push(...exportProblems(pkg, manifest, dir));
+    problems.push(...entryPointProblems(pkg, manifest));
     problems.push(...componentMapProblems(pkg, dir));
     problems.push(...iconManifestProblems(pkg, dir));
     problems.push(...componentReachProblems(pkg, dir, declared));
