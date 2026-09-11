@@ -18,6 +18,7 @@ Single selection among options that are all visible at once. `ArenaRadioGroup` h
 | `children` | slot |  |  | The Radios. An option never holds a selected state of its own -- the group owns it, and how the two are wired is each layer's business rather than this contract's. |
 | `value` | primitive | `string` |  | The selected option's value. |
 | `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
+| `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
 | `onChange` | event | `string` |  | A different option was chosen; carries its value. |
 
 <!-- @api end -->

@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, computed, inject, input, output, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output, signal,
 } from '@angular/core';
 import { ArenaRadioGroupState } from './ArenaRadioGroupState';
 import { arenaRadioGroupStyles } from './ArenaRadioGroup.variants';
@@ -16,6 +16,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
     '[attr.data-arena-part]': 'parts.group',
     role: 'radiogroup',
     '[attr.aria-label]': 'label()',
+    '[attr.aria-disabled]': "disabled() ? 'true' : null",
     '[attr.name]': 'null',
   },
   template: `<ng-content />`,
@@ -29,6 +30,8 @@ export class ArenaRadioGroup {
   readonly value = input<string>();
   /** Shared name for the underlying radios; generated when omitted. */
   readonly name = input<string>();
+  /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
+  readonly disabled = input(false, { transform: booleanAttribute });
   /** A different option was chosen; carries its value. */
   readonly change = output<string>();
 
@@ -49,6 +52,7 @@ export class ArenaRadioGroup {
   constructor() {
     this.state.groupName = computed(() => this.name() ?? this.fallbackName);
     this.state.selected = computed(() => this.value() ?? this.chosen());
+    this.state.disabled = this.disabled;
     this.state.choose = (value: string) => {
       this.chosen.set(value);
       this.change.emit(value);
