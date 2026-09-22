@@ -8,6 +8,8 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from '../../test/Harness.tsx';
 import { ArenaAvatar } from './arena-avatar/ArenaAvatar.tsx';
+import { ArenaPeopleList } from './arena-people-list/ArenaPeopleList.tsx';
+import { ArenaPersonRow } from './arena-person-row/ArenaPersonRow.tsx';
 
 afterEach(cleanup);
 
@@ -55,4 +57,18 @@ test('nameShown leaves the presence dot its name', () => {
   assert.ok(dot, 'the dot is drawn');
   assert.equal(dot.closest('[aria-hidden="true"]'), null, 'the dot sits outside the hidden box');
   assert.deepEqual(exposedTexts(root), [dot.getAttribute('aria-label')]);
+});
+
+test('a person row says the name once, from its text, with and without an image', () => {
+  for (const src of ['/ana.png', undefined]) {
+    const root = mount(
+      <ArenaPeopleList label="Ruby league standings" ordered>
+        <ArenaPersonRow rank={1} name="Ana Ruiz" src={src} secondary="Design" figure="2480 XP" />
+      </ArenaPeopleList>,
+    );
+    const row = root.querySelector('li');
+    assert.ok(row, 'the row is the list item');
+    assert.deepEqual(exposedTexts(row), ['1', 'Ana Ruiz', 'Design', '2480 XP'], `src ${String(src)}`);
+    cleanup();
+  }
 });

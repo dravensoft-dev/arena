@@ -18,7 +18,7 @@ const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg
       @if (rank() !== undefined) {
         <span [class]="styles().rank()" [attr.data-arena-part]="parts.rank">{{ rank() }}</span>
       }
-      <arena-avatar [name]="named()" [src]="src()" [size]="face()" />
+      <arena-avatar [name]="named()" [src]="src()" [size]="face()" nameShown />
       <span [class]="styles().text()" [attr.data-arena-part]="parts.text">
         <span [class]="styles().name()" [attr.data-arena-part]="parts.name">{{ named() }}</span>
         @if (secondary(); as line) {
@@ -37,7 +37,7 @@ const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg
 export class ArenaPersonRow {
   protected readonly parts = manifest.parts;
 
-  /** The person or entity. It is the row's own text, the face's initials when there is no image, and that image's alt text, which is why one member carries all three: a name spelt differently in any of them is the same person announced as two. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. */
+  /** The person or entity. It is the row's own text and the face's initials when there is no image, which is why one member carries both: a name spelt differently in either is the same person drawn as two. The face sets `nameShown`, so the row announces the name once, from its text. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. */
   readonly name = input.required<string>();
   /** The face's image. Absent, the row draws the initials `name` gives it, which is the same fallback ArenaAvatar states and the reason a row needs no second member for the picture. */
   readonly src = input<string>();
@@ -55,7 +55,7 @@ export class ArenaPersonRow {
   protected readonly named = computed(() => {
     const name = this.name();
     if (name.trim() === '') {
-      throw new Error('ArenaPersonRow: `name` is required (it is the row, the initials and the image\'s alt text at once)');
+      throw new Error('ArenaPersonRow: `name` is required (it is the row\'s text and the face\'s initials at once)');
     }
     return name;
   });

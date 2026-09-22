@@ -8,9 +8,12 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertNoNode } from './NodeAssert';
 import { ArenaAvatar } from '../components/display/arena-avatar/ArenaAvatar';
+import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList';
+import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPersonRow';
 
 function exposedTexts(root: Element): string[] {
   const texts: string[] = [];
@@ -82,5 +85,34 @@ test('nameShown leaves the presence dot its name', () => {
     assert.deepEqual(exposedTexts(root), [dot.getAttribute('aria-label')]);
   } finally {
     fixture.destroy();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaPeopleList, ArenaPersonRow],
+  template: `
+    <arena-people-list label="Ruby league standings" ordered>
+      <arena-person-row [rank]="1" name="Ana Ruiz" [src]="src" secondary="Design" figure="2480 XP" />
+    </arena-people-list>
+  `,
+})
+class RowHost {
+  src: string | undefined = undefined;
+}
+
+test('a person row says the name once, from its text, with and without an image', () => {
+  for (const src of ['/ana.png', undefined]) {
+    const fixture = TestBed.createComponent(RowHost);
+    try {
+      fixture.componentInstance.src = src;
+      fixture.detectChanges();
+      const row = (fixture.nativeElement as Element).querySelector('li');
+      assert.ok(row, 'the row is the list item');
+      const texts = exposedTexts(row);
+      assert.deepEqual(texts, ['1', 'Ana Ruiz', 'Design', '2480 XP'], `src ${String(src)}`);
+    } finally {
+      fixture.destroy();
+    }
   }
 });
