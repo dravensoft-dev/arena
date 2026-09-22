@@ -1,0 +1,86 @@
+/* What a reader traverses through an avatar and through a person row. happy-dom computes no
+ * accessible name, so these cases hold the markup that produces the name Chromium measured:
+ * text nodes, labels and image alts outside any aria-hidden subtree. A row is held by its whole
+ * list of texts rather than by counting the name, because the initials "AR" do not contain
+ * "Ana Ruiz" and a count passes on the very duplication it exists to catch. */
+import { useTestEnvironment } from './TestbedEnv';
+useTestEnvironment();
+
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { TestBed } from '@angular/core/testing';
+import { assertNoNode } from './NodeAssert';
+import { ArenaAvatar } from '../components/display/arena-avatar/ArenaAvatar';
+
+function exposedTexts(root: Element): string[] {
+  const texts: string[] = [];
+  const walk = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) texts.push(text);
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const element = node as Element;
+    if (element.getAttribute('aria-hidden') === 'true') return;
+    const label = element.getAttribute('aria-label');
+    if (label) texts.push(label);
+    if (element.tagName === 'IMG') {
+      const alt = element.getAttribute('alt');
+      if (alt) texts.push(alt);
+      return;
+    }
+    element.childNodes.forEach(walk);
+  };
+  walk(root);
+  return texts;
+}
+
+function avatar(inputs: Record<string, unknown>) {
+  const fixture = TestBed.createComponent(ArenaAvatar);
+  for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
+  fixture.detectChanges();
+  return fixture;
+}
+
+test('a standalone avatar still names itself, through the alt and through the initials', () => {
+  for (const [inputs, expected] of [
+    [{ name: 'Ana Ruiz', src: '/ana.png' }, ['Ana Ruiz']],
+    [{ name: 'Ana Ruiz' }, ['AR']],
+  ] as const) {
+    const fixture = avatar(inputs);
+    try {
+      const texts = exposedTexts(fixture.nativeElement as Element);
+      assert.deepEqual(texts, expected);
+    } finally {
+      fixture.destroy();
+    }
+  }
+});
+
+test('nameShown takes the painted name out of the tree, with and without an image', () => {
+  for (const src of ['/ana.png', undefined]) {
+    const fixture = avatar({ name: 'Ana Ruiz', src, nameShown: true });
+    try {
+      const root = fixture.nativeElement as Element;
+      assert.deepEqual(exposedTexts(root), [], `src ${String(src)}: the name is said by what composes the avatar`);
+      assert.ok(root.querySelector('[aria-hidden="true"]'), 'the box is hidden, not removed');
+      if (src) assert.equal(root.querySelector('img')?.getAttribute('alt'), 'Ana Ruiz', 'the image keeps its alt for when the box is shown again');
+    } finally {
+      fixture.destroy();
+    }
+  }
+});
+
+test('nameShown leaves the presence dot its name', () => {
+  const fixture = avatar({ name: 'Ana Ruiz', status: 'online', nameShown: true });
+  try {
+    const root = fixture.nativeElement as Element;
+    const dot = root.querySelector('[aria-label]');
+    assert.ok(dot, 'the dot is drawn');
+    assertNoNode(dot.closest('[aria-hidden="true"]'), 'the dot sits outside the hidden box');
+    assert.deepEqual(exposedTexts(root), [dot.getAttribute('aria-label')]);
+  } finally {
+    fixture.destroy();
+  }
+});

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, computed, inject, input } from '@angular/core';
 import { avatarLg, avatarMd, avatarSm, avatarXs } from '../../../Tokens.generated';
 import { arenaAvatarStyles } from './ArenaAvatar.variants';
 import manifest from './ArenaAvatar.classes.generated';
@@ -19,7 +19,7 @@ const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
     '[attr.name]': 'null',
   },
   template: `
-    <span [class]="styles().box()" [attr.data-arena-part]="parts.box">
+    <span [class]="styles().box()" [attr.data-arena-part]="parts.box" [attr.aria-hidden]="nameShown() ? 'true' : null">
       @if (src(); as source) {
         <img [src]="source" [alt]="name()" [class]="styles().image()" [attr.data-arena-part]="parts.image"
              [attr.width]="diameter()" [attr.height]="diameter()" decoding="async" />
@@ -42,7 +42,7 @@ export class ArenaAvatar {
 
   /** Image URL. Absent renders initials from `name`. */
   readonly src = input<string>();
-  /** The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. */
+  /** The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. With `nameShown` set, both stay drawn and neither is announced, because what composes the avatar already says the name. */
   readonly name = input<string, string | undefined>('', { transform: (value) => value ?? '' });
   /** The avatar's diameter. */
   readonly size = input<ArenaAvatarSize, ArenaAvatarSize | undefined>(
@@ -56,6 +56,8 @@ export class ArenaAvatar {
   );
   /** A presence dot in the state's colour. `offline` is a visible muted dot; omit `status` entirely for no dot. Optional: there is no invisible enum value. */
   readonly status = input<ArenaAvatarStatus>();
+  /** Whether what composes this avatar already says its name: a name drawn beside it, or a control named on its own. Set, the image and the initials leave the accessibility tree so the name is announced once, and the presence dot keeps its own name. Leave it unset where the avatar is the only statement of who this is, including when it is a control's whole content, since that is how the control gets its name. */
+  readonly nameShown = input(false, { transform: booleanAttribute });
 
   protected readonly styles = computed(() =>
     arenaAvatarStyles({ size: this.size(), shape: this.shape(), status: this.status() ?? 'none' }));

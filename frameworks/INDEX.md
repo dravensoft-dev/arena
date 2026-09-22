@@ -49,7 +49,7 @@ will report it.
 | Component | What it is | Takes | Behaviour | Layers |
 |---|---|---|---|---|
 | `ArenaActivityFeed` | An event feed: someone did something to something, then. Arena draws every row. | `label*` `items*` `busy` | feed | angular, react |
-| `ArenaAvatar` | A person or entity mark: the image when `src` is set, initials from `name` otherwise, with an optional presence dot. | `src` `name` `size` `shape` `status` | none | angular, react |
+| `ArenaAvatar` | A person or entity mark: the image when `src` is set, initials from `name` otherwise, with an optional presence dot. | `src` `name` `size` `shape` `status` `nameShown` | none | angular, react |
 | `ArenaBadge` | Status label: mono, uppercase, short. Carries an object's actual state or an editorial emphasis, never decoration. | `content` `tone` `dot` | none | angular, react |
 | `ArenaCalendar` | Week or day schedule on a time grid. Colour is identity, never state. | `content` `timeZone` `anchorDate` `view` `dayStart` `dayEnd` `weekStartsOn` `hideEmptyWeekend` `dayInteractive` `dateClick` `rangeChange` `actions` | grid | angular, react |
 | `ArenaCalendarEvent` | One event on an ArenaCalendar's schedule. Times are ISO datetimes read in the calendar's timeZone, never the reader's. ArenaCalendar draws the chip; the consumer writes one of these per event and ArenaCalendar settles where it goes. | `id*` `title*` `start*` `end*` `colorId` `details` `interactive` `actionsEnabled` `actions` `disabled` `click` | button, none | angular, react |
