@@ -8,7 +8,7 @@ position in front and an optional figure behind. The row's size comes from the l
   action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" size="sm" />} />
 ```
 
-`name` is the row's text, the initials the face falls back to, and the image's alt text at once. A name spelt differently in any of those is the same person announced as two.
+`name` is the row's text and the initials the face falls back to at once, so a name spelt differently in either is the same person drawn as two. The face is composed with `nameShown`: the row already says the name in its text, so a screen reader hears it once. Compose an avatar beside a name of your own the same way.
 
 <!-- @api GENERATED from contracts/api/components/ArenaPersonRow.json. Edit the contract, not this table. -->
 

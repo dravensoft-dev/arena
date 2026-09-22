@@ -7,6 +7,7 @@ a presence dot.
 <arena-avatar name="Juan Carlos Hidalgo" />
 <arena-avatar name="Delivery" shape="rounded" size="sm" />
 <arena-avatar [src]="user.photo" [name]="user.name" size="lg" status="online" />
+<arena-avatar [name]="user.name" status="online" nameShown />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaAvatar.json. Edit the contract, not this table. -->
@@ -27,6 +28,11 @@ a presence dot.
 **Do / Don't**
 - Always pass `name`, even with `src`: it is the image's `alt` text and the fallback
   when the image fails to load.
+- Set `nameShown` when something already says the name: a name drawn beside the avatar, or a
+  control labelled on its own, such as an account menu's trigger. The face stays drawn, the name
+  is announced once, and the presence dot keeps its own name. `aria-hidden` on the host is not the
+  same thing, because it silences the presence along with the face. Leave `nameShown` off when the
+  avatar is a control's whole content, since then it is how the control is named.
 - Don't use the presence dot as a status badge for anything but presence. The offline tone is a muted grey by design, and it reads as "not here" rather than as "disabled".
 - The presence dot is filled (`bg-success`/`bg-warning`/`bg-error`/`bg-base-content/(--level-presence)`)
   even though danger is outline everywhere else, presence is its own semantic

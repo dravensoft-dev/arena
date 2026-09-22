@@ -4,6 +4,7 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 <ArenaAvatar name="Lucy Fernandez" status="online" />
 <ArenaAvatar src="/u/marco.jpg" name="Marco Ruiz" size="lg" />
 <ArenaAvatar name="Aurora Bank" shape="rounded" />  {/* entity/team */}
+<ArenaAvatar name="Ana Ruiz" status="online" nameShown />  {/* beside a name that already says it */}
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaAvatar.json. Edit the contract, not this table. -->
@@ -24,6 +25,10 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 **Do / Don't**
 - `circle` for people, `rounded` for teams/organizations.
 - Always pass `name` (accessible name + fallback initials), even when there's a `src`.
+- Pass `nameShown` when something already says the name: a name drawn beside the avatar, or a
+  control labelled on its own, such as an account menu's trigger. The face stays drawn, the name
+  is announced once, and the presence dot keeps its own name. Leave it off when the avatar is a
+  control's whole content, since then it is how the control is named.
 - It's the only element, along with the switches, that can be fully round.
 
 **Three things products asked this component for, and what each one measured.** Each is recorded here because reading the code does not answer it. Every one of them was refused with a reason rather than deferred.
