@@ -7,9 +7,12 @@
  * before, which is what makes them the same claims and not weaker ones. */
 
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import { arenaTv } from '../../../frameworks/tailwind/Tv.ts';
-import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { escapeClass, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const manifests = new Map([...layerManifests().values()].map((m) => [m.component, m]));
 
@@ -62,6 +65,24 @@ test('every manifest claim holds', () => {
   assert.deepEqual(problems, [], problems.join('\n'));
 });
 
+test('the band ceiling compiles to the declaration Page.css gives .arena-band', () => {
+  const declaration = (css: string, selector: string) => {
+    const at = css.indexOf(`${selector} {`);
+    assert.ok(at !== -1, `no rule for ${selector}`);
+    const body = css.slice(at, css.indexOf('}', at));
+    return body.match(/padding-inline:\s*([^;]+);/)?.[1]?.trim();
+  };
+  const page = declaration(readFileSync(join(repoRoot, 'frameworks/tailwind/Page.css'), 'utf8'), '.arena-band');
+  const utility = declaration(
+    readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
+    `.${escapeClass(BAND_CEILING)}`,
+  );
+  assert.ok(page, '.arena-band carries no padding-inline');
+  assert.equal(utility, page,
+    'the app bar and the site footer stand off the edge by a different inset than the page column, '
+    + 'so their contents stop lining up with it below the width where the ceiling binds');
+});
+
 test('the tab draws its focus ring with a ring utility, because its shadow slot is the selected mark', () => {
   for (const selected of [true, false]) {
     const carried = resolve('ArenaTabs', { selected }, 'tab')
@@ -81,6 +102,8 @@ test('no ArenaSideNav slot hard-codes an indent bracket, because a static utilit
   }
 });
 
+const BAND_CEILING = 'px-[min(var(--gutter),7%)]';
+
 export const CLAIMS = {
   ArenaSection: [
     { slot: 'title', has: ['text-title-section'], hasNot: ['text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a scale step here is a title no style plugin can re-pitch, which is the defect the role tier exists to prevent' },
@@ -89,6 +112,10 @@ export const CLAIMS = {
     { chosen: { rhythm: 'sm' }, slot: 'root', has: ['gap-group'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
     { chosen: { rhythm: 'md' }, slot: 'root', has: ['gap-component'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
     { chosen: { rhythm: 'lg' }, slot: 'root', has: ['gap-section'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
+  ],
+  ArenaSiteFooter: [
+    { slot: 'band', has: [BAND_CEILING], hasNot: ['px-gutter'],
+      why: 'the footer\'s columns line up with the page column above them only if they stand off the edge by the same ceiling .arena-band does' },
   ],
   ArenaScroller: [
     { slot: 'root', has: ['overflow-x-auto'], hasNot: ['overflow-y-auto', 'overflow-y-scroll'], why: 'a row that scrolls downwards as well is a grid nobody asked for' },
@@ -211,6 +238,10 @@ export const CLAIMS = {
     { slot: 'action', has: ['bg-transparent', 'border-none'], why: 'the close and action controls are text-only chrome, carrying no border or fill of their own' },
     { slot: 'close', has: ['bg-transparent', 'border-none'], why: 'the close and action controls are text-only chrome, carrying no border or fill of their own' },
     { chosen: { titled: true }, slot: 'message', has: ['mt-1'], why: 'the message carries the title-separating margin only when a title is present' },
+  ],
+  ArenaAppBar: [
+    { slot: 'band', has: [BAND_CEILING], hasNot: ['px-gutter'],
+      why: 'the bar\'s contents line up with the page column under it only if they stand off the edge by the same ceiling .arena-band does' },
   ],
   ArenaBottomNav: [
     { slot: 'root', has: ['pb-[var(--pad-safe-bottom)]'], why: 'the bar adds the safe-area inset to its own height rather than eating into the row' },
