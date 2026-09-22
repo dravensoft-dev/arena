@@ -21,7 +21,9 @@
    width the min() never binds, so nothing a desktop page draws moves. It is a percentage rather
    than a viewport unit because a band nested in a narrower column should stand off ITS edges,
    and a ceiling rather than a clamp because a style plugin answering a smaller gutter has said a
-   smaller gutter and no rule here may inflate it.
+   smaller gutter and no rule here may inflate it. ArenaAppBar and ArenaSiteFooter draw a band of
+   their own and write the same ceiling as a utility in their manifests, so a band added to the
+   layer is written from this file and not from whichever manifest was copied.
 
    The growing child carries a class rather than the shell distributing the slack, because a shell
    with a header, a main and a footer has exactly one child that should grow and no rule here can
