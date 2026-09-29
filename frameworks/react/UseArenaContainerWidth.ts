@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 export function useArenaContainerWidth<T extends Element = HTMLDivElement>(target?: React.RefObject<T | null>):
 [React.RefObject<T>, number | null] {
@@ -39,20 +39,23 @@ export function forgetArenaBreakpoints(): void {
   warned.clear();
 }
 
-export function useArenaViewportBelow(name: ArenaBreakpointName): boolean {
-  const [below, setBelow] = useState(false);
-  const width = arenaReadBreakpoint(name);
+function viewportQuery(width: number): MediaQueryList | null {
+  if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(width)) return null;
+  return window.matchMedia(`not all and (min-width: ${width}px)`);
+}
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(width)) return;
-    const query = window.matchMedia(`not all and (min-width: ${width}px)`);
-    setBelow(query.matches);
-    const onChange = (event: MediaQueryListEvent) => setBelow(event.matches);
+const serverBelow = () => false;
+
+export function useArenaViewportBelow(name: ArenaBreakpointName): boolean {
+  const width = arenaReadBreakpoint(name);
+  const subscribe = useCallback((onChange: () => void) => {
+    const query = viewportQuery(width);
+    if (!query) return () => {};
     query.addEventListener('change', onChange);
     return () => query.removeEventListener('change', onChange);
   }, [width]);
-
-  return below;
+  const snapshot = useCallback(() => viewportQuery(width)?.matches ?? false, [width]);
+  return useSyncExternalStore(subscribe, snapshot, serverBelow);
 }
 
 export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
