@@ -188,3 +188,27 @@ test('a failed read is not cached, so a stylesheet that arrives late is read aga
     } finally { second.destroy(); }
   });
 });
+
+test('the signal carries the answer from construction, before any change detection runs', () => {
+  const view = document.defaultView as unknown as Resizable;
+  view.happyDOM.setViewport({ width: 390 });
+  const fixture = TestBed.createComponent(MediumProbe);
+  try {
+    assert.equal(fixture.componentInstance.below(), true,
+      'the signal started false and waited for a render hook, which is a desktop frame painted on a phone');
+  } finally { fixture.destroy(); }
+});
+
+test('a document with no matchMedia, which is what a server has, answers false', () => {
+  const view = document.defaultView as unknown as { matchMedia?: unknown };
+  const saved = view.matchMedia;
+  delete view.matchMedia;
+  try {
+    const fixture = TestBed.createComponent(MediumProbe);
+    try {
+      assert.equal(fixture.componentInstance.below(), false);
+    } finally { fixture.destroy(); }
+  } finally {
+    view.matchMedia = saved;
+  }
+});

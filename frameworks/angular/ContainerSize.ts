@@ -50,18 +50,13 @@ export function arenaViewportBelow(name: ArenaBreakpointName): Signal<boolean> {
   const doc = inject(DOCUMENT);
   const destroyRef = inject(DestroyRef);
   const width = arenaReadBreakpoint(name);
-  const below = signal(false);
-
-  afterNextRender(() => {
-    const view = doc.defaultView;
-    if (!view?.matchMedia || !Number.isFinite(width)) return;
-    const query = view.matchMedia(`not all and (min-width: ${width}px)`);
-    below.set(query.matches);
-    const onChange = (event: MediaQueryListEvent) => below.set(event.matches);
-    query.addEventListener('change', onChange);
-    destroyRef.onDestroy(() => query.removeEventListener('change', onChange));
-  });
-
+  const view = doc.defaultView;
+  if (!view?.matchMedia || !Number.isFinite(width)) return signal(false).asReadonly();
+  const query = view.matchMedia(`not all and (min-width: ${width}px)`);
+  const below = signal(query.matches);
+  const onChange = (event: MediaQueryListEvent) => below.set(event.matches);
+  query.addEventListener('change', onChange);
+  destroyRef.onDestroy(() => query.removeEventListener('change', onChange));
   return below.asReadonly();
 }
 
