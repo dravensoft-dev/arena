@@ -14,6 +14,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, Type, viewChild } from 
 import { TestBed } from '@angular/core/testing';
 import { arenaContainerWidth } from '../ContainerSize';
 import { assertSameNode } from './NodeAssert';
+import { laidOut } from './LaidOut';
 
 const observed: Element[] = [];
 
@@ -78,4 +79,36 @@ test('with no target it still observes the host, which is what every other calle
   } finally {
     fixture.destroy();
   }
+});
+
+@Component({
+  selector: 'probe-drawn',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: '<span [attr.data-width]="width()"></span>',
+})
+class ProbeDrawn {
+  readonly width = arenaContainerWidth();
+}
+
+function drawnWidth(width: number): string | null {
+  return laidOut(width, () => {
+    const fixture = TestBed.createComponent(ProbeDrawn);
+    try {
+      fixture.autoDetectChanges();
+      TestBed.tick();
+      return (fixture.nativeElement as Element).querySelector('span')!.getAttribute('data-width');
+    } finally {
+      fixture.destroy();
+    }
+  });
+}
+
+test('the width is drawn by the tick that first renders the box, before any observer reports', () => {
+  assert.equal(drawnWidth(390), '390',
+    'the width waited for an observer and a later tick, so a phone paints the wide branch first');
+});
+
+test('a box with no width stays null, so a component in a hidden parent keeps its wide branch', () => {
+  assert.equal(drawnWidth(0), null);
 });

@@ -6,17 +6,30 @@ const breakpoints = new Map<string, number>();
 
 export type WidthTarget = ElementRef<HTMLElement> | (() => HTMLElement | null | undefined);
 
+const px = (value: string) => Number.parseFloat(value) || 0;
+
+function contentWidth(element: HTMLElement): number {
+  const outer = element.getBoundingClientRect().width;
+  const view = element.ownerDocument.defaultView;
+  if (!view) return outer;
+  const style = view.getComputedStyle(element);
+  return outer - px(style.paddingLeft) - px(style.paddingRight)
+    - px(style.borderLeftWidth) - px(style.borderRightWidth);
+}
+
 export function arenaContainerWidth(target?: WidthTarget): Signal<number | null> {
   const fallback = target === undefined ? inject<ElementRef<HTMLElement>>(ElementRef) : null;
   const destroyRef = inject(DestroyRef);
   const width = signal<number | null>(null);
 
   afterNextRender(() => {
-    if (typeof ResizeObserver === 'undefined') return;
     const element = typeof target === 'function'
       ? target()
       : (target ?? fallback)?.nativeElement;
     if (!element) return;
+    const now = contentWidth(element);
+    if (now > 0) width.set(now);
+    if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) width.set(entry.contentRect.width);
     });
