@@ -31,7 +31,7 @@ export function arenaContainerWidth(target?: WidthTarget): Signal<number | null>
     if (now > 0) width.set(now);
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) width.set(entry.contentRect.width);
+      for (const entry of entries) if (entry.contentRect.width > 0) width.set(entry.contentRect.width);
     });
     observer.observe(element);
     destroyRef.onDestroy(() => observer.disconnect());

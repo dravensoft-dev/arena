@@ -14,7 +14,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, Type, viewChild } from 
 import { TestBed } from '@angular/core/testing';
 import { arenaContainerWidth } from '../ContainerSize';
 import { assertSameNode } from './NodeAssert';
-import { laidOut } from './LaidOut';
+import { laidOut, SilentObserver } from './LaidOut';
 
 const observed: Element[] = [];
 
@@ -111,4 +111,27 @@ test('the width is drawn by the tick that first renders the box, before any obse
 
 test('a box with no width stays null, so a component in a hidden parent keeps its wide branch', () => {
   assert.equal(drawnWidth(0), null);
+});
+
+test('an observer reporting 0 after a measurement keeps the last width, so a tab hidden and shown again never flashes its phone shape', () => {
+  laidOut(900, () => {
+    const fixture = TestBed.createComponent(ProbeDrawn);
+    try {
+      fixture.autoDetectChanges();
+      TestBed.tick();
+      const observer = SilentObserver.made.at(-1)!;
+      const report = (width: number) => {
+        observer.callback([{ contentRect: { width } } as ResizeObserverEntry], observer as unknown as ResizeObserver);
+        TestBed.tick();
+      };
+      const drawn = () => (fixture.nativeElement as Element).querySelector('span')!.getAttribute('data-width');
+      assert.equal(drawn(), '900');
+      report(0);
+      assert.equal(drawn(), '900', 'a box that was hidden reported 0 and the component took its narrow branch');
+      report(390);
+      assert.equal(drawn(), '390', 'a real width still reaches the component');
+    } finally {
+      fixture.destroy();
+    }
+  });
 });

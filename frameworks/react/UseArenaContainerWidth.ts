@@ -12,9 +12,9 @@ function contentWidth(element: Element): number {
     - px(style.borderLeftWidth) - px(style.borderRightWidth);
 }
 
-function interceptCurrent<T>(ref: { current: T | null }, onSet: (next: T | null) => void): boolean {
+function interceptCurrent<T>(ref: { current: T | null }, onSet: (next: T | null) => void): void {
   const own = Object.getOwnPropertyDescriptor(ref, 'current');
-  if (!own?.configurable) return false;
+  if (!own?.configurable) return;
   let value = own.value as T | null;
   const read = own.get ?? (() => value);
   const write = own.set ?? ((next: T | null) => { value = next; });
@@ -24,7 +24,6 @@ function interceptCurrent<T>(ref: { current: T | null }, onSet: (next: T | null)
     get: read,
     set(next: T | null) { write(next); onSet(next); },
   });
-  return true;
 }
 
 interface WidthWatch<T extends Element> {
@@ -37,30 +36,32 @@ function watchWidth<T extends Element>(
   target: React.RefObject<T | null> | undefined,
   report: (width: number) => void,
 ): WidthWatch<T> {
-  let element: T | null = null;
   let observer: ResizeObserver | null = null;
-  const stop = () => { observer?.disconnect(); observer = null; };
+  let live = true;
+  const disconnect = () => { observer?.disconnect(); observer = null; };
   const observe = (next: T | null) => {
-    stop();
-    element = next;
-    if (!next) return;
+    disconnect();
+    if (!next || !live) return;
     const now = contentWidth(next);
     if (now > 0) report(now);
     if (typeof ResizeObserver === 'undefined') return;
     observer = new ResizeObserver((entries) => {
-      for (const entry of entries) report(entry.contentRect.width);
+      for (const entry of entries) if (entry.contentRect.width > 0) report(entry.contentRect.width);
     });
     observer.observe(next);
   };
   const ref = (target ?? { current: null }) as React.RefObject<T>;
-  const held = interceptCurrent(ref as { current: T | null }, observe);
+  interceptCurrent(ref as { current: T | null }, observe);
   return {
     ref,
     resume: () => {
-      if (!held) observe(ref.current);
-      else if (!observer && element) observe(element);
+      live = true;
+      if (!observer) observe(ref.current);
     },
-    stop,
+    stop: () => {
+      live = false;
+      disconnect();
+    },
   };
 }
 

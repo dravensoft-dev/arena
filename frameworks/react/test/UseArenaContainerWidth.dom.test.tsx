@@ -160,3 +160,77 @@ test('a server render answers null and says nothing', () => {
   }
   assert.deepEqual(errors, []);
 });
+
+function report(observer: SilentObserver, width: number): void {
+  act(() => {
+    observer.callback([{ contentRect: { width } } as ResizeObserverEntry], observer as unknown as ResizeObserver);
+  });
+}
+
+test('a target already attached when the hook mounts is measured', () => {
+  const seen: (number | null)[] = [];
+  function Child({ box }: { box: React.RefObject<HTMLDivElement | null> }) {
+    const [, width] = useArenaContainerWidth<HTMLDivElement>(box);
+    seen.push(width);
+    return null;
+  }
+  function Parent() {
+    const box = useRef<HTMLDivElement>(null);
+    const [shown, setShown] = useState(false);
+    return <><button onClick={() => setShown(true)} /><div ref={box} />{shown && <Child box={box} />}</>;
+  }
+  laidOut(390, () => {
+    const root = mount(<Parent />);
+    act(() => { root.querySelector('button')!.click(); });
+  });
+  assert.equal(seen.at(-1), 390, 'a child measuring its parent\'s box stayed wide for good');
+  assert.equal(SilentObserver.made.filter((one) => !one.disconnected).length, 1);
+  cleanup();
+});
+
+test('an observer reporting 0 after a measurement keeps the last width, so a tab hidden and shown again never flashes its phone shape', () => {
+  const seen: (number | null)[] = [];
+  function Probe() {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <div ref={ref} />;
+  }
+  laidOut(900, () => mount(<Probe />));
+  assert.equal(seen.at(-1), 900);
+  report(SilentObserver.made.at(-1)!, 0);
+  assert.equal(seen.at(-1), 900, 'a box that was hidden reported 0 and the component took its narrow branch');
+  report(SilentObserver.made.at(-1)!, 390);
+  assert.equal(seen.at(-1), 390, 'a real width still reaches the component');
+  cleanup();
+});
+
+test('a hook that unmounts leaves nothing watching a target that outlives it', () => {
+  function Child({ box }: { box: React.RefObject<HTMLDivElement | null> }) {
+    useArenaContainerWidth<HTMLDivElement>(box);
+    return null;
+  }
+  let toggle: () => void = () => {};
+  let remount: () => void = () => {};
+  function Parent() {
+    const box = useRef<HTMLDivElement>(null);
+    const [shown, setShown] = useState(true);
+    const [key, setKey] = useState(0);
+    toggle = () => setShown((was) => !was);
+    remount = () => setKey((was) => was + 1);
+    return <><div key={key} ref={box} />{shown && <Child box={box} />}</>;
+  }
+  laidOut(390, () => {
+    mount(<Parent />);
+    for (let i = 0; i < 3; i += 1) {
+      act(() => toggle());
+      act(() => toggle());
+    }
+    act(() => toggle());
+    const before = SilentObserver.made.length;
+    act(() => remount());
+    assert.equal(SilentObserver.made.length, before,
+      'an unmounted hook still observed the box when it re-attached, which grows with every mount');
+    assert.ok(SilentObserver.made.every((one) => one.disconnected), 'an observer outlived its hook');
+  });
+  cleanup();
+});

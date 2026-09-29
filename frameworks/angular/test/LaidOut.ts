@@ -6,7 +6,11 @@ export class SilentObserver {
   static made: SilentObserver[] = [];
   readonly observed: Element[] = [];
   disconnected = false;
-  constructor(_callback: ResizeObserverCallback) { SilentObserver.made.push(this); }
+  readonly callback: ResizeObserverCallback;
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+    SilentObserver.made.push(this);
+  }
   observe(target: Element): void { this.observed.push(target); }
   unobserve(): void {}
   disconnect(): void { this.disconnected = true; }
