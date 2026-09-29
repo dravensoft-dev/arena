@@ -69,7 +69,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 23_600,
+    budget: 23_700,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than a '
@@ -284,7 +284,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 71_000,
+    budget: 71_100,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop, allowed '
       + 'to cost more than any consumer route because it is paid by whoever changes Arena. It may not '

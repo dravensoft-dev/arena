@@ -54,11 +54,12 @@
   --layout-bar:64px;
 
   /*
-     Breakpoints: SHARED VALUES READ BY JS, not media queries.
-     Components style themselves with inline style objects, which cannot hold a
-     media query, so responsive branches are JS (see UseArenaContainerWidth.ts).
-     These live here anyway so the thresholds stay a token, not a magic number
-     retyped in four components. 768px is what DAMA hardcodes.
+     Breakpoints. A component reads them in script, against the width of its own
+     container (UseArenaContainerWidth.ts, ContainerSize.ts). A consumer's page
+     frame reads them through the viewport helpers, or through the sm:, md: and
+     lg: variants the Tailwind theme sheet generates from this group. They live
+     here so a threshold stays a token, not a magic number retyped in each
+     component. 768px is what DAMA hardcodes.
    */
   --bp-sm:480px;
   --bp-md:768px;

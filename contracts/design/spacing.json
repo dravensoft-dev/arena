@@ -54,7 +54,7 @@
   "bp": {
     "$type": "dimension",
     "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
-    "$description": "Breakpoints: SHARED VALUES READ BY JS, not media queries.\nComponents style themselves with inline style objects, which cannot hold a\nmedia query, so responsive branches are JS (see UseArenaContainerWidth.ts).\nThese live here anyway so the thresholds stay a token, not a magic number\nretyped in four components. 768px is what DAMA hardcodes.",
+    "$description": "Breakpoints. A component reads them in script, against the width of its own\ncontainer (UseArenaContainerWidth.ts, ContainerSize.ts). A consumer's page\nframe reads them through the viewport helpers, or through the sm:, md: and\nlg: variants the Tailwind theme sheet generates from this group. They live\nhere so a threshold stays a token, not a magic number retyped in each\ncomponent. 768px is what DAMA hardcodes.",
     "sm": { "$value": { "value": 480, "unit": "px" } },
     "md": { "$value": { "value": 768, "unit": "px" } },
     "lg": { "$value": { "value": 1024, "unit": "px" } }

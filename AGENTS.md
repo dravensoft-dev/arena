@@ -272,8 +272,9 @@ is the one no gate holds**, because nothing mechanical can judge it.
   and is silently spliced away: the message lands with the name it was quoting missing, and
   nothing errors. Use `git commit -q -F - <<'MSG' … MSG` and verify with `git log -1 --format=%B`.
   **`git merge` does not accept `-F -`**, so use `--no-commit`, then commit.
-- Responsive branches are JS, not media queries, and measure the **container**: a media query can
-  only ask about the viewport.
+- **A component decides by its container, since it may sit in any column, and a page's frame by
+  the viewport**, through the helpers each layer's page names or the `md:` and `max-md:` variants.
+  Nothing else in Arena asks a breakpoint.
 - **A wait is for a condition, and the span beside it is a deadline rather than a schedule.** A
   duration is a statement about the machine that measured it, so a wait spelled as one is right
   where it was written and silently wrong everywhere else: it expires early and reports the

@@ -166,7 +166,8 @@ holds no `var()`, so the threshold cannot be named from CSS at all. The query is
 `not all and (min-width: N)`, the exact complement of the `md:` variant rather than a
 `max-width` an epsilon short of it. **Reach for it for a page's own layout and never for a
 component's**: a component that branches on the viewport is wrong the first time somebody puts
-it in a narrow column.
+it in a narrow column. It reads through `useSyncExternalStore` with a `false` server snapshot, so
+a client's first render is right and a hydrating one is corrected without a mismatch.
 
 **`AnchorActivation.ts` is the predicate behind the anchor convention**: an anchor Arena draws
 cancels a primary click with no modifier and reports through its own navigation event, and
@@ -395,6 +396,7 @@ Responsive branches are JS rather than media queries, and they measure the **con
 `useArenaContainerWidth`: a media query can only ask about the viewport, and the box that decides
 whether a component narrows is the one containing it. The hook owns a
 ref and returns it, and takes one when the caller already holds the box to measure, so an
-inner panel does not have to become a component to be measured. It reports `null` until it
-has measured, which is the wide branch: a component renders wide first and narrows when it
-knows.
+inner panel does not have to become a component to be measured. It redefines the ref's `current`
+as an accessor whose setter reads the box, so it measures when React assigns it in the commit
+phase, before the paint, with no `useLayoutEffect`. A `current` it cannot redefine, a sealed
+`createRef`, is measured after the paint. `null` is a server render or a box measuring 0: wide.

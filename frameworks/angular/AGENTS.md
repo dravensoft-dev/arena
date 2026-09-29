@@ -33,8 +33,9 @@ that answered no to being found from outside must not install a router to use a 
 **`@angular/forms` is the second such entry**, held to `forms/` the same way.
 
 **Reach the document through the injected `DOCUMENT` token and never the global**, and put a
-measurement inside `afterNextRender`. A global read while the module evaluates throws during a
-server render at import time. This layer's suites run through a DOM rather than a server renderer,
+layout measurement inside `afterNextRender`; `arenaViewportBelow`'s `matchMedia` is not one, and
+runs at construction. A global read while the module evaluates throws during a server render at
+import time. This layer's suites run through a DOM rather than a server renderer,
 so here that claim is held by the code and by no run, which
 [`DOUBTS.md`](../../DOUBTS.md) files as a debt: **smoke-test a server render by hand** when a
 change touches how a component reaches the document.
@@ -204,7 +205,8 @@ writing CSS in a `styles:` block cannot get any other way: a media query conditi
 `max-width` an epsilon short of it, and it warns through the same `arenaReadBreakpoint` when the
 token does not resolve. **Reach for it for a page's own layout and never for a component's**: a
 component that branches on the viewport is wrong the first time somebody puts it in a narrow
-column.
+column. `arenaContainerWidth` reads its box inside its `afterNextRender`, and a signal a render
+hook writes makes the same tick check the view again, so the first paint is already narrow.
 
 **One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
 `select()`, because none of the nine contract forms is imperative and returning focus after each
