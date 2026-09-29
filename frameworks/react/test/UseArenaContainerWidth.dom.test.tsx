@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import React, { useRef } from 'react';
-import { mount, cleanup } from './Harness.tsx';
+import React, { StrictMode, useRef, useState } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { mount, cleanup, act } from './Harness.tsx';
+import { laidOut, SilentObserver } from './LaidOut.ts';
 import { forgetArenaBreakpoints, arenaReadBreakpoint, useArenaContainerWidth } from '../UseArenaContainerWidth.ts';
 
 function captureWarn<T>(fn: () => T): { result: T; messages: string[] } {
@@ -68,4 +70,93 @@ test('useArenaContainerWidth still owns a ref when it is handed none', () => {
   const container = mount(<Probe />);
   assert.equal(own!.current, container.querySelector('[data-role="own"]'));
   cleanup();
+});
+
+function widthsOf(render: (seen: (number | null)[]) => React.ReactNode): (number | null)[] {
+  const seen: (number | null)[] = [];
+  laidOut(390, () => mount(render(seen)));
+  return seen;
+}
+
+test('the width is known from the commit that attaches the ref, before any observer reports', () => {
+  function Probe({ seen }: { seen: (number | null)[] }) {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <div ref={ref} />;
+  }
+  const seen = widthsOf((s) => <Probe seen={s} />);
+  assert.equal(seen[0], null, 'the first render has no box to measure yet');
+  assert.equal(seen.at(-1), 390, 'the width waited for an observer, so a phone paints the wide branch first');
+  cleanup();
+});
+
+test('a useRef target is measured at the same moment', () => {
+  function Probe({ seen }: { seen: (number | null)[] }) {
+    const outer = useRef<HTMLDivElement>(null);
+    const [, width] = useArenaContainerWidth<HTMLDivElement>(outer);
+    seen.push(width);
+    return <div ref={outer} />;
+  }
+  assert.equal(widthsOf((s) => <Probe seen={s} />).at(-1), 390);
+  cleanup();
+});
+
+test('a useRef target under StrictMode is measured, and every observer is released on unmount', () => {
+  function Probe({ seen }: { seen: (number | null)[] }) {
+    const outer = useRef<HTMLDivElement>(null);
+    const [, width] = useArenaContainerWidth<HTMLDivElement>(outer);
+    seen.push(width);
+    return <div ref={outer} />;
+  }
+  const seen = widthsOf((s) => <StrictMode><Probe seen={s} /></StrictMode>);
+  assert.equal(seen.at(-1), 390);
+  cleanup();
+  assert.ok(SilentObserver.made.length > 0);
+  assert.ok(SilentObserver.made.every((one) => one.disconnected),
+    'an observer outlived its component, which is a leak on every remount');
+});
+
+test('a box with no width stays null, so a component in a hidden parent keeps its wide branch', () => {
+  const seen: (number | null)[] = [];
+  function Probe() {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <div ref={ref} />;
+  }
+  laidOut(0, () => mount(<Probe />));
+  assert.equal(seen.at(-1), null, 'a 0 read picked the phone shape for a box that is only hidden');
+  cleanup();
+});
+
+test('a box that attaches after mount is measured when it attaches', () => {
+  const seen: (number | null)[] = [];
+  function Later() {
+    const [open, setOpen] = useState(false);
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <><button onClick={() => setOpen(true)} />{open && <div ref={ref} />}</>;
+  }
+  laidOut(390, () => {
+    const root = mount(<Later />);
+    assert.equal(seen.at(-1), null, 'nothing is attached yet');
+    act(() => { root.querySelector('button')!.click(); });
+  });
+  assert.equal(seen.at(-1), 390, 'a dialog that opens later must be measured when its box attaches');
+  cleanup();
+});
+
+test('a server render answers null and says nothing', () => {
+  function Probe() {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    return <div ref={ref} data-width={String(width)} />;
+  }
+  const errors: string[] = [];
+  const original = console.error;
+  console.error = (...args: unknown[]) => { errors.push(args.map(String).join(' ')); };
+  try {
+    assert.match(renderToStaticMarkup(<Probe />), /data-width="null"/);
+  } finally {
+    console.error = original;
+  }
+  assert.deepEqual(errors, []);
 });

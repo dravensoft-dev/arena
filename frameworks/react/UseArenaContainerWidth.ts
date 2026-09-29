@@ -1,23 +1,82 @@
 import type * as React from 'react';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
+const px = (value: string) => Number.parseFloat(value) || 0;
+
+function contentWidth(element: Element): number {
+  const outer = element.getBoundingClientRect().width;
+  const view = element.ownerDocument.defaultView;
+  if (!view) return outer;
+  const style = view.getComputedStyle(element);
+  return outer - px(style.paddingLeft) - px(style.paddingRight)
+    - px(style.borderLeftWidth) - px(style.borderRightWidth);
+}
+
+function interceptCurrent<T>(ref: { current: T | null }, onSet: (next: T | null) => void): boolean {
+  const own = Object.getOwnPropertyDescriptor(ref, 'current');
+  if (!own?.configurable) return false;
+  let value = own.value as T | null;
+  const read = own.get ?? (() => value);
+  const write = own.set ?? ((next: T | null) => { value = next; });
+  Object.defineProperty(ref, 'current', {
+    configurable: true,
+    enumerable: true,
+    get: read,
+    set(next: T | null) { write(next); onSet(next); },
+  });
+  return true;
+}
+
+interface WidthWatch<T extends Element> {
+  ref: React.RefObject<T>;
+  resume(): void;
+  stop(): void;
+}
+
+function watchWidth<T extends Element>(
+  target: React.RefObject<T | null> | undefined,
+  report: (width: number) => void,
+): WidthWatch<T> {
+  let element: T | null = null;
+  let observer: ResizeObserver | null = null;
+  const stop = () => { observer?.disconnect(); observer = null; };
+  const observe = (next: T | null) => {
+    stop();
+    element = next;
+    if (!next) return;
+    const now = contentWidth(next);
+    if (now > 0) report(now);
+    if (typeof ResizeObserver === 'undefined') return;
+    observer = new ResizeObserver((entries) => {
+      for (const entry of entries) report(entry.contentRect.width);
+    });
+    observer.observe(next);
+  };
+  const ref = (target ?? { current: null }) as React.RefObject<T>;
+  const held = interceptCurrent(ref as { current: T | null }, observe);
+  return {
+    ref,
+    resume: () => {
+      if (!held) observe(ref.current);
+      else if (!observer && element) observe(element);
+    },
+    stop,
+  };
+}
+
 export function useArenaContainerWidth<T extends Element = HTMLDivElement>(target?: React.RefObject<T | null>):
 [React.RefObject<T>, number | null] {
-  const own = useRef<T>(null);
-  const ref = (target ?? own) as React.RefObject<T>;
   const [width, setWidth] = useState<number | null>(null);
+  const watch = useRef<WidthWatch<T> | null>(null);
+  watch.current ??= watchWidth<T>(target, setWidth);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) setWidth(entry.contentRect.width);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
+    const current = watch.current!;
+    current.resume();
+    return current.stop;
   }, []);
 
-  return [ref, width];
+  return [watch.current.ref, width];
 }
 
 export type ArenaBreakpointName = 'sm' | 'md' | 'lg';
