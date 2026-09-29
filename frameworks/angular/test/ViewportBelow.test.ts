@@ -191,7 +191,8 @@ test('a failed read is not cached, so a stylesheet that arrives late is read aga
 
 test('the signal carries the answer from construction, before any change detection runs', () => {
   const view = document.defaultView as unknown as Resizable;
-  view.happyDOM.setViewport({ width: 390 });
+  const width = 390;
+  view.happyDOM.setViewport({ width });
   const fixture = TestBed.createComponent(MediumProbe);
   try {
     assert.equal(fixture.componentInstance.below(), true,

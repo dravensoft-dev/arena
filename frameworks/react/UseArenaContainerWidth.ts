@@ -98,9 +98,9 @@ export function forgetArenaBreakpoints(): void {
   warned.clear();
 }
 
-function viewportQuery(width: number): MediaQueryList | null {
-  if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(width)) return null;
-  return window.matchMedia(`not all and (min-width: ${width}px)`);
+function viewportQuery(threshold: number): MediaQueryList | null {
+  if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(threshold)) return null;
+  return window.matchMedia(`not all and (min-width: ${threshold}px)`);
 }
 
 const serverBelow = () => false;

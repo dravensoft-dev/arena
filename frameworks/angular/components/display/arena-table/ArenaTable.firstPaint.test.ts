@@ -21,12 +21,14 @@ import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 })
 class TableHost {}
 
-function grid(width: number): Element | null {
+const BP_MD = '768px';
+
+function grid(box: number): Element | null {
   const style = document.documentElement.style;
   const saved = style.getPropertyValue('--bp-md');
-  style.setProperty('--bp-md', '768px');
+  style.setProperty('--bp-md', BP_MD);
   try {
-    return laidOut(width, () => {
+    return laidOut(box, () => {
       const fixture = TestBed.createComponent(TableHost);
       try {
         fixture.autoDetectChanges();
