@@ -167,7 +167,7 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
 | What else does the package export, besides components? | the layer's `PACKAGE.md`: the theme surface, the two measurements, the chart ramp helpers, and Angular's projection markers |
-| How do I size a page layout, or fit a panel to its own box? | the layer's `PACKAGE.md`, in that same section. Take `useArenaViewportBelow` or `arenaViewportBelow` for a page, and `useArenaContainerWidth` or `arenaContainerWidth` for a box |
+| How do I size a page layout, or fit a panel to its own box? | the layer's `PACKAGE.md`, in that same section, and `references/page.md` for a frame. A page takes the `md:` / `max-md:` variants or `useArenaViewportBelow` / `arenaViewportBelow`; a box, `useArenaContainerWidth` / `arenaContainerWidth` |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the nineteen colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/page.md`](./references/page.md) again. That page carries the three named steps as classes and as tokens, and the four classes the column is made of. That page also draws the cut between air you place and air the kernel answers |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |

@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 18_600,
+    budget: 18_700,
     reason:
       'the page every consumer route opens with, declared once rather than as the first stop of '
       + 'each route, because a router charged to every route opening with it is argued once per route '
@@ -116,7 +116,7 @@ export const ROUTES: Route[] = [
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 55_800,
+    budget: 56_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and what each of them costs. It is the only '
@@ -234,7 +234,7 @@ export const ROUTES: Route[] = [
       + 'air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md'],
-    budget: 14_600,
+    budget: 15_300,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -242,7 +242,8 @@ export const ROUTES: Route[] = [
       + 'a caption at body strength and no gate reports it; the three rhythm steps as classes and as '
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
-      + 'leaves; and the gutter as a ceiling. Cold walks missed each of those when the page left it '
+      + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
+      + 'sheet\'s variants. Cold walks missed each of those when the page left it '
       + 'out. It closes on the same least-to-most the surface page opens with. The number is what the '
       + 'stops measure with room for one section, and it grows when Arena ships a piece for somebody '
       + 'else\'s markup rather than when this page argues again for one it already names.',

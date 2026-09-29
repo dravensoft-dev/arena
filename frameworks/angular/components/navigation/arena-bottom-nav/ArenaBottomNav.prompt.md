@@ -46,7 +46,7 @@ share a page and each needs its own name.
   anchor already inside.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room: mark the bar `md:hidden` and the side nav `max-md:hidden`, or branch on `arenaViewportBelow('md')`.
 
 **By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px: - Try primary click, ctrl+click, middle click and Enter on the same destination. The first and the last report once and navigate once, and the other two open a tab and report nothing.
 - The active destination's glyph is filled and its label takes the primary ink; the others do not.

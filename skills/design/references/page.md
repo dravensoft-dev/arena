@@ -30,6 +30,14 @@ resolves to a palette colour and follows the palette instead.
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
 element resolves to the token a component reads. Tailwind's own defaults stop resolving at all.
 
+**A page's frame is chosen by the viewport, and a component by its own box.** Mark a wide
+screen's rail `max-md:hidden` and a phone's drawer `md:hidden`: CSS is right at the first paint, a
+server's included, and `display: none` keeps the hidden frame out of the accessibility tree, so
+both may carry one navigation name. Both are instantiated, so branch a heavy frame on your
+layer's viewport helper instead, right at the first client render and wide in a server's HTML.
+The same pair chooses a side nav or a bottom nav, and an app bar's `nav` slot or its phone toggle.
+Arena's components narrow before the client's first paint and are wide in a server's HTML.
+
 **Nineteen of the kernel's roles are colours**, and these are the ones a page of yours reaches
 for. Each role's full description is one entry in
 [`contracts/design/roles.json`](../../../contracts/design/roles.json).

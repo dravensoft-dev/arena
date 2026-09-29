@@ -43,6 +43,7 @@ judgement about your page rather than about this component.
 - **Do** wrap the brand in your own link if it should lead home. The bar draws no anchor.
 - **Do** remember the host carries no box, which is the rule every `display: contents` primitive in
   this package carries.
+- **Do** fold the `nav` slot behind a toggle of your own on a phone, choosing with the `md:hidden` and `max-md:hidden` pair or `arenaViewportBelow('md')`. The bar stays the banner either way.
 - **Don't** put a second `<header>` at the top level of the page. Banner is one per page.
 - **Don't** reach for it inside a card or a dialog. A `<header>` nested in a section is not a
   banner, and this component is one.

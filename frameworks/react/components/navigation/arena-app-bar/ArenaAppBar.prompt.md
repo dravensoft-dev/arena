@@ -36,6 +36,7 @@ wraps one. A page with a side nav as well has two navigation landmarks. Naming t
 - **Do** wrap the brand in your own link if it should lead home. The bar draws no anchor.
 - **Do** keep the actions to controls the reader needs on every screen. The row wraps rather than
   squeezing, so a crowded bar becomes two lines rather than an unreadable one.
+- **Do** fold the `nav` slot behind a toggle of your own on a phone, choosing with the `md:hidden` and `max-md:hidden` pair or `useArenaViewportBelow('md')`. The bar stays the banner either way.
 - **Don't** put a second `<header>` at the top level of the page. Banner is one per page, and two
   make the landmark useless to anyone navigating by it.
 - **Don't** reach for it inside a card or a dialog. A `<header>` nested in a section is not a

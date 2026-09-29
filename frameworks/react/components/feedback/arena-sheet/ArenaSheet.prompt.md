@@ -39,6 +39,7 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 - **Do** own both booleans. Neither folds nor closes itself, so a handler that ignores
   `onCollapsedChange` gets a caret that turns and a body that does not move.
 - **Do** put the one action the panel exists for in `footer`. The footer sits outside the folding body, so a folded panel still carries it.
+- **Do** pair it with a rail when it is the navigation drawer on a phone: mark the sheet `md:hidden` and the rail `max-md:hidden`, or branch on `useArenaViewportBelow('md')`.
 - **Don't** reach for it as a menu or a popover. The sheet spans a whole edge and stays. `ArenaMenu` is the transient list that hangs off a trigger.
 - **Don't** open two at once on the same edge. The two share a stacking slot and one lands on the other. A second surface at the same time is a sign the first should have been an `ArenaDialog`.
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
