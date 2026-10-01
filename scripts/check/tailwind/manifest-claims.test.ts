@@ -279,6 +279,7 @@ export const CLAIMS = {
       .map(([step, cls]) => ({ chosen: { gap: step }, slot: 'root', has: [cls], why: 'four named gap steps are four visible ones, none really is none, and the three that are not spend the page rhythm scale rather than a step this component picked off the grid' })),
     { chosen: { centred: true }, slot: 'root', has: ['mx-auto'], why: 'centred caps the grid against its own maximum and centres what is left' },
     { chosen: { centred: false }, slot: 'root', hasNot: ['mx-auto'], why: 'without it the grid fills its container' },
+    { slot: 'root', has: ['content-start'], why: 'a grid given a height keeps its rows at their content height rather than stretching them to fill it' },
   ],
   ArenaEmptyState: [
     { slot: 'root', has: ['flex', 'border-dashed'], why: 'the dashed border is the visual distinction from an error state, whose border is solid' },

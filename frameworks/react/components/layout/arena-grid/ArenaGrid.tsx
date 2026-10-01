@@ -28,7 +28,7 @@ export function ArenaGrid({ min = 'var(--grid-min)', gap = 'md', maxWidth, child
   return (
     <div className={arenaGridStyles({ gap: gapOf(gap), centred: maxWidth !== undefined }).root()} data-arena-part={manifest.parts.root}
       style={{
-        gridTemplateColumns: `repeat(auto-fit, minmax(min(${min}, 100%), 1fr))`,
+        gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}, 100%), 1fr))`,
         maxWidth,
       }}>
       {children}

@@ -32,9 +32,9 @@ function decl(element: React.ReactElement, name: string): string {
   return value;
 }
 
-test('the track list is auto-fit over the min, clamped against the container', () => {
+test('the track list is auto-fill over the min, clamped against the container, so an unfilled row keeps its empty tracks', () => {
   const tracks = decl(<ArenaGrid />, 'grid-template-columns');
-  assert.match(tracks, /^repeat\(auto-fit, minmax\(min\(.+, 100%\), 1fr\)\)$/,
+  assert.match(tracks, /^repeat\(auto-fill, minmax\(min\(.+, 100%\), 1fr\)\)$/,
     'the count must come from the room, and the min must be clamped or it overflows');
   assert.ok(!/\d+px/.test(tracks.replace(/var\([^)]*\)/g, '')),
     'the default min must reach the track list as a token derivation, never as a literal');

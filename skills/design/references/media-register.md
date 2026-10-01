@@ -60,7 +60,7 @@ is the column the page sits in. `css/numerals.css` is a figure that must not jit
 reads as a wall rather than as whatever sizes the images happened to be. Use it for a post's image
 and for a wall's cell alike.
 
-The grid holding them is the split. `ArenaGrid` auto-fits off the `grid-min` role, which is what
+The grid holding them is the split. `ArenaGrid` auto-fills off the `grid-min` role, which is what
 you want when the count is the data's and the plugin decides how dense it looks. A wall that is **three across because the design says three** is
 `grid-template-columns: repeat(3, 1fr)` on an element of your own, in one line. `ArenaGrid`'s own
 Don't says so, because two products measured wanting a fixed count wrote exactly that line rather

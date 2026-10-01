@@ -10,7 +10,7 @@ import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.j
 
 const manifest = await (await fetch('./ArenaGrid.manifest.json')).json();
 
-const TRACKS = 'repeat(auto-fit, minmax(min(calc(var(--sp-1) * 34), 100%), 1fr))';
+const TRACKS = 'repeat(auto-fill, minmax(min(calc(var(--sp-1) * 34), 100%), 1fr))';
 
 function cell(text) {
   return el('div', {
@@ -34,7 +34,7 @@ mountSpecimen({ sections: [
   section('The count comes from the room, not from a breakpoint', [
     el('div', { class: 'font-body text-sm text-base-content/62' },
       'The manifest holds the display and the gap; the track list is the component\'s, and it is '
-      + 'the same repeat(auto-fit, minmax(min(min, 100%), 1fr)) in both layers.'),
+      + 'the same repeat(auto-fill, minmax(min(min, 100%), 1fr)) in both layers, so an unfilled row keeps its empty tracks.'),
   ]),
 ]});
 </script></body></html>

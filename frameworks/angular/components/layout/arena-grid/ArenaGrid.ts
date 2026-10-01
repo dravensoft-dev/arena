@@ -28,6 +28,6 @@ export class ArenaGrid {
   /** A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for. */
   readonly maxWidth = input<string>();
 
-  protected readonly tracks = computed(() => `repeat(auto-fit, minmax(min(${this.min()}, 100%), 1fr))`);
+  protected readonly tracks = computed(() => `repeat(auto-fill, minmax(min(${this.min()}, 100%), 1fr))`);
   protected readonly styles = computed(() => arenaGridStyles({ gap: this.gap(), centred: this.maxWidth() !== undefined }));
 }

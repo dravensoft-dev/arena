@@ -82,11 +82,11 @@ test('every child is one cell exactly as written -- nothing is wrapped and nothi
   }
 });
 
-test('the track list is auto-fit over the min, clamped against the container', () => {
+test('the track list is auto-fill over the min, clamped against the container, so an unfilled row keeps its empty tracks', () => {
   const fixture = render();
   try {
     const tracks = gridOf(fixture).style.gridTemplateColumns;
-    assert.match(tracks, /^repeat\(auto-fit, minmax\(min\(.+, 100%\), 1fr\)\)$/,
+    assert.match(tracks, /^repeat\(auto-fill, minmax\(min\(.+, 100%\), 1fr\)\)$/,
       'the count must come from the room, and the min must be clamped or it overflows');
     assert.ok(!/\d+px/.test(tracks.replace(/var\([^)]*\)/g, '')),
       'the default min must reach the track list as a token derivation, never as a literal');
@@ -101,7 +101,7 @@ test('an unbound min is the ROLE, which is the only reading a style plugin can a
   try {
     const grid = fixture.nativeElement.querySelector('arena-grid') as HTMLElement;
     assert.equal(grid.style.gridTemplateColumns,
-      'repeat(auto-fit, minmax(min(var(--grid-min), 100%), 1fr))',
+      'repeat(auto-fill, minmax(min(var(--grid-min), 100%), 1fr))',
       'a transform resolves an absent value and never runs for an input nobody bound, so the '
       + 'initial value is what an unbound grid reads: any other value pins the column count to '
       + 'whatever the appearance the package installs with happens to answer');

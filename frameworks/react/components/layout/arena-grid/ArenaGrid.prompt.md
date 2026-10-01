@@ -1,6 +1,7 @@
 The grid that picks its own column count from the room it is in, so nobody has to pick a
 breakpoint. Cells are as wide as they can be at or above `min`, and the count falls as the room
-does, all the way to one.
+does, all the way to one. A row the items do not fill keeps its empty tracks, so a card on a
+short last page is as wide as one on a full page.
 
 ```tsx
 <ArenaGrid min="calc(var(--sp-1) * 50)" gap="md">

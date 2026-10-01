@@ -1,7 +1,7 @@
 {
   "component": "ArenaGrid",
   "slots": {
-    "root": "grid w-full"
+    "root": "grid w-full content-start"
   },
   "variants": {
     "gap": {

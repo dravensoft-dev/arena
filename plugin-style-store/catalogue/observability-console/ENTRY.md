@@ -34,7 +34,7 @@ A rail at the sidebar width and a board taking the rest, inside `container-max` 
 gutter. The board is a stat row on `auto-fit`, then a panel grid of **three fixed columns** falling
 to two under the large breakpoint, with the widest panel spanning the row.
 
-The panel grid is fixed rather than auto-fit, and that is the departure worth copying. `ArenaGrid` decides its own column count from the room it is given, which is right when the count is the data's. Auto-fit is wrong when an operator is comparing panel four against panel five and the window has just been resized.
+The panel grid is fixed rather than auto-fill, and that is the departure worth copying. `ArenaGrid` decides its own column count from the room it is given, which is right when the count is the data's. Auto-fill is wrong when an operator is comparing panel four against panel five and the window has just been resized.
 
 Air is the group step throughout. Density is the compact class on the document.
 

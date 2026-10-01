@@ -1,6 +1,7 @@
 Arena grid, the one that picks its own column count from the room it is in so nobody has to pick a
 breakpoint. Standalone, `OnPush`, signal I/O. The host **is** the grid, so `<arena-grid>` is the
-element you place.
+element you place. A row the items do not fill keeps its empty tracks, so a card on a short last
+page is as wide as one on a full page.
 
 ```html
 <arena-grid gap="md">

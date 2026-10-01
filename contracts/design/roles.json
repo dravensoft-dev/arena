@@ -185,7 +185,7 @@
   },
   "grid-min": {
     "$type": "dimension",
-    "$description": "The narrowest a column of an auto-fitting grid may get before the grid drops one.\nAuthored as a literal because it is one: ArenaGrid defaults it today to a calc of sp.1 times 50,\nwhich is a length spelled as arithmetic rather than a step on any ladder, and 200px is what that\narithmetic produces. The card demo beside the manifest passes 136px of its own, which is a demo\nchoosing a narrower column and not the component default it was mistaken for once.\n\nIt is a role rather than a scale because it is the single number that decides how many cards a\nviewport shows, and a gallery and a ledger want opposite answers to that from the same markup."
+    "$description": "The narrowest a column of an auto-filling grid may get before the grid drops one.\nAuthored as a literal because it is one: ArenaGrid defaults it today to a calc of sp.1 times 50,\nwhich is a length spelled as arithmetic rather than a step on any ladder, and 200px is what that\narithmetic produces. The card demo beside the manifest passes 136px of its own, which is a demo\nchoosing a narrower column and not the component default it was mistaken for once.\n\nIt is a role rather than a scale because it is the single number that decides how many cards a\nviewport shows, and a gallery and a ledger want opposite answers to that from the same markup."
   },
   "container-max": {
     "$type": "dimension",
