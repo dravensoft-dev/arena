@@ -8,14 +8,17 @@ export type WidthTarget = ElementRef<HTMLElement> | (() => HTMLElement | null | 
 
 const px = (value: string) => Number.parseFloat(value) || 0;
 
-function contentWidth(element: HTMLElement): number {
-  const outer = element.getBoundingClientRect().width;
+function outerWidth(element: Element): number {
   const view = element.ownerDocument.defaultView;
-  if (!view) return outer;
+  if (!view) return 0;
   const style = view.getComputedStyle(element);
-  return outer - px(style.paddingLeft) - px(style.paddingRight)
-    - px(style.borderLeftWidth) - px(style.borderRightWidth);
+  const width = style.width.endsWith('px') ? px(style.width) : 0;
+  if (width === 0 || style.boxSizing === 'border-box') return width;
+  return width + px(style.paddingLeft) + px(style.paddingRight)
+    + px(style.borderLeftWidth) + px(style.borderRightWidth);
 }
+
+const entryWidth = (entry: ResizeObserverEntry) => entry.borderBoxSize?.[0]?.inlineSize ?? outerWidth(entry.target);
 
 export function arenaContainerWidth(target?: WidthTarget): Signal<number | null> {
   const fallback = target === undefined ? inject<ElementRef<HTMLElement>>(ElementRef) : null;
@@ -27,11 +30,14 @@ export function arenaContainerWidth(target?: WidthTarget): Signal<number | null>
       ? target()
       : (target ?? fallback)?.nativeElement;
     if (!element) return;
-    const now = contentWidth(element);
+    const now = outerWidth(element);
     if (now > 0) width.set(now);
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) if (entry.contentRect.width > 0) width.set(entry.contentRect.width);
+      for (const entry of entries) {
+        const next = entryWidth(entry);
+        if (next > 0) width.set(next);
+      }
     });
     observer.observe(element);
     destroyRef.onDestroy(() => observer.disconnect());

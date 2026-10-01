@@ -1,5 +1,5 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
@@ -51,7 +51,7 @@ const MARK_STYLE = {
     '[style.height.px]': 'height()',
   },
   template: `
-    <div [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
+    <div #region [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg width="100%" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
@@ -185,7 +185,9 @@ export class ArenaScatterChart {
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
 
-  private readonly measured = arenaContainerWidth();
+  private readonly region = viewChild<ElementRef<HTMLElement>>('region');
+
+  private readonly measured = arenaContainerWidth(() => this.region()?.nativeElement);
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {

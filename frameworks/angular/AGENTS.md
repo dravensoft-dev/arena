@@ -195,18 +195,19 @@ see it. `check:playgrounds` holds each copy to the source and to the other copy.
 `Playground.test.ts` asserts the codec again here rather than trusting the other layer's suite,
 because this copy is what this layer compiles.
 
-**`arenaViewportBelow(name)` answers the other half of the breakpoint question, and it is a
-different question.** `arenaContainerWidth` measures a box, which is what a component needs, because
-a component may be rendered anywhere and the viewport says nothing about how much room it was
-given. `arenaViewportBelow` measures the viewport, which is what a page layout needs and what an app
-writing CSS in a `styles:` block cannot get any other way: a media query condition holds no
-`var()`, so the threshold cannot be named from a stylesheet at all. It returns a signal over
+**`arenaViewportBelow(name)` answers a different question from `arenaContainerWidth`.** A
+component measures its box, because it may be rendered anywhere and the viewport says nothing
+about its room. A page layout measures the viewport, which a `styles:` block cannot do by name,
+since a media query condition holds no `var()`. It returns a signal over
 `not all and (min-width: N)`, the exact complement of the `md:` variant rather than a
-`max-width` an epsilon short of it, and it warns through the same `arenaReadBreakpoint` when the
-token does not resolve. **Reach for it for a page's own layout and never for a component's**: a
-component that branches on the viewport is wrong the first time somebody puts it in a narrow
-column. `arenaContainerWidth` reads its box inside its `afterNextRender`, and a signal a render
-hook writes makes the same tick check the view again, so the first paint is already narrow.
+`max-width` an epsilon short of it, and warns through `arenaReadBreakpoint` when the token does
+not resolve. **Reach for it for a page's own layout and never for a component's**: a component
+that branches on the viewport is wrong the first time somebody puts it in a narrow column.
+`arenaContainerWidth` reads its box inside its `afterNextRender`, and a signal a render hook
+writes makes the same tick check the view again, so the first paint is already narrow. Both
+reads take the outer width, the border box with no transform, so a padding or a transform a
+branch restyles never reaches the number. A chart measures an element of its own template,
+so a consumer class on its host cannot move the plot.
 
 **One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
 `select()`, because none of the nine contract forms is imperative and returning focus after each

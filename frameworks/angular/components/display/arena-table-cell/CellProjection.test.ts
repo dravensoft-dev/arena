@@ -45,7 +45,7 @@ class CellHost {
   value = VALUE;
 }
 
-type Entry = { target: Element; contentRect: { width: number } };
+type Entry = { target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } };
 
 function stubResize() {
   const globals = globalThis as { ResizeObserver?: unknown };
@@ -64,7 +64,7 @@ function stubResize() {
     disconnect(): void {}
   };
   const emit = (width: number) => {
-    for (const { cb, targets } of live) cb(targets.map((target) => ({ target, contentRect: { width } })));
+    for (const { cb, targets } of live) cb(targets.map((target) => ({ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } })));
   };
   return { emit, restore: () => { globals.ResizeObserver = saved; } };
 }

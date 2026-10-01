@@ -188,7 +188,7 @@ export class ArenaLineChart {
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
 
-  private readonly measured = arenaContainerWidth();
+  private readonly measured = arenaContainerWidth(() => this.rail()?.nativeElement);
 
   private readonly available = computed(() => this.measured() ?? ASSUMED_WIDTH);
 

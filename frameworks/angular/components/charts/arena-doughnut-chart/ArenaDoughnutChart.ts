@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
 import { arenaDoughnutSlices } from '../ChartScales';
@@ -11,6 +11,10 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
+
+const FRAME_STYLE = {
+  display: 'flex', position: 'relative', width: '100%', gap: 'var(--chart-legend-gap)',
+} as const satisfies Readonly<Record<string, string>>;
 
 const DIM_OPACITY = 0.55;
 
@@ -60,11 +64,9 @@ const LEGEND_VALUE_STYLE = {
   selector: 'arena-doughnut-chart',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:flex;position:relative;width:100%;gap:var(--chart-legend-gap)',
-    '[style.height.px]': 'height',
-  },
+  host: { style: 'display: contents' },
   template: `
+    <div #frame [style]="frameStyle" [style.height.px]="height">
     <svg [attr.width]="arenaPlotWidth()" [attr.height]="height" role="img" [attr.aria-label]="name()"
          [style]="svgStyle" (pointerleave)="hover.set(null)">
       @for (segment of segments(); track segment.index) {
@@ -107,6 +109,7 @@ const LEGEND_VALUE_STYLE = {
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaDoughnutChart {
@@ -153,7 +156,11 @@ export class ArenaDoughnutChart {
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
 
-  private readonly measured = arenaContainerWidth();
+  protected readonly frameStyle = FRAME_STYLE;
+
+  private readonly frame = viewChild<ElementRef<HTMLElement>>('frame');
+
+  private readonly measured = arenaContainerWidth(() => this.frame()?.nativeElement);
 
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 

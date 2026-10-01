@@ -873,9 +873,12 @@ test('a primitive that does not host-bind its root takes its host out of layout 
 
 const HOST_FILLS_INLINE_AXIS = /\bstyle:\s*'[^']*\bwidth\s*:\s*100%/;
 
+const HOST_BOXLESS = /\bstyle:\s*'[^']*\bdisplay\s*:\s*contents/;
+
 test('a chart host fills the inline axis, so a chart in a row is not shrink-to-fit', () => {
   const charts = primitiveSources().filter(({ path, source }) => (
     path.startsWith(join(ANGULAR_COMPONENTS, 'charts')) && !HOST_BOUND_ROOT.test(hostBlockOf(source))
+    && !HOST_BOXLESS.test(hostBlockOf(source))
   ));
   assert.ok(charts.length > 0, 'no bare-host chart sources found -- the guard would silently check nothing');
 
@@ -1097,18 +1100,20 @@ test('arena-line-chart: the picture carries an accessible name and the numbers c
   assert.equal(caption.textContent?.trim(), 'p95 latency — line chart');
 });
 
-test('arena-doughnut-chart: the host is the flex row itself, so the box it measures is the box it lays out', async () => {
+test('arena-doughnut-chart: the host keeps no box and its frame is the flex row, so the box it measures is the box it lays out', async () => {
   const fixture = createDoughnutChartHost();
   await fixture.whenStable();
   const host = fixture.nativeElement.querySelector('arena-doughnut-chart') as HTMLElement;
+  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
-  assert.equal(host.style.display, 'flex', `host declared display "${host.style.display}"`);
-  assert.equal(getComputedStyle(host).display, 'flex');
+  const frame = host.querySelector(':scope > div') as HTMLElement;
+  assert.equal(frame.style.display, 'flex', `frame declared display "${frame.style.display}"`);
+  assert.equal(getComputedStyle(frame).display, 'flex');
 
-  assert.equal(host.style.position, 'relative');
+  assert.equal(frame.style.position, 'relative');
 
-  assert.equal(host.style.width, '100%');
-  assert.equal(host.style.gap, 'var(--chart-legend-gap)');
+  assert.equal(frame.style.width, '100%');
+  assert.equal(frame.style.gap, 'var(--chart-legend-gap)');
 });
 
 test('arena-doughnut-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
@@ -1135,7 +1140,7 @@ test('arena-doughnut-chart: the style objects that render without data reach the
   assert.equal(svg.style.display, 'block');
   assert.equal(svg.style.flexShrink, '0');
 
-  const legend = host.querySelector(':scope > div') as HTMLElement;
+  const legend = host.querySelector(':scope > div > div') as HTMLElement;
   assert.ok(legend, 'the legend column did not render');
   assert.equal(legend.style.gap, 'calc(var(--sp-1) * 1.5)');
   assert.equal(legend.style.flexDirection, 'column');
