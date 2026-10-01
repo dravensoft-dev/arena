@@ -54,9 +54,9 @@ readonly revenue = computed<ArenaSeries[]>(() => [
 ```
 
 The chart sizes itself to its container, give it a parent with a width (an
-`arena-chart-card` is the usual one) rather than setting a width on the chart. The host is
-the flex row itself: the ring is one item, the legend the other, and the host is what gets
-measured.
+`arena-chart-card` is the usual one) rather than setting a width on the chart. The host keeps
+no box of its own, so a class on it styles nothing the plot reads. The chart lays out and
+measures a frame of its own template, a row holding the ring and the legend.
 
 **Do / Don't**
 - Keep it to five or six slices. Past that the arcs stop being comparable and a bar chart
