@@ -5,7 +5,6 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
 import { ArenaCard } from './ArenaCard.tsx';
@@ -13,7 +12,7 @@ import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
 
 afterEach(cleanup);
 
-const SHEET = join(import.meta.dir, '../../../../tailwind/consume/components/forms/arena-button/ArenaButton.styles.generated.css');
+const SHEET = new URL('../../../../tailwind/consume/components/forms/arena-button/ArenaButton.styles.generated.css', import.meta.url);
 
 test('a button without full in a card body takes its own width, and one with full takes the body', () => {
   const root = mount(<ArenaCard><ArenaButton>Save</ArenaButton><ArenaButton full>Continue</ArenaButton></ArenaCard>);

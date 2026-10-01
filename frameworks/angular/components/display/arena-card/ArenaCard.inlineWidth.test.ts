@@ -1,5 +1,6 @@
-/* The Angular half of the React case: the button hosts are display: contents, so the element in
- * the card's body is the button itself, and it carries the branch its full member chose. */
+/* A card's body is a flex column that keeps stretching its block children. The button hosts are
+ * display: contents, so the element in the body is the button itself, and it carries the branch
+ * its full member chose. Layout itself is Chromium's to prove. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
