@@ -40,14 +40,14 @@ function watchWidth<T extends Element>(
   report: (width: number) => void,
 ): WidthWatch<T> {
   let observer: ResizeObserver | null = null;
-  let live = true;
+  let state: 'fresh' | 'live' | 'stopped' = 'fresh';
   const disconnect = () => { observer?.disconnect(); observer = null; };
   const observe = (next: T | null) => {
     disconnect();
-    if (!next || !live) return;
+    if (!next || state === 'stopped') return;
     const now = outerWidth(next);
     if (now > 0) report(now);
-    if (typeof ResizeObserver === 'undefined') return;
+    if (state === 'fresh' || typeof ResizeObserver === 'undefined') return;
     observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = entryWidth(entry);
@@ -61,11 +61,11 @@ function watchWidth<T extends Element>(
   return {
     ref,
     resume: () => {
-      live = true;
+      state = 'live';
       if (!observer) observe(ref.current);
     },
     stop: () => {
-      live = false;
+      state = 'stopped';
       disconnect();
     },
   };
@@ -100,14 +100,22 @@ function warnUnresolved(name: string): void {
     + " Arena's stylesheet is missing, or it loads after this ran.");
 }
 
+const queries = new Map<number, MediaQueryList>();
+
 export function forgetArenaBreakpoints(): void {
   cache.clear();
+  queries.clear();
   warned.clear();
 }
 
 function viewportQuery(threshold: number): MediaQueryList | null {
   if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(threshold)) return null;
-  return window.matchMedia(`not all and (min-width: ${threshold}px)`);
+  let query = queries.get(threshold);
+  if (!query) {
+    query = window.matchMedia(`not all and (min-width: ${threshold}px)`);
+    queries.set(threshold, query);
+  }
+  return query;
 }
 
 const serverBelow = () => false;

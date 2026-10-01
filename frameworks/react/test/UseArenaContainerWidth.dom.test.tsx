@@ -325,3 +325,30 @@ test('an entry with no borderBoxSize is read from its target, as an engine that 
   assert.equal(seen.at(-1), 480, 'an entry without borderBoxSize reported nothing, or its content rect');
   cleanup();
 });
+
+test('a parent-held target under StrictMode is watched by one observer at a time, and none outlives the unmount', () => {
+  const seen: (number | null)[] = [];
+  function Child({ box }: { box: React.RefObject<HTMLDivElement | null> }) {
+    const [, width] = useArenaContainerWidth<HTMLDivElement>(box);
+    seen.push(width);
+    return null;
+  }
+  function Parent() {
+    const box = useRef<HTMLDivElement>(null);
+    return <div ref={box}><Child box={box} /></div>;
+  }
+  const errors: string[] = [];
+  const original = console.error;
+  console.error = (...args: unknown[]) => { errors.push(args.map(String).join(' ')); };
+  try {
+    laidOut(390, () => mount(<StrictMode><Parent /></StrictMode>));
+    assert.equal(seen.at(-1), 390, 'a child measuring its parent\'s box never got a width');
+    assert.equal(SilentObserver.peak, 1,
+      'the watch React discarded on the strict double render observed the box too, so two observers report every resize');
+    cleanup();
+  } finally {
+    console.error = original;
+  }
+  assert.ok(SilentObserver.made.every((one) => one.disconnected), 'an observer outlived its hook');
+  assert.deepEqual(errors, []);
+});

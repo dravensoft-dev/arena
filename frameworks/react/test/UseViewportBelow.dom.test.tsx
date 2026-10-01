@@ -6,7 +6,7 @@
  * with no epsilon to get wrong. happy-dom evaluates matchMedia against its own viewport. */
 import test, { after, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
+import React, { useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { mount, cleanup, act } from './Harness.tsx';
 import { forgetArenaBreakpoints, useArenaViewportBelow } from '../UseArenaContainerWidth.ts';
@@ -99,4 +99,25 @@ test('an unresolved threshold answers false rather than throwing', () => {
     forgetArenaBreakpoints();
     console.warn = warn;
   }
+});
+
+test('one threshold is one media query, however often the hook renders', () => {
+  forgetArenaBreakpoints();
+  const original = window.matchMedia;
+  let asked = 0;
+  window.matchMedia = ((query: string) => { asked += 1; return original.call(window, query); }) as typeof window.matchMedia;
+  let bump = () => {};
+  function Counted() {
+    const [, set] = useState(0);
+    bump = () => set((n) => n + 1);
+    return <Probe name="md" />;
+  }
+  try {
+    viewport(390);
+    mount(<Counted />);
+    for (let i = 0; i < 3; i += 1) act(() => bump());
+  } finally {
+    window.matchMedia = original;
+  }
+  assert.equal(asked, 1, 'every render asked matchMedia again, and development asks twice more for the consistency check');
 });
