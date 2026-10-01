@@ -177,21 +177,17 @@ from there. Its whole purpose is that the pages a single arrangement gets differ
 them and in nothing else, so `check:pixel-parity` can capture them and fail on one differing
 pixel. Edit the arrangement, never the page.
 
-`playground/` sits beside them and never ships either: the package
-build stages nothing under it and `index.ts` names none of it. It holds the harness every
+`playground/` sits beside them and never ships either. It holds the harness every
 generated demo page mounts, `Playground.ts` for the panel and the event log and
-`PlaygroundState.ts` for the store behind them. Its classes are `intro/playground.css`'s, which
-sits outside every layer so each harness draws the same frame from the same bytes, and a
-difference seen between two layers is then a difference in the component rather than in the
-furniture around it.
+`PlaygroundState.ts` for the store behind them. Its classes are `intro/playground.css`'s,
+outside every layer, so each harness draws the same frame from the same bytes and a difference
+between two layers is the component's rather than the furniture's.
 
 **`PlaygroundCodec.generated.ts` beside them is a copy, not a source.** What a knob holds,
 whether it is bound and how both round-trip through a query string is authored once in
 `frameworks/demos/PlaygroundCodec.ts` and emitted into every layer, because two hand-written
-copies of `decode()` that drift render the **same URL** differently in each layer, which is the
-one failure the arrangement exists to prevent and the one nothing else would catch: each layer
-would compile, each suite would pass, and only a person holding two pages side by side would
-see it. `check:playgrounds` holds each copy to the source and to the other copy.
+copies of `decode()` that drift render the **same URL** differently in each layer, and each
+layer would compile and each suite pass. `check:playgrounds` holds each copy to the source and to the other copy.
 `Playground.test.ts` asserts the codec again here rather than trusting the other layer's suite,
 because this copy is what this layer compiles.
 
@@ -207,7 +203,7 @@ that branches on the viewport is wrong the first time somebody puts it in a narr
 writes makes the same tick check the view again, so the first paint is already narrow. Both
 reads take the outer width, the border box with no transform, so a padding or a transform a
 branch restyles never reaches the number. A chart measures an element of its own template,
-so a consumer class on its host cannot move the plot.
+so a consumer class on its host cannot move the plot. So a branch may restyle the padding and border of the measured element and nothing else of its outer box, as `check:measured-box` holds.
 
 **One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
 `select()`, because none of the nine contract forms is imperative and returning focus after each

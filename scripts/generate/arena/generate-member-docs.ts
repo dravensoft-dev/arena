@@ -57,6 +57,7 @@ export const node = {
     'check:shared-arithmetic',
     'check:skills',
     'check:states',
+    'check:measured-box',
     'generate:playgrounds',
     'build:site',
   ],

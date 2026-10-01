@@ -191,20 +191,3 @@ lost with nothing to say so, and the declaration cannot be derived by arithmetic
 
 Re-derive the surface with `find frameworks intro -name '*.demo.generated.html' -o -name '*.card.html'`,
 and open it with `bun run demos`.
-
-**A responsive component whose own box changes with its branch has no stable answer at its
-threshold.** The width helpers report the content width of the element a component measures, and
-two components style that element differently per branch: `ArenaTable`'s wide root carries a
-border its card root does not, and `ArenaBulkActionBar`'s compact root takes less inline padding
-than its wide one. In the band of a few pixels where one branch's content width sits at or above
-the threshold and the other's falls below it, each branch selects the other, and the observer
-reports every change, so the component alternates on every frame for as long as the page is open.
-
-What it costs: a table or a bulk action bar whose container lands in that band re-renders
-without end, flickering between two shapes, and no suite sees it, because happy-dom has no layout.
-Every other width is steady, and a phone is far from the band.
-
-Re-derive which components restyle the measured element per branch with
-`grep -n '"narrow"' -A2 frameworks/tailwind/components/*/*/*.manifest.json`, and watch one at
-its threshold with `bun run demos`, sizing the playground so the component's box is exactly
-`--bp-md` for the table or `--bp-sm` for the bar.

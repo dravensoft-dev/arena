@@ -66,6 +66,7 @@ export const GATES = [
   { name: 'check:component-css', file: 'tailwind/check-component-css.ts' },
   { name: 'check:dimensions', file: 'arena/check-dimension-literals.ts' },
   { name: 'check:states', file: 'arena/check-manifest-states.ts' },
+  { name: 'check:measured-box', file: 'arena/check-measured-box.ts' },
   { name: 'check:appearance', file: 'arena/check-appearance.ts' },
   { name: 'check:parts', file: 'arena/check-parts.ts' },
   { name: 'check:layer-independence', file: 'arena/check-layer-independence.ts' },

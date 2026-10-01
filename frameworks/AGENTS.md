@@ -288,6 +288,7 @@ each layer's knob model to the other's. It opens none of them.
 | a dimension is a token | `check:dimensions`, with two declared blind spots |
 | a component renders its manifest rather than hand-drawing | `check:appearance`, `EXEMPT` empty |
 | a manifest's states are contracted | `check:states`, states only |
+| a component's measured box is the same in every branch its width selects | `check:measured-box`, `MEASURED` |
 | a modal traps Tab in a real browser | `check:focus-trap` |
 | **a manifest's colors, sizes or slot structure still match its contract** | **nothing. Read both when either moves** |
 | the emitted pages match a fresh run, and each layer's knob model matches the other's | `check:playgrounds`, over source |
