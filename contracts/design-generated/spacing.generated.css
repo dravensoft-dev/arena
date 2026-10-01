@@ -55,10 +55,10 @@
 
   /*
      Breakpoints. A component reads them in script, against the width of its own
-     container (UseArenaContainerWidth.ts, ContainerSize.ts). A consumer's page
-     frame reads them through the viewport helpers, or through the sm:, md: and
-     lg: variants the Tailwind theme sheet generates from this group. They live
-     here so a threshold stays a token, not a magic number retyped in each
+     container, through useArenaContainerWidth or arenaContainerWidth. A consumer's page
+     frame reads them through useArenaViewportBelow or arenaViewportBelow, or through
+     the sm:, md: and lg: variants the Tailwind theme sheet generates from this group.
+     They live here so a threshold stays a token, not a magic number retyped in each
      component. 768px is what DAMA hardcodes.
    */
   --bp-sm:480px;
