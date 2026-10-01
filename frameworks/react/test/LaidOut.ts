@@ -9,18 +9,20 @@ export class SilentObserver {
   static connected = 0;
   static peak = 0;
   readonly observed: Element[] = [];
+  readonly options: (ResizeObserverOptions | undefined)[] = [];
   disconnected = false;
   readonly callback: ResizeObserverCallback;
   constructor(callback: ResizeObserverCallback) {
     this.callback = callback;
     SilentObserver.made.push(this);
   }
-  observe(target: Element): void {
+  observe(target: Element, options?: ResizeObserverOptions): void {
     if (this.observed.length === 0) {
       SilentObserver.connected += 1;
       SilentObserver.peak = Math.max(SilentObserver.peak, SilentObserver.connected);
     }
     this.observed.push(target);
+    this.options.push(options);
   }
   unobserve(): void {}
   disconnect(): void {

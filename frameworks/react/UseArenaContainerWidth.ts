@@ -54,7 +54,7 @@ function watchWidth<T extends Element>(
         if (width > 0) report(width);
       }
     });
-    observer.observe(next);
+    observer.observe(next, { box: 'border-box' });
   };
   const ref = (target ?? { current: null }) as React.RefObject<T>;
   interceptCurrent(ref as { current: T | null }, observe);

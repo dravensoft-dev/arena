@@ -224,3 +224,17 @@ test('an observer entry reports its border box, not its content rect, and one wi
     }
   });
 });
+
+test('the observer watches the border box, so a padding or a border that changes alone is delivered', () => {
+  laidOut(480, () => {
+    const fixture = TestBed.createComponent(ProbeDrawn);
+    try {
+      fixture.autoDetectChanges();
+      TestBed.tick();
+      assert.deepEqual(SilentObserver.made.flatMap((one) => one.options), [{ box: 'border-box' }],
+        'an observer on the content box never fires when only the padding or the border of the box changes');
+    } finally {
+      fixture.destroy();
+    }
+  });
+});

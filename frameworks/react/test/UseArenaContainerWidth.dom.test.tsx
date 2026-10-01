@@ -352,3 +352,14 @@ test('a parent-held target under StrictMode is watched by one observer at a time
   assert.ok(SilentObserver.made.every((one) => one.disconnected), 'an observer outlived its hook');
   assert.deepEqual(errors, []);
 });
+
+test('the observer watches the border box, so a padding or a border that changes alone is delivered', () => {
+  function Probe() {
+    const [ref] = useArenaContainerWidth<HTMLDivElement>();
+    return <div ref={ref} />;
+  }
+  laidOut(480, () => mount(<Probe />));
+  assert.deepEqual(SilentObserver.made.flatMap((one) => one.options), [{ box: 'border-box' }],
+    'an observer on the content box never fires when only the padding or the border of the box changes');
+  cleanup();
+});

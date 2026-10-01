@@ -39,7 +39,7 @@ export function arenaContainerWidth(target?: WidthTarget): Signal<number | null>
         if (next > 0) width.set(next);
       }
     });
-    observer.observe(element);
+    observer.observe(element, { box: 'border-box' });
     destroyRef.onDestroy(() => observer.disconnect());
   });
 
