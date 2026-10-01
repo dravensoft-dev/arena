@@ -1,7 +1,7 @@
 {
   "component": "ArenaSpinner",
   "slots": {
-    "root": "inline-flex",
+    "root": "inline-flex w-fit",
     "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
   },
   "variants": {

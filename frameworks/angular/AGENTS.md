@@ -201,9 +201,9 @@ not resolve. **Reach for it for a page's own layout and never for a component's*
 that branches on the viewport is wrong the first time somebody puts it in a narrow column.
 `arenaContainerWidth` reads its box inside its `afterNextRender`, and a signal a render hook
 writes makes the same tick check the view again, so the first paint is already narrow. Both
-reads take the outer width, the border box with no transform, so a padding or a transform a
-branch restyles never reaches the number. A chart measures an element of its own template,
-so a consumer class on its host cannot move the plot. So a branch may restyle the padding and border of the measured element and nothing else of its outer box, as `check:measured-box` holds.
+reads take the border box with no transform, so a padding or transform a branch restyles
+never reaches the number. A chart measures an element of its own template,
+so a consumer class on its host cannot move its plot. So a branch may restyle the padding and border of the measured element and nothing else of its outer box, as `check:measured-box` holds.
 
 **One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
 `select()`, because none of the nine contract forms is imperative and returning focus after each

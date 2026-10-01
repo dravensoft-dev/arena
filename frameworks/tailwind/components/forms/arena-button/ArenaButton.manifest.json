@@ -35,7 +35,7 @@
         "root": "w-full"
       },
       "false": {
-        "root": "w-auto"
+        "root": "w-fit"
       }
     }
   },

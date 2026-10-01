@@ -1,7 +1,7 @@
 {
   "component": "ArenaAppLogo",
   "slots": {
-    "root": "inline-flex items-center",
+    "root": "inline-flex items-center w-fit",
     "mark": "inline-flex flex-none *:block *:w-full *:h-full",
     "name": "font-display font-black tracking-tight text-ink-body",
     "dim": "text-ink-muted/(--level-ink-muted)"

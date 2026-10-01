@@ -1,7 +1,7 @@
 {
   "component": "ArenaTooltip",
   "slots": {
-    "root": "inline-flex",
+    "root": "inline-flex w-fit",
     "bubble": "arena-fade z-tooltip whitespace-nowrap px-2.5 py-1.5 rounded-control shadow-surface-floating bg-base-content text-base-100 font-mono text-ctl-xs"
   },
   "variants": {

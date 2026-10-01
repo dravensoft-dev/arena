@@ -272,8 +272,7 @@ its own document's.
 
 **A demo page is generated, one per component per layer, and never hand-written.** The two
 layers' pages differ in one path segment and take the same query string, so **a difference
-between them is a difference in the component**, which is the whole reason to generate them.
-`check:playgrounds` holds every fixture to its contract, every emitted file to a fresh run, and
+between them is a difference in the component**. `check:playgrounds` holds every fixture to its contract, every emitted file to a fresh run, and
 each layer's knob model to the other's. It opens none of them.
 
 ## What holds what, and what nothing holds
@@ -289,6 +288,7 @@ each layer's knob model to the other's. It opens none of them.
 | a component renders its manifest rather than hand-drawing | `check:appearance`, `EXEMPT` empty |
 | a manifest's states are contracted | `check:states`, states only |
 | a component's measured box is the same in every branch its width selects | `check:measured-box`, `MEASURED` |
+| an inline component declares its own width on every branch | `check:intrinsic-width`, `EXEMPT` empty |
 | a modal traps Tab in a real browser | `check:focus-trap` |
 | **a manifest's colors, sizes or slot structure still match its contract** | **nothing. Read both when either moves** |
 | the emitted pages match a fresh run, and each layer's knob model matches the other's | `check:playgrounds`, over source |

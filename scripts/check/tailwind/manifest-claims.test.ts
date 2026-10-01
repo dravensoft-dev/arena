@@ -340,7 +340,7 @@ export const CLAIMS = {
     ...Object.entries({ sm: 'h-ctl-h-sm', md: 'h-ctl-h', lg: 'h-ctl-h-lg' })
       .map(([s, cls]) => ({ chosen: { size: s }, slot: 'root', has: [cls], why: 'each size keeps its own density height rather than merging into one' })),
     { chosen: { full: true }, slot: 'root', has: ['w-full'], why: 'full stretches to the container and its absence pins the width to the content' },
-    { chosen: { full: false }, slot: 'root', has: ['w-auto'], why: 'full stretches to the container and its absence pins the width to the content' },
+    { chosen: { full: false }, slot: 'root', has: ['w-fit'], hasNot: ['w-auto', 'w-full'], why: 'full stretches to the container and its absence pins the width to the content, in a column as in a row' },
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner slot carries the reduced-motion-aware utility, which is where that answer lives' },
   ],
   ArenaCheckbox: [
@@ -361,7 +361,7 @@ export const CLAIMS = {
       .map(([size, has]) => ({ chosen: { size }, slot: 'root', has, why: 'each size keeps its own density height and a matching minimum width, so the box stays square' })),
     { chosen: { variant: 'ghost' }, slot: 'root', has: ['bg-transparent', 'border-edge-control-quiet'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
     { chosen: { variant: 'solid' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
-    { chosen: { showLabel: true }, slot: 'root', has: ['w-auto', 'gap-control'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
+    { chosen: { showLabel: true }, slot: 'root', has: ['w-fit', 'gap-control'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
     { slot: 'root', has: ['disabled:opacity-45', 'disabled:cursor-not-allowed'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
   ],
@@ -466,6 +466,7 @@ export const CLAIMS = {
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],
   ArenaBadge: [
+    { slot: 'root', has: ['w-fit'], why: 'a badge is as wide as its label in a card body, where a width of auto would stretch it' },
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
     ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'font-face-label', 'case-label', 'text-ctl-xs', 'tracking-label-role'],

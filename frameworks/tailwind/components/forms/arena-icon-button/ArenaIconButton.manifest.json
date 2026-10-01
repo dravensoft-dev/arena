@@ -1,7 +1,7 @@
 {
   "component": "ArenaIconButton",
   "slots": {
-    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-fit",
     "label": "font-body font-control text-ctl leading-ctl"
   },
   "variants": {
@@ -26,7 +26,7 @@
     },
     "showLabel": {
       "true": {
-        "root": "w-auto gap-control pl-3 pr-3.5"
+        "root": "w-fit gap-control pl-3 pr-3.5"
       },
       "false": {
         "root": "p-0 gap-0"
