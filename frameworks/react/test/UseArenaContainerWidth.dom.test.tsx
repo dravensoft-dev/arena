@@ -161,10 +161,14 @@ test('a server render answers null and says nothing', () => {
   assert.deepEqual(errors, []);
 });
 
-function report(observer: SilentObserver, width: number): void {
+function deliver(observer: SilentObserver, entry: Partial<ResizeObserverEntry>): void {
   act(() => {
-    observer.callback([{ contentRect: { width } } as ResizeObserverEntry], observer as unknown as ResizeObserver);
+    observer.callback([{ target: observer.observed[0], ...entry } as ResizeObserverEntry], observer as unknown as ResizeObserver);
   });
+}
+
+function report(observer: SilentObserver, width: number): void {
+  deliver(observer, { borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } as DOMRectReadOnly });
 }
 
 test('a target already attached when the hook mounts is measured', () => {
@@ -232,5 +236,92 @@ test('a hook that unmounts leaves nothing watching a target that outlives it', (
       'an unmounted hook still observed the box when it re-attached, which grows with every mount');
     assert.ok(SilentObserver.made.every((one) => one.disconnected), 'an observer outlived its hook');
   });
+  cleanup();
+});
+
+const HAIRLINE = '1px';
+const WIDE_INSET = '16px';
+const COMPACT_INSET = '12px';
+const EDGE_INSET = '4px';
+const HALF = '50%';
+
+const bordered = (borderWidth: string): React.CSSProperties => ({ borderStyle: 'solid', borderWidth });
+const padded = (paddingLeft: string, paddingRight: string): React.CSSProperties => ({ paddingLeft, paddingRight });
+
+function measuredAt(look: React.CSSProperties, box: number, drawn = box): number | null {
+  const seen: (number | null)[] = [];
+  function Probe() {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <div ref={ref} style={look} />;
+  }
+  laidOut(box, () => mount(<Probe />), drawn);
+  cleanup();
+  return seen.at(-1) ?? null;
+}
+
+test('a box with a border reports its outer width, so a table whose wide root carries one reads the same number in both branches', () => {
+  assert.equal(measuredAt({ boxSizing: 'border-box', ...bordered(HAIRLINE) }, 768), 768,
+    'the border was subtracted, so the wide branch read 766 and chose the narrow one at its own threshold');
+});
+
+test('two boxes whose inline padding differs report the same width, so a bar whose compact root pads less does not flip back', () => {
+  const wide = measuredAt({ boxSizing: 'border-box', ...padded(WIDE_INSET, COMPACT_INSET) }, 480);
+  const compact = measuredAt({ boxSizing: 'border-box', ...padded(COMPACT_INSET, COMPACT_INSET) }, 480);
+  assert.deepEqual([wide, compact], [480, 480], 'padding reached the number, so each branch read a different width');
+});
+
+test('a box drawn at a scale reports its layout width, so a table in an entering dialog keeps its branch when the scale ends', () => {
+  assert.equal(measuredAt({ boxSizing: 'border-box' }, 768, 752.64), 768, 'the transform reached the number');
+});
+
+test('a content-box box reports its padding and border too, so the number is the outer width whatever the box model', () => {
+  assert.equal(measuredAt({ ...padded(EDGE_INSET, EDGE_INSET), ...bordered(HAIRLINE) }, 758), 768);
+});
+
+test('a fractional width reaches the component unrounded', () => {
+  assert.equal(measuredAt({ boxSizing: 'border-box' }, 767.5), 767.5,
+    'a rounded read puts 767.5 on the wide side of 768 in the first paint and the observer moves it back');
+});
+
+test('a box with display none at its first attach stays null', () => {
+  assert.equal(measuredAt({ display: 'none' }, 768), null, 'a hidden box picked a branch before it had a width');
+});
+
+test('a hidden box whose width is a percentage stays null, since its computed width is not a length', () => {
+  assert.equal(measuredAt({ display: 'none', width: HALF }, 768), null, 'the percentage was read as pixels');
+});
+
+test('an observer entry reports its border box, not its content rect', () => {
+  const seen: (number | null)[] = [];
+  function Probe() {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <div ref={ref} />;
+  }
+  const box = 480;
+  const width = box - 4;
+  laidOut(900, () => mount(<Probe />));
+  deliver(SilentObserver.made.at(-1)!, {
+    borderBoxSize: [{ inlineSize: box, blockSize: 0 }], contentRect: { width } as DOMRectReadOnly,
+  });
+  assert.equal(seen.at(-1), box, 'the observer reported the content rect, which disagrees with the synchronous read');
+  cleanup();
+});
+
+test('an entry with no borderBoxSize is read from its target, as an engine that predates it delivers', () => {
+  const seen: (number | null)[] = [];
+  function Probe() {
+    const [ref, width] = useArenaContainerWidth<HTMLDivElement>();
+    seen.push(width);
+    return <div ref={ref} />;
+  }
+  laidOut(900, () => {
+    mount(<Probe />);
+    const observer = SilentObserver.made.at(-1)!;
+    const width = 476;
+    laidOut(480, () => deliver(observer, { contentRect: { width } as DOMRectReadOnly }));
+  });
+  assert.equal(seen.at(-1), 480, 'an entry without borderBoxSize reported nothing, or its content rect');
   cleanup();
 });

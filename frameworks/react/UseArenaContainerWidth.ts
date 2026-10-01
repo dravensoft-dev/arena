@@ -3,14 +3,17 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 
 const px = (value: string) => Number.parseFloat(value) || 0;
 
-function contentWidth(element: Element): number {
-  const outer = element.getBoundingClientRect().width;
+function outerWidth(element: Element): number {
   const view = element.ownerDocument.defaultView;
-  if (!view) return outer;
+  if (!view) return 0;
   const style = view.getComputedStyle(element);
-  return outer - px(style.paddingLeft) - px(style.paddingRight)
-    - px(style.borderLeftWidth) - px(style.borderRightWidth);
+  const width = style.width.endsWith('px') ? px(style.width) : 0;
+  if (width === 0 || style.boxSizing === 'border-box') return width;
+  return width + px(style.paddingLeft) + px(style.paddingRight)
+    + px(style.borderLeftWidth) + px(style.borderRightWidth);
 }
+
+const entryWidth = (entry: ResizeObserverEntry) => entry.borderBoxSize?.[0]?.inlineSize ?? outerWidth(entry.target);
 
 function interceptCurrent<T>(ref: { current: T | null }, onSet: (next: T | null) => void): void {
   const own = Object.getOwnPropertyDescriptor(ref, 'current');
@@ -42,11 +45,14 @@ function watchWidth<T extends Element>(
   const observe = (next: T | null) => {
     disconnect();
     if (!next || !live) return;
-    const now = contentWidth(next);
+    const now = outerWidth(next);
     if (now > 0) report(now);
     if (typeof ResizeObserver === 'undefined') return;
     observer = new ResizeObserver((entries) => {
-      for (const entry of entries) if (entry.contentRect.width > 0) report(entry.contentRect.width);
+      for (const entry of entries) {
+        const width = entryWidth(entry);
+        if (width > 0) report(width);
+      }
     });
     observer.observe(next);
   };

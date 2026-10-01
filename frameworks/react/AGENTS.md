@@ -399,4 +399,4 @@ ref and returns it, and takes one when the caller already holds the box to measu
 inner panel does not have to become a component to be measured. It redefines the ref's `current`
 as an accessor whose setter reads the box, so it measures when React assigns it in the commit
 phase, before the paint, with no `useLayoutEffect`. A `current` it cannot redefine, a sealed
-`createRef`, is measured after the paint. A 0 is never reported, so a hidden box keeps its last width.
+`createRef`, is measured after the paint. A 0 is never reported, so a hidden box keeps its last width. Both reads take the outer width, the border box with no transform: the synchronous one from the computed width and the observer from its border-box size, so a transform or a padding the branch restyles never reaches the number.
