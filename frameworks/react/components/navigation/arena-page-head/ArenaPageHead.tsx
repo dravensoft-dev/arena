@@ -4,8 +4,12 @@ import manifest from './ArenaPageHead.classes.generated.ts';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
 
 import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generated';
+import type { ArenaPageHeadClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaPageHeadProps {
+  className?: ArenaPageHeadClass;
+
 
   /** The page title. Required: a page head with no title is a bug, not a state. */
   title: string;
@@ -26,7 +30,7 @@ export interface ArenaPageHeadProps {
 
 const arenaPageHeadStyles = arenaStyles(manifest);
 
-export function ArenaPageHead({ title, headingLevel = 'h1', subtitle, actions, align = 'start' }: ArenaPageHeadProps) {
+export function ArenaPageHead({ className, title, headingLevel = 'h1', subtitle, actions, align = 'start' }: ArenaPageHeadProps) {
   if (!title) throw new Error('ArenaPageHead: `title` is required');
   if (headingLevel === 'none') {
     throw new Error('ArenaPageHead: `headingLevel` cannot be none, because `title` is required and is the page\'s own title');
@@ -37,7 +41,7 @@ export function ArenaPageHead({ title, headingLevel = 'h1', subtitle, actions, a
   const styles = arenaPageHeadStyles({ narrow, align });
 
   return (
-    <div ref={ref} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaPageHead', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
         <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
         {subtitle && <p className={styles.subtitle()} data-arena-part={manifest.parts.subtitle}>{subtitle}</p>}

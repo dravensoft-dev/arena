@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaAppLogo.classes.generated.ts';
 
 import type { ArenaLogoSize, ArenaOrientation } from '../../../Api.generated';
+import type { ArenaAppLogoClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaAppLogoProps {
+  className?: ArenaAppLogoClass;
+
 
   /** Both halves at once: the mark's slot and the wordmark. */
   size?: ArenaLogoSize;
@@ -24,11 +28,11 @@ export interface ArenaAppLogoProps {
 
 const logoStyles = arenaStyles(manifest);
 
-export function ArenaAppLogo({ size = 'md', orientation = 'horizontal', mark, name, dim }: ArenaAppLogoProps) {
+export function ArenaAppLogo({ className, size = 'md', orientation = 'horizontal', mark, name, dim }: ArenaAppLogoProps) {
   if (!mark || !name) throw new Error('ArenaAppLogo: `mark` and `name` are required');
   const styles = logoStyles({ size, orientation });
   return (
-    <span className={styles.root()} data-arena-part={manifest.parts.root}>
+    <span className={arenaClassName('ArenaAppLogo', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <span className={styles.mark()} data-arena-part={manifest.parts.mark} data-arena-boundary="">{mark}</span>
       <span className={styles.name()} data-arena-part={manifest.parts.name}>
         {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim}>{dim}</span>}

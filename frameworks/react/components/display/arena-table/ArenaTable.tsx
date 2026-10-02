@@ -13,10 +13,14 @@ import type {
   ArenaTableSort, ArenaTableSortControl,
 } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaTableClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaTableColumn };
 
 export interface ArenaTableProps {
+  className?: ArenaTableClass;
+
 
   /** Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". */
   label: string;
@@ -75,7 +79,7 @@ const arenaSortOptions = (columns: readonly ArenaTableColumn[]): ArenaSelectOpti
 
 const arenaTableStyles = arenaStyles(manifest);
 
-export function ArenaTable({
+export function ArenaTable({ className, 
   columns, children, empty, responsive = true, label,
   sort, sortControl = 'auto', onSortChange, page, slice, pageControl = 'auto', onPageChange,
 }: ArenaTableProps) {
@@ -204,7 +208,7 @@ export function ArenaTable({
   };
 
   return (
-    <div ref={ref} className={arenaTableStyles({ narrow }).root()} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root}>
       {narrow && sortBar && (
         <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
           <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>

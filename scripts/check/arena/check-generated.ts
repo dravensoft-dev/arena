@@ -77,6 +77,8 @@ export const UNTRACKED = {
     + 'the charts and ArenaTable share.',
   'frameworks/react/UseArenaContainerWidth.generated.js': 'the same, for the container-width hook.',
   'frameworks/react/UseDialogModal.generated.js': 'the same, for the modal focus helper.',
+  'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',
+  'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary each component takes.',
   'frameworks/react/components/**/*.manifest.generated.ts':
     'the shared recipe for one component, emitted into the layer that renders it. The manifest is '
     + 'authored once as JSON under frameworks/tailwind/ and emitted per layer for the reason the '
@@ -149,6 +151,9 @@ export const UNTRACKED = {
     + 'import never crosses a boundary. It replaces the two runtime dependencies outright.',
   'frameworks/angular/ArenaStyles.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/ArenaStyles.generated.js': 'the compiled sibling of that, which a demo page loads.',
+  'frameworks/react/Vocabulary.generated.ts':
+    'the vocabulary class each component takes, as a type and as the runtime list the className '
+    + 'filter keeps, emitted from the families and the manifests\' answers.',
 };
 
 function walk(dir: string, root: string): string[] {

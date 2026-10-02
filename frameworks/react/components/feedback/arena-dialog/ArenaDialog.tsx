@@ -5,8 +5,12 @@ import manifest from './ArenaDialog.classes.generated.ts';
 import { useArenaDialogModal } from '../../../UseDialogModal.ts';
 import { arenaReadBreakpoint, useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
 import type { ArenaBreakpoint } from '../../../Api.generated';
+import type { ArenaDialogClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaDialogProps {
+  className?: ArenaDialogClass;
+
 
   /** Whether the dialog is shown. The host owns it. */
   open: boolean;
@@ -43,7 +47,7 @@ function arenaIsCssWidth(value: string): boolean {
   return probe.style.width !== '';
 }
 
-export function ArenaDialog({ open, onClose, title, eyebrow, children, footer, width, fillBelow }: ArenaDialogProps) {
+export function ArenaDialog({ className, open, onClose, title, eyebrow, children, footer, width, fillBelow }: ArenaDialogProps) {
   useEffect(() => {
     if (width === undefined || arenaIsCssWidth(width)) return;
       arenaWarnOnce(
@@ -65,7 +69,7 @@ export function ArenaDialog({ open, onClose, title, eyebrow, children, footer, w
   if (!open) return null;
   return (
     <DialogFrame onClose={onClose} onKeyDown={onKeyDown} panelRef={panelRef} titleId={titleId} title={title}
-      eyebrow={eyebrow} footer={footer} width={width} fillBelow={fillBelow}>
+      eyebrow={eyebrow} footer={footer} width={width} fillBelow={fillBelow} className={className}>
       {children}
     </DialogFrame>
   );
@@ -81,15 +85,16 @@ interface DialogFrameProps {
   footer?: React.ReactNode;
   width?: string;
   fillBelow?: ArenaBreakpoint;
+  className?: ArenaDialogClass;
   children?: React.ReactNode;
 }
 
-function DialogFrame({ onClose, onKeyDown, panelRef, titleId, title, eyebrow, footer, width, fillBelow, children }: DialogFrameProps) {
+function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, eyebrow, footer, width, fillBelow, children }: DialogFrameProps) {
   const [scrimRef, measured] = useArenaContainerWidth<HTMLDivElement>();
   const fill = fillBelow !== undefined && measured !== null && measured < arenaReadBreakpoint(fillBelow);
   const styles = arenaDialogStyles({ open: true, fill });
   return (
-    <div ref={scrimRef} onClick={onClose} className={styles.scrim()} data-arena-part={manifest.parts.scrim}>
+    <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className)} data-arena-part={manifest.parts.scrim}>
       <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
         className={styles.panel()} data-arena-part={manifest.parts.panel} style={{ width: fill ? undefined : width }}>

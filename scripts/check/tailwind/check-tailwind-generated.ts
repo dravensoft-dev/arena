@@ -3,7 +3,7 @@ import { relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import {
   buildTailwind, buildManifestModules, buildComponentCss, buildClassModules,
-  buildStylesRuntime, buildVocabularyCss, generatedPath, BANNER, node as tailwindNode,
+  buildStylesRuntime, buildVocabularyCss, buildVocabularyTypes, generatedPath, BANNER, node as tailwindNode,
 } from '../../build/tailwind/build-tailwind.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -38,7 +38,7 @@ export function drift(opts = {}) {
 
   const emitted = [
     ...buildManifestModules(opts), ...buildComponentCss(opts),
-    ...buildClassModules(opts), ...buildStylesRuntime(opts), ...buildVocabularyCss(opts),
+    ...buildClassModules(opts), ...buildStylesRuntime(opts), ...buildVocabularyCss(opts), ...buildVocabularyTypes(opts),
   ];
   for (const [filePath, content] of emitted) {
     let committedFile;

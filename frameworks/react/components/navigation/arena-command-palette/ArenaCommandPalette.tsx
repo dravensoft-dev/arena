@@ -7,10 +7,14 @@ import manifest from './ArenaCommandPalette.classes.generated.ts';
 import type { ArenaCommand } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaCommandPaletteClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaCommand };
 
 export interface ArenaCommandPaletteProps {
+  className?: ArenaCommandPaletteClass;
+
 
   /** Whether the palette is shown. Closed renders nothing. */
   open: boolean;
@@ -65,7 +69,7 @@ export function arenaCommandGroups(ordered: readonly ArenaCommand[]): ArenaComma
   return groups;
 }
 
-export function ArenaCommandPalette({ open, commands, placeholder, maxResults, onClose, onRun }: ArenaCommandPaletteProps) {
+export function ArenaCommandPalette({ className, open, commands, placeholder, maxResults, onClose, onRun }: ArenaCommandPaletteProps) {
   const locale = useArenaLocale();
   const hint = placeholder ?? locale.commandPalettePlaceholder;
   if (open == null) throw new Error('ArenaCommandPalette: `open` is required');
@@ -102,7 +106,7 @@ export function ArenaCommandPalette({ open, commands, placeholder, maxResults, o
   };
   const styles = paletteStyles({ open: true });
   return (
-    <div onClick={onClose} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div ref={panelRef} onKeyDown={onPanelKeyDown}
         onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={locale.commandPaletteDialog}
         className={styles.panel()} data-arena-part={manifest.parts.panel}>

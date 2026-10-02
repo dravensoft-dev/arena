@@ -14,7 +14,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import {
-  CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports,
+  CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports, vocabularyTypes,
 } from './build-tailwind.ts';
 
 const WINDOWS_ROOT = 'D:\\a\\arena\\arena';
@@ -96,4 +96,22 @@ test('a tree with no family emits no vocabulary sheet and imports none', () => {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('each component gets every context class and the box classes its manifest answers, as a type and as a runtime list', () => {
+  const families = [
+    { family: 'fill', reach: 'box', description: 'd', default: 'arena-fit', variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } },
+    { family: 'witness', reach: 'context', description: 'd', default: 'arena-witness-off', variants: { 'arena-witness-on': '[--arena-witness-mark:1]', 'arena-witness-off': '[--arena-witness-mark:0]' } },
+  ] as const;
+  const text = vocabularyTypes([...families], new Map([['ArenaButton', ['fill']]]), ['ArenaButton', 'ArenaCard'], 'https://x/frameworks/VOCABULARY.md');
+  assert.match(text, /export type ArenaContextClass = 'arena-witness-off' \| 'arena-witness-on';/);
+  assert.match(text, /export type ArenaFillClass = 'arena-fill' \| 'arena-fit';/);
+  assert.match(text, /export type ArenaButtonClass = ArenaContextClass \| ArenaFillClass;/);
+  assert.match(text, /export type ArenaCardClass = ArenaContextClass;/);
+  assert.match(text, /"ArenaButton": \["arena-witness-off", "arena-witness-on", "arena-fill", "arena-fit"\]/);
+  assert.match(text, /"ArenaCard": \["arena-witness-off", "arena-witness-on"\]/);
+});
+
+test('with no context family the context union is never, so a component answering nothing takes no class', () => {
+  assert.match(vocabularyTypes([], new Map(), ['ArenaCard'], 'p'), /export type ArenaContextClass = never;/);
 });

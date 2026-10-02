@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaInput.classes.generated.ts';
 
 import type { ArenaInputType, ArenaValidateOn } from '../../../Api.generated';
+import type { ArenaInputClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaInputProps {
+  className?: ArenaInputClass;
+
 
   /** Field label above the control. */
   label?: string;
@@ -88,7 +92,7 @@ export interface ArenaInputHandle {
 }
 
 export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function ArenaInput({
-  label, id, hint, error, valid = false, required = false,
+  className, label, id, hint, error, valid = false, required = false,
   validate, validateOn = 'blur', type = 'text',
   icon, prefix, value, disabled = false, readOnly = false,
   placeholder, name, autoComplete, min, max, step, maxLength, pattern,
@@ -117,7 +121,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   });
 
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaInput', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {label && (
         <label htmlFor={inputId} className={styles.label()} data-arena-part={manifest.parts.label}>
           {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required}>*</span>}

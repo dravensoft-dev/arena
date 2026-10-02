@@ -17,8 +17,12 @@ import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.gen
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaBarChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBarChartProps {
+  className?: ArenaBarChartClass;
+
 
   /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. */
   labels: readonly string[];
@@ -49,7 +53,7 @@ export interface ArenaBarChartProps {
 }
 
 
-export function ArenaBarChart({
+export function ArenaBarChart({ className, 
   labels, series, label, stack = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaBarChartProps) {
@@ -100,7 +104,7 @@ export function ArenaBarChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaBarChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
       <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name}
         style={{ display: 'block', overflow: 'visible' }}>

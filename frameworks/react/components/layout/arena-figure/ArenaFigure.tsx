@@ -1,8 +1,12 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaFigure.classes.generated.ts';
+import type { ArenaFigureClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaFigureProps {
+  className?: ArenaFigureClass;
+
 
   /** The picture itself, as the element you wrote: an img, a video, a canvas. It is clipped to the frame and meets its edges the way the style plugin says, which is why nothing here takes a source or an alternative text. Those belong to your element, and an image's alternative is editorial in a way nothing can derive. */
   media?: React.ReactNode;
@@ -22,13 +26,13 @@ export interface ArenaFigureProps {
 
 const arenaFigureStyles = arenaStyles(manifest);
 
-export function ArenaFigure({
+export function ArenaFigure({ className, 
   media, fallback, overlay, caption, ratio = 'var(--aspect-media)',
 }: ArenaFigureProps) {
   const styles = arenaFigureStyles();
 
   return (
-    <figure className={styles.root()} data-arena-part={manifest.parts.root}>
+    <figure className={arenaClassName('ArenaFigure', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.frame()} data-arena-part={manifest.parts.frame} style={{ aspectRatio: ratio }}>
         {media && <div className={styles.media()} data-arena-part={manifest.parts.media} data-arena-boundary="">{media}</div>}
         {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback} data-arena-boundary="">{fallback}</div>}

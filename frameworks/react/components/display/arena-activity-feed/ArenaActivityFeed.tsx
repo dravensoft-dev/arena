@@ -4,10 +4,14 @@ import { arenaFocusableElements } from '../../../UseDialogModal.ts';
 import type { ArenaActivityItem } from '../../../Api.generated';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaActivityFeed.classes.generated.ts';
+import type { ArenaActivityFeedClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaActivityItem };
 
 export interface ArenaActivityFeedProps {
+  className?: ArenaActivityFeedClass;
+
 
   /** Names the feed for assistive technology. Required, and guarded at runtime: nothing can derive it, and a feed is a landmark a reader navigates BY, so say what the events are about ("Deployment activity"), never "Activity feed". */
   label: string;
@@ -26,7 +30,7 @@ type ArenaTone = NonNullable<ArenaActivityItem['tone']>;
 const toneOf = (tone: string | undefined): ArenaTone | undefined =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : undefined);
 
-export function ArenaActivityFeed({ items, label, busy = false }: ArenaActivityFeedProps) {
+export function ArenaActivityFeed({ className, items, label, busy = false }: ArenaActivityFeedProps) {
   if (!label?.trim()) throw new Error('ArenaActivityFeed: `label` is required');
   if (items == null) throw new Error('ArenaActivityFeed: `items` is required');
 
@@ -62,7 +66,7 @@ export function ArenaActivityFeed({ items, label, busy = false }: ArenaActivityF
   return (
     <ul ref={feedRef} role="feed" aria-label={label} aria-busy={busy ? 'true' : 'false'}
       onKeyDown={onKeyDown}
-      className={feedStyles({}).root()} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaActivityFeed', feedStyles({}).root(), className)} data-arena-part={manifest.parts.root}>
       {items.map((item, i) => (
         <li key={item.id != null ? item.id : i}
           role="article" tabIndex={0}

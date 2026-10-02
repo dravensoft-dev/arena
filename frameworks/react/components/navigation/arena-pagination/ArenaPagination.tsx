@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPagination.classes.generated.ts';
 import { arenaPageWindow } from './PaginationWindow.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaPaginationClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaPaginationProps {
+  className?: ArenaPaginationClass;
+
 
   /** The current page, 1-based. */
   page: number;
@@ -22,7 +26,7 @@ export interface ArenaPaginationProps {
 
 const arenaPaginationStyles = arenaStyles(manifest);
 
-export function ArenaPagination({ page, pageCount, ariaLabel, onChange }: ArenaPaginationProps) {
+export function ArenaPagination({ className, page, pageCount, ariaLabel, onChange }: ArenaPaginationProps) {
   const locale = useArenaLocale();
 
   if (!ariaLabel?.trim()) throw new Error('ArenaPagination: `ariaLabel` is required');
@@ -37,7 +41,7 @@ export function ArenaPagination({ page, pageCount, ariaLabel, onChange }: ArenaP
     </button>
   );
   return (
-    <nav aria-label={ariaLabel} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaPagination', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {nav(-1, page <= 1)}
       {arenaPageWindow(page, pageCount).map((p, i) =>
         p === '\u2026'

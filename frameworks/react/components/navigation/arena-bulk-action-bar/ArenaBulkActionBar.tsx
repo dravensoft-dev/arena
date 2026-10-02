@@ -6,10 +6,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBulkActionBar.classes.generated.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhraseParts } from '../../../Phrase.ts';
+import type { ArenaBulkActionBarClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaBulkAction };
 
 export interface ArenaBulkActionBarProps {
+  className?: ArenaBulkActionBarClass;
+
 
   /** How many rows are selected. Zero renders no bar at all. */
   count: number;
@@ -36,7 +40,7 @@ export interface ArenaBulkActionBarProps {
 
 const barStyles = arenaStyles(manifest);
 
-export function ArenaBulkActionBar({ count, noun, actions, layout = 'auto', onRun, onClear, clearable = true }: ArenaBulkActionBarProps) {
+export function ArenaBulkActionBar({ className, count, noun, actions, layout = 'auto', onRun, onClear, clearable = true }: ArenaBulkActionBarProps) {
   const locale = useArenaLocale();
   const counted = noun ?? locale.bulkActionBarNoun;
   if (count == null) throw new Error('ArenaBulkActionBar: `count` is required');
@@ -70,7 +74,7 @@ export function ArenaBulkActionBar({ count, noun, actions, layout = 'auto', onRu
   return (
     <div role="toolbar" aria-label={locale.bulkActionBarLabel}
       ref={barRef} onKeyDown={onKeyDown}
-      className={styles.root()} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaBulkActionBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <span className={styles.count()} data-arena-part={manifest.parts.count}>
         {arenaPhraseParts(locale.bulkActionBarCount).map((part, i) => ('slot' in part && part.slot === 'count'
           ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number}>{count}</b>

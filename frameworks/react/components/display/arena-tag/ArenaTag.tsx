@@ -5,8 +5,12 @@ import { arenaCatColor } from '../../../DataVisuals.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTag.classes.generated.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaTagClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaTagProps {
+  className?: ArenaTagClass;
+
   /** The tag's label. */
   children?: React.ReactNode;
   /** The tag's emphasis colour. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. */
@@ -24,11 +28,11 @@ export interface ArenaTagProps {
 
 const arenaTagStyles = arenaStyles(manifest);
 
-export function ArenaTag({ children, tone = 'neutral', colorId, removable = false, disabled = false, onRemove }: ArenaTagProps) {
+export function ArenaTag({ className, children, tone = 'neutral', colorId, removable = false, disabled = false, onRemove }: ArenaTagProps) {
   const locale = useArenaLocale();
   const styles = arenaTagStyles({ tone: colorId ? 'identity' : tone, disabled });
   return (
-    <span className={styles.root()} data-arena-part={manifest.parts.root} data-arena-boundary=""
+    <span className={arenaClassName('ArenaTag', styles.root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
       style={colorId ? { '--arena-tag-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
       <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
       {children}

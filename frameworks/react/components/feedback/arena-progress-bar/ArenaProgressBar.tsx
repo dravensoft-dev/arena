@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaProgressBar.classes.generated.ts';
 
 import type { ArenaControlSize, ArenaProgressShape, ArenaProgressTone } from '../../../Api.generated';
+import type { ArenaProgressBarClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaProgressBarProps {
+  className?: ArenaProgressBarClass;
+
 
   /** What sits in the middle of a ring, in place of the percentage: a glyph, a mark, or the control the ring measures. A bar has no middle, so a bar draws nothing for it. The ring's own `progressbar` element is the drawing rather than the box around it, because that role's children are presentational and a control projected inside it would be drawn and never announced; here it is a sibling of the meter and keeps everything it came with. */
   children?: React.ReactNode;
@@ -40,7 +44,7 @@ const RING_CENTRE = 50;
 const RING_RADIUS = 42;
 const RING_SWEEP = 25;
 
-export function ArenaProgressBar({ children, progressPercentage = 0, indeterminate = false, tone = 'accent', label, showLabel = true, showPercentage = true, size = 'md', shape = 'linear' }: ArenaProgressBarProps) {
+export function ArenaProgressBar({ className, children, progressPercentage = 0, indeterminate = false, tone = 'accent', label, showLabel = true, showPercentage = true, size = 'md', shape = 'linear' }: ArenaProgressBarProps) {
   if (!label) throw new Error('ArenaProgressBar: `label` is required (it names what is progressing, and nothing can derive that)');
   const styles = progressStyles({ shape, tone, size });
   const pct = Math.max(0, Math.min(100, Math.round(progressPercentage)));
@@ -56,7 +60,7 @@ export function ArenaProgressBar({ children, progressPercentage = 0, indetermina
 
   if (shape === 'radial') {
     return (
-      <div className={styles.root()} data-arena-part={manifest.parts.root}>
+      <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
         <div {...live} className={styles.ring()} data-arena-part={manifest.parts.ring}>
           <svg {...meter} className={styles.ringGeometry()} data-arena-part={manifest.parts.ringGeometry} viewBox="0 0 100 100">
             <circle className={styles.ringTrack()} data-arena-part={manifest.parts.ringTrack}
@@ -76,7 +80,7 @@ export function ArenaProgressBar({ children, progressPercentage = 0, indetermina
   }
 
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {(showLabel || showValue) && (
         <div className={styles.head()} data-arena-part={manifest.parts.head}>
           {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}

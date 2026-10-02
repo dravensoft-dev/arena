@@ -6,8 +6,12 @@ import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
+import type { ArenaCalendarEventClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaCalendarEventProps {
+  className?: ArenaCalendarEventClass;
+
 
   /** Stable identity, so a host can switch on it rather than on the title. */
   id: string;
@@ -62,7 +66,7 @@ const chipStyles = arenaStyles(manifest);
 export const ArenaCalendarEvent = React.forwardRef<
 HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 >(function ArenaCalendarEvent({
-  id, title, start, end, colorId, onClick, interactive = false, disabled = false,
+  className, id, title, start, end, colorId, onClick, interactive = false, disabled = false,
   actionsEnabled = false, actions, details = [],
   box, domId, color, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
@@ -160,7 +164,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
         }
       } : undefined}
       id={domId}
-      className={styles.chip()} data-arena-part={manifest.parts.chip}
+      className={arenaClassName('ArenaCalendarEvent', styles.chip(), className)} data-arena-part={manifest.parts.chip}
       style={{ ...box,
         background: arenaCatTint(ink),
         borderLeftColor: ink }}>

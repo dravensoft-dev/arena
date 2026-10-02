@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaScroller.classes.generated.ts';
 
 import type { ArenaScrollerBehaviour } from '../../../Api.generated';
+import type { ArenaScrollerClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaScrollerProps {
+  className?: ArenaScrollerClass;
+
 
   /** Names the row to assistive technology, and nothing else supplies it: a group announced as a group tells a reader that focus moved and nothing about where it landed. Required, and guarded at runtime after trimming, the shape ArenaTable.label carries for the same reason, since the value the guard exists to catch is a present and useless one. */
   label: string;
@@ -24,7 +28,7 @@ const BEHAVIOURS = Object.keys(manifest.variants.behaviour);
 const behaviourOf = (behaviour: string | undefined): ArenaScrollerBehaviour =>
   (behaviour && BEHAVIOURS.includes(behaviour) ? behaviour as ArenaScrollerBehaviour : 'snap');
 
-export function ArenaScroller({
+export function ArenaScroller({ className, 
   label, children, itemWidth = 'var(--grid-min)', behaviour = 'snap',
 }: ArenaScrollerProps) {
   if (!label?.trim()) {
@@ -36,7 +40,7 @@ export function ArenaScroller({
 
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root()} data-arena-part={manifest.parts.root} data-arena-boundary=""
+      className={arenaClassName('ArenaScroller', arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
       style={{ '--arena-scroller-item': itemWidth } as React.CSSProperties}>
       {children}
     </div>

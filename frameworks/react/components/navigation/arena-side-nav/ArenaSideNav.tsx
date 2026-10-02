@@ -2,8 +2,12 @@ import React from 'react';
 import { arenaInjectInto } from './SideNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSideNav.classes.generated.ts';
+import type { ArenaSideNavClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSideNavProps {
+  className?: ArenaSideNavClass;
+
 
   /** The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `nav` are the parent's to settle, and none of it is a member here. */
   children?: React.ReactNode;
@@ -27,11 +31,11 @@ export interface ArenaSideNavProps {
 
 const arenaSideNavStyles = arenaStyles(manifest);
 
-export function ArenaSideNav({ children, active, ariaLabel, indentStep = 3, onNav, collapsed = false }: ArenaSideNavProps) {
+export function ArenaSideNav({ className, children, active, ariaLabel, indentStep = 3, onNav, collapsed = false }: ArenaSideNavProps) {
 
   if (!ariaLabel?.trim()) throw new Error('ArenaSideNav: `ariaLabel` is required');
   return (
-    <nav aria-label={ariaLabel} className={arenaSideNavStyles({ collapsed }).root()} data-arena-part={manifest.parts.root} data-arena-boundary="">
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaSideNav', arenaSideNavStyles({ collapsed }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
       {arenaInjectInto(children, { depth: 0, activeId: active, indentStep, onActivate: onNav, collapsed })}
     </nav>
   );

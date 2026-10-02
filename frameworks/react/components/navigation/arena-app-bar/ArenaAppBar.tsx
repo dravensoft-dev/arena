@@ -1,8 +1,12 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaAppBar.classes.generated.ts';
+import type { ArenaAppBarClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaAppBarProps {
+  className?: ArenaAppBarClass;
+
 
   /** The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home; the bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. */
   brand?: React.ReactNode;
@@ -20,11 +24,11 @@ export interface ArenaAppBarProps {
 const arenaAppBarStyles = arenaStyles(manifest);
 const PAGE = 'var(--container-max)';
 
-export function ArenaAppBar({ brand, nav, actions, sticky = true }: ArenaAppBarProps) {
+export function ArenaAppBar({ className, brand, nav, actions, sticky = true }: ArenaAppBarProps) {
   const styles = arenaAppBarStyles({ sticky });
 
   return (
-    <header className={styles.root()} data-arena-part={manifest.parts.root}>
+    <header className={arenaClassName('ArenaAppBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.band()} data-arena-part={manifest.parts.band} style={{ maxWidth: PAGE }}>
         {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} data-arena-boundary="">{brand}</div>}
         {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav} data-arena-boundary="">{nav}</div>}

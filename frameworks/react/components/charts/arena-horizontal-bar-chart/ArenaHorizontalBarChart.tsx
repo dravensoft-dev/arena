@@ -17,8 +17,12 @@ import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.gen
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaHorizontalBarChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaHorizontalBarChartProps {
+  className?: ArenaHorizontalBarChartClass;
+
 
   /** One label per category, in the same order as every series' `values`. They run down the left edge, in the gutter chart.pad-category holds, and a name longer than that gutter is truncated rather than pushed into the plot. */
   labels: readonly string[];
@@ -46,7 +50,7 @@ export interface ArenaHorizontalBarChartProps {
 }
 
 
-export function ArenaHorizontalBarChart({
+export function ArenaHorizontalBarChart({ className, 
   labels, series, label, stack = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaHorizontalBarChartProps) {
@@ -87,7 +91,7 @@ export function ArenaHorizontalBarChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaHorizontalBarChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}

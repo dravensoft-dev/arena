@@ -18,8 +18,12 @@ import type { ArenaLinePoint } from '../ChartScales.ts';
 import type { ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaScatterChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaScatterChartProps {
+  className?: ArenaScatterChartClass;
+
 
   /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against: that is what ArenaPointSeries is for and why it is a separate type from ArenaSeries. The ramp clamps at its last slot rather than cycling. */
   series: readonly ArenaPointSeries[];
@@ -53,7 +57,7 @@ export interface ArenaScatterChartProps {
 }
 
 
-export function ArenaScatterChart({
+export function ArenaScatterChart({ className, 
   series, label, xLabel, yLabel, sizeLabel, sizeLegend = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaScatterChartProps) {
@@ -123,7 +127,7 @@ export function ArenaScatterChart({
   const active = hover === null ? null : marks[hover] ?? null;
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaScatterChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}

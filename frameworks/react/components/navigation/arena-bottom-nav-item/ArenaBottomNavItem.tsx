@@ -4,8 +4,12 @@ import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
 import type { ArenaBottomNavInjected } from '../arena-bottom-nav/BottomNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated.ts';
+import type { ArenaBottomNavItemClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBottomNavItemProps {
+  className?: ArenaBottomNavItemClass;
+
 
   /** Identifies the destination. ArenaBottomNav.active names one of these, and the item whose id matches is the one marked aria-current="page". Required, and guarded with a falsy check rather than an absence check: a blank id can never match and is an omission wearing a value. */
   id: string;
@@ -28,7 +32,7 @@ export interface ArenaBottomNavItemProps {
 
 const arenaBottomNavStyles = arenaStyles(manifest);
 
-export function ArenaBottomNavItem({
+export function ArenaBottomNavItem({ className, 
   id, label, icon, badge, href, disabled = false,
   activeId, onActivate,
 }: ArenaBottomNavItemProps & Partial<ArenaBottomNavInjected>) {
@@ -51,7 +55,7 @@ export function ArenaBottomNavItem({
       }
       if (onActivate) onActivate(id);
     },
-    className: styles.item(),
+    className: arenaClassName('ArenaBottomNavItem', styles.item(), className),
     'data-arena-part': manifest.parts.item,
   };
 

@@ -17,8 +17,12 @@ import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaRadarChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaRadarChartProps {
+  className?: ArenaRadarChartClass;
+
 
   /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
   labels: readonly string[];
@@ -46,7 +50,7 @@ export interface ArenaRadarChartProps {
 }
 
 
-export function ArenaRadarChart({
+export function ArenaRadarChart({ className, 
   labels, series, label, fill = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaRadarChartProps) {
@@ -91,7 +95,7 @@ export function ArenaRadarChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaRadarChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}

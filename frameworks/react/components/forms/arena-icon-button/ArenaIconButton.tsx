@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaIconButton.classes.generated.ts';
 
 import type { ArenaButtonType, ArenaControlSize, ArenaIconButtonVariant } from '../../../Api.generated';
+import type { ArenaIconButtonClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaIconButtonProps {
+  className?: ArenaIconButtonClass;
+
 
   /** Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. */
   icon: string;
@@ -49,7 +53,7 @@ export interface ArenaIconButtonProps {
 
 const arenaIconButtonStyles = arenaStyles(manifest);
 
-export function ArenaIconButton({
+export function ArenaIconButton({ className, 
   icon, label, size = 'md', variant = 'ghost', pressed, showLabel = false, disabled = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaIconButtonProps) {
@@ -61,7 +65,7 @@ export function ArenaIconButton({
 
       tabIndex={tabStop ? undefined : -1}
       aria-label={label} aria-pressed={pressed} title={showLabel ? undefined : label} disabled={disabled}
-      className={styles.root()} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaIconButton', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <i className={icon} aria-hidden="true" />
       {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
     </button>

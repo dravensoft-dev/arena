@@ -9,10 +9,14 @@ import { useArenaDialogModal } from '../../../UseDialogModal.ts';
 import type { ArenaOnboardingStep, ArenaOnboardingAnchor } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaOnboardingClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaOnboardingStep };
 
 export interface ArenaOnboardingProps {
+  className?: ArenaOnboardingClass;
+
 
   /** Whether the tour is shown. Closed renders nothing, scrim included. */
   open: boolean;
@@ -42,7 +46,7 @@ export interface ArenaOnboardingProps {
 
 const arenaOnboardingStyles = arenaStyles(manifest);
 
-export function ArenaOnboarding({ open, steps, index = 0, onNext, onBack, onSkip, onDone, anchor }: ArenaOnboardingProps) {
+export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onBack, onSkip, onDone, anchor }: ArenaOnboardingProps) {
   const locale = useArenaLocale();
   if (open == null) throw new Error('ArenaOnboarding: `open` is required');
   if (steps == null) throw new Error('ArenaOnboarding: `steps` is required');
@@ -69,7 +73,7 @@ export function ArenaOnboarding({ open, steps, index = 0, onNext, onBack, onSkip
 
   const styles = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true });
   return (
-    <div onClick={onSkip} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div onClick={onSkip} className={arenaClassName('ArenaOnboarding', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div role="dialog" aria-modal="true" aria-label={label}
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()}
         className={styles.panel()} data-arena-part={manifest.parts.panel} style={pos}>

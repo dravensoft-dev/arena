@@ -3,9 +3,13 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSelect.classes.generated.ts';
 
 import type { ArenaSelectOption } from '../../../Api.generated';
+import type { ArenaSelectClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaSelectOption };
 export interface ArenaSelectProps {
+  className?: ArenaSelectClass;
+
 
   /** Field label above the control. */
   label?: string;
@@ -47,7 +51,7 @@ export interface ArenaSelectProps {
 
 const arenaSelectStyles = arenaStyles(manifest);
 
-export function ArenaSelect({
+export function ArenaSelect({ className, 
   label, placeholder, options = [], value, onChange, disabled = false, required = false,
   hint, error, valid = false, icon, name,
 }: ArenaSelectProps) {
@@ -62,7 +66,7 @@ export function ArenaSelect({
   });
 
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaSelect', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label}>{label}</label>}
       <div className={styles.wrap()} data-arena-part={manifest.parts.wrap}>
         {icon && <i className={`${icon} ${styles.iconWrap()}`} data-arena-part={manifest.parts.iconWrap} aria-hidden="true" />}

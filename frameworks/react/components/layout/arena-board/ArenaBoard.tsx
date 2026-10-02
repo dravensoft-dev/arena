@@ -1,8 +1,12 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBoard.classes.generated.ts';
+import type { ArenaBoardClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBoardProps {
+  className?: ArenaBoardClass;
+
 
   /** Names the board to assistive technology: what the columns are columns OF. "Sprint 32 tasks by status", never "Board". Required and guarded at runtime after trimming, the shape ArenaScroller.label carries for the same reason, since a group announced as a group tells a reader that focus moved and nothing about where it landed. */
   label: string;
@@ -17,12 +21,12 @@ export interface ArenaBoardProps {
 
 const boardStyles = arenaStyles(manifest);
 
-export function ArenaBoard({ label, children, minColumn = 'var(--grid-min)' }: ArenaBoardProps) {
+export function ArenaBoard({ className, label, children, minColumn = 'var(--grid-min)' }: ArenaBoardProps) {
   if (!label?.trim()) throw new Error('ArenaBoard: `label` is required (it names what the columns are columns of, and nothing can derive that)');
   if (React.Children.toArray(children).length === 0) throw new Error('ArenaBoard: `children` is required (a board with no columns is a tab stop over nothing)');
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={boardStyles().root()} data-arena-part={manifest.parts.root} data-arena-boundary=""
+      className={arenaClassName('ArenaBoard', boardStyles().root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
       style={{ '--arena-board-column': minColumn } as React.CSSProperties}>
       {children}
     </div>

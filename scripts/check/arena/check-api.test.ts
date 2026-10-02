@@ -12,6 +12,7 @@ import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { reactSurface, UnrecognisedShape } from '../../lib/arena/api-surface.ts';
 import type { ContractCandidate } from '../../lib/arena/contract-shapes.ts';
+import { vocabularyMemberProblems, OWN_ELEMENTLESS } from './check-api.ts';
 
 const TYPES = new Map([['ArenaTone', 'enum'], ['ArenaCrumb', 'object']]);
 
@@ -851,4 +852,28 @@ test('DERIVED_DEFAULT is the six chart heights, and each entry carries the reaso
     assert.ok(why.includes('--chart-height'), `${key}: the reason names the token the value comes from`);
     assert.ok(why.length > 80, `${key}: a reason short enough to be a label is not a reason`);
   }
+});
+
+const named = (type: string, required = false) => ({ name: 'className', form: 'named', type, required });
+
+test('a React component takes className typed with its own generated class and nothing wider', () => {
+  const contracted = new Set(['ArenaButton', 'ArenaTabs']);
+  assert.deepEqual(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'react', contracted), []);
+  assert.match(vocabularyMemberProblems('ArenaButton', [], 'react', contracted)[0] ?? '', /takes no className/);
+  assert.match(vocabularyMemberProblems('ArenaButton', [{ name: 'className', form: 'primitive', type: 'string' }], 'react', contracted)[0] ?? '',
+    /only the generated ArenaButtonClass/);
+  assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass', true)], 'react', contracted)[0] ?? '', /optional/);
+});
+
+test('a component with no element of its own takes no className, and Angular never does', () => {
+  const contracted = new Set(['ArenaTabs', 'ArenaButton']);
+  assert.deepEqual(vocabularyMemberProblems('ArenaTabs', [], 'react', contracted), []);
+  assert.match(vocabularyMemberProblems('ArenaTabs', [named('ArenaTabsClass')], 'react', contracted)[0] ?? '', /renders no element/);
+  assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'angular', contracted)[0] ?? '', /host class/);
+});
+
+test('an elementless entry naming no contracted component is stale', () => {
+  assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'react', new Set(['ArenaButton']),
+    new Map([['ArenaGone', 'why']]))[0] ?? '', /stale OWN_ELEMENTLESS: ArenaGone/);
+  assert.ok(OWN_ELEMENTLESS.has('ArenaTabs'));
 });

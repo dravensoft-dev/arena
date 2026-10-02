@@ -1,8 +1,12 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCheckbox.classes.generated.ts';
+import type { ArenaCheckboxClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaCheckboxProps {
+  className?: ArenaCheckboxClass;
+
 
   /** Whether it is ticked. */
   checked?: boolean;
@@ -29,10 +33,10 @@ export interface ArenaCheckboxProps {
 
 const arenaCheckboxStyles = arenaStyles(manifest);
 
-export function ArenaCheckbox({ checked = false, onChange, label, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
+export function ArenaCheckbox({ className, checked = false, onChange, label, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
   const styles = arenaCheckboxStyles({ checked, disabled });
   return (
-    <label className={styles.root()} data-arena-part={manifest.parts.root}>
+    <label className={arenaClassName('ArenaCheckbox', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <span className={styles.box()} data-arena-part={manifest.parts.box}>
         {checked && (
           <svg className={styles.check()} data-arena-part={manifest.parts.check} viewBox="0 0 12 12" fill="none">

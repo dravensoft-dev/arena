@@ -3,10 +3,14 @@ import type { ArenaTableColumn } from '../../../Api.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-table/ArenaTable.classes.generated.ts';
+import type { ArenaTableCellClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 const cellStyles = arenaStyles(manifest);
 
 export interface ArenaTableCellProps {
+  className?: ArenaTableCellClass;
+
 
   /** What the cell shows: a value, or one of Arena's own components, such as an ArenaBadge for a status or an ArenaButton for an action. This is what the compound shape exists for. The consumer instantiates one element per cell, so nothing here is per-item projection. */
   children?: React.ReactNode;
@@ -27,7 +31,7 @@ export interface ArenaTableCellInjected {
 
 
 
-export function ArenaTableCell({
+export function ArenaTableCell({ className, 
   children, href, onNavigate, column, layout = 'table', tabIndex, onCellFocus,
 }: ArenaTableCellProps & Partial<ArenaTableCellInjected>) {
 
@@ -49,14 +53,14 @@ export function ArenaTableCell({
     if (c.mobileLayout === 'block') {
 
       return (
-        <td role="presentation" className={cellStyles({ narrow: true }).cardBlock()} data-arena-part={manifest.parts.cardBlock} data-arena-boundary="">
+        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className)} data-arena-part={manifest.parts.cardBlock} data-arena-boundary="">
           {shown}
         </td>
       );
     }
     const card = cellStyles({ narrow: true });
     return (
-      <td role="presentation" className={card.cardRow()} data-arena-part={manifest.parts.cardRow}>
+      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} data-arena-part={manifest.parts.cardRow}>
         <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel}>{c.header}</span>
         <span className={c.mono ? card.cardValueMono() : card.cardValue()}
           data-arena-part={manifest.parts.cardValue} data-arena-boundary="">
@@ -70,9 +74,9 @@ export function ArenaTableCell({
     <td tabIndex={tabIndex}
 
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
-      className={c.mono
+      className={arenaClassName('ArenaTableCell', c.mono
         ? cellStyles({ narrow: false, align: c.align || 'left' }).tdMono()
-        : cellStyles({ narrow: false, align: c.align || 'left' }).td()}
+        : cellStyles({ narrow: false, align: c.align || 'left' }).td(), className)}
       data-arena-part={manifest.parts.td} data-arena-boundary="">
       {shown}
     </td>

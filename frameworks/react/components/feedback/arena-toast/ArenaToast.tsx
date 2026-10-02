@@ -5,8 +5,12 @@ import manifest from './ArenaToast.classes.generated.ts';
 import type { ArenaToastTone } from '../../../Api.generated';
 import { dismissDefault, dismissActionable } from '../../../Tokens.generated.js';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaToastClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaToastProps {
+  className?: ArenaToastClass;
+
 
   /** The bold lead line. */
   title?: string;
@@ -41,13 +45,13 @@ type ArenaTone = keyof typeof manifest.variants.tone;
 const toneOf = (tone: string | undefined): ArenaTone =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'neutral');
 
-export function ArenaToast({ title, message, tone = 'neutral', actionLabel, onAction, dismissible = false, onClose, persist = false }: ArenaToastProps) {
+export function ArenaToast({ className, title, message, tone = 'neutral', actionLabel, onAction, dismissible = false, onClose, persist = false }: ArenaToastProps) {
   const locale = useArenaLocale();
   const pinned = persist || tone === 'danger';
   const styles = arenaToastStyles({ tone: toneOf(tone) });
   return (
     <div role={tone === 'danger' ? 'alert' : 'status'} aria-live={tone === 'danger' ? 'assertive' : 'polite'}
-      data-persist={pinned ? '' : undefined} className={styles.root()} data-arena-part={manifest.parts.root}>
+      data-persist={pinned ? '' : undefined} className={arenaClassName('ArenaToast', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.body()} data-arena-part={manifest.parts.body}>
         {title && (
           <div className={styles.title()} data-arena-part={manifest.parts.title}>

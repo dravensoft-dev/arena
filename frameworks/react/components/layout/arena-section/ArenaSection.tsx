@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSection.classes.generated.ts';
 
 import type { ArenaHeadingLevel, ArenaSectionRhythm } from '../../../Api.generated';
+import type { ArenaSectionClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSectionProps {
+  className?: ArenaSectionClass;
+
 
   /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   title: string;
@@ -33,7 +37,7 @@ const RHYTHMS = Object.keys(manifest.variants.rhythm);
 const rhythmOf = (rhythm: string | undefined): ArenaSectionRhythm =>
   (rhythm && RHYTHMS.includes(rhythm) ? rhythm as ArenaSectionRhythm : 'md');
 
-export function ArenaSection({
+export function ArenaSection({ className, 
   title, headingLevel = 'h2', children, eyebrow, description, action, rhythm = 'md',
 }: ArenaSectionProps) {
   if (!title?.trim()) {
@@ -49,7 +53,7 @@ export function ArenaSection({
   const Heading = headingLevel;
 
   return (
-    <section className={styles.root()} data-arena-part={manifest.parts.root}>
+    <section className={arenaClassName('ArenaSection', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.head()} data-arena-part={manifest.parts.head}>
         <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
           {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}

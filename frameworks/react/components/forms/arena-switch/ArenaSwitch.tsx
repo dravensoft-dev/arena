@@ -4,8 +4,12 @@ import manifest from './ArenaSwitch.classes.generated.ts';
 
 import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaSwitchClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSwitchProps {
+  className?: ArenaSwitchClass;
+
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   state?: boolean;
   /** Whether the switch lies horizontally or stands vertically. */
@@ -33,7 +37,7 @@ export interface ArenaSwitchProps {
 
 const arenaSwitchStyles = arenaStyles(manifest);
 
-export function ArenaSwitch({
+export function ArenaSwitch({ className, 
   state = false, orientation = 'horizontal', size = 'md',
   iconOn, iconOff, label, disabled = false, confirm = false,
   onFuncOn, onFuncOff, onRequestChange,
@@ -57,7 +61,7 @@ export function ArenaSwitch({
   };
 
   return (
-    <span className={styles.root()} data-arena-part={manifest.parts.root}>
+    <span className={arenaClassName('ArenaSwitch', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <button type="button" role="switch" aria-checked={state} aria-label={label} disabled={disabled} onClick={activate}
         className={styles.track()} data-arena-part={manifest.parts.track}>
         <span aria-hidden="true" className={styles.knob()} data-arena-part={manifest.parts.knob}>

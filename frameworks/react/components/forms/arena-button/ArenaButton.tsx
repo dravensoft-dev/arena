@@ -3,8 +3,12 @@ import React from 'react';
 import type { ArenaButtonType, ArenaButtonVariant, ArenaControlSize } from '../../../Api.generated';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaButton.classes.generated.ts';
+import type { ArenaButtonClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaButtonProps {
+  className?: ArenaButtonClass;
+
 
   /** The button's label. Sits between the two icons when both are given. */
   children?: React.ReactNode;
@@ -52,7 +56,7 @@ export interface ArenaButtonProps {
 
 const arenaButtonStyles = arenaStyles(manifest);
 
-export function ArenaButton({
+export function ArenaButton({ className, 
   children, variant = 'primary', size = 'md', icon, iconRight,
   disabled = false, loading = false, full = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
@@ -61,7 +65,7 @@ export function ArenaButton({
 
   return (
     <button
-      className={styles.root()} data-arena-part={manifest.parts.root} data-arena-boundary=""
+      className={arenaClassName('ArenaButton', styles.root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
       type={type}
       name={name}
       value={value}

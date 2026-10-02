@@ -18,8 +18,12 @@ import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaLineChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaLineChartProps {
+  className?: ArenaLineChartClass;
+
 
   /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. */
   labels: readonly string[];
@@ -53,7 +57,7 @@ export interface ArenaLineChartProps {
 }
 
 
-export function ArenaLineChart({
+export function ArenaLineChart({ className, 
   labels, series, label, area = false, curve = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaLineChartProps) {
@@ -114,7 +118,7 @@ export function ArenaLineChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaLineChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
       <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {axis.ticks.map((tick, i) => (

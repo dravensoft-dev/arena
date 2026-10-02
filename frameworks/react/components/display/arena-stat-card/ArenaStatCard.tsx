@@ -3,10 +3,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaStatCard.classes.generated.ts';
 
 import type { ArenaStatDelta, ArenaTone } from '../../../Api.generated';
+import type { ArenaStatCardClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaStatDelta };
 
 export interface ArenaStatCardProps {
+  className?: ArenaStatCardClass;
+
 
   /** Short uppercase microlabel, two words at most. */
   label: string;
@@ -29,11 +33,11 @@ export interface ArenaStatCardProps {
 
 const arenaStatCardStyles = arenaStyles(manifest);
 
-export function ArenaStatCard({ label, value, tone = 'neutral', delta, sub, icon }: ArenaStatCardProps) {
+export function ArenaStatCard({ className, label, value, tone = 'neutral', delta, sub, icon }: ArenaStatCardProps) {
   if (!label || !value) throw new Error('ArenaStatCard: `label` and `value` are required');
   const styles = arenaStatCardStyles({ tone, deltaTone: delta?.tone ?? 'neutral' });
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaStatCard', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.head()} data-arena-part={manifest.parts.head}>
         <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
         {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} /></span>}

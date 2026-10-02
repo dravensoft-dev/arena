@@ -2,8 +2,12 @@ import React from 'react';
 import { arenaInjectInto } from './BottomNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBottomNav.classes.generated.ts';
+import type { ArenaBottomNavClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBottomNavProps {
+  className?: ArenaBottomNavClass;
+
 
   /** The id of the current destination. The ArenaBottomNavItem whose id matches is marked aria-current="page" and draws its glyph in the filled weight, and no item is marked when it names none of them. */
   active?: string;
@@ -20,11 +24,11 @@ export interface ArenaBottomNavProps {
 
 const arenaBottomNavStyles = arenaStyles(manifest);
 
-export function ArenaBottomNav({ active, ariaLabel, children, onNav }: ArenaBottomNavProps) {
+export function ArenaBottomNav({ className, active, ariaLabel, children, onNav }: ArenaBottomNavProps) {
 
   if (!ariaLabel?.trim()) throw new Error('ArenaBottomNav: `ariaLabel` is required, and names which navigation this landmark is');
   return (
-    <nav aria-label={ariaLabel} className={arenaBottomNavStyles().root()} data-arena-part={manifest.parts.root} data-arena-boundary="">
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBottomNav', arenaBottomNavStyles().root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
       {arenaInjectInto(children, { activeId: active, onActivate: onNav })}
     </nav>
   );

@@ -4,8 +4,12 @@ import { arenaCatColor } from '../../../DataVisuals.ts';
 import manifest from '../arena-board/ArenaBoard.classes.generated.ts';
 
 import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaBoardColumnClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBoardColumnProps {
+  className?: ArenaBoardColumnClass;
+
 
   /** What this column is: a status, a stage, a person, a day. It is the head's text and the column's accessible name at once. Required and guarded at runtime rather than defaulted, because a column of a board is only ever read by what it groups, and an unnamed one is a pile. */
   title: string;
@@ -35,7 +39,7 @@ export interface ArenaBoardColumnProps {
 
 const boardStyles = arenaStyles(manifest);
 
-export function ArenaBoardColumn({ title, headingLevel = 'h3', count, summary, colorId, action, children, footer }: ArenaBoardColumnProps) {
+export function ArenaBoardColumn({ className, title, headingLevel = 'h3', count, summary, colorId, action, children, footer }: ArenaBoardColumnProps) {
   if (!title?.trim()) throw new Error('ArenaBoardColumn: `title` is required (it is the head and the column\'s accessible name at once)');
   if (headingLevel === 'none') {
     throw new Error('ArenaBoardColumn: `headingLevel` cannot be none, because `title` is required and names the column it heads');
@@ -43,7 +47,7 @@ export function ArenaBoardColumn({ title, headingLevel = 'h3', count, summary, c
   const styles = boardStyles({ identity: colorId !== undefined });
   const Heading = headingLevel;
   return (
-    <section role="group" aria-label={title} className={styles.column()} data-arena-part={manifest.parts.column}
+    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className)} data-arena-part={manifest.parts.column}
       style={colorId ? { '--arena-board-column-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
       <div className={styles.head()} data-arena-part={manifest.parts.head}>
         {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />}

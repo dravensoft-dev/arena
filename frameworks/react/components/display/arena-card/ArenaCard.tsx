@@ -4,8 +4,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCard.classes.generated.ts';
 
 import type { ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaCardClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaCardProps {
+  className?: ArenaCardClass;
+
 
   /** The card's body, below the optional header. */
   children?: React.ReactNode;
@@ -37,7 +41,7 @@ export interface ArenaCardProps {
 
 const arenaCardStyles = arenaStyles(manifest);
 
-export function ArenaCard({
+export function ArenaCard({ className, 
   children, title, headingLevel = 'h3', eyebrow, action, floating = false, accent = false,
   interactive = false, disabled = false, href, onClick,
 }: ArenaCardProps) {
@@ -67,7 +71,7 @@ export function ArenaCard({
 
   const shared = {
     'aria-disabled': acts && disabled ? true as const : undefined,
-    className: styles.root(),
+    className: arenaClassName('ArenaCard', styles.root(), className),
     'data-arena-part': manifest.parts.root,
   };
 

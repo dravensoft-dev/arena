@@ -17,8 +17,12 @@ import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaPyramidChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaPyramidChartProps {
+  className?: ArenaPyramidChartClass;
+
 
   /** One label per band, in the same order as both series' `values`, running down the left edge. On a population pyramid these are the age brackets, oldest first or youngest first as the data is given: the chart does not reorder them, because which end is the top is a decision about the population and not about the drawing. */
   labels: readonly string[];
@@ -43,7 +47,7 @@ export interface ArenaPyramidChartProps {
 }
 
 
-export function ArenaPyramidChart({
+export function ArenaPyramidChart({ className, 
   labels, series, label, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaPyramidChartProps) {
@@ -86,7 +90,7 @@ export function ArenaPyramidChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaPyramidChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}

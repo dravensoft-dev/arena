@@ -1,8 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTextarea.classes.generated.ts';
+import type { ArenaTextareaClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaTextareaProps {
+  className?: ArenaTextareaClass;
+
 
   /** Field label; the counter and error sit under the field. */
   label?: string;
@@ -63,7 +67,7 @@ export function arenaFitToContent(element: HTMLElement | null): void {
 
 const arenaTextareaStyles = arenaStyles(manifest);
 
-export function ArenaTextarea({
+export function ArenaTextarea({ className, 
   label, id, hint, error, required = false, rows = 4, maxLength, counter = false,
   disabled = false, readOnly = false, autoResize = false, placeholder, name, value, onChange,
 }: ArenaTextareaProps) {
@@ -80,7 +84,7 @@ export function ArenaTextarea({
     if (autoResize) arenaFitToContent(boxRef.current);
   }, [autoResize, value, rows]);
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaTextarea', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {label && (
         <label htmlFor={taId} className={styles.label()} data-arena-part={manifest.parts.label}>
           {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required}>*</span>}

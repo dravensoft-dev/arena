@@ -10,8 +10,12 @@ import { arenaChartTable, arenaOneSeries, arenaSeriesColors } from '../ChartSeri
 import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaDoughnutChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaDoughnutChartProps {
+  className?: ArenaDoughnutChartClass;
+
 
   /** One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. */
   labels: readonly string[];
@@ -42,7 +46,7 @@ export interface ArenaDoughnutChartProps {
 }
 
 
-export function ArenaDoughnutChart({
+export function ArenaDoughnutChart({ className, 
   labels, series, label, valueSuffix, valuePrefix, valueFormat,
   shape = 'doughnut', legendLayout = 'auto', onSliceActivate,
 }: ArenaDoughnutChartProps) {
@@ -75,7 +79,7 @@ export function ArenaDoughnutChart({
   const segments = arenaDoughnutSlices(values);
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height, display: 'flex', gap: 'var(--chart-legend-gap)' }}>
+    <div className={arenaClassName('ArenaDoughnutChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height, display: 'flex', gap: 'var(--chart-legend-gap)' }}>
       <svg width={plotW} height={height} role="img" aria-label={name}
         onPointerLeave={() => setHover(null)} style={{ display: 'block', flexShrink: 0 }}>
         {segments.map(({ index, from, to }) => to > from && (

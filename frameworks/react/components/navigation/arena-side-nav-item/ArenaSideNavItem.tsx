@@ -6,8 +6,12 @@ import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip.tsx';
+import type { ArenaSideNavItemClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSideNavItemProps {
+  className?: ArenaSideNavItemClass;
+
 
   /** Identifies the destination. ArenaSideNav.active names one of these, and the item whose id matches is the one marked aria-current="page". Required, and guarded with a falsy check rather than an absence check: a blank id can never match and is an omission wearing a value. */
   id: string;
@@ -31,7 +35,7 @@ export interface ArenaSideNavItemProps {
 
 const arenaSideNavStyles = arenaStyles(manifest);
 
-export function ArenaSideNavItem({
+export function ArenaSideNavItem({ className, 
   id, label, icon, badge, href, disabled = false,
   depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
 }: ArenaSideNavItemProps & Partial<ArenaSideNavInjected>) {
@@ -55,7 +59,7 @@ export function ArenaSideNavItem({
       }
       if (onActivate) onActivate(id);
     },
-    className: styles.item(),
+    className: arenaClassName('ArenaSideNavItem', styles.item(), className),
     'data-arena-part': manifest.parts.item,
     style: collapsed ? undefined : { paddingInlineStart: arenaIndentFor(indentStep, depth) },
   };

@@ -5,9 +5,13 @@ import { arenaBreadcrumbList } from '../../../StructuredData.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBreadcrumbs.classes.generated.ts';
 import type { ArenaCrumb } from '../../../Api.generated';
+import type { ArenaBreadcrumbsClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaCrumb };
 export interface ArenaBreadcrumbsProps {
+  className?: ArenaBreadcrumbsClass;
+
 
   /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
   ariaLabel: string;
@@ -28,14 +32,14 @@ export interface ArenaBreadcrumbsProps {
 
 const breadcrumbStyles = arenaStyles(manifest);
 
-export function ArenaBreadcrumbs({ items, ariaLabel, separator = '/', origin, onNavigate }: ArenaBreadcrumbsProps) {
+export function ArenaBreadcrumbs({ className, items, ariaLabel, separator = '/', origin, onNavigate }: ArenaBreadcrumbsProps) {
   if (!ariaLabel?.trim()) throw new Error('ArenaBreadcrumbs: `ariaLabel` is required');
   if (!items) throw new Error('ArenaBreadcrumbs: `items` is required');
   const styles = breadcrumbStyles();
   const linked = breadcrumbStyles({ linked: true });
   const unlinked = breadcrumbStyles({ linked: false });
   return (
-    <nav aria-label={ariaLabel} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBreadcrumbs', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {items.map((it, i) => {
         const last = i === items.length - 1;
         return (

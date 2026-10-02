@@ -4,10 +4,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMenu.classes.generated.ts';
 
 import type { ArenaMenuItem, ArenaMenuAlign } from '../../../Api.generated';
+import type { ArenaMenuClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaMenuItem };
 
 export interface ArenaMenuProps {
+  className?: ArenaMenuClass;
+
 
   /** The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name. */
   trigger: React.ReactNode;
@@ -28,7 +32,7 @@ const TRIGGER_SELECTOR =
 
 const arenaMenuStyles = arenaStyles(manifest);
 
-export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMenuProps) {
+export function ArenaMenu({ className, trigger, items, align = 'start', onSelect }: ArenaMenuProps) {
 
   if (items == null) throw new Error('ArenaMenu: `items` is required');
   if (!React.isValidElement(trigger) || trigger.type === React.Fragment) {
@@ -97,7 +101,7 @@ export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMe
   const styles = arenaMenuStyles();
 
   return (
-    <div ref={ref} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {decoratedTrigger}
       {open && (
         <div role="menu" ref={panelRef}

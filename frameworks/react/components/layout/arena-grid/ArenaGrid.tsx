@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaGrid.classes.generated.ts';
 
 import type { ArenaGridGap } from '../../../Api.generated';
+import type { ArenaGridClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaGridProps {
+  className?: ArenaGridClass;
+
 
   /** The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it. The default is a role rather than the arithmetic it used to spell, so a style plugin can answer how many cards a viewport shows: a gallery wants a dense wall and a ledger wants a wide column, from the same markup. */
   min?: string;
@@ -24,9 +28,9 @@ const GAPS = Object.keys(manifest.variants.gap);
 const gapOf = (gap: string | undefined): ArenaGridGap =>
   (gap && GAPS.includes(gap) ? gap as ArenaGridGap : 'md');
 
-export function ArenaGrid({ min = 'var(--grid-min)', gap = 'md', maxWidth, children }: ArenaGridProps) {
+export function ArenaGrid({ className, min = 'var(--grid-min)', gap = 'md', maxWidth, children }: ArenaGridProps) {
   return (
-    <div className={arenaGridStyles({ gap: gapOf(gap), centred: maxWidth !== undefined }).root()} data-arena-part={manifest.parts.root} data-arena-boundary=""
+    <div className={arenaClassName('ArenaGrid', arenaGridStyles({ gap: gapOf(gap), centred: maxWidth !== undefined }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
       style={{
         gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}, 100%), 1fr))`,
         maxWidth,

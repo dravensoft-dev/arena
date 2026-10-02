@@ -4,8 +4,12 @@ import manifest from './ArenaSheet.classes.generated.ts';
 
 import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaSheetClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSheetProps {
+  className?: ArenaSheetClass;
+
 
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   open: boolean;
@@ -37,7 +41,7 @@ export interface ArenaSheetProps {
 
 const arenaSheetStyles = arenaStyles(manifest);
 
-export function ArenaSheet({
+export function ArenaSheet({ className, 
   open, placement = 'bottom', title, collapsed = false, onCollapsedChange,
   dismissible = false, onClose, children, footer,
 }: ArenaSheetProps) {
@@ -60,7 +64,7 @@ export function ArenaSheet({
   if (!open) return null;
   const styles = arenaSheetStyles({ placement, open: true });
   return (
-    <div onKeyDown={onKeyDown} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div className={styles.head()} data-arena-part={manifest.parts.head}>
         <button type="button" id={triggerId} aria-expanded={!collapsed} aria-controls={bodyId}
           onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger}>

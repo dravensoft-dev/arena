@@ -1,7 +1,7 @@
 /* The Angular half of the boundary sweep: the same derived cases, rendered through the template
  * the playground generator writes for a fixture node, compiled at runtime with every component
- * and projection marker it names. The rule each case is held to is the one the React suite
- * applies, read from the same module. */
+ * and projection marker it names. The rule each case is held to is read from the shared module
+ * every layer's suite applies. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 

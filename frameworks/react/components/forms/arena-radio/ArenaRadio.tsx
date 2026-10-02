@@ -1,6 +1,8 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaRadio.classes.generated.ts';
+import type { ArenaRadioClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaRadioInjected {
   name: string;
@@ -9,6 +11,8 @@ export interface ArenaRadioInjected {
 }
 
 export interface ArenaRadioProps {
+  className?: ArenaRadioClass;
+
 
   /** This option's value, matched against the group's. */
   value: string;
@@ -26,11 +30,11 @@ export interface ArenaRadioProps {
 
 const arenaRadioStyles = arenaStyles(manifest);
 
-export function ArenaRadio({ value, label, hint, name, checked = false, onSelect, disabled = false }: ArenaRadioProps & Partial<ArenaRadioInjected>) {
+export function ArenaRadio({ className, value, label, hint, name, checked = false, onSelect, disabled = false }: ArenaRadioProps & Partial<ArenaRadioInjected>) {
   if (!value) throw new Error('ArenaRadio: `value` is required');
   const styles = arenaRadioStyles({ checked, disabled });
   return (
-    <label className={styles.root()} data-arena-part={manifest.parts.root}>
+    <label className={arenaClassName('ArenaRadio', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <span className={styles.ring()} data-arena-part={manifest.parts.ring}>
         {checked && <span className={styles.dot()} data-arena-part={manifest.parts.dot} />}
       </span>

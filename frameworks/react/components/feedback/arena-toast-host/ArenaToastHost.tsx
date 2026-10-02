@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaToastHost.classes.generated.ts';
 
 import type { ArenaToastPlacement } from '../../../Api.generated';
+import type { ArenaToastHostClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaToastHostProps {
+  className?: ArenaToastHostClass;
+
 
   /** Which corner the stack is pinned to. A bottom placement clears the device's own bottom inset, so a stack on a phone never lands under the home indicator. */
   placement?: ArenaToastPlacement;
@@ -18,6 +22,6 @@ const PLACEMENTS = Object.keys(manifest.variants.placement);
 const placementOf = (placement: string | undefined): ArenaToastPlacement | undefined =>
   (placement && PLACEMENTS.includes(placement) ? placement as ArenaToastPlacement : undefined);
 
-export function ArenaToastHost({ placement = 'bottom-end', children }: ArenaToastHostProps) {
-  return <div className={arenaToastHostStyles({ placement: placementOf(placement) }).root()} data-arena-part={manifest.parts.root} data-arena-boundary="">{children}</div>;
+export function ArenaToastHost({ className, placement = 'bottom-end', children }: ArenaToastHostProps) {
+  return <div className={arenaClassName('ArenaToastHost', arenaToastHostStyles({ placement: placementOf(placement) }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">{children}</div>;
 }

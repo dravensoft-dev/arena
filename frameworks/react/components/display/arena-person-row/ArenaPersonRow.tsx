@@ -4,12 +4,16 @@ import manifest from '../arena-people-list/ArenaPeopleList.classes.generated.ts'
 import { ArenaAvatar } from '../arena-avatar/ArenaAvatar.tsx';
 
 import type { ArenaAvatarSize, ArenaControlSize } from '../../../Api.generated';
+import type { ArenaPersonRowClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaPersonRowInjected {
   size: ArenaControlSize;
 }
 
 export interface ArenaPersonRowProps {
+  className?: ArenaPersonRowClass;
+
 
   /** The person or entity. It is the row's own text and the face's initials when there is no image, which is why one member carries both: a name spelt differently in either is the same person drawn as two. The face sets `nameShown`, so the row announces the name once, from its text. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. */
   name: string;
@@ -37,11 +41,11 @@ export interface ArenaPersonRowProps {
 const peopleStyles = arenaStyles(manifest);
 const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg: 'md' };
 
-export function ArenaPersonRow({ name, src, secondary, rank, figure, current = false, action, size = 'md' }: ArenaPersonRowProps & Partial<ArenaPersonRowInjected>) {
+export function ArenaPersonRow({ className, name, src, secondary, rank, figure, current = false, action, size = 'md' }: ArenaPersonRowProps & Partial<ArenaPersonRowInjected>) {
   if (!name?.trim()) throw new Error('ArenaPersonRow: `name` is required (it is the row\'s text and the face\'s initials at once)');
   const styles = peopleStyles({ size, current });
   return (
-    <li className={styles.row()} data-arena-part={manifest.parts.row} aria-current={current ? 'true' : undefined}>
+    <li className={arenaClassName('ArenaPersonRow', styles.row(), className)} data-arena-part={manifest.parts.row} aria-current={current ? 'true' : undefined}>
       {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank}>{rank}</span>}
       <ArenaAvatar name={name} src={src} size={FACE[size]} nameShown />
       <span className={styles.text()} data-arena-part={manifest.parts.text}>

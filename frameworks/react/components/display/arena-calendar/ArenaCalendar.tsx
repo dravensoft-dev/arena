@@ -13,6 +13,8 @@ import type { ArenaCalendarView, ArenaCatSlot } from '../../../Api.generated';
 export type { ArenaCatSlot };
 
 export interface ArenaCalendarProps {
+  className?: ArenaCalendarClass;
+
 
   /** One ArenaCalendarEvent per event. ArenaCalendar reads each one's start, end and colorId and settles where the chip goes, what colour it takes and how the keyboard reaches it; the chip itself is ArenaCalendarEvent's. */
   children?: React.ReactNode;
@@ -56,12 +58,14 @@ import {
   arenaAddDays, arenaDefaultDayStart, arenaFormatHM, arenaLayoutDay, arenaNowMinutes, arenaParseHM,
   arenaPlaceEvents, arenaRangeTitle, arenaShowsTime, arenaStacksActions, arenaStartOfWeek, arenaTodayIso, arenaWeekdayOf, arenaFormatDate, ARENA_DATE_OPTIONS,
 } from './CalendarInternals.ts';
+import type { ArenaCalendarClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 const TRACKS = (n: number) => `repeat(${n}, minmax(0, 1fr))`;
 
 const arenaCalendarStyles = arenaStyles(manifest);
 
-export function ArenaCalendar({
+export function ArenaCalendar({ className, 
   children, timeZone, anchorDate, view,
   dayStart, dayEnd = '23:00', weekStartsOn = 1, hideEmptyWeekend = true,
   dayInteractive = false, onDateClick, onRangeChange, actions,
@@ -213,7 +217,7 @@ export function ArenaCalendar({
 
   return (
     <section ref={ref} aria-label={arenaPhrase(locale.calendarRegion, { range })}
-      className={styles.root()} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaCalendar', styles.root(), className)} data-arena-part={manifest.parts.root}>
 
       <div className={styles.toolbar()} data-arena-part={manifest.parts.toolbar}>
         {navBtn(-1)}

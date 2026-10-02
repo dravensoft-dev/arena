@@ -5,7 +5,9 @@
  * ways, on an entry whose initialiser became a literal and on a non-literal nobody named. Both
  * layers go through one comparison, because a default read in one layer alone is how a member
  * that renders one way and is documented another shipped. R2 and R3 are authoring rules no gate
- * asserts, and neither is a fact about source text -- contracts/api/AGENTS.md states why. */
+ * asserts, and neither is a fact about source text -- contracts/api/AGENTS.md states why.
+ * className is the one member no contract names: React types it with the generated class of its
+ * vocabulary, a component rendering no element takes none, and Angular takes the host class. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -208,6 +210,42 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
         + `taking it in must also declare a slot parameter or an event payload of "${CONSUMER_DATA}" that hands it back`,
       );
     }
+  }
+  return problems;
+}
+
+export const VOCABULARY_MEMBER = 'className';
+
+export const OWN_ELEMENTLESS = new Map<string, string>([
+  ['ArenaTabs', 'it renders a fragment: the tab list and its panels are siblings, so no element is the '
+    + 'component\'s own root for a class to land on'],
+]);
+
+export function vocabularyMemberProblems(
+  component: string, members: SurfaceMember[], layer: string, contracted: Set<string>,
+  elementless = OWN_ELEMENTLESS,
+) {
+  const problems: string[] = [];
+  const where = `${layer}/${component}`;
+  const member = members.find((m) => m.name === VOCABULARY_MEMBER);
+  for (const name of elementless.keys())
+    if (!contracted.has(name)) problems.push(`stale OWN_ELEMENTLESS: ${name} is no contracted component -- ${elementless.get(name)}`);
+  if (layer !== 'react') {
+    if (member) problems.push(`${where}.className: Angular takes a vocabulary class on the host class, and a className input is a second route to the same decision`);
+    return problems;
+  }
+  if (elementless.has(component)) {
+    if (member) problems.push(`${where}.className: the component renders no element of its own, so the class lands nowhere -- ${elementless.get(component)}`);
+    return problems;
+  }
+  const wanted = `${component}Class`;
+  if (!member) {
+    problems.push(`${where}: takes no className, so no vocabulary class reaches its root. Declare className?: ${wanted}, `
+      + 'apply it through arenaClassName on the root, or name the component in OWN_ELEMENTLESS with why it has no root');
+  } else if (member.form !== 'named' || member.type !== wanted) {
+    problems.push(`${where}.className: typed ${member.type ?? member.form}, and only the generated ${wanted} keeps a utility out`);
+  } else if (member.required) {
+    problems.push(`${where}.className: declared required, and a vocabulary class is always optional`);
   }
   return problems;
 }
@@ -545,6 +583,7 @@ function main() {
   const contractDir = join(root, 'contracts/api/components');
   const files = existsSync(contractDir) ? readdirSync(contractDir).filter((f) => f.endsWith('.json')).sort() : [];
   problems.push(...zeroContractProblems({ contracts: files.length, types: types.length }));
+  const contractNames = new Set(files.map((f) => f.replace(/\.json$/, '')));
 
   const reactLayer = reactImplementations();
   problems.push(...reactLayer.problems);
@@ -581,7 +620,9 @@ function main() {
       for (const base of surface.heritage ?? []) {
         problems.push(`${layer}/${contract.component}: extends "${base}" — the {...rest} escape is none of the nine forms, R4`);
       }
-      problems.push(...compareSurface(contract, surface.members, layer, typesByName));
+      problems.push(...vocabularyMemberProblems(contract.component, surface.members, layer, contractNames));
+      const members = surface.members.filter((m: SurfaceMember) => m.name !== VOCABULARY_MEMBER);
+      problems.push(...compareSurface(contract, members, layer, typesByName));
       problems.push(...docProblems(contract, surface.docs ?? new Map(), layer));
       if (layer === 'react') problems.push(...reactImplementationProblems(contract, path, derivedSeen));
       else problems.push(...angularImplementationProblems(contract, path, derivedSeen));
@@ -592,7 +633,7 @@ function main() {
 
   if (problems.length) {
     console.error(`check-api: ${problems.length} problem(s)\n`);
-    for (const p of problems) console.error(`  ${p}`);
+    for (const p of new Set(problems)) console.error(`  ${p}`);
     process.exit(1);
   }
   console.log(`check-api: ${files.length} contract(s) and ${types.length} type(s) hold across ${layersChecked} layer implementation(s)`);

@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPeopleList.classes.generated.ts';
 
 import type { ArenaControlSize } from '../../../Api.generated';
+import type { ArenaPeopleListClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaPeopleListProps {
+  className?: ArenaPeopleListClass;
+
 
   /** Names the list for assistive technology: what these people are a list OF, never that they are people. "Ruby league standings", "Suggested accounts", never "People". Required and guarded at runtime rather than defaulted, because nothing can derive it and a name that only says what the component is satisfies the requirement mechanically while telling a screen-reader user nothing: two lists on one page announce identically. */
   label: string;
@@ -22,13 +26,13 @@ export interface ArenaPeopleListProps {
 
 const peopleStyles = arenaStyles(manifest);
 
-export function ArenaPeopleList({ label, ordered = false, size = 'md', children }: ArenaPeopleListProps) {
+export function ArenaPeopleList({ className, label, ordered = false, size = 'md', children }: ArenaPeopleListProps) {
   if (!label?.trim()) throw new Error('ArenaPeopleList: `label` is required (it names what these people are a list of, and nothing can derive that)');
   const List = ordered ? 'ol' : 'ul';
   const rows = React.Children.map(children, (child) =>
     (React.isValidElement(child) ? React.cloneElement(child, { size } as Partial<{ size: ArenaControlSize }>) : child));
   return (
-    <List aria-label={label} className={peopleStyles({ size }).root()} data-arena-part={manifest.parts.root} data-arena-boundary="">
+    <List aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({ size }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
       {rows}
     </List>
   );

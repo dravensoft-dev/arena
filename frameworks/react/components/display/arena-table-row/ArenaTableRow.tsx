@@ -4,6 +4,8 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-table/ArenaTable.classes.generated.ts';
 import type { ArenaTableColumn } from '../../../Api.generated';
 import type { ArenaTableCellInjected } from '../arena-table-cell/ArenaTableCell.tsx';
+import type { ArenaTableRowClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 const rowStyles = arenaStyles(manifest);
 
@@ -17,6 +19,8 @@ export interface ArenaTableRowInjected {
 }
 
 export interface ArenaTableRowProps {
+  className?: ArenaTableRowClass;
+
 
   /** The row's cells. One ArenaTableCell per cell; a row may carry fewer or more than there are columns, and the grid's cursor is clamped against what is really there. */
   children?: React.ReactNode;
@@ -32,7 +36,7 @@ export interface ArenaTableRowProps {
 }
 
 
-export function ArenaTableRow({
+export function ArenaTableRow({ className, 
   children, onClick, interactive = false, disabled = false,
   rowIndex = 0, ariaRowIndex = null, columns = [], layout = 'table', cursorCol = null, onCellFocus,
 }: ArenaTableRowProps & Partial<ArenaTableRowInjected>) {
@@ -67,7 +71,7 @@ export function ArenaTableRow({
           e.preventDefault();
           activate(e);
         } : undefined}
-        className={rowStyles({ narrow: true }).card()} data-arena-part={manifest.parts.card}>
+        className={arenaClassName('ArenaTableRow', rowStyles({ narrow: true }).card(), className)} data-arena-part={manifest.parts.card}>
         {cells}
       </tr>
     );
@@ -84,7 +88,7 @@ export function ArenaTableRow({
       aria-disabled={onClick && disabled ? 'true' : undefined}
       aria-rowindex={ariaRowIndex ?? undefined}
 
-      className={rowClass} data-arena-part={manifest.parts.row} data-arena-boundary="">
+      className={arenaClassName('ArenaTableRow', rowClass, className)} data-arena-part={manifest.parts.row} data-arena-boundary="">
       {cells}
     </tr>
   );

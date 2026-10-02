@@ -4,8 +4,12 @@ import manifest from './ArenaAlert.classes.generated.ts';
 
 import type { ArenaAlertTone } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaAlertClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaAlertProps {
+  className?: ArenaAlertClass;
+
   /** The severity: colour, default icon, and (for danger) the alert role. */
   tone?: ArenaAlertTone;
   /** An optional bold lead line above the message. */
@@ -37,12 +41,12 @@ type ArenaTone = keyof typeof manifest.variants.tone;
 const toneOf = (tone: string | undefined): ArenaTone =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'info');
 
-export function ArenaAlert({ tone = 'info', title, children, icon, actionLabel, onAction, dismissible, onClose }: ArenaAlertProps) {
+export function ArenaAlert({ className, tone = 'info', title, children, icon, actionLabel, onAction, dismissible, onClose }: ArenaAlertProps) {
   const locale = useArenaLocale();
   const at = toneOf(tone);
   const styles = arenaAlertStyles({ tone: at, titled: Boolean(title) });
   return (
-    <div role={tone === 'danger' ? 'alert' : 'status'} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} />
       <div className={styles.body()} data-arena-part={manifest.parts.body}>
         {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}

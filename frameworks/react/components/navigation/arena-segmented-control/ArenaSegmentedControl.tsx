@@ -3,9 +3,13 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSegmentedControl.classes.generated.ts';
 
 import type { ArenaSegmentOption, ArenaSegmentedControlSize } from '../../../Api.generated';
+import type { ArenaSegmentedControlClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaSegmentOption };
 export interface ArenaSegmentedControlProps {
+  className?: ArenaSegmentedControlClass;
+
 
   /** The options, in order. Two to four with one-word labels. */
   options: readonly ArenaSegmentOption[];
@@ -32,7 +36,7 @@ export interface ArenaSegmentedControlProps {
 
 const segmentedStyles = arenaStyles(manifest);
 
-export function ArenaSegmentedControl({
+export function ArenaSegmentedControl({ className, 
   options, value, defaultValue, onChange,
   size = 'md', ariaLabel, name,
 }: ArenaSegmentedControlProps) {
@@ -46,7 +50,7 @@ export function ArenaSegmentedControl({
   const select = (v: string) => { setInternal(v); onChange && onChange(v); };
 
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={segmentedStyles({ size }).track()} data-arena-part={manifest.parts.track}>
+    <div role="radiogroup" aria-label={ariaLabel} className={arenaClassName('ArenaSegmentedControl', segmentedStyles({ size }).track(), className)} data-arena-part={manifest.parts.track}>
       {options.map((o) => {
         const v = o.value;
         const on = v === selected;

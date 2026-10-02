@@ -1,6 +1,8 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-tabs/ArenaTabs.classes.generated.ts';
+import type { ArenaTabClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaTabInjected {
   selected: boolean;
@@ -11,6 +13,8 @@ export interface ArenaTabInjected {
 }
 
 export interface ArenaTabProps {
+  className?: ArenaTabClass;
+
 
   /** What this tab selects, and what the parent's `change` carries. */
   value: string;
@@ -25,7 +29,7 @@ export interface ArenaTabProps {
 
 const arenaTabsStyles = arenaStyles(manifest);
 
-export function ArenaTab({
+export function ArenaTab({ className, 
   value, label,
   selected = false, tabStop = false, tabId, panelId, onSelect,
 }: ArenaTabProps & Partial<ArenaTabInjected>) {
@@ -38,7 +42,7 @@ export function ArenaTab({
 
       tabIndex={tabStop ? 0 : -1}
       onClick={() => onSelect && onSelect(value)}
-      className={arenaTabsStyles({ selected }).tab()} data-arena-part={manifest.parts.tab}>
+      className={arenaClassName('ArenaTab', arenaTabsStyles({ selected }).tab(), className)} data-arena-part={manifest.parts.tab}>
       {label}
     </button>
   );

@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaHero.classes.generated.ts';
 
 import type { ArenaHeadingLevel, ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
+import type { ArenaHeroClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaHeroProps {
+  className?: ArenaHeroClass;
+
 
   /** The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   title: string;
@@ -42,7 +46,7 @@ const alignOf = (align: string | undefined): ArenaHeroAlign =>
 
 const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
 
-export function ArenaHero({
+export function ArenaHero({ className, 
   title, headingLevel = 'h1', eyebrow, lede, actions, figure, layout = 'split', align = 'start',
 }: ArenaHeroProps) {
   if (!title?.trim()) {
@@ -59,7 +63,7 @@ export function ArenaHero({
     : undefined;
 
   return (
-    <section className={styles.root()} data-arena-part={manifest.parts.root} style={{ gridTemplateColumns: tracks }}>
+    <section className={arenaClassName('ArenaHero', styles.root(), className)} data-arena-part={manifest.parts.root} style={{ gridTemplateColumns: tracks }}>
       <div className={styles.words()} data-arena-part={manifest.parts.words}>
         {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</p>}
         <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>

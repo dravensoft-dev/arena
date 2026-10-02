@@ -4,8 +4,12 @@ import manifest from './ArenaSkeleton.classes.generated.ts';
 
 import type { ArenaSkeletonVariant } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaSkeletonClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSkeletonProps {
+  className?: ArenaSkeletonClass;
+
   /** The shape the placeholder reserves. */
   variant?: ArenaSkeletonVariant;
 
@@ -25,12 +29,12 @@ export interface ArenaSkeletonProps {
 
 const arenaSkeletonStyles = arenaStyles(manifest);
 
-export function ArenaSkeleton({ variant = 'block', width, height, lines = 3, radius }: ArenaSkeletonProps) {
+export function ArenaSkeleton({ className, variant = 'block', width, height, lines = 3, radius }: ArenaSkeletonProps) {
   const locale = useArenaLocale();
   const styles = arenaSkeletonStyles({ variant });
   if (variant === 'text' && lines > 1) {
     return (
-      <div role="status" aria-label={locale.skeletonLabel} className={styles.stack()} data-arena-part={manifest.parts.stack} style={{ width }}>
+      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)} data-arena-part={manifest.parts.stack} style={{ width }}>
         {Array.from({ length: lines }).map((_, i) => (
           <div key={i} className={i === lines - 1 ? styles.lastLine() : styles.line()}
             data-arena-part={manifest.parts.line} />
@@ -40,7 +44,7 @@ export function ArenaSkeleton({ variant = 'block', width, height, lines = 3, rad
   }
   const box = variant === 'circle' ? (height || width) : undefined;
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root} role="status" aria-label={locale.skeletonLabel}
+    <div className={arenaClassName('ArenaSkeleton', styles.root(), className)} data-arena-part={manifest.parts.root} role="status" aria-label={locale.skeletonLabel}
       style={{ width: box ?? width, height: box ?? height, borderRadius: radius }} />
   );
 }
