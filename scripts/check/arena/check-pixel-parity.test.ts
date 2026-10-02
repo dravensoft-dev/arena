@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import {
   THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
-  ALLOWED, staleAllowanceProblems, within,
+  ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem,
 } from './check-pixel-parity.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 
@@ -136,4 +136,32 @@ test('no sink carries an allowance at all, and the emptiness is the claim', () =
   for (const [sink, allowance] of ALLOWED) {
     assert.ok(allowance.why.length > 80, `${sink}: an allowance carries the measurement behind it`);
   }
+});
+
+const raster = (width: number, height: number, fill: number) =>
+  ({ width, height, channels: 4, data: Buffer.alloc(width * height * 4, fill) });
+
+test('--baseline takes a ref, and with no ref after it the run refuses rather than guessing', () => {
+  assert.deepEqual(parseParityArgs([]), { baseline: null });
+  assert.deepEqual(parseParityArgs(['--baseline', 'HEAD~1']), { baseline: 'HEAD~1' });
+  assert.throws(() => parseParityArgs(['--baseline']), /takes a git ref/);
+  assert.throws(() => parseParityArgs(['--baseline', '--x']), /takes a git ref/);
+});
+
+test('a page identical to its baseline is no problem, and one differing names the box and the two trees', () => {
+  assert.equal(rasterProblem('react/default:dark', raster(4, 4, 10), raster(4, 4, 10)).problem, null);
+  const moved = raster(4, 4, 10);
+  moved.data[0] = 200;
+  const { problem, pixels } = rasterProblem('react/default:dark', raster(4, 4, 10), moved);
+  assert.equal(pixels, 1);
+  assert.match(problem ?? '', /react\/default:dark: 1 pixel\(s\) differ from the baseline/);
+});
+
+test('a page whose size moved against its baseline says so before any box', () => {
+  assert.match(rasterProblem('angular/complete:light', raster(4, 4, 0), raster(4, 5, 0)).problem ?? '',
+    /baseline is 4x4 and the tree is 4x5/);
+});
+
+test('the sinks of a baseline are read from that tree and not from this one', () => {
+  assert.deepEqual(sinksIn('react', '/nowhere'), []);
 });

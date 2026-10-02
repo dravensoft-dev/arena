@@ -1,13 +1,12 @@
-/* Captures the kitchen-sink page every layer draws, once per arrangement, and fails on one
- * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
- * typography or a computed colour that moved in one layer alone passes every other gate. No
- * baseline: one browser renders both pages, so the question is whether they agree with EACH OTHER.
- * ALLOWED is the one relief and it is EMPTY, which is the claim: every appearance an arrangement
- * declares is identical to the pixel in both layers. An entry would be per sink and bounded on count AND
- * delta, and one nothing spends is stale, so no blanket threshold ever absorbs a move. Motion,
- * focus and MEASUREMENT stop before the shutter, the third because the shutter reaches past the
- * viewport and hands width 0 to every live ResizeObserver: a chart redraws collapsed and the
- * compositor takes the rest from that frame. Pairs are walked, and a sweep finding none fails. */
+/* Captures the kitchen-sink page every layer draws, once per arrangement, and fails on one differing
+ * pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
+ * typography or a computed colour that moved in one layer alone passes every other gate. One browser
+ * renders both pages, so the question is whether they agree with EACH OTHER; --baseline <ref> asks
+ * instead whether each layer agrees with itself built at that ref, a phase's acceptance instrument
+ * rather than a member of GATES. ALLOWED is the one relief and it is EMPTY: an entry would be per
+ * sink, bounded on count AND delta, and stale when unspent. Motion, focus and MEASUREMENT stop before
+ * the shutter, the third because the shutter reaches past the viewport and hands width 0 to every
+ * live ResizeObserver, so a chart redraws collapsed. Pairs are walked, and a sweep finding none fails. */
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -25,7 +24,8 @@ import {
 } from '../../lib/arena/page-errors.ts';
 import { READY, PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { SINK_LAYERS } from '../../generate/arena/generate-kitchen-sink.ts';
-import { decode, difference, CHANNEL_NAMES } from '../../lib/arena/png.ts';
+import { decode, difference, CHANNEL_NAMES, type Raster } from '../../lib/arena/png.ts';
+import { prepareBaseline } from '../../lib/arena/baseline-tree.ts';
 
 export const node = {
   name: 'check:pixel-parity',
@@ -127,12 +127,12 @@ export function readyExpression(bound: Deadline) {
   })`;
 }
 
-export function sinkDir(layer: string) {
-  return join(root, 'frameworks', layer, 'kitchen-sink');
+export function sinkDir(layer: string, base = root) {
+  return join(base, 'frameworks', layer, 'kitchen-sink');
 }
 
-export function sinksIn(layer: string) {
-  const dir = sinkDir(layer);
+export function sinksIn(layer: string, base = root) {
+  const dir = sinkDir(layer, base);
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && existsSync(join(dir, entry.name, PAGE_FILE)))
@@ -222,7 +222,7 @@ export function dumpDir(env = arenaEnv()) {
   return env.ARENA_PIXEL_DUMP;
 }
 
-export function dump(dir: string, name: string, png: { react: Buffer; angular: Buffer }) {
+export function dump(dir: string, name: string, png: Record<string, Buffer>) {
   mkdirSync(dir, { recursive: true });
   const written = [];
   for (const [layer, bytes] of Object.entries(png)) {
@@ -242,7 +242,7 @@ export function loaded(cdp: Cdp, sessionId: string) {
   });
 }
 
-async function capture(cdp: Cdp, url: string) {
+export async function capture(cdp: Cdp, url: string) {
   const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
   try {
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
@@ -326,6 +326,80 @@ export function paintProblem(name: string, layer: string,
   return null;
 }
 
+export function parseParityArgs(argv: string[]) {
+  const at = argv.indexOf('--baseline');
+  if (at === -1) return { baseline: null };
+  const ref = argv[at + 1];
+  if (!ref || ref.startsWith('--')) {
+    throw new Error('check-pixel-parity: --baseline takes a git ref, as in --baseline HEAD~1');
+  }
+  return { baseline: ref };
+}
+
+export function rasterProblem(name: string, baseline: Raster, tree: Raster) {
+  const size = baseline.width === tree.width && baseline.height === tree.height ? null
+    : `${name}: the page is not the size it was. The baseline is ${baseline.width}x${baseline.height} `
+      + `and the tree is ${tree.width}x${tree.height}, which is content that reflowed`;
+  const diff = difference(baseline, tree);
+  if (!diff) return { problem: size, pixels: 0 };
+  const { pixels, box, maxDelta, channel } = diff;
+  return { problem: `${name}: ${pixels} pixel(s) differ from the baseline, inside x=${box.left}..${box.right} `
+    + `y=${box.top}..${box.bottom}, the largest by ${maxDelta} on the ${CHANNEL_NAMES[channel] ?? channel} `
+    + `channel${size ? `. ${size}` : ''}. Set ARENA_PIXEL_DUMP to a directory to have both captures written`,
+  pixels };
+}
+
+async function baselineMain(ref: string) {
+  const { dir, sha, reused } = prepareBaseline(ref, root);
+  const pairs = SINK_LAYERS.flatMap((layer) => sinksIn(layer)
+    .filter((sink) => sinksIn(layer, dir).includes(sink))
+    .map((sink) => ({ layer, sink })));
+  if (pairs.length === 0) {
+    console.error(`check-pixel-parity: found 0 page(s) drawn both in the tree and at ${sha.slice(0, 12)}. `
+      + 'An empty comparison is a failure rather than a clean pass: run bun run build in the tree.');
+    process.exit(1);
+  }
+  const exe = browserOrExit('check-pixel-parity');
+  const into = dumpDir();
+  const tree = await startStaticServer(root);
+  const base = await startStaticServer(dir);
+  const chrome = await launchChromium(exe);
+  const cdp = await connect(chrome.wsUrl);
+  const problems: string[] = [];
+  let compared = 0;
+  try {
+    for (const { layer, sink } of pairs) {
+      for (const theme of THEMES) {
+        const name = `${layer}/${sink}:${theme}`;
+        const page = (port: number) => `http://127.0.0.1:${port}/${pagePath(layer, sink)}?theme=${theme}`;
+        const now = await capture(cdp, page(tree.port));
+        const then = await capture(cdp, page(base.port));
+        const unpainted = [paintProblem(name, 'tree', now), paintProblem(name, 'baseline', then)]
+          .filter((one): one is string => one !== null);
+        if (unpainted.length > 0) { problems.push(...unpainted); continue; }
+        if (!now.png || !then.png) continue;
+        compared += 1;
+        if (now.png.equals(then.png)) continue;
+        const { problem } = rasterProblem(name, decode(then.png), decode(now.png));
+        if (problem === null) continue;
+        problems.push(problem);
+        if (into) dump(into, name.replace(/[/:]/g, '-'), { tree: now.png, baseline: then.png });
+      }
+    }
+  } finally {
+    await chrome.kill?.();
+    tree.close?.();
+    base.close?.();
+  }
+  const where = `${dir}${reused ? ', reused' : ''}; remove it with git worktree remove --force ${dir}`;
+  if (problems.length) {
+    console.error(`check-pixel-parity --baseline ${ref}: ${problems.length} page(s) moved against ${sha.slice(0, 12)} (${where})\n`);
+    for (const p of problems) console.error(`  ${p}\n`);
+    process.exit(1);
+  }
+  console.log(`check-pixel-parity --baseline ${ref}: ${compared} page(s) identical to ${sha.slice(0, 12)} byte for byte (${where})`);
+}
+
 const skip: (reason: string) => never = (reason) => cannotRun('check-pixel-parity', reason);
 
 async function main() {
@@ -398,5 +472,7 @@ async function main() {
 
 if (isMainModule(import.meta.url)) {
   if (SINK_LAYERS.length < 2) skip('a comparison needs two layers, and the emitter names fewer');
-  await main();
+  const { baseline } = parseParityArgs(process.argv.slice(2));
+  if (baseline) await baselineMain(baseline);
+  else await main();
 }
