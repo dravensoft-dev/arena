@@ -10,6 +10,7 @@ import manifest from '../arena-tabs/ArenaTabs.classes.generated';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().panel()',
     '[attr.data-arena-part]': 'parts.panel',
     role: 'tabpanel',

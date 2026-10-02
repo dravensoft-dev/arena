@@ -11,11 +11,11 @@ import manifest from './ArenaFigure.classes.generated';
   template: `
     <figure [class]="styles().root()" [attr.data-arena-part]="parts.root">
       <div [class]="styles().frame()" [attr.data-arena-part]="parts.frame" [style.aspectRatio]="ratio()">
-        @if (media()) { <div [class]="styles().media()" [attr.data-arena-part]="parts.media"><ng-content select="[media]" /></div> }
+        @if (media()) { <div [class]="styles().media()" [attr.data-arena-part]="parts.media" data-arena-boundary><ng-content select="[media]" /></div> }
         @if (!media() && fallback()) {
-          <div [class]="styles().fallback()" [attr.data-arena-part]="parts.fallback"><ng-content select="[fallback]" /></div>
+          <div [class]="styles().fallback()" [attr.data-arena-part]="parts.fallback" data-arena-boundary><ng-content select="[fallback]" /></div>
         }
-        @if (overlay()) { <div [class]="styles().overlay()" [attr.data-arena-part]="parts.overlay"><ng-content select="[overlay]" /></div> }
+        @if (overlay()) { <div [class]="styles().overlay()" [attr.data-arena-part]="parts.overlay" data-arena-boundary><ng-content select="[overlay]" /></div> }
       </div>
       @if (caption(); as line) { <figcaption [class]="styles().caption()" [attr.data-arena-part]="parts.caption">{{ line }}</figcaption> }
     </figure>

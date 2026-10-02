@@ -13,7 +13,7 @@ const PAGE = 'var(--container-max)';
   template: `
     <footer [class]="styles().root()" [attr.data-arena-part]="parts.root">
       <div [class]="styles().band()" [attr.data-arena-part]="parts.band" [style.maxWidth]="page">
-        <div [class]="styles().columns()" [attr.data-arena-part]="parts.columns" [style.gridTemplateColumns]="tracks"><ng-content /></div>
+        <div [class]="styles().columns()" [attr.data-arena-part]="parts.columns" data-arena-boundary [style.gridTemplateColumns]="tracks"><ng-content /></div>
         @if (note(); as line) { <p [class]="styles().note()" [attr.data-arena-part]="parts.note">{{ line }}</p> }
       </div>
     </footer>

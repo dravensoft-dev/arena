@@ -36,7 +36,7 @@ export const ARENA_RING_SWEEP = 25;
         @if (!indeterminate()) {
           <span [class]="styles().announcement()" [attr.data-arena-part]="parts.announcement">{{ percentage() }}%</span>
         }
-        <span [class]="styles().ringContent()" [attr.data-arena-part]="parts.ringContent">
+        <span [class]="styles().ringContent()" [attr.data-arena-part]="parts.ringContent" data-arena-boundary>
           <ng-content />
         </span>
         @if (showsValue()) {

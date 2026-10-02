@@ -27,7 +27,7 @@ import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generat
       }
     </div>
     @if (actions()) {
-      <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
+      <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div>
     }
   `,
 })

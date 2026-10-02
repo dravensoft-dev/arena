@@ -31,7 +31,7 @@ export function ArenaSideNav({ children, active, ariaLabel, indentStep = 3, onNa
 
   if (!ariaLabel?.trim()) throw new Error('ArenaSideNav: `ariaLabel` is required');
   return (
-    <nav aria-label={ariaLabel} className={arenaSideNavStyles({ collapsed }).root()} data-arena-part={manifest.parts.root}>
+    <nav aria-label={ariaLabel} className={arenaSideNavStyles({ collapsed }).root()} data-arena-part={manifest.parts.root} data-arena-boundary="">
       {arenaInjectInto(children, { depth: 0, activeId: active, indentStep, onActivate: onNav, collapsed })}
     </nav>
   );

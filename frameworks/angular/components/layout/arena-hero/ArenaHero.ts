@@ -26,9 +26,9 @@ const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
         @default { <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h1> }
       }
       @if (lede(); as line) { <p [class]="styles().lede()" [attr.data-arena-part]="parts.lede">{{ line }}</p> }
-      @if (actions()) { <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div> }
+      @if (actions()) { <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div> }
     </div>
-    @if (figure()) { <div [class]="styles().figure()" [attr.data-arena-part]="parts.figure"><ng-content select="[figure]" /></div> }
+    @if (figure()) { <div [class]="styles().figure()" [attr.data-arena-part]="parts.figure" data-arena-boundary><ng-content select="[figure]" /></div> }
   `,
 })
 export class ArenaHero {

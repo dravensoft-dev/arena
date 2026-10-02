@@ -26,9 +26,9 @@ export function ArenaAppBar({ brand, nav, actions, sticky = true }: ArenaAppBarP
   return (
     <header className={styles.root()} data-arena-part={manifest.parts.root}>
       <div className={styles.band()} data-arena-part={manifest.parts.band} style={{ maxWidth: PAGE }}>
-        {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand}>{brand}</div>}
-        {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav}>{nav}</div>}
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+        {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} data-arena-boundary="">{brand}</div>}
+        {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav} data-arena-boundary="">{nav}</div>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
       </div>
     </header>
   );

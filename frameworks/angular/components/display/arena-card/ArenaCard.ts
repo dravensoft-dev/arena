@@ -20,7 +20,7 @@ import manifest from './ArenaCard.classes.generated';
   template: `
     <ng-template #body>
       @if (headed()) {
-        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+        <div [class]="styles().head()" [attr.data-arena-part]="parts.head" data-arena-boundary>
           <div>
             @if (eyebrow(); as label) {
               <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
@@ -38,7 +38,7 @@ import manifest from './ArenaCard.classes.generated';
           <ng-content select="[action]" />
         </div>
       }
-      <div [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
+      <div [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
     </ng-template>
 
     @if (href(); as url) {

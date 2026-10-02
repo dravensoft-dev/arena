@@ -74,10 +74,10 @@ export function ArenaSheet({
           </button>
         )}
       </div>
-      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body}>
+      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">
         {children}
       </div>
-      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot}>{footer}</div>}
+      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot} data-arena-boundary="">{footer}</div>}
     </div>
   );
 }

@@ -61,7 +61,7 @@ let seq = 0;
             <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" size="sm"
                                [tabStop]="false" (click)="togglePanel()" />
             @if (panelOpen()) {
-              <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" [style.zIndex]="1">
+              <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" data-arena-boundary [style.zIndex]="1">
                 <ng-content select="[actions]" />
               </span>
             }

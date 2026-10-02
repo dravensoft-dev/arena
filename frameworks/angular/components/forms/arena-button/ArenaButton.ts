@@ -15,7 +15,7 @@ import manifest from './ArenaButton.classes.generated';
     '[attr.name]': 'null',
   },
   template: `
-    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.type]="type()" [disabled]="inert()"
+    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.type]="type()" [disabled]="inert()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
             [attr.tabindex]="tabStop() ? null : -1" (click)="onClick($event)">
       @if (loading()) {

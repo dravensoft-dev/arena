@@ -30,9 +30,9 @@ export function ArenaFigure({
   return (
     <figure className={styles.root()} data-arena-part={manifest.parts.root}>
       <div className={styles.frame()} data-arena-part={manifest.parts.frame} style={{ aspectRatio: ratio }}>
-        {media && <div className={styles.media()} data-arena-part={manifest.parts.media}>{media}</div>}
-        {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback}>{fallback}</div>}
-        {overlay && <div className={styles.overlay()} data-arena-part={manifest.parts.overlay}>{overlay}</div>}
+        {media && <div className={styles.media()} data-arena-part={manifest.parts.media} data-arena-boundary="">{media}</div>}
+        {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback} data-arena-boundary="">{fallback}</div>}
+        {overlay && <div className={styles.overlay()} data-arena-part={manifest.parts.overlay} data-arena-boundary="">{overlay}</div>}
       </div>
       {caption && <figcaption className={styles.caption()} data-arena-part={manifest.parts.caption}>{caption}</figcaption>}
     </figure>

@@ -31,7 +31,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
         <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
       </button>
     }
-    <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" role="group"
+    <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" data-arena-boundary role="group"
          [attr.aria-labelledby]="rail() ? null : triggerId()" [attr.aria-label]="rail() ? heading() : null"
          [hidden]="!rail() && !expanded()">
       <ng-content />

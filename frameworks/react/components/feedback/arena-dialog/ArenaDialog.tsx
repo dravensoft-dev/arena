@@ -97,8 +97,8 @@ function DialogFrame({ onClose, onKeyDown, panelRef, titleId, title, eyebrow, fo
           {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
           <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
         </div>
-        <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
-        {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot}>{footer}</div>}
+        <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">{children}</div>
+        {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot} data-arena-boundary="">{footer}</div>}
       </div>
     </div>
   );

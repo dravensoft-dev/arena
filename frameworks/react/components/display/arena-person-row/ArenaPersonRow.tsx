@@ -49,7 +49,7 @@ export function ArenaPersonRow({ name, src, secondary, rank, figure, current = f
         {secondary && <span className={styles.secondary()} data-arena-part={manifest.parts.secondary}>{secondary}</span>}
       </span>
       {figure && <span className={styles.figure()} data-arena-part={manifest.parts.figure}>{figure}</span>}
-      <span className={styles.action()} data-arena-part={manifest.parts.action}>{action}</span>
+      <span className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</span>
     </li>
   );
 }

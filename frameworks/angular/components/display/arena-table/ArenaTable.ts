@@ -62,10 +62,10 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
           </tr>
         </thead>
       }
-      <tbody [class]="styles().body()" [attr.data-arena-part]="parts.body" [attr.role]="groupRole()"><ng-content /></tbody>
+      <tbody [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary [attr.role]="groupRole()"><ng-content /></tbody>
     </table>
     @if (empty()) {
-      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty"><ng-content select="[empty]">{{ locale.tableEmpty }}</ng-content></div>
+      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty" data-arena-boundary><ng-content select="[empty]">{{ locale.tableEmpty }}</ng-content></div>
     } @else if (pager(); as paging) {
       <div [class]="styles().pager()" [attr.data-arena-part]="parts.pager">
         <arena-pagination [page]="paging.index" [pageCount]="pageCount()"

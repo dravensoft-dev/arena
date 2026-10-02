@@ -13,7 +13,7 @@ import type { ArenaLogoSize, ArenaOrientation } from '../../../Api.generated';
     '[attr.name]': 'null',
   },
   template: `
-    <span [class]="styles().mark()" [attr.data-arena-part]="parts.mark"><ng-content select="[mark]" /></span>
+    <span [class]="styles().mark()" [attr.data-arena-part]="parts.mark" data-arena-boundary><ng-content select="[mark]" /></span>
     <span [class]="styles().name()" [attr.data-arena-part]="parts.name">{{ name() }}@if (dim(); as tail) {<span [class]="styles().dim()" [attr.data-arena-part]="parts.dim">{{ tail }}</span>}</span>
   `,
 })

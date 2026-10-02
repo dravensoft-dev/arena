@@ -29,7 +29,7 @@ export function ArenaAppLogo({ size = 'md', orientation = 'horizontal', mark, na
   const styles = logoStyles({ size, orientation });
   return (
     <span className={styles.root()} data-arena-part={manifest.parts.root}>
-      <span className={styles.mark()} data-arena-part={manifest.parts.mark}>{mark}</span>
+      <span className={styles.mark()} data-arena-part={manifest.parts.mark} data-arena-boundary="">{mark}</span>
       <span className={styles.name()} data-arena-part={manifest.parts.name}>
         {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim}>{dim}</span>}
       </span>

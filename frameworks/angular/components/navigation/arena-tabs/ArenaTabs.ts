@@ -14,7 +14,8 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTabsState],
-  host: { style: 'display: contents' },
+  host: {
+    'data-arena-boundary': '', style: 'display: contents' },
   template: `
     <div role="tablist" [class]="styles().root()" [attr.data-arena-part]="parts.root" (keydown)="onKeydown($event)">
       @for (tab of tabs(); track tab.value(); let i = $index) {

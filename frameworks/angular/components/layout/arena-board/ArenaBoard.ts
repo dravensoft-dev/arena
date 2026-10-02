@@ -7,6 +7,7 @@ import manifest from './ArenaBoard.classes.generated';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     role: 'group',

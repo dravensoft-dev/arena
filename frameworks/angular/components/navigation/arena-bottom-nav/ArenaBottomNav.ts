@@ -9,6 +9,7 @@ import manifest from './ArenaBottomNav.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaBottomNavState],
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     role: 'navigation',

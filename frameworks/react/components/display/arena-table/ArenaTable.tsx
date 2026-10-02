@@ -238,7 +238,7 @@ export function ArenaTable({
           </thead>
         )}
         <tbody role={flat ? 'presentation' : undefined}
-          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body}>
+          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body} data-arena-boundary="">
           {rowEls.map((row, ri) => (React.isValidElement(row)
             ? React.cloneElement(row, {
               rowIndex: ri + 1,
@@ -252,7 +252,7 @@ export function ArenaTable({
         </tbody>
       </table>
       {bare && (
-        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty}>{empty ?? locale.tableEmpty}</div>
+        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty} data-arena-boundary="">{empty ?? locale.tableEmpty}</div>
       )}
       {!bare && page && pageControl !== 'none' && (
         <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager}>

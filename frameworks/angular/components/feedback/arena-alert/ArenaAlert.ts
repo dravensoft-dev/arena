@@ -28,7 +28,7 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
       @if (title(); as heading) {
         <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
       }
-      <div [class]="styles().message()" [attr.data-arena-part]="parts.message"><ng-content /></div>
+      <div [class]="styles().message()" [attr.data-arena-part]="parts.message" data-arena-boundary><ng-content /></div>
       @if (actionLabel(); as label) {
         <button type="button" [class]="styles().action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
       }

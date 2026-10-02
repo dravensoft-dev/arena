@@ -35,7 +35,7 @@ export function ArenaEmptyState({ icon, title, headingLevel = 'h3', message, act
       {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
       {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
       {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
-      {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}
+      {action && <div className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</div>}
     </div>
   );
 }

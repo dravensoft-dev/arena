@@ -67,7 +67,7 @@ export function ArenaSideNavCollapsible({
     return (
       <div className={styles.section()} data-arena-part={manifest.parts.section}>
         <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />
-        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region}>
+        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} data-arena-boundary="">
           {arenaInjectInto(children, { depth, activeId, indentStep, onActivate, collapsed })}
         </div>
       </div>
@@ -92,7 +92,7 @@ export function ArenaSideNavCollapsible({
       {
 }
       <div id={regionId} role="group" aria-labelledby={triggerId} hidden={!expanded}
-        className={styles.region()} data-arena-part={manifest.parts.region}>
+        className={styles.region()} data-arena-part={manifest.parts.region} data-arena-boundary="">
         {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
       </div>
     </div>

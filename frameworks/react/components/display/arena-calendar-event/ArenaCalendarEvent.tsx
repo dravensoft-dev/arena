@@ -186,7 +186,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (
-              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel}>
+              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel} data-arena-boundary="">
                 {actions}
               </span>
             )}

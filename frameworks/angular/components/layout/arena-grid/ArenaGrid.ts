@@ -8,6 +8,7 @@ import manifest from './ArenaGrid.classes.generated';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     '[style.gridTemplateColumns]': 'tracks()',

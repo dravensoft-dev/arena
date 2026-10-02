@@ -47,9 +47,9 @@ import type { ArenaBreakpoint } from '../../../Api.generated';
           }
           <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
+        <div [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
         @if (footer()) {
-          <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot"><ng-content select="[footer]" /></div>
+          <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary><ng-content select="[footer]" /></div>
         }
       </div>
     }

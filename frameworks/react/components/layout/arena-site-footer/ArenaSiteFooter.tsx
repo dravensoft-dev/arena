@@ -22,7 +22,7 @@ export function ArenaSiteFooter({ children, note }: ArenaSiteFooterProps) {
     <footer className={styles.root()} data-arena-part={manifest.parts.root}>
       <div className={styles.band()} data-arena-part={manifest.parts.band} style={{ maxWidth: PAGE }}>
         {children && (
-          <div className={styles.columns()} data-arena-part={manifest.parts.columns} style={{ gridTemplateColumns: TRACKS }}>{children}</div>
+          <div className={styles.columns()} data-arena-part={manifest.parts.columns} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS }}>{children}</div>
         )}
         {note && <p className={styles.note()} data-arena-part={manifest.parts.note}>{note}</p>}
       </div>

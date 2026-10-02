@@ -56,9 +56,9 @@ export function ArenaSection({
           <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
           {description && <p className={styles.description()} data-arena-part={manifest.parts.description}>{description}</p>}
         </div>
-        {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}
+        {action && <div className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</div>}
       </div>
-      <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">{children}</div>
     </section>
   );
 }

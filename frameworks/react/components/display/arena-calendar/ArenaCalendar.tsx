@@ -223,7 +223,7 @@ export function ArenaCalendar({
         <div className={styles.heading()} data-arena-part={manifest.parts.heading}>
           {range}
         </div>
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
       </div>
 
       <div className={styles.headStrip()} data-arena-part={manifest.parts.headStrip} style={{ gridTemplateColumns: TRACKS(days.length) }}>
@@ -263,7 +263,7 @@ export function ArenaCalendar({
 }
           <div ref={gridRef} role="grid" aria-label={arenaPhrase(locale.calendarGrid, { range })}
             onKeyDown={onGridKeyDown}
-            className={styles.grid()} data-arena-part={manifest.parts.grid} style={{ gridTemplateColumns: TRACKS(days.length) }}>
+            className={styles.grid()} data-arena-part={manifest.parts.grid} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS(days.length) }}>
             {hours.map((m) => (
               <div key={m} aria-hidden="true" className={styles.rule()} data-arena-part={manifest.parts.rule} style={{ top: y(m) }} />
             ))}

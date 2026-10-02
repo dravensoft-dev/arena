@@ -25,11 +25,11 @@ export function ArenaChartCard({ title, headingLevel = 'none', actions, children
   const styles = arenaChartCardStyles();
   const Heading = headingLevel === 'none' ? 'span' : headingLevel;
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={styles.root()} data-arena-part={manifest.parts.root} data-arena-boundary="">
       {(title || actions) && (
         <div className={styles.head()} data-arena-part={manifest.parts.head}>
           {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
-          {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+          {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
         </div>
       )}
       {children}

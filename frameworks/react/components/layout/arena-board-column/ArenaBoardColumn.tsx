@@ -49,11 +49,11 @@ export function ArenaBoardColumn({ title, headingLevel = 'h3', count, summary, c
         {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />}
         <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
         {count !== undefined && <span className={styles.count()} data-arena-part={manifest.parts.count}>{count}</span>}
-        <span className={styles.action()} data-arena-part={manifest.parts.action}>{action}</span>
+        <span className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</span>
       </div>
       {summary && <span className={styles.summary()} data-arena-part={manifest.parts.summary}>{summary}</span>}
-      <div className={styles.stack()} data-arena-part={manifest.parts.stack}>{children}</div>
-      <div className={styles.foot()} data-arena-part={manifest.parts.foot}>{footer}</div>
+      <div className={styles.stack()} data-arena-part={manifest.parts.stack} data-arena-boundary="">{children}</div>
+      <div className={styles.foot()} data-arena-part={manifest.parts.foot} data-arena-boundary="">{footer}</div>
     </section>
   );
 }

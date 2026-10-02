@@ -1,5 +1,8 @@
 {
   "component": "ArenaTooltip",
+  "transparent": {
+    "root": "the trigger is the adopter's own control and the wrapper draws nothing around it, so a box class on the wrapper or above it decides the trigger's box as it decides the wrapper's"
+  },
   "slots": {
     "root": "inline-flex w-fit",
     "bubble": "arena-fade z-tooltip whitespace-nowrap px-2.5 py-1.5 rounded-control shadow-surface-floating bg-base-content text-base-100 font-mono text-ctl-xs"

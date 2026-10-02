@@ -12,6 +12,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaSideNavState],
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().section()',
     '[attr.data-arena-part]': 'parts.section',
     role: 'group',

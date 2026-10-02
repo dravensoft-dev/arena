@@ -26,17 +26,17 @@ import manifest from '../arena-board/ArenaBoard.classes.generated';
         @if (count() !== undefined) {
           <span [class]="styles().count()" [attr.data-arena-part]="parts.count">{{ count() }}</span>
         }
-        <span [class]="styles().action()" [attr.data-arena-part]="parts.action">
+        <span [class]="styles().action()" [attr.data-arena-part]="parts.action" data-arena-boundary>
           <ng-content select="[action]" />
         </span>
       </div>
       @if (summary(); as line) {
         <span [class]="styles().summary()" [attr.data-arena-part]="parts.summary">{{ line }}</span>
       }
-      <div [class]="styles().stack()" [attr.data-arena-part]="parts.stack">
+      <div [class]="styles().stack()" [attr.data-arena-part]="parts.stack" data-arena-boundary>
         <ng-content />
       </div>
-      <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
+      <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary>
         <ng-content select="[footer]" />
       </div>
     </section>

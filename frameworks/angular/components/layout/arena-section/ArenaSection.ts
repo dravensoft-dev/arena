@@ -24,9 +24,9 @@ import manifest from './ArenaSection.classes.generated';
         }
         @if (description(); as line) { <p [class]="styles().description()" [attr.data-arena-part]="parts.description">{{ line }}</p> }
       </div>
-      @if (action()) { <div [class]="styles().action()" [attr.data-arena-part]="parts.action"><ng-content select="[action]" /></div> }
+      @if (action()) { <div [class]="styles().action()" [attr.data-arena-part]="parts.action" data-arena-boundary><ng-content select="[action]" /></div> }
     </div>
-    <div #body [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
+    <div #body [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
   `,
 })
 export class ArenaSection {

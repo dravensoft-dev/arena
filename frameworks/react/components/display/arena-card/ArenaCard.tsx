@@ -74,7 +74,7 @@ export function ArenaCard({
   const body = (
     <>
       {(title || eyebrow || action) && (
-        <div className={styles.head()} data-arena-part={manifest.parts.head}>
+        <div className={styles.head()} data-arena-part={manifest.parts.head} data-arena-boundary="">
           <div>
             {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
             {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
@@ -82,7 +82,7 @@ export function ArenaCard({
           {action}
         </div>
       )}
-      <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">{children}</div>
     </>
   );
 

@@ -29,7 +29,7 @@ export function ArenaSideNavSection({
   const labelId = useId();
   const styles = arenaSideNavStyles({ collapsed });
   return (
-    <div role="group" aria-labelledby={labelId} className={styles.section()} data-arena-part={manifest.parts.section}>
+    <div role="group" aria-labelledby={labelId} className={styles.section()} data-arena-part={manifest.parts.section} data-arena-boundary="">
       {collapsed && <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />}
       <div id={labelId} className={styles.sectionLabel()} data-arena-part={manifest.parts.sectionLabel}
         style={collapsed ? undefined : { paddingInlineStart: arenaIndentFor(indentStep, depth) }}>{label}</div>

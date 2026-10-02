@@ -17,9 +17,9 @@ import manifest from './ArenaUnauthCard.classes.generated';
   imports: [ArenaCard],
   template: `
     <arena-card>
-      <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
+      <div [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary>
         @if (brand()) {
-          <div [class]="styles().brand()" [attr.data-arena-part]="parts.brand"><ng-content select="[brand]" /></div>
+          <div [class]="styles().brand()" [attr.data-arena-part]="parts.brand" data-arena-boundary><ng-content select="[brand]" /></div>
         }
         @if (eyebrow(); as label) {
           <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
@@ -35,7 +35,7 @@ import manifest from './ArenaUnauthCard.classes.generated';
         }
         <ng-content />
         @if (footer()) {
-          <div [class]="styles().footer()" [attr.data-arena-part]="parts.footer"><ng-content select="[footer]" /></div>
+          <div [class]="styles().footer()" [attr.data-arena-part]="parts.footer" data-arena-boundary><ng-content select="[footer]" /></div>
         }
       </div>
     </arena-card>

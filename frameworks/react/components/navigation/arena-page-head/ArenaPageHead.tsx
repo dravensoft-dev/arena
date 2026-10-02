@@ -42,7 +42,7 @@ export function ArenaPageHead({ title, headingLevel = 'h1', subtitle, actions, a
         <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
         {subtitle && <p className={styles.subtitle()} data-arena-part={manifest.parts.subtitle}>{subtitle}</p>}
       </div>
-      {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+      {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
     </div>
   );
 }

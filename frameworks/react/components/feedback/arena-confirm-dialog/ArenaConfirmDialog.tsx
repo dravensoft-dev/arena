@@ -60,7 +60,7 @@ export function ArenaConfirmDialog({ open, onCancel, onConfirm, title, eyebrow, 
           <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{kicker}</div>
           <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
         </div>
-        <div className={styles.body()} data-arena-part={manifest.parts.body}>
+        <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">
           {children}
           {requireText && (
             <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock}>

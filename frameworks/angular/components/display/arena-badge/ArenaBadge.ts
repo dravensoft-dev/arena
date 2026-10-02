@@ -7,7 +7,8 @@ import manifest from './ArenaBadge.classes.generated';
   selector: 'arena-badge',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()',
+  host: {
+    'data-arena-boundary': '', '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (dot()) {

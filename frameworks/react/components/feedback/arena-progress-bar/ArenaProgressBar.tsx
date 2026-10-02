@@ -67,7 +67,7 @@ export function ArenaProgressBar({ children, progressPercentage = 0, indetermina
               style={{ strokeDashoffset: indeterminate ? 100 - RING_SWEEP : 100 - pct }} />
           </svg>
           {!indeterminate && <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{`${pct}%`}</span>}
-          <span className={styles.ringContent()} data-arena-part={manifest.parts.ringContent}>{children}</span>
+          <span className={styles.ringContent()} data-arena-part={manifest.parts.ringContent} data-arena-boundary="">{children}</span>
           {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{`${pct}%`}</span>}
         </div>
         {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}

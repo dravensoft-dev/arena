@@ -15,11 +15,11 @@ import manifest from './ArenaPeopleList.classes.generated';
   template: `
     <ng-template #rows><ng-content /></ng-template>
     @if (ordered()) {
-      <ol [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="named()">
+      <ol [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.aria-label]="named()">
         <ng-container [ngTemplateOutlet]="rows" />
       </ol>
     } @else {
-      <ul [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="named()">
+      <ul [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.aria-label]="named()">
         <ng-container [ngTemplateOutlet]="rows" />
       </ul>
     }

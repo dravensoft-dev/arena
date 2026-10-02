@@ -28,7 +28,7 @@ export function ArenaTag({ children, tone = 'neutral', colorId, removable = fals
   const locale = useArenaLocale();
   const styles = arenaTagStyles({ tone: colorId ? 'identity' : tone, disabled });
   return (
-    <span className={styles.root()} data-arena-part={manifest.parts.root}
+    <span className={styles.root()} data-arena-part={manifest.parts.root} data-arena-boundary=""
       style={colorId ? { '--arena-tag-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
       <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
       {children}

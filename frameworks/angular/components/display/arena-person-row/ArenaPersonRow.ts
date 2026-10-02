@@ -28,7 +28,7 @@ const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg
       @if (figure(); as value) {
         <span [class]="styles().figure()" [attr.data-arena-part]="parts.figure">{{ value }}</span>
       }
-      <span [class]="styles().action()" [attr.data-arena-part]="parts.action">
+      <span [class]="styles().action()" [attr.data-arena-part]="parts.action" data-arena-boundary>
         <ng-content select="[action]" />
       </span>
     </li>

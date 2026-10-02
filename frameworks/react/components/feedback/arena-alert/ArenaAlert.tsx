@@ -46,7 +46,7 @@ export function ArenaAlert({ tone = 'info', title, children, icon, actionLabel, 
       <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} />
       <div className={styles.body()} data-arena-part={manifest.parts.body}>
         {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
-        {children && <div className={styles.message()} data-arena-part={manifest.parts.message}>{children}</div>}
+        {children && <div className={styles.message()} data-arena-part={manifest.parts.message} data-arena-boundary="">{children}</div>}
         {actionLabel && (
           <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action}>{actionLabel}</button>
         )}

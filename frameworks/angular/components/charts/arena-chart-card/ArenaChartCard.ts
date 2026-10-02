@@ -9,6 +9,7 @@ import manifest from './ArenaChartCard.classes.generated';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     '[attr.title]': 'null',
@@ -26,7 +27,7 @@ import manifest from './ArenaChartCard.classes.generated';
           }
         }
         @if (actions()) {
-          <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
+          <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div>
         }
       </div>
     }

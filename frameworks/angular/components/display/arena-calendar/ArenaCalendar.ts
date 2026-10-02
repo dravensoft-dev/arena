@@ -37,7 +37,7 @@ const MINUTE = 60000;
         </button>
         <div [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</div>
         @if (actionsSlot()) {
-          <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
+          <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div>
         }
       </div>
 
@@ -66,7 +66,7 @@ const MINUTE = 60000;
             }
           </div>
 
-          <div role="grid" [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [style.gridTemplateColumns]="tracks()"
+          <div role="grid" [class]="styles().grid()" [attr.data-arena-part]="parts.grid" data-arena-boundary [style.gridTemplateColumns]="tracks()"
                [attr.aria-label]="gridName()" (keydown)="onKeydown($event)">
             @for (hour of hours(); track hour) {
               <div aria-hidden="true" [class]="styles().rule()" [attr.data-arena-part]="parts.rule" [style.top.px]="state.y(hour)"></div>

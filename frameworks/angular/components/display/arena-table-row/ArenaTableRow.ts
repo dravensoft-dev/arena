@@ -15,6 +15,7 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableRowState],
   host: {
+    'data-arena-boundary': '',
     '[class]': 'rowClass()',
     '[attr.data-arena-part]': 'narrow() ? parts.card : parts.row',
     '[attr.role]': 'role()',

@@ -26,7 +26,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
     <ng-template #value><ng-content /></ng-template>
     <ng-template #shown>
       @if (href(); as url) {
-        <a [class]="styles().link()" [attr.data-arena-part]="parts.link" [href]="url"
+        <a [class]="styles().link()" [attr.data-arena-part]="parts.link" data-arena-boundary [href]="url"
            (click)="onAnchorClick($event)"><ng-container *ngTemplateOutlet="value" /></a>
       } @else {
         <ng-container *ngTemplateOutlet="value" />

@@ -9,7 +9,8 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
   selector: 'arena-tag',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()',
+  host: {
+    'data-arena-boundary': '', '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     '[style.--arena-tag-cat]': 'catColour()', },
   template: `

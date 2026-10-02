@@ -11,6 +11,7 @@ import manifest from './ArenaSideNav.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaSideNavState],
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root',
     role: 'navigation',

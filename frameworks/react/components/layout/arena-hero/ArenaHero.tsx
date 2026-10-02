@@ -64,9 +64,9 @@ export function ArenaHero({
         {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</p>}
         <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
         {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede}>{lede}</p>}
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
       </div>
-      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure}>{figure}</div>}
+      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure} data-arena-boundary="">{figure}</div>}
     </section>
   );
 }

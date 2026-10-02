@@ -44,7 +44,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
           <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ kicker() }}</div>
           <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [id]="descId" [class]="styles().body()" [attr.data-arena-part]="parts.body">
+        <div [id]="descId" [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary>
           <ng-content />
           @if (requireText(); as required) {
             <div [class]="styles().requireBlock()" [attr.data-arena-part]="parts.requireBlock">

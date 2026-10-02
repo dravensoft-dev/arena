@@ -13,9 +13,9 @@ const PAGE = 'var(--container-max)';
   template: `
     <header [class]="styles().root()" [attr.data-arena-part]="parts.root">
       <div [class]="styles().band()" [attr.data-arena-part]="parts.band" [style.maxWidth]="page">
-        @if (brand()) { <div [class]="styles().brand()" [attr.data-arena-part]="parts.brand"><ng-content select="[brand]" /></div> }
-        @if (nav()) { <div [class]="styles().nav()" [attr.data-arena-part]="parts.nav"><ng-content select="[nav]" /></div> }
-        @if (actions()) { <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div> }
+        @if (brand()) { <div [class]="styles().brand()" [attr.data-arena-part]="parts.brand" data-arena-boundary><ng-content select="[brand]" /></div> }
+        @if (nav()) { <div [class]="styles().nav()" [attr.data-arena-part]="parts.nav" data-arena-boundary><ng-content select="[nav]" /></div> }
+        @if (actions()) { <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div> }
       </div>
     </header>
   `,

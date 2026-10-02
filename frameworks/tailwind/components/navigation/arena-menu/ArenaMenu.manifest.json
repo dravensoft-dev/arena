@@ -1,5 +1,8 @@
 {
   "component": "ArenaMenu",
+  "transparent": {
+    "root": "the trigger is the adopter's own control and the wrapper draws nothing around it, so a box class on the wrapper or above it decides the trigger's box as it decides the wrapper's"
+  },
   "slots": {
     "root": "inline-flex w-fit",
     "panel": "arena-menu z-dropdown min-w-50 p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",

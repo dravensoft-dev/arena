@@ -84,7 +84,7 @@ export function ArenaTableRow({
       aria-disabled={onClick && disabled ? 'true' : undefined}
       aria-rowindex={ariaRowIndex ?? undefined}
 
-      className={rowClass} data-arena-part={manifest.parts.row}>
+      className={rowClass} data-arena-part={manifest.parts.row} data-arena-boundary="">
       {cells}
     </tr>
   );

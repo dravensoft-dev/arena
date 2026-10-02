@@ -33,12 +33,12 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
           </button>
         }
       </div>
-      <div [id]="bodyId" [class]="styles().body()" [attr.data-arena-part]="parts.body" role="group"
+      <div [id]="bodyId" [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary role="group"
            [attr.aria-labelledby]="triggerId" [hidden]="collapsed()">
         <ng-content />
       </div>
       @if (footer()) {
-        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot"><ng-content select="[footer]" /></div>
+        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary><ng-content select="[footer]" /></div>
       }
     }
   `,

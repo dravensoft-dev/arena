@@ -34,7 +34,7 @@ export function ArenaRadioGroup({ value, onChange, name, ariaLabel, children, di
       ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onChange, disabled: disabled || Boolean(child.props.disabled) })
       : child);
   return (
-    <div role="radiogroup" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaRadioStyles().group()} data-arena-part={manifest.parts.group}>
+    <div role="radiogroup" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaRadioStyles().group()} data-arena-part={manifest.parts.group} data-arena-boundary="">
       {items}
     </div>
   );

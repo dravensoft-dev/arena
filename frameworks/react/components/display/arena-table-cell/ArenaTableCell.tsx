@@ -35,7 +35,7 @@ export function ArenaTableCell({
 
   const shown = href === undefined ? children : (
     <a href={href} className={cellStyles({ narrow: layout === 'card' }).link()}
-      data-arena-part={manifest.parts.link}
+      data-arena-part={manifest.parts.link} data-arena-boundary=""
       onClick={(event) => {
         if (!isArenaPrimaryActivation(event.nativeEvent)) return;
         event.preventDefault();
@@ -49,7 +49,7 @@ export function ArenaTableCell({
     if (c.mobileLayout === 'block') {
 
       return (
-        <td role="presentation" className={cellStyles({ narrow: true }).cardBlock()} data-arena-part={manifest.parts.cardBlock}>
+        <td role="presentation" className={cellStyles({ narrow: true }).cardBlock()} data-arena-part={manifest.parts.cardBlock} data-arena-boundary="">
           {shown}
         </td>
       );
@@ -59,7 +59,7 @@ export function ArenaTableCell({
       <td role="presentation" className={card.cardRow()} data-arena-part={manifest.parts.cardRow}>
         <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel}>{c.header}</span>
         <span className={c.mono ? card.cardValueMono() : card.cardValue()}
-          data-arena-part={manifest.parts.cardValue}>
+          data-arena-part={manifest.parts.cardValue} data-arena-boundary="">
           {shown}
         </span>
       </td>
@@ -73,7 +73,7 @@ export function ArenaTableCell({
       className={c.mono
         ? cellStyles({ narrow: false, align: c.align || 'left' }).tdMono()
         : cellStyles({ narrow: false, align: c.align || 'left' }).td()}
-      data-arena-part={manifest.parts.td}>
+      data-arena-part={manifest.parts.td} data-arena-boundary="">
       {shown}
     </td>
   );
