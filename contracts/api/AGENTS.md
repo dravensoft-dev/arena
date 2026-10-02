@@ -56,6 +56,16 @@ demanding identical call-site syntax would demand something neither platform can
 This is the line that makes "zero API divergences" achievable rather than rhetorical:
 identical members, idiomatic binding.
 
+**A member does not decide appearance unless the render computes with it.** Size, emphasis,
+editorial colour, width, padding, elevation and alignment arrive through a vocabulary class,
+which [`../AGENTS.md`](../AGENTS.md) places in the model. A member that mixes a meaning with a look
+keeps the meaning and leaves the look to the Tailwind layer. A design decision the render computes
+with (a chart's height, a calendar's view) stays a member. The members still to move are
+`DESIGN_MEMBERS` in `scripts/check/arena/check-contracts-neutrality.ts`, each with the phase that
+moves it, and a stale entry fails `check:contracts-neutrality`. **React's `className` is the one
+member no contract names**, typed with the component's generated vocabulary class, and
+`check:api` holds it to that type.
+
 ### A member a platform cannot express at all
 
 "Idiomatic binding" answers a platform that spells a member differently. It does not answer one

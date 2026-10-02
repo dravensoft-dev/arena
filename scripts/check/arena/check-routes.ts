@@ -69,7 +69,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 23_700,
+    budget: 24_000,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than a '
@@ -284,7 +284,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 71_100,
+    budget: 71_800,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop, allowed '
       + 'to cost more than any consumer route because it is paid by whoever changes Arena. It may not '
@@ -323,7 +323,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 65_600,
+    budget: 67_100,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -342,7 +342,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 86_000,
+    budget: 86_200,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
@@ -360,7 +360,7 @@ export const ROUTES: Route[] = [
       + 'then the one layer that owns an appearance decision for both frameworks at once',
     entry: 'contributor',
     stops: ['frameworks/tailwind/AGENTS.md'],
-    budget: 44_000,
+    budget: 46_400,
     reason:
       'the row a contributor takes when a shape, a colour or a state is wrong and the API is not. '
       + 'The file a corner radius actually moves in is a style plugin under plugin-style-store, '
@@ -375,7 +375,7 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 38_600,
+    budget: 40_200,
     reason:
       'the route a bug report takes, and the one whose answer is most often that nothing in the '
       + 'code is broken: a requirement no suite pins is unfalsifiable rather than unverified, and '

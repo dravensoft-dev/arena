@@ -30,6 +30,7 @@ this table used to have no row for.
 | which of those three a fact belongs to | [`contracts/AGENTS.md`](./contracts/AGENTS.md), the roof |
 | a component, in one layer or both | [`frameworks/AGENTS.md`](./frameworks/AGENTS.md), then that layer's own |
 | how a component LOOKS | [`frameworks/tailwind/AGENTS.md`](./frameworks/tailwind/AGENTS.md) |
+| a style decision an adopter makes on an instance or a region: a family, a channel, a boundary | [`contracts/AGENTS.md`](./contracts/AGENTS.md), its section on who decides how a component looks, then [`frameworks/tailwind/AGENTS.md`](./frameworks/tailwind/AGENTS.md) |
 | what a consumer may build Arena INTO: an import, a peer, a browser global, a server render | [`frameworks/AGENTS.md`](./frameworks/AGENTS.md), the envelope section, then the layer you are editing. `check:architecture` fails a withdrawal |
 | a playground's seed | [`frameworks/demos/AGENTS.md`](./frameworks/demos/AGENTS.md) |
 | a script, a gate, a generator | [`scripts/AGENTS.md`](./scripts/AGENTS.md) |

@@ -78,6 +78,45 @@ if it and this paragraph ever disagree, the file wins. Every value in it is a
 `var()` into a token, and each animation answers `prefers-reduced-motion` on its
 own terms: decorative motion stops, motion that reports work slows.
 
+## The vocabulary: what an adopter writes on a component
+
+**A family is a question about appearance with named answers, and an adopter writes the answer as
+a class.** Each lives in `vocabulary/arena-<family>/<Family>.family.json` beside a specimen card,
+and declares:
+
+- `family` and `reach`. A `context` family crosses components and is cut only where a nearer class
+  answers it again. A `box` family reaches the nearest component only.
+- `description`: the argument for the family existing at all. It is required.
+- `variants`: each option class mapped to arbitrary properties writing only `--arena-<family>-*`
+  channels, as `"arena-fill": "[--arena-fill-width:100%]"`.
+- `default`: the option in effect when nothing is written.
+- `axis`, on a box family that has one: the public `--arena-<family>` property an adopter sets for
+  a value no option names.
+
+**A manifest takes part with two keys.** `answers` names the families the component responds to,
+and a slot reads each channel with today's value as the `var()` fallback, as
+`w-[var(--arena-fill-width,fit-content)]`. The fallback IS the default: a manifest never declares a
+channel, because a declaration on the slot would tie the family's rule on specificity and source
+order would decide again. `transparent` names a slot that projects adopter content without being
+a boundary, with its reason; the triggers of `ArenaTooltip` and `ArenaMenu` are the case.
+
+**`build:tailwind` compiles a family to `consume/vocabulary/<Family>.generated.css`**, one `@scope`
+block per option over the parts that read its channel, each selected as the scope root and as a
+descendant (`&[data-arena-part="p"], [data-arena-part="p"]`), since a bare selector inside
+`@scope` never matches the root. A box family is limited by
+`to ([data-arena-boundary] > *, :scope[data-arena-boundary] > *)`, which is inclusive on purpose:
+the boundary is usually the component's own root, an exclusive limit drops that root from scope,
+and Chromium matches a limit among the root's descendants only. **A box family registers each
+channel with `@property` as not inherited**: a custom property inherits, so a part the rule reaches
+would otherwise hand its value down past the boundary the rule stops at. An axis is reset on
+`[data-arena-boundary] > *`. Every sheet opens with the layer order, so a vocabulary sheet loaded
+first cannot rank `utilities` below `components`. The packages ship each one as
+`css/vocabulary/<family>.css`, imported by `arena.css`.
+
+`check:families` holds the files and the manifests' use of them, `check:channels` holds one writer
+kind per custom property, `check:boundaries` holds the boundary records, and `check:proximity`
+measures the cascade in Chromium in both load orders.
+
 ## The two hand-authored treatments, and why neither is a manifest slot
 
 `Numerals.css` holds `.arena-num`: the mono face and `tabular-nums`, and no colour. It is here

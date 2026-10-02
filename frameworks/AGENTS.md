@@ -318,6 +318,9 @@ that was solving something else, and the consumer finds out at their own build.
   the component. Read it inside a function, an effect or an after-render hook, or guard it with a
   `typeof` check; Angular's answer is the injected `DOCUMENT` token, and both layers already do
   this everywhere.
+- **The vocabulary rests on CSS `@scope`, so the browser baseline is Chrome 118, Safari 17.4 and
+  Firefox 146.** It is a promise rather than a measurement: `check:pixel-parity` and
+  `check:proximity` run in Chromium, and nothing here measures the other two engines.
 - **What each layer may reach, and the peer each one keeps optional, is that layer's own page.**
   `ENVELOPES` is where the two lists are declared, and the reason a package is in one belongs
   beside the layer that reaches it.

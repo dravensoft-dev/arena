@@ -56,6 +56,30 @@ any one of them while failing the other two.
 element a layer renders, what an idiom forces: all of that belongs beside the source, in the
 layer's own document or the component's `.prompt.md`.
 
+## Who decides how a component looks
+
+**The API declares behaviour and the vocabulary decides appearance, and the two own disjoint
+channels.** They never treat the same aspect of a component, so their decisions coexist by
+construction rather than by a precedence rule. Five questions, five owners:
+
+| Question | Owner | How it arrives | Where it is set |
+|---|---|---|---|
+| Value: which lengths, colours and durations exist | `design/` | custom properties on `:root` | nowhere outside Arena |
+| Register: what each option looks like | the style plugin and the palette | `:root`, `.arena-<plugin>` and `plugin.css` | the plugin directory and `arena.config.json` |
+| Context: which option governs a region | a context family | a class on an ancestor or the component, crossing components | the adopter's markup |
+| Instance: which option this component takes in its box | a box family | a class on the component or an ancestor, reaching the nearest component only | the adopter's markup |
+| Behaviour: state, data, events, semantics, accessibility | `api/` | members | the component call |
+
+**Inside a channel the nearest class wins**, by scope proximity rather than by source order, so a
+class on the component beats one on an ancestor whatever order the sheets load in. **Between
+channels nothing is decided**, because no property has two writers. **A box family stops inside
+every element that projects adopter content**, which carries `data-arena-boundary`, unless its
+manifest declares the slot `transparent` with a reason. A surface rendered in a portal or the top
+layer leaves the subtree its trigger sits in, so no class above the trigger reaches it.
+
+The families, their reach and their compilation are [`../frameworks/tailwind/AGENTS.md`](../frameworks/tailwind/AGENTS.md);
+the rule that keeps appearance out of a member is [`api/AGENTS.md`](./api/AGENTS.md).
+
 ## The three levels are firm in one direction
 
 `design/` and `behaviour/` are settled and **not reopened by `api/`**, which is orthogonal and
