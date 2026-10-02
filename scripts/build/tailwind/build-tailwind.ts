@@ -104,6 +104,7 @@ export const node = {
     'check:behaviour',
     'check:compliance',
     'check:component-css',
+    'check:channels',
     'check:demos',
     'check:dimensions',
     'check:duplicate-constants',

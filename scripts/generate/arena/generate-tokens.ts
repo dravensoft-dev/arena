@@ -128,6 +128,7 @@ export const node = {
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
   feeds: [
+    'check:channels',
     'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',

@@ -28,7 +28,7 @@ import {
 import type { IconScan, ShippedIcons } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
-import { auditText, paintedParts, sourceScope } from './audit.ts';
+import { auditText, paintedParts, sourceScope, type VocabularyIndex } from './audit.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
 import { levelDefaults, levelsIn, washesIn } from './levels.ts';
@@ -44,6 +44,7 @@ export const PLUGIN_LAYER = 'arena-plugin';
 export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
 export const ICON_MANIFEST = 'icons.json';
+export const VOCABULARY_INDEX = 'arena.vocabulary.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
 export const DEFAULT_SOURCE = 'src';
@@ -287,6 +288,15 @@ export function iconManifest(root: string): ShippedIcons | null {
   }
 }
 
+export function loadVocabulary(root: string): VocabularyIndex | null {
+  try {
+    const index = JSON.parse(readFileSync(join(root, VOCABULARY_INDEX), 'utf8'));
+    return index && index.classes && index.answers ? index : null;
+  } catch {
+    return null;
+  }
+}
+
 export function componentMap(root: string): ComponentMap | null {
   try {
     const map = JSON.parse(readFileSync(join(root, COMPONENT_MAP), 'utf8'));
@@ -430,6 +440,7 @@ export function pluginTokenMaps(dirs: string[], catalogue: TokenCatalogue | null
 
 export function auditStep(
   options: ResolvedOptions, arena: string | null = null, catalogue: TokenCatalogue | null = null,
+  vocabulary: VocabularyIndex | null = null,
 ) {
   if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
@@ -448,7 +459,7 @@ export function auditStep(
     const cited = toPosix(file);
     const text = readFileSync(file, 'utf8');
     const scope = sourceScope(resolve(file), dirs);
-    reports.push(...auditText(cited, text, scope, declaredMark).map((line) => report('audit', line)));
+    reports.push(...auditText(cited, text, scope, declaredMark, vocabulary).map((line) => report('audit', line)));
     if (scope !== 'plugin') continue;
     for (const part of paintedParts(text)) painted.add(part);
     if (!file.endsWith('.css')) continue;
@@ -637,6 +648,7 @@ export type Environment = {
   phosphor?: string | null;
   sheets?: PackageSheets;
   map?: ComponentMap | null;
+  vocabulary?: VocabularyIndex | null;
 };
 
 export function main(argv: string[], environment: Environment = {}) {
@@ -652,6 +664,8 @@ export function main(argv: string[], environment: Environment = {}) {
     ?? '@dravensoft/arena-react';
   const sheets = ('sheets' in environment ? environment.sheets : (arena ? packageSheets(arena) : null)) ?? null;
   const map = ('map' in environment ? environment.map : (arena ? componentMap(arena) : null)) ?? null;
+  const vocabulary: VocabularyIndex | null = environment.vocabulary !== undefined
+    ? environment.vocabulary : (arena ? loadVocabulary(arena) : null);
   const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
 
   const theme = themeStep(options, { packageName, sheets, map });
@@ -668,7 +682,7 @@ export function main(argv: string[], environment: Environment = {}) {
     for (const line of undrawn.notes) console.log(`arena-to-prod: ${line}`);
   }
 
-  const audit = auditStep(options, arena, arena ? packageCatalogue(arena) : null);
+  const audit = auditStep(options, arena, arena ? packageCatalogue(arena) : null, vocabulary);
   for (const one of audit.reports) console.error(`arena-to-prod: ${one.message}`);
   if (options.audit) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `

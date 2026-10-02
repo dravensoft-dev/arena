@@ -25,6 +25,7 @@ import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 
 export const NAME = '@dravensoft/arena-angular';
 export const LAYER = 'frameworks/angular';
@@ -191,6 +192,7 @@ export function buildAngularPackage(root = repoRoot) {
   for (const rel of copyCli(dist, root)) written.push(join(dist, rel));
 
   written.push(writeComponentMap(dist, 'angular', root));
+  written.push(writeVocabularyIndex(dist, root));
   written.push(writeIconManifest(dist, 'angular', root));
   written.push(write(dist, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
@@ -220,6 +222,7 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './css/components/*': { default: './css/components/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
       './arena.tokens.json': { default: './arena.tokens.json' },
+      './arena.vocabulary.json': { default: './arena.vocabulary.json' },
       './contracts/behaviour/*': { default: './contracts/behaviour/*' },
     },
     bin: { ...CLI_BINS },

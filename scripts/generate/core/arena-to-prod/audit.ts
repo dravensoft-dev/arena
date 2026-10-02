@@ -271,9 +271,54 @@ const LINK_TAG = /^(?:a|Link|NavLink)$/;
 export const OWN_CLASS_ATTRIBUTE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[class\.[a-z0-9-]+\])\s*=/;
 const ROUTER_ATTRIBUTE = /(?:^|\s)(?:routerLink|\[routerLink\]|to|href)\s*=/;
 
-export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws. Arena renders its '
-  + 'own slot names and no contract names them, so a rule of yours reaches one by specificity '
-  + 'and breaks in any release. Re-skin through arena.config.json';
+export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws, or one the source computes. Only a '
+  + 'class of Arena\'s vocabulary goes on a component, written as a literal so it can be read; a slot name is '
+  + 'compiler output no contract names, and a rule of yours reaching one breaks in any release';
+
+export type VocabularyIndex = {
+  page: string;
+  classes: Record<string, { family: string; reach: 'context' | 'box' }>;
+  answers: Record<string, string[]>;
+};
+
+const STATIC_CLASS = /(?:^|\s)(?:className|class)\s*=\s*(["'])([^"']*)\1/;
+const CLASS_TOGGLE = /(?:^|\s)\[class\.([a-z0-9-]+)\]\s*=/g;
+const COMPUTED_CLASS = /(?:^|\s)(?:className\s*=\s*\{|\[class\]\s*=|\[ngClass\]\s*=)/;
+
+export const componentOf = (tag: string) => (tag.startsWith('Arena') ? tag
+  : tag.split('-').map((word) => word.slice(0, 1).toUpperCase() + word.slice(1)).join(''));
+
+export function ownClassFindings(tag: string, attributes: string, vocabulary: VocabularyIndex | null): string[] {
+  if (!OWN_CLASS_ATTRIBUTE.test(attributes)) return [];
+  if (vocabulary === null || COMPUTED_CLASS.test(attributes)) return [OWN_CLASS_MESSAGE];
+  const component = componentOf(tag);
+  const tokens = [
+    ...(STATIC_CLASS.exec(attributes)?.[2] ?? '').split(/\s+/).filter(Boolean),
+    ...[...attributes.matchAll(CLASS_TOGGLE)].map((m) => group(m)),
+  ];
+  const found: string[] = [];
+  const byFamily = new Map<string, string[]>();
+  for (const token of tokens) {
+    const entry = vocabulary.classes[token];
+    if (!entry) {
+      found.push(`"${token}" is not a class of Arena's vocabulary, and a component takes no other. `
+        + `Every family and the components answering it: ${vocabulary.page}`);
+      continue;
+    }
+    byFamily.set(entry.family, [...(byFamily.get(entry.family) ?? []), token]);
+    if (entry.reach === 'box' && !(vocabulary.answers[component] ?? []).includes(entry.family)) {
+      found.push(`${token} decides ${entry.family}, and ${component} does not answer ${entry.family}, so the `
+        + `class reaches nothing in its box. ${vocabulary.page}`);
+    }
+  }
+  for (const [family, written] of byFamily) {
+    if (written.length > 1) {
+      found.push(`${written.join(' and ')} are two options of ${family} on one component, and which one `
+        + 'holds would be decided by the order the sheet happens to list them in. Keep one');
+    }
+  }
+  return found;
+}
 
 export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your own, which nests '
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
@@ -383,7 +428,7 @@ export function ownAttributes(attributes: string) {
   return out;
 }
 
-export function structuralFindings(text: string): Finding[] {
+export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null): Finding[] {
   const found: Finding[] = [];
   const rungs: number[] = [];
   let firstRung = 0;
@@ -407,8 +452,9 @@ export function structuralFindings(text: string): Finding[] {
       }
     }
 
-    if (ARENA_TAG.test(name) && OWN_CLASS_ATTRIBUTE.test(attributes))
-      found.push(at(lineAt(text, start), 'own-class', OWN_CLASS_MESSAGE));
+    if (ARENA_TAG.test(name))
+      for (const message of ownClassFindings(name, attributes, vocabulary))
+        found.push(at(lineAt(text, start), 'own-class', message));
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
 
@@ -519,7 +565,7 @@ export function styleObjectLines(text: string) {
 }
 
 export function findings(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false): Finding[] {
+  gradientMark = false, vocabulary: VocabularyIndex | null = null): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
   const stripped = withoutComments(text);
@@ -527,15 +573,15 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
   const perLine = stripped.split('\n').flatMap((line, index) =>
     lineFindings(line, isStylesheet, scope, gradientMark, painted.has(index + 1))
       .map((one) => at(index + 1, one.rule, one.message)));
-  return [...perLine, ...structuralFindings(text), ...bracketFindings(text, lines)]
+  return [...perLine, ...structuralFindings(text, vocabulary), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 
 export function auditText(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false): string[] {
+  gradientMark = false, vocabulary: VocabularyIndex | null = null): string[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text, scope, gradientMark)) {
+  for (const one of findings(relPath, text, scope, gradientMark, vocabulary)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }

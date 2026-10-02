@@ -10,6 +10,7 @@ import {
   ICON_MANIFEST,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
   pluginCss, PLUGIN_LAYER_ORDER, auditStep, auditFiles, pluginDirs,
+  loadVocabulary, VOCABULARY_INDEX,
 } from './arena-to-prod.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { STRICT_KINDS, report } from './reports.ts';
@@ -784,5 +785,27 @@ test('a plugin under src is walked once, so a part it paints is not counted twic
   const files = auditFiles(options.paths, pluginDirs(options));
   assert.equal(new Set(files).size, files.length,
     'the walk is the union of the sources and the declared plugin directories, deduplicated by path');
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('the audit reads a class against the vocabulary the package carries, and without one reports every class', () => {
+  const root = project(readable);
+  mkdirSync(join(root, 'src'), { recursive: true });
+  writeFileSync(join(root, 'src', 'a.tsx'), '<ArenaButton className="arena-fill">Go</ArenaButton>\n');
+  const options = resolved(parseArgs([
+    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
+  ]));
+  const vocabulary = { page: 'p', classes: { 'arena-fill': { family: 'fill', reach: 'box' as const } }, answers: { ArenaButton: ['fill'] } };
+  const ownClass = (found: { reports: { message: string }[] }) => found.reports.filter((one) => one.message.includes('(own-class)'));
+  assert.deepEqual(ownClass(auditStep(options, null, null, vocabulary)), []);
+  assert.equal(ownClass(auditStep(options, null, null, null)).length, 1);
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('the vocabulary index is read from beside the command, and a file that is not one reads as none', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-vocab-index-'));
+  assert.equal(loadVocabulary(root), null);
+  writeFileSync(join(root, VOCABULARY_INDEX), JSON.stringify({ page: 'p', classes: {}, answers: {} }));
+  assert.deepEqual(loadVocabulary(root), { page: 'p', classes: {}, answers: {} });
   rmSync(root, { recursive: true, force: true });
 });

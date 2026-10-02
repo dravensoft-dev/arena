@@ -1,13 +1,11 @@
-/* Nothing the contracts package carries binds it to a browser. Three records, and the split that
- * makes them tell the truth is between a VALUE and its PROSE: a construct in a value is executed by
- * whoever reads it, and a construct in a `description` is a sentence a person reads. BROWSER_BOUND
- * over values admits no exception, because a target off the web has no way to run one. Over prose
- * it is exempted by WEB_PROSE, one entry per description with its reason, since a sentence
- * explaining what the web target does with a value is worth having and reaches a native reader as
- * an instruction they cannot follow; a new one fails and a stale one fails, so that set cannot grow
- * quietly. WEB_SHAPED is the opposite record: vocabulary the W3C published, carried on purpose,
- * where a term the payload no longer contains fails here. The walk is over the tree's own contract
- * set rather than an assembled directory, so this gate has a subject on a fresh clone. */
+/* Nothing the contracts package carries binds it to a browser. The split that makes the records
+ * tell the truth is between a VALUE and its PROSE: a construct in a value is executed by whoever
+ * reads it, and one in a `description` is a sentence a person reads. BROWSER_BOUND over values
+ * admits no exception; over prose WEB_PROSE exempts one description at a time with its reason, and
+ * a new or a stale entry fails. WEB_SHAPED is the opposite record, W3C vocabulary carried on
+ * purpose. DESIGN_MEMBERS is the debt the vocabulary still has to take over: each member deciding
+ * appearance, with the phase that moves it, so the remainder is a map that shrinks and a stale
+ * entry fails. The walk is over the tree's own contract set, so it has a subject on a fresh clone. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -189,6 +187,69 @@ export function zeroWalkProblems(files: number, strandCount: number, shaped: num
   return problems;
 }
 
+export type Pending = { phase: 4 | 5 | 6; why: string };
+
+const MIXED = 'a meaning and a look in one member; phase 4 keeps the meaning as a member and moves the look';
+const EDITORIAL = 'it decides appearance per instance, so it becomes an option of a family';
+const COMPUTED_LATER = 'the render computes with it, so it stays and is recorded with the function that reads it';
+const GEOMETRY = 'geometry only interpolated into CSS, so it becomes named steps and one public property';
+
+const at = (component: string, member: string) => `contracts/api/components/${component}.json:api.${member}`;
+const field = (type: string, member: string) => `contracts/api/types/${type}.json:fields.${member}`;
+
+export const DESIGN_MEMBERS = new Map<string, Pending>([
+  ...[['ArenaButton', 'variant'], ['ArenaProgressBar', 'tone'], ['ArenaAlert', 'tone'], ['ArenaToast', 'tone'],
+    ['ArenaBadge', 'tone'], ['ArenaStatCard', 'tone'], ['ArenaTag', 'tone'], ['ArenaConfirmDialog', 'destructive'],
+    ['ArenaTag', 'colorId'], ['ArenaBoardColumn', 'colorId'], ['ArenaCalendarEvent', 'colorId'],
+    ['ArenaPersonRow', 'current'], ['ArenaAvatar', 'status'], ['ArenaInput', 'valid'], ['ArenaSelect', 'valid'],
+    ['ArenaAppBar', 'sticky'], ['ArenaProgressBar', 'showLabel'], ['ArenaProgressBar', 'showPercentage'],
+    ['ArenaIconButton', 'showLabel'], ['ArenaBarChart', 'stack'], ['ArenaHorizontalBarChart', 'stack'],
+    ['ArenaScatterChart', 'sizeLegend'], ['ArenaSideNav', 'collapsed'], ['ArenaSheet', 'placement'],
+    ['ArenaToastHost', 'placement'], ['ArenaScroller', 'behaviour'], ['ArenaTextarea', 'autoResize'],
+  ].map(([c, m]) => [at(c!, m!), { phase: 4, why: MIXED }] as [string, Pending]),
+  ...[['arena-activity-item', 'tone'], ['arena-stat-delta', 'tone'], ['arena-bulk-action', 'destructive'],
+    ['arena-menu-item', 'destructive'], ['arena-series', 'slot'], ['arena-series', 'slots'], ['arena-series', 'tone'],
+    ['arena-point-series', 'slot'], ['arena-point-series', 'tone'], ['arena-table-column', 'mono'],
+    ['arena-table-column', 'mobileLayout'], ['arena-key-value-row', 'numeric'],
+  ].map(([t, m]) => [field(t!, m!), { phase: 4, why: MIXED }] as [string, Pending]),
+  ...[['ArenaButton', 'size'], ['ArenaIconButton', 'size'], ['ArenaSegmentedControl', 'size'], ['ArenaSwitch', 'size'],
+    ['ArenaSpinner', 'size'], ['ArenaProgressBar', 'size'], ['ArenaAvatar', 'size'], ['ArenaAppLogo', 'size'],
+    ['ArenaPeopleList', 'size'], ['ArenaIconButton', 'variant'], ['ArenaCard', 'accent'], ['ArenaCard', 'floating'],
+    ['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaMenu', 'align'], ['ArenaAppLogo', 'orientation'],
+    ['ArenaSwitch', 'orientation'], ['ArenaAvatar', 'shape'], ['ArenaProgressBar', 'shape'], ['ArenaHero', 'layout'],
+    ['ArenaBadge', 'dot'], ['ArenaSpinner', 'tone'], ['ArenaTextarea', 'rows'], ['ArenaLineChart', 'area'],
+    ['ArenaRadarChart', 'fill'], ['ArenaSideNav', 'indentStep'],
+  ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
+  [at('ArenaDoughnutChart', 'shape'), { phase: 5, why: COMPUTED_LATER }],
+  [at('ArenaDoughnutChart', 'legendLayout'), { phase: 5, why: COMPUTED_LATER }],
+  ...[['ArenaGrid', 'min'], ['ArenaGrid', 'maxWidth'], ['ArenaGrid', 'gap'], ['ArenaBoard', 'minColumn'],
+    ['ArenaScroller', 'itemWidth'], ['ArenaDialog', 'width'], ['ArenaFigure', 'ratio'], ['ArenaSkeleton', 'width'],
+    ['ArenaSkeleton', 'height'], ['ArenaSkeleton', 'radius'], ['ArenaSkeleton', 'variant'], ['ArenaSection', 'rhythm'],
+  ].map(([c, m]) => [at(c!, m!), { phase: 6, why: GEOMETRY }] as [string, Pending]),
+  [field('arena-table-column', 'width'), { phase: 6, why: GEOMETRY }],
+  [field('arena-table-column', 'align'), { phase: 6, why: GEOMETRY }],
+]);
+
+export function resolvesMember(key: string, repo = root) {
+  const [rel = '', path = ''] = key.split(':');
+  const [section = '', member = ''] = path.split('.');
+  try {
+    const json = JSON.parse(readFileSync(join(repo, rel), 'utf8'));
+    return Boolean(json?.[section]?.[member]);
+  } catch {
+    return false;
+  }
+}
+
+export function designMemberProblems(resolves: (key: string) => boolean = resolvesMember, members = DESIGN_MEMBERS) {
+  const problems: string[] = [];
+  for (const [key, { phase, why }] of members) {
+    if (![4, 5, 6].includes(phase)) problems.push(`DESIGN_MEMBERS: ${key} is owned by phase ${phase}, and only phases 4, 5 and 6 are still to run`);
+    if (!resolves(key)) problems.push(`DESIGN_MEMBERS names ${key} and no contract declares it, so the debt it records is paid: drop the entry (${why})`);
+  }
+  return problems;
+}
+
 export function collect(repo = root) {
   const files = expectedCarried(repo);
   const all = payload(repo, files);
@@ -201,6 +262,7 @@ export function collect(repo = root) {
       ...zeroRecordProblems(CSS_VALUED.size),
       ...proseProblems(all),
       ...staleShapedProblems(all),
+      ...designMemberProblems(),
     ],
   };
 }

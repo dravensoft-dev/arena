@@ -28,6 +28,7 @@ import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 
 export const NAME = '@dravensoft/arena-react';
 export const LAYER = 'frameworks/react';
@@ -166,6 +167,7 @@ export function manifest(root = repoRoot) {
       './css/components/*': './css/components/*',
       './arena.config.example.json': './arena.config.example.json',
       './arena.tokens.json': './arena.tokens.json',
+      './arena.vocabulary.json': './arena.vocabulary.json',
       './contracts/behaviour/*': './contracts/behaviour/*',
       './package.json': './package.json',
     },
@@ -194,6 +196,7 @@ export async function buildReactPackage(root = repoRoot) {
   for (const rel of copyCli(dir, root)) written.push(join(dir, rel));
 
   written.push(writeComponentMap(dir, 'react', root));
+  written.push(writeVocabularyIndex(dir, root));
   written.push(writeIconManifest(dir, 'react', root));
   written.push(write(dir, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));

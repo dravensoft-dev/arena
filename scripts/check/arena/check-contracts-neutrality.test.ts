@@ -4,6 +4,7 @@ import {
   BROWSER_BOUND, CSS_VALUED, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
   valueProblems, zeroRecordProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
+import { DESIGN_MEMBERS, designMemberProblems } from './check-contracts-neutrality.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
 
@@ -79,4 +80,16 @@ test('every record still names something the payload holds', () => {
   }
   assert.ok(WEB_SHAPED.size > 0);
   assert.ok(BROWSER_BOUND.size > 0);
+});
+
+test('every design member still to migrate names a member a contract declares, and a later phase', () => {
+  assert.deepEqual(designMemberProblems(() => true), []);
+  assert.match(designMemberProblems((key) => !key.endsWith(':api.size'), new Map([['contracts/api/components/ArenaButton.json:api.size', { phase: 5, why: 'w' }]])).join('\n'),
+    /DESIGN_MEMBERS names contracts\/api\/components\/ArenaButton\.json:api\.size and no contract declares it/);
+  assert.match(designMemberProblems(() => true, new Map([['k', { phase: 1 as never, why: 'w' }]])).join('\n'), /phase 1/);
+});
+
+test('the record holds the tree as it is: every entry resolves, and full is not among them', () => {
+  assert.deepEqual(designMemberProblems(), []);
+  assert.ok(![...DESIGN_MEMBERS.keys()].some((key) => key.endsWith(':api.full')));
 });

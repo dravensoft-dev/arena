@@ -70,6 +70,7 @@ export const GATES = [
   { name: 'check:intrinsic-width', file: 'arena/check-intrinsic-width.ts' },
   { name: 'check:appearance', file: 'arena/check-appearance.ts' },
   { name: 'check:parts', file: 'arena/check-parts.ts' },
+  { name: 'check:boundaries', file: 'arena/check-boundaries.ts' },
   { name: 'check:layer-independence', file: 'arena/check-layer-independence.ts' },
   { name: 'check:structure', file: 'arena/check-structure.ts' },
   { name: 'check:contracts', file: 'arena/check-contracts.ts' },

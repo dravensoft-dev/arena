@@ -8,6 +8,7 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
+  ownClassFindings, type VocabularyIndex,
 } from './audit.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -490,4 +491,42 @@ test('what a style attribute names is what gets read, and a key is not a name', 
     'background is the property being set, not a binding that could hold a style');
   assert.deepEqual([...styleObjectLines('const zone = {\n  a: 1,\n};\n<div style={zone}/>')].sort(),
     [1, 2, 3], 'the whole body counts, not the line the brace opens on');
+});
+
+const VOCABULARY: VocabularyIndex = {
+  page: 'https://arena.dravensoft.org/frameworks/VOCABULARY.md',
+  classes: { 'arena-fill': { family: 'fill', reach: 'box' }, 'arena-fit': { family: 'fill', reach: 'box' },
+    'arena-witness-on': { family: 'witness', reach: 'context' } },
+  answers: { ArenaButton: ['fill'] },
+};
+
+test('a vocabulary class on a component that answers its family is no finding, in either layer\'s idiom', () => {
+  assert.deepEqual(ownClassFindings('ArenaButton', ' className="arena-fill"', VOCABULARY), []);
+  assert.deepEqual(ownClassFindings('arena-button', ' class="arena-fill"', VOCABULARY), []);
+  assert.deepEqual(ownClassFindings('arena-card', ' class="arena-witness-on"', VOCABULARY), []);
+  assert.deepEqual(ownClassFindings('arena-button', ' [class.arena-fill]="wide"', VOCABULARY), []);
+});
+
+test('a class outside the vocabulary, or a box class the component does not answer, is own-class naming the page', () => {
+  assert.match(ownClassFindings('ArenaButton', ' className="mt-4"', VOCABULARY)[0] ?? '', /"mt-4" is not a class of Arena's vocabulary.*VOCABULARY\.md/);
+  assert.match(ownClassFindings('arena-card', ' class="arena-fill"', VOCABULARY)[0] ?? '', /arena-fill decides fill, and ArenaCard does not answer fill/);
+});
+
+test('two options of one family on one component are reported, since source order would decide between them', () => {
+  assert.match(ownClassFindings('ArenaButton', ' className="arena-fill arena-fit"', VOCABULARY)[0] ?? '',
+    /arena-fill and arena-fit are two options of fill on one component/);
+});
+
+test('a class the source computes cannot be verified and is reported as before', () => {
+  assert.equal(ownClassFindings('ArenaButton', ' className={styles.mine}', VOCABULARY).length, 1);
+  assert.equal(ownClassFindings('arena-button', ' [ngClass]="k"', VOCABULARY).length, 1);
+});
+
+test('without a vocabulary index every class is own-class, which is the audit run outside a package', () => {
+  assert.equal(ownClassFindings('ArenaButton', ' className="arena-fill"', null).length, 1);
+});
+
+test('findings carries the vocabulary through to the structural rules', () => {
+  assert.deepEqual(findings('src/a.tsx', '<ArenaButton className="arena-fill">Go</ArenaButton>', 'app', false, VOCABULARY)
+    .filter((one) => one.rule === 'own-class'), []);
 });
