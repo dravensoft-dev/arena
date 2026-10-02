@@ -28,6 +28,8 @@ export const SKIPPED_UNDER_FRAMEWORKS = new Set(['build', 'vendor']);
 export const OUT_OF_SCOPE = new Map([
   ['docs/', 'a spec or a plan, which is deleted once executed, so a convention it names is a '
     + 'record of what the tree looked like while the work was in flight'],
+  ['.superpowers/', 'an executor\'s machine-local scratch (a ledger, task briefs, review packages), '
+    + 'deleted when its plan finishes, so a name it cites is one the plan has still to make true'],
 ]);
 
 export const KNOWN_EXTENSIONS = [
