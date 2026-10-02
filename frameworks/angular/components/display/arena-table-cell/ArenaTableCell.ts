@@ -15,6 +15,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'cellClass()',
+    'data-arena-boundary': '',
     '[attr.data-arena-part]': 'narrow() ? (blocked() ? parts.cardBlock : parts.cardRow) : parts.td',
     '[attr.role]': 'role()',
     '[attr.tabindex]': 'tabIndex()',
@@ -36,7 +37,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
       @if (labelled()) {
         <span [class]="styles().cardLabel()" [attr.data-arena-part]="parts.cardLabel">{{ column().header }}</span>
       }
-      <span [class]="valueClass()" [attr.data-arena-part]="parts.cardValue"><ng-container *ngTemplateOutlet="shown" /></span>
+      <span [class]="valueClass()" [attr.data-arena-part]="parts.cardValue" data-arena-boundary><ng-container *ngTemplateOutlet="shown" /></span>
     } @else {
       <ng-container *ngTemplateOutlet="shown" />
     }
