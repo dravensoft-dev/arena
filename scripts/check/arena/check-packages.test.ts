@@ -485,3 +485,9 @@ test('the token sheets arena.css reaches declare their custom properties outside
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': ':root{--color-base-100:#141010}' })), []);
   assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
 });
+
+test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {
+  const sheet = '@layer utilities{@scope (.arena-fill){[data-arena-part="button"]{--arena-fill-width:100%}}}';
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/vocabulary/fill.css';", 'css/vocabulary/fill.css': sheet })), []);
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}' })).join('\n'), /css\/x\.css/);
+});

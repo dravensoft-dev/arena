@@ -24,7 +24,7 @@ import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 export const node = {
   name: 'check:component-css',
   reads: [
-    MANIFESTS, `${CONSUME}/**/*.css`, 'frameworks/tailwind/components/**/*.card.html',
+    MANIFESTS, `${CONSUME}/**/*.css`, `${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.card.html',
     'contracts/design/environment.css', 'contracts/design/colors.css',
     'contracts/design-generated/*.generated.css',
   ],
@@ -32,6 +32,7 @@ export const node = {
   feeds: [],
 };
 import type { Manifests } from '../../lib/tailwind/manifest-shapes.ts';
+import { channelPrefix, readFamilies, VOCABULARY_DIR } from '../../lib/tailwind/vocabulary.ts';
 
 export const THEME_NAMESPACES = [
   'spacing', 'radius', 'text', 'z-index', 'leading', 'tracking', 'container',
@@ -77,9 +78,14 @@ export function themeLeaks(css: string) {
   return [...leaked].sort();
 }
 
+export function isFamilyChannel(name: string, families: Map<string, { family: string }>) {
+  return [...families.keys()].some((family) => `--${name}`.startsWith(channelPrefix(family)));
+}
+
 export function sheetProblems(manifests: Manifests, base = root) {
   const problems = [];
   const tokens = arenaTokenNames(base);
+  const families = readFamilies(base);
   for (const decls of parseDecls(readFileSync(join(base, 'contracts/design/environment.css'), 'utf8')).values())
     for (const name of decls.keys()) tokens.add(name);
 
@@ -106,7 +112,7 @@ export function sheetProblems(manifests: Manifests, base = root) {
     }
     for (const name of propertiesIn(css)) {
       if (name === undefined) continue;
-      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name)) continue;
+      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || isFamilyChannel(name, families)) continue;
       problems.push(`${manifest.component}: reads --${name}, which is no Arena token and is not `
         + 'declared external, so nothing in either package defines it');
     }

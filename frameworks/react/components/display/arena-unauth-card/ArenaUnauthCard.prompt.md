@@ -14,7 +14,7 @@ supply. `brand`, `footer` and the children default slot stay nodes.
   footer={<a href="/reset">Forgot your password?</a>}>
   <ArenaInput label="Email" value={email} onChange={onEmail} />
   <ArenaInput label="Password" type="password" />
-  <ArenaButton variant="primary" full>Sign in</ArenaButton>
+  <ArenaButton variant="primary" className="arena-fill">Sign in</ArenaButton>
 </ArenaUnauthCard>
 ```
 

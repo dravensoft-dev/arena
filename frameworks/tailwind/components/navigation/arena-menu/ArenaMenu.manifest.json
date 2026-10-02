@@ -3,8 +3,9 @@
   "transparent": {
     "root": "the trigger is the adopter's own control and the wrapper draws nothing around it, so a box class on the wrapper or above it decides the trigger's box as it decides the wrapper's"
   },
+  "answers": ["fill"],
   "slots": {
-    "root": "inline-flex w-fit",
+    "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
     "panel": "arena-menu z-dropdown min-w-50 p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
     "panelEnd": "left-auto right-0",
     "item": "flex items-center gap-2.5 w-full text-left px-2.5 py-control-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",

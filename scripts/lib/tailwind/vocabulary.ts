@@ -3,7 +3,8 @@
  * else, and a channel is read by a manifest with today's value as its fallback, so no option is
  * in effect until somebody writes it. A family compiles to one @scope block per option, selecting
  * the parts that read its channel, so nearness comes from scope proximity rather than source
- * order. The box limit is inclusive: the boundary is usually the component's own root, which an
+ * order; a box family registers its channels as not inherited, or a reached part would hand its
+ * value down past the boundary the rule stops at. The box limit is inclusive: the boundary is usually the component's own root, which an
  * exclusive limit would drop, and Chromium matches a limit among the root's descendants only. */
 
 import { existsSync, readdirSync } from 'node:fs';
@@ -105,7 +106,11 @@ export function compileFamily(family: Family, parts: string[]): string {
     return `  ${head} {\n    ${selector} {\n${body}\n    }\n  }`;
   });
   if (family.reach === 'box' && family.axis) blocks.push(`  [${BOUNDARY}] > * {\n    ${family.axis}: initial;\n  }`);
-  return `${LAYER_ORDER}@layer utilities {\n${blocks.join('\n')}\n}\n`;
+  const channels = family.reach === 'box'
+    ? [...new Set(Object.values(family.variants).flatMap((classes) => declarations(classes).map(([name]) => name)))].sort()
+    : [];
+  const registered = channels.map((name) => `@property ${name} {\n  syntax: '*';\n  inherits: false;\n}\n`).join('');
+  return `${LAYER_ORDER}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
 }
 
 export const sheetName = (family: string) => `${pascal(family)}.generated.css`;

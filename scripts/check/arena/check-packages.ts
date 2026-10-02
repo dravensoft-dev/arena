@@ -372,7 +372,7 @@ export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir
     const css = readFileSync(full, 'utf8');
     for (const specifier of importsIn(css)) queue.push(toPosix(join(dirname(from), specifier ?? '')));
     for (const block of topLevelBlocks(css, '@layer')) {
-      if (/--(?!tw-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
+      if (/--(?!tw-|arena-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
         problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
           + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
         break;

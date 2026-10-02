@@ -1,0 +1,29 @@
+<!-- @dsCard group="Tailwind" viewport="700x220" name="fill" subtitle="A box family: arena-fit is the default, arena-fill takes the container's width" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-button/ArenaButton.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Fill.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/forms/arena-button/ArenaButton.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+
+function column(label, cls) {
+  const button = el('button', { class: `${c.root} ${cls}`, text: label });
+  button.setAttribute('data-arena-part', 'button');
+  const box = el('div', {}, button);
+  box.style.width = 'calc(var(--sp-1) * 80)';
+  box.style.display = 'flex';
+  box.style.flexDirection = 'column';
+  return box;
+}
+
+mountSpecimen({ sections: [
+  section('arena-fit, the default: the content\'s width, in a column as in a row', [column('Save draft', 'arena-fit')]),
+  section('arena-fill: the container\'s width', [column('Continue', 'arena-fill')]),
+]});
+</script></body></html>

@@ -78,12 +78,12 @@ export const PRESET = [
 export const node = {
   name: 'build:tailwind',
   reads: [
-    ...PRESET, MANIFESTS, 'contracts/api/components',
+    ...PRESET, MANIFESTS, `${VOCABULARY_DIR}/**`, 'contracts/api/components',
     'frameworks/tailwind/ArenaStyles.ts', 'frameworks/tailwind/Tv.ts',
   ],
   writes: [
     'frameworks/tailwind/Utilities.generated.css', PRELUDE, BARREL, PREFLIGHT,
-    `${CONSUME}/**/*.styles.generated.css`, VOCABULARY_TYPES,
+    `${CONSUME}/**/*.styles.generated.css`, `${VOCABULARY_SHEETS}/*.generated.css`, VOCABULARY_TYPES,
     ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.manifest.generated.ts`),
     ...CSS_CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.classes.generated.ts`),
     ...CONSUMING_LAYERS.flatMap((layer) => [
@@ -105,6 +105,7 @@ export const node = {
     'check:compliance',
     'check:component-css',
     'check:channels',
+    'check:proximity',
     'check:demos',
     'check:dimensions',
     'check:duplicate-constants',

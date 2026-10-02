@@ -20,7 +20,6 @@ Action button. The main action uses `variant="primary"` (crimson), maximum one p
 | `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
 | `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
-| `full` | primitive | `boolean` | `false` | Stretches to the container's width. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. Implied by loading. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. |
 | `name` | primitive | `string` |  | Submitted with the form, when the button submits one. |
@@ -31,7 +30,7 @@ Action button. The main action uses `variant="primary"` (crimson), maximum one p
 | `onClick` | event |  |  | The button was activated, by pointer or by keyboard. |
 
 <!-- @api end -->
-Variants: primary · secondary · ghost · danger. Sizes sm/md/lg. Props: icon, iconRight, loading, full, disabled.
+Variants: primary · secondary · ghost · danger. Sizes sm/md/lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
 
 - Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
 - Keyboard focus draws Arena's own gold ring, on every one of the four variants, including `ghost`, whose border is transparent. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.

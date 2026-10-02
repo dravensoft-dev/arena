@@ -220,6 +220,7 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './arena.css': { default: './arena.css' },
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },
+      './css/vocabulary/*': { default: './css/vocabulary/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
       './arena.tokens.json': { default: './arena.tokens.json' },
       './arena.vocabulary.json': { default: './arena.vocabulary.json' },

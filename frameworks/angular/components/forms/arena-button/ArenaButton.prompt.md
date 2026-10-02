@@ -7,7 +7,7 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 <arena-button variant="danger" icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
 <arena-button variant="ghost" iconRight="ph-bold ph-caret-down">More</arena-button>
 <arena-button loading>Deploying</arena-button>
-<arena-button type="submit" form="project-form" full>Create project</arena-button>
+<arena-button type="submit" form="project-form" class="arena-fill">Create project</arena-button>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaButton.json. Edit the contract, not this table. -->
@@ -22,7 +22,6 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 | `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
 | `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
-| `full` | primitive | `boolean` | `false` | Stretches to the container's width. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. Implied by loading. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. |
 | `name` | primitive | `string` |  | Submitted with the form, when the button submits one. |
@@ -62,7 +61,7 @@ open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generat
 - `active:scale-98` gives a real press response, and the gold focus ring is visible on
   keyboard focus, for every one of the four variants, including `ghost`, whose border is
   transparent.
-- `full` spans the row. The host is bare, so it carries `display: contents` to stay out of layout. Without that it blockifies to shrink-to-fit as a flex item, and `w-full` measures the shrunk host instead of the row.
+- `arena-fill` on the host spans the row. The host carries `display: contents`, so the class scopes over the button it draws. Without that the host would blockify to shrink-to-fit as a flex item, and the button would measure the host instead of the row.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

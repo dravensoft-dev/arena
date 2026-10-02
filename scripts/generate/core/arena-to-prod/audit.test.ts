@@ -8,8 +8,9 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
-  ownClassFindings, type VocabularyIndex,
+  ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, designMemberFindings,
 } from './audit.ts';
+import { readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
   return auditText(path, source).join('\n');
@@ -529,4 +530,24 @@ test('without a vocabulary index every class is own-class, which is the audit ru
 test('findings carries the vocabulary through to the structural rules', () => {
   assert.deepEqual(findings('src/a.tsx', '<ArenaButton className="arena-fill">Go</ArenaButton>', 'app', false, VOCABULARY)
     .filter((one) => one.rule === 'own-class'), []);
+});
+
+test('full on ArenaButton is appearance, named with the class that says it, in both idioms', () => {
+  for (const source of ['<ArenaButton full>Go</ArenaButton>', '<ArenaButton full={true}>Go</ArenaButton>',
+    '<arena-button full>Go</arena-button>', '<arena-button [full]="wide">Go</arena-button>'])
+    assert.match(findings('src/a.tsx', source).filter((one) => one.rule === 'design-member')[0]?.message ?? '',
+      /`full` on ArenaButton is appearance: `arena-fill`/, source);
+  assert.deepEqual(designMemberFindings('ArenaButton', ' fullName="x"'), []);
+  assert.deepEqual(designMemberFindings('ArenaCard', ' full'), []);
+  assert.ok((RULE_TAGS as readonly string[]).includes('design-member'));
+});
+
+test('every appearance attribute points at a family that exists, on a member no contract still declares', () => {
+  const families = readFamilies(repoRoot);
+  for (const [key, { family }] of APPEARANCE_ATTRIBUTES) {
+    const [component = '', attribute = ''] = key.split('.');
+    assert.ok(families.has(family), `${key} points at ${family}, which no family declares`);
+    const contract = JSON.parse(readFileSync(join(repoRoot, 'contracts/api/components', `${component}.json`), 'utf8'));
+    assert.equal(contract.api?.[attribute], undefined, `${component} still declares ${attribute}, so the entry is not a statement about this version`);
+  }
 });

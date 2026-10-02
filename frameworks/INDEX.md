@@ -86,7 +86,7 @@ will report it.
 
 | Component | What it is | Takes | Behaviour | Layers |
 |---|---|---|---|---|
-| `ArenaButton` | Action button. One primary per view; danger stays outline. | `content` `variant` `size` `icon` `iconRight` `loading` `full` `disabled` `type` `name` `value` `autoFocus` `form` `tabStop` `click` | button | angular, react |
+| `ArenaButton` | Action button. One primary per view; danger stays outline. | `content` `variant` `size` `icon` `iconRight` `loading` `disabled` `type` `name` `value` `autoFocus` `form` `tabStop` `click` | button | angular, react |
 | `ArenaCheckbox` | A single checkbox. Checked shows a crimson fill with a check. | `checked` `label` `disabled` `required` `name` `value` `change` | checkbox | angular, react |
 | `ArenaIconButton` | Icon-only button. Carries an accessible name in every state, not only on hover. | `icon*` `label*` `size` `variant` `showLabel` `pressed` `disabled` `type` `name` `value` `autoFocus` `form` `tabStop` `click` | button | angular, react |
 | `ArenaInput` | Text field with validation. Focus is a gold ring, error crimson, and valid green with a check. The four states are ordered and the order is normative: error, then focus, then valid, then neutral. An errored field stays crimson while it has focus, because the validation signal must not disappear at the moment the user acts on it. | `label` `id` `hint` `error` `valid` `required` `validate` `validateOn` `type` `icon` `prefix` `value` `disabled` `readOnly` `placeholder` `name` `autoComplete` `min` `max` `step` `maxLength` `pattern` `change` `blur` | textbox | angular, react |

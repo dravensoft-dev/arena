@@ -1,0 +1,42 @@
+{
+  "families": [
+    {
+      "family": "witness",
+      "reach": "context",
+      "description": "A context family declared by this fixture alone, so a context reach is measured before Arena ships one.",
+      "default": "arena-witness-off",
+      "variants": {
+        "arena-witness-on": "[--arena-witness-mark:1]",
+        "arena-witness-off": "[--arena-witness-mark:0]"
+      },
+      "parts": [
+        "button"
+      ]
+    },
+    {
+      "family": "boxwitness",
+      "reach": "box",
+      "description": "A box family declared by this fixture alone, answered by a card and a button, so a channel written on a component is measured not to reach the content it projects.",
+      "default": "arena-boxwitness-off",
+      "variants": {
+        "arena-boxwitness-on": "[--arena-boxwitness-mark:1]",
+        "arena-boxwitness-off": "[--arena-boxwitness-mark:0]"
+      },
+      "parts": [
+        "card",
+        "button"
+      ]
+    }
+  ],
+  "cases": [
+    {"name": "class-on-component-beats-ancestor", "container": "arena-fit", "measure": {"width": "container"}, "react": {"tag": "div", "class": "arena-fit", "children": [{"tag": "button", "part": "button", "boundary": true, "class": "arena-fill", "subject": true, "text": "Save"}]}, "angular": {"tag": "div", "class": "arena-fit", "children": [{"tag": "arena-button", "contents": true, "class": "arena-fill", "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}},
+    {"name": "nearer-fit-beats-ancestor-fill", "container": "arena-fill", "measure": {"width": "own"}, "react": {"tag": "div", "class": "arena-fill", "children": [{"tag": "button", "part": "button", "boundary": true, "class": "arena-fit", "subject": true, "text": "Save"}]}, "angular": {"tag": "div", "class": "arena-fill", "children": [{"tag": "arena-button", "contents": true, "class": "arena-fit", "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}},
+    {"name": "class-on-tooltip-reaches-its-trigger", "container": "", "measure": {"width": "container"}, "react": {"tag": "div", "children": [{"tag": "span", "part": "tooltip", "class": "arena-fill", "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}, "angular": {"tag": "div", "children": [{"tag": "arena-tooltip", "part": "tooltip", "class": "arena-fill", "children": [{"tag": "arena-button", "contents": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}},
+    {"name": "class-on-menu-reaches-its-trigger", "container": "", "measure": {"width": "container"}, "react": {"tag": "div", "children": [{"tag": "div", "part": "menu", "class": "arena-fill", "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}, "angular": {"tag": "div", "children": [{"tag": "arena-menu", "part": "menu", "class": "arena-fill", "children": [{"tag": "arena-button", "contents": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}},
+    {"name": "ancestor-reaches-through-the-transparent-trigger", "container": "arena-fill", "measure": {"width": "container"}, "react": {"tag": "div", "class": "arena-fill", "children": [{"tag": "span", "part": "tooltip", "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}, "angular": {"tag": "div", "class": "arena-fill", "children": [{"tag": "arena-tooltip", "part": "tooltip", "children": [{"tag": "arena-button", "contents": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}},
+    {"name": "class-on-trigger-alone-fills-the-wrapper-box", "container": "", "measure": {"width": "own"}, "react": {"tag": "div", "children": [{"tag": "span", "part": "tooltip", "children": [{"tag": "button", "part": "button", "boundary": true, "class": "arena-fill", "subject": true, "text": "Save"}]}]}, "angular": {"tag": "div", "children": [{"tag": "arena-tooltip", "part": "tooltip", "children": [{"tag": "arena-button", "contents": true, "class": "arena-fill", "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}},
+    {"name": "box-class-stops-at-a-boundary", "container": "arena-fill", "measure": {"width": "own"}, "react": {"tag": "div", "class": "arena-fill", "children": [{"tag": "div", "part": "card", "children": [{"tag": "div", "part": "card.body", "boundary": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}, "angular": {"tag": "div", "class": "arena-fill", "children": [{"tag": "arena-card", "contents": true, "children": [{"tag": "div", "part": "card", "children": [{"tag": "div", "part": "card.body", "boundary": true, "children": [{"tag": "arena-button", "contents": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}]}]}},
+    {"name": "context-class-crosses-a-boundary", "container": "arena-witness-on", "measure": {"property": "--arena-witness-mark", "value": "1"}, "react": {"tag": "div", "class": "arena-witness-on", "children": [{"tag": "div", "part": "card", "children": [{"tag": "div", "part": "card.body", "boundary": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}, "angular": {"tag": "div", "class": "arena-witness-on", "children": [{"tag": "arena-card", "contents": true, "children": [{"tag": "div", "part": "card", "children": [{"tag": "div", "part": "card.body", "boundary": true, "children": [{"tag": "arena-button", "contents": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}]}]}},
+    {"name": "box-channel-stays-out-of-content", "container": "arena-boxwitness-on", "measure": {"property": "--arena-boxwitness-mark", "value": ""}, "react": {"tag": "div", "class": "arena-boxwitness-on", "children": [{"tag": "div", "part": "card", "children": [{"tag": "div", "part": "card.body", "boundary": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}, "angular": {"tag": "div", "class": "arena-boxwitness-on", "children": [{"tag": "arena-card", "contents": true, "children": [{"tag": "div", "part": "card", "children": [{"tag": "div", "part": "card.body", "boundary": true, "children": [{"tag": "arena-button", "contents": true, "children": [{"tag": "button", "part": "button", "boundary": true, "subject": true, "text": "Save"}]}]}]}]}]}}
+  ]
+}

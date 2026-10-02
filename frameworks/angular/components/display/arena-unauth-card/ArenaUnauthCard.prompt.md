@@ -9,7 +9,7 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
     </arena-app-logo>
 
     <arena-input label="Email" type="email" [value]="email()" (change)="email.set($event)" />
-    <arena-button type="submit" full>Sign in</arena-button>
+    <arena-button type="submit" class="arena-fill">Sign in</arena-button>
 
     <span footer>Trouble signing in? Contact your administrator.</span>
   </arena-unauth-card>

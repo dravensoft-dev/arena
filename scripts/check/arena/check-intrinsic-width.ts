@@ -1,11 +1,10 @@
 /* A component whose drawn element is inline-level takes its content's width in a row and the
- * container's in a flex column or a grid cell, because a width of auto stretches there: a button
- * with full off, a badge or a tag placed in a card's body drew at the body's width. fit-content is
- * not auto, so it holds in any container and is still clamped to the room available. This
- * resolves the drawn slot of every manifest for every combination of the variant groups that touch
- * it, as the recipe resolves it, and fails an inline-level result whose last width is absent or
- * w-auto. A minimum is not a width. DRAWN names the slot of a component that has no root, and
- * EXEMPT, empty, is where an inline component that has to stretch would argue for it. */
+ * container's in a flex column or a grid cell, because a width of auto stretches there. An inline
+ * root a sensible adopter would fill answers fill and reads --arena-fill-width with fit-content as
+ * its fallback, on every branch the recipe resolves; one that keeps a width of its own is in
+ * OWN_WIDTH with its reason and still declares a width that is not auto. A minimum is not a width.
+ * DRAWN names the slot of a component that has no root. A root neither answering fill nor listed
+ * fails, as does an entry of either map that the tree no longer bears out. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -31,7 +30,19 @@ export const DRAWN = new Map<string, { slot: string; why: string }>([
     why: 'the control has no root slot; the track is the element it draws, and the one a column would stretch' }],
 ]);
 
-export const EXEMPT = new Map<string, string>([]);
+export const FILL_READ = 'w-[var(--arena-fill-width,fit-content)]';
+
+export const OWN_WIDTH = new Map<string, string>([
+  ['ArenaAppLogo', 'a mark drawn at its own size; stretching it would only add air beside the wordmark'],
+  ['ArenaAvatar', 'a portrait sized by its own avatar step, square by construction'],
+  ['ArenaBadge', 'a marker whose width is its content; a full-width badge reads as a banner'],
+  ['ArenaTag', 'a marker whose width is its content; a full-width tag reads as a banner'],
+  ['ArenaSpinner', 'a glyph, whose box is the glyph'],
+  ['ArenaCheckbox', 'a tick and its label; stretching it widens the pressable area to the whole row'],
+  ['ArenaRadio', 'a dot and its label; stretching it widens the pressable area to the whole row'],
+  ['ArenaSwitch', 'a track and its label; stretching it widens the pressable area to the whole row'],
+  ['ArenaPagination', 'a row of page controls whose width is the pages it shows'],
+]);
 
 export type Choice = Record<string, string>;
 
@@ -76,42 +87,54 @@ export function manifestFindings(manifest: ComponentManifest): { findings: Findi
   const findings: Finding[] = [];
   let inline = 0;
   if (slot === null) return { findings, inline };
+  const fills = (manifest.answers ?? []).includes('fill');
   for (const chosen of choices(manifest, slot)) {
     const tokens = resolve(manifest, slot, chosen);
     const display = last(tokens, DISPLAY);
     if (display === null || !INLINE.has(display)) continue;
     inline += 1;
     const width = last(tokens, WIDTH);
-    if (width === null || width === 'w-auto')
+    if (fills ? width !== FILL_READ : (width === null || width === 'w-auto'))
       findings.push({ component: manifest.component, slot, chosen, display, width });
   }
   return { findings, inline };
 }
 
-export function collect(root = repoRoot) {
-  const manifests = readManifests(root);
+export function collect(root = repoRoot, own = OWN_WIDTH, manifests = readManifests(root)) {
   const problems: string[] = [];
-  const found = new Set<string>();
   let inline = 0;
+  const inlineRoots = new Set<string>();
   for (const manifest of manifests.values()) {
     const result = manifestFindings(manifest);
     inline += result.inline;
-    for (const finding of result.findings) {
-      const key = `${finding.component}.${finding.slot}`;
-      found.add(key);
-      if (EXEMPT.has(key)) continue;
-      problems.push(`${key} with ${JSON.stringify(finding.chosen)} is ${finding.display} and declares `
-        + `${finding.width ?? 'no width'}, so a flex column or a grid cell stretches it to the container's width. `
-        + 'Declare w-fit on that branch, or a width of its own');
+    if (result.inline === 0) continue;
+    inlineRoots.add(manifest.component);
+    const fills = (manifest.answers ?? []).includes('fill');
+    if (!fills && !own.has(manifest.component)) {
+      problems.push(`${manifest.component}.${drawnSlot(manifest)} is inline-level, answers no fill and is not in OWN_WIDTH, `
+        + `so whether it fills its container is decided by nobody. Answer fill and read ${FILL_READ}, or list it with why `
+        + 'it keeps its own width');
     }
+    for (const finding of result.findings) {
+      problems.push(fills
+        ? `${finding.component}.${finding.slot} with ${JSON.stringify(finding.chosen)} answers fill and its last width is `
+          + `${finding.width ?? 'none'}, so arena-fill reaches a box that never reads it. Read ${FILL_READ} on every branch`
+        : `${finding.component}.${finding.slot} with ${JSON.stringify(finding.chosen)} is ${finding.display} and declares `
+          + `${finding.width ?? 'no width'}, so a flex column or a grid cell stretches it to the container's width. `
+          + 'Declare w-fit on that branch, or a width of its own');
+    }
+  }
+  for (const [name, why] of own) {
+    const manifest = manifests.get(name);
+    if (manifest && (manifest.answers ?? []).includes('fill'))
+      problems.push(`stale OWN_WIDTH: ${name} answers fill, so it no longer keeps a width of its own -- ${why}`);
+    else if (!inlineRoots.has(name)) problems.push(`stale OWN_WIDTH: ${name} has no inline-level root -- ${why}`);
   }
   for (const [name, entry] of DRAWN) {
     const manifest = manifests.get(name);
     if (!manifest || !(entry.slot in (manifest.slots ?? {})) || 'root' in (manifest.slots ?? {}))
       problems.push(`stale DRAWN: ${name}.${entry.slot} is not the drawn slot of a manifest with no root -- ${entry.why}`);
   }
-  for (const [key, why] of EXEMPT)
-    if (!found.has(key)) problems.push(`stale EXEMPT: ${key} declares a width on every branch now -- ${why}`);
   if (inline === 0) problems.push('resolved no inline-level slot in any manifest; the gate looked at nothing, '
     + 'which is a failure rather than a clean pass');
   return { problems, inline };

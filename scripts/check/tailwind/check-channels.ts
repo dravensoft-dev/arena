@@ -17,7 +17,7 @@ export const TOKEN_SHEETS = ['contracts/design-generated', 'contracts/design'];
 
 export const node = {
   name: 'check:channels',
-  reads: [`${COMPONENT_SHEETS}/**`, 'contracts/design-generated/**', 'contracts/design/*.css'],
+  reads: [`${VOCABULARY_SHEETS}/**`, `${COMPONENT_SHEETS}/**`, 'contracts/design-generated/**', 'contracts/design/*.css'],
   writes: [],
   feeds: [],
 };

@@ -15,7 +15,7 @@ import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
 export const node = {
   name: 'check:families',
-  reads: ['frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [],
   feeds: [],
 };

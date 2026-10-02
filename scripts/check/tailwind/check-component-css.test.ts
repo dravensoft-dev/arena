@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   EXTERNAL_PROPERTIES, MANIFEST_FETCH, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
   propertiesIn, selectorsIn, themeLeaks,
+  isFamilyChannel,
 } from './check-component-css.ts';
 import { keyframesIn, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 
@@ -79,4 +80,10 @@ test('every external property carries a reason, because an entry with none canno
   for (const [name, reason] of EXTERNAL_PROPERTIES) {
     assert.ok(reason && reason.length > 10, `--${name} has no usable reason`);
   }
+});
+
+test('a family\'s channel is defined by the sheet the family ships, and a channel of no family is not', () => {
+  const families = new Map([['fill', { family: 'fill' }]]);
+  assert.equal(isFamilyChannel('arena-fill-width', families), true);
+  assert.equal(isFamilyChannel('arena-size-ctl-h', families), false);
 });

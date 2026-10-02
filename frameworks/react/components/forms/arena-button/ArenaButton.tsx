@@ -26,8 +26,6 @@ export interface ArenaButtonProps {
   /** Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. */
   loading?: boolean;
 
-  /** Stretches to the container's width. */
-  full?: boolean;
   /** Blocks activation and dims the control. Implied by loading. */
   disabled?: boolean;
 
@@ -58,10 +56,10 @@ const arenaButtonStyles = arenaStyles(manifest);
 
 export function ArenaButton({ className, 
   children, variant = 'primary', size = 'md', icon, iconRight,
-  disabled = false, loading = false, full = false,
+  disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaButtonProps) {
-  const styles = arenaButtonStyles({ variant, size, full });
+  const styles = arenaButtonStyles({ variant, size });
 
   return (
     <button

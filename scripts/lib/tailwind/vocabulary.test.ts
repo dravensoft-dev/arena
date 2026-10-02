@@ -23,7 +23,11 @@ test('an option is arbitrary properties and nothing else, with an underscore mea
 });
 
 test('a box family compiles one scope per option, stopped inside every boundary, selecting each part as root and as descendant', () => {
-  assert.equal(compileFamily(FILL, ['button', 'tooltip']), `${LAYER_ORDER}@layer utilities {
+  assert.equal(compileFamily(FILL, ['button', 'tooltip']), `${LAYER_ORDER}@property --arena-fill-width {
+  syntax: '*';
+  inherits: false;
+}
+@layer utilities {
   @scope (.arena-fill) to (${LIMIT}) {
     &[data-arena-part="button"], [data-arena-part="button"],
     &[data-arena-part="tooltip"], [data-arena-part="tooltip"] {
@@ -73,4 +77,12 @@ test('the parts come from the slots that read a channel, under the part partOf g
 test('a family names its generated sheet and its packaged sheet', () => {
   assert.equal(sheetName('grid-min'), 'GridMin.generated.css');
   assert.equal(packageSheetName('grid-min'), 'css/vocabulary/grid-min.css');
+});
+
+test('a box family registers its channels as not inherited, so a value stops where the scope does', () => {
+  const sheet = compileFamily(FILL, ['button']);
+  assert.match(sheet, /@property --arena-fill-width \{\n  syntax: '\*';\n  inherits: false;\n\}/);
+  const context = compileFamily({ ...FILL, family: 'witness', reach: 'context',
+    variants: { 'arena-witness-on': '[--arena-witness-mark:1]' }, default: 'arena-witness-on' }, ['button']);
+  assert.doesNotMatch(context, /@property/);
 });

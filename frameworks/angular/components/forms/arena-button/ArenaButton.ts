@@ -49,8 +49,6 @@ export class ArenaButton {
   readonly iconRight = input<string>();
   /** Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. */
   readonly loading = input(false, { transform: booleanAttribute });
-  /** Stretches to the container's width. */
-  readonly full = input(false, { transform: booleanAttribute });
   /** Blocks activation and dims the control. Implied by loading. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. */
@@ -73,7 +71,7 @@ export class ArenaButton {
 
   protected readonly inert = computed(() => this.disabled() || this.loading());
   protected readonly styles = computed(() => arenaButtonStyles({
-    variant: this.variant(), size: this.size(), full: this.full(),
+    variant: this.variant(), size: this.size(),
   }));
 
   private readonly control = viewChild<ElementRef<HTMLButtonElement>>('control');

@@ -151,6 +151,9 @@ export const UNTRACKED = {
     + 'import never crosses a boundary. It replaces the two runtime dependencies outright.',
   'frameworks/angular/ArenaStyles.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/ArenaStyles.generated.js': 'the compiled sibling of that, which a demo page loads.',
+  'frameworks/tailwind/consume/vocabulary/*.generated.css':
+    'one sheet per vocabulary family, compiled from its family file and the manifests that answer it, '
+    + 'which a page and a package import beside the component sheets.',
   'frameworks/react/Vocabulary.generated.ts':
     'the vocabulary class each component takes, as a type and as the runtime list the className '
     + 'filter keeps, emitted from the families and the manifests\' answers.',

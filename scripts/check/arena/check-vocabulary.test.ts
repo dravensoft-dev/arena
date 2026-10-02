@@ -36,9 +36,8 @@ test('every allowance names its file and says whose file it is', () => {
     assert.ok(rel.endsWith('.md'), `${rel} is a document`);
     assert.ok(why.length > 40, `${rel} says which README it means`);
   }
-  assert.deepEqual([...OUT_OF_SCOPE.keys()], ['docs/', '.superpowers/']);
+  assert.deepEqual([...OUT_OF_SCOPE.keys()], ['docs/']);
   assert.equal(outOfScope('docs/superpowers/plans/x.md'), true);
-  assert.equal(outOfScope('.superpowers/sdd/a-plan/progress.md'), true);
   assert.equal(outOfScope('scripts/AGENTS.md'), false);
 });
 

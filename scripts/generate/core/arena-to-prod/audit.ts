@@ -9,8 +9,8 @@
  * audit that cannot say where a project's appearance lives has given up half of what it reports:
  * a declared plugin directory may select a part hook and paint a gradient, and a source may not. */
 
-export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element', 'one-primary',
-  'outline-gap', 'own-class', 'raw-value', 'router-link'] as const;
+export const RULE_TAGS = ['compat-alias', 'danger-fill', 'design-member', 'emoji', 'icon-element',
+  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link'] as const;
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
@@ -320,6 +320,23 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
   return found;
 }
 
+export const APPEARANCE_ATTRIBUTES = new Map<string, { family: string; write: string }>([
+  ['ArenaButton.full', { family: 'fill', write: 'arena-fill' }],
+]);
+
+export function designMemberFindings(tag: string, attributes: string, page?: string): string[] {
+  const component = componentOf(tag);
+  const found: string[] = [];
+  for (const [key, { write }] of APPEARANCE_ATTRIBUTES) {
+    const [owner, attribute = ''] = key.split('.');
+    if (owner !== component) continue;
+    if (!new RegExp(`(?:^|\\s)\\[?${attribute}\\]?(?=\\s*=|\\s|$)`).test(attributes)) continue;
+    found.push(`\`${attribute}\` on ${component} is appearance: \`${write}\`. Write the class on the component, `
+      + `or on a container whose components should all take it${page ? `. ${page}` : ''}`);
+  }
+  return found;
+}
+
 export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your own, which nests '
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
@@ -455,6 +472,9 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     if (ARENA_TAG.test(name))
       for (const message of ownClassFindings(name, attributes, vocabulary))
         found.push(at(lineAt(text, start), 'own-class', message));
+    if (ARENA_TAG.test(name))
+      for (const message of designMemberFindings(name, attributes, vocabulary?.page))
+        found.push(at(lineAt(text, start), 'design-member', message));
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
 

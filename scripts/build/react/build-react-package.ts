@@ -165,6 +165,7 @@ export function manifest(root = repoRoot) {
       './arena.css': './arena.css',
       './css/*': './css/*',
       './css/components/*': './css/components/*',
+      './css/vocabulary/*': './css/vocabulary/*',
       './arena.config.example.json': './arena.config.example.json',
       './arena.tokens.json': './arena.tokens.json',
       './arena.vocabulary.json': './arena.vocabulary.json',

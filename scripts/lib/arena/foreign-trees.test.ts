@@ -59,9 +59,9 @@ export function spellingProblems(read: (rel: string) => string, paths: string[])
 }
 
 test('every foreign tree carries the reason a walk skips it', () => {
-  assert.deepEqual([...FOREIGN_TREES.keys()], ['node_modules', '.git', '.claude']);
+  assert.deepEqual([...FOREIGN_TREES.keys()], ['node_modules', '.git', '.claude', '.superpowers']);
   for (const [name, reason] of FOREIGN_TREES) assert.ok(reason.length > 40, `${name} says why`);
-  assert.deepEqual([...withForeignTrees('dist')], ['node_modules', '.git', '.claude', 'dist']);
+  assert.deepEqual([...withForeignTrees('dist')], ['node_modules', '.git', '.claude', '.superpowers', 'dist']);
 });
 
 test('no script under scripts/ spells a foreign tree as a skip of its own', () => {

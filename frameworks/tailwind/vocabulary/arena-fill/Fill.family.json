@@ -1,0 +1,10 @@
+{
+  "family": "fill",
+  "reach": "box",
+  "description": "Whether a component takes the width of the box it sits in or the width of its own content. An inline control fits its content wherever it is placed, a flex column and a grid cell included, and an action spanning the foot of a card or a form is a decision about that one instance, so it is written on the instance, or on a container whose components should all take it, and it stops at the content of the component it reaches.",
+  "default": "arena-fit",
+  "variants": {
+    "arena-fill": "[--arena-fill-width:100%]",
+    "arena-fit": "[--arena-fill-width:fit-content]"
+  }
+}

@@ -1,7 +1,8 @@
 {
   "component": "ArenaButton",
+  "answers": ["fill"],
   "slots": {
-    "root": "inline-flex items-center justify-center gap-control rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest hover:-translate-y-[var(--lift-control)] outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "root": "inline-flex items-center justify-center gap-control rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest hover:-translate-y-[var(--lift-control)] outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] w-[var(--arena-fill-width,fit-content)]",
     "spinner": "arena-btn-spin inline-block size-3.5 border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
   },
   "variants": {
@@ -29,19 +30,10 @@
       "lg": {
         "root": "h-ctl-h-lg px-6.5 text-ctl"
       }
-    },
-    "full": {
-      "true": {
-        "root": "w-full"
-      },
-      "false": {
-        "root": "w-fit"
-      }
     }
   },
   "defaultVariants": {
     "variant": "primary",
-    "size": "md",
-    "full": false
+    "size": "md"
   }
 }

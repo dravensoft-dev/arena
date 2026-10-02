@@ -15,8 +15,6 @@
                    "description": "Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action." },
     "loading": { "form": "primitive", "type": "boolean", "default": false,
                  "description": "Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process." },
-    "full": { "form": "primitive", "type": "boolean", "default": false,
-              "description": "Stretches to the container's width." },
     "disabled": { "form": "primitive", "type": "boolean", "default": false,
                   "description": "Blocks activation and dims the control. Implied by loading." },
     "type": { "form": "enum", "type": "ArenaButtonType", "default": "button",
