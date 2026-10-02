@@ -22,6 +22,11 @@ import {
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { readJson } from '../../utils/read-file.ts';
+import {
+  VOCABULARY_SHEETS, answeringParts, compileFamily, familyFiles, readFamilies, sheetName,
+  type Family,
+} from '../../lib/tailwind/vocabulary.ts';
 
 type BuildOptions = { root?: string; manifests?: Map<string, any> };
 
@@ -178,12 +183,28 @@ export function buildComponentCss(opts: BuildOptions = {}) {
 
   const imports = sheets.sort().map((rel) => `@import './${rel.replace(`${CONSUME}/`, '')}';`);
   const barrel = `${BANNER}@import './${basename(PREFLIGHT)}';\n`
-    + `@import './${basename(PRELUDE)}';\n${imports.join('\n')}\n`;
+    + `@import './${basename(PRELUDE)}';\n${[...imports, ...vocabularyImports(root)].join('\n')}\n`;
   out.set(join(root, BARREL), barrel);
   out.set(join(root, PREFLIGHT),
     BANNER + preflightSheet(splitCompiledSheet(readFileSync(generatedPath({ root }), 'utf8')).base));
 
   return out;
+}
+
+export function buildVocabularyCss(opts: BuildOptions = {}) {
+  const root = opts.root ?? repoRoot;
+  const manifests = opts.manifests ?? layerManifests(root);
+  const out = new Map<string, string>();
+  for (const rel of familyFiles(root)) {
+    const family = readJson(join(root, rel)) as Family;
+    const parts = answeringParts(family.family, manifests.values());
+    out.set(join(root, VOCABULARY_SHEETS, sheetName(family.family)), manifestBanner(rel) + compileFamily(family, parts));
+  }
+  return out;
+}
+
+export function vocabularyImports(root = repoRoot) {
+  return [...readFamilies(root).keys()].sort().map((family) => `@import './vocabulary/${sheetName(family)}';`);
 }
 
 export function preludeSpecifier(rel: string) {
@@ -261,7 +282,7 @@ function main() {
 
   const emitted = [
     ...buildManifestModules(), ...buildRecipeRuntime(),
-    ...buildComponentCss(), ...buildClassModules(), ...buildStylesRuntime(),
+    ...buildComponentCss(), ...buildClassModules(), ...buildStylesRuntime(), ...buildVocabularyCss(),
   ];
   for (const [filePath, content] of emitted) {
     mkdirSync(dirname(filePath), { recursive: true });

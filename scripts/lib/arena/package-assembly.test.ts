@@ -13,6 +13,8 @@ import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { readFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
+import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
 
 function tree(files: Record<string, string>) {
   const root = mkdtempSync(join(tmpdir(), 'arena-assembly-'));
@@ -329,5 +331,16 @@ test('the page this repository looks at carries every hand-authored sheet a pack
       `${from} ships in both packages and intro/styles.css does not import it, so the pages this `
       + 'repository renders and looks at are composed differently from every page a consumer gets. '
       + 'That is how a composition sheet lands with nothing here able to see whether it works');
+  }
+});
+
+test('a family sheet ships linked, so arena.css imports it after the components', () => {
+  const entries = componentSheets(readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
+    splitCompiledSheet, repoRoot);
+  const names = entries.map((one) => one.to);
+  for (const family of readFamilies(repoRoot).keys()) {
+    const at = names.indexOf(packageSheetName(family));
+    assert.ok(at > names.indexOf('css/components.css'), `${family} ships after the components`);
+    assert.notEqual((entries[at] as { linked?: boolean } | undefined)?.linked, false);
   }
 });

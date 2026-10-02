@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports,
+  type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
@@ -689,4 +690,11 @@ test('gradientMark is a boolean or it is absent, so a typo cannot read as true',
   const problems = configProblems(config({ gradientMark: 'yes' }));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /gradientMark: declare true or false/);
+});
+
+test('a project naming its own component subset still imports every vocabulary sheet arena.css links', () => {
+  const lines = scopedImports('@dravensoft/arena-react', { components: ['button'] } as CheckedStylesheet,
+    { layers: ['css/base.css', 'css/components.css', 'css/vocabulary/fill.css'], components: ['button'] } as CheckedSheets);
+  assert.ok(lines.includes("@import '@dravensoft/arena-react/css/vocabulary/fill.css';"));
+  assert.ok(lines.includes("@import '@dravensoft/arena-react/css/components/button.css';"));
 });
