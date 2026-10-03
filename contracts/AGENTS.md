@@ -74,8 +74,7 @@ construction rather than by a precedence rule. Five questions, five owners:
 class on the component beats one on an ancestor whatever order the sheets load in. **Between
 channels nothing is decided**, because no property has two writers. **A box family stops inside
 every element that projects adopter content**, which carries `data-arena-boundary`, unless its
-manifest declares the slot `transparent` with a reason. A surface rendered in a portal or the top
-layer leaves the subtree its trigger sits in, so no class above the trigger reaches it.
+manifest declares the slot `transparent` with a reason. A surface rendered in a portal leaves the subtree its trigger sits in, so no class above the trigger reaches it.
 
 The families, their reach and their compilation are [`../frameworks/tailwind/AGENTS.md`](../frameworks/tailwind/AGENTS.md);
 the rule that keeps appearance out of a member is [`api/AGENTS.md`](./api/AGENTS.md).

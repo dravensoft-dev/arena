@@ -65,3 +65,10 @@ test('the vocabulary region names arena-fill and stays under 900 characters', ()
   assert.ok(regionContent.length < 900, `vocabulary region is ${regionContent.length} characters, under 900`);
 });
 
+
+test('the vocabulary region ends on its text, names each class with its dot, and has no dangling conjunction', () => {
+  const region = renderRegion('vocabulary');
+  assert.ok(!/\n\n\n/.test(region), 'no double blank line');
+  assert.ok(!region.includes(', and\n'), 'no dangling ", and"');
+  assert.ok(region.includes('`.arena-fill`'), 'class names carry the dot check:classes reads');
+});

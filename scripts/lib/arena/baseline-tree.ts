@@ -1,10 +1,11 @@
 /* A git ref built as a tree of its own, so check:pixel-parity can compare a phase against the
  * commit before it rather than one layer against the other. A worktree shares the object store
  * and costs a checkout, an install and a build; the marker is written last, so a directory
- * without it is a build that failed or was killed and is removed before it is tried again. */
+ * without it is a build that failed or was killed and is removed before it is tried again; a
+ * registration whose directory is gone is pruned first, and a directory git does not know is deleted. */
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { deadline, type Deadline } from './deadline.ts';
@@ -44,12 +45,17 @@ export function resolveRef(ref: string, root: string, exec: Run = run, bin = res
 
 export function prepareBaseline(ref: string, root: string, {
   exec = run, under = tmpdir(), exists = existsSync, mark = (path: string) => writeFileSync(path, ''), bin = resolveBinary,
-}: { exec?: Run; under?: string; exists?: (path: string) => boolean; mark?: (path: string) => void; bin?: (name: string) => string } = {}) {
+  remove = (path: string) => rmSync(path, { recursive: true, force: true }),
+}: { exec?: Run; under?: string; exists?: (path: string) => boolean; mark?: (path: string) => void; remove?: (path: string) => void; bin?: (name: string) => string } = {}) {
   const sha = resolveRef(ref, root, exec, bin);
   const dir = baselineDir(sha, under);
   if (exists(join(dir, BUILT_MARKER))) return { dir, sha, reused: true };
+  if (exists(dir)) {
+    exec(bin('git'), ['worktree', 'remove', '--force', dir], root);
+    remove(dir);
+  }
   const steps: [string, string[], string, number | undefined][] = [
-    ...(exists(dir) ? [[bin('git'), ['worktree', 'remove', '--force', dir], root, undefined] as [string, string[], string, undefined]] : []),
+    [bin('git'), ['worktree', 'prune'], root, undefined],
     [bin('git'), ['worktree', 'add', '--detach', dir, sha], root, undefined],
     [bin('bun'), ['install', '--frozen-lockfile'], dir, BASELINE_BUILD.ms],
     [bin('bun'), ['run', 'build'], dir, BASELINE_BUILD.ms],

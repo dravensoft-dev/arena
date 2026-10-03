@@ -149,11 +149,10 @@ in a `stylesheet` list.
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
-this version ships are `.arena-fill`, `.arena-fit`, and
-[the vocabulary page](https://arena.dravensoft.org/frameworks/VOCABULARY.md) lists each with the components
+this version ships are `.arena-fill`, `.arena-fit`.
+[The vocabulary page](https://arena.dravensoft.org/frameworks/VOCABULARY.md) lists each with the components
 that answer it. `arena.css` imports their sheets under `css/vocabulary/`; a project importing
 component sheets one by one imports those as well.
-
 
 <!-- @shared vocabulary end -->
 

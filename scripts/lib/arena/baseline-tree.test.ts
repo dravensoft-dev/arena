@@ -34,12 +34,13 @@ test('an unbuilt baseline adds a detached worktree, installs from the lockfile a
   assert.equal(out.dir, baselineDir(SHA, '/tmp'));
   assert.equal(out.reused, false);
   assert.deepEqual(calls.slice(1).map((c) => [c.command, ...c.args].join(' ')), [
+    'git worktree prune',
     `git worktree add --detach ${out.dir} ${SHA}`,
     'bun install --frozen-lockfile',
     'bun run build',
   ]);
-  assert.equal(calls[3]?.cwd, out.dir);
-  assert.equal(calls[3]?.timeout, BASELINE_BUILD.ms);
+  assert.equal(calls[4]?.cwd, out.dir);
+  assert.equal(calls[4]?.timeout, BASELINE_BUILD.ms);
   assert.deepEqual(marked, [`${out.dir}/${BUILT_MARKER}`]);
 });
 
@@ -54,6 +55,26 @@ test('a half-built baseline is removed before it is added again', () => {
   const { calls, exec } = recorder();
   prepareBaseline('HEAD', '/repo', { exec, bin: same, under: '/tmp', exists: (p) => !p.endsWith(BUILT_MARKER), mark: () => {} });
   assert.equal([calls[1]?.command, ...(calls[1]?.args ?? [])].join(' '), `git worktree remove --force ${baselineDir(SHA, '/tmp')}`);
+});
+
+test('a worktree registered in git whose directory is gone is pruned before the add', () => {
+  const { calls, exec } = recorder();
+  prepareBaseline('HEAD', '/repo', { exec, bin: same, under: '/tmp', exists: () => false, mark: () => {}, remove: () => {} });
+  const steps = calls.slice(1).map((c) => [c.command, ...c.args].join(' '));
+  assert.ok(steps.indexOf('git worktree prune') >= 0, 'prune runs');
+  assert.ok(steps.indexOf('git worktree prune') < steps.findIndex((s) => s.startsWith('git worktree add')), 'prune precedes add');
+});
+
+test('a directory that is no registered worktree is deleted when git refuses to remove it', () => {
+  const removed: string[] = [];
+  const dir = baselineDir(SHA, '/tmp');
+  const { calls, exec } = recorder('worktree remove');
+  prepareBaseline('HEAD', '/repo', {
+    exec, bin: same, under: '/tmp', exists: (p) => !p.endsWith(BUILT_MARKER), mark: () => {}, remove: (p) => removed.push(p),
+  });
+  assert.deepEqual(removed, [dir]);
+  const steps = calls.slice(1).map((c) => [c.command, ...c.args].join(' '));
+  assert.ok(steps.findIndex((s) => s.startsWith('git worktree add')) > steps.indexOf('git worktree prune'));
 });
 
 test('a failing step names the step and its output, and leaves no marker', () => {

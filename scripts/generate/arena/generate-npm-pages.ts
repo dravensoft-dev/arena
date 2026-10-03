@@ -153,11 +153,10 @@ spent it.`,
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
-this version ships are ${classes.map((one) => `\`.${one}\``).join(', ')}, and
-[the vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
+this version ships are ${classes.map((one) => `\`.${one}\``).join(', ')}.
+[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
 that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
-component sheets one by one imports those as well.
-`;
+component sheets one by one imports those as well.`;
   },
 
   skin: () => `## Declare your skin

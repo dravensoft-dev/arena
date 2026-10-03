@@ -16,9 +16,9 @@ the components that answer it. **The class nearest the component wins**, so `are
 button beats `arena-fit` on the container holding it, whatever order your stylesheets load in.
 **A box family stops at the content a component projects**: `arena-fill` on a container reaches the
 card inside it and not the button inside the card's body. The trigger of a tooltip or a menu is
-the exception: a class on the tooltip reaches the control it wraps. **A dialog, a sheet, a menu
-panel or a toast opens outside the page's own subtree**, so no class written above its trigger
-reaches it.
+the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so no class
+above the trigger reaches it. The Angular overlay does this. In React a menu panel renders
+inside its root, and a class above the trigger reaches it.
 
 **Put no other class on an Arena component.** A class that is not in the vocabulary does nothing,
 and `arena-to-prod --audit` reports it, as it reports a member that names appearance with the class
