@@ -1,13 +1,9 @@
-/* Writes two regions into the component's own prompt, between markers this script owns. @api is
- * every contracted member as a table, under the names the layer binds them to, so a wrong cell is
- * fixed in the contract rather than here. @rules is a foot note pointing back at the router: a
- * prompt is the file an agent rereads deepest into a session, when the router carrying the rules
- * has long left its context, so the drift it answers is distance and it re-anchors and points
- * rather than restating a rule that would then live in 118 places. It is owed to every prompt,
- * uncontracted ones included, and all of them sit at one depth, so ROUTER_FROM_PROMPT is a
- * constant rather than a computation. The prose between the two stays hand-written, the way
- * generate-member-docs.ts holds a member's doc comment, and check:prompts holds both equal to a
- * fresh emit. */
+/* Writes three regions into the component's own prompt, between markers this script owns. @api is
+ * every contracted member as a table, so a wrong cell is fixed in the contract. @answers names the
+ * families its own manifest answers, linked to their rows. @rules points back at the router, since
+ * a prompt is what an agent rereads deepest into a session; it is owed to every prompt and all sit
+ * at one depth, so ROUTER_FROM_PROMPT is a constant. The prose between stays hand-written, and
+ * check:prompts holds all three regions equal to a fresh emit. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,12 +15,16 @@ import {
   CONSUMER_LAYERS, componentDir, loadCategories, loadContract, escapeCell,
 } from './generate-skills.ts';
 import { captured } from '../../utils/captures.ts';
+import { readFamilies, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
+import { readManifests } from '../../check/arena/check-measured-box.ts';
 
 export const PROMPTS = CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.prompt.md`);
 
 export const node = {
   name: 'generate:prompt-api',
-  reads: ['contracts/api/components', 'frameworks/Components.json', ...PROMPTS],
+  reads: ['contracts/api/components', 'frameworks/Components.json', VOCABULARY_DIR,
+    'frameworks/tailwind/components', ...PROMPTS],
   writes: PROMPTS,
   feeds: [
     'build:angular-package',
@@ -68,6 +68,11 @@ export const RULES_CLOSE_LINE = '<!-- @rules end -->';
 export const RULES_OPEN = '<!-- @rules GENERATED for every prompt from one source.'
   + ' Edit it there, not here. -->';
 
+export const ANSWERS_OPEN_LINE = /^<!-- @answers GENERATED[^\n]*-->$/m;
+export const ANSWERS_CLOSE_LINE = '<!-- @answers end -->';
+export const ANSWERS_OPEN = '<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest\'s answers, not this line. -->';
+export const VOCABULARY_FROM_PROMPT = '../../../../VOCABULARY.md';
+
 export const ROUTER_FROM_PROMPT = '../../../../../skills/design/SKILL.md';
 
 export const OWN_CLASS_ATTR: Record<string, string> = { react: 'className', angular: 'class' };
@@ -77,7 +82,7 @@ export function renderRulesRegion(layer: string) {
     RULES_OPEN,
     '',
     '**The rules of the language hold in the code you write from this page.** An Arena component '
-    + `is not a styling surface, so put no \`${OWN_CLASS_ATTR[layer] ?? 'class'}\` of your own on `
+    + `takes a class of the vocabulary and no other, so put no \`${OWN_CLASS_ATTR[layer] ?? 'class'}\` of your own on `
     + 'it. Read every value through its token, never a raw colour and never a bare `16px`. Never '
     + 'wrap it in your router\'s own link. `arena-to-prod --audit` reports these three in your '
     + `sources. The rest are in [\`${ROUTER_FROM_PROMPT}\`](${ROUTER_FROM_PROMPT}), which marks the `
@@ -85,6 +90,43 @@ export function renderRulesRegion(layer: string) {
     '',
     RULES_CLOSE_LINE,
   ].join('\n');
+}
+
+export type { Family };
+
+export function renderAnswersRegion(component: string, layer: string, answered: readonly Family[]) {
+  const attribute = OWN_CLASS_ATTR[layer] ?? 'class';
+  const body = answered.length === 0
+    ? `**Answers.** No family of the [vocabulary](${VOCABULARY_FROM_PROMPT}) decides anything in this component's own box.`
+    : answered.map((family) => {
+      const options = Object.keys(family.variants).sort();
+      return `**Answers** [\`${family.family}\`](${VOCABULARY_FROM_PROMPT}#${family.family}): ${options.map((one) => `\`${one}\``).join(', ')}. `
+        + `Write one as \`${attribute}="${options[0]}"\` on the component, or on a container whose components should all take it.`;
+    }).join('\n\n');
+  return [ANSWERS_OPEN, '', body, '', ANSWERS_CLOSE_LINE].join('\n');
+}
+
+export function applyAnswersRegion(source: string, region: string) {
+  const lines = source.split('\n');
+  const opensAt = lines.findIndex((line) => ANSWERS_OPEN_LINE.test(line));
+  if (opensAt !== -1) {
+    const closesAt = lines.indexOf(ANSWERS_CLOSE_LINE, opensAt);
+    if (closesAt === -1) throw new Error('generate-prompt-api: an @answers region opens and never closes');
+    return [...lines.slice(0, opensAt), ...region.split('\n'), ...lines.slice(closesAt + 1)].join('\n');
+  }
+  const after = lines.indexOf(CLOSE_LINE);
+  if (after === -1) return `${source.replace(/\s*$/, '')}\n\n${region}\n`;
+  return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
+}
+
+export function answeredFamilies(
+  component: string, base = root,
+  families = readFamilies(base), manifests = readManifests(base),
+): Family[] {
+  const owner = manifestFor(component, base);
+  const manifest = owner ? manifests.get(owner) : undefined;
+  if (!manifest || manifest.component !== component) return [];
+  return (manifest.answers ?? []).flatMap((name) => families.get(name) ?? []);
 }
 
 const OPENS_FENCE = /^ {0,3}(`{3,}|~{3,})/;
@@ -198,11 +240,16 @@ export function writePromptApis({
   base = root, read = readFileSync, write = writeFileSync, prompts = promptPaths(base),
 } = {}) {
   const written = [];
+  const families = readFamilies(base);
+  const manifests = readManifests(base);
   for (const { component, layer, path } of prompts) {
     const contract = loadContract(component, base);
     const before = read(join(base, path), 'utf8');
     const withApi = contract ? applyRegion(before, renderRegion(contract, layer)) : before;
-    const after = applyRulesRegion(withApi, renderRulesRegion(layer));
+    const withAnswers = applyAnswersRegion(
+      withApi, renderAnswersRegion(component, layer, answeredFamilies(component, base, families, manifests)),
+    );
+    const after = applyRulesRegion(withAnswers, renderRulesRegion(layer));
     if (after !== before) { write(join(base, path), after); written.push(path); }
   }
   return written;

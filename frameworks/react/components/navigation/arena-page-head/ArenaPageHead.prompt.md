@@ -28,6 +28,12 @@ The title block at the top of a page. The block holds the page's own heading, wh
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 `align`, which defaults to `"start"`, governs only the wide layout's cross-axis alignment of the actions block against the title. `"start"` keeps actions top-aligned with a tall title, and `"center"` vertically centers them against it. Below `--bp-sm` the row always stacks and
 `align` has no effect. `ArenaPageHead` applies no outer bottom margin; the parent composes
 that spacing, the way `Shell.tsx`'s header owns its own padding.
@@ -44,6 +50,6 @@ that spacing, the way `Shell.tsx`'s header owns its own padding.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

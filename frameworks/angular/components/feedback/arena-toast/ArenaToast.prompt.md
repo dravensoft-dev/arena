@@ -34,6 +34,12 @@ taken away on a timer.
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 **Tone decides how the message is announced, and that is the whole reason this primitive exists.** `tone="danger"` renders `role="alert"` with `aria-live="assertive"`. A critical message then interrupts whatever a screen reader is already saying. Every other tone renders `role="status"` with `aria-live="polite"` and queues behind it. `persist` is **implied by danger and ignores an explicit `false`**. A critical message that vanishes on a timer is one a user can miss entirely. A pinned toast says so visibly with the `Pinned` marker as well as in `data-persist`.
 
 `dismissible` gates the ×. The member exists because Angular cannot ask whether an output has subscribers. The host has to say whether the notice is closeable, rather than have Arena infer it from a `close` listener.
@@ -64,6 +70,6 @@ this page shows is the rest. Run `bun run demos` and open
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

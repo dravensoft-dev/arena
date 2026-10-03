@@ -22,6 +22,12 @@ Dravensoft's by accident.
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 `size` picks both halves at once, the mark's slot and the wordmark's size. The scale is a fixed repertoire rather than a ratio. `sm` (30/17) sits beside a product name in an application frame, and `md` (40/24) heads a signed-out panel. `lg` (54/34) is the brand manual's Primary horizontal, and `xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.
 
 The manual's three variants are expressible without a `variant` prop, because they
@@ -48,6 +54,6 @@ are two decisions and not three:
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

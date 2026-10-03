@@ -4,7 +4,7 @@
  * a transparent slot the manifest does not have, and an empty vocabulary. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { familyProblems } from './check-families.ts';
+import { familyProblems, pageDriftProblems, collect } from './check-families.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
 const FILL: Family = { family: 'fill', reach: 'box', description: 'Whether a component takes its container\'s width.',
@@ -62,4 +62,14 @@ test('a transparent slot the manifest does not have, or one without a reason, fa
 
 test('an empty vocabulary is a failure, not a clean pass', () => {
   assert.match(run(new Map(), new Map(), []).join('\n'), /found 0 families/);
+});
+
+test('the vocabulary page is held to a fresh emit, and a missing one fails', () => {
+  assert.deepEqual(pageDriftProblems('same', 'same'), []);
+  assert.match(pageDriftProblems('old', 'new').join('\n'), /frameworks\/VOCABULARY\.md: stale, run bun run generate:vocabulary/);
+  assert.match(pageDriftProblems(null, 'new').join('\n'), /frameworks\/VOCABULARY\.md: missing/);
+});
+
+test('the built tree is clean', () => {
+  assert.deepEqual(collect().problems, []);
 });

@@ -13,11 +13,15 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { CSS_CHAIN, CONSUMER_SHEETS } from '../../lib/arena/package-assembly.ts';
 import { LAYERS } from '../../lib/arena/site-pages.ts';
+import { readFamilies, VOCABULARY_SHEETS, sheetName, packageSheetName } from '../../lib/tailwind/vocabulary.ts';
 
 export const PAGE = 'PACKAGE.md';
 
-export const SHEETS = [...CSS_CHAIN, ...CONSUMER_SHEETS]
-  .map(({ from }) => from ?? '')
+export const SHEETS = [
+  ...CSS_CHAIN,
+  ...CONSUMER_SHEETS,
+  ...[...readFamilies(root).keys()].map((family) => ({ from: `${VOCABULARY_SHEETS}/${sheetName(family)}`, to: packageSheetName(family) }))
+].map(({ from }) => from ?? '')
   .filter(Boolean);
 
 export const node = {

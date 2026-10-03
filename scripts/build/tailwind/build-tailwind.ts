@@ -105,6 +105,7 @@ export const node = {
     'check:compliance',
     'check:component-css',
     'check:channels',
+    'check:classes',
     'check:proximity',
     'check:demos',
     'check:dimensions',

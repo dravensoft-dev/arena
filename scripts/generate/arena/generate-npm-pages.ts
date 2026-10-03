@@ -15,6 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { AXES, renderAxes } from '../../lib/arena/support-matrix.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 
 export const TARGETS = [
   'frameworks/react/PACKAGE.md',
@@ -145,6 +146,19 @@ between two siblings, and this is the padding of the box that holds them. The gu
 \`.arena-comfortable\` grows them to a 48px touch target for a screen a thumb drives. Both answer the same keys, so a container wearing both gets whichever the stylesheet emits last. Answering the same keys is why the two are exclusive. Each re-answers the control and row sizes and nothing
 else: the rhythm above does not re-densify, so the air between two components stays where you
 spent it.`,
+
+  vocabulary: (base = root) => {
+    const classes = [...readFamilies(base).values()].flatMap((family) => Object.keys(family.variants)).sort();
+    return `## How a component looks is decided in one place
+
+**A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
+on a container of yours whose components should all take it, and the nearest one wins. The classes
+this version ships are ${classes.map((one) => `\`.${one}\``).join(', ')}, and
+[the vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
+that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
+component sheets one by one imports those as well.
+`;
+  },
 
   skin: () => `## Declare your skin
 

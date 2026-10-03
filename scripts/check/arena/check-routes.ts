@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 18_600,
+    budget: 19_300,
     reason:
       'the page every consumer route opens with, declared once rather than as the first stop of '
       + 'each route, because a router charged to every route opening with it is argued once per route '
@@ -64,7 +64,8 @@ export const ENTRIES: Entry[] = [
       + 'rules list is emitted from one declaration, so each rule says whether a gate reads the '
       + 'reader\'s own sources, and the prose holds the register check:register reads. A page whose '
       + 'prose is already flat has nothing left to spend, so what moves this number is a new question '
-      + 'rather than a longer answer.',
+      + 'rather than a longer answer. The vocabulary families name which style decision reaches which '
+      + 'component owner and answer the route\'s questions about appearance sources at the decision layer.',
   },
   {
     name: 'contributor',
@@ -96,7 +97,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 32_800,
+    budget: 33_100,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately not a stop: it answers whether a component exists at '
@@ -109,14 +110,15 @@ export const ROUTES: Route[] = [
       + 'big its list is and where the page starts in it, and the header row taking the first index '
       + 'is arithmetic no member description can carry. The number is what the stops measure with '
       + 'room for one component to grow, and it is the ceiling a new rule on the consumer branch is '
-      + 'argued against.',
+      + 'argued against. Each component prompt now answers which vocabulary families it names so a '
+      + 'builder knows what appearance choice the component owns.',
   },
   {
     name: 'consumer-install',
     who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
     entry: 'consumer',
     stops: ['frameworks/*/PACKAGE.md'],
-    budget: 56_500,
+    budget: 57_600,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the config file, the command, the theme surface and what each of them costs. It is the only '
@@ -128,7 +130,9 @@ export const ROUTES: Route[] = [
       + 'the install section gives the evidence behind each package manager and runtime it names; and '
       + 'a section shared by both npm pages is said once and charged to the larger. What moves this '
       + 'number is being right, since that is what the page is for, and what keeps it honest is that '
-      + 'a gate fails the page rather than a reader discovering it.',
+      + 'a gate fails the page rather than a reader discovering it. The vocabulary sheets surface '
+      + 'which appearance surfaces the package supports, so a consumer can match their installation '
+      + 'choices to the style decisions that reach their components.',
   },
   {
     name: 'consumer-skin',

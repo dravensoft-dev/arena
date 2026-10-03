@@ -2,9 +2,13 @@
  * it, a default among its options, and options that write only its own channels; every channel is
  * read by a manifest that answers the family, with the default's value as that read's fallback, so
  * the look with no class written is the look the default names; every answers names a family, and
- * every transparent slot is a slot of its manifest with a reason. An empty vocabulary fails. */
+ * every transparent slot is a slot of its manifest with a reason. The vocabulary page must equal a
+ * fresh render of the same files. An empty vocabulary fails. */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
+import { VOCABULARY_TARGET, renderVocabulary } from '../../generate/arena/generate-vocabulary.ts';
 import { pascal } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
@@ -15,7 +19,7 @@ import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
 export const node = {
   name: 'check:families',
-  reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json', VOCABULARY_TARGET],
   writes: [],
   feeds: [],
 };
@@ -102,10 +106,17 @@ export function familyProblems(families: Map<string, Family>, files: string[], m
   return problems;
 }
 
+export function pageDriftProblems(onDisk: string | null, fresh: string) {
+  if (onDisk === null) return [`${VOCABULARY_TARGET}: missing, run bun run generate:vocabulary`];
+  return onDisk === fresh ? [] : [`${VOCABULARY_TARGET}: stale, run bun run generate:vocabulary`];
+}
+
 export function collect(root = repoRoot) {
   const families = readFamilies(root);
   const manifests = new Map([...layerManifests(root).values()].map((one) => [one.component, one]));
-  return { families, problems: familyProblems(families, familyFiles(root), manifests) };
+  const page = join(root, VOCABULARY_TARGET);
+  const drift = pageDriftProblems(existsSync(page) ? readFileSync(page, 'utf8') : null, renderVocabulary(root));
+  return { families, problems: [...familyProblems(families, familyFiles(root), manifests), ...drift] };
 }
 
 function main() {

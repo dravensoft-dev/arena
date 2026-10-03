@@ -26,6 +26,7 @@ export const BEHAVIOUR = 'contracts/behaviour/*.json';
 export const CARRIED_SHARED = [
   `${REFERENCE_DIR}/*.md`,
   LAYER_NEUTRAL_INDEX,
+  'frameworks/VOCABULARY.md',
   ROLES,
   BEHAVIOUR,
 ];

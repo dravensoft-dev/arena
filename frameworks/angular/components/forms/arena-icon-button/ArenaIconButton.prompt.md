@@ -33,6 +33,12 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
 **Do / Don't**
 - `label` is **required and is the accessible name**, not a decoration. The member is the `aria-label` in every state, the visible text under `showLabel`, and the `title` when there is none. An icon
   button without it announces nothing at all, which is why this input has no default.
@@ -69,6 +75,6 @@ open `/frameworks/angular/components/forms/arena-icon-button/ArenaIconButton.dem
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

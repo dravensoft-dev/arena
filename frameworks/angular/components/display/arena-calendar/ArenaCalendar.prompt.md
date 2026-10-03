@@ -33,6 +33,12 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 `timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. The default is also **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration.
 
 The anchor is internal, so prev/Today/next work with nothing wired. `rangeChange` reports the new anchor date; take it as the cue to refetch. Bind `anchorDate` only when you want to drive the date yourself: it is a `linkedSignal` source, so it wins whenever it changes and resets any navigation the reader had done.
@@ -107,6 +113,6 @@ nowhere else. `bun run build:angular-demo && bun run demos`, then open
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

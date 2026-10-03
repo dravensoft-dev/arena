@@ -100,11 +100,15 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
   three ways. Read a value through its custom property, as `var(--crimson)` or `var(--sp-4)`.
   Derive one with `calc()` or `clamp()` over a token, or mix one with `color-mix()` over a token.
   **`--audit` reports this one.**
-- **Put no class of your own on an Arena component.** Write no rule targeting one either. A
-  component renders `arena-<component>__<slot>` class names, so a rule of yours reaches one by
-  specificity. The name reads like a surface somebody meant you to target and it is not one: it is
-  compiler output, no contract names it, and a slot may be renamed in any release. Content you
-  draw yourself is yours, styled through the same tokens. **`--audit` reports this one.**
+- **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
+  component, or on a container whose components should all take it. Write no rule targeting a
+  component: it renders `arena-<component>__<slot>` class names, which are compiler output that no
+  contract names, and a slot may be renamed in any release. Every class you may write is on the
+  vocabulary page. Content you draw yourself is yours, styled through the same tokens. **`--audit`
+  reports this one.**
+- **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
+  component is, is decided by a class, as `arena-fill`. An attribute naming appearance on a
+  component is reported with the class that says it. **`--audit` reports this one.**
 - **Danger is outline, never filled.** The background stays transparent, and the border and the
   content read `--danger`. Arena draws one filled danger surface, and it is the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
@@ -164,6 +168,8 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | the component's own `.prompt.md`, linked from that index |
+| How do I make this one wider, smaller, filled or quieter? | [`frameworks/VOCABULARY.md`](../../frameworks/VOCABULARY.md): every class you may write on a component, and the components that answer it |
+| Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
 | What else does the package export, besides components? | the layer's `PACKAGE.md`: the theme surface, the two measurements, the chart ramp helpers, and Angular's projection markers |

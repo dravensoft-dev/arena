@@ -28,6 +28,12 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 `options` takes **only** `ArenaSelectOption` objects. The bare-string form, `options={['Production','Staging']}`, is gone. `(string | ArenaSelectOption)[]` is a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.
 Where value and label are the same, write it: `{value:'QA', label:'QA'}`.
 
@@ -63,6 +69,6 @@ none. The placeholder is disabled once a real choice is made, which is what keep
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

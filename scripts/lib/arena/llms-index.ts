@@ -29,6 +29,7 @@ export const PARAGRAPH = /\n\s*\n/;
 export const EMPHASIS = /^(\*\*|\*)/;
 export const INLINE_LINK = /\[([^\]]*)\]\((?:[^()]|\([^()]*\))*\)/g;
 export const LAYER_INDEX = `frameworks/${INDEX}`;
+export const VOCABULARY_PAGE = 'frameworks/VOCABULARY.md';
 export const BUILD_INTERMEDIATE = 'build/package';
 
 export const ASSEMBLED = 'dist/';
@@ -182,7 +183,7 @@ export function blurb(rel: string, base = root) {
 }
 
 export function servedDocs(base = root) {
-  return [ROUTER, ...references(base), LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
+  return [ROUTER, ...references(base), LAYER_INDEX, VOCABULARY_PAGE, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
     .filter((rel) => existsSync(join(base, rel)));
 }
 
@@ -250,7 +251,7 @@ export function corpus(layer: string, base = root) {
     'under both names and the two documents are not interchangeable.',
     '',
   ];
-  for (const rel of [ROUTER, ...references(base), LAYER_INDEX, ...layerDocs(layer, base)]) {
+  for (const rel of [ROUTER, ...references(base), LAYER_INDEX, VOCABULARY_PAGE, ...layerDocs(layer, base)]) {
     parts.push('', `<!-- ${rel} -->`, '', readFileSync(join(base, rel), 'utf8').trim(), '');
   }
   return `${parts.join('\n')}\n`;

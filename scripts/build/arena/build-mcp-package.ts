@@ -55,7 +55,7 @@ export const node = {
     `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, NPM_PAGE,
     '.claude-plugin/plugin.json', 'LICENSE',
     'skills/design/SKILL.md', 'skills/design/references/*.md',
-    'frameworks/INDEX.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
+    'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
   ],

@@ -79,3 +79,18 @@ test('the copy rule is about the product\'s language, and Arena\'s words answer 
   assert.match(copy.body, /Arena's words follow the locale\./);
   assert.equal(RULES.some((one) => one.id === 'copy-is-english'), false);
 });
+
+test('the rules say a class of the vocabulary is the only thing on a component, and appearance is one', () => {
+  const own = RULES.find((one) => one.id === 'own-class');
+  assert.ok(own, 'own-class is declared');
+  assert.equal(own.short, 'Only a class of the vocabulary goes on an Arena component.');
+  assert.match(own.body, /Every class you may write is on the vocabulary page\./);
+  assert.equal(own.held, 'own-class');
+  const appearance = RULES.find((one) => one.id === 'appearance-is-a-class');
+  assert.ok(appearance, 'appearance-is-a-class is declared');
+  assert.equal(appearance.short, 'Appearance is a class of the vocabulary, never a member.');
+  assert.equal(appearance.held, 'design-member');
+  assert.equal(appearance.unheld, null);
+  const ids = RULES.map((one) => one.id);
+  assert.equal(ids.indexOf('appearance-is-a-class'), ids.indexOf('own-class') + 1);
+});

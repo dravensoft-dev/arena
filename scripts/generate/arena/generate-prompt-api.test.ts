@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   typeCell, defaultCell, memberRow, renderRegion, applyRegion, fenceEnd, signature,
   promptPaths, writePromptApis, openLine, CLOSE_LINE, CONSUMER_DATA,
+  renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE,
 } from './generate-prompt-api.ts';
 
 test('an array names what it holds, and consumer data keeps its one spelling', () => {
@@ -92,4 +93,29 @@ test('every prompt in the tree is reached, in both layers', () => {
 test('a fresh run over the committed tree writes nothing, which is what the gate asserts', () => {
   const written = writePromptApis({ write: () => { throw new Error('wrote a file'); } });
   assert.deepEqual(written, []);
+});
+
+const FILL = {
+  family: 'fill', reach: 'box', description: 'd', default: 'arena-fit',
+  variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' },
+} as const;
+
+test('a prompt names the families its component answers, in its layer\'s idiom, linked to their rows', () => {
+  const react = renderAnswersRegion('ArenaButton', 'react', [FILL]);
+  assert.match(react, /\*\*Answers\*\* \[`fill`\]\(\.\.\/\.\.\/\.\.\/\.\.\/VOCABULARY\.md#fill\): `arena-fill`, `arena-fit`\. Write one as `className="arena-fill"`/);
+  assert.match(renderAnswersRegion('ArenaButton', 'angular', [FILL]), /`class="arena-fill"`/);
+  assert.match(renderAnswersRegion('ArenaCard', 'react', []), /No family of the \[vocabulary\]\(\.\.\/\.\.\/\.\.\/\.\.\/VOCABULARY\.md\) decides anything in this component's own box/);
+});
+
+test('the region lands after the members table and is replaced in place on a second run', () => {
+  const source = 'intro\n<!-- @api GENERATED from x -->\ntable\n<!-- @api end -->\nprose\n';
+  const once = applyAnswersRegion(source, renderAnswersRegion('ArenaCard', 'react', []));
+  assert.ok(once.indexOf(ANSWERS_CLOSE_LINE) > once.indexOf('<!-- @api end -->'));
+  assert.equal(applyAnswersRegion(once, renderAnswersRegion('ArenaCard', 'react', [])), once);
+});
+
+test('the rules note says a component takes a class of the vocabulary, with the layer\'s own attribute', () => {
+  assert.match(renderRulesRegion('react'), /component takes a class of the vocabulary and no other, so put no `className` of your own on it\./);
+  assert.match(renderRulesRegion('angular'), /component takes a class of the vocabulary and no other, so put no `class` of your own on it\./);
+  assert.doesNotMatch(renderRulesRegion('react'), /styling surface/);
 });

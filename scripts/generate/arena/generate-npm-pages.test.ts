@@ -57,3 +57,11 @@ test('a region replaces what is between its markers and leaves the page around i
   assert.doesNotMatch(after, /old/);
 });
 
+test('the vocabulary region names arena-fill and stays under 900 characters', () => {
+  const region = renderRegion('vocabulary');
+  assert.ok(region.includes('arena-fill'), 'vocabulary region names arena-fill');
+  const lines = region.split('\n');
+  const regionContent = lines.slice(2, -1).join('\n');
+  assert.ok(regionContent.length < 900, `vocabulary region is ${regionContent.length} characters, under 900`);
+});
+

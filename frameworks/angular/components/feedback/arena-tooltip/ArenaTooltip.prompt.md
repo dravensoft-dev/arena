@@ -27,6 +27,12 @@ The bubble is positioned by `@angular/cdk/overlay`, not by the wrapper, so it es
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
 **Do / Don't**
 - Project exactly **one** element, and one that can take an attribute. Arena writes
   `aria-describedby` onto the wrapper's first element child, so a bare string or several
@@ -60,6 +66,6 @@ To fill a row, put `class="arena-fill"` on the tooltip or on a container above i
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

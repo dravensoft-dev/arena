@@ -27,6 +27,12 @@ between the two still works.
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 **The bar is not an `arena-side-nav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `arena-tabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it `arena-segmented-control`, which is a radio group that chooses rather than navigates.
 
 The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
@@ -56,6 +62,6 @@ share a page and each needs its own name.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

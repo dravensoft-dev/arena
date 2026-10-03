@@ -5,7 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
-  ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, SCHEME,
+  ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
+  extractFamilies,
 } from './catalogue.ts';
 import type { Manifest } from './payload.ts';
 
@@ -165,4 +166,51 @@ test('a question with no words finds nothing rather than everything', () => {
 
 test('words are lowercased and split, so a question is matched on its parts', () => {
   assert.deepEqual([...words('Sortable Table, rows')], ['sortable', 'table', 'rows']);
+});
+
+test('extractFamilies parses family sections from vocabulary markdown', () => {
+  const text = '# The vocabulary\n\n## fill\n\nWhether a component takes width of the box. Write it and it stops.\n';
+  const families = extractFamilies(text);
+  assert.equal(families.length, 1);
+  assert.equal(families[0]?.name, 'fill');
+  assert.equal(families[0]?.description, 'Whether a component takes width of the box');
+});
+
+test('the vocabulary lists every family a component answers, searchable by family name', () => {
+  const dir = payload({
+    'frameworks/VOCABULARY.md': '# The vocabulary\n\n## fill\n\n'
+      + 'Whether a component takes the width of the box it sits in or the width of its own content. '
+      + 'Write it on the instance, and it stops at the content that component projects.\n',
+  });
+  const found = entries(dir, MANIFEST);
+  const uris = found.map((one) => one.uri);
+  assert.ok(uris.includes(`${SCHEME}://vocabulary`), 'the vocabulary page has its own URI');
+  assert.ok(uris.includes(`${SCHEME}://family/fill`), 'each family has its own URI');
+  rmSync(dir, { recursive: true });
+});
+
+test('a search for a family property finds the family entry', () => {
+  const dir = payload({
+    'frameworks/VOCABULARY.md': '# The vocabulary\n\n## fill\n\n'
+      + 'Whether a component takes the full width of the box it sits in. '
+      + 'Write it on the instance, and it stops at the content.\n',
+  });
+  const found = search(dir, entries(dir, MANIFEST), 'full width');
+  assert.ok(found.length > 0, 'full width is found');
+  const uris = found.map((one) => one.entry.uri);
+  assert.ok(
+    uris.includes(`${SCHEME}://family/fill`) || uris.includes(`${SCHEME}://vocabulary`),
+    'the result is the family or the vocabulary page',
+  );
+  rmSync(dir, { recursive: true });
+});
+
+test('a search for a family name finds that family', () => {
+  const dir = payload({
+    'frameworks/VOCABULARY.md': '# The vocabulary\n\n## fill\n\n'
+      + 'Whether a component takes width of the box. Write it and it stops.\n',
+  });
+  const found = search(dir, entries(dir, MANIFEST), 'fill');
+  assert.equal(found[0]?.entry.uri, `${SCHEME}://family/fill`, 'fill family is ranked first');
+  rmSync(dir, { recursive: true });
 });

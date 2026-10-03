@@ -30,7 +30,7 @@ test('the payload carries the references, the neutral index, the roles and the p
 });
 
 test('a spec list names the shared files plus the layer tree, and nothing else', () => {
-  assert.equal(carriedSpecs('react').length, 7);
+  assert.equal(carriedSpecs('react').length, 8);
   assert.ok(carriedSpecs('react').every((spec) => !spec.includes('angular')));
 });
 

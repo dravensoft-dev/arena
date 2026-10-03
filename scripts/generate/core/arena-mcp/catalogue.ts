@@ -20,15 +20,37 @@ export const ROLES_URI = `${SCHEME}://roles`;
 export const RULES_URI = `${SCHEME}://rules`;
 export const LAYER_INDEX_URI = `${SCHEME}://index`;
 export const CATALOGUE_URI = `${SCHEME}://index/all`;
+export const VOCABULARY_URI = `${SCHEME}://vocabulary`;
 
 export const REFERENCE_DIR = 'skills/design/references';
 export const NEUTRAL_INDEX = 'frameworks/INDEX.md';
+export const VOCABULARY = 'frameworks/VOCABULARY.md';
 export const ROLES = 'contracts/design/roles.json';
 export const RULES = 'rules.json';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const INDEX = 'INDEX.md';
+export const FAMILY_PREFIX = `${SCHEME}://family/`;
 
 export type Entry = { uri: string; rel: string; title: string; mime: string };
+
+export function extractFamilies(text: string): Array<{ name: string; description: string }> {
+  const families: Array<{ name: string; description: string }> = [];
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (line && line.startsWith('## ') && !line.startsWith('## The')) {
+      const name = line.slice(3).trim();
+      let j = i + 1;
+      while (j < lines.length && lines[j]?.trim() === '') j += 1;
+      const description = lines[j]?.trim() ?? '';
+      const firstSentence = description.split(/[.!?]/)[0] ?? '';
+      if (name && firstSentence) {
+        families.push({ name, description: firstSentence });
+      }
+    }
+  }
+  return families;
+}
 
 export function nameOf(rel: string) {
   const last = rel.split('/').at(-1) ?? '';
@@ -59,6 +81,22 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
   if (files.includes(NEUTRAL_INDEX)) {
     found.push({ uri: CATALOGUE_URI, rel: NEUTRAL_INDEX, mime: 'text/markdown',
       title: 'Whether a component exists at all, and which layers ship it' });
+  }
+  if (files.includes(VOCABULARY)) {
+    found.push({ uri: VOCABULARY_URI, rel: VOCABULARY, mime: 'text/markdown',
+      title: 'The vocabulary: every class you write on a component to decide how it looks, such as full width' });
+    const text = readIn(payload, VOCABULARY);
+    if (text) {
+      const families = extractFamilies(text);
+      for (const family of families) {
+        found.push({
+          uri: `${FAMILY_PREFIX}${family.name}`,
+          rel: VOCABULARY,
+          mime: 'text/markdown',
+          title: `Family ${family.name}: ${family.description}`,
+        });
+      }
+    }
   }
   const layerIndex = `frameworks/${layer}/${INDEX}`;
   if (files.includes(layerIndex)) {
@@ -99,7 +137,13 @@ export const MARKDOWN_LINK = /\]\(([^)\s]+)\)/g;
 export const ADDRESSED = /^(?:[a-z][a-z0-9+.-]*:|#|\/)/i;
 
 export function relIndex(found: Entry[]) {
-  return new Map(found.map((one) => [one.rel, one.uri]));
+  const index = new Map<string, string>();
+  for (const entry of found) {
+    if (!entry.uri.startsWith(FAMILY_PREFIX)) {
+      index.set(entry.rel, entry.uri);
+    }
+  }
+  return index;
 }
 
 export function withUris(text: string, rel: string, byRel: Map<string, string>) {

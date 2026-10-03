@@ -18,6 +18,12 @@ One cell of an `ArenaTableRow`. The cell draws the cell box: the padding, the al
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
 **Do / Don't**
 - Put a value in it, or one of Arena's own components: an `ArenaBadge` for a status, an `ArenaButton` for an action. This member is why `ArenaTable` is a compound component at all. A column-level `render` function would be per-item projection, which the library does not do. A cell **you** instantiate is just an element you wrote.
 - Don't set alignment, width or the mono face here. Those belong to the column, so a column stays consistent down its whole length. A cell that styled itself would drift from its header.
@@ -50,6 +56,6 @@ grid's `Enter` is the cell's and still activates the row; the anchor's `Enter` i
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

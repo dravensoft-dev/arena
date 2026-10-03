@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
-  promptProblems, regionOf, rulesRegionOf, zeroScanProblems,
+  promptProblems, regionOf, rulesRegionOf, answersRegionOf, answersProblem, zeroScanProblems,
 } from './check-prompts.ts';
 import {
-  openLine, CLOSE_LINE, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT,
+  openLine, CLOSE_LINE, renderAnswersRegion, answeredFamilies, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT,
 } from '../../generate/arena/generate-prompt-api.ts';
 
 test('every committed prompt carries the region its contract emits', () => {
@@ -22,11 +22,12 @@ test('the gate read a real corpus rather than an empty one', () => {
   assert.equal(anchored, scanned, 'a prompt points nowhere, and it is the reader\'s last stop');
 });
 
-test('a file with neither region is reported for both, since each answers its own question', () => {
+test('a file with no region is reported for each, since each answers its own question', () => {
   const { problems } = promptProblems(undefined, [
     { component: 'ArenaBadge', layer: 'react', path: 'frameworks/react/components/display/arena-badge/ArenaBadge.tsx' },
   ]);
-  assert.equal(problems.length, 2);
+  assert.equal(problems.length, 3);
+  assert.ok(problems.some((one) => /carries no @answers region/.test(one)));
   assert.ok(problems.some((one) => /carries no @api region/.test(one)));
   assert.ok(problems.some((one) => /carries no @rules region/.test(one)));
 });
@@ -61,4 +62,27 @@ test('an unclosed region reads as no region, so the gate reports it rather than 
 test('an empty scan is a problem, never a clean run', () => {
   assert.equal(zeroScanProblems(0).length, 1);
   assert.deepEqual(zeroScanProblems(110), []);
+});
+
+const FILL = {
+  family: 'fill', reach: 'box', description: 'd', default: 'arena-fit',
+  variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' },
+} as const;
+
+test('an @answers region that names a family the manifest does not answer is reported', () => {
+  const stale = `x\n${renderAnswersRegion('ArenaCard', 'react', [FILL])}\n`;
+  assert.equal(answersProblem('p.md', stale, 'ArenaCard', 'react', []).length, 1);
+  assert.deepEqual(answersProblem('p.md', stale, 'ArenaCard', 'react', [FILL]), []);
+  assert.equal(answersProblem('p.md', 'x\n', 'ArenaCard', 'react', []).length, 1);
+  assert.equal(answersRegionOf(stale), renderAnswersRegion('ArenaCard', 'react', [FILL]));
+});
+
+test('the real tree answers fill for ArenaButton, so the generator and the gate do not agree on nothing', () => {
+  const answered = answeredFamilies('ArenaButton');
+  assert.deepEqual(answered.map((one) => one.family), ['fill']);
+  for (const layer of ['react', 'angular']) {
+    assert.match(renderAnswersRegion('ArenaButton', layer, answered), /`arena-fill`/);
+  }
+  const path = 'frameworks/react/components/forms/arena-button/ArenaButton.prompt.md';
+  assert.match(answersRegionOf(readFileSync(join(repoRoot, path), 'utf8')) ?? '', /`arena-fill`/);
 });

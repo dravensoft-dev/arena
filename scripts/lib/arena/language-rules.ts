@@ -28,13 +28,20 @@ export const RULES: LanguageRule[] = [
   },
   {
     id: 'own-class',
-    short: 'Put no class of your own on an Arena component.',
-    body: 'Write no rule targeting one either. A component renders `arena-<component>__<slot>` '
-      + 'class names, so a rule of yours reaches one by specificity. The name reads like a surface '
-      + 'somebody meant you to target and it is not one: it is compiler output, no contract names '
-      + 'it, and a slot may be renamed in any release. Content you draw yourself is yours, styled '
-      + 'through the same tokens.',
+    short: 'Only a class of the vocabulary goes on an Arena component.',
+    body: 'Write it as a literal on the component, or on a container whose components should all take it. '
+      + 'Write no rule targeting a component: it renders `arena-<component>__<slot>` class names, which are '
+      + 'compiler output that no contract names, and a slot may be renamed in any release. Every class you may '
+      + 'write is on the vocabulary page. Content you draw yourself is yours, styled through the same tokens.',
     held: 'own-class',
+    unheld: null,
+  },
+  {
+    id: 'appearance-is-a-class',
+    short: 'Appearance is a class of the vocabulary, never a member.',
+    body: 'How wide, how large or how quiet a component is, is decided by a class, as `arena-fill`. An '
+      + 'attribute naming appearance on a component is reported with the class that says it.',
+    held: 'design-member',
     unheld: null,
   },
   {
