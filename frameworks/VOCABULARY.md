@@ -2,7 +2,7 @@
 
 # The vocabulary
 
-**How a component looks is decided by a class you write, and every class you may write is on this page.** Write it on the component, or on a container of yours whose components should all take it. The class nearest the component wins, whatever order your stylesheets load in. A class that is not on this page does nothing on an Arena component, and the audit reports it.
+**Every class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it, and the class nearest the component wins, whatever order your stylesheets load in. A markup family's class goes on an element you wrote, never on a component. A class that is not on this page does nothing on an Arena component, and the audit reports it.
 
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|

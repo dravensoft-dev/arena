@@ -39,3 +39,14 @@ test('no family sheet, or no component sheet, is a failure rather than a clean p
   assert.match(channelProblems(sheets().filter((s) => s.kind !== 'family')).join('\n'), /found 0 family sheet/);
   assert.match(channelProblems(sheets().filter((s) => s.kind !== 'component')).join('\n'), /found 0 component sheet/);
 });
+
+test('a family restating a contract group writes that group, and the token sheet is its one allowed second writer', () => {
+  const sheets = [
+    { kind: 'family', rel: 'v/Density.generated.css', css: '@scope (.arena-compact){:scope{--dz-ctl-h:32px}}', restates: 'dz' },
+    { kind: 'component', rel: 'c/a.css', css: '.a{--tw-x:1}' },
+    { kind: 'token', rel: 't/spacing.css', css: ':root{--dz-ctl-h:40px}' },
+  ] as any;
+  assert.deepEqual(channelProblems(sheets), []);
+  const stray = [...sheets, { kind: 'family', rel: 'v/Stack.generated.css', css: '@scope (.arena-stack){:scope{--dz-ctl-h:1px}}' }];
+  assert.match(channelProblems(stray).join('\n'), /Stack\.generated\.css declares --dz-ctl-h/);
+});

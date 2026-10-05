@@ -5,7 +5,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS } from '../../check/arena/check-layer-independence.ts';
@@ -71,4 +72,20 @@ test('the vocabulary region ends on its text, names each class with its dot, and
   assert.ok(!/\n\n\n/.test(region), 'no double blank line');
   assert.ok(!region.includes(', and\n'), 'no dangling ", and"');
   assert.ok(region.includes('`.arena-fill`'), 'class names carry the dot check:classes reads');
+});
+
+test('the vocabulary region puts a markup class in the markup sentence and never in the component one', () => {
+  const base = mkdtempSync(join(tmpdir(), 'npm-vocabulary-'));
+  const family = (dir: string, body: object) => {
+    mkdirSync(join(base, 'frameworks/tailwind/vocabulary', dir), { recursive: true });
+    writeFileSync(join(base, 'frameworks/tailwind/vocabulary', dir, `${dir}.family.json`), JSON.stringify(body));
+  };
+  family('fill', { family: 'fill', reach: 'box', description: 'd', default: 'arena-fit',
+    variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } });
+  family('stack', { family: 'stack', reach: 'box', target: 'markup', description: 'd', variants: { 'arena-stack': '[display:flex]' } });
+  const region = renderRegion('vocabulary', base);
+  assert.ok(region.includes('`.arena-fill`') && region.includes('`.arena-stack`'));
+  const sentences = region.split(/(?<=\.)\s/);
+  assert.ok(sentences.some((one) => one.includes('.arena-stack') && one.includes('markup you write')));
+  assert.ok(!sentences.some((one) => one.includes('.arena-stack') && one.includes('this version ships')));
 });

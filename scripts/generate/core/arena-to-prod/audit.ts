@@ -277,7 +277,7 @@ export const OWN_CLASS_MESSAGE = 'a class of your own on a component Arena draws
 
 export type VocabularyIndex = {
   page: string;
-  classes: Record<string, { family: string; reach: 'context' | 'box' }>;
+  classes: Record<string, { family: string; reach: 'context' | 'box'; target?: 'component' | 'markup' }>;
   answers: Record<string, string[]>;
 };
 
@@ -303,6 +303,11 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
     if (!entry) {
       found.push(`"${token}" is not a class of Arena's vocabulary, and a component takes no other. `
         + `Every family and the components answering it: ${vocabulary.page}`);
+      continue;
+    }
+    if (entry.target === 'markup' && entry.reach === 'box') {
+      found.push(`${token} goes on an element you wrote and never on a component: ${component}'s own element may carry `
+        + `no box, so the class would land on nothing. Put a <div> of yours around it. ${vocabulary.page}`);
       continue;
     }
     byFamily.set(entry.family, [...(byFamily.get(entry.family) ?? []), token]);

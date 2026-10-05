@@ -551,3 +551,9 @@ test('every appearance attribute points at a family that exists, on a member no 
     assert.equal(contract.api?.[attribute], undefined, `${component} still declares ${attribute}, so the entry is not a statement about this version`);
   }
 });
+
+test('a markup class on a component is reported as markup-only', () => {
+  const vocabulary = { page: 'P', answers: {}, classes: { 'arena-stack': { family: 'stack', reach: 'box', target: 'markup' } } } as VocabularyIndex;
+  assert.match(ownClassFindings('ArenaCard', ' class="arena-stack"', vocabulary).join('\n'),
+    /arena-stack goes on an element you wrote and never on a component/);
+});

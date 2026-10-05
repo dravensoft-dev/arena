@@ -115,3 +115,13 @@ test('each component gets every context class and the box classes its manifest a
 test('with no context family the context union is never, so a component answering nothing takes no class', () => {
   assert.match(vocabularyTypes([], new Map(), ['ArenaCard'], 'p'), /export type ArenaContextClass = never;/);
 });
+
+test('a markup box family is offered to no component, and a markup context family to every one', () => {
+  const stack = { family: 'stack', reach: 'box', target: 'markup', description: 'd', variants: { 'arena-stack': '[display:flex]' } } as Family;
+  const density = { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd',
+    variants: { 'arena-compact': 'x', 'arena-comfortable': 'y' } } as Family;
+  const text = vocabularyTypes([stack, density], new Map(), ['ArenaCard'], 'p');
+  assert.match(text, /export type ArenaContextClass = 'arena-comfortable' \| 'arena-compact';/);
+  assert.doesNotMatch(text, /ArenaStackClass|arena-stack/);
+  assert.match(text, /"ArenaCard": \["arena-comfortable", "arena-compact"\]/);
+});

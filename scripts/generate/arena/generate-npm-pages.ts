@@ -15,7 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { AXES, renderAxes } from '../../lib/arena/support-matrix.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
-import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
 
 export const TARGETS = [
   'frameworks/react/PACKAGE.md',
@@ -148,13 +148,17 @@ else: the rhythm above does not re-densify, so the air between two components st
 spent it.`,
 
   vocabulary: (base = root) => {
-    const classes = [...readFamilies(base).values()].flatMap((family) => Object.keys(family.variants)).sort();
+    const families = [...readFamilies(base).values()];
+    const named = (target: 'component' | 'markup') => families.filter((family) => targetOf(family) === target)
+      .flatMap((family) => Object.keys(family.variants)).sort().map((one) => `\`.${one}\``).join(', ');
+    const classes = named('component');
+    const markup = named('markup');
     return `## How a component looks is decided in one place
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
-this version ships are ${classes.map((one) => `\`.${one}\``).join(', ')}.
-[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
+this version ships are ${classes}.
+${markup ? `The classes for markup you write are ${markup}, and none of them goes on a component.\n` : ''}[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
 that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
 component sheets one by one imports those as well.`;
   },
