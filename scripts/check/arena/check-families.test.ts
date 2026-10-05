@@ -4,7 +4,7 @@
  * a transparent slot the manifest does not have, and an empty vocabulary. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { familyProblems, pageDriftProblems, collect } from './check-families.ts';
+import { familyProblems, pageDriftProblems, strayClassProblems, collect } from './check-families.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
 const FILL: Family = { family: 'fill', reach: 'box', description: 'Whether a component takes its container\'s width.',
@@ -97,6 +97,13 @@ test('the vocabulary page is held to a fresh emit, and a missing one fails', () 
   assert.deepEqual(pageDriftProblems('same', 'same'), []);
   assert.match(pageDriftProblems('old', 'new').join('\n'), /frameworks\/VOCABULARY\.md: stale, run bun run generate:vocabulary/);
   assert.match(pageDriftProblems(null, 'new').join('\n'), /frameworks\/VOCABULARY\.md: missing/);
+});
+
+test('a class in a compiled sheet that no family and no manifest emits fails, and an exempt one does not', () => {
+  const classes = new Map([['arena-fill', 'v/Fill.css'], ['arena-toast__root', 'c/toast.css'], ['arena-light', 't/colors.css'], ['arena-stray', 't/x.css']]);
+  const problems = strayClassProblems(classes, new Map([['fill', FILL]]), new Set(['arena-toast__root']), new Map([['arena-light', 'why']]));
+  assert.deepEqual(problems.length, 1);
+  assert.match(problems[0] ?? '', /t\/x\.css emits \.arena-stray, which no family and no manifest emits/);
 });
 
 test('the built tree is clean', () => {

@@ -3,15 +3,19 @@
  * read by a manifest that answers the family, with the default's value as that read's fallback, so
  * the look with no class written is the look the default names; every answers names a family, and
  * every transparent slot is a slot of its manifest with a reason. The vocabulary page must equal a
- * fresh render of the same files. An empty vocabulary fails. */
+ * fresh render of the same files. An empty vocabulary fails, and so does an arena- class in a compiled
+ * or shipped sheet that no family and no manifest emits. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { VOCABULARY_TARGET, renderVocabulary } from '../../generate/arena/generate-vocabulary.ts';
 import { pascal } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { classesManifest } from '../../lib/tailwind/component-css.ts';
+import { walkFiles } from '../../utils/walk-files.ts';
+import { NOT_WRITTEN, SHEETS, classesIn } from './check-classes.ts';
 import {
   REACHES, TARGETS, VOCABULARY_DIR, channelPrefix, declarations, familyFiles, optionDeclarations, readFamilies,
   slotClassStrings, type Family,
@@ -20,7 +24,7 @@ import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
 export const node = {
   name: 'check:families',
-  reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json', VOCABULARY_TARGET],
+  reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json', VOCABULARY_TARGET, ...SHEETS, 'frameworks/tailwind/consume/**/*.css'],
   writes: [],
   feeds: [],
 };
@@ -140,12 +144,44 @@ export function pageDriftProblems(onDisk: string | null, fresh: string) {
   return onDisk === fresh ? [] : [`${VOCABULARY_TARGET}: stale, run bun run generate:vocabulary`];
 }
 
+export function strayClassProblems(classes: Map<string, string>, families: Map<string, Family>, manifestClasses: Set<string>, exempt: Map<string, string>) {
+  const allowed = new Set([...families.values()].flatMap((family) => Object.keys(family.variants ?? {})));
+  const problems: string[] = [];
+  for (const [name, rel] of classes) {
+    if (allowed.has(name) || manifestClasses.has(name) || exempt.has(name)) continue;
+    problems.push(`${rel} emits .${name}, which no family and no manifest emits. An adopter-facing class lives in a family under ${VOCABULARY_DIR}/, or is named in NOT_WRITTEN in check-classes.ts with why it is not one`);
+  }
+  return problems;
+}
+
+export function sweptSheets(root = repoRoot) {
+  const consume = join(root, 'frameworks', 'tailwind', 'consume');
+  const walked = existsSync(consume) ? walkFiles(consume).filter((file) => file.endsWith('.css')).map((file) => relative(root, file).split('\\').join('/')) : [];
+  return [...new Set([...SHEETS, ...walked])].filter((rel) => existsSync(join(root, ...rel.split('/'))));
+}
+
+export function sweptProblems(families: Map<string, Family>, manifests: Map<string, ComponentManifest>, root = repoRoot) {
+  const sheets = sweptSheets(root);
+  if (sheets.length === 0) return ['found 0 compiled or shipped sheets to sweep, so the stray-class rule was asked of nothing; a fresh clone builds first'];
+  const classes = new Map<string, string>();
+  for (const rel of sheets)
+    for (const name of classesIn(readFileSync(join(root, ...rel.split('/')), 'utf8'))) if (!classes.has(name)) classes.set(name, rel);
+  const emitted = new Set<string>();
+  for (const manifest of manifests.values()) {
+    const all = classesManifest(manifest);
+    const slotMaps = [all.slots, ...Object.values(all.variants ?? {}).flatMap((values) => Object.values(values)), ...(all.compoundVariants ?? []).map((one) => one.class)];
+    for (const map of slotMaps)
+      for (const value of Object.values(map ?? {})) for (const name of String(value ?? '').split(/\s+/)) if (name.startsWith('arena-')) emitted.add(name);
+  }
+  return strayClassProblems(classes, families, emitted, NOT_WRITTEN);
+}
+
 export function collect(root = repoRoot) {
   const families = readFamilies(root);
   const manifests = new Map([...layerManifests(root).values()].map((one) => [one.component, one]));
   const page = join(root, VOCABULARY_TARGET);
   const drift = pageDriftProblems(existsSync(page) ? readFileSync(page, 'utf8') : null, renderVocabulary(root));
-  return { families, problems: [...familyProblems(families, familyFiles(root), manifests, root), ...drift] };
+  return { families, problems: [...familyProblems(families, familyFiles(root), manifests, root), ...sweptProblems(families, manifests, root), ...drift] };
 }
 
 function main() {
