@@ -12,7 +12,9 @@ import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import { arenaTv } from '../../../frameworks/tailwind/Tv.ts';
 import { escapeClass, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { markupDeclarations } from '../../lib/tailwind/vocabulary.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { readJson } from '../../utils/read-file.ts';
 
 const manifests = new Map([...layerManifests().values()].map((m) => [m.component, m]));
 
@@ -65,20 +67,21 @@ test('every manifest claim holds', () => {
   assert.deepEqual(problems, [], problems.join('\n'));
 });
 
-test('the band ceiling compiles to the declaration Page.css gives .arena-band', () => {
+test('the band ceiling compiles to the declaration the band family gives .arena-band', () => {
   const declaration = (css: string, selector: string) => {
     const at = css.indexOf(`${selector} {`);
     assert.ok(at !== -1, `no rule for ${selector}`);
     const body = css.slice(at, css.indexOf('}', at));
-    return body.match(/padding-inline:\s*([^;]+);/)?.[1]?.trim();
+    return body.match(/padding-inline:\s*([^;]+);/)?.[1]?.trim().replace(/\s+/g, '');
   };
-  const page = declaration(readFileSync(join(repoRoot, 'frameworks/tailwind/Page.css'), 'utf8'), '.arena-band');
+  const family = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-band/Band.family.json')) as any;
+  const familyValue = Object.fromEntries(markupDeclarations(family.variants['arena-band']))['padding-inline'].replace(/\s+/g, '');
   const utility = declaration(
     readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
     `.${escapeClass(BAND_CEILING)}`,
   );
-  assert.ok(page, '.arena-band carries no padding-inline');
-  assert.equal(utility, page,
+  assert.ok(familyValue, '.arena-band family carries no padding-inline');
+  assert.equal(utility, familyValue,
     'the app bar and the site footer stand off the edge by a different inset than the page column, '
     + 'so their contents stop lining up with it below the width where the ceiling binds');
 });

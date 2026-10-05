@@ -19,7 +19,6 @@ import { connect, evaluate } from '../../lib/arena/cdp.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { arenaClassesFor, classesManifest } from '../../lib/tailwind/component-css.ts';
 import { VOCABULARY_SHEETS, compileFamily } from '../../lib/tailwind/vocabulary.ts';
-import { CONSUMER_SHEETS } from '../../lib/arena/package-assembly.ts';
 import { readProximity, treeHtml, SUBJECT, type ProximityCase, type MarkupCase } from '../../lib/arena/proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
@@ -61,8 +60,6 @@ export function pageHtml(order: Order, body: string, witnessCss: string, sheets:
   const head = [link('intro/styles.css'), ...(order === 'components-first' ? [...components, ...vocabulary] : [...vocabulary, ...components])];
   return `<!doctype html><html${root ? ` class="${root}"` : ''}><head><meta charset="utf-8">${head.join('')}</head><body>${body}</body></html>`;
 }
-
-export const hand = CONSUMER_SHEETS.map(({ from }) => from!);
 
 export function markupVerdict(kase: MarkupCase, order: Order, measured: Record<string, string>): string | null {
   const where = `${kase.name} (${order})`;
@@ -170,7 +167,7 @@ async function main() {
       const properties = 'equal' in kase ? Object.entries(kase.equal).flat() : Object.keys(kase.expect);
       const body = `<div style="width: ${CONTAINER_WIDTH}px">${kase.html}</div>`;
       for (const order of ORDERS) {
-        const html = pageHtml(order, body, witnessCss, { components: sheets.components, vocabulary: [...hand, ...sheets.vocabulary] }, kase.root)
+        const html = pageHtml(order, body, witnessCss, { components: sheets.components, vocabulary: sheets.vocabulary }, kase.root)
           .replace('<head>', `<head>${base}`);
         await cdp.send('Page.setDocumentContent', { frameId: frameTree.frame.id, html }, sessionId);
         const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,

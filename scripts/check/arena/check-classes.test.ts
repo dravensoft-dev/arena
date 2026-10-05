@@ -26,7 +26,7 @@ function tree(files: Record<string, string>) {
 test('the subject is derived from the sheets the assembly copies, and the tree carries them', () => {
   assert.ok(SHEETS.length > 0, 'no sheet is declared, so every assertion below is vacuous');
   const names = shipped();
-  assert.ok(names.includes('arena-stack'), 'the rhythm sheet reached this gate');
+  assert.ok(names.includes('arena-stack'), 'the stack family\'s sheet reached this gate');
   assert.ok(names.includes('arena-compact'), 'the token layer reached this gate');
 });
 

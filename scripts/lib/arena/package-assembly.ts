@@ -51,14 +51,6 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
 
-export const CONSUMER_SHEETS: CssChainEntry[] = [
-  { from: 'frameworks/tailwind/Numerals.css', to: 'css/numerals.css' },
-  { from: 'frameworks/tailwind/Page.css', to: 'css/page.css' },
-  { from: 'frameworks/tailwind/Prose.css', to: 'css/prose.css' },
-  { from: 'frameworks/tailwind/Rhythm.css', to: 'css/rhythm.css' },
-  { from: 'frameworks/tailwind/SrOnly.css', to: 'css/sr-only.css' },
-];
-
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
   '   Import this FIRST, then the file arena-to-prod wrote from your arena.config.json,',
@@ -150,9 +142,6 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
     { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
-    ...CONSUMER_SHEETS.map(({ from, to }) => ({
-      to, content: readFileSync(join(root, ...(from ?? '').split('/')), 'utf8'),
-    })),
     { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },

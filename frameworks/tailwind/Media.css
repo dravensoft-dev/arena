@@ -9,7 +9,7 @@
  *
  * This is the question. `@utility` and not a plain class, for the reason Case.css states about
  * the pair beside it, and it is hand-written for the reason both of those are. Like Case.css and
- * unlike Rhythm.css, it is NOT copied into the packages: a manifest names it rather than a
+ * unlike a vocabulary family, it is NOT copied into the packages: a manifest names it rather than a
  * consumer, so it compiles through into the component sheets.
  *
  * The shape of the frame is not here. An aspect ratio is a value a member carries and a
