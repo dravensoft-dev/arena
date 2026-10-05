@@ -7,6 +7,7 @@
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
+| [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
 
 ## fill
@@ -16,6 +17,14 @@ Whether a component takes the width of the box it sits in or the width of its ow
 - **Options:** `arena-fill`, `arena-fit` (default).
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:** ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip.
+
+## row
+
+Things side by side that read as one unit, at the group step: a mark beside a name, a label beside its badge, an icon and the word after it. Two elements side by side are already a row, however short the line, and each is where a display: flex with a gap of somebody's choosing gets written instead. arena-row--component is the step for things that are separate things, a bar's links or a toolbar's buttons. arena-row--start, arena-row--baseline and arena-row--between line the items up and carry no length. The row wraps when the line runs out. Write it on an element of yours: a component's own element may carry no box.
+
+- **Options:** `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.
 
 ## stack
 
