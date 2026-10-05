@@ -7,7 +7,7 @@
  * An alias resolves to its value EXCEPT where that value is the SKIN's, which LATE_BOUND names:
  * the palette and the faces belong to the consuming project and the density axis to another
  * scope, so a role resolved at build time freezes one answer and inherits it everywhere.
- * REDECLARED_GROUPS says which of those are additionally restated per scope. */
+ * REDECLARED_GROUPS restates some of those per scope, and check:proximity's step-* cases hold it. */
 
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
