@@ -15,7 +15,8 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { AXES, renderAxes } from '../../lib/arena/support-matrix.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
-import { readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
+import { packageSheetName, readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
+import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 
 export const TARGETS = [
   'frameworks/react/PACKAGE.md',
@@ -161,6 +162,23 @@ this version ships are ${classes}.
 ${markup ? `The classes for markup you write are ${markup}, and none of them goes on a component.\n` : ''}[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
 that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
 component sheets one by one imports those as well.`;
+  },
+
+  sheets: (base = root) => {
+    const families = [...readFamilies(base).keys()].sort().map((family) => `\`${packageSheetName(family)}\``);
+    const tokens = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css')
+      .map((to) => `\`${to}\``);
+    const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+    const listed = `${tokens.slice(0, -1).join(', ')} and ${tokens.at(-1)}`;
+    return `| stylesheet | what it is |
+| --- | --- |
+| \`css/base.css\` | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial and every control in the library is 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
+| \`css/components.css\` | every component Arena draws |
+| \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
+| \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${families.join(', ')}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
+| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport hook reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
+
+**The rest of what ships under \`css/\` is not a choice.** The token layer is ${words[tokens.length]} sheets: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one.`;
   },
 
   skin: () => `## Declare your skin

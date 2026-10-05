@@ -289,6 +289,30 @@ export function styleProblems(pkg: { layer: string; name: string }, dir: string)
   return { problems, walked: seen.size };
 }
 
+export function cssListProblems(pkg: { layer: string; name: string }, dir: string, page: string) {
+  const problems = [];
+  const shipped = existsSync(join(dir, 'css'))
+    ? walkFiles(join(dir, 'css')).map((path) => relPosix(dir, path)).filter((rel) => rel.endsWith('.css'))
+    : [];
+  const pattern = 'css/components/<name>.css';
+  const patternNamed = page.includes(`\`${pattern}\``);
+  for (const rel of shipped.sort()) {
+    const covered = rel.startsWith('css/components/') && patternNamed;
+    if (!covered && !page.includes(rel)) {
+      problems.push(`${pkg.name}: ${rel} ships and frameworks/${pkg.layer}/PACKAGE.md never names it, so a `
+        + 'consumer choosing a sheet by that page cannot learn it is there');
+    }
+  }
+  const named = new Set([...page.matchAll(/`(css\/[^`\s]+)`/g)].map((match) => match[1] ?? ''));
+  for (const rel of [...named].sort()) {
+    if (rel === pattern || rel.endsWith('/') || rel.includes('<')) continue;
+    if (!existsSync(join(dir, rel))) {
+      problems.push(`${pkg.name}: frameworks/${pkg.layer}/PACKAGE.md names ${rel}, which the package does not ship`);
+    }
+  }
+  return problems;
+}
+
 export const COMPILED_BY_CONSUMER = new Map([
   ['css/tailwind-theme.css', 'the one sheet a consumer\'s own Tailwind compiles: a theme and a set of '
     + 'utilities, which emits nothing until markup names a utility'],
@@ -455,6 +479,7 @@ export function collect(base = root) {
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...payloadProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
+    problems.push(...cssListProblems(pkg, dir, readFileSync(join(base, 'frameworks', pkg.layer, 'PACKAGE.md'), 'utf8')));
     problems.push(...bundledCssProblems(pkg, dir));
     problems.push(...directiveProblems(pkg, dir));
     problems.push(...themeSheetProblems(pkg, dir, tailwindThemeSheet(base)));

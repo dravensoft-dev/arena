@@ -89,3 +89,10 @@ test('the vocabulary region puts a markup class in the markup sentence and never
   assert.ok(sentences.some((one) => one.includes('.arena-stack') && one.includes('markup you write')));
   assert.ok(!sentences.some((one) => one.includes('.arena-stack') && one.includes('this version ships')));
 });
+
+test('the sheets region names the vocabulary sheets and the spacing sheet, and no hand-written rhythm sheet', () => {
+  const region = renderRegion('sheets');
+  assert.ok(region.includes('css/vocabulary/stack.css'));
+  assert.ok(region.includes('css/spacing.css'));
+  assert.ok(!region.includes('css/rhythm.css'));
+});

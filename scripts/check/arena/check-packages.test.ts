@@ -9,11 +9,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -490,4 +490,17 @@ test('a family channel declared inside a layer is not a token, and a token besid
   const sheet = '@layer utilities{@scope (.arena-fill){[data-arena-part="button"]{--arena-fill-width:100%}}}';
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/vocabulary/fill.css';", 'css/vocabulary/fill.css': sheet })), []);
   assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}' })).join('\n'), /css\/x\.css/);
+});
+
+test('a shipped css file the page never names fails, and a css path the page names that does not ship fails', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  for (const rel of ['css/base.css', 'css/vocabulary/stack.css', 'css/components/arena-button.css']) {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), '');
+  }
+  const page = '| `css/base.css` | x |\n| `css/components/<name>.css` | y |\n| `css/rhythm.css` | z |';
+  const problems = cssListProblems({ layer: 'react', name: '@x/react' }, dir, page).join('\n');
+  rmSync(dir, { recursive: true, force: true });
+  assert.match(problems, /css\/vocabulary\/stack\.css ships and .*PACKAGE\.md never names it/);
+  assert.match(problems, /names css\/rhythm\.css, which the package does not ship/);
 });
