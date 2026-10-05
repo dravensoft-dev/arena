@@ -13,7 +13,8 @@ import { pascal } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import {
-  REACHES, VOCABULARY_DIR, channelPrefix, declarations, familyFiles, readFamilies, slotClassStrings, type Family,
+  REACHES, TARGETS, VOCABULARY_DIR, channelPrefix, declarations, familyFiles, optionDeclarations, readFamilies,
+  slotClassStrings, type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
@@ -26,7 +27,7 @@ export const node = {
 
 const READ = /var\((--arena-[a-z0-9-]+)\s*,\s*([^)]*)\)/g;
 
-function shapeProblems(family: Family, rel: string | undefined) {
+function shapeProblems(family: Family, rel: string | undefined, root = repoRoot) {
   const problems: string[] = [];
   const name = family.family;
   if (!/^[a-z][a-z0-9-]*$/.test(name ?? '')) problems.push(`${rel}: family "${name}" is not a kebab-case name`);
@@ -34,16 +35,32 @@ function shapeProblems(family: Family, rel: string | undefined) {
   if (rel !== wanted) problems.push(`${name}: lives at ${rel}, and a family lives at ${wanted}`);
   if (!(REACHES as readonly string[]).includes(family.reach)) problems.push(`${name}: reach "${family.reach}" is neither context nor box`);
   if (!family.description?.trim()) problems.push(`${name}: has no description, and the description is the argument for the family existing at all`);
-  if (!(family.default in (family.variants ?? {}))) problems.push(`${name}: default ${family.default} is none of its options`);
-  if (family.axis !== undefined) {
-    if (family.axis !== `--arena-${name}`) problems.push(`${name}: axis ${family.axis} is not --arena-${name}`);
-    if (family.reach !== 'box') problems.push(`${name}: declares an axis and is not a box family, so nothing would reset it`);
+  const target = family.target ?? 'component';
+  const markup = target === 'markup';
+  if (!(TARGETS as readonly string[]).includes(target)) problems.push(`${name}: target "${family.target}" is neither component nor markup`);
+  if (markup) {
+    if (family.default !== undefined) problems.push(`${name}: is a markup family and declares a default, and nothing is in effect on markup nobody wrote a class on`);
+    if (family.axis !== undefined) problems.push(`${name}: is a markup family and declares an axis, which only a box family answered by a component resets`);
+  } else {
+    if (family.restates !== undefined) problems.push(`${name}: restates ${family.restates} and is not a markup family`);
+    if (!((family.default ?? '') in (family.variants ?? {}))) problems.push(`${name}: default ${family.default} is none of its options`);
+    if (family.axis !== undefined) {
+      if (family.axis !== `--arena-${name}`) problems.push(`${name}: axis ${family.axis} is not --arena-${name}`);
+      if (family.reach !== 'box') problems.push(`${name}: declares an axis and is not a box family, so nothing would reset it`);
+    }
   }
-  for (const [option, classes] of Object.entries(family.variants ?? {})) {
+  for (const option of Object.keys(family.variants ?? {})) {
     if (!option.startsWith('arena-')) problems.push(`${name}: option "${option}" does not start with arena-`);
     try {
-      for (const [property] of declarations(classes))
-        if (!property.startsWith(channelPrefix(name))) problems.push(`${name}: ${option} writes ${property}, outside ${channelPrefix(name)}*`);
+      for (const [property] of optionDeclarations(family, option, root)) {
+        if (!markup) {
+          if (!property.startsWith(channelPrefix(name))) problems.push(`${name}: ${option} writes ${property}, outside ${channelPrefix(name)}*`);
+        } else if (family.restates) {
+          if (!property.startsWith(`--${family.restates}-`)) problems.push(`${name}: ${option} writes ${property}, outside the --${family.restates}-* group it restates`);
+        } else if (property.startsWith('--')) {
+          problems.push(`${name}: ${option} writes ${property}, and a markup family writes declarations, never a custom property, unless it restates a contract group`);
+        }
+      }
     } catch (error) {
       problems.push(`${name}: ${(error as Error).message}`);
     }
@@ -51,17 +68,28 @@ function shapeProblems(family: Family, rel: string | undefined) {
   return problems;
 }
 
-export function familyProblems(families: Map<string, Family>, files: string[], manifests: Map<string, ComponentManifest>) {
+export function familyProblems(families: Map<string, Family>, files: string[], manifests: Map<string, ComponentManifest>, root = repoRoot) {
   if (families.size === 0) return ['found 0 families under the vocabulary, so every rule below was asked of nothing; an empty vocabulary is a failure rather than a clean pass'];
   const problems: string[] = [];
   const relOf = new Map(files.map((rel) => [(rel.split('/').at(-2) ?? '').replace(/^arena-/, ''), rel]));
   const owners = new Map<string, string>();
   for (const family of families.values()) {
-    problems.push(...shapeProblems(family, relOf.get(family.family)));
+    problems.push(...shapeProblems(family, relOf.get(family.family), root));
     for (const option of Object.keys(family.variants ?? {})) {
       const other = owners.get(option);
       if (other) problems.push(`${option} is an option of both ${other} and ${family.family}`);
       owners.set(option, family.family);
+    }
+  }
+  const answeredBy = new Map<string, string[]>();
+  for (const manifest of manifests.values())
+    for (const answered of manifest.answers ?? []) answeredBy.set(answered, [...(answeredBy.get(answered) ?? []), manifest.component]);
+  for (const family of families.values()) {
+    const by = answeredBy.get(family.family) ?? [];
+    if (family.target === 'markup' && by.length) {
+      problems.push(`${family.family}: is a markup family and ${by.join(', ')} answer it. A markup family applies to the element its class is written on, so no component answers it`);
+    } else if (family.target !== 'markup' && by.length === 0) {
+      problems.push(`${family.family}: no manifest answers it, so every option would compile to a rule that selects nothing`);
     }
   }
   const readsByFamily = new Map<string, Set<string>>();
@@ -80,7 +108,7 @@ export function familyProblems(families: Map<string, Family>, files: string[], m
           continue;
         }
         readsByFamily.set(family.family, (readsByFamily.get(family.family) ?? new Set()).add(channel));
-        const written = (() => { try { return declarations(family.variants[family.default] ?? ''); } catch { return []; } })()
+        const written = (() => { try { return family.default === undefined ? [] : declarations(family.variants[family.default] ?? ''); } catch { return []; } })()
           .find(([property]) => property === channel)?.[1];
         if (written !== undefined && written !== fallback) {
           problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${fallback} and the default ${family.default} writes ${written}, `
@@ -95,6 +123,7 @@ export function familyProblems(families: Map<string, Family>, files: string[], m
     }
   }
   for (const family of families.values()) {
+    if (family.target === 'markup') continue;
     const read = readsByFamily.get(family.family) ?? new Set();
     const written = new Set<string>();
     for (const classes of Object.values(family.variants ?? {})) {
@@ -116,7 +145,7 @@ export function collect(root = repoRoot) {
   const manifests = new Map([...layerManifests(root).values()].map((one) => [one.component, one]));
   const page = join(root, VOCABULARY_TARGET);
   const drift = pageDriftProblems(existsSync(page) ? readFileSync(page, 'utf8') : null, renderVocabulary(root));
-  return { families, problems: [...familyProblems(families, familyFiles(root), manifests), ...drift] };
+  return { families, problems: [...familyProblems(families, familyFiles(root), manifests, root), ...drift] };
 }
 
 function main() {

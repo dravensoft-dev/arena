@@ -11,8 +11,14 @@ const FILL: Family = { family: 'fill', reach: 'box', description: 'Whether a com
   default: 'arena-fit', variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } };
 const FILE = 'frameworks/tailwind/vocabulary/arena-fill/Fill.family.json';
 const button = () => ({ component: 'ArenaButton', answers: ['fill'], slots: { root: 'inline-flex w-[var(--arena-fill-width,fit-content)]' } });
+const STACK: Family = { family: 'stack', reach: 'box', target: 'markup', description: 'The air between peers.',
+  variants: { 'arena-stack': '[display:flex] [gap:var(--rhythm-component)]' } };
+const STACK_FILE = 'frameworks/tailwind/vocabulary/arena-stack/Stack.family.json';
 const run = (families = new Map([['fill', FILL]]), manifests = new Map([['ArenaButton', button()]]) as Map<string, any>, files = [FILE]) =>
   familyProblems(families, files, manifests);
+
+const both = (stack: Family = STACK, manifests = new Map([['ArenaButton', button()]]) as Map<string, any>) =>
+  run(new Map([['fill', FILL], ['stack', stack]]), manifests, [FILE, STACK_FILE]);
 
 test('a well-formed family read by the manifest that answers it is clean', () => {
   assert.deepEqual(run(), []);
@@ -62,6 +68,29 @@ test('a transparent slot the manifest does not have, or one without a reason, fa
 
 test('an empty vocabulary is a failure, not a clean pass', () => {
   assert.match(run(new Map(), new Map(), []).join('\n'), /found 0 families/);
+});
+
+test('a well-formed markup family beside a component family is clean', () => {
+  assert.deepEqual(both(), []);
+});
+
+test('a markup family with a default, an axis, or a custom property it does not restate fails', () => {
+  assert.match(both({ ...STACK, default: 'arena-stack' }).join('\n'), /stack: is a markup family and declares a default/);
+  assert.match(both({ ...STACK, axis: '--arena-stack' }).join('\n'), /stack: is a markup family and declares an axis/);
+  assert.match(both({ ...STACK, variants: { 'arena-stack': '[--arena-stack-gap:1px]' } }).join('\n'),
+    /arena-stack writes --arena-stack-gap, and a markup family writes declarations/);
+});
+
+test('a manifest answering a markup family fails, and a component family nobody answers fails', () => {
+  assert.match(both(undefined, new Map([['ArenaButton', { ...button(), answers: ['fill', 'stack'] }]])).join('\n'),
+    /stack: is a markup family and ArenaButton answer/);
+  assert.match(both(undefined, new Map()).join('\n'), /fill: no manifest answers it/);
+});
+
+test('an unknown target, or a restating family whose file lacks the group, fails', () => {
+  assert.match(both({ ...STACK, target: 'page' as any }).join('\n'), /target "page" is neither component nor markup/);
+  assert.match(both({ ...STACK, restates: 'zz', variants: { 'arena-stack': 'contracts/design/spacing.json' } }).join('\n'),
+    /stack: vocabulary: contracts\/design\/spacing\.json has no zz group to restate/);
 });
 
 test('the vocabulary page is held to a fresh emit, and a missing one fails', () => {

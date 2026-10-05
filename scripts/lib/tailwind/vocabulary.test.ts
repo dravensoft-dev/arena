@@ -4,8 +4,11 @@
  * then does what the text says is check:proximity's to measure in Chromium. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
-  declarations, compileFamily, answeringParts, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, markupDeclarations, restatedDeclarations, answeringParts, LIMIT, sheetName, packageSheetName, type Family,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
@@ -85,4 +88,63 @@ test('a box family registers its channels as not inherited, so a value stops whe
   const context = compileFamily({ ...FILL, family: 'witness', reach: 'context',
     variants: { 'arena-witness-on': '[--arena-witness-mark:1]' }, default: 'arena-witness-on' }, ['button']);
   assert.doesNotMatch(context, /@property/);
+});
+
+const STACK: Family = {
+  family: 'stack', reach: 'box', target: 'markup', description: 'The air between peers.',
+  variants: {
+    'arena-stack': '[display:flex] [flex-direction:column] [gap:var(--rhythm-component)]',
+    'arena-stack--start': '[align-items:flex-start]',
+    'arena-stack--end': '[align-items:flex-end]',
+  },
+};
+
+test('a markup family compiles unlayered, one scope per option over its own root, in the order the file writes them', () => {
+  assert.equal(compileFamily(STACK, []), `${LAYER_ORDER}@scope (.arena-stack) {
+  :scope {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rhythm-component);
+  }
+}
+@scope (.arena-stack--start) {
+  :scope {
+    align-items: flex-start;
+  }
+}
+@scope (.arena-stack--end) {
+  :scope {
+    align-items: flex-end;
+  }
+}
+`);
+});
+
+test('no manifest answers a markup family', () => {
+  assert.throws(() => compileFamily(STACK, ['button']), /markup family/);
+});
+
+test('a markup option is arbitrary CSS properties, and a utility is not one', () => {
+  assert.deepEqual(markupDeclarations("[padding-inline:min(var(--gutter),7%)] [font-feature-settings:'tnum']"),
+    [['padding-inline', 'min(var(--gutter),7%)'], ['font-feature-settings', "'tnum'"]]);
+  assert.throws(() => markupDeclarations('flex'), /not an arbitrary CSS property/);
+});
+
+test('a restating option writes the literal values of the contract file it names, and an alias is refused', () => {
+  const root = mkdtempSync(join(tmpdir(), 'vocabulary-'));
+  mkdirSync(join(root, 'contracts/design'), { recursive: true });
+  writeFileSync(join(root, 'contracts/design/x.json'), JSON.stringify({ dz: {
+    $type: 'dimension', 'ctl-h': { $value: { value: 32, unit: 'px' } }, lh: { $value: 1 } } }));
+  assert.deepEqual(restatedDeclarations('contracts/design/x.json', 'dz', root), [['--dz-ctl-h', '32px'], ['--dz-lh', '1']]);
+  writeFileSync(join(root, 'contracts/design/y.json'), JSON.stringify({ dz: { a: { $value: '{sp.1}' } } }));
+  assert.throws(() => restatedDeclarations('contracts/design/y.json', 'dz', root), /not a literal value/);
+  const density: Family = { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd',
+    variants: { 'arena-compact': 'contracts/design/x.json' } };
+  assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@scope (.arena-compact) {
+  :scope {
+    --dz-ctl-h: 32px;
+    --dz-lh: 1;
+  }
+}
+`);
 });

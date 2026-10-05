@@ -4,8 +4,10 @@
  * in effect until somebody writes it. A family compiles to one @scope block per option, selecting
  * the parts that read its channel, so nearness comes from scope proximity rather than source
  * order; a box family registers its channels as not inherited, or a reached part would hand its
- * value down past the boundary the rule stops at. The box limit is inclusive: the boundary is usually the component's own root, which an
- * exclusive limit would drop, and Chromium matches a limit among the root's descendants only. */
+ * value down past the boundary the rule stops at. The box limit is inclusive: the boundary is usually
+ * the component's own root, which an exclusive limit would drop, and Chromium matches a limit among
+ * the root's descendants only. A markup family writes declarations on the element its class is on,
+ * unlayered, in the order its file writes them. */
 
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -26,14 +28,23 @@ export const REACHES = ['context', 'box'] as const;
 
 export type Reach = typeof REACHES[number];
 
+export const TARGETS = ['component', 'markup'] as const;
+export type Target = typeof TARGETS[number];
+
 export type Family = {
   family: string;
   reach: Reach;
+  target?: Target;
+  restates?: string;
   description: string;
-  default: string;
+  default?: string;
   variants: Record<string, string>;
   axis?: string;
 };
+
+export const targetOf = (family: Pick<Family, 'target'>): Target => family.target ?? 'component';
+
+export const MARKUP_PROPERTY = /^\[(-{0,2}[a-z][a-z-]*):([^\]]+)\]$/;
 
 export const ARBITRARY_PROPERTY = /^\[(--[a-z0-9-]+):([^\]]+)\]$/;
 
@@ -46,6 +57,36 @@ export function declarations(classes: string): [string, string][] {
     }
     return [captured(match), captured(match, 2).replaceAll('_', ' ')];
   });
+}
+
+export function markupDeclarations(classes: string): [string, string][] {
+  return classes.split(/\s+/).filter(Boolean).map((token) => {
+    const match = MARKUP_PROPERTY.exec(token);
+    if (!match) {
+      throw new Error(`vocabulary: ${JSON.stringify(token)} is not an arbitrary CSS property. A markup family `
+        + 'writes the declarations of the element its class is on, as [display:flex]');
+    }
+    return [captured(match), captured(match, 2).replaceAll('_', ' ')];
+  });
+}
+
+export function restatedDeclarations(rel: string, group: string, root = repoRoot): [string, string][] {
+  const tokens = (readJson(join(root, rel)) as Record<string, Record<string, unknown>>)[group];
+  if (!tokens) throw new Error(`vocabulary: ${rel} has no ${group} group to restate`);
+  return Object.entries(tokens).filter(([key]) => !key.startsWith('$')).map(([key, token]) => {
+    const value = (token as { $value?: unknown }).$value;
+    if (value && typeof value === 'object' && 'value' in value && 'unit' in value)
+      return [`--${group}-${key}`, `${(value as { value: number }).value}${(value as { unit: string }).unit}`];
+    if (typeof value === 'number' || (typeof value === 'string' && !value.trim().startsWith('{')))
+      return [`--${group}-${key}`, String(value)];
+    throw new Error(`vocabulary: ${rel} ${group}.${key} is not a literal value, and a family restates values rather than aliases`);
+  });
+}
+
+export function optionDeclarations(family: Family, option: string, root = repoRoot): [string, string][] {
+  const written = family.variants[option] ?? '';
+  if (family.restates) return restatedDeclarations(written, family.restates, root);
+  return targetOf(family) === 'markup' ? markupDeclarations(written) : declarations(written);
 }
 
 export function familyFiles(root = repoRoot): string[] {
@@ -94,7 +135,18 @@ export function answeringParts(family: string, manifests: Iterable<ComponentMani
 
 const byOption = ([a]: [string, string], [b]: [string, string]) => (a < b ? -1 : a > b ? 1 : 0);
 
-export function compileFamily(family: Family, parts: string[]): string {
+export function compileFamily(family: Family, parts: string[], root = repoRoot): string {
+  if (targetOf(family) === 'markup') {
+    if (parts.length) {
+      throw new Error(`vocabulary: ${family.family} is a markup family and the parts ${parts.join(', ')} answer it; `
+        + 'a markup family applies to the element its class is written on, so no manifest answers it');
+    }
+    const blocks = Object.keys(family.variants).map((option) => {
+      const body = optionDeclarations(family, option, root).map(([name, value]) => `    ${name}: ${value};`).join('\n');
+      return `@scope (.${option}) {\n  :scope {\n${body}\n  }\n}`;
+    });
+    return `${LAYER_ORDER}${blocks.join('\n')}\n`;
+  }
   if (parts.length === 0) {
     throw new Error(`vocabulary: no manifest answers ${family.family} and reads its channels, so every `
       + 'option would compile to a rule that selects nothing');
