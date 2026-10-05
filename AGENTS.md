@@ -150,7 +150,7 @@ different readers. A third statement, restating either, is what goes stale. **Mo
 specification is not handed over at all**, because most of it decides values rather than binding a
 builder: a scale a component reads and a consumer never names has one home, and `skills/design/SKILL.md` is not
 it. What a consumer has to know about a value reaches them through the layer's `PACKAGE.md`, which
-is where a shipped stylesheet like `css/rhythm.css` is documented.
+is where a shipped stylesheet like `css/vocabulary/<family>.css` is documented.
 
 **The question that decides the branch is who has to act on the fact**, never which directory the
 code sits in. A helper under `frameworks/react/` that a consumer imports is a consumer fact; a

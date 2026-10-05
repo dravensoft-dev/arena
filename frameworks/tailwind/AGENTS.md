@@ -117,37 +117,20 @@ first cannot rank `utilities` below `components`. The packages ship each one as
 kind per custom property, `check:boundaries` holds the boundary records, and `check:proximity`
 measures the cascade in Chromium in both load orders.
 
-## The two hand-authored treatments, and why neither is a manifest slot
+**A markup family has no default, no axis, and no answering manifest.** Its options are `[property:value]`
+tokens. A `restates` family names a contract file per option instead, writing only the custom
+properties of that contract group.
+A markup family compiles unlayered to `@scope (.option) { :scope {…} }` in the order the file
+writes its options, because two modifiers writing one property are decided by that order. It ships
+at `css/vocabulary/<family>.css` like every family. **A component family is the one that carries
+a specimen card.** An adopter writes classes on a component or on markup; every class an adopter
+writes is a family option.
 
-`Numerals.css` holds `.arena-num`: the mono face and `tabular-nums`, and no colour. It is here
-for the same reason the keyframes are, that it belongs to no surface. A manifest mirrors a
-surface and this is a treatment, applied to whatever figure a consumer is drawing themselves,
-in a definition list, a KPI or a cart line.
+## Hand-authored CSS that manifests name
 
-It exists because `ArenaTableColumn.mono` does two things, the mono face **and** the gold ink, and
-the ink is what stops the treatment travelling: gold reads as an identifier, so a sale total in
-gold inside a card says the wrong thing. `mono` is this utility plus the ink, and
-`ArenaTable.manifest.json`'s mono slots carry the same `tabular-nums`, so a column of figures aligns
-by digit in both places.
-
-**A second one is not free.** Every rule here is a class nothing gates against a contract, so
-the bar for adding another is that it belongs to no surface at all and that some component's
-own treatment is defined as it plus something.
-
-`Rhythm.css` is the second, and it is here because it clears both halves of that bar rather
-than because a page wanted a shortcut. It holds `.arena-stack` and `.arena-row`, the air
-BETWEEN components, and it belongs to no surface because Arena draws no outer margin anywhere:
-the only root-level margin in the library is `ArenaGrid`'s own centring. The second half is
-`ArenaGrid`, whose `gap` variant is these same three rhythm tokens spent on the two axes of a
-grid instead of on a column, so a grid is this treatment plus a grid. It carries what the token
-family alone could not: a length nothing applies is a length every consumer re-decides.
-
-Its classes go on an element the consumer wrote, never on an Arena element, and that is a
-property of the system rather than a preference. A component's host element may declare
-`display: contents` and carry no box, and `ArenaTabs` renders no element of its own at all, so a
-rule aimed at an Arena element can be discarded with nothing to report it. The statement lives
-in [`../PACKAGING.md`](../PACKAGING.md), which is the document that owns what an adopter may
-lean on and the one place allowed to say it of every target at once.
+`Case.css`, `Media.css` and `Animations.css` are the hand-authored sheets. A manifest names
+their utilities, so an adopter writes none of them. Anything an adopter writes is a family.
+The argument for `num` (the ink that stops `ArenaTableColumn.mono` travelling) and for `stack`/`row` (no outer margin, `ArenaGrid`'s gap) is in their `description` under `vocabulary/`.
 
 ## Arbitrary values are a build failure
 
