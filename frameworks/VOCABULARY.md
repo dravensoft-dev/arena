@@ -7,6 +7,7 @@
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
+| [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
 
 ## fill
 
@@ -15,3 +16,11 @@ Whether a component takes the width of the box it sits in or the width of its ow
 - **Options:** `arena-fill`, `arena-fit` (default).
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:** ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip.
+
+## stack
+
+The air between peers in a column of yours, as three named steps rather than a number you pick. Arena draws no outer margin on anything, so the space between one component and the next is always yours to place, and this is what applies the rhythm tokens to it. arena-stack is the step between peers, arena-stack--group the step inside one unit, and arena-stack--section the step between two sections. arena-stack--start and arena-stack--end line the items up and carry no length, because where items line up is a question about your content. Write it on an element of yours: a component's own element may carry no box.
+
+- **Options:** `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.

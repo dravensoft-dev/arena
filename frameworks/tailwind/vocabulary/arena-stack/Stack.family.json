@@ -1,0 +1,13 @@
+{
+  "family": "stack",
+  "reach": "box",
+  "target": "markup",
+  "description": "The air between peers in a column of yours, as three named steps rather than a number you pick. Arena draws no outer margin on anything, so the space between one component and the next is always yours to place, and this is what applies the rhythm tokens to it. arena-stack is the step between peers, arena-stack--group the step inside one unit, and arena-stack--section the step between two sections. arena-stack--start and arena-stack--end line the items up and carry no length, because where items line up is a question about your content. Write it on an element of yours: a component's own element may carry no box.",
+  "variants": {
+    "arena-stack": "[display:flex] [flex-direction:column] [gap:var(--rhythm-component)]",
+    "arena-stack--group": "[gap:var(--rhythm-group)]",
+    "arena-stack--section": "[gap:var(--rhythm-section)]",
+    "arena-stack--start": "[align-items:flex-start]",
+    "arena-stack--end": "[align-items:flex-end]"
+  }
+}
