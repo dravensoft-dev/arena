@@ -6,10 +6,19 @@
 
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
+| [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
+
+## band
+
+The column a page's content sits in, at the page width with a gutter either side, centred. Both lengths are roles, so a style plugin narrows or widens every page at once. The gutter is a ceiling rather than a fixed inset: below the page width the band stands off by the same share of the space it has, so a phone keeps a content column instead of spending two fifths of the screen on margin. The band carries no block air; the space above and below is yours, on the spacing scale.
+
+- **Options:** `arena-band`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.
 
 ## fill
 
