@@ -2,7 +2,7 @@
  * load order, and the verdict on a measurement. The browser half is the gate's run. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { partClasses, pageHtml, verdict } from './check-proximity.ts';
+import { partClasses, pageHtml, verdict, markupVerdict } from './check-proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 
 test('a part is rebuilt with the classes its slot resolves to by default', () => {
@@ -28,4 +28,25 @@ test('a measure that holds is no problem, and one that does not names the case, 
   assert.match(verdict(own, 'react', 'components-first', { width: 480, container: 480, property: '' }) ?? '', /expects its own width/);
   const mark = { ...kase, measure: { property: '--arena-witness-mark', value: '1' } };
   assert.match(verdict(mark, 'react', 'components-first', { width: 0, container: 0, property: '0' }) ?? '', /--arena-witness-mark is "0"/);
+});
+
+test('a markup case holds when every recorded property matches, names the property that does not, and refuses an unrecorded one', () => {
+  const kase = { name: 'stack', html: '<div class="arena-stack" data-proximity-subject></div>', expect: { display: 'flex', 'row-gap': '16px' } };
+  assert.equal(markupVerdict(kase, 'components-first', { display: 'flex', 'row-gap': '16px' }), null);
+  assert.match(markupVerdict(kase, 'vocabulary-first', { display: 'block', 'row-gap': '16px' }) ?? '',
+    /stack \(vocabulary-first\): display is "block" and the case expects "flex"/);
+  const open = { ...kase, expect: { display: null } };
+  assert.match(markupVerdict(open, 'components-first', { display: 'flex' }) ?? '', /unrecorded.*\{"display":"flex"\}/);
+});
+
+test('an equal case holds when the two properties resolve alike at the subject', () => {
+  const kase = { name: 'r', html: '<p data-proximity-subject></p>', equal: { '--step-label': '--dz-text-2xs' } };
+  assert.equal(markupVerdict(kase, 'components-first', { '--step-label': '10px', '--dz-text-2xs': '10px' }), null);
+  assert.match(markupVerdict(kase, 'components-first', { '--step-label': '11px', '--dz-text-2xs': '10px' }) ?? '',
+    /--step-label is "11px" and --dz-text-2xs is "10px"/);
+});
+
+test('a root class lands on the html element', () => {
+  assert.match(pageHtml('components-first', '<div></div>', '', { components: [], vocabulary: [] }, 'arena-compact'),
+    /<html class="arena-compact">/);
 });

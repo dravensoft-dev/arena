@@ -2,7 +2,9 @@
  * real component and family sheets plus the fixture's witness family, in both load orders, and
  * judged by the width of its subject or by a channel on it. Happy-dom implements no @scope and no
  * layout, so this is the only place proximity, boundaries and load order are proved; the suites
- * hold each layer's DOM to the tree measured here. A fixture with no recorded tree fails. */
+ * hold each layer's DOM to the tree measured here. A fixture with no recorded tree fails. The
+ * markup cases measure the computed style of classes an adopter writes, in both orders and with
+ * no layer; a null in a case's expect is unrecorded and fails with the map to paste. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -17,7 +19,8 @@ import { connect, evaluate } from '../../lib/arena/cdp.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { arenaClassesFor, classesManifest } from '../../lib/tailwind/component-css.ts';
 import { VOCABULARY_SHEETS, compileFamily } from '../../lib/tailwind/vocabulary.ts';
-import { readProximity, treeHtml, SUBJECT, type ProximityCase } from '../../lib/arena/proximity.ts';
+import { CONSUMER_SHEETS } from '../../lib/arena/package-assembly.ts';
+import { readProximity, treeHtml, SUBJECT, type ProximityCase, type MarkupCase } from '../../lib/arena/proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
@@ -51,13 +54,37 @@ export function partClasses(manifests: Iterable<ComponentManifest>) {
   return out;
 }
 
-export function pageHtml(order: Order, body: string, witnessCss: string, sheets: { components: string[]; vocabulary: string[] }) {
+export function pageHtml(order: Order, body: string, witnessCss: string, sheets: { components: string[]; vocabulary: string[] }, root?: string) {
   const link = (href: string) => `<link rel="stylesheet" href="${href}">`;
   const components = ['frameworks/tailwind/consume/Preflight.generated.css', 'frameworks/tailwind/consume/Prelude.generated.css', ...sheets.components].map(link);
   const vocabulary = [...sheets.vocabulary.map(link), `<style>${witnessCss}</style>`];
   const head = [link('intro/styles.css'), ...(order === 'components-first' ? [...components, ...vocabulary] : [...vocabulary, ...components])];
-  return `<!doctype html><html><head><meta charset="utf-8">${head.join('')}</head><body>${body}</body></html>`;
+  return `<!doctype html><html${root ? ` class="${root}"` : ''}><head><meta charset="utf-8">${head.join('')}</head><body>${body}</body></html>`;
 }
+
+export const hand = CONSUMER_SHEETS.map(({ from }) => from!);
+
+export function markupVerdict(kase: MarkupCase, order: Order, measured: Record<string, string>): string | null {
+  const where = `${kase.name} (${order})`;
+  if ('equal' in kase) {
+    for (const [a, b] of Object.entries(kase.equal)) {
+      if (measured[a] !== measured[b]) return `${where}: ${a} is "${measured[a]}" and ${b} is "${measured[b]}", and the case expects them equal`;
+    }
+    return null;
+  }
+  if (Object.values(kase.expect).some((want) => want === null)) return `${where}: unrecorded, measured ${JSON.stringify(measured)}`;
+  for (const [p, want] of Object.entries(kase.expect)) {
+    if (measured[p] !== want) return `${where}: ${p} is "${measured[p]}" and the case expects "${want}"`;
+  }
+  return null;
+}
+
+const MEASURE_MARKUP = (properties: string[]) => `(() => {
+  const subject = document.querySelector('[${SUBJECT}]');
+  if (!subject) return null;
+  const style = getComputedStyle(subject);
+  return Object.fromEntries(${JSON.stringify(properties)}.map((p) => [p, style.getPropertyValue(p).trim()]));
+})()`;
 
 export type Measured = { width: number; container: number; property: string };
 
@@ -95,7 +122,7 @@ const LOADED_EXPRESSION = `new Promise((resolve) => {
 })`;
 
 async function main() {
-  const { families, cases } = readProximity();
+  const { families, cases, markup } = readProximity();
   const unrecorded = cases.flatMap((one) => (['react', 'angular'] as const).filter((layer) => one[layer] === null).map((layer) => `${one.name} (${layer})`));
   if (cases.length === 0 || unrecorded.length) {
     console.error(`check-proximity: ${cases.length === 0 ? 'the fixture declares no case' : `no recorded tree for ${unrecorded.join(', ')}`}; `
@@ -137,6 +164,23 @@ async function main() {
           const problem = verdict(kase, layer, order, result);
           if (problem) problems.push(problem);
         }
+      }
+    }
+    for (const kase of markup) {
+      const properties = 'equal' in kase ? Object.entries(kase.equal).flat() : Object.keys(kase.expect);
+      const body = `<div style="width: ${CONTAINER_WIDTH}px">${kase.html}</div>`;
+      for (const order of ORDERS) {
+        const html = pageHtml(order, body, witnessCss, { components: sheets.components, vocabulary: [...hand, ...sheets.vocabulary] }, kase.root)
+          .replace('<head>', `<head>${base}`);
+        await cdp.send('Page.setDocumentContent', { frameId: frameTree.frame.id, html }, sessionId);
+        const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
+          `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
+        if (!loaded) { problems.push(`${kase.name} (${order}): a stylesheet never loaded, so nothing was measured`); continue; }
+        const result = await evaluate(cdp, MEASURE_MARKUP(properties), sessionId) as Record<string, string> | null;
+        if (!result) { problems.push(`${kase.name} (${order}): the markup carries no subject`); continue; }
+        measured += 1;
+        const problem = markupVerdict(kase, order, result);
+        if (problem) problems.push(problem);
       }
     }
   } finally {

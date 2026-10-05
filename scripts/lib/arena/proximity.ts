@@ -25,6 +25,12 @@ export type ProximityCase = {
   angular: Tree | null;
 };
 
+export type MarkupCase = {
+  name: string;
+  root?: string;
+  html: string;
+} & ({ expect: Record<string, string | null> } | { equal: Record<string, string> });
+
 export type NodeLike = {
   nodeType: number;
   tagName?: string;
@@ -35,8 +41,8 @@ export type NodeLike = {
 };
 
 export function readProximity(root = repoRoot) {
-  const raw = JSON.parse(readFileSync(join(root, PROXIMITY_CASES), 'utf8')) as { families: WitnessFamily[]; cases: ProximityCase[] };
-  return { families: raw.families, cases: raw.cases };
+  const raw = JSON.parse(readFileSync(join(root, PROXIMITY_CASES), 'utf8')) as { families: WitnessFamily[]; cases: ProximityCase[]; markup?: MarkupCase[] };
+  return { families: raw.families, cases: raw.cases, markup: raw.markup ?? [] };
 }
 
 export function vocabularyClasses(witness: Family[], root = repoRoot) {
