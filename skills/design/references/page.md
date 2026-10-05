@@ -101,92 +101,6 @@ way. Otherwise a reader learns that green is sometimes a category.
   The order is the identity, so slot three is slot three in every chart on the screen.
   `arenaCatColor(slot)` and `arenaCatTint(colour)` are there for a legend or a chip you draw.
 
-## The column the page sits in
-
-`css/page.css` and `css/prose.css` carry four classes, and each goes on markup you wrote.
-
-- **`.arena-shell`** fills the window, so a short page's footer sits at the bottom rather than
-  floating halfway up.
-- **`.arena-shell__main`** goes on the one child of the shell that should take the slack. The class exists rather than a rule the shell applies,
-  because a shell with a header, a main and a footer has exactly one child that should grow. No
-  rule can know which one. **If the child that
-  should grow is an Arena component, wrap it in a `<div>` of your own and put the class on the
-  div.** Refusing to put a class on an Arena element is right, and stopping there is not. A
-  component's own element may declare `display: contents` and carry no box. A shell whose growing
-  child is a component with no wrapper distributes its slack to nothing. The footer then floats
-  halfway up the page, which is the same failure the shell exists to prevent.
-- **`.arena-band`** centres its contents at the page width with a gutter either side. Put it
-  inside anything that spans the viewport so the contents line up with the page above and below.
-- **`.arena-prose`** holds a reading column to a measure in `ch` rather than a pixel width, so it
-  tracks the font size the way a measure has to. Put it on an article or a section you wrote.
-
-**All three lengths are roles**: `container-max`, `gutter` and `measure-prose`. A style plugin
-written for reading narrows the column, and every page you already shipped follows without an
-edit. Narrowing the column while keeping the gutter says the page is a document; widening both
-says it is a console.
-
-**The band carries the width and the gutter and no block air.** The space above and below a page's
-content is yours, and it is a `padding-block` on a container of your own spent on the `--sp-*`
-scale below. Block air is not a rhythm step. The classes in the next section answer the gap between two
-siblings. Block air is the padding of the box that holds them, which is a different question with
-a different answer.
-
-**The gutter is a ceiling and not a fixed inset.** At or above the page width the band stands off
-by the whole of it. Below that width the band stands off by the same share of the space it has. A
-length answered for a page at its full width is the wrong length on a phone. A fixed inset either
-side leaves the content narrower than the air around it. A class that works at one width only is
-a class a screen has to override. Nothing on your side answers this: the band already does it, and
-what you write is the same one class at every width.
-
-## The air between two components
-
-**Arena draws no outer margin on anything**, so the space between one component and the next is
-always yours to place. `css/rhythm.css` is that half, as three named steps rather than a number
-you pick.
-
-| the class | the step | when |
-|---|---|---|
-| `.arena-stack` | `--rhythm-component` | a column of peers: a card and the next card, a chart and the table under it |
-| `.arena-stack--group` | `--rhythm-group` | a column of things that read as one unit: a label and its field, a card's own stacked children |
-| `.arena-stack--section` | `--rhythm-section` | between two sections of a page, which answer different questions |
-| `.arena-row` | `--rhythm-group` | two or more things side by side that read as one unit: a mark beside a name, a label beside its badge |
-| `.arena-row--component` | `--rhythm-component` | things side by side that are separate things: a bar's links, a toolbar's buttons |
-
-**The three lengths are also custom properties**: `--rhythm-group`, `--rhythm-component` and
-`--rhythm-section`. So a grid of your own, or a rule the classes do not cover, spends the same
-step rather than a fresh number. Reach for the class first: it carries the display and the direction
-with the gap, and a `gap` you write yourself is a rule that can drift off the step. With the
-Tailwind theme sheet imported, the steps are utilities too: `gap-group`, `gap-component` and
-`gap-section`.
-
-**The miss this replaces has one shape, and it is small enough to look like nothing.** A column of your own carries `display: flex`, `flex-direction: column` and a `gap`. The column
-holds a title over its identifier inside a table cell, or a label over the value under it.
-Somebody wrote it inline because reaching for a class felt like more than two lines were worth. `.arena-stack--group` is exactly that block,
-and the step a group is spent at is the same step wherever it is spent.
-
-**The row is missed the same way and more often, because a short strip does not look like a
-layout.** A mark and the product's name in an app bar. Two links beside each other. An icon and the word
-after it. A status label next to the badge it describes. Each of those is a row. Each is usually
-written as a `display: flex` with a gap somebody chose. Each is a step off the scale that no gate
-on your side reports. `.arena-row` is the horizontal half of the three steps above
-and it answers all of them, whatever the line holds and however short it is. That it wraps when
-the line runs out is a property it has, never the test for whether it applies: two elements side
-by side are already a row.
-
-**Five modifiers carry no length and line the items up instead**: `.arena-stack--start`,
-`.arena-stack--end`, `.arena-row--start`, `.arena-row--baseline` and `.arena-row--between`. The five answer a question about your content, such as a
-trailing figure against a wrapping name. The five sit here rather than in the kernel for that reason.
-
-**These classes go on an element you wrote, and they are useless on an Arena element.** A component's own element may declare `display: contents` and carry no box. One component renders
-no element of its own at all. So an Arena element is never a layout target. **When the element you need to lay out is a component, the answer is a `<div>` of your own around
-it.** Dropping the class is not the answer. Refusing the class and writing no wrapper leaves the
-layout unstated, which looks like restraint and reads on the screen as a bug.
-
-**The air inside a component is not this.** `gap-control`, `gap-inline`, `gap-items`,
-`pad-surface`, `pad-control-x` and `pad-control-y` are kernel roles. Move them by answering them
-differently in your style plugin, never by writing a rule against a component. The cut is whole:
-between is yours and comes from here, inside is the kernel's and comes from [`style-kernel.md`](./style-kernel.md).
-
 ## The rest of the scale, and the edges of the device
 
 **`--sp-*` is the spacing scale in thirteen steps**, and everything the rhythm classes do not cover reads it. The steps
@@ -201,18 +115,11 @@ device's own insets with that scale, in
 shell you draw around Arena, so a bar pinned to the bottom of a phone screen clears the home
 indicator without you measuring one.
 
-**Two more classes are for markup rather than components.** `.arena-num` from `css/numerals.css`
-puts a figure on the mono face, with tabular figures and no colour. A column of them aligns by
-digit and does not jitter as it counts. `.arena-sr-only` from `css/sr-only.css` is a label a
-screen reader announces and nothing paints, which is where the name of an icon-only control you
-drew yourself goes.
-
 ## Taking the least of this, and taking all of it
 
 **The least is the classes and the roles as they stand.** Paint the floor with `--fill-page`,
 your text with `--ink-body` and `--ink-muted`, your own surfaces with `--fill-surface` and
-`--edge-surface`, put `.arena-shell` and `.arena-band` around the page and `.arena-stack` between
-things. Nothing here needs a style plugin, and a screen built this way already follows whatever
+`--edge-surface`, put `.arena-shell`, `.arena-band` and `.arena-stack` on your markup (see [`style.md`](./style.md)). Nothing here needs a style plugin, and a screen built this way already follows whatever
 appearance the project adopts later.
 
 **All of it is the same page with the roles re-answered.** Every name above that is a role rather

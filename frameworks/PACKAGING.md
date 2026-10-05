@@ -234,11 +234,10 @@ the consequence was written three times, once each in `ArenaPagination`'s, `Aren
 and `ArenaBreadcrumbs`' own prompt, and the other components that pay it said nothing. A rule
 recorded per component is a rule that is missing wherever nobody thought to repeat it.
 
-**`css/rhythm.css` is the rule with something behind it.** Telling an adopter to put the layout
+**The vocabulary page lists `.arena-stack` and `.arena-row`.** Telling an adopter to put the layout
 on a container of their own is only half an answer while the system ships the spacing scale and
 nothing that applies a step from it, because the remaining decision, how far apart two
-components go, is then theirs to invent. That sheet holds `.arena-stack` and `.arena-row`, the
-three named steps of the page rhythm scale, and it is meant for exactly the container this
+components go, is then theirs to invent. Those classes hold the three named steps of the page rhythm scale, and they are meant for exactly the container this
 section says to write.
 
 ## Assembly, not restructuring

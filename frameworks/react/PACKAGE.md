@@ -182,25 +182,7 @@ voice.
 `--level-ink-body` and `--level-ink-quiet` beside it. The levels are floors rather than constants. The command raises a level where a palette's ink has too little room to clear its contrast bar. A percentage of your own is the one value here that cannot follow the palette. A
 bare `var(--ink-muted)` paints at full strength, which is body copy wearing the name of a caption.
 
-**The column is three classes, and the air between two things is a named step.** `.arena-shell` fills the window. `.arena-shell__main` goes on the one child that should take the slack, and `.arena-band` centres the content at the page width with a gutter either side. Inside the band, `.arena-stack` is the step between two peers. `.arena-stack--group` is the one for things that read as one unit, and `.arena-stack--section` the one between two sections. `.arena-row` is all three laid across instead of down. Every one of them goes on a container of your own, and none of them
-does anything on a component this package draws.
-
-**`.arena-row` is for ANY two things side by side, and most of the misses are small ones.** A mark beside the product's name. Two links in a bar. A label next to the badge it describes, or an icon and the word after it. Each is a row at the group step, and each is where a `display: flex` with a gap of somebody's choosing gets written instead. A pair of elements does not look like it needs a class. The row wraps when the line runs out, which is a property of the class rather than the reason to reach for it.
-
-**When the child that should take the slack IS a component this package draws, put a `<div>` of your own around it and `.arena-shell__main` on the div.** A component's own element may declare `display: contents`, carrying no box. The class then lands on nothing, and the shell distributes its slack to an element that cannot hold it. The wrapper is not a workaround: these classes go on
-markup you wrote, and that is as true of the one that grows as it is of the rest.
-
-**The miss those replace has one shape, and it is small enough to look like nothing.** A column of your own carries `display: flex`, `flex-direction: column` and a gap. Or two blocks carry a margin between them. The column holds a title over its service inside a table cell, or a label over the value under it. Somebody wrote it inline, because reaching for a class felt like more than two lines were worth. `.arena-stack--group` is exactly that block, and the step a group is spent at is the same
-step wherever it is spent.
-
-**The band carries the width and the gutter and no block air**, so the space above and below a
-page's content column is yours, spent on the `--sp-*` scale. The rhythm classes answer the gap
-between two siblings, and this is the padding of the box that holds them. The gutter is a CEILING rather than a fixed inset. At or above the page width the band stands off by the whole of it. Below that width it holds the same share of the space it has, so a phone keeps a content column instead of spending two fifths of the screen on margin.
-
-**Two densities, and each is a class on an ancestor rather than a member on anything.** `.arena-compact` re-densifies the controls and the rows. The class is for a screen that has to hold more.
-`.arena-comfortable` grows them to a 48px touch target for a screen a thumb drives. Both answer the same keys, so a container wearing both gets whichever the stylesheet emits last. Answering the same keys is why the two are exclusive. Each re-answers the control and row sizes and nothing
-else: the rhythm above does not re-densify, so the air between two components stays where you
-spent it.
+`.arena-shell`, `.arena-shell__main`, `.arena-band`, `.arena-stack` and `.arena-row` go on markup of yours, along with the two density classes `.arena-compact` and `.arena-comfortable`. Every one of them is listed on the vocabulary page. When the child that should take the slack IS a component this package draws, put a `<div>` of your own around it and `.arena-shell__main` on the div. A component's own element may declare `display: contents`, carrying no box.
 
 <!-- @shared page end -->
 

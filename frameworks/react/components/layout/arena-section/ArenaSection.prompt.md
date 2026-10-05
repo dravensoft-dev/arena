@@ -14,7 +14,7 @@ A named region of a page: a heading, what sits around it, and the group it names
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `title*` | primitive | `string` |  | Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. |
+| `title*` | primitive | `string` |  | Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which the vocabulary page lists as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h2"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because the section register is already a step under a page's title and a step over a card's, and this is that register said as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
 | `children*` | slot |  |  | What the region holds. Required, and guarded at runtime: a section renders a heading naming a group, so a childless one renders a label for nothing. The guard counts the way the render path counts, so a child that is a false conditional counts as absent rather than as one. |
 | `eyebrow` | primitive | `string` |  | A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. |
@@ -30,7 +30,7 @@ A named region of a page: a heading, what sits around it, and the group it names
 
 <!-- @answers end -->
 
-**`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which `css/rhythm.css` already ships as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
+**`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which the vocabulary page lists as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
 because the value it exists to catch is a present and useless one rather than an absent one.
 
 **The component renders a plain `<section>` and claims no landmark.** A `<section>` becomes a `region` in the accessibility tree only once it has an accessible name. A page where every section announced itself would bury the two or three landmarks that matter. The heading is the structure a reader

@@ -49,10 +49,9 @@ Arena's own clickable rows run on.
 
 ## The stylesheets are for content you draw
 
-The package ships more than the components' own CSS. Four stylesheets are written for markup that
-is not a component. `css/rhythm.css` is the vertical stack between your elements. `css/page.css`
-is the column the page sits in. `css/numerals.css` is a figure that must not jitter as it counts.
-`css/sr-only.css` is the label a screen reader needs and the design does not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
+The package ships more than the components' own CSS. Four classes are written for markup that
+is not a component. The vocabulary page lists `.arena-stack` and `.arena-row` for the vertical stack between your elements. `.arena-shell`, `.arena-shell__main` and `.arena-band` are the column the page sits in. `.arena-num` is a figure that must not jitter as it counts.
+`.arena-sr-only` is the label a screen reader needs and the design does not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
 
 **The frame around a picture is a component, and the grid around the frames usually is not.**
 `ArenaFigure` is the cell. That component's `ratio` defaults to the `aspect-media` role and its overlay slot paints

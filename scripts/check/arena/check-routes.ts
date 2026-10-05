@@ -234,23 +234,18 @@ export const ROUTES: Route[] = [
   {
     name: 'consumer-page',
     who: 'anybody writing markup that is not a component, which is every project: the router, then '
-      + 'the page saying what colour their own markup takes, what column it sits in and how much '
-      + 'air goes between two components',
+      + 'the page saying what colour their own markup takes, how much air goes between two components, '
+      + 'and referring to style.md for what column it sits in',
     entry: 'consumer',
     stops: ['skills/design/references/page.md'],
-    budget: 15_300,
+    budget: 8_270,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
       + 'and which level holds it back, since under the default style plugin a bare muted ink paints '
-      + 'a caption at body strength and no gate reports it; the three rhythm steps as classes and as '
-      + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
-      + 'line; what to wrap when the element being laid out is a component; the block air the band '
-      + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
-      + 'sheet\'s variants. Cold walks missed each of those when the page left it '
-      + 'out. It closes on the same least-to-most the surface page opens with. The number is what the '
-      + 'stops measure with room for one section, and it grows when Arena ships a piece for somebody '
-      + 'else\'s markup rather than when this page argues again for one it already names.',
+      + 'a caption at body strength and no gate reports it. The column, rhythm, and density classes '
+      + 'are described in style.md. It closes on the same least-to-most the surface page opens with. '
+      + 'The number is what the stops measure.',
   },
   {
     name: 'consumer-coldstart',
