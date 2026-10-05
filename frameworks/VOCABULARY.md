@@ -12,6 +12,7 @@
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
+| [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
 
 ## band
@@ -59,6 +60,14 @@ Things side by side that read as one unit, at the group step: a mark beside a na
 The window a page fills, so a short page's footer sits at the bottom rather than floating halfway up. arena-shell__main goes on the one child that takes the slack, because a shell with a header, a main and a footer has exactly one child that should grow and no rule can know which. When that child is an Arena component, put a div of yours around it and the class on the div: a component's own element may carry no box, and the slack would go to nothing.
 
 - **Options:** `arena-shell`, `arena-shell__main`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.
+
+## sr-only
+
+A label a screen reader announces and nothing paints, such as the name of an icon-only control you drew yourself. The one-pixel clipped box is the pattern every implementation settled on rather than a length anybody chose: a zero-size element is skipped by several screen readers. Shipping it here is what keeps that pixel out of your own sheet.
+
+- **Options:** `arena-sr-only`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
 
