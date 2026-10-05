@@ -4,7 +4,9 @@
  * layout, so this is the only place proximity, boundaries and load order are proved; the suites
  * hold each layer's DOM to the tree measured here. A fixture with no recorded tree fails. The
  * markup cases measure the computed style of classes an adopter writes, in both orders and with
- * no layer; a null in a case's expect is unrecorded and fails with the map to paste. */
+ * no layer; a null in a case's expect is unrecorded and fails with the map to paste. The page is
+ * pinned at 800x600 on the fixture's own origin, where a face loads, and a markup case waits for
+ * its subject's face, so a 100dvh and a ch measure the same on every machine. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -32,6 +34,7 @@ export const node = {
 };
 
 export const CONTAINER_WIDTH = 480;
+export const VIEWPORT = { width: 800, height: 600, deviceScaleFactor: 1, mobile: false };
 
 export const LOADED: Deadline = deadline('proximity:loaded', 20_000,
   'a case page links every component sheet and the tokens one by one from the static server, and is '
@@ -107,11 +110,28 @@ const MEASURE = (property: string) => `(() => {
     property: getComputedStyle(subject).getPropertyValue(${JSON.stringify(property)}).trim() };
 })()`;
 
+const FACE_EXPRESSION = `(async () => {
+  const subject = document.querySelector('[${SUBJECT}]');
+  if (subject) {
+    const style = getComputedStyle(subject);
+    await document.fonts.load(style.fontStyle + ' ' + style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily, '0');
+  }
+  await document.fonts.ready;
+  return true;
+})()`;
+
+const WRITE_PAGE = (html: string) => `(() => { document.open(); document.write(${JSON.stringify(html)}); document.close(); return true; })()`;
+
+const SETTLED_EXPRESSION = `new Promise((resolve) => {
+  if (document.readyState === 'complete') resolve(true);
+  else addEventListener('load', () => resolve(true));
+})`;
+
 const LOADED_EXPRESSION = `new Promise((resolve) => {
   const until = Date.now() + ${LOADED.ms};
   const tick = () => {
     const links = [...document.querySelectorAll('link[rel=stylesheet]')];
-    if (links.every((one) => one.sheet)) resolve(true);
+    if (document.body && document.readyState === 'complete' && links.every((one) => one.sheet)) resolve(true);
     else if (Date.now() >= until) resolve(false);
     else setTimeout(tick, ${POLL_MS});
   };
@@ -141,7 +161,9 @@ async function main() {
     const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
     await cdp.send('Page.enable', {}, sessionId);
-    const { frameTree } = await cdp.send('Page.getFrameTree', {}, sessionId);
+    await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
+    await cdp.send('Page.navigate', { url: `http://127.0.0.1:${server.port}/package.json` }, sessionId);
+    await evaluate(cdp, SETTLED_EXPRESSION, sessionId);
     const base = `<base href="http://127.0.0.1:${server.port}/">`;
     for (const kase of cases) {
       for (const layer of ['react', 'angular'] as const) {
@@ -150,7 +172,7 @@ async function main() {
           .replace(/^<div/, `<div style="width: ${CONTAINER_WIDTH}px; display: flex; flex-direction: column; align-items: flex-start"`);
         for (const order of ORDERS) {
           const html = pageHtml(order, body, witnessCss, sheets).replace('<head>', `<head>${base}`);
-          await cdp.send('Page.setDocumentContent', { frameId: frameTree.frame.id, html }, sessionId);
+          await evaluate(cdp, WRITE_PAGE(html), sessionId);
           const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
             `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
           if (!loaded) { problems.push(`${kase.name} (${layer}, ${order}): a stylesheet never loaded, so nothing was measured`); continue; }
@@ -165,14 +187,15 @@ async function main() {
     }
     for (const kase of markup) {
       const properties = 'equal' in kase ? Object.entries(kase.equal).flat() : Object.keys(kase.expect);
-      const body = `<div style="width: ${CONTAINER_WIDTH}px">${kase.html}</div>`;
+      const body = `<div style="width: ${CONTAINER_WIDTH}px; font-family: var(--font-body)">${kase.html}</div>`;
       for (const order of ORDERS) {
         const html = pageHtml(order, body, witnessCss, { components: sheets.components, vocabulary: sheets.vocabulary }, kase.root)
           .replace('<head>', `<head>${base}`);
-        await cdp.send('Page.setDocumentContent', { frameId: frameTree.frame.id, html }, sessionId);
+        await evaluate(cdp, WRITE_PAGE(html), sessionId);
         const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
           `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
         if (!loaded) { problems.push(`${kase.name} (${order}): a stylesheet never loaded, so nothing was measured`); continue; }
+        await evaluate(cdp, FACE_EXPRESSION, sessionId);
         const result = await evaluate(cdp, MEASURE_MARKUP(properties), sessionId) as Record<string, string> | null;
         if (!result) { problems.push(`${kase.name} (${order}): the markup carries no subject`); continue; }
         measured += 1;

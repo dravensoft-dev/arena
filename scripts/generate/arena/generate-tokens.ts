@@ -144,6 +144,7 @@ export const node = {
     'check:coverage',
     'check:dimensions',
     'check:duplicate-constants',
+    'check:families',
     'check:style-plugin',
     'check:style-plugin-coverage',
     'check:generated',

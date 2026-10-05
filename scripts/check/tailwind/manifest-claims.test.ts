@@ -75,7 +75,7 @@ test('the band ceiling compiles to the declaration the band family gives .arena-
     return body.match(/padding-inline:\s*([^;]+);/)?.[1]?.trim().replace(/\s+/g, '');
   };
   const family = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-band/Band.family.json')) as any;
-  const familyValue = Object.fromEntries(markupDeclarations(family.variants['arena-band']))['padding-inline'].replace(/\s+/g, '');
+  const familyValue = Object.fromEntries(markupDeclarations(family.variants['arena-band']))['padding-inline']?.replace(/\s+/g, '');
   const utility = declaration(
     readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
     `.${escapeClass(BAND_CEILING)}`,

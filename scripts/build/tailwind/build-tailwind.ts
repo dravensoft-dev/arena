@@ -109,6 +109,7 @@ export const node = {
     'check:demos',
     'check:dimensions',
     'check:duplicate-constants',
+    'check:families',
     'check:focus-trap',
     'check:generated',
     'check:icons',

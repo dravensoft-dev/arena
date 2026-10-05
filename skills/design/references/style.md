@@ -26,7 +26,7 @@ that says it instead.
 
 ## The column the page sits in
 
-Its sheet under `css/vocabulary/page.css` carries four classes, and each goes on markup you wrote.
+Four classes answer the page's column, and each goes on markup you wrote. Each family's sheet is `css/vocabulary/<family>.css`.
 
 - **`.arena-shell`** fills the window, so a short page's footer sits at the bottom rather than
   floating halfway up.
@@ -40,7 +40,7 @@ Its sheet under `css/vocabulary/page.css` carries four classes, and each goes on
   halfway up the page, which is the same failure the shell exists to prevent.
 - **`.arena-band`** centres its contents at the page width with a gutter either side. Put it
   inside anything that spans the viewport so the contents line up with the page above and below.
-- **Its sheet under `css/vocabulary/prose.css` carries `.arena-prose`**, which holds a reading column to a measure in `ch` rather than a pixel width, so it
+- **`.arena-prose`** holds a reading column to a measure in `ch` rather than a pixel width. The column
   tracks the font size the way a measure has to. Put it on an article or a section you wrote.
 
 **All three lengths are roles**: `container-max`, `gutter` and `measure-prose`. A style plugin
@@ -50,7 +50,7 @@ says it is a console. Every option is on [the vocabulary page](../../../framewor
 
 **The band carries the width and the gutter and no block air.** The space above and below a page's
 content is yours, and it is a `padding-block` on a container of your own spent on the `--sp-*`
-scale below. Block air is not a rhythm step. The classes in the next section answer the gap between two
+scale in [`page.md`](./page.md). Block air is not a rhythm step. The classes in the next section answer the gap between two
 siblings. Block air is the padding of the box that holds them, which is a different question with
 a different answer.
 
@@ -61,16 +61,16 @@ side leaves the content narrower than the air around it. A class that works at o
 a class a screen has to override. Nothing on your side answers this: the band already does it, and
 what you write is the same one class at every width.
 
-**Two more classes are for markup rather than components.** `.arena-num` from its sheet under `css/vocabulary/numerals.css`
+**Two more classes are for markup rather than components.** `.arena-num`
 puts a figure on the mono face, with tabular figures and no colour. A column of them aligns by
-digit and does not jitter as it counts. `.arena-sr-only` from its sheet under `css/vocabulary/sr-only.css` is a label a
+digit and does not jitter as it counts. `.arena-sr-only` is a label a
 screen reader announces and nothing paints, which is where the name of an icon-only control you
 drew yourself goes.
 
 ## The air between two components
 
 **Arena draws no outer margin on anything**, so the space between one component and the next is
-always yours to place. Its sheet under `css/vocabulary/rhythm.css` is that half, as three named steps rather than a number
+always yours to place. The `.arena-stack` and `.arena-row` classes are that half, as three named steps rather than a number
 you pick.
 
 | the class | the step | when |
@@ -118,4 +118,4 @@ between is yours and comes from here, inside is the kernel's and comes from [`st
 
 ## Density
 
-**`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px touch target, and the two are exclusive.** Both answer the same keys, so a container wearing both gets whichever the stylesheet emits last. Answering the same keys is why the two are exclusive. Each re-answers the control and row sizes and nothing else: the rhythm above does not re-densify, so the air between two components stays where you spent it.
+**`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`.** The first re-densifies the controls. The second grows them to a 48px touch target. A container wearing both gets `.arena-comfortable`, as the vocabulary page states. Each re-answers the control and row sizes and nothing else. The rhythm above does not re-densify, so the air between two components stays where you spent it.

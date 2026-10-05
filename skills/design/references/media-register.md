@@ -49,8 +49,8 @@ Arena's own clickable rows run on.
 
 ## The stylesheets are for content you draw
 
-The package ships more than the components' own CSS. Four classes are written for markup that
-is not a component. The vocabulary page lists `.arena-stack` and `.arena-row` for the vertical stack between your elements. `.arena-shell`, `.arena-shell__main` and `.arena-band` are the column the page sits in. `.arena-num` is a figure that must not jitter as it counts.
+The package ships more than the components' own CSS. Seven classes are written for markup that
+is not a component. The vocabulary page lists `.arena-stack` for the vertical stack between your elements and `.arena-row` for the horizontal one. `.arena-shell`, `.arena-shell__main` and `.arena-band` are the column the page sits in. `.arena-num` is a figure that must not jitter as it counts.
 `.arena-sr-only` is the label a screen reader needs and the design does not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
 
 **The frame around a picture is a component, and the grid around the frames usually is not.**

@@ -150,7 +150,8 @@ in a `stylesheet` list.
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
 this version ships are `.arena-fill`, `.arena-fit`.
-The classes for markup you write are `.arena-band`, `.arena-comfortable`, `.arena-compact`, `.arena-num`, `.arena-prose`, `.arena-row`, `.arena-row--baseline`, `.arena-row--between`, `.arena-row--component`, `.arena-row--start`, `.arena-shell`, `.arena-shell__main`, `.arena-sr-only`, `.arena-stack`, `.arena-stack--end`, `.arena-stack--group`, `.arena-stack--section`, `.arena-stack--start`, and none of them goes on a component.
+The classes for markup you write are `.arena-band`, `.arena-num`, `.arena-prose`, `.arena-row`, `.arena-row--baseline`, `.arena-row--between`, `.arena-row--component`, `.arena-row--start`, `.arena-shell`, `.arena-shell__main`, `.arena-sr-only`, `.arena-stack`, `.arena-stack--end`, `.arena-stack--group`, `.arena-stack--section`, `.arena-stack--start`. Each goes on an element you wrote, never on a component.
+The density classes `.arena-comfortable`, `.arena-compact` go on an element you wrote or on a component.
 [The vocabulary page](https://arena.dravensoft.org/frameworks/VOCABULARY.md) lists each with the components
 that answer it. `arena.css` imports their sheets under `css/vocabulary/`; a project importing
 component sheets one by one imports those as well.
@@ -593,12 +594,11 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/vocabulary/` | One sheet per family on the vocabulary page: `css/vocabulary/band.css`, `css/vocabulary/density.css`, `css/vocabulary/fill.css`, `css/vocabulary/num.css`, `css/vocabulary/prose.css`, `css/vocabulary/row.css`, `css/vocabulary/shell.css`, `css/vocabulary/sr-only.css`, `css/vocabulary/stack.css`. `arena.css` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
-| `css/tailwind-theme.css` | Arena's theme and utilities for markup of your own compiled with `tailwindcss` v4. Import it right after `@import 'tailwindcss'`: every utility then resolves to Arena's scale, `case-eyebrow`, `case-label`, `fit-media` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's `sm:`, `md:` and `lg:` variants and their `max-*` complements sit at the `--bp-*` thresholds the viewport hook reads. A wide frame marked `max-md:hidden` and a phone frame marked `md:hidden` are therefore right at the first paint, a server's HTML included |
+| `css/tailwind-theme.css` | Arena's theme and utilities for markup of your own compiled with `tailwindcss` v4. Import it right after `@import 'tailwindcss'`: every utility then resolves to Arena's scale, `case-eyebrow`, `case-label`, `fit-media` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's `sm:`, `md:` and `lg:` variants and their `max-*` complements sit at the `--bp-*` thresholds the viewport helper reads. A wide frame marked `max-md:hidden` and a phone frame marked `md:hidden` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under `css/` is not a choice.** The token layer is seven sheets: `css/reset.css`, `css/typography.css`, `css/spacing.css`, `css/effects.css`, `css/colors.css`, `css/contrast.css` and `css/environment.css`. `arena.css` imports them in the order they have to be in, and `css/prelude.css` is what a single component sheet pulls in for itself. The one that IS a decision is `css/style-plugin-default.css`, the appearance this package installs with. The sheet arrives through `arena.css` like the rest. A `stylePlugins` list of your own that does not name `default` does not receive it, which is the point of writing one.
 
 <!-- @shared sheets end -->
-
 
 `css/arena-cdk.css` is the CDK overlay, re-based onto Arena's layering.
 

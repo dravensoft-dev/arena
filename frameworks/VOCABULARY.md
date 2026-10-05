@@ -2,7 +2,7 @@
 
 # The vocabulary
 
-**Every class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it, and the class nearest the component wins, whatever order your stylesheets load in. A markup family's class goes on an element you wrote, never on a component. A class that is not on this page does nothing on an Arena component, and the audit reports it.
+**Every vocabulary class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it. The class nearest the component wins, whatever order your stylesheets load in. A markup family's box class goes on an element you wrote, never on a component. A markup family's context class, density, goes on an element you wrote or on a component. A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. Write yours more specific to override it. A class that is not on this page does nothing on an Arena component, and the audit reports it. A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.
 
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
@@ -18,7 +18,7 @@
 
 ## band
 
-The column a page's content sits in, at the page width with a gutter either side, centred. Both lengths are roles, so a style plugin narrows or widens every page at once. The gutter is a ceiling rather than a fixed inset: below the page width the band stands off by the same share of the space it has, so a phone keeps a content column instead of spending two fifths of the screen on margin. The band carries no block air; the space above and below is yours, on the spacing scale.
+The column a page's content sits in, at the page width with a gutter either side, centred. Both lengths are roles, so a style plugin narrows or widens every page at once. The gutter is a ceiling rather than a fixed inset. Below the page width the band stands off by the same share of the space it has. A phone then keeps a content column instead of spending two fifths of the screen on margin. The band carries no block air; the space above and below is yours, on the spacing scale.
 
 - **Options:** `arena-band`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
@@ -43,7 +43,7 @@ Whether a component takes the width of the box it sits in or the width of its ow
 
 ## num
 
-The mono face and tabular figures for a figure you draw yourself, in a definition list, a KPI or a cart line, and no colour. A column of them aligns by digit and does not jitter as it counts. It is the half of a table's mono column that travels: the gold ink says identifier, and a sale total in gold says the wrong thing.
+The mono face and tabular figures for a figure you draw yourself, in a definition list, a KPI or a cart line, and no colour. A column of them aligns by digit and does not jitter as it counts. The class is the half of a table's mono column that travels: the gold ink says identifier, and a sale total in gold says the wrong thing.
 
 - **Options:** `arena-num`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
@@ -51,7 +51,7 @@ The mono face and tabular figures for a figure you draw yourself, in a definitio
 
 ## prose
 
-The reading column for a document you write, an article, a changelog, a release note. It holds the line to a measure in ch rather than a pixel width, so it tracks the font size the way a measure has to. It is a maximum and not a width, so a narrow viewport keeps the whole column. The measure is a role, so a style plugin written for reading re-answers it.
+The reading column for a document you write, an article, a changelog, a release note. The class holds the line to a measure in ch rather than a pixel width, so the column tracks the font size the way a measure has to. The measure is a maximum and not a width, so a narrow viewport keeps the whole column. The measure is a role, so a style plugin written for reading re-answers it.
 
 - **Options:** `arena-prose`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
@@ -67,7 +67,7 @@ Things side by side that read as one unit, at the group step: a mark beside a na
 
 ## shell
 
-The window a page fills, so a short page's footer sits at the bottom rather than floating halfway up. arena-shell__main goes on the one child that takes the slack, because a shell with a header, a main and a footer has exactly one child that should grow and no rule can know which. When that child is an Arena component, put a div of yours around it and the class on the div: a component's own element may carry no box, and the slack would go to nothing.
+The window a page fills, so a short page's footer sits at the bottom rather than floating halfway up. arena-shell__main goes on the one child that takes the slack. A shell with a header, a main and a footer has exactly one child that should grow, and no rule can know which. When that child is an Arena component, put a div of yours around it and the class on the div. A component's own element may carry no box, so the slack would go to nothing.
 
 - **Options:** `arena-shell`, `arena-shell__main`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
@@ -83,7 +83,7 @@ A label a screen reader announces and nothing paints, such as the name of an ico
 
 ## stack
 
-The air between peers in a column of yours, as three named steps rather than a number you pick. Arena draws no outer margin on anything, so the space between one component and the next is always yours to place, and this is what applies the rhythm tokens to it. arena-stack is the step between peers, arena-stack--group the step inside one unit, and arena-stack--section the step between two sections. arena-stack--start and arena-stack--end line the items up and carry no length, because where items line up is a question about your content. Write it on an element of yours: a component's own element may carry no box.
+The air between peers in a column of yours, as three named steps rather than a number you pick. Arena draws no outer margin on anything. The space between one component and the next is always yours to place, and this class applies the rhythm tokens to it. arena-stack is the step between peers, arena-stack--group the step inside one unit, and arena-stack--section the step between two sections. arena-stack--start and arena-stack--end line the items up and carry no length, because where items line up is a question about your content. Write it on an element of yours: a component's own element may carry no box.
 
 - **Options:** `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.

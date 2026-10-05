@@ -83,11 +83,16 @@ test('the vocabulary region puts a markup class in the markup sentence and never
   family('fill', { family: 'fill', reach: 'box', description: 'd', default: 'arena-fit',
     variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } });
   family('stack', { family: 'stack', reach: 'box', target: 'markup', description: 'd', variants: { 'arena-stack': '[display:flex]' } });
+  family('density', { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd',
+    variants: { 'arena-compact': 'contracts/design/density.compact.json' } });
   const region = renderRegion('vocabulary', base);
   assert.ok(region.includes('`.arena-fill`') && region.includes('`.arena-stack`'));
   const sentences = region.split(/(?<=\.)\s/);
   assert.ok(sentences.some((one) => one.includes('.arena-stack') && one.includes('markup you write')));
   assert.ok(!sentences.some((one) => one.includes('.arena-stack') && one.includes('this version ships')));
+  assert.ok(region.includes('Each goes on an element you wrote, never on a component.'));
+  assert.ok(sentences.some((one) => one.includes('.arena-compact') && one.includes('or on a component')));
+  assert.ok(!sentences.some((one) => one.includes('.arena-compact') && one.includes('never on a component')));
 });
 
 test('the sheets region names the vocabulary sheets and the spacing sheet, and no hand-written rhythm sheet', () => {

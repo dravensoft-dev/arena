@@ -272,8 +272,8 @@ writing those into the tracked layer would leave build files beside the source.
 because the failure it prevents is silent: a `.variants.ts` importing a Tailwind manifest four
 directories up is a reach ng-packagr refuses, since it infers `rootDir` from the entry file's
 directory. A component composes its own class names from a table emitted beside it, so nothing
-reaches out and the staging tree is a compiler's requirement rather than the shape of a coupling. `build-angular-package.ts` fails on a staging run that copies zero files, so a layer
-that moved is loud rather than silently empty.
+reaches out and the staging tree is a compiler's requirement rather than the shape of a coupling. `build-angular-package.ts` fails on a staging run that copies zero
+files, so a layer that moved is loud rather than silently empty.
 
 ### What never ships
 

@@ -16,6 +16,7 @@ import { tmpdir } from 'node:os';
 import {
   CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports, vocabularyTypes,
 } from './build-tailwind.ts';
+import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
 const WINDOWS_ROOT = 'D:\\a\\arena\\arena';
 

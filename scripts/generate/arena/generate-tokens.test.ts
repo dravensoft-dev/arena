@@ -128,17 +128,14 @@ test('an alias to a token nobody redeclares resolves, because 14px is 14px in ev
 
 test('every group that is redeclared names scopes this build actually emits', () => {
   const emitted = new Set(FILES.flatMap((file) => file.blocks.map((b) => b.selector)));
-  const families = readFamilies();
-  for (const [group, scopes] of REDECLARED_GROUPS) {
-    for (const [, family] of families) {
-      if ((family as { restates?: string }).restates === group) {
-        for (const option of Object.keys(family.variants)) {
-          const scopeName = option.replace(/^arena-/, '');
-          const selector = SCOPE_SELECTORS.get(scopeName);
-          if (selector) emitted.add(selector(':root'));
-        }
-      }
+  for (const [, family] of readFamilies()) {
+    if (!family.restates) continue;
+    for (const option of Object.keys(family.variants)) {
+      const selector = SCOPE_SELECTORS.get(option.replace(/^arena-/, ''));
+      if (selector) emitted.add(selector(':root'));
     }
+  }
+  for (const [group, scopes] of REDECLARED_GROUPS) {
     assert.ok(scopes.length > 0, `${group} claims to be redeclared and names no scope`);
     for (const scope of scopes) {
       const selector = SCOPE_SELECTORS.get(scope);

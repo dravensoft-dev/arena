@@ -117,20 +117,25 @@ first cannot rank `utilities` below `components`. The packages ship each one as
 kind per custom property, `check:boundaries` holds the boundary records, and `check:proximity`
 measures the cascade in Chromium in both load orders.
 
-**A markup family has no default, no axis, and no answering manifest.** Its options are `[property:value]`
-tokens. A `restates` family names a contract file per option instead, writing only the custom
-properties of that contract group.
-A markup family compiles unlayered to `@scope (.option) { :scope {…} }` in the order the file
-writes its options, because two modifiers writing one property are decided by that order. It ships
-at `css/vocabulary/<family>.css` like every family. **A component family is the one that carries
-a specimen card.** An adopter writes classes on a component or on markup; every class an adopter
-writes is a family option.
+**A markup family has no default, no axis, and no answering manifest.** Its options are
+`[property:value]` tokens. A non-restating option writes declarations and never a custom property.
+A `restates` family names a contract file per option instead, and writes only the custom
+properties of that contract group. A markup family compiles unlayered to
+`@scope (.option) { :scope {…} }` in the order the file writes its options, because two modifiers
+writing one property are decided by that order. It ships at `css/vocabulary/<family>.css` like
+every family. **A component family is the one that carries a specimen card.** An adopter writes
+classes on a component or on markup, and every vocabulary class an adopter writes is a family
+option.
 
 ## Hand-authored CSS that manifests name
 
-`Case.css`, `Media.css` and `Animations.css` are the hand-authored sheets. A manifest names
-their utilities, so an adopter writes none of them. Anything an adopter writes is a family.
-The argument for `num` (the ink that stops `ArenaTableColumn.mono` travelling) and for `stack`/`row` (no outer margin, `ArenaGrid`'s gap) is in their `description` under `vocabulary/`.
+The hand-authored sheets a manifest names are `Case.css`, `Media.css` and `Animations.css`, with
+`Specimen.css` and `Theme.css` beside them. A manifest names the utilities of the first three.
+Through `css/tailwind-theme.css` a project compiling Tailwind may also write them, eight of them
+as `arena-` names such as `arena-spinner` and `arena-fade`. They are Tailwind utilities and not
+vocabulary classes, so no family lists them. The argument for `num` (the ink that stops
+`ArenaTableColumn.mono` travelling) and for `stack` and `row` (no outer margin on anything) is in
+their `description` under `vocabulary/`.
 
 ## Arbitrary values are a build failure
 

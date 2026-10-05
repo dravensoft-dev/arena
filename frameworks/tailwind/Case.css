@@ -11,7 +11,7 @@
  * build fails with "Cannot apply unknown utility class", which is the right failure and worth
  * knowing about before writing the third one.
  *
- * They are hand-written for the same reason a vocabulary family is, and unlike a family
+ * They are hand-written because they belong to no surface, and unlike a vocabulary family
  * they are NOT copied into the packages: manifests name them rather than consumers, so they
  * compile through into the component sheets the way Animations.css does.
  */

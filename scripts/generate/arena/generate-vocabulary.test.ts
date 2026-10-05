@@ -35,6 +35,8 @@ test('a markup family is answered by markup you write, carries no default, and s
   assert.doesNotMatch(section, /\(default\)/);
   assert.match(section, /- \*\*Written on:\*\* an element you wrote, never a component\./);
   assert.match(section, /it decides that element alone/);
-  assert.match(page, /A markup family's class goes on an element you wrote/);
+  assert.match(page, /A markup family's box class goes on an element you wrote, never on a component\./);
+  assert.match(page, /A markup family's context class, density, goes on an element you wrote or on a component\./);
+  assert.match(page, /Tailwind utilities that a manifest names, and not vocabulary classes\./);
   assert.match(page, /- \*\*Values:\*\* `arena-compact` restates `contracts\/design\/density\.compact\.json`\./);
 });

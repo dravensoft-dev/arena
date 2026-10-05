@@ -135,13 +135,16 @@ bare \`var(--ink-muted)\` paints at full strength, which is body copy wearing th
     const named = (target: 'component' | 'markup') => families.filter((family) => targetOf(family) === target)
       .flatMap((family) => Object.keys(family.variants)).sort().map((one) => `\`.${one}\``).join(', ');
     const classes = named('component');
-    const markup = named('markup');
+    const markupOf = (reach: 'box' | 'context') => families.filter((family) => targetOf(family) === 'markup' && family.reach === reach)
+      .flatMap((family) => Object.keys(family.variants)).sort().map((one) => `\`.${one}\``).join(', ');
+    const markup = markupOf('box');
+    const context = markupOf('context');
     return `## How a component looks is decided in one place
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
 this version ships are ${classes}.
-${markup ? `The classes for markup you write are ${markup}, and none of them goes on a component.\n` : ''}[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
+${markup ? `The classes for markup you write are ${markup}. Each goes on an element you wrote, never on a component.\n` : ''}${context ? `The density classes ${context} go on an element you wrote or on a component.\n` : ''}[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
 that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
 component sheets one by one imports those as well.`;
   },
@@ -158,7 +161,7 @@ component sheets one by one imports those as well.`;
 | \`css/components.css\` | every component Arena draws |
 | \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
 | \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${families.join(', ')}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
-| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport hook reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
+| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under \`css/\` is not a choice.** The token layer is ${words[tokens.length]} sheets: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one.`;
   },

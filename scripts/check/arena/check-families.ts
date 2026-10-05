@@ -7,7 +7,7 @@
  * or shipped sheet that no family and no manifest emits. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { VOCABULARY_TARGET, renderVocabulary } from '../../generate/arena/generate-vocabulary.ts';
 import { pascal } from '../../utils/case.ts';
@@ -15,6 +15,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { classesManifest } from '../../lib/tailwind/component-css.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { NOT_WRITTEN, SHEETS, classesIn } from './check-classes.ts';
 import {
   REACHES, TARGETS, VOCABULARY_DIR, channelPrefix, declarations, familyFiles, optionDeclarations, readFamilies,
@@ -156,7 +157,7 @@ export function strayClassProblems(classes: Map<string, string>, families: Map<s
 
 export function sweptSheets(root = repoRoot) {
   const consume = join(root, 'frameworks', 'tailwind', 'consume');
-  const walked = existsSync(consume) ? walkFiles(consume).filter((file) => file.endsWith('.css')).map((file) => relative(root, file).split('\\').join('/')) : [];
+  const walked = existsSync(consume) ? walkFiles(consume).filter((file) => file.endsWith('.css')).map((file) => relPosix(root, file)) : [];
   return [...new Set([...SHEETS, ...walked])].filter((rel) => existsSync(join(root, ...rel.split('/'))));
 }
 
