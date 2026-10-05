@@ -7,6 +7,7 @@
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
 | [`band`](#band) | box | `arena-band` |  | markup you write |
+| [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
@@ -22,6 +23,15 @@ The column a page's content sits in, at the page width with a gutter either side
 - **Options:** `arena-band`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## density
+
+How much a region holds, which is a question about who is pointing at it rather than about the register the product speaks in. arena-compact re-densifies the controls, the rows and their text, for an expert view that has to hold more. arena-comfortable grows the controls to a 48px touch target for a screen a thumb drives, and leaves the text the size it was. The two are exclusive: a container wearing both gets arena-comfortable. Write it on an element of yours or on a component, and it reaches every component inside until a nearer density answers it again. The air between components does not re-densify.
+
+- **Options:** `arena-comfortable`, `arena-compact`.
+- **Reach:** context: it goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again.
+- **Values:** `arena-compact` restates `contracts/design/density.compact.json`, `arena-comfortable` restates `contracts/design/density.comfortable.json`.
+- **Written on:** an element you wrote, or a component.
 
 ## fill
 

@@ -1,0 +1,11 @@
+{
+  "family": "density",
+  "reach": "context",
+  "target": "markup",
+  "restates": "dz",
+  "description": "How much a region holds, which is a question about who is pointing at it rather than about the register the product speaks in. arena-compact re-densifies the controls, the rows and their text, for an expert view that has to hold more. arena-comfortable grows the controls to a 48px touch target for a screen a thumb drives, and leaves the text the size it was. The two are exclusive: a container wearing both gets arena-comfortable. Write it on an element of yours or on a component, and it reaches every component inside until a nearer density answers it again. The air between components does not re-densify.",
+  "variants": {
+    "arena-compact": "contracts/design/density.compact.json",
+    "arena-comfortable": "contracts/design/density.comfortable.json"
+  }
+}

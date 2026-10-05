@@ -41,8 +41,6 @@ export const FILES = [
     { selector: ':root', source: 'spacing.json' },
     { selector: ':root', source: 'icon.json' },
     { selector: ':root', source: 'component.json' },
-    { selector: '.arena-compact', source: 'density.compact.json' },
-    { selector: '.arena-comfortable', source: 'density.comfortable.json' },
   ] },
   { out: 'effects.generated.css', blocks: [
     { selector: ':root', source: 'effects.json' },

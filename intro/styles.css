@@ -15,6 +15,7 @@
 @import "../contracts/design/colors.css";
 @import "../contracts/design-generated/typography.generated.css";
 @import "../contracts/design-generated/spacing.generated.css";
+@import "../frameworks/tailwind/consume/vocabulary/Density.generated.css";
 @import "../contracts/design-generated/effects.generated.css";
 @import "../contracts/design-generated/style-plugin.default.generated.css";
 @import "../contracts/design-generated/style-plugin.complete.generated.css";
