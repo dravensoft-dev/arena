@@ -8,6 +8,7 @@
 |---|---|---|---|---|
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
+| [`prose`](#prose) | box | `arena-prose` |  | markup you write |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
@@ -27,6 +28,14 @@ Whether a component takes the width of the box it sits in or the width of its ow
 - **Options:** `arena-fill`, `arena-fit` (default).
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:** ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip.
+
+## prose
+
+The reading column for a document you write, an article, a changelog, a release note. It holds the line to a measure in ch rather than a pixel width, so it tracks the font size the way a measure has to. It is a maximum and not a width, so a narrow viewport keeps the whole column. The measure is a role, so a style plugin written for reading re-answers it.
+
+- **Options:** `arena-prose`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.
 
 ## row
 

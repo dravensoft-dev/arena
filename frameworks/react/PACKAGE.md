@@ -144,7 +144,7 @@ in a `stylesheet` list.
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
 this version ships are `.arena-fill`, `.arena-fit`.
-The classes for markup you write are `.arena-band`, `.arena-row`, `.arena-row--baseline`, `.arena-row--between`, `.arena-row--component`, `.arena-row--start`, `.arena-shell`, `.arena-shell__main`, `.arena-stack`, `.arena-stack--end`, `.arena-stack--group`, `.arena-stack--section`, `.arena-stack--start`, and none of them goes on a component.
+The classes for markup you write are `.arena-band`, `.arena-prose`, `.arena-row`, `.arena-row--baseline`, `.arena-row--between`, `.arena-row--component`, `.arena-row--start`, `.arena-shell`, `.arena-shell__main`, `.arena-stack`, `.arena-stack--end`, `.arena-stack--group`, `.arena-stack--section`, `.arena-stack--start`, and none of them goes on a component.
 [The vocabulary page](https://arena.dravensoft.org/frameworks/VOCABULARY.md) lists each with the components
 that answer it. `arena.css` imports their sheets under `css/vocabulary/`; a project importing
 component sheets one by one imports those as well.
