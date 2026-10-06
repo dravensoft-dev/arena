@@ -24,6 +24,9 @@
     "stack": "none",
     "foot": "none"
   },
+  "internal": {
+    "identity": "the column carries an identity colour"
+  },
   "variants": {
     "identity": {
       "true": {

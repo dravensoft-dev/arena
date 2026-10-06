@@ -11,7 +11,9 @@ import {
 import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { reactSurface, UnrecognisedShape } from '../../lib/arena/api-surface.ts';
-import type { ContractCandidate } from '../../lib/arena/contract-shapes.ts';
+import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
+import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { groupProblems, designGroupCount } from './check-api.ts';
 import { vocabularyMemberProblems, OWN_ELEMENTLESS } from './check-api.ts';
 
 const TYPES = new Map([['ArenaTone', 'enum'], ['ArenaCrumb', 'object']]);
@@ -876,4 +878,58 @@ test('an elementless entry naming no contracted component is stale', () => {
   assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'react', new Set(['ArenaButton']),
     new Map([['ArenaGone', 'why']]))[0] ?? '', /stale OWN_ELEMENTLESS: ArenaGone/);
   assert.ok(OWN_ELEMENTLESS.has('ArenaTabs'));
+});
+
+const manifest = (over: Partial<ComponentManifest> = {}): ComponentManifest => ({
+  component: 'ArenaThing', slots: { root: '' },
+  variants: { size: { sm: {}, md: {} } }, ...over,
+});
+const thing = (api: ContractCandidate['api'] = { size: { form: 'enum', type: 'ArenaSize' } }) =>
+  new Map<string, ContractCandidate>([['ArenaThing', { component: 'ArenaThing', api }]]);
+const noTypes = new Map<string, TypeContract>();
+const sweep = (m: ComponentManifest, contracts = thing(), types = noTypes, extra: Parameters<typeof groupProblems>[3] = {}) =>
+  groupProblems(new Map([['ArenaThing.manifest.json', m]]), contracts, types, extra);
+
+test('a group resolving to a member, a field of a member type or an internal entry passes', () => {
+  assert.deepEqual(sweep(manifest()), []);
+  const types = new Map<string, TypeContract>([['ArenaRow', { name: 'ArenaRow', kind: 'object', fields: { size: { form: 'enum', type: 'ArenaSize' } } }]]);
+  assert.deepEqual(sweep(manifest(), thing({ rows: { form: 'array', of: 'ArenaRow' } }), types), []);
+  assert.deepEqual(sweep(manifest({ internal: { size: 'the size is measured' } }), thing({})), []);
+});
+
+test('a group naming no member, no field and no internal entry fails', () => {
+  assert.match(sweep(manifest(), thing({}))[0] ?? '', /ArenaThing\.size is a variant group naming no member, no field and no internal entry, so nothing says what it states/);
+});
+
+test('a group is resolved against the components the manifest covers', () => {
+  const covered = new Map<string, ContractCandidate>([['ArenaTableRow', { component: 'ArenaTableRow', api: { size: { form: 'enum', type: 'ArenaSize' } } }]]);
+  const table = { ...manifest(), component: 'ArenaTable' };
+  assert.deepEqual(groupProblems(new Map([['t', table]]), covered, noTypes), []);
+});
+
+test('an internal entry naming no group is stale, and one naming a member is declared twice', () => {
+  assert.match(sweep(manifest({ internal: { size: 'why', gone: 'why' } }), thing({}))[0] ?? '', /ArenaThing\.internal\.gone names no group/);
+  assert.match(sweep(manifest({ internal: { size: 'why' } }))[0] ?? '', /ArenaThing\.size is declared internal and a member at once/);
+});
+
+test('a group naming a design member passes and is counted', () => {
+  const key = 'contracts/api/components/ArenaThing.json:api.size';
+  const members = new Map([[key, { phase: 5 as const, why: 'editorial' }]]);
+  assert.deepEqual(sweep(manifest(), thing(), noTypes, { designMembers: members }), []);
+  assert.equal(designGroupCount(new Map([['t', manifest()]]), thing(), noTypes, members), 1);
+  assert.equal(designGroupCount(new Map([['t', manifest()]]), thing(), noTypes, new Map()), 0);
+});
+
+test('a hues key naming no group, a value the group lacks or an unknown hue fails', () => {
+  const hued = (hues: ComponentManifest['hues']) => sweep(manifest({ hues }), thing(), noTypes, { hueNames: new Set(['danger']) });
+  assert.deepEqual(hued({ size: { sm: null, md: 'danger', on: ['root'] } }), []);
+  assert.match(hued({ tone: { sm: null } })[0] ?? '', /ArenaThing\.hues\.tone names no group/);
+  assert.match(hued({ size: { xl: null } })[0] ?? '', /ArenaThing\.hues\.size\.xl names a value the group lacks/);
+  assert.match(hued({ size: { sm: 'violet' } })[0] ?? '', /ArenaThing\.hues\.size\.sm names hue "violet"/);
+  assert.deepEqual(sweep(manifest({ hues: { size: { sm: 'violet' } } })), []);
+});
+
+test('a sweep that finds no group fails', () => {
+  assert.match(groupProblems(new Map(), thing(), noTypes)[0] ?? '', /found 0 manifests with a variant group/);
+  assert.match(groupProblems(new Map([['t', manifest({ variants: {} })]]), thing(), noTypes)[0] ?? '', /found 0 manifests with a variant group/);
 });
