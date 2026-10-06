@@ -134,7 +134,7 @@ The hand-authored sheets a manifest names are `Case.css`, `Media.css` and `Anima
 Through `css/tailwind-theme.css` a project compiling Tailwind may also write them, eight of them
 as `arena-` names such as `arena-spinner` and `arena-fade`. They are Tailwind utilities and not
 vocabulary classes, so no family lists them. The argument for `num` (the ink that stops
-`ArenaTableColumn.mono` travelling) and for `stack` and `row` (no outer margin on anything) is in
+`ArenaTableColumn.numeric` travelling) and for `stack` and `row` (no outer margin on anything) is in
 their `description` under `vocabulary/`.
 
 ## Arbitrary values are a build failure
@@ -354,15 +354,11 @@ references and not a sibling: `../../../consume/components/<category>/<component
 which is the specimen's own directory read back under `consume/`.
 
 **Be exact about what catches a miscount, because nothing loads the page.** A broken **script**
-path (`Specimen.js`, or the page's own manifest `fetch`) leaves `#root` empty, which
-`classify()` reports as `unrendered`; `main()` routes that to `skip()`, which the repository's
-declared strict setting turns into a failure, and which an environment exporting
-`ARENA_CHECK_STRICT` as anything but `1` turns back into a SKIP and an INCOMPLETE run,
-**not a failure**. And a broken **stylesheet** path (`intro/styles.css`,
-`Utilities.generated.css`, `Specimen.css`) is not caught at all: the page still renders, so an
-unstyled specimen that happens to fit its declared box passes outright, and one that
-under-runs only warns. What actually stands behind a correct specimen is the by-hand
-check: run `bun run demos` and open the page.
+path leaves `#root` empty, which `classify()` reports as `unrendered` and `main()` routes to
+`skip()`: a failure under the declared strict setting, a SKIP and an INCOMPLETE run under an
+`ARENA_CHECK_STRICT` other than `1`. A broken **stylesheet** path is not caught at all, since the
+page still renders. What stands behind a correct specimen is the by-hand check: run
+`bun run demos` and open the page.
 
 **One shape of that IS caught, and it is the one a page adds by composing.** A specimen that
 `fetch`es a second manifest, as `ArenaUnauthCard` does `ArenaAppLogo` and `ArenaToastHost` does `ArenaToast`, renders
@@ -445,21 +441,32 @@ spells the class, from one module, because the generator and the browser specime
 read it. [`check:parts`](../../scripts/check/arena/check-parts.ts) fails an element that carries a
 slot class and no hook, in either layer.
 
-**A slot that is a second class on another slot's element declares that in `partOf`.** Some slots
-are not a part of the DOM at all: `tdMono` is the `td` element set in the mono face, `pageCurrent`
-is the `page` a pager marks as current, `indeterminate` is the `track` while it sweeps. A
-component composes those classes onto the base slot's element, so the element carries the base
-slot's hook and there is nothing for a hook of the variant's own to sit on. `partOf` maps the
-variant to its base and `classesManifest` resolves the part through it, so what the kernel
-advertises is what an element carries.
+**A slot that is a second class on another slot's element declares that in `partOf`.** Such a slot
+is no part of the DOM: the component composes its class onto the base slot's element, which
+carries the base slot's hook and has nothing for a hook of its own to sit on. `partOf` maps it to
+its base and `classesManifest` resolves the part through it, so what the kernel advertises is what
+an element carries. Without it a plugin's rule against the slot's name matches nothing while reading as coverage, which [`check:style-plugin-coverage`](../../scripts/check/core/check-style-plugin-coverage.ts)
+catches both ways, a part painted and never emitted as loudly as one emitted and never painted.
 
-**Without it the surface over-claims and nothing notices**, which is the failure this key exists
-to close: `check:parts` sees a hook on the element and passes, and a plugin's rule against the
-variant's name matches nothing on any page while still reading as coverage.
-[`check:style-plugin-coverage`](../../scripts/check/core/check-style-plugin-coverage.ts) now asks
-the question both ways, so a part painted and never emitted fails as loudly as one emitted and
-never painted. The cut is which decision a state is: a variant painted through a `variants` block
-needs no entry, because a variant class already belongs to the slot it modifies.
+## A variant group is a `data-arena` attribute, and meaning is a hue
+
+**`arenaStyles` renders each slot's classes and, beside them, `$data.<slot>()`: every group the
+slot is touched by as `data-arena-<group>`.** An enum renders its resolved value, defaults
+included, and a boolean the attribute's presence. A slot is touched by a group when a value, a
+compound or the group's `hues.on` names it, and a branch compiles to the slot class qualified by
+the attribute inside `:where()`. So TypeScript chooses no class by a value, and **a slot a
+component once picked by state, the current page or the first row, is a group on one slot**. Every
+group is a member, a field of a member's type, or an `internal` entry, `{ group: reason }`, which
+`check:api` holds.
+
+**`hues` maps a group's values to hues** (`danger`, `success`, `warning`, `info`, `identity-N`), and
+a value mapped to `null` writes the four channels as `initial`. `build:tailwind` compiles it to the
+hue sheet, `consume/hues/<category>/<component-kebab>/<Component>.hues.generated.css`: one rule
+per slot and value on the element given the hue, never on an ancestor, so a badge inside a danger
+alert reads its own colour. What each hue writes is authored once, in
+[`Hues.json`](./Hues.json), and not as a `:root` rule, since a `var()` resolves where it is
+declared and a root definition would freeze the plugin scope. A slot reads a channel,
+`bg-[color:var(--arena-hue-fill-soft)]`, and declares none.
 
 ## What a manifest is compiled into
 
@@ -480,8 +487,8 @@ repository does not have.
 
 ## Invariants the manifests must reproduce
 
-- **Danger is outline:** `border` and `text` in `--error`, transparent fill; a
-  filled danger surface is reserved for `ArenaConfirmDialog`'s final confirmation.
+- **Danger is outline:** the danger hue's edge and ink, no slot reading `hue-danger-fill-strong`;
+  the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
 - **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
   gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
   takes `ring-primary` with `ring-2`. Derive which manifests spend each with
@@ -532,42 +539,21 @@ slot is only a safe place for a modifier every variant branch is willing to lose
 
 ## Two classes at equal specificity are ordered alphabetically, not by manifest order
 
-Tailwind emits same-specificity utilities sorted by value inside each property
-bucket, so `bg-transparent` always compiles after `bg-primary/14` and
-`text-base-content/82` always compiles after `/62`, whatever order the
-manifest declares them in or however sensible the manifest's own ordering
-looks. When a base slot and an additive modifier slot both set one property,
-the alphabetically-later value wins the cascade, which is arbitrary with
-respect to intent rather than a rule anyone chose, and unpredictable from reading the
-manifest alone. Never rely on it, and never "fix" it by reordering the class
-string: reordering does nothing, because this is the *compiled stylesheet's*
-order rather than the string's. A property a modifier slot overrides does not belong
-on the base slot at all; put it in every modifier branch instead, so the base
-slot only ever carries a property no sibling modifier touches.
+Tailwind emits same-specificity utilities sorted by value inside each property bucket, so
+`bg-transparent` always compiles after `bg-primary/14`, whatever order the manifest writes them
+in. When a base slot and a modifier both set one property, the alphabetically-later value wins,
+which is arbitrary with respect to intent. Reordering the class string does nothing, because this
+is the *compiled stylesheet's* order. A property a modifier overrides does not belong on the base
+slot at all: put it in every branch, so the base only carries what no branch touches.
 
-This is a different failure from the one above: a state modifier (`hover:`,
-`focus-within:`) always wins on *specificity*, a real, deterministic ordering
-axis. Two *plain* classes for the same property, from a base slot and a named
-modifier slot, share one specificity band, and Tailwind's own sort order
-inside that band is what decides, which is what makes it look "correct" far
-more often than it should. `ArenaMenu`'s `item`/`itemDefault`/`itemDestructive`/
-`itemDisabled` is the reference shape: `item` carries only what no modifier
-branch overrides (layout, no color, no cursor), and every color and cursor
-value lives in exactly one of the three modifier slots, never on `item`
-itself. `ArenaCommandPalette`'s `row`/`rowDefault`/`rowActive` and
-`rowLabel`/`rowLabelDefault`/`rowLabelActive` follow the same shape for the
-same reason: a resting row needs its own explicit background and text color,
-not an absence that happens to lose to the active row's tint by alphabetical
-luck. A manifest's `variants` block does not carry this risk the same way: `classesFor`
-(`frameworks/tailwind/ManifestClasses.js:classesFor(manifest, chosen)`) concatenates a slot's base and
-each chosen branch, the build emits one class name per branch, and the sheet emits the branch's rule
-after the base's, so source order inside the compiled sheet decides a same-property conflict, with no
-merge at render time. The risk above is specifically about **named
-sibling slots**, meaning extra `slots` keys outside any `variants` block that a
-consumer string-concatenates onto a base slot by hand (a specimen's `el()`
-call, or a consumer's own template interpolation), because that
-concatenation never goes through the build's ordering at all, in the specimen
-*or* in the real component.
+A `variants` block does not carry this risk: `classesFor`
+(`frameworks/tailwind/ManifestClasses.js:classesFor(manifest, chosen)`) concatenates a slot's base
+and each chosen branch, the build emits the branch's rule after the base's, and source order
+decides. The risk is a **named sibling slot**, an extra `slots` key outside any `variants` block
+that something concatenates onto a base slot by hand, because that never goes through the build's
+ordering. Arena's components have none: a state a component once picked as a sibling slot is a
+group on one slot, and a branch is qualified by its attribute inside `:where()`, so it keeps
+`(0,1,0)` and its order.
 
 One shape of copy is worth naming. `ArenaSegmentedControl.manifest.json`'s `selected`
 variant carries a hover affordance its contract declares, and `ArenaTabs`' visually

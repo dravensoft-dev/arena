@@ -75,9 +75,11 @@ meaningless, and the bar and line charts keep none.
 `frameworks/tailwind/components/charts/arena-<chart>/`, holding the slots of its legend and its
 tooltip, so both layers draw them from the same classes and a style plugin reaches them through
 the part hook. The roles those slots spend are in
-[`contracts/design/StylePlugins.md`](../contracts/design/StylePlugins.md). What stays inline is
-what the render computes: the series colour, the tooltip's anchor, the strip height and the hover
-opacity. `ChartTooltip.ts` is paired and holds `arenaTooltipAnchor(x, y)`, which is where the
+[`contracts/design/StylePlugins.md`](../contracts/design/StylePlugins.md). **A legend swatch reads the hue channels**: the legend item's group is the series' `tone` or `colorId`,
+rendered as `data-arena-tone` or `data-arena-color-id`, and the swatch paints `--arena-hue-ink`. What
+stays inline is what the render computes: the tooltip's anchor, the strip height and the hover
+opacity. The plot keeps its token reads, since a mark's coordinates are the data and a role cannot
+carry them. `ChartTooltip.ts` is paired and holds `arenaTooltipAnchor(x, y)`, which is where the
 hovered datum meets `--chart-tooltip-offset`. `scripts/lib/tailwind/manifest-surfaces.ts:HAND_DRAWN`
 keeps each chart for the plot geometry only, whose coordinates are the data.
 
@@ -255,4 +257,4 @@ component that draws it. They also carry no comment, because `allowsHeader()` in
 `scripts/check/arena/check-docs.ts` grants one only under `scripts/` or a test path, which is
 why the reasoning is here instead. `DataVisuals.ts` stays at the layer root beside them and
 keeps the colour contract and the number writer, since `arena-calendar-event` reads
-`arenaCatColor(slot)` too and a module a schedule grid consumes is not chart internals.
+`arenaCatIndex(slot)` too and a module a schedule grid consumes is not chart internals.

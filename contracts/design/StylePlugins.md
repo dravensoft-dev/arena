@@ -11,7 +11,7 @@ Not one value of appearance.
 
 | Surface | What it is |
 |---|---|
-| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline |
+| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline: the danger hue's strong fill is `transparent` |
 | The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json). No value |
 | The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
 | The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
@@ -134,6 +134,39 @@ through `min-h-row-min`, is the floor a row takes to reach the pointer target in
 density. `pad-row-indent` is the side nav's inset per level of depth, read times the
 `--arena-side-nav-depth` channel the component writes.
 
+## The hue matrix
+
+**A hue is a meaning a component wears, and the plugin answers what each hue is made of.** A
+manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`, or an identity),
+renders the group as `data-arena-<group>`, and the hue sheet writes four channels on the slots that
+carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
+`--arena-hue-fill-soft`. A slot reads the channel it needs and never a status colour by name, so a
+plugin that moves one role moves every surface wearing that hue. The roles are in
+[`roles.json`](./roles.json), one per hue and channel, each answered with a `{color.*}` alias:
+
+| Hue | Ink | Edge | Fill, strong | Fill, soft |
+|---|---|---|---|---|
+| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, closed to `transparent` | `hue-danger-fill-soft` |
+| success | `hue-success-ink` | `hue-success-edge` | `hue-success-fill-strong` | `hue-success-fill-soft` |
+| warning | `hue-warning-ink` | `hue-warning-edge` | `hue-warning-fill-strong` | `hue-warning-fill-soft` |
+| info | `hue-info-ink` | `hue-info-edge` | `hue-info-fill-strong` | `hue-info-fill-soft` |
+
+**The soft fill is held back to a level, which is not a role.** The hue sheet composes
+`color-mix(in oklab, var(--hue-<hue>-fill-soft) var(--level-hue-soft-<hue>), transparent)`, with
+the percentage in [`colors.css`](./colors.css), so the role says which colour and the level says
+how far it is held back. The table of channels is authored once, in
+[`frameworks/tailwind/Hues.json`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/Hues.json).
+
+**Identity has no roles.** The eight categorical colours derive their channels from the ramp: ink,
+edge and strong fill are `--color-cat-N`, and the soft fill is that colour at `--tint-soft` over
+`--fill-surface`. A plugin moves identity by moving the ramp in the palette. **Neutral is the
+absence of a hue**: its value writes the four channels to `initial` and the slot keeps its own
+classes, so the matrix has no neutral row.
+
+**The final confirmation of `ArenaConfirmDialog` reads two roles of its own**, `fill-confirm-final`
+and `ink-confirm-final`, which a plugin answers as a pair. It is the one filled danger surface, which
+is why it is not `hue-danger-fill-strong`.
+
 ## Which floors a gate still holds, and which became reports
 
 This is the half that has to be written down rather than discovered.
@@ -149,6 +182,8 @@ an application source and says nothing about it inside a declared plugin directo
 |---|---|---|
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
 | the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
+| the danger hue's strong fill, `hue-danger-fill-strong`, answered `transparent` | `check:style-plugin` | the root plugin and every scoped plugin, in both polarities |
+| the same floor | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |

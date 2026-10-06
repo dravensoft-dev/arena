@@ -166,8 +166,8 @@ rendering](#a-projected-childs-inputs-are-not-readable-while-a-sibling-is-render
 wiring between a component and its own projected child rather than anything an adopter stands
 between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisuals.ts` (the identity-or-meaning colour contract, the number writer and the
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
-its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatColor` for a
-chip's identity colour. The name matches the placement: a module a schedule grid consumes is
+its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatIndex` for a
+chip's `colorId`. The name matches the placement: a module a schedule grid consumes is
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
@@ -227,6 +227,11 @@ import manifest from './ArenaTag.classes.generated';
 
 export const arenaTagStyles = arenaStyles(manifest);
 ```
+
+**A slot binds its `$data` beside its part hook**, the `data-arena-<group>` attributes it is
+touched by. A template element takes `[arenaSlotData]="styles().$data.<slot>()"`, the directive
+`ArenaSlotAttributes` in `frameworks/angular/SlotData.ts` (internal, not exported by `index.ts`); a
+host binds one `'[attr.data-arena-<group>]'` per group. Identity is `colorId` rendered as `data-arena-color-id`.
 
 The import is extensionless and names a stem nothing else claims. An extensionless import of
 `ArenaTag.classes` would resolve to the `.ts` **only because** TS and bun probe `.ts` before
