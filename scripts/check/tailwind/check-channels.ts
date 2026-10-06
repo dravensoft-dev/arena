@@ -6,8 +6,8 @@
  * declaring anything else is a component choosing a channel. A component sheet reads a hue channel
  * only under a selector its hue sheet writes it on with a value other than initial, so the element
  * reading it is the element given it and an ancestor's hue is never the one read. A plugin.css reads
- * a channel and never writes one, since a write would bypass the danger floor. A sweep finding no
- * family, component, hue or plugin sheet fails. */
+ * a channel and never writes one, nor the danger hue's strong fill role, since either write would bypass the
+ * danger floor. A sweep finding no family, component, hue or plugin sheet fails. */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -40,6 +40,7 @@ export function declared(css: string) {
   return [...new Set([...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(DECLARATION)].map((m) => m[1] ?? ''))];
 }
 
+const DANGER_STRONG_ROLE = '--hue-danger-fill-strong';
 const HUE_READ = /var\(\s*(--arena-hue-[a-z-]+)/g;
 const CONDITION = /:not\(\[[^\]]+\]\)|\[[^\]]+\]/g;
 const sheetKey = (rel: string) => rel.replace(/^.*\/(?:components|hues)\//, '').replace(/\.(?:styles|hues)\.generated\.css$/, '');
@@ -101,6 +102,8 @@ export function channelProblems(sheets: Sheet[]) {
       else if (sheet.kind !== 'hue' && sheet.kind !== 'component' && isHue)
         problems.push(`${sheet.rel} declares ${property}, which only a hue sheet writes`
           + (sheet.kind === 'plugin' ? '; a plugin reads a channel and meaning owns it, so a plugin write bypasses the danger floor' : ''));
+      if (sheet.kind === 'plugin' && property === DANGER_STRONG_ROLE)
+        problems.push(`${sheet.rel} declares ${property}, the role a destructive control's fill resolves to, which a plugin answers only through its role answers`);
       if (sheet.kind === 'plugin') continue;
       if (sheet.kind === 'hue' && !isHue)
         problems.push(`${sheet.rel} declares ${property}, and a hue sheet writes only ${HUE_CHANNELS.join(', ')}`);

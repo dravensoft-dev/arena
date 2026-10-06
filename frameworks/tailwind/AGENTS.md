@@ -490,7 +490,7 @@ repository does not have.
 ## Invariants the manifests must reproduce
 
 - **Danger is outline:** the danger hue's edge and ink, its strong fill closed to `transparent`, so a
-  solid status mark reads `--arena-hue-fill-strong` for the other hues and the ink for danger;
+  presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
   the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
 - **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
   gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
