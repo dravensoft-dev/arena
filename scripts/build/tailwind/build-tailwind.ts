@@ -78,16 +78,14 @@ export const node = {
   name: 'build:tailwind',
   reads: [
     ...PRESET, MANIFESTS, `${VOCABULARY_DIR}/**`, 'contracts/api/components',
-    'frameworks/tailwind/ArenaStyles.ts', 'frameworks/tailwind/Tv.ts',
+    'frameworks/tailwind/ArenaStyles.ts',
   ],
   writes: [
     'frameworks/tailwind/Utilities.generated.css', PRELUDE, BARREL, PREFLIGHT,
     `${CONSUME}/**/*.styles.generated.css`, `${VOCABULARY_SHEETS}/*.generated.css`, VOCABULARY_TYPES,
     ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.manifest.generated.ts`),
     ...CSS_CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.classes.generated.ts`),
-    ...CONSUMING_LAYERS.flatMap((layer) => [
-      `frameworks/${layer}/ArenaStyles.generated.ts`, `frameworks/${layer}/Tv.generated.ts`,
-    ]),
+    ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/ArenaStyles.generated.ts`),
   ],
   feeds: [
     'build:angular-demo',
@@ -308,15 +306,6 @@ export function buildManifestModules(opts: BuildOptions = {}) {
   return out;
 }
 
-export function buildRecipeRuntime(opts: BuildOptions = {}) {
-  const root = opts.root ?? repoRoot;
-  const source = readFileSync(join(root, 'frameworks/tailwind/Tv.ts'), 'utf8');
-  const out = new Map();
-  for (const layer of CONSUMING_LAYERS)
-    out.set(join(root, `frameworks/${layer}/Tv.generated.ts`), manifestBanner('frameworks/tailwind/Tv.ts') + source);
-  return out;
-}
-
 function main() {
   const text = buildTailwind();
   const path = generatedPath();
@@ -324,7 +313,7 @@ function main() {
   console.log(`build-tailwind: wrote ${path} (${text.length} bytes)`);
 
   const emitted = [
-    ...buildManifestModules(), ...buildRecipeRuntime(),
+    ...buildManifestModules(),
     ...buildComponentCss(), ...buildClassModules(), ...buildStylesRuntime(), ...buildVocabularyCss(),
     ...buildVocabularyTypes(),
   ];

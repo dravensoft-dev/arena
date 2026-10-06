@@ -3,14 +3,14 @@
  * the class string a recipe resolved, in both layers, about the same one manifest. A component
  * renders its own class names now, so a layer suite can no longer see a utility, and Angular
  * may not import a manifest to look: that is the edge this whole change removes. So the claims
- * live once, beside the manifests, resolved through the same recipe they were resolved through
- * before, which is what makes them the same claims and not weaker ones. */
+ * live once, beside the manifests, resolved through classesFor, the function the compiler applies,
+ * which concatenates a slot's base and each chosen branch and never merges. */
 
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
-import { arenaTv } from '../../../frameworks/tailwind/Tv.ts';
+import { classesFor } from '../../../frameworks/tailwind/ManifestClasses.js';
 import { escapeClass, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { markupDeclarations } from '../../lib/tailwind/vocabulary.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -21,9 +21,9 @@ const manifests = new Map([...layerManifests().values()].map((m) => [m.component
 export function resolve(component: string, chosen: Record<string, string | boolean>, slot: string) {
   const manifest = manifests.get(component);
   if (!manifest) throw new Error(`manifest-claims: no manifest called ${component}`);
-  const styles = (arenaTv as any)(manifest)(chosen) as Record<string, () => string>;
-  if (!styles[slot]) throw new Error(`manifest-claims: ${component} has no slot called ${slot}`);
-  return styles[slot]().split(/\s+/).filter(Boolean);
+  const slots = classesFor(manifest, chosen) as Record<string, string>;
+  if (!(slot in slots)) throw new Error(`manifest-claims: ${component} has no slot called ${slot}`);
+  return slots[slot].split(/\s+/).filter(Boolean);
 }
 
 type Claim = { chosen?: Record<string, string>; slot: string; has?: string[]; hasNot?: string[]; why: string };
@@ -214,7 +214,7 @@ export const CLAIMS = {
     { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-hidden'], hasNot: ['flex-col'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet' },
     { chosen: { narrow: false }, slot: 'grid', has: ['table'], why: 'the wide shape is the framed grid' },
     { chosen: { narrow: true }, slot: 'root', has: ['flex', 'flex-col'], hasNot: ['rounded-surface', 'overflow-hidden'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
-    { chosen: { narrow: true }, slot: 'grid', has: ['contents'], hasNot: ['table'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
+    { chosen: { narrow: true }, slot: 'grid', has: ['table', 'contents'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards: the base table and the branch contents are both present and the branch is emitted later' },
     { slot: 'headRow', has: ['table-row'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
     { slot: 'row', has: ['table-row'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
     { slot: 'th', has: ['table-cell'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
@@ -222,7 +222,7 @@ export const CLAIMS = {
   ],
   ArenaTag: [
     { chosen: { tone: 'danger' }, slot: 'root', has: ['border-error', 'text-error'], hasNot: ['bg-error'], why: 'danger is outline: border and text in --error, never a filled background' },
-    ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({
+    ...['neutral', 'primary', 'success', 'warning', 'danger', 'identity'].map((tone) => ({
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),
@@ -453,7 +453,7 @@ export const CLAIMS = {
       why: 'the ring is a ring utility rather than a shadow one, for the reason the tab focus-ring test in this file carries',
     },
     { chosen: { selected: true }, slot: 'panel', has: ['block'], hasNot: ['hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
-    { chosen: { selected: false }, slot: 'panel', has: ['hidden'], hasNot: ['block'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
+    { chosen: { selected: false }, slot: 'panel', has: ['block', 'hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled: the base block and the branch hidden are both present and the branch is emitted later' },
   ],
   ArenaTextarea: [
     { slot: 'field', has: ['focus:border-secondary'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },

@@ -24,10 +24,9 @@ one-to-one, because a manifest mirrors a React component and an `arena-*` primit
 compound family's one manifest mirrors several of each, so that check is by hand. The one
 narrow slice that is machine-checked lives elsewhere, as `check:states` in `../arena/`.
 
-Every `X.test.ts` beside a gate covers that gate. Three suites here name no gate:
-`manifest-classes.test.ts` covers `frameworks/tailwind/ManifestClasses.js`,
-`tv-merge.test.ts` covers the shared `Tv.ts`, and `theme-namespaces.test.ts` covers
-`Theme.css` itself, asserting that every namespaced property in it is attributed to a
-namespace or listed with a reason. All three are claims about the layer this domain gates
-rather than about any one gate, and the third is deliberately independent of the other two:
-it holds the preset whether or not anything still merges a class string.
+Every `X.test.ts` beside a gate covers that gate. Suites here that name no gate are:
+`manifest-classes.test.ts`, which covers `frameworks/tailwind/ManifestClasses.js`,
+and `theme-namespaces.test.ts`, which covers `Theme.css` itself, asserting that every namespaced property in it is attributed to a
+namespace or listed with a reason. Both are claims about the layer this domain gates
+rather than about any one gate, and the second is deliberately independent of the first:
+it holds the preset without depending on any class merge.

@@ -174,9 +174,7 @@ export function componentDir(name: string) {
 }
 
 export function reactRendersManifest(text: string, manifest: string) {
-  const throughRecipe = /from '[^']*Tv\.generated/.test(text) && text.includes(`${manifest}.manifest.generated`);
-  const throughClasses = /from '[^']*ArenaStyles\.generated/.test(text) && text.includes(`${manifest}.classes.generated`);
-  return throughRecipe || throughClasses;
+  return /from '[^']*ArenaStyles\.generated/.test(text) && text.includes(`${manifest}.classes.generated`);
 }
 
 export function angularRendersManifest(text: string) {
@@ -193,8 +191,7 @@ export function adoptionProblems(name: string) {
   const react = reactSource(name);
   if (react && !reactRendersManifest(readFileSync(react, 'utf8'), manifest)) {
     problems.push(`${name}: ${relPosix(repoRoot, react)} does not render its manifest -- it has to `
-      + `import arenaStyles from ArenaStyles.generated and ${manifest}.classes.generated (or, until it `
-      + `is migrated, arenaTv from Tv.generated and ${manifest}.manifest.generated), and draw its slots`);
+      + `import arenaStyles from ArenaStyles.generated and ${manifest}.classes.generated, and draw its slots`);
   }
   const angular = angularSource(name);
   if (angular && !angularRendersManifest(readFileSync(angular, 'utf8'))) {

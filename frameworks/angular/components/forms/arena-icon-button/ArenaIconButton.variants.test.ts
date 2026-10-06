@@ -1,6 +1,6 @@
 /* No DOM and no TestBed: assertions about the recipe alone. The showLabel axis is where this
  * recipe differs from ArenaButton's -- the manifest's variant keys are the strings "true"/"false"
- * while its defaultVariants are real booleans, so arenaTv() is what reconciles the two. */
+ * while its defaultVariants are real booleans, so the recipe is what reconciles the two. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

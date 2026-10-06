@@ -550,15 +550,15 @@ itself. `ArenaCommandPalette`'s `row`/`rowDefault`/`rowActive` and
 `rowLabel`/`rowLabelDefault`/`rowLabelActive` follow the same shape for the
 same reason: a resting row needs its own explicit background and text color,
 not an absence that happens to lose to the active row's tint by alphabetical
-luck. A `arenaTv()` `variants` block does not carry this risk the same way: each of
-its slot's classes resolves through one `slot()` call, and the configured
-`arenaTv` (`frameworks/tailwind/Tv.ts`) merges that call's own base and chosen
-branch with `tailwind-merge`, which resolves same-property conflicts by
-config, not by generation order. The risk above is specifically about **named
+luck. A manifest's `variants` block does not carry this risk the same way: `classesFor`
+(`frameworks/tailwind/ManifestClasses.js:classesFor(manifest, chosen)`) concatenates a slot's base and
+each chosen branch, the build emits one class name per branch, and the sheet emits the branch's rule
+after the base's, so source order inside the compiled sheet decides a same-property conflict, with no
+merge at render time. The risk above is specifically about **named
 sibling slots**, meaning extra `slots` keys outside any `variants` block that a
 consumer string-concatenates onto a base slot by hand (a specimen's `el()`
 call, or a consumer's own template interpolation), because that
-concatenation never goes through `tailwind-merge` at all, in the specimen
+concatenation never goes through the build's ordering at all, in the specimen
 *or* in the real component.
 
 One shape of copy is worth naming. `ArenaSegmentedControl.manifest.json`'s `selected`

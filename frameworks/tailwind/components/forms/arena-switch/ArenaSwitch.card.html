@@ -11,12 +11,12 @@ import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.j
 const manifest = await (await fetch('./ArenaSwitch.manifest.json')).json();
 
 /* `footprint` and `thumb` are derived variants that exist only because
- * ManifestClasses.js (this harness) does not support tailwind-variants'
+ * ManifestClasses.js (this harness) does not apply
  * compoundVariants -- track's width/height genuinely depend on BOTH size
  * and orientation, and the knob's translate direction genuinely depends on
  * BOTH checked and orientation, so those two crossed pairs are flattened
  * into their own enumerated variants rather than declared as a compound.
- * `arena-switch` is the real arenaTv() consumer now, and it crosses the same two
+ * `arena-switch` crosses the same two
  * pairs in `arenaFootprintFor()` and `arenaThumbFor()` -- the flattening stays because
  * this harness still needs it, and both sides compute the key the same way. */
 function toggle({ label, size = 'md', orientation = 'horizontal', checked = false, disabled = false, confirm = false, iconOn, iconOff }) {

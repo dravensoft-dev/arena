@@ -53,8 +53,8 @@ const ROOT_PRIVATE = new Map([
    + 'through the projected child that imports it.'],
   ['ArenaStyles.generated.ts',
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
-   + 'imports across one. It replaced the two runtime dependencies, and a consumer has no more '
-   + 'reason to call it than they had to call `arenaTv`: they render a component, not a recipe.'],
+   + 'imports across one. A consumer has no '
+   + 'reason to call it: they render a component, not a recipe.'],
   ['StructuredData.ts',
    'the schema.org serialisation behind contracts/behaviour/structured-data.json. A component '
    + 'emits its own, from the items it was already given, and that is the whole reason the '

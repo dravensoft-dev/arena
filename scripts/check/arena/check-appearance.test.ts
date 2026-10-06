@@ -96,7 +96,7 @@ test('adoption reads the manifest a component has to render, its own or its pare
 });
 
 test('a source that renders no manifest is what the adoption half reads for', () => {
-  const drawn = "import { arenaTv } from '../../../Tv.generated.ts';\nimport m from './ArenaBadge.manifest.generated.ts';";
+  const drawn = "import { arenaStyles } from '../../../ArenaStyles.generated.ts';\nimport m from './ArenaBadge.classes.generated.ts';";
   assert.equal(reactRendersManifest(drawn, 'ArenaBadge'), true);
   assert.equal(reactRendersManifest(drawn, 'ArenaCard'), false, 'it has to be THIS component\'s manifest');
   assert.equal(reactRendersManifest("const S = { background: 'var(--crimson)' };", 'ArenaBadge'), false);

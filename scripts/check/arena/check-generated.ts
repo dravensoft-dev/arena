@@ -84,10 +84,6 @@ export const UNTRACKED = {
     + 'authored once as JSON under frameworks/tailwind/ and emitted per layer for the reason the '
     + 'script tokens are: a component\'s import then never crosses a layer boundary. '
     + 'check:tailwind-generated holds every copy to a fresh compile of the one source.',
-  'frameworks/react/Tv.generated.ts':
-    'the configured tailwind-variants instance both layers resolve a manifest through, emitted '
-    + 'beside the manifests for the same reason and held to its source by the same gate.',
-  'frameworks/react/Tv.generated.js': 'the compiled sibling of that, which a demo page loads.',
   'frameworks/react/Index.generated.ts':
     'the layer entry point, derived from the component directories. The package build compiles '
     + 'it and emits its declaration, so the only reader outside this repository is a tarball.',

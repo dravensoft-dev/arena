@@ -6,7 +6,7 @@
  * in what only an author writes: no `slots` at all, and the vocabulary's `answers` and
  * `transparent`, which never reach a class module. So it is derived rather than written twice, and the facts that live there hold here -- notably that a
  * variant value is a string in `variants` and a boolean in `defaultVariants` and in a compound
- * selector, which `tailwind-variants` does not type and `frameworks/tailwind/Tv.ts` casts around once.
+ * selector.
  * Readers wanting only class strings take the partial. */
 
 import type {

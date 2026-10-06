@@ -66,9 +66,9 @@ sibling component's exported recipe, so no component depends on another's module
 `components/display/arena-calendar-event/ArenaCalendarEvent.tsx` is that shape.
 
 **Nothing here merges classes, and nothing needs to.** A variant is additive and its rule is
-emitted after the base at equal specificity, so source order decides. That is the work
-`tailwind-variants` and `tailwind-merge` do at render time, which is why neither travels in the
-package: the arrangement does it at build time and for nothing.
+emitted after the base at equal specificity, so source order decides. `arenaStyles`
+composes the class names the build emits, with no merge at render time, so no merging library
+travels in the package.
 
 Both layers compose the same names, and neither is the other's authority: the manifest is.
 Where a manifest and a component disagree, the manifest wins, which is why `ArenaCard` draws a

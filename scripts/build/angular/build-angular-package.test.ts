@@ -53,7 +53,7 @@ test('Angular, the CDK and Phosphor are the peers; tslib is the only real depend
     'the router and forms are each reachable only through their own entry point, so a project that '
     + 'never imports that subpath must install cleanly without it and be told nothing');
   assert.deepEqual(m.dependencies, RUNTIME_DEPENDENCIES,
-    'tailwind-variants runs on every render to compose a slot class, so a consumer cannot be asked to bring it');
+    'a slot class is composed from the names the build emits, with no runtime dependency a consumer would have to bring');
 });
 
 test('the assets are added to what ng-packagr wrote without losing its own entry', () => {
