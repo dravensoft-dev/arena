@@ -4,7 +4,8 @@ import {
   BROWSER_BOUND, CSS_VALUED, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
   valueProblems, zeroRecordProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
-import { COMPUTED, DESIGN_MEMBERS, computedProblems, designMemberProblems } from './check-contracts-neutrality.ts';
+import { COMPUTED, DESIGN_MEMBERS, computedProblems, designMemberProblems, optionShapeProblems } from './check-contracts-neutrality.ts';
+import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
 
@@ -112,6 +113,42 @@ test('a COMPUTED entry fails when its key does not resolve, its file lacks the f
 
 test('the real COMPUTED holds, and no member is both computed and a design debt', () => {
   assert.deepEqual(computedProblems(), []);
-  assert.equal(COMPUTED.size, 5);
+  assert.equal(COMPUTED.size, 14);
   for (const key of COMPUTED.keys()) assert.ok(!DESIGN_MEMBERS.has(key), `${key} is in both maps`);
+});
+
+const probeContracts = new Map<string, ContractCandidate>([
+  ['ArenaButton', { component: 'ArenaButton', api: { size: { form: 'enum', type: 'ArenaControlSize' } } }],
+]);
+const probeTypes = new Map<string, TypeContract>([
+  ['ArenaControlSize', { name: 'ArenaControlSize', kind: 'enum', values: ['sm', 'md', 'lg'] }],
+]);
+const probeOptions = new Map([['arena-size-sm', 'size']]);
+const probeKey = 'contracts/api/components/ArenaButton.json:api.size';
+
+test('an enum member whose value is a family option fails, and the message names the way out', () => {
+  const problems = optionShapeProblems(probeContracts, probeTypes, probeOptions, new Map(), new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /api\.size is an enum whose value sm is the option arena-size-sm: appearance is a class, not a member\. Write the class, or record the member in COMPUTED/);
+});
+
+test('an enum field of a type whose value is a family option fails too', () => {
+  const types = new Map<string, TypeContract>([
+    ...probeTypes,
+    ['ArenaRow', { name: 'ArenaRow', kind: 'object', fields: { size: { form: 'enum', type: 'ArenaControlSize' } } }],
+  ]);
+  const problems = optionShapeProblems(new Map(), types, probeOptions, new Map(), new Map());
+  assert.match(problems.join('\n'), /contracts\/api\/types\/arena-row\.json:fields\.size is an enum whose value sm/);
+});
+
+test('a member recorded in COMPUTED or held in DESIGN_MEMBERS passes', () => {
+  const computed = new Map([[probeKey, { reads: 'r', why: 'w' }]]);
+  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, probeOptions, computed, new Map()), []);
+  const members = new Map([[probeKey, { phase: 5 as const, why: 'w' }]]);
+  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, probeOptions, new Map(), members), []);
+});
+
+test('an enum that meets no option passes, and an empty option map is a zero walk', () => {
+  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, new Map([['arena-fill-card', 'fill']]), new Map(), new Map()), []);
+  assert.match(optionShapeProblems(probeContracts, probeTypes, new Map()).join('\n'), /0 family options/);
 });

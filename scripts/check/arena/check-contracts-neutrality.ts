@@ -7,11 +7,14 @@
  * appearance, with the phase that moves it, so the remainder is a map that shrinks and a stale
  * entry fails. COMPUTED records the members the render reads, with the function that reads them. The walk is over the tree's own contract set, so it has a subject on a fresh clone. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { expectedCarried } from './check-contracts-package.ts';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { readJson } from '../../utils/read-file.ts';
+import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 export const node = {
   name: 'check:contracts-neutrality',
@@ -187,7 +190,6 @@ export type Pending = { phase: 5 | 6; why: string };
 
 const EDITORIAL = 'it decides appearance per instance, so it becomes an option of a family';
 const EDITORIAL_VALUES = 'its meaning values write the hue channels, and its editorial values become an option of a family';
-const COMPUTED_LATER = 'the render computes with it, so it stays and is recorded with the function that reads it';
 const GEOMETRY = 'geometry only interpolated into CSS, so it becomes named steps and one public property';
 
 const at = (component: string, member: string) => `contracts/api/components/${component}.json:api.${member}`;
@@ -214,6 +216,42 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     reads: 'frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:blocked()',
     why: 'the render chooses the card cell\'s structure and whether its label renders',
   }],
+  [at('ArenaProgressBar', 'shape'), {
+    reads: 'frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:radial()',
+    why: 'the render draws a different tree for a ring: an SVG track and arc whose offset is the percentage',
+  }],
+  [at('ArenaMenu', 'align'), {
+    reads: 'frameworks/angular/components/navigation/arena-menu/ArenaMenu.ts:attach()',
+    why: 'the render positions the panel from it, choosing the connected positions that line the panel up with that edge of the trigger',
+  }],
+  [at('ArenaTextarea', 'rows'), {
+    reads: 'frameworks/react/components/forms/arena-textarea/ArenaTextarea.tsx:ArenaTextarea(props)',
+    why: 'the native control lays its initial height out from it, and that height is the floor the field grows from',
+  }],
+  [at('ArenaLineChart', 'area'), {
+    reads: 'frameworks/react/components/charts/ChartMarks.ts:arenaLineAreaPath(points, baseline)',
+    why: 'the render draws an area path under the line, closed down to the baseline',
+  }],
+  [at('ArenaRadarChart', 'fill'), {
+    reads: 'frameworks/react/DataVisuals.ts:arenaAreaFill(colour)',
+    why: 'the render draws a filled polygon per series in a tint of the series colour',
+  }],
+  [at('ArenaDoughnutChart', 'shape'), {
+    reads: 'frameworks/react/components/charts/ChartAxis.ts:arenaDoughnutRadii(plotWidth, height, shape)',
+    why: 'the render computes the inner radius from it, and the accessible name and the centre figure follow',
+  }],
+  [at('ArenaDoughnutChart', 'legendLayout'), {
+    reads: 'frameworks/react/components/charts/ChartLegend.ts:arenaLegendStacked(layout, width)',
+    why: 'the render decides from it and the measured width whether each legend row stacks',
+  }],
+  [at('ArenaDialog', 'fillBelow'), {
+    reads: 'frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:DialogFrame(props)',
+    why: 'the render compares the measured container with the breakpoint it names and fills the viewport below it',
+  }],
+  [at('ArenaBadge', 'dot'), {
+    reads: 'frameworks/react/components/display/arena-badge/ArenaBadge.tsx:ArenaBadge(props)',
+    why: 'the render adds the dot element only when it is set',
+  }],
 ]);
 
 export const DESIGN_MEMBERS = new Map<string, Pending>([
@@ -226,13 +264,10 @@ export const DESIGN_MEMBERS = new Map<string, Pending>([
   ...[['ArenaButton', 'size'], ['ArenaIconButton', 'size'], ['ArenaSegmentedControl', 'size'], ['ArenaSwitch', 'size'],
     ['ArenaSpinner', 'size'], ['ArenaProgressBar', 'size'], ['ArenaAvatar', 'size'], ['ArenaAppLogo', 'size'],
     ['ArenaPeopleList', 'size'], ['ArenaIconButton', 'variant'], ['ArenaCard', 'accent'], ['ArenaCard', 'floating'],
-    ['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaMenu', 'align'], ['ArenaAppLogo', 'orientation'],
-    ['ArenaSwitch', 'orientation'], ['ArenaAvatar', 'shape'], ['ArenaProgressBar', 'shape'], ['ArenaHero', 'layout'],
-    ['ArenaBadge', 'dot'], ['ArenaSpinner', 'tone'], ['ArenaTextarea', 'rows'], ['ArenaLineChart', 'area'],
-    ['ArenaRadarChart', 'fill'], ['ArenaSideNav', 'indentStep'],
+    ['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaAppLogo', 'orientation'],
+    ['ArenaSwitch', 'orientation'], ['ArenaAvatar', 'shape'], ['ArenaHero', 'layout'],
+    ['ArenaSpinner', 'tone'], ['ArenaSideNav', 'indentStep'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
-  [at('ArenaDoughnutChart', 'shape'), { phase: 5, why: COMPUTED_LATER }],
-  [at('ArenaDoughnutChart', 'legendLayout'), { phase: 5, why: COMPUTED_LATER }],
   ...[['ArenaGrid', 'min'], ['ArenaGrid', 'maxWidth'], ['ArenaGrid', 'gap'], ['ArenaBoard', 'minColumn'],
     ['ArenaScroller', 'itemWidth'], ['ArenaDialog', 'width'], ['ArenaFigure', 'ratio'], ['ArenaSkeleton', 'width'],
     ['ArenaSkeleton', 'height'], ['ArenaSkeleton', 'radius'], ['ArenaSkeleton', 'variant'], ['ArenaSection', 'rhythm'],
@@ -290,6 +325,52 @@ export function computedProblems(resolves: (key: string) => boolean = resolvesMe
   return problems;
 }
 
+export function familyOptions(repo = root): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const family of readFamilies(repo).values())
+    for (const option of Object.keys(family.variants)) out.set(option, family.family);
+  return out;
+}
+
+const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+
+export function optionShapeProblems(contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>,
+  options: Map<string, string> = familyOptions(), computed = COMPUTED, members = DESIGN_MEMBERS) {
+  if (options.size === 0) {
+    return ['optionShapeProblems read 0 family options, so every enum passed over nothing; an empty '
+      + 'option set is a failure rather than a clean pass'];
+  }
+  const problems: string[] = [];
+  const check = (key: string, typeName: string | undefined) => {
+    const type = typeName === undefined ? undefined : types.get(typeName);
+    if (type === undefined || computed.has(key) || members.has(key)) return;
+    for (const value of type.values ?? []) {
+      for (const [option, family] of options) {
+        if (option !== `arena-${family}-${value}`) continue;
+        problems.push(`${key} is an enum whose value ${value} is the option ${option}: appearance is a class, not a member. `
+          + 'Write the class, or record the member in COMPUTED with the function that reads it');
+      }
+    }
+  };
+  for (const [name, contract] of contracts)
+    for (const [member, spec] of Object.entries(contract.api ?? {}))
+      if (spec.form === 'enum') check(at(name, member), spec.type);
+  for (const type of types.values())
+    for (const [member, spec] of Object.entries(type.fields ?? {}))
+      if (spec.form === 'enum') check(field(kebab(type.name), member), spec.type);
+  return problems;
+}
+
+function readDir<T>(dir: string): Map<string, T> {
+  const out = new Map<string, T>();
+  if (!existsSync(dir)) return out;
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.json')).sort()) {
+    const json = readJson(join(dir, file)) as T & { component?: string; name?: string };
+    out.set(json.component ?? json.name ?? file, json);
+  }
+  return out;
+}
+
 export function collect(repo = root) {
   const files = expectedCarried(repo);
   const all = payload(repo, files);
@@ -305,6 +386,8 @@ export function collect(repo = root) {
       ...designMemberProblems(),
       ...computedProblems(),
       ...overlapProblems(),
+      ...optionShapeProblems(readDir<ContractCandidate>(join(repo, 'contracts/api/components')),
+        readDir<TypeContract>(join(repo, 'contracts/api/types')), familyOptions(repo)),
     ],
   };
 }
