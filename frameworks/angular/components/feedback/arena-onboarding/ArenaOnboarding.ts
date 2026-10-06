@@ -50,7 +50,7 @@ import { arenaPhrase } from '../../../Phrase';
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
           <div [class]="styles().dots()" [attr.data-arena-part]="parts.dots" [attr.aria-label]="progressName()">
             @for (dot of steps(); track $index) {
-              <span [class]="styles().dot() + ' ' + ($index === index() ? styles().dotOn() : styles().dotOff())"
+              <span [class]="($index === index() ? currentStyles() : styles()).dot()"
                     [attr.data-arena-part]="parts.dot"></span>
             }
           </div>
@@ -105,6 +105,12 @@ export class ArenaOnboarding {
   protected readonly styles = computed(() => arenaOnboardingStyles({
     placement: this.anchor() ? 'anchored' : 'floating',
     open: this.open(),
+  }));
+
+  protected readonly currentStyles = computed(() => arenaOnboardingStyles({
+    placement: this.anchor() ? 'anchored' : 'floating',
+    open: this.open(),
+    current: true,
   }));
 
   protected readonly position = computed(() => {

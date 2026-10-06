@@ -40,3 +40,9 @@ test('an absent required member throws rather than rendering', () => {
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   assert.throws(() => renderToStaticMarkup(<ArenaOnboarding open />), /`steps` is required/);
 });
+
+test('the current step is the dot with the current group selected and the others take its other value', () => {
+  const html = renderToStaticMarkup(<ArenaOnboarding open steps={[{ title: 'One' }, { title: 'Two' }, { title: 'Three' }]} />);
+  assert.equal((html.match(/arena-onboarding__dot--current-true/g) || []).length, 1);
+  assert.equal((html.match(/arena-onboarding__dot--current-false/g) || []).length, 2);
+});

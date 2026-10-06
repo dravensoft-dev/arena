@@ -29,7 +29,7 @@ test('indeterminate ignores progressPercentage: no fill, no aria-valuenow', () =
   assert.doesNotMatch(html, /aria-valuenow/, 'an indeterminate bar reported a value');
   assert.doesNotMatch(html, /width:64%/, 'an indeterminate bar drew a fill from progressPercentage');
 
-  assert.match(html, /\barena-progress-bar__indeterminate\b/,
+  assert.match(html, /\barena-progress-bar__track--indeterminate-true\b/,
     'the sweep is the shared utility, whose reduced-motion clause slows it rather than stopping it');
 });
 
@@ -120,7 +120,7 @@ test('a radial meter keeps the accessible name and the announcement the bar carr
 test('an indeterminate ring turns a fixed arc and reports no value', () => {
   const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" indeterminate label="Connecting" progressPercentage={64} />);
   assert.doesNotMatch(html, /aria-valuenow/);
-  assert.match(html, /\barena-progress-bar__ring-indeterminate\b/,
+  assert.match(html, /\barena-progress-bar__ring-fill--indeterminate-true\b/,
     'the turn is the shared utility, whose reduced-motion clause slows it rather than stopping it');
   assert.match(html, /stroke-dashoffset:75/, 'the arc a wait turns is a fixed quarter and never the percentage');
 });

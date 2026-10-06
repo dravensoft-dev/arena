@@ -108,16 +108,10 @@ export class ArenaProgressBar {
   );
 
   protected readonly styles = computed(
-    () => arenaProgressBarStyles({ shape: this.shape(), tone: this.tone(), size: this.size() }),
+    () => arenaProgressBarStyles({ shape: this.shape(), tone: this.tone(), size: this.size(), indeterminate: this.indeterminate() }),
   );
 
-  protected readonly trackClass = computed(() => {
-    const styles = this.styles();
-    return this.indeterminate() ? `${styles.track()} ${styles.indeterminate()}` : styles.track();
-  });
+  protected readonly trackClass = computed(() => this.styles().track());
 
-  protected readonly ringFillClass = computed(() => {
-    const styles = this.styles();
-    return this.indeterminate() ? `${styles.ringFill()} ${styles.ringIndeterminate()}` : styles.ringFill();
-  });
+  protected readonly ringFillClass = computed(() => this.styles().ringFill());
 }

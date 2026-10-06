@@ -6,23 +6,18 @@
     "body": "table-row-group",
     "headRow": "table-row bg-track",
     "th": "table-cell px-row-px py-row-py text-left align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
-    "thSortable": "cursor-pointer select-none hover:text-ink-body",
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
     "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-edge-separator px-row-px py-row-py",
     "row": "table-row border-t-[length:var(--bw-separator)] border-edge-separator transition-[background] duration-[var(--dur-hover)] ease-hover",
-    "rowFirst": "border-t-0",
-    "rowInteractive": "cursor-pointer hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
-    "td": "table-cell px-row-px py-row-py text-left align-middle text-ctl font-body text-ink-body/(--level-ink-body) outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "td": "table-cell px-row-px py-row-py text-left align-middle text-ctl outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "link": "inline-flex items-center min-h-ctl-h-sm cursor-pointer no-underline rounded-control outline-none transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
-    "tdMono": "table-cell px-row-px py-row-py text-left align-middle text-ctl font-mono tabular-nums text-secondary outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "empty": "px-4 py-8 text-center align-middle text-ctl text-ink-muted/(--level-ink-muted)",
     "sortBar": "flex items-center gap-inline w-full",
     "sortField": "min-w-0 flex-1",
     "card": "flex flex-col gap-stack bg-surface border-[length:var(--bw-surface)] border-edge-surface rounded-surface p-row-px shadow-surface-rest",
     "cardRow": "flex items-baseline justify-between gap-items",
     "cardLabel": "font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "cardValue": "min-w-0 text-right text-ctl font-body text-ink-body/(--level-ink-body)",
-    "cardValueMono": "min-w-0 text-right text-ctl font-mono tabular-nums text-secondary",
+    "cardValue": "min-w-0 text-right text-ctl",
     "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-edge-separator pt-2"
   },
   "kind": {
@@ -31,15 +26,11 @@
     "body": "none",
     "headRow": "none",
     "th": "row",
-    "thSortable": "none",
     "sortCaret": "none",
     "pager": "row",
     "row": "none",
-    "rowFirst": "none",
-    "rowInteractive": "none",
     "td": "row",
     "link": "control",
-    "tdMono": "row",
     "empty": "surface",
     "sortBar": "none",
     "sortField": "none",
@@ -47,18 +38,11 @@
     "cardRow": "none",
     "cardLabel": "none",
     "cardValue": "none",
-    "cardValueMono": "none",
     "cardBlock": "none"
   },
   "internal": {
-    "narrow": "the table is narrower than the md breakpoint and responsive"
-  },
-  "partOf": {
-    "cardValueMono": "cardValue",
-    "rowFirst": "row",
-    "rowInteractive": "row",
-    "tdMono": "td",
-    "thSortable": "th"
+    "narrow": "the table is narrower than the md breakpoint and responsive",
+    "first": "the first row of the body (rowIndex <= 1), which draws no rule above itself"
   },
   "variants": {
     "narrow": {
@@ -74,23 +58,52 @@
     "align": {
       "left": {
         "th": "text-left",
-        "td": "text-left",
-        "tdMono": "text-left"
+        "td": "text-left"
       },
       "center": {
         "th": "text-center",
-        "td": "text-center",
-        "tdMono": "text-center"
+        "td": "text-center"
       },
       "right": {
         "th": "text-right",
-        "td": "text-right",
-        "tdMono": "text-right"
+        "td": "text-right"
+      }
+    },
+    "sortable": {
+      "true": {
+        "th": "cursor-pointer select-none hover:text-ink-body"
+      },
+      "false": {}
+    },
+    "first": {
+      "true": {
+        "row": "border-t-0"
+      },
+      "false": {}
+    },
+    "interactive": {
+      "true": {
+        "row": "cursor-pointer hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100"
+      },
+      "false": {}
+    },
+    "numeric": {
+      "true": {
+        "td": "font-mono tabular-nums text-secondary",
+        "cardValue": "font-mono tabular-nums text-secondary"
+      },
+      "false": {
+        "td": "font-body text-ink-body/(--level-ink-body)",
+        "cardValue": "font-body text-ink-body/(--level-ink-body)"
       }
     }
   },
   "defaultVariants": {
     "narrow": false,
-    "align": "left"
+    "align": "left",
+    "sortable": false,
+    "first": false,
+    "interactive": false,
+    "numeric": false
   }
 }

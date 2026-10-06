@@ -58,10 +58,12 @@ export class ArenaTableRow {
 
   protected readonly rowClass = computed(() => {
     const narrow = this.table.narrow();
-    const styles = arenaTableRowStyles({ narrow });
-    if (narrow) return styles.card();
-    const base = this.table.rowIndexOf(this) === 1 ? `${styles.row()} ${styles.rowFirst()}` : styles.row();
-    return this.interactive() && !this.disabled() ? `${base} ${styles.rowInteractive()}` : base;
+    if (narrow) return arenaTableRowStyles({ narrow }).card();
+    return arenaTableRowStyles({
+      narrow,
+      first: this.table.rowIndexOf(this) === 1,
+      interactive: this.interactive() && !this.disabled(),
+    }).row();
   });
 
   constructor() {

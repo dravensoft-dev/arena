@@ -19,8 +19,9 @@ const manifest = await (await fetch('./ArenaOnboarding.manifest.json')).json();
    third section exists. */
 function coachmark({ eyebrow, title, body, index, total }) {
   const c = arenaClassesFor(manifest, { placement: 'floating' });
+  const current = arenaClassesFor(manifest, { placement: 'floating', current: true });
   const dots = el('div', { class: c.dots });
-  for (let i = 0; i < total; i++) dots.append(el('span', { class: `${c.dot} ${i === index ? c.dotOn : c.dotOff}` }));
+  for (let i = 0; i < total; i++) dots.append(el('span', { class: (i === index ? current : c).dot }));
   const foot = el('div', { class: c.foot }, dots);
   if (index > 0) foot.append(el('button', { class: c.text, type: 'button', text: 'Back' }));
   if (index < total - 1) foot.append(el('button', { class: c.text, type: 'button', text: 'Skip' }));
@@ -34,8 +35,9 @@ function coachmark({ eyebrow, title, body, index, total }) {
 
 function overlay() {
   const c = arenaClassesFor(manifest, { open: 'true', placement: 'floating' });
+  const current = arenaClassesFor(manifest, { open: 'true', placement: 'floating', current: true });
   const dots = el('div', { class: c.dots });
-  for (let i = 0; i < 3; i++) dots.append(el('span', { class: `${c.dot} ${i === 0 ? c.dotOn : c.dotOff}` }));
+  for (let i = 0; i < 3; i++) dots.append(el('span', { class: (i === 0 ? current : c).dot }));
   const foot = el('div', { class: c.foot }, dots,
     el('button', { class: c.text, type: 'button', text: 'Skip' }),
     el('button', { class: c.next, type: 'button', text: 'Next' }));

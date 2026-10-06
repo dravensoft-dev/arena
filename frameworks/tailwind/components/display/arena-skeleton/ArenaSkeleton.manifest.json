@@ -3,12 +3,15 @@
   "slots": {
     "root": "block arena-shimmer",
     "stack": "flex flex-col gap-2.5 w-full",
-    "line": "arena-shimmer h-3 rounded-marker w-full",
-    "lastLine": "arena-shimmer h-3 rounded-marker w-[62%]"
+    "line": "arena-shimmer h-3 rounded-marker"
   },
-  "kind": { "root": "marker", "stack": "none", "line": "marker", "lastLine": "marker" },
-  "partOf": {
-    "lastLine": "line"
+  "kind": {
+    "root": "marker",
+    "stack": "none",
+    "line": "marker"
+  },
+  "internal": {
+    "last": "the last line of a text skeleton of more than one line, which runs short the way a paragraph ends"
   },
   "variants": {
     "variant": {
@@ -22,9 +25,18 @@
       "circle": {
         "root": "size-10 rounded-pill"
       }
+    },
+    "last": {
+      "true": {
+        "line": "w-[62%]"
+      },
+      "false": {
+        "line": "w-full"
+      }
     }
   },
   "defaultVariants": {
-    "variant": "block"
+    "variant": "block",
+    "last": false
   }
 }

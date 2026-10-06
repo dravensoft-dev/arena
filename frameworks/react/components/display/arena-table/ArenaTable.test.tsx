@@ -174,3 +174,19 @@ test('ArenaTableCell drops a consumer attribute -- the {...rest} escape is gone'
   ]);
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered <td> -- the {...rest} escape is back');
 });
+
+test('the first row, a sortable head and a numeric cell are groups on the base slots', () => {
+  const html = render({ sort: { column: 0, direction: 'asc' }, columns: [{ header: 'Build', numeric: true, sortable: true }, { header: 'Project' }] });
+  assert.match(html, /\barena-table__th--sortable-true\b/);
+  assert.equal((html.match(/arena-table__row--first-true/g) || []).length, 1, 'only the first body row');
+  assert.match(html, /\barena-table__td--numeric-true\b/);
+});
+
+test('an interactive row selects the interactive group', () => {
+  const html = renderToStaticMarkup(
+    <ArenaTable columns={COLUMNS} label={LABEL} responsive={false}>
+      <ArenaTableRow interactive onClick={() => {}}><ArenaTableCell>a</ArenaTableCell><ArenaTableCell>b</ArenaTableCell></ArenaTableRow>
+    </ArenaTable>,
+  );
+  assert.match(html, /\barena-table__row--interactive-true\b/);
+});

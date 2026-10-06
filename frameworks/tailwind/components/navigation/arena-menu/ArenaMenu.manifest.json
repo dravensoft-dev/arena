@@ -35,7 +35,7 @@
     "header": "row"
   },
   "internal": {
-    "anchored": "the layer positions the panel itself (Angular, CDK) rather than by CSS (React)"
+    "anchored": "the panel is positioned by the layer's overlay rather than by CSS"
   },
   "partOf": {
     "itemDefault": "item",

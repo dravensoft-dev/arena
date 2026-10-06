@@ -8,13 +8,11 @@
     "track": "relative rounded-pill bg-track overflow-hidden",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
-    "indeterminate": "arena-prog-indeterminate",
     "ring": "relative grid place-items-center shrink-0",
     "ringContent": "relative grid place-items-center [grid-area:1/1]",
     "ringGeometry": "absolute inset-0 size-full -rotate-90",
     "ringTrack": "fill-none stroke-base-300 [vector-effect:non-scaling-stroke]",
-    "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state",
-    "ringIndeterminate": "arena-prog-ring"
+    "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state"
   },
   "kind": {
     "root": "none",
@@ -24,17 +22,11 @@
     "track": "none",
     "announcement": "none",
     "fill": "none",
-    "indeterminate": "none",
     "ring": "none",
     "ringContent": "none",
     "ringGeometry": "none",
     "ringTrack": "none",
-    "ringFill": "none",
-    "ringIndeterminate": "none"
-  },
-  "partOf": {
-    "indeterminate": "track",
-    "ringIndeterminate": "ringFill"
+    "ringFill": "none"
   },
   "variants": {
     "shape": {
@@ -88,11 +80,19 @@
         "ringTrack": "[stroke-width:calc(var(--sp-1)*2.5)]",
         "ringFill": "[stroke-width:calc(var(--sp-1)*2.5)]"
       }
+    },
+    "indeterminate": {
+      "true": {
+        "track": "arena-prog-indeterminate",
+        "ringFill": "arena-prog-ring"
+      },
+      "false": {}
     }
   },
   "defaultVariants": {
     "shape": "linear",
     "tone": "accent",
-    "size": "md"
+    "size": "md",
+    "indeterminate": false
   }
 }

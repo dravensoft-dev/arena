@@ -203,8 +203,8 @@ export const CLAIMS = {
   ArenaSkeleton: [
     { chosen: { variant: 'text' }, slot: 'root', has: ['arena-shimmer'], hasNot: ['hidden'], why: 'the text variant carries no root override; the host reads stack() for it, not root()' },
     { slot: 'stack', has: ['flex-col'], why: 'the stack lays its lines in a column and is unaffected by variant' },
-    { slot: 'line', has: ['w-full'], hasNot: ['w-[62%]'], why: 'a full line runs the whole width and only the closing one runs short' },
-    { slot: 'lastLine', has: ['w-[62%]'], why: 'the last line is narrower than the rest, the way a paragraph ends' },
+    { chosen: { last: false }, slot: 'line', has: ['w-full'], hasNot: ['w-[62%]'], why: 'a full line runs the whole width and only the closing one runs short' },
+    { chosen: { last: true }, slot: 'line', has: ['w-[62%]'], why: 'the last line is narrower than the rest, the way a paragraph ends' },
   ],
   ArenaStatCard: [
     ...Object.entries({ neutral: 'text-ink-body', accent: 'text-primary', gold: 'text-secondary',
@@ -218,10 +218,12 @@ export const CLAIMS = {
     { chosen: { deltaTone: 'neutral' }, slot: 'delta', has: ['rounded-marker'], why: 'every delta tone keeps the shared marker base, which is the corner roles.json gives a delta badge' },
   ],
   ArenaTable: [
-    ...['th', 'td', 'tdMono'].map((slot) => ({
+    ...['th', 'td'].map((slot) => ({
       slot, has: ['outline-none', 'focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]'],
       why: 'a cell draws its focus ring from the focus tokens and suppresses the UA outline, or a keyboard user cannot see where the cursor is',
     })),
+    { chosen: { numeric: true }, slot: 'td', has: ['font-mono', 'tabular-nums'], hasNot: ['font-body'], why: 'a figure column aligns by digit, and the figure treatment replaces the prose face rather than stacking on it' },
+    { chosen: { numeric: false }, slot: 'td', has: ['font-body'], hasNot: ['font-mono'], why: 'a prose column keeps the body face' },
     { slot: 'root', has: ['block'], why: 'a host-bound root is never the UA-default inline box' },
     { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-hidden'], hasNot: ['flex-col'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet' },
     { chosen: { narrow: false }, slot: 'grid', has: ['table'], why: 'the wide shape is the framed grid' },
@@ -315,7 +317,7 @@ export const CLAIMS = {
       .map(([s, cls]) => ({ chosen: { size: s }, slot: 'track', has: [cls], why: 'size sets the track height and nothing else' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
     { chosen: { tone: 'danger' }, slot: 'track', has: ['text-error', 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
-    { slot: 'indeterminate', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
+    { chosen: { indeterminate: true }, slot: 'track', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
     { slot: 'track', has: ['overflow-hidden', 'rounded-pill'], hasNot: ['rounded-full'], why: 'the track clips its own fill and takes the pill radius' },
     { slot: 'root', has: ['grid', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline, and the bar stacks its head over its track' },
     { chosen: { shape: 'radial' }, slot: 'root', has: ['grid', 'w-fit'], hasNot: ['w-full'], why: 'a ring is as wide as it is tall, so the root shrinks to it rather than filling the row the way a bar does' },
@@ -323,7 +325,7 @@ export const CLAIMS = {
       .map(([s, cls]) => ({ chosen: { shape: 'radial', size: s }, slot: 'ring', has: [cls], why: 'size sets the ring diameter the way it sets the track height' })),
     { chosen: { tone: 'danger' }, slot: 'ring', has: ['text-error'], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
     { slot: 'ringFill', has: ['stroke-current', '[stroke-dasharray:100]'], why: 'the arc reads the tone the ring inks, and its length is hundredths of the path, so the percentage is the offset and the radius is free' },
-    { slot: 'ringIndeterminate', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
+    { chosen: { indeterminate: true }, slot: 'ringFill', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
   ],
   ArenaSpinner: [
     ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/(--level-ink-muted)', 'on-accent': 'text-primary-content' })

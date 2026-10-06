@@ -32,11 +32,12 @@ const arenaSkeletonStyles = arenaStyles(manifest);
 export function ArenaSkeleton({ className, variant = 'block', width, height, lines = 3, radius }: ArenaSkeletonProps) {
   const locale = useArenaLocale();
   const styles = arenaSkeletonStyles({ variant });
+  const last = arenaSkeletonStyles({ variant, last: true });
   if (variant === 'text' && lines > 1) {
     return (
       <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)} data-arena-part={manifest.parts.stack} style={{ width }}>
         {Array.from({ length: lines }).map((_, i) => (
-          <div key={i} className={i === lines - 1 ? styles.lastLine() : styles.line()}
+          <div key={i} className={(i === lines - 1 ? last : styles).line()}
             data-arena-part={manifest.parts.line} />
         ))}
       </div>

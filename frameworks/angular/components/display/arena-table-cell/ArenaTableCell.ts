@@ -81,14 +81,12 @@ export class ArenaTableCell {
       const styles = arenaTableCellStyles({ narrow: true });
       return column.mobileLayout === 'block' ? styles.cardBlock() : styles.cardRow();
     }
-    const styles = arenaTableCellStyles({ narrow: false, align: column.align ?? 'left' });
-    return column.numeric ? styles.tdMono() : styles.td();
+    return arenaTableCellStyles({ narrow: false, align: column.align ?? 'left', numeric: Boolean(column.numeric) }).td();
   });
 
   protected readonly valueClass = computed(() => {
     if (!this.narrow() || this.column().mobileLayout === 'block') return '';
-    const styles = arenaTableCellStyles({ narrow: true });
-    return this.column().numeric ? styles.cardValueMono() : styles.cardValue();
+    return arenaTableCellStyles({ narrow: true, numeric: Boolean(this.column().numeric) }).cardValue();
   });
 
   protected onFocus(): void {

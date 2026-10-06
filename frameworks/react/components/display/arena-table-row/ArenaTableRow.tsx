@@ -77,11 +77,7 @@ export function ArenaTableRow({ className,
     );
   }
 
-  const base = rowStyles({ narrow: false });
-  const rowClass = [
-    rowIndex <= 1 ? `${base.row()} ${base.rowFirst()}` : base.row(),
-    interactive && !disabled ? base.rowInteractive() : '',
-  ].filter(Boolean).join(' ');
+  const rowClass = rowStyles({ narrow: false, first: rowIndex <= 1, interactive: Boolean(interactive && !disabled) }).row();
 
   return (
     <tr onClick={activate}

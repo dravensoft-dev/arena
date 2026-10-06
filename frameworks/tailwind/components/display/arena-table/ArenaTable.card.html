@@ -10,6 +10,7 @@ import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.j
 
 const manifest = await (await fetch('./ArenaTable.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const figure = arenaClassesFor(manifest, { numeric: true });
 
 const COLUMNS = [
   { key: 'project', header: 'Project' },
@@ -27,9 +28,9 @@ function wide() {
   for (const column of COLUMNS) head.append(el('th', { class: c.th, text: column.header }));
   const body = el('tbody');
   for (const [index, row] of ROWS.entries()) {
-    const tr = el('tr', { class: `${c.row} ${index === 0 ? c.rowFirst : ''} ${c.rowInteractive}` });
+    const tr = el('tr', { class: arenaClassesFor(manifest, { first: index === 0, interactive: true }).row });
     for (const column of COLUMNS) {
-      tr.append(el('td', { class: column.numeric ? c.tdMono : c.td, text: row[column.key] }));
+      tr.append(el('td', { class: (column.numeric ? figure : c).td, text: row[column.key] }));
     }
     body.append(tr);
   }
@@ -44,7 +45,7 @@ function cards() {
     for (const column of COLUMNS) {
       card.append(el('div', { class: c.cardRow },
         el('span', { class: c.cardLabel, text: column.header }),
-        el('span', { class: column.numeric ? c.cardValueMono : c.cardValue, text: row[column.key] })));
+        el('span', { class: (column.numeric ? figure : c).cardValue, text: row[column.key] })));
     }
     list.append(card);
   }

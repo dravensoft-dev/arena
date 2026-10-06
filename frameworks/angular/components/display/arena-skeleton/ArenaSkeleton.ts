@@ -4,8 +4,8 @@ import manifest from './ArenaSkeleton.classes.generated';
 import type { ArenaSkeletonVariant } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 
-export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'lastLine' {
-  return row === total && total > 1 ? 'lastLine' : 'line';
+export function arenaSkeletonRowIsLast(row: number, total: number): boolean {
+  return row === total && total > 1;
 }
 
 @Component({
@@ -24,7 +24,7 @@ export function arenaSkeletonRowSlot(row: number, total: number): 'line' | 'last
   template: `
     @if (stacked()) {
       @for (row of rows(); track row) {
-        <div [class]="rowSlot(row, rows().length) === 'lastLine' ? styles().lastLine() : styles().line()"
+        <div [class]="(isLast(row, rows().length) ? lastStyles() : styles()).line()"
              [attr.data-arena-part]="parts.line"></div>
       }
     }
@@ -52,7 +52,8 @@ export class ArenaSkeleton {
   protected readonly stacked = computed(() => this.variant() === 'text');
   protected readonly rows = computed(() => Array.from({ length: this.lines() }, (_, i) => i + 1));
   protected readonly hostClass = computed(() => (this.stacked() ? this.styles().stack() : this.styles().root()));
-  protected readonly rowSlot = arenaSkeletonRowSlot;
+  protected readonly lastStyles = computed(() => arenaSkeletonStyles({ variant: this.variant(), last: true }));
+  protected readonly isLast = arenaSkeletonRowIsLast;
 
   protected readonly diameter = computed<string | undefined>(() => this.height() || this.width());
   protected readonly hostWidth = computed<string | undefined>(() =>

@@ -58,11 +58,11 @@ export function ArenaTableCell({ className,
         </td>
       );
     }
-    const card = cellStyles({ narrow: true });
+    const card = cellStyles({ narrow: true, numeric: Boolean(c.numeric) });
     return (
       <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} data-arena-part={manifest.parts.cardRow}>
         <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel}>{c.header}</span>
-        <span className={c.numeric ? card.cardValueMono() : card.cardValue()}
+        <span className={card.cardValue()}
           data-arena-part={manifest.parts.cardValue} data-arena-boundary="">
           {shown}
         </span>
@@ -74,9 +74,7 @@ export function ArenaTableCell({ className,
     <td tabIndex={tabIndex}
 
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
-      className={arenaClassName('ArenaTableCell', c.numeric
-        ? cellStyles({ narrow: false, align: c.align || 'left' }).tdMono()
-        : cellStyles({ narrow: false, align: c.align || 'left' }).td(), className)}
+      className={arenaClassName('ArenaTableCell', cellStyles({ narrow: false, align: c.align || 'left', numeric: Boolean(c.numeric) }).td(), className)}
       data-arena-part={manifest.parts.td} data-arena-boundary="">
       {shown}
     </td>

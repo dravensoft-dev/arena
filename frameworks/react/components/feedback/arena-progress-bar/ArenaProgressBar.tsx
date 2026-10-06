@@ -46,7 +46,7 @@ const RING_SWEEP = 25;
 
 export function ArenaProgressBar({ className, children, progressPercentage = 0, indeterminate = false, tone = 'accent', label, showLabel = true, showPercentage = true, size = 'md', shape = 'linear' }: ArenaProgressBarProps) {
   if (!label) throw new Error('ArenaProgressBar: `label` is required (it names what is progressing, and nothing can derive that)');
-  const styles = progressStyles({ shape, tone, size });
+  const styles = progressStyles({ shape, tone, size, indeterminate });
   const pct = Math.max(0, Math.min(100, Math.round(progressPercentage)));
   const showValue = showPercentage && !indeterminate;
   const meter = {
@@ -65,7 +65,7 @@ export function ArenaProgressBar({ className, children, progressPercentage = 0, 
           <svg {...meter} className={styles.ringGeometry()} data-arena-part={manifest.parts.ringGeometry} viewBox="0 0 100 100">
             <circle className={styles.ringTrack()} data-arena-part={manifest.parts.ringTrack}
               cx={RING_CENTRE} cy={RING_CENTRE} r={RING_RADIUS} pathLength={100} />
-            <circle className={indeterminate ? `${styles.ringFill()} ${styles.ringIndeterminate()}` : styles.ringFill()}
+            <circle className={styles.ringFill()}
               data-arena-part={manifest.parts.ringFill}
               cx={RING_CENTRE} cy={RING_CENTRE} r={RING_RADIUS} pathLength={100}
               style={{ strokeDashoffset: indeterminate ? 100 - RING_SWEEP : 100 - pct }} />
@@ -88,7 +88,7 @@ export function ArenaProgressBar({ className, children, progressPercentage = 0, 
         </div>
       )}
       <div {...meter} {...live}
-        className={indeterminate ? `${styles.track()} ${styles.indeterminate()}` : styles.track()}
+        className={styles.track()}
         data-arena-part={manifest.parts.track}>
         {!indeterminate && (
           <>

@@ -19,9 +19,10 @@ function single(variant) {
 
 function stacked(lines) {
   const c = arenaClassesFor(manifest, { variant: 'text' });
+  const closing = arenaClassesFor(manifest, { variant: 'text', last: true });
   const stack = el('div', { class: c.stack });
   stack.style.width = '220px';
-  for (let i = 1; i <= lines; i++) stack.append(el('div', { class: i === lines ? c.lastLine : c.line }));
+  for (let i = 1; i <= lines; i++) stack.append(el('div', { class: (i === lines ? closing : c).line }));
   return stack;
 }
 

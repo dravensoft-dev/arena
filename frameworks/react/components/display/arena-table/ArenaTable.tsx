@@ -201,11 +201,8 @@ export function ArenaTable({ className,
     && columns.some((column) => column.sortable);
   const sortValue = sort ? arenaSortOptionValue(sort.column, sort.direction) : undefined;
 
-  const sortableClass = arenaTableStyles({ narrow: false }).thSortable();
-  const headerClass = (c: ArenaTableColumn): string => {
-    const base = arenaTableStyles({ narrow: false, align: c.align || 'left' }).th();
-    return c.sortable && sort ? `${base} ${sortableClass}` : base;
-  };
+  const headerClass = (c: ArenaTableColumn): string =>
+    arenaTableStyles({ narrow: false, align: c.align || 'left', sortable: Boolean(c.sortable && sort) }).th();
 
   return (
     <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root}>

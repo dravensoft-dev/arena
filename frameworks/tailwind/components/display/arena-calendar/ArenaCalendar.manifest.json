@@ -65,7 +65,7 @@
     "firstColumn": "the first day column of the week",
     "reserve": "the chip reserves room for its panel (hasPanel and not actionsBelow)",
     "panelOpen": "the event's own panel is open",
-    "clickable": "the event activates (interactive, and in Angular not disabled)",
+    "clickable": "the event activates",
     "actionsBelow": "the event is too short to hold its actions beside the title (arenaStacksActions)"
   },
   "variants": {

@@ -6,3 +6,7 @@ function tokens(classString: string): string[] {
   return classString.split(/\s+/).filter(Boolean);
 }
 
+
+test('the current dot is the dot slot with the current group selected', () => {
+  assert.notEqual(arenaOnboardingStyles({ current: true }).dot(), arenaOnboardingStyles({ current: false }).dot());
+});

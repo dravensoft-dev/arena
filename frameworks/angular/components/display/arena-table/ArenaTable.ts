@@ -202,8 +202,7 @@ export class ArenaTable {
   }
 
   protected headerClass(column: ArenaTableColumn): string {
-    const base = arenaTableStyles({ narrow: false, align: column.align ?? 'left' }).th();
-    return column.sortable && this.sort() ? `${base} ${this.styles().thSortable()}` : base;
+    return arenaTableStyles({ narrow: false, align: column.align ?? 'left', sortable: Boolean(column.sortable && this.sort()) }).th();
   }
 
   protected onHeader(column: number): void {

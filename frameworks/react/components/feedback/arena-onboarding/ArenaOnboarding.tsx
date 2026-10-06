@@ -72,6 +72,7 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
   }
 
   const styles = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true });
+  const currentDot = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true, current: true });
   return (
     <div onClick={onSkip} className={arenaClassName('ArenaOnboarding', styles.root(), className)} data-arena-part={manifest.parts.root}>
       <div role="dialog" aria-modal="true" aria-label={label}
@@ -83,7 +84,7 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
         <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
           <div className={styles.dots()} data-arena-part={manifest.parts.dots} aria-label={arenaPhrase(locale.onboardingProgress, { current: index + 1, total: steps.length })}>
             {steps.map((_, i) => (
-              <span key={i} className={`${styles.dot()} ${i === index ? styles.dotOn() : styles.dotOff()}`}
+              <span key={i} className={(i === index ? currentDot : styles).dot()}
                 data-arena-part={manifest.parts.dot} />
             ))}
           </div>

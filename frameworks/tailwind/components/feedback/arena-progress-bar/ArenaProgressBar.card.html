@@ -11,7 +11,7 @@ import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.j
 const manifest = await (await fetch('./ArenaProgressBar.manifest.json')).json();
 
 function bar({ label, value, tone = 'accent', size = 'md', indeterminate = false }) {
-  const c = arenaClassesFor(manifest, { tone, size });
+  const c = arenaClassesFor(manifest, { tone, size, indeterminate });
   const root = el('div', { class: c.root });
   root.style.width = '260px';
   if (label) {
@@ -20,7 +20,7 @@ function bar({ label, value, tone = 'accent', size = 'md', indeterminate = false
     root.append(head);
   }
   const track = el('div', {
-    class: `${c.track}${indeterminate ? ` ${c.indeterminate}` : ''}`, role: 'progressbar',
+    class: c.track, role: 'progressbar',
     'aria-valuenow': indeterminate ? undefined : value, 'aria-valuemin': 0, 'aria-valuemax': 100,
     'aria-label': label ?? 'Progress',
   });

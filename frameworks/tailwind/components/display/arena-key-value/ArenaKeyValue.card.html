@@ -18,17 +18,19 @@ const ROWS = [
   ['Delivery', '4.50', true],
 ];
 
+const figure = arenaClassesFor(manifest, { numeric: true });
+
 function list() {
   const root = el('dl', { class: c.root });
   for (const [term, value, numeric] of ROWS) {
     const row = el('div', { class: c.row });
     row.append(el('dt', { class: c.term, text: term }));
-    row.append(el('dd', { class: numeric ? c.valueNumeric : c.value, text: value }));
+    row.append(el('dd', { class: (numeric ? figure : c).value, text: value }));
     root.append(row);
   }
   const total = el('div', { class: c.total });
   total.append(el('dt', { class: c.totalTerm, text: 'Total' }));
-  total.append(el('dd', { class: c.totalValueNumeric, text: '46.50' }));
+  total.append(el('dd', { class: figure.totalValue, text: '46.50' }));
   root.append(total);
   return root;
 }
