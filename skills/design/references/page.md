@@ -99,7 +99,7 @@ way. Otherwise a reader learns that green is sometimes a category.
   it.
 - **Identity** is the eight ramp slots, `--color-cat-1` through `--color-cat-8`, in fixed order.
   The order is the identity, so slot three is slot three in every chart on the screen.
-  `arenaCatColor(slot)` and `arenaCatTint(colour)` are there for a legend or a chip you draw.
+  `arenaCatIndex(slot)` and `arenaCatTint(colour)` are there for a legend or a chip you draw.
 
 ## The rest of the scale, and the edges of the device
 

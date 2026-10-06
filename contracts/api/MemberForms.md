@@ -409,7 +409,7 @@ when the set merely restates a value the token layer already derives. The charts
 ramp slot is the case the rule is written from. It is a bounded 1..N whose
 bound lives in exactly one authoritative place, `contracts/design/palette.dark.json`'s
 `--color-cat-*` ramp, reaching the components as the derived `catSlots` constant in
-`Tokens.generated.*`, where `arenaCatColor()`'s `Math.min(ARENA_CAT_SLOTS, …)` clamp enforces it at
+`Tokens.generated.*`, where `arenaCatIndex()`'s `Math.min(ARENA_CAT_SLOTS, …)` clamp enforces it at
 runtime on both layers and re-derives itself the day the ramp gains or loses a colour. Modelling
 such a set as an enum hand-copies that derived N into a contract as a literal set, and a copy
 with **nothing tying it back to the palette** is a stale-assertion surface of exactly the kind

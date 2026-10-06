@@ -6,7 +6,7 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 Two things this default is not. The default is not a `'UTC'` fallback. Such a fallback would be arbitrary, wrong for almost every reader, and would silently produce the very defect the member exists to prevent. And the default is **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration. A server-rendered calendar must pass `timeZone` explicitly. Same shape as `useArenaContainerWidth` reporting `null` before it has measured.
 
-`ArenaCalendar` reads the categorical ramp through the same `arenaCatColor` the charts use, and measures its container to pick the view. Both travel with it: importing from `@dravensoft/arena-react` brings them, and both are exported for a legend or a responsive panel of your own.
+`ArenaCalendar` reads the categorical ramp through the same `arenaCatIndex` the charts use, which is the value each chip carries as `data-arena-color-id`, and measures its container to pick the view. Both travel with it: importing from `@dravensoft/arena-react` brings them, and both are exported for a legend or a responsive panel of your own.
 
 ```tsx
 <ArenaCalendar
