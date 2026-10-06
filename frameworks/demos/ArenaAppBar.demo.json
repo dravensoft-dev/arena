@@ -37,9 +37,9 @@
     "actions": [
       {
         "component": "ArenaIconButton",
+        "class": "arena-emphasis-solid",
         "members": {
           "icon": "ph-bold ph-basket",
-          "variant": "solid",
           "label": "Basket, 2 items"
         }
       }

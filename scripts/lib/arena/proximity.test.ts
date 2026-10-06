@@ -4,7 +4,7 @@
  * gives a control its own width. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, treeHtml, readProximity, vocabularyClasses, type NodeLike } from './proximity.ts';
+import { normalize, treeHtml, DESTRUCTIVE, readProximity, vocabularyClasses, type NodeLike } from './proximity.ts';
 
 const node = (tag: string, attrs: Record<string, string> = {}, children: NodeLike[] = [], text = ''): NodeLike => ({
   nodeType: 1, tagName: tag.toUpperCase(), getAttribute: (n) => attrs[n] ?? null, hasAttribute: (n) => n in attrs,
@@ -54,4 +54,14 @@ test('a surface and a channel binding are kept, and any other inline style is pr
 test('the gate writes the surface and the binding back as attributes', () => {
   const html = treeHtml({ tag: 'span', part: 'avatar', open: true, surface: 'floating', vars: '--arena-size-avatar:var(--arena-size-face)', contents: true }, () => '');
   assert.equal(html, '<span data-arena-part="avatar" data-arena-open="" data-arena-surface="floating" style="display: contents; --arena-size-avatar:var(--arena-size-face)"></span>');
+});
+
+test('a destructive part keeps its flag, and the gate writes it over the default the slot carries', () => {
+  const button = node('button', { 'data-arena-part': 'button', 'data-arena-destructive': 'true' });
+  const quiet = node('button', { 'data-arena-part': 'button', 'data-arena-destructive': 'false' });
+  assert.deepEqual(normalize(node('div', {}, [button, quiet]), new Set()), {
+    tag: 'div', children: [{ tag: 'button', part: 'button', destructive: true }, { tag: 'button', part: 'button' }],
+  });
+  const html = treeHtml({ tag: 'button', part: 'button', destructive: true }, () => '', () => ({ [DESTRUCTIVE]: 'false' }));
+  assert.equal(html, '<button data-arena-part="button" data-arena-destructive="true"></button>');
 });

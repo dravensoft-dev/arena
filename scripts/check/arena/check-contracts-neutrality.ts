@@ -255,13 +255,13 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
 ]);
 
 export const DESIGN_MEMBERS = new Map<string, Pending>([
-  ...[['ArenaButton', 'variant'], ['ArenaSheet', 'placement'], ['ArenaToastHost', 'placement'],
+  ...[['ArenaSheet', 'placement'], ['ArenaToastHost', 'placement'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
   ...[['ArenaProgressBar', 'tone'], ['ArenaToast', 'tone'], ['ArenaBadge', 'tone'], ['ArenaStatCard', 'tone'],
     ['ArenaTag', 'tone'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL_VALUES }] as [string, Pending]),
   [field('arena-activity-item', 'tone'), { phase: 5, why: EDITORIAL_VALUES }],
-  ...[['ArenaIconButton', 'variant'], ['ArenaCard', 'accent'], ['ArenaCard', 'floating'],
+  ...[['ArenaCard', 'accent'], ['ArenaCard', 'floating'],
     ['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaHero', 'layout'],
     ['ArenaSpinner', 'tone'], ['ArenaSideNav', 'indentStep'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),

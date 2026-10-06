@@ -14,7 +14,7 @@ export interface ArenaButtonProps {
   children?: React.ReactNode;
   /** Which action this is. */
   variant?: ArenaButtonVariant;
-  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   destructive?: boolean;
 
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */

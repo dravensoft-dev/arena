@@ -99,7 +99,7 @@ test('the catalogue built from the assembled payload reaches every kind of docum
 test('arena_check reports the rules of the language over text, and says so when it finds none', () => {
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /1 finding/);
-  assert.match(checked('<ArenaButton variant="primary">Go</ArenaButton>'), /^No finding\./);
+  assert.match(checked('<ArenaButton>Go</ArenaButton>'), /^No finding\./);
 });
 
 test('the name a check is given decides whether the text is read as a stylesheet', () => {

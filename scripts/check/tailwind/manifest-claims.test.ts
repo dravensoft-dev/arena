@@ -409,15 +409,13 @@ export const CLAIMS = {
   ],
   ArenaButton: [
     { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive is outline: border and text in the danger hue, and its fill channel is closed to transparent, so its only error fill is a hover wash' },
-    ...['primary', 'secondary', 'ghost'].map((variant) => ({
-      chosen: { variant, destructive: true }, slot: 'root', has: ['hover:shadow-control-rest'],
-      why: 'a destructive button never lifts on hover whatever its variant, because the raised hover shadow is the emphasis destructive does not govern',
-    })),
-    { chosen: { variant: 'primary' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'primary is the one filled variant, and it fills with the brand rather than a status colour' },
-    ...['primary', 'secondary', 'ghost'].map((variant) => ({
-      chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex'],
-      why: 'every variant keeps the shared control geometry through the merge',
-    })),
+    { chosen: { destructive: true }, slot: 'root', has: ['hover:shadow-control-rest'], hasNot: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
+      why: 'a destructive button never lifts on hover whatever its emphasis, because the raised hover shadow is the emphasis destructive does not govern' },
+    { chosen: { destructive: false }, slot: 'root', has: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
+      why: 'a button that states no meaning lifts as its emphasis says, through the emphasis channel, and the meaning branch is the only one that overrides it' },
+    { chosen: { destructive: false }, slot: 'root', hasNot: ['bg-primary', 'bg-base-200', 'bg-transparent', 'text-primary-content', 'border-primary'],
+      why: 'the fill, the ink and the edge are the emphasis channels, so no emphasis is a class of this manifest any more' },
+    { slot: 'root', has: ['rounded-control', 'inline-flex'], why: 'the shared control geometry sits in the base, so every emphasis keeps it' },
     { slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]'], hasNot: ['w-auto', 'w-full', 'w-fit'], why: 'the width is the fill channel, which fits the content until a vocabulary class says otherwise, in a column as in a row' },
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner slot carries the reduced-motion-aware utility, which is where that answer lives' },
   ],
@@ -435,8 +433,10 @@ export const CLAIMS = {
     })),
   ],
   ArenaIconButton: [
-    { chosen: { variant: 'ghost' }, slot: 'root', has: ['bg-transparent', 'border-edge-control-quiet'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
-    { chosen: { variant: 'solid' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
+    { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
+      why: 'the hover fill is an emphasis read, and it sits in the unpressed branch so a pressed control keeps its own wash under the pointer' },
+    { chosen: { pressed: true }, slot: 'root', has: ['bg-primary/14', 'hover:bg-primary/22'], hasNot: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
+      why: 'a pressed control is a state of the control and states its own wash over any emphasis' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
     { slot: 'root', has: ['disabled:opacity-45', 'disabled:cursor-not-allowed'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
@@ -553,7 +553,7 @@ export const CLAIMS = {
   ],
 };
 
-const READS: [component: string, slot: string, question: string, reads: string[]][] = [
+const READS: [component: string, slot: string, question: string, reads: string[], chosen?: Record<string, string>][] = [
   ['ArenaButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaIconButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]', 'min-w-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaButton', 'root', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
@@ -586,22 +586,31 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaSwitch', 'track', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
   ['ArenaAppLogo', 'root', 'orientation.logo-gap', ['gap-[var(--arena-orientation-logo-gap,calc(var(--sp-1)*2.5))]']],
   ['ArenaSwitch', 'track', 'orientation.track-w', ['w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))]', 'h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))]']],
+  ['ArenaButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
+  ['ArenaIconButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,transparent)]']],
+  ['ArenaButton', 'root', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-ink))]']],
+  ['ArenaIconButton', 'root', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,color-mix(in_oklab,var(--emphasis-ghost-ink)_var(--level-ink-body),transparent))]']],
+  ['ArenaButton', 'root', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]']],
+  ['ArenaIconButton', 'root', 'emphasis.icon-edge', ['border-[length:var(--bw-control)]', 'border-[color:var(--arena-emphasis-icon-edge,var(--emphasis-ghost-icon-edge))]', '[border-style:var(--arena-emphasis-edge-style,solid)]']],
+  ['ArenaButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]']],
+  ['ArenaIconButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'], { pressed: 'false' }],
+  ['ArenaButton', 'root', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]']],
 ];
 
 const mutable = CLAIMS as unknown as Record<string, Claim[]>;
-for (const [component, slot, question, reads] of READS) {
+for (const [component, slot, question, reads, chosen] of READS) {
   (mutable[component] ??= []).push({
-    slot, has: reads,
-    why: `the ${slot} answers ${question} through its channel, with the md value as its fallback, so no option written is the size it had before the family`,
+    ...(chosen ? { chosen } : {}), slot, has: reads,
+    why: `the ${slot} answers ${question} through its channel, with the family default as its fallback, so no option written is the look it had before the family`,
   });
 }
 
-test('every size and orientation question a slot answers is read through its own channel with a fallback', () => {
-  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation)-[a-z0-9-]+,/g)]));
+test('every size, orientation and emphasis question a slot answers is read through its own channel with a fallback', () => {
+  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis)-[a-z0-9-]+,/g)]));
   assert.ok(channels.length >= READS.length, 'a read names a channel and the fallback that stands in for it');
   for (const [component, slot, question, reads] of READS) {
     const family = question.split('.')[0]!;
-    assert.ok(reads.every((one) => one.includes(`var(--arena-${family}-`)), `${component}.${slot} reads no ${family} channel`);
+    assert.ok(reads.some((one) => one.includes(`var(--arena-${family}-`)), `${component}.${slot} reads no ${family} channel`);
   }
 });
 

@@ -1,6 +1,0 @@
-{
-  "name": "ArenaIconButtonVariant",
-  "kind": "enum",
-  "description": "'ghost' sits on a surface and shows its hairline border; 'solid' is the filled accent treatment. Danger is not among them: Arena's danger convention is outline, and an icon-only danger control has no room to say what it destroys.",
-  "values": ["ghost", "solid"]
-}

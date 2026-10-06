@@ -77,9 +77,9 @@ test('an @answers region that names a family the manifest does not answer is rep
   assert.equal(answersRegionOf(stale), renderAnswersRegion('ArenaCard', 'react', [FILL]));
 });
 
-test('the real tree answers fill and size for ArenaButton, so the generator and the gate do not agree on nothing', () => {
+test('the real tree answers fill, emphasis and size for ArenaButton, so the generator and the gate do not agree on nothing', () => {
   const answered = answeredFamilies('ArenaButton');
-  assert.deepEqual(answered.map((one) => one.family), ['fill', 'size']);
+  assert.deepEqual(answered.map((one) => one.family), ['fill', 'emphasis', 'size']);
   for (const layer of ['react', 'angular']) {
     assert.match(renderAnswersRegion('ArenaButton', layer, answered), /`arena-fill`/);
   }

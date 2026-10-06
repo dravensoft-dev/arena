@@ -1,9 +1,10 @@
-<!-- @dsCard group="Tailwind" viewport="760x340" name="ArenaButton" subtitle="Variants, sizes (the arena-size options) and states, rendered from ArenaButton.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="760x340" name="ArenaButton" subtitle="Emphasis (the arena-emphasis options), sizes (the arena-size options) and states, rendered from ArenaButton.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/forms/arena-button/ArenaButton.styles.generated.css">
 <link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Emphasis.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -21,9 +22,10 @@ function button(label, opts = {}, { disabled = false, loading = false, cls = '' 
 }
 
 mountSpecimen({ sections: [
-  section('Variants', ['primary', 'secondary', 'ghost'].map((variant) =>
-    button(variant[0].toUpperCase() + variant.slice(1), { variant }))),
-  section('Destructive', [button('Delete', { destructive: true })]),
+  section('Emphasis', ['primary', 'secondary', 'ghost'].map((emphasis) =>
+    button(emphasis[0].toUpperCase() + emphasis.slice(1), {}, { cls: `arena-emphasis-${emphasis}` }))),
+  section('Destructive keeps the danger over any emphasis', ['primary', 'secondary', 'ghost'].map((emphasis) =>
+    button('Delete', { destructive: true }, { cls: `arena-emphasis-${emphasis}` }))),
   section('Sizes', ['sm', 'md', 'lg'].map((size) => button(`Deploy (${size})`, {}, { cls: `arena-size-${size}` }))),
   section('States', [
     button('Disabled', {}, { disabled: true }),

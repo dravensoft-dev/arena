@@ -8,6 +8,7 @@
 |---|---|---|---|---|
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
+| [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
 | [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo, ArenaSwitch |
@@ -34,6 +35,16 @@ How much a region holds, which is a question about who is pointing at it rather 
 - **Reach:** context: it goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again.
 - **Values:** `arena-compact` restates `contracts/design/density.compact.json`, `arena-comfortable` restates `contracts/design/density.comfortable.json`.
 - **Written on:** an element you wrote, or a component.
+
+## emphasis
+
+How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. Emphasis is the treatment channel, and meaning composes with it: a destructive action keeps whichever emphasis it is given and draws it in danger. At most one primary stands in a view.
+
+- **Options:** `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid`.
+- **Reach:** context: it reaches every component inside, until a nearer class answers it again.
+- **Answered by:**
+  - ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`).
+  - ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`).
 
 ## fill
 

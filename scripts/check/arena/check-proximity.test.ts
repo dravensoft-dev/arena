@@ -13,7 +13,7 @@ test('a part is rebuilt with the classes its slot resolves to by default', () =>
 
 test('a part is rebuilt with the data its slot carries by default, so a default variant still paints', () => {
   const data = partData(readManifests().values());
-  assert.equal(data.get('button')?.['data-arena-variant'], 'primary');
+  assert.equal(data.get('button')?.['data-arena-variant'], undefined, 'emphasis is a class an adopter writes and no longer a variant');
   assert.equal(data.get('button')?.['data-arena-size'], undefined, 'size is a class an adopter writes and no longer a variant');
 });
 

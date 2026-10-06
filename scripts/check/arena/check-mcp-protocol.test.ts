@@ -91,7 +91,7 @@ test('an editor can initialize, list and read, which is the whole of what it doe
 
     const clean = await mcp.call('tools/call', {
       name: 'arena_check',
-      arguments: { source: '<ArenaButton variant="primary">Go</ArenaButton>' },
+      arguments: { source: '<ArenaButton>Go</ArenaButton>' },
     });
     assert.match(clean.result?.content?.[0]?.text ?? '', /No finding/);
 

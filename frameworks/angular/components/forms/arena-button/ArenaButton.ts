@@ -40,7 +40,7 @@ export class ArenaButton {
     'primary',
     { transform: (value) => value ?? 'primary' },
   );
-  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   readonly destructive = input(false, { transform: booleanAttribute });
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
   readonly icon = input<string>();

@@ -11,7 +11,6 @@
         "component": "ArenaButton",
         "class": "arena-size-lg",
         "members": {
-          "variant": "primary",
           "icon": "ph-bold ph-storefront"
         },
         "slots": {
@@ -24,9 +23,8 @@
       },
       {
         "component": "ArenaButton",
-        "class": "arena-size-lg",
+        "class": "arena-size-lg arena-emphasis-ghost",
         "members": {
-          "variant": "ghost",
           "iconRight": "ph-bold ph-arrow-right"
         },
         "slots": {

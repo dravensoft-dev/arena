@@ -1,0 +1,44 @@
+<!-- @dsCard group="Tailwind" viewport="760x420" name="emphasis" subtitle="A context family: written on a region it sets how loudly every action in it speaks, and a destructive action keeps the danger it names" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-button/ArenaButton.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-icon-button/ArenaIconButton.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Emphasis.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const button = await (await fetch('../../components/forms/arena-button/ArenaButton.manifest.json')).json();
+const iconButton = await (await fetch('../../components/forms/arena-icon-button/ArenaIconButton.manifest.json')).json();
+
+function action(label, opts = {}) {
+  const c = arenaClassesFor(button, opts);
+  const d = arenaSlotDataFor(button, opts);
+  return el('button', { class: c.root, ...d.root, type: 'button' }, label);
+}
+
+function icon(label) {
+  const c = arenaClassesFor(iconButton);
+  const d = arenaSlotDataFor(iconButton);
+  return el('button', { class: c.root, ...d.root, type: 'button', 'aria-label': label, title: label },
+    el('i', { class: 'ph-bold ph-dots-three', 'aria-hidden': 'true' }));
+}
+
+function region(option) {
+  const bar = el('div', { class: option });
+  bar.style.display = 'flex';
+  bar.style.alignItems = 'center';
+  bar.style.gap = 'var(--rhythm-component)';
+  bar.append(action('Publish'), action('Archive'), action('Delete', { destructive: true }), icon('More'));
+  return bar;
+}
+
+mountSpecimen({ sections: [
+  section('arena-emphasis-primary, the default: filled in the accent', [region('arena-emphasis-primary')]),
+  section('arena-emphasis-secondary: a quiet surface, and the destructive action stays in danger', [region('arena-emphasis-secondary')]),
+  section('arena-emphasis-ghost: no surface at all, and the icon button keeps its hairline', [region('arena-emphasis-ghost')]),
+  section('arena-emphasis-solid: the icon button fills, and the buttons that have no solid stay at the default', [region('arena-emphasis-solid')]),
+]});
+</script></body></html>

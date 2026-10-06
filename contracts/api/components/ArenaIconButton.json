@@ -7,8 +7,6 @@
               "description": "Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name." },
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not." },
-    "variant": { "form": "enum", "type": "ArenaIconButtonVariant", "default": "ghost",
-                 "description": "Visual treatment." },
     "showLabel": { "form": "primitive", "type": "boolean", "default": false,
                    "description": "Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces." },
     "pressed": { "form": "primitive", "type": "boolean",

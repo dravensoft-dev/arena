@@ -1,6 +1,0 @@
-{
-  "name": "ArenaButtonVariant",
-  "kind": "enum",
-  "description": "Primary for the one main action in a view; secondary for neutral actions; ghost for tertiary ones.",
-  "values": ["primary", "secondary", "ghost"]
-}
