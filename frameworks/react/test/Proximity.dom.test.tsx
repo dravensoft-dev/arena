@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -43,6 +43,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'meaning-follows-the-base': () => <><ArenaButton destructive>Delete</ArenaButton><ArenaButton>Save</ArenaButton></>,
   'meaning-wins-over-accent': () => <ArenaBadge className="arena-accent-gold" tone="success">Paid</ArenaBadge>,
   'accent-stops-at-the-card-body': () => <ArenaCard className="arena-accent-primary"><ArenaTag>Draft</ArenaTag></ArenaCard>,
+  'placement-stops-at-the-sheet-body': () => <ArenaSheet open title="Outer"><ArenaSheet open title="Inner">{null}</ArenaSheet></ArenaSheet>,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -51,6 +52,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'meaning-follows-the-base': { part: 'button', at: 0 },
   'meaning-wins-over-accent': { part: 'badge', at: 0 },
   'accent-stops-at-the-card-body': { part: 'card', at: 0 },
+  'placement-stops-at-the-sheet-body': { part: 'sheet', at: 0 },
 };
 
 const { families, cases } = readProximity();

@@ -2,7 +2,6 @@ import React, { useId } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSheet.classes.generated.ts';
 
-import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaSheetClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
@@ -13,9 +12,6 @@ export interface ArenaSheetProps {
 
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   open: boolean;
-
-  /** The edge the panel is anchored to. It spans that edge and stands off the device's own inset there, so a bottom sheet on a phone clears the home indicator. */
-  placement?: ArenaSheetPlacement;
 
   /** Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. */
   title: string;
@@ -42,7 +38,7 @@ export interface ArenaSheetProps {
 const arenaSheetStyles = arenaStyles(manifest);
 
 export function ArenaSheet({ className, 
-  open, placement = 'bottom', title, collapsed = false, onCollapsedChange,
+  open, title, collapsed = false, onCollapsedChange,
   dismissible = false, onClose, children, footer,
 }: ArenaSheetProps) {
   const locale = useArenaLocale();
@@ -62,7 +58,7 @@ export function ArenaSheet({ className,
   };
 
   if (!open) return null;
-  const styles = arenaSheetStyles({ placement, open: true });
+  const styles = arenaSheetStyles({ open: true });
   return (
     <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>

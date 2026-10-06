@@ -3,7 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPageHead.classes.generated.ts';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
 
-import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generated';
+import type { ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaPageHeadClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 
@@ -22,15 +22,12 @@ export interface ArenaPageHeadProps {
 
   /** Page-level controls, right-aligned in the head. */
   actions?: React.ReactNode;
-
-  /** Cross-axis alignment of the actions block against the title, wide layout only. */
-  align?: ArenaPageHeadAlign;
 }
 
 
 const arenaPageHeadStyles = arenaStyles(manifest);
 
-export function ArenaPageHead({ className, title, headingLevel = 'h1', subtitle, actions, align = 'start' }: ArenaPageHeadProps) {
+export function ArenaPageHead({ className, title, headingLevel = 'h1', subtitle, actions }: ArenaPageHeadProps) {
   if (!title) throw new Error('ArenaPageHead: `title` is required');
   if (headingLevel === 'none') {
     throw new Error('ArenaPageHead: `headingLevel` cannot be none, because `title` is required and is the page\'s own title');
@@ -38,7 +35,7 @@ export function ArenaPageHead({ className, title, headingLevel = 'h1', subtitle,
   const Heading = headingLevel;
   const [ref, width] = useArenaContainerWidth();
   const narrow = width !== null && width < arenaReadBreakpoint('sm');
-  const styles = arenaPageHeadStyles({ narrow, align });
+  const styles = arenaPageHeadStyles({ narrow });
 
   return (
     <div ref={ref} className={arenaClassName('ArenaPageHead', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
