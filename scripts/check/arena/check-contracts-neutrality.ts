@@ -330,11 +330,20 @@ export function optionShapeProblems(contracts: Map<string, ContractCandidate>, t
   const check = (key: string, typeName: string | undefined) => {
     const type = typeName === undefined ? undefined : types.get(typeName);
     if (type === undefined || computed.has(key) || members.has(key)) return;
-    for (const value of type.values ?? []) {
+    const values = type.values ?? [];
+    const byFamily = new Map<string, { value: string; option: string }[]>();
+    for (const value of values) {
       for (const [option, family] of options) {
         if (option !== `arena-${family}-${value}`) continue;
-        problems.push(`${key} is an enum whose value ${value} is the option ${option}: appearance is a class, not a member. `
-          + 'Write the class, or record the member in COMPUTED with the function that reads it');
+        byFamily.set(family, [...(byFamily.get(family) ?? []), { value: String(value), option }]);
+      }
+    }
+    const way = 'appearance is a class, not a member. Write the class, or record the member in COMPUTED with the function that reads it';
+    for (const [family, hits] of byFamily) {
+      if (hits.length >= 2) {
+        problems.push(`${key} is an enum whose values ${hits.map((h) => h.value).join(', ')} are options of ${family}: ${way}`);
+      } else if (values.length === 1 && hits[0]) {
+        problems.push(`${key} is an enum whose value ${hits[0].value} is the option ${hits[0].option}: ${way}`);
       }
     }
   };

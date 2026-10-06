@@ -121,7 +121,7 @@ const probeContracts = new Map<string, ContractCandidate>([
   ['ArenaButton', { component: 'ArenaButton', api: { size: { form: 'enum', type: 'ArenaControlSize' } } }],
 ]);
 const probeTypes = new Map<string, TypeContract>([
-  ['ArenaControlSize', { name: 'ArenaControlSize', kind: 'enum', values: ['sm', 'md', 'lg'] }],
+  ['ArenaControlSize', { name: 'ArenaControlSize', kind: 'enum', values: ['sm'] }],
 ]);
 const probeOptions = new Map([['arena-size-sm', 'size']]);
 const probeKey = 'contracts/api/components/ArenaButton.json:api.size';
@@ -151,4 +151,27 @@ test('a member recorded in COMPUTED or held in DESIGN_MEMBERS passes', () => {
 test('an enum that meets no option passes, and an empty option map is a zero walk', () => {
   assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, new Map([['arena-fill-card', 'fill']]), new Map(), new Map()), []);
   assert.match(optionShapeProblems(probeContracts, probeTypes, new Map()).join('\n'), /0 family options/);
+});
+
+test('an enum is appearance when two of its values, or its only one, are options of one family', () => {
+  const options = new Map([['arena-gap-none', 'gap'], ['arena-size-sm', 'size'], ['arena-size-md', 'size']]);
+  const types = new Map<string, TypeContract>([
+    ['Heading', { name: 'Heading', kind: 'enum', values: ['h1', 'h2', 'none'] }],
+    ['Size', { name: 'Size', kind: 'enum', values: ['sm', 'md'] }],
+    ['Only', { name: 'Only', kind: 'enum', values: ['sm'] }],
+  ]);
+  const contracts = new Map<string, ContractCandidate>([['ArenaX', { component: 'ArenaX', api: {
+    level: { form: 'enum', type: 'Heading' }, size: { form: 'enum', type: 'Size' }, only: { form: 'enum', type: 'Only' },
+  } }]]);
+  const problems = optionShapeProblems(contracts, types, options, new Map(), new Map()).join('\n');
+  assert.doesNotMatch(problems, /api\.level/);
+  assert.match(problems, /api\.size is an enum whose values sm, md are options of size/);
+  assert.match(problems, /api\.only is an enum whose value sm is the option arena-size-sm/);
+});
+
+test('an enum whose values each meet a different family is not appearance', () => {
+  const options = new Map([['arena-gap-none', 'gap'], ['arena-size-sm', 'size']]);
+  const types = new Map<string, TypeContract>([['Mixed', { name: 'Mixed', kind: 'enum', values: ['sm', 'none'] }]]);
+  const contracts = new Map<string, ContractCandidate>([['ArenaX', { component: 'ArenaX', api: { mixed: { form: 'enum', type: 'Mixed' } } }]]);
+  assert.deepEqual(optionShapeProblems(contracts, types, options, new Map(), new Map()), []);
 });
