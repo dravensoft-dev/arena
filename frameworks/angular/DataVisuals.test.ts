@@ -29,7 +29,7 @@ test('arenaCatColor rounds a fractional slot rather than truncating it', () => {
 });
 
 test('every tone in the union resolves to a token reference', () => {
-  const tones: ArenaTone[] = ['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'];
+  const tones: ArenaTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
   for (const tone of tones) assert.match(arenaToneColor(tone), /^var\(--[a-z-]+\)$/);
   assert.equal(new Set(tones.map(arenaToneColor)).size, tones.length, 'tones must not share a colour');
 });

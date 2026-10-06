@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, Component, ElementRef, afterNextRender, booleanAttribute, computed,
   input, output, viewChild,
 } from '@angular/core';
-import type { ArenaButtonType, ArenaButtonVariant } from '../../../Api.generated';
+import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaButtonStyles } from './ArenaButton.variants';
 import manifest from './ArenaButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -35,11 +35,6 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 export class ArenaButton {
   protected readonly parts = manifest.parts;
 
-  /** Which action this is. */
-  readonly variant = input<ArenaButtonVariant, ArenaButtonVariant | undefined>(
-    'primary',
-    { transform: (value) => value ?? 'primary' },
-  );
   /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   readonly destructive = input(false, { transform: booleanAttribute });
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
@@ -69,9 +64,7 @@ export class ArenaButton {
   readonly click = output<void>();
 
   protected readonly inert = computed(() => this.disabled() || this.loading());
-  protected readonly styles = computed(() => arenaButtonStyles({
-    variant: this.variant(), destructive: this.destructive(),
-  }));
+  protected readonly styles = computed(() => arenaButtonStyles({ destructive: this.destructive() }));
 
   private readonly control = viewChild<ElementRef<HTMLButtonElement>>('control');
 

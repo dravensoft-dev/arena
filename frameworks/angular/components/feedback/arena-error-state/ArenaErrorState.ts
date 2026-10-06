@@ -37,7 +37,7 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
     @if (retryLabel() || secondaryAction()) {
       <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary>
         @if (retryLabel(); as label) {
-          <arena-button variant="primary" (click)="retry.emit()">{{ label }}</arena-button>
+          <arena-button (click)="retry.emit()">{{ label }}</arena-button>
         }
         <ng-content select="[secondaryAction]" />
       </div>

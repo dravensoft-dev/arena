@@ -57,7 +57,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
           }
         </div>
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
-          <arena-button variant="ghost" (click)="cancel.emit()">{{ cancelText() }}</arena-button>
+          <arena-button class="arena-emphasis-ghost" (click)="cancel.emit()">{{ cancelText() }}</arena-button>
           <button type="button" [class]="styles().confirm()" [arenaSlotData]="styles().$data.confirm()" [attr.data-arena-part]="parts.confirm" [disabled]="locked()" (click)="confirm.emit()">{{ confirmText() }}</button>
         </div>
       </div>

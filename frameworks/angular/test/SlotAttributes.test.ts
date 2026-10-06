@@ -74,9 +74,9 @@ test('a host-bound slot renders its attribute on the host', () => {
   fixture.componentRef.setInput('tone', 'danger');
   fixture.detectChanges();
   assert.equal((fixture.nativeElement as HTMLElement).getAttribute('data-arena-tone'), 'danger');
-  fixture.componentRef.setInput('tone', 'gold');
+  fixture.componentRef.setInput('tone', 'warning');
   fixture.detectChanges();
-  assert.equal((fixture.nativeElement as HTMLElement).getAttribute('data-arena-tone'), 'gold');
+  assert.equal((fixture.nativeElement as HTMLElement).getAttribute('data-arena-tone'), 'warning');
 });
 
 test('a template slot renders its attribute through the directive', () => {

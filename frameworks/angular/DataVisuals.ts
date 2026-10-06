@@ -55,8 +55,6 @@ export function arenaAreaFill(colour: string): string {
 
 const TONE_VARS: Record<ArenaTone, string> = {
   neutral: 'var(--text-body)',
-  accent: 'var(--accent)',
-  gold: 'var(--gold)',
   success: 'var(--success)',
   warning: 'var(--warning)',
   danger: 'var(--danger)',

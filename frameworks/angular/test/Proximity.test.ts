@@ -21,6 +21,8 @@ import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo';
 import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList';
 import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPersonRow';
 import { ArenaCard } from '../components/display/arena-card/ArenaCard';
+import { ArenaBadge } from '../components/display/arena-badge/ArenaBadge';
+import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -45,6 +47,17 @@ const TEMPLATES: Record<string, string> = {
   'size-re-densifies-in-comfortable': '<arena-button class="arena-size-sm">Save</arena-button>',
   'size-re-densifies-in-comfortable-under-the-size': '<div class="arena-comfortable"><arena-button>Save</arena-button></div>',
   'people-list-face-follows-the-list': '<arena-people-list class="arena-size-lg" label="Standings"><arena-person-row name="Ines Marchetti" /></arena-people-list>',
+  'meaning-follows-the-base': '<arena-button destructive>Delete</arena-button><arena-button>Save</arena-button>',
+  'meaning-wins-over-accent': '<arena-badge class="arena-accent-gold" tone="success">Paid</arena-badge>',
+  'accent-stops-at-the-card-body': '<arena-card class="arena-accent-primary"><arena-tag>Draft</arena-tag></arena-card>',
+};
+
+const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
+const SUBJECT: Record<string, { part: string; index: number }> = {
+  'people-list-face-follows-the-list': { part: 'avatar.box', index: -1 },
+  'meaning-follows-the-base': { part: 'button', index: 0 },
+  'meaning-wins-over-accent': { part: 'badge', index: -1 },
+  'accent-stops-at-the-card-body': { part: 'card', index: -1 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -58,15 +71,17 @@ for (const kase of cases) {
   test(`${kase.name}: Angular renders the tree the gate measures`, () => {
     const Host = Component({
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter],
-      template: `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag],
+      template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);
     try {
       fixture.detectChanges();
+      fixture.detectChanges();
       const container = (fixture.nativeElement as Element).firstElementChild!;
-      const part = kase.name === 'people-list-face-follows-the-list' ? 'avatar.box' : 'button';
-      const subject = [...container.querySelectorAll(`[data-arena-part="${part}"]`)].at(-1) ?? null;
+      const { part, index } = SUBJECT[kase.name] ?? { part: 'button', index: -1 };
+      const drawn = [...(container.matches(`[data-arena-part="${part}"]`) ? [container] : []), ...container.querySelectorAll(`[data-arena-part="${part}"]`)];
+      const subject = drawn.at(index) ?? null;
       const tree = proximity.normalize(container, vocabulary, subject);
       assert.deepEqual(tree, kase.angular, `recorded tree for ${kase.name}:\n${JSON.stringify(tree)}`);
     } finally {

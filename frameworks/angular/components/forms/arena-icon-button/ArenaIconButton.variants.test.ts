@@ -6,10 +6,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaIconButtonStyles } from './ArenaIconButton.variants';
 
-test('the default is a ghost control with no visible label', () => {
+test('the default is a control with no visible label', () => {
   assert.equal(
     JSON.stringify(arenaIconButtonStyles().$data.root()),
-    JSON.stringify(arenaIconButtonStyles({ variant: 'ghost', showLabel: false }).$data.root()),
+    JSON.stringify(arenaIconButtonStyles({ showLabel: false }).$data.root()),
   );
 });
 

@@ -18,7 +18,7 @@ import { ArenaToast } from './ArenaToast';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'feedback/arena-toast/ArenaToast.behaviour.json');
 
-const TONES = ['neutral', 'success', 'danger', 'gold'] as const;
+const TONES = ['neutral', 'success', 'danger'] as const;
 
 function renderToast(tone: ArenaToastTone, inputs: Record<string, unknown> = {}) {
   const fixture = TestBed.createComponent(ArenaToast);
@@ -44,7 +44,6 @@ test('a danger toast interrupts and every other tone queues -- the live region v
     neutral: { role: 'status', live: 'polite' },
     success: { role: 'status', live: 'polite' },
     danger: { role: 'alert', live: 'assertive' },
-    gold: { role: 'status', live: 'polite' },
   });
 });
 
