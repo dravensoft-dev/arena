@@ -46,13 +46,12 @@ test('a min wider than any card still yields one clamped column rather than an o
 });
 
 const gapOf = (step: ArenaGridGap) =>
-  (/class="([^"]*)"/.exec(renderToStaticMarkup(<ArenaGrid gap={step} />))?.[1] ?? '')
-    .split(/\s+/).find((c) => c.startsWith('arena-grid__root--gap-')) ?? '';
+  /\bdata-arena-gap="([^"]*)"/.exec(renderToStaticMarkup(<ArenaGrid gap={step} />))?.[1] ?? '';
 
 test('the four named steps are four distinct scale values, growing in the order they are named', () => {
   const seen = GAPS.map(gapOf);
   assert.equal(new Set(seen).size, GAPS.length, `two steps resolve to the same value: ${seen.join(', ')}`);
-  const step = (value: string) => GAPS.indexOf(/--gap-([a-z]+)$/.exec(value)![1] as ArenaGridGap);
+  const step = (value: string) => GAPS.indexOf(value as ArenaGridGap);
   const steps = seen.map(step);
   assert.equal(steps[0], 0, 'the none step must be the zero of the scale');
   assert.ok(steps[1]! < steps[2]! && steps[2]! < steps[3]!,

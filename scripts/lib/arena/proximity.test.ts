@@ -28,6 +28,12 @@ test('the gate rebuilds a part with its slot classes and the subject marked', ()
   assert.equal(html, '<div class="arena-fit"><button data-arena-part="button" data-arena-boundary="" data-proximity-subject="" class="arena-button__root arena-fill">Save</button></div>');
 });
 
+test('a part also takes the data attributes its slot carries, which are what select a variant', () => {
+  const html = treeHtml({ tag: 'button', part: 'button', text: 'Save' },
+    () => 'arena-button__root', () => ({ 'data-arena-size': 'md', 'data-arena-sticky': '' }));
+  assert.equal(html, '<button data-arena-part="button" class="arena-button__root" data-arena-size="md" data-arena-sticky="">Save</button>');
+});
+
 test('the fixture has cases, each with a measure, and the vocabulary includes the witness family it declares', () => {
   const { families, cases } = readProximity();
   assert.ok(cases.length > 0, 'the fixture declares no case; an empty sweep is a failure');

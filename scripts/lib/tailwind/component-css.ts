@@ -14,8 +14,8 @@ import { join } from 'node:path';
 import { parseDecls } from '../arena/css-decls.ts';
 import { toPosix, type PathModule } from '../../utils/posix-path.ts';
 import {
-  classBase, classesManifest as rawClassesManifest, compoundClass, dataAttribute, slotClass, slotPart,
-  variantClass, groupSlots as rawGroupSlots, slotData as rawSlotData,
+  classBase, classesManifest as rawClassesManifest, compoundSelector, dataAttribute, slotClass, slotPart,
+  variantSelector, groupSlots as rawGroupSlots, slotData as rawSlotData,
   arenaSlotDataFor as rawArenaSlotDataFor,
   classesFor as rawClassesFor, arenaClassesFor as rawArenaClassesFor,
 } from '../../../frameworks/tailwind/ManifestClasses.js';
@@ -36,7 +36,7 @@ export const slotData =
 export const arenaSlotDataFor =
   rawArenaSlotDataFor as (manifest: ComponentManifest, chosen?: ArenaSelection) => Record<string, ArenaSlotData>;
 
-export { classBase, compoundClass, dataAttribute, slotClass, slotPart, variantClass };
+export { classBase, compoundSelector, dataAttribute, slotClass, slotPart, variantSelector };
 
 export const INDIRECTION = /var\(\s*--([a-z0-9-]+)\s*,\s*var\(\s*--([a-z0-9-]+)\s*\)\s*\)/g;
 export const isThemeKey = (name: string) => !name.startsWith('tw-');
@@ -54,13 +54,12 @@ export function applyRules(manifest: ComponentManifest) {
   for (const [group, values] of Object.entries(manifest.variants ?? {}))
     for (const [value, slots] of Object.entries(values))
       for (const [slot, classes] of Object.entries(slots ?? {}))
-        push(variantClass(manifest.component, slot, group, value), classes);
+        push(variantSelector(manifest, slot, group, value), classes);
 
-  (manifest.compoundVariants ?? []).forEach((compound, index: number) => {
-    const { class: applied } = compound;
-    for (const [slot, classes] of Object.entries(applied ?? {}))
-      push(compoundClass(manifest.component, slot, index), classes);
-  });
+  for (const compound of manifest.compoundVariants ?? []) {
+    for (const [slot, classes] of Object.entries(compound.class ?? {}))
+      push(compoundSelector(manifest, slot, compound), classes);
+  }
 
   return rules;
 }

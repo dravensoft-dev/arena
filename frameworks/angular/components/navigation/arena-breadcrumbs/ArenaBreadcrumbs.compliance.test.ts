@@ -94,11 +94,11 @@ test('an intermediate crumb with no href is a span, never an anchor to the page 
   assert.equal(middle.tagName, 'SPAN');
   assert.equal(middle.getAttribute('aria-current'), null,
     'and it carries no aria-current, which belongs to the last crumb alone');
-  assert.ok(!middle.className.includes('crumb--linked-true'),
+  assert.ok(!middle.hasAttribute('data-arena-linked'),
     'a cursor that changes over something nothing happens on is the same lie the href="#" was');
 
   const first = host.querySelector('a[href="/a"]');
-  assert.ok(first?.className.includes('crumb--linked-true'),
+  assert.ok(first?.hasAttribute('data-arena-linked'),
     'while a crumb that leads somewhere keeps the pointer and the hover');
 });
 

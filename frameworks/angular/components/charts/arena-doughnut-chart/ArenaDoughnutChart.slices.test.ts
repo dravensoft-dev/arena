@@ -75,7 +75,7 @@ function textWrapper(fixture: ComponentFixture<DoughnutHost>): HTMLElement {
 }
 
 function stackedText(fixture: ComponentFixture<DoughnutHost>): boolean {
-  return textWrapper(fixture).className.includes('--stacked-true');
+  return textWrapper(fixture).hasAttribute('data-arena-stacked');
 }
 
 test('a zero-valued slice paints no path, so the drawn shapes are not the values', async () => {

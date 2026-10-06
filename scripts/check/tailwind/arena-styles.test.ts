@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { arenaStyles } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import type { ArenaSelection } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
-import { classesManifest, groupSlots, slotClass, variantClass } from '../../lib/tailwind/component-css.ts';
+import { classesManifest, groupSlots, slotClass } from '../../lib/tailwind/component-css.ts';
 import type { CompoundVariant } from '../../lib/tailwind/manifest-shapes.ts';
 
 const manifests = [...layerManifests().values()];
@@ -57,35 +57,38 @@ test('no argument resolves to exactly the declared defaults, so a default cannot
   }
 });
 
-test('a variant reaches exactly the slots its manifest gives it, and no others', () => {
+test('a slot answers one class whatever is selected, and the selection reaches it as data', () => {
   for (const manifest of manifests) {
     const styles = arenaStyles(classesOf(manifest.component));
+    const base = styles();
     for (const [group, values] of Object.entries(manifest.variants ?? {})) {
-      for (const [value, slots] of Object.entries(values)) {
-        const chosen = { ...manifest.defaultVariants, [group]: value };
-        const resolved = styles(chosen);
+      const reached = groupSlots(manifest)[group] ?? [];
+      for (const value of Object.keys(values)) {
+        const resolved = styles({ ...manifest.defaultVariants, [group]: value });
         for (const slot of Object.keys(manifest.slots ?? {})) {
-          const expected = variantClass(manifest.component, slot, group, value);
-          const touched = slotted(resolved, slot).split(/\s+/).includes(expected);
-          const declared = Boolean(String(slots?.[slot] ?? '').trim());
-          assert.equal(touched, declared,
-            `${manifest.component}: ${group}=${value} ${touched ? 'reaches' : 'misses'} .${slot}, `
-            + `and the manifest says it ${declared ? 'should' : 'should not'}`);
+          assert.equal(slotted(resolved, slot), slotted(base, slot),
+            `${manifest.component}.${slot}: ${group}=${value} changed the class, which only data may vary`);
+          const attribute = `data-arena-${group.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`;
+          const carried = attribute in (resolved.$data[slot]?.() ?? {});
+          const off = value === 'false';
+          assert.equal(carried, reached.includes(slot) && !off,
+            `${manifest.component}.${slot}: ${group}=${value} ${carried ? 'carries' : 'lacks'} ${attribute}`);
         }
       }
     }
   }
 });
 
-test('two variant values that declare different classes resolve differently, so neither collapses onto the other', () => {
+test('two variant values that declare different classes resolve to different data, so neither collapses onto the other', () => {
   for (const manifest of manifests) {
     const styles = arenaStyles(classesOf(manifest.component));
     for (const [group, values] of Object.entries(manifest.variants ?? {})) {
       const seen = new Map();
       for (const [value, slots] of Object.entries(values)) {
         if (!Object.values(slots ?? {}).some((c) => String(c).trim())) continue;
+        const resolved = styles({ [group]: value });
         const key = Object.keys(manifest.slots ?? {})
-          .map((slot) => slotted(styles({ [group]: value }), slot)).join('|');
+          .map((slot) => JSON.stringify(resolved.$data[slot]?.())).join('|');
         assert.ok(!seen.has(key),
           `${manifest.component}: ${group}=${value} and ${group}=${seen.get(key)} resolve identically`);
         seen.set(key, value);
@@ -107,29 +110,18 @@ test('a value no manifest declares is refused by name rather than drawing nothin
   }
 });
 
-test('a compound variant applies only when every condition it names holds', () => {
+test('a compound variant names only groups its slots carry as data, so its selector can match', () => {
   const cased = manifests.filter((m) => (m.compoundVariants ?? []).length > 0);
   assert.ok(cased.length > 0, 'no manifest carries a compoundVariant, so this proves nothing');
   for (const manifest of cased) {
-    const styles = arenaStyles(classesOf(manifest.component));
-    (manifest.compoundVariants ?? []).forEach(({ class: applied, ...conditions }: CompoundVariant, index: number) => {
-      const holding = styles({ ...manifest.defaultVariants, ...conditions } as ArenaSelection);
-      for (const slot of Object.keys(applied ?? {})) {
-        assert.ok(slotted(holding, slot).split(/\s+/).includes(`${slotClass(manifest.component, slot)}--cv${index + 1}`),
-          `${manifest.component}: compound ${index + 1} did not apply to .${slot} with its own conditions met`);
+    const carried = classesOf(manifest.component).attributes ?? {};
+    for (const { class: applied, ...conditions } of manifest.compoundVariants ?? []) {
+      for (const group of Object.keys(conditions)) {
+        for (const slot of Object.keys(applied ?? {}))
+          assert.ok(carried[group]?.includes(slot),
+            `${manifest.component}: a compound on .${slot} waits for ${group}, which .${slot} does not carry`);
       }
-      const [firstCondition = ''] = Object.keys(conditions);
-      const otherValue = Object.keys(manifest.variants?.[firstCondition] ?? {})
-        .find((v) => v !== String(conditions[firstCondition]));
-      if (otherValue === undefined) return;
-      const broken = styles(
-        { ...manifest.defaultVariants, ...conditions, [firstCondition]: otherValue } as ArenaSelection,
-      );
-      for (const slot of Object.keys(applied ?? {})) {
-        assert.ok(!slotted(broken, slot).split(/\s+/).includes(`${slotClass(manifest.component, slot)}--cv${index + 1}`),
-          `${manifest.component}: compound ${index + 1} still applied with ${firstCondition}=${otherValue}`);
-      }
-    });
+    }
   }
 });
 
@@ -230,10 +222,16 @@ test('a slot no group touches carries no attribute', () => {
   assert.deepEqual(dataOf(arenaStyles(classesManifest({ ...probe, hues: undefined }))().$data, 'label'), { 'data-arena-sticky': '' });
 });
 
-test('a compound condition resolves through String(value), so a spelling of a value cannot poison another selection', () => {
+test('a spelling of a boolean value cannot poison another selection, the data is one', () => {
   const styles = arenaStyles(classesOf('ArenaMenu'));
   const string = styles({ disabled: 'false', destructive: 'false' });
   const boolean = styles({ disabled: false, destructive: false });
-  assert.match(slotted(string, 'item'), /--cv3\b/);
+  assert.deepEqual(dataOf(string.$data, 'item'), dataOf(boolean.$data, 'item'));
   assert.equal(slotted(string, 'item'), slotted(boolean, 'item'));
+});
+
+test('a slot answers its base class whatever is selected, and the data alone varies', () => {
+  const styles = arenaStyles(classesManifest(probe));
+  assert.equal(slotted(styles({ tone: 'danger' }), 'root'), slotted(styles({ tone: 'neutral' }), 'root'));
+  assert.notDeepEqual(dataOf(styles({ tone: 'danger' }).$data, 'root'), dataOf(styles({ tone: 'neutral' }).$data, 'root'));
 });

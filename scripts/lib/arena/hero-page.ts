@@ -9,6 +9,8 @@
  * carry. Nothing holds them to those files; the benches are another repository. */
 
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
+import { arenaClassesFor, arenaSlotDataFor } from '../tailwind/component-css.ts';
+import { layerManifests } from '../tailwind/tailwind-compile.ts';
 
 export const HERO_SHEET = 'hero.css';
 export const HERO_SOURCE = 'hero.html';
@@ -41,10 +43,17 @@ export async function heroStyles() {
   return `${blocks.join('\n')}\n`;
 }
 
-const BUTTON = 'arena-button__root arena-button__root--variant-primary arena-button__root--size-lg';
+function buttonOpening() {
+  const manifest = [...layerManifests().values()].find((one) => one.component === 'ArenaButton');
+  if (!manifest) throw new Error('hero-page: no ArenaButton manifest to draw the button from');
+  const selection = { variant: 'primary', size: 'lg' };
+  const root = arenaClassesFor(manifest, selection).root;
+  const data = Object.entries(arenaSlotDataFor(manifest, selection).root ?? {})
+    .map(([name, value]) => ` ${name}="${value}"`).join('');
+  return `<button class="${root}"${data} data-arena-part="button" type="button">`;
+}
 
-const button = (label: string) =>
-  `<button class="${BUTTON}" data-arena-part="button" type="button">${label}</button>`;
+const button = (label: string) => `${buttonOpening()}${label}</button>`;
 
 const LABEL = 'Publish';
 

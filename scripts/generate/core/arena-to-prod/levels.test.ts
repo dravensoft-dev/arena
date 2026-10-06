@@ -6,7 +6,6 @@ import {
   DECORATIVE, derivedLevels, exemptionFor, gateFor, levelReports, levelsIn, raisedReports,
   surfaceKeys, washesIn, washReports,
 } from './levels.ts';
-import { compoundStates } from '../../../check/core/check-text-contrast.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
@@ -23,10 +22,10 @@ const SHEET = [
   '      color: color-mix(in oklab, var(--ink-muted) 40%, transparent);',
   '    }',
   '  }',
-  '  .arena-avatar__status--status-offline {',
+  '  .arena-avatar__status:where([data-arena-status="offline"]) {',
   '    background-color: color-mix(in oklab, var(--color-base-content) 52%, transparent);',
   '  }',
-  '  .arena-badge__root--tone-success {',
+  '  .arena-badge__root:where([data-arena-tone="success"]) {',
   '    background-color: color-mix(in oklab, var(--color-success) 16%, transparent);',
   '  }',
   '}',
@@ -79,7 +78,7 @@ test('a level composited over a real palette is measured rather than assumed', (
 });
 
 const HOVER = [
-  '  .arena-button__root--destructive-true {',
+  '  .arena-button__root:where([data-arena-destructive]) {',
   '    color: var(--color-error);',
   '    &:hover {',
   '      @media (hover: hover) {',
@@ -91,7 +90,7 @@ const HOVER = [
 
 test('a token drawn on a wash of its own colour is found through the nesting', () => {
   assert.deepEqual(washesIn(HOVER), [
-    { selector: '.arena-button__root--destructive-true', variable: 'color-error', percent: 14 },
+    { selector: '.arena-button__root:where([data-arena-destructive])', variable: 'color-error', percent: 14 },
   ]);
 });
 
@@ -165,7 +164,7 @@ test('every decorative exemption is a part both layers still render aria-hidden'
 });
 
 const PRESSED = [
-  '  .arena-icon-button__root--pressed-true {',
+  '  .arena-icon-button__root:where([data-arena-pressed]) {',
   '    border-color: var(--color-primary);',
   '    @supports (color: color-mix(in lab, red, red)) {',
   '      background-color: color-mix(in oklab, var(--color-primary) 14%, transparent);',
@@ -184,8 +183,8 @@ const PRESSED = [
 
 test('a wash written before the ink is still a wash of that ink, and both of them are found', () => {
   assert.deepEqual(washesIn(PRESSED), [
-    { selector: '.arena-icon-button__root--pressed-true', variable: 'color-primary', percent: 14 },
-    { selector: '.arena-icon-button__root--pressed-true', variable: 'color-primary', percent: 22 },
+    { selector: '.arena-icon-button__root:where([data-arena-pressed])', variable: 'color-primary', percent: 14 },
+    { selector: '.arena-icon-button__root:where([data-arena-pressed])', variable: 'color-primary', percent: 22 },
   ], 'the resting wash is declared above the color it washes, and a reader that keeps the last '
     + 'color it passed sees neither it nor the ratio it costs');
 });
@@ -214,33 +213,17 @@ test('two rules with one selector are one rule to a browser, so the ink can be d
 });
 
 const MENU = [
-  '  .arena-menu__item--cv1 {',
+  '  .arena-menu__item:where([data-arena-disabled]) {',
   '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);',
   '    opacity: 60%;',
   '  }',
-  '  .arena-menu__item--cv2 {',
+  '  .arena-menu__item:where(:not([data-arena-disabled])[data-arena-destructive]) {',
   '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);',
   '  }',
 ].join('\n');
 
-const MENU_MANIFEST = {
-  component: 'ArenaMenu',
-  compoundVariants: [
-    { disabled: true, class: { item: 'x' } },
-    { disabled: false, destructive: true, class: { item: 'y' } },
-  ],
-};
-
 test('a compound that waits for a disabled row is exempt by its condition, one that waits for an enabled row is judged', () => {
-  const states = compoundStates([MENU_MANIFEST]);
-  assert.equal(states.get('.arena-menu__item--cv1'), ':where([data-arena-disabled])');
-  assert.equal(states.get('.arena-menu__item--cv2'),
-    ':where(:not([data-arena-disabled])):where([data-arena-destructive])');
-  const [disabled, enabled] = levelsIn(MENU, DEFAULTS, states);
+  const [disabled, enabled] = levelsIn(MENU, DEFAULTS);
   assert.ok(exemptionFor(disabled as never), 'the disabled compound keeps the inactive-component exemption');
   assert.equal(exemptionFor(enabled as never), null, 'a compound that names disabled only to negate it is not inactive');
-  assert.equal(exemptionFor((levelsIn(MENU, DEFAULTS)[0]) as never), null, 'without the manifest the compound is a bare class and is judged');
-  const spelled = levelsIn(
-    '  .arena-menu__item:where([data-arena-disabled]) {\n    color: color-mix(in oklab, var(--ink-muted) 40%, transparent);\n  }', DEFAULTS);
-  assert.ok(exemptionFor(spelled[0] as never), 'a selector that spells the attribute is recognised without a manifest');
 });

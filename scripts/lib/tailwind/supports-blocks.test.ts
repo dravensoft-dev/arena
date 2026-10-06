@@ -7,7 +7,7 @@ import {
 const SUPPORTS = '@supports (color: color-mix(in lab, red, red))';
 
 const pressed = `@layer utilities {
-  .arena-icon-button__root--pressed-true {
+  .arena-icon-button__root:where([data-arena-pressed]) {
     border-color: var(--color-primary);
     ${SUPPORTS} {
       border-color: color-mix(in oklab, var(--color-primary) 38%, transparent);
@@ -46,7 +46,7 @@ const sunken = `@layer utilities {
 test('a rule is read with its nesting, and the ink of a nested block is the one it inherits', () => {
   const root = parseBlocks(pressed);
   const rule = root.children[0]?.children[0];
-  assert.equal(rule?.selector, '.arena-icon-button__root--pressed-true');
+  assert.equal(rule?.selector, '.arena-icon-button__root:where([data-arena-pressed])');
   const hover = rule?.children.find((child) => child.selector === '&:hover')?.children[0];
   assert.equal(hover?.selector, '@media (hover: hover)');
   assert.equal(inkOf(hover!), 'color-primary');

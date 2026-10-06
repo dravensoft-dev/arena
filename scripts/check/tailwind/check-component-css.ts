@@ -65,7 +65,7 @@ export const EXTERNAL_PROPERTIES = new Map([
 ]);
 
 export function selectorsIn(css: string) {
-  return new Set([...css.matchAll(/\.(arena-[a-z0-9_-]+)/g)].map((m) => m[1]));
+  return new Set([...css.matchAll(/\.(arena-[a-z0-9_-]+(?::where\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))?)/g)].map((m) => m[1]));
 }
 
 export function propertiesIn(css: string) {

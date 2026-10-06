@@ -6,17 +6,36 @@ export const classBase = (manifest) => kebab(manifest);
 
 export const slotClass = (manifest, slot) => `${classBase(manifest)}__${kebab(slot)}`;
 
-export const variantClass = (manifest, slot, group, value) =>
-  `${slotClass(manifest, slot)}--${kebab(group)}-${kebab(String(value))}`;
-
-export const compoundClass = (manifest, slot, index) => `${slotClass(manifest, slot)}--cv${index + 1}`;
-
 export function slotPart(manifest, slot) {
   const base = classBase(manifest).replace(/^arena-/, '');
   return slot === 'root' ? base : `${base}.${kebab(slot)}`;
 }
 
 export const dataAttribute = (group) => `data-arena-${kebab(group)}`;
+
+export const isBooleanGroup = (names) =>
+  names.length > 0 && names.every((name) => name === 'true' || name === 'false');
+
+const condition = (group, value, boolean) => {
+  const attribute = `[${dataAttribute(group)}`;
+  if (!boolean) return `${attribute}="${String(value)}"]`;
+  return String(value) === 'true' ? `${attribute}]` : `:not(${attribute}])`;
+};
+
+const booleanIn = (manifest, group, value) => {
+  const names = Object.keys(manifest.variants?.[group] ?? {});
+  return names.length > 0 ? isBooleanGroup(names) : typeof value === 'boolean';
+};
+
+export const variantSelector = (manifest, slot, group, value) =>
+  `${slotClass(manifest.component, slot)}:where(${condition(group, value, booleanIn(manifest, group, value))})`;
+
+export const compoundSelector = (manifest, slot, compound) => {
+  const { class: applied, ...conditions } = compound;
+  const held = Object.entries(conditions)
+    .map(([group, value]) => condition(group, value, booleanIn(manifest, group, value))).join('');
+  return `${slotClass(manifest.component, slot)}:where(${held})`;
+};
 
 export function groupSlots(manifest) {
   const slotNames = Object.keys(manifest.slots ?? {});
@@ -41,9 +60,6 @@ export function groupSlots(manifest) {
 }
 
 export function classesManifest(manifest) {
-  const named = (map, name) => Object.fromEntries(
-    Object.keys(map ?? {}).filter((slot) => String(map[slot] ?? '').trim()).map((slot) => [slot, name(slot)]),
-  );
   const everySlot = Object.fromEntries(
     Object.keys(manifest.slots ?? {}).map((slot) => [slot, slotClass(manifest.component, slot)]),
   );
@@ -56,22 +72,7 @@ export function classesManifest(manifest) {
 
   const out = { component: manifest.component, slots: everySlot, parts: everyPart };
 
-  if (manifest.variants) {
-    out.variants = Object.fromEntries(Object.entries(manifest.variants).map(([group, values]) => [
-      group,
-      Object.fromEntries(Object.entries(values).map(([value, slots]) => [
-        value,
-        named(slots, (slot) => variantClass(manifest.component, slot, group, value)),
-      ])),
-    ]));
-  }
   if (manifest.defaultVariants) out.defaultVariants = manifest.defaultVariants;
-  if (manifest.compoundVariants) {
-    out.compoundVariants = manifest.compoundVariants.map(({ class: applied, ...conditions }, index) => ({
-      ...conditions,
-      class: named(applied, (slot) => compoundClass(manifest.component, slot, index)),
-    }));
-  }
   out.values = Object.fromEntries(
     Object.entries(manifest.variants ?? {}).map(([group, values]) => [group, Object.keys(values)]),
   );
@@ -125,7 +126,9 @@ export function classesFor(manifest, chosen = {}) {
 }
 
 export function arenaClassesFor(manifest, chosen = {}) {
-  return classesFor(classesManifest(manifest), chosen);
+  const named = classesManifest(manifest);
+  slotData(named, chosen);
+  return { ...named.slots };
 }
 
 export function arenaSlotDataFor(manifest, chosen = {}) {

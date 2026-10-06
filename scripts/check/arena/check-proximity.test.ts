@@ -2,13 +2,19 @@
  * load order, and the verdict on a measurement. The browser half is the gate's run. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { partClasses, pageHtml, verdict, markupVerdict } from './check-proximity.ts';
+import { partClasses, partData, pageHtml, verdict, markupVerdict } from './check-proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 
 test('a part is rebuilt with the classes its slot resolves to by default', () => {
   const classes = partClasses(readManifests().values());
   assert.match(classes.get('button') ?? '', /\barena-button__root\b/);
   assert.match(classes.get('card.body') ?? '', /\barena-card__body\b/);
+});
+
+test('a part is rebuilt with the data its slot carries by default, so a default variant still paints', () => {
+  const data = partData(readManifests().values());
+  assert.equal(data.get('button')?.['data-arena-variant'], 'primary');
+  assert.equal(data.get('button')?.['data-arena-size'], 'md');
 });
 
 test('the two orders put the vocabulary after the components, then before them', () => {

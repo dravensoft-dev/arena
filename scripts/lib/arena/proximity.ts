@@ -69,7 +69,11 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
 
 const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
-export function treeHtml(tree: Tree, classesOf: (part: string) => string): string {
+export type PartData = Readonly<Record<string, string>>;
+
+export function treeHtml(
+  tree: Tree, classesOf: (part: string) => string, dataOf: (part: string) => PartData = () => ({}),
+): string {
   const attrs: string[] = [];
   if (tree.part) attrs.push(`data-arena-part="${tree.part}"`);
   if (tree.boundary) attrs.push('data-arena-boundary=""');
@@ -77,6 +81,7 @@ export function treeHtml(tree: Tree, classesOf: (part: string) => string): strin
   if (tree.contents) attrs.push('style="display: contents"');
   const classes = [tree.part ? classesOf(tree.part) : '', tree.class ?? ''].filter(Boolean).join(' ');
   if (classes) attrs.push(`class="${classes}"`);
-  const inner = `${tree.text ? escape(tree.text) : ''}${(tree.children ?? []).map((one) => treeHtml(one, classesOf)).join('')}`;
+  for (const [name, value] of Object.entries(tree.part ? dataOf(tree.part) : {})) attrs.push(`${name}="${value}"`);
+  const inner = `${tree.text ? escape(tree.text) : ''}${(tree.children ?? []).map((one) => treeHtml(one, classesOf, dataOf)).join('')}`;
   return `<${tree.tag}${attrs.length ? ` ${attrs.join(' ')}` : ''}>${inner}</${tree.tag}>`;
 }

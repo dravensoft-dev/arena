@@ -27,6 +27,10 @@ test('a stylesheet lands under consume/, at the manifest\'s own category and dir
 
 test('only arena- selectors are collected, so a stray utility cannot be counted as a component rule', () => {
   assert.deepEqual([...selectorsIn('.arena-badge__root:hover { } .px-4 { }')], ['arena-badge__root']);
+  assert.deepEqual([...selectorsIn('.arena-badge__root:where([data-arena-tone="danger"]):hover { }')],
+    ['arena-badge__root:where([data-arena-tone="danger"])'], 'a variant is the slot class with its :where() qualifier');
+  assert.deepEqual([...selectorsIn('.a-b .arena-x__y:where(:not([data-arena-s])[data-arena-t="u"]) { }')],
+    ['arena-x__y:where(:not([data-arena-s])[data-arena-t="u"])']);
 });
 
 test('a property is collected wherever it is read, including inside calc and a fallback', () => {

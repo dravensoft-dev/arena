@@ -428,10 +428,8 @@ accumulates across the set. `visible` is one such collision, which is why the la
 for a shown/hidden boolean is `open`. Name variants with that in mind.
 
 **`compoundVariants` work and one manifest uses them.** `ArenaPageHead` needs a class that depends
-on two variants at once, `classesFor()` resolves them after every single-variant slot, and
-`arenaStyles` applies one only when every condition it names holds. They compile to a
-`--cv<n>` class in declaration order. Prefer a plain boolean variant where one will do: a
-compound is harder to read and the emitted name says less.
+on two variants at once and applies only when every condition it names holds, as one `:where()`
+after the variants. Prefer a plain boolean variant where one will do: a compound is harder to read.
 
 ## A slot name is a public contract
 
@@ -466,8 +464,9 @@ needs no entry, because a variant class already belongs to the slot it modifies.
 ## What a manifest is compiled into
 
 A manifest is authored as Tailwind and never shipped as Tailwind. `bun run build:tailwind`
-translates each slot and each variant branch into an `@apply` rule under an
-`arena-<manifest>__<slot>` class name, compiles the lot, strips Tailwind's own theme
+translates each slot and each variant branch into an `@apply` rule on the `arena-<manifest>__<slot>`
+class, a branch qualified by its group's attribute inside `:where()` (`:where([data-arena-tone="danger"])`,
+`:where(:not([data-arena-sticky]))`, one `:where()` per compound) so it keeps its `(0,1,0)`. It compiles the lot, strips Tailwind's own theme
 indirection back to the Arena token behind it, and cuts the result into one stylesheet per
 component plus the prelude they share, all of it under `consume/`. What a component composes at
 runtime is the class names, never the utilities.

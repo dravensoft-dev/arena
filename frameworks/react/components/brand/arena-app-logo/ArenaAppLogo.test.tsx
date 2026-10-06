@@ -31,8 +31,8 @@ test('every step in the repertoire resolves, and none writes a number', () => {
   for (const size of ['sm', 'md', 'lg', 'xl']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderToStaticMarkup(<ArenaAppLogo size={size} mark={MARK} name="Draven" />);
-    assert.match(html, new RegExp(`\\barena-app-logo__mark--size-${size}\\b`));
-    assert.match(html, new RegExp(`\\barena-app-logo__name--size-${size}\\b`));
+    assert.match(html, new RegExp(`data-arena-part="app-logo.mark"[^>]*\\bdata-arena-size="${size}"`));
+    assert.match(html, new RegExp(`data-arena-part="app-logo.name"[^>]*\\bdata-arena-size="${size}"`));
 
     assert.doesNotMatch(html, /style="/, 'the lock-up writes no inline style at all');
   }

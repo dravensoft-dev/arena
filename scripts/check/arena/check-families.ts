@@ -170,9 +170,8 @@ export function sweptProblems(families: Map<string, Family>, manifests: Map<stri
   const emitted = new Set<string>();
   for (const manifest of manifests.values()) {
     const all = classesManifest(manifest);
-    const slotMaps = [all.slots, ...Object.values(all.variants ?? {}).flatMap((values) => Object.values(values)), ...(all.compoundVariants ?? []).map((one) => one.class)];
-    for (const map of slotMaps)
-      for (const value of Object.values(map ?? {})) for (const name of String(value ?? '').split(/\s+/)) if (name.startsWith('arena-')) emitted.add(name);
+    for (const value of Object.values(all.slots ?? {}))
+      for (const name of String(value ?? '').split(/\s+/)) if (name.startsWith('arena-')) emitted.add(name);
   }
   return strayClassProblems(classes, families, emitted, NOT_WRITTEN);
 }

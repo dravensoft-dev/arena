@@ -24,8 +24,6 @@ function declarations(html: string): Record<string, string> {
   return out;
 }
 
-const classesOf = (html: string) => (/class="([^"]*)"/.exec(html)?.[1] ?? '').split(/\s+/).filter(Boolean);
-
 test('a hero with no title is refused, and a title of nothing but spaces is refused with it', () => {
   // @ts-expect-error the contract requires it, and the guard is what this asserts
   assert.throws(() => render(<ArenaHero />), /`title` is required/);
@@ -54,7 +52,7 @@ test('only the split layout lays a track list, because the other two are one col
 });
 
 test('the three layouts and the two alignments are distinct, and split with start is the default', () => {
-  const roots = new Set(LAYOUTS.map((layout) => classesOf(render(<ArenaHero title="T" layout={layout} />)).join(' ')));
+  const roots = new Set(LAYOUTS.map((layout) => /\bdata-arena-layout="([^"]*)"/.exec(render(<ArenaHero title="T" layout={layout} />))?.[1]));
   assert.equal(roots.size, LAYOUTS.length, 'two layouts compiled to the same root');
 
   const words = new Set(ALIGNS.map((align) => render(<ArenaHero title="T" align={align} />)));

@@ -19,9 +19,9 @@ import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect, evaluate } from '../../lib/arena/cdp.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { arenaClassesFor, classesManifest } from '../../lib/tailwind/component-css.ts';
+import { arenaClassesFor, arenaSlotDataFor, classesManifest } from '../../lib/tailwind/component-css.ts';
 import { VOCABULARY_SHEETS, compileFamily } from '../../lib/tailwind/vocabulary.ts';
-import { readProximity, treeHtml, SUBJECT, type ProximityCase, type MarkupCase } from '../../lib/arena/proximity.ts';
+import { readProximity, treeHtml, SUBJECT, type PartData, type ProximityCase, type MarkupCase } from '../../lib/arena/proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 import { loaded as loadFired } from './check-pixel-parity.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
@@ -59,6 +59,16 @@ export function partClasses(manifests: Iterable<ComponentManifest>) {
     const parts = classesManifest(manifest).parts ?? {};
     const classes = arenaClassesFor(manifest);
     for (const [slot, part] of Object.entries(parts)) if (!out.has(part) && classes[slot]) out.set(part, classes[slot]!);
+  }
+  return out;
+}
+
+export function partData(manifests: Iterable<ComponentManifest>) {
+  const out = new Map<string, PartData>();
+  for (const manifest of manifests) {
+    const parts = classesManifest(manifest).parts ?? {};
+    const data = arenaSlotDataFor(manifest);
+    for (const [slot, part] of Object.entries(parts)) if (!out.has(part) && data[slot]) out.set(part, data[slot]!);
   }
   return out;
 }
@@ -149,6 +159,7 @@ async function main() {
     process.exit(1);
   }
   const classes = partClasses(readManifests(root).values());
+  const data = partData(readManifests(root).values());
   const sheet = (dir: string) => walkFiles(join(root, dir)).filter((p) => p.endsWith('.css')).map((p) => relPosix(root, p)).sort();
   const sheets = { components: sheet('frameworks/tailwind/consume/components'), vocabulary: sheet(VOCABULARY_SHEETS) };
   if (sheets.vocabulary.length === 0) { console.error('check-proximity: found 0 vocabulary sheets; run bun run build'); process.exit(1); }
@@ -176,7 +187,7 @@ async function main() {
     for (const kase of cases) {
       for (const layer of ['react', 'angular'] as const) {
         const tree = kase[layer]!;
-        const body = treeHtml(tree, (part) => classes.get(part) ?? '')
+        const body = treeHtml(tree, (part) => classes.get(part) ?? '', (part) => data.get(part) ?? {})
           .replace(/^<div/, `<div style="width: ${CONTAINER_WIDTH}px; display: flex; flex-direction: column; align-items: flex-start"`);
         for (const order of ORDERS) {
           const html = pageHtml(order, body, witnessCss, sheets).replace('<head>', `<head>${base}`);

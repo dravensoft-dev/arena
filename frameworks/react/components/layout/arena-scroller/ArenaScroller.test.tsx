@@ -25,10 +25,6 @@ function declarations(html: string): Record<string, string> {
   return out;
 }
 
-function rootClasses(html: string): string[] {
-  return (/class="([^"]*)"/.exec(html)?.[1] ?? '').split(/\s+/).filter(Boolean);
-}
-
 test('the row is one tab stop carrying a group role and the name it was given', () => {
   const html = render(<ArenaScroller label="Recently landed lots">{items}</ArenaScroller>);
   assert.match(html, /role="group"/);
@@ -72,14 +68,12 @@ test('the item width reaches the children as a custom property, and defaults to 
   assert.ok(!/^\d/.test(given), 'the width must arrive as a token derivation, never as a literal');
 });
 
-test('the two behaviours are two distinct classes, and snap is the default', () => {
+test('the two behaviours are two distinct attributes, and snap is the default', () => {
   const seen = new Set(BEHAVIOURS.map((behaviour) => {
-    const classes = rootClasses(render(
-      <ArenaScroller label="L" behaviour={behaviour}>{items}</ArenaScroller>,
-    ));
-    return classes.filter((cls) => cls.includes('behaviour')).join(' ');
+    const html = render(<ArenaScroller label="L" behaviour={behaviour}>{items}</ArenaScroller>);
+    return /\bdata-arena-behaviour="([^"]*)"/.exec(html)?.[1];
   }));
-  assert.equal(seen.size, BEHAVIOURS.length, 'the two behaviours compiled to the same class');
+  assert.equal(seen.size, BEHAVIOURS.length, 'the two behaviours compiled to the same attribute');
   assert.equal(
     render(<ArenaScroller label="L">{items}</ArenaScroller>),
     render(<ArenaScroller label="L" behaviour="snap">{items}</ArenaScroller>),

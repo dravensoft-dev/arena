@@ -13,10 +13,6 @@ const RHYTHMS = ['none', 'sm', 'md', 'lg'] as const;
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const body = <p>One</p>;
 
-function rootClasses(html: string): string[] {
-  return (/class="([^"]*)"/.exec(html)?.[1] ?? '').split(/\s+/).filter(Boolean);
-}
-
 test('a section with no title is refused, and a title of nothing but spaces is refused with it', () => {
   assert.throws(
     // @ts-expect-error the contract requires it, and the guard is what this asserts
@@ -66,17 +62,15 @@ test('the eyebrow, the description and the action are drawn only when given', ()
   for (const text of ['This week', 'Since Monday', 'See all']) assert.match(full, new RegExp(text));
 });
 
-test('the four named steps are four distinct classes on the root, and md is the default', () => {
+test('the four named steps are four distinct attributes on the root, and md is the default', () => {
   const seen = new Set<string>();
   for (const rhythm of RHYTHMS) {
-    const classes = rootClasses(render(
-      <ArenaSection title="Landed recently" rhythm={rhythm}>{body}</ArenaSection>,
-    ));
-    const step = classes.find((cls) => cls.includes('rhythm'));
-    assert.ok(step, `${rhythm} names no rhythm class at all`);
+    const html = render(<ArenaSection title="Landed recently" rhythm={rhythm}>{body}</ArenaSection>);
+    const step = /<[^>]*\bdata-arena-rhythm="([^"]*)"/.exec(html)?.[1];
+    assert.ok(step, `${rhythm} names no rhythm attribute at all`);
     seen.add(step);
   }
-  assert.equal(seen.size, RHYTHMS.length, 'two steps compiled to the same class');
+  assert.equal(seen.size, RHYTHMS.length, 'two steps compiled to the same attribute');
   assert.equal(
     render(<ArenaSection title="Landed recently">{body}</ArenaSection>),
     render(<ArenaSection title="Landed recently" rhythm="md">{body}</ArenaSection>),

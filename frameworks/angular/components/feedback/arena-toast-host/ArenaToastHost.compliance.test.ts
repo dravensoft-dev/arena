@@ -105,19 +105,25 @@ test('the notices come out in the order they went in, so the reading order is th
   }
 });
 
-test('the placement reaches the host class, and it is the only thing that varies', () => {
+test('the placement reaches the host attribute, and it is the only thing that varies', () => {
   const bottom = render();
   let bottomClass: string;
+  let bottomPlacement: string | null;
   try {
-    bottomClass = (bottom.nativeElement.querySelector('arena-toast-host') as HTMLElement).className;
+    const hostElement = bottom.nativeElement.querySelector('arena-toast-host') as HTMLElement;
+    bottomClass = hostElement.className;
+    bottomPlacement = hostElement.getAttribute('data-arena-placement');
   } finally {
     bottom.destroy();
   }
 
   const top = render({ placement: 'top-start' });
   try {
-    const topClass = (top.nativeElement.querySelector('arena-toast-host') as HTMLElement).className;
-    assert.notEqual(topClass, bottomClass, 'the placement input never reached the rendered class');
+    const topHost = top.nativeElement.querySelector('arena-toast-host') as HTMLElement;
+    const topClass = topHost.className;
+    assert.notEqual(topHost.getAttribute('data-arena-placement'), bottomPlacement,
+      'the placement input never reached the rendered attribute');
+    assert.equal(topClass, bottomClass, 'the class is the slot class whatever the placement');
     for (const shared of ['arena-toast-host__root']) {
       assert.ok(topClass.split(/\s+/).includes(shared), `${shared} must not vary with placement`);
       assert.ok(bottomClass.split(/\s+/).includes(shared), `${shared} must not vary with placement`);
