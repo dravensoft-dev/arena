@@ -10,8 +10,6 @@
     "overlay": { "form": "slot",
                  "description": "Content laid over the media, on the wash the overlay role paints, so a mark or a line of text stays readable against a picture nobody chose. It is inside the frame and the caption is under it, which is the whole difference between the two." },
     "caption": { "form": "primitive", "type": "string",
-                 "description": "A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one." },
-    "ratio": { "form": "primitive", "type": "string", "default": "var(--aspect-media)",
-               "description": "The shape of the frame, as a CSS aspect ratio. The default is the role, so a style plugin answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the plugin's to decide: a video is sixteen by nine whatever the page sounds like." }
+                 "description": "A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one." }
   }
 }

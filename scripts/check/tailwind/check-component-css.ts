@@ -9,7 +9,7 @@
  * the `@supports` emit and supports-blocks.ts states what each is; a survivor of either reports a
  * sheet emitted before those transforms rather than a manifest to edit. */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -40,6 +40,11 @@ export const THEME_NAMESPACES = [
   'font-weight', 'breakpoint', 'aspect', 'perspective', 'drop-shadow', 'inset-shadow',
 ];
 
+export const ARENA_THEME_NAMED = new Map([
+  ...['media', 'square', 'video', 'portrait', 'wide'].map((n) => [`aspect-${n}`,
+    'Arena\'s own frame token, and Theme.css clears Tailwind\'s aspect namespace so no default theme key writes it'] as [string, string]),
+]);
+
 export const EXTERNAL_PROPERTIES = new Map([
   ['picker-invert', 'written by arena-to-prod into the consuming project\'s own stylesheet, never by the package'],
   ['arena-side-nav-depth', 'written by ArenaSideNav\'s rows onto their own root as a unitless count of the row\'s '
@@ -56,14 +61,19 @@ export function propertiesIn(css: string) {
   return new Set([...css.matchAll(/var\(\s*--([a-z0-9-]+)/g)].map((m) => m[1]));
 }
 
-export function themeLeaks(css: string) {
+export function themeLeaks(css: string, own: Map<string, string> = ARENA_THEME_NAMED) {
   const leaked = new Set();
   for (const name of propertiesIn(css)) {
-    if (name === undefined) continue;
+    if (name === undefined || own.has(name)) continue;
     const namespace = THEME_NAMESPACES.find((ns) => name === ns || name.startsWith(`${ns}-`));
     if (namespace) leaked.add(name);
   }
   return [...leaked].sort();
+}
+
+export function staleThemeNamedProblems(read: Set<string>, own: Map<string, string> = ARENA_THEME_NAMED) {
+  return [...own.keys()].filter((name) => !read.has(name)).map((name) => `ARENA_THEME_NAMED names --${name} and no emitted sheet reads it, `
+    + 'so the entry outlived what it exempts; drop it');
 }
 
 export function isHueChannel(name: string) {
@@ -78,6 +88,7 @@ export function isFamilyChannel(name: string, families: Map<string, Pick<Family,
 
 export function sheetProblems(manifests: Manifests, base = root) {
   const problems = [];
+  const readNames = new Set<string>();
   const tokens = arenaTokenNames(base);
   const families = readFamilies(base);
   for (const decls of parseDecls(readFileSync(join(base, 'contracts/design/environment.css'), 'utf8')).values())
@@ -100,6 +111,7 @@ export function sheetProblems(manifests: Manifests, base = root) {
     for (const name of emitted) {
       if (name !== undefined && !derived.has(name)) problems.push(`${manifest.component}: .${name} has a rule no manifest derives`);
     }
+    for (const name of propertiesIn(css)) if (name !== undefined) readNames.add(name);
     for (const leak of themeLeaks(css)) {
       problems.push(`${manifest.component}: reads --${leak}, a Tailwind theme property, so the strip `
         + 'did not run over it and an adopter who declares that property rescales this component silently');
@@ -125,6 +137,13 @@ export function sheetProblems(manifests: Manifests, base = root) {
         + 'fallback: drop it and let the background not paint');
     }
   }
+  const sheets = join(base, CONSUME, 'vocabulary');
+  if (existsSync(sheets)) {
+    for (const file of readdirSync(sheets).filter((f) => f.endsWith('.generated.css'))) {
+      for (const name of propertiesIn(readFileSync(join(sheets, file), 'utf8'))) if (name !== undefined) readNames.add(name);
+    }
+  }
+  problems.push(...staleThemeNamedProblems(readNames));
   return problems;
 }
 

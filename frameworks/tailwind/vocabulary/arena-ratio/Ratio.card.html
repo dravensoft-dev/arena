@@ -1,0 +1,49 @@
+<!-- @dsCard group="Tailwind" viewport="820x560" name="ratio" subtitle="A box family: arena-ratio-media is the default, square, video, portrait and wide change the shape of the frame, and the property is the route for a shape no step names" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-figure/ArenaFigure.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Ratio.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/layout/arena-figure/ArenaFigure.manifest.json')).json();
+const AXIS = '--arena-ratio';
+const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
+
+function figure(option, caption) {
+  const frame = el('div', { class: `${c.frame} ${option}`, ...d.frame });
+  const box = el('div', { class: c.fallback, ...d.fallback });
+  box.append(el('i', { class: 'ph-bold ph-coffee-bean text-[length:var(--fs-display)]' }));
+  frame.append(box);
+  const root = el('figure', { class: c.root, ...d.root });
+  root.append(frame, el('figcaption', { class: c.caption, ...d.caption, text: caption }));
+  return root;
+}
+
+function set(value) {
+  const holder = el('div', { style: { display: 'contents', [AXIS]: value } });
+  holder.append(figure('', '--arena-ratio: 3 / 2 on a container'));
+  return holder;
+}
+
+const rail = (...kids) => {
+  const row = el('div', { class: 'grid grid-cols-3 gap-component items-start' });
+  for (const k of kids) row.append(k);
+  return row;
+};
+
+mountSpecimen({ sections: [
+  section('The steps', [rail(
+    figure('arena-ratio-media', 'arena-ratio-media, the default'),
+    figure('arena-ratio-square', 'arena-ratio-square'),
+    figure('arena-ratio-video', 'arena-ratio-video'),
+    figure('arena-ratio-portrait', 'arena-ratio-portrait'),
+    figure('arena-ratio-wide', 'arena-ratio-wide'),
+  )], { stack: true }),
+  section('A shape no step names', [rail(set('3 / 2'))], { stack: true }),
+]});
+</script></body></html>

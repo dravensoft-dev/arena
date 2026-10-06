@@ -11,6 +11,7 @@
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`board-column`](#board-column) | box | `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm` | `--arena-board-column` | ArenaBoard |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
+| [`dialog-width`](#dialog-width) | box | `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm` | `--arena-dialog-width` | ArenaDialog |
 | [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
 | [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
@@ -22,6 +23,7 @@
 | [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo, ArenaSwitch |
 | [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
+| [`ratio`](#ratio) | box | `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide` | `--arena-ratio` | ArenaFigure |
 | [`rhythm`](#rhythm) | box | `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section` | `--arena-rhythm` | ArenaSection |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`scroller-item`](#scroller-item) | box | `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm` | `--arena-scroller-item` | ArenaScroller, ArenaScrollerItem |
@@ -76,6 +78,15 @@ How much a region holds, which is a question about who is pointing at it rather 
 - **Reach:** context: it goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again.
 - **Values:** `arena-compact` restates `contracts/design/density.compact.json`, `arena-comfortable` restates `contracts/design/density.comfortable.json`.
 - **Written on:** an element you wrote, or a component.
+
+## dialog-width
+
+How wide the panel of a dialog is, which decides how much of a form or a message fits on a line. The question is the adopter's, because a confirmation wants a narrow panel and a form wants a wide one from the same component. arena-dialog-width-md is the default and reads dialog-width-md. arena-dialog-width-sm and arena-dialog-width-lg read dialog-width-sm and dialog-width-lg. Set --arena-dialog-width on a container for a width no step names. Write a length, or a token such as var(--dialog-width-md) or calc(var(--dialog-width-md) * 1.5). A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both.
+
+- **Options:** `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-dialog-width`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaDialog.
 
 ## elevation
 
@@ -171,6 +182,15 @@ The reading column for a document you write, an article, a changelog, a release 
 - **Options:** `arena-prose`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## ratio
+
+The shape of the frame a figure clips its picture to, as the ratio of its width to its height. The question is the adopter's. A shop crops portrait where a gallery tiles square, and a video is sixteen by nine whatever the page sounds like. arena-ratio-media is the default and reads aspect-media, which a style plugin answers for every figure at once. arena-ratio-square, arena-ratio-video, arena-ratio-portrait and arena-ratio-wide read aspect-square, aspect-video, aspect-portrait and aspect-wide. Set --arena-ratio on a container for a shape no step names. Write a number, a fraction such as 3 / 2, or a token such as var(--aspect-video). A class on the figure wins over a property on its container.
+
+- **Options:** `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-ratio`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaFigure.
 
 ## rhythm
 

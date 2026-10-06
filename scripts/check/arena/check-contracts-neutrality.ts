@@ -63,11 +63,6 @@ export const WEB_PROSE = new Map([
    + 'statement about DTCG and reaches every target'],
 ]);
 
-export const CSS_VALUED = new Map([
-  ['contracts/api/components/ArenaDialog.json:api.width', 'the panel width'],
-  ['contracts/api/components/ArenaFigure.json:api.ratio', 'the frame\'s aspect ratio'],
-]);
-
 export const WEB_SHAPED = new Map([
   ['aria-', 'the attribute names WAI-ARIA published. A behaviour requirement names the state a target '
     + 'must expose, and every platform accessibility API has a counterpart it maps to'],
@@ -108,23 +103,13 @@ export function memberPath(strand: Strand) {
   return tokenPath(strand).replace(/\.(default|type|of|payload)$/, '');
 }
 
-export function valueProblems(all: Strand[], bound = BROWSER_BOUND, cssValued = CSS_VALUED) {
+export function valueProblems(all: Strand[], bound = BROWSER_BOUND) {
   const problems: string[] = [];
-  const matched = new Set<string>();
   for (const strand of all.filter((s) => !s.prose)) {
     const terms = [...bound.keys()].filter((term) => strand.text.includes(term));
     if (terms.length === 0) continue;
-    const member = memberPath(strand);
-    matched.add(member);
-    if (cssValued.has(member)) continue;
     problems.push(`${tokenPath(strand)} has a value carrying ${terms.map((x) => `"${x}"`).join(', ')}, `
       + `which a target off the web cannot execute: ${bound.get(terms[0] as string)}`);
-  }
-  for (const member of cssValued.keys()) {
-    if (!matched.has(member)) {
-      problems.push(`CSS_VALUED names ${member} and no value under it is a CSS expression any more, `
-        + 'so the entry outlived the debt it records; drop it');
-    }
   }
   return problems;
 }
@@ -157,13 +142,6 @@ export function staleShapedProblems(all: Strand[], shaped = WEB_SHAPED) {
     .filter((term) => !joined.includes(term))
     .map((term) => `WEB_SHAPED exempts "${term}" and the payload no longer contains it, so the `
       + 'exemption outlived what it exempts; drop the entry rather than leaving a reason nothing rests on');
-}
-
-export function zeroRecordProblems(recorded: number) {
-  if (recorded > 0) return [];
-  return ['CSS_VALUED is empty. If the five members that take a CSS length have been reshaped into '
-    + 'neutral ones, this record and the paragraph in contracts/api/AGENTS.md that cites it both go '
-    + 'with them; an empty map left behind is a claim nobody is making'];
 }
 
 export function zeroWalkProblems(files: number, strandCount: number, shaped: number) {
@@ -251,7 +229,7 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
 ]);
 
 export const DESIGN_MEMBERS = new Map<string, Pending>([
-  ...[['ArenaDialog', 'width'], ['ArenaFigure', 'ratio'], ['ArenaSkeleton', 'width'],
+  ...[['ArenaSkeleton', 'width'],
     ['ArenaSkeleton', 'height'], ['ArenaSkeleton', 'radius'], ['ArenaSkeleton', 'variant'],
   ].map(([c, m]) => [at(c!, m!), { phase: 6, why: GEOMETRY }] as [string, Pending]),
   [field('arena-table-column', 'width'), { phase: 6, why: GEOMETRY }],
@@ -371,7 +349,6 @@ export function collect(repo = root) {
     problems: [
       ...zeroWalkProblems(files.length, all.length, WEB_SHAPED.size),
       ...valueProblems(all),
-      ...zeroRecordProblems(CSS_VALUED.size),
       ...proseProblems(all),
       ...staleShapedProblems(all),
       ...designMemberProblems(),
@@ -392,8 +369,7 @@ function main() {
   }
   const values = all.filter((s) => !s.prose).length;
   console.log(`check-contracts-neutrality: ${values} value(s) across ${files.length} carried file(s) `
-    + `execute none of ${BROWSER_BOUND.size} browser-bound construct(s) bar ${CSS_VALUED.size} `
-    + `member(s) on the record; ${WEB_PROSE.size} `
+    + `execute none of ${BROWSER_BOUND.size} browser-bound construct(s); ${WEB_PROSE.size} `
     + `description(s) speak web idiom on the record, and all ${WEB_SHAPED.size} web-published `
     + 'term(s) the payload carries on purpose are still in it');
 }

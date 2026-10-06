@@ -22,17 +22,16 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 | `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it. |
 | `title*` | primitive | `string` |  | Names the dialog for assistive technology and heads it visually. Required: aria-labelledby points at it, and a modal with no name is worse than none at all. |
 | `eyebrow` | primitive | `string` |  | A short kicker above the title. |
-| `width` | primitive | `string` | `"calc(var(--sp-1) * 120)"` | A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. |
 | `content` | slot |  |  | The dialog's body. |
 | `footer` | slot |  |  | The action row, right-aligned. |
-| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. |
+| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. |
 | `close` | event |  |  | The dialog was dismissed -- by Escape or by a scrim click. No payload. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`dialog-width`](../../../../VOCABULARY.md#dialog-width): `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm`. Write one as `class="arena-dialog-width-lg"` on the component, or on a container whose components should all take it. Property: `--arena-dialog-width`, set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 

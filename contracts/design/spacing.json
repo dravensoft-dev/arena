@@ -109,5 +109,13 @@
     "text-md": { "$value": { "value": 24, "unit": "px" }, "$description": "the wordmark beside mark-md, in a signed-out panel" },
     "text-lg": { "$value": { "value": 34, "unit": "px" }, "$description": "the wordmark beside mark-lg, in the manual's Primary · horizontal" },
     "text-xl": { "$value": { "value": 78, "unit": "px" }, "$description": "the wordmark beside mark-xl, at hero size" }
+  },
+  "aspect": {
+    "$type": "number",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
+    "square": { "$value": 1, "$description": "A square frame, one by one." },
+    "video": { "$value": 1.7777777778, "$description": "A video frame, sixteen by nine." },
+    "portrait": { "$value": 0.8, "$description": "A portrait frame, four by five." },
+    "wide": { "$value": 2.3333333333, "$description": "A cinema frame, twenty-one by nine." }
   }
 }

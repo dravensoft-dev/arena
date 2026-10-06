@@ -204,7 +204,7 @@ export const CLAIMS = {
     { slot: 'frame', has: ['rounded-media', 'overflow-hidden', 'bg-surface-sunken'], hasNot: ['rounded-surface', 'rounded-lg'], why: 'a figure is the thing being looked at rather than a container the reader looks past, so its corner is its own role and not the surface one' },
     { slot: 'media', has: ['[&>img]:fit-media', '[&>video]:fit-media'], why: 'how the picture meets the frame is a role, and it is scoped to the media box so an image in the overlay or the fallback is not cropped with it' },
     { slot: 'overlay', has: ['bg-overlay-media/72'], why: 'the wash is a colour role with the opacity in the manifest, so which colour and how held back stay two decisions and the contrast is measurable' },
-    { slot: 'frame', hasNot: ['aspect-square', 'aspect-video'], why: 'the shape is a member the component writes inline, because a consumer pinning a video is answering about one figure and not about the appearance' },
+    { slot: 'frame', has: ['aspect-[var(--arena-ratio-frame,var(--arena-ratio,var(--aspect-media)))]'], hasNot: ['aspect-square', 'aspect-video'], why: 'the shape is read from the ratio family\'s channel, then its axis, then the media role, because a consumer pinning a video is answering about one figure and not about the appearance' },
   ],
   ArenaHero: [
     { slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
@@ -348,7 +348,7 @@ export const CLAIMS = {
   ArenaDialog: [
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps because the consumer projects one control per element rather than a wrapper of their own' },
     { chosen: { open: true }, slot: 'scrim', has: ['z-modal'], why: 'the scrim sits on --z-modal, one slot below the nested confirmation it can raise' },
-    { chosen: { open: true }, slot: 'panel', has: ['w-120'], why: 'the panel carries its own default width, so the width member is an override rather than a requirement' },
+    { chosen: { open: true }, slot: 'panel', has: ['w-[var(--arena-dialog-width-size,var(--arena-dialog-width,var(--dialog-width-md)))]'], why: 'the panel reads its width from the dialog-width family\'s channel, then its axis, then the medium step, so a dialog with no class and no property is the width the default names' },
   ],
   ArenaGrid: [
     { slot: 'root', has: ['gap-[var(--arena-grid-gap-size,var(--arena-grid-gap,var(--rhythm-component)))]'], why: 'the gap is read from the grid-gap family\'s channel, then from its axis, then from the component step, so the page rhythm scale is spent and not a step this component picked off the grid' },

@@ -72,7 +72,7 @@ export class ArenaDialog {
   readonly eyebrow = input<string>();
   /** A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. */
   readonly width = input<string>();
-  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. */
+  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
   readonly fillBelow = input<ArenaBreakpoint>();
   /** The dialog was dismissed -- by Escape or by a scrim click. No payload. */
   readonly close = output<void>();

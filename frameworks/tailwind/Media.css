@@ -12,9 +12,9 @@
  * unlike a vocabulary family, it is NOT copied into the packages: a manifest names it rather than a
  * consumer, so it compiles through into the component sheets.
  *
- * The shape of the frame is not here. An aspect ratio is a value a member carries and a
- * component writes inline, the way ArenaGrid writes its track list, because a consumer pinning a
- * video to sixteen by nine is answering about one figure and not about the voice.
+ * The shape of the frame is not here. The figure's frame reads it through the ratio family,
+ * because a consumer pinning a video to sixteen by nine is answering about one figure and not
+ * about the voice.
  */
 
 @utility fit-media {

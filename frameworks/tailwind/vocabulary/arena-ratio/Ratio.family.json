@@ -1,0 +1,14 @@
+{
+  "family": "ratio",
+  "reach": "box",
+  "description": "The shape of the frame a figure clips its picture to, as the ratio of its width to its height. The question is the adopter's. A shop crops portrait where a gallery tiles square, and a video is sixteen by nine whatever the page sounds like. arena-ratio-media is the default and reads aspect-media, which a style plugin answers for every figure at once. arena-ratio-square, arena-ratio-video, arena-ratio-portrait and arena-ratio-wide read aspect-square, aspect-video, aspect-portrait and aspect-wide. Set --arena-ratio on a container for a shape no step names. Write a number, a fraction such as 3 / 2, or a token such as var(--aspect-video). A class on the figure wins over a property on its container.",
+  "default": "arena-ratio-media",
+  "variants": {
+    "arena-ratio-media": "[--arena-ratio-frame:var(--aspect-media)]",
+    "arena-ratio-square": "[--arena-ratio-frame:var(--aspect-square)]",
+    "arena-ratio-video": "[--arena-ratio-frame:var(--aspect-video)]",
+    "arena-ratio-portrait": "[--arena-ratio-frame:var(--aspect-portrait)]",
+    "arena-ratio-wide": "[--arena-ratio-frame:var(--aspect-wide)]"
+  },
+  "axis": "--arena-ratio"
+}

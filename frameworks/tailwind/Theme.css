@@ -350,6 +350,9 @@
   --size-logo-mark-lg: var(--logo-mark-lg);
   --size-logo-mark-xl: var(--logo-mark-xl);
 
+  /* The aspect tokens are Arena's own and no utility reads them: the ratio family does. */
+  --aspect-*: initial;
+
   /* ---- effects → contracts/design-generated/effects.generated.css ----------------- */
   --radius-*: initial;
   --radius-xs: var(--r-xs);

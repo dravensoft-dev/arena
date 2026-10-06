@@ -49,6 +49,9 @@
   --scroller-item-sm:176px;
   --scroller-item-md:260px;
   --scroller-item-lg:364px;
+  --dialog-width-sm:416px;
+  --dialog-width-md:30rem;
+  --dialog-width-lg:704px;
   --container-max:1080px;
   --gutter:40px;
   --pad-surface:24px;

@@ -126,6 +126,10 @@
   --logo-text-md:24px; /* the wordmark beside mark-md, in a signed-out panel */
   --logo-text-lg:34px; /* the wordmark beside mark-lg, in the manual's Primary · horizontal */
   --logo-text-xl:78px; /* the wordmark beside mark-xl, at hero size */
+  --aspect-square:1; /* A square frame, one by one. */
+  --aspect-video:1.7777777778; /* A video frame, sixteen by nine. */
+  --aspect-portrait:0.8; /* A portrait frame, four by five. */
+  --aspect-wide:2.3333333333; /* A cinema frame, twenty-one by nine. */
 }
 :root{
   /*

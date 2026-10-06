@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  EXTERNAL_PROPERTIES, MANIFEST_FETCH, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
+  ARENA_THEME_NAMED, EXTERNAL_PROPERTIES, MANIFEST_FETCH, staleThemeNamedProblems, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
   propertiesIn, selectorsIn, themeLeaks,
   isFamilyChannel,
 } from './check-component-css.ts';
@@ -104,4 +104,15 @@ test('an axis, or the channel of a keyed family, is defined when a family declar
   assert.equal(isFamilyChannel('arena-col-width', unprefixed), true);
   assert.equal(isFamilyChannel('arena-col-width', fill), false);
   assert.equal(isFamilyChannel('arena-fill', new Map([['fill', { family: 'fill', axis: '--arena-fill' }]])), true);
+});
+
+test('an Arena aspect token is no leak, and an entry no sheet reads is stale', () => {
+  assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-media)'), []);
+  assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-media)', new Map()), ['aspect-media'], 'without the record the read is the leak');
+  assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-other)'), ['aspect-other'], 'only the five named tokens are Arena\'s');
+  assert.equal(ARENA_THEME_NAMED.size, 5);
+  assert.deepEqual(staleThemeNamedProblems(new Set(ARENA_THEME_NAMED.keys())), []);
+  const read = new Set(ARENA_THEME_NAMED.keys());
+  read.delete('aspect-wide');
+  assert.match(staleThemeNamedProblems(read).join('\n'), /--aspect-wide and no emitted sheet reads it/);
 });

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BROWSER_BOUND, CSS_VALUED, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
-  valueProblems, zeroRecordProblems, zeroWalkProblems,
+  BROWSER_BOUND, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
+  valueProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
 import { COMPUTED, DESIGN_MEMBERS, computedProblems, designMemberProblems, optionShapeProblems } from './check-contracts-neutrality.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -19,22 +19,18 @@ test('a string under a description key is prose and every other string is a valu
   assert.equal(prose?.prose, true);
 });
 
-test('a value carrying a browser construct fails, and the record is what makes it not fail', () => {
+test('a value carrying a browser construct fails, and no record excuses it', () => {
   const tree = { api: { width: { default: 'calc(var(--sp-1) * 120)' } } };
-  const loose = valueProblems(of('contracts/api/components/Ghost.json', tree), BROWSER_BOUND, new Map());
-  assert.equal(loose.length, 1);
-  assert.match(loose[0] ?? '', /cannot execute/);
-
-  const recorded = new Map([['contracts/api/components/Ghost.json:api.width', 'on the record']]);
-  assert.deepEqual(valueProblems(of('contracts/api/components/Ghost.json', tree), BROWSER_BOUND, recorded), []);
+  const problems = valueProblems(of('contracts/api/components/Ghost.json', tree), BROWSER_BOUND);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /cannot execute/);
 });
 
-test('a recorded member whose value stopped being CSS fails, so the record cannot outlive the debt', () => {
-  const tree = { api: { width: { default: '480' } } };
-  const recorded = new Map([['contracts/api/components/Ghost.json:api.width', 'on the record']]);
-  const problems = valueProblems(of('contracts/api/components/Ghost.json', tree), BROWSER_BOUND, recorded);
+test('a var(--) default on a member fails, so no member takes a CSS value', () => {
+  const tree = { api: { ratio: { form: 'primitive', type: 'string', default: 'var(--aspect-media)' } } };
+  const problems = valueProblems(of('contracts/api/components/Ghost.json', tree));
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /outlived the debt it records/);
+  assert.match(problems[0] ?? '', /Ghost\.json:api\.ratio\.default has a value carrying "var\(--"/);
 });
 
 test('a member path drops the field the value sat in, so one entry covers its type and its default', () => {
@@ -53,13 +49,11 @@ test('prose speaking web idiom fails unless recorded, and a recorded one that st
   assert.match(stale[0] ?? '', /no longer speaks web idiom/);
 });
 
-test('an empty walk, an empty record and an empty exemption set are all failures', () => {
+test('an empty walk and an empty exemption set are all failures', () => {
   assert.deepEqual(zeroWalkProblems(1, 1, 1), []);
   assert.equal(zeroWalkProblems(0, 1, 1).length, 1);
   assert.equal(zeroWalkProblems(1, 0, 1).length, 1);
   assert.equal(zeroWalkProblems(1, 1, 0).length, 1);
-  assert.deepEqual(zeroRecordProblems(1), []);
-  assert.equal(zeroRecordProblems(0).length, 1);
 });
 
 test('the tree passes its own claim, over more than nothing', () => {
@@ -71,10 +65,6 @@ test('the tree passes its own claim, over more than nothing', () => {
 
 test('every record still names something the payload holds', () => {
   const { all } = collect();
-  const values = new Set(all.filter((s) => !s.prose).map(memberPath));
-  for (const member of CSS_VALUED.keys()) {
-    assert.ok(values.has(member), `CSS_VALUED names ${member} and no value under it was read`);
-  }
   const proseAt = new Set(all.filter((s) => s.prose).map((s) => `${s.rel}:${s.path.split('.').slice(0, -1).join('.') || '(root)'}`));
   for (const at of WEB_PROSE.keys()) {
     assert.ok(proseAt.has(at), `WEB_PROSE names ${at} and no description was read there`);

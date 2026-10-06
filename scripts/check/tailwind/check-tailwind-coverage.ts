@@ -44,10 +44,14 @@ export const EXCLUDED = new Map([
   ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '
     + 'static utilities naming a value, which is the shape of a scale rather than of a role. Reached '
     + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],
-  ['aspect-media', 'the shape of a media frame, which a member carries and ArenaFigure writes inline the '
-    + 'way ArenaGrid writes its track list, because a consumer pinning a video to sixteen by nine is '
-    + 'answering about one figure and not about the appearance. A theme key would also have collided with '
-    + 'the token: v4 emits aspect-<key> from --aspect-*, and the role is already spelt --aspect-media'],
+  ['aspect-media', 'the shape of a media frame, which the figure\'s frame reads through the ratio family, '
+    + 'because a consumer pinning a video to sixteen by nine is answering about one figure and not about the '
+    + 'appearance (R4). A theme key would also have collided with the token: v4 emits aspect-<key> from '
+    + '--aspect-*, and the role is already spelt --aspect-media'],
+  ['aspect-square', 'a frame a ratio option reads through its channel, never a utility'],
+  ['aspect-video', 'a frame a ratio option reads through its channel, never a utility'],
+  ['aspect-portrait', 'a frame a ratio option reads through its channel, never a utility'],
+  ['aspect-wide', 'a frame a ratio option reads through its channel, never a utility'],
   ['grid-min', 'the narrowest column of an auto-filling grid, which lands inside a repeat(auto-fill, '
     + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached by the manifest '
     + 'read of the grid-min family, grid-cols-[repeat(auto-fill,minmax(min(var(--arena-grid-min-width,var(--arena-grid-min,var(--grid-min))),100%),1fr))]'],

@@ -256,6 +256,27 @@
       "unit": "px"
     }
   },
+  "dialog-width-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 384,
+      "unit": "px"
+    }
+  },
+  "dialog-width-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 480,
+      "unit": "px"
+    }
+  },
+  "dialog-width-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 640,
+      "unit": "px"
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {
