@@ -422,6 +422,7 @@ test('no sizes at all give a range of nothing rather than an infinite one', () =
 
 test('a swatch choice is the tone of a toned series and otherwise a clamped colour id', () => {
   assert.deepEqual(arenaSwatchChoice(series({ tone: 'success' }), 2), { tone: 'success' });
+  assert.deepEqual(arenaSwatchChoice(series({ tone: 'nope' as never }), 3), { colorId: '1' }, 'an unknown tone is what the plot paints');
   assert.deepEqual(arenaSwatchChoice(series(), 3), { colorId: '3' });
   assert.deepEqual(arenaSwatchChoice(series({ colorId: 4 }), 3), { colorId: '4' });
   assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5, 6] }), 1, 1), { colorId: '6' });

@@ -16,7 +16,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
              role="group" [attr.aria-label]="named()">
       <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
         @if (colorId() !== undefined) {
-          <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
+          <span aria-hidden="true" [class]="styles().dot()" [arenaSlotData]="styles().$data.dot()" [attr.data-arena-part]="parts.dot"></span>
         }
         @switch (level()) {
           @case ('h1') { <h1 [class]="styles().title()" [arenaSlotData]="styles().$data.title()" [attr.data-arena-part]="parts.title">{{ named() }}</h1> }

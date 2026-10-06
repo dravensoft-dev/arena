@@ -262,8 +262,23 @@ test('inlineHues reads a channel through the hue sheet, so the sweeps see the wa
   const inlined = inlineHues(css, HUE_SHEET, HUE_ROLES, { 'level-hue-soft-danger': '14%' });
   assert.match(inlined, /background-color: color-mix\(in oklab, var\(--color-error\) 14%, transparent\);/);
   assert.match(inlined, /border-color: var\(--color-error\);/);
-  assert.equal(washesIn(inlined).length, washesIn(css).length);
   assert.equal(levelsIn(inlined).length, 1);
+});
+
+test('inlineHues turns an ink on its own wash into the one wash the sweep measures', () => {
+  const css = [
+    '@layer utilities {',
+    '  .x:where([data-arena-tone="danger"]) {',
+    '    color: var(--arena-hue-ink);',
+    '    background-color: var(--arena-hue-fill-soft);',
+    '  }',
+    '}',
+  ].join('\n');
+  const inlined = inlineHues(css, HUE_SHEET, HUE_ROLES, { 'level-hue-soft-danger': '14%' });
+  assert.deepEqual(washesIn(css), []);
+  assert.deepEqual(washesIn(inlined), [
+    { selector: '.x:where([data-arena-tone="danger"])', variable: 'color-error', percent: 14 },
+  ]);
 });
 
 test('inlineHues leaves a read the hue sheet does not write, and an initial one, as it stands', () => {

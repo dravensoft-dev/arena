@@ -56,7 +56,7 @@
     },
     "near": {
       "true": {
-        "counter": "text-warning"
+        "counter": "text-[color:var(--arena-hue-ink)]"
       },
       "false": {
         "counter": "text-ink-muted/(--level-ink-muted)"
@@ -74,6 +74,10 @@
     "state": {
       "neutral": null,
       "error": "danger"
+    },
+    "near": {
+      "true": "warning",
+      "false": null
     }
   }
 }

@@ -66,7 +66,7 @@ sibling component's exported recipe, so no component depends on another's module
 `components/display/arena-calendar-event/ArenaCalendarEvent.tsx` is that shape.
 
 **A slot spreads its `$data` beside its part hook**, `{...styles.$data.root()}`: the
-`data-arena-<group>` attributes the slot is touched by, which the Tailwind layer's rules select. A
+`data-arena-<group>` attributes the slot is touched by, which the styles select. A
 component writes no colour: identity is `data-arena-color-id`.
 
 **Nothing here merges classes, and nothing needs to.** A variant is additive and its rule is

@@ -25,7 +25,7 @@
     },
     "destructive": {
       "true": {
-        "root": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover"
+        "root": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover hover:shadow-control-rest"
       },
       "false": {}
     },

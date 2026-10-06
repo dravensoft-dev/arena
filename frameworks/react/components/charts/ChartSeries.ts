@@ -40,7 +40,7 @@ export function arenaSwatchHue(
   series: { tone?: ArenaSeriesTone; colorId?: number; colorIds?: readonly number[] }, index: number, fallbackSlot: number,
 ): ArenaSwatchHue {
   const { tone, colorId, colorIds } = series;
-  if (tone && arenaToneColor(tone)) return { tone };
+  if (tone) return arenaToneColor(tone) ? { tone } : { colorId: '1' };
   if (colorIds) return { colorId: String(arenaCatIndex(colorIds[index] ?? index + 1)) };
   return { colorId: String(arenaCatIndex(colorId ?? fallbackSlot)) };
 }

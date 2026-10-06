@@ -30,11 +30,6 @@ const CHIPS = [
   { title: 'Retro', time: '10:00 – 11:00', slot: 2, top: 44, height: 44, day: 2, col: 0, cols: 1 },
 ];
 
-const paint = (slot) => ({
-  background: `color-mix(in oklab, var(--color-cat-${slot}) 16%, var(--surface-card))`,
-  borderLeftColor: `var(--color-cat-${slot})`,
-});
-
 const across = (day, col, cols) => {
   const left = ((day + col / cols) / DAYS.length) * 100;
   const share = (1 / (cols * DAYS.length)) * 100;
@@ -43,8 +38,8 @@ const across = (day, col, cols) => {
 
 function chip(spec, showTime) {
   const node = el('div', {
-    class: v({ clickable: true }).chip, ...w({ clickable: true }).chip,
-    style: { top: `${spec.top}px`, height: `${spec.height}px`, ...across(spec.day, spec.col, spec.cols), ...paint(spec.slot) },
+    class: v({ clickable: true, colorId: String(spec.slot) }).chip, ...w({ clickable: true, colorId: String(spec.slot) }).chip,
+    style: { top: `${spec.top}px`, height: `${spec.height}px`, ...across(spec.day, spec.col, spec.cols) },
   }, el('span', { class: c.title, ...d.title, text: spec.title }));
   if (showTime) node.append(el('span', { class: c.time, ...d.time, text: spec.time }));
   return node;
@@ -87,13 +82,13 @@ function states() {
   const stage = el('div', { style: { position: 'relative', width: '820px', height: '76px' } });
 
   const plain = el('div', {
-    class: v({ clickable: true }).chip, ...w({ clickable: true }).chip,
-    style: { top: '0px', height: '68px', left: '0%', right: '70%', ...paint(4) },
+    class: v({ clickable: true, colorId: '4' }).chip, ...w({ clickable: true, colorId: '4' }).chip,
+    style: { top: '0px', height: '68px', left: '0%', right: '70%' },
   }, el('span', { class: c.title, ...d.title, text: 'Inert chip' }), el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }));
 
   const reserved = el('div', {
-    class: v({ clickable: true, reserve: true }).chip, ...w({ clickable: true, reserve: true }).chip,
-    style: { top: '0px', height: '68px', left: '33%', right: '37%', ...paint(6) },
+    class: v({ clickable: true, reserve: true, colorId: '6' }).chip, ...w({ clickable: true, reserve: true, colorId: '6' }).chip,
+    style: { top: '0px', height: '68px', left: '33%', right: '37%' },
   },
     el('span', { class: c.title, ...d.title, text: 'Kebab beside the title' }),
     el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }),
@@ -101,8 +96,8 @@ function states() {
       el('i', { class: 'ph-bold ph-dots-three-vertical', style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } })));
 
   const opened = el('div', {
-    class: v({ clickable: true, reserve: true, panelOpen: true }).chip, ...w({ clickable: true, reserve: true, panelOpen: true }).chip,
-    style: { top: '0px', height: '68px', left: '66%', right: '4%', ...paint(8) },
+    class: v({ clickable: true, reserve: true, panelOpen: true, colorId: '8' }).chip, ...w({ clickable: true, reserve: true, panelOpen: true, colorId: '8' }).chip,
+    style: { top: '0px', height: '68px', left: '66%', right: '4%' },
   },
     el('span', { class: c.title, ...d.title, text: 'Panel open' }),
     el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }),

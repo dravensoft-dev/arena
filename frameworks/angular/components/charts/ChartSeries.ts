@@ -38,7 +38,7 @@ export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSl
 export function arenaSwatchChoice(
   series: Pick<ArenaSeries, 'tone' | 'colorId' | 'colorIds'>, fallbackSlot: number, index = 0,
 ): ArenaSelection {
-  if (series.tone) return { tone: series.tone };
+  if (series.tone) return arenaToneColor(series.tone) ? { tone: series.tone } : { colorId: '1' };
   if (series.colorIds) return { colorId: String(arenaCatIndex(series.colorIds[index] ?? index + 1)) };
   return { colorId: String(arenaCatIndex(series.colorId ?? fallbackSlot)) };
 }

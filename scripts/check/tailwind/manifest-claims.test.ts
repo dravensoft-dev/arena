@@ -69,13 +69,13 @@ const HUES = {
   ArenaStatCard: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' }, deltaTone: { positive: 'success', negative: 'danger' } },
   ArenaTag: { tone: { success: 'success', warning: 'warning', danger: 'danger' } },
   ArenaAlert: { tone: { info: 'info', success: 'success', warning: 'warning', danger: 'danger' } },
-  ArenaConfirmDialog: { destructive: { true: 'danger' } },
+  ArenaConfirmDialog: { destructive: { true: 'danger' }, invalid: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
   ArenaButton: { destructive: { true: 'danger' } },
   ArenaInput: { state: { error: 'danger', valid: 'success' } },
   ArenaSelect: { state: { error: 'danger', valid: 'success' } },
-  ArenaTextarea: { state: { error: 'danger' } },
+  ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
   ArenaBulkActionBar: { destructive: { true: 'danger' } },
   ArenaMenu: { destructive: { true: 'danger' } },
 } as Record<string, Record<string, Record<string, string>>>;
@@ -96,7 +96,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
   for (const [component, group, values] of [
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral', 'accent', 'gold']],
     ['ArenaToast', 'tone', ['neutral', 'gold']], ['ArenaAvatar', 'status', ['none', 'offline']],
-    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral', 'primary']],
+    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaConfirmDialog', 'invalid', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral', 'primary']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -341,7 +341,7 @@ export const CLAIMS = {
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
-    { chosen: { invalid: true }, slot: 'input', has: ['border-error'], hasNot: ['border-edge-field'], why: 'invalid borders the require-text input in --error and drops the neutral border' },
+    { chosen: { invalid: true }, slot: 'input', has: [EDGE], hasNot: ['border-error', 'border-edge-field'], why: 'invalid borders the require-text input in the danger edge channel and drops the neutral border' },
     { chosen: { invalid: false }, slot: 'input', has: ['border-edge-field'], why: 'a valid require-text input keeps the neutral border' },
   ],
   ArenaDialog: [
@@ -409,6 +409,10 @@ export const CLAIMS = {
   ],
   ArenaButton: [
     { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive is outline: border and text in the danger hue, and its fill channel is closed to transparent, so its only error fill is a hover wash' },
+    ...['primary', 'secondary', 'ghost'].map((variant) => ({
+      chosen: { variant, destructive: true }, slot: 'root', has: ['hover:shadow-control-rest'],
+      why: 'a destructive button never lifts on hover whatever its variant, because the raised hover shadow is the emphasis destructive does not govern',
+    })),
     { chosen: { variant: 'primary' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'primary is the one filled variant, and it fills with the brand rather than a status colour' },
     ...['primary', 'secondary', 'ghost'].map((variant) => ({
       chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex', 'h-ctl-h'],
@@ -539,7 +543,7 @@ export const CLAIMS = {
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group' },
     { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200', 'cursor-default'], why: 'readonly changes the surface, not the border' },
     { slot: 'counter', has: ['font-mono', 'text-ink-muted/(--level-ink-muted)'], why: 'the counter is a muted mono readout' },
-    { chosen: { near: true }, slot: 'counter', has: ['text-warning'], why: 'the counter warns before it refuses, which is a status colour and not a danger one' },
+    { chosen: { near: true }, slot: 'counter', has: [INK], hasNot: ['text-warning'], why: 'the counter warns before it refuses, which is a warning ink read from the hue channel and not a danger one' },
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],
   ArenaBadge: [
