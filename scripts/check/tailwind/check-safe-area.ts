@@ -1,15 +1,12 @@
-/* A slot pinned to a viewport edge pays that edge's inset itself. The specification used to say
- * Arena drew nothing that needed these while four components drew them, which is how the one that
- * should have and did not went unseen: a top bar is the thing on a phone that sits under the status
- * bar. The subject is derived from the manifests rather than listed, so the first component to gain
- * a pinned surface is covered the day it lands, and a slot is read composed, base with every
- * variant, because `fixed` on the base and `bottom-0` on a placement is one pinned slot and not two
- * unpinned ones. UNPINNED is for a surface that covers an edge on purpose rather than sitting
- * against it, which is what a scrim is, and a stale entry fails. The claim is about the two edges a
- * notch and a home indicator occupy; what a landscape cutout does to a full-width bar is a question
- * this gate does not ask rather than one it implies an answer to. A slot that reads a family's
- * channel for an edge pays that edge's inset when every option of the family that pins the edge
- * names the inset, since the inset is then written where the edge is. */
+/* A slot pinned to a viewport edge pays that edge's inset itself. The specification once said Arena
+ * drew nothing that needed these while four components drew them, which hid the one that should
+ * have: a top bar sits under a phone's status bar. The subject is derived from the manifests, so a
+ * new pinned surface is covered the day it lands. A slot is read composed, base with every variant,
+ * because `fixed` on the base and `bottom-0` on a placement make one pinned slot. UNPINNED is for a
+ * surface that covers an edge on purpose, like a scrim, and a stale entry fails. The claim covers
+ * the notch and home-indicator edges; a landscape cutout is a question this gate does not ask. A
+ * slot that reads a family's channel for an edge pays the inset when every option pinning that edge
+ * names it. */
 
 import { basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';

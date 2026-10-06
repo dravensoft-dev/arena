@@ -65,7 +65,7 @@ Two consequences worth holding on to:
 ## Do / Don't
 
 - **Do** give the collapsible an `id` distinct from any destination's. The id names the group rather than a place. The group opens around the active item by matching the `ArenaSideNavItem` elements inside it, never by comparing its own id to `active`.
-- **Do** nest freely. A collapsible may hold sections and further collapsibles, and each
+- **Do** nest freely. A collapsible may hold sections and further collapsibles. Each
   level indents one `pad-row-indent` deeper than the last, compounded: the style plugin answers that role with the indent of one level.
 - **Don't** expect arrow keys, `aria-level` or a roving tab stop. Each collapsible is an
   independent disclosure, so Tab moves through the triggers and the visible links in order
