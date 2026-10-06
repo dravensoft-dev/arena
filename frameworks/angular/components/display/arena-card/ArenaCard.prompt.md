@@ -28,15 +28,15 @@ take, and the host goes `display: contents`.
 | `title` | primitive | `string` |  | Header title. Absent, along with eyebrow and action, renders no header block at all. |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own, which is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region; with no title there is no heading either way. |
 | `eyebrow` | primitive | `string` |  | Mono uppercase label above the title, in the accent colour. |
-| `floating` | primitive | `boolean` | `false` | Adds the warm shadow. Depth comes from the shadow and the surface scale, never a gradient. |
-| `accent` | primitive | `boolean` | `false` | Draws the border in the accent colour instead of the surface hairline. |
 | `click` | event |  |  | An interactive card was activated, by pointer or by Enter or Space. With `href` it is also how the card reports the one activation a router owns, a primary click or Enter with no modifier, and Arena has already cancelled the anchor's own navigation by the time it fires; a modified or middle click is the browser's and does not fire it at all. No payload, because the consumer wrote this element and already holds what it is about. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
+
+**Answers** [`elevation`](../../../../VOCABULARY.md#elevation): `arena-elevation-flat`, `arena-elevation-floating`. Write one as `class="arena-elevation-flat"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

@@ -1,0 +1,13 @@
+{
+  "family": "accent",
+  "reach": "box",
+  "description": "Which editorial colour a component wears when nothing it says calls for a hue. Accent carries no meaning, so a status a component states always wins over it: a success badge stays success whatever accent it is given. ink paints the ink of the surface the component sits on, which is what a spinner on a filled banner needs.",
+  "default": "arena-accent-plain",
+  "variants": {
+    "arena-accent-plain": "[--arena-accent-fill-soft:var(--accent-plain-fill-soft)] [--arena-accent-ink:var(--accent-plain-ink)] [--arena-accent-quiet-ink:color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent)] [--arena-accent-edge:var(--accent-plain-edge)] [--arena-accent-side-edge:var(--accent-plain-side-edge)]",
+    "arena-accent-primary": "[--arena-accent-fill-soft:color-mix(in_oklab,var(--accent-primary-fill-soft)_var(--level-accent-soft-primary),transparent)] [--arena-accent-ink:var(--accent-primary-ink)] [--arena-accent-quiet-ink:var(--accent-primary-ink)] [--arena-accent-edge:var(--accent-primary-edge)]",
+    "arena-accent-gold": "[--arena-accent-fill-soft:color-mix(in_oklab,var(--accent-gold-fill-soft)_var(--level-accent-soft-gold),transparent)] [--arena-accent-ink:var(--accent-gold-ink)] [--arena-accent-side-edge:var(--accent-gold-side-edge)]",
+    "arena-accent-muted": "[--arena-accent-ink:color-mix(in_oklab,var(--accent-muted-ink)_var(--level-ink-muted),transparent)]",
+    "arena-accent-ink": "[--arena-accent-ink:currentColor]"
+  }
+}

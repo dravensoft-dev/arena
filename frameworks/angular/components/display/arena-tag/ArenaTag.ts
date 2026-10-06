@@ -32,7 +32,7 @@ export class ArenaTag {
   protected readonly parts = manifest.parts;
   protected readonly locale = inject(ARENA_LOCALE);
 
-  /** The tag's emphasis colour. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. */
+  /** What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. */
   readonly tone = input<ArenaTagTone, ArenaTagTone | undefined>(
     'neutral',
     { transform: (value) => value ?? 'neutral' },

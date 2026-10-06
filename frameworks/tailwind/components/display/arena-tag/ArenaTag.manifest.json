@@ -1,7 +1,17 @@
 {
   "component": "ArenaTag",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-primary"
+      ],
+      "default": "arena-accent-plain"
+    }
+  ],
   "slots": {
-    "root": "inline-flex items-center gap-marker rounded-marker border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold w-fit",
+    "root": "inline-flex items-center gap-marker rounded-marker border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold w-fit border-[color:var(--arena-accent-edge,var(--accent-plain-edge))] text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]",
     "dot": "size-1.5 rounded-pill bg-current",
     "close": "inline-flex items-center bg-transparent border-none cursor-pointer p-0 text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)] leading-ctl"
   },
@@ -12,12 +22,7 @@
   },
   "variants": {
     "tone": {
-      "neutral": {
-        "root": "border-edge-surface text-ink-body/(--level-ink-quiet)"
-      },
-      "primary": {
-        "root": "border-primary text-primary"
-      },
+      "neutral": {},
       "success": {
         "root": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
       },
@@ -68,7 +73,6 @@
   "hues": {
     "tone": {
       "neutral": null,
-      "primary": null,
       "success": "success",
       "warning": "warning",
       "danger": "danger"

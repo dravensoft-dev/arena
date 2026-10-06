@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-toast/ArenaToast.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-toast-host/ArenaToastHost.styles.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
@@ -12,11 +13,11 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 const hostManifest = await (await fetch('./ArenaToastHost.manifest.json')).json();
 const toastManifest = await (await fetch('../arena-toast/ArenaToast.manifest.json')).json();
 
-function toast({ tone = 'neutral', title, message }) {
+function toast({ tone = 'neutral', accent = '', title, message }) {
   const c = arenaClassesFor(toastManifest, { tone });
   const d = arenaSlotDataFor(toastManifest, { tone });
   return el('div', {
-    class: c.root, ...d.root, role: tone === 'danger' ? 'alert' : 'status',
+    class: accent ? `${c.root} arena-accent-${accent}` : c.root, ...d.root, role: tone === 'danger' ? 'alert' : 'status',
     'aria-live': tone === 'danger' ? 'assertive' : 'polite',
   }, el('div', { class: c.body, ...d.body },
     el('div', { class: c.title, ...d.title }, title),
@@ -30,7 +31,7 @@ function host(placement, notice) {
 const corners = [
   ['top-start', { title: 'top-start', message: 'Pinned to the block start and the inline start.' }],
   ['top-end', { tone: 'success', title: 'top-end', message: 'Both stacks clear the notch by --pad-safe-top.' }],
-  ['bottom-start', { tone: 'gold', title: 'bottom-start', message: 'The inline half flips with the document.' }],
+  ['bottom-start', { accent: 'gold', title: 'bottom-start', message: 'The inline half flips with the document.' }],
   ['bottom-end', { tone: 'danger', title: 'bottom-end', message: 'The default. Clears --pad-safe-bottom.' }],
 ];
 

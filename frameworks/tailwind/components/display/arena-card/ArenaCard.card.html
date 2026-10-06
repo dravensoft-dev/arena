@@ -1,8 +1,10 @@
-<!-- @dsCard group="Tailwind" viewport="800x360" name="ArenaCard" subtitle="Surfaces and emphasis, rendered from ArenaCard.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="800x360" name="ArenaCard" subtitle="Surfaces, accents and elevation, rendered from ArenaCard.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-card/ArenaCard.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Elevation.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -10,10 +12,10 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const manifest = await (await fetch('./ArenaCard.manifest.json')).json();
 
-function card({ eyebrow, title, body, accent = false, floating = false }) {
-  const c = arenaClassesFor(manifest, { accent: String(accent), floating: String(floating) });
-  const d = arenaSlotDataFor(manifest, { accent: String(accent), floating: String(floating) });
-  const root = el('div', { class: c.root, ...d.root });
+function card({ eyebrow, title, body, options = '' }) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const root = el('div', { class: `${c.root} ${options}`.trim(), ...d.root });
   root.style.width = '240px';
   if (eyebrow || title) {
     const head = el('div', { class: c.head, ...d.head }, el('div', {},
@@ -28,8 +30,8 @@ function card({ eyebrow, title, body, accent = false, floating = false }) {
 mountSpecimen({ sections: [
   section('Plain, floating, accented', [
     card({ eyebrow: 'Delivery', title: 'Client portal', body: 'Six deployments this week.' }),
-    card({ eyebrow: 'Delivery', title: 'Billing service', body: 'Two deployments this week.', floating: true }),
-    card({ eyebrow: 'Attention', title: 'Auth service', body: 'Rollback pending review.', accent: true }),
+    card({ eyebrow: 'Delivery', title: 'Billing service', body: 'Two deployments this week.', options: 'arena-elevation-floating' }),
+    card({ eyebrow: 'Attention', title: 'Auth service', body: 'Rollback pending review.', options: 'arena-accent-primary' }),
   ]),
   section('Body only', [card({ body: 'A card with no header is just a surface — use it for content that names itself.' })]),
 ]});

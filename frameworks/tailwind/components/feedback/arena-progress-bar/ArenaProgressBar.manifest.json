@@ -9,6 +9,14 @@
         "arena-size-lg"
       ],
       "default": "arena-size-md"
+    },
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-primary",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-primary"
     }
   ],
   "slots": {
@@ -16,10 +24,10 @@
     "head": "flex items-baseline justify-between gap-items mb-2",
     "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
     "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "track": "relative rounded-pill bg-track overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))]",
+    "track": "relative rounded-pill bg-track overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))] text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
-    "ring": "relative grid place-items-center shrink-0 size-[var(--arena-size-ring,var(--size-md-ring))]",
+    "ring": "relative grid place-items-center shrink-0 size-[var(--arena-size-ring,var(--size-md-ring))] text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "ringContent": "relative grid place-items-center [grid-area:1/1]",
     "ringGeometry": "absolute inset-0 size-full -rotate-90",
     "ringTrack": "fill-none stroke-base-300 [vector-effect:non-scaling-stroke] [stroke-width:var(--arena-size-meter,var(--size-md-meter))]",
@@ -51,14 +59,6 @@
       }
     },
     "tone": {
-      "accent": {
-        "track": "text-primary",
-        "ring": "text-primary"
-      },
-      "gold": {
-        "track": "text-secondary",
-        "ring": "text-secondary"
-      },
       "success": {
         "track": "text-[color:var(--arena-hue-fill-strong)]",
         "ring": "text-[color:var(--arena-hue-fill-strong)]"
@@ -82,13 +82,10 @@
   },
   "defaultVariants": {
     "shape": "linear",
-    "tone": "accent",
     "indeterminate": false
   },
   "hues": {
     "tone": {
-      "accent": null,
-      "gold": null,
       "success": "success",
       "danger": "danger",
       "info": "info"

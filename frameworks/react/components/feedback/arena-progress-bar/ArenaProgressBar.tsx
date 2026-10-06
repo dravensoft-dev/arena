@@ -19,7 +19,7 @@ export interface ArenaProgressBarProps {
   /** A wait with no percentage; the bar sweeps instead of filling. */
   indeterminate?: boolean;
 
-  /** The bar's colour. */
+  /** The state the work reports: success, danger or info. Absent, the bar paints its accent. */
   tone?: ArenaProgressTone;
 
   /** Names what is progressing. Drawn above the bar or under the ring, and it is the meter's accessible name. Required and guarded rather than defaulted: nothing can derive what is progressing, and a fallback of "Progress" satisfies roles.label mechanically while telling a screen-reader user only what the component is -- two of them on one page announce identically. */

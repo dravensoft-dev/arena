@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-progress-bar/ArenaProgressBar.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
@@ -11,10 +12,10 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const manifest = await (await fetch('./ArenaProgressBar.manifest.json')).json();
 
-function bar({ label, value, tone = 'accent', size = 'md', indeterminate = false }) {
+function bar({ label, value, tone, accent = 'primary', size = 'md', indeterminate = false }) {
   const c = arenaClassesFor(manifest, { tone, indeterminate });
   const d = arenaSlotDataFor(manifest, { tone, indeterminate });
-  const root = el('div', { class: `${c.root} arena-size-${size}`, ...d.root });
+  const root = el('div', { class: `${c.root} arena-size-${size} arena-accent-${accent}`, ...d.root });
   root.style.width = '260px';
   if (label) {
     const head = el('div', { class: c.head, ...d.head }, el('span', { class: c.label, ...d.label, text: label }));
@@ -41,6 +42,7 @@ mountSpecimen({ sections: [
     bar({ label: 'Migrating rows', value: 88, tone: 'success' }),
     bar({ label: 'Retrying', value: 15, tone: 'danger' }),
   ]),
+  section('Accents: a bar that states no status wears one', [bar({ label: 'Primary', value: 60 }), bar({ label: 'Gold', value: 60, accent: 'gold' })]),
   section('Sizes', [bar({ value: 60, size: 'sm' }), bar({ value: 60 }), bar({ value: 60, size: 'lg' })]),
   section('Indeterminate — only when there is no percentage to report', [
     bar({ label: 'Waiting for the runner', indeterminate: true }),

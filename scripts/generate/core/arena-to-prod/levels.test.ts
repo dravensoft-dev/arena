@@ -290,3 +290,53 @@ test('inlineHues reads a compound selector through the rule whose conditions it 
   const css = '.x:where(:not([data-arena-disabled])[data-arena-tone="danger"]) {\n  color: var(--arena-hue-ink);\n}\n';
   assert.match(inlineHues(css, HUE_SHEET, HUE_ROLES, {}), /color: var\(--color-error\);/);
 });
+
+const FAMILY = [
+  '@layer utilities {',
+  '  @scope (.arena-accent-plain) to ([data-arena-boundary] > *) {',
+  '    &[data-arena-part="tag"], [data-arena-part="tag"] {',
+  '      --arena-accent-quiet-ink: color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent);',
+  '      --arena-accent-edge: var(--accent-plain-edge);',
+  '    }',
+  '  }',
+  '  @scope (.arena-accent-gold) to ([data-arena-boundary] > *) {',
+  '    &[data-arena-part="badge"], [data-arena-part="badge"] {',
+  '      --arena-accent-fill-soft: color-mix(in oklab,var(--accent-gold-fill-soft) var(--level-accent-soft-gold),transparent);',
+  '    }',
+  '  }',
+  '}',
+].join('\n');
+
+test('a family sheet writes a level through a channel, and the channel is read as the property that reads it', () => {
+  const levels = levelsIn(FAMILY, { 'level-ink-quiet': 50, 'level-accent-soft-gold': 16 });
+  assert.deepEqual(levels.map((l) => `${l.selector}/${l.property}/${l.variable}/${l.percent}/${l.level}`), [
+    '.arena-accent-plain/color/accent-plain-quiet-ink/50/level-ink-quiet',
+    '.arena-accent-gold/background-color/accent-gold-fill-soft/16/level-accent-soft-gold',
+  ]);
+  assert.equal(gateFor(levels[0] as never), 4.5, 'a quiet ink is text, whichever sheet writes it');
+  assert.equal(gateFor(levels[1] as never), null, 'a soft wash is meant to be faint');
+});
+
+test('a mix nested in the fallback of a channel read is a level too', () => {
+  const nested = [
+    '.arena-tag__root {',
+    '  @supports (color: color-mix(in lab, red, red)) {',
+    '    color: var(--arena-accent-quiet-ink,color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent));',
+    '  }',
+    '}',
+  ].join('\n');
+  const [only, ...more] = levelsIn(nested, { 'level-ink-quiet': 50 });
+  assert.equal(more.length, 0);
+  assert.equal(`${only?.property}/${only?.variable}/${only?.percent}`, 'color/accent-plain-quiet-ink/50');
+});
+
+test('a wash whose percent is a level reads its default, and one with no default is left out', () => {
+  const css = [
+    '.arena-x__y {',
+    '  color: var(--ink-x);',
+    '  background-color: color-mix(in oklab,var(--ink-x) var(--level-wash),transparent);',
+    '}',
+  ].join('\n');
+  assert.deepEqual(washesIn(css, { 'level-wash': 14 }), [{ selector: '.arena-x__y', variable: 'ink-x', percent: 14 }]);
+  assert.deepEqual(washesIn(css), []);
+});

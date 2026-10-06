@@ -2,5 +2,5 @@
   "name": "ArenaToastTone",
   "kind": "enum",
   "description": "The side bar's colour. Narrower than ArenaTone: a toast reports an outcome, and there is no informational outcome a toast should interrupt for.",
-  "values": ["neutral", "success", "danger", "gold"]
+  "values": ["neutral", "success", "danger"]
 }

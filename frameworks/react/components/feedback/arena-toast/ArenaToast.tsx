@@ -18,7 +18,7 @@ export interface ArenaToastProps {
   /** The body. */
   message?: string;
 
-  /** The side bar's colour, and whether the toast announces assertively. */
+  /** The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. */
   tone?: ArenaToastTone;
 
   /** The label of the single inline action: Undo, Retry, View logs. Absent renders no action. */

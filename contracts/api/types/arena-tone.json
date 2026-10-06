@@ -2,5 +2,5 @@
   "name": "ArenaTone",
   "kind": "enum",
   "description": "What state a value IS in right now, as against how it moved. ArenaBadge's vocabulary, so one set of tone names covers the system rather than a second set that is nearly the same.",
-  "values": ["neutral", "accent", "gold", "success", "warning", "danger", "info"]
+  "values": ["neutral", "success", "warning", "danger", "info"]
 }

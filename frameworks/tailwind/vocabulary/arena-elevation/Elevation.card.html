@@ -1,0 +1,27 @@
+<!-- @dsCard group="Tailwind" viewport="700x300" name="elevation" subtitle="A box family: arena-elevation-flat is the default, arena-elevation-floating lifts the surface off the page" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-card/ArenaCard.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Elevation.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/display/arena-card/ArenaCard.manifest.json')).json();
+
+function surface(option, title) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const root = el('div', { class: `${c.root} ${option}`, ...d.root });
+  root.style.width = '240px';
+  root.append(el('div', { class: c.body, ...d.body }, el('span', { class: 'font-body text-md', text: title })));
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('arena-elevation-flat, the default: the surface rests on the page', [surface('arena-elevation-flat', 'Resting')]),
+  section('arena-elevation-floating: the surface lifts off it', [surface('arena-elevation-floating', 'Lifted')]),
+]});
+</script></body></html>

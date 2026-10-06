@@ -94,9 +94,9 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     }
   }
   for (const [component, group, values] of [
-    ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral', 'accent', 'gold']],
-    ['ArenaToast', 'tone', ['neutral', 'gold']], ['ArenaAvatar', 'status', ['none', 'offline']],
-    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral', 'primary']],
+    ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
+    ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
+    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -248,10 +248,7 @@ export const CLAIMS = {
   ],
   ArenaCard: [
     { slot: 'root', has: ['block', 'bg-surface'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so a style plugin can flatten it onto the page, and it is never a zero-area inline box' },
-    { chosen: { accent: true }, slot: 'root', has: ['border-primary'], hasNot: ['border-edge-surface'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
-    { chosen: { accent: false }, slot: 'root', has: ['border-edge-surface'], hasNot: ['border-primary'], why: 'accent swaps the hairline for the accent border and touches nothing else' },
-    { chosen: { floating: true }, slot: 'root', has: ['shadow-surface-floating'], why: 'depth is the shadow and the surface scale, never a gradient' },
-    { chosen: { floating: false }, slot: 'root', has: ['shadow-surface-rest'], hasNot: ['shadow-none'], why: 'a card that is not floating keeps the RESTING depth role rather than cancelling it: shadow-surface-rest is authored as a transparent shadow so the property is painted and a style plugin can move it, and a literal shadow-none in the default branch made the one role written to trade hairline grouping for elevation unreachable on the one component it was written for' },
+    { slot: 'root', hasNot: ['border-primary', 'border-edge-surface', 'shadow-surface-rest', 'shadow-surface-floating', 'shadow-none'], why: 'the edge colour and the depth are the accent and elevation channels, so no accent, no resting shadow and no lifted one is a class of this manifest any more' },
     { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', 'text-ink-eyebrow'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
     { slot: 'title', has: ['font-face-heading', 'text-title-surface'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
@@ -262,10 +259,8 @@ export const CLAIMS = {
     { chosen: { last: true }, slot: 'line', has: ['w-[62%]'], why: 'the last line is narrower than the rest, the way a paragraph ends' },
   ],
   ArenaStatCard: [
-    ...Object.entries({ neutral: 'text-ink-body', accent: 'text-primary', gold: 'text-secondary',
-      success: INK, warning: INK, danger: INK, info: INK })
-      .map(([tone, cls]) => ({ chosen: { tone }, slot: 'value', has: [cls], why: 'every value tone maps to its own text colour and no other survives beside it' })),
-    { slot: 'value', has: ['text-ink-body'], why: 'the default value tone is neutral' },
+    ...['success', 'warning', 'danger', 'info'].map((tone) => ({ chosen: { tone }, slot: 'value', has: [INK], why: 'every status value tone inks the figure from its hue, and the tone class follows the accent read in the string, so the status is the one that wins' })),
+    { chosen: { tone: 'neutral' }, slot: 'value', hasNot: [INK, 'text-ink-body'], why: 'a neutral figure states no status, so the accent channel inks it and the tone adds no class' },
     { chosen: { tone: 'danger' }, slot: 'value', has: [INK], hasNot: ['bg-error'], why: 'a danger value tone colours text only, so the value slot carries no background' },
     { chosen: { tone: 'danger', deltaTone: 'positive' }, slot: 'delta', has: [EDGE, INK], why: 'tone and deltaTone are independent, which is why the contract declares them separately' },
     { chosen: { deltaTone: 'negative' }, slot: 'delta', has: [EDGE, INK, 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta is outline: border and text in the danger hue, never a filled background' },
@@ -293,7 +288,8 @@ export const CLAIMS = {
     { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger is outline: border and text in the danger hue, never a filled background' },
     ...hueClaims('root', Object.fromEntries(['success', 'warning'].map((tone) => [tone, [EDGE, INK]]))),
     ...[1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ chosen: { colorId: String(id) }, slot: 'root', has: [EDGE, INK], why: HUE_WHY })),
-    ...['neutral', 'primary', 'success', 'warning', 'danger'].map((tone) => ({
+    { chosen: { tone: 'neutral' }, slot: 'root', hasNot: [EDGE, INK, 'border-edge-surface', 'text-ink-body/(--level-ink-quiet)', 'border-primary', 'text-primary'], why: 'a neutral tag states no status, so the accent channels paint its edge and its ink and the tone adds no class' },
+    ...['neutral', 'success', 'warning', 'danger'].map((tone) => ({
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),
@@ -375,7 +371,7 @@ export const CLAIMS = {
     { slot: 'dot', has: ['duration-[var(--dur-state)]'], why: 'the dot width transition rides the token duration scale, never a literal' },
   ],
   ArenaProgressBar: [
-    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', success: STRONG_INK, danger: INK, info: STRONG_INK })
+    ...Object.entries({ success: STRONG_INK, danger: INK, info: STRONG_INK })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'track', has: [cls], why: 'every tone inks the track, which is what the fill reads through bg-current' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
     { chosen: { tone: 'danger' }, slot: 'track', has: [INK, 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
@@ -388,8 +384,7 @@ export const CLAIMS = {
     { chosen: { indeterminate: true }, slot: 'ringFill', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
   ],
   ArenaSpinner: [
-    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/(--level-ink-muted)', 'on-accent': 'text-primary-content' })
-      .map(([tone, cls]) => ({ chosen: { tone }, slot: 'root', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
+    { slot: 'root', hasNot: ['text-primary', 'text-secondary', 'text-primary-content', 'text-ink-muted/(--level-ink-muted)'], why: 'the ink of the ring is the accent channel, so no accent is a class of this manifest any more' },
     { slot: 'circle', has: ['border-current', 'border-t-transparent', 'rounded-pill', 'arena-spinner'], hasNot: ['rounded-full'], why: 'the ring takes its colour from the root so one tone paints both, and its radius is the pill token' },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
   ],
@@ -543,10 +538,11 @@ export const CLAIMS = {
   ],
   ArenaBadge: [
     ...hueClaims('root', Object.fromEntries(STATUS.map((tone) => [tone, [SOFT]]))),
-    { chosen: { tone: 'neutral' }, slot: 'root', has: ['bg-base-300'], hasNot: [SOFT], why: 'a neutral badge is the absence of a hue and keeps its own surface' },
+    { chosen: { tone: 'neutral' }, slot: 'root', hasNot: [SOFT, 'bg-base-300', 'bg-primary/14', 'bg-secondary/16'], why: 'a neutral badge is the absence of a hue, so the accent channel washes it and the tone adds no class' },
+    { slot: 'root', has: ['text-ink-body/(--level-ink-body)'], why: 'the ink of a badge is the body ink under every tone, so it sits once in the base' },
     { slot: 'root', has: ['w-fit'], why: 'a badge is as wide as its label in a card body, where a width of auto would stretch it' },
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
-    ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({
+    ...['neutral', 'success', 'warning', 'danger', 'info'].map((tone) => ({
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'font-face-label', 'case-label', 'text-ctl-xs', 'tracking-label-role'],
       why: 'every tone keeps the shared chip base, the marker radius roles.json gives a badge, and the mono uppercase micro-label',
     })),
@@ -594,6 +590,17 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaIconButton', 'root', 'emphasis.icon-edge', ['border-[length:var(--bw-control)]', 'border-[color:var(--arena-emphasis-icon-edge,var(--emphasis-ghost-icon-edge))]', '[border-style:var(--arena-emphasis-edge-style,solid)]']],
   ['ArenaButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]']],
   ['ArenaIconButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'], { pressed: 'false' }],
+  ['ArenaBadge', 'root', 'accent.fill-soft', ['bg-[color:var(--arena-accent-fill-soft,var(--accent-plain-fill-soft))]']],
+  ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]']],
+  ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaActivityFeed', 'dot', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaSpinner', 'root', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaTag', 'root', 'accent.quiet-ink', ['text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]']],
+  ['ArenaCard', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
+  ['ArenaTag', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
+  ['ArenaToast', 'root', 'accent.side-edge', ['border-l-[color:var(--arena-accent-side-edge,var(--accent-plain-side-edge))]']],
+  ['ArenaCard', 'root', 'elevation.shadow', ['shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]']],
   ['ArenaButton', 'root', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]']],
 ];
 
@@ -605,8 +612,8 @@ for (const [component, slot, question, reads, chosen] of READS) {
   });
 }
 
-test('every size, orientation and emphasis question a slot answers is read through its own channel with a fallback', () => {
-  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis)-[a-z0-9-]+,/g)]));
+test('every size, orientation, emphasis, accent and elevation question a slot answers is read through its own channel with a fallback', () => {
+  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis|accent|elevation)-[a-z0-9-]+,/g)]));
   assert.ok(channels.length >= READS.length, 'a read names a channel and the fallback that stands in for it');
   for (const [component, slot, question, reads] of READS) {
     const family = question.split('.')[0]!;
@@ -626,4 +633,28 @@ test('every slot that takes a placeholder colours it, rather than inheriting pre
       + 'it at 50% of currentcolor: a level nothing in Arena declared, nothing measures, and one '
       + 'that fails AA on six of the ten palettes measured, this skin\'s own light theme included');
   }
+});
+
+test('a status a component states follows the accent read in the slot string, so the status wins over any accent', () => {
+  const stated: [string, string, string, string[]][] = [
+    ['ArenaBadge', 'root', 'accent-fill-soft', ['success', 'warning', 'danger', 'info']],
+    ['ArenaStatCard', 'value', 'accent-ink', ['success', 'warning', 'danger', 'info']],
+    ['ArenaTag', 'root', 'accent-edge', ['success', 'warning', 'danger']],
+    ['ArenaToast', 'root', 'accent-side-edge', ['success', 'danger']],
+    ['ArenaProgressBar', 'track', 'accent-ink', ['success', 'danger', 'info']],
+    ['ArenaActivityFeed', 'dot', 'accent-ink', ['success', 'warning', 'danger', 'info']],
+  ];
+  for (const [component, slot, channel, tones] of stated) {
+    for (const tone of tones) {
+      const classes = resolve(component, { tone }, slot);
+      const accent = classes.findIndex((one) => one.includes(`--arena-${channel},`));
+      const meaning = classes.findIndex((one) => one.includes('--arena-hue-'));
+      assert.ok(accent >= 0 && meaning > accent, `${component}.${slot} at tone ${tone} must write its hue read after the ${channel} read`);
+    }
+  }
+});
+
+test('a component whose tone is optional carries no default for it, so an untoned one paints its accent', () => {
+  for (const component of ['ArenaProgressBar', 'ArenaActivityFeed'])
+    assert.equal(manifests.get(component)?.defaultVariants?.tone, undefined, `${component} still defaults its tone`);
 });

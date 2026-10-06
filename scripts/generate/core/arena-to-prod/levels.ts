@@ -45,12 +45,20 @@ export const DECORATIVE = new Map([
 ]);
 
 const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
-const MIX = /^\s*([\w-]+)\s*:\s*color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
+const SCOPE = /^\s*@scope\s*\((\.[\w-]+)\)/;
+const MIX = /^\s*([\w-]+)\s*:\s*(?:var\(--[\w-]+\s*,\s*)?color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
 const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
 
 const INK = /^\s*color\s*:\s*var\(--([\w-]+)\)\s*;/;
 const OPACITY = /^\s*opacity\s*:\s*([\d.]+)%\s*;/;
+
+const CHANNEL_PROPERTIES: [RegExp, string][] = [[/-ink$/, 'color'], [/-fill(?:-[\w]+)?$/, 'background-color']];
+
+export function propertyOf(name: string) {
+  if (!name.startsWith('--arena-')) return name;
+  return CHANNEL_PROPERTIES.find(([ending]) => ending.test(name))?.[1] ?? name;
+}
 
 export function levelDefaults(css: string) {
   const out: Record<string, number> = {};
@@ -81,6 +89,8 @@ export function levelsIn(
   let state = '';
   let condition = '';
   for (const line of css.split('\n')) {
+    const scope = SCOPE.exec(line)?.[1];
+    if (scope) { selector = scope; state = scope; condition = ''; }
     const named = SELECTOR.exec(line)?.[1];
     if (named?.startsWith('.')) { selector = named; state = named; condition = states.get(named) ?? ''; }
     else if (named) state = `${selector}${named.replace(/&/g, '')}`;
@@ -93,7 +103,7 @@ export function levelsIn(
     out.push({
       selector,
       state: `${state}${condition}`,
-      property: mix[1] as string,
+      property: propertyOf(mix[1] as string),
       variable: mix[2] as string,
       percent: Number((declared * opacity).toFixed(2)),
       level: opacity === 1 ? level : null,
@@ -164,7 +174,7 @@ export function inlineHues(
 
 export type Wash = { selector: string; variable: string; percent: number };
 
-const WASH_PERCENT = /color-mix\(in oklab,\s*var\(--[\w-]+\)\s*([\d.]+)%\s*,\s*transparent\)/;
+const WASH_PERCENT = /color-mix\(in oklab,\s*var\(--[\w-]+\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
 
 function washedClass(block: CssBlock) {
   for (let at: CssBlock | null = block; at; at = at.parent)
@@ -194,7 +204,7 @@ function inkPainting(block: CssBlock, inks: Map<string, string>) {
   return null;
 }
 
-export function washesIn(css: string): Wash[] {
+export function washesIn(css: string, defaults: Record<string, number> = {}): Wash[] {
   const out: Wash[] = [];
   const root = parseBlocks(css);
   const inks = inkByPath(root);
@@ -202,8 +212,9 @@ export function washesIn(css: string): Wash[] {
     for (const decl of block.decls) {
       if (decl.name !== 'background-color') continue;
       const mixed = MIXED_VAR.exec(decl.value)?.[1];
-      const percent = WASH_PERCENT.exec(decl.value)?.[1];
-      if (!mixed || !percent || inkPainting(block, inks) !== mixed) continue;
+      const wash = WASH_PERCENT.exec(decl.value);
+      const percent = wash?.[1] ?? (wash?.[2] === undefined ? undefined : defaults[wash[2]]);
+      if (!mixed || percent === undefined || inkPainting(block, inks) !== mixed) continue;
       const selector = washedClass(block);
       if (!selector) continue;
       out.push({ selector, variable: mixed, percent: Number(percent) });

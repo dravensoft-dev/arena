@@ -228,8 +228,12 @@ export function packageSheets(root: string): PackageSheets {
     const sheets = components.map((name) => inlineHues(
       readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'),
       read(join(root, 'css', 'hues', `${name}.css`)), roles, held));
-    const levels = sheets.flatMap((css) => levelsIn(css, defaults));
-    const washes = sheets.flatMap(washesIn);
+    const familyDir = join(root, 'css', 'vocabulary');
+    const families = existsSync(familyDir)
+      ? readdirSync(familyDir).filter((name) => name.endsWith('.css')).sort().map((name) => read(join(familyDir, name)))
+      : [];
+    const levels = [...sheets, ...families].flatMap((css) => levelsIn(css, defaults));
+    const washes = [...sheets, ...families].flatMap((css) => washesIn(css, defaults));
     const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));
     return {
       layers,

@@ -12,14 +12,14 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `children` | slot |  |  | The label text. Short: a badge is a chip, not a sentence. |
-| `tone` | enum | `ArenaTone` | `"neutral"` | System status (success/warning/danger/info) reflects an object's actual state; emphasis (accent, gold) is editorial; neutral carries no semantic weight. |
+| `tone` | enum | `ArenaTone` | `"neutral"` | System status (success/warning/danger/info) reflects an object's actual state; neutral carries no semantic weight. |
 | `dot` | primitive | `boolean` | `false` | Draws a filled dot in the tone colour before the label. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `className="arena-accent-gold"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

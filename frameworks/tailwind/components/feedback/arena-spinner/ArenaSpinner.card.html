@@ -1,9 +1,10 @@
-<!-- @dsCard group="Tailwind" viewport="700x163" name="ArenaSpinner" subtitle="Sizes and tones, rendered from ArenaSpinner.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="700x163" name="ArenaSpinner" subtitle="Sizes and accents, rendered from ArenaSpinner.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-spinner/ArenaSpinner.styles.generated.css">
 <link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -11,15 +12,16 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const manifest = await (await fetch('./ArenaSpinner.manifest.json')).json();
 
-function spinner({ size = 'md', tone = 'accent' }) {
-  const c = arenaClassesFor(manifest, { tone });
-  const d = arenaSlotDataFor(manifest, { tone });
-  return el('span', { class: `${c.root} arena-size-${size}`, ...d.root, role: 'status', 'aria-label': 'Loading' },
+function spinner({ size = 'md', accent = 'primary' }) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return el('span', { class: `${c.root} arena-size-${size} arena-accent-${accent}`, ...d.root, role: 'status', 'aria-label': 'Loading' },
     el('span', { class: c.circle, ...d.circle, 'aria-hidden': 'true' }));
 }
 
 mountSpecimen({ sections: [
   section('Sizes', ['sm', 'md', 'lg'].map((size) => spinner({ size }))),
-  section('Tones — no status tones, on purpose', ['accent', 'gold', 'neutral'].map((tone) => spinner({ tone }))),
+  section('Accents: no status, on purpose', ['primary', 'gold', 'muted'].map((accent) => spinner({ accent }))),
+  section('ink: the ink of the surface it sits on', [el('span', { class: 'arena-accent-ink' }, spinner({}))]),
 ]});
 </script></body></html>

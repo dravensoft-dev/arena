@@ -39,7 +39,7 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Short uppercase microlabel, two words at most. |
 | `value*` | primitive | `string` |  | Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. |
-| `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. |
+| `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary: neutral says nothing about state. |
 | `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no marker. |
 | `sub` | primitive | `string` |  | Small muted line under the value: context, e.g. "vs last week". |
 | `icon` | primitive | `string` |  | A Phosphor class name for a small glyph beside the label, drawn muted. Arena renders the aria-hidden wrapper and the `<i>`. |
@@ -48,7 +48,7 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

@@ -2,5 +2,5 @@
   "name": "ArenaProgressTone",
   "kind": "enum",
   "description": "The bar's colour. No neutral and no warning: a progress bar reports work, and work is either running, done or failed.",
-  "values": ["accent", "gold", "success", "danger", "info"]
+  "values": ["success", "danger", "info"]
 }

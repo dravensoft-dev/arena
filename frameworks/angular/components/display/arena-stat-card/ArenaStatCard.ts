@@ -37,7 +37,7 @@ export class ArenaStatCard {
   readonly label = input.required<string>();
   /** Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. */
   readonly value = input.required<string>();
-  /** What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. */
+  /** What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary: neutral says nothing about state. */
   readonly tone = input<ArenaTone, ArenaTone | undefined>(
     'neutral',
     { transform: (value) => value ?? 'neutral' },

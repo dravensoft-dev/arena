@@ -21,7 +21,7 @@ import manifest from './ArenaBadge.classes.generated';
 export class ArenaBadge {
   protected readonly parts = manifest.parts;
 
-  /** System status (success/warning/danger/info) reflects an object's actual state; emphasis (accent, gold) is editorial; neutral carries no semantic weight. */
+  /** System status (success/warning/danger/info) reflects an object's actual state; neutral carries no semantic weight. */
   readonly tone = input<ArenaTone, ArenaTone | undefined>(
     'neutral',
     { transform: (value) => value ?? 'neutral' },

@@ -1,0 +1,10 @@
+{
+  "family": "elevation",
+  "reach": "box",
+  "description": "Whether a surface rests on the page or lifts off it. Depth comes from the shadow and the surface scale, never a gradient.",
+  "default": "arena-elevation-flat",
+  "variants": {
+    "arena-elevation-flat": "[--arena-elevation-shadow:var(--elevation-flat-shadow)]",
+    "arena-elevation-floating": "[--arena-elevation-shadow:var(--elevation-floating-shadow)]"
+  }
+}

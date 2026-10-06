@@ -9,33 +9,24 @@
         "arena-size-lg"
       ],
       "default": "arena-size-md"
+    },
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-primary",
+        "arena-accent-gold",
+        "arena-accent-muted",
+        "arena-accent-ink"
+      ],
+      "default": "arena-accent-primary"
     }
   ],
   "slots": {
-    "root": "inline-flex w-fit",
+    "root": "inline-flex w-fit text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill size-[var(--arena-size-spinner,var(--size-md-spinner))]"
   },
   "kind": {
     "root": "none",
     "circle": "none"
-  },
-  "variants": {
-    "tone": {
-      "accent": {
-        "root": "text-primary"
-      },
-      "gold": {
-        "root": "text-secondary"
-      },
-      "neutral": {
-        "root": "text-ink-muted/(--level-ink-muted)"
-      },
-      "on-accent": {
-        "root": "text-primary-content"
-      }
-    }
-  },
-  "defaultVariants": {
-    "tone": "accent"
   }
 }

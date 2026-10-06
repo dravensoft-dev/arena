@@ -6,8 +6,10 @@
 
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
+| [`accent`](#accent) | box | `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary` |  | ArenaActivityFeed and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`), ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`), ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`), ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`), ArenaToast (`arena-accent-gold`, `arena-accent-plain`) |
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
+| [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
 | [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
@@ -18,6 +20,19 @@
 | [`size`](#size) | context | `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs` |  | ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`), ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`), ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`), ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`), ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
+
+## accent
+
+Which editorial colour a component wears when nothing it says calls for a hue. Accent carries no meaning, so a status a component states always wins over it: a success badge stays success whatever accent it is given. ink paints the ink of the surface the component sits on, which is what a spinner on a filled banner needs.
+
+- **Options:** `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:**
+  - ArenaActivityFeed and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`).
+  - ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`).
+  - ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`).
+  - ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`).
+  - ArenaToast (`arena-accent-gold`, `arena-accent-plain`).
 
 ## band
 
@@ -35,6 +50,14 @@ How much a region holds, which is a question about who is pointing at it rather 
 - **Reach:** context: it goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again.
 - **Values:** `arena-compact` restates `contracts/design/density.compact.json`, `arena-comfortable` restates `contracts/design/density.comfortable.json`.
 - **Written on:** an element you wrote, or a component.
+
+## elevation
+
+Whether a surface rests on the page or lifts off it. Depth comes from the shadow and the surface scale, never a gradient.
+
+- **Options:** `arena-elevation-flat` (default), `arena-elevation-floating`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:** ArenaCard.
 
 ## emphasis
 

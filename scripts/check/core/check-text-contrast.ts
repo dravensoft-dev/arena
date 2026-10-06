@@ -31,24 +31,30 @@ export const ROLE_SHEETS = [
 
 export const SCOPED_PLUGINS = ['complete'];
 
-export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components/**/*.styles.generated.css';
+export const VOCABULARY_SHEETS = 'frameworks/tailwind/consume/vocabulary/*.generated.css';
+
+export const COMPONENT_SHEETS = ['frameworks/tailwind/consume/components/**/*.styles.generated.css', VOCABULARY_SHEETS];
 
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS, ...ROLE_SHEETS, COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`],
+  reads: [PALETTE, COLORS, ...ROLE_SHEETS, ...COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`],
   writes: [],
   feeds: [],
 };
 
 export function componentSheets(roles: Map<string, string> = new Map(), levels: Record<string, string> = {}) {
   const at = join(root, 'frameworks/tailwind/consume/components');
-  return walkFiles(at)
+  const family = walkFiles(join(root, 'frameworks/tailwind/consume/vocabulary'))
+    .filter((file) => file.endsWith('.generated.css'))
+    .map((file) => readFileSync(file, 'utf8'));
+  const components = walkFiles(at)
     .filter((file) => file.endsWith('.styles.generated.css'))
     .map((file) => {
       const css = readFileSync(file, 'utf8');
       const hue = join(root, HUE_SHEETS, relPosix(at, file).replace('.styles.generated.css', '.hues.generated.css'));
       return existsSync(hue) ? inlineHues(css, readFileSync(hue, 'utf8'), roles, levels) : css;
     });
+  return [...components, ...family];
 }
 
 export function paletteColours(body: string) {
@@ -160,7 +166,7 @@ function main() {
     Object.fromEntries(Object.entries(defaults).map(([name, percent]) => [name, `${percent}%`])),
   );
   const levels = sheets.flatMap((css) => levelsIn(css, defaults));
-  const washes = sheets.flatMap(washesIn);
+  const washes = sheets.flatMap((css) => washesIn(css, defaults));
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');

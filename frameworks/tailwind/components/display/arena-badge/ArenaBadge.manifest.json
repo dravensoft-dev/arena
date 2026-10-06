@@ -1,7 +1,18 @@
 {
   "component": "ArenaBadge",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-primary",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-plain"
+    }
+  ],
   "slots": {
-    "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit",
+    "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-accent-fill-soft,var(--accent-plain-fill-soft))] text-ink-body/(--level-ink-body)",
     "dot": "size-1.5 rounded-pill bg-current"
   },
   "kind": {
@@ -10,26 +21,18 @@
   },
   "variants": {
     "tone": {
-      "neutral": {
-        "root": "bg-base-300 text-ink-body/(--level-ink-body)"
-      },
-      "accent": {
-        "root": "bg-primary/14 text-ink-body/(--level-ink-body)"
-      },
-      "gold": {
-        "root": "bg-secondary/16 text-ink-body/(--level-ink-body)"
-      },
+      "neutral": {},
       "success": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+        "root": "bg-[color:var(--arena-hue-fill-soft)]"
       },
       "warning": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+        "root": "bg-[color:var(--arena-hue-fill-soft)]"
       },
       "danger": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+        "root": "bg-[color:var(--arena-hue-fill-soft)]"
       },
       "info": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+        "root": "bg-[color:var(--arena-hue-fill-soft)]"
       }
     }
   },
@@ -39,8 +42,6 @@
   "hues": {
     "tone": {
       "neutral": null,
-      "accent": null,
-      "gold": null,
       "success": "success",
       "warning": "warning",
       "danger": "danger",

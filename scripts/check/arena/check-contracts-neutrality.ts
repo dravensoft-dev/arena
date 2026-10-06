@@ -189,7 +189,6 @@ export function zeroWalkProblems(files: number, strandCount: number, shaped: num
 export type Pending = { phase: 5 | 6; why: string };
 
 const EDITORIAL = 'it decides appearance per instance, so it becomes an option of a family';
-const EDITORIAL_VALUES = 'its meaning values write the hue channels, and its editorial values become an option of a family';
 const GEOMETRY = 'geometry only interpolated into CSS, so it becomes named steps and one public property';
 
 const at = (component: string, member: string) => `contracts/api/components/${component}.json:api.${member}`;
@@ -257,13 +256,8 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
 export const DESIGN_MEMBERS = new Map<string, Pending>([
   ...[['ArenaSheet', 'placement'], ['ArenaToastHost', 'placement'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
-  ...[['ArenaProgressBar', 'tone'], ['ArenaToast', 'tone'], ['ArenaBadge', 'tone'], ['ArenaStatCard', 'tone'],
-    ['ArenaTag', 'tone'],
-  ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL_VALUES }] as [string, Pending]),
-  [field('arena-activity-item', 'tone'), { phase: 5, why: EDITORIAL_VALUES }],
-  ...[['ArenaCard', 'accent'], ['ArenaCard', 'floating'],
-    ['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaHero', 'layout'],
-    ['ArenaSpinner', 'tone'], ['ArenaSideNav', 'indentStep'],
+  ...[['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaHero', 'layout'],
+    ['ArenaSideNav', 'indentStep'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
   ...[['ArenaGrid', 'min'], ['ArenaGrid', 'maxWidth'], ['ArenaGrid', 'gap'], ['ArenaBoard', 'minColumn'],
     ['ArenaScroller', 'itemWidth'], ['ArenaDialog', 'width'], ['ArenaFigure', 'ratio'], ['ArenaSkeleton', 'width'],

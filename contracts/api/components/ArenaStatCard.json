@@ -8,7 +8,7 @@
     "value": { "form": "primitive", "type": "string", "required": true,
                "description": "Preformatted, e.g. \"1,284\" or \"99.9%\". ArenaStatCard never formats." },
     "tone": { "form": "enum", "type": "ArenaTone", "default": "neutral",
-              "description": "What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary." },
+              "description": "What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary: neutral says nothing about state." },
     "delta": { "form": "object", "type": "ArenaStatDelta",
                "description": "How the number moved. Absent renders no marker." },
     "sub": { "form": "primitive", "type": "string",

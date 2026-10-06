@@ -22,8 +22,7 @@
     "tone": {
       "form": "enum",
       "type": "ArenaProgressTone",
-      "default": "accent",
-      "description": "The bar's colour."
+      "description": "The state the work reports: success, danger or info. Absent, the bar paints its accent."
     },
     "label": {
       "form": "primitive",

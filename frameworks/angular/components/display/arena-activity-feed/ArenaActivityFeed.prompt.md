@@ -23,7 +23,7 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

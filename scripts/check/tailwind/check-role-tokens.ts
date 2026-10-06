@@ -88,7 +88,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaTextarea:field:bg-base-200', 'the same readonly state, for the same reason'],
   ['ArenaCheckbox:box:bg-base-300', 'the ground of a control that is not set yet, which is the fill of a thing the user presses rather than of a region something is placed inside. It is the reason ArenaButton:root:bg-base-200 carries one step over, and a style plugin re-answering its tracks has said nothing about whether an unchecked box reads as empty'],
   ['ArenaRadio:ring:bg-base-300', 'the same unset ground, one control over'],
-  ['ArenaBadge:root:bg-base-300', 'the ground of a MARKER in its neutral tone, which is neither a surface nor a control by the argument r-marker and bw-marker already stand on'],
   ['ArenaSideNav:badge:bg-base-300', 'the same marker ground, on the count beside a navigation row that is not current'],
   ['ArenaAvatar:box:bg-base-300', 'the ground a monogram or a missing photograph sits on, which is a marker ground for the reason above and is the same slot that keeps font-display and font-extrabold for standing in for a face'],
 

@@ -5,7 +5,8 @@
  * Chromium. The witness family is a context family the fixture declares, since phase 1 ships none.
  * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
  * the three things a size class reaches, stops at and is answered by. A destructive part keeps its
- * flag too, since the meaning it states is what an emphasis class has to leave in place. */
+ * flag too, and so does a tone other than neutral, since the meaning a part states is what an
+ * emphasis class and an accent class have to leave in place. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,9 +18,10 @@ export const PROXIMITY_CASES = 'scripts/check/arena/proximity-cases.json';
 export const SUBJECT = 'data-proximity-subject';
 export const OPEN = 'data-arena-open';
 export const DESTRUCTIVE = 'data-arena-destructive';
+export const TONE = 'data-arena-tone';
 
 export type Tree = {
-  tag: string; part?: string; boundary?: true; contents?: true; open?: true; destructive?: true; surface?: string; vars?: string; class?: string; text?: string;
+  tag: string; part?: string; boundary?: true; contents?: true; open?: true; destructive?: true; tone?: string; surface?: string; vars?: string; class?: string; text?: string;
   subject?: true; children?: Tree[];
 };
 
@@ -69,6 +71,8 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (/display:\s*contents/.test(style)) tree.contents = true;
   if (element.hasAttribute?.(OPEN)) tree.open = true;
   if (element.getAttribute?.(DESTRUCTIVE) === 'true') tree.destructive = true;
+  const tone = element.getAttribute?.(TONE);
+  if (tone && tone !== 'neutral') tree.tone = tone;
   const surface = element.getAttribute?.(SURFACE);
   if (surface) tree.surface = surface;
   const vars = channelBindings(style);
@@ -81,7 +85,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (text) tree.text = text;
   const children = kids.filter((one) => one.nodeType === 1).map((one) => normalize(one, vocabulary, subject)).filter((one): one is Tree => one !== null);
   if (children.length) tree.children = children;
-  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.destructive || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
+  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.destructive || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
   return kept ? tree : null;
 }
 
@@ -102,7 +106,7 @@ export function treeHtml(
   if (styles.length) attrs.push(`style="${styles.join('; ')}"`);
   const classes = [tree.part ? classesOf(tree.part) : '', tree.class ?? ''].filter(Boolean).join(' ');
   if (classes) attrs.push(`class="${classes}"`);
-  const data = { ...(tree.part ? dataOf(tree.part) : {}), ...(tree.destructive ? { [DESTRUCTIVE]: 'true' } : {}) };
+  const data = { ...(tree.part ? dataOf(tree.part) : {}), ...(tree.destructive ? { [DESTRUCTIVE]: 'true' } : {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
   for (const [name, value] of Object.entries(data)) attrs.push(`${name}="${value}"`);
   const inner = `${tree.text ? escape(tree.text) : ''}${(tree.children ?? []).map((one) => treeHtml(one, classesOf, dataOf)).join('')}`;
   return `<${tree.tag}${attrs.length ? ` ${attrs.join(' ')}` : ''}>${inner}</${tree.tag}>`;

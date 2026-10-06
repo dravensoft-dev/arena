@@ -4,7 +4,7 @@
  * gives a control its own width. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, treeHtml, DESTRUCTIVE, readProximity, vocabularyClasses, type NodeLike } from './proximity.ts';
+import { normalize, treeHtml, DESTRUCTIVE, TONE, readProximity, vocabularyClasses, type NodeLike } from './proximity.ts';
 
 const node = (tag: string, attrs: Record<string, string> = {}, children: NodeLike[] = [], text = ''): NodeLike => ({
   nodeType: 1, tagName: tag.toUpperCase(), getAttribute: (n) => attrs[n] ?? null, hasAttribute: (n) => n in attrs,
@@ -64,4 +64,14 @@ test('a destructive part keeps its flag, and the gate writes it over the default
   });
   const html = treeHtml({ tag: 'button', part: 'button', destructive: true }, () => '', () => ({ [DESTRUCTIVE]: 'false' }));
   assert.equal(html, '<button data-arena-part="button" data-arena-destructive="true"></button>');
+});
+
+test('a part keeps a tone that states something, and the gate writes it over the default the slot carries', () => {
+  const badge = node('span', { 'data-arena-part': 'badge', 'data-arena-tone': 'success' });
+  const quiet = node('span', { 'data-arena-part': 'badge', 'data-arena-tone': 'neutral' });
+  assert.deepEqual(normalize(node('div', {}, [badge, quiet]), new Set()), {
+    tag: 'div', children: [{ tag: 'span', part: 'badge', tone: 'success' }, { tag: 'span', part: 'badge' }],
+  });
+  const html = treeHtml({ tag: 'span', part: 'badge', tone: 'success' }, () => '', () => ({ [TONE]: 'neutral' }));
+  assert.equal(html, '<span data-arena-part="badge" data-arena-tone="success"></span>');
 });

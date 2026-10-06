@@ -1,9 +1,19 @@
 {
   "component": "ArenaActivityFeed",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-primary",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-primary"
+    }
+  ],
   "slots": {
     "root": "flex flex-col list-none m-0 p-0",
     "item": "flex items-center gap-row py-[calc(var(--sp-1)*3.5*var(--dz-row-scale-y))]",
-    "dot": "flex-none size-2 rounded-pill bg-current",
+    "dot": "flex-none size-2 rounded-pill bg-current text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "text": "font-body text-ctl text-ink-body/(--level-ink-body)",
     "actor": "font-bold text-ink-body",
     "target": "font-mono text-ctl-md text-secondary",
@@ -25,12 +35,6 @@
     "tone": {
       "neutral": {
         "dot": "text-ink-body/(--level-ink-body)"
-      },
-      "accent": {
-        "dot": "text-primary"
-      },
-      "gold": {
-        "dot": "text-secondary"
       },
       "success": {
         "dot": "text-[color:var(--arena-hue-fill-strong)]"
@@ -55,14 +59,11 @@
     }
   },
   "defaultVariants": {
-    "tone": "accent",
     "divided": true
   },
   "hues": {
     "tone": {
       "neutral": null,
-      "accent": null,
-      "gold": null,
       "success": "success",
       "warning": "warning",
       "danger": "danger",

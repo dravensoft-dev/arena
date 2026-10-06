@@ -13,7 +13,7 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 |---|---|---|---|---|
 | `title` | primitive | `string` |  | The bold lead line. |
 | `message` | primitive | `string` |  | The body. |
-| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour, and whether the toast announces assertively. |
+| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. |
 | `actionLabel` | primitive | `string` |  | The label of the single inline action: Undo, Retry, View logs. Absent renders no action. |
 | `onAction` | event |  |  | The inline action was activated. |
 | `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, and this was documented as mandatory in an error state while nothing enforced it. Set it explicitly for any other tone that must not disappear on its own. |
@@ -24,7 +24,7 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `className="arena-accent-gold"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 
