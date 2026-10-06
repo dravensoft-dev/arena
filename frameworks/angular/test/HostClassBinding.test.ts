@@ -715,8 +715,8 @@ test('arena-page-head: an unmeasured width renders the WIDE layout, so the narro
     const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
     assert.equal(host.hasAttribute('data-arena-narrow'), false,
       'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
-    assert.equal(host.getAttribute('data-arena-align'), 'start',
-      'an unmeasured page head must render top-aligned');
+    assert.equal(host.hasAttribute('data-arena-align'), false,
+      'the align is a class an adopter writes, so the head writes no attribute for it');
   } finally {
     document.documentElement.style.removeProperty('--bp-sm');
   }

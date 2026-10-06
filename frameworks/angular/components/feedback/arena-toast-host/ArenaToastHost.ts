@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import type { ArenaToastPlacement } from '../../../Api.generated';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { arenaToastHostStyles } from './ArenaToastHost.variants';
 import manifest from './ArenaToastHost.classes.generated';
 
@@ -11,7 +10,6 @@ import manifest from './ArenaToastHost.classes.generated';
     'data-arena-boundary': '',
     '[class]': 'styles().root()',
     '[attr.data-arena-surface]': "'floating'",
-    '[attr.data-arena-placement]': "styles().$data.root()['data-arena-placement'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
   },
   template: `<ng-content />`,
@@ -19,11 +17,5 @@ import manifest from './ArenaToastHost.classes.generated';
 export class ArenaToastHost {
   protected readonly parts = manifest.parts;
 
-  /** Which corner the stack is pinned to. A bottom placement clears the device's own bottom inset, so a stack on a phone never lands under the home indicator. */
-  readonly placement = input<ArenaToastPlacement, ArenaToastPlacement | undefined>(
-    'bottom-end',
-    { transform: (value) => value ?? 'bottom-end' },
-  );
-
-  protected readonly styles = computed(() => arenaToastHostStyles({ placement: this.placement() }));
+  protected readonly styles = computed(() => arenaToastHostStyles());
 }

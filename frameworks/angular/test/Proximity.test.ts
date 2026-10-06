@@ -22,6 +22,7 @@ import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPe
 import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPersonRow';
 import { ArenaCard } from '../components/display/arena-card/ArenaCard';
 import { ArenaBadge } from '../components/display/arena-badge/ArenaBadge';
+import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
@@ -50,6 +51,7 @@ const TEMPLATES: Record<string, string> = {
   'meaning-follows-the-base': '<arena-button destructive>Delete</arena-button><arena-button>Save</arena-button>',
   'meaning-wins-over-accent': '<arena-badge class="arena-accent-gold" tone="success">Paid</arena-badge>',
   'accent-stops-at-the-card-body': '<arena-card class="arena-accent-primary"><arena-tag>Draft</arena-tag></arena-card>',
+  'placement-stops-at-the-sheet-body': '<arena-sheet [open]="true" title="Outer"><arena-sheet [open]="true" title="Inner" /></arena-sheet>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -58,6 +60,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'meaning-follows-the-base': { part: 'button', index: 0 },
   'meaning-wins-over-accent': { part: 'badge', index: -1 },
   'accent-stops-at-the-card-body': { part: 'card', index: -1 },
+  'placement-stops-at-the-sheet-body': { part: 'sheet', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -71,7 +74,7 @@ for (const kase of cases) {
   test(`${kase.name}: Angular renders the tree the gate measures`, () => {
     const Host = Component({
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

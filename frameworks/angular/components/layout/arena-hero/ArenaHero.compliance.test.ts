@@ -12,7 +12,6 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
 import { ArenaHero } from './ArenaHero';
 import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 
@@ -22,16 +21,21 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-hero/ArenaHero.behaviour.
   standalone: true,
   imports: [ArenaHero],
   template: `
-    <arena-hero [title]="title" [eyebrow]="eyebrow" [lede]="lede" [layout]="layout" [align]="align" />
+    <arena-hero [title]="title" [eyebrow]="eyebrow" [lede]="lede" />
   `,
 })
 class HeroHost {
   title = 'Coffee that tells you where it grew';
   eyebrow: string | undefined = undefined;
   lede: string | undefined = undefined;
-  layout: ArenaHeroLayout = 'split';
-  align: ArenaHeroAlign = 'start';
 }
+
+@Component({
+  standalone: true,
+  imports: [ArenaHero],
+  template: `<arena-hero class="arena-layout-bleed arena-align-center" title="Coffee" />`,
+})
+class ClassedHeroHost {}
 
 function render(patch: Partial<HeroHost> = {}) {
   const fixture = TestBed.createComponent(HeroHost);
@@ -78,19 +82,22 @@ test('a title of nothing but spaces is refused, because a present and useless on
   } finally { fixture.destroy(); }
 });
 
-test('only the split layout lays a track list, because the other two are one column', () => {
-  for (const layout of ['stacked', 'split', 'bleed'] as const) {
-    const fixture = render({ layout });
-    try {
-      const tracks = heroOf(fixture).style.getPropertyValue('grid-template-columns');
-      if (layout === 'split') {
-        assert.match(tracks, /var\(--grid-min\)/,
-          'a style plugin that widens the grid minimum must widen when a hero splits');
-      } else {
-        assert.equal(tracks, '', `${layout} lays a track list it does not use`);
-      }
-    } finally { fixture.destroy(); }
-  }
+test('the hero writes no inline track list, and a layout class on it reaches its root', () => {
+  const fixture = render();
+  try {
+    const hero = heroOf(fixture);
+    assert.equal(hero.style.getPropertyValue('grid-template-columns'), '', 'the hero wrote a track list of its own');
+    assert.equal(hero.getAttribute('style'), null, 'the hero writes no style of its own');
+    assert.equal(hero.hasAttribute('data-arena-layout'), false);
+  } finally { fixture.destroy(); }
+
+  const classed = TestBed.createComponent(ClassedHeroHost);
+  try {
+    classed.detectChanges();
+    const hero = classed.nativeElement.querySelector('arena-hero') as HTMLElement;
+    assert.ok(hero.classList.contains('arena-layout-bleed'), 'the layout class an adopter writes is lost');
+    assert.ok(hero.classList.contains('arena-align-center'), 'the align class an adopter writes is lost');
+  } finally { classed.destroy(); }
 });
 
 test('the eyebrow and the lede are drawn only when given', () => {

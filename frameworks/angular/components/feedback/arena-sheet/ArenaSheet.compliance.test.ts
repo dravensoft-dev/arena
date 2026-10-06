@@ -12,7 +12,6 @@ import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
-import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { ArenaFooter } from '../../../ProjectionMarkers';
 import { ArenaSheet } from './ArenaSheet';
 import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
@@ -23,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'feedback/arena-sheet/ArenaSheet.behavi
   standalone: true,
   imports: [ArenaFooter, ArenaSheet],
   template: `
-    <arena-sheet [open]="open" [placement]="placement" [title]="title"
+    <arena-sheet [open]="open" [title]="title"
                  [collapsed]="collapsed" [dismissible]="dismissible"
                  (collapsedChange)="folds.push($event)" (close)="closes = closes + 1">
       <p>Two line items.</p>
@@ -33,7 +32,6 @@ const BINDING = join(ANGULAR_COMPONENTS, 'feedback/arena-sheet/ArenaSheet.behavi
 })
 class SheetHost {
   open = true;
-  placement: ArenaSheetPlacement = 'end';
   title = 'Cart';
   collapsed = false;
   dismissible = false;

@@ -12,7 +12,6 @@ import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertSameNode } from '../../../test/NodeAssert';
-import type { ArenaToastPlacement } from '../../../Api.generated';
 import { ArenaToastHost } from './ArenaToastHost';
 import { ArenaToast } from '../arena-toast/ArenaToast';
 import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
@@ -23,15 +22,13 @@ const BINDING = join(ANGULAR_COMPONENTS, 'feedback/arena-toast-host/ArenaToastHo
   standalone: true,
   imports: [ArenaToastHost, ArenaToast],
   template: `
-    <arena-toast-host [placement]="placement">
+    <arena-toast-host>
       <arena-toast title="First" tone="success" />
       <arena-toast title="Second" tone="danger" />
     </arena-toast-host>
   `,
 })
-class ToastHostPage {
-  placement: ArenaToastPlacement = 'bottom-end';
-}
+class ToastHostPage {}
 
 function render(patch: Partial<ToastHostPage> = {}) {
   const fixture = TestBed.createComponent(ToastHostPage);
@@ -105,30 +102,13 @@ test('the notices come out in the order they went in, so the reading order is th
   }
 });
 
-test('the placement reaches the host attribute, and it is the only thing that varies', () => {
-  const bottom = render();
-  let bottomClass: string;
-  let bottomPlacement: string | null;
+test('the host takes no placement input and writes no placement attribute, because a class on it or above it pins the corner', () => {
+  const fixture = render();
   try {
-    const hostElement = bottom.nativeElement.querySelector('arena-toast-host') as HTMLElement;
-    bottomClass = hostElement.className;
-    bottomPlacement = hostElement.getAttribute('data-arena-placement');
+    const hostElement = fixture.nativeElement.querySelector('arena-toast-host') as HTMLElement;
+    assert.equal(hostElement.hasAttribute('data-arena-placement'), false);
+    assert.ok(hostElement.className.split(/\s+/).includes('arena-toast-host__root'), 'the root class is the slot class');
   } finally {
-    bottom.destroy();
-  }
-
-  const top = render({ placement: 'top-start' });
-  try {
-    const topHost = top.nativeElement.querySelector('arena-toast-host') as HTMLElement;
-    const topClass = topHost.className;
-    assert.notEqual(topHost.getAttribute('data-arena-placement'), bottomPlacement,
-      'the placement input never reached the rendered attribute');
-    assert.equal(topClass, bottomClass, 'the class is the slot class whatever the placement');
-    for (const shared of ['arena-toast-host__root']) {
-      assert.ok(topClass.split(/\s+/).includes(shared), `${shared} must not vary with placement`);
-      assert.ok(bottomClass.split(/\s+/).includes(shared), `${shared} must not vary with placement`);
-    }
-  } finally {
-    top.destroy();
+    fixture.destroy();
   }
 });

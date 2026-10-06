@@ -1,42 +1,19 @@
-/* A recipe resolves to the component's OWN class names, so what this suite can see is which slot
- * a variant moves and how many distinct answers each has. What each utility MEANS is asserted
- * once beside the manifest, where both layers reach one claim rather than two copies. */
+/* A recipe resolves to the component's OWN class names. The hero has no variant: its layout and
+ * its alignment are families an adopter writes as classes, so the recipe is one answer. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import type { ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
 import { arenaHeroStyles } from './ArenaHero.variants';
 
-const LAYOUTS: ArenaHeroLayout[] = ['stacked', 'split', 'bleed'];
-const ALIGNS: ArenaHeroAlign[] = ['start', 'center'];
-
-test('the three layouts are three distinct roots', () => {
-  const seen = new Set(LAYOUTS.map((layout) => JSON.stringify(arenaHeroStyles({ layout, align: 'start' }).$data.root())));
-  assert.equal(seen.size, LAYOUTS.length, 'two layouts compiled to the same root');
-});
-
-test('the two alignments move the words and never the root', () => {
-  for (const layout of LAYOUTS) {
-    const roots = new Set(ALIGNS.map((align) => JSON.stringify(arenaHeroStyles({ layout, align }).$data.root())));
-    const words = new Set(ALIGNS.map((align) => JSON.stringify(arenaHeroStyles({ layout, align }).$data.words())));
-    assert.equal(roots.size, 1, `${layout}: the alignment moved the root, which is the layout's`);
-    assert.equal(words.size, ALIGNS.length, `${layout}: the two alignments compiled to the same words block`);
-  }
-});
-
-test('the layout moves the root, the words and the figure, and leaves the registers alone', () => {
-  const base = arenaHeroStyles({ layout: 'split', align: 'start' });
-  for (const layout of LAYOUTS) {
-    const other = arenaHeroStyles({ layout, align: 'start' });
-    for (const slot of ['eyebrow', 'title', 'lede', 'actions'] as const) {
-      assert.equal(JSON.stringify(other.$data[slot]()), JSON.stringify(base.$data[slot]()), `${layout} moved the ${slot} slot`);
-    }
+test('the hero recipe takes no variant, so every slot has one answer', () => {
+  const first = arenaHeroStyles();
+  const second = arenaHeroStyles();
+  for (const slot of ['root', 'words', 'eyebrow', 'title', 'lede', 'actions', 'figure'] as const) {
+    assert.equal(JSON.stringify(first.$data[slot]()), JSON.stringify(second.$data[slot]()), `${slot} varied between two calls`);
   }
 });
 
 test('the split threshold is the component\'s, so the recipe writes no track list', () => {
-  for (const layout of LAYOUTS) {
-    const root = arenaHeroStyles({ layout, align: 'start' }).root().split(/\s+/).filter(Boolean);
-    assert.ok(!root.some((cls) => cls.startsWith('grid-cols-[')),
-      `${layout}: a track list in the recipe is a threshold no role can answer`);
-  }
+  const root = arenaHeroStyles().root().split(/\s+/).filter(Boolean);
+  assert.ok(!root.some((cls) => cls.startsWith('grid-cols-[')),
+    'a track list in the recipe is a threshold no role can answer');
 });
