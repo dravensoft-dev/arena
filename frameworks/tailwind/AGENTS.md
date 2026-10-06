@@ -225,13 +225,22 @@ one. Re-valuing the scale instead is not a repair, because a step is shared by e
 happens to want that length, and a card and a tooltip do not stop being different things by
 agreeing on 14 pixels.
 
-**The five kinds a role names.** A SURFACE has things placed inside it. A FLOATING surface is
-one that sits over the page rather than in it. A CONTROL is pressed. A FIELD is typed into. A
-MARKER encloses a label and nothing else, so it is none of the other four. A SEPARATOR is the
-sixth and it is not a kind of thing but a kind of edge: the line dividing one thing from the
-next INSIDE a surface. It is a separate role from `--bw-surface` for the reason that matters
-most to this whole tier, which is that a style plugin grouping by elevation removes the enclosure
-and a table whose row rules vanished with it would stop being readable.
+**The kinds a role names.** A SURFACE has things placed inside it. A FLOATING surface sits over
+the page rather than in it. A CONTROL is pressed. A FIELD is typed into. A MARKER encloses a label
+and nothing else. A STATUS is a message the page says about itself, such as an alert or a toast. A
+ROW is one item in a list: a menu entry, a table cell, a tab. A slot that is none of these is
+`none`. A SEPARATOR is not a kind of thing but a kind of edge: the line dividing one thing from the
+next INSIDE a surface. It is a separate role from `--bw-surface` because a style plugin grouping by
+elevation removes the enclosure, and a table whose row rules vanished with it would stop being
+readable.
+
+**Every slot declares its kind.** A manifest's `kind` map has one entry per slot, in the order of
+`slots`, and `check:roles` fails a slot with none, an unknown kind or a kind naming no slot
+(`scripts/lib/tailwind/slot-kinds.ts:kindProblems(manifest)`). It judges a slot's padding, gap,
+margin and radius by its kind (`KIND_AIR` and `KIND_FREE` in that file): a numeric step fails, and
+so does a role of another kind. `SCALE_USES` is the one way out. A `kind` map never reaches a class
+module or a sheet. Which role answers which kind is stated in
+[`contracts/design/StylePlugins.md`](../../contracts/design/StylePlugins.md).
 
 **Radius and depth are banned by utility name; a border width and a duration by TOKEN name; an
 easing by both.** The first two have a Tailwind namespace and the next two do not, so those are

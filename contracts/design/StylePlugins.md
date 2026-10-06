@@ -17,11 +17,12 @@ Not one value of appearance.
 | The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
 | The cascade | `arena-plugin`, a layer declared after `utilities` |
 
-**A part hook belongs to a manifest, so the chart family has none.** Seven of the eight charts
-draw geometry whose coordinates are the data, which is why they carry no manifest, and a
-component with no slot has no hook: a plugin reaches `ArenaChartCard`, the frame, and nothing
-inside the plot. What carries the skin there instead is the token tier, since every value a
-chart paints is one the palette moves, and [`frameworks/CHARTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/CHARTS.md)
+**A part hook belongs to a manifest, so the plot of a chart has none.** A chart draws geometry
+whose coordinates are the data, and a plot with no slot has no hook: a plugin reaches
+`ArenaChartCard`, the frame, and the legend and tooltip each chart's own manifest carries, and
+nothing inside the plot. What carries the skin there instead is the token tier, since every value
+a chart paints is one the palette moves, and
+[`frameworks/CHARTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/CHARTS.md)
 records why the plot geometry cannot be a role at all.
 
 [`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
@@ -102,6 +103,36 @@ one stylesheet per import does not have to keep the order the entry module wrote
 plugin sheet parsed before the sheet carrying the prelude is exactly the case. Repeating the order
 declaration is the same treatment a component sheet already gets when it imports its own prelude,
 and for the same reason: the file carries what it depends on rather than documenting it.
+
+## The kinds a role answers
+
+A slot declares what kind of thing it is, and the kind decides which padding, gap and radius
+roles it may ask. A slot of another kind spending one of these roles fails `check:roles`, which
+[`frameworks/tailwind/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/AGENTS.md)
+describes. A plugin answers each role once and every slot of the kind follows.
+
+| Kind | Padding roles | Gap role | Radius role |
+|---|---|---|---|
+| `surface` | `pad-surface`, `pad-surface-head` | `gap-items`, `gap-inline` | `rounded-surface` |
+| `floating` | `pad-floating-x`, `pad-floating-y` | `gap-items`, `gap-inline` | `rounded-surface-floating` |
+| `control` | `pad-control-x`, `pad-control-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
+| `field` | `pad-control-x`, `pad-control-y` | `gap-control` | `rounded-field` |
+| `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
+| `status` | `pad-status-x`, `pad-status-y` | `gap-items`, `gap-inline` | `rounded-surface-floating` |
+| `row` | `pad-row-x`, `pad-row-y`, `pad-row-indent`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row` | `rounded-control` |
+| `none` | none | the kind-free rhythm only | the kind-free shapes only |
+
+The table is `scripts/lib/tailwind/slot-kinds.ts:KIND_AIR`, and the rhythm and shapes any kind
+may ask are `KIND_FREE` in the same file. The fill of a small readout raised over the content it
+annotates, a chart's tooltip, is `fill-surface-raised`.
+
+**A row's padding is the role times the density row factor.** `pad-row-x` and `pad-row-y` are
+multiplied by `--dz-row-scale-x` and `--dz-row-scale-y`, which density restates, so a plugin
+answers the register of a row, how much air an item of that kind takes, and density answers how
+tight the row is. A plugin never writes a density factor into a row role. `--dz-row-min`, reached
+through `min-h-row-min`, is the floor a row takes to reach the pointer target in comfortable
+density. `pad-row-indent` is the side nav's inset per level of depth, read times the
+`--arena-side-nav-depth` channel the component writes.
 
 ## Which floors a gate still holds, and which became reports
 
