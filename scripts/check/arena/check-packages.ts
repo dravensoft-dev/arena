@@ -296,8 +296,11 @@ export function cssListProblems(pkg: { layer: string; name: string }, dir: strin
     : [];
   const pattern = 'css/components/<name>.css';
   const patternNamed = page.includes(`\`${pattern}\``);
+  const huePattern = 'css/hues/<name>.css';
+  const hueNamed = page.includes(`\`${huePattern}\``);
   for (const rel of shipped.sort()) {
-    const covered = rel.startsWith('css/components/') && patternNamed;
+    const covered = (rel.startsWith('css/components/') && patternNamed)
+      || (rel.startsWith('css/hues/') && hueNamed);
     if (!covered && !page.includes(rel)) {
       problems.push(`${pkg.name}: ${rel} ships and frameworks/${pkg.layer}/PACKAGE.md never names it, so a `
         + 'consumer choosing a sheet by that page cannot learn it is there');
@@ -305,7 +308,7 @@ export function cssListProblems(pkg: { layer: string; name: string }, dir: strin
   }
   const named = new Set([...page.matchAll(/`(css\/[^`\s]+)`/g)].map((match) => match[1] ?? ''));
   for (const rel of [...named].sort()) {
-    if (rel === pattern || rel.endsWith('/') || rel.includes('<')) continue;
+    if (rel === pattern || rel === huePattern || rel.endsWith('/') || rel.includes('<')) continue;
     if (!existsSync(join(dir, rel))) {
       problems.push(`${pkg.name}: frameworks/${pkg.layer}/PACKAGE.md names ${rel}, which the package does not ship`);
     }

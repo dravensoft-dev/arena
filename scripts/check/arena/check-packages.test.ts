@@ -504,3 +504,17 @@ test('a shipped css file the page never names fails, and a css path the page nam
   assert.match(problems, /css\/vocabulary\/stack\.css ships and .*PACKAGE\.md never names it/);
   assert.match(problems, /names css\/rhythm\.css, which the package does not ship/);
 });
+
+test('the css/hues pattern row covers a shipped hue sheet, and without it the sheet fails', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  for (const rel of ['css/base.css', 'css/hues/arena-button.css']) {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), '');
+  }
+  const pkg = { layer: 'react', name: '@x/react' };
+  const named = cssListProblems(pkg, dir, '| `css/base.css` | x |\n| `css/hues/<name>.css` | y |');
+  const unnamed = cssListProblems(pkg, dir, '| `css/base.css` | x |').join('\n');
+  rmSync(dir, { recursive: true, force: true });
+  assert.deepEqual(named, []);
+  assert.match(unnamed, /css\/hues\/arena-button\.css ships and .*PACKAGE\.md never names it/);
+});

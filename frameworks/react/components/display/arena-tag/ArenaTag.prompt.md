@@ -58,9 +58,9 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a
   chip that carried a state colour and an identity colour at once would read as
   neither.
-- The identity chip outlines, like every other tone. A filled one is an
-  appearance decision: the ramp colour reaches the element as `data-arena-color-id`
-  and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and `--arena-hue-fill-soft`), so a style plugin fills `tag` with it and no member is needed here.
+- The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the element as `data-arena-color-id`
+  and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
+  `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
 
 **Words.** `tagRemove` names the remove button.
 
