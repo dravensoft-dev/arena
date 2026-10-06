@@ -42,6 +42,17 @@
   --gutter:88px;
   --pad-surface:20px;
   --pad-surface-head:0px;
+  --pad-floating-x:24px;
+  --pad-floating-y:16px;
+  --pad-status-x:16px;
+  --pad-status-y:14px;
+  --pad-marker-x:6px;
+  --pad-marker-y:4px;
+  --pad-row-x:12px;
+  --pad-row-y:10px;
+  --pad-row-indent:4px;
+  --gap-marker:6px;
+  --gap-row:12px;
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
   --fill-page:var(--color-base-100);

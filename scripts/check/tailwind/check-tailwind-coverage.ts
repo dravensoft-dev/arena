@@ -14,6 +14,7 @@ export const node = {
 import { captured } from '../../utils/captures.ts';
 
 export const EXCLUDED = new Map([
+  ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
   ['lh-root', 'the floor every element inherits, set once on html in contracts/design/reset.css and '
     + 'never picked per element. A leading-root utility would invite a component to restate the '
@@ -110,8 +111,7 @@ export function presetTokens(css: string) {
     const key = line.slice(0, i).trim();
 
     if (!key.startsWith('--') || key.startsWith('--default-')) continue;
-    const ref = line.slice(i + 1).match(/^\s*var\(--([a-z0-9-]+)\)\s*$/);
-    if (ref) out.add(captured(ref));
+    for (const ref of line.slice(i + 1).matchAll(/var\(--([a-z0-9-]+)\)/g)) out.add(captured(ref));
   }
   return out;
 }

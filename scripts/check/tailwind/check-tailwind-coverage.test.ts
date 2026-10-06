@@ -7,6 +7,11 @@ test('reads the Arena tokens a preset references', () => {
   assert.deepEqual([...presetTokens(css)].sort(), ['color-primary', 'fs-h1', 'sp-1']);
 });
 
+test('reads every var() inside a calc', () => {
+  const css = `@theme {\n  --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));\n}\n`;
+  assert.deepEqual([...presetTokens(css)].sort(), ['dz-row-scale-x', 'pad-row-x']);
+});
+
 test('a --default-* wiring does not count as exposing the token', () => {
   const css = `@theme {\n  --ease-out: var(--ease-out);\n  --default-transition-duration: var(--dur-fast);\n}\n`;
   assert.deepEqual([...presetTokens(css)], ['ease-out']);

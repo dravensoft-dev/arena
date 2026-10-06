@@ -165,7 +165,7 @@
   },
   "pad-control-x": {
     "$type": "dimension",
-    "$description": "The room a CONTROL gives its content across: a button, a chip, a menu item, a tab.\nBorn at sp.3, the step the majority of control slots name.\n\nThe cut against dz-row-px is who is being asked about, the same cut pad-surface makes. Density\nsays how tight a DATA ROW is, which is target size and the same answer on a phone in any style plugin.\nThis says how generous a control is, which is register. A style plugin may spend it and .arena-compact\nstill decides the row."
+    "$description": "The room a CONTROL gives its content across: a button.\nBorn at sp.3, the step the majority of control slots name. A menu item and a tab are rows and a chip is a marker, each answered by that kind's role: pad-row-x and pad-marker-x.\n\nThe cut against dz-row-px is who is being asked about, the same cut pad-surface makes. Density\nsays how tight a DATA ROW is, which is target size and the same answer on a phone in any style plugin.\nThis says how generous a control is, which is register. A style plugin may spend it and .arena-compact\nstill decides the row."
   },
   "pad-control-y": {
     "$type": "dimension",
@@ -197,11 +197,55 @@
   },
   "pad-surface": {
     "$type": "dimension",
-    "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA style plugin needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany style plugin. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy style plugin is a coherent thing to want.\n\nThe floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and\na coachmark is pinned to what it points at, so their padding is a fit constraint rather than a\nstatement about air, and giving a style plugin a lever there would let it push their content off the\nedge. They are recorded in SCALE_USES instead."
+    "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA style plugin needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany style plugin. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy style plugin is a coherent thing to want."
   },
   "pad-surface-head": {
     "$type": "dimension",
     "$description": "The air a surface leaves under its head, above the rule bw-surface-head draws. Nothing by\ndefault, for the reason that role gives: the property is painted so that a value can move it.\n\nSplit from pad-surface, which is the room a surface gives its own content, because the two are\nnot one decision. A head sitting hard on its rule reads as a caption and a head with room under\nit reads as a section, and a style plugin that opens a card up has said nothing about which of\nthose its tiles are. The two plugins drawing the rule spend this at the same moment, which is\nwhat says it belongs beside that question rather than inside it."
+  },
+  "pad-floating-x": {
+    "$type": "dimension",
+    "$description": "The room a surface sitting over the page gives its content across: a dialog, a sheet, a menu, a popover. It is cut from pad-surface, which is the room a surface that belongs to the page gives, because a floating surface is separated from what it covers rather than grouped against it. It is split by axis because the dialog's sides and its top differ."
+  },
+  "pad-floating-y": {
+    "$type": "dimension",
+    "$description": "The room a surface sitting over the page gives its content down. Split from pad-floating-x because the dialog's sides and its top are not one decision."
+  },
+  "pad-status-x": {
+    "$type": "dimension",
+    "$description": "The room a status block gives its message across: an alert, a toast, an empty state. It is cut from pad-surface because a status block reports something to the reader rather than holding their content, and a style plugin that opens cards up has said nothing about how loud a notice is."
+  },
+  "pad-status-y": {
+    "$type": "dimension",
+    "$description": "The room a status block gives its message down. Split from pad-status-x because the two axes of a notice are not one decision."
+  },
+  "pad-marker-x": {
+    "$type": "dimension",
+    "$description": "The room a marker gives the label it encloses across: a badge, a chip, a tag, a pill. It is cut from pad-control-x because a marker is read and not pressed, so its air follows the label it hugs rather than the register of the controls beside it."
+  },
+  "pad-marker-y": {
+    "$type": "dimension",
+    "$description": "The room a marker gives the label it encloses down. Split from pad-marker-x because a style plugin widens a marker without making it taller."
+  },
+  "pad-row-x": {
+    "$type": "dimension",
+    "$description": "The room a row in a list, menu, feed, side nav, tab list or palette gives its content across. The theme multiplies it by the row factor density sets, which is why a row re-densifies and a control's air does not. It is cut from pad-control-x because a row is one of many in a column and a control stands alone."
+  },
+  "pad-row-y": {
+    "$type": "dimension",
+    "$description": "The room a row in a list, menu, feed, side nav, tab list or palette gives its content down. The theme multiplies it by the row factor density sets, which is why a row re-densifies and a control's air does not."
+  },
+  "pad-row-indent": {
+    "$type": "dimension",
+    "$description": "The length one nesting step indents a row by. The side nav's indentStep multiplies it. It is cut from pad-row-x because the indent says how deep a row sits and the padding says how much room its content has."
+  },
+  "gap-marker": {
+    "$type": "dimension",
+    "$description": "The gap between the parts of a marker: a dot and its label, a label and its dismiss. It is cut from gap-control because a marker is read and not pressed, so a style plugin that opens controls up leaves its markers compact."
+  },
+  "gap-row": {
+    "$type": "dimension",
+    "$description": "The gap between the parts of a row: an icon and its text, a label and its trailing meta. It is cut from gap-control because a row is one of many in a column and its parts follow the row's register rather than a control's."
   },
   "fill-surface": {
     "$type": "color",

@@ -275,6 +275,17 @@
      three gaps are inside one control, between controls on a line, and between the members of a
      group, which is the cut a voice actually spends. */
   --spacing-control-x: var(--pad-control-x);
+  --spacing-floating-x: var(--pad-floating-x);
+  --spacing-floating-y: var(--pad-floating-y);
+  --spacing-status-x: var(--pad-status-x);
+  --spacing-status-y: var(--pad-status-y);
+  --spacing-marker-x: var(--pad-marker-x);
+  --spacing-marker-y: var(--pad-marker-y);
+  --spacing-marker: var(--gap-marker);
+  --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));
+  --spacing-row-y: calc(var(--pad-row-y) * var(--dz-row-scale-y));
+  --spacing-row: var(--gap-row);
+  --spacing-row-min: var(--dz-row-min);
   --spacing-control-y: var(--pad-control-y);
   --spacing-control: var(--gap-control);
   --spacing-inline: var(--gap-inline);

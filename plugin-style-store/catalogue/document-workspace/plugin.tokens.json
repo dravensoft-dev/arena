@@ -207,6 +207,62 @@
       "unit": "px"
     }
   },
+  "pad-floating-x": {
+    "$type": "dimension",
+    "$value": "{sp.6}"
+  },
+  "pad-floating-y": {
+    "$type": "dimension",
+    "$value": "{sp.4}"
+  },
+  "pad-status-x": {
+    "$type": "dimension",
+    "$value": "{sp.4}"
+  },
+  "pad-status-y": {
+    "$type": "dimension",
+    "$value": {
+      "value": 14,
+      "unit": "px"
+    }
+  },
+  "pad-marker-x": {
+    "$type": "dimension",
+    "$value": {
+      "value": 6,
+      "unit": "px"
+    }
+  },
+  "pad-marker-y": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "pad-row-x": {
+    "$type": "dimension",
+    "$value": "{sp.3}"
+  },
+  "pad-row-y": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "pad-row-indent": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "gap-marker": {
+    "$type": "dimension",
+    "$value": {
+      "value": 6,
+      "unit": "px"
+    }
+  },
+  "gap-row": {
+    "$type": "dimension",
+    "$value": "{sp.3}"
+  },
   "fill-surface": {
     "$type": "color",
     "$value": "{color.base-100}"

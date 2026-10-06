@@ -82,6 +82,9 @@
   --dz-text-xs:11px; /* micro control text: field labels, shortcuts, eyebrow labels, and the category and point labels of a chart, which are chrome under a plot rather than prose */
   --dz-text-2xs:10px; /* column headers, row micro-labels, and a chart's axis ticks. It is also where step-label is born, so the whole label register sits here until a style plugin moves it */
   --dz-lh:1; /* glyph-tight line height: the control reset. Unlike every other dz member this is unitless, so it carries its own $type override: a line height is a number, not a dimension, the same distinction that puts lh in typography.json to begin with. Used wherever a box must be exactly its glyph (an icon inside a button, a standalone icon, an icon-only close/remove control), so the line box never throws the surrounding control out of alignment. */
+  --dz-row-scale-x:1; /* the factor a row's horizontal padding is multiplied by; 1 at base, and density restates it in the proportion row-px does */
+  --dz-row-scale-y:1; /* the factor a row's vertical padding is multiplied by; 1 at base, and density restates it in the proportion row-py does */
+  --dz-row-min:0px; /* the least height a row takes: nothing at base, the touch target where density asks for one */
 
   /*
      ArenaAvatar diameters. The first family named after a component rather

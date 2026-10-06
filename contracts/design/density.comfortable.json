@@ -14,6 +14,9 @@
     "ctl-h-lg": { "$value": { "value": 56, "unit": "px" } },
     "row-py": { "$value": { "value": 16, "unit": "px" } },
     "row-px": { "$value": { "value": 20, "unit": "px" } },
-    "stack": { "$value": { "value": 16, "unit": "px" } }
+    "stack": { "$value": { "value": 16, "unit": "px" } },
+    "row-scale-x": { "$type": "number", "$value": 1.25 },
+    "row-scale-y": { "$type": "number", "$value": 1.3333 },
+    "row-min": { "$value": { "value": 48, "unit": "px" } }
   }
 }
