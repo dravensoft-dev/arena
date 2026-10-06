@@ -106,7 +106,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
   };
   const styles = paletteStyles({ open: true });
   return (
-    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div ref={panelRef} onKeyDown={onPanelKeyDown}
         onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={locale.commandPaletteDialog}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>

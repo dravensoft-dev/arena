@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -23,6 +23,23 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'box-class-stops-at-a-boundary': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,
   'context-class-crosses-a-boundary': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,
   'box-channel-stays-out-of-content': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,
+  'size-reaches-the-toolbar': () => <>
+    <ArenaButton>Save</ArenaButton>
+    <ArenaButton>Cancel</ArenaButton>
+    <ArenaIconButton icon="ph-bold ph-x" label="Close" />
+    <ArenaDialog open onClose={() => {}} title="Discard" footer={<ArenaButton>Confirm</ArenaButton>}>{null}</ArenaDialog>
+  </>,
+  'nearer-size-wins': () => <>
+    <ArenaButton>Save</ArenaButton>
+    <ArenaButton className="arena-size-lg">Cancel</ArenaButton>
+    <ArenaIconButton icon="ph-bold ph-x" label="Close" />
+  </>,
+  'size-option-not-answered': () => <div className="arena-size-xl"><ArenaButton>Save</ArenaButton><ArenaAppLogo mark={<svg />} name="Draven" /></div>,
+  'size-re-densifies-in-compact': () => <ArenaButton className="arena-size-sm">Save</ArenaButton>,
+  'size-re-densifies-in-compact-under-the-size': () => <div className="arena-compact"><ArenaButton>Save</ArenaButton></div>,
+  'size-re-densifies-in-comfortable': () => <ArenaButton className="arena-size-sm">Save</ArenaButton>,
+  'size-re-densifies-in-comfortable-under-the-size': () => <div className="arena-comfortable"><ArenaButton>Save</ArenaButton></div>,
+  'people-list-face-follows-the-list': () => <ArenaPeopleList className="arena-size-lg" label="Standings"><ArenaPersonRow name="Ines Marchetti" /></ArenaPeopleList>,
 };
 
 const { families, cases } = readProximity();
@@ -36,7 +53,8 @@ for (const kase of cases) {
   test(`${kase.name}: React renders the tree the gate measures`, () => {
     const root = mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
     const container = root.firstElementChild!;
-    const subject = [...container.querySelectorAll('[data-arena-part="button"]')].at(-1) ?? null;
+    const subjectPart = kase.name === 'people-list-face-follows-the-list' ? 'avatar.box' : 'button';
+    const subject = [...container.querySelectorAll(`[data-arena-part="${subjectPart}"]`)].at(-1) ?? null;
     const tree = normalize(container as unknown as NodeLike, vocabulary, subject as unknown as NodeLike);
     assert.deepEqual(tree, kase.react, `recorded tree for ${kase.name}:\n${JSON.stringify(tree)}`);
   });

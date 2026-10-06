@@ -2,7 +2,7 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaIconButton.classes.generated.ts';
 
-import type { ArenaButtonType, ArenaControlSize, ArenaIconButtonVariant } from '../../../Api.generated';
+import type { ArenaButtonType, ArenaIconButtonVariant } from '../../../Api.generated';
 import type { ArenaIconButtonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 
@@ -15,8 +15,6 @@ export interface ArenaIconButtonProps {
 
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   label: string;
-  /** Height, from the density tokens: the same scale ArenaButton uses, so the two re-densify together in a toolbar. */
-  size?: ArenaControlSize;
   /** Visual treatment. */
   variant?: ArenaIconButtonVariant;
 
@@ -54,12 +52,12 @@ export interface ArenaIconButtonProps {
 const arenaIconButtonStyles = arenaStyles(manifest);
 
 export function ArenaIconButton({ className, 
-  icon, label, size = 'md', variant = 'ghost', pressed, showLabel = false, disabled = false,
+  icon, label, variant = 'ghost', pressed, showLabel = false, disabled = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaIconButtonProps) {
   if (!icon) throw new Error('ArenaIconButton: `icon` is required');
   if (!label) throw new Error('ArenaIconButton: `label` is required');
-  const styles = arenaIconButtonStyles({ variant, size, showLabel, pressed });
+  const styles = arenaIconButtonStyles({ variant, showLabel, pressed });
   return (
     <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onClick}
 

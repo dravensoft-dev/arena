@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ArenaButtonType, ArenaButtonVariant, ArenaControlSize } from '../../../Api.generated';
+import type { ArenaButtonType, ArenaButtonVariant } from '../../../Api.generated';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaButton.classes.generated.ts';
 import type { ArenaButtonClass } from '../../../Vocabulary.generated.ts';
@@ -16,8 +16,6 @@ export interface ArenaButtonProps {
   variant?: ArenaButtonVariant;
   /** Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   destructive?: boolean;
-  /** Height, from the density tokens, so the button re-densifies inside .arena-compact. */
-  size?: ArenaControlSize;
 
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
   icon?: string;
@@ -57,11 +55,11 @@ export interface ArenaButtonProps {
 const arenaButtonStyles = arenaStyles(manifest);
 
 export function ArenaButton({ className, 
-  children, variant = 'primary', destructive = false, size = 'md', icon, iconRight,
+  children, variant = 'primary', destructive = false, icon, iconRight,
   disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaButtonProps) {
-  const styles = arenaButtonStyles({ variant, destructive, size });
+  const styles = arenaButtonStyles({ variant, destructive });
 
   return (
     <button

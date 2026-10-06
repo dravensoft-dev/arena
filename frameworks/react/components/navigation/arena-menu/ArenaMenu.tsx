@@ -106,7 +106,7 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
       {open && (
         <div role="menu" ref={panelRef}
           className={styles.panel()}
-          data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
+          data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-surface="floating">
           {items.map((it, i) => {
             if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />;
             if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header} {...styles.$data.header()}>{it.header}</div>;

@@ -2,7 +2,6 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSwitch.classes.generated.ts';
 
-import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaSwitchClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
@@ -12,10 +11,6 @@ export interface ArenaSwitchProps {
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   state?: boolean;
-  /** Whether the switch lies horizontally or stands vertically. */
-  orientation?: ArenaOrientation;
-  /** The switch's overall size. */
-  size?: ArenaSwitchSize;
   /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
   iconOn?: string;
   /** A Phosphor class name for the glyph shown while off. */
@@ -38,21 +33,14 @@ export interface ArenaSwitchProps {
 const arenaSwitchStyles = arenaStyles(manifest);
 
 export function ArenaSwitch({ className, 
-  state = false, orientation = 'horizontal', size = 'md',
+  state = false,
   iconOn, iconOff, label, disabled = false, confirm = false,
   onFuncOn, onFuncOff, onRequestChange,
 }: ArenaSwitchProps) {
   const locale = useArenaLocale();
   if (!label) throw new Error('ArenaSwitch: `label` is required (a switch must have an accessible name)');
   const icon = state ? iconOn : iconOff;
-  const styles = arenaSwitchStyles({
-    size,
-    orientation,
-    state,
-    disabled,
-    footprint: `${orientation}-${size}`,
-    thumb: `${state ? 'on' : 'off'}-${orientation}`,
-  });
+  const styles = arenaSwitchStyles({ state, disabled });
 
   const activate = () => {
     if (disabled) return;

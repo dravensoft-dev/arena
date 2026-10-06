@@ -17,10 +17,9 @@ test('ArenaSpinner falls back to "Loading" when no label is given', () => {
   assert.match(renderToStaticMarkup(<ArenaSpinner />), /aria-label="Loading"/);
 });
 
-test('ArenaSpinner renders the diameter its size names, not the default', () => {
-  assert.match(renderToStaticMarkup(<ArenaSpinner size="sm" />), /data-arena-part="spinner.circle"[^>]*\bdata-arena-size="sm"/);
-  assert.match(renderToStaticMarkup(<ArenaSpinner size="lg" />), /data-arena-part="spinner.circle"[^>]*\bdata-arena-size="lg"/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner size="lg" />), /data-arena-part="spinner.circle"[^>]*\bdata-arena-size="md"/);
+test('ArenaSpinner takes its size as a class', () => {
+  assert.match(renderToStaticMarkup(<ArenaSpinner className="arena-size-lg" />), /\barena-size-lg\b/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner />), /data-arena-size/);
 });
 
 test('ArenaSpinner renders the colour its tone names, and the ring takes it from currentColor', () => {

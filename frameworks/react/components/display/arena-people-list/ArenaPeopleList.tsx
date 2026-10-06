@@ -2,7 +2,6 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPeopleList.classes.generated.ts';
 
-import type { ArenaControlSize } from '../../../Api.generated';
 import type { ArenaPeopleListClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 
@@ -16,8 +15,6 @@ export interface ArenaPeopleListProps {
   /** Whether the order is part of the meaning. A standings table read in any other order is a different claim, and its rows are numbered; a set of suggestions is a set. It is a declared input rather than something inferred from the rows carrying a `rank`, because Arena never derives what it draws from what a consumer happened to pass, and a numbered list whose numbers are decoration is a lie told to a screen reader. */
   ordered?: boolean;
 
-  /** How big every row in the list is: the face, the name and the figure move together. It sits on the list rather than on the row because rows in one list that disagree about their size are a defect and never a design, and how the list hands it down is each layer's business rather than this contract's. */
-  size?: ArenaControlSize;
 
   /** The rows. One ArenaPersonRow per person; a row is what says who and how much, and the list decides only where each one goes. */
   children?: React.ReactNode;
@@ -26,14 +23,12 @@ export interface ArenaPeopleListProps {
 
 const peopleStyles = arenaStyles(manifest);
 
-export function ArenaPeopleList({ className, label, ordered = false, size = 'md', children }: ArenaPeopleListProps) {
+export function ArenaPeopleList({ className, label, ordered = false, children }: ArenaPeopleListProps) {
   if (!label?.trim()) throw new Error('ArenaPeopleList: `label` is required (it names what these people are a list of, and nothing can derive that)');
   const List = ordered ? 'ol' : 'ul';
-  const rows = React.Children.map(children, (child) =>
-    (React.isValidElement(child) ? React.cloneElement(child, { size } as Partial<{ size: ArenaControlSize }>) : child));
   return (
-    <List aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({ size }).root(), className)} data-arena-part={manifest.parts.root} {...peopleStyles({ size }).$data.root()} data-arena-boundary="">
-      {rows}
+    <List aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({}).root(), className)} data-arena-part={manifest.parts.root} {...peopleStyles({}).$data.root()} data-arena-boundary="">
+      {children}
     </List>
   );
 }

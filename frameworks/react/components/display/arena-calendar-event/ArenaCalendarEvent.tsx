@@ -183,7 +183,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
             </span>
           )}
           <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap} {...styles.$data.kebabWrap()}>
-            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} size="sm"
+            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} className="arena-size-sm"
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (

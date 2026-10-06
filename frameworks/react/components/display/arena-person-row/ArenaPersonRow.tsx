@@ -3,13 +3,8 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-people-list/ArenaPeopleList.classes.generated.ts';
 import { ArenaAvatar } from '../arena-avatar/ArenaAvatar.tsx';
 
-import type { ArenaAvatarSize, ArenaControlSize } from '../../../Api.generated';
 import type { ArenaPersonRowClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-
-export interface ArenaPersonRowInjected {
-  size: ArenaControlSize;
-}
 
 export interface ArenaPersonRowProps {
   className?: ArenaPersonRowClass;
@@ -39,15 +34,14 @@ export interface ArenaPersonRowProps {
 
 
 const peopleStyles = arenaStyles(manifest);
-const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg: 'md' };
 
-export function ArenaPersonRow({ className, name, src, secondary, rank, figure, current = false, action, size = 'md' }: ArenaPersonRowProps & Partial<ArenaPersonRowInjected>) {
+export function ArenaPersonRow({ className, name, src, secondary, rank, figure, current = false, action }: ArenaPersonRowProps) {
   if (!name?.trim()) throw new Error('ArenaPersonRow: `name` is required (it is the row\'s text and the face\'s initials at once)');
-  const styles = peopleStyles({ size, current });
+  const styles = peopleStyles({ current });
   return (
     <li className={arenaClassName('ArenaPersonRow', styles.row(), className)} data-arena-part={manifest.parts.row} {...styles.$data.row()} aria-current={current ? 'true' : undefined}>
       {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank} {...styles.$data.rank()}>{rank}</span>}
-      <ArenaAvatar name={name} src={src} size={FACE[size]} nameShown />
+      <ArenaAvatar name={name} src={src} nameShown face />
       <span className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>
         <span className={styles.name()} data-arena-part={manifest.parts.name} {...styles.$data.name()}>{name}</span>
         {secondary && <span className={styles.secondary()} data-arena-part={manifest.parts.secondary} {...styles.$data.secondary()}>{secondary}</span>}

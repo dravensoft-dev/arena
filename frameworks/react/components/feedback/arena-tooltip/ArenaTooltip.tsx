@@ -72,7 +72,7 @@ export function ArenaTooltip({ className, children, label }: ArenaTooltipProps) 
       onBlur={() => now(false)}>
       {described}
       {show && (
-        <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble} {...styles.$data.bubble()}>
+        <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble} {...styles.$data.bubble()} data-arena-surface="floating">
           {quiet ? <span aria-hidden="true">{label}</span> : label}
         </span>
       )}

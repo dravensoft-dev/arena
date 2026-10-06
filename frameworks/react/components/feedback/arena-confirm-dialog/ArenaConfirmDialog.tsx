@@ -56,7 +56,7 @@ export function ArenaConfirmDialog({ className, open, onCancel, onConfirm, title
   const locked = requireText ? typed.trim() !== requireText : false;
   const styles = confirmStyles({ destructive, invalid: locked && typed !== '', open: true });
   return (
-    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div role="alertdialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>

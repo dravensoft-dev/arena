@@ -2,7 +2,7 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSpinner.classes.generated.ts';
 
-import type { ArenaControlSize, ArenaSpinnerTone } from '../../../Api.generated';
+import type { ArenaSpinnerTone } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaSpinnerClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
@@ -11,8 +11,6 @@ export interface ArenaSpinnerProps {
   className?: ArenaSpinnerClass;
 
 
-  /** Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. */
-  size?: ArenaControlSize;
 
   /** Colour of the ring. 'on-accent' inside a filled button; 'accent' on a page surface. */
   tone?: ArenaSpinnerTone;
@@ -24,10 +22,10 @@ export interface ArenaSpinnerProps {
 
 const arenaSpinnerStyles = arenaStyles(manifest);
 
-export function ArenaSpinner({ className, size = 'md', tone = 'accent', label }: ArenaSpinnerProps) {
+export function ArenaSpinner({ className, tone = 'accent', label }: ArenaSpinnerProps) {
   const locale = useArenaLocale();
   const name = label ?? locale.spinnerLabel;
-  const styles = arenaSpinnerStyles({ size, tone });
+  const styles = arenaSpinnerStyles({ tone });
   return (
     <span role="progressbar" aria-live="polite" aria-label={name} className={arenaClassName('ArenaSpinner', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.circle()} data-arena-part={manifest.parts.circle} {...styles.$data.circle()} aria-hidden="true" />

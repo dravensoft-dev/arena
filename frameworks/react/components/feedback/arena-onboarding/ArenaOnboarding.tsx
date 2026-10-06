@@ -74,7 +74,7 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
   const styles = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true });
   const currentDot = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true, current: true });
   return (
-    <div onClick={onSkip} className={arenaClassName('ArenaOnboarding', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div onClick={onSkip} className={arenaClassName('ArenaOnboarding', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div role="dialog" aria-modal="true" aria-label={label}
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()} style={pos}>
