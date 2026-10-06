@@ -1,4 +1,7 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { REPO } from '../../../test/Compliance';
 import assert from 'node:assert/strict';
 import { arenaMenuStyles } from './ArenaMenu.variants';
 import { ARENA_MENU_POSITIONS, isArenaActivatable } from './ArenaMenu';
@@ -50,4 +53,14 @@ test('both alignments offer a flip below the trigger, and the gap is derived fro
   }
   assert.equal(ARENA_MENU_POSITIONS.start[0].originX, 'start');
   assert.equal(ARENA_MENU_POSITIONS.end[0].originX, 'end');
+});
+
+test('an end-aligned panel carries its alignment, and the sheet gives it left: auto after the in-flow left: 0', () => {
+  assert.equal(arenaMenuStyles({ anchored: true, align: 'end' }).$data.panel()['data-arena-align'], 'end');
+  assert.equal(arenaMenuStyles({ anchored: true, align: 'start' }).$data.panel()['data-arena-align'], 'start');
+  const css = readFileSync(join(REPO, 'frameworks/tailwind/consume/components/navigation/arena-menu/ArenaMenu.styles.generated.css'), 'utf8');
+  const inFlow = css.indexOf('.arena-menu__panel:where(:not([data-arena-anchored]))');
+  const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
+  assert.ok(inFlow !== -1 && end > inFlow);
+  assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
 });

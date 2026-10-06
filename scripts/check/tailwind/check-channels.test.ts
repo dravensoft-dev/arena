@@ -5,11 +5,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { declared, channelProblems } from './check-channels.ts';
 
-const sheets = (extra: { kind: 'family' | 'component' | 'token' | 'hue'; rel: string; css: string }[] = []) => [
+const sheets = (extra: { kind: 'family' | 'component' | 'token' | 'hue' | 'plugin'; rel: string; css: string }[] = []) => [
   { kind: 'family' as const, rel: 'v/Fill.generated.css', css: '@scope (.arena-fill) { &[data-arena-part="button"] { --arena-fill-width: 100%; } }' },
   { kind: 'component' as const, rel: 'c/ArenaButton.styles.generated.css', css: '.arena-button__root { --tw-shadow: 0 0 #0000; width: var(--arena-fill-width,fit-content); }' },
   { kind: 'token' as const, rel: 't/spacing.generated.css', css: ':root { --sp-1: 4px; }' },
   { kind: 'hue' as const, rel: 'h/ArenaButton.hues.generated.css', css: '.arena-button__root:where([data-arena-destructive]) { --arena-hue-ink: var(--hue-danger-ink); }' },
+  { kind: 'plugin' as const, rel: 'plugin-style-store/catalogue/x/plugin.css', css: '.a { color: var(--arena-hue-ink); }' },
   ...extra,
 ];
 
@@ -47,6 +48,7 @@ test('a family restating a contract group writes that group, and the token sheet
     { kind: 'component', rel: 'c/a.css', css: '.a{--tw-x:1}' },
     { kind: 'token', rel: 't/spacing.css', css: ':root{--dz-ctl-h:40px}' },
     { kind: 'hue', rel: 'h/a.hues.generated.css', css: '.a:where([data-arena-x]){--arena-hue-ink:red}' },
+    { kind: 'plugin', rel: 'plugin-style-store/p/plugin.css', css: '.a{color:red}' },
   ] as any;
   assert.deepEqual(channelProblems(sheets), []);
   const stray = [...sheets, { kind: 'family', rel: 'v/Stack.generated.css', css: '@scope (.arena-stack){:scope{--dz-ctl-h:1px}}' }];
@@ -54,7 +56,7 @@ test('a family restating a contract group writes that group, and the token sheet
 });
 
 const HUE = '@layer utilities {\n  .arena-tag__root:where([data-arena-tone="danger"]) {\n    --arena-hue-ink: var(--hue-danger-ink);\n    --arena-hue-edge: var(--hue-danger-edge);\n    --arena-hue-fill-strong: var(--hue-danger-fill-strong);\n    --arena-hue-fill-soft: var(--hue-danger-fill-soft);\n  }\n  .arena-tag__root:where([data-arena-tone="neutral"]) {\n    --arena-hue-ink: initial;\n    --arena-hue-edge: initial;\n    --arena-hue-fill-strong: initial;\n    --arena-hue-fill-soft: initial;\n  }\n}\n';
-const hued = (read: string, hue = HUE, more: { kind: 'family' | 'component' | 'token' | 'hue'; rel: string; css: string }[] = []) => sheets([
+const hued = (read: string, hue = HUE, more: { kind: 'family' | 'component' | 'token' | 'hue' | 'plugin'; rel: string; css: string }[] = []) => sheets([
   ...more,
   { kind: 'hue', rel: 'frameworks/tailwind/consume/hues/display/arena-tag/ArenaTag.hues.generated.css', css: hue },
   { kind: 'component', rel: 'frameworks/tailwind/consume/components/display/arena-tag/ArenaTag.styles.generated.css', css: read },
@@ -88,4 +90,15 @@ test('a read its own element is not given fails: initial, or no rule at all', ()
   assert.match(channelProblems(hued(none)).join('\n'), /reads a hue channel its own element is not given/);
   const wrongValue = '.arena-tag__root:where([data-arena-tone="warning"]) { color: var(--arena-hue-ink); }';
   assert.match(channelProblems(hued(wrongValue)).join('\n'), /reads a hue channel its own element is not given/);
+});
+
+test('a plugin sheet writing a hue channel fails, and reading one stays allowed', () => {
+  assert.deepEqual(channelProblems(sheets()), []);
+  for (const channel of ['--arena-hue-ink', '--arena-hue-edge', '--arena-hue-fill-strong', '--arena-hue-fill-soft'])
+    assert.match(channelProblems(sheets([{ kind: 'plugin', rel: 'plugin-style-store/catalogue/y/plugin.css', css: `.b { ${channel}: red; }` }])).join('\n'),
+      new RegExp(`plugin-style-store/catalogue/y/plugin\\.css declares ${channel}, which only a hue sheet writes`));
+});
+
+test('no plugin sheet is a failure rather than a clean pass', () => {
+  assert.match(channelProblems(sheets().filter((s) => s.kind !== 'plugin')).join('\n'), /found 0 plugin sheet/);
 });

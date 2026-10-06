@@ -5,10 +5,11 @@
  * nothing else, and a component sheet writes nothing but Tailwind's own --tw-* plumbing: a manifest
  * declaring anything else is a component choosing a channel. A component sheet reads a hue channel
  * only under a selector its hue sheet writes it on with a value other than initial, so the element
- * reading it is the element given it and an ancestor's hue is never the one read. A sweep finding no
- * family, component or hue sheet fails. */
+ * reading it is the element given it and an ancestor's hue is never the one read. A plugin.css reads
+ * a channel and never writes one, since a write would bypass the danger floor. A sweep finding no
+ * family, component, hue or plugin sheet fails. */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -20,16 +21,17 @@ import { parseBlocks, selectorPath } from '../../generate/core/arena-to-prod/css
 import type { CssBlock } from '../../generate/core/arena-to-prod/css-blocks.ts';
 
 export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components';
+export const PLUGIN_STORE = 'plugin-style-store';
 export const TOKEN_SHEETS = ['contracts/design-generated', 'contracts/design'];
 
 export const node = {
   name: 'check:channels',
-  reads: [`${VOCABULARY_SHEETS}/**`, `${COMPONENT_SHEETS}/**`, `${HUE_SHEETS}/**`, 'contracts/design-generated/**', 'contracts/design/*.css'],
+  reads: [`${VOCABULARY_SHEETS}/**`, `${COMPONENT_SHEETS}/**`, `${HUE_SHEETS}/**`, 'contracts/design-generated/**', `${PLUGIN_STORE}/*/plugin.css`, `${PLUGIN_STORE}/catalogue/*/plugin.css`, 'contracts/design/*.css'],
   writes: [],
   feeds: [],
 };
 
-type Kind = 'family' | 'component' | 'token' | 'hue';
+type Kind = 'family' | 'component' | 'token' | 'hue' | 'plugin';
 type Sheet = { kind: Kind; rel: string; css: string; restates?: string };
 
 const DECLARATION = /(?:^|[{;\s])(--[A-Za-z0-9-]+)\s*:/g;
@@ -87,7 +89,7 @@ function readProblems(sheet: Sheet, writes: Write[]) {
 
 export function channelProblems(sheets: Sheet[]) {
   const problems: string[] = [];
-  for (const kind of ['family', 'component', 'hue'] as const)
+  for (const kind of ['family', 'component', 'hue', 'plugin'] as const)
     if (!sheets.some((one) => one.kind === kind)) problems.push(`found 0 ${kind} sheet(s), so no property was compared against them; an empty sweep is a failure rather than a clean pass`);
   const writers = new Map<string, Map<Kind, string>>();
   const restated = new Set<string>();
@@ -97,7 +99,9 @@ export function channelProblems(sheets: Sheet[]) {
       if (sheet.kind === 'component' && !property.startsWith('--tw-'))
         problems.push(`${sheet.rel} declares ${property}. A manifest reads a channel or a role and declares neither`);
       else if (sheet.kind !== 'hue' && sheet.kind !== 'component' && isHue)
-        problems.push(`${sheet.rel} declares ${property}, which only a hue sheet writes`);
+        problems.push(`${sheet.rel} declares ${property}, which only a hue sheet writes`
+          + (sheet.kind === 'plugin' ? '; a plugin reads a channel and meaning owns it, so a plugin write bypasses the danger floor' : ''));
+      if (sheet.kind === 'plugin') continue;
       if (sheet.kind === 'hue' && !isHue)
         problems.push(`${sheet.rel} declares ${property}, and a hue sheet writes only ${HUE_CHANNELS.join(', ')}`);
       const restates = sheet.kind === 'family' && sheet.restates && property.startsWith(`--${sheet.restates}-`);
@@ -128,6 +132,15 @@ function sheetsUnder(root: string, rel: string, kind: Kind): Sheet[] {
     .map((path) => ({ kind, rel: relPosix(root, path), css: readFileSync(path, 'utf8') }));
 }
 
+function pluginSheets(root: string): Sheet[] {
+  const store = join(root, PLUGIN_STORE);
+  if (!existsSync(store)) return [];
+  const dirs = (base: string) => readdirSync(base, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => join(base, e.name));
+  const entries = [...dirs(store), ...(existsSync(join(store, 'catalogue')) ? dirs(join(store, 'catalogue')) : [])];
+  return entries.map((dir) => join(dir, 'plugin.css')).filter((path) => existsSync(path))
+    .map((path) => ({ kind: 'plugin' as const, rel: relPosix(root, path), css: readFileSync(path, 'utf8') }));
+}
+
 export function collect(root = repoRoot) {
   const restates = new Map([...readFamilies(root).values()].filter((f) => f.restates)
     .map((f) => [`${VOCABULARY_SHEETS}/${sheetName(f.family)}`, f.restates as string]));
@@ -138,6 +151,7 @@ export function collect(root = repoRoot) {
     }),
     ...sheetsUnder(root, COMPONENT_SHEETS, 'component'),
     ...sheetsUnder(root, HUE_SHEETS, 'hue'),
+    ...pluginSheets(root),
     ...TOKEN_SHEETS.flatMap((rel) => sheetsUnder(root, rel, 'token')),
   ];
   return { sheets, problems: channelProblems(sheets) };
