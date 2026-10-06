@@ -1,5 +1,11 @@
 {
   "component": "ArenaScroller",
+  "answers": [
+    "scroller-item"
+  ],
+  "transparent": {
+    "root": "the row sets the width of the items it holds, which each item reads; every item is a boundary of its own, so nothing reaches past one"
+  },
   "slots": {
     "root": "flex gap-component overflow-x-auto pb-3 rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
   },
@@ -16,5 +22,8 @@
   },
   "defaultVariants": {
     "behaviour": "snap"
+  },
+  "bound": {
+    "--arena-scroller-item-width": "read by each ArenaScrollerItem the row holds, which the row's class reaches because the row is transparent"
   }
 }

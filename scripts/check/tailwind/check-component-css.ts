@@ -42,17 +42,9 @@ export const THEME_NAMESPACES = [
 
 export const EXTERNAL_PROPERTIES = new Map([
   ['picker-invert', 'written by arena-to-prod into the consuming project\'s own stylesheet, never by the package'],
-  ['arena-scroller-item', 'written by ArenaScroller onto its own root from the itemWidth member, in both layers, '
-    + 'because a row lays its items out at one width and cannot reach inside them to set it. It is a component\'s '
-    + 'own channel to its children rather than a design value, which is why no token defines it and why its '
-    + 'default, the grid-min role, is resolved by the component and not by this sheet'],
-  ['arena-board-column', 'written by ArenaBoard onto its own root from the minColumn member, in both layers, because '
-    + 'a board lays its columns out at one minimum width and cannot reach inside them to set it. It is the same '
-    + 'channel ArenaScroller opens for the same reason, and its default is the grid-min role resolved by the '
-    + 'component rather than by this sheet'],
   ['arena-side-nav-depth', 'written by ArenaSideNav\'s rows onto their own root as a unitless count of the row\'s '
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
-    + 'depth and a class string cannot name the depth. It is the same channel ArenaBoard opens for its column, and '
+    + 'depth and a class string cannot name the depth. It is a component\'s own channel to what it holds, and '
     + 'its var() fallback of zero is the unindented row'],
 ]);
 

@@ -13,15 +13,14 @@ The honest carousel: a row that scrolls, with no arrows pretending to be a slide
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Names the row to assistive technology, and nothing else supplies it: a group announced as a group tells a reader that focus moved and nothing about where it landed. Required, and guarded at runtime after trimming, the shape ArenaTable.label carries for the same reason, since the value the guard exists to catch is a present and useless one. |
-| `children*` | slot |  |  | The items in the row, one per child. Nothing is wrapped: a child is laid out exactly as it was written, at the width itemWidth names. Required, and guarded at runtime: an empty row is a tab stop over nothing, which is the dead stop a component with a group role must not ship. |
-| `itemWidth` | primitive | `string` | `"var(--grid-min)"` | How wide each item is laid out, which a rail has to answer and a grid answers with the same role: the width of a card is one decision, and a wall of them and a row of them should not disagree about it. A board is not held to it, because its columns share the room they are given. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one, and it reaches the children as a custom property because a row sets its items' width and cannot reach inside them. |
+| `children*` | slot |  |  | The items in the row, one per child. Nothing is wrapped: a child is laid out exactly as it was written. An ArenaScrollerItem is laid out at the width the scroller-item family names, and a bare child at its own. Required, and guarded at runtime: an empty row is a tab stop over nothing, which is the dead stop a component with a group role must not ship. |
 | `behaviour` | enum | `ArenaScrollerBehaviour` | `"snap"` | Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling by hand. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`scroller-item`](../../../../VOCABULARY.md#scroller-item): `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm`. Write one as `className="arena-scroller-item-lg"` on the component, or on a container whose components should all take it. Property: `--arena-scroller-item`, set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 

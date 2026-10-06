@@ -43,6 +43,12 @@
   --grid-max-sm:656px;
   --grid-max-md:976px;
   --grid-max-lg:1080px;
+  --board-column-sm:176px;
+  --board-column-md:260px;
+  --board-column-lg:364px;
+  --scroller-item-sm:176px;
+  --scroller-item-md:260px;
+  --scroller-item-lg:364px;
   --container-max:1080px;
   --gutter:40px;
   --pad-surface:24px;

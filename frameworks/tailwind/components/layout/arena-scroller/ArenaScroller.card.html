@@ -3,29 +3,33 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/layout/arena-scroller/ArenaScroller.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-scroller-item/ArenaScrollerItem.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/ScrollerItem.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
 import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaScroller.manifest.json')).json();
+const item = await (await fetch('../arena-scroller-item/ArenaScrollerItem.manifest.json')).json();
 
 const LOTS = ['Finca El Injerto', 'Kochere Lot 4', 'La Esperanza', 'Kiangoi AA', 'Gicherori', 'Buku Sayo'];
 
 function row(behaviour) {
   const box = el('div', {
-    class: arenaClassesFor(manifest, { behaviour }).root, ...arenaSlotDataFor(manifest, { behaviour }).root,
-    style: { '--arena-scroller-item': 'calc(var(--sp-1) * 62)' },
+    class: `${arenaClassesFor(manifest, { behaviour }).root} arena-scroller-item-lg`, ...arenaSlotDataFor(manifest, { behaviour }).root,
   });
   box.setAttribute('role', 'group');
   box.setAttribute('aria-label', `Recently landed lots, ${behaviour}`);
   box.setAttribute('tabindex', '0');
   for (const name of LOTS) {
-    box.append(el('div', {
+    const cell = el('div', { class: arenaClassesFor(item, {}).root, ...arenaSlotDataFor(item, {}).root });
+    cell.append(el('div', {
       class: 'bg-base-300 border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2.5 '
         + 'font-mono text-ctl-sm text-base-content/82',
       text: name,
     }));
+    box.append(cell);
   }
   return box;
 }
@@ -37,7 +41,7 @@ mountSpecimen({ sections: [
     el('div', { class: 'font-body text-sm text-base-content/62' },
       'Both words describe where a scroll SETTLES, not anything that animates, so no pause control '
       + 'is owed and prefers-reduced-motion has nothing to answer. The row is one tab stop with a '
-      + 'group role and a name; the item width reaches the children as a custom property.'),
+      + 'group role and a name; the item width is a family the class on the row hands to each ArenaScrollerItem it holds.'),
   ]),
 ]});
 </script></body></html>

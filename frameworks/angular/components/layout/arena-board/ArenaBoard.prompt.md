@@ -29,13 +29,12 @@ what a card does when it is picked up is a question about your data rather than 
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Names the board to assistive technology: what the columns are columns OF. "Sprint 32 tasks by status", never "Board". Required and guarded at runtime after trimming, the shape ArenaScroller.label carries for the same reason, since a group announced as a group tells a reader that focus moved and nothing about where it landed. |
 | `content*` | slot |  |  | The columns, one ArenaBoardColumn each. Required and guarded at runtime: a board with no columns is a tab stop over nothing, which is the dead stop a component with a group role must not ship. |
-| `minColumn` | primitive | `string` | `"var(--grid-min)"` | The narrowest a column may be before the board scrolls rather than squeezing. Columns share the room equally above it, so a board of four fills the width it is given and a board of twelve scrolls. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one: this is page geometry and the spacing scale models rhythm. The default is the same role a grid's cell reads, and here it is a floor rather than a width. A board's columns share the room they are given, so a card on a board is as wide as its column. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`board-column`](../../../../VOCABULARY.md#board-column): `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm`. Write one as `class="arena-board-column-lg"` on the component, or on a container whose components should all take it. Property: `--arena-board-column`, set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 

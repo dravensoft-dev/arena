@@ -221,7 +221,7 @@ export function vocabularyImports(root = repoRoot) {
 
 
 const unionOf = (classes: string[]) => (classes.length ? classes.map((one) => `'${one}'`).join(' | ') : 'never');
-const typeName = (family: string) => `Arena${family.split('-').map((w) => w.slice(0, 1).toUpperCase() + w.slice(1)).join('')}Class`;
+const typeName = (family: string) => `Arena${family.split('-').map((w) => w.slice(0, 1).toUpperCase() + w.slice(1)).join('')}FamilyClass`;
 
 export function vocabularyTypes(families: Family[], answers: Map<string, readonly ArenaAnswer[]>, components: string[], page: string) {
   const sorted = [...families].sort((a, b) => (a.family < b.family ? -1 : 1));

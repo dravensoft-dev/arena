@@ -122,8 +122,8 @@ test('each component gets every context class and the box classes its manifest a
   ] as const;
   const text = vocabularyTypes([...families], new Map([['ArenaButton', ['fill']]]), ['ArenaButton', 'ArenaCard'], 'https://x/frameworks/VOCABULARY.md');
   assert.match(text, /export type ArenaContextClass = 'arena-witness-off' \| 'arena-witness-on';/);
-  assert.match(text, /export type ArenaFillClass = 'arena-fill' \| 'arena-fit';/);
-  assert.match(text, /export type ArenaButtonClass = ArenaClassList<ArenaContextClass \| ArenaFillClass>;/);
+  assert.match(text, /export type ArenaFillFamilyClass = 'arena-fill' \| 'arena-fit';/);
+  assert.match(text, /export type ArenaButtonClass = ArenaClassList<ArenaContextClass \| ArenaFillFamilyClass>;/);
   assert.match(text, /export type ArenaCardClass = ArenaClassList<ArenaContextClass>;/);
   assert.match(text, /"ArenaButton": \["arena-witness-off", "arena-witness-on", "arena-fill", "arena-fit"\]/);
   assert.match(text, /"ArenaCard": \["arena-witness-off", "arena-witness-on"\]/);
@@ -139,7 +139,7 @@ test('a markup box family is offered to no component, and a markup context famil
     variants: { 'arena-compact': 'x', 'arena-comfortable': 'y' } } as Family;
   const text = vocabularyTypes([stack, density], new Map(), ['ArenaCard'], 'p');
   assert.match(text, /export type ArenaContextClass = 'arena-comfortable' \| 'arena-compact';/);
-  assert.doesNotMatch(text, /ArenaStackClass|arena-stack/);
+  assert.doesNotMatch(text, /ArenaStackFamilyClass|arena-stack/);
   assert.match(text, /"ArenaCard": \["arena-comfortable", "arena-compact"\]/);
 });
 

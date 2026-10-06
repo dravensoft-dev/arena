@@ -1,0 +1,12 @@
+{
+  "family": "board-column",
+  "reach": "box",
+  "description": "How narrow a column of a board may get before the board scrolls sideways rather than squeezing. The question is the adopter's, because a tracker of many lanes wants slim columns and a board of a few wants room for its cards, from the same markup. arena-board-column-md is the default and reads board-column-md. arena-board-column-sm and arena-board-column-lg read board-column-sm and board-column-lg. Set --arena-board-column on a container for a width no step names. Write a length, or a token such as var(--board-column-md) or calc(var(--board-column-md) * 1.5). A class on the board wins over a property on its container.",
+  "default": "arena-board-column-md",
+  "variants": {
+    "arena-board-column-sm": "[--arena-board-column-width:var(--board-column-sm)]",
+    "arena-board-column-md": "[--arena-board-column-width:var(--board-column-md)]",
+    "arena-board-column-lg": "[--arena-board-column-width:var(--board-column-lg)]"
+  },
+  "axis": "--arena-board-column"
+}

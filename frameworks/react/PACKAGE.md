@@ -146,6 +146,7 @@ on a container of yours whose components should all take it, and the nearest one
 this version ships for components come by family. A family with a property names it in brackets:
 - `accent`.
 - `align`.
+- `board-column` (`--arena-board-column`).
 - `elevation`.
 - `emphasis`.
 - `fill`.
@@ -156,6 +157,7 @@ this version ships for components come by family. A family with a property names
 - `orientation`.
 - `placement`.
 - `rhythm` (`--arena-rhythm`).
+- `scroller-item` (`--arena-scroller-item`).
 - `size`.
 The classes for markup you write are `.arena-band`, `.arena-num`, `.arena-prose`, `.arena-row`, `.arena-row--baseline`, `.arena-row--between`, `.arena-row--component`, `.arena-row--start`, `.arena-shell`, `.arena-shell__main`, `.arena-sr-only`, `.arena-stack`, `.arena-stack--end`, `.arena-stack--group`, `.arena-stack--section`, `.arena-stack--start`. Each goes on an element you wrote, never on a component.
 The density classes `.arena-comfortable`, `.arena-compact` go on an element you wrote or on a component.
@@ -529,7 +531,7 @@ zero-friction path:
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/hues/<name>.css` | one component's hue sheet, imported by that component's sheet, writing `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and `--arena-hue-fill-soft` from the component's `data-arena` values, or unconditionally on a slot whose hue no value varies |
-| `css/vocabulary/` | One sheet per family on the vocabulary page: `css/vocabulary/accent.css`, `css/vocabulary/align.css`, `css/vocabulary/band.css`, `css/vocabulary/density.css`, `css/vocabulary/elevation.css`, `css/vocabulary/emphasis.css`, `css/vocabulary/fill.css`, `css/vocabulary/grid-gap.css`, `css/vocabulary/grid-max.css`, `css/vocabulary/grid-min.css`, `css/vocabulary/layout.css`, `css/vocabulary/num.css`, `css/vocabulary/orientation.css`, `css/vocabulary/placement.css`, `css/vocabulary/prose.css`, `css/vocabulary/rhythm.css`, `css/vocabulary/row.css`, `css/vocabulary/shell.css`, `css/vocabulary/size.css`, `css/vocabulary/sr-only.css`, `css/vocabulary/stack.css`. `arena.css` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
+| `css/vocabulary/` | One sheet per family on the vocabulary page: `css/vocabulary/accent.css`, `css/vocabulary/align.css`, `css/vocabulary/band.css`, `css/vocabulary/board-column.css`, `css/vocabulary/density.css`, `css/vocabulary/elevation.css`, `css/vocabulary/emphasis.css`, `css/vocabulary/fill.css`, `css/vocabulary/grid-gap.css`, `css/vocabulary/grid-max.css`, `css/vocabulary/grid-min.css`, `css/vocabulary/layout.css`, `css/vocabulary/num.css`, `css/vocabulary/orientation.css`, `css/vocabulary/placement.css`, `css/vocabulary/prose.css`, `css/vocabulary/rhythm.css`, `css/vocabulary/row.css`, `css/vocabulary/scroller-item.css`, `css/vocabulary/shell.css`. The vocabulary page also names `css/vocabulary/size.css`, `css/vocabulary/sr-only.css`, `css/vocabulary/stack.css`. `arena.css` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
 | `css/tailwind-theme.css` | Arena's theme and utilities for markup of your own compiled with `tailwindcss` v4. Import it right after `@import 'tailwindcss'`: every utility then resolves to Arena's scale, `case-eyebrow`, `case-label`, `fit-media` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's `sm:`, `md:` and `lg:` variants and their `max-*` complements sit at the `--bp-*` thresholds the viewport helper reads. A wide frame marked `max-md:hidden` and a phone frame marked `md:hidden` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under `css/` is not a choice.** The token layer is seven sheets: `css/reset.css`, `css/typography.css`, `css/spacing.css`, `css/effects.css`, `css/colors.css`, `css/contrast.css` and `css/environment.css`. `arena.css` imports them in the order they have to be in, and `css/prelude.css` is what a single component sheet pulls in for itself. The one that IS a decision is `css/style-plugin-default.css`, the appearance this package installs with. The sheet arrives through `arena.css` like the rest. A `stylePlugins` list of your own that does not name `default` does not receive it, which is the point of writing one.

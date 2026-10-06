@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/layout/arena-board/ArenaBoard.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/BoardColumn.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -27,7 +28,7 @@ function column(title, count, summary, slot, cards) {
 function board(...columns) {
   const c = arenaClassesFor(manifest, {});
   const d = arenaSlotDataFor(manifest, {});
-  return el('div', { class: c.root, ...d.root, style: '--arena-board-column: var(--grid-min)' }, ...columns);
+  return el('div', { class: `${c.root} arena-board-column-md`, ...d.root }, ...columns);
 }
 
 mountSpecimen({ sections: [

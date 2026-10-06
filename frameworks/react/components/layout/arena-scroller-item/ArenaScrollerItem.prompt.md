@@ -21,7 +21,7 @@ row settles on.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`scroller-item`](../../../../VOCABULARY.md#scroller-item): `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm`. Write one as `className="arena-scroller-item-lg"` on the component, or on a container whose components should all take it. Property: `--arena-scroller-item`, set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 

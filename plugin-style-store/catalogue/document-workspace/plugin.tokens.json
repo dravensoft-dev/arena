@@ -220,6 +220,48 @@
       "unit": "px"
     }
   },
+  "board-column-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 148,
+      "unit": "px"
+    }
+  },
+  "board-column-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 220,
+      "unit": "px"
+    }
+  },
+  "board-column-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 308,
+      "unit": "px"
+    }
+  },
+  "scroller-item-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 148,
+      "unit": "px"
+    }
+  },
+  "scroller-item-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 220,
+      "unit": "px"
+    }
+  },
+  "scroller-item-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 308,
+      "unit": "px"
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {

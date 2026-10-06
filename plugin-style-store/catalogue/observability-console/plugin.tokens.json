@@ -214,6 +214,48 @@
       "unit": "px"
     }
   },
+  "board-column-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 232,
+      "unit": "px"
+    }
+  },
+  "board-column-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 340,
+      "unit": "px"
+    }
+  },
+  "board-column-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 476,
+      "unit": "px"
+    }
+  },
+  "scroller-item-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 232,
+      "unit": "px"
+    }
+  },
+  "scroller-item-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 340,
+      "unit": "px"
+    }
+  },
+  "scroller-item-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 476,
+      "unit": "px"
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {

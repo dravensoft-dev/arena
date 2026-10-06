@@ -1,7 +1,10 @@
 {
   "component": "ArenaScrollerItem",
+  "answers": [
+    "scroller-item"
+  ],
   "slots": {
-    "root": "block shrink-0 grow-0 basis-[var(--arena-scroller-item)] min-w-0 snap-start"
+    "root": "block shrink-0 grow-0 basis-[var(--arena-scroller-item-width,var(--arena-scroller-item,var(--scroller-item-md)))] min-w-0 snap-start"
   },
   "kind": {
     "root": "none"

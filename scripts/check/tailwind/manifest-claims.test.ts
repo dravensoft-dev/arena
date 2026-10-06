@@ -195,7 +195,7 @@ export const CLAIMS = {
   ],
   ArenaScroller: [
     { slot: 'root', has: ['overflow-x-auto'], hasNot: ['overflow-y-auto', 'overflow-y-scroll'], why: 'a row that scrolls downwards as well is a grid nobody asked for' },
-    { slot: 'root', hasNot: ['*:basis-[var(--arena-scroller-item)]', '*:shrink-0', '*:snap-start'], why: 'a rule aimed at the row\'s own children lands on an element with no box wherever that child takes its host out of layout, so the width and the snap point sit on ArenaScrollerItem, which has one in both layers' },
+    { slot: 'root', hasNot: ['*:basis-[var(--arena-scroller-item-width,var(--arena-scroller-item,var(--scroller-item-md)))]', '*:shrink-0', '*:snap-start'], why: 'a rule aimed at the row\'s own children lands on an element with no box wherever that child takes its host out of layout, so the width and the snap point sit on ArenaScrollerItem, which has one in both layers' },
     { chosen: { behaviour: 'snap' }, slot: 'root', has: ['snap-x'], why: 'snap lands on an item, and the axis is the half the row owns' },
     { chosen: { behaviour: 'flow' }, slot: 'root', hasNot: ['snap-x'], why: 'flow lands wherever the reader left it, which is the whole difference between the two' },
     { chosen: { behaviour: 'snap' }, slot: 'root', hasNot: ['animate-spin', 'animate-pulse'], why: 'a row that moved on its own would owe a pause control under WCAG 2.2.2, and neither behaviour moves' },
@@ -212,8 +212,11 @@ export const CLAIMS = {
     { slot: 'words', has: ['col-start-[var(--arena-layout-place,auto)]', 'row-start-[var(--arena-layout-place,auto)]', '[align-items:var(--arena-align-items,flex-start)]'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and the layout writes that cell as a channel the words and the figure both read' },
     { slot: 'root', has: ['[grid-template-columns:var(--arena-layout-cols,repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr)))]'], hasNot: ['grid-cols-1', 'py-section'], why: 'split is the only layout whose track list comes from the room, so the tracks are the fallback of the channel and no other layout is a class on the root' },
   ],
+  ArenaBoard: [
+    { slot: 'root', has: ['auto-cols-[minmax(var(--arena-board-column-width,var(--arena-board-column,var(--board-column-md))),1fr)]'], why: 'the columns share the room equally above the narrowest width the board-column family names, read from its channel, then its axis, then the medium step, so a board of four fills and a board of twelve scrolls' },
+  ],
   ArenaScrollerItem: [
-    { slot: 'root', has: ['basis-[var(--arena-scroller-item)]', 'shrink-0', 'grow-0', 'snap-start'], why: 'the cell is the box the row sizes and settles on, and it carries both on itself rather than inheriting either from a rule aimed at somebody else\'s children' },
+    { slot: 'root', has: ['basis-[var(--arena-scroller-item-width,var(--arena-scroller-item,var(--scroller-item-md)))]', 'shrink-0', 'grow-0', 'snap-start'], why: 'the cell is the box the row sizes and settles on, and it carries both on itself rather than inheriting either from a rule aimed at somebody else\'s children' },
     { slot: 'root', hasNot: ['bg-surface', 'border-edge-surface', 'p-surface'], why: 'the cell draws no surface, no line and no padding: everything visible in it is what was put inside' },
   ],
   ArenaAppLogo: [

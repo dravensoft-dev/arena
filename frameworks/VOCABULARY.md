@@ -9,6 +9,7 @@
 | [`accent`](#accent) | box | `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary` |  | ArenaActivityFeed and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`), ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`), ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`), ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`), ArenaToast (`arena-accent-gold`, `arena-accent-plain`) |
 | [`align`](#align) | box | `arena-align-center`, `arena-align-start` (default) |  | ArenaHero, ArenaPageHead |
 | [`band`](#band) | box | `arena-band` |  | markup you write |
+| [`board-column`](#board-column) | box | `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm` | `--arena-board-column` | ArenaBoard |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
 | [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
 | [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
@@ -23,6 +24,7 @@
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
 | [`rhythm`](#rhythm) | box | `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section` | `--arena-rhythm` | ArenaSection |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
+| [`scroller-item`](#scroller-item) | box | `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm` | `--arena-scroller-item` | ArenaScroller, ArenaScrollerItem |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
 | [`size`](#size) | context | `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs` |  | ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`), ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`), ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`), ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`), ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
@@ -56,6 +58,15 @@ The column a page's content sits in, at the page width with a gutter either side
 - **Options:** `arena-band`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## board-column
+
+How narrow a column of a board may get before the board scrolls sideways rather than squeezing. The question is the adopter's, because a tracker of many lanes wants slim columns and a board of a few wants room for its cards, from the same markup. arena-board-column-md is the default and reads board-column-md. arena-board-column-sm and arena-board-column-lg read board-column-sm and board-column-lg. Set --arena-board-column on a container for a width no step names. Write a length, or a token such as var(--board-column-md) or calc(var(--board-column-md) * 1.5). A class on the board wins over a property on its container.
+
+- **Options:** `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-board-column`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaBoard.
 
 ## density
 
@@ -177,6 +188,15 @@ Things side by side that read as one unit, at the group step: a mark beside a na
 - **Options:** `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## scroller-item
+
+How wide each item of a scrolling row is laid out, which makes the row a rail rather than a line of whatever the children measured. The question is the adopter's, because a rail of posters wants narrow items and a rail of cards wants wide ones from the same markup. arena-scroller-item-md is the default and reads scroller-item-md. arena-scroller-item-sm and arena-scroller-item-lg read scroller-item-sm and scroller-item-lg. Set --arena-scroller-item on a container for a width no step names. Write a length, or a token such as var(--scroller-item-md) or calc(var(--scroller-item-md) * 1.5). A class on the row reaches each item, because the row is transparent and the item is the box that reads it.
+
+- **Options:** `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-scroller-item`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaScroller, ArenaScrollerItem.
 
 ## shell
 

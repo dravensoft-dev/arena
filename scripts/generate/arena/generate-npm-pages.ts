@@ -172,6 +172,10 @@ component sheets one by one imports those as well.`;
     const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
     const tokens = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css')
       .map((to) => `\`${to}\``);
+    const SHEETS_PER_SENTENCE = 20;
+    const chunks = Array.from({ length: Math.ceil(families.length / SHEETS_PER_SENTENCE) },
+      (_, at) => families.slice(at * SHEETS_PER_SENTENCE, (at + 1) * SHEETS_PER_SENTENCE).join(', '));
+    const sheetList = chunks.join('. The vocabulary page also names ');
     const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
     const listed = `${tokens.slice(0, -1).join(', ')} and ${tokens.at(-1)}`;
     return `| stylesheet | what it is |
@@ -180,7 +184,7 @@ component sheets one by one imports those as well.`;
 | \`css/components.css\` | every component Arena draws |
 | \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
 | \`css/hues/<name>.css\` | one component's hue sheet, imported by that component's sheet, writing \`--arena-hue-ink\`, \`--arena-hue-edge\`, \`--arena-hue-fill-strong\` and \`--arena-hue-fill-soft\` from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |
-| \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${families.join(', ')}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
+| \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
 | \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under \`css/\` is not a choice.** The token layer is ${words[tokens.length]} sheets: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one.`;
