@@ -666,3 +666,12 @@ test('a component whose tone is optional carries no default for it, so an untone
   for (const component of ['ArenaProgressBar', 'ArenaActivityFeed'])
     assert.equal(manifests.get(component)?.defaultVariants?.tone, undefined, `${component} still defaults its tone`);
 });
+
+test('a non-destructive button draws its focus ring after its hover rule, so a hovered and focused one keeps the ring', () => {
+  const sheet = readFileSync(join(repoRoot, 'frameworks/tailwind/consume/components/forms/arena-button/ArenaButton.styles.generated.css'), 'utf8');
+  const selector = '.arena-button__root:where(:not([data-arena-destructive]))';
+  const hover = sheet.indexOf(`${selector}:hover {`);
+  const focus = sheet.search(new RegExp(`${selector.replace(/[()[\]]/g, '\\$&')}:focus-visible\\b`));
+  assert.ok(hover >= 0, 'the compiled sheet has no non-destructive hover rule');
+  assert.ok(focus > hover, 'the non-destructive focus-visible rule must follow its hover rule');
+});

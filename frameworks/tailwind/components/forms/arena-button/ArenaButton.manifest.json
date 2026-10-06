@@ -35,7 +35,7 @@
         "root": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover hover:shadow-control-rest"
       },
       "false": {
-        "root": "hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))] hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]"
+        "root": "hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))] hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))] focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
       }
     }
   },
