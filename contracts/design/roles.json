@@ -469,5 +469,445 @@
   "ink-confirm-final": {
     "$type": "color",
     "$description": "Which colour the label of the final irreversible confirmation of ArenaConfirmDialog is set in, on fill-confirm-final. The one filled danger surface in Arena, and the pair a plugin answers together: a fill moved without its ink is a label that may no longer be read."
+  },
+  "size-sm-control-h": {
+    "$type": "dimension",
+    "$description": "The height of a button and an icon button at arena-size-sm, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-control-h": {
+    "$type": "dimension",
+    "$description": "The height of a button and an icon button at arena-size-md, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-control-h": {
+    "$type": "dimension",
+    "$description": "The height of a button and an icon button at arena-size-lg, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-control-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a button at arena-size-sm, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-control-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a button at arena-size-md, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-control-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a button at arena-size-lg, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-control-step": {
+    "$type": "dimension",
+    "$description": "The label step of a button at arena-size-sm, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-control-step": {
+    "$type": "dimension",
+    "$description": "The label step of a button at arena-size-md, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-control-step": {
+    "$type": "dimension",
+    "$description": "The label step of a button at arena-size-lg, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-segment-h": {
+    "$type": "dimension",
+    "$description": "The height of a segment at arena-size-sm, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-segment-h": {
+    "$type": "dimension",
+    "$description": "The height of a segment at arena-size-md, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-segment-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a segment at arena-size-sm, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-segment-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a segment at arena-size-md, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-segment-step": {
+    "$type": "dimension",
+    "$description": "The label step of a segment at arena-size-sm, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-segment-step": {
+    "$type": "dimension",
+    "$description": "The label step of a segment at arena-size-md, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-sm, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-md, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-lg, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-2xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-sm, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-md, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-lg, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-2xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-sm. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-md. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-2xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-sm. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-md. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-2xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-spinner": {
+    "$type": "dimension",
+    "$description": "The diameter of a spinner at arena-size-sm, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-spinner": {
+    "$type": "dimension",
+    "$description": "The diameter of a spinner at arena-size-md, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-spinner": {
+    "$type": "dimension",
+    "$description": "The diameter of a spinner at arena-size-lg, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-meter": {
+    "$type": "dimension",
+    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-meter": {
+    "$type": "dimension",
+    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-meter": {
+    "$type": "dimension",
+    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-ring": {
+    "$type": "dimension",
+    "$description": "The diameter of a radial meter at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-ring": {
+    "$type": "dimension",
+    "$description": "The diameter of a radial meter at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-ring": {
+    "$type": "dimension",
+    "$description": "The diameter of a radial meter at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xs-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-xs, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-sm, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-md, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-lg, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-sm, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-md, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-lg, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-xl, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-sm, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-md, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-lg, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-xl, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-list-gap": {
+    "$type": "dimension",
+    "$description": "The gap between the rows of a people list at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-list-gap": {
+    "$type": "dimension",
+    "$description": "The gap between the rows of a people list at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-list-gap": {
+    "$type": "dimension",
+    "$description": "The gap between the rows of a people list at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-row-gap": {
+    "$type": "dimension",
+    "$description": "The gap inside a people-list row at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-row-gap": {
+    "$type": "dimension",
+    "$description": "The gap inside a people-list row at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-row-gap": {
+    "$type": "dimension",
+    "$description": "The gap inside a people-list row at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-row-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a people-list row, before the density factor at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-row-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a people-list row, before the density factor at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-row-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a people-list row, before the density factor at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-row-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a people-list row, before the density factor at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-row-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a people-list row, before the density factor at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-row-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a people-list row, before the density factor at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-rank": {
+    "$type": "dimension",
+    "$description": "The width of a people-list rank at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-rank": {
+    "$type": "dimension",
+    "$description": "The width of a people-list rank at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-rank": {
+    "$type": "dimension",
+    "$description": "The width of a people-list rank at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-caption-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list rank and secondary line at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-caption-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list rank and secondary line at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-caption-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list rank and secondary line at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-name-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list name at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-name-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list name at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-name-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list name at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-figure-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list figure at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-figure-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list figure at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-figure-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list figure at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-face": {
+    "$type": "dimension",
+    "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-sm. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-face": {
+    "$type": "dimension",
+    "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-md. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-face": {
+    "$type": "dimension",
+    "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-fill": {
+    "$type": "color",
+    "$description": "The fill of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-fill": {
+    "$type": "color",
+    "$description": "The fill of an action at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-solid-fill": {
+    "$type": "color",
+    "$description": "The fill of an action at arena-emphasis-solid, read by ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-ghost-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-ghost, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-solid-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-solid, read by ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-edge": {
+    "$type": "color",
+    "$description": "The edge of a button at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-edge": {
+    "$type": "color",
+    "$description": "The edge of a button at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-ghost-icon-edge": {
+    "$type": "color",
+    "$description": "The edge of an icon button at arena-emphasis-ghost, read by ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-fill-hover": {
+    "$type": "color",
+    "$description": "The fill of an action under the pointer at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-ghost-fill-hover": {
+    "$type": "color",
+    "$description": "The fill of an action under the pointer at arena-emphasis-ghost, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-shadow-hover": {
+    "$type": "shadow",
+    "$description": "The lift of a button under the pointer at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-fill-soft": {
+    "$type": "color",
+    "$description": "The soft wash of a badge at arena-accent-plain, read by ArenaBadge. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-primary-fill-soft": {
+    "$type": "color",
+    "$description": "The soft wash of a badge at arena-accent-primary, read by ArenaBadge. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-gold-fill-soft": {
+    "$type": "color",
+    "$description": "The soft wash of a badge at arena-accent-gold, read by ArenaBadge. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-plain, read by ArenaStatCard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-primary-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-primary, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-gold-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-gold, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-muted-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-muted, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-quiet-ink": {
+    "$type": "color",
+    "$description": "The quiet ink of a tag at arena-accent-plain, read by ArenaTag. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-edge": {
+    "$type": "color",
+    "$description": "The edge of a card and a tag at arena-accent-plain, read by ArenaCard, ArenaTag. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-primary-edge": {
+    "$type": "color",
+    "$description": "The edge of a card and a tag at arena-accent-primary, read by ArenaCard, ArenaTag. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-side-edge": {
+    "$type": "color",
+    "$description": "The side bar of a toast at arena-accent-plain, read by ArenaToast. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-gold-side-edge": {
+    "$type": "color",
+    "$description": "The side bar of a toast at arena-accent-gold, read by ArenaToast. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "elevation-flat-shadow": {
+    "$type": "shadow",
+    "$description": "The shadow of a card at arena-elevation-flat, read by ArenaCard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "elevation-floating-shadow": {
+    "$type": "shadow",
+    "$description": "The shadow of a card at arena-elevation-floating, read by ArenaCard. An option of a family is a question by construction, so the plugin answers it."
   }
 }
