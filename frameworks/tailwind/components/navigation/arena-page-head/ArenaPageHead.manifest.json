@@ -7,6 +7,13 @@
     "subtitle": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose mt-0.5 mb-0",
     "actions": "flex items-center flex-wrap gap-inline shrink-0"
   },
+  "kind": {
+    "root": "none",
+    "titles": "none",
+    "title": "none",
+    "subtitle": "none",
+    "actions": "none"
+  },
   "variants": {
     "narrow": {
       "true": {

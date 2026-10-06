@@ -3,11 +3,18 @@
   "slots": {
     "root": "flex gap-component overflow-x-auto pb-3 rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
   },
+  "kind": {
+    "root": "surface"
+  },
   "variants": {
     "behaviour": {
-      "snap": { "root": "snap-x" },
+      "snap": {
+        "root": "snap-x"
+      },
       "flow": {}
     }
   },
-  "defaultVariants": { "behaviour": "snap" }
+  "defaultVariants": {
+    "behaviour": "snap"
+  }
 }

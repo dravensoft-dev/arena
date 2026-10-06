@@ -7,11 +7,22 @@
     "nav": "flex flex-wrap items-center gap-inline min-w-0 me-auto",
     "actions": "flex flex-wrap items-center gap-inline ms-auto"
   },
+  "kind": {
+    "root": "none",
+    "band": "none",
+    "brand": "none",
+    "nav": "none",
+    "actions": "none"
+  },
   "variants": {
     "sticky": {
-      "true": { "root": "sticky top-0 z-nav pt-[var(--pad-safe-top)]" },
+      "true": {
+        "root": "sticky top-0 z-nav pt-[var(--pad-safe-top)]"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "sticky": true }
+  "defaultVariants": {
+    "sticky": true
+  }
 }

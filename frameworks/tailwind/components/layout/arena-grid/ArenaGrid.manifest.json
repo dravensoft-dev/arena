@@ -3,6 +3,9 @@
   "slots": {
     "root": "grid w-full content-start"
   },
+  "kind": {
+    "root": "none"
+  },
   "variants": {
     "gap": {
       "none": {

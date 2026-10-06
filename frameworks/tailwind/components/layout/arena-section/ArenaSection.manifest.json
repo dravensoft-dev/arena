@@ -10,13 +10,33 @@
     "action": "flex items-center flex-wrap gap-inline shrink-0",
     "body": "min-w-0"
   },
+  "kind": {
+    "root": "none",
+    "head": "none",
+    "titles": "none",
+    "eyebrow": "none",
+    "title": "none",
+    "description": "none",
+    "action": "none",
+    "body": "none"
+  },
   "variants": {
     "rhythm": {
-      "none": { "root": "gap-0" },
-      "sm": { "root": "gap-group" },
-      "md": { "root": "gap-component" },
-      "lg": { "root": "gap-section" }
+      "none": {
+        "root": "gap-0"
+      },
+      "sm": {
+        "root": "gap-group"
+      },
+      "md": {
+        "root": "gap-component"
+      },
+      "lg": {
+        "root": "gap-section"
+      }
     }
   },
-  "defaultVariants": { "rhythm": "md" }
+  "defaultVariants": {
+    "rhythm": "md"
+  }
 }

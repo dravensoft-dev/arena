@@ -6,6 +6,12 @@
     "columns": "grid gap-component",
     "note": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose m-0"
   },
+  "kind": {
+    "root": "none",
+    "band": "none",
+    "columns": "none",
+    "note": "none"
+  },
   "variants": {},
   "defaultVariants": {}
 }

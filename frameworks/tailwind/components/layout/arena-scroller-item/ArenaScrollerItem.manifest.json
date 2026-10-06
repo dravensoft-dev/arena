@@ -3,6 +3,9 @@
   "slots": {
     "root": "block shrink-0 grow-0 basis-[var(--arena-scroller-item)] min-w-0 snap-start"
   },
+  "kind": {
+    "root": "none"
+  },
   "variants": {},
   "defaultVariants": {}
 }

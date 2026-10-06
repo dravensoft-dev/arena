@@ -2,14 +2,26 @@
   "component": "ArenaTabs",
   "slots": {
     "root": "flex gap-1 border-b-[length:var(--bw-separator)] border-edge-separator",
-    "tab": "relative inline-flex items-center justify-center min-h-ctl-h px-4 py-2.5 bg-transparent border-none cursor-pointer font-body text-ctl transition-[color] duration-[var(--dur-hover)] ease-hover focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
+    "tab": "relative inline-flex items-center justify-center min-h-ctl-h px-[calc(var(--sp-1)*4*var(--dz-row-scale-x))] py-row-y bg-transparent border-none cursor-pointer font-body text-ctl transition-[color] duration-[var(--dur-hover)] ease-hover focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
     "panel": "block pt-[calc(var(--sp-1)*5.5)]"
+  },
+  "kind": {
+    "root": "none",
+    "tab": "row",
+    "panel": "none"
   },
   "variants": {
     "selected": {
-      "true": { "tab": "font-control text-ink-body shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]" },
-      "false": { "tab": "font-medium text-ink-muted/(--level-ink-muted) shadow-none", "panel": "hidden" }
+      "true": {
+        "tab": "font-control text-ink-body shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]"
+      },
+      "false": {
+        "tab": "font-medium text-ink-muted/(--level-ink-muted) shadow-none",
+        "panel": "hidden"
+      }
     }
   },
-  "defaultVariants": { "selected": false }
+  "defaultVariants": {
+    "selected": false
+  }
 }

@@ -12,11 +12,27 @@
     "stack": "grid gap-items",
     "foot": "grid"
   },
+  "kind": {
+    "root": "surface",
+    "column": "surface",
+    "head": "none",
+    "dot": "none",
+    "title": "none",
+    "count": "none",
+    "action": "none",
+    "summary": "none",
+    "stack": "none",
+    "foot": "none"
+  },
   "variants": {
     "identity": {
-      "true": { "title": "text-[color:var(--arena-board-column-cat)]" },
+      "true": {
+        "title": "text-[color:var(--arena-board-column-cat)]"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "identity": false }
+  "defaultVariants": {
+    "identity": false
+  }
 }

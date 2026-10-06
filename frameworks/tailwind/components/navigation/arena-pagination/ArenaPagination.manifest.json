@@ -8,6 +8,14 @@
     "pageOther": "bg-transparent border-edge-control-quiet text-ink-body/(--level-ink-body)",
     "ellipsis": "px-1 font-mono text-ctl-md text-ink-muted/(--level-ink-muted)"
   },
+  "kind": {
+    "root": "none",
+    "nav": "control",
+    "page": "control",
+    "pageCurrent": "none",
+    "pageOther": "none",
+    "ellipsis": "none"
+  },
   "partOf": {
     "pageCurrent": "page",
     "pageOther": "page"

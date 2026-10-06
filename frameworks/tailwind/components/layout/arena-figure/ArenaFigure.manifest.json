@@ -8,6 +8,14 @@
     "overlay": "col-start-1 row-start-1 self-end flex flex-wrap items-center gap-inline p-surface bg-overlay-media/72 text-ink-heading",
     "caption": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose m-0"
   },
+  "kind": {
+    "root": "none",
+    "frame": "none",
+    "media": "none",
+    "fallback": "none",
+    "overlay": "surface",
+    "caption": "none"
+  },
   "variants": {},
   "defaultVariants": {}
 }

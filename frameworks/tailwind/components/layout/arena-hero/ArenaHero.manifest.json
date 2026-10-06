@@ -9,10 +9,23 @@
     "actions": "flex flex-wrap items-center gap-inline",
     "figure": "min-w-0"
   },
+  "kind": {
+    "root": "surface",
+    "words": "none",
+    "eyebrow": "none",
+    "title": "none",
+    "lede": "none",
+    "actions": "none",
+    "figure": "none"
+  },
   "variants": {
     "layout": {
-      "stacked": { "root": "grid-cols-1 gap-component" },
-      "split": { "root": "items-center gap-section" },
+      "stacked": {
+        "root": "grid-cols-1 gap-component"
+      },
+      "split": {
+        "root": "items-center gap-section"
+      },
       "bleed": {
         "root": "grid-cols-1 relative overflow-hidden rounded-media p-surface",
         "words": "col-start-1 row-start-1 z-10",
@@ -20,13 +33,32 @@
       }
     },
     "align": {
-      "start": { "words": "items-start text-start" },
-      "center": { "words": "items-center text-center" }
+      "start": {
+        "words": "items-start text-start"
+      },
+      "center": {
+        "words": "items-center text-center"
+      }
     }
   },
   "compoundVariants": [
-    { "layout": "bleed", "align": "start", "class": { "words": "justify-end" } },
-    { "layout": "bleed", "align": "center", "class": { "words": "justify-center" } }
+    {
+      "layout": "bleed",
+      "align": "start",
+      "class": {
+        "words": "justify-end"
+      }
+    },
+    {
+      "layout": "bleed",
+      "align": "center",
+      "class": {
+        "words": "justify-center"
+      }
+    }
   ],
-  "defaultVariants": { "layout": "split", "align": "start" }
+  "defaultVariants": {
+    "layout": "split",
+    "align": "start"
+  }
 }
