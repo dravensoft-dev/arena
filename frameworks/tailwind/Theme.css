@@ -47,6 +47,7 @@
      than at a palette step: the role is what an extension re-values. */
   --color-surface: var(--fill-surface);
   --color-surface-floating: var(--fill-surface-floating);
+  --color-surface-raised: var(--fill-surface-raised);
   --color-page: var(--fill-page);
   --color-surface-sunken: var(--fill-surface-sunken);
   --color-field: var(--fill-field);

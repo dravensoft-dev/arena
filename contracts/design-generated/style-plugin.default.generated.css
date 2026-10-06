@@ -55,6 +55,7 @@
   --gap-row:12px;
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
+  --fill-surface-raised:var(--color-base-300);
   --fill-page:var(--color-base-100);
   --fill-surface-sunken:var(--color-base-100);
   --fill-field:var(--color-base-300);
@@ -93,6 +94,7 @@
   --overlay-media:var(--color-base-100);
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
+  --fill-surface-raised:var(--color-base-300);
   --fill-page:var(--color-base-100);
   --fill-surface-sunken:var(--color-base-100);
   --fill-field:var(--color-base-300);

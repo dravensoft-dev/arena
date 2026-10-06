@@ -1,0 +1,40 @@
+<!-- @dsCard group="Tailwind" viewport="700x300" name="ArenaPyramidChart" subtitle="The legend and tooltip of the chart, rendered from ArenaPyramidChart.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/charts/arena-pyramid-chart/ArenaPyramidChart.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaPyramidChart.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+
+/* The plot is hand drawn and is not rendered here; the placeholder stands where it goes. */
+const SERIES = [['Deployments', 'var(--color-cat-1)'], ['Rollbacks', 'var(--color-cat-2)'], ['Incidents', 'var(--color-cat-3)']];
+
+function legend() {
+  const strip = el('div', { class: c.legend });
+  for (const [label, colour] of SERIES) {
+    const swatch = el('span', { class: c.legendSwatch });
+    swatch.style.background = colour;
+    strip.append(el('span', { class: c.legendItem }, swatch, el('span', { class: c.legendLabel, text: label })));
+  }
+  return strip;
+}
+
+function plot() {
+  const frame = el('div', { class: 'relative w-full bg-base-300 rounded-sm' });
+  frame.style.height = '120px';
+  const tip = el('div', { class: c.tooltip }, el('div', { class: c.tooltipLabel, text: 'Week 12' }), el('div', { class: c.tooltipValue, text: '1,284' }));
+  tip.style.left = '50%';
+  tip.style.top = '60%';
+  frame.append(tip);
+  return frame;
+}
+
+mountSpecimen({ sections: [
+  section('Legend and tooltip', [el('div', { class: 'flex flex-col gap-4', style: 'width:320px' }, plot(), legend())], { align: 'start' }),
+]});
+</script></body></html>

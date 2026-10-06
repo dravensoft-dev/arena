@@ -265,6 +265,10 @@
     "$type": "color",
     "$value": "{color.base-200}"
   },
+  "fill-surface-raised": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "fill-page": {
     "$type": "color",
     "$value": "{color.base-100}"

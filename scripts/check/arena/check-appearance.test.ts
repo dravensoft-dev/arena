@@ -105,11 +105,10 @@ test('a source that renders no manifest is what the adoption half reads for', ()
   assert.equal(angularRendersManifest("import { Component } from '@angular/core';"), false);
 });
 
-test('a component that draws by hand has no manifest to render, and is named for that instead', () => {
+test('a hand-drawn component that owns a manifest is held to rendering it, layer by layer', () => {
   const problems = adoptionProblems('ArenaBarChart');
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /ArenaBarChart/);
-  assert.match(problems[0] ?? '', /HAND_DRAWN/);
+  assert.ok(problems.every((p) => p.startsWith('ArenaBarChart')));
+  assert.ok(problems.every((p) => !p.includes('HAND_DRAWN')), 'it has a manifest, so it is not named as one with nothing to render');
 });
 
 test('every component in scope renders its manifest and writes no appearance by hand', () => {

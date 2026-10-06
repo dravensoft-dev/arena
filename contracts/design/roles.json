@@ -255,6 +255,10 @@
     "$type": "color",
     "$description": "The fill of a surface that floats over the page: a menu, a dialog, a toast, a\nsheet, a command palette, a bulk action bar. The same step as fill-surface today and a different\nquestion, which is the cut r-surface and r-surface-floating already make one tier up.\n\nThis is the role that makes flattening the other one safe. A style plugin that takes a card down to the\npage's own fill has said its regions are carried by air; a menu that did the same would be an\nunreadable overlay, because a floating surface is separated from what it covers rather than\ngrouped against it. Split so a style plugin can answer the two one at a time."
   },
+  "fill-surface-raised": {
+    "$type": "color",
+    "$description": "The fill of a small readout raised over the content it annotates: a chart's tooltip over the plot.\nIt asks which fill a readout takes while the plot stays legible beneath it, and it is cut from\nfill-surface-floating because a readout belongs to the thing it points at where a menu or a dialog\ncovers the page. A style plugin that lifts its menus onto a heavier fill can leave the readouts on\nthe plot's own step, and one that flattens its readouts cannot take its menus with them. Split so a\nstyle plugin can answer the two one at a time."
+  },
   "fill-page": {
     "$type": "color",
     "$description": "The fill of the page itself, the floor everything else stands on. What asks for it: a style\nplugin that groups by marking needs to say its surfaces differ from the floor, and one that makes\nits surfaces vanish needs to say they equal it. Neither sentence can be written while the floor is\na constant inside a gate instead of a role in this file."

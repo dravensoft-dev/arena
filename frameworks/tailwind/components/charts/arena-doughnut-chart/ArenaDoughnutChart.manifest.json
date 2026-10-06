@@ -1,0 +1,32 @@
+{
+  "component": "ArenaDoughnutChart",
+  "slots": {
+    "legend": "flex flex-1 min-w-0 flex-col justify-center gap-1.5 overflow-auto",
+    "legendRow": "flex items-center gap-2 cursor-pointer w-full p-0 m-0 bg-transparent border-0 text-left",
+    "legendSwatch": "size-2.5 rounded-marker shrink-0",
+    "legendText": "flex flex-1 min-w-0",
+    "legendLabel": "flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-body text-ctl-sm text-ink-body/(--level-ink-body)",
+    "legendValue": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)"
+  },
+  "kind": {
+    "legend": "none",
+    "legendRow": "marker",
+    "legendSwatch": "none",
+    "legendText": "none",
+    "legendLabel": "none",
+    "legendValue": "none"
+  },
+  "variants": {
+    "stacked": {
+      "false": {
+        "legendText": "items-baseline justify-between gap-2"
+      },
+      "true": {
+        "legendText": "flex-col items-stretch"
+      }
+    }
+  },
+  "defaultVariants": {
+    "stacked": false
+  }
+}

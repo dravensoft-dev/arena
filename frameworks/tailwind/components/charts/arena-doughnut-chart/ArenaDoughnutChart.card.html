@@ -1,0 +1,33 @@
+<!-- @dsCard group="Tailwind" viewport="700x300" name="ArenaDoughnutChart" subtitle="The legend and tooltip of the chart, rendered from ArenaDoughnutChart.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/charts/arena-doughnut-chart/ArenaDoughnutChart.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaDoughnutChart.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+
+const ROWS = [['Compute', '48%', 'var(--color-cat-1)'], ['Storage', '31%', 'var(--color-cat-2)'], ['Network', '21%', 'var(--color-cat-3)']];
+
+function legend(stacked) {
+  const column = el('div', { class: c.legend });
+  for (const [label, value, colour] of ROWS) {
+    const swatch = el('span', { class: c.legendSwatch });
+    swatch.style.background = colour;
+    const text = el('span', { class: c.legendText + ' ' + (stacked ? 'flex-col items-stretch' : 'items-baseline justify-between gap-2') },
+      el('span', { class: c.legendLabel, text: label }), el('span', { class: c.legendValue, text: value }));
+    column.append(el('button', { class: c.legendRow, type: 'button' }, swatch, text));
+  }
+  column.style.width = '240px';
+  return column;
+}
+
+mountSpecimen({ sections: [
+  section('Inline rows', [legend(false)], { align: 'start' }),
+  section('Stacked rows', [legend(true)], { align: 'start' }),
+]});
+</script></body></html>
