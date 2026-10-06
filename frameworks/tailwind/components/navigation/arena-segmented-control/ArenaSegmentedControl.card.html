@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/navigation/arena-segmented-control/ArenaSegmentedControl.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -10,13 +11,13 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const manifest = await (await fetch('./ArenaSegmentedControl.manifest.json')).json();
 
-function control({ options, value, size = 'md', ariaLabel }) {
+function control({ options, value, cls = '', ariaLabel }) {
   const name = 'sc-' + Math.random().toString(36).slice(2, 7);
-  const track = el('div', { class: arenaClassesFor(manifest, { size }).track, ...arenaSlotDataFor(manifest, { size }).track, role: 'radiogroup', 'aria-label': ariaLabel });
+  const track = el('div', { class: `${arenaClassesFor(manifest).track} ${cls}`.trim(), ...arenaSlotDataFor(manifest).track, role: 'radiogroup', 'aria-label': ariaLabel });
   for (const option of options) {
     const on = option === value;
-    const c = arenaClassesFor(manifest, { size, selected: String(on) });
-    const d = arenaSlotDataFor(manifest, { size, selected: String(on) });
+    const c = arenaClassesFor(manifest, { selected: String(on) });
+    const d = arenaSlotDataFor(manifest, { selected: String(on) });
     const input = el('input', { type: 'radio', name, class: c.input, ...d.input, checked: on || undefined });
     track.append(el('label', { class: c.segment, ...d.segment }, option, input));
   }
@@ -25,6 +26,6 @@ function control({ options, value, size = 'md', ariaLabel }) {
 
 mountSpecimen({ sections: [
   section('Medium', [control({ options: ['All', 'Running', 'Failed'], value: 'Running', ariaLabel: 'Filter by status' })]),
-  section('Small', [control({ options: ['24h', '7d', '30d', '90d'], value: '7d', size: 'sm', ariaLabel: 'Filter by time range' })]),
+  section('Small', [control({ options: ['24h', '7d', '30d', '90d'], value: '7d', cls: 'arena-size-sm', ariaLabel: 'Filter by time range' })]),
 ]});
 </script></body></html>

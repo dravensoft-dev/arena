@@ -1,8 +1,9 @@
-<!-- @dsCard group="Tailwind" viewport="700x279" name="ArenaAvatar" subtitle="Sizes, shapes and presence, rendered from ArenaAvatar.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="700x279" name="ArenaAvatar" subtitle="Sizes, kinds and presence, rendered from ArenaAvatar.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-avatar/ArenaAvatar.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -10,17 +11,17 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const manifest = await (await fetch('./ArenaAvatar.manifest.json')).json();
 
-function avatar(opts, initials) {
+function avatar({ cls = '', ...opts }, initials) {
   const c = arenaClassesFor(manifest, opts);
   const d = arenaSlotDataFor(manifest, opts);
-  const root = el('span', { class: c.root, ...d.root }, el('span', { class: c.box, ...d.box, text: initials }));
+  const root = el('span', { class: `${c.root} ${cls}`.trim(), ...d.root }, el('span', { class: c.box, ...d.box, text: initials }));
   if (opts.status && opts.status !== 'none') root.append(el('span', { class: c.status, ...d.status }));
   return root;
 }
 
 mountSpecimen({ sections: [
-  section('Sizes', ['xs', 'sm', 'md', 'lg'].map((size) => avatar({ size }, 'JH'))),
-  section('Shapes', [avatar({ shape: 'circle' }, 'JH'), avatar({ shape: 'rounded' }, 'DV')]),
+  section('Sizes', ['xs', 'sm', 'md', 'lg'].map((size) => avatar({ cls: `arena-size-${size}` }, 'JH'))),
+  section('Kinds', [avatar({ kind: 'person' }, 'JH'), avatar({ kind: 'team' }, 'DV')]),
   section('Presence', ['online', 'busy', 'away', 'offline'].map((status) => avatar({ status }, 'JH'))),
 ]});
 </script></body></html>

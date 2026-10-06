@@ -9,8 +9,6 @@
                  "description": "Which action this is." },
     "destructive": { "form": "primitive", "type": "boolean", "default": false,
                      "description": "Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation." },
-    "size": { "form": "enum", "type": "ArenaControlSize", "default": "md",
-              "description": "Height, from the density tokens, so the button re-densifies inside .arena-compact." },
     "icon": { "form": "primitive", "type": "string",
               "description": "Phosphor class name drawn before the label. Replaced by the spinner while loading." },
     "iconRight": { "form": "primitive", "type": "string",

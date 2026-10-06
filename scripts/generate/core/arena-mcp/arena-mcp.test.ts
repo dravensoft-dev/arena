@@ -1,13 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS,
 } from './arena-mcp.ts';
 import { manifestIn, bundledPayload } from './payload.ts';
-import { catalogue, SCHEME, ROUTER_URI } from './catalogue.ts';
+import { catalogue, entries, search, SCHEME, ROUTER_URI } from './catalogue.ts';
+import { walkFiles } from '../../../utils/walk-files.ts';
+import { relPosix } from '../../../utils/posix-path.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+
+const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '12.0.0',
+  package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
 
 const PAYLOAD = bundledPayload('react', join(repoRoot, 'dist', 'mcp')) ?? '';
 
@@ -104,4 +110,30 @@ test('the name a check is given decides whether the text is read as a stylesheet
 
 test('a check says which half of a project it read, because it resolves no config', () => {
   assert.match(checked('<ArenaButton>Go</ArenaButton>'), /style plugin of your own is not/);
+});
+
+test('arena_find "size" answers with the size family before any component that mentions a size', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-mcp-size-'));
+  try {
+    const real = [
+      'frameworks/VOCABULARY.md',
+      ...walkFiles(join(repoRoot, 'frameworks', 'react', 'components'))
+        .filter((file) => file.endsWith('.prompt.md')).map((file) => relPosix(repoRoot, file)),
+    ];
+    const files: Record<string, string> = {
+      'skill.json': JSON.stringify(manifest), 'support.json': '{}',
+      'skills/design/ROUTER.md': '# Arena\n', 'contracts/design/roles.json': '{}',
+      'frameworks/INDEX.md': '# Every component\n', 'frameworks/react/INDEX.md': '# React\n',
+    };
+    for (const rel of real) files[rel] = readFileSync(join(repoRoot, rel), 'utf8');
+    for (const [rel, body] of Object.entries(files)) {
+      const at = join(dir, ...rel.split('/'));
+      mkdirSync(join(at, '..'), { recursive: true });
+      writeFileSync(at, body);
+    }
+    const found = search(dir, entries(dir, manifest), 'size');
+    assert.equal(found[0]?.entry.uri, `${SCHEME}://family/size`);
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
 });

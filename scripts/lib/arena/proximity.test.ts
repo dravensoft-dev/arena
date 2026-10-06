@@ -39,3 +39,19 @@ test('the fixture has cases, each with a measure, and the vocabulary includes th
   assert.ok(cases.length > 0, 'the fixture declares no case; an empty sweep is a failure');
   assert.ok(vocabularyClasses(families).has('arena-witness-on'));
 });
+
+test('a surface and a channel binding are kept, and any other inline style is pruned', () => {
+  const scrim = node('div', { 'data-arena-part': 'dialog.scrim', 'data-arena-surface': 'floating', 'data-arena-open': '', style: 'width: 480px' });
+  const face = node('span', { 'data-arena-part': 'avatar', style: '--arena-size-avatar: var(--arena-size-face, var(--size-md-face)); width: 3px' });
+  assert.deepEqual(normalize(node('div', {}, [scrim, face]), new Set()), {
+    tag: 'div', children: [
+      { tag: 'div', part: 'dialog.scrim', open: true, surface: 'floating' },
+      { tag: 'span', part: 'avatar', vars: '--arena-size-avatar:var(--arena-size-face,var(--size-md-face))' },
+    ],
+  });
+});
+
+test('the gate writes the surface and the binding back as attributes', () => {
+  const html = treeHtml({ tag: 'span', part: 'avatar', open: true, surface: 'floating', vars: '--arena-size-avatar:var(--arena-size-face)', contents: true }, () => '');
+  assert.equal(html, '<span data-arena-part="avatar" data-arena-open="" data-arena-surface="floating" style="display: contents; --arena-size-avatar:var(--arena-size-face)"></span>');
+});

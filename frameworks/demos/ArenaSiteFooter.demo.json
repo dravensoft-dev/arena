@@ -7,8 +7,8 @@
     "content": [
       {
         "component": "ArenaAppLogo",
+        "class": "arena-size-sm",
         "members": {
-          "size": "sm",
           "name": "Meridian",
           "dim": " Roasters"
         },

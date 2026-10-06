@@ -1,8 +1,19 @@
 {
   "component": "ArenaSpinner",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
   "slots": {
     "root": "inline-flex w-fit",
-    "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
+    "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill size-[var(--arena-size-spinner,var(--size-md-spinner))]"
   },
   "kind": {
     "root": "none",
@@ -22,21 +33,9 @@
       "on-accent": {
         "root": "text-primary-content"
       }
-    },
-    "size": {
-      "sm": {
-        "circle": "size-icon-sm"
-      },
-      "md": {
-        "circle": "size-5"
-      },
-      "lg": {
-        "circle": "size-8"
-      }
     }
   },
   "defaultVariants": {
-    "tone": "accent",
-    "size": "md"
+    "tone": "accent"
   }
 }

@@ -1,6 +1,8 @@
 /* Writes frameworks/VOCABULARY.md, the one page listing every class an adopter writes on a
  * component or on markup: one row per family with its reach, options, public property and the components that
  * answer it, then one section per family carrying its description, which is the argument for it.
+ * Components that answer the same options, or have the same default, are named once, so a family
+ * most components answer in part stays inside the sentence length the register holds.
  * Every other consumer page points here rather than restating a family, and check:families holds
  * the page to a fresh emit. */
 
@@ -30,14 +32,26 @@ const options = (family: Family) => Object.keys(family.variants).sort()
 export function renderVocabulary(root = repoRoot) {
   const families = [...readFamilies(root).values()].sort((a, b) => (a.family < b.family ? -1 : 1));
   const manifests = [...layerManifests(root).values()];
-  const answering = (family: Family) => manifests.flatMap((one) => {
-    const answer = answerOf(one, family);
-    if (!answer) return [];
-    const subset = answer.options.length < Object.keys(family.variants).length;
-    const notes = [...(subset ? [[...answer.options].sort().map((option) => `\`${option}\``).join(', ')] : []),
-      ...(answer.default !== family.default ? [`default \`${answer.default}\``] : [])];
-    return [`${one.component}${notes.length ? ` (${notes.join('; ')})` : ''}`];
-  }).sort();
+  const answering = (family: Family) => {
+    const groups = new Map<string, string[]>();
+    for (const one of manifests) {
+      const answer = answerOf(one, family);
+      if (!answer) continue;
+      const subset = answer.options.length < Object.keys(family.variants).length;
+      const notes = [...(subset ? [[...answer.options].sort().map((option) => `\`${option}\``).join(', ')] : []),
+        ...(answer.default !== family.default ? [`default \`${answer.default}\``] : [])].join('; ');
+      groups.set(notes, [...(groups.get(notes) ?? []), one.component]);
+    }
+    const joined = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]!);
+    return [...groups].flatMap(([notes, names]) => (notes === '' ? names.sort() : [`${joined(names.sort())} (${notes})`]))
+      .sort();
+  };
+  const answeredBy = (family: Family) => {
+    const groups = answering(family);
+    return groups.some((one) => one.includes('('))
+      ? ['- **Answered by:**', ...groups.map((one) => `  - ${one}.`)]
+      : [`- **Answered by:** ${groups.join(', ')}.`];
+  };
   const reachOf = (family: Family) => isMarkup(family)
     ? (family.reach === 'box'
       ? 'goes on an element you wrote, and it decides that element alone'
@@ -67,9 +81,9 @@ export function renderVocabulary(root = repoRoot) {
       `- **Reach:** ${family.reach}: it ${reachOf(family)}.`,
       ...(family.restates ? [`- **Values:** ${Object.entries(family.variants).map(([option, path]) => `\`${option}\` restates \`${path}\``).join(', ')}.`] : []),
       ...(family.axis ? [`- **Property:** \`${family.axis}\`, set on a container of yours for a value no option names, with a token or a derivation of tokens.`] : []),
-      isMarkup(family)
-        ? `- **Written on:** an element you wrote${family.reach === 'box' ? ', never a component' : ', or a component'}.`
-        : `- **Answered by:** ${answering(family).join(', ')}.`);
+      ...(isMarkup(family)
+        ? [`- **Written on:** an element you wrote${family.reach === 'box' ? ', never a component' : ', or a component'}.`]
+        : answeredBy(family)));
   }
   return `${lines.join('\n')}\n`;
 }

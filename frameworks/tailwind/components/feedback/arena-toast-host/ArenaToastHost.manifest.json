@@ -6,6 +6,9 @@
   "kind": {
     "root": "none"
   },
+  "floating": {
+    "root": "a toast stack is pinned to the viewport, so the region that raised a toast does not decide its controls"
+  },
   "variants": {
     "placement": {
       "top-start": {

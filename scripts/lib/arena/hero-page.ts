@@ -46,8 +46,8 @@ export async function heroStyles() {
 function buttonOpening() {
   const manifest = [...layerManifests().values()].find((one) => one.component === 'ArenaButton');
   if (!manifest) throw new Error('hero-page: no ArenaButton manifest to draw the button from');
-  const selection = { variant: 'primary', size: 'lg' };
-  const root = arenaClassesFor(manifest, selection).root;
+  const selection = { variant: 'primary' };
+  const root = `${arenaClassesFor(manifest, selection).root} arena-size-lg`;
   const data = Object.entries(arenaSlotDataFor(manifest, selection).root ?? {})
     .map(([name, value]) => ` ${name}="${value}"`).join('');
   return `<button class="${root}"${data} data-arena-part="button" type="button">`;

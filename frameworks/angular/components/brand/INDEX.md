@@ -32,6 +32,6 @@ in `imports` as well. A component cannot tell an un-imported marker from an unfi
 
 | Component | What it is | Takes | Usage |
 |---|---|---|---|
-| `ArenaAppLogo` | Brand lock-up: a mark beside or above a product name. | `mark*` `name*` `dim` `size` `orientation` | [`ArenaAppLogo.prompt.md`](./arena-app-logo/ArenaAppLogo.prompt.md) |
+| `ArenaAppLogo` | Brand lock-up: a mark beside or above a product name. | `mark*` `name*` `dim` | [`ArenaAppLogo.prompt.md`](./arena-app-logo/ArenaAppLogo.prompt.md) |
 
 1 brand components in this layer.

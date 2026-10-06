@@ -1,23 +1,35 @@
 {
   "component": "ArenaAppLogo",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg",
+        "arena-size-xl"
+      ],
+      "default": "arena-size-md"
+    },
+    {
+      "family": "orientation",
+      "options": [
+        "arena-orientation-horizontal",
+        "arena-orientation-vertical"
+      ],
+      "default": "arena-orientation-horizontal"
+    }
+  ],
   "slots": {
-    "root": "inline-flex items-center w-fit",
-    "mark": "inline-flex flex-none *:block *:w-full *:h-full",
-    "name": "font-display font-black tracking-tight text-ink-body",
+    "root": "inline-flex items-center w-fit [flex-direction:var(--arena-orientation-direction,row)] gap-[var(--arena-orientation-logo-gap,calc(var(--sp-1)*2.5))]",
+    "mark": "inline-flex flex-none *:block *:w-full *:h-full size-[var(--arena-size-logo-mark,var(--size-md-logo-mark))]",
+    "name": "font-display font-black tracking-tight text-ink-body text-[length:var(--arena-size-logo-step,var(--size-md-logo-step))]",
     "dim": "text-ink-muted/(--level-ink-muted)"
   },
-  "kind": { "root": "none", "mark": "none", "name": "none", "dim": "none" },
-  "variants": {
-    "size": {
-      "sm": { "mark": "size-logo-mark-sm", "name": "text-logo-sm" },
-      "md": { "mark": "size-logo-mark-md", "name": "text-logo-md" },
-      "lg": { "mark": "size-logo-mark-lg", "name": "text-logo-lg" },
-      "xl": { "mark": "size-logo-mark-xl", "name": "text-logo-xl" }
-    },
-    "orientation": {
-      "horizontal": { "root": "flex-row gap-2.5" },
-      "vertical": { "root": "flex-col gap-items" }
-    }
-  },
-  "defaultVariants": { "size": "md", "orientation": "horizontal" }
+  "kind": {
+    "root": "none",
+    "mark": "none",
+    "name": "none",
+    "dim": "none"
+  }
 }

@@ -1,0 +1,10 @@
+{
+  "family": "orientation",
+  "reach": "box",
+  "description": "Whether a component lies along the line it sits in or stands across it. Orientation changes the drawing and never the behaviour: a vertical switch is operated exactly as a horizontal one.",
+  "default": "arena-orientation-horizontal",
+  "variants": {
+    "arena-orientation-horizontal": "[--arena-orientation-direction:row] [--arena-orientation-logo-gap:calc(var(--sp-1)*2.5)] [--arena-orientation-track-w:var(--arena-size-switch-long,var(--size-md-switch-long))] [--arena-orientation-track-h:var(--arena-size-switch-short,var(--size-md-switch-short))] [--arena-orientation-knob-on:100%_0]",
+    "arena-orientation-vertical": "[--arena-orientation-direction:column] [--arena-orientation-logo-gap:var(--gap-items)] [--arena-orientation-track-w:var(--arena-size-switch-short,var(--size-md-switch-short))] [--arena-orientation-track-h:var(--arena-size-switch-long,var(--size-md-switch-long))] [--arena-orientation-knob-on:0_100%]"
+  }
+}

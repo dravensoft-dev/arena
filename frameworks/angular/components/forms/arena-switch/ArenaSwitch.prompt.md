@@ -25,8 +25,6 @@ supplies the state.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `state` | primitive | `boolean` | `false` | The current on/off value. Controlled: the consumer owns it and pushes it each render. |
-| `orientation` | enum | `ArenaOrientation` | `"horizontal"` | Whether the switch lies horizontally or stands vertically. |
-| `size` | enum | `ArenaSwitchSize` | `"md"` | The switch's overall size. |
 | `iconOn` | primitive | `string` |  | A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. |
 | `iconOff` | primitive | `string` |  | A Phosphor class name for the glyph shown while off. |
 | `label*` | primitive | `string` |  | The accessible name for the switch, also drawn beside it. |
@@ -40,7 +38,9 @@ supplies the state.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `class="arena-size-2xl"` on the component, or on a container whose components should all take it.
+
+**Answers** [`orientation`](../../../../VOCABULARY.md#orientation): `arena-orientation-horizontal`, `arena-orientation-vertical`. Write one as `class="arena-orientation-horizontal"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

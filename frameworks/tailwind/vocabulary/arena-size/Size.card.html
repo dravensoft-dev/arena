@@ -1,0 +1,61 @@
+<!-- @dsCard group="Tailwind" viewport="760x420" name="size" subtitle="A context family: written on a region it sizes every control, meter, face and mark in it, and a nearer class answers again" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-button/ArenaButton.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-icon-button/ArenaIconButton.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-avatar/ArenaAvatar.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const button = await (await fetch('../../components/forms/arena-button/ArenaButton.manifest.json')).json();
+const iconButton = await (await fetch('../../components/forms/arena-icon-button/ArenaIconButton.manifest.json')).json();
+const avatar = await (await fetch('../../components/display/arena-avatar/ArenaAvatar.manifest.json')).json();
+const logo = await (await fetch('../../components/brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
+
+function control(manifest, tag, attrs, content, extra = '') {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return el(tag, { class: `${c.root} ${extra}`.trim(), ...d.root, ...attrs }, content);
+}
+
+function face(initials, extra = '') {
+  const c = arenaClassesFor(avatar);
+  const d = arenaSlotDataFor(avatar);
+  return el('span', { class: `${c.root} ${extra}`.trim(), ...d.root }, el('span', { class: c.box, ...d.box, text: initials }));
+}
+
+function mark(extra = '') {
+  const c = arenaClassesFor(logo);
+  const d = arenaSlotDataFor(logo);
+  return el('span', { class: `${c.root} ${extra}`.trim(), ...d.root },
+    el('span', { class: c.mark, ...d.mark }, el('img', { src: '../../../../assets/rotor-crimson.svg', alt: '' })),
+    el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
+}
+
+function toolbar(option, nearer = '') {
+  const bar = el('div', { class: option });
+  bar.style.display = 'flex';
+  bar.style.alignItems = 'center';
+  bar.style.gap = 'var(--rhythm-component)';
+  bar.append(
+    control(button, 'button', { type: 'button' }, 'Deploy'),
+    control(button, 'button', { type: 'button' }, 'Roll back', nearer),
+    control(iconButton, 'button', { type: 'button', 'aria-label': 'More' }, el('i', { class: 'ph-bold ph-dots-three', 'aria-hidden': 'true' })),
+    face('JH'),
+    mark(),
+  );
+  return bar;
+}
+
+mountSpecimen({ sections: [
+  section('arena-size-md, the default: every size question answers md', [toolbar('arena-size-md')]),
+  section('arena-size-sm on the toolbar: the buttons, the face and the mark follow it', [toolbar('arena-size-sm')]),
+  section('arena-size-lg on the toolbar, and a nearer arena-size-sm on one button', [toolbar('arena-size-lg', 'arena-size-sm')]),
+  section('arena-size-xl: the mark has an xl, the buttons have none and stay at the nearest size they answer, here the default', [toolbar('arena-size-xl')]),
+]});
+</script></body></html>

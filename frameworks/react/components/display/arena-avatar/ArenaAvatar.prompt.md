@@ -15,8 +15,7 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 |---|---|---|---|---|
 | `src` | primitive | `string` |  | Image URL. Absent renders initials from `name`. |
 | `name` | primitive | `string` | `""` | The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. With `nameShown` set, both stay drawn and neither is announced, because what composes the avatar already says the name. |
-| `size` | enum | `ArenaAvatarSize` | `"md"` | The avatar's diameter. |
-| `shape` | enum | `ArenaAvatarShape` | `"circle"` | Circle for a person, rounded for a team. |
+| `kind` | enum | `ArenaAvatarKind` | `"person"` | Whether the avatar stands for a person or for a team. A person is drawn as a circle and a team as a rounded square, so the two read apart in a list that holds both. |
 | `status` | enum | `ArenaAvatarStatus` |  | A presence dot in the state's colour. `offline` is a visible muted dot; omit `status` entirely for no dot. Optional: there is no invisible enum value. |
 | `nameShown` | primitive | `boolean` | `false` | Whether what composes this avatar already says its name: a name drawn beside it, or a control named on its own. Set, the image and the initials leave the accessibility tree so the name is announced once, and the presence dot keeps its own name. Leave it unset where the avatar is the only statement of who this is, including when it is a control's whole content, since that is how the control gets its name. |
 
@@ -24,7 +23,7 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `className="arena-size-2xl"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

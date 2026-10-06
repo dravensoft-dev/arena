@@ -19,7 +19,6 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 | `content` | slot |  |  | The button's label. Sits between the two icons when both are given. |
 | `variant` | enum | `ArenaButtonVariant` | `"primary"` | Which action this is. |
 | `destructive` | primitive | `boolean` | `false` | Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. |
-| `size` | enum | `ArenaControlSize` | `"md"` | Height, from the density tokens, so the button re-densifies inside .arena-compact. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
 | `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
@@ -37,6 +36,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
 **Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `class="arena-size-2xl"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

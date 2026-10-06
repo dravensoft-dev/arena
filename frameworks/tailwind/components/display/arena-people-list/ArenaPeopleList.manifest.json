@@ -1,47 +1,48 @@
 {
   "component": "ArenaPeopleList",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
   "slots": {
-    "root": "grid list-none m-0 p-0 font-body",
-    "row": "flex items-center min-w-0 rounded-control",
-    "rank": "shrink-0 text-center font-mono tabular-nums font-bold text-ink-muted/(--level-ink-muted)",
+    "root": "grid list-none m-0 p-0 font-body gap-[var(--arena-size-list-gap,var(--size-md-list-gap))]",
+    "row": "flex items-center min-w-0 rounded-control gap-[var(--arena-size-row-gap,var(--size-md-row-gap))] px-[calc(var(--arena-size-row-pad-x,var(--size-md-row-pad-x))*var(--dz-row-scale-x))] py-[calc(var(--arena-size-row-pad-y,var(--size-md-row-pad-y))*var(--dz-row-scale-y))]",
+    "rank": "shrink-0 text-center font-mono tabular-nums font-bold text-ink-muted/(--level-ink-muted) w-[var(--arena-size-rank,var(--size-md-rank))] text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]",
     "text": "grid min-w-0 flex-1",
-    "name": "min-w-0 truncate text-ink-heading font-medium",
-    "secondary": "min-w-0 truncate text-ink-muted/(--level-ink-muted)",
-    "figure": "shrink-0 font-mono tabular-nums text-ink-muted/(--level-ink-muted)",
+    "name": "min-w-0 truncate text-ink-heading font-medium text-[length:var(--arena-size-name-step,var(--size-md-name-step))]",
+    "secondary": "min-w-0 truncate text-ink-muted/(--level-ink-muted) text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]",
+    "figure": "shrink-0 font-mono tabular-nums text-ink-muted/(--level-ink-muted) text-[length:var(--arena-size-figure-step,var(--size-md-figure-step))]",
     "action": "shrink-0 flex items-center"
   },
-  "kind": { "root": "none", "row": "row", "rank": "none", "text": "none", "name": "none", "secondary": "none", "figure": "none", "action": "none" },
+  "kind": {
+    "root": "none",
+    "row": "row",
+    "rank": "none",
+    "text": "none",
+    "name": "none",
+    "secondary": "none",
+    "figure": "none",
+    "action": "none"
+  },
   "variants": {
-    "size": {
-      "sm": {
-        "root": "gap-1",
-        "row": "gap-2 px-[calc(var(--sp-1)*1.5*var(--dz-row-scale-x))] py-[calc(var(--sp-1)*var(--dz-row-scale-y))]",
-        "rank": "w-4 text-ctl-2xs",
-        "name": "text-ctl-sm",
-        "secondary": "text-ctl-2xs",
-        "figure": "text-ctl-2xs"
-      },
-      "md": {
-        "root": "gap-2",
-        "row": "gap-3 px-[calc(var(--sp-1)*2*var(--dz-row-scale-x))] py-[calc(var(--sp-1)*2*var(--dz-row-scale-y))]",
-        "rank": "w-6 text-ctl-xs",
-        "name": "text-ctl-md",
-        "secondary": "text-ctl-xs",
-        "figure": "text-ctl-sm"
-      },
-      "lg": {
-        "root": "gap-3",
-        "row": "gap-4 px-row-x py-[calc(var(--sp-1)*3*var(--dz-row-scale-y))]",
-        "rank": "w-8 text-ctl-sm",
-        "name": "text-ctl-lg",
-        "secondary": "text-ctl-sm",
-        "figure": "text-ctl-md"
-      }
-    },
     "current": {
-      "true": { "row": "bg-surface-sunken" },
+      "true": {
+        "row": "bg-surface-sunken"
+      },
       "false": {}
     }
   },
-  "defaultVariants": { "size": "md", "current": false }
+  "defaultVariants": {
+    "current": false
+  },
+  "bound": {
+    "--arena-size-face": "the person row hands its avatar the face, which the avatar binds to its own size channel on its root, so the face follows the list's size"
+  }
 }

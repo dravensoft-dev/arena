@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/forms/arena-icon-button/ArenaIconButton.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -10,10 +11,10 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const manifest = await (await fetch('./ArenaIconButton.manifest.json')).json();
 
-function iconButton({ glyph, label, ...opts }) {
+function iconButton({ glyph, label, cls = '', ...opts }) {
   const c = arenaClassesFor(manifest, opts);
   const d = arenaSlotDataFor(manifest, opts);
-  const node = el('button', { class: c.root, ...d.root, type: 'button', 'aria-label': label, title: opts.showLabel === 'true' ? undefined : label },
+  const node = el('button', { class: `${c.root} ${cls}`.trim(), ...d.root, type: 'button', 'aria-label': label, title: opts.showLabel === 'true' ? undefined : label },
     el('i', { class: glyph, 'aria-hidden': 'true' }));
   if (opts.showLabel === 'true') node.append(el('span', { class: c.label, ...d.label, text: label }));
   return node;
@@ -21,7 +22,7 @@ function iconButton({ glyph, label, ...opts }) {
 
 mountSpecimen({ sections: [
   section('Sizes, ghost', ['sm', 'md', 'lg'].map((size) =>
-    iconButton({ glyph: 'ph-bold ph-dots-three', label: 'More', size }))),
+    iconButton({ glyph: 'ph-bold ph-dots-three', label: 'More', cls: `arena-size-${size}` }))),
   section('Solid', [iconButton({ glyph: 'ph-bold ph-plus', label: 'Add', variant: 'solid' })]),
   section('With its label shown', [
     iconButton({ glyph: 'ph-bold ph-download-simple', label: 'Export', showLabel: 'true' }),

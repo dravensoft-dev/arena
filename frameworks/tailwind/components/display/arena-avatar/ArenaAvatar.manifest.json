@@ -1,10 +1,22 @@
 {
   "component": "ArenaAvatar",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-xs",
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
   "slots": {
-    "root": "relative inline-flex shrink-0",
-    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw-marker)] border-edge-marker font-display font-extrabold tracking-normal text-ink-body/(--level-ink-body)",
+    "root": "relative inline-flex shrink-0 size-[var(--arena-size-avatar,var(--size-md-avatar))]",
+    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw-marker)] border-edge-marker font-display font-extrabold tracking-normal text-ink-body/(--level-ink-body) size-[var(--arena-size-avatar,var(--size-md-avatar))] text-[length:calc(var(--arena-size-avatar,var(--size-md-avatar))*0.4)]",
     "image": "w-full h-full object-cover",
-    "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200"
+    "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200 size-[max(calc(var(--sp-1)*2),calc(var(--arena-size-avatar,var(--size-md-avatar))*0.28))]"
   },
   "kind": {
     "root": "none",
@@ -13,33 +25,11 @@
     "status": "none"
   },
   "variants": {
-    "size": {
-      "xs": {
-        "root": "size-avatar-xs",
-        "box": "size-avatar-xs text-[length:calc(var(--avatar-xs)*0.4)]",
-        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-xs)*0.28))]"
-      },
-      "sm": {
-        "root": "size-avatar-sm",
-        "box": "size-avatar-sm text-[length:calc(var(--avatar-sm)*0.4)]",
-        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-sm)*0.28))]"
-      },
-      "md": {
-        "root": "size-avatar-md",
-        "box": "size-avatar-md text-[length:calc(var(--avatar-md)*0.4)]",
-        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-md)*0.28))]"
-      },
-      "lg": {
-        "root": "size-avatar-lg",
-        "box": "size-avatar-lg text-[length:calc(var(--avatar-lg)*0.4)]",
-        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-lg)*0.28))]"
-      }
-    },
-    "shape": {
-      "circle": {
+    "kind": {
+      "person": {
         "box": "rounded-pill"
       },
-      "rounded": {
+      "team": {
         "box": "rounded-md"
       }
     },
@@ -60,8 +50,7 @@
     }
   },
   "defaultVariants": {
-    "size": "md",
-    "shape": "circle",
+    "kind": "person",
     "status": "none"
   },
   "hues": {

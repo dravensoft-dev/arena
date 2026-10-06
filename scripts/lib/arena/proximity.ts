@@ -2,25 +2,31 @@
  * holds the normalised tree of its own DOM equal to the fixture's tree for that layer, which is how
  * an Angular host shape and a React root shape both reach the gate; the gate rebuilds each tree as
  * HTML, giving every part the slot classes its manifest resolves to by default, and measures it in
- * Chromium. The witness family is a context family the fixture declares, since phase 1 ships none. */
+ * Chromium. The witness family is a context family the fixture declares, since phase 1 ships none.
+ * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
+ * the three things a size class reaches, stops at and is answered by. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import type { Family } from '../tailwind/vocabulary.ts';
-import { readFamilies } from '../tailwind/vocabulary.ts';
+import { readFamilies, SURFACE } from '../tailwind/vocabulary.ts';
 
 export const PROXIMITY_CASES = 'scripts/check/arena/proximity-cases.json';
 export const SUBJECT = 'data-proximity-subject';
+export const OPEN = 'data-arena-open';
 
-export type Tree = { tag: string; part?: string; boundary?: true; contents?: true; class?: string; text?: string; subject?: true; children?: Tree[] };
+export type Tree = {
+  tag: string; part?: string; boundary?: true; contents?: true; open?: true; surface?: string; vars?: string; class?: string; text?: string;
+  subject?: true; children?: Tree[];
+};
 
 export type WitnessFamily = Family & { parts?: string[] };
 
 export type ProximityCase = {
   name: string;
   container: string;
-  measure: { width: 'container' | 'own' } | { property: string; value: string };
+  measure: { width: 'container' | 'own' } | { property: string; value: string; others?: Record<string, string> };
   react: Tree | null;
   angular: Tree | null;
 };
@@ -49,12 +55,21 @@ export function vocabularyClasses(witness: Family[], root = repoRoot) {
   return new Set([...readFamilies(root).values(), ...witness].flatMap((family) => Object.keys(family.variants)));
 }
 
+export const channelBindings = (style: string) => style.split(';').map((one) => one.replace(/\s+/g, ''))
+  .filter((one) => one.startsWith('--arena-')).join(';');
+
 export function normalize(element: NodeLike, vocabulary: Set<string>, subject: NodeLike | null = null): Tree | null {
   const tree: Tree = { tag: (element.tagName ?? '').toLowerCase() };
   const part = element.getAttribute?.('data-arena-part');
   if (part) tree.part = part;
   if (element.hasAttribute?.('data-arena-boundary')) tree.boundary = true;
-  if (/display:\s*contents/.test(element.getAttribute?.('style') ?? '')) tree.contents = true;
+  const style = element.getAttribute?.('style') ?? '';
+  if (/display:\s*contents/.test(style)) tree.contents = true;
+  if (element.hasAttribute?.(OPEN)) tree.open = true;
+  const surface = element.getAttribute?.(SURFACE);
+  if (surface) tree.surface = surface;
+  const vars = channelBindings(style);
+  if (vars) tree.vars = vars;
   const classes = (element.getAttribute?.('class') ?? '').split(/\s+/).filter((one) => vocabulary.has(one));
   if (classes.length) tree.class = classes.join(' ');
   if (element === subject) tree.subject = true;
@@ -63,7 +78,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (text) tree.text = text;
   const children = kids.filter((one) => one.nodeType === 1).map((one) => normalize(one, vocabulary, subject)).filter((one): one is Tree => one !== null);
   if (children.length) tree.children = children;
-  const kept = tree.part || tree.boundary || tree.contents || tree.class || tree.text || tree.subject || tree.children;
+  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
   return kept ? tree : null;
 }
 
@@ -77,8 +92,11 @@ export function treeHtml(
   const attrs: string[] = [];
   if (tree.part) attrs.push(`data-arena-part="${tree.part}"`);
   if (tree.boundary) attrs.push('data-arena-boundary=""');
+  if (tree.open) attrs.push(`${OPEN}=""`);
   if (tree.subject) attrs.push(`${SUBJECT}=""`);
-  if (tree.contents) attrs.push('style="display: contents"');
+  if (tree.surface) attrs.push(`${SURFACE}="${tree.surface}"`);
+  const styles = [tree.contents ? 'display: contents' : '', tree.vars ?? ''].filter(Boolean);
+  if (styles.length) attrs.push(`style="${styles.join('; ')}"`);
   const classes = [tree.part ? classesOf(tree.part) : '', tree.class ?? ''].filter(Boolean).join(' ');
   if (classes) attrs.push(`class="${classes}"`);
   for (const [name, value] of Object.entries(tree.part ? dataOf(tree.part) : {})) attrs.push(`${name}="${value}"`);

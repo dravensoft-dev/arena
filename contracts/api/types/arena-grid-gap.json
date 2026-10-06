@@ -1,6 +1,6 @@
 {
   "name": "ArenaGridGap",
   "kind": "enum",
-  "description": "How much air separates two cells. Checked against every enum already declared here before it was added; nothing carries this set. ArenaControlSize is the near miss and is a different question: it names how tall a control stands, and it has no `none` because a control of no height is not a size. Four named steps rather than the spacing scale restated: a set that merely repeats what the token layer already derives may only be an enum while something machine-checks the restatement, and there is nothing to tie a numeric step list back to. These four are a decision about rhythm, and each layer resolves its own step from the scale.",
+  "description": "How much air separates two cells. Checked against every enum already declared here before it was added; nothing carries this set. Four named steps rather than the spacing scale restated: a set that merely repeats what the token layer already derives may only be an enum while something machine-checks the restatement, and there is nothing to tie a numeric step list back to. These four are a decision about rhythm, and each layer resolves its own step from the scale.",
   "values": ["none", "sm", "md", "lg"]
 }

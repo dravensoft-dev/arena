@@ -104,13 +104,20 @@ const MEASURE_MARKUP = (properties: string[]) => `(() => {
   return Object.fromEntries(${JSON.stringify(properties)}.map((p) => [p, style.getPropertyValue(p).trim()]));
 })()`;
 
-export type Measured = { width: number; container: number; property: string };
+export type Measured = { width: number; container: number; property: string; others?: Record<string, string[]> };
 
 export function verdict(kase: ProximityCase, layer: string, order: Order, measured: Measured) {
   const where = `${kase.name} (${layer}, ${order})`;
   if ('property' in kase.measure) {
-    return measured.property === kase.measure.value ? null
-      : `${where}: ${kase.measure.property} is "${measured.property}" on the subject and the case expects "${kase.measure.value}"`;
+    if (measured.property !== kase.measure.value)
+      return `${where}: ${kase.measure.property} is "${measured.property}" on the subject and the case expects "${kase.measure.value}"`;
+    for (const [part, want] of Object.entries(kase.measure.others ?? {})) {
+      const seen = measured.others?.[part] ?? [];
+      if (seen.length === 0) return `${where}: the tree carries no ${part} beside the subject, so nothing measured ${kase.measure.property} on it`;
+      const wrong = seen.find((one) => one !== want);
+      if (wrong !== undefined) return `${where}: ${kase.measure.property} is "${wrong}" on a ${part} and the case expects "${want}"`;
+    }
+    return null;
   }
   if (kase.measure.width === 'container') {
     return Math.abs(measured.width - measured.container) < 0.5 ? null
@@ -120,12 +127,15 @@ export function verdict(kase: ProximityCase, layer: string, order: Order, measur
     : `${where}: the subject is ${measured.width}px wide, the container's width, and the case expects its own width`;
 }
 
-const MEASURE = (property: string) => `(() => {
+const MEASURE = (property: string, parts: string[] = []) => `(() => {
   const subject = document.querySelector('[${SUBJECT}]');
   const container = document.body.firstElementChild;
   if (!subject || !container) return null;
+  const others = Object.fromEntries(${JSON.stringify(parts)}.map((part) => [part,
+    [...document.querySelectorAll('[data-arena-part="' + part + '"]:not([${SUBJECT}])')]
+      .map((one) => getComputedStyle(one).getPropertyValue(${JSON.stringify(property)}).trim())]));
   return { width: subject.getBoundingClientRect().width, container: container.getBoundingClientRect().width,
-    property: getComputedStyle(subject).getPropertyValue(${JSON.stringify(property)}).trim() };
+    property: getComputedStyle(subject).getPropertyValue(${JSON.stringify(property)}).trim(), others };
 })()`;
 
 const FACE_EXPRESSION = `(async () => {
@@ -204,7 +214,8 @@ async function main() {
             `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
           if (!loaded) { problems.push(`${kase.name} (${layer}, ${order}): a stylesheet never loaded, so nothing was measured`); continue; }
           const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
-          const result = await evaluate(cdp, MEASURE(property), sessionId) as Measured | null;
+          const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];
+          const result = await evaluate(cdp, MEASURE(property, parts), sessionId) as Measured | null;
           if (!result) { problems.push(`${kase.name} (${layer}, ${order}): the tree carries no subject`); continue; }
           measured += 1;
           const problem = verdict(kase, layer, order, result);

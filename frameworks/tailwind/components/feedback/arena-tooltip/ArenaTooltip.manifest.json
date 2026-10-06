@@ -14,6 +14,9 @@
     "root": "none",
     "bubble": "floating"
   },
+  "floating": {
+    "bubble": "a tooltip floats over the page, so the region holding its trigger does not decide its contents"
+  },
   "internal": {
     "anchored": "the bubble is positioned by the layer's overlay rather than by CSS"
   },

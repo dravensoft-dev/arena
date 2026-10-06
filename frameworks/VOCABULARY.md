@@ -10,9 +10,11 @@
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
+| [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo, ArenaSwitch |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
+| [`size`](#size) | context | `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs` |  | ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`), ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`), ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`), ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`), ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
 
@@ -49,6 +51,14 @@ The mono face and tabular figures for a figure you draw yourself, in a definitio
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
 
+## orientation
+
+Whether a component lies along the line it sits in or stands across it. Orientation changes the drawing and never the behaviour: a vertical switch is operated exactly as a horizontal one.
+
+- **Options:** `arena-orientation-horizontal` (default), `arena-orientation-vertical`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:** ArenaAppLogo, ArenaSwitch.
+
 ## prose
 
 The reading column for a document you write, an article, a changelog, a release note. The class holds the line to a measure in ch rather than a pixel width, so the column tracks the font size the way a measure has to. The measure is a maximum and not a width, so a narrow viewport keeps the whole column. The measure is a role, so a style plugin written for reading re-answers it.
@@ -72,6 +82,19 @@ The window a page fills, so a short page's footer sits at the bottom rather than
 - **Options:** `arena-shell`, `arena-shell__main`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## size
+
+How big a control, a meter, a face or a mark is drawn. The region a component sits in answers it as much as the component does, so it crosses components. Written on a toolbar, it reaches every button in it, and a nearer class answers it again. An option a component does not have leaves that component at the nearest option it does answer.
+
+- **Options:** `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs`.
+- **Reach:** context: it reaches every component inside, until a nearer class answers it again.
+- **Answered by:**
+  - ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
+  - ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`).
+  - ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`).
+  - ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`).
+  - ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
 
 ## sr-only
 

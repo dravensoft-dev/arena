@@ -18,6 +18,9 @@
     "body": "floating",
     "foot": "floating"
   },
+  "floating": {
+    "root": "a sheet is pinned to the viewport, so the region it was opened from does not decide its controls"
+  },
   "variants": {
     "placement": {
       "bottom": {

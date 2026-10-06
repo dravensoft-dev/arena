@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-spinner/ArenaSpinner.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -11,9 +12,9 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 const manifest = await (await fetch('./ArenaSpinner.manifest.json')).json();
 
 function spinner({ size = 'md', tone = 'accent' }) {
-  const c = arenaClassesFor(manifest, { size, tone });
-  const d = arenaSlotDataFor(manifest, { size, tone });
-  return el('span', { class: c.root, ...d.root, role: 'status', 'aria-label': 'Loading' },
+  const c = arenaClassesFor(manifest, { tone });
+  const d = arenaSlotDataFor(manifest, { tone });
+  return el('span', { class: `${c.root} arena-size-${size}`, ...d.root, role: 'status', 'aria-label': 'Loading' },
     el('span', { class: c.circle, ...d.circle, 'aria-hidden': 'true' }));
 }
 

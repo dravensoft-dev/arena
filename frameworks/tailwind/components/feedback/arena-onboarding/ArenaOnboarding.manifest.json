@@ -24,6 +24,9 @@
     "text": "none",
     "next": "control"
   },
+  "floating": {
+    "root": "a tour step floats over the page, so the region it points at does not decide its controls"
+  },
   "internal": {
     "placement": "anchored when an anchor is given, floating otherwise",
     "current": "the dot is the current step of the tour"

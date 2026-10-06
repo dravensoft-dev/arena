@@ -1,10 +1,19 @@
 {
   "component": "ArenaIconButton",
   "answers": [
-    "fill"
+    "fill",
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
   ],
   "slots": {
-    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)]",
+    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)] h-[var(--arena-size-control-h,var(--size-md-control-h))] min-w-[var(--arena-size-control-h,var(--size-md-control-h))]",
     "label": "font-body font-control text-ctl leading-ctl"
   },
   "kind": {
@@ -18,17 +27,6 @@
       },
       "solid": {
         "root": "bg-primary text-primary-content border-none hover:bg-primary"
-      }
-    },
-    "size": {
-      "sm": {
-        "root": "h-ctl-h-sm min-w-ctl-h-sm"
-      },
-      "md": {
-        "root": "h-ctl-h min-w-ctl-h"
-      },
-      "lg": {
-        "root": "h-ctl-h-lg min-w-ctl-h-lg"
       }
     },
     "showLabel": {
@@ -48,7 +46,6 @@
   },
   "defaultVariants": {
     "variant": "ghost",
-    "size": "md",
     "showLabel": false
   }
 }

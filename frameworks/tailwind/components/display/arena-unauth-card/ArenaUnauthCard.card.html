@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-unauth-card/ArenaUnauthCard.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -15,13 +16,13 @@ const logo = await (await fetch('../../brand/arena-app-logo/ArenaAppLogo.manifes
 function panel({ eyebrow, title, body, footer }) {
   const c = arenaClassesFor(manifest);
   const d = arenaSlotDataFor(manifest);
-  const l = arenaClassesFor(logo, { size: 'md' });
-  const dL = arenaSlotDataFor(logo, { size: 'md' });
+  const l = arenaClassesFor(logo);
+  const dL = arenaSlotDataFor(logo);
   return el('div', { class: c.root, ...d.root },
     el('div', { class: c.panel, ...d.panel },
       el('div', { class: c.body, ...d.body },
         el('div', { class: c.brand, ...d.brand },
-          el('span', { class: l.root, ...dL.root },
+          el('span', { class: `${l.root} arena-size-md`, ...dL.root },
             el('span', { class: l.mark, ...dL.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
             el('span', { class: l.name, ...dL.name }, 'Draven', el('span', { class: l.dim, ...dL.dim, text: 'soft' })))),
         el('div', { class: c.eyebrow, ...d.eyebrow, text: eyebrow }),

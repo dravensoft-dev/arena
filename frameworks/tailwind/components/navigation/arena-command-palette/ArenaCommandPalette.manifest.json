@@ -32,6 +32,9 @@
     "rowLabel": "none",
     "shortcut": "none"
   },
+  "floating": {
+    "root": "a palette floats over the page, so the region it was opened from does not decide its rows"
+  },
   "internal": {
     "active": "the row the keyboard cursor is on"
   },

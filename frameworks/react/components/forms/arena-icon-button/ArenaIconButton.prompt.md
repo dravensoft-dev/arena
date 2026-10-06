@@ -14,7 +14,6 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 |---|---|---|---|---|
 | `icon*` | primitive | `string` |  | Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. |
 | `label*` | primitive | `string` |  | The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. |
-| `size` | enum | `ArenaControlSize` | `"md"` | Height, from the density tokens: the same scale ArenaButton uses, so the two re-densify together in a toolbar. |
 | `variant` | enum | `ArenaIconButtonVariant` | `"ghost"` | Visual treatment. |
 | `showLabel` | primitive | `boolean` | `false` | Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. |
 | `pressed` | primitive | `boolean` |  | Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. |
@@ -32,6 +31,8 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
 **Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `className="arena-size-2xl"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

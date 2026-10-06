@@ -26,6 +26,9 @@
     "divider": "none",
     "header": "row"
   },
+  "floating": {
+    "panel": "a menu panel floats over the page, so the toolbar holding its trigger does not decide its rows"
+  },
   "internal": {
     "anchored": "the panel is positioned by the layer's overlay rather than by CSS"
   },

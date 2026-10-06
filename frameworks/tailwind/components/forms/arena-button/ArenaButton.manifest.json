@@ -1,10 +1,19 @@
 {
   "component": "ArenaButton",
   "answers": [
-    "fill"
+    "fill",
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
   ],
   "slots": {
-    "root": "inline-flex items-center justify-center gap-control rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest hover:-translate-y-[var(--lift-control)] outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] w-[var(--arena-fill-width,fit-content)]",
+    "root": "inline-flex items-center justify-center gap-control rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest hover:-translate-y-[var(--lift-control)] outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] w-[var(--arena-fill-width,fit-content)] h-[var(--arena-size-control-h,var(--size-md-control-h))] px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))] text-[length:var(--arena-size-control-step,var(--size-md-control-step))]",
     "spinner": "arena-btn-spin inline-block size-3.5 border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
   },
   "kind": {
@@ -28,23 +37,11 @@
         "root": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover hover:shadow-control-rest"
       },
       "false": {}
-    },
-    "size": {
-      "sm": {
-        "root": "h-ctl-h-sm px-control-x text-ctl-md"
-      },
-      "md": {
-        "root": "h-ctl-h px-4.5 text-ctl"
-      },
-      "lg": {
-        "root": "h-ctl-h-lg px-6.5 text-ctl"
-      }
     }
   },
   "defaultVariants": {
     "variant": "primary",
-    "destructive": false,
-    "size": "md"
+    "destructive": false
   },
   "hues": {
     "destructive": {

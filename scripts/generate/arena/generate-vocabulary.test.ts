@@ -51,11 +51,13 @@ test('a component answering a subset of a family, or with a default of its own, 
   const write = (name: string, answers: unknown) => writeFileSync(join(dir, `${name}.manifest.json`),
     JSON.stringify({ component: name, answers, slots: { root: 'x-[var(--arena-size-h,2px)]' } }));
   write('ArenaWhole', ['size']);
+  write('ArenaTwin', [{ family: 'size', options: ['arena-size-sm', 'arena-size-md'], default: 'arena-size-md' }]);
   write('ArenaSubset', [{ family: 'size', options: ['arena-size-sm', 'arena-size-md'], default: 'arena-size-md' }]);
   write('ArenaOwn', [{ family: 'size', options: ['arena-size-sm', 'arena-size-md', 'arena-size-lg'], default: 'arena-size-sm' }]);
   const section = renderVocabulary(base).split('\n## size\n')[1] ?? '';
-  assert.match(section, /ArenaOwn \(default `arena-size-sm`\)/);
-  assert.match(section, /ArenaSubset \(`arena-size-md`, `arena-size-sm`\)/);
+  assert.match(section, /\n {2}- ArenaOwn \(default `arena-size-sm`\)\./);
+  assert.match(section, /- \*\*Answered by:\*\*\n/);
+  assert.match(section, /ArenaSubset and ArenaTwin \(`arena-size-md`, `arena-size-sm`\)/);
   assert.match(section, /ArenaWhole[,.]/);
   assert.doesNotMatch(section, /ArenaWhole \(/);
 });

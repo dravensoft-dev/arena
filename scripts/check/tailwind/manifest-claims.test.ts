@@ -220,12 +220,6 @@ export const CLAIMS = {
     { slot: 'root', hasNot: ['bg-surface', 'border-edge-surface', 'p-surface'], why: 'the cell draws no surface, no line and no padding: everything visible in it is what was put inside' },
   ],
   ArenaAppLogo: [
-    ...['sm', 'md', 'lg', 'xl'].flatMap((s) => [
-      { chosen: { size: s }, slot: 'mark', has: [`size-logo-mark-${s}`], why: 'each size step pairs a mark box with its wordmark step' },
-      { chosen: { size: s }, slot: 'name', has: [`text-logo-${s}`], why: 'each size step pairs a mark box with its wordmark step' },
-    ]),
-    { chosen: { orientation: 'horizontal' }, slot: 'root', has: ['flex-row'], why: 'orientation changes the axis and the gap, nothing else' },
-    { chosen: { orientation: 'vertical' }, slot: 'root', has: ['flex-col', 'gap-items'], why: 'orientation changes the axis and the gap, nothing else' },
     { slot: 'mark', has: ['*:w-full', '*:h-full', '*:block'], why: 'the mark slot stretches its projected child rather than sizing it' },
   ],
   ArenaChartCard: [
@@ -241,16 +235,8 @@ export const CLAIMS = {
     { chosen: { divided: false }, slot: 'item', has: ['border-t-0'], why: 'the first row carries no divider above it' },
   ],
   ArenaAvatar: [
-    ...['xs', 'sm', 'md', 'lg'].map((s) => ({
-      chosen: { size: s }, slot: 'box', has: [`text-[length:calc(var(--avatar-${s})*0.4)]`],
-      why: 'the initials font size is exactly diameter times the ratio spacing.json declares',
-    })),
-    ...['xs', 'sm', 'md', 'lg'].map((s) => ({
-      chosen: { size: s }, slot: 'status', has: [`size-[max(calc(var(--sp-1)*2),calc(var(--avatar-${s})*0.28))]`],
-      why: 'the presence dot diameter is exactly the floor-and-ratio spacing.json declares',
-    })),
-    { chosen: { shape: 'circle' }, slot: 'box', has: ['rounded-pill'], why: 'circle rounds the box fully and rounded takes the medium radius' },
-    { chosen: { shape: 'rounded' }, slot: 'box', has: ['rounded-md'], why: 'circle rounds the box fully and rounded takes the medium radius' },
+    { chosen: { kind: 'person' }, slot: 'box', has: ['rounded-pill'], why: 'a person is drawn as a circle and a team as a rounded square, so the two read apart' },
+    { chosen: { kind: 'team' }, slot: 'box', has: ['rounded-md'], why: 'a person is drawn as a circle and a team as a rounded square, so the two read apart' },
     ...['online', 'away'].map((status) => ({
       chosen: { status }, slot: 'status', has: [STRONG], hasNot: ['bg-success', 'bg-warning', 'bg-[color:var(--arena-hue-ink)]'],
       why: 'a live presence dot is a solid fill, so it reads the strong fill channel of its status hue',
@@ -391,16 +377,12 @@ export const CLAIMS = {
   ArenaProgressBar: [
     ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', success: STRONG_INK, danger: INK, info: STRONG_INK })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'track', has: [cls], why: 'every tone inks the track, which is what the fill reads through bg-current' })),
-    ...Object.entries({ sm: 'h-1', md: 'h-1.5', lg: 'h-2.5' })
-      .map(([s, cls]) => ({ chosen: { size: s }, slot: 'track', has: [cls], why: 'size sets the track height and nothing else' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
     { chosen: { tone: 'danger' }, slot: 'track', has: [INK, 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
     { chosen: { indeterminate: true }, slot: 'track', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
     { slot: 'track', has: ['overflow-hidden', 'rounded-pill'], hasNot: ['rounded-full'], why: 'the track clips its own fill and takes the pill radius' },
     { slot: 'root', has: ['grid', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline, and the bar stacks its head over its track' },
     { chosen: { shape: 'radial' }, slot: 'root', has: ['grid', 'w-fit'], hasNot: ['w-full'], why: 'a ring is as wide as it is tall, so the root shrinks to it rather than filling the row the way a bar does' },
-    ...Object.entries({ sm: 'size-12', md: 'size-16', lg: 'size-24' })
-      .map(([s, cls]) => ({ chosen: { shape: 'radial', size: s }, slot: 'ring', has: [cls], why: 'size sets the ring diameter the way it sets the track height' })),
     { chosen: { tone: 'danger' }, slot: 'ring', has: [INK], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
     { slot: 'ringFill', has: ['stroke-current', '[stroke-dasharray:100]'], why: 'the arc reads the tone the ring inks, and its length is hundredths of the path, so the percentage is the offset and the radius is free' },
     { chosen: { indeterminate: true }, slot: 'ringFill', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
@@ -408,8 +390,6 @@ export const CLAIMS = {
   ArenaSpinner: [
     ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', neutral: 'text-ink-muted/(--level-ink-muted)', 'on-accent': 'text-primary-content' })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'root', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
-    ...Object.entries({ sm: 'size-icon-sm', md: 'size-5', lg: 'size-8' })
-      .map(([s, cls]) => ({ chosen: { size: s }, slot: 'circle', has: [cls], why: 'tone colours the root and size sizes the circle, so neither axis reaches the other slot' })),
     { slot: 'circle', has: ['border-current', 'border-t-transparent', 'rounded-pill', 'arena-spinner'], hasNot: ['rounded-full'], why: 'the ring takes its colour from the root so one tone paints both, and its radius is the pill token' },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
   ],
@@ -435,11 +415,9 @@ export const CLAIMS = {
     })),
     { chosen: { variant: 'primary' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'primary is the one filled variant, and it fills with the brand rather than a status colour' },
     ...['primary', 'secondary', 'ghost'].map((variant) => ({
-      chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex', 'h-ctl-h'],
+      chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex'],
       why: 'every variant keeps the shared control geometry through the merge',
     })),
-    ...Object.entries({ sm: 'h-ctl-h-sm', md: 'h-ctl-h', lg: 'h-ctl-h-lg' })
-      .map(([s, cls]) => ({ chosen: { size: s }, slot: 'root', has: [cls], why: 'each size keeps its own density height rather than merging into one' })),
     { slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]'], hasNot: ['w-auto', 'w-full', 'w-fit'], why: 'the width is the fill channel, which fits the content until a vocabulary class says otherwise, in a column as in a row' },
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner slot carries the reduced-motion-aware utility, which is where that answer lives' },
   ],
@@ -457,8 +435,6 @@ export const CLAIMS = {
     })),
   ],
   ArenaIconButton: [
-    ...Object.entries({ sm: ['h-ctl-h-sm', 'min-w-ctl-h-sm'], md: ['h-ctl-h', 'min-w-ctl-h'], lg: ['h-ctl-h-lg', 'min-w-ctl-h-lg'] })
-      .map(([size, has]) => ({ chosen: { size }, slot: 'root', has, why: 'each size keeps its own density height and a matching minimum width, so the box stays square' })),
     { chosen: { variant: 'ghost' }, slot: 'root', has: ['bg-transparent', 'border-edge-control-quiet'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
     { chosen: { variant: 'solid' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'ghost is transparent with a hairline; solid is the one filled variant, and it fills with the brand' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
@@ -531,12 +507,8 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
   ],
   ArenaSwitch: [
-    { chosen: { footprint: 'horizontal-md' }, slot: 'track', has: ['w-10', 'h-5.5'], why: 'a horizontal footprint is wider than it is tall, and the vertical one is its transpose' },
-    { chosen: { footprint: 'vertical-md' }, slot: 'track', has: ['w-5.5', 'h-10'], why: 'a horizontal footprint is wider than it is tall, and the vertical one is its transpose' },
-    { chosen: { thumb: 'on-horizontal' }, slot: 'knob', has: ['translate-x-full'], why: 'the knob travels along the axis its footprint names' },
-    { chosen: { thumb: 'off-horizontal' }, slot: 'knob', has: ['translate-x-0'], why: 'the knob travels along the axis its footprint names' },
-    { chosen: { thumb: 'on-vertical' }, slot: 'knob', has: ['translate-y-full'], why: 'the knob travels along the axis its footprint names' },
-    { chosen: { thumb: 'off-vertical' }, slot: 'knob', has: ['translate-y-0'], why: 'the knob travels along the axis its footprint names' },
+    { chosen: { state: true }, slot: 'knob', has: ['[translate:var(--arena-orientation-knob-on,100%_0)]'], hasNot: ['translate-x-0'], why: 'the knob travels to the end its orientation names, and the channel falls back to the horizontal one' },
+    { chosen: { state: false }, slot: 'knob', has: ['translate-x-0'], hasNot: ['[translate:var(--arena-orientation-knob-on,100%_0)]'], why: 'an off knob rests at the start, whichever way the switch lies' },
     { chosen: { state: true }, slot: 'track', has: ['bg-primary'], why: 'on fills with the brand and off stays the neutral rail' },
     { chosen: { state: false }, slot: 'track', has: ['bg-neutral'], why: 'on fills with the brand and off stays the neutral rail' },
     { slot: 'icon', has: ['text-primary'], why: 'the icon reads the brand ink on the knob' },
@@ -580,6 +552,58 @@ export const CLAIMS = {
     })),
   ],
 };
+
+const READS: [component: string, slot: string, question: string, reads: string[]][] = [
+  ['ArenaButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaIconButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]', 'min-w-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaButton', 'root', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
+  ['ArenaButton', 'root', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
+  ['ArenaSegmentedControl', 'segment', 'size.segment-h', ['h-[var(--arena-size-segment-h,var(--size-md-segment-h))]']],
+  ['ArenaSegmentedControl', 'segment', 'size.segment-pad-x', ['px-[var(--arena-size-segment-pad-x,var(--size-md-segment-pad-x))]']],
+  ['ArenaSegmentedControl', 'segment', 'size.segment-step', ['text-[length:var(--arena-size-segment-step,var(--size-md-segment-step))]']],
+  ['ArenaSwitch', 'knob', 'size.switch-knob', ['size-[var(--arena-size-switch-knob,var(--size-md-switch-knob))]']],
+  ['ArenaSwitch', 'icon', 'size.switch-icon', ['text-[length:var(--arena-size-switch-icon,var(--size-md-switch-icon))]']],
+  ['ArenaSpinner', 'circle', 'size.spinner', ['size-[var(--arena-size-spinner,var(--size-md-spinner))]']],
+  ['ArenaProgressBar', 'track', 'size.meter', ['h-[var(--arena-size-meter,var(--size-md-meter))]']],
+  ['ArenaProgressBar', 'ringTrack', 'size.meter', ['[stroke-width:var(--arena-size-meter,var(--size-md-meter))]']],
+  ['ArenaProgressBar', 'ringFill', 'size.meter', ['[stroke-width:var(--arena-size-meter,var(--size-md-meter))]']],
+  ['ArenaProgressBar', 'ring', 'size.ring', ['size-[var(--arena-size-ring,var(--size-md-ring))]']],
+  ['ArenaAvatar', 'root', 'size.avatar', ['size-[var(--arena-size-avatar,var(--size-md-avatar))]']],
+  ['ArenaAvatar', 'box', 'size.avatar', ['size-[var(--arena-size-avatar,var(--size-md-avatar))]', 'text-[length:calc(var(--arena-size-avatar,var(--size-md-avatar))*0.4)]']],
+  ['ArenaAvatar', 'status', 'size.avatar', ['size-[max(calc(var(--sp-1)*2),calc(var(--arena-size-avatar,var(--size-md-avatar))*0.28))]']],
+  ['ArenaAppLogo', 'mark', 'size.logo-mark', ['size-[var(--arena-size-logo-mark,var(--size-md-logo-mark))]']],
+  ['ArenaAppLogo', 'name', 'size.logo-step', ['text-[length:var(--arena-size-logo-step,var(--size-md-logo-step))]']],
+  ['ArenaPeopleList', 'root', 'size.list-gap', ['gap-[var(--arena-size-list-gap,var(--size-md-list-gap))]']],
+  ['ArenaPeopleList', 'row', 'size.row-gap', ['gap-[var(--arena-size-row-gap,var(--size-md-row-gap))]']],
+  ['ArenaPeopleList', 'row', 'size.row-pad-x', ['px-[calc(var(--arena-size-row-pad-x,var(--size-md-row-pad-x))*var(--dz-row-scale-x))]']],
+  ['ArenaPeopleList', 'row', 'size.row-pad-y', ['py-[calc(var(--arena-size-row-pad-y,var(--size-md-row-pad-y))*var(--dz-row-scale-y))]']],
+  ['ArenaPeopleList', 'rank', 'size.rank', ['w-[var(--arena-size-rank,var(--size-md-rank))]']],
+  ['ArenaPeopleList', 'rank', 'size.caption-step', ['text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]']],
+  ['ArenaPeopleList', 'secondary', 'size.caption-step', ['text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]']],
+  ['ArenaPeopleList', 'name', 'size.name-step', ['text-[length:var(--arena-size-name-step,var(--size-md-name-step))]']],
+  ['ArenaPeopleList', 'figure', 'size.figure-step', ['text-[length:var(--arena-size-figure-step,var(--size-md-figure-step))]']],
+  ['ArenaAppLogo', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
+  ['ArenaSwitch', 'track', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
+  ['ArenaAppLogo', 'root', 'orientation.logo-gap', ['gap-[var(--arena-orientation-logo-gap,calc(var(--sp-1)*2.5))]']],
+  ['ArenaSwitch', 'track', 'orientation.track-w', ['w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))]', 'h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))]']],
+];
+
+const mutable = CLAIMS as unknown as Record<string, Claim[]>;
+for (const [component, slot, question, reads] of READS) {
+  (mutable[component] ??= []).push({
+    slot, has: reads,
+    why: `the ${slot} answers ${question} through its channel, with the md value as its fallback, so no option written is the size it had before the family`,
+  });
+}
+
+test('every size and orientation question a slot answers is read through its own channel with a fallback', () => {
+  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation)-[a-z0-9-]+,/g)]));
+  assert.ok(channels.length >= READS.length, 'a read names a channel and the fallback that stands in for it');
+  for (const [component, slot, question, reads] of READS) {
+    const family = question.split('.')[0]!;
+    assert.ok(reads.every((one) => one.includes(`var(--arena-${family}-`)), `${component}.${slot} reads no ${family} channel`);
+  }
+});
 
 test('every slot that takes a placeholder colours it, rather than inheriting preflight', () => {
   const wanted = 'placeholder:text-ink-muted/(--level-ink-muted)';

@@ -12,7 +12,6 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `size` | enum | `ArenaControlSize` | `"md"` | Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. |
 | `tone` | enum | `ArenaSpinnerTone` | `"accent"` | Colour of the ring. 'on-accent' inside a filled button; 'accent' on a page surface. |
 | `label` | primitive | `string` |  | Accessible name, announced by the status role. Say what is loading when you can. Absent, the provided locale's spinnerLabel answers it, which reads Loading by default. |
 
@@ -20,7 +19,7 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `className="arena-size-2xl"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

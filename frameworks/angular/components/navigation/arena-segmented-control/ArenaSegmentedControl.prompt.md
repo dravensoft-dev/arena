@@ -20,7 +20,6 @@ the accessible name and the focus ring.
 | `options*` | array | `readonly ArenaSegmentOption[]` |  | The options, in order. Two to four with one-word labels. |
 | `value` | primitive | `string` |  | The selected option's value. Omit and pass `defaultValue` to let it govern itself. |
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first option. |
-| `size` | enum | `ArenaSegmentedControlSize` | `"md"` | Compact or default. |
 | `ariaLabel*` | primitive | `string` |  | Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. |
 | `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
 | `change` | event | `string` |  | A different option was chosen; carries its value. |
@@ -30,6 +29,8 @@ the accessible name and the focus ring.
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
 **Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `class="arena-size-2xl"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

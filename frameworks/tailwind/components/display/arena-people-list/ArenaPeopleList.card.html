@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-people-list/ArenaPeopleList.styles.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-avatar/ArenaAvatar.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -12,21 +13,19 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 const manifest = await (await fetch('./ArenaPeopleList.manifest.json')).json();
 const avatar = await (await fetch('../arena-avatar/ArenaAvatar.manifest.json')).json();
 
-const FACE = { sm: 'xs', md: 'sm', lg: 'md' };
-
-function face(name, size) {
-  const a = arenaClassesFor(avatar, { size: FACE[size] });
-  const dA = arenaSlotDataFor(avatar, { size: FACE[size] });
+function face(name) {
+  const a = arenaClassesFor(avatar);
+  const dA = arenaSlotDataFor(avatar);
   const initials = name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
-  return el('span', { class: a.root, ...dA.root }, el('span', { class: a.box, ...dA.box }, initials));
+  return el('span', { class: a.root, ...dA.root, style: '--arena-size-avatar: var(--arena-size-face, var(--size-md-face))' }, el('span', { class: a.box, ...dA.box }, initials));
 }
 
-function row(size, current, rank, name, secondary, figure) {
-  const c = arenaClassesFor(manifest, { size, current });
-  const d = arenaSlotDataFor(manifest, { size, current });
+function row(current, rank, name, secondary, figure) {
+  const c = arenaClassesFor(manifest, { current });
+  const d = arenaSlotDataFor(manifest, { current });
   return el('li', { class: c.row, ...d.row },
     el('span', { class: c.rank, ...d.rank }, String(rank)),
-    face(name, size),
+    face(name),
     el('span', { class: c.text, ...d.text },
       el('span', { class: c.name, ...d.name }, name),
       el('span', { class: c.secondary, ...d.secondary }, secondary)),
@@ -34,11 +33,11 @@ function row(size, current, rank, name, secondary, figure) {
 }
 
 function list(size) {
-  const c = arenaClassesFor(manifest, { size });
-  const d = arenaSlotDataFor(manifest, { size });
-  return el('ol', { class: c.root, ...d.root },
-    row(size, false, 1, 'Ines Marchetti', 'Promoted last week', '2480 XP'),
-    row(size, true, 2, 'Kofi Mensah', 'You', '2210 XP'));
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return el('ol', { class: `${c.root} arena-size-${size}`, ...d.root },
+    row(false, 1, 'Ines Marchetti', 'Promoted last week', '2480 XP'),
+    row(true, 2, 'Kofi Mensah', 'You', '2210 XP'));
 }
 
 mountSpecimen({ sections: [

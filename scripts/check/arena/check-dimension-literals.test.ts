@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, scanStyleWrites, staleComputed, COMPUTED, EXEMPT } from './check-dimension-literals.ts';
+import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, scanStyleWrites, staleComputed, COMPUTED, EXEMPT, PASSTHROUGH, type Passthrough } from './check-dimension-literals.ts';
 
 test('a bare number is a violation for a dimension-valued property', () => {
   assert.ok(scanValue('fontSize', '13'));
@@ -179,10 +179,16 @@ test('a default parameter whose name is itself a governed CSS property is a viol
   ]);
 });
 
+const PROBE: Passthrough = new Map([['ArenaAppLogo', { prop: 'size', governs: 'width' }]]);
+
+test('no component is registered as a passthrough while none forwards a dimension to a governed prop', () => {
+  assert.equal(PASSTHROUGH.size, 0);
+});
+
 test('a default parameter on a named passthrough component resolves through the alias', () => {
 
   const src = "function ArenaAppLogo({ mark, size = 18, dim = 'soft' }) {\n  return null;\n}";
-  const found = scanDefaultsAndCallSites(src);
+  const found = scanDefaultsAndCallSites(src, PROBE);
   assert.deepEqual(found.map((f) => ({ prop: f.prop, raw: f.raw })), [
     { prop: 'width', raw: '18' },
   ]);
@@ -222,7 +228,7 @@ test('a plain variable assignment outside a parameter list is never in scope', (
 });
 
 test('a JSX call site overriding a registered passthrough prop with a bare number is a violation', () => {
-  const found = scanDefaultsAndCallSites('<ArenaAppLogo name="Draven" size={16} />');
+  const found = scanDefaultsAndCallSites('<ArenaAppLogo name="Draven" size={16} />', PROBE);
   assert.deepEqual(found.map((f) => ({ prop: f.prop, raw: f.raw })), [
     { prop: 'width', raw: '16' },
   ]);
@@ -461,15 +467,15 @@ test('the real boundary: a nested call behind a variable is not caught, the exac
 });
 
 test('a PASSTHROUGH entry with a match is not stale', () => {
-  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo'])), []);
+  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo']), PROBE), []);
 });
 
 test('a PASSTHROUGH entry matching nothing in the tree fails as stale', () => {
-  assert.deepEqual(stalePassthrough(new Set()), ['ArenaAppLogo']);
+  assert.deepEqual(stalePassthrough(new Set(), PROBE), ['ArenaAppLogo']);
 });
 
 test('a component the map does not name is not reported', () => {
-  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo', 'ArenaButton', 'ArenaTag'])), []);
+  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo', 'ArenaButton', 'ArenaTag']), PROBE), []);
 });
 
 test('a line comment shaped like a colon-value is never read as one', () => {

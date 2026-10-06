@@ -18,6 +18,9 @@
     "body": "floating",
     "foot": "floating"
   },
+  "floating": {
+    "scrim": "a modal surface lays itself over the page, so the region it was opened from does not decide its controls"
+  },
   "internal": {
     "fill": "the container is narrower than fillBelow"
   },

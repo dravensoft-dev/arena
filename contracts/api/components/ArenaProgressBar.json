@@ -43,12 +43,6 @@
       "default": true,
       "description": "Shows the percentage: beside the label on a bar, and in the middle of a ring, which is the figure a meter in a tile is read by. Determinate only. Turn it off when `content` fills a ring's middle: the two share that space, and Arena never derives what it draws from what a consumer projected, because projected content is not inspectable in at least one layer."
     },
-    "size": {
-      "form": "enum",
-      "type": "ArenaControlSize",
-      "default": "md",
-      "description": "How heavy the meter is: the bar's thickness, and a ring's diameter with a band the same weight as the bar it replaces."
-    },
     "shape": {
       "form": "enum",
       "type": "ArenaProgressShape",

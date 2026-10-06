@@ -603,9 +603,9 @@ export function scanStyleWrites(rawText: string) {
   return out;
 }
 
-const PASSTHROUGH = new Map([
-  ['ArenaAppLogo', { prop: 'size', governs: 'width' }],
-]);
+export type Passthrough = Map<string, { prop: string; governs: string }>;
+
+export const PASSTHROUGH: Passthrough = new Map();
 
 const COMPONENT_PARAMS = /function\s+([A-Za-z_]\w*)\s*\(\{([\s\S]*?)\}(?:\s*:\s*[^)]+)?\)\s*\{/g;
 const PARAM_DEFAULT = /(?<![\w.])([a-zA-Z]+)\s*=\s*('[^']*'|"[^"]*"|`[^`]*`|[-\w.%]+)(?=[,\s]|$)/g;
@@ -620,14 +620,14 @@ export function zeroComponentParamProblems(count: number) {
     + 'scanner read nothing, so every default value in the tree reports clean'];
 }
 
-export function scanDefaultsAndCallSites(rawText: string) {
+export function scanDefaultsAndCallSites(rawText: string, passthrough: Passthrough = PASSTHROUGH) {
   const text = blankComments(rawText);
   const out = [];
   for (const fn of text.matchAll(COMPONENT_PARAMS)) {
     const name = captured(fn);
     const params = captured(fn, 2);
     const paramsStart = fn.index + fn[0].indexOf('{');
-    const via = PASSTHROUGH.get(name);
+    const via = passthrough.get(name);
     for (const m of params.matchAll(PARAM_DEFAULT)) {
       const prop = captured(m);
       const raw = captured(m, 2);
@@ -637,7 +637,7 @@ export function scanDefaultsAndCallSites(rawText: string) {
       if (hit) out.push({ prop: governs, raw, reason: hit.reason, line: lineOf(text, paramsStart + m.index) });
     }
   }
-  for (const [name, via] of PASSTHROUGH) {
+  for (const [name, via] of passthrough) {
     const re = new RegExp(`<${name}\\b[^>]*?\\b${via.prop}\\s*=\\s*\\{([^}]+)\\}`, 'g');
     for (const m of text.matchAll(re)) {
       const raw = captured(m).trim();
@@ -657,8 +657,8 @@ function passthroughSightings(rawText: string) {
   return seen;
 }
 
-export function stalePassthrough(seenComponents: Set<string>) {
-  return [...PASSTHROUGH.keys()].filter((k) => !seenComponents.has(k));
+export function stalePassthrough(seenComponents: Set<string>, passthrough: Passthrough = PASSTHROUGH) {
+  return [...passthrough.keys()].filter((k) => !seenComponents.has(k));
 }
 
 export function sourceFiles(dir: string): string[] {

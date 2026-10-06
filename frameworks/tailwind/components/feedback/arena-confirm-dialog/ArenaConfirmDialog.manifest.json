@@ -26,6 +26,9 @@
     "foot": "floating",
     "confirm": "control"
   },
+  "floating": {
+    "root": "a modal surface lays itself over the page, so the region it was opened from does not decide its controls"
+  },
   "internal": {
     "invalid": "the typed confirmation text does not match yet"
   },

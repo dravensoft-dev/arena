@@ -45,7 +45,7 @@ test('the last width wins, as the recipe resolves it', () => {
 
 test('only the groups that touch the slot are combined', () => {
   const avatar = clone('ArenaAvatar');
-  assert.deepEqual(choices(avatar, 'root').map((chosen) => Object.keys(chosen)), [['size'], ['size'], ['size'], ['size']]);
+  assert.deepEqual(choices(avatar, 'box').map((chosen) => Object.keys(chosen)), [['kind'], ['kind']]);
 });
 
 test('SegmentedControl is read through its track, which DRAWN declares with a reason', () => {

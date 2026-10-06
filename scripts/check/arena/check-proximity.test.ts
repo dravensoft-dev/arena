@@ -14,7 +14,7 @@ test('a part is rebuilt with the classes its slot resolves to by default', () =>
 test('a part is rebuilt with the data its slot carries by default, so a default variant still paints', () => {
   const data = partData(readManifests().values());
   assert.equal(data.get('button')?.['data-arena-variant'], 'primary');
-  assert.equal(data.get('button')?.['data-arena-size'], 'md');
+  assert.equal(data.get('button')?.['data-arena-size'], undefined, 'size is a class an adopter writes and no longer a variant');
 });
 
 test('the two orders put the vocabulary after the components, then before them', () => {
@@ -34,6 +34,15 @@ test('a measure that holds is no problem, and one that does not names the case, 
   assert.match(verdict(own, 'react', 'components-first', { width: 480, container: 480, property: '' }) ?? '', /expects its own width/);
   const mark = { ...kase, measure: { property: '--arena-witness-mark', value: '1' } };
   assert.match(verdict(mark, 'react', 'components-first', { width: 0, container: 0, property: '0' }) ?? '', /--arena-witness-mark is "0"/);
+});
+
+test('a measure that names other parts holds only when every one of them has the value, and fails on none', () => {
+  const kase = { name: 's', container: '', measure: { property: 'height', value: '40px', others: { button: '32px' } }, react: null, angular: null };
+  const at = (others: Record<string, string[]>) => verdict(kase, 'react', 'components-first', { width: 0, container: 0, property: '40px', others });
+  assert.equal(at({ button: ['32px', '32px'] }), null);
+  assert.match(at({ button: ['32px', '40px'] }) ?? '', /height is "40px" on a button and the case expects "32px"/);
+  assert.match(at({ button: [] }) ?? '', /carries no button beside the subject/);
+  assert.match(verdict(kase, 'react', 'components-first', { width: 0, container: 0, property: '32px', others: { button: ['32px'] } }) ?? '', /height is "32px" on the subject/);
 });
 
 test('a markup case holds when every recorded property matches, names the property that does not, and refuses an unrecorded one', () => {

@@ -1,18 +1,29 @@
 {
   "component": "ArenaProgressBar",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
   "slots": {
     "root": "grid",
     "head": "flex items-baseline justify-between gap-items mb-2",
     "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
     "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "track": "relative rounded-pill bg-track overflow-hidden",
+    "track": "relative rounded-pill bg-track overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))]",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
-    "ring": "relative grid place-items-center shrink-0",
+    "ring": "relative grid place-items-center shrink-0 size-[var(--arena-size-ring,var(--size-md-ring))]",
     "ringContent": "relative grid place-items-center [grid-area:1/1]",
     "ringGeometry": "absolute inset-0 size-full -rotate-90",
-    "ringTrack": "fill-none stroke-base-300 [vector-effect:non-scaling-stroke]",
-    "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state"
+    "ringTrack": "fill-none stroke-base-300 [vector-effect:non-scaling-stroke] [stroke-width:var(--arena-size-meter,var(--size-md-meter))]",
+    "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state [stroke-width:var(--arena-size-meter,var(--size-md-meter))]"
   },
   "kind": {
     "root": "none",
@@ -61,26 +72,6 @@
         "ring": "text-[color:var(--arena-hue-fill-strong)]"
       }
     },
-    "size": {
-      "sm": {
-        "track": "h-1",
-        "ring": "size-12",
-        "ringTrack": "[stroke-width:var(--sp-1)]",
-        "ringFill": "[stroke-width:var(--sp-1)]"
-      },
-      "md": {
-        "track": "h-1.5",
-        "ring": "size-16",
-        "ringTrack": "[stroke-width:calc(var(--sp-1)*1.5)]",
-        "ringFill": "[stroke-width:calc(var(--sp-1)*1.5)]"
-      },
-      "lg": {
-        "track": "h-2.5",
-        "ring": "size-24",
-        "ringTrack": "[stroke-width:calc(var(--sp-1)*2.5)]",
-        "ringFill": "[stroke-width:calc(var(--sp-1)*2.5)]"
-      }
-    },
     "indeterminate": {
       "true": {
         "track": "arena-prog-indeterminate",
@@ -92,7 +83,6 @@
   "defaultVariants": {
     "shape": "linear",
     "tone": "accent",
-    "size": "md",
     "indeterminate": false
   },
   "hues": {
