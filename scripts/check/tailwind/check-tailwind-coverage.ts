@@ -6,6 +6,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
 import { readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 
@@ -112,18 +113,28 @@ for (const [hue, channels] of readHues()) {
 
 export const OPTION_ROLE_REASON = 'an option role, read through a family channel rather than a utility';
 
-export function optionRoles(roles: Iterable<string>, families: Iterable<string>, reached: ReadonlySet<string> = new Set()) {
+export function optionPrefixes(families: Iterable<Pick<Family, 'family' | 'variants'>>) {
+  const out = new Set<string>();
+  for (const { family, variants } of families)
+    for (const option of Object.keys(variants)) {
+      const name = option.replace(/^arena-/, '');
+      if (name.startsWith(`${family}-`)) out.add(`${name}-`);
+    }
+  return out;
+}
+
+export function optionRoles(roles: Iterable<string>, families: Iterable<Pick<Family, 'family' | 'variants'>>) {
   const out = new Map<string, string>();
-  const prefixes = [...families].map((family) => `${family}-`);
+  const prefixes = [...optionPrefixes(families)];
   for (const role of roles)
-    if (!reached.has(role) && prefixes.some((prefix) => role.startsWith(prefix))) out.set(role, OPTION_ROLE_REASON);
+    if (prefixes.some((prefix) => role.startsWith(prefix))) out.set(role, OPTION_ROLE_REASON);
   return out;
 }
 
 export function pluginOptionRoles(root = repoRoot) {
-  const reached = presetTokens(readFileSync(join(root, 'frameworks/tailwind/Theme.css'), 'utf8'));
   const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object);
-  return { roles, excluded: optionRoles(roles, readFamilies(root).keys(), reached), reached };
+  const families = [...readFamilies(root).values()];
+  return { roles, excluded: optionRoles(roles, families), families };
 }
 
 export function presetTokens(css: string) {

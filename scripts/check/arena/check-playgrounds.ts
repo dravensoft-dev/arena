@@ -194,13 +194,13 @@ export function classProblems(where: string, component: string, value: unknown,
     const family = source.families.get(name) as Family;
     if (options.size > 1)
       problems.push(`${where}: ${[...options].join(' and ')} are two options of the ${name} family, and a node holds one`);
-    if (family.reach === 'context') continue;
-    if (!manifest || answerOf(manifest, family) === null)
+    const answer = manifest ? answerOf(manifest, family) : null;
+    if (family.reach === 'context' && answer === null) continue;
+    if (answer === null)
       problems.push(`${where}: ${component} does not answer the ${name} family, so ${[...options].join(' ')} changes nothing there`);
     else {
-      const taken = answerOf(manifest, family)?.options ?? [];
       for (const option of options)
-        if (!taken.includes(option)) problems.push(`${where}: ${component} answers the ${name} family without ${option}`);
+        if (!answer.options.includes(option)) problems.push(`${where}: ${component} answers the ${name} family without ${option}`);
     }
   }
   return problems;

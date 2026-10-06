@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { presetTokens, checkCoverage, optionRoles, OPTION_ROLE_REASON, pluginOptionRoles } from './check-tailwind-coverage.ts';
-import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { presetTokens, checkCoverage, optionRoles, optionPrefixes, OPTION_ROLE_REASON, pluginOptionRoles } from './check-tailwind-coverage.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('reads the Arena tokens a preset references', () => {
@@ -62,29 +61,33 @@ test('fails a preset that references a token that does not exist', () => {
   assert.match(errs.join('\n'), /--sp-7.*no such token/);
 });
 
+const size = { family: 'size', variants: { 'arena-size-sm': '' } };
+const fill = { family: 'fill', variants: { 'arena-fill': '', 'arena-fit': '' } };
+
 test('a role of a family option is excluded as an option role, and a near name is still reported', () => {
-  const excluded = optionRoles(['size-sm-probe', 'sizes-probe'], ['size']);
+  const excluded = optionRoles(['size-sm-probe', 'sizes-probe', 'size-lg-probe'], [size]);
   assert.equal(excluded.get('size-sm-probe'), OPTION_ROLE_REASON);
   assert.deepEqual(checkCoverage(new Set(['size-sm-probe']), new Set(), excluded), []);
   assert.match(checkCoverage(new Set(['sizes-probe']), new Set(), excluded).join('\n'), /--sizes-probe reaches no Tailwind utility/);
+  assert.match(checkCoverage(new Set(['size-lg-probe']), new Set(), excluded).join('\n'), /--size-lg-probe reaches no Tailwind utility/);
 });
 
 test('an option role the plugin no longer carries is a stale exclusion', () => {
-  const excluded = optionRoles(['size-sm-probe'], ['size']);
+  const excluded = optionRoles(['size-sm-probe'], [size]);
   assert.match(checkCoverage(new Set(), new Set(), excluded).join('\n'), /--size-sm-probe is excluded but no such token exists/);
 });
 
-test('a role the preset exposes is neither excluded nor reported as both, though a family shares its prefix', () => {
-  const excluded = optionRoles(['fill-track', 'fill-width'], ['fill'], new Set(['fill-track']));
-  assert.equal(excluded.has('fill-track'), false);
-  assert.equal(excluded.has('fill-width'), true);
-  assert.deepEqual(checkCoverage(new Set(['fill-track', 'fill-width']), new Set(['fill-track']), excluded), []);
+test('a kernel role that shares a family name but no option is reported, and no reached carve-out is needed', () => {
+  const excluded = optionRoles(['fill-probe', 'fill-surface'], [fill]);
+  assert.equal(excluded.size, 0);
+  assert.match(checkCoverage(new Set(['fill-probe']), new Set(), excluded).join('\n'), /--fill-probe reaches no Tailwind utility/);
+  assert.deepEqual(checkCoverage(new Set(['fill-surface']), new Set(['fill-surface']), excluded), []);
 });
 
-test('every role of the real plugin that a family names and the preset does not expose is excluded as an option role', () => {
-  const families = [...readFamilies(repoRoot).keys()];
-  const { roles, excluded, reached } = pluginOptionRoles(repoRoot);
+test('every role of the real plugin that an option of a family names is excluded as an option role', () => {
+  const { roles, excluded, families } = pluginOptionRoles(repoRoot);
+  const prefixes = optionPrefixes(families);
   for (const role of roles)
-    if (families.some((family) => role.startsWith(`${family}-`)) && !reached.has(role))
+    if ([...prefixes].some((prefix) => role.startsWith(prefix)))
       assert.equal(excluded.get(role), OPTION_ROLE_REASON, `${role} is an option role`);
 });

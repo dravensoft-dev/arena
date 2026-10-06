@@ -4,7 +4,7 @@ import {
   coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
-  pagePaths,
+  pagePaths, classProblems,
 } from './check-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -269,4 +269,18 @@ test('two options of one family on one node fail, on a node and on the fixture',
 test('a text node carries no class, and a fixture may hold the class key', () => {
   assert.match(nodeProblems('w', { text: 'a', class: 'arena-fill' } as any, contracts, types, {})[0] ?? '', /never class/);
   assert.deepEqual(shapeProblems('Widget', { ...ok, class: 'arena-fill' } as any), []);
+});
+
+test('a context class on a component that answers the family without that option fails, and one it does not answer at all is reach', () => {
+  const families = new Map([['size', {
+    family: 'size', reach: 'context' as const, description: 'The size.',
+    variants: { 'arena-size-md': '', 'arena-size-xl': '' },
+  }]]);
+  const answering = { answers: [{ family: 'size', options: ['arena-size-md'], default: 'arena-size-md' }] };
+  const source = (manifest: unknown) => ({ families, manifest: () => manifest as any });
+  assert.deepEqual(classProblems('w', 'ArenaButton', 'arena-size-md', source(answering)), []);
+  assert.match(classProblems('w', 'ArenaButton', 'arena-size-xl', source(answering))[0] ?? '',
+    /ArenaButton answers the size family without arena-size-xl/);
+  assert.deepEqual(classProblems('w', 'ArenaCard', 'arena-size-xl', source({ answers: [] })), []);
+  assert.deepEqual(classProblems('w', 'ArenaCard', 'arena-size-xl', source(null)), []);
 });
