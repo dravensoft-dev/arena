@@ -91,3 +91,17 @@ test('a family\'s channel is defined by the sheet the family ships, and a channe
   assert.equal(isFamilyChannel('arena-fill-width', families), true);
   assert.equal(isFamilyChannel('arena-size-ctl-h', families), false);
 });
+
+test('an axis, or the channel of a keyed family, is defined when a family declares it and not otherwise', () => {
+  const grid = new Map([['grid', { family: 'grid', axis: '--arena-grid-min' }]]);
+  const column = new Map([['column', { family: 'column', channels: ['--arena-column-width'] }]]);
+  const fill = new Map([['fill', { family: 'fill' }]]);
+  assert.equal(isFamilyChannel('arena-grid-min', grid), true);
+  assert.equal(isFamilyChannel('arena-grid-min', fill), false);
+  assert.equal(isFamilyChannel('arena-column-width', column), true);
+  assert.equal(isFamilyChannel('arena-column-width', fill), false);
+  const unprefixed = new Map([['column', { family: 'column', channels: ['--arena-col-width'] }]]);
+  assert.equal(isFamilyChannel('arena-col-width', unprefixed), true);
+  assert.equal(isFamilyChannel('arena-col-width', fill), false);
+  assert.equal(isFamilyChannel('arena-fill', new Map([['fill', { family: 'fill', axis: '--arena-fill' }]])), true);
+});

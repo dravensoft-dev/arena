@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
@@ -196,4 +196,26 @@ test('channelReads returns nested reads with their whole fallback', () => {
     { channel: '--arena-a-x', fallback: 'color-mix(in_oklab,var(--c)_20%,transparent)' },
     { channel: '--arena-a-y', fallback: null },
   ]);
+});
+
+const COLUMN = { family: 'column', reach: 'box', target: 'keyed', keyed: 'key', description: 'x', variants: {},
+  properties: ['--arena-column-<key>-width', '--arena-column-<key>-align'], channels: ['--arena-column-width', '--arena-column-align'],
+  binds: ['ArenaTable'] } as Family;
+
+test('a box family with several axes resets each inside every boundary, and registers none of them', () => {
+  const css = compileFamily({ ...FILL, axis: ['--arena-fill-a', '--arena-fill-b'] }, reading('button'));
+  assert.match(css, /\[data-arena-boundary\] > \* \{\n    --arena-fill-a: initial;\n  \}/);
+  assert.match(css, /\[data-arena-boundary\] > \* \{\n    --arena-fill-b: initial;\n  \}/);
+  assert.doesNotMatch(css, /@property --arena-fill-a/);
+});
+
+test('a read wrapped in the family axis falls back to the default through it', () => {
+  assert.equal(axisWrapped('var(--arena-grid-min,var(--grid-min))', 'var(--grid-min)', ['--arena-grid-min']), true);
+  assert.equal(axisWrapped('var(--grid-min)', 'var(--grid-min)', ['--arena-grid-min']), true);
+  assert.equal(axisWrapped('var(--arena-other,var(--grid-min))', 'var(--grid-min)', ['--arena-grid-min']), false);
+  assert.equal(axisWrapped('var(--arena-grid-min,100%)', 'var(--grid-min)', ['--arena-grid-min']), false);
+});
+
+test('a keyed family compiles to no sheet', () => {
+  assert.throws(() => compileFamily(COLUMN, []), /keyed family compiles to no sheet/);
 });

@@ -20,6 +20,15 @@ const STACK_FILE = 'frameworks/tailwind/vocabulary/arena-stack/Stack.family.json
 const run = (families = new Map([['fill', FILL]]), manifests = new Map([['ArenaButton', button()]]) as Map<string, any>, files = [FILE]) =>
   familyProblems(families, files, manifests);
 
+const runWith = (family: Family, manifest: Record<string, unknown>) =>
+  familyProblems(new Map([[family.family, family]]), [`frameworks/tailwind/vocabulary/arena-${family.family}/${family.family[0]?.toUpperCase()}${family.family.slice(1)}.family.json`],
+    new Map<string, any>([[manifest.component as string, manifest]]));
+const keyedRun = (family: Family, manifests: Map<string, any>, source: (layer: string, component: string) => string) =>
+  familyProblems(new Map([[family.family, family]]), ['frameworks/tailwind/vocabulary/arena-column/Column.family.json'], manifests, undefined, source);
+const COLUMN = { family: 'column', reach: 'box', target: 'keyed', keyed: 'key', description: 'x', variants: {},
+  properties: ['--arena-column-<key>-width', '--arena-column-<key>-align'], channels: ['--arena-column-width', '--arena-column-align'],
+  binds: ['ArenaTable'] } as Family;
+
 const both = (stack: Family = STACK, manifests = new Map([['ArenaButton', button()]]) as Map<string, any>) =>
   run(new Map([['fill', FILL], ['stack', stack]]), manifests, [FILE, STACK_FILE]);
 
@@ -60,6 +69,45 @@ test('a default outside the options, an unknown reach, a missing description, a 
 
 test('an axis that is not the family\'s own property, or on a context family, fails', () => {
   assert.match(run(new Map([['fill', { ...FILL, axis: '--arena-grid-min' }]])).join('\n'), /axis --arena-grid-min is not --arena-fill/);
+});
+
+test('an axis is --arena-<family> or --arena-<family>-<suffix>, on a box family, and no option writes it', () => {
+  const readsBoth = { component: 'ArenaButton', answers: ['fill'],
+    slots: { root: 'w-[var(--arena-fill-width,var(--arena-fill,fit-content))] h-[var(--arena-fill-height,auto)]' } };
+  assert.deepEqual(runWith({ ...FILL, axis: ['--arena-fill', '--arena-fill-height'] }, readsBoth), []);
+  assert.match(run(new Map([['fill', { ...FILL, axis: ['--arena-other'] }]])).join('\n'), /axis --arena-other is not --arena-fill/);
+  assert.match(run(new Map([['fill', { ...FILL, axis: '--arena-fill-width' }]])).join('\n'),
+    /option arena-fill writes --arena-fill-width, which is an axis/);
+});
+
+test('a channel read may fall back through its family axis, and an axis nobody reads fails', () => {
+  const axisFill = { ...FILL, axis: '--arena-fill' };
+  const reads = (classes: string) => ({ component: 'ArenaButton', answers: ['fill'], slots: { root: classes } });
+  assert.deepEqual(runWith(axisFill, reads('w-[var(--arena-fill-width,var(--arena-fill,fit-content))]')), []);
+  assert.match(runWith(axisFill, reads('w-[var(--arena-fill-width,fit-content)]')).join('\n'),
+    /axis --arena-fill is read by no answering manifest/);
+});
+
+test('a keyed family declares its properties and the components binding it, and nothing else', () => {
+  const table = { component: 'ArenaTable', answers: ['column'], slots: { th: 'w-[var(--arena-column-width,auto)] [text-align:var(--arena-column-align,left)]' } };
+  const binding = () => 'style={{ \'--arena-column-width\': `var(--arena-column-${key}-width)` }}';
+  const keyed = (family: Family, source = binding) => keyedRun(family, new Map([['ArenaTable', table]]), source);
+  assert.deepEqual(keyed(COLUMN), []);
+  assert.match(keyed({ ...COLUMN, default: 'arena-column-x' }).join('\n'), /keyed family declares a default/);
+  assert.match(keyed({ ...COLUMN, properties: ['--arena-column-width'] }).join('\n'),
+    /--arena-column-width is not --arena-column-<key>-<what>/);
+  assert.match(keyed(COLUMN, () => '').join('\n'),
+    /binds ArenaTable, and neither layer's source under its directories writes --arena-column-\$\{/);
+  const text = (family: Family, manifests = new Map<string, any>([['ArenaTable', table]]), source = binding) => keyedRun(family, manifests, source).join('\n');
+  assert.match(text({ ...COLUMN, reach: 'context' }), /a keyed family is a box family/);
+  assert.match(text({ ...COLUMN, variants: { 'arena-column-x': '[--arena-column-width:1px]' } }), /variants must be \{\}/);
+  assert.match(text({ ...COLUMN, axis: '--arena-column' }), /a keyed family declares an axis/);
+  assert.match(text({ ...COLUMN, keyed: undefined }), /names the field its key is read from/);
+  assert.match(text(COLUMN, new Map<string, any>([['ArenaTable', { ...table, slots: { th: 'w-[var(--arena-column-width,auto)]' } }]])),
+    /--arena-column-align is declared by the keyed family column and no manifest answering it reads it/);
+  assert.match(text({ ...COLUMN, binds: ['ArenaGhost'] }), /binds ArenaGhost, which is no contracted component/);
+  const reactOnly = (layer: string) => (layer === 'react' ? binding() : '');
+  assert.match(keyedRun(COLUMN, new Map([['ArenaTable', table]]), reactOnly).join('\n'), /the angular source under its directories does not write --arena-column-\$\{/);
 });
 
 test('a transparent slot the manifest does not have, or one without a reason, fails', () => {

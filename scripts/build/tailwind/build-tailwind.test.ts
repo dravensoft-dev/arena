@@ -90,6 +90,21 @@ test('every family under the vocabulary directory compiles to its own sheet unde
   }
 });
 
+test('a keyed family compiles to no sheet and is imported by none', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-vocab-'));
+  try {
+    mkdirSync(join(root, 'frameworks/tailwind/vocabulary/arena-column'), { recursive: true });
+    writeFileSync(join(root, 'frameworks/tailwind/vocabulary/arena-column/Column.family.json'), JSON.stringify({
+      family: 'column', reach: 'box', target: 'keyed', keyed: 'key', description: 'd', variants: {},
+      properties: ['--arena-column-<key>-width'], channels: ['--arena-column-width'], binds: ['ArenaTable'],
+    }));
+    assert.equal(buildVocabularyCss({ root, manifests: new Map() }).size, 0);
+    assert.deepEqual(vocabularyImports(root), []);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('a tree with no family emits no vocabulary sheet and imports none', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-vocab-'));
   try {

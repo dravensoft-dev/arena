@@ -72,6 +72,15 @@ test('a role of a family option is excluded as an option role, and a near name i
   assert.match(checkCoverage(new Set(['size-lg-probe']), new Set(), excluded).join('\n'), /--size-lg-probe reaches no Tailwind utility/);
 });
 
+test('a role equal to an option name less arena-, or that name and a suffix, is an option role', () => {
+  const grid = { family: 'grid', variants: { 'arena-grid-min-sm': '' } };
+  const excluded = optionRoles(['grid-min-sm', 'grid-min-sm-probe', 'grid-min', 'grid-min-smx'], [grid]);
+  assert.equal(excluded.get('grid-min-sm'), OPTION_ROLE_REASON);
+  assert.equal(excluded.get('grid-min-sm-probe'), OPTION_ROLE_REASON);
+  assert.equal(excluded.has('grid-min'), false);
+  assert.equal(excluded.has('grid-min-smx'), false);
+});
+
 test('an option role the plugin no longer carries is a stale exclusion', () => {
   const excluded = optionRoles(['size-sm-probe'], [size]);
   assert.match(checkCoverage(new Set(), new Set(), excluded).join('\n'), /--size-sm-probe is excluded but no such token exists/);

@@ -107,3 +107,12 @@ test('a plugin sheet writing the danger hue strong fill role fails', () => {
 test('no plugin sheet is a failure rather than a clean pass', () => {
   assert.match(channelProblems(sheets().filter((s) => s.kind !== 'plugin')).join('\n'), /found 0 plugin sheet/);
 });
+
+test('an axis is written by the family sheet that resets it and by no other writer kind', () => {
+  const reset = { kind: 'family' as const, rel: 'v/Grid.generated.css', css: '@layer utilities { [data-arena-boundary] > * { --arena-grid-min: initial; } }' };
+  assert.deepEqual(channelProblems(sheets([reset])), []);
+  assert.match(channelProblems(sheets([reset, { kind: 'token', rel: 't/x.css', css: ':root { --arena-grid-min: 1px; }' }])).join('\n'),
+    /--arena-grid-min has two writer kinds: family \(v\/Grid\.generated\.css\) and token \(t\/x\.css\)/);
+  assert.match(channelProblems(sheets([reset, { kind: 'component', rel: 'c/ArenaGrid.styles.generated.css', css: '.x { --arena-grid-min: 8px; }' }])).join('\n'),
+    /c\/ArenaGrid\.styles\.generated\.css declares --arena-grid-min/);
+});

@@ -30,7 +30,7 @@ export const REACHES = ['context', 'box'] as const;
 
 export type Reach = typeof REACHES[number];
 
-export const TARGETS = ['component', 'markup'] as const;
+export const TARGETS = ['component', 'markup', 'keyed'] as const;
 export type Target = typeof TARGETS[number];
 
 export type Family = {
@@ -41,8 +41,23 @@ export type Family = {
   description: string;
   default?: string;
   variants: Record<string, string>;
-  axis?: string;
+  axis?: string | string[];
+  keyed?: string;
+  properties?: string[];
+  channels?: string[];
+  binds?: string[];
 };
+
+export const axesOf = (family: Pick<Family, 'axis'>): string[] =>
+  family.axis === undefined ? [] : Array.isArray(family.axis) ? family.axis : [family.axis];
+
+const squash = (text: string) => text.replaceAll('_', ' ').replace(/\s+/g, '');
+
+export function axisWrapped(fallback: string, written: string, axes: string[]): boolean {
+  const f = squash(fallback);
+  const w = squash(written);
+  return f === w || axes.some((axis) => f === `var(${axis},${w})`);
+}
 
 export const targetOf = (family: Pick<Family, 'target'>): Target => family.target ?? 'component';
 
@@ -110,6 +125,9 @@ export function readFamilies(root = repoRoot): Map<string, Family> {
   }
   return out;
 }
+
+export const sheetFamilies = (root = repoRoot): Family[] =>
+  [...readFamilies(root).values()].filter((family) => targetOf(family) !== 'keyed');
 
 export const channelPrefix = (family: string) => `--arena-${family}-`;
 
@@ -179,6 +197,8 @@ export function answeringParts(
 const byOption = ([a]: [string, string], [b]: [string, string]) => (a < b ? -1 : a > b ? 1 : 0);
 
 export function compileFamily(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string {
+  if (targetOf(family) === 'keyed')
+    throw new Error(`vocabulary: ${family.family} is a keyed family, and a keyed family compiles to no sheet`);
   const all = [...manifests];
   const parts = answeringParts(family, all);
   if (targetOf(family) === 'markup') {
@@ -205,7 +225,8 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
     const body = declarations(classes).map(([name, value]) => `      ${name}: ${value};`).join('\n');
     blocks.push(`  ${head} {\n    ${selector} {\n${body}\n    }\n  }`);
   }
-  if (family.reach === 'box' && family.axis) blocks.push(`  [${BOUNDARY}] > * {\n    ${family.axis}: initial;\n  }`);
+  if (family.reach === 'box')
+    for (const axis of axesOf(family)) blocks.push(`  [${BOUNDARY}] > * {\n    ${axis}: initial;\n  }`);
   const channels = family.reach === 'box'
     ? [...new Set(Object.values(family.variants).flatMap((classes) => declarations(classes).map(([name]) => name)))].sort()
     : [];

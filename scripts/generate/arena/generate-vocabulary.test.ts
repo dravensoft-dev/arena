@@ -3,10 +3,13 @@
  * a prompt links to. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { renderVocabulary, VOCABULARY_TARGET } from './generate-vocabulary.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { answerOf, axesOf, readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
 
 test('every family is a row and a section, with its options, its default, its reach and who answers it', () => {
   const page = renderVocabulary();
@@ -60,4 +63,39 @@ test('a component answering a subset of a family, or with a default of its own, 
   assert.match(section, /ArenaSubset and ArenaTwin \(`arena-size-md`, `arena-size-sm`\)/);
   assert.match(section, /ArenaWhole[,.]/);
   assert.doesNotMatch(section, /ArenaWhole \(/);
+});
+
+const KEYED = { family: 'column', reach: 'box', target: 'keyed', keyed: 'key', description: 'd', variants: {},
+  properties: ['--arena-column-<key>-width', '--arena-column-<key>-align'], channels: ['--arena-column-width', '--arena-column-align'],
+  binds: ['ArenaTable', 'ArenaTableCell'] };
+
+test('a keyed family is keyed by its field, lists its properties, and is answered by the components that bind it', () => {
+  const base = mkdtempSync(join(tmpdir(), 'vocabulary-keyed-'));
+  mkdirSync(join(base, 'frameworks/tailwind/components'), { recursive: true });
+  mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-column'), { recursive: true });
+  writeFileSync(join(base, 'frameworks/tailwind/vocabulary/arena-column/Column.family.json'), JSON.stringify(KEYED));
+  const page = renderVocabulary(base);
+  assert.match(page, /\| \[`column`\]\(#column\) \| box \| keyed by `key` \| `--arena-column-<key>-width`, `--arena-column-<key>-align` \| ArenaTable, ArenaTableCell \|/);
+  const section = page.split('\n## column\n')[1] ?? '';
+  assert.match(section, /- \*\*Options:\*\* keyed by `key`\./);
+  assert.match(section, /- \*\*Property:\*\* `--arena-column-<key>-width`, `--arena-column-<key>-align`, set on the component or a container of yours with a token or a derivation of tokens\./);
+  assert.match(section, /- \*\*Answered by:\*\* ArenaTable, ArenaTableCell\./);
+});
+
+test('the page\'s Property and Answered by cells equal what the families and the manifests say', () => {
+  const families = readFamilies();
+  const manifests = [...layerManifests(repoRoot).values()];
+  const rows = readFileSync(join(repoRoot, VOCABULARY_TARGET), 'utf8').split('\n').filter((line) => line.startsWith('| [`'));
+  assert.equal(rows.length, families.size);
+  for (const row of rows) {
+    const cells = row.split('|').slice(1, -1).map((cell) => cell.trim());
+    const family = families.get(/\[`([^`]+)`\]/.exec(cells[0] ?? '')?.[1] ?? '');
+    assert.ok(family, `${row} names no family`);
+    const properties = targetOf(family) === 'keyed' ? family.properties ?? [] : axesOf(family);
+    assert.equal((cells[3] ?? '').replaceAll('`', ''), properties.join(', '), `${family.family} Property`);
+    const answered = targetOf(family) === 'keyed' ? family.binds ?? []
+      : manifests.filter((one) => answerOf(one, family)).map((one) => one.component);
+    const listed = targetOf(family) === 'markup' ? [] : [...new Set(cells[4]?.match(/Arena[A-Za-z]+/g) ?? [])];
+    assert.deepEqual(listed.sort(), [...answered].sort(), `${family.family} Answered by`);
+  }
 });

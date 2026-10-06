@@ -126,8 +126,9 @@ export function optionPrefixes(families: Iterable<Pick<Family, 'family' | 'varia
 export function optionRoles(roles: Iterable<string>, families: Iterable<Pick<Family, 'family' | 'variants'>>) {
   const out = new Map<string, string>();
   const prefixes = [...optionPrefixes(families)];
+  const names = new Set(prefixes.map((prefix) => prefix.slice(0, -1)));
   for (const role of roles)
-    if (prefixes.some((prefix) => role.startsWith(prefix))) out.set(role, OPTION_ROLE_REASON);
+    if (names.has(role) || prefixes.some((prefix) => role.startsWith(prefix))) out.set(role, OPTION_ROLE_REASON);
   return out;
 }
 

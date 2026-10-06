@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { axesOf, readFamilies, type Family } from '../../lib/tailwind/vocabulary.ts';
 import {
   typeCell, defaultCell, memberRow, renderRegion, applyRegion, fenceEnd, signature,
   promptPaths, writePromptApis, openLine, CLOSE_LINE, CONSUMER_DATA,
-  renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE, answeredFamilies,
+  renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE, ANSWERS_OPEN_LINE, answeredFamilies,
 } from './generate-prompt-api.ts';
 
 test('an array names what it holds, and consumer data keeps its one spelling', () => {
@@ -129,4 +133,50 @@ test('a region lists what the component answers of a family, not the family\'s w
   assert.doesNotMatch(placement, /class="arena-placement-bottom"/);
   const button = renderAnswersRegion('ArenaButton', 'react', answeredFamilies('ArenaButton'));
   assert.doesNotMatch(button, /arena-size-2xl/);
+});
+
+const WIDTH = { family: 'grid', reach: 'box', description: 'd', default: 'arena-grid-sm', axis: ['--arena-grid-min', '--arena-grid-gap'],
+  variants: { 'arena-grid-sm': '[--arena-grid-size:1px]' } } as Family;
+const COLUMN = { family: 'column', reach: 'box', target: 'keyed', keyed: 'key', description: 'd', variants: {},
+  properties: ['--arena-column-<key>-width', '--arena-column-<key>-align'], channels: ['--arena-column-width', '--arena-column-align'],
+  binds: ['ArenaTable'] } as Family;
+
+function everyAnswersRegion(): [string, string, string][] {
+  return promptPaths().map(({ component, layer, path }) => {
+    const lines = readFileSync(join(repoRoot, path), 'utf8').split('\n');
+    const from = lines.findIndex((line) => ANSWERS_OPEN_LINE.test(line));
+    const to = lines.indexOf(ANSWERS_CLOSE_LINE, from);
+    assert.ok(from !== -1 && to !== -1, `${path} has no answers region`);
+    return [component, layer, lines.slice(from, to + 1).join('\n')];
+  });
+}
+
+test('every property an answers region names is an axis or a keyed property of a family the component answers', () => {
+  const families = readFamilies();
+  const regions = everyAnswersRegion();
+  assert.ok(regions.length > 100, `read only ${regions.length} answers region(s)`);
+  for (const [component, layer, region] of regions) {
+    for (const [, property] of region.matchAll(/`(--arena-[a-z<>-]+)`/g)) {
+      const owners = [...families.values()].filter((f) => axesOf(f).includes(property!) || (f.properties ?? []).includes(property!));
+      assert.ok(owners.length === 1, `${component} (${layer}) names ${property}, which no family declares`);
+      const answered = answeredFamilies(component).map((one) => one.family);
+      assert.ok(answered.includes(owners[0]!.family), `${component} (${layer}) names ${property}, and does not answer ${owners[0]!.family}`);
+    }
+  }
+});
+
+test('a family with axes names each as a property, and a keyed family the component binds names its own', () => {
+  const region = renderAnswersRegion('ArenaGrid', 'react', [WIDTH]);
+  assert.match(region, /Property: `--arena-grid-min` \(and `--arena-grid-gap`\), set on a container of yours for a value no option names\./);
+  const table = renderAnswersRegion('ArenaTable', 'react', [COLUMN]);
+  assert.match(table, /\*\*Answers\*\* \[`column`\]\([^)]*VOCABULARY\.md#column\): keyed by each column's `key`, as `--arena-column-<key>-width` and `--arena-column-<key>-align`, set on the component or a container of yours\./);
+  assert.doesNotMatch(renderAnswersRegion('ArenaCard', 'react', [COLUMN]), /column/);
+  assert.match(renderAnswersRegion('ArenaCard', 'react', [COLUMN]), /No family of the/);
+});
+
+test('a keyed family reaches the prompt of each component it binds, and of no other', () => {
+  const families = new Map<string, any>([['column', COLUMN]]);
+  const manifests = new Map<string, any>();
+  assert.deepEqual(answeredFamilies('ArenaTable', repoRoot, families, manifests).map((one) => one.family), ['column']);
+  assert.deepEqual(answeredFamilies('ArenaCard', repoRoot, families, manifests), []);
 });

@@ -15,8 +15,11 @@ export const VOCABULARY_FILE = 'arena.vocabulary.json';
 
 export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<ComponentManifest, 'component' | 'answers'>>, page: string): VocabularyIndex {
   const classes: VocabularyIndex['classes'] = {};
-  for (const family of families)
-    for (const option of Object.keys(family.variants).sort()) classes[option] = { family: family.family, reach: family.reach, target: targetOf(family) };
+  for (const family of families) {
+    const target = targetOf(family);
+    if (target === 'keyed') continue;
+    for (const option of Object.keys(family.variants).sort()) classes[option] = { family: family.family, reach: family.reach, target };
+  }
   const answers: VocabularyIndex['answers'] = {};
   const options: VocabularyIndex['options'] = {};
   for (const manifest of manifests) {

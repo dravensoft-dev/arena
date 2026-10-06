@@ -21,7 +21,7 @@ import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
-import { VOCABULARY_SHEETS, packageSheetName, readFamilies, sheetName } from '../tailwind/vocabulary.ts';
+import { VOCABULARY_SHEETS, packageSheetName, sheetFamilies, sheetName } from '../tailwind/vocabulary.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
 import { FRONTMATTER, unquote } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
@@ -159,7 +159,7 @@ export function componentSheets(css: string, split: (css: string) => { base: str
     ...named,
     ...hueSheets,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
-    ...[...readFamilies(root).keys()].sort().map((family) => ({
+    ...sheetFamilies(root).map((one) => one.family).sort().map((family) => ({
       to: packageSheetName(family),
       content: readFileSync(join(root, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8'),
     })),

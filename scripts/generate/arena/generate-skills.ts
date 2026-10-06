@@ -43,6 +43,7 @@ export const node = {
     ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/${INDEX}`),
   ],
   feeds: [
+    'check:families',
     'build:angular-package',
     'build:react-package',
     'build:mcp-package',

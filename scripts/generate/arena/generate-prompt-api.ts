@@ -15,7 +15,7 @@ import {
   CONSUMER_LAYERS, componentDir, loadCategories, loadContract, escapeCell,
 } from './generate-skills.ts';
 import { captured } from '../../utils/captures.ts';
-import { readFamilies, answerOf, answeredFamilies as answeredNames, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { readFamilies, answerOf, answeredFamilies as answeredNames, axesOf, targetOf, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
 import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { readManifests } from '../../check/arena/check-measured-box.ts';
 
@@ -27,6 +27,7 @@ export const node = {
     'frameworks/tailwind/components', ...PROMPTS],
   writes: PROMPTS,
   feeds: [
+    'check:families',
     'build:angular-package',
     'build:react-package',
     'build:mcp-package',
@@ -98,15 +99,26 @@ export type AnsweredFamily = Family & { answer?: { options: readonly string[]; d
 
 export function renderAnswersRegion(component: string, layer: string, answered: readonly AnsweredFamily[]) {
   const attribute = OWN_CLASS_ATTR[layer] ?? 'class';
-  const body = answered.length === 0
+  const taken = answered.filter((family) => targetOf(family) !== 'keyed' || (family.binds ?? []).includes(component));
+  const body = taken.length === 0
     ? `**Answers.** No family of the [vocabulary](${VOCABULARY_FROM_PROMPT}) decides anything in this component's own box.`
-    : answered.map((family) => {
+    : taken.map((family) => {
+      if (targetOf(family) === 'keyed') {
+        const named = (family.properties ?? []).map((one) => `\`${one}\``);
+        const list = named.length > 1 ? `${named.slice(0, -1).join(', ')} and ${named.at(-1)}` : named.join('');
+        return `**Answers** [\`${family.family}\`](${VOCABULARY_FROM_PROMPT}#${family.family}): keyed by each ${family.family}'s \`${family.keyed}\`, `
+          + `as ${list}, set on the component or a container of yours.`;
+      }
+      const axes = axesOf(family).map((one) => `\`${one}\``);
+      const property = axes.length
+        ? ` Property: ${axes[0]}${axes.length > 1 ? ` (and ${axes.slice(1).join(', ')})` : ''}, set on a container of yours for a value no option names.`
+        : '';
       const options = [...(family.answer?.options ?? Object.keys(family.variants))].sort();
       const own = family.answer?.default ?? family.default;
       const listed = options.map((one) => (one === own ? `\`${one}\` (default)` : `\`${one}\``)).join(', ');
       const shown = options.find((one) => one !== own) ?? options[0];
       return `**Answers** [\`${family.family}\`](${VOCABULARY_FROM_PROMPT}#${family.family}): ${listed}. `
-        + `Write one as \`${attribute}="${shown}"\` on the component, or on a container whose components should all take it.`;
+        + `Write one as \`${attribute}="${shown}"\` on the component, or on a container whose components should all take it.${property}`;
     }).join('\n\n');
   return [ANSWERS_OPEN, '', body, '', ANSWERS_CLOSE_LINE].join('\n');
 }
@@ -129,14 +141,16 @@ export function answeredFamilies(
   families = readFamilies(base), manifests = readManifests(base),
 ): AnsweredFamily[] {
   const owner = manifestFor(component, base);
-  const manifest = owner ? manifests.get(owner) : undefined;
-  if (!manifest || manifest.component !== component) return [];
-  return answeredNames(manifest).flatMap((name) => {
+  const found = owner ? manifests.get(owner) : undefined;
+  const manifest = found?.component === component ? found : undefined;
+  const bound = [...families.values()].filter((family) => targetOf(family) === 'keyed' && (family.binds ?? []).includes(component));
+  const own = manifest ? answeredNames(manifest).flatMap((name): AnsweredFamily[] => {
     const family = families.get(name);
-    if (!family) return [];
+    if (!family || targetOf(family) === 'keyed') return [];
     const answer = answerOf(manifest, family);
     return [answer ? { ...family, answer } : family];
-  });
+  }) : [];
+  return [...own, ...bound];
 }
 
 const OPENS_FENCE = /^ {0,3}(`{3,}|~{3,})/;

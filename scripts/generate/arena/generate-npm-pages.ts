@@ -15,7 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { AXES, renderAxes } from '../../lib/arena/support-matrix.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
-import { packageSheetName, readFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { packageSheetName, readFamilies, sheetFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
 import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 
 export const TARGETS = [
@@ -169,7 +169,7 @@ component sheets one by one imports those as well.`;
   },
 
   sheets: (base = root) => {
-    const families = [...readFamilies(base).keys()].sort().map((family) => `\`${packageSheetName(family)}\``);
+    const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
     const tokens = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css')
       .map((to) => `\`${to}\``);
     const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];

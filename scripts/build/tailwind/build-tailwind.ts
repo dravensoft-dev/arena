@@ -27,7 +27,7 @@ import type { ArenaAnswer, ComponentManifest } from '../../lib/tailwind/manifest
 import { HUE_SHEETS, hueRules, huePath, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { readJson } from '../../utils/read-file.ts';
 import {
-  VOCABULARY_DIR, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetName, targetOf,
+  VOCABULARY_DIR, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetFamilies, sheetName, targetOf,
   type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 
@@ -209,13 +209,14 @@ export function buildVocabularyCss(opts: BuildOptions = {}) {
   const out = new Map<string, string>();
   for (const rel of familyFiles(root)) {
     const family = readJson(join(root, rel)) as Family;
+    if (targetOf(family) === 'keyed') continue;
     out.set(join(root, VOCABULARY_SHEETS, sheetName(family.family)), manifestBanner(rel) + compileFamily(family, manifests.values()));
   }
   return out;
 }
 
 export function vocabularyImports(root = repoRoot) {
-  return [...readFamilies(root).keys()].sort().map((family) => `@import './vocabulary/${sheetName(family)}';`);
+  return sheetFamilies(root).map((one) => one.family).sort().map((family) => `@import './vocabulary/${sheetName(family)}';`);
 }
 
 

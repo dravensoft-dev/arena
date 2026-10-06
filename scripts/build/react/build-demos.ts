@@ -37,6 +37,7 @@ export const node = {
   ],
   writes: ROOTS.map((root) => `${root}/**/*.generated.js`),
   feeds: [
+    'check:families',
     'build:react-package',
     'check:appearance',
     'check:parts',

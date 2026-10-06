@@ -32,7 +32,7 @@ export const node = {
   feeds: [],
 };
 import type { Manifests } from '../../lib/tailwind/manifest-shapes.ts';
-import { channelPrefix, readFamilies, VOCABULARY_DIR } from '../../lib/tailwind/vocabulary.ts';
+import { axesOf, channelPrefix, readFamilies, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
 import { HUE_CHANNELS } from '../../lib/tailwind/hue-sheet.ts';
 
 export const THEME_NAMESPACES = [
@@ -78,8 +78,10 @@ export function isHueChannel(name: string) {
   return (HUE_CHANNELS as readonly string[]).includes(`--${name}`);
 }
 
-export function isFamilyChannel(name: string, families: Map<string, { family: string }>) {
-  return [...families.keys()].some((family) => `--${name}`.startsWith(channelPrefix(family)));
+export function isFamilyChannel(name: string, families: Map<string, Pick<Family, 'family' | 'axis' | 'channels'>>) {
+  const property = `--${name}`;
+  return [...families.values()].some((one) => property.startsWith(channelPrefix(one.family))
+    || axesOf(one).includes(property) || (one.channels ?? []).includes(property));
 }
 
 export function sheetProblems(manifests: Manifests, base = root) {

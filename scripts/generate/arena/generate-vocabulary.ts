@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
-import { VOCABULARY_DIR, answerOf, readFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { VOCABULARY_DIR, answerOf, axesOf, readFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
 
 export const VOCABULARY_TARGET = 'frameworks/VOCABULARY.md';
 
@@ -26,8 +26,14 @@ const BANNER = `<!-- GENERATED from ${VOCABULARY_DIR}/ by bun run generate:vocab
 
 const isMarkup = (family: Family) => targetOf(family) === 'markup';
 
-const options = (family: Family) => Object.keys(family.variants).sort()
-  .map((one) => `\`${one}\`${one === family.default ? ' (default)' : ''}`).join(', ');
+const isKeyed = (family: Family) => targetOf(family) === 'keyed';
+
+const options = (family: Family) => (isKeyed(family)
+  ? `keyed by \`${family.keyed}\``
+  : Object.keys(family.variants).sort().map((one) => `\`${one}\`${one === family.default ? ' (default)' : ''}`).join(', '));
+
+const properties = (family: Family) => (isKeyed(family) ? family.properties ?? [] : axesOf(family))
+  .map((one) => `\`${one}\``).join(', ');
 
 export function renderVocabulary(root = repoRoot) {
   const families = [...readFamilies(root).values()].sort((a, b) => (a.family < b.family ? -1 : 1));
@@ -52,7 +58,9 @@ export function renderVocabulary(root = repoRoot) {
       ? ['- **Answered by:**', ...groups.map((one) => `  - ${one}.`)]
       : [`- **Answered by:** ${groups.join(', ')}.`];
   };
-  const reachOf = (family: Family) => isMarkup(family)
+  const reachOf = (family: Family) => isKeyed(family)
+    ? 'is read by the components that bind it, for the key each one is given'
+    : isMarkup(family)
     ? (family.reach === 'box'
       ? 'goes on an element you wrote, and it decides that element alone'
       : 'goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again')
@@ -73,17 +81,19 @@ export function renderVocabulary(root = repoRoot) {
       + 'Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.', '',
     '| Family | Reach | Options | Property | Answered by |', '|---|---|---|---|---|',
     ...families.map((family) => `| [\`${family.family}\`](#${family.family}) | ${family.reach} | ${options(family)} | `
-      + `${family.axis ? `\`${family.axis}\`` : ''} | ${isMarkup(family) ? 'markup you write' : answering(family).join(', ')} |`),
+      + `${properties(family)} | ${isMarkup(family) ? 'markup you write' : isKeyed(family) ? (family.binds ?? []).join(', ') : answering(family).join(', ')} |`),
   ];
   for (const family of families) {
     lines.push('', `## ${family.family}`, '', family.description, '',
       `- **Options:** ${options(family)}.`,
       `- **Reach:** ${family.reach}: it ${reachOf(family)}.`,
       ...(family.restates ? [`- **Values:** ${Object.entries(family.variants).map(([option, path]) => `\`${option}\` restates \`${path}\``).join(', ')}.`] : []),
-      ...(family.axis ? [`- **Property:** \`${family.axis}\`, set on a container of yours for a value no option names, with a token or a derivation of tokens.`] : []),
+      ...(isKeyed(family)
+        ? [`- **Property:** ${properties(family)}, set on the component or a container of yours with a token or a derivation of tokens.`]
+        : axesOf(family).length ? [`- **Property:** ${properties(family)}, set on a container of yours for a value no option names, with a token or a derivation of tokens.`] : []),
       ...(isMarkup(family)
         ? [`- **Written on:** an element you wrote${family.reach === 'box' ? ', never a component' : ', or a component'}.`]
-        : answeredBy(family)));
+        : isKeyed(family) ? [`- **Answered by:** ${(family.binds ?? []).join(', ')}.`] : answeredBy(family)));
   }
   return `${lines.join('\n')}\n`;
 }

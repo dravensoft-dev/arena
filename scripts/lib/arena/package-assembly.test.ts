@@ -13,7 +13,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
-import { readFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
+import { sheetFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
 import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
 
 function tree(files: Record<string, string>) {
@@ -333,9 +333,24 @@ test('a family sheet ships linked, so arena.css imports it after the components'
   const entries = componentSheets(readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
     splitCompiledSheet, repoRoot);
   const names = entries.map((one) => one.to);
-  for (const family of readFamilies(repoRoot).keys()) {
+  for (const { family } of sheetFamilies(repoRoot)) {
     const at = names.indexOf(packageSheetName(family));
     assert.ok(at > names.indexOf('css/components.css'), `${family} ships after the components`);
     assert.notEqual((entries[at] as { linked?: boolean } | undefined)?.linked, false);
   }
+});
+
+test('a keyed family ships no sheet beside the component ones', () => {
+  const root = tailwindTree(['tag']);
+  const family = (name: string, extra: object) => ({ family: name, reach: 'box', description: 'd', variants: {}, ...extra });
+  mkdirSync(join(root, 'frameworks/tailwind/vocabulary/arena-column'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/vocabulary/arena-column/Column.family.json'), JSON.stringify(family('column', { target: 'keyed' })));
+  mkdirSync(join(root, 'frameworks/tailwind/vocabulary/arena-fill'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/vocabulary/arena-fill/Fill.family.json'), JSON.stringify(family('fill', {})));
+  mkdirSync(join(root, 'frameworks/tailwind/consume/vocabulary'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/consume/vocabulary/Fill.generated.css'), '.arena-fill{}');
+  const names = componentSheets('', () => ({ base: '' }), root).map((one) => one.to);
+  assert.ok(names.includes('css/vocabulary/fill.css'));
+  assert.equal(names.includes('css/vocabulary/column.css'), false);
+  rmSync(root, { recursive: true });
 });
