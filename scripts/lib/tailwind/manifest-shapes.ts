@@ -3,8 +3,8 @@
  * back `unknown`, so one spelling `manifest.variants` was claiming something about the file it
  * never stated. The Tailwind layer had already declared this document as `ArenaClassManifest`,
  * for the sheet `classesManifest()` emits rather than the authored source, and the two differ
- * in what only an author writes: no `slots` at all, and the vocabulary's `answers` and
- * `transparent`, which never reach a class module. So it is derived rather than written twice, and the facts that live there hold here -- notably that a
+ * in what only an author writes: no `slots` at all, and the vocabulary's `answers`,
+ * `transparent` and `kind`, which never reach a class module. So it is derived rather than written twice, and the facts that live there hold here -- notably that a
  * variant value is a string in `variants` and a boolean in `defaultVariants` and in a compound
  * selector.
  * Readers wanting only class strings take the partial. */
@@ -22,6 +22,7 @@ export type ComponentManifest = Omit<ArenaClassManifest, 'slots'> & {
   readonly partOf?: Readonly<Record<string, string>>;
   readonly answers?: readonly string[];
   readonly transparent?: Readonly<Record<string, string>>;
+  readonly kind?: Readonly<Record<string, string>>;
 };
 
 export type ManifestClassSource = Partial<ComponentManifest>;
