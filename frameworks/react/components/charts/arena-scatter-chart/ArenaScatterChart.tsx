@@ -182,12 +182,9 @@ export function ArenaScatterChart({ className,
       )}
 
       {showsKey && (
-        <div aria-hidden="true" style={{
-          height: strip.sizeH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.sizeH }}>
           {[sizes.min, (sizes.min + sizes.max) / 2, sizes.max].map((size, i) => (
-            <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)' }}>
+            <span key={i} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
               <svg width={strip.sizeH} height={strip.sizeH} style={{ display: 'block', flexShrink: 0 }}>
                 <circle cx={strip.sizeH / 2} cy={strip.sizeH / 2} r={arenaRadiusAt(rScale, size)}
                   fill="none" stroke="var(--border-strong)" style={{ strokeWidth: 'var(--bw)' }} />

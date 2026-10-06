@@ -2,7 +2,7 @@
   "component": "ArenaDoughnutChart",
   "slots": {
     "legend": "flex flex-1 min-w-0 flex-col justify-center gap-1.5 overflow-auto",
-    "legendRow": "flex items-center gap-2 cursor-pointer w-full p-0 m-0 bg-transparent border-0 text-left",
+    "legendRow": "flex items-center gap-2 cursor-pointer w-full p-0 m-0 bg-transparent border-0 text-left min-h-row-min",
     "legendSwatch": "size-2.5 rounded-marker shrink-0",
     "legendText": "flex flex-1 min-w-0",
     "legendLabel": "flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-body text-ctl-sm text-ink-body/(--level-ink-body)",
