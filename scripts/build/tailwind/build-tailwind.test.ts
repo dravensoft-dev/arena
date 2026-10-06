@@ -151,7 +151,7 @@ test('the emitted ArenaButtonClass accepts a list of classes, and refuses a toke
   const source = vocabularyTypes(families, new Map([['ArenaButton', ['fill']]]), ['ArenaButton'], 'p');
   const diagnostics = (line: string) => {
     const files = new Map([['/v.ts', source], ['/use.ts', `import type { ArenaButtonClass } from './v.ts';\n${line}\n`]]);
-    const options = { noEmit: true, strict: true, allowImportingTsExtensions: true, types: [] };
+    const options = { noEmit: true, strict: true, allowImportingTsExtensions: true, skipLibCheck: true, types: [] };
     const host = ts.createCompilerHost(options);
     const read = host.readFile.bind(host);
     host.readFile = (file) => files.get(file) ?? read(file);

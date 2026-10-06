@@ -49,8 +49,8 @@
   --level-hue-soft-success:16%;  /* the success hue's wash */
   --level-hue-soft-warning:18%;  /* the warning hue's wash */
   --level-hue-soft-info:16%;     /* the info hue's wash */
-  --level-accent-soft-primary: 14%;
-  --level-accent-soft-gold: 16%;
+  --level-accent-soft-primary:14%;  /* the primary accent's wash */
+  --level-accent-soft-gold:16%;     /* the gold accent's wash */
 
   /* raw neutrals */
   --ink:var(--color-base-100);
