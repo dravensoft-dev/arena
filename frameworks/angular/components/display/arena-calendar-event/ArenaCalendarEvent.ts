@@ -3,7 +3,7 @@ import {
   computed, inject, input, output, signal, viewChild,
 } from '@angular/core';
 import type { ArenaCatSlot } from '../../../Api.generated';
-import { arenaCatColor, arenaCatTint } from '../../../DataVisuals';
+import { arenaCatIndex } from '../../../DataVisuals';
 import { arenaPublished } from '../../../ProjectedInputs';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton';
@@ -30,7 +30,6 @@ let seq = 0;
       @if (hasPanel()) {
         <div [id]="domId" [class]="chipStyles().chip()" [arenaSlotData]="chipStyles().$data.chip()" [attr.data-arena-part]="parts.chip" [style]="across"
              [style.top.px]="topPx()" [style.height.px]="heightPx()"
-             [style.background]="tint()" [style.borderLeftColor]="ink()"
              (keydown)="onKeydown($event)">
           @if (interactive()) {
             <button #focusable type="button" tabindex="-1" [class]="bodyStyles().chipBody()" [arenaSlotData]="bodyStyles().$data.chipBody()" [attr.data-arena-part]="parts.chipBody"
@@ -71,7 +70,6 @@ let seq = 0;
       } @else if (interactive()) {
         <button #focusable [id]="domId" type="button" tabindex="-1" [class]="chipStyles().chip()" [arenaSlotData]="chipStyles().$data.chip()" [attr.data-arena-part]="parts.chip"
                 [style]="across" [style.top.px]="topPx()" [style.height.px]="heightPx()"
-                [style.background]="tint()" [style.borderLeftColor]="ink()"
                 [attr.aria-label]="label()" [attr.aria-disabled]="inert()"
                 (click)="onActivate($event)">
           <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
@@ -85,7 +83,6 @@ let seq = 0;
       } @else {
         <div #focusable [id]="domId" tabindex="-1" [class]="chipStyles().chip()" [arenaSlotData]="chipStyles().$data.chip()" [attr.data-arena-part]="parts.chip"
              [style]="across" [style.top.px]="topPx()" [style.height.px]="heightPx()"
-             [style.background]="tint()" [style.borderLeftColor]="ink()"
              (click)="onActivate($event)">
           <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
           @if (showTime()) {
@@ -182,12 +179,6 @@ export class ArenaCalendarEvent {
     return at !== null && arenaStacksActions(this.heightPx(), this.state.slotWidth(at.cols));
   });
 
-  protected readonly ink = computed(() => arenaCatColor(this.colorId() ?? 1));
-
-  protected readonly tint = computed(
-    () => arenaCatTint(this.ink()),
-  );
-
   protected readonly timeLabel = computed(() => {
     const at = this.placement();
     return at ? `${arenaFormatHM(at.startMin)} – ${arenaFormatHM(at.endMin)}` : '';
@@ -214,6 +205,7 @@ export class ArenaCalendarEvent {
   protected readonly styles = computed(() => arenaCalendarEventStyles());
 
   protected readonly chipStyles = computed(() => arenaCalendarEventStyles({
+    colorId: String(arenaCatIndex(this.colorId() ?? 1)),
     reserve: this.hasPanel() && !this.actionsBelow(),
     panelOpen: this.panelOpen(),
     clickable: this.interactive() && !this.disabled(),

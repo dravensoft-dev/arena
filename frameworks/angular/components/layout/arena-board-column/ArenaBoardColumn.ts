@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
-import { arenaCatColor } from '../../../DataVisuals';
+import { arenaCatIndex } from '../../../DataVisuals';
 import { arenaBoardStyles } from '../arena-board/ArenaBoard.variants';
 import manifest from '../arena-board/ArenaBoard.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -13,8 +13,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   host: { style: 'display: contents', '[attr.title]': 'null' },
   template: `
     <section [class]="styles().column()" [arenaSlotData]="styles().$data.column()" [attr.data-arena-part]="parts.column"
-             role="group" [attr.aria-label]="named()"
-             [style.--arena-board-column-cat]="catColour()">
+             role="group" [attr.aria-label]="named()">
       <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
         @if (colorId() !== undefined) {
           <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
@@ -76,10 +75,8 @@ export class ArenaBoardColumn {
     return name;
   });
 
-  protected readonly catColour = computed(() => {
+  protected readonly styles = computed(() => {
     const slot = this.colorId();
-    return slot === undefined ? null : arenaCatColor(slot);
+    return arenaBoardStyles({ colorId: slot === undefined ? undefined : String(arenaCatIndex(slot)) });
   });
-
-  protected readonly styles = computed(() => arenaBoardStyles({ identity: this.colorId() !== undefined }));
 }

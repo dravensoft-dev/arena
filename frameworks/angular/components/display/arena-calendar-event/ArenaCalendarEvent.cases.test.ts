@@ -17,6 +17,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import type { ArenaCatSlot } from '../../../Api.generated';
 import { ArenaCalendar } from '../arena-calendar/ArenaCalendar';
 import { ArenaCalendarEvent } from './ArenaCalendarEvent';
 
@@ -238,4 +239,38 @@ test('a chip outside a calendar throws rather than rendering an unplaced one', (
   assert.throws(() => TestBed.createComponent(ArenaCalendarEvent), /NG0201|No provider|ArenaCalendarState/,
     'ArenaCalendarState is not optional on purpose: a chip has no geometry of its own, and a silent '
     + 'unplaced render is worse than the injector error');
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaCalendar, ArenaCalendarEvent],
+  template: `
+    <arena-calendar timeZone="UTC" anchorDate="2027-03-15" view="day" dayStart="09:00" dayEnd="11:00">
+      <arena-calendar-event id="a" title="Standup" start="2027-03-15T09:00:00Z"
+                            end="2027-03-15T10:00:00Z" [colorId]="colorId()" />
+    </arena-calendar>
+  `,
+})
+class IdentityHost {
+  readonly colorId = signal<ArenaCatSlot | undefined>(undefined);
+}
+
+function chipIdentity(colorId: number | undefined): { id: string | null; style: string | null } {
+  const fixture = TestBed.createComponent(IdentityHost);
+  try {
+    fixture.componentInstance.colorId.set(colorId as ArenaCatSlot | undefined);
+    fixture.detectChanges();
+    const chip = chipOf(fixture);
+    return { id: chip.getAttribute('data-arena-color-id'), style: chip.style.background || chip.style.borderLeftColor };
+  } finally {
+    fixture.destroy();
+  }
+}
+
+test('a chip renders its identity as an attribute, clamped as the ramp clamps, with no colour of its own', () => {
+  assert.equal(chipIdentity(undefined).id, '1', 'an event without a colorId takes slot 1');
+  assert.equal(chipIdentity(9).id, '8');
+  assert.equal(chipIdentity(2.6).id, '3');
+  assert.equal(chipIdentity(4).id, '4');
+  assert.equal(chipIdentity(4).style, '', 'no inline background or border colour');
 });

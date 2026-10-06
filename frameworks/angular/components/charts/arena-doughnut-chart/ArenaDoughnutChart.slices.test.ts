@@ -12,7 +12,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
-import type { ArenaChartLegendLayout } from '../../../Api.generated';
+import type { ArenaChartLegendLayout, ArenaSeries } from '../../../Api.generated';
 import { ArenaDoughnutChart } from './ArenaDoughnutChart';
 
 const LABELS = ['Retail', 'Wholesale', 'Consignment', 'Export'];
@@ -29,7 +29,7 @@ const VALUES = [40, 25, 0, 35];
 class DoughnutHost {
   labels = LABELS;
   values = VALUES;
-  series = [{ label: 'Revenue by channel', values: VALUES }];
+  series: ArenaSeries[] = [{ label: 'Revenue by channel', values: VALUES }];
   legendLayout: ArenaChartLegendLayout = 'auto';
   seen: number[] = [];
 }
@@ -150,4 +150,24 @@ test('the layout can be pinned either way, whatever the container measures', asy
     forced?.destroy();
     inline?.destroy();
   }
+});
+
+test('a legend swatch carries its slice identity as an attribute and no inline colour', async () => {
+  const fixture = await render({ series: [{ label: 'Revenue by channel', values: VALUES, colorIds: [3, 9] }] });
+  try {
+    const swatches = [...host(fixture).querySelectorAll<HTMLElement>('[role="group"] > button > span:first-child')];
+    assert.deepEqual(swatches.map((one) => one.getAttribute('data-arena-color-id')), ['3', '8', '3', '4']);
+    for (const one of swatches) assert.equal(one.style.background, '', 'the swatch paints through its attribute');
+  } finally { fixture.destroy(); }
+});
+
+test('a toned series renders a toned swatch for every slice', async () => {
+  const fixture = await render({ series: [{ label: 'Revenue by channel', values: VALUES, tone: 'success' }] });
+  try {
+    const swatches = [...host(fixture).querySelectorAll<HTMLElement>('[role="group"] > button > span:first-child')];
+    for (const one of swatches) {
+      assert.equal(one.getAttribute('data-arena-tone'), 'success');
+      assert.equal(one.getAttribute('data-arena-color-id'), null);
+    }
+  } finally { fixture.destroy(); }
 });

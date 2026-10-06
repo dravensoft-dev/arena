@@ -5,7 +5,7 @@ import { arenaDoughnutSlices } from '../ChartScales';
 import { arenaArcPath } from '../ChartMarks';
 import { arenaDoughnutRadii } from '../ChartAxis';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend';
-import { arenaChartTable, arenaOneSeries, arenaSeriesColors } from '../ChartSeries';
+import { arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSwatchChoice } from '../ChartSeries';
 import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { arenaDoughnutChartStyles } from './ArenaDoughnutChart.variants';
 import manifest from './ArenaDoughnutChart.classes.generated';
@@ -61,7 +61,7 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
                 (pointerenter)="hover.set(segment.index)" (pointerleave)="hover.set(null)"
                 (focus)="hover.set(segment.index)" (blur)="hover.set(null)"
                 (click)="sliceActivate.emit(segment.index)">
-          <span aria-hidden="true" [class]="styles().legendSwatch()" [arenaSlotData]="styles().$data.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="segment.color"></span>
+          <span aria-hidden="true" [class]="styles().legendSwatch()" [arenaSlotData]="segment.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
           <span [class]="styles().legendText()" [arenaSlotData]="styles().$data.legendText()" [attr.data-arena-part]="parts.legendText">
             <span [class]="styles().legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ segment.label }}</span>
             <span [class]="styles().legendValue()" [attr.data-arena-part]="parts.legendValue">{{ segment.formatted }}</span>
@@ -160,6 +160,7 @@ export class ArenaDoughnutChart {
     return arenaDoughnutSlices(values).map((slice) => ({
       ...slice,
       color: colors[slice.index],
+      swatch: arenaDoughnutChartStyles(arenaSwatchChoice({ ...only, colorIds: only.colorIds ?? values.map((_, at) => at + 1) }, 1, slice.index)).$data.legendSwatch(),
       label: this.labels()[slice.index] ?? '',
       formatted: write(values[slice.index]),
       path: slice.to > slice.from ? arenaArcPath(centreX, centreY, outer, inner, slice.from, slice.to) : '',

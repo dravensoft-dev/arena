@@ -1,6 +1,6 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import type { ArenaCatSlot, ArenaTagTone } from '../../../Api.generated';
-import { arenaCatColor } from '../../../DataVisuals';
+import { arenaCatIndex } from '../../../DataVisuals';
 import { arenaTagStyles } from './ArenaTag.variants';
 import manifest from './ArenaTag.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -14,8 +14,9 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   host: {
     'data-arena-boundary': '', '[class]': 'styles().root()',
     '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
+    '[attr.data-arena-color-id]': "styles().$data.root()['data-arena-color-id'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
-    '[style.--arena-tag-cat]': 'catColour()', },
+  },
   template: `
     <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
     <ng-content />
@@ -44,15 +45,14 @@ export class ArenaTag {
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The dismiss × was activated. Never emitted while `disabled`. */
   readonly remove = output<void>();
-  protected readonly catColour = computed(() => {
+  protected readonly styles = computed(() => {
     const slot = this.colorId();
-    return slot === undefined ? null : arenaCatColor(slot);
+    return arenaTagStyles({
+      tone: slot === undefined ? this.tone() : undefined,
+      colorId: slot === undefined ? undefined : String(arenaCatIndex(slot)),
+      disabled: this.disabled(),
+    });
   });
-
-  protected readonly styles = computed(() => arenaTagStyles({
-    tone: this.colorId() === undefined ? this.tone() : 'identity',
-    disabled: this.disabled(),
-  }));
 
   protected onRemove(): void {
     if (!this.disabled()) this.remove.emit();

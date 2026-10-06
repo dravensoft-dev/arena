@@ -18,9 +18,12 @@ export const ARENA_SR_ONLY = {
   overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: '0',
 } as const satisfies Readonly<Record<string, string>>;
 
+export function arenaCatIndex(slot: number): number {
+  return Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
+}
+
 export function arenaCatColor(slot: number): string {
-  const n = Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
-  return `var(--color-cat-${n})`;
+  return `var(--color-cat-${arenaCatIndex(slot)})`;
 }
 
 export function arenaCatSlotFor(key: string): number {

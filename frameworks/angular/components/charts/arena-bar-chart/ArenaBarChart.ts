@@ -12,7 +12,7 @@ import {
 import { arenaBarPath } from '../ChartMarks';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
+  arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaTooltipAnchor } from '../ChartTooltip';
@@ -92,7 +92,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
       <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
           <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
-            <span [class]="styles.legendSwatch()" [arenaSlotData]="styles.$data.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="key.color"></span>
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
             <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
@@ -259,7 +259,7 @@ export class ArenaBarChart {
     return series.map((one, index) => ({
       index,
       label: one.label,
-      color: arenaSeriesColors(one, this.points(), index + 1)[0],
+      swatch: arenaBarChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
     }));
   });
 

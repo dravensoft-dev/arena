@@ -11,7 +11,7 @@ import {
 import { arenaBarPathH } from '../ChartMarks';
 import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesPointCount, arenaMirrorDomain, arenaTwoSeries,
+  arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesPointCount, arenaMirrorDomain, arenaTwoSeries,
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaTooltipAnchor } from '../ChartTooltip';
@@ -93,7 +93,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
       <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
           <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
-            <span [class]="styles.legendSwatch()" [arenaSlotData]="styles.$data.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="key.color"></span>
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
             <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
@@ -235,7 +235,7 @@ export class ArenaPyramidChart {
     return sides.map((one, index) => ({
       index,
       label: one.label,
-      color: arenaSeriesColors(one, this.points(), index + 1)[0],
+      swatch: arenaPyramidChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
     }));
   });
 

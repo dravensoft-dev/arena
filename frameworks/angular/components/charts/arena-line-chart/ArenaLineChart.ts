@@ -11,7 +11,7 @@ import {
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
-import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
+import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaLegendStrip } from '../ChartLegend';
@@ -112,7 +112,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
       <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
           <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
-            <span [class]="styles.legendSwatch()" [arenaSlotData]="styles.$data.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="key.color"></span>
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
             <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
@@ -275,8 +275,9 @@ export class ArenaLineChart {
 
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
-    const colors = this.colors();
-    return this.series().map((one, index) => ({ index, label: one.label, color: colors[index] }));
+    return this.series().map((one, index) => ({
+      index, label: one.label, swatch: arenaLineChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+    }));
   });
 
   protected readonly table = computed(() => arenaChartTable(

@@ -6,7 +6,7 @@ import {
   arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount,
   arenaStackSegments, arenaStackDomain, arenaMirrorDomain, arenaTwoSeries,
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
-  arenaPointSized, arenaPointSizeRange,
+  arenaPointSized, arenaPointSizeRange, arenaSwatchChoice,
 } from './ChartSeries';
 import type { ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 import type { ArenaSeriesTone } from '../../Api.generated';
@@ -418,4 +418,14 @@ test('the size range spans every series that carries one and ignores the ones th
 
 test('no sizes at all give a range of nothing rather than an infinite one', () => {
   assert.deepEqual(arenaPointSizeRange(PAIRS), { min: 0, max: 0 });
+});
+
+test('a swatch choice is the tone of a toned series and otherwise a clamped colour id', () => {
+  assert.deepEqual(arenaSwatchChoice(series({ tone: 'success' }), 2), { tone: 'success' });
+  assert.deepEqual(arenaSwatchChoice(series(), 3), { colorId: '3' });
+  assert.deepEqual(arenaSwatchChoice(series({ colorId: 4 }), 3), { colorId: '4' });
+  assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5, 6] }), 1, 1), { colorId: '6' });
+  assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5] }), 7, 1), { colorId: '2' });
+  assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5], colorId: 4 }), 7), { colorId: '5' }, 'colorIds wins, colorId is ignored');
+  assert.deepEqual(arenaSwatchChoice(series({ colorId: 9 as never }), 1), { colorId: '8' });
 });

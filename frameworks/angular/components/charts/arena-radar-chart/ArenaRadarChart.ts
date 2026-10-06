@@ -11,7 +11,7 @@ import {
   arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
 } from '../ChartPolar';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesPointCount, arenaRadarDomain,
+  arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesPointCount, arenaRadarDomain,
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaTooltipAnchor } from '../ChartTooltip';
@@ -95,7 +95,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
       <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
           <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
-            <span [class]="styles.legendSwatch()" [arenaSlotData]="styles.$data.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="key.color"></span>
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
             <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
@@ -249,8 +249,9 @@ export class ArenaRadarChart {
 
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
-    const colors = this.colors();
-    return this.series().map((one, index) => ({ index, label: one.label, color: colors[index] }));
+    return this.series().map((one, index) => ({
+      index, label: one.label, swatch: arenaRadarChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+    }));
   });
 
   protected readonly table = computed(() => arenaChartTable(

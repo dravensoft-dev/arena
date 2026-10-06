@@ -1,4 +1,5 @@
-import { arenaCatColor, arenaToneColor } from '../../DataVisuals';
+import { arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals';
+import type { ArenaSelection } from '../../ArenaStyles.generated';
 import { arenaWarnOnce } from '../../WarnOnce';
 import { arenaNiceDomain } from './ChartScales';
 import type { ArenaDomain } from './ChartScales';
@@ -32,6 +33,14 @@ export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSl
   }
   if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? index + 1));
   return Array.from({ length: count }, () => arenaCatColor(colorId ?? fallbackSlot));
+}
+
+export function arenaSwatchChoice(
+  series: Pick<ArenaSeries, 'tone' | 'colorId' | 'colorIds'>, fallbackSlot: number, index = 0,
+): ArenaSelection {
+  if (series.tone) return { tone: series.tone };
+  if (series.colorIds) return { colorId: String(arenaCatIndex(series.colorIds[index] ?? index + 1)) };
+  return { colorId: String(arenaCatIndex(series.colorId ?? fallbackSlot)) };
 }
 
 export function arenaSeriesPointCount(series: readonly ArenaSeries[]): number {
