@@ -162,6 +162,11 @@ test('every property an answers region names is an axis or a keyed property of a
       const answered = answeredFamilies(component).map((one) => one.family);
       assert.ok(answered.includes(owners[0]!.family), `${component} (${layer}) names ${property}, and does not answer ${owners[0]!.family}`);
     }
+    for (const { family } of answeredFamilies(component)) {
+      const declared = families.get(family);
+      for (const property of declared ? [...axesOf(declared), ...(declared.properties ?? [])] : [])
+        assert.ok(region.includes(`\`${property}\``), `${component} (${layer}) answers ${family} and its answers region does not name ${property}`);
+    }
   }
 });
 

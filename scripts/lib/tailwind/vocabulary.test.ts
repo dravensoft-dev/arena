@@ -214,6 +214,8 @@ test('a read wrapped in the family axis falls back to the default through it', (
   assert.equal(axisWrapped('var(--grid-min)', 'var(--grid-min)', ['--arena-grid-min']), true);
   assert.equal(axisWrapped('var(--arena-other,var(--grid-min))', 'var(--grid-min)', ['--arena-grid-min']), false);
   assert.equal(axisWrapped('var(--arena-grid-min,100%)', 'var(--grid-min)', ['--arena-grid-min']), false);
+  assert.equal(axisWrapped('10', '1 0', []), false);
+  assert.equal(axisWrapped('var(--a, x)', 'x', ['--a']), true);
 });
 
 test('a keyed family compiles to no sheet', () => {

@@ -10,7 +10,9 @@ import {
   THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
   ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem, maskedProblem, allowancesFor,
+  rectsExpression, rectsOf, matchedLine, SelectorProblem,
 } from './check-pixel-parity.ts';
+import { PageThrew } from '../../lib/arena/cdp.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 
 const SILENT = { readyState: 'complete', elements: 900, errors: [], scripts: [] };
@@ -196,4 +198,29 @@ test('an allowance applies to its own sink and to every sink when it names *, an
   assert.deepEqual(allowancesFor(allow, 'complete').map(({ index }) => index), [0, 1]);
   assert.deepEqual(allowancesFor(allow, 'default').map(({ index }) => index), [0]);
   assert.deepEqual(allowancesFor([{ sink: 'nope', selector: 'c' }], 'default'), []);
+});
+
+test('the rects of an allowance are read through the page, one list per selector, and counted', async () => {
+  const asked: string[] = [];
+  const rects = await rectsOf(async (expression) => {
+    asked.push(expression);
+    return [{ left: 0, top: 0, right: 1, bottom: 1 }, { left: 1, top: 1, right: 2, bottom: 2 }];
+  }, ['[data-arena-part*="-chart"]', 'b']);
+  assert.equal(rects.length, 2);
+  assert.equal(rects[0]?.length, 2);
+  assert.equal(asked[0], rectsExpression('[data-arena-part*="-chart"]'));
+  assert.match(asked[0] ?? '', /document\.querySelectorAll\("\[data-arena-part\*=\\"-chart\\"\]"\)/);
+});
+
+test('an invalid selector fails with the selector named, and any other throw passes through', async () => {
+  const throws = (error: Error) => async () => { throw error; };
+  await assert.rejects(rectsOf(throws(new PageThrew('SyntaxError: not a valid selector')), ['a[']),
+    (error: Error) => error instanceof SelectorProblem && /allowance selector "a\[" is not a valid selector/.test(error.message));
+  await assert.rejects(rectsOf(throws(new Error('socket closed')), ['a']), /socket closed/);
+});
+
+test('each allowance says what it matched beside whether it was spent', () => {
+  assert.equal(matchedLine(0, 12, true), 'unspent, matched 12 element(s)');
+  assert.equal(matchedLine(40, 3, true), '40 pixel(s) spent, matched 3 element(s)');
+  assert.equal(matchedLine(0, 0, false), 'no such sink, matched 0 element(s)');
 });

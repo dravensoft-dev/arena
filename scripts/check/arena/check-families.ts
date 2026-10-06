@@ -6,7 +6,7 @@
  * fresh render of the same files. An empty vocabulary fails, and so does an arena- class in a compiled
  * or shipped sheet that no family and no manifest emits. */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { VOCABULARY_TARGET, renderVocabulary } from '../../generate/arena/generate-vocabulary.ts';
@@ -110,20 +110,32 @@ function shapeProblems(family: Family, rel: string | undefined, root = repoRoot)
   return problems;
 }
 
-export type KeyedSource = (layer: string, component: string) => string;
+export type KeyedSource = (layer: string, component: string) => string[];
 
 const TEST_SOURCE = /\.(test|spec)\.tsx?$/;
 
 export function treeSource(root: string): KeyedSource {
   return (layer, component) => {
     const base = join(root, 'frameworks', layer, 'components');
-    if (!existsSync(base)) return '';
+    if (!existsSync(base)) return [];
     const wanted = kebab(component);
     return walkFiles(base)
       .filter((file) => /\.tsx?$/.test(file) && !TEST_SOURCE.test(file))
-      .filter((file) => relPosix(base, file).split('/').slice(0, -1).some((part) => part.startsWith(wanted)))
-      .map((file) => readFileSync(file, 'utf8')).join('\n');
+      .filter((file) => relPosix(base, file).split('/').slice(0, -1).some((part) => part === wanted || part.startsWith(`${wanted}-`)))
+      .map((file) => readFileSync(file, 'utf8'));
   };
+}
+
+function typeFields(root: string) {
+  const dir = join(root, 'contracts', 'api', 'types');
+  const names = new Set<string>();
+  if (!existsSync(dir)) return names;
+  for (const file of readdirSync(dir).filter((one) => one.endsWith('.json'))) {
+    try {
+      for (const field of Object.keys(JSON.parse(readFileSync(join(dir, file), 'utf8')).fields ?? {})) names.add(field);
+    } catch { continue; }
+  }
+  return names;
 }
 
 export function familyProblems(
@@ -142,6 +154,13 @@ export function familyProblems(
       owners.set(option, family.family);
     }
   }
+  const axisOwner = new Map<string, string>();
+  for (const family of families.values())
+    for (const axis of axesOf(family)) {
+      const other = axisOwner.get(axis);
+      if (other && other !== family.family) problems.push(`${axis} is an axis of both ${other} and ${family.family}`);
+      axisOwner.set(axis, other ?? family.family);
+    }
   const palette = paletteKeys(root);
   for (const family of families.values()) {
     if (family.restates) continue;
@@ -197,6 +216,8 @@ export function familyProblems(
         const owner = [...families.values()].find((one) => axesOf(one).includes(channel));
         if (owner && answers.includes(owner.family)) axisReads.set(owner.family, (axisReads.get(owner.family) ?? new Set()).add(channel));
         const family = familyOf(channel);
+        if (owner && !answers.includes(owner.family))
+          problems.push(`${manifest.component}.${slot}: reads ${channel}, an axis of ${owner.family}, and does not answer it`);
         if (!family) continue;
         if (!answers.includes(family.family)) {
           problems.push(`${manifest.component}.${slot}: reads ${channel} and does not answer ${family.family}, so the compiled rule never selects it`);
@@ -242,11 +263,20 @@ export function familyProblems(
         if (!read.has(channel)) problems.push(`${channel} is declared by the keyed family ${family.family} and no manifest answering it reads it`);
       for (const component of family.binds ?? []) {
         if (!manifests.has(component)) { problems.push(`${family.family}: binds ${component}, which is no contracted component`); continue; }
-        const written = (['react', 'angular'] as const).filter((layer) => source(layer, component).includes(`--arena-${family.family}-\${`));
         const marker = `--arena-${family.family}-\${`;
+        const writes = (text: string) => text.includes(marker) && (family.channels ?? []).some((channel) => text.includes(channel));
+        const written = (['react', 'angular'] as const).filter((layer) => source(layer, component).some(writes));
         if (written.length === 0) problems.push(`${family.family}: binds ${component}, and neither layer's source under its directories writes ${marker}`);
         else if (written.length === 1) problems.push(`${family.family}: binds ${component}, and the ${written[0] === 'react' ? 'angular' : 'react'} source under its directories does not write ${marker}`);
       }
+      const answering = answeredBy.get(family.family) ?? [];
+      const binds = family.binds ?? [];
+      for (const component of answering)
+        if (!binds.includes(component)) problems.push(`${family.family}: ${component} answers it and is not in binds, so nothing says it writes the binding`);
+      for (const component of binds)
+        if (manifests.has(component) && !answering.includes(component)) problems.push(`${family.family}: binds ${component}, and ${component} does not answer ${family.family}`);
+      if (family.keyed && !typeFields(root).has(family.keyed))
+        problems.push(`${family.family}: its key field ${family.keyed} is a field of no type under contracts/api/types`);
       continue;
     }
     if (family.target === 'markup') continue;

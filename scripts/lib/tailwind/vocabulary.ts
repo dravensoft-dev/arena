@@ -51,7 +51,7 @@ export type Family = {
 export const axesOf = (family: Pick<Family, 'axis'>): string[] =>
   family.axis === undefined ? [] : Array.isArray(family.axis) ? family.axis : [family.axis];
 
-const squash = (text: string) => text.replaceAll('_', ' ').replace(/\s+/g, '');
+const squash = (text: string) => text.replaceAll('_', ' ').replace(/\s+/g, ' ').replace(/ ?([(),]) ?/g, '$1').trim();
 
 export function axisWrapped(fallback: string, written: string, axes: string[]): boolean {
   const f = squash(fallback);

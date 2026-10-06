@@ -346,7 +346,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 87_000,
+    budget: 87_300,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
@@ -356,7 +356,9 @@ export const ROUTES: Route[] = [
       + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
       + 'become the page. Before writing a row, measure the median and the '
       + 'longest row of the domain table, because the row that breaks a budget is the long one and '
-      + 'the median is what says how often that happens.',
+      + 'the median is what says how often that happens. The families and neutrality rows of the '
+      + 'arena domain table state what the gates now refuse: axis lists, keyed families and an '
+      + 'enum of option values.',
   },
   {
     name: 'contributor-tailwind',

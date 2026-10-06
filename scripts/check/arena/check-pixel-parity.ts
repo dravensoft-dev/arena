@@ -249,6 +249,24 @@ export function rectsExpression(selector: string) {
     + 'return { left: r.left + scrollX, top: r.top + scrollY, right: r.right + scrollX, bottom: r.bottom + scrollY }; })';
 }
 
+export class SelectorProblem extends Error {}
+
+export async function rectsOf(ev: (expression: string) => Promise<unknown>, selectors: string[]) {
+  const rects: Rect[][] = [];
+  for (const selector of selectors) {
+    try {
+      rects.push(await ev(rectsExpression(selector)) as Rect[]);
+    } catch (error) {
+      if (!(error instanceof PageThrew)) throw error;
+      throw new SelectorProblem(`check-pixel-parity: the allowance selector ${JSON.stringify(selector)} is not a valid selector (${error.message})`);
+    }
+  }
+  return rects;
+}
+
+export const matchedLine = (spent: number, matched: number, known: boolean) =>
+  `${!known ? 'no such sink' : spent === 0 ? 'unspent' : `${spent} pixel(s) spent`}, matched ${matched} element(s)`;
+
 export async function capture(cdp: Cdp, url: string, selectors: string[] = []) {
   const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
   try {
@@ -267,11 +285,6 @@ export async function capture(cdp: Cdp, url: string, selectors: string[] = []) {
       `${url}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
     const ev = (expression: string) => evaluate(cdp, expression, sessionId);
-    const rectsOf = async () => {
-      const rects: Rect[][] = [];
-      for (const selector of selectors) rects.push(await ev(rectsExpression(selector)) as Rect[]);
-      return rects;
-    };
 
     let painted: Painted = { ready: false, waitedMs: 0 };
     let threw: string | undefined;
@@ -306,11 +319,11 @@ export async function capture(cdp: Cdp, url: string, selectors: string[] = []) {
     let previous = await once();
     for (let tries = 1; tries <= SETTLE_TRIES; tries += 1) {
       const next = await once();
-      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf() };
+      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf(ev, selectors) };
       previous = next;
       if (Date.now() >= until) break;
     }
-    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf() };
+    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf(ev, selectors) };
   } finally {
     try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
   }
@@ -430,6 +443,7 @@ async function baselineMain(ref: string, allow: Allow[]) {
   const problems: string[] = [];
   const spent = allow.map(() => 0);
   const matched = new Set<number>();
+  const elements = allow.map(() => 0);
   let compared = 0;
   try {
     for (const { layer, sink } of pairs) {
@@ -444,6 +458,7 @@ async function baselineMain(ref: string, allow: Allow[]) {
         const unpainted = [paintProblem(name, 'tree', now), paintProblem(name, 'baseline', then)]
           .filter((one): one is string => one !== null);
         if (unpainted.length > 0) { problems.push(...unpainted); continue; }
+        mine.forEach(({ index }, k) => { elements[index] = (elements[index] ?? 0) + (now.rects[k]?.length ?? 0); });
         if (!now.png || !then.png) continue;
         compared += 1;
         if (now.png.equals(then.png)) continue;
@@ -475,7 +490,7 @@ async function baselineMain(ref: string, allow: Allow[]) {
   console.log(`check-pixel-parity --baseline ${ref}: ${compared} page(s) identical to ${sha.slice(0, 12)} byte for byte bar the allowed parts (${where})`);
   allow.forEach((one, index) => {
     const pixels = spent[index] ?? 0;
-    console.log(`  allow ${one.sink}=${one.selector}: ${!matched.has(index) ? 'no such sink' : pixels === 0 ? 'unspent' : `${pixels} pixel(s) spent`}`);
+    console.log(`  allow ${one.sink}=${one.selector}: ${matchedLine(pixels, elements[index] ?? 0, matched.has(index))}`);
   });
 }
 
@@ -552,6 +567,12 @@ async function main() {
 if (isMainModule(import.meta.url)) {
   if (SINK_LAYERS.length < 2) skip('a comparison needs two layers, and the emitter names fewer');
   const { baseline, allow } = parseParityArgs(process.argv.slice(2));
-  if (baseline) await baselineMain(baseline, allow);
+  if (baseline) {
+    await baselineMain(baseline, allow).catch((error: unknown) => {
+      if (!(error instanceof SelectorProblem)) throw error;
+      console.error(error.message);
+      process.exit(1);
+    });
+  }
   else await main();
 }
