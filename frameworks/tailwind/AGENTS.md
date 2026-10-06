@@ -85,25 +85,45 @@ a class.** Each lives in `vocabulary/arena-<family>/<Family>.family.json` beside
 and declares:
 
 - `family` and `reach`. A `context` family crosses components and is cut only where a nearer class
-  answers it again. A `box` family reaches the nearest component only.
+  answers it again, or at a floating surface. A `box` family reaches the nearest component only.
 - `description`: the argument for the family existing at all. It is required.
 - `variants`: each option class mapped to arbitrary properties writing only `--arena-<family>-*`
-  channels, as `"arena-fill": "[--arena-fill-width:100%]"`.
+  channels, as `"arena-fill": "[--arena-fill-width:100%]"`. A value names an Arena token or a role,
+  never a Tailwind theme key: the build compiles in `@reference` mode and emits none, so a read of
+  one is empty at runtime.
 - `default`: the option in effect when nothing is written.
 - `axis`, on a box family that has one: the public `--arena-<family>` property an adopter sets for
   a value no option names.
 
-**A manifest takes part with two keys.** `answers` names the families the component responds to,
+**A manifest takes part with a few keys.** `answers` names the families the component responds to,
 and a slot reads each channel with today's value as the `var()` fallback, as
-`w-[var(--arena-fill-width,fit-content)]`. The fallback IS the default: a manifest never declares a
-channel, because a declaration on the slot would tie the family's rule on specificity and source
-order would decide again. `transparent` names a slot that projects adopter content without being
-a boundary, with its reason; the triggers of `ArenaTooltip` and `ArenaMenu` are the case.
+`w-[var(--arena-fill-width,fit-content)]`. The fallback IS the default and names an Arena token, never a theme key; a manifest
+never declares a channel, because a declaration on the slot would tie the family's rule on
+specificity and source order would decide again.
+
+**An `answers` entry is a bare family name or an object.** The object,
+`{ "family": "size", "options": ["arena-size-sm", "arena-size-md", "arena-size-lg"], "default":
+"arena-size-md" }`, says which options the component has and which is its own default, so each read's
+fallback is that default's value and not the family's. An option compiles only over the parts of
+the manifests that answer it, so a class naming an option a component lacks selects nothing on it.
+
+- `bound` maps a channel the component reads without one of its own slot classes reading it, with
+  the reason: the people list's `--arena-size-face` is read by the avatar its row hands the face
+  to, and the hero's `--arena-align-bleed-justify` is read through a channel its layout writes
+  from it. The family must write the channel and the component must answer the family, and an
+  entry fails once either stops holding.
+- `floating` names a slot that is a floating surface, with its reason, and the component renders
+  it with `data-arena-surface="floating"`.
+- `transparent` names a slot that projects adopter content without being a boundary, with its
+  reason; the triggers of `ArenaTooltip` and `ArenaMenu` are the case.
 
 **`build:tailwind` compiles a family to `consume/vocabulary/<Family>.generated.css`**, one `@scope`
-block per option over the parts that read its channel, each selected as the scope root and as a
-descendant (`&[data-arena-part="p"], [data-arena-part="p"]`), since a bare selector inside
-`@scope` never matches the root. A box family is limited by
+block per option over the parts of the manifests that answer that option, each selected as the
+scope root and as a descendant (`&[data-arena-part="p"], [data-arena-part="p"]`), since a bare
+selector inside `@scope` never matches the root. **The context limit** of a `context` family is
+`to ([data-arena-surface="floating"])`: the class reaches the root part of each answering
+component, which is where the channel is written, and stops at a surface that says it floats. A
+box family is limited by
 `to ([data-arena-boundary] > *, :scope[data-arena-boundary] > *)`, which is inclusive on purpose:
 the boundary is usually the component's own root, an exclusive limit drops that root from scope,
 and Chromium matches a limit among the root's descendants only. **A box family registers each
@@ -112,6 +132,11 @@ would otherwise hand its value down past the boundary the rule stops at. An axis
 `[data-arena-boundary] > *`. Every sheet opens with the layer order, so a vocabulary sheet loaded
 first cannot rank `utilities` below `components`. The packages ship each one as
 `css/vocabulary/<family>.css`, imported by `arena.css`.
+
+**Every `arena-` name the theme sheet ships as a utility is a family option, a class a manifest
+names, or an entry of `NOT_WRITTEN`** in `scripts/check/arena/check-classes.ts` with the reason an
+adopter does not write it, so a utility cannot reach a consumer unannounced. An entry no sheet
+defines any more fails as stale.
 
 `check:families` holds the files and the manifests' use of them, `check:channels` holds one writer
 kind per custom property, `check:boundaries` holds the boundary records, and `check:proximity`
@@ -268,13 +293,15 @@ shadow as offsets, blur, spread and a colour and has no way to spell the absence
 travel is `0px`.
 
 **A variant branch that restates a role as a literal un-paints it, and that is the same defect
-seen from the other end.** A root painting `shadow-surface-rest` whose `floating` variant writes
+seen from the other end.** A root painting `shadow-surface-rest` whose `floating` branch writes
 `shadow-none` on the false branch, which is the DEFAULT, resolves every ordinary card to a
 transparent literal instead of the role: the one token authored to let a style plugin trade
-hairline grouping for elevation then reaches nothing on the component it was written for. A branch meaning "the value the slot already paints" says nothing at all, because the base
-rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
-with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its
-literal cancels the selected branch's inset rule rather than overriding a role.
+hairline grouping for elevation then reaches nothing on the component it was written for. **The
+card reads the elevation channel instead**, `shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]`,
+so each option answers its own role and no branch is a literal. A branch meaning "the value the slot already paints" says nothing
+at all, because the base rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES`
+beside `shadow-1`, with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth
+role, so its literal cancels the selected branch's inset rule rather than overriding a role.
 
 **Rest and raised compose by source order, not by merging.** A slot's resting depth sets
 `--tw-shadow` in the base rule and its hover sets the same variable in a rule emitted after it,

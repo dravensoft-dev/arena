@@ -61,14 +61,23 @@ editorial colour, width, padding, elevation and alignment arrive through a vocab
 which [`../AGENTS.md`](../AGENTS.md) places in the model. A member that mixes a meaning with a look
 keeps the meaning and leaves the look to the Tailwind layer. **A member carrying a meaning is named
 for the meaning and not for the look it once had**: `destructive` says a destructive action,
-`colorId` says which entity and `numeric` says a figure, so a layer renders each as a
-`data-arena-<member>` attribute and a plugin decides what it looks like. A design decision the render
-computes with (a chart's height, a calendar's view) stays a member, recorded in `COMPUTED` in
-`scripts/check/arena/check-contracts-neutrality.ts` with the function that reads it. The members
-still to move are `DESIGN_MEMBERS` beside it, each with the phase that moves it; a member is in
-one record only, and a stale entry in either fails `check:contracts-neutrality`. **React's `className` is the one
-member no contract names**, typed with the component's generated vocabulary class, and
-`check:api` holds it to that type.
+`colorId` says which entity, `numeric` says a figure and `kind` says whether an avatar stands for a
+person or a team, so a layer renders each as a `data-arena-<member>` attribute and a plugin decides
+what it looks like.
+
+**A design member is detected by its shape, and no list names one.** An enum whose value is the
+suffix of a family option is appearance: a value `sm` where `arena-size-sm` is an option fails
+`check:contracts-neutrality`, in a component's members and in the fields of a type alike, and the
+fix is the class the option already is. The gate reads the options from the families themselves,
+so a family added tomorrow catches a member declared yesterday. **`COMPUTED` is the one way out.**
+A design decision the render computes with (a chart's height, a calendar's view, a menu's
+alignment, which the panel is positioned from) stays a member, recorded in `COMPUTED` in
+`scripts/check/arena/check-contracts-neutrality.ts` with the function that reads it, and the gate
+opens that file and fails an entry whose function is not there. `DESIGN_MEMBERS` beside it holds
+the members geometry still has to move, each with the phase that moves it; a member is in one
+record only, and a stale entry in either fails the gate. **React's `className` is the one member
+no contract names**, typed with the component's generated vocabulary class, and `check:api` holds
+it to that type.
 
 ### A member a platform cannot express at all
 
@@ -219,10 +228,8 @@ import from that component**, no more and no less. A type a component's own file
 names and exports (`ArenaStatCard`'s `ArenaStatDelta`, `ArenaBreadcrumbs`'s `ArenaCrumb`) keeps a
 consumer's `import type { ArenaStatDelta } from '.../ArenaStatCard'` resolving only while the
 file re-exports it, so it does (`export type { ArenaStatDelta };`). A type spelled inline
-as a literal union at its use site (`ArenaAppLogo`'s `size?: 'sm' | 'md' | 'lg' | 'xl'`,
-`ArenaStatCard`'s `tone?: 'neutral' | 'accent' | …'`) offers a consumer no name to import,
-so nothing is re-exported for it, and `ArenaLogoSize` and `ArenaTone` stay un-re-exported for
-exactly that reason. This is a compatibility rule rather than a design principle: it
+as a literal union at its use site (`ArenaTableCell`'s injected `layout: 'table' | 'card'`)
+offers a consumer no name to import, so nothing is re-exported for it. This is a compatibility rule rather than a design principle: it
 exists only so a consumer's import keeps resolving, and it is mechanical, since what a
 file re-exports is decided by what it names. Angular has no equivalent question,
 because a component's own file imports straight from `../../api.generated` and
@@ -267,7 +274,7 @@ is (1) a primitive type name, `"string"`, `"number"` or `"boolean"`; (2) the for
 **enum** `contracts/api/types/` declares. Anything else is reported: a name `contracts/api/types/` does not
 declare at all, and an object name used where the fourth arm does not apply. The four exist
 because `classify()` produces all four from a real signature. It reduces
-`(v: string) => void`, `(v: ArenaCrumb) => void` and `(v: ArenaLogoSize) => void` alike, so a contract
+`(v: string) => void`, `(v: ArenaCrumb) => void` and `(v: ArenaCalendarView) => void` alike, so a contract
 stating only some of them would be a gap between what the reader reads and what the
 contract can say, rather than a rule the contract enforces.
 

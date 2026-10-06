@@ -134,6 +134,34 @@ through `min-h-row-min`, is the floor a row takes to reach the pointer target in
 density. `pad-row-indent` is the side nav's inset per level of depth, read times the
 `--arena-side-nav-depth` channel the component writes.
 
+## The option roles
+
+**An option of a family is a question by construction.** `arena-size-sm` asks how tall a button is
+at that size, `arena-emphasis-ghost` asks what ink an action takes with no fill, and the answer to
+each is a plugin's. The family file in
+[`frameworks/tailwind/vocabulary/`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/vocabulary/arena-size/Size.family.json)
+writes each channel from a role, so the option is the question and the role is where it is
+answered. An option no component draws differently asks nothing, and declares no role.
+
+**A role is named `<family>-<option>-<question>`**, with the option as the family names it after
+`arena-<family>-`: `size-sm-control-h`, `emphasis-ghost-fill-hover`, `elevation-floating-shadow`. Its
+`$description` says what the option asks and which components read it, and
+[`roles.json`](./roles.json) carries it beside the kind roles with no value, like every other
+role. The name is the whole of the contract: a plugin reads it, an option nobody answers is a
+question nobody asked, and `check:families` holds each channel to a component that reads it.
+
+**Every plugin answers every option role.** The root plugin is total, so `check:style-plugin` fails
+one that leaves an option unanswered; `check:catalogue` holds every entry under
+`plugin-style-store/catalogue/` to the same totality; and `check:style-plugin-coverage` holds
+`complete`, the witness, to an answer of its own for each. A plugin answers every option of a family, whatever subset of them
+a component takes.
+
+**A dimension role a density moves is answered with the density alias, and that is what keeps it
+re-densifying.** `size-sm-control-h` answered `{dz.ctl-h-sm}` follows `.arena-compact` the way the
+control always did, while the same role answered with a length fixes the height at every density.
+A row padding role named as taken before the density factor is multiplied by the row factor the
+way `pad-row-x` is, so a plugin answers the register and density answers how tight.
+
 ## The hue matrix
 
 **A hue is a meaning a component wears, and the plugin answers what each hue is made of.** A
@@ -241,6 +269,12 @@ rather than left to be discovered at a consumer's build.
 > The escape hatch is the instrument that measures the role tier. A role is added when several
 > style plugins are measured painting the same decision by hand through the same part. What one
 > plugin paints is its own.
+
+**The rule has a second source, and it asks for no measurement.** An option of a family is a
+question by construction: a family is the declaration of a question with named answers, so each
+option's roles are added in the change that adds the option, and every plugin answers them in the
+same major. What a plugin paints by hand through a part is evidence for a role the kernel does not
+have yet. What an option declares is a role the kernel has already.
 
 **A plugin selects by part and never by the value of a variant, and that decides which asks can
 become members at all.** A product whose avatar ring is a gradient in one state and a grey in the

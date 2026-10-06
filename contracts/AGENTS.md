@@ -72,9 +72,22 @@ construction rather than by a precedence rule. Five questions, five owners:
 
 **Inside a channel the nearest class wins**, by scope proximity rather than by source order, so a
 class on the component beats one on an ancestor whatever order the sheets load in. **Between
-channels nothing is decided**, because no property has two writers. **A box family stops inside
-every element that projects adopter content**, which carries `data-arena-boundary`, unless its
-manifest declares the slot `transparent` with a reason. A surface rendered in a portal leaves the subtree its trigger sits in, so no class above the trigger reaches it.
+channels nothing is decided**, because no property has two writers.
+
+**A component answers a subset of a family's options, and says which with a default of its own.** A
+button answers `arena-size-sm`, `-md` and `-lg` and the logo also answers `-xl`. A class naming an
+option a component lacks writes nothing on it, so the component stays at the nearest option it
+answers: an `arena-size-xl` region leaves a button at the `arena-size-lg` that reaches it, or at its
+own default when none does. The component's default is the fallback of its channel read, never a
+declaration of its own.
+
+**A context class reaches a component through its root, and stops at a floating surface.** The
+rule writes the channel on the root element of each component that answers the family, and a
+surface that renders its own content (a dialog, a menu panel, a toast stack, a tooltip) says so
+with `data-arena-surface="floating"`, which is where the scope ends. A box family stops inside
+every element that projects adopter content, which carries `data-arena-boundary`, unless its
+manifest declares the slot `transparent` with a reason. A surface rendered in a portal also leaves
+the subtree its trigger sits in, so no class above the trigger reaches it either way.
 
 **Meaning reaches the DOM as `data-arena-<group>`, and meaning alone writes the four hue
 channels.** A component renders each manifest group as an attribute on every slot it touches; a

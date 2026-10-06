@@ -113,6 +113,27 @@ are in the manifest too. A component that reaches for an injected sheet is a com
 manifest is short: grow the manifest, which moves both layers, rather than adding a rule only
 one of them can see.
 
+## A component writes an inner component's appearance as a class, and hands it a face as a prop
+
+**A component that draws an Arena component inside it writes that component's option as a class.**
+`ArenaConfirmDialog` draws its cancel as `<ArenaButton className="arena-emphasis-ghost">`, the
+same class an adopter writes, and no inner component has a prop for it. The class is held to the
+inner component's vocabulary by `frameworks/react/VocabularyClass.ts:arenaClassName(component, base, own, allowed)`,
+so an option the inner component does not answer is dropped with a warning rather than reaching
+the DOM.
+
+**An injected internal prop is how a component hands an inner component what no adopter chooses.**
+`ArenaAvatarInjected { face }` is declared beside the avatar, and the component's props are
+`ArenaAvatarProps & Partial<ArenaAvatarInjected>`: the person row renders `<ArenaAvatar face />`
+and the avatar binds its size channel to the row's face. The injected shape appears in no
+contract, `check:api` reads only the public props, and the contract-derived props stay the whole
+of what an adopter sees.
+
+**A floating surface carries `data-arena-surface="floating"`**, written by the component on the
+element its manifest declares `floating`, as the tooltip's bubble, the toast stack and the dialogs
+do. A context class written above the trigger stops there, which is what lets a toolbar's
+`arena-size-sm` reach its buttons and leave the dialog they open alone.
+
 ## Every animation answers `prefers-reduced-motion`
 
 The answer depends on what the motion means:

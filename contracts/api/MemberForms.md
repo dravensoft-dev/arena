@@ -400,7 +400,7 @@ Declared once, in `contracts/api/types/`, one file per type:
 ```json
 { "name": "ArenaTone", "kind": "enum",
   "description": "What state a value IS in right now.",
-  "values": ["neutral", "accent", "gold", "success", "warning", "danger", "info"] }
+  "values": ["neutral", "success", "warning", "danger", "info"] }
 ```
 
 **A closed set of values is not always an enum.** An enum is right when the closed set is

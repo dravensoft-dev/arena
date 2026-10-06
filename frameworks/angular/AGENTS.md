@@ -247,6 +247,25 @@ component `styles` (recipe owns styling), no comments beyond one JSDoc line,
 barrels with no `../` imports inside the layer. Dark-first (`.arena-light` for
 light). Danger is outline. Icons are Phosphor (Bold default). No gradients, no emoji.
 
+## A component writes an inner component's appearance as a class, and hands it a face by injection
+
+**A component that draws an Arena component inside it writes that component's option as a class on
+its host.** `ArenaConfirmDialog` draws its cancel as `<arena-button class="arena-emphasis-ghost">`,
+the same class an adopter writes, and no inner component has an input for it.
+
+**An injection token is how a component hands an inner component what no adopter chooses.** The
+person row provides `ARENA_AVATAR_FACE` (`frameworks/angular/components/display/arena-avatar/AvatarFace.ts`)
+through `viewProviders`, and the avatar injects it optionally, so it binds its size channel to the
+row's face when it sits in one and to its own size when it does not. An input would have carried it
+no better in either idiom: a protected input fails the row's binding, since a template binds only
+what a class exposes, and a public one is a member `check:api` refuses because no contract declares
+it.
+
+**A floating surface carries `data-arena-surface="floating"`**, bound on its host as
+`'[attr.data-arena-surface]': "'floating'"`, on the element its manifest declares `floating`, as
+the tooltip's bubble, the toast stack and the dialogs do. A context class written above the
+trigger stops there.
+
 ## What Arena implements
 
 Parity here is parity of **outcome**, not of inventory: a consumer of this layer can build
