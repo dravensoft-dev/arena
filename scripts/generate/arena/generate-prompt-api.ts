@@ -15,7 +15,7 @@ import {
   CONSUMER_LAYERS, componentDir, loadCategories, loadContract, escapeCell,
 } from './generate-skills.ts';
 import { captured } from '../../utils/captures.ts';
-import { readFamilies, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { readFamilies, answeredFamilies as answeredNames, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
 import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { readManifests } from '../../check/arena/check-measured-box.ts';
 
@@ -126,7 +126,7 @@ export function answeredFamilies(
   const owner = manifestFor(component, base);
   const manifest = owner ? manifests.get(owner) : undefined;
   if (!manifest || manifest.component !== component) return [];
-  return (manifest.answers ?? []).flatMap((name) => families.get(name) ?? []);
+  return answeredNames(manifest).flatMap((name) => families.get(name) ?? []);
 }
 
 const OPENS_FENCE = /^ {0,3}(`{3,}|~{3,})/;

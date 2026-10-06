@@ -16,10 +16,10 @@ import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { classesManifest } from '../../lib/tailwind/component-css.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { NOT_WRITTEN, SHEETS, classesIn } from './check-classes.ts';
+import { NOT_WRITTEN, SHEETS, classesIn, themeUtilities } from './check-classes.ts';
 import {
-  REACHES, TARGETS, VOCABULARY_DIR, channelPrefix, declarations, familyFiles, optionDeclarations, readFamilies,
-  slotClassStrings, type Family,
+  REACHES, TARGETS, VOCABULARY_DIR, answerOf, answeredFamilies, channelPrefix, channelReads, declarations, familyFiles,
+  optionDeclarations, readFamilies, slotClassStrings, type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
@@ -30,7 +30,18 @@ export const node = {
   feeds: [],
 };
 
-const READ = /var\((--arena-[a-z0-9-]+)\s*,\s*([^)]*)\)/g;
+const THEME_KEY = /var\(\s*(--(?:spacing(?![a-z0-9])|spacing-|radius-|text-|color-)[a-z0-9-]*)/g;
+
+function paletteKeys(root: string) {
+  const at = join(root, 'frameworks', 'tailwind', 'Theme.css');
+  const css = existsSync(at) ? readFileSync(at, 'utf8') : '';
+  return new Set([...css.matchAll(/(--color-[a-z0-9-]+)\s*:\s*var\(\s*(--color-[a-z0-9-]+)\s*\)/g)]
+    .filter((match) => match[1] === match[2]).map((match) => match[1] ?? ''));
+}
+
+export function themeKeyReads(text: string, palette: Set<string>) {
+  return [...new Set([...text.matchAll(THEME_KEY)].map((match) => match[1] ?? '').filter((key) => !palette.has(key)))];
+}
 
 function shapeProblems(family: Family, rel: string | undefined, root = repoRoot) {
   const problems: string[] = [];
@@ -86,9 +97,16 @@ export function familyProblems(families: Map<string, Family>, files: string[], m
       owners.set(option, family.family);
     }
   }
+  const palette = paletteKeys(root);
+  for (const family of families.values()) {
+    if (family.restates) continue;
+    for (const [option, classes] of Object.entries(family.variants ?? {}))
+      for (const key of themeKeyReads(String(classes), palette))
+        problems.push(`${family.family}: ${option} names ${key}, a Tailwind theme key that no sheet declares at runtime; name an Arena token or role`);
+  }
   const answeredBy = new Map<string, string[]>();
   for (const manifest of manifests.values())
-    for (const answered of manifest.answers ?? []) answeredBy.set(answered, [...(answeredBy.get(answered) ?? []), manifest.component]);
+    for (const answered of answeredFamilies(manifest)) answeredBy.set(answered, [...(answeredBy.get(answered) ?? []), manifest.component]);
   for (const family of families.values()) {
     const by = answeredBy.get(family.family) ?? [];
     if (family.target === 'markup' && by.length) {
@@ -97,45 +115,84 @@ export function familyProblems(families: Map<string, Family>, files: string[], m
       problems.push(`${family.family}: no manifest answers it, so every option would compile to a rule that selects nothing`);
     }
   }
+  const writtenBy = new Map<string, Set<string>>();
+  for (const family of families.values()) {
+    const written = new Set<string>();
+    if (family.target !== 'markup') {
+      for (const classes of Object.values(family.variants ?? {})) {
+        try { for (const [property] of declarations(classes)) written.add(property); } catch { continue; }
+      }
+    }
+    writtenBy.set(family.family, written);
+  }
+  const familyOf = (channel: string) => [...families.values()].find((one) => channel.startsWith(channelPrefix(one.family)));
   const readsByFamily = new Map<string, Set<string>>();
+  const answeredOptions = new Map<string, Set<string>>();
   for (const manifest of manifests.values()) {
-    const answers = manifest.answers ?? [];
-    for (const family of answers)
-      if (!families.has(family)) problems.push(`${manifest.component}: answers ${family}, which no family declares`);
+    const answers = answeredFamilies(manifest);
+    for (const answer of manifest.answers ?? []) {
+      const name = typeof answer === 'string' ? answer : answer.family;
+      const family = families.get(name);
+      if (!family) { problems.push(`${manifest.component}: answers ${name}, which no family declares`); continue; }
+      const own = answerOf(manifest, family);
+      if (own) answeredOptions.set(name, new Set([...(answeredOptions.get(name) ?? []), ...own.options]));
+      if (typeof answer === 'string') continue;
+      const known = Object.keys(family.variants ?? {});
+      if (answer.options.length === 0) problems.push(`${manifest.component}: answers ${name} with no options`);
+      for (const option of answer.options)
+        if (!known.includes(option)) problems.push(`${manifest.component}: answers ${name} with ${option}, which is not an option of ${name}`);
+      if (!answer.options.includes(answer.default)) problems.push(`${manifest.component}: answers ${name} with a default ${answer.default} that is none of its options`);
+    }
     for (const [slot, classes] of slotClassStrings(manifest)) {
-      for (const match of String(classes ?? '').matchAll(READ)) {
-        const channel = match[1] ?? '';
-        const fallback = (match[2] ?? '').trim().replaceAll('_', ' ');
-        const family = [...families.values()].find((one) => channel.startsWith(channelPrefix(one.family)));
+      for (const { channel, fallback: raw } of channelReads(String(classes ?? ''))) {
+        const family = familyOf(channel);
         if (!family) continue;
         if (!answers.includes(family.family)) {
           problems.push(`${manifest.component}.${slot}: reads ${channel} and does not answer ${family.family}, so the compiled rule never selects it`);
           continue;
         }
         readsByFamily.set(family.family, (readsByFamily.get(family.family) ?? new Set()).add(channel));
-        const written = (() => { try { return family.default === undefined ? [] : declarations(family.variants[family.default] ?? ''); } catch { return []; } })()
+        const fallback = (raw ?? '').replaceAll('_', ' ');
+        for (const key of themeKeyReads(fallback, palette))
+          problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${key}, a Tailwind theme key that no sheet declares at runtime; name an Arena token or role`);
+        const chosen = answerOf(manifest, family)?.default ?? family.default;
+        const written = (() => { try { return chosen === undefined ? [] : declarations(family.variants[chosen] ?? ''); } catch { return []; } })()
           .find(([property]) => property === channel)?.[1];
         if (written !== undefined && written !== fallback) {
-          problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${fallback} and the default ${family.default} writes ${written}, `
+          problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${raw === null ? 'nothing' : fallback} and the default ${chosen} writes ${written}, `
             + 'so the component with no class written does not look like its default');
         }
       }
+    }
+    for (const [channel, why] of Object.entries(manifest.bound ?? {})) {
+      const family = familyOf(channel);
+      if (!family || !writtenBy.get(family.family)?.has(channel)) {
+        problems.push(`${manifest.component}: binds ${channel}, which no family writes, so the entry outlived what it was written for`);
+        continue;
+      }
+      if (!answers.includes(family.family)) problems.push(`${manifest.component}: binds ${channel} and does not answer ${family.family}`);
+      else readsByFamily.set(family.family, (readsByFamily.get(family.family) ?? new Set()).add(channel));
+      if (!String(why).trim()) problems.push(`${manifest.component}: binds ${channel} with no reason`);
     }
     const slots = new Set(Object.keys(manifest.slots ?? {}));
     for (const [slot, why] of Object.entries(manifest.transparent ?? {})) {
       if (!slots.has(slot)) problems.push(`${manifest.component} declares ${slot} transparent and has no such slot`);
       else if (!String(why).trim()) problems.push(`${manifest.component} declares ${slot} transparent with no reason`);
     }
+    for (const [slot, why] of Object.entries(manifest.floating ?? {})) {
+      if (!slots.has(slot)) problems.push(`${manifest.component} declares ${slot} floating and has no such slot`);
+      else if (!String(why).trim()) problems.push(`${manifest.component} declares ${slot} floating with no reason`);
+    }
   }
   for (const family of families.values()) {
     if (family.target === 'markup') continue;
     const read = readsByFamily.get(family.family) ?? new Set();
-    const written = new Set<string>();
-    for (const classes of Object.values(family.variants ?? {})) {
-      try { for (const [property] of declarations(classes)) written.add(property); } catch { continue; }
-    }
-    for (const channel of written)
+    for (const channel of writtenBy.get(family.family) ?? [])
       if (!read.has(channel)) problems.push(`${channel} is written and no manifest answering ${family.family} reads it`);
+    const answered = answeredOptions.get(family.family) ?? new Set();
+    if (answered.size === 0) continue;
+    for (const option of Object.keys(family.variants ?? {}))
+      if (!answered.has(option)) problems.push(`${family.family}: ${option} is answered by no manifest, and an option nobody answers is a question nobody asked`);
   }
   return problems;
 }
@@ -151,6 +208,17 @@ export function strayClassProblems(classes: Map<string, string>, families: Map<s
   for (const [name, rel] of classes) {
     if (allowed.has(name) || manifestClasses.has(name) || exempt.has(name)) continue;
     problems.push(`${rel} emits .${name}, which no family and no manifest emits. An adopter-facing class lives in a family under ${VOCABULARY_DIR}/, or is named in NOT_WRITTEN in check-classes.ts with why it is not one`);
+  }
+  return problems;
+}
+
+export function utilityProblems(utilities: Map<string, string>, families: Map<string, Family>, manifestClasses: Set<string>, exempt: Map<string, string>) {
+  const allowed = new Set([...families.values()].flatMap((family) => Object.keys(family.variants ?? {})));
+  const problems: string[] = [];
+  for (const [name, rel] of utilities) {
+    if (allowed.has(name) || manifestClasses.has(name) || exempt.has(name)) continue;
+    problems.push(`${rel} defines @utility ${name}, which is no family option, no manifest class and no entry of NOT_WRITTEN in check-classes.ts. `
+      + `An adopter-facing name lives in a family under ${VOCABULARY_DIR}/, or is named in NOT_WRITTEN with why it is not one`);
   }
   return problems;
 }
@@ -173,7 +241,8 @@ export function sweptProblems(families: Map<string, Family>, manifests: Map<stri
     for (const value of Object.values(all.slots ?? {}))
       for (const name of String(value ?? '').split(/\s+/)) if (name.startsWith('arena-')) emitted.add(name);
   }
-  return strayClassProblems(classes, families, emitted, NOT_WRITTEN);
+  return [...strayClassProblems(classes, families, emitted, NOT_WRITTEN),
+    ...utilityProblems(themeUtilities(root), families, emitted, NOT_WRITTEN)];
 }
 
 export function collect(root = repoRoot) {

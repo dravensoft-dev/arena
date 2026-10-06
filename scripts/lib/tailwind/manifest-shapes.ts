@@ -22,12 +22,16 @@ export interface CompoundVariant {
   readonly [condition: string]: ArenaChoice | Partial<SlotClasses>;
 }
 
+export type ArenaAnswer = string | { readonly family: string; readonly options: readonly string[]; readonly default: string };
+
 export type ComponentManifest = Omit<ArenaClassManifest, 'slots' | 'values' | 'attributes'> & {
   readonly slots?: SlotClasses;
   readonly variants?: VariantGroups;
   readonly compoundVariants?: readonly CompoundVariant[];
   readonly partOf?: Readonly<Record<string, string>>;
-  readonly answers?: readonly string[];
+  readonly answers?: readonly ArenaAnswer[];
+  readonly bound?: Readonly<Record<string, string>>;
+  readonly floating?: Readonly<Record<string, string>>;
   readonly transparent?: Readonly<Record<string, string>>;
   readonly kind?: Readonly<Record<string, string>>;
   readonly internal?: Readonly<Record<string, string>>;

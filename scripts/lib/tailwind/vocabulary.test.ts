@@ -8,10 +8,17 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, markupDeclarations, restatedDeclarations, answeringParts, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, LIMIT, sheetName, packageSheetName, type Family,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
+
+const reading = (...parts: string[]): ComponentManifest[] => parts.map((part) => ({
+  component: `Arena${part.slice(0, 1).toUpperCase()}${part.slice(1)}`, answers: ['fill'],
+  slots: { root: 'w-[var(--arena-fill-width,fit-content)]' },
+}));
+
+const witness = (): ComponentManifest[] => [{ component: 'ArenaButton', answers: ['witness'], slots: { root: 'x-[var(--arena-witness-mark,1)]' } }];
 
 const FILL: Family = {
   family: 'fill', reach: 'box', description: 'Whether a component takes its container\'s width.',
@@ -26,7 +33,7 @@ test('an option is arbitrary properties and nothing else, with an underscore mea
 });
 
 test('a box family compiles one scope per option, stopped inside every boundary, selecting each part as root and as descendant', () => {
-  assert.equal(compileFamily(FILL, ['button', 'tooltip']), `${LAYER_ORDER}@property --arena-fill-width {
+  assert.equal(compileFamily(FILL, reading('button', 'tooltip')), `${LAYER_ORDER}@property --arena-fill-width {
   syntax: '*';
   inherits: false;
 }
@@ -50,15 +57,15 @@ test('a box family compiles one scope per option, stopped inside every boundary,
 
 test('a context family crosses every boundary, and a box family with an axis resets it inside each one', () => {
   const context = compileFamily({ ...FILL, family: 'witness', reach: 'context',
-    variants: { 'arena-witness-on': '[--arena-witness-mark:1]' }, default: 'arena-witness-on' }, ['button']);
-  assert.match(context, /@scope \(\.arena-witness-on\) \{/);
-  assert.doesNotMatch(context, / to \(/);
-  const axis = compileFamily({ ...FILL, axis: '--arena-fill' }, ['button']);
+    variants: { 'arena-witness-on': '[--arena-witness-mark:1]' }, default: 'arena-witness-on' }, witness());
+  assert.match(context, /@scope \(\.arena-witness-on\) to \(\[data-arena-surface="floating"\]\) \{/);
+  assert.doesNotMatch(context, /data-arena-boundary/);
+  const axis = compileFamily({ ...FILL, axis: '--arena-fill' }, reading('button'));
   assert.match(axis, /\n  \[data-arena-boundary\] > \* \{\n    --arena-fill: initial;\n  \}\n\}\n$/);
 });
 
 test('every sheet opens with the layer order, so loading it first cannot rank utilities lowest', () => {
-  assert.ok(compileFamily(FILL, ['button']).startsWith(LAYER_ORDER));
+  assert.ok(compileFamily(FILL, reading('button')).startsWith(LAYER_ORDER));
 });
 
 test('a family nobody answers is an error, because every rule would select nothing', () => {
@@ -83,10 +90,10 @@ test('a family names its generated sheet and its packaged sheet', () => {
 });
 
 test('a box family registers its channels as not inherited, so a value stops where the scope does', () => {
-  const sheet = compileFamily(FILL, ['button']);
+  const sheet = compileFamily(FILL, reading('button'));
   assert.match(sheet, /@property --arena-fill-width \{\n  syntax: '\*';\n  inherits: false;\n\}/);
   const context = compileFamily({ ...FILL, family: 'witness', reach: 'context',
-    variants: { 'arena-witness-on': '[--arena-witness-mark:1]' }, default: 'arena-witness-on' }, ['button']);
+    variants: { 'arena-witness-on': '[--arena-witness-mark:1]' }, default: 'arena-witness-on' }, witness());
   assert.doesNotMatch(context, /@property/);
 });
 
@@ -121,7 +128,7 @@ test('a markup family compiles unlayered, one scope per option over its own root
 });
 
 test('no manifest answers a markup family', () => {
-  assert.throws(() => compileFamily(STACK, ['button']), /markup family/);
+  assert.throws(() => compileFamily(STACK, [{ component: 'ArenaButton', answers: ['stack'], slots: { root: 'x-[var(--arena-stack-x,0)]' } }]), /markup family/);
 });
 
 test('a markup option is arbitrary CSS properties, and a utility is not one', () => {
@@ -147,4 +154,46 @@ test('a restating option writes the literal values of the contract file it names
   }
 }
 `);
+});
+
+const size: Family = { family: 'probe', reach: 'context', description: 'x', default: 'arena-probe-md',
+  variants: { 'arena-probe-sm': '[--arena-probe-h:1px]', 'arena-probe-md': '[--arena-probe-h:2px]', 'arena-probe-xl': '[--arena-probe-h:9px]' } };
+const button: ComponentManifest = { component: 'ArenaButton',
+  answers: [{ family: 'probe', options: ['arena-probe-sm', 'arena-probe-md'], default: 'arena-probe-md' }],
+  slots: { root: 'h-[var(--arena-probe-h,2px)]' } };
+const logo: ComponentManifest = { component: 'ArenaAppLogo', answers: ['probe'],
+  slots: { root: 'flex', mark: 'size-[var(--arena-probe-h,2px)]' } };
+
+test('an option compiles over the parts that answer it, and a context family over each root part only', () => {
+  const css = compileFamily(size, [button, logo]);
+  const xl = css.split('.arena-probe-xl')[1]!;
+  assert.match(xl, /data-arena-part="app-logo"/);
+  assert.doesNotMatch(xl, /data-arena-part="button"|app-logo\.mark/);
+  assert.match(css, /@scope \(\.arena-probe-sm\) to \(\[data-arena-surface="floating"\]\)/);
+});
+
+test('an option nobody answers emits nothing, and a listed option reaches the component that lists it', () => {
+  const only = compileFamily(size, [button]);
+  assert.doesNotMatch(only, /arena-probe-xl/);
+  assert.match(only, /@scope \(\.arena-probe-sm\)[\s\S]*data-arena-part="button"/);
+  assert.deepEqual(answeringParts(size, [button, logo], 'arena-probe-xl'), ['app-logo']);
+  assert.deepEqual(answeringParts(size, [button, logo]), ['app-logo', 'button']);
+});
+
+test('answerOf and answeredFamilies read a name and an object alike', () => {
+  assert.deepEqual(answeredFamilies({ answers: ['fill', { family: 'probe', options: ['a'], default: 'a' }] }), ['fill', 'probe']);
+  assert.deepEqual(answerOf(logo, size), { options: ['arena-probe-sm', 'arena-probe-md', 'arena-probe-xl'], default: 'arena-probe-md' });
+  assert.deepEqual(answerOf(button, size), { options: ['arena-probe-sm', 'arena-probe-md'], default: 'arena-probe-md' });
+  assert.equal(answerOf({ component: 'ArenaCard' }, size), null);
+});
+
+test('channelReads returns nested reads with their whole fallback', () => {
+  assert.deepEqual(channelReads('w-[var(--arena-o-w,var(--arena-s-long,var(--s-md-long)))]'), [
+    { channel: '--arena-o-w', fallback: 'var(--arena-s-long,var(--s-md-long))' },
+    { channel: '--arena-s-long', fallback: 'var(--s-md-long)' },
+  ]);
+  assert.deepEqual(channelReads('bg-[var(--arena-a-x,color-mix(in_oklab,var(--c)_20%,transparent))] p-[var(--arena-a-y)]'), [
+    { channel: '--arena-a-x', fallback: 'color-mix(in_oklab,var(--c)_20%,transparent)' },
+    { channel: '--arena-a-y', fallback: null },
+  ]);
 });

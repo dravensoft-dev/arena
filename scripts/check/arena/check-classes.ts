@@ -14,6 +14,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 import { LAYERS } from '../../lib/arena/site-pages.ts';
 import { readFamilies, VOCABULARY_SHEETS, sheetName, packageSheetName } from '../../lib/tailwind/vocabulary.ts';
+import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 
 export const PAGE = 'PACKAGE.md';
 
@@ -23,9 +24,11 @@ export const SHEETS = [
 ].map(({ from }) => from ?? '')
   .filter(Boolean);
 
+export const UTILITIES = 'frameworks/tailwind/Utilities.generated.css';
+
 export const node = {
   name: 'check:classes',
-  reads: [...SHEETS, 'frameworks/*/PACKAGE.md'],
+  reads: [...SHEETS, 'frameworks/*/PACKAGE.md', UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities],
   writes: [],
   feeds: [],
 };
@@ -34,7 +37,38 @@ export const NOT_WRITTEN = new Map<string, string>([
   ['arena-light', 'the class Arena\'s own light palette takes, which the invariant sheet keys the '
     + 'picker inversion and the polarity off. A project writes .arena-<name> for a palette its own '
     + 'config declares, and both pages document that shape rather than this one instance of it'],
+  ['arena-shimmer', 'an animation a manifest names on a skeleton, not a family option: it paints a loading '
+    + 'placeholder, and an adopter does not write it on a component'],
+  ['arena-pop', 'an animation a manifest names on a dialog panel, not a family option: it is an entrance, '
+    + 'and an adopter does not write it on a component'],
+  ['arena-menu', 'an animation a manifest names on a menu panel, not a family option: it is an entrance, '
+    + 'and an adopter does not write it on a component'],
+  ['arena-fade', 'an animation a manifest names on a tooltip bubble, not a family option: it is an entrance, '
+    + 'and an adopter does not write it on a component'],
+  ['arena-prog-indeterminate', 'a helper a manifest names on a progress track, not a family option: it draws the '
+    + 'sweep of a pseudo-element no utility reaches, and an adopter does not write it on a component'],
+  ['arena-prog-ring', 'an animation a manifest names on a progress ring, not a family option: it turns the ring '
+    + 'while no percentage is known, and an adopter does not write it on a component'],
+  ['arena-btn-spin', 'an animation a manifest names on a button\'s loading mark, not a family option: it turns '
+    + 'the mark, and an adopter does not write it on a component'],
+  ['arena-spinner', 'an animation a manifest names on a spinner, not a family option: it turns the circle, '
+    + 'and an adopter does not write it on a component'],
 ]);
+
+const UTILITY = /@utility\s+(arena-[a-z0-9_-]+)/g;
+
+export function utilitiesIn(css: string) {
+  return [...new Set([...css.replace(COMMENT, ' ').matchAll(UTILITY)].map((match) => match[1] ?? ''))].filter(Boolean);
+}
+
+export function themeUtilities(base = root) {
+  const at = join(base, ...UTILITIES.split('/'));
+  const sheet = existsSync(at) ? readFileSync(at, 'utf8') : '';
+  let theme = '';
+  try { theme = tailwindThemeSheet(base); } catch { theme = ''; }
+  return new Map([...utilitiesIn(theme).map((name) => [name, 'the theme sheet'] as const),
+    ...utilitiesIn(sheet).map((name) => [name, UTILITIES] as const)]);
+}
 
 const COMMENT = /\/\*[\s\S]*?\*\//g;
 
@@ -86,10 +120,11 @@ export function homeProblems(base = root, names = shipped(base), exempt = NOT_WR
   return problems;
 }
 
-export function staleExemptProblems(names = shipped(), exempt = NOT_WRITTEN) {
+export function staleExemptProblems(names = shipped(), exempt = NOT_WRITTEN, utilities: Iterable<string> = themeUtilities().keys()) {
+  const defined = new Set([...names, ...utilities]);
   return [...exempt]
-    .filter(([name]) => !names.includes(name))
-    .map(([name, reason]) => `NOT_WRITTEN declares .${name}, which no shipped sheet defines any `
+    .filter(([name]) => !defined.has(name))
+    .map(([name, reason]) => `NOT_WRITTEN declares .${name}, which no shipped sheet or theme utility defines any `
       + `more, so the declaration outlived what it was written for: ${reason}`);
 }
 
@@ -97,7 +132,7 @@ export function collect(base = root) {
   const names = shipped(base);
   const zero = zeroClassProblems(names);
   if (zero.length > 0) return zero;
-  return [...homeProblems(base, names), ...staleExemptProblems(names)];
+  return [...homeProblems(base, names), ...staleExemptProblems(names, NOT_WRITTEN, themeUtilities(base).keys())];
 }
 
 function main() {

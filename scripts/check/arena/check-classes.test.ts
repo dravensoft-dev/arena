@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   PAGE, SHEETS, NOT_WRITTEN, classesIn, shipped, zeroClassProblems, homeProblems,
-  staleExemptProblems, collect,
+  staleExemptProblems, collect, utilitiesIn, themeUtilities,
 } from './check-classes.ts';
 
 function tree(files: Record<string, string>) {
@@ -77,4 +77,14 @@ test('a declared class is kept off the page without a report', () => {
 
 test('the tree it actually ships passes, which is the claim the gate prints', () => {
   assert.deepEqual(collect(), []);
+});
+
+test('NOT_WRITTEN names the eight theme utilities, and an entry no sheet and no utility defines is stale', () => {
+  const eight = ['arena-shimmer', 'arena-pop', 'arena-menu', 'arena-fade', 'arena-prog-indeterminate', 'arena-prog-ring', 'arena-btn-spin', 'arena-spinner'];
+  for (const name of eight) assert.ok(NOT_WRITTEN.has(name), `${name} is recorded`);
+  assert.deepEqual([...themeUtilities().keys()].filter((name) => !NOT_WRITTEN.has(name)), []);
+  assert.deepEqual(utilitiesIn('/* @utility arena-no { } */ @utility arena-yes {\n a: b }\n@utility other { }'), ['arena-yes']);
+  const only = new Map([['arena-spinner', 'a reason long enough to be a reason']]);
+  assert.deepEqual(staleExemptProblems([], only, ['arena-spinner']), []);
+  assert.equal(staleExemptProblems([], only, []).length, 1);
 });

@@ -40,3 +40,22 @@ test('a markup family is answered by markup you write, carries no default, and s
   assert.match(page, /Tailwind utilities that a manifest names, and not vocabulary classes\./);
   assert.match(page, /- \*\*Values:\*\* `arena-compact` restates `contracts\/design\/density\.compact\.json`\./);
 });
+
+test('a component answering a subset of a family, or with a default of its own, says so under Answered by', () => {
+  const base = mkdtempSync(join(tmpdir(), 'vocabulary-answers-'));
+  const dir = join(base, 'frameworks/tailwind/components/forms/arena-probe');
+  mkdirSync(dir, { recursive: true });
+  mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-size'), { recursive: true });
+  writeFileSync(join(base, 'frameworks/tailwind/vocabulary/arena-size/Size.family.json'), JSON.stringify({ family: 'size', reach: 'context', description: 'd',
+    default: 'arena-size-md', variants: { 'arena-size-sm': '[--arena-size-h:1px]', 'arena-size-md': '[--arena-size-h:2px]', 'arena-size-lg': '[--arena-size-h:3px]' } }));
+  const write = (name: string, answers: unknown) => writeFileSync(join(dir, `${name}.manifest.json`),
+    JSON.stringify({ component: name, answers, slots: { root: 'x-[var(--arena-size-h,2px)]' } }));
+  write('ArenaWhole', ['size']);
+  write('ArenaSubset', [{ family: 'size', options: ['arena-size-sm', 'arena-size-md'], default: 'arena-size-md' }]);
+  write('ArenaOwn', [{ family: 'size', options: ['arena-size-sm', 'arena-size-md', 'arena-size-lg'], default: 'arena-size-sm' }]);
+  const section = renderVocabulary(base).split('\n## size\n')[1] ?? '';
+  assert.match(section, /ArenaOwn \(default `arena-size-sm`\)/);
+  assert.match(section, /ArenaSubset \(`arena-size-md`, `arena-size-sm`\)/);
+  assert.match(section, /ArenaWhole[,.]/);
+  assert.doesNotMatch(section, /ArenaWhole \(/);
+});

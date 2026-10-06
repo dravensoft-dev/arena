@@ -1,13 +1,11 @@
-/* Turns a manifest into the CSS a component renders, so no Tailwind class name and no
- * Tailwind custom property leaves a package. Every class name is spelt by ManifestClasses.js
- * rather than here: the specimen harness runs that file in a browser and this generator writes
- * the sheet, so a second copy of the template would let a page render classes no sheet defines
- * and no gate would see it. The strip is the load-bearing half. `@apply` emits Tailwind's own
- * namespace with the Arena token only as a fallback, `var(--spacing, var(--sp-1))`, and an
- * adopter who runs Tailwind declares `--spacing` on their unlayered `:root`, wins, and rescales
- * every component silently. Stripping to `var(--sp-1)` also repairs `.arena-compact`, inert while
- * the density tokens resolve on `:root` and inherit resolved. An indirection `Theme.css` does not
- * confirm is an error, and the preset it names is posix: a backslash in a CSS string escapes. */
+/* Turns a manifest into the CSS a component renders, so no Tailwind class name and no Tailwind
+ * custom property leaves a package. Every class name is spelt by ManifestClasses.js rather than
+ * here, so the specimen harness and this generator agree. The strip is the load-bearing half:
+ * `@apply` emits Tailwind's own namespace with the Arena token as a fallback, `var(--spacing,
+ * var(--sp-1))`, and an adopter's own `--spacing` would rescale every component silently. A theme
+ * indirection Theme.css does not confirm is an error. A family channel read, `var(--arena-<family>-
+ * ..., var(--role))`, and a key Theme.css does not declare stay whole, or the option is erased.
+ * The preset it names is posix: a backslash in a CSS string escapes. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -39,7 +37,8 @@ export const arenaSlotDataFor =
 export { classBase, compoundSelector, dataAttribute, slotClass, slotPart, variantSelector };
 
 export const INDIRECTION = /var\(\s*--([a-z0-9-]+)\s*,\s*var\(\s*--([a-z0-9-]+)\s*\)\s*\)/g;
-export const isThemeKey = (name: string) => !name.startsWith('tw-');
+export const isThemeKey = (name: string, themeMap?: Map<string, string>) =>
+  !name.startsWith('tw-') && !name.startsWith('arena-') && (!themeMap?.size || themeMap.has(name));
 
 export function applyRules(manifest: ComponentManifest) {
   const rules: { selector: string; classes: string }[] = [];
@@ -83,7 +82,7 @@ function calcReads(css: string, themeMap: Map<string, string>) {
   for (const m of css.matchAll(/var\(\s*--([a-z0-9-]+)\s*,\s*(calc\()/g)) {
     const key = captured(m);
     const expression = themeMap.get(key);
-    if (!isThemeKey(key) || !expression?.startsWith('calc(')) continue;
+    if (!isThemeKey(key, themeMap) || !expression?.startsWith('calc(')) continue;
     const open = m.index + m[0].length - 1;
     let depth = 0;
     let end = -1;
@@ -116,7 +115,7 @@ export function stripProblems(css: string, themeMap: Map<string, string>) {
   for (const m of css.matchAll(INDIRECTION)) {
     const key = captured(m);
     const token = captured(m, 2);
-    if (!isThemeKey(key)) continue;
+    if (!isThemeKey(key, themeMap)) continue;
     if (themeMap.get(key) !== token) {
       problems.push(`var(--${key}, var(--${token})) is not a pair Theme.css declares, so the strip `
         + `cannot know that --${token} is what --${key} means; add it to the preset or stop emitting it`);
@@ -138,7 +137,7 @@ export function stripIndirection(css: string, themeMap: Map<string, string> = ne
   }
   for (let previous = null; previous !== out;) {
     previous = out;
-    out = out.replace(INDIRECTION, (match, key: string, token: string) => (isThemeKey(key) ? `var(--${token})` : match));
+    out = out.replace(INDIRECTION, (match, key: string, token: string) => (isThemeKey(key, themeMap) ? `var(--${token})` : match));
   }
   return out;
 }

@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { answeredFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { readManifests, utility } from './check-measured-box.ts';
 
 export const node = {
@@ -87,7 +88,7 @@ export function manifestFindings(manifest: ComponentManifest): { findings: Findi
   const findings: Finding[] = [];
   let inline = 0;
   if (slot === null) return { findings, inline };
-  const fills = (manifest.answers ?? []).includes('fill');
+  const fills = answeredFamilies(manifest).includes('fill');
   for (const chosen of choices(manifest, slot)) {
     const tokens = resolve(manifest, slot, chosen);
     const display = last(tokens, DISPLAY);
@@ -109,7 +110,7 @@ export function collect(root = repoRoot, own = OWN_WIDTH, manifests = readManife
     inline += result.inline;
     if (result.inline === 0) continue;
     inlineRoots.add(manifest.component);
-    const fills = (manifest.answers ?? []).includes('fill');
+    const fills = answeredFamilies(manifest).includes('fill');
     if (!fills && !own.has(manifest.component)) {
       problems.push(`${manifest.component}.${drawnSlot(manifest)} is inline-level, answers no fill and is not in OWN_WIDTH, `
         + `so whether it fills its container is decided by nobody. Answer fill and read ${FILL_READ}, or list it with why `
@@ -126,7 +127,7 @@ export function collect(root = repoRoot, own = OWN_WIDTH, manifests = readManife
   }
   for (const [name, why] of own) {
     const manifest = manifests.get(name);
-    if (manifest && (manifest.answers ?? []).includes('fill'))
+    if (manifest && answeredFamilies(manifest).includes('fill'))
       problems.push(`stale OWN_WIDTH: ${name} answers fill, so it no longer keeps a width of its own -- ${why}`);
     else if (!inlineRoots.has(name)) problems.push(`stale OWN_WIDTH: ${name} has no inline-level root -- ${why}`);
   }

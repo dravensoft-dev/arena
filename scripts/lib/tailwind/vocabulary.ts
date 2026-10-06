@@ -17,13 +17,15 @@ import { captured } from '../../utils/captures.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { classesManifest } from './component-css.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
-import type { ComponentManifest } from './manifest-shapes.ts';
+import type { ArenaAnswer, ComponentManifest } from './manifest-shapes.ts';
 
 export const VOCABULARY_DIR = 'frameworks/tailwind/vocabulary';
 export const VOCABULARY_SHEETS = 'frameworks/tailwind/consume/vocabulary';
 export const FAMILY_SUFFIX = '.family.json';
 export const BOUNDARY = 'data-arena-boundary';
 export const LIMIT = `[${BOUNDARY}] > *, :scope[${BOUNDARY}] > *`;
+export const SURFACE = 'data-arena-surface';
+export const FLOATING_LIMIT = `[${SURFACE}="floating"]`;
 export const REACHES = ['context', 'box'] as const;
 
 export type Reach = typeof REACHES[number];
@@ -122,20 +124,63 @@ export function slotClassStrings(manifest: ComponentManifest): [string, string][
   return out;
 }
 
-export function answeringParts(family: string, manifests: Iterable<ComponentManifest>): string[] {
+const answerName = (answer: ArenaAnswer) => (typeof answer === 'string' ? answer : answer.family);
+
+export function answeredFamilies(manifest: Pick<ComponentManifest, 'answers'>): string[] {
+  return (manifest.answers ?? []).map(answerName);
+}
+
+export function answerOf(manifest: ComponentManifest, family: Family): { options: readonly string[]; default: string } | null {
+  const answer = (manifest.answers ?? []).find((one) => answerName(one) === family.family);
+  if (answer === undefined) return null;
+  if (typeof answer === 'string') return { options: Object.keys(family.variants), default: family.default ?? '' };
+  return { options: answer.options, default: answer.default };
+}
+
+export function channelReads(classes: string): { channel: string; fallback: string | null }[] {
+  const reads: { channel: string; fallback: string | null }[] = [];
+  for (const match of classes.matchAll(/var\(\s*(--arena-[a-z0-9-]+)\s*([,)])/g)) {
+    const channel = captured(match);
+    if (match[2] === ')') { reads.push({ channel, fallback: null }); continue; }
+    let depth = 1;
+    const from = match.index + match[0].length;
+    let at = from;
+    for (; at < classes.length && depth > 0; at += 1) {
+      if (classes[at] === '(') depth += 1;
+      else if (classes[at] === ')') depth -= 1;
+    }
+    reads.push({ channel, fallback: classes.slice(from, depth === 0 ? at - 1 : at).trim() });
+  }
+  return reads;
+}
+
+export function answeringParts(
+  family: string | Pick<Family, 'family' | 'reach'>, manifests: Iterable<ComponentManifest>, option?: string,
+): string[] {
+  const name = typeof family === 'string' ? family : family.family;
+  const context = typeof family !== 'string' && family.reach === 'context';
   const parts = new Set<string>();
   for (const manifest of manifests) {
-    if (!(manifest.answers ?? []).includes(family)) continue;
+    const answer = (manifest.answers ?? []).find((one) => answerName(one) === name);
+    if (answer === undefined) continue;
+    if (option !== undefined && typeof answer !== 'string' && !answer.options.includes(option)) continue;
     const named = classesManifest(manifest).parts ?? {};
+    if (context) {
+      const root = Object.keys(manifest.slots ?? {})[0];
+      if (root !== undefined) parts.add(named[root] ?? root);
+      continue;
+    }
     for (const [slot, classes] of slotClassStrings(manifest))
-      if (readsChannel(String(classes ?? ''), family)) parts.add(named[slot] ?? slot);
+      if (readsChannel(String(classes ?? ''), name)) parts.add(named[slot] ?? slot);
   }
   return [...parts].sort();
 }
 
 const byOption = ([a]: [string, string], [b]: [string, string]) => (a < b ? -1 : a > b ? 1 : 0);
 
-export function compileFamily(family: Family, parts: string[], root = repoRoot): string {
+export function compileFamily(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string {
+  const all = [...manifests];
+  const parts = answeringParts(family, all);
   if (targetOf(family) === 'markup') {
     if (parts.length) {
       throw new Error(`vocabulary: ${family.family} is a markup family and the parts ${parts.join(', ')} answer it; `
@@ -151,12 +196,15 @@ export function compileFamily(family: Family, parts: string[], root = repoRoot):
     throw new Error(`vocabulary: no manifest answers ${family.family} and reads its channels, so every `
       + 'option would compile to a rule that selects nothing');
   }
-  const selector = parts.map((part) => `&[data-arena-part="${part}"], [data-arena-part="${part}"]`).join(',\n    ');
-  const blocks = Object.entries(family.variants).sort(byOption).map(([option, classes]) => {
-    const head = family.reach === 'box' ? `@scope (.${option}) to (${LIMIT})` : `@scope (.${option})`;
+  const blocks: string[] = [];
+  for (const [option, classes] of Object.entries(family.variants).sort(byOption)) {
+    const own = answeringParts(family, all, option);
+    if (own.length === 0) continue;
+    const selector = own.map((part) => `&[data-arena-part="${part}"], [data-arena-part="${part}"]`).join(',\n    ');
+    const head = family.reach === 'box' ? `@scope (.${option}) to (${LIMIT})` : `@scope (.${option}) to (${FLOATING_LIMIT})`;
     const body = declarations(classes).map(([name, value]) => `      ${name}: ${value};`).join('\n');
-    return `  ${head} {\n    ${selector} {\n${body}\n    }\n  }`;
-  });
+    blocks.push(`  ${head} {\n    ${selector} {\n${body}\n    }\n  }`);
+  }
   if (family.reach === 'box' && family.axis) blocks.push(`  [${BOUNDARY}] > * {\n    ${family.axis}: initial;\n  }`);
   const channels = family.reach === 'box'
     ? [...new Set(Object.values(family.variants).flatMap((classes) => declarations(classes).map(([name]) => name)))].sort()

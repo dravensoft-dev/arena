@@ -20,8 +20,9 @@ import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect, evaluate } from '../../lib/arena/cdp.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { arenaClassesFor, arenaSlotDataFor, classesManifest } from '../../lib/tailwind/component-css.ts';
-import { VOCABULARY_SHEETS, compileFamily } from '../../lib/tailwind/vocabulary.ts';
-import { readProximity, treeHtml, SUBJECT, type PartData, type ProximityCase, type MarkupCase } from '../../lib/arena/proximity.ts';
+import { VOCABULARY_SHEETS, compileFamily, declarations } from '../../lib/tailwind/vocabulary.ts';
+import { pascal } from '../../utils/case.ts';
+import { readProximity, treeHtml, SUBJECT, type PartData, type ProximityCase, type MarkupCase, type WitnessFamily } from '../../lib/arena/proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 import { loaded as loadFired } from './check-pixel-parity.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
@@ -150,6 +151,13 @@ const LOADED_EXPRESSION = `new Promise((resolve) => {
   tick();
 })`;
 
+function witnessManifests(family: WitnessFamily): ComponentManifest[] {
+  const channel = declarations(Object.values(family.variants)[0] ?? '')[0]?.[0] ?? `--arena-${family.family}`;
+  return (family.parts ?? ['button']).map((part) => ({
+    component: `Arena${pascal(part)}`, answers: [family.family], slots: { root: `x-[var(${channel},0)]` },
+  }));
+}
+
 async function main() {
   const { families, cases, markup } = readProximity();
   const unrecorded = cases.flatMap((one) => (['react', 'angular'] as const).filter((layer) => one[layer] === null).map((layer) => `${one.name} (${layer})`));
@@ -163,7 +171,7 @@ async function main() {
   const sheet = (dir: string) => walkFiles(join(root, dir)).filter((p) => p.endsWith('.css')).map((p) => relPosix(root, p)).sort();
   const sheets = { components: sheet('frameworks/tailwind/consume/components'), vocabulary: sheet(VOCABULARY_SHEETS) };
   if (sheets.vocabulary.length === 0) { console.error('check-proximity: found 0 vocabulary sheets; run bun run build'); process.exit(1); }
-  const witnessCss = families.map((family) => compileFamily(family, family.parts ?? ['button'])).join('\n');
+  const witnessCss = families.map((family) => compileFamily(family, witnessManifests(family))).join('\n');
   const exe = browserOrExit('check-proximity');
   const server = await startStaticServer(root);
   const chrome = await launchChromium(exe);

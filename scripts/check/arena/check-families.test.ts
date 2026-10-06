@@ -4,7 +4,10 @@
  * a transparent slot the manifest does not have, and an empty vocabulary. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { familyProblems, pageDriftProblems, strayClassProblems, collect } from './check-families.ts';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { familyProblems, pageDriftProblems, strayClassProblems, utilityProblems, sweptProblems, collect } from './check-families.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
 const FILL: Family = { family: 'fill', reach: 'box', description: 'Whether a component takes its container\'s width.',
@@ -104,6 +107,89 @@ test('a class in a compiled sheet that no family and no manifest emits fails, an
   const problems = strayClassProblems(classes, new Map([['fill', FILL]]), new Set(['arena-toast__root']), new Map([['arena-light', 'why']]));
   assert.deepEqual(problems.length, 1);
   assert.match(problems[0] ?? '', /t\/x\.css emits \.arena-stray, which no family and no manifest emits/);
+});
+
+const SIZE: Family = { family: 'size', reach: 'context', description: 'How big.', default: 'arena-size-md',
+  variants: { 'arena-size-sm': '[--arena-size-h:1px]', 'arena-size-md': '[--arena-size-h:2px]', 'arena-size-xl': '[--arena-size-h:9px]' } };
+const SIZE_FILE = 'frameworks/tailwind/vocabulary/arena-size/Size.family.json';
+const sized = (over: Record<string, unknown> = {}, slots: Record<string, string> = { root: 'h-[var(--arena-size-h,2px)]' }) => ({
+  component: 'ArenaButton', answers: [{ family: 'size', options: ['arena-size-sm', 'arena-size-md'], default: 'arena-size-md' }], slots, ...over });
+const logo = () => ({ component: 'ArenaAppLogo', answers: ['size'], slots: { root: 'h-[var(--arena-size-h,2px)]' } });
+const withSize = (button: Record<string, unknown>, size: Family = SIZE, more: Record<string, any>[] = [logo()]) =>
+  run(new Map([['size', size]]), new Map<string, any>([['ArenaButton', button], ...more.map((one) => [one.component, one] as const)]), [SIZE_FILE]).join('\n');
+
+test('a valid object answer over a context family is clean', () => {
+  assert.equal(withSize(sized()), '');
+});
+
+test('an answers object naming a foreign option, no option, or a default outside its options fails', () => {
+  const answer = (options: string[], def: string) => sized({ answers: [{ family: 'size', options, default: def }] });
+  assert.match(withSize(answer(['arena-size-sm', 'arena-fill'], 'arena-size-sm')), /answers size with arena-fill, which is not an option of size/);
+  assert.match(withSize(answer([], 'arena-size-md')), /answers size with no options/);
+  assert.match(withSize(answer(['arena-size-sm'], 'arena-size-md')), /default arena-size-md that is none of its options/);
+});
+
+test('a fallback differing from the component default fails, including a color-mix fallback and an inner read', () => {
+  const sm = { answers: [{ family: 'size', options: ['arena-size-sm', 'arena-size-md'], default: 'arena-size-sm' }] };
+  assert.match(withSize(sized(sm)), /falls back to 2px and the default arena-size-sm writes 1px/);
+  assert.equal(withSize(sized(sm, { root: 'h-[var(--arena-size-h,1px)]' })), '');
+  const tint: Family = { ...SIZE, variants: { ...SIZE.variants, 'arena-size-md': '[--arena-size-h:color-mix(in_oklab,var(--c)_20%,transparent)]' } };
+  const mix = (percent: number) => ({ root: `x-[var(--arena-size-h,color-mix(in_oklab,var(--c)_${percent}%,transparent))]` });
+  assert.equal(withSize(sized(undefined, mix(20)), tint, [{ ...logo(), slots: mix(20) }]), '');
+  assert.match(withSize(sized(undefined, mix(30)), tint, [{ ...logo(), slots: mix(20) }]), /ArenaButton\.root: --arena-size-h falls back to color-mix\(in oklab,var\(--c\) 30%,transparent\) and the default arena-size-md writes color-mix\(in oklab,var\(--c\) 20%,transparent\)/);
+  const inner = { root: 'w-[var(--arena-orient-w,var(--arena-size-h,3px))]' };
+  assert.match(withSize(sized(undefined, inner)), /--arena-size-h falls back to 3px and the default arena-size-md writes 2px/);
+});
+
+test('a bound key that no family writes, that its family does not answer, or without a reason fails', () => {
+  assert.match(withSize(sized({ bound: { '--arena-ghost-h': 'x' } })), /binds --arena-ghost-h, which no family writes/);
+  assert.match(withSize(sized({ bound: { '--arena-fill-width': 'x' } })), /binds --arena-fill-width, which no family writes/);
+  assert.match(both(undefined, new Map<string, any>([['ArenaButton', { ...button(), bound: { '--arena-fill-width': ' ' } }]])).join('\n'), /binds --arena-fill-width with no reason/);
+  const extra = { ...SIZE, variants: { ...SIZE.variants, 'arena-size-md': '[--arena-size-h:2px] [--arena-size-w:3px]' } };
+  assert.match(withSize(sized(), extra), /--arena-size-w is written and no manifest answering size reads it/);
+  assert.doesNotMatch(withSize(sized({ bound: { '--arena-size-w': 'set inline by the host' } }), extra), /--arena-size-w is written/);
+  const other = run(new Map([['fill', FILL], ['size', SIZE]]), new Map<string, any>([['ArenaButton', { ...button(), bound: { '--arena-size-h': 'x' } }], ['ArenaAppLogo', logo()]]), [FILE, SIZE_FILE]).join('\n');
+  assert.match(other, /ArenaButton: binds --arena-size-h and does not answer size/);
+});
+
+test('an option no manifest answers fails with the reason', () => {
+  assert.equal(withSize(sized()), '');
+  assert.match(withSize(sized(), SIZE, []), /arena-size-xl is answered by no manifest, and an option nobody answers is a question nobody asked/);
+});
+
+test('a family value or a read fallback naming a Tailwind theme key fails, and a palette key does not', () => {
+  assert.match(withSize(sized(undefined, { root: 'p-[var(--arena-size-h,var(--spacing-section))]' })), /falls back to --spacing-section, a Tailwind theme key/);
+  const spaced = { ...SIZE, variants: { ...SIZE.variants, 'arena-size-md': '[--arena-size-h:calc(var(--spacing)*120)]' } };
+  assert.match(withSize(sized(), spaced), /arena-size-md names --spacing, a Tailwind theme key/);
+  const radius = { ...SIZE, variants: { ...SIZE.variants, 'arena-size-md': '[--arena-size-h:var(--radius-lg)]' } };
+  assert.match(withSize(sized(), radius), /names --radius-lg/);
+  const palette = { ...SIZE, variants: { ...SIZE.variants, 'arena-size-md': '[--arena-size-h:var(--color-base-100)]' } };
+  assert.doesNotMatch(withSize(sized(), palette), /names --color-base-100/);
+  const stray = { ...SIZE, variants: { ...SIZE.variants, 'arena-size-md': '[--arena-size-h:var(--color-nope)]' } };
+  assert.match(withSize(sized(), stray), /names --color-nope/);
+});
+
+test('a floating key that names no slot, or carries no reason, fails', () => {
+  assert.match(withSize(sized({ floating: { panel: 'a panel floats over the page' } })), /ArenaButton declares panel floating and has no such slot/);
+  assert.match(withSize(sized({ floating: { root: ' ' } })), /ArenaButton declares root floating with no reason/);
+  assert.equal(withSize(sized({ floating: { root: 'it floats' } })), '');
+});
+
+test('an @utility arena- name the theme sheet ships fails unless it is an option, a manifest class or exempt', () => {
+  const found = new Map([['arena-x', 'a probe theme sheet'], ['arena-fill', 'a probe theme sheet'], ['arena-light', 'a probe theme sheet']]);
+  const problems = utilityProblems(found, new Map([['fill', FILL]]), new Set(), new Map([['arena-light', 'why']]));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /a probe theme sheet defines @utility arena-x, which is no family option/);
+});
+
+test('the sweep reads the utilities a theme sheet ships, so an unnamed one fails through the gate', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-sweep-'));
+  mkdirSync(join(root, 'frameworks/tailwind/consume'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/consume/A.css'), '.arena-fill { color: red; }\n');
+  writeFileSync(join(root, 'frameworks/tailwind/Utilities.generated.css'), '@utility arena-x {\n  color: red;\n}\n@utility arena-spinner {\n  color: red;\n}\n');
+  const problems = sweptProblems(new Map([['fill', FILL]]), new Map(), root).join('\n');
+  assert.match(problems, /defines @utility arena-x, which is no family option/);
+  assert.doesNotMatch(problems, /@utility arena-spinner/);
 });
 
 test('the built tree is clean', () => {

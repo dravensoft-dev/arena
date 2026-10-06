@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import { win32 } from 'node:path';
 import {
   applyRules, classesManifest, classNames, entryStylesheet, isThemeKey,
-  slotClass, stripIndirection, stripProblems, themeKeyMap,
+  slotClass, stripIndirection, stripProblems, themeKeyMap, themeMapFor,
 } from './component-css.ts';
+import { compileEntry, layerInputs } from './tailwind-compile.ts';
+import { repoRoot } from '../arena/repo-root.ts';
 
 const manifest = {
   component: 'ArenaSideNavItem',
@@ -138,4 +140,17 @@ test('the strip resolves a theme key whose value is a calc over Arena tokens and
   );
   assert.deepEqual(stripProblems(`padding-inline: var(--spacing-row-x, ${calc})`, map), []);
   assert.equal(stripProblems('padding-inline: var(--spacing-row-x, calc(var(--pad-row-y) * 2))', map).length, 1);
+});
+
+test('a channel read with a role fallback compiles whole, and the strip and its check leave it alone', () => {
+  const probe = new Map([['p.json', { component: 'ArenaProbe', slots: { root: 'h-[var(--arena-probe-h,var(--probe-role))]' } }]]);
+  const preset = `${repoRoot}/frameworks/tailwind/Theme.css`;
+  const raw = compileEntry(entryStylesheet(preset, probe), repoRoot, layerInputs(repoRoot));
+  const theme = themeMapFor(repoRoot);
+  assert.deepEqual(stripProblems(raw, theme), []);
+  assert.match(stripIndirection(raw, theme), /height: var\(--arena-probe-h,var\(--probe-role\)\);/);
+  assert.ok(!isThemeKey('arena-size-h'));
+  assert.ok(!isThemeKey('probe-x', new Map([['spacing', 'sp-1']])), 'a key Theme.css does not declare is left alone');
+  assert.equal(stripIndirection('gap: var(--spacing, var(--sp-1)); h: var(--arena-a-h, var(--r-1))', new Map([['spacing', 'sp-1']])),
+    'gap: var(--sp-1); h: var(--arena-a-h, var(--r-1))');
 });

@@ -8,6 +8,7 @@
  * are the ones the committed tree holds, not arithmetic done on paper. */
 
 import test from 'node:test';
+import ts from 'typescript';
 import assert from 'node:assert/strict';
 import { join, win32 } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -107,8 +108,8 @@ test('each component gets every context class and the box classes its manifest a
   const text = vocabularyTypes([...families], new Map([['ArenaButton', ['fill']]]), ['ArenaButton', 'ArenaCard'], 'https://x/frameworks/VOCABULARY.md');
   assert.match(text, /export type ArenaContextClass = 'arena-witness-off' \| 'arena-witness-on';/);
   assert.match(text, /export type ArenaFillClass = 'arena-fill' \| 'arena-fit';/);
-  assert.match(text, /export type ArenaButtonClass = ArenaContextClass \| ArenaFillClass;/);
-  assert.match(text, /export type ArenaCardClass = ArenaContextClass;/);
+  assert.match(text, /export type ArenaButtonClass = ArenaClassList<ArenaContextClass \| ArenaFillClass>;/);
+  assert.match(text, /export type ArenaCardClass = ArenaClassList<ArenaContextClass>;/);
   assert.match(text, /"ArenaButton": \["arena-witness-off", "arena-witness-on", "arena-fill", "arena-fit"\]/);
   assert.match(text, /"ArenaCard": \["arena-witness-off", "arena-witness-on"\]/);
 });
@@ -125,4 +126,42 @@ test('a markup box family is offered to no component, and a markup context famil
   assert.match(text, /export type ArenaContextClass = 'arena-comfortable' \| 'arena-compact';/);
   assert.doesNotMatch(text, /ArenaStackClass|arena-stack/);
   assert.match(text, /"ArenaCard": \["arena-comfortable", "arena-compact"\]/);
+});
+
+test('a component takes a list of its vocabulary classes, and a box family contributes only the options it answers', () => {
+  const families = [
+    { family: 'fill', reach: 'box', description: 'd', default: 'arena-fit', variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } },
+    { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd', variants: { 'arena-compact': 'x' } },
+  ] as Family[];
+  const text = vocabularyTypes(families, new Map<string, any>([
+    ['ArenaButton', ['fill']],
+    ['ArenaTag', [{ family: 'fill', options: ['arena-fit'], default: 'arena-fit' }]],
+  ]), ['ArenaButton', 'ArenaTag'], 'p');
+  assert.match(text, /export type ArenaClassList<T extends string> = T \| `\${T} \${T}` \| `\${T} \${T} \${T}`;/);
+  assert.match(text, /export type ArenaTagClass = ArenaClassList<ArenaContextClass \| 'arena-fit'>;/);
+  assert.match(text, /"ArenaTag": \["arena-compact", "arena-fit"\]/);
+  assert.match(text, /"ArenaButton": \["arena-compact", "arena-fill", "arena-fit"\]/);
+});
+
+test('the emitted ArenaButtonClass accepts a list of classes, and refuses a token no family writes', () => {
+  const families = [
+    { family: 'fill', reach: 'box', description: 'd', default: 'arena-fit', variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } },
+    { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd', variants: { 'arena-compact': 'x', 'arena-comfortable': 'y' } },
+  ] as Family[];
+  const source = vocabularyTypes(families, new Map([['ArenaButton', ['fill']]]), ['ArenaButton'], 'p');
+  const diagnostics = (line: string) => {
+    const files = new Map([['/v.ts', source], ['/use.ts', `import type { ArenaButtonClass } from './v.ts';\n${line}\n`]]);
+    const options = { noEmit: true, strict: true, allowImportingTsExtensions: true, types: [] };
+    const host = ts.createCompilerHost(options);
+    const read = host.readFile.bind(host);
+    host.readFile = (file) => files.get(file) ?? read(file);
+    host.fileExists = (file) => files.has(file) || ts.sys.fileExists(file);
+    const load = host.getSourceFile.bind(host);
+    host.getSourceFile = (file, language, ...rest) => (files.has(file) ? ts.createSourceFile(file, files.get(file)!, language) : load(file, language, ...rest));
+    return ts.getPreEmitDiagnostics(ts.createProgram(['/use.ts'], options, host));
+  };
+  assert.equal(diagnostics("export const a: ArenaButtonClass = 'arena-fill arena-compact';").length, 0);
+  assert.equal(diagnostics("export const a: ArenaButtonClass = 'arena-fill arena-fit';").length, 0,
+    'only the runtime refuses two options of one family, since arenaClassName drops the second');
+  assert.ok(diagnostics("export const a: ArenaButtonClass = 'arena-nope';").length > 0);
 });

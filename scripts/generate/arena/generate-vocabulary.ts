@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
-import { VOCABULARY_DIR, readFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { VOCABULARY_DIR, answerOf, readFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
 
 export const VOCABULARY_TARGET = 'frameworks/VOCABULARY.md';
 
@@ -30,8 +30,14 @@ const options = (family: Family) => Object.keys(family.variants).sort()
 export function renderVocabulary(root = repoRoot) {
   const families = [...readFamilies(root).values()].sort((a, b) => (a.family < b.family ? -1 : 1));
   const manifests = [...layerManifests(root).values()];
-  const answering = (family: string) => manifests.filter((one) => (one.answers ?? []).includes(family))
-    .map((one) => one.component).sort();
+  const answering = (family: Family) => manifests.flatMap((one) => {
+    const answer = answerOf(one, family);
+    if (!answer) return [];
+    const subset = answer.options.length < Object.keys(family.variants).length;
+    const notes = [...(subset ? [[...answer.options].sort().map((option) => `\`${option}\``).join(', ')] : []),
+      ...(answer.default !== family.default ? [`default \`${answer.default}\``] : [])];
+    return [`${one.component}${notes.length ? ` (${notes.join('; ')})` : ''}`];
+  }).sort();
   const reachOf = (family: Family) => isMarkup(family)
     ? (family.reach === 'box'
       ? 'goes on an element you wrote, and it decides that element alone'
@@ -53,7 +59,7 @@ export function renderVocabulary(root = repoRoot) {
       + 'Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.', '',
     '| Family | Reach | Options | Property | Answered by |', '|---|---|---|---|---|',
     ...families.map((family) => `| [\`${family.family}\`](#${family.family}) | ${family.reach} | ${options(family)} | `
-      + `${family.axis ? `\`${family.axis}\`` : ''} | ${isMarkup(family) ? 'markup you write' : answering(family.family).join(', ')} |`),
+      + `${family.axis ? `\`${family.axis}\`` : ''} | ${isMarkup(family) ? 'markup you write' : answering(family).join(', ')} |`),
   ];
   for (const family of families) {
     lines.push('', `## ${family.family}`, '', family.description, '',
@@ -63,7 +69,7 @@ export function renderVocabulary(root = repoRoot) {
       ...(family.axis ? [`- **Property:** \`${family.axis}\`, set on a container of yours for a value no option names, with a token or a derivation of tokens.`] : []),
       isMarkup(family)
         ? `- **Written on:** an element you wrote${family.reach === 'box' ? ', never a component' : ', or a component'}.`
-        : `- **Answered by:** ${answering(family.family).join(', ')}.`);
+        : `- **Answered by:** ${answering(family).join(', ')}.`);
   }
   return `${lines.join('\n')}\n`;
 }
