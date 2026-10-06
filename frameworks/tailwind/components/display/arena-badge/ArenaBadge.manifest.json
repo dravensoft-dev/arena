@@ -1,9 +1,10 @@
 {
   "component": "ArenaBadge",
   "slots": {
-    "root": "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit",
+    "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit",
     "dot": "size-1.5 rounded-pill bg-current"
   },
+  "kind": { "root": "marker", "dot": "none" },
   "variants": {
     "tone": {
       "neutral": { "root": "bg-base-300 text-ink-body/(--level-ink-body)" },

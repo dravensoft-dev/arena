@@ -6,6 +6,7 @@
     "image": "w-full h-full object-cover",
     "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200"
   },
+  "kind": { "root": "none", "box": "none", "image": "none", "status": "none" },
   "variants": {
     "size": {
       "xs": { "root": "size-avatar-xs", "box": "size-avatar-xs text-[length:calc(var(--avatar-xs)*0.4)]", "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-xs)*0.28))]" },

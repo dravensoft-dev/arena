@@ -25,6 +25,7 @@
     "cardValueMono": "min-w-0 text-right text-ctl font-mono tabular-nums text-secondary",
     "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-edge-separator pt-2"
   },
+  "kind": { "root": "surface", "grid": "none", "body": "none", "headRow": "none", "th": "row", "thSortable": "none", "sortCaret": "none", "pager": "row", "row": "none", "rowFirst": "none", "rowInteractive": "none", "td": "row", "link": "control", "tdMono": "row", "empty": "surface", "sortBar": "none", "sortField": "none", "card": "surface", "cardRow": "none", "cardLabel": "none", "cardValue": "none", "cardValueMono": "none", "cardBlock": "none" },
   "partOf": {
     "cardValueMono": "cardValue",
     "rowFirst": "row",

@@ -6,6 +6,7 @@
     "line": "arena-shimmer h-3 rounded-marker w-full",
     "lastLine": "arena-shimmer h-3 rounded-marker w-[62%]"
   },
+  "kind": { "root": "marker", "stack": "none", "line": "marker", "lastLine": "marker" },
   "partOf": {
     "lastLine": "line"
   },

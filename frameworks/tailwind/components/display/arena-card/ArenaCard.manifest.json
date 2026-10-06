@@ -7,6 +7,7 @@
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
     "body": "p-surface flex flex-col gap-items min-w-0"
   },
+  "kind": { "root": "surface", "head": "surface", "eyebrow": "none", "title": "none", "body": "surface" },
   "variants": {
     "accent": {
       "true": {

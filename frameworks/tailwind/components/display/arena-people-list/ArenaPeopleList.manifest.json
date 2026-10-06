@@ -10,11 +10,12 @@
     "figure": "shrink-0 font-mono tabular-nums text-ink-muted/(--level-ink-muted)",
     "action": "shrink-0 flex items-center"
   },
+  "kind": { "root": "none", "row": "row", "rank": "none", "text": "none", "name": "none", "secondary": "none", "figure": "none", "action": "none" },
   "variants": {
     "size": {
       "sm": {
         "root": "gap-1",
-        "row": "gap-2 px-1.5 py-1",
+        "row": "gap-2 px-[calc(var(--sp-1)*1.5*var(--dz-row-scale-x))] py-[calc(var(--sp-1)*var(--dz-row-scale-y))]",
         "rank": "w-4 text-ctl-2xs",
         "name": "text-ctl-sm",
         "secondary": "text-ctl-2xs",
@@ -22,7 +23,7 @@
       },
       "md": {
         "root": "gap-2",
-        "row": "gap-3 px-2 py-2",
+        "row": "gap-3 px-[calc(var(--sp-1)*2*var(--dz-row-scale-x))] py-[calc(var(--sp-1)*2*var(--dz-row-scale-y))]",
         "rank": "w-6 text-ctl-xs",
         "name": "text-ctl-md",
         "secondary": "text-ctl-xs",
@@ -30,7 +31,7 @@
       },
       "lg": {
         "root": "gap-3",
-        "row": "gap-4 px-3 py-3",
+        "row": "gap-4 px-row-x py-[calc(var(--sp-1)*3*var(--dz-row-scale-y))]",
         "rank": "w-8 text-ctl-sm",
         "name": "text-ctl-lg",
         "secondary": "text-ctl-sm",

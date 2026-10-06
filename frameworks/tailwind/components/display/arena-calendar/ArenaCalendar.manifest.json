@@ -8,7 +8,7 @@
     "heading": "m-0 ml-1 text-md font-semibold text-ink-heading",
     "actions": "ml-auto flex gap-inline flex-wrap",
     "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-edge-separator",
-    "dayHead": "min-w-0 px-2 pt-1.5 text-center",
+    "dayHead": "min-w-0 px-[calc(var(--sp-1)*2*var(--dz-row-scale-x))] pt-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] text-center",
     "weekday": "font-face-label text-label tracking-label-role case-label font-bold text-ink-muted/(--level-ink-muted)",
     "dayNumber": "font-mono text-ctl font-bold mt-0.5",
     "scroll": "flex-1 min-h-0 overflow-y-auto py-2",
@@ -21,7 +21,7 @@
     "cell": "absolute left-0 right-0 outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "now": "absolute left-0 right-0 border-t-[length:var(--bw-strong)] border-primary pointer-events-none",
     "nowDot": "absolute -top-1 -left-1 size-1.5 rounded-pill bg-primary",
-    "chip": "absolute box-border flex flex-col overflow-hidden text-left font-body mx-0.5 px-1.5 py-1 min-h-6.5 rounded-control border-l-[length:var(--bw-strong)] border-t-0 border-r-0 border-b-0",
+    "chip": "absolute box-border flex flex-col overflow-hidden text-left font-body mx-0.5 px-marker-x py-marker-y min-h-6.5 rounded-control border-l-[length:var(--bw-strong)] border-t-0 border-r-0 border-b-0",
     "chipBody": "flex flex-col bg-transparent border-none p-0 m-0 text-left font-body",
     "title": "text-ctl-sm font-semibold text-ink-heading whitespace-nowrap overflow-hidden text-ellipsis",
     "time": "font-mono text-ctl-2xs text-ink-muted/(--level-ink-muted)",
@@ -30,6 +30,7 @@
     "kebabWrap": "absolute right-0",
     "panel": "absolute top-full right-0 flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface rounded-control shadow-surface-floating"
   },
+  "kind": { "root": "none", "toolbar": "none", "nav": "control", "today": "control", "heading": "none", "actions": "none", "headStrip": "none", "dayHead": "row", "weekday": "none", "dayNumber": "none", "scroll": "none", "body": "none", "gutter": "none", "hourLabel": "none", "grid": "none", "rule": "none", "column": "none", "cell": "none", "now": "none", "nowDot": "none", "chip": "marker", "chipBody": "none", "title": "none", "time": "none", "detail": "none", "detailShed": "none", "kebabWrap": "none", "panel": "surface" },
   "variants": {
     "today": {
       "true": {

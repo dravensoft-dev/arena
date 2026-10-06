@@ -6,6 +6,7 @@
     "name": "font-display font-black tracking-tight text-ink-body",
     "dim": "text-ink-muted/(--level-ink-muted)"
   },
+  "kind": { "root": "none", "mark": "none", "name": "none", "dim": "none" },
   "variants": {
     "size": {
       "sm": { "mark": "size-logo-mark-sm", "name": "text-logo-sm" },
