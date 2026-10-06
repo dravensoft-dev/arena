@@ -4,7 +4,7 @@ does, all the way to one. A row the items do not fill keeps its empty tracks, so
 short last page is as wide as one on a full page.
 
 ```tsx
-<ArenaGrid min="calc(var(--sp-1) * 50)" gap="md">
+<ArenaGrid className="arena-grid-min-md arena-grid-gap-component">
   <ArenaStatCard label="Open orders" value={open} />
   <ArenaStatCard label="Overdue" value={overdue} tone="danger" />
   <ArenaStatCard label="Collected today" value={collected} />

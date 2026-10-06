@@ -2,7 +2,7 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSection.classes.generated.ts';
 
-import type { ArenaHeadingLevel, ArenaSectionRhythm } from '../../../Api.generated';
+import type { ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaSectionClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 
@@ -27,18 +27,12 @@ export interface ArenaSectionProps {
 
   /** Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case. */
   action?: React.ReactNode;
-
-  /** How far the head stands from the body. The steps are the page rhythm scale itself, so sm reads as one unit, md as a head over its own content and lg as a head over a region of the page, and none closes the distance entirely for a section whose body carries its own top edge. Nothing here is a number this component chose. */
-  rhythm?: ArenaSectionRhythm;
 }
 
 const arenaSectionStyles = arenaStyles(manifest);
-const RHYTHMS: readonly string[] = manifest.values.rhythm;
-const rhythmOf = (rhythm: string | undefined): ArenaSectionRhythm =>
-  (rhythm && RHYTHMS.includes(rhythm) ? rhythm as ArenaSectionRhythm : 'md');
 
 export function ArenaSection({ className, 
-  title, headingLevel = 'h2', children, eyebrow, description, action, rhythm = 'md',
+  title, headingLevel = 'h2', children, eyebrow, description, action,
 }: ArenaSectionProps) {
   if (!title?.trim()) {
     throw new Error('ArenaSection: `title` is required, and names the region its heading introduces');
@@ -49,7 +43,7 @@ export function ArenaSection({ className,
   if (React.Children.toArray(children).length === 0) {
     throw new Error('ArenaSection: a section with no children is not a legal shape, because its heading would name nothing');
   }
-  const styles = arenaSectionStyles({ rhythm: rhythmOf(rhythm) });
+  const styles = arenaSectionStyles({});
   const Heading = headingLevel;
 
   return (
