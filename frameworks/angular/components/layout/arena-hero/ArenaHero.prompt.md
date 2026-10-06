@@ -31,9 +31,9 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start`. Write one as `class="arena-align-center"` on the component, or on a container whose components should all take it.
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start` (default). Write one as `class="arena-align-center"` on the component, or on a container whose components should all take it.
 
-**Answers** [`layout`](../../../../VOCABULARY.md#layout): `arena-layout-bleed`, `arena-layout-split`, `arena-layout-stacked`. Write one as `class="arena-layout-bleed"` on the component, or on a container whose components should all take it.
+**Answers** [`layout`](../../../../VOCABULARY.md#layout): `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked`. Write one as `class="arena-layout-bleed"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

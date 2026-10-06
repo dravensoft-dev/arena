@@ -24,7 +24,7 @@ head lays out controls the consumer wrote rather than declaring a second button 
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start`. Write one as `class="arena-align-center"` on the component, or on a container whose components should all take it.
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start` (default). Write one as `class="arena-align-center"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

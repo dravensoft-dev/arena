@@ -17,7 +17,7 @@ Brief tooltip over icons/actions.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit` (default). Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

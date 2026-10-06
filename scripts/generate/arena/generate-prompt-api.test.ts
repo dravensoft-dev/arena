@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   typeCell, defaultCell, memberRow, renderRegion, applyRegion, fenceEnd, signature,
   promptPaths, writePromptApis, openLine, CLOSE_LINE, CONSUMER_DATA,
-  renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE,
+  renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE, answeredFamilies,
 } from './generate-prompt-api.ts';
 
 test('an array names what it holds, and consumer data keeps its one spelling', () => {
@@ -102,7 +102,7 @@ const FILL = {
 
 test('a prompt names the families its component answers, in its layer\'s idiom, linked to their rows', () => {
   const react = renderAnswersRegion('ArenaButton', 'react', [FILL]);
-  assert.match(react, /\*\*Answers\*\* \[`fill`\]\(\.\.\/\.\.\/\.\.\/\.\.\/VOCABULARY\.md#fill\): `arena-fill`, `arena-fit`\. Write one as `className="arena-fill"`/);
+  assert.match(react, /\*\*Answers\*\* \[`fill`\]\(\.\.\/\.\.\/\.\.\/\.\.\/VOCABULARY\.md#fill\): `arena-fill`, `arena-fit` \(default\)\. Write one as `className="arena-fill"`/);
   assert.match(renderAnswersRegion('ArenaButton', 'angular', [FILL]), /`class="arena-fill"`/);
   assert.match(renderAnswersRegion('ArenaCard', 'react', []), /No family of the \[vocabulary\]\(\.\.\/\.\.\/\.\.\/\.\.\/VOCABULARY\.md\) decides anything in this component's own box/);
 });
@@ -118,4 +118,15 @@ test('the rules note says a component takes a class of the vocabulary, with the 
   assert.match(renderRulesRegion('react'), /component takes a class of the vocabulary and no other, so put no `className` of your own on it\./);
   assert.match(renderRulesRegion('angular'), /component takes a class of the vocabulary and no other, so put no `class` of your own on it\./);
   assert.doesNotMatch(renderRulesRegion('react'), /styling surface/);
+});
+
+test('a region lists what the component answers of a family, not the family\'s whole set', () => {
+  const toast = renderAnswersRegion('ArenaToastHost', 'angular', answeredFamilies('ArenaToastHost'));
+  const placement = toast.split('\n').find((line) => line.includes('#placement')) ?? '';
+  const named = [...placement.matchAll(/`(arena-placement-[a-z-]+)`/g)].map((m) => m[1]).sort();
+  assert.deepEqual(named, ['arena-placement-bottom-end', 'arena-placement-bottom-start', 'arena-placement-top-end', 'arena-placement-top-start']);
+  assert.match(placement, /`arena-placement-bottom-end` \(default\)/);
+  assert.doesNotMatch(placement, /class="arena-placement-bottom"/);
+  const button = renderAnswersRegion('ArenaButton', 'react', answeredFamilies('ArenaButton'));
+  assert.doesNotMatch(button, /arena-size-2xl/);
 });

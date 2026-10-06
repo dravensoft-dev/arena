@@ -22,7 +22,7 @@ The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and 
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom`, `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start`. Write one as `className="arena-placement-bottom"` on the component, or on a container whose components should all take it.
+**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom-end` (default), `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`. Write one as `className="arena-placement-bottom-start"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

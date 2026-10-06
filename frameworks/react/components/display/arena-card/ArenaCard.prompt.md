@@ -28,9 +28,9 @@ Base container. Use `eyebrow` (crimson mono) + `title` (Archivo) for the header.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `className="arena-accent-gold"` on the component, or on a container whose components should all take it.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain` (default), `arena-accent-primary`. Write one as `className="arena-accent-primary"` on the component, or on a container whose components should all take it.
 
-**Answers** [`elevation`](../../../../VOCABULARY.md#elevation): `arena-elevation-flat`, `arena-elevation-floating`. Write one as `className="arena-elevation-flat"` on the component, or on a container whose components should all take it.
+**Answers** [`elevation`](../../../../VOCABULARY.md#elevation): `arena-elevation-flat` (default), `arena-elevation-floating`. Write one as `className="arena-elevation-floating"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

@@ -25,9 +25,9 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `class="arena-size-2xl"` on the component, or on a container whose components should all take it.
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`. Write one as `class="arena-size-lg"` on the component, or on a container whose components should all take it.
 
-**Answers** [`orientation`](../../../../VOCABULARY.md#orientation): `arena-orientation-horizontal`, `arena-orientation-vertical`. Write one as `class="arena-orientation-horizontal"` on the component, or on a container whose components should all take it.
+**Answers** [`orientation`](../../../../VOCABULARY.md#orientation): `arena-orientation-horizontal` (default), `arena-orientation-vertical`. Write one as `class="arena-orientation-vertical"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

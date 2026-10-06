@@ -34,9 +34,9 @@ take, and the host goes `display: contents`.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain`, `arena-accent-primary`. Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain` (default), `arena-accent-primary`. Write one as `class="arena-accent-primary"` on the component, or on a container whose components should all take it.
 
-**Answers** [`elevation`](../../../../VOCABULARY.md#elevation): `arena-elevation-flat`, `arena-elevation-floating`. Write one as `class="arena-elevation-flat"` on the component, or on a container whose components should all take it.
+**Answers** [`elevation`](../../../../VOCABULARY.md#elevation): `arena-elevation-flat` (default), `arena-elevation-floating`. Write one as `class="arena-elevation-floating"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

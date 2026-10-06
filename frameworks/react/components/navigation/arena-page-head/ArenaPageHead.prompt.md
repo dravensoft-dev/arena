@@ -29,7 +29,7 @@ The title block at the top of a page. The block holds the page's own heading, wh
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start`. Write one as `className="arena-align-center"` on the component, or on a container whose components should all take it.
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start` (default). Write one as `className="arena-align-center"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

@@ -29,11 +29,11 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit` (default). Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
 
-**Answers** [`emphasis`](../../../../VOCABULARY.md#emphasis): `arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`, `arena-emphasis-solid`. Write one as `className="arena-emphasis-ghost"` on the component, or on a container whose components should all take it.
+**Answers** [`emphasis`](../../../../VOCABULARY.md#emphasis): `arena-emphasis-ghost` (default), `arena-emphasis-solid`. Write one as `className="arena-emphasis-solid"` on the component, or on a container whose components should all take it.
 
-**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`, `arena-size-xs`. Write one as `className="arena-size-2xl"` on the component, or on a container whose components should all take it.
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

@@ -38,7 +38,7 @@ slots higher, and the scrim is how it says so.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom`, `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start`. Write one as `class="arena-placement-bottom"` on the component, or on a container whose components should all take it.
+**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom` (default), `arena-placement-end`, `arena-placement-start`. Write one as `class="arena-placement-end"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 
