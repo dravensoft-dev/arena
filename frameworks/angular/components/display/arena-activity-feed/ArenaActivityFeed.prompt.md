@@ -30,7 +30,7 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
 **Do / Don't**
 - Keep the grammar. The actor is bold, the action is prose, the target is mono, a feed
   whose rows each read differently is a list, not a feed.
-- Use `tone` for what the event *means*, not for variety. Seven tones cycling by row is
+- Use `tone` for what the event *means*, not for variety. Five tones cycling by row is
   decoration, and it makes the one row that matters invisible.
 - Don't put controls in a row. A feed reports; an action on an event belongs on the thing
   itself.

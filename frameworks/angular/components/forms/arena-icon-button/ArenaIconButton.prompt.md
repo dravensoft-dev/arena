@@ -55,10 +55,10 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 - `arena-emphasis-solid` fills with the brand and is for the one primary action in a dense toolbar.
   `ghost` is the default and the right answer nearly always; a row of solid icon buttons has no
   hierarchy left to spend.
-- There is no `danger` variant, and that is the danger convention rather than an omission: a
+- There is no danger emphasis, and that is the danger convention rather than an omission: a
   destructive action needs a word, so use `<arena-button destructive>`.
-- `size` reads the same density tokens `arena-button` does, so the two re-densify together in a
-  toolbar. Set the same `size` on both or they will not line up.
+- `arena-size-*` reads the same density tokens `arena-button` does, so the two re-densify together in a
+  toolbar. Set the same size class on both or they will not line up.
 - Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in.
 - Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM event. Angular then registers **both** the output subscription and a host DOM listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
   `stopPropagation()` to make it fire once, which is the whole reason the event does not reach
@@ -67,13 +67,13 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-icon-button/ArenaIconButton.demo.generated.html`:
-- The focus ring is visible on keyboard focus for both variants, including `ghost`, whose
+- The focus ring is visible on keyboard focus for both emphases, including `arena-emphasis-ghost`, whose
   background is transparent.
 - Without `showLabel` the control is square at every size, and the glyph is optically centred
   rather than merely boxed in the middle.
 - Hovering shows the `title`, and setting `showLabel` stops it appearing at all.
 - `disabled` dims to 45% and the cursor turns to not-allowed; both come from `:disabled`
-  variants, so they prove the native attribute is really set.
+  pseudo-class variants, so they prove the native attribute is really set.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

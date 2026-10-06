@@ -26,8 +26,7 @@ each row.
 
 <!-- @answers end -->
 
-`tone` is ArenaBadge's vocabulary: `neutral · accent · gold · success · warning · danger ·
-info`, and defaults to `accent`.
+An item's `tone` is `neutral`, `success`, `warning`, `danger` or `info`. Without one, the row's dot takes the accent, which `arena-accent-gold` turns gold.
 
 **There is no row escape hatch.** There is no `renderItem`, because per-item projection has no expression every framework Arena ships for can offer. Arena declares only what all of them can implement. A consumer places no markup of their own inside one row. The event must fit `actor`, `action`, `target`, `time` and `tone`, or it does not belong in this component.
 

@@ -31,11 +31,11 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 
 **Don't**
 - Don't use a spinner for a process whose progress you know: that degrades visibility (H1).
-- Don't expect `success`/`warning`/`danger` tones: they don't exist here, on purpose. A wait has no state to report, and a spinner tinted `--danger` would announce a failure that hasn't happened. Report the outcome with an `ArenaToast` or an `ArenaAlert`.
+- Don't expect a `success`, `warning` or `danger` colour: none exists here, on purpose. A wait has no state to report, and a spinner tinted `--danger` would announce a failure that hasn't happened. Report the outcome with an `ArenaToast` or an `ArenaAlert`.
 - Don't stack a spinner on top of an `ArenaSkeleton`. Pick one: the skeleton reserves the layout, the spinner marks an unsized wait.
 - Don't pass `style` or stray DOM attributes. ArenaSpinner declares three members and renders nothing else; wrap it in your own element if you need to position it.
 
-**On the tone vocabulary.** `ArenaProgressBar` ships `accent | gold | success | danger | info`; `ArenaSpinner` ships `accent | gold | neutral | on-accent`. The overlap (`accent`, `gold`) resolves to the same tokens, so the two read as one family. The divergence is deliberate in both directions; see Don't, above.
+**On the colour vocabulary.** `ArenaProgressBar` answers `arena-accent-primary` and `arena-accent-gold`, and takes a `tone` of success, danger or info. `ArenaSpinner` answers `arena-accent-primary`, `arena-accent-gold`, `arena-accent-ink` and `arena-accent-muted`. The shared accents resolve to the same tokens, so the two read as one family. The divergence is deliberate in both directions; see Don't, above.
 
 **Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.
 

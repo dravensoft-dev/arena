@@ -29,23 +29,23 @@ The host **is** the chip: it binds the root slot, so an attribute you write on
 **Tone taxonomy.** Two families, and they are not mixed:
 - **Status**: `success` `warning` `danger` `info`: the actual state of the system
   (a deploy, a service, a version). `dot` reinforces "live status".
-- **Emphasis**: `accent` (new/featured), `gold` (priority/distinction): editorial,
-  and never a state. `neutral` carries no semantic weight.
+- **Emphasis**: `arena-accent-primary` (new/featured) and `arena-accent-gold` (priority/distinction) colour the badge as editorial
+  emphasis, never a state. `neutral` carries no semantic weight.
 
 **Do / Don't**
 - Keep the label to one or two words. A badge is a chip, not a sentence, if it
   runs longer, it is not a badge.
-- Don't use `accent` to communicate a status; reserve its crimson for
+- Don't use `arena-accent-primary` to communicate a status; reserve its crimson for
   "new/featured", and reach for a status tone when the badge reports state.
 - Don't put `dot` on an emphasis tone. The dot means "this is live status", so on
-  `accent` or `gold` it claims something the tone does not.
+  an accent class it claims something the badge does not.
 - Don't reach for a badge when the label can be dismissed or acted on: that is
   `arena-tag`, which owns `removable` and a real `<button>`. A badge has no
   interactive affordance at all, and its behaviour binding says so.
 - Don't write a `class` or an ARIA attribute on `<arena-badge>` expecting it to reach the chip. The root slot is host-bound, so the host **is** the chip, and a static `class` on it is overwritten by Arena's own styling. Wrap it in your own element
   when you need to position it.
 
-**By hand, in a real browser** (`bun run demos`, then this component's own playground or any page composing it): - Each of the seven tones reads as its own colour against `--surface-card`. The mono uppercase treatment survives at the smallest text size.
+**By hand, in a real browser** (`bun run demos`, then this component's own playground or any page composing it): - Each of the five tones reads as its own colour against `--surface-card`. The mono uppercase treatment survives at the smallest text size.
 - With `dot`, the dot takes the tone's own ink (`bg-current`) rather than a
   second colour.
 

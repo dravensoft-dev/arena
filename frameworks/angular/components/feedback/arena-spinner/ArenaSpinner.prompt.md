@@ -43,8 +43,8 @@ button, on a crimson banner, where the accent ink would disappear into its own b
   better.
 - **Do** keep one spinner per wait. Three of them in a row are three live regions announcing the
   same thing.
-- **Don't** size it with a wrapper. `size` is the axis, `sm` matches an icon, `md` a control,
-  `lg` a page-level wait, and a scaled wrapper puts the ring's border width off the token.
+- **Don't** size it with a wrapper. `arena-size-*` is the axis: `arena-size-sm` matches an icon, `arena-size-md` a control,
+  `arena-size-lg` a page-level wait, and a scaled wrapper puts the ring's border width off the token.
 - **Don't** leave it on screen with nothing behind it. A spinner that never resolves is the one
   state `arena-error-state` is for.
 
@@ -54,7 +54,7 @@ button, on a crimson banner, where the accent ink would disappear into its own b
   `prefers-reduced-motion` rather than stopping, motion reporting work in progress keeps
   reporting it.
 - The gap in the ring is the transparent top border, so the rotation is legible at every size. At `sm` it must still read as a ring rather than a dot.
-- `on-accent` is the only tone that stays legible on a filled crimson surface, the card puts
+- `arena-accent-ink` is the only accent that stays legible on a filled crimson surface, the card puts
   all four on one to show it.
 
 **Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.

@@ -56,7 +56,7 @@ Reach for `interactive` when the whole surface is the target and a control insid
 route to the same place. Leave it off when the press means something narrower than "this card".
 
 **Don't** - Don't put an interactive card inside another activation target, and don't put your only route to something inside one. A card that is itself pressable makes a nested link ambiguous to a pointer and to a screen reader alike.
-- Don't pass `style` or stray DOM attributes. ArenaCard declares its `content` and `action` slots plus `title`, `eyebrow`, `floating`, `accent`, `interactive` and `disabled`, and renders nothing else. To size, constrain or shadow a card differently, wrap it in your own element (a fixed-width `<div>`, a `maxWidth` box) rather than reaching through the card.
+- Don't pass `style` or stray DOM attributes. ArenaCard declares its `content` and `action` slots plus `title`, `eyebrow`, `interactive` and `disabled`, and answers the `arena-elevation-floating` and `arena-accent-primary` classes. The card renders nothing else. To size, constrain or shadow a card differently, wrap it in your own element (a fixed-width `<div>`, a `maxWidth` box) rather than reaching through the card.
 
 ### A card that navigates
 

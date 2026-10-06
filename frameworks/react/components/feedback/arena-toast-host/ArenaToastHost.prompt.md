@@ -26,8 +26,7 @@ The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and 
 
 <!-- @answers end -->
 
-`placement` picks the corner: `top-start`, `top-end`, `bottom-start`, `bottom-end`, default
-`bottom-end`. The inline half is `start`/`end` rather than left/right, so a right-to-left document
+A placement class picks the corner: `arena-placement-top-start`, `arena-placement-top-end`, `arena-placement-bottom-start` or `arena-placement-bottom-end`, which is the default. The inline half is `start`/`end` rather than left/right, so a right-to-left document
 flips the stack with the text. A bottom placement stands off `max(var(--sp-6),
 var(--pad-safe-bottom))`, so on a phone the stack clears the home indicator instead of sitting
 under it.

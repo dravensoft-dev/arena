@@ -39,10 +39,10 @@ Action button. The main action is the default emphasis, `arena-emphasis-primary`
 **Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
-Variants: primary · secondary · ghost; `destructive` adds the danger outline. Sizes sm/md/lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
+The `arena-emphasis-*` classes pick primary, secondary or ghost, and `destructive` adds the danger outline. The `arena-size-*` classes pick sm, md or lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
 
 - Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
-- Keyboard focus draws Arena's own gold ring, on every one of the four variants, including `ghost`, whose border is transparent. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.
+- Keyboard focus draws Arena's own gold ring at every emphasis, including `arena-emphasis-ghost`, whose border is transparent, and the ring draws over any hover shadow. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.
 - Don't pass an element as `icon` or `iconRight`. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

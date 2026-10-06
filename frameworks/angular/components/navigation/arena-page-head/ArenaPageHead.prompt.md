@@ -28,9 +28,8 @@ head lays out controls the consumer wrote rather than declaring a second button 
 
 <!-- @answers end -->
 
-`title` is required: a page head with no title is a bug, not a state. `align` (default
-`start`) governs only the wide layout's cross-axis alignment of the actions block against
-the title; below `--bp-sm` the row always stacks and `align` has no effect. `arena-page-head`
+`title` is required: a page head with no title is a bug, not a state. `arena-align-start` (the default) keeps the actions top-aligned with a tall title, and `arena-align-center` centers them against it.
+Both govern only the wide layout; below `--bp-sm` the row always stacks and the align class has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.
 
 Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaPageHead` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. Without it the attribute is inert, the

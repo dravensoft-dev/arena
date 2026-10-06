@@ -62,7 +62,7 @@ supply one for anything a user is waiting on.
   for one that finished. The track stays the neutral rail in every tone; only the fill is inked,
   because danger is outline in Arena and a progress bar is not the exception.
 - **Do** put a ring where the meter is the tile rather than a line in one: a completion ring on
-  a dashboard, a node on a path. `size` moves its diameter and its band together, so there is
+  a dashboard, a node on a path. `arena-size-*` moves its diameter and its band together, so there is
   nothing else to tune.
 - **Don't** use this for a wait with no measurable end and no room for a label. The component for that is `arena-spinner`. An indeterminate ring turns, which is close to what a spinner does, and the
   difference is that this one is still a labelled meter and reports a range.

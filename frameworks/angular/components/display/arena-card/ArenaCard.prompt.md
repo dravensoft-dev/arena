@@ -67,9 +67,9 @@ convention: write `action` on the element that goes beside the title. With no
 render, the card is a plain surface.
 
 **Do / Don't** - **Bind `title`, don't write it as a static attribute.** `<arena-card title="X">` leaves a real `title` attribute on the host. The browser then draws a tooltip over the whole card. `[title]="'X'"` does not. The behaviour is layer-wide rather than ArenaCard's own. Angular writes a static attribute during the creation pass whether or not it also matches an input. This host clears it (`'[attr.title]': 'null'`), and the layer holds that in both directions. The binding above is the clearer spelling rather than a workaround.
-- Depth comes from `floating`'s warm shadow and the `base-100`→`base-200`→`base-300`
+- Depth comes from the warm shadow of `arena-elevation-floating` and the `base-100`→`base-200`→`base-300`
   surface scale. Never a gradient.
-- Reach for `accent` to mark one card among several as the current or featured one;
+- Reach for `arena-accent-primary` to mark one card among several as the current or featured one;
   it draws the border in the accent colour and nothing else. The badge is not a status.
 - Don't write a `class` on `<arena-card>` expecting it to reach the card. The host is bare and out of layout, so an attribute written there lands on nothing anyone can see. The bare host is the price of the carve-out above, and there is no second route in. To
   size, constrain or position a card, wrap it in your own element rather than
@@ -85,7 +85,7 @@ render, the card is a plain surface.
   pointer activates it.
 - On the card holding a field, typing Enter in the field does not open the card, and the badge
   and the field keep their own presses.
-- `floating` casts the warm shadow and the borderless variant does not, with no
+- `arena-elevation-floating` casts the warm shadow and the default flat card does not, with no
   gradient on either.
 - A long body wraps inside the padding rather than escaping the radius: the root
   clips with `overflow-hidden`, so a wide child is cropped rather than overflowing.

@@ -53,7 +53,7 @@ which is what that name means everywhere else in this library. `showPercentage` 
 **Do**
 - Use *determinate* mode whenever a real percentage exists; it communicates remaining time.
 - Align `tone` with the state (success when done, danger if it fails).
-- Put a ring where it has room to be read. A ring's own size is its whole geometry, so `size` moves the diameter and the band together, and there is nothing else to tune.
+- Put a ring where it has room to be read. A ring's own size is its whole geometry, so `arena-size-*` moves the diameter and the band together, and there is nothing else to tune.
 - Pass a `label`: it is drawn beside the meter **and** is its accessible name. Without one
   the bar is announced as the generic "Progress", which tells a screen-reader user nothing
   about which of the page's bars it is.

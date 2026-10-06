@@ -19,7 +19,7 @@ carries the semantics and the size; each `ArenaPersonRow` says who and how much.
 </ArenaPeopleList>
 ```
 
-`size` is the list's, not the row's: a row reads it from the list it sits in, and the face, the
+The `arena-size-*` class belongs on the list, not the row: a row reads it from the list it sits in, and the face, the
 name and the figure move together. Rows in one list that disagreed about their size would be a
 defect rather than a design, so there is nowhere to write that.
 

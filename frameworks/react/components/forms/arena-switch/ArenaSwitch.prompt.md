@@ -59,9 +59,8 @@ const [pending, setPending] = useState(false);
 </ArenaConfirmDialog>
 ```
 
-`orientation`, which is `'horizontal'` by default or `'vertical'`, lays the track along the other axis. Reach for `vertical` only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as a decorative variant. `size` (`'sm' | 'md' | 'lg' | 'xl' | '2xl'`,
-default `'md'`) scales the track and knob together; `'md'` matches the pre-redesign
-component's only size exactly, so an existing call site that names no `size` renders
+`arena-orientation-vertical` lays the track along the other axis, and `arena-orientation-horizontal` is the default. Reach for the vertical class only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as decoration. The `arena-size-*` classes, `sm` to `2xl`, scale the track and knob together. `arena-size-md` is the default and matches the pre-redesign
+component's only size exactly, so an existing call site that names no size class renders
 unchanged.
 
 **Do** own `state` in the parent and push it back from `onFuncOn`/`onFuncOff` (or from

@@ -21,7 +21,7 @@ of a list are the element and not a class.
 </arena-people-list>
 ```
 
-`size` is the list's, not the row's: the list provides it and each row pulls it, the same
+The `arena-size-*` class belongs on the list, not the row: the list provides the size and each row pulls it, the same
 direction `arena-radio` reads its group. The face, the name and the figure move together, and
 rows in one list that disagreed about their size would be a defect rather than a design.
 
