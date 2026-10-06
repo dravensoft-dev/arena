@@ -5,7 +5,7 @@
  * a new or a stale entry fails. WEB_SHAPED is the opposite record, W3C vocabulary carried on
  * purpose. DESIGN_MEMBERS is the debt the vocabulary still has to take over: each member deciding
  * appearance, with the phase that moves it, so the remainder is a map that shrinks and a stale
- * entry fails. The walk is over the tree's own contract set, so it has a subject on a fresh clone. */
+ * entry fails. COMPUTED records the members the render reads, with the function that reads them. The walk is over the tree's own contract set, so it has a subject on a fresh clone. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -183,31 +183,46 @@ export function zeroWalkProblems(files: number, strandCount: number, shaped: num
   return problems;
 }
 
-export type Pending = { phase: 4 | 5 | 6; why: string };
+export type Pending = { phase: 5 | 6; why: string };
 
-const MIXED = 'a meaning and a look in one member; phase 4 keeps the meaning as a member and moves the look';
 const EDITORIAL = 'it decides appearance per instance, so it becomes an option of a family';
+const EDITORIAL_VALUES = 'its meaning values write the hue channels, and its editorial values become an option of a family';
 const COMPUTED_LATER = 'the render computes with it, so it stays and is recorded with the function that reads it';
 const GEOMETRY = 'geometry only interpolated into CSS, so it becomes named steps and one public property';
 
 const at = (component: string, member: string) => `contracts/api/components/${component}.json:api.${member}`;
 const field = (type: string, member: string) => `contracts/api/types/${type}.json:fields.${member}`;
 
+export const COMPUTED = new Map<string, { reads: string; why: string }>([
+  [at('ArenaBarChart', 'stack'), {
+    reads: 'frameworks/react/components/charts/ChartSeries.ts:arenaStackSegments(series, index)',
+    why: 'the render stacks the bars, and the axis is sized from the stacked sums',
+  }],
+  [at('ArenaHorizontalBarChart', 'stack'), {
+    reads: 'frameworks/react/components/charts/ChartSeries.ts:arenaStackSegments(series, index)',
+    why: 'the render stacks the bars, and the axis is sized from the stacked sums',
+  }],
+  [at('ArenaScatterChart', 'sizeLegend'), {
+    reads: 'frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)',
+    why: 'the render reserves the size key\'s strip and draws it from the data',
+  }],
+  [at('ArenaTextarea', 'autoResize'), {
+    reads: 'frameworks/react/components/forms/arena-textarea/ArenaTextarea.tsx:arenaFitToContent(element)',
+    why: 'the render measures the content and sets the height',
+  }],
+  [field('arena-table-column', 'mobileLayout'), {
+    reads: 'frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:blocked()',
+    why: 'the render chooses the card cell\'s structure and whether its label renders',
+  }],
+]);
+
 export const DESIGN_MEMBERS = new Map<string, Pending>([
-  ...[['ArenaButton', 'variant'], ['ArenaProgressBar', 'tone'], ['ArenaAlert', 'tone'], ['ArenaToast', 'tone'],
-    ['ArenaBadge', 'tone'], ['ArenaStatCard', 'tone'], ['ArenaTag', 'tone'], ['ArenaConfirmDialog', 'destructive'],
-    ['ArenaTag', 'colorId'], ['ArenaBoardColumn', 'colorId'], ['ArenaCalendarEvent', 'colorId'],
-    ['ArenaPersonRow', 'current'], ['ArenaAvatar', 'status'], ['ArenaInput', 'valid'], ['ArenaSelect', 'valid'],
-    ['ArenaAppBar', 'sticky'], ['ArenaProgressBar', 'showLabel'], ['ArenaProgressBar', 'showPercentage'],
-    ['ArenaIconButton', 'showLabel'], ['ArenaBarChart', 'stack'], ['ArenaHorizontalBarChart', 'stack'],
-    ['ArenaScatterChart', 'sizeLegend'], ['ArenaSideNav', 'collapsed'], ['ArenaSheet', 'placement'],
-    ['ArenaToastHost', 'placement'], ['ArenaScroller', 'behaviour'], ['ArenaTextarea', 'autoResize'],
-  ].map(([c, m]) => [at(c!, m!), { phase: 4, why: MIXED }] as [string, Pending]),
-  ...[['arena-activity-item', 'tone'], ['arena-stat-delta', 'tone'], ['arena-bulk-action', 'destructive'],
-    ['arena-menu-item', 'destructive'], ['arena-series', 'slot'], ['arena-series', 'slots'], ['arena-series', 'tone'],
-    ['arena-point-series', 'slot'], ['arena-point-series', 'tone'], ['arena-table-column', 'mono'],
-    ['arena-table-column', 'mobileLayout'], ['arena-key-value-row', 'numeric'],
-  ].map(([t, m]) => [field(t!, m!), { phase: 4, why: MIXED }] as [string, Pending]),
+  ...[['ArenaButton', 'variant'], ['ArenaSheet', 'placement'], ['ArenaToastHost', 'placement'],
+  ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
+  ...[['ArenaProgressBar', 'tone'], ['ArenaToast', 'tone'], ['ArenaBadge', 'tone'], ['ArenaStatCard', 'tone'],
+    ['ArenaTag', 'tone'],
+  ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL_VALUES }] as [string, Pending]),
+  [field('arena-activity-item', 'tone'), { phase: 5, why: EDITORIAL_VALUES }],
   ...[['ArenaButton', 'size'], ['ArenaIconButton', 'size'], ['ArenaSegmentedControl', 'size'], ['ArenaSwitch', 'size'],
     ['ArenaSpinner', 'size'], ['ArenaProgressBar', 'size'], ['ArenaAvatar', 'size'], ['ArenaAppLogo', 'size'],
     ['ArenaPeopleList', 'size'], ['ArenaIconButton', 'variant'], ['ArenaCard', 'accent'], ['ArenaCard', 'floating'],
@@ -240,8 +255,37 @@ export function resolvesMember(key: string, repo = root) {
 export function designMemberProblems(resolves: (key: string) => boolean = resolvesMember, members = DESIGN_MEMBERS) {
   const problems: string[] = [];
   for (const [key, { phase, why }] of members) {
-    if (![4, 5, 6].includes(phase)) problems.push(`DESIGN_MEMBERS: ${key} is owned by phase ${phase}, and only phases 4, 5 and 6 are still to run`);
+    if (![5, 6].includes(phase)) problems.push(`DESIGN_MEMBERS: ${key} is owned by phase ${phase}, and only phases 5 and 6 are still to run`);
     if (!resolves(key)) problems.push(`DESIGN_MEMBERS names ${key} and no contract declares it, so the debt it records is paid: drop the entry (${why})`);
+  }
+  return problems;
+}
+
+export function overlapProblems(computed = COMPUTED, members = DESIGN_MEMBERS) {
+  return [...computed.keys()].filter((key) => members.has(key))
+    .map((key) => `${key} is in COMPUTED and in DESIGN_MEMBERS: a member is recorded once`);
+}
+
+export function computedProblems(resolves: (key: string) => boolean = resolvesMember, entries = COMPUTED, repo = root) {
+  if (entries.size === 0) {
+    return ['COMPUTED is empty, so no member is recorded with the function that reads it; a record with no '
+      + 'entries is retired rather than left to pass over nothing'];
+  }
+  const problems: string[] = [];
+  for (const [key, { reads, why }] of entries) {
+    if (!resolves(key)) {
+      problems.push(`COMPUTED names ${key} and no contract declares it, so the entry outlived the member (${why})`);
+      continue;
+    }
+    const [file = '', call = ''] = reads.split(':');
+    const name = call.split('(')[0] ?? '';
+    let text: string | undefined;
+    try { text = readFileSync(join(repo, file), 'utf8'); } catch { text = undefined; }
+    if (text === undefined) {
+      problems.push(`COMPUTED: ${key} reads ${reads} and ${file} does not exist`);
+    } else if (!name || !text.includes(name)) {
+      problems.push(`COMPUTED: ${key} reads ${reads} and ${file} does not contain ${name || 'a function name'}`);
+    }
   }
   return problems;
 }
@@ -259,6 +303,8 @@ export function collect(repo = root) {
       ...proseProblems(all),
       ...staleShapedProblems(all),
       ...designMemberProblems(),
+      ...computedProblems(),
+      ...overlapProblems(),
     ],
   };
 }

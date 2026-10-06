@@ -3,7 +3,7 @@
   "seed": {
     "labels": ["Passing", "Flaky", "Failing"],
     "series": [
-      { "label": "Suites", "values": [128, 14, 6], "slots": [1, 3, 6] }
+      { "label": "Suites", "values": [128, 14, 6], "colorIds": [1, 3, 6] }
     ],
     "label": "Suite health"
   },

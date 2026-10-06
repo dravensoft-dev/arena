@@ -8,7 +8,7 @@ import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 import { ArenaBadge } from '../arena-badge/ArenaBadge.tsx';
 
 const COLUMNS = [
-  { header: 'Build', mono: true },
+  { header: 'Build', numeric: true },
   { header: 'Project' },
 ];
 const ROWS = [

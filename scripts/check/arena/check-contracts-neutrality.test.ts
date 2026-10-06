@@ -4,7 +4,7 @@ import {
   BROWSER_BOUND, CSS_VALUED, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
   valueProblems, zeroRecordProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
-import { DESIGN_MEMBERS, designMemberProblems } from './check-contracts-neutrality.ts';
+import { COMPUTED, DESIGN_MEMBERS, computedProblems, designMemberProblems } from './check-contracts-neutrality.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
 
@@ -92,4 +92,26 @@ test('every design member still to migrate names a member a contract declares, a
 test('the record holds the tree as it is: every entry resolves, and full is not among them', () => {
   assert.deepEqual(designMemberProblems(), []);
   assert.ok(![...DESIGN_MEMBERS.keys()].some((key) => key.endsWith(':api.full')));
+});
+
+test('a design member owned by phase 4 fails, since only phases 5 and 6 are still to run', () => {
+  const problems = designMemberProblems(() => true, new Map([['k', { phase: 4 as never, why: 'w' }]]));
+  assert.match(problems.join('\n'), /only phases 5 and 6 are still to run/);
+});
+
+test('a COMPUTED entry fails when its key does not resolve, its file lacks the function, or the map is empty', () => {
+  const entry = { reads: 'scripts/check/arena/check-contracts-neutrality.ts:computedProblems(a)', why: 'w' };
+  assert.deepEqual(computedProblems(() => true, new Map([['k', entry]])), []);
+  assert.match(computedProblems(() => false, new Map([['k', entry]])).join('\n'), /names k and no contract declares it/);
+  const lacking = { reads: 'scripts/check/arena/check-contracts-neutrality.ts:noSuchFunction(a)', why: 'w' };
+  assert.match(computedProblems(() => true, new Map([['k', lacking]])).join('\n'), /noSuchFunction/);
+  const missing = { reads: 'scripts/check/arena/no-such-file.ts:computedProblems(a)', why: 'w' };
+  assert.match(computedProblems(() => true, new Map([['k', missing]])).join('\n'), /no-such-file/);
+  assert.match(computedProblems(() => true, new Map()).join('\n'), /COMPUTED is empty/);
+});
+
+test('the real COMPUTED holds, and no member is both computed and a design debt', () => {
+  assert.deepEqual(computedProblems(), []);
+  assert.equal(COMPUTED.size, 5);
+  for (const key of COMPUTED.keys()) assert.ok(!DESIGN_MEMBERS.has(key), `${key} is in both maps`);
 });

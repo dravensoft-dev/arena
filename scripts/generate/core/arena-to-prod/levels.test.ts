@@ -78,7 +78,7 @@ test('a level composited over a real palette is measured rather than assumed', (
 });
 
 const HOVER = [
-  '  .arena-button__root--variant-danger {',
+  '  .arena-button__root--destructive-true {',
   '    color: var(--color-error);',
   '    &:hover {',
   '      @media (hover: hover) {',
@@ -90,7 +90,7 @@ const HOVER = [
 
 test('a token drawn on a wash of its own colour is found through the nesting', () => {
   assert.deepEqual(washesIn(HOVER), [
-    { selector: '.arena-button__root--variant-danger', variable: 'color-error', percent: 14 },
+    { selector: '.arena-button__root--destructive-true', variable: 'color-error', percent: 14 },
   ]);
 });
 

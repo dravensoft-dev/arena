@@ -84,7 +84,7 @@ export class ArenaDoughnutChart {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. */
   readonly labels = input.required<readonly string[]>();
-  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `slots`. */
+  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   readonly series = input.required<readonly ArenaSeries[]>();
   /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
   readonly label = input.required<string>();
@@ -149,7 +149,7 @@ export class ArenaDoughnutChart {
     const values = only.values;
 
     const colors = arenaSeriesColors(
-      { ...only, slots: only.slots ?? values.map((_, index) => index + 1) }, values.length, 1,
+      { ...only, colorIds: only.colorIds ?? values.map((_, index) => index + 1) }, values.length, 1,
     );
     const write = this.write();
     const centreX = this.centreX();

@@ -9,7 +9,7 @@
       },
       {
         "header": "Commit",
-        "mono": true
+        "numeric": true
       },
       {
         "header": "Status",

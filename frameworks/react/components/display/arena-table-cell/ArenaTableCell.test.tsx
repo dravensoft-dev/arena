@@ -13,11 +13,11 @@ test('the roving ring is a focus modifier on the cell, not a flag pushed down th
   assert.doesNotMatch(html, /style="/, 'nothing is recomputed to draw it');
 });
 
-test('a mono column takes its own branch of the recipe', () => {
+test('a numeric column takes its own branch of the recipe', () => {
   const plain = renderToStaticMarkup(<ArenaTableCell column={{ header: 'Service' }}>api</ArenaTableCell>);
   assert.match(plain, /\b(?:arena-table__root|arena-table__table|arena-table__td|arena-table__card-value)\b/);
 
-  const mono = renderToStaticMarkup(<ArenaTableCell column={{ header: 'Build', mono: true }}>4821</ArenaTableCell>);
+  const mono = renderToStaticMarkup(<ArenaTableCell column={{ header: 'Build', numeric: true }}>4821</ArenaTableCell>);
   assert.match(mono, /\b(?:arena-table__th|arena-table__td-mono|arena-table__card-label|arena-table__card-value-mono)\b/);
   assert.match(mono, /\b(?:arena-table__td-mono|arena-table__card-value-mono)\b/);
 });

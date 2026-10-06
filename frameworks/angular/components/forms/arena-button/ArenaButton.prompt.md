@@ -17,7 +17,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `content` | slot |  |  | The button's label. Sits between the two icons when both are given. |
-| `variant` | enum | `ArenaButtonVariant` | `"primary"` | Which action this is. Danger is outline, never filled. |
+| `variant` | enum | `ArenaButtonVariant` | `"primary"` | Which action this is. |
+| `destructive` | primitive | `boolean` | `false` | Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. |
 | `size` | enum | `ArenaControlSize` | `"md"` | Height, from the density tokens, so the button re-densifies inside .arena-compact. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
 | `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |

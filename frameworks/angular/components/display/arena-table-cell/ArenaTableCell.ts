@@ -82,13 +82,13 @@ export class ArenaTableCell {
       return column.mobileLayout === 'block' ? styles.cardBlock() : styles.cardRow();
     }
     const styles = arenaTableCellStyles({ narrow: false, align: column.align ?? 'left' });
-    return column.mono ? styles.tdMono() : styles.td();
+    return column.numeric ? styles.tdMono() : styles.td();
   });
 
   protected readonly valueClass = computed(() => {
     if (!this.narrow() || this.column().mobileLayout === 'block') return '';
     const styles = arenaTableCellStyles({ narrow: true });
-    return this.column().mono ? styles.cardValueMono() : styles.cardValue();
+    return this.column().numeric ? styles.cardValueMono() : styles.cardValue();
   });
 
   protected onFocus(): void {

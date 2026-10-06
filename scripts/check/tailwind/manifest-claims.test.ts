@@ -346,9 +346,9 @@ export const CLAIMS = {
     { chosen: { anchored: true }, slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'anchored, the overlay pane owns the position and every wrapper-relative utility is gone' },
   ],
   ArenaButton: [
-    { chosen: { variant: 'danger' }, slot: 'root', has: ['border-error', 'text-error', 'bg-transparent'], why: 'danger is outline: border and text in --error, and its only error fill is a hover wash' },
+    { chosen: { destructive: true }, slot: 'root', has: ['border-error', 'text-error', 'bg-transparent'], why: 'destructive is outline: border and text in --error, and its only error fill is a hover wash' },
     { chosen: { variant: 'primary' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'primary is the one filled variant, and it fills with the brand rather than a status colour' },
-    ...['primary', 'secondary', 'ghost', 'danger'].map((variant) => ({
+    ...['primary', 'secondary', 'ghost'].map((variant) => ({
       chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex', 'h-ctl-h'],
       why: 'every variant keeps the shared control geometry through the merge',
     })),

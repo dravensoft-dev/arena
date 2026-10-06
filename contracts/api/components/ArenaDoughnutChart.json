@@ -16,7 +16,7 @@
       "form": "array",
       "of": "ArenaSeries",
       "required": true,
-      "description": "The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `slots`."
+      "description": "The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`."
     },
     "label": {
       "form": "primitive",

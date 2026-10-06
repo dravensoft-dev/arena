@@ -13,7 +13,7 @@ const c = arenaClassesFor(manifest);
 
 const COLUMNS = [
   { key: 'project', header: 'Project' },
-  { key: 'commit', header: 'Commit', mono: true },
+  { key: 'commit', header: 'Commit', numeric: true },
   { key: 'status', header: 'Status' },
 ];
 const ROWS = [
@@ -29,7 +29,7 @@ function wide() {
   for (const [index, row] of ROWS.entries()) {
     const tr = el('tr', { class: `${c.row} ${index === 0 ? c.rowFirst : ''} ${c.rowInteractive}` });
     for (const column of COLUMNS) {
-      tr.append(el('td', { class: column.mono ? c.tdMono : c.td, text: row[column.key] }));
+      tr.append(el('td', { class: column.numeric ? c.tdMono : c.td, text: row[column.key] }));
     }
     body.append(tr);
   }
@@ -44,7 +44,7 @@ function cards() {
     for (const column of COLUMNS) {
       card.append(el('div', { class: c.cardRow },
         el('span', { class: c.cardLabel, text: column.header }),
-        el('span', { class: column.mono ? c.cardValueMono : c.cardValue, text: row[column.key] })));
+        el('span', { class: column.numeric ? c.cardValueMono : c.cardValue, text: row[column.key] })));
     }
     list.append(card);
   }

@@ -12,8 +12,10 @@ export interface ArenaButtonProps {
 
   /** The button's label. Sits between the two icons when both are given. */
   children?: React.ReactNode;
-  /** Which action this is. Danger is outline, never filled. */
+  /** Which action this is. */
   variant?: ArenaButtonVariant;
+  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  destructive?: boolean;
   /** Height, from the density tokens, so the button re-densifies inside .arena-compact. */
   size?: ArenaControlSize;
 
@@ -55,11 +57,11 @@ export interface ArenaButtonProps {
 const arenaButtonStyles = arenaStyles(manifest);
 
 export function ArenaButton({ className, 
-  children, variant = 'primary', size = 'md', icon, iconRight,
+  children, variant = 'primary', destructive = false, size = 'md', icon, iconRight,
   disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaButtonProps) {
-  const styles = arenaButtonStyles({ variant, size });
+  const styles = arenaButtonStyles({ variant, destructive, size });
 
   return (
     <button

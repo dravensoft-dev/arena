@@ -62,7 +62,7 @@ export function ArenaTableCell({ className,
     return (
       <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} data-arena-part={manifest.parts.cardRow}>
         <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel}>{c.header}</span>
-        <span className={c.mono ? card.cardValueMono() : card.cardValue()}
+        <span className={c.numeric ? card.cardValueMono() : card.cardValue()}
           data-arena-part={manifest.parts.cardValue} data-arena-boundary="">
           {shown}
         </span>
@@ -74,7 +74,7 @@ export function ArenaTableCell({ className,
     <td tabIndex={tabIndex}
 
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
-      className={arenaClassName('ArenaTableCell', c.mono
+      className={arenaClassName('ArenaTableCell', c.numeric
         ? cellStyles({ narrow: false, align: c.align || 'left' }).tdMono()
         : cellStyles({ narrow: false, align: c.align || 'left' }).td(), className)}
       data-arena-part={manifest.parts.td} data-arena-boundary="">

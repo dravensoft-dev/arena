@@ -22,16 +22,16 @@ export interface ArenaStackSegment {
 }
 
 export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSlot: number): string[] {
-  const { slot, slots, tone } = series;
-  if (tone && (slot !== undefined || slots !== undefined)) {
-    arenaWarnOnce('chart: `tone` and `slot`/`slots` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
+  const { colorId, colorIds, tone } = series;
+  if (tone && (colorId !== undefined || colorIds !== undefined)) {
+    arenaWarnOnce('chart: `tone` and `colorId`/`colorIds` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
   }
   if (tone) {
     const colour = arenaToneColor(tone) || arenaCatColor(1);
     return Array.from({ length: count }, () => colour);
   }
-  if (slots) return Array.from({ length: count }, (_, index) => arenaCatColor(slots[index] ?? index + 1));
-  return Array.from({ length: count }, () => arenaCatColor(slot ?? fallbackSlot));
+  if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? index + 1));
+  return Array.from({ length: count }, () => arenaCatColor(colorId ?? fallbackSlot));
 }
 
 export function arenaSeriesPointCount(series: readonly ArenaSeries[]): number {
@@ -179,12 +179,12 @@ export function arenaPointSeriesDomain(series: readonly ArenaPointSeries[], coun
 }
 
 export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number): string {
-  const { slot, tone } = series;
-  if (tone && slot !== undefined) {
-    arenaWarnOnce('chart: `tone` and `slot` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
+  const { colorId, tone } = series;
+  if (tone && colorId !== undefined) {
+    arenaWarnOnce('chart: `tone` and `colorId` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
   }
   if (tone) return arenaToneColor(tone) || arenaCatColor(1);
-  return arenaCatColor(slot ?? fallbackSlot);
+  return arenaCatColor(colorId ?? fallbackSlot);
 }
 
 export function arenaPointSized(series: readonly ArenaPointSeries[]): boolean {

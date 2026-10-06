@@ -66,7 +66,7 @@ class FrozenDataHost {
   readonly columns: readonly ArenaTableColumn[] = Object.freeze([{ header: 'Build' }]);
   readonly labels = LABELS;
   readonly values = VALUES;
-  readonly series: readonly ArenaSeries[] = [{ label: 'One', values: VALUES, slots: SLOTS }];
+  readonly series: readonly ArenaSeries[] = [{ label: 'One', values: VALUES, colorIds: SLOTS }];
   readonly slots = SLOTS;
 }
 

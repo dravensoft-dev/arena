@@ -22,7 +22,7 @@ export interface ArenaDoughnutChartProps {
   /** One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. */
   labels: readonly string[];
 
-  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `slots`. */
+  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   series: readonly ArenaSeries[];
 
   /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
@@ -68,7 +68,7 @@ export function ArenaDoughnutChart({ className,
   const n = values.length;
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
   const colors = arenaSeriesColors(
-    { ...only, slots: only.slots ?? Array.from({ length: n }, (_, i) => i + 1) }, n, 1,
+    { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => i + 1) }, n, 1,
   );
 
   const stacked = arenaLegendStacked(legendLayout, width);

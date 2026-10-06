@@ -33,11 +33,13 @@ import manifest from './ArenaButton.classes.generated';
 export class ArenaButton {
   protected readonly parts = manifest.parts;
 
-  /** Which action this is. Danger is outline, never filled. */
+  /** Which action this is. */
   readonly variant = input<ArenaButtonVariant, ArenaButtonVariant | undefined>(
     'primary',
     { transform: (value) => value ?? 'primary' },
   );
+  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever `variant` is: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  readonly destructive = input(false, { transform: booleanAttribute });
   /** Height, from the density tokens, so the button re-densifies inside .arena-compact. */
   readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
     'md',
@@ -71,7 +73,7 @@ export class ArenaButton {
 
   protected readonly inert = computed(() => this.disabled() || this.loading());
   protected readonly styles = computed(() => arenaButtonStyles({
-    variant: this.variant(), size: this.size(),
+    variant: this.variant(), destructive: this.destructive(), size: this.size(),
   }));
 
   private readonly control = viewChild<ElementRef<HTMLButtonElement>>('control');

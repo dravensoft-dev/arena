@@ -16,7 +16,7 @@ import { ArenaTable } from './ArenaTable';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 
-const COLUMNS: ArenaTableColumn[] = [{ header: 'Service' }, { header: 'Commit', mono: true }];
+const COLUMNS: ArenaTableColumn[] = [{ header: 'Service' }, { header: 'Commit', numeric: true }];
 
 @Component({
   standalone: true,
