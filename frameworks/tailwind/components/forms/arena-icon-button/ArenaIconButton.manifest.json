@@ -1,9 +1,15 @@
 {
   "component": "ArenaIconButton",
-  "answers": ["fill"],
+  "answers": [
+    "fill"
+  ],
   "slots": {
     "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)]",
     "label": "font-body font-control text-ctl leading-ctl"
+  },
+  "kind": {
+    "root": "control",
+    "label": "none"
   },
   "variants": {
     "variant": {

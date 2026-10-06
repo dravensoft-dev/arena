@@ -11,6 +11,17 @@
     "counter": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "counterNear": "font-mono text-ctl-xs text-warning"
   },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "required": "none",
+    "field": "field",
+    "foot": "none",
+    "hint": "none",
+    "error": "none",
+    "counter": "none",
+    "counterNear": "none"
+  },
   "partOf": {
     "counterNear": "counter"
   },

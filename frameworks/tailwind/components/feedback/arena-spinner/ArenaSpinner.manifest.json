@@ -4,18 +4,39 @@
     "root": "inline-flex w-fit",
     "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
   },
+  "kind": {
+    "root": "none",
+    "circle": "none"
+  },
   "variants": {
     "tone": {
-      "accent": { "root": "text-primary" },
-      "gold": { "root": "text-secondary" },
-      "neutral": { "root": "text-ink-muted/(--level-ink-muted)" },
-      "on-accent": { "root": "text-primary-content" }
+      "accent": {
+        "root": "text-primary"
+      },
+      "gold": {
+        "root": "text-secondary"
+      },
+      "neutral": {
+        "root": "text-ink-muted/(--level-ink-muted)"
+      },
+      "on-accent": {
+        "root": "text-primary-content"
+      }
     },
     "size": {
-      "sm": { "circle": "size-icon-sm" },
-      "md": { "circle": "size-5" },
-      "lg": { "circle": "size-8" }
+      "sm": {
+        "circle": "size-icon-sm"
+      },
+      "md": {
+        "circle": "size-5"
+      },
+      "lg": {
+        "circle": "size-8"
+      }
     }
   },
-  "defaultVariants": { "tone": "accent", "size": "md" }
+  "defaultVariants": {
+    "tone": "accent",
+    "size": "md"
+  }
 }

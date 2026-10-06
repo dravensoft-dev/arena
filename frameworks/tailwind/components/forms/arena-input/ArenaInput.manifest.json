@@ -12,6 +12,18 @@
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-error"
   },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "required": "none",
+    "field": "field",
+    "icon": "none",
+    "prefix": "none",
+    "input": "none",
+    "statusIcon": "none",
+    "hint": "none",
+    "error": "none"
+  },
   "variants": {
     "state": {
       "neutral": {

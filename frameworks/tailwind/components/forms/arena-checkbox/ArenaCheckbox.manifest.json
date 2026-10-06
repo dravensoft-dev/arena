@@ -7,6 +7,13 @@
     "label": "font-body text-ctl text-ink-body/(--level-ink-body)",
     "input": "absolute opacity-0 size-0"
   },
+  "kind": {
+    "root": "none",
+    "box": "control",
+    "check": "none",
+    "label": "none",
+    "input": "none"
+  },
   "variants": {
     "checked": {
       "true": {

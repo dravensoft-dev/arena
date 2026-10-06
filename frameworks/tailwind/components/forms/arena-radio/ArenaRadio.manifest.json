@@ -10,6 +10,16 @@
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted) leading-prose",
     "input": "absolute opacity-0 size-0"
   },
+  "kind": {
+    "group": "none",
+    "root": "none",
+    "ring": "none",
+    "dot": "none",
+    "text": "none",
+    "label": "none",
+    "hint": "none",
+    "input": "none"
+  },
   "variants": {
     "checked": {
       "true": {

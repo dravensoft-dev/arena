@@ -3,10 +3,16 @@
   "transparent": {
     "root": "the trigger is the adopter's own control and the wrapper draws nothing around it, so a box class on the wrapper or above it decides the trigger's box as it decides the wrapper's"
   },
-  "answers": ["fill"],
+  "answers": [
+    "fill"
+  ],
   "slots": {
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
     "bubble": "arena-fade z-tooltip whitespace-nowrap px-2.5 py-1.5 rounded-control shadow-surface-floating bg-base-content text-base-100 font-mono text-ctl-xs"
+  },
+  "kind": {
+    "root": "none",
+    "bubble": "floating"
   },
   "variants": {
     "anchored": {
@@ -17,5 +23,7 @@
       "true": {}
     }
   },
-  "defaultVariants": { "anchored": false }
+  "defaultVariants": {
+    "anchored": false
+  }
 }

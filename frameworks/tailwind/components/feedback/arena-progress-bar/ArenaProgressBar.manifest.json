@@ -16,6 +16,22 @@
     "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state",
     "ringIndeterminate": "arena-prog-ring"
   },
+  "kind": {
+    "root": "none",
+    "head": "none",
+    "label": "none",
+    "value": "none",
+    "track": "none",
+    "announcement": "none",
+    "fill": "none",
+    "indeterminate": "none",
+    "ring": "none",
+    "ringContent": "none",
+    "ringGeometry": "none",
+    "ringTrack": "none",
+    "ringFill": "none",
+    "ringIndeterminate": "none"
+  },
   "partOf": {
     "indeterminate": "track",
     "ringIndeterminate": "ringFill"

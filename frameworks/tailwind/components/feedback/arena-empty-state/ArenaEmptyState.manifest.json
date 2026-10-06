@@ -6,5 +6,12 @@
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
     "message": "font-body text-md text-ink-muted/(--level-ink-muted) leading-prose max-w-[42ch]",
     "action": "mt-1.5"
+  },
+  "kind": {
+    "root": "status",
+    "icon": "none",
+    "title": "none",
+    "message": "none",
+    "action": "none"
   }
 }

@@ -3,13 +3,26 @@
   "slots": {
     "root": "fixed flex flex-col gap-items z-toast"
   },
+  "kind": {
+    "root": "none"
+  },
   "variants": {
     "placement": {
-      "top-start": { "root": "top-[max(var(--sp-6),var(--pad-safe-top))] start-6" },
-      "top-end": { "root": "top-[max(var(--sp-6),var(--pad-safe-top))] end-6" },
-      "bottom-start": { "root": "bottom-[max(var(--sp-6),var(--pad-safe-bottom))] start-6" },
-      "bottom-end": { "root": "bottom-[max(var(--sp-6),var(--pad-safe-bottom))] end-6" }
+      "top-start": {
+        "root": "top-[max(var(--sp-6),var(--pad-safe-top))] start-6"
+      },
+      "top-end": {
+        "root": "top-[max(var(--sp-6),var(--pad-safe-top))] end-6"
+      },
+      "bottom-start": {
+        "root": "bottom-[max(var(--sp-6),var(--pad-safe-bottom))] start-6"
+      },
+      "bottom-end": {
+        "root": "bottom-[max(var(--sp-6),var(--pad-safe-bottom))] end-6"
+      }
     }
   },
-  "defaultVariants": { "placement": "bottom-end" }
+  "defaultVariants": {
+    "placement": "bottom-end"
+  }
 }

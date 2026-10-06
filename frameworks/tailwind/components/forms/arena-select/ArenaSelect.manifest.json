@@ -10,6 +10,16 @@
     "error": "font-body text-ctl-sm text-error",
     "iconWrap": "absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)]"
   },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "wrap": "none",
+    "field": "field",
+    "caret": "none",
+    "hint": "none",
+    "error": "none",
+    "iconWrap": "none"
+  },
   "variants": {
     "state": {
       "neutral": {
