@@ -2,8 +2,8 @@ One column of an `ArenaBoard`. The column is a named head with a count and a con
 
 ```tsx
 <ArenaBoardColumn title="In progress" count={3} summary="13 pts" colorId={1}
-  action={<ArenaIconButton icon="ph-bold ph-dots-three" label="In progress options" size="sm" />}
-  footer={<ArenaButton variant="ghost" size="sm" icon="ph-bold ph-plus">Add task</ArenaButton>}>
+  action={<ArenaIconButton icon="ph-bold ph-dots-three" label="In progress options" className="arena-size-sm" />}
+  footer={<ArenaButton icon="ph-bold ph-plus" className="arena-emphasis-ghost arena-size-sm">Add task</ArenaButton>}>
   {tasks.map((task) => <TaskCard key={task.id} task={task} />)}
 </ArenaBoardColumn>
 ```

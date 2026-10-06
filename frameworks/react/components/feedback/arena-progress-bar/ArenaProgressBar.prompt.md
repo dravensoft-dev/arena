@@ -3,8 +3,8 @@ Progress bar (H1). Gives visible status to measurable processes outside the spla
 ```tsx
 <ArenaProgressBar label="Deploying build #4821" progressPercentage={64} />
 <ArenaProgressBar tone="success" progressPercentage={100} label="Published" />
-<ArenaProgressBar indeterminate tone="accent" label="Connecting…" />
-<ArenaProgressBar shape="radial" size="lg" progressPercentage={64} label="Lesson 4" />
+<ArenaProgressBar indeterminate label="Connecting…" className="arena-accent-primary" />
+<ArenaProgressBar shape="radial" progressPercentage={64} label="Lesson 4" className="arena-size-lg" />
 ```
 
 `shape="radial"` draws the same meter as a ring: the figure sits in the middle and the label
@@ -15,8 +15,8 @@ Turn the figure off yourself when you fill it: the two share that space, and no 
 here decides what it draws from what you projected.
 
 ```tsx
-<ArenaProgressBar shape="radial" size="lg" showPercentage={false}
-  progressPercentage={40} label="Unit 3, lesson 4">
+<ArenaProgressBar shape="radial" showPercentage={false}
+  progressPercentage={40} label="Unit 3, lesson 4" className="arena-size-lg">
   <ArenaIconButton icon="ph-fill ph-star" label="Start lesson 4" />
 </ArenaProgressBar>
 ```

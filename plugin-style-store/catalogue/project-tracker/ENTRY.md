@@ -15,7 +15,7 @@ has to hold more than it comfortably fits.
 | Whether small text shouts | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | uppercase, with the standard uppercase tracking | a status and a column head are labels rather than words, and capitals is how this register says so |
 | How tight it is to the hand | `pad-control-*`, `gap-*` | the low steps of the spacing scale throughout | every pixel of padding is a row the screen stops holding |
 | How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | the widest container of the four registers, a moderate prose measure, a mid grid cell | a board is read across, so the column runs to the window |
-| Whether depth is real | `shadow-surface-floating`, `shadow-control-raised` | a soft near shadow on both, and no shadow at rest | a menu and a pressed control lift off the page, and nothing else does |
+| Whether depth is real | `elevation-floating-shadow`, `emphasis-primary-shadow-hover` | a soft near shadow on both, and no shadow at rest | a menu and a pressed control lift off the page, and nothing else does |
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | a slight shrink, a one pixel rise, a middle duration on an out curve | the feedback is confirmation and never celebration |
 | What shape a picture is | `aspect-media`, `fit-media` | a landscape crop, filled | an attachment thumbnail is a preview of a document rather than a picture somebody chose |
 

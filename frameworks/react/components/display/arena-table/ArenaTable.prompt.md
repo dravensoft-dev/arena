@@ -82,7 +82,7 @@ Each column picks its card-mode layout with `mobileLayout`:
       <ArenaTableCell>{r.name}</ArenaTableCell>
       <ArenaTableCell>{r.build}</ArenaTableCell>
       <ArenaTableCell><ArenaBadge tone="success" dot>{r.status}</ArenaBadge></ArenaTableCell>
-      <ArenaTableCell><ArenaButton size="sm" variant="secondary">Open</ArenaButton></ArenaTableCell>
+      <ArenaTableCell><ArenaButton className="arena-emphasis-secondary arena-size-sm">Open</ArenaButton></ArenaTableCell>
     </ArenaTableRow>
   ))}
 </ArenaTable>

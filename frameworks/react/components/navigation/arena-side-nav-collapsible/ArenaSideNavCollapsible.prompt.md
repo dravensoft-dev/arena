@@ -66,7 +66,7 @@ Two consequences worth holding on to:
 
 - **Do** give the collapsible an `id` distinct from any destination's. The id names the group rather than a place. The group opens around the active item by matching the `ArenaSideNavItem` elements inside it, never by comparing its own id to `active`.
 - **Do** nest freely. A collapsible may hold sections and further collapsibles, and each
-  level indents one `indentStep` deeper than the last, compounded -- see `ArenaSideNav.indentStep`.
+  level indents one `pad-row-indent` deeper than the last, compounded: the style plugin answers that role with the indent of one level.
 - **Don't** expect arrow keys, `aria-level` or a roving tab stop. Each collapsible is an
   independent disclosure, so Tab moves through the triggers and the visible links in order
   and a collapsed region is skipped because it is hidden. If you genuinely need treeview
@@ -99,7 +99,7 @@ Serve the tree with `bun run demos`, open
 5. With the group **collapsed**, Tab forward from the trigger. Focus must go
    `Deployments` -> `Settings` directly, skipping both hidden links. Landing on
    `Production` while it is invisible is the defect this step exists for.
-6. The indent compounds with depth, and it is real measurable padding rather than a margin trick. The root item sits at 12px, the trigger one step in at 24px, and the items inside it at 36px. Each step is one `indentStep` of `--sp-1`.
+6. The indent compounds with depth, and it is real measurable padding rather than a margin trick. The root item sits at 12px, the trigger one step in at 24px, and the items inside it at 36px. Each step is one `pad-row-indent`.
 
 **Verified in Chromium 150 on 2026-07-26**, all six. Steps 2 through 5 were additionally
 driven through CDP with real `ArenaInput.dispatchKeyEvent` key events, and the observed

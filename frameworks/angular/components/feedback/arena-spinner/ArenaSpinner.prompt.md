@@ -4,7 +4,7 @@ and the accessible name all sit on it, with the spinning ring a decorative `aria
 
 ```html
 <arena-spinner label="Fetching deployments" />
-<arena-spinner size="sm" tone="on-accent" label="Saving" />
+<arena-spinner label="Saving" class="arena-size-sm arena-accent-ink" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSpinner.json. Edit the contract, not this table. -->
@@ -34,7 +34,7 @@ exception the delegated binding carried. This clears it.
 
 An absent `label` reads the locale's `spinnerLabel`, `Loading` by default, which is a name rather than an absence. That name says what the component is instead of what the user is waiting for. Set it.
 
-`tone="on-accent"` exists for a spinner sitting **on** a filled brand surface, inside a loading
+`arena-accent-ink` exists for a spinner sitting **on** a filled brand surface, inside a loading
 button, on a crimson banner, where the accent ink would disappear into its own background.
 
 **Do / Don't**

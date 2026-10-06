@@ -5,7 +5,7 @@ position in front and an optional figure behind. The row's size comes from the l
 <ArenaPersonRow rank={4} name="Priya Raman" src="/img/priya.jpg" figure="1815 XP" current />
 
 <ArenaPersonRow name="Tomas Klein" secondary="Platform, on call"
-  action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" size="sm" />} />
+  action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" className="arena-size-sm" />} />
 ```
 
 `name` is the row's text and the initials the face falls back to at once, so a name spelt differently in either is the same person drawn as two. The face is composed with `nameShown`: the row already says the name in its text, so a screen reader hears it once. Compose an avatar beside a name of your own the same way.

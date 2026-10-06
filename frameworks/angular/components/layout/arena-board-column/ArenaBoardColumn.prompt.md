@@ -4,11 +4,11 @@ is a cell of the board's grid rather than an element between the two.
 
 ```html
 <arena-board-column title="In progress" [count]="3" summary="13 pts" [colorId]="1">
-  <arena-icon-button action icon="ph-bold ph-dots-three" label="In progress options" size="sm" />
+  <arena-icon-button action icon="ph-bold ph-dots-three" label="In progress options" class="arena-size-sm" />
   @for (task of tasks(); track task.id) {
     <app-task-card [task]="task" />
   }
-  <arena-button footer variant="ghost" size="sm" icon="ph-bold ph-plus">Add task</arena-button>
+  <arena-button footer icon="ph-bold ph-plus" class="arena-emphasis-ghost arena-size-sm">Add task</arena-button>
 </arena-board-column>
 ```
 

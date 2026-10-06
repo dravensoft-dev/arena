@@ -3,9 +3,9 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 
 ```html
 <arena-button (click)="save()">Save changes</arena-button>
-<arena-button variant="secondary" size="sm">Cancel</arena-button>
+<arena-button class="arena-emphasis-secondary arena-size-sm">Cancel</arena-button>
 <arena-button destructive icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
-<arena-button variant="ghost" iconRight="ph-bold ph-caret-down">More</arena-button>
+<arena-button iconRight="ph-bold ph-caret-down" class="arena-emphasis-ghost">More</arena-button>
 <arena-button loading>Deploying</arena-button>
 <arena-button type="submit" form="project-form" class="arena-fill">Create project</arena-button>
 ```

@@ -3,9 +3,9 @@ nothing defaults, so the first render is either your brand or a type error, neve
 Dravensoft's by accident.
 
 ```tsx
-<ArenaAppLogo size="sm"
+<ArenaAppLogo
   mark={<img src="../../../assets/rotor-crimson.svg" alt="" />}
-  name="Draven" dim="soft" />
+  name="Draven" dim="soft" className="arena-size-sm" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaAppLogo.json. Edit the contract, not this table. -->
@@ -36,7 +36,7 @@ are two decisions and not three:
 | Manual variant | mark | wordmark |
 |---|---|---|
 | Primary · horizontal | `rotor-crimson.svg` | `name="Draven" dim="soft"` |
-| Vertical · stacked | `rotor-crimson.svg` | same, `orientation="vertical"` |
+| Vertical · stacked | `rotor-crimson.svg` | same, `className="arena-orientation-vertical"` |
 | Monochrome · single ink | `rotor-bone.svg` | `name="Dravensoft"`, no `dim` |
 
 ## Do / Don't

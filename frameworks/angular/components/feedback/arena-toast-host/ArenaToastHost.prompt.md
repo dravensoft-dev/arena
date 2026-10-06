@@ -4,7 +4,7 @@ The host **is** the box, so `<arena-toast-host>` is the element you place.
 The host exists because `arena-toast` carries `--z-toast` and no `position` of its own. A statically-positioned element ignores `z-index`, so the one thing that must float above every overlay in the system stops floating unless something places it.
 
 ```html
-<arena-toast-host placement="bottom-end">
+<arena-toast-host class="arena-placement-bottom-end">
   @for (notice of notices(); track notice.id) {
     <arena-toast [title]="notice.title" [message]="notice.message" [tone]="notice.tone"
                  actionLabel="Retry" dismissible

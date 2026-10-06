@@ -2,8 +2,8 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 
 ```tsx
 <ArenaAvatar name="Lucy Fernandez" status="online" />
-<ArenaAvatar src="/u/marco.jpg" name="Marco Ruiz" size="lg" />
-<ArenaAvatar name="Aurora Bank" shape="rounded" />  {/* entity/team */}
+<ArenaAvatar src="/u/marco.jpg" name="Marco Ruiz" className="arena-size-lg" />
+<ArenaAvatar name="Aurora Bank" kind="team" />  {/* entity/team */}
 <ArenaAvatar name="Ana Ruiz" status="online" nameShown />  {/* beside a name that already says it */}
 ```
 

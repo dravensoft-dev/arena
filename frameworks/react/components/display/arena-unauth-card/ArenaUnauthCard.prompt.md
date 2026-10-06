@@ -8,13 +8,13 @@ supply. `brand`, `footer` and the children default slot stay nodes.
 
 ```tsx
 <ArenaUnauthCard
-  brand={<ArenaAppLogo size="md" mark={<img src="/assets/rotor-crimson.svg" alt="" />} name="Draven" dim="soft" />}
+  brand={<ArenaAppLogo mark={<img src="/assets/rotor-crimson.svg" alt="" />} name="Draven" dim="soft" className="arena-size-md" />}
   eyebrow="Delivery console"
   title="Welcome back"
   footer={<a href="/reset">Forgot your password?</a>}>
   <ArenaInput label="Email" value={email} onChange={onEmail} />
   <ArenaInput label="Password" type="password" />
-  <ArenaButton variant="primary" className="arena-fill">Sign in</ArenaButton>
+  <ArenaButton className="arena-fill">Sign in</ArenaButton>
 </ArenaUnauthCard>
 ```
 

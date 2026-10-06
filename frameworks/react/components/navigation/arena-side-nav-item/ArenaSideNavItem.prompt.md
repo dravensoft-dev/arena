@@ -32,7 +32,7 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 present ⇒ an `<a>`, absent ⇒ a `<button>`. The active item, the one whose `id`
 matches `ArenaSideNav.active`, takes `aria-current="page"`, `--crimson-soft` behind
 `--crimson` text at `--fw-semibold`; the rest are transparent, `--mute`,
-`--fw-medium`. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent step and the handler that reports `nav`, and none of it is part of this component's API. You never write those.
+`--fw-medium`. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `nav`, and none of it is part of this component's API. You never write those.
 
 ## Do / Don't
 

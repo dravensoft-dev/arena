@@ -3,8 +3,8 @@ actions. The head measures **itself** rather than the viewport, and stacks below
 head lays out controls the consumer wrote rather than declaring a second button API of its own.
 
 ```html
-<arena-page-head title="Deployments" subtitle="Everything shipped in the last 30 days" align="center">
-  <arena-button actions variant="secondary">Export</arena-button>
+<arena-page-head title="Deployments" subtitle="Everything shipped in the last 30 days" class="arena-align-center">
+  <arena-button actions class="arena-emphasis-secondary">Export</arena-button>
   <arena-button actions>New deployment</arena-button>
 </arena-page-head>
 ```

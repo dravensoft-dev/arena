@@ -54,8 +54,8 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 ```html
 <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
                       (click)="open(c)" actionsEnabled>
-  <arena-button actions size="sm" variant="ghost" icon="ph-bold ph-pencil">Edit</arena-button>
-  <arena-button actions size="sm" variant="ghost" icon="ph-bold ph-trash">Delete</arena-button>
+  <arena-button actions icon="ph-bold ph-pencil" class="arena-emphasis-ghost arena-size-sm">Edit</arena-button>
+  <arena-button actions icon="ph-bold ph-trash" class="arena-emphasis-ghost arena-size-sm">Delete</arena-button>
 </arena-calendar-event>
 ```
 

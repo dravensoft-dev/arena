@@ -2,7 +2,7 @@ The band across the bottom of every screen: what a page says about itself once i
 
 ```tsx
 <ArenaSiteFooter note="© 2026 Meridian Roasters. Roasted in Bilbao.">
-  <div><ArenaAppLogo size="sm" name="Meridian" /><p>Single origin, traceable to the farm.</p></div>
+  <div><ArenaAppLogo name="Meridian" className="arena-size-sm" /><p>Single origin, traceable to the farm.</p></div>
   <div><h2>Shop</h2><ul>{shopLinks.map((l) => <li key={l.href}><Link to={l.href}>{l.label}</Link></li>)}</ul></div>
   <div><h2>Company</h2><ul>{aboutLinks.map((l) => <li key={l.href}><Link to={l.href}>{l.label}</Link></li>)}</ul></div>
 </ArenaSiteFooter>

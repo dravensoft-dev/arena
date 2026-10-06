@@ -27,7 +27,7 @@ A named group of items inside an `ArenaSideNav` -- a subheading plus the items u
 
 <!-- @answers end -->
 
-The heading reads `label`, in the mono uppercase micro-label treatment, and it is the group's accessible name. An `aria-labelledby` on the `role="group"` wrapper points at that same heading element, so the grouping a sighted user sees is the grouping a screen reader announces. Every item inside indents one step deeper than the section itself. That indent is `indentStep` from the enclosing `ArenaSideNav`, applied again, rather than a second value of its own. See `ArenaSideNav.indentStep`.
+The heading reads `label`, in the mono uppercase micro-label treatment, and it is the group's accessible name. An `aria-labelledby` on the `role="group"` wrapper points at that same heading element, so the grouping a sighted user sees is the grouping a screen reader announces. Every item inside indents one step deeper than the section itself. That indent is the style plugin's `pad-row-indent` role times the section's depth, rather than a second value of its own.
 
 ## Do / Don't
 

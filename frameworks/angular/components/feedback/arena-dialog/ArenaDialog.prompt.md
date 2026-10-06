@@ -7,7 +7,7 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
               (close)="dialogOpen.set(false)">
   The current production build stays available for rollback for seven days.
   <div footer>
-    <arena-button variant="ghost" (click)="dialogOpen.set(false)">Cancel</arena-button>
+    <arena-button (click)="dialogOpen.set(false)" class="arena-emphasis-ghost">Cancel</arena-button>
     <arena-button (click)="promote()">Promote</arena-button>
   </div>
 </arena-dialog>

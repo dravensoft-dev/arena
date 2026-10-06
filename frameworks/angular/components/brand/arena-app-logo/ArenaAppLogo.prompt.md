@@ -2,11 +2,11 @@ Arena brand lock-up. Project the mark into the `mark` slot and pass the product 
 `size` picks both the mark's box and the wordmark, from the `--logo-*` scale.
 
 ```html
-<arena-app-logo name="Draven" dim="soft" size="md">
+<arena-app-logo name="Draven" dim="soft" class="arena-size-md">
   <img mark src="/assets/your-mark.svg" alt="" />
 </arena-app-logo>
 
-<arena-app-logo name="Delivery" size="lg" orientation="vertical">
+<arena-app-logo name="Delivery" class="arena-size-lg arena-orientation-vertical">
   <img mark src="/assets/your-client-mark.svg" alt="" />
 </arena-app-logo>
 ```

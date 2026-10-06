@@ -5,7 +5,7 @@ you place. The section register is the middle rung of the title ladder, under a 
 ```html
 <arena-section eyebrow="This week" title="Landed recently"
   description="Everything that cleared customs since Monday.">
-  <arena-button action variant="ghost" iconRight="ph-bold ph-arrow-right">See all</arena-button>
+  <arena-button action iconRight="ph-bold ph-arrow-right" class="arena-emphasis-ghost">See all</arena-button>
   <arena-grid>
     @for (lot of lots(); track lot.id) { <app-lot-card [lot]="lot" /> }
   </arena-grid>

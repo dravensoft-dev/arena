@@ -1,10 +1,10 @@
-Action button. The main action uses `variant="primary"` (crimson), maximum one per view.
+Action button. The main action is the default emphasis, `arena-emphasis-primary` (crimson), maximum one per view.
 
 ```tsx
-<ArenaButton variant="primary" onClick={deploy}>Deploy</ArenaButton>
-<ArenaButton variant="secondary" icon="ph-bold ph-arrow-counter-clockwise">Roll back</ArenaButton>
-<ArenaButton variant="secondary" iconRight="ph-bold ph-caret-down">Actions</ArenaButton>
-<ArenaButton variant="ghost" size="sm">Cancel</ArenaButton>
+<ArenaButton onClick={deploy}>Deploy</ArenaButton>
+<ArenaButton icon="ph-bold ph-arrow-counter-clockwise" className="arena-emphasis-secondary">Roll back</ArenaButton>
+<ArenaButton iconRight="ph-bold ph-caret-down" className="arena-emphasis-secondary">Actions</ArenaButton>
+<ArenaButton className="arena-emphasis-ghost arena-size-sm">Cancel</ArenaButton>
 <ArenaButton destructive loading>Deleting…</ArenaButton>
 ```
 

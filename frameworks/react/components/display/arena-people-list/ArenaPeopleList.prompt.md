@@ -3,7 +3,7 @@ shape is a face, a name and, where the list is about a quantity, a figure at the
 carries the semantics and the size; each `ArenaPersonRow` says who and how much.
 
 ```tsx
-<ArenaPeopleList label="Ruby league standings" ordered size="sm">
+<ArenaPeopleList label="Ruby league standings" ordered className="arena-size-sm">
   {league.map((player) => (
     <ArenaPersonRow key={player.id} rank={player.rank} name={player.name}
       src={player.avatar} figure={`${player.xp} XP`} current={player.isMe} />
@@ -14,7 +14,7 @@ carries the semantics and the size; each `ArenaPersonRow` says who and how much.
   {suggestions.map((account) => (
     <ArenaPersonRow key={account.handle} name={account.name} src={account.avatar}
       secondary="Followed by marisol.b"
-      action={<ArenaButton variant="ghost" size="sm">Follow</ArenaButton>} />
+      action={<ArenaButton className="arena-emphasis-ghost arena-size-sm">Follow</ArenaButton>} />
   ))}
 </ArenaPeopleList>
 ```

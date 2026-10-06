@@ -43,7 +43,7 @@ item takes `--crimson-soft` behind `--crimson` text at `--fw-semibold`; the rest
 transparent, `--mute`, `--fw-medium`. Both read `--dz-text`, so the nav re-densifies
 inside `.arena-compact`.
 
-Group related items with `<ArenaSideNavSection label="Workspace">…</ArenaSideNavSection>`. Each nesting level indents one step deeper, and `indentStep`, which defaults to `3`, is a count of the theme's indent steps. A caller can only widen or narrow that count, never supply a length of their own.
+Group related items with `<ArenaSideNavSection label="Workspace">…</ArenaSideNavSection>`. Each nesting level indents one step deeper. The step is the style plugin's `pad-row-indent` role, the indent of one level, times the row's depth, and no member of the component multiplies it.
 
 ```tsx
 <ArenaSideNav ariaLabel="Primary" active={route} onNav={(id) => setRoute(id)}>
@@ -89,7 +89,7 @@ it, because the automatic expansion is Arena's decision rather than the user's. 
 - **Don't** use it for tabs. `ArenaSideNav` navigates between destinations; `ArenaTabs` changes
   the view within one, and `ArenaSegmentedControl` filters within that.
 - **Don't** wrap it in your own `<nav>`. The component renders one.
-- **Don't** pass `indentStep` a length string. The member is a count of the theme's indent steps and never a CSS length.
+- **Don't** reach for an indent member or an inline padding. Answer `pad-row-indent` in the style plugin with the indent of one level.
 
 ### `active` is an id, and there is no route matcher
 

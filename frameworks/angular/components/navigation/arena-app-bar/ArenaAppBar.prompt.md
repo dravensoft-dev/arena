@@ -5,7 +5,7 @@ banner landmark has to be that element.
 ```html
 <arena-app-bar>
   <a brand routerLink="/" aria-label="Meridian Roasters, home">
-    <arena-app-logo size="sm" name="Meridian" />
+    <arena-app-logo name="Meridian" class="arena-size-sm" />
   </a>
   <nav nav aria-label="Shop sections">
     @for (d of destinations(); track d.id) { <a [routerLink]="d.href">{{ d.label }}</a> }

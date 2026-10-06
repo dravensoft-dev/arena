@@ -1,12 +1,12 @@
 Arena avatar, a person's or team's mark. `src` renders the image; without it the
 initials of `name` render on the raised surface, so `name` is always worth passing.
-`shape="circle"` is a person, `shape="rounded"` a team or organisation. `status` adds
+`kind="person"` is the default, `kind="team"` is a team or organisation. `status` adds
 a presence dot.
 
 ```html
 <arena-avatar name="Juan Carlos Hidalgo" />
-<arena-avatar name="Delivery" shape="rounded" size="sm" />
-<arena-avatar [src]="user.photo" [name]="user.name" size="lg" status="online" />
+<arena-avatar name="Delivery" kind="team" class="arena-size-sm" />
+<arena-avatar [src]="user.photo" [name]="user.name" status="online" class="arena-size-lg" />
 <arena-avatar [name]="user.name" status="online" nameShown />
 ```
 

@@ -3,7 +3,7 @@ A named region of a page: a heading, what sits around it, and the group it names
 ```tsx
 <ArenaSection eyebrow="This week" title="Landed recently"
   description="Everything that cleared customs since Monday."
-  action={<ArenaButton variant="ghost" iconRight="ph-bold ph-arrow-right">See all</ArenaButton>}>
+  action={<ArenaButton iconRight="ph-bold ph-arrow-right" className="arena-emphasis-ghost">See all</ArenaButton>}>
   <ArenaGrid>{lots.map((lot) => <LotCard key={lot.id} lot={lot} />)}</ArenaGrid>
 </ArenaSection>
 ```

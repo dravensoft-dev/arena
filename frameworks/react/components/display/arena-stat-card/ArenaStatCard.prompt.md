@@ -39,7 +39,7 @@ Single metric on the card surface: uppercase label, one big tabular-nums value, 
 ```tsx
 <ArenaStatCard label="Average uptime" value="99.98%" tone="success" />
 <ArenaStatCard label="Incidents" value="2" tone="danger" />
-<ArenaStatCard label="Error rate" value="0.02%" tone="gold" sub="within budget" />
+<ArenaStatCard label="Error rate" value="0.02%" sub="within budget" className="arena-accent-gold" />
 ```
 
 **Do**

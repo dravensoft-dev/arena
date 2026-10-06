@@ -38,7 +38,7 @@ close button, because a layer that cannot detect a listener could not implement 
 ```tsx
 const { toasts, raise, dismiss } = useArenaToasts();
 // raise({ tone: 'danger', title: 'Pipeline failed' })
-<ArenaToastHost placement="bottom-end">
+<ArenaToastHost className="arena-placement-bottom-end">
   {toasts.map((t) => <ArenaToast key={t.id} {...t} dismissible onClose={() => dismiss(t.id)} />)}
 </ArenaToastHost>
 ```

@@ -5,7 +5,7 @@ because a contentinfo landmark has to be that element.
 ```html
 <arena-site-footer note="© 2026 Meridian Roasters. Roasted in Bilbao.">
   <div>
-    <arena-app-logo size="sm" name="Meridian" />
+    <arena-app-logo name="Meridian" class="arena-size-sm" />
     <p>Single origin, traceable to the farm.</p>
   </div>
   <div>

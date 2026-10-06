@@ -3,8 +3,8 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 
 ```html
 <arena-icon-button icon="ph-bold ph-trash" label="Delete project" (click)="confirmDelete()" />
-<arena-icon-button icon="ph-bold ph-plus" label="New project" variant="solid" (click)="create()" />
-<arena-icon-button icon="ph-bold ph-pencil-simple" label="Rename" size="sm" (click)="rename()" />
+<arena-icon-button icon="ph-bold ph-plus" label="New project" (click)="create()" class="arena-emphasis-solid" />
+<arena-icon-button icon="ph-bold ph-pencil-simple" label="Rename" (click)="rename()" class="arena-size-sm" />
 <arena-icon-button icon="ph-bold ph-download-simple" label="Export CSV" showLabel (click)="export()" />
 <arena-icon-button icon="ph-bold ph-arrow-clockwise" label="Retry" disabled />
 <arena-icon-button icon="ph-bold ph-push-pin" label="Pin this view" [pressed]="pinned()" (click)="pinned.set(!pinned())" />
@@ -52,7 +52,7 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
   browser draw a tooltip repeating what is already on screen.
 - Don't rely on the `title` alone on a touch or keyboard surface, because a title appears on pointer
   hover and nowhere else. Set `showLabel`, or reach for `arena-tooltip` on the trigger.
-- `variant="solid"` fills with the brand and is for the one primary action in a dense toolbar.
+- `arena-emphasis-solid` fills with the brand and is for the one primary action in a dense toolbar.
   `ghost` is the default and the right answer nearly always; a row of solid icon buttons has no
   hierarchy left to spend.
 - There is no `danger` variant, and that is the danger convention rather than an omission: a

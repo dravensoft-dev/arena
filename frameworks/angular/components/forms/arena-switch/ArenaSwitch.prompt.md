@@ -15,7 +15,7 @@ supplies the state.
               (requestChange)="askThenApply()" />
 
 <arena-switch label="Managed by policy" state disabled />
-<arena-switch label="Compact rows" size="sm" orientation="vertical" [state]="compact()" />
+<arena-switch label="Compact rows" [state]="compact()" class="arena-size-sm arena-orientation-vertical" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSwitch.json. Edit the contract, not this table. -->
@@ -62,7 +62,7 @@ supplies the state.
   current state's glyph is in the DOM. The two are decoration. The knob is `aria-hidden`, and `aria-checked` is what carries the state.
 - Use a switch for an immediate effect and `<arena-checkbox>` for a pending form value. A switch
   inside a form that only applies on submit is the wrong control.
-- `orientation="vertical"` transposes the track. The size exists for a dense sidebar. In a form row it reads as a mistake.
+- `arena-orientation-vertical` transposes the track. The size exists for a dense sidebar. In a form row it reads as a mistake.
 - Don't disable a switch to mean "you may not change this yet". A disabled switch is unreachable
   by Tab and announces no reason; `confirm` is the affordance for a change that needs a gate.
 

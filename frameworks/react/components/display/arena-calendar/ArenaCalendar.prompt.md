@@ -12,7 +12,7 @@ Two things this default is not. The default is not a `'UTC'` fallback. Such a fa
 <ArenaCalendar
   timeZone="Europe/Madrid"
   onRangeChange={(iso) => refetch(iso)}
-  actions={<ArenaButton size="sm" variant="secondary">New class</ArenaButton>}
+  actions={<ArenaButton className="arena-emphasis-secondary arena-size-sm">New class</ArenaButton>}
 >
   {classes.map((c) => (
     <ArenaCalendarEvent key={c.id} id={c.id} title={c.name} start={c.start} end={c.end}

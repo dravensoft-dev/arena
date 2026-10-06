@@ -3,7 +3,7 @@ One cell of an `ArenaTableRow`. The cell draws the cell box: the padding, the al
 ```tsx
 <ArenaTableCell>{d.p95}</ArenaTableCell>
 <ArenaTableCell><ArenaBadge tone="danger" dot>Failed</ArenaBadge></ArenaTableCell>
-<ArenaTableCell><ArenaButton variant="ghost" size="sm">Details</ArenaButton></ArenaTableCell>
+<ArenaTableCell><ArenaButton className="arena-emphasis-ghost arena-size-sm">Details</ArenaButton></ArenaTableCell>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaTableCell.json. Edit the contract, not this table. -->

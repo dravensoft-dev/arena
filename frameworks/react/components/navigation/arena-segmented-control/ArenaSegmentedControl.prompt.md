@@ -30,7 +30,7 @@ A compact inline filter over mutually exclusive options: a scope, a range, a den
 <!-- @answers end -->
 
 ```tsx
-<ArenaSegmentedControl ariaLabel="Deployment status" size="sm"
+<ArenaSegmentedControl ariaLabel="Deployment status" className="arena-size-sm"
   options={[{ value: 'all', label: 'All' }, { value: 'live', label: 'Live' }, { value: 'failed', label: 'Failed' }]}
   value={status} onChange={setStatus} />
 ```

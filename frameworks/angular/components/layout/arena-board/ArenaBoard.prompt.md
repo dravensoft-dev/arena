@@ -7,11 +7,11 @@ region reachable by keyboard at all.
 <arena-board label="Sprint 32 tasks by status">
   @for (status of statuses(); track status) {
     <arena-board-column [title]="status" [count]="byStatus()[status].length" [colorId]="slot(status)">
-      <arena-icon-button action icon="ph-bold ph-plus" [label]="'Add to ' + status" size="sm" />
+      <arena-icon-button action icon="ph-bold ph-plus" [label]="'Add to ' + status" class="arena-size-sm" />
       @for (task of byStatus()[status]; track task.id) {
         <app-task-card [task]="task" />
       }
-      <arena-button footer variant="ghost" size="sm" icon="ph-bold ph-plus">New</arena-button>
+      <arena-button footer icon="ph-bold ph-plus" class="arena-emphasis-ghost arena-size-sm">New</arena-button>
     </arena-board-column>
   }
 </arena-board>

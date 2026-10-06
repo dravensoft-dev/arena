@@ -6,8 +6,8 @@ The frame of a board: columns side by side, sharing the room equally and never n
   {STATUSES.map((status) => (
     <ArenaBoardColumn key={status} title={status} count={byStatus[status].length}
       colorId={SLOT[status]}
-      action={<ArenaIconButton icon="ph-bold ph-plus" label={`Add to ${status}`} size="sm" />}
-      footer={<ArenaButton variant="ghost" size="sm" icon="ph-bold ph-plus">New</ArenaButton>}>
+      action={<ArenaIconButton icon="ph-bold ph-plus" label={`Add to ${status}`} className="arena-size-sm" />}
+      footer={<ArenaButton icon="ph-bold ph-plus" className="arena-emphasis-ghost arena-size-sm">New</ArenaButton>}>
       {byStatus[status].map((task) => <TaskCard key={task.id} task={task} />)}
     </ArenaBoardColumn>
   ))}

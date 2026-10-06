@@ -44,9 +44,7 @@ broken by what sits between them.
 an active row it never sees, whether a `@for` built that row, a wrapper component holds it, or it
 sits three levels down.
 
-`indentStep` is a **number**, never a CSS string: a count of the theme's indent steps, not a length. Each
-row binds `--arena-side-nav-depth` to `indentStep * depth`, and the theme's indent role turns that
-count into the inset. Pass a step, never a length: the theme's indent role reads a count, and a CSS string is not one.
+The indent of a level is not a member. Each row binds `--arena-side-nav-depth` to its depth, and the inset is the style plugin's `pad-row-indent` role, the indent of one level, times that depth. A theme that wants a wider or a narrower rail answers `pad-row-indent` in its style plugin.
 
 `active` is the id of the current destination and `nav` reports the id of the row pressed. An item with `href` splits its activations. The plain one is reported through `nav`, so `router.navigateByUrl` in that handler is the whole bridge and nothing navigates twice. The rest keep working for a consumer who wires no handler.
 
@@ -55,8 +53,8 @@ count into the inset. Pass a step, never a length: the theme's indent role reads
 **Do / Don't**
 - **Do** give each row a stable `id`. `active`, `nav` and the collapsible's own auto-expansion are
   all keyed by it.
-- **Do** leave `indentStep` alone unless the rail is unusually narrow. Three is the step every
-  Arena sidebar uses.
+- **Do** answer `pad-row-indent` in the style plugin when the rail is unusually narrow, rather than
+  overriding a row's padding.
 - **Don't** put a heading, a divider or a search box in as a child. The family is this component and its
   three kinds of child, and the landmark holds nothing else.
 - **Don't** expect a treeview. Each collapsible is an independent disclosure, no `aria-level`, no
@@ -89,7 +87,7 @@ readonly active = computed(() => DESTINATIONS.find((d) => this.url().startsWith(
 **Read `router.url` through the bridge and never in the template.** Reading the property directly appears to work. Swapping the routed component marks the shell dirty as a side effect of how `RouterOutlet` works. A zoneless `OnPush` shell then re-renders anyway.
 The appearance stops the moment a navigation reuses the component it is already showing, which is what a tab change or a parameter change does. Nothing reports it, and the rail simply keeps the previous destination lit.
 
-**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`: - Each level steps in by exactly one `--sp-1 * indentStep`. A row's icon stays aligned with its siblings' rather than with its parent's.
+**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`: - Each level steps in by exactly one `pad-row-indent`. A row's icon stays aligned with its siblings' rather than with its parent's.
 - Switching the active destination moves the ink and the weight, and opens the group holding it.
 - The rail still reads at `.arena-compact`, where every indent shrinks with the token.
 

@@ -53,8 +53,8 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 <ArenaCalendarEvent id={c.id} title={c.name} start={c.start} end={c.end} onClick={() => open(c)}
   actionsEnabled
   actions={<>
-    <ArenaButton size="sm" variant="ghost" icon="ph-bold ph-pencil">Edit</ArenaButton>
-    <ArenaButton size="sm" variant="ghost" icon="ph-bold ph-trash">Delete</ArenaButton>
+    <ArenaButton icon="ph-bold ph-pencil" className="arena-emphasis-ghost arena-size-sm">Edit</ArenaButton>
+    <ArenaButton icon="ph-bold ph-trash" className="arena-emphasis-ghost arena-size-sm">Delete</ArenaButton>
   </>} />
 ```
 

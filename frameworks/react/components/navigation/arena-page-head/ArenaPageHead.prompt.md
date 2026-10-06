@@ -6,10 +6,10 @@ The title block at the top of a page. The block holds the page's own heading, wh
 <ArenaPageHead
   title="Client Portal"
   subtitle="Last published 2 h ago · build #4821"
-  align="center"
+  className="arena-align-center"
   actions={<>
-    <ArenaButton variant="secondary" size="sm">View logs</ArenaButton>
-    <ArenaButton variant="primary" size="sm">Deploy</ArenaButton>
+    <ArenaButton className="arena-emphasis-secondary arena-size-sm">View logs</ArenaButton>
+    <ArenaButton className="arena-size-sm">Deploy</ArenaButton>
   </>}
 />
 ```

@@ -6,8 +6,8 @@ The opening of a landing page. The hero holds one line the page is built around 
   title="Coffee that tells you where it grew"
   lede="Every lot is traceable to the farm, the altitude and the week it was picked."
   actions={<>
-    <ArenaButton variant="primary" size="lg" icon="ph-bold ph-storefront">Shop the lots</ArenaButton>
-    <ArenaButton variant="ghost" size="lg" iconRight="ph-bold ph-arrow-right">How we buy</ArenaButton>
+    <ArenaButton icon="ph-bold ph-storefront" className="arena-size-lg">Shop the lots</ArenaButton>
+    <ArenaButton iconRight="ph-bold ph-arrow-right" className="arena-emphasis-ghost arena-size-lg">How we buy</ArenaButton>
   </>}
   figure={<ArenaFigure fallback={<i className="ph-bold ph-mountains" aria-hidden="true" />} />} />
 ```
@@ -38,7 +38,7 @@ The opening of a landing page. The hero holds one line the page is built around 
 **`split` falls to one column with no breakpoint deciding when.** The threshold is derived from `--grid-min`, the role that already answers how narrow a card may get. A style plugin that widens the grid minimum widens when a hero splits, which is one decision about how dense a page is rather than two that can disagree.
 
 **`bleed` lays the words on the figure**, which is the arrangement that makes the media overlay
-role load-bearing. Give the figure something that fills its box, and give the words `align="center"`
+role load-bearing. Give the figure something that fills its box, and give the words `arena-align-center`
 unless the picture has an empty corner they can sit in.
 
 **The hero claims no `banner` landmark.** Banner is the site header, one per page, and a hero is content inside the main region rather than the furniture around it. The heading is what a reader navigates

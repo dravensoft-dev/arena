@@ -2,7 +2,7 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 ```tsx
 <ArenaIconButton label="More options" icon="ph-bold ph-dots-three-vertical" />
-<ArenaIconButton variant="solid" showLabel label="New project" icon="ph-bold ph-plus" />
+<ArenaIconButton showLabel label="New project" icon="ph-bold ph-plus" className="arena-emphasis-solid" />
 <ArenaIconButton label="Pin this view" icon="ph-bold ph-push-pin" pressed={pinned} onClick={() => setPinned(!pinned)} />
 ```
 

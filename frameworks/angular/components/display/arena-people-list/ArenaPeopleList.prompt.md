@@ -4,7 +4,7 @@ itself out of layout and the component renders the real `<ul>` or `<ol>`, becaus
 of a list are the element and not a class.
 
 ```html
-<arena-people-list label="Ruby league standings" ordered size="sm">
+<arena-people-list label="Ruby league standings" ordered class="arena-size-sm">
   @for (player of league(); track player.id) {
     <arena-person-row [rank]="player.rank" [name]="player.name" [src]="player.avatar"
                       [figure]="player.xp + ' XP'" [current]="player.isMe" />
@@ -15,7 +15,7 @@ of a list are the element and not a class.
   @for (account of suggestions(); track account.handle) {
     <arena-person-row [name]="account.name" [src]="account.avatar"
                       secondary="Followed by marisol.b">
-      <arena-button action variant="ghost" size="sm">Follow</arena-button>
+      <arena-button action class="arena-emphasis-ghost arena-size-sm">Follow</arena-button>
     </arena-person-row>
   }
 </arena-people-list>

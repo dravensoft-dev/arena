@@ -5,7 +5,7 @@ position in front and an optional figure behind. Standalone, `OnPush`, signal in
 <arena-person-row [rank]="4" name="Priya Raman" src="/img/priya.jpg" figure="1815 XP" current />
 
 <arena-person-row name="Tomas Klein" secondary="Platform, on call">
-  <arena-icon-button action icon="ph-bold ph-x" label="Remove Tomas Klein" size="sm" />
+  <arena-icon-button action icon="ph-bold ph-x" label="Remove Tomas Klein" class="arena-size-sm" />
 </arena-person-row>
 ```
 

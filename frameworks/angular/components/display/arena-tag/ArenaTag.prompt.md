@@ -8,7 +8,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 ```html
 <arena-tag>Neutral</arena-tag>
-<arena-tag tone="primary">Active</arena-tag>
+<arena-tag class="arena-accent-primary">Active</arena-tag>
 <arena-tag tone="danger">Blocked</arena-tag>
 <arena-tag [colorId]="3">Backend</arena-tag>
 <arena-tag removable (remove)="drop('staging')">Staging</arena-tag>

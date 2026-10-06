@@ -5,8 +5,8 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 <arena-hero eyebrow="Single origin" title="Coffee that tells you where it grew"
   lede="Every lot is traceable to the farm, the altitude and the week it was picked.">
   <div actions>
-    <arena-button variant="primary" size="lg" icon="ph-bold ph-storefront">Shop the lots</arena-button>
-    <arena-button variant="ghost" size="lg" iconRight="ph-bold ph-arrow-right">How we buy</arena-button>
+    <arena-button icon="ph-bold ph-storefront" class="arena-size-lg">Shop the lots</arena-button>
+    <arena-button iconRight="ph-bold ph-arrow-right" class="arena-emphasis-ghost arena-size-lg">How we buy</arena-button>
   </div>
   <arena-figure figure>
     <i fallback class="ph-bold ph-mountains" aria-hidden="true"></i>
@@ -45,7 +45,7 @@ more than one.
 
 **`bleed` lays the words on the figure**, which is the arrangement that makes the media overlay
 role load-bearing. Give the figure something that fills its box, and give the words
-`align="center"` unless the picture has an empty corner they can sit in.
+`arena-align-center` unless the picture has an empty corner they can sit in.
 
 **The hero claims no `banner` landmark.** Banner is the site header, one per page, and a hero is content inside the main region rather than the furniture around it. The heading is what a reader navigates
 to.
@@ -64,7 +64,7 @@ to.
 `/frameworks/angular/components/layout/arena-hero/ArenaHero.demo.generated.html`:
 - Narrow the window from wide: the split falls to one column at one step and never overflows.
 - Under `bleed`, the words stay readable over the wash in both themes.
-- Under `align="center"` the whole column centres, including the actions row.
+- Under `arena-align-center` the whole column centres, including the actions row.
 - With a screen reader running, the title is announced as a level one and the hero announces no
   landmark of its own.
 

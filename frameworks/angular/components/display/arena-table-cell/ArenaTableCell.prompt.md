@@ -3,7 +3,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 ```html
 <td arena-table-cell>{{ d.p95 }}</td>
 <td arena-table-cell><arena-badge tone="danger" dot>Failed</arena-badge></td>
-<td arena-table-cell><arena-button variant="ghost" size="sm">Details</arena-button></td>
+<td arena-table-cell><arena-button class="arena-emphasis-ghost arena-size-sm">Details</arena-button></td>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaTableCell.json. Edit the contract, not this table. -->

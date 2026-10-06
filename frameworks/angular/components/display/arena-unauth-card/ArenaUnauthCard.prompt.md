@@ -4,7 +4,7 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
 ```html
 <div style="display:flex;min-height:100vh;align-items:center;justify-content:center">
   <arena-unauth-card eyebrow="Delivery Console" title="Sign in">
-    <arena-app-logo brand name="Draven" dim="soft" size="md">
+    <arena-app-logo brand name="Draven" dim="soft" class="arena-size-md">
       <img src="/assets/your-mark.svg" alt="" />
     </arena-app-logo>
 

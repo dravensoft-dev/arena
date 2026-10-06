@@ -7,7 +7,7 @@ exposed as a mono chip.
 <ArenaErrorState icon="ph-fill ph-warning-octagon" title="Couldn't load the panel"
   message="No connection to the metrics service." code="ERR_UPSTREAM_504"
   retryLabel="Retry" onRetry={reload}
-  secondaryAction={<ArenaButton variant="secondary">View logs</ArenaButton>} />
+  secondaryAction={<ArenaButton className="arena-emphasis-secondary">View logs</ArenaButton>} />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaErrorState.json. Edit the contract, not this table. -->

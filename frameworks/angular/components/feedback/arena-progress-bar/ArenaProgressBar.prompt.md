@@ -4,11 +4,11 @@ rather than filling the row, which is the one layout difference between the two 
 
 ```html
 <arena-progress-bar [progressPercentage]="uploaded()" label="Uploading build 482" />
-<arena-progress-bar indeterminate label="Waiting for the build agent" tone="gold" />
-<arena-progress-bar shape="radial" size="lg" [progressPercentage]="done()" label="Sprint 32" />
+<arena-progress-bar indeterminate label="Waiting for the build agent" class="arena-accent-gold" />
+<arena-progress-bar shape="radial" [progressPercentage]="done()" label="Sprint 32" class="arena-size-lg" />
 
-<arena-progress-bar shape="radial" size="lg" [showPercentage]="false"
-                    [progressPercentage]="lesson()" label="Unit 3, lesson 4">
+<arena-progress-bar shape="radial" [showPercentage]="false"
+                    [progressPercentage]="lesson()" label="Unit 3, lesson 4" class="arena-size-lg">
   <arena-icon-button icon="ph-fill ph-star" label="Start lesson 4" />
 </arena-progress-bar>
 ```

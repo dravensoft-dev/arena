@@ -3,7 +3,7 @@ a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no foc
 that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it says so.
 
 ```tsx
-<ArenaSheet open={cartOpen} placement="end" title="Cart"
+<ArenaSheet open={cartOpen} className="arena-placement-end" title="Cart"
        collapsed={folded} onCollapsedChange={setFolded}
        dismissible onClose={() => setCartOpen(false)}
        footer={<ArenaButton onClick={checkout}>Checkout</ArenaButton>}>

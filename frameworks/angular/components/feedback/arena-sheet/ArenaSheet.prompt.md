@@ -7,9 +7,9 @@ is meant to take the whole interaction until it is answered, that is `arena-dial
 slots higher, and the scrim is how it says so.
 
 ```html
-<arena-sheet [open]="cartOpen()" placement="end" title="Cart"
+<arena-sheet [open]="cartOpen()" title="Cart"
              [collapsed]="folded()" (collapsedChange)="folded.set($event)"
-             dismissible (close)="cartOpen.set(false)">
+             dismissible (close)="cartOpen.set(false)" class="arena-placement-end">
   @for (line of lines(); track line.id) {
     <app-cart-line [line]="line" />
   }
