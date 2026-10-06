@@ -39,6 +39,7 @@ const TEMPLATES: Record<string, string> = {
   'box-class-stops-at-a-boundary': '<arena-card><arena-button>Save</arena-button></arena-card>',
   'context-class-crosses-a-boundary': '<arena-card><arena-button>Save</arena-button></arena-card>',
   'box-channel-stays-out-of-content': '<arena-card><arena-button>Save</arena-button></arena-card>',
+  'option-not-answered-stays-out': '<div class="arena-optwitness-b"><arena-button>Save</arena-button></div>',
   'size-reaches-the-toolbar': '<arena-button>Save</arena-button><arena-button>Cancel</arena-button><arena-icon-button icon="ph-bold ph-plus" label="Add" />'
     + '<arena-dialog [open]="true" title="Discard"><arena-button footer>Confirm</arena-button></arena-dialog>',
   'nearer-size-wins': '<arena-button>Save</arena-button><arena-button class="arena-size-lg">Cancel</arena-button><arena-icon-button icon="ph-bold ph-plus" label="Add" />',

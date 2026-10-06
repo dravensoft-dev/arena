@@ -25,7 +25,8 @@ export type Tree = {
   subject?: true; children?: Tree[];
 };
 
-export type WitnessFamily = Family & { parts?: string[] };
+export type WitnessPart = string | { part: string; options: string[] };
+export type WitnessFamily = Family & { parts?: WitnessPart[] };
 
 export type ProximityCase = {
   name: string;

@@ -23,6 +23,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'box-class-stops-at-a-boundary': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,
   'context-class-crosses-a-boundary': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,
   'box-channel-stays-out-of-content': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,
+  'option-not-answered-stays-out': () => <div className="arena-optwitness-b"><ArenaButton>Save</ArenaButton></div>,
   'size-reaches-the-toolbar': () => <>
     <ArenaButton>Save</ArenaButton>
     <ArenaButton>Cancel</ArenaButton>

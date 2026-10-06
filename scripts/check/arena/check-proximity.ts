@@ -161,11 +161,13 @@ const LOADED_EXPRESSION = `new Promise((resolve) => {
   tick();
 })`;
 
-function witnessManifests(family: WitnessFamily): ComponentManifest[] {
+export function witnessManifests(family: WitnessFamily): ComponentManifest[] {
   const channel = declarations(Object.values(family.variants)[0] ?? '')[0]?.[0] ?? `--arena-${family.family}`;
-  return (family.parts ?? ['button']).map((part) => ({
-    component: `Arena${pascal(part)}`, answers: [family.family], slots: { root: `x-[var(${channel},0)]` },
-  }));
+  return (family.parts ?? ['button']).map((entry) => {
+    const part = typeof entry === 'string' ? entry : entry.part;
+    const answer = typeof entry === 'string' ? family.family : { family: family.family, options: entry.options, default: family.default ?? '' };
+    return { component: `Arena${pascal(part)}`, answers: [answer], slots: { root: `x-[var(${channel},0)]` } };
+  });
 }
 
 async function main() {

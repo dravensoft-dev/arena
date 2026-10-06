@@ -2,7 +2,7 @@
  * load order, and the verdict on a measurement. The browser half is the gate's run. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { partClasses, partData, pageHtml, verdict, markupVerdict } from './check-proximity.ts';
+import { partClasses, partData, pageHtml, verdict, markupVerdict, witnessManifests } from './check-proximity.ts';
 import { readManifests } from './check-measured-box.ts';
 
 test('a part is rebuilt with the classes its slot resolves to by default', () => {
@@ -64,4 +64,12 @@ test('an equal case holds when the two properties resolve alike at the subject',
 test('a root class lands on the html element', () => {
   assert.match(pageHtml('components-first', '<div></div>', '', { components: [], vocabulary: [] }, 'arena-compact'),
     /<html class="arena-compact">/);
+});
+
+test('a witness part with an options subset answers as an object, and a bare part answers by name', () => {
+  const family = { family: 'w', reach: 'box' as const, description: 'd', default: 'arena-w-a', variants: { 'arena-w-a': '[--arena-w-mark:1]', 'arena-w-b': '[--arena-w-mark:2]' },
+    parts: ['card', { part: 'button', options: ['arena-w-a'] }] };
+  const [card, button] = witnessManifests(family);
+  assert.deepEqual(card!.answers, ['w']);
+  assert.deepEqual(button!.answers, [{ family: 'w', options: ['arena-w-a'], default: 'arena-w-a' }]);
 });
