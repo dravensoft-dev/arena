@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import * as rules from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
 import {
-  collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  SCOPES, collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -29,7 +29,7 @@ const ROLES = {
 
 test('the rules module carries floors and shape checks and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
-    'ARENA_EXT', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
+    'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
     'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RHYTHM_STEP',
     'floorProblems', 'keyProblems', 'nameProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
@@ -195,6 +195,53 @@ test('a theme group is flattened to the tokens it holds, each labelled with the 
 test('a zero walk is a failure and not a clean pass', () => {
   assert.match(zeroScopeProblems(0)[0] ?? '', /0 scope/i);
   assert.deepEqual(zeroScopeProblems(2), []);
+});
+
+const HUE_ROLE = {
+  $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['transparent'] } },
+};
+
+const FLOORED = ':root{--lh-prose:1.6;--lh-heading:1.15;--measure-prose:72ch;'
+  + '--hue-danger-fill-strong:transparent}';
+
+test('the danger floor is a closed set a colour alias cannot answer', () => {
+  const problems = keyProblems('at', 'hue-danger-fill-strong',
+    { $type: 'color', $value: '{color.error}', $description: 'why' }, HUE_ROLE);
+  assert.ok(problems.some((one) => /is a color here and a keyword in roles\.json/.test(one)));
+  assert.match(valueProblems('at', 'hue-danger-fill-strong',
+    { $type: 'keyword', $value: '{color.error}', $description: 'why' }, HUE_ROLE)[0] ?? '',
+  /not one of transparent/);
+  assert.deepEqual(valueProblems('at', 'hue-danger-fill-strong',
+    { $type: 'keyword', $value: 'transparent', $description: 'why' }, HUE_ROLE), []);
+});
+
+test('the danger floor fails a coloured answer in the root plugin, in every scope', () => {
+  assert.deepEqual(collect(FLOORED), []);
+  const problems = collect(FLOORED.replace('--hue-danger-fill-strong:transparent',
+    '--hue-danger-fill-strong:var(--color-error)'));
+  for (const scope of SCOPES)
+    assert.ok(problems.some((one) => one.includes(`--hue-danger-fill-strong is var(--color-error) in ${scope}`)),
+      scope);
+  assert.match(problems[0] ?? '', /danger is outline/);
+});
+
+test('the danger floor fails a coloured answer in a scoped plugin, in its scope', () => {
+  const problems = collect(`${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:var(--color-error)}`);
+  assert.ok(problems.length > 0);
+  assert.ok(problems.some((one) => one.includes('--hue-danger-fill-strong is var(--color-error) in dark')));
+  assert.deepEqual(collect(`${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:transparent}`), []);
+});
+
+test('a scoped plugin is measured through its own scope, so the floor fails there and nowhere else', () => {
+  const css = `${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:#c00}`;
+  assert.deepEqual(floorProblems(resolvedFor(css, ''), 'dark', 'at'), []);
+  assert.equal(floorProblems(resolvedFor(css, 'showcase'), 'dark', 'at').length, 1);
+});
+
+test('the floor that is not stated is not measured here, because totality already asks for it', () => {
+  assert.deepEqual(floorProblems(roles(), 'dark', 'v'), []);
+  assert.match(floorProblems(roles({ 'hue-danger-fill-strong': '#c00' }), 'dark', 'v')[0] ?? '',
+    /--hue-danger-fill-strong is #c00 in dark, and danger is outline/);
 });
 
 test('the real tree holds: every scope this build emits clears the reading floors', () => {

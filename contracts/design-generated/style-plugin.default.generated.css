@@ -89,6 +89,24 @@
   --ease-hover:cubic-bezier(.2,.7,.3,1);
   --ease-state:cubic-bezier(.2,.7,.3,1);
   --press-scale:0.98;
+  --hue-danger-ink:var(--color-error);
+  --hue-danger-edge:var(--color-error);
+  --hue-danger-fill-strong:transparent;
+  --hue-danger-fill-soft:var(--color-error);
+  --hue-success-ink:var(--color-success);
+  --hue-success-edge:var(--color-success);
+  --hue-success-fill-strong:var(--color-success);
+  --hue-success-fill-soft:var(--color-success);
+  --hue-warning-ink:var(--color-warning);
+  --hue-warning-edge:var(--color-warning);
+  --hue-warning-fill-strong:var(--color-warning);
+  --hue-warning-fill-soft:var(--color-warning);
+  --hue-info-ink:var(--color-info);
+  --hue-info-edge:var(--color-info);
+  --hue-info-fill-strong:var(--color-info);
+  --hue-info-fill-soft:var(--color-info);
+  --fill-confirm-final:var(--color-error-fill);
+  --ink-confirm-final:var(--color-error-content);
 }
 .arena-light{
   --overlay-media:var(--color-base-100);
@@ -111,6 +129,23 @@
   --edge-control:var(--color-neutral);
   --edge-field:var(--color-base-300);
   --edge-separator:var(--color-base-300);
+  --hue-danger-ink:var(--color-error);
+  --hue-danger-edge:var(--color-error);
+  --hue-danger-fill-soft:var(--color-error);
+  --hue-success-ink:var(--color-success);
+  --hue-success-edge:var(--color-success);
+  --hue-success-fill-strong:var(--color-success);
+  --hue-success-fill-soft:var(--color-success);
+  --hue-warning-ink:var(--color-warning);
+  --hue-warning-edge:var(--color-warning);
+  --hue-warning-fill-strong:var(--color-warning);
+  --hue-warning-fill-soft:var(--color-warning);
+  --hue-info-ink:var(--color-info);
+  --hue-info-edge:var(--color-info);
+  --hue-info-fill-strong:var(--color-info);
+  --hue-info-fill-soft:var(--color-info);
+  --fill-confirm-final:var(--color-error-fill);
+  --ink-confirm-final:var(--color-error-content);
 }
 .arena-compact{
   --step-label:var(--dz-text-2xs);

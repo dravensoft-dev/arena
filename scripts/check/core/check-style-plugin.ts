@@ -33,6 +33,7 @@ export const RESOLVED = [
   'contracts/design-generated/typography.generated.css',
   'contracts/design-generated/spacing.generated.css',
   'contracts/design-generated/style-plugin.default.generated.css',
+  'contracts/design-generated/style-plugin.complete.generated.css',
 ];
 
 export const node = {
@@ -73,11 +74,23 @@ export function zeroScopeProblems(count: number) {
     + 'discovery path'];
 }
 
+const SCOPED = /^\.arena-([a-z][a-z0-9-]*)$/;
+
+export function scopedPlugins(css: string) {
+  return [...parseDecls(css).keys()]
+    .map((selector) => SCOPED.exec(selector)?.[1])
+    .filter((name): name is string => name !== undefined && !THEME_SCOPES.has(name));
+}
+
 export function collect(sheets?: string) {
   const css = sheets ?? RESOLVED.map((f) => readFileSync(join(repoRoot, f), 'utf8')).join('\n');
   const problems = [];
   for (const scope of SCOPES)
     problems.push(...floorProblems(resolvedFor(css, '', scope), scope, ROOT_PLUGIN));
+  for (const name of scopedPlugins(css))
+    for (const scope of SCOPES)
+      problems.push(...floorProblems(resolvedFor(css, name, scope), `${scope} under .arena-${name}`,
+        `.arena-${name}`));
   problems.push(...totalityProblems(
     Object.keys(readJson(join(repoRoot, ROLES))),
     Object.keys(readJson(join(repoRoot, ROOT_PLUGIN))),

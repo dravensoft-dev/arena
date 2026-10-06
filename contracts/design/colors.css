@@ -45,6 +45,10 @@
   --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
   --level-ink-muted:62%;   /* captions, meta, the held-back register */
   --level-presence:52%;    /* ArenaAvatar's offline dot: a graphical object, 3:1 */
+  --level-hue-soft-danger:14%;   /* the danger hue's wash */
+  --level-hue-soft-success:16%;  /* the success hue's wash */
+  --level-hue-soft-warning:18%;  /* the warning hue's wash */
+  --level-hue-soft-info:16%;     /* the info hue's wash */
 
   /* raw neutrals */
   --ink:var(--color-base-100);

@@ -390,5 +390,84 @@
   "press-scale": {
     "$type": "number",
     "$description": "How far a control sinks under the pointer while it is held, and the other half of\nlift-control: that one says how far a control rises, this says how far it goes down. A style plugin that\ngives a control mass has a reason to answer both, and until this moved out of effects.json it could\nanswer neither, because a scale is shared by every use that wants that value.\n\nAuthored as a literal rather than as an alias, for the reason lift-control is: neither has a scale\nto alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those\ntwo are the only numbers in this tier whose value is its own.\n\nUnitless on purpose: it is a transform scale, not a length, so it carries no dimension type and\ndoes not re-densify. Both layers press by the same amount and each used to spell it as its own\nliteral -- 0.98 inline in React, scale-98 in the Tailwind manifest -- which is one design decision\nwritten twice with nothing holding the copies in step. NOT script-readable: nothing does arithmetic\non it, both layers reference the custom property directly, and the flag is only for a value JS must\nconsume to produce a position."
+  },
+  "hue-danger-ink": {
+    "$type": "color",
+    "$description": "Which colour the danger hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-ink), so a plugin that moves it moves every danger surface at once."
+  },
+  "hue-danger-edge": {
+    "$type": "color",
+    "$description": "Which colour the danger hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-edge), so a plugin that moves it moves every danger surface at once."
+  },
+  "hue-danger-fill-strong": {
+    "$type": "keyword",
+    "$description": "Which colour the danger hue fills a surface or a marker with at full strength, and the answer is closed: transparent. Danger is outline. Its ink, its edge and its wash carry the meaning, and nothing in Arena fills a surface with danger except the final confirmation of ArenaConfirmDialog, which reads fill-confirm-final and ink-confirm-final.\n\nA keyword role with a closed set of one, so that no plugin can answer it otherwise: it is the floor check:style-plugin and check:catalogue hold in the root plugin, in every scoped plugin and in every catalogue entry, and the one role complete cannot answer with a value of its own. A slot that wants a presence dot in the danger hue reads hue-danger-ink.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": [
+          "transparent"
+        ]
+      }
+    }
+  },
+  "hue-danger-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the danger hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-fill-soft), so a plugin that moves it moves every danger surface at once."
+  },
+  "hue-success-ink": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-ink), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-success-edge": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-edge), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-success-fill-strong": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as a solid fill. Read by every slot that fills a surface or a marker with the hue at full strength: a presence dot, a solid badge, a progress bar's fill. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-fill-strong), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-success-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-fill-soft), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-warning-ink": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-ink), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-warning-edge": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-edge), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-warning-fill-strong": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as a solid fill. Read by every slot that fills a surface or a marker with the hue at full strength: a presence dot, a solid badge, a progress bar's fill. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-fill-strong), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-warning-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-fill-soft), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-info-ink": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-ink), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-edge": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-edge), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-fill-strong": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as a solid fill. Read by every slot that fills a surface or a marker with the hue at full strength: a presence dot, a solid badge, a progress bar's fill. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-fill-strong), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-fill-soft), so a plugin that moves it moves every info surface at once."
+  },
+  "fill-confirm-final": {
+    "$type": "color",
+    "$description": "Which colour the final irreversible confirmation of ArenaConfirmDialog is filled with. The one filled danger surface in Arena, which is why it is a role of its own and not hue-danger-fill-strong: that role is transparent in every answer, because danger is outline everywhere else. Paired with ink-confirm-final, which has to clear the contrast bar against it."
+  },
+  "ink-confirm-final": {
+    "$type": "color",
+    "$description": "Which colour the label of the final irreversible confirmation of ArenaConfirmDialog is set in, on fill-confirm-final. The one filled danger surface in Arena, and the pair a plugin answers together: a fill moved without its ink is a label that may no longer be read."
   }
 }

@@ -200,6 +200,7 @@ export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel
   + 'as var(--crimson), or compose one with color-mix() over var()';
 export const COMPAT_ALIASES = [
   'level-ink-body', 'level-ink-quiet', 'level-ink-muted', 'level-presence',
+  'level-hue-soft-danger', 'level-hue-soft-success', 'level-hue-soft-warning', 'level-hue-soft-info',
   'picker-invert', 'ink', 'ink-2', 'panel', 'line-strong', 'bone', 'bone-dim', 'mute',
   'mute-2-disabled', 'status-offline', 'crimson', 'crimson-strong', 'crimson-soft', 'gold',
   'gold-strong', 'gold-soft', 'success', 'success-soft', 'warning', 'warning-soft', 'danger',

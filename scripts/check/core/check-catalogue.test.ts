@@ -203,6 +203,29 @@ test('an entry answering a floor through a scale alias is measured at the value 
   } finally { clean(); }
 });
 
+test('an entry answering the danger fill with a colour is refused in both polarities', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, { $type: string; $value: unknown }>;
+    answers['hue-danger-fill-strong'] = { $type: 'color', $value: '{color.error}' };
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const problems = readingFloorProblems('a-register', tokenCatalogue(), base);
+    for (const polarity of POLARITIES)
+      assert.ok(problems.some((one) => one.includes(`--hue-danger-fill-strong is var(--color-error) in ${polarity}`)),
+        polarity);
+    assert.ok(tokenProblems('a-register', roles, base).some((one) => /hue-danger-fill-strong/.test(one)));
+  } finally { clean(); }
+});
+
+test('an entry answering the danger fill with transparent clears the floor', () => {
+  const { base, clean } = bench((dir) => wholeEntry(dir));
+  try {
+    assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
+  } finally { clean(); }
+});
+
 test('an empty catalogue is a failure rather than a clean pass', () => {
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems(['a-register']), []);

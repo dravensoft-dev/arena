@@ -1,13 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  COMPLETE, collect, movedRoles, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems, restatedInWitness, sheetsByPart,
+  COMPLETE, collect, immovableRoles, movedRoles, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems, restatedInWitness, sheetsByPart,
 } from './check-style-plugin-coverage.ts';
 
 test('a role complete does not move is a role nothing can reach', () => {
   const problems = unreachedRoles(['r-surface', 'bw-surface'], ['r-surface']);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /bw-surface/);
+});
+
+const ARENA = 'com.dravensoft.arena';
+
+test('a keyword whose closed set holds one value cannot be moved, so it is not owed a distinct answer', () => {
+  const roles = {
+    'hue-danger-fill-strong': { $type: 'keyword', $extensions: { [ARENA]: { values: ['transparent'] } } },
+    'tt-label': { $type: 'keyword', $extensions: { [ARENA]: { values: ['none', 'uppercase'] } } },
+    'r-surface': { $type: 'dimension' },
+  };
+  assert.deepEqual(immovableRoles(roles), ['hue-danger-fill-strong']);
+  assert.deepEqual(unreachedRoles(Object.keys(roles), ['r-surface', 'tt-label'], immovableRoles(roles)), []);
+});
+
+test('a role with a set of several values is still owed a distinct answer', () => {
+  const roles = { 'tt-label': { $type: 'keyword', $extensions: { [ARENA]: { values: ['none', 'uppercase'] } } } };
+  assert.deepEqual(immovableRoles(roles), []);
+  assert.equal(unreachedRoles(['tt-label'], [], immovableRoles(roles)).length, 1);
 });
 
 test('a role complete answers with the value default already gives has not moved', () => {

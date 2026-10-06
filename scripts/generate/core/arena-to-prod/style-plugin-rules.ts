@@ -25,6 +25,8 @@ export const MIN_PROSE_MEASURE = 45;
 
 export const MAX_PROSE_MEASURE = 90;
 
+export const DANGER_FLOOR = 'hue-danger-fill-strong';
+
 export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
   ? className
   : `${className}${selector}, ${className} ${selector}, ${selector} ${className}`);
@@ -58,6 +60,11 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
     problems.push(`${where}: --measure-prose is ${measure}ch in ${scope}, outside ${MIN_PROSE_MEASURE} to `
       + `${MAX_PROSE_MEASURE}. Under the floor a line breaks mid-thought and over the ceiling the eye loses `
       + `which line it was on coming back, and both are failures of the same thing a measure exists to hold.`);
+
+  const danger = at.get(DANGER_FLOOR);
+  if (danger !== undefined && danger !== 'transparent')
+    problems.push(`${where}: --${DANGER_FLOOR} is ${danger} in ${scope}, and danger is outline: its strong `
+      + 'fill is transparent in every answer, and the one filled danger surface reads fill-confirm-final');
   return problems;
 }
 

@@ -554,5 +554,77 @@
   "press-scale": {
     "$type": "number",
     "$value": 0.92
+  },
+  "hue-danger-ink": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
+  "hue-danger-edge": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
+  "hue-danger-fill-strong": {
+    "$type": "keyword",
+    "$value": "transparent"
+  },
+  "hue-danger-fill-soft": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
+  "hue-success-ink": {
+    "$type": "color",
+    "$value": "{color.success}"
+  },
+  "hue-success-edge": {
+    "$type": "color",
+    "$value": "{color.success}"
+  },
+  "hue-success-fill-strong": {
+    "$type": "color",
+    "$value": "{color.success}"
+  },
+  "hue-success-fill-soft": {
+    "$type": "color",
+    "$value": "{color.success}"
+  },
+  "hue-warning-ink": {
+    "$type": "color",
+    "$value": "{color.warning}"
+  },
+  "hue-warning-edge": {
+    "$type": "color",
+    "$value": "{color.warning}"
+  },
+  "hue-warning-fill-strong": {
+    "$type": "color",
+    "$value": "{color.warning}"
+  },
+  "hue-warning-fill-soft": {
+    "$type": "color",
+    "$value": "{color.warning}"
+  },
+  "hue-info-ink": {
+    "$type": "color",
+    "$value": "{color.info}"
+  },
+  "hue-info-edge": {
+    "$type": "color",
+    "$value": "{color.info}"
+  },
+  "hue-info-fill-strong": {
+    "$type": "color",
+    "$value": "{color.info}"
+  },
+  "hue-info-fill-soft": {
+    "$type": "color",
+    "$value": "{color.info}"
+  },
+  "fill-confirm-final": {
+    "$type": "color",
+    "$value": "{color.error-fill}"
+  },
+  "ink-confirm-final": {
+    "$type": "color",
+    "$value": "{color.error-content}"
   }
 }
