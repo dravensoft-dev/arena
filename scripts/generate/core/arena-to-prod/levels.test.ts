@@ -6,6 +6,7 @@ import {
   DECORATIVE, derivedLevels, exemptionFor, gateFor, levelReports, levelsIn, raisedReports,
   surfaceKeys, washesIn, washReports,
 } from './levels.ts';
+import { compoundStates } from '../../../check/core/check-text-contrast.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
@@ -210,4 +211,36 @@ test('two rules with one selector are one rule to a browser, so the ink can be d
     { selector: '.arena-menu__item-default', variable: 'color-primary', percent: 14 },
   ], 'the hovered item takes both blocks, so its ink on hover is the accent and not the body ink '
     + 'the resting block declares');
+});
+
+const MENU = [
+  '  .arena-menu__item--cv1 {',
+  '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);',
+  '    opacity: 60%;',
+  '  }',
+  '  .arena-menu__item--cv2 {',
+  '    color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);',
+  '  }',
+].join('\n');
+
+const MENU_MANIFEST = {
+  component: 'ArenaMenu',
+  compoundVariants: [
+    { disabled: true, class: { item: 'x' } },
+    { disabled: false, destructive: true, class: { item: 'y' } },
+  ],
+};
+
+test('a compound that waits for a disabled row is exempt by its condition, one that waits for an enabled row is judged', () => {
+  const states = compoundStates([MENU_MANIFEST]);
+  assert.equal(states.get('.arena-menu__item--cv1'), ':where([data-arena-disabled])');
+  assert.equal(states.get('.arena-menu__item--cv2'),
+    ':where(:not([data-arena-disabled])):where([data-arena-destructive])');
+  const [disabled, enabled] = levelsIn(MENU, DEFAULTS, states);
+  assert.ok(exemptionFor(disabled as never), 'the disabled compound keeps the inactive-component exemption');
+  assert.equal(exemptionFor(enabled as never), null, 'a compound that names disabled only to negate it is not inactive');
+  assert.equal(exemptionFor((levelsIn(MENU, DEFAULTS)[0]) as never), null, 'without the manifest the compound is a bare class and is judged');
+  const spelled = levelsIn(
+    '  .arena-menu__item:where([data-arena-disabled]) {\n    color: color-mix(in oklab, var(--ink-muted) 40%, transparent);\n  }', DEFAULTS);
+  assert.ok(exemptionFor(spelled[0] as never), 'a selector that spells the attribute is recognised without a manifest');
 });

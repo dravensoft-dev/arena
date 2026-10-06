@@ -10,6 +10,9 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { compoundClass, dataAttribute } from '../../lib/tailwind/component-css.ts';
+import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
 import {
   derivedLevels, drawnBy, levelDefaults, levelReports, levelsIn, raisedReports,
@@ -37,6 +40,24 @@ export const node = {
   writes: [],
   feeds: [],
 };
+
+export function compoundStates(manifests: Iterable<Pick<ComponentManifest, 'component' | 'slots' | 'compoundVariants'>>) {
+  const out = new Map<string, string>();
+  for (const manifest of manifests) {
+    (manifest.compoundVariants ?? []).forEach((compound, index) => {
+      const { class: applied, ...groups } = compound as Record<string, unknown> & { class?: Record<string, string> };
+      const condition = Object.entries(groups).map(([group, value]) => {
+        const attribute = dataAttribute(group);
+        if (value === true) return `:where([${attribute}])`;
+        if (value === false) return `:where(:not([${attribute}]))`;
+        return `:where([${attribute}="${String(value)}"])`;
+      }).join('');
+      for (const slot of Object.keys(applied ?? {}))
+        out.set(`.${compoundClass(manifest.component, slot, index)}`, condition);
+    });
+  }
+  return out;
+}
 
 export function componentSheets() {
   const at = join(root, 'frameworks/tailwind/consume/components');
@@ -150,7 +171,8 @@ function main() {
   }
   const sheets = componentSheets();
   const defaults = levelDefaults(readFileSync(join(root, COLORS), 'utf8'));
-  const levels = sheets.flatMap((css) => levelsIn(css, defaults));
+  const states = compoundStates(layerManifests().values());
+  const levels = sheets.flatMap((css) => levelsIn(css, defaults, states));
   const washes = sheets.flatMap(washesIn);
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');

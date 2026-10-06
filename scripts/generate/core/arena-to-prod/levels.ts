@@ -72,14 +72,17 @@ export function opacitiesIn(css: string) {
   return out;
 }
 
-export function levelsIn(css: string, defaults: Record<string, number> = {}): Level[] {
+export function levelsIn(
+  css: string, defaults: Record<string, number> = {}, states: Map<string, string> = new Map(),
+): Level[] {
   const held = opacitiesIn(css);
   const out: Level[] = [];
   let selector = '';
   let state = '';
+  let condition = '';
   for (const line of css.split('\n')) {
     const named = SELECTOR.exec(line)?.[1];
-    if (named?.startsWith('.')) { selector = named; state = named; }
+    if (named?.startsWith('.')) { selector = named; state = named; condition = states.get(named) ?? ''; }
     else if (named) state = `${selector}${named.replace(/&/g, '')}`;
     const mix = MIX.exec(line);
     if (!mix) continue;
@@ -89,7 +92,7 @@ export function levelsIn(css: string, defaults: Record<string, number> = {}): Le
     const opacity = (held.get(state) ?? 1) * (state === selector ? 1 : held.get(selector) ?? 1);
     out.push({
       selector,
-      state,
+      state: `${state}${condition}`,
       property: mix[1] as string,
       variable: mix[2] as string,
       percent: Number((declared * opacity).toFixed(2)),
@@ -175,10 +178,13 @@ export function washReports(
   return out;
 }
 
+const NEGATED = /:not\((?:[^()]|\([^()]*\))*\)/g;
+
 export function exemptionFor(level: Level) {
   const decorative = DECORATIVE.get(level.selector);
   if (decorative) return decorative;
-  for (const [what, why] of EXEMPT) if (level.state.includes(what)) return why;
+  const waiting = level.state.replace(NEGATED, '');
+  for (const [what, why] of EXEMPT) if (waiting.includes(what)) return why;
   return null;
 }
 
