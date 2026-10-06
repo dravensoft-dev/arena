@@ -98,6 +98,12 @@ test('the tab draws its focus ring with a ring utility, because its shadow slot 
   }
 });
 
+test('selection never moves the tab padding', () => {
+  const padding = (selected: boolean) => resolve('ArenaTabs', { selected }, 'tab').filter((cls) => /^p[xy]?-/.test(cls));
+  assert.deepEqual(padding(true), padding(false),
+    'a tab that changed its padding when selected would shift every tab beside it');
+});
+
 test('no ArenaSideNav slot hard-codes an indent bracket, because a static utility holds no runtime multiplier', () => {
   for (const slot of ['item', 'trigger', 'sectionLabel']) {
     const carried = resolve('ArenaSideNav', {}, slot).filter((cls) => cls.startsWith('ps-['));
@@ -148,7 +154,7 @@ export const CLAIMS = {
       { chosen: { size: s }, slot: 'mark', has: [`size-logo-mark-${s}`], why: 'each size step pairs a mark box with its wordmark step' },
       { chosen: { size: s }, slot: 'name', has: [`text-logo-${s}`], why: 'each size step pairs a mark box with its wordmark step' },
     ]),
-    { chosen: { orientation: 'horizontal' }, slot: 'root', has: ['flex-row', 'gap-2.5'], why: 'orientation changes the axis and the gap, nothing else' },
+    { chosen: { orientation: 'horizontal' }, slot: 'root', has: ['flex-row'], why: 'orientation changes the axis and the gap, nothing else' },
     { chosen: { orientation: 'vertical' }, slot: 'root', has: ['flex-col', 'gap-items'], why: 'orientation changes the axis and the gap, nothing else' },
     { slot: 'mark', has: ['*:w-full', '*:h-full', '*:block'], why: 'the mark slot stretches its projected child rather than sizing it' },
   ],
@@ -190,7 +196,7 @@ export const CLAIMS = {
   ],
   ArenaSkeleton: [
     { chosen: { variant: 'text' }, slot: 'root', has: ['arena-shimmer'], hasNot: ['hidden'], why: 'the text variant carries no root override; the host reads stack() for it, not root()' },
-    { slot: 'stack', has: ['flex-col', 'gap-2.5'], why: 'the stack lays its lines in a column and is unaffected by variant' },
+    { slot: 'stack', has: ['flex-col'], why: 'the stack lays its lines in a column and is unaffected by variant' },
     { slot: 'line', has: ['w-full'], hasNot: ['w-[62%]'], why: 'a full line runs the whole width and only the closing one runs short' },
     { slot: 'lastLine', has: ['w-[62%]'], why: 'the last line is narrower than the rest, the way a paragraph ends' },
   ],
@@ -425,7 +431,7 @@ export const CLAIMS = {
     })),
   ],
   ArenaSideNav: [
-    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-items', 'py-2.5', 'rounded-control'],
+    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-row', 'px-row-x', 'py-row-y', 'rounded-control'],
       why: 'the trigger matches the item metrics, or a collapsible header will not line up with its siblings' })),
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
   ],
@@ -446,7 +452,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
     { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
-    { slot: 'tab', has: ['px-4', 'focus-visible:outline-none'], why: 'selection never moves the padding, and a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
+    { slot: 'tab', has: ['focus-visible:outline-none'], why: 'a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
     {
       slot: 'tab',
       has: ['focus-visible:ring-[length:var(--focus-width)]', 'focus-visible:ring-[color:var(--focus-ring)]'],

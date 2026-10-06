@@ -1,13 +1,10 @@
-/* Fails on a scale utility standing where a role belongs. A scale says how round a corner is; a
- * role says WHICH corner is being asked about, and only a question can be answered differently by
- * a style plugin. The ban covers ink, edges, faces, case and internal air as well as geometry,
- * since the role tier grew to reach them. A family with a Tailwind namespace is banned by utility
- * name; a border width and a duration are banned by TOKEN name, which catches
- * border-[length:var(--bw)] and the var(--dur-fast) buried in an arbitrary [transition:...] with
- * one entry rather than one per spelling. An easing is banned BOTH ways and the two never collide,
- * since the utility entry cannot match inside var(--ease-out) where a hyphen precedes it.
- * SCALE_USES records the places that genuinely mean the value, one entry per case with its reason,
- * and its largest group is the mono face standing for figures rather than for a register. */
+/* Fails on a scale utility standing where a role belongs, on a slot that declares no kind, on a
+ * numeric padding, gap or margin step, and on a padding, gap or radius role its kind does not
+ * spend. A role says WHICH air or corner is asked about, so a style plugin can answer it; the
+ * kind of a slot says which roles it may ask. Scale utilities are banned by utility name, and a
+ * border width, a duration and an easing by token name. SCALE_USES records the places that
+ * genuinely mean the value, one entry per case with its reason, keyed by component, slot and
+ * utility, and an entry no manifest carries any more fails as stale. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -16,6 +13,8 @@ import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { KINDS, KIND_AIR, KIND_FREE, kindProblems } from '../../lib/tailwind/slot-kinds.ts';
+import type { SlotKind } from '../../lib/tailwind/slot-kinds.ts';
 import { MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
 export const node = {
@@ -157,22 +156,78 @@ export function scaleUsesIn(classString: string) {
     .filter((utility) => new RegExp(`(?<![\\w-])${literal(utility)}(?![\\w-])`).test(classString));
 }
 
-export function evaluateManifest(manifest: ComponentManifest, allowed = SCALE_USES) {
-  const findings = [];
-  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>)
-    for (const utility of new Set(classList.flatMap(scaleUsesIn))) {
-      const key = scaleUseKey(manifest.component, slot, utility);
-      if (allowed.has(key)) continue;
-      findings.push({ component: manifest.component, slot, utility, role: SCALE_UTILITIES.get(utility) });
+export type Why = 'scale' | 'step' | 'kind' | 'missing-kind';
+export type Finding = { component: string; slot: string; utility: string; role: string | undefined; kind: SlotKind; why: Why };
+
+const PAD = '(?:p|px|py|pt|pb|pl|pr|ps|pe)';
+const SPACE = '(?:p|px|py|pt|pb|pl|pr|ps|pe|gap|gap-x|gap-y|m|mx|my|mt|mb|ml|mr|ms|me)';
+const STEP = new RegExp(`^-?${SPACE}-(\\d+(?:\\.\\d+)?)$`);
+const PAD_ROLE = new RegExp(`^${PAD}-([a-z]+-[a-z]+)$`);
+const PAD_ARBITRARY = new RegExp(`^${PAD}-\\[(.*)\\]$`);
+const GAP_ROLES = new Set(['gap-control', 'gap-marker', 'gap-row']);
+const PAD_STEMS = new Set(KINDS.flatMap((k) => KIND_AIR[k].pad));
+const RADIUS_ROLES = new Set(KINDS.flatMap((k) => KIND_AIR[k].radius));
+const STATE_PREFIX = /^(?:[^\s:[\]]+:|\[[^\]]*\]:)+/;
+
+function utilitiesIn(classString: string) {
+  return classString.split(/\s+/).filter(Boolean).map((token) => token.replace(STATE_PREFIX, ''));
+}
+
+function stepProblem(utility: string) {
+  const numeric = STEP.exec(utility);
+  if (numeric) return Number(numeric[1]) !== 0;
+  const arbitrary = PAD_ARBITRARY.exec(utility);
+  return Boolean(arbitrary && arbitrary[1]!.includes('--sp-'));
+}
+
+function kindProblem(utility: string, kind: SlotKind) {
+  if (KIND_FREE.has(utility)) return false;
+  const air = KIND_AIR[kind];
+  const role = PAD_ROLE.exec(utility);
+  if (role && PAD_STEMS.has(role[1]!)) return !air.pad.includes(role[1]!);
+  const arbitrary = PAD_ARBITRARY.exec(utility);
+  const operand = arbitrary && /var\(--pad-([a-z]+-[a-z]+)\)/.exec(arbitrary[1]!);
+  if (operand && PAD_STEMS.has(operand[1]!)) return true;
+  if (GAP_ROLES.has(utility.replace(/^gap-[xy]-/, 'gap-'))) return !air.gap.includes(utility.replace(/^gap-[xy]-/, 'gap-'));
+  const radius = utility.replace(/^rounded-(?:tl|tr|bl|br|ss|se|es|ee|[trblse])-/, 'rounded-');
+  if (RADIUS_ROLES.has(radius)) return !air.radius.includes(radius);
+  return false;
+}
+
+function stepRole(utility: string) {
+  return /^-?(?:gap|m)/.test(utility) ? 'a gap or margin role, or a rhythm key' : 'a padding role of the slot\'s kind';
+}
+
+export function evaluateManifest(manifest: ComponentManifest, allowed = SCALE_USES): Finding[] {
+  const findings: Finding[] = [];
+  for (const problem of kindProblems(manifest)) {
+    const slot = /^[^:]+:(\S+) /.exec(problem)?.[1] ?? '';
+    findings.push({ component: manifest.component, slot, utility: '', role: problem, kind: 'none', why: 'missing-kind' });
+  }
+  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>) {
+    const declared = manifest.kind?.[slot] as string | undefined;
+    const kind = declared && (KINDS as readonly string[]).includes(declared) ? declared as SlotKind : undefined;
+    const reported = new Set<string>();
+    const report = (utility: string, role: string | undefined, why: Why) => {
+      if (reported.has(utility)) return;
+      reported.add(utility);
+      if (allowed.has(scaleUseKey(manifest.component, slot, utility))) return;
+      findings.push({ component: manifest.component, slot, utility, role, kind: kind ?? 'none', why });
+    };
+    for (const utility of new Set(classList.flatMap(scaleUsesIn))) report(utility, SCALE_UTILITIES.get(utility), 'scale');
+    for (const utility of new Set(classList.flatMap(utilitiesIn))) {
+      if (KIND_FREE.has(utility)) continue;
+      if (stepProblem(utility)) report(utility, stepRole(utility), 'step');
+      else if (kind && kindProblem(utility, kind)) report(utility, `a role of the ${kind} kind`, 'kind');
     }
+  }
   return findings;
 }
 
 export function seenKeys(manifest: ComponentManifest) {
   const keys = new Set<string>();
-  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>)
-    for (const utility of new Set(classList.flatMap(scaleUsesIn)))
-      keys.add(scaleUseKey(manifest.component, slot, utility));
+  for (const f of evaluateManifest(manifest, new Map()))
+    if (f.why !== 'missing-kind') keys.add(scaleUseKey(f.component, f.slot, f.utility));
   return keys;
 }
 
@@ -208,13 +263,15 @@ function main() {
   }
   const { findings, stale } = collect(files);
   if (findings.length || stale.length) {
-    console.error(`check-role-tokens: ${findings.length} scale use(s) in a role position, ${stale.length} stale allowance(s)\n`);
-    for (const f of findings)
-      console.error(`  ${f.component}:${f.slot} carries ${f.utility} where a role belongs -- use ${f.role}, or record the case in SCALE_USES with the reason it means the length`);
+    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${stale.length} stale allowance(s)\n`);
+    for (const f of findings) {
+      if (f.why === 'missing-kind') console.error(`  ${f.role} -- every slot declares a kind (${f.why})`);
+      else console.error(`  ${f.component}:${f.slot} (${f.kind}) carries ${f.utility} where a role belongs (${f.why}) -- use ${f.role}, or record the case in SCALE_USES with the reason it means the length`);
+    }
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every radius, border, depth, duration, easing, ink, edge, face, case and internal-air decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();
