@@ -29,16 +29,16 @@ test('the active row is the one the arrow keys point at, and it takes the accent
   const html = renderToStaticMarkup(
     <ArenaCommandPalette open commands={[{ id: 'a', label: 'Deploy' }, { id: 'b', label: 'Roll back' }]} />,
   );
-  assert.match(html, /class="[^"]*\barena-command-palette__row--active-true\b[^"]*"[^>]*aria-selected="true"|aria-selected="true"[^>]*class="[^"]*\barena-command-palette__row--active-true\b/,
+  assert.match(html, /aria-selected="true"[^>]*data-arena-part="command-palette.row"[^>]*\bdata-arena-active=""/,
     'the first row is active on open and wears the accent tint');
-  assert.equal((html.match(/\barena-command-palette__row--active-true\b/g) || []).length, 1, 'more than one row was drawn as active');
-  assert.match(html, /\b(?:arena-command-palette__input|arena-command-palette__row--active-false)\b/, 'and the other row takes the quiet branch');
+  assert.equal((html.match(/data-arena-part="command-palette.row"[^>]*\bdata-arena-active=""/g) || []).length, 1, 'more than one row was drawn as active');
+  assert.match(html, /data-arena-part="command-palette.row"(?:(?!data-arena-active=)[^>])*>/, 'and the other row takes the quiet branch');
 });
 
 test('the active row and its label are the active group of the row and rowLabel slots', () => {
   const html = renderToStaticMarkup(
     <ArenaCommandPalette open commands={[{ id: 'a', label: 'Deploy' }, { id: 'b', label: 'Roll back' }]} />,
   );
-  assert.equal((html.match(/\barena-command-palette__row-label--active-true\b/g) || []).length, 1);
-  assert.match(html, /\barena-command-palette__row-label--active-false\b/);
+  assert.equal((html.match(/data-arena-part="command-palette.row-label"[^>]*\bdata-arena-active=""/g) || []).length, 1);
+  assert.match(html, /data-arena-part="command-palette.row-label"(?:(?!data-arena-active=)[^>])*>/);
 });

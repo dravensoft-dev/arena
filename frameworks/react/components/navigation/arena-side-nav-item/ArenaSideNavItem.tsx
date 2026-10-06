@@ -61,20 +61,21 @@ export function ArenaSideNavItem({ className,
     },
     className: arenaClassName('ArenaSideNavItem', styles.item(), className),
     'data-arena-part': manifest.parts.item,
+    ...styles.$data.item(),
     style: collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties,
   };
 
   const glyph = icon
-    ? <i className={`${on ? arenaActiveWeight(icon) : icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />
+    ? <i className={`${on ? arenaActiveWeight(icon) : icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />
     : null;
   const count = arenaBadgeCount(badge);
-  const tally = count === null || collapsed ? null : <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{count}</span>;
+  const tally = count === null || collapsed ? null : <span className={styles.badge()} data-arena-part={manifest.parts.badge} {...styles.$data.badge()}>{count}</span>;
   const dot = collapsed && count !== null
-    ? <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
+    ? <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />
     : null;
   const name = collapsed
     ? (
-      <span className={styles.itemLabel()} data-arena-part={manifest.parts.itemLabel}>
+      <span className={styles.itemLabel()} data-arena-part={manifest.parts.itemLabel} {...styles.$data.itemLabel()}>
         {count !== null ? `${label} ${count}` : label}
       </span>
     )

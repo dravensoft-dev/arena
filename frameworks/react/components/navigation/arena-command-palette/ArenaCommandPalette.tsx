@@ -106,29 +106,30 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
   };
   const styles = paletteStyles({ open: true });
   return (
-    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div ref={panelRef} onKeyDown={onPanelKeyDown}
         onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={locale.commandPaletteDialog}
-        className={styles.panel()} data-arena-part={manifest.parts.panel}>
-        <div className={styles.search()} data-arena-part={manifest.parts.search}>
-          <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} aria-hidden="true" />
+        className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
+        <div className={styles.search()} data-arena-part={manifest.parts.search} {...styles.$data.search()}>
+          <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} {...styles.$data.searchIcon()} aria-hidden="true" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
             aria-controls={listboxId} aria-label={hint || locale.commandPaletteSearch}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
-            className={styles.input()} data-arena-part={manifest.parts.input} />
-          <span className={styles.esc()} data-arena-part={manifest.parts.esc}>{locale.commandPaletteEscape}</span>
+            className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
+          <span className={styles.esc()} data-arena-part={manifest.parts.esc} {...styles.$data.esc()}>{locale.commandPaletteEscape}</span>
         </div>
-        <div ref={listRef} id={listboxId} role="listbox" aria-label={locale.commandPaletteList} className={styles.list()} data-arena-part={manifest.parts.list}>
-          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
+        <div ref={listRef} id={listboxId} role="listbox" aria-label={locale.commandPaletteList} className={styles.list()} data-arena-part={manifest.parts.list} {...styles.$data.list()}>
+          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty} {...styles.$data.empty()}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
           {groups.map((group) => (
-            <div key={group.name ?? ''} className={styles.group()} data-arena-part={manifest.parts.group}
+            <div key={group.name ?? ''} className={styles.group()} data-arena-part={manifest.parts.group} {...styles.$data.group()}
               role={group.name ? 'group' : undefined} aria-label={group.name ?? undefined}>
               {group.name && (
-                <span aria-hidden="true" className={styles.groupLabel()} data-arena-part={manifest.parts.groupLabel}>{group.name}</span>
+                <span aria-hidden="true" className={styles.groupLabel()} data-arena-part={manifest.parts.groupLabel} {...styles.$data.groupLabel()}>{group.name}</span>
               )}
               {group.rows.map(({ command: c, index: idx }) => {
                 const on = idx === i;
+                const rowStyles = paletteStyles({ open: true, active: on });
                 const rowProps = {
                   id: optionId(idx),
                   role: 'option' as const,
@@ -142,15 +143,16 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
                     }
                     run(c);
                   },
-                  className: paletteStyles({ open: true, active: on }).row(),
+                  className: rowStyles.row(),
                   'data-arena-part': manifest.parts.row,
+                  ...rowStyles.$data.row(),
                 };
                 const body = (
                   <>
-                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon}><i className={c.icon} aria-hidden="true" /></span>}
-                    <span className={paletteStyles({ open: true, active: on }).rowLabel()}
-                      data-arena-part={manifest.parts.rowLabel}>{c.label}</span>
-                    {c.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{c.shortcut}</span>}
+                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon} {...styles.$data.rowIcon()}><i className={c.icon} aria-hidden="true" /></span>}
+                    <span className={rowStyles.rowLabel()}
+                      data-arena-part={manifest.parts.rowLabel} {...rowStyles.$data.rowLabel()}>{c.label}</span>
+                    {c.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{c.shortcut}</span>}
                   </>
                 );
                 return c.route

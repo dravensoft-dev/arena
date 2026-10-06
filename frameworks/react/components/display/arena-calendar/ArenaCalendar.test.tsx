@@ -117,7 +117,7 @@ test('an event colours its chip from colorId, not from the old slot field', () =
 test('the day affordance follows dayInteractive and never the listener -- R6', () => {
   const dayLabel = arenaFormatDate('2026-07-20', 'en-GB', ARENA_DATE_OPTIONS.dayName);
   const head = new RegExp(`<button[^>]*aria-label="${dayLabel}"`);
-  const column = /role="row"[^>]*arena-calendar__column--day-interactive-true/;
+  const column = /data-arena-part="calendar.column"[^>]*\bdata-arena-day-interactive=""/;
 
   const bound = render({ onDateClick: () => {} });
   assert.doesNotMatch(bound, column, 'binding the listener alone painted a pointer cursor over the day columns');
@@ -222,7 +222,7 @@ test('the chip lifts its clip while the panel is open, and only then', () => {
       box={{}} color="var(--color-cat-1)" timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
       {...extra} />,
   );
-  assert.match(chip({ defaultPanelOpen: true }), /\barena-calendar__chip--panel-open-true\b/,
+  assert.match(chip({ defaultPanelOpen: true }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-panel-open=""/,
     'the open panel is still clipped by the chip');
   assert.match(chip({}), /\b(?:arena-calendar__chip|arena-calendar__title)\b/,
     'a closed chip stopped clipping -- a long title no longer ellipsises');
@@ -249,7 +249,7 @@ test('the chip height floor clears the title line once the height is an outer he
 
 test('a chip carrying a kebab reserves the width the kebab occupies', () => {
   const html = render({}, { actionsEnabled: true, actions: <b>act</b> });
-  assert.match(html, /arena-calendar__chip--reserve-true/,
+  assert.match(html, /data-arena-part="calendar.chip"[^>]*\bdata-arena-reserve=""/,
     'a panelled chip reserves nothing for its kebab, so the title is drawn underneath it');
 });
 
@@ -313,7 +313,7 @@ test('a stacked chip anchors its kebab to the bottom and reserves no lateral ban
       actionsEnabled actions={<button type="button">Delete</button>} actionsBelow
       box={{}} color="var(--color-cat-1)" timeLabel="10:00 – 11:30" dateLabel="Monday 20 July" />,
   );
-  assert.match(stacked, /\barena-calendar__kebab-wrap--actions-below-true\b/,
+  assert.match(stacked, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/,
     'the kebab is not anchored to the chip bottom');
   assert.doesNotMatch(stacked, /pr-\[calc\(var\(--dz-ctl-h-sm\)/,
     'a stacked chip still reserves the lateral band, so the title gains nothing');
@@ -325,8 +325,8 @@ test('an unstacked chip keeps the top-right kebab and its reserve', () => {
       actionsEnabled actions={<button type="button">Delete</button>}
       box={{}} color="var(--color-cat-1)" timeLabel="15:00 – 16:30" dateLabel="Monday 20 July" />,
   );
-  assert.doesNotMatch(plain, /\barena-calendar__kebab-wrap--actions-below-true\b/, 'the kebab left its conventional corner');
-  assert.match(plain, /arena-calendar__chip--reserve-true/,
+  assert.doesNotMatch(plain, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/, 'the kebab left its conventional corner');
+  assert.match(plain, /data-arena-part="calendar.chip"[^>]*\bdata-arena-reserve=""/,
     'the unstacked chip lost the reserve that keeps its title clear of the kebab');
 });
 

@@ -32,13 +32,13 @@ export function ArenaFigure({ className,
   const styles = arenaFigureStyles();
 
   return (
-    <figure className={arenaClassName('ArenaFigure', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <div className={styles.frame()} data-arena-part={manifest.parts.frame} style={{ aspectRatio: ratio }}>
-        {media && <div className={styles.media()} data-arena-part={manifest.parts.media} data-arena-boundary="">{media}</div>}
-        {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback} data-arena-boundary="">{fallback}</div>}
-        {overlay && <div className={styles.overlay()} data-arena-part={manifest.parts.overlay} data-arena-boundary="">{overlay}</div>}
+    <figure className={arenaClassName('ArenaFigure', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.frame()} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ aspectRatio: ratio }}>
+        {media && <div className={styles.media()} data-arena-part={manifest.parts.media} {...styles.$data.media()} data-arena-boundary="">{media}</div>}
+        {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback} {...styles.$data.fallback()} data-arena-boundary="">{fallback}</div>}
+        {overlay && <div className={styles.overlay()} data-arena-part={manifest.parts.overlay} {...styles.$data.overlay()} data-arena-boundary="">{overlay}</div>}
       </div>
-      {caption && <figcaption className={styles.caption()} data-arena-part={manifest.parts.caption}>{caption}</figcaption>}
+      {caption && <figcaption className={styles.caption()} data-arena-part={manifest.parts.caption} {...styles.$data.caption()}>{caption}</figcaption>}
     </figure>
   );
 }

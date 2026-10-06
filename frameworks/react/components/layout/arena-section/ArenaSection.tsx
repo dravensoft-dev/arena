@@ -33,7 +33,7 @@ export interface ArenaSectionProps {
 }
 
 const arenaSectionStyles = arenaStyles(manifest);
-const RHYTHMS = Object.keys(manifest.variants.rhythm);
+const RHYTHMS: readonly string[] = manifest.values.rhythm;
 const rhythmOf = (rhythm: string | undefined): ArenaSectionRhythm =>
   (rhythm && RHYTHMS.includes(rhythm) ? rhythm as ArenaSectionRhythm : 'md');
 
@@ -53,16 +53,16 @@ export function ArenaSection({ className,
   const Heading = headingLevel;
 
   return (
-    <section className={arenaClassName('ArenaSection', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <div className={styles.head()} data-arena-part={manifest.parts.head}>
-        <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
-          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
-          <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
-          {description && <p className={styles.description()} data-arena-part={manifest.parts.description}>{description}</p>}
+    <section className={arenaClassName('ArenaSection', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+        <div className={styles.titles()} data-arena-part={manifest.parts.titles} {...styles.$data.titles()}>
+          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</div>}
+          <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
+          {description && <p className={styles.description()} data-arena-part={manifest.parts.description} {...styles.$data.description()}>{description}</p>}
         </div>
-        {action && <div className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</div>}
+        {action && <div className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</div>}
       </div>
-      <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">{children}</div>
     </section>
   );
 }

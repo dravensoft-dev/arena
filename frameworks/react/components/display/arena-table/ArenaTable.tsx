@@ -201,14 +201,14 @@ export function ArenaTable({ className,
     && columns.some((column) => column.sortable);
   const sortValue = sort ? arenaSortOptionValue(sort.column, sort.direction) : undefined;
 
-  const headerClass = (c: ArenaTableColumn): string =>
-    arenaTableStyles({ narrow: false, align: c.align || 'left', sortable: Boolean(c.sortable && sort) }).th();
+  const headerStyles = (c: ArenaTableColumn) =>
+    arenaTableStyles({ narrow: false, align: c.align || 'left', sortable: Boolean(c.sortable && sort) });
 
   return (
-    <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root} {...arenaTableStyles({ narrow }).$data.root()}>
       {narrow && sortBar && (
-        <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
-          <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>
+        <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar} {...arenaTableStyles({ narrow: true }).$data.sortBar()}>
+          <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField} {...arenaTableStyles({ narrow: true }).$data.sortField()}>
             <ArenaSelect label={locale.tableSortBy} options={arenaSortOptions(columns)} value={sortValue}
               onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
           </div>
@@ -217,21 +217,21 @@ export function ArenaTable({ className,
       <table role={flat ? 'presentation' : 'grid'} aria-label={flat ? undefined : label} ref={gridRef}
         aria-rowcount={flat ? undefined : rowCount}
         onKeyDown={onGridKeyDown}
-        className={arenaTableStyles({ narrow }).grid()} data-arena-part={manifest.parts.grid}>
+        className={arenaTableStyles({ narrow }).grid()} data-arena-part={manifest.parts.grid} {...arenaTableStyles({ narrow }).$data.grid()}>
         {!flat && (
           <thead>
             <tr aria-rowindex={extent ? 1 : undefined}
-              className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
+              className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow} {...arenaTableStyles({ narrow: false }).$data.headRow()}>
               {columns.map((c, ci) => {
                 const state = sortStateOf(ci);
                 return (
                   <th key={ci} scope="col" {...headerNav(ci)}
                     aria-sort={state}
                     onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
-                    className={headerClass(c)} data-arena-part={manifest.parts.th}
+                    className={headerStyles(c).th()} data-arena-part={manifest.parts.th} {...headerStyles(c).$data.th()}
                     style={{ width: c.width }}>{c.header}{state && state !== 'none' && (
                         <i aria-hidden="true"
-                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} />
+                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} {...arenaTableStyles({ narrow: false }).$data.sortCaret()} />
                       )}</th>
                 );
               })}
@@ -239,7 +239,7 @@ export function ArenaTable({ className,
           </thead>
         )}
         <tbody role={flat ? 'presentation' : undefined}
-          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body} data-arena-boundary="">
+          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body} {...arenaTableStyles({ narrow }).$data.body()} data-arena-boundary="">
           {rowEls.map((row, ri) => (React.isValidElement(row)
             ? React.cloneElement(row, {
               rowIndex: ri + 1,
@@ -253,10 +253,10 @@ export function ArenaTable({ className,
         </tbody>
       </table>
       {bare && (
-        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty} data-arena-boundary="">{empty ?? locale.tableEmpty}</div>
+        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty} {...arenaTableStyles({ narrow }).$data.empty()} data-arena-boundary="">{empty ?? locale.tableEmpty}</div>
       )}
       {!bare && page && pageControl !== 'none' && (
-        <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager}>
+        <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager} {...arenaTableStyles({ narrow: false }).$data.pager()}>
           <ArenaPagination page={page.index} pageCount={pageCount} ariaLabel={label}
             onChange={(next) => onPageChange?.(next)} />
         </div>

@@ -56,27 +56,27 @@ export function ArenaConfirmDialog({ className, open, onCancel, onConfirm, title
   const locked = requireText ? typed.trim() !== requireText : false;
   const styles = confirmStyles({ destructive, invalid: locked && typed !== '', open: true });
   return (
-    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div role="alertdialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
-        className={styles.panel()} data-arena-part={manifest.parts.panel}>
-        <div className={styles.head()} data-arena-part={manifest.parts.head}>
-          <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{kicker}</div>
-          <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
+        className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
+        <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+          <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{kicker}</div>
+          <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>
         </div>
-        <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">
+        <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
           {children}
           {requireText && (
-            <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock}>
-              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel}>{arenaPhrase(locale.confirmDialogRequire, { text: requireText })}</div>
+            <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock} {...styles.$data.requireBlock()}>
+              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel} {...styles.$data.requireLabel()}>{arenaPhrase(locale.confirmDialogRequire, { text: requireText })}</div>
               <input value={typed} onChange={(e) => setTyped(e.target.value)}
-                className={styles.input()} data-arena-part={manifest.parts.input} />
+                className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
             </div>
           )}
         </div>
-        <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
+        <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()}>
           <ArenaButton variant="ghost" onClick={onCancel}>{cancelText}</ArenaButton>
-          <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()} data-arena-part={manifest.parts.confirm}>
+          <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()} data-arena-part={manifest.parts.confirm} {...styles.$data.confirm()}>
             {confirmText}
           </button>
         </div>

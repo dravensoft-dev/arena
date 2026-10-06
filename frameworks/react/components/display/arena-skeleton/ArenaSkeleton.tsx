@@ -35,17 +35,17 @@ export function ArenaSkeleton({ className, variant = 'block', width, height, lin
   const last = arenaSkeletonStyles({ variant, last: true });
   if (variant === 'text' && lines > 1) {
     return (
-      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)} data-arena-part={manifest.parts.stack} style={{ width }}>
+      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)} data-arena-part={manifest.parts.stack} {...styles.$data.stack()} style={{ width }}>
         {Array.from({ length: lines }).map((_, i) => (
           <div key={i} className={(i === lines - 1 ? last : styles).line()}
-            data-arena-part={manifest.parts.line} />
+            data-arena-part={manifest.parts.line} {...(i === lines - 1 ? last : styles).$data.line()} />
         ))}
       </div>
     );
   }
   const box = variant === 'circle' ? (height || width) : undefined;
   return (
-    <div className={arenaClassName('ArenaSkeleton', styles.root(), className)} data-arena-part={manifest.parts.root} role="status" aria-label={locale.skeletonLabel}
+    <div className={arenaClassName('ArenaSkeleton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} role="status" aria-label={locale.skeletonLabel}
       style={{ width: box ?? width, height: box ?? height, borderRadius: radius }} />
   );
 }

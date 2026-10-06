@@ -59,8 +59,8 @@ test('a trigger that cannot carry attributes throws rather than silently losing 
 
 test('an item selects the disabled and destructive groups, and align end the panel group', async () => {
   const { arenaMenuStyles } = await import('../../../ArenaStyles.generated.ts').then(async (m) => ({ arenaMenuStyles: m.arenaStyles((await import('./ArenaMenu.classes.generated.ts')).default) }));
-  assert.match(arenaMenuStyles({ align: 'end' }).panel(), /\barena-menu__panel--align-end\b/);
-  assert.doesNotMatch(arenaMenuStyles().panel(), /align-end/);
-  assert.notEqual(arenaMenuStyles({ disabled: true }).item(), arenaMenuStyles({ destructive: true }).item());
-  assert.equal(arenaMenuStyles({ disabled: true, destructive: true }).item(), arenaMenuStyles({ disabled: true }).item());
+  assert.equal(arenaMenuStyles({ align: 'end' }).$data.panel()['data-arena-align'], 'end');
+  assert.equal(arenaMenuStyles().$data.panel()['data-arena-align'], 'start');
+  assert.deepEqual(arenaMenuStyles({ disabled: true }).$data.item(), { 'data-arena-disabled': '' });
+  assert.deepEqual(arenaMenuStyles({ destructive: true }).$data.item(), { 'data-arena-destructive': '' });
 });

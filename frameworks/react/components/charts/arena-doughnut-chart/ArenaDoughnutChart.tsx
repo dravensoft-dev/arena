@@ -107,17 +107,17 @@ export function ArenaDoughnutChart({ className,
 
 }
       <div role="group" aria-label={shape === 'pie' ? locale.doughnutChartPieLegend : locale.doughnutChartLegend}
-        className={styles.legend()} data-arena-part={manifest.parts.legend}>
+        className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()}>
         {values.map((_, i) => (
           <button key={i} type="button" onPointerEnter={() => setHover(i)} onPointerLeave={() => setHover(null)}
             onFocus={() => setHover(i)} onBlur={() => setHover(null)}
             onClick={() => onSliceActivate?.(i)}
-            className={styles.legendRow()} data-arena-part={manifest.parts.legendRow}
+            className={styles.legendRow()} data-arena-part={manifest.parts.legendRow} {...styles.$data.legendRow()}
             style={{ opacity: hover === null || hover === i ? 1 : 0.55 }}>
-            <span aria-hidden="true" className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[i] }} />
-            <span className={styles.legendText()} data-arena-part={manifest.parts.legendText}>
-              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{labels[i] ?? ''}</span>
-              <span className={styles.legendValue()} data-arena-part={manifest.parts.legendValue}>{fmt(values[i] ?? 0)}</span>
+            <span aria-hidden="true" className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...styles.$data.legendSwatch()} style={{ background: colors[i] }} />
+            <span className={styles.legendText()} data-arena-part={manifest.parts.legendText} {...styles.$data.legendText()}>
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{labels[i] ?? ''}</span>
+              <span className={styles.legendValue()} data-arena-part={manifest.parts.legendValue} {...styles.$data.legendValue()}>{fmt(values[i] ?? 0)}</span>
             </span>
           </button>
         ))}

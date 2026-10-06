@@ -28,11 +28,11 @@ export function ArenaAppBar({ className, brand, nav, actions, sticky = true }: A
   const styles = arenaAppBarStyles({ sticky });
 
   return (
-    <header className={arenaClassName('ArenaAppBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <div className={styles.band()} data-arena-part={manifest.parts.band} style={{ maxWidth: PAGE }}>
-        {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} data-arena-boundary="">{brand}</div>}
-        {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav} data-arena-boundary="">{nav}</div>}
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
+    <header className={arenaClassName('ArenaAppBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.band()} data-arena-part={manifest.parts.band} {...styles.$data.band()} style={{ maxWidth: PAGE }}>
+        {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} {...styles.$data.brand()} data-arena-boundary="">{brand}</div>}
+        {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()} data-arena-boundary="">{nav}</div>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">{actions}</div>}
       </div>
     </header>
   );

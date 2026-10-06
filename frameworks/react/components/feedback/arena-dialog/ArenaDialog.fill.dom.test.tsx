@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { ArenaDialog } from './ArenaDialog.tsx';
-import manifest from './ArenaDialog.classes.generated.ts';
 
 afterEach(() => cleanup());
 
@@ -25,14 +24,12 @@ function narrowWidths<T>(width: number, body: () => T): T {
   }
 }
 
-const FILL = manifest.variants.fill.true.panel;
-
 test('below its breakpoint the panel takes the fill variant and drops its width, and above it keeps both', () => {
   for (const [width, filled] of [[400, true], [900, false]] as const) {
     narrowWidths(width, () => {
       mount(<ArenaDialog open title="Edit" fillBelow="md" width="62%" footer={<button>Save</button>}>Body</ArenaDialog>);
       const panel = document.querySelector('[role="dialog"]') as HTMLElement;
-      assert.equal(panel.className.includes(FILL), filled, `width ${width}`);
+      assert.equal(panel.hasAttribute('data-arena-fill'), filled, `width ${width}`);
       assert.equal(panel.style.width, filled ? '' : '62%', `width ${width}`);
       cleanup();
     });
@@ -43,7 +40,7 @@ test('with no fillBelow the dialog never fills, however narrow', () => {
   narrowWidths(300, () => {
     mount(<ArenaDialog open title="Edit">Body</ArenaDialog>);
     const panel = document.querySelector('[role="dialog"]') as HTMLElement;
-    assert.equal(panel.className.includes(FILL), false);
+    assert.equal(panel.hasAttribute('data-arena-fill'), false);
   });
 });
 

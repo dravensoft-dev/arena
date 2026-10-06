@@ -71,20 +71,20 @@ export function ArenaTableRow({ className,
           e.preventDefault();
           activate(e);
         } : undefined}
-        className={arenaClassName('ArenaTableRow', rowStyles({ narrow: true }).card(), className)} data-arena-part={manifest.parts.card}>
+        className={arenaClassName('ArenaTableRow', rowStyles({ narrow: true }).card(), className)} data-arena-part={manifest.parts.card} {...rowStyles({ narrow: true }).$data.card()}>
         {cells}
       </tr>
     );
   }
 
-  const rowClass = rowStyles({ narrow: false, first: rowIndex <= 1, interactive: Boolean(interactive && !disabled) }).row();
+  const rowSlots = rowStyles({ narrow: false, first: rowIndex <= 1, interactive: Boolean(interactive && !disabled) });
 
   return (
     <tr onClick={activate}
       aria-disabled={onClick && disabled ? 'true' : undefined}
       aria-rowindex={ariaRowIndex ?? undefined}
 
-      className={arenaClassName('ArenaTableRow', rowClass, className)} data-arena-part={manifest.parts.row} data-arena-boundary="">
+      className={arenaClassName('ArenaTableRow', rowSlots.row(), className)} data-arena-part={manifest.parts.row} {...rowSlots.$data.row()} data-arena-boundary="">
       {cells}
     </tr>
   );

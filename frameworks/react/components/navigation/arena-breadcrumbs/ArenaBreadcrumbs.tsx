@@ -39,13 +39,13 @@ export function ArenaBreadcrumbs({ className, items, ariaLabel, separator = '/',
   const linked = breadcrumbStyles({ linked: true });
   const unlinked = breadcrumbStyles({ linked: false });
   return (
-    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBreadcrumbs', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBreadcrumbs', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {items.map((it, i) => {
         const last = i === items.length - 1;
         return (
           <React.Fragment key={i}>
             {last ? (
-              <span aria-current="page" className={styles.current()} data-arena-part={manifest.parts.current}>{it.label}</span>
+              <span aria-current="page" className={styles.current()} data-arena-part={manifest.parts.current} {...styles.$data.current()}>{it.label}</span>
             ) : it.href ? (
               <a href={it.href}
                 onClick={(e) => {
@@ -53,13 +53,13 @@ export function ArenaBreadcrumbs({ className, items, ariaLabel, separator = '/',
                   e.preventDefault();
                   onNavigate?.(it);
                 }}
-                className={linked.crumb()} data-arena-part={manifest.parts.crumb}>
+                className={linked.crumb()} data-arena-part={manifest.parts.crumb} {...linked.$data.crumb()}>
                 {it.label}
               </a>
             ) : (
-              <span className={unlinked.crumb()} data-arena-part={manifest.parts.crumb}>{it.label}</span>
+              <span className={unlinked.crumb()} data-arena-part={manifest.parts.crumb} {...unlinked.$data.crumb()}>{it.label}</span>
             )}
-            {!last && <span aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator}>{separator}</span>}
+            {!last && <span aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()}>{separator}</span>}
           </React.Fragment>
         );
       })}

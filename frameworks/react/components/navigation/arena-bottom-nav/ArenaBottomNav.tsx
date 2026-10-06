@@ -28,7 +28,7 @@ export function ArenaBottomNav({ className, active, ariaLabel, children, onNav }
 
   if (!ariaLabel?.trim()) throw new Error('ArenaBottomNav: `ariaLabel` is required, and names which navigation this landmark is');
   return (
-    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBottomNav', arenaBottomNavStyles().root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBottomNav', arenaBottomNavStyles().root(), className)} data-arena-part={manifest.parts.root} {...arenaBottomNavStyles().$data.root()} data-arena-boundary="">
       {arenaInjectInto(children, { activeId: active, onActivate: onNav })}
     </nav>
   );

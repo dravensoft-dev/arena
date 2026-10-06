@@ -67,12 +67,12 @@ test('ArenaTab drops a consumer attribute -- no {...rest} spread reaches the roo
 
 test('the selected tab wears the underline and the quiet one does not, from one recipe', () => {
   const on = renderToStaticMarkup(<ArenaTab value="a" label="Overview" selected />);
-  assert.match(on, /\barena-tabs__tab--selected-true\b/);
-  assert.match(on, /arena-tabs__tab--selected-true/);
+  assert.match(on, /data-arena-part="tabs.tab"[^>]*\bdata-arena-selected=""/);
+  assert.match(on, /data-arena-part="tabs.tab"[^>]*\bdata-arena-selected=""/);
 
   const off = renderToStaticMarkup(<ArenaTab value="a" label="Overview" />);
-  assert.match(off, /\barena-tabs__tab--selected-false\b/);
-  assert.match(off, /\barena-tabs__tab--selected-false\b/);
+  assert.match(off, /data-arena-part="tabs.tab"(?:(?!data-arena-selected=)[^>])*>/);
+  assert.match(off, /data-arena-part="tabs.tab"(?:(?!data-arena-selected=)[^>])*>/);
   assert.doesNotMatch(off, /inset_0_calc/);
 });
 

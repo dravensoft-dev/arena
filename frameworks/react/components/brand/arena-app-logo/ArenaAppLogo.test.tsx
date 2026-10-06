@@ -23,8 +23,8 @@ test('throws when given neither', () => {
 
 test('a size picks both halves of the lock-up from the logo scale', () => {
   const html = renderToStaticMarkup(<ArenaAppLogo size="sm" mark={MARK} name="Draven" />);
-  assert.match(html, /\barena-app-logo__mark--size-sm\b/);
-  assert.match(html, /\barena-app-logo__name--size-sm\b/);
+  assert.match(html, /data-arena-part="app-logo.mark"[^>]*\bdata-arena-size="sm"/);
+  assert.match(html, /data-arena-part="app-logo.name"[^>]*\bdata-arena-size="sm"/);
 });
 
 test('every step in the repertoire resolves, and none writes a number', () => {
@@ -51,12 +51,12 @@ test('without dim the wordmark is one ink', () => {
 
 test('vertical orientation stacks the mark above the name and widens the gap', () => {
   const vertical = renderToStaticMarkup(<ArenaAppLogo orientation="vertical" mark={MARK} name="Draven" />);
-  assert.match(vertical, /\barena-app-logo__root--orientation-vertical\b/);
-  assert.match(vertical, /\barena-app-logo__root--orientation-vertical\b/);
+  assert.match(vertical, /data-arena-part="app-logo"[^>]*\bdata-arena-orientation="vertical"/);
+  assert.match(vertical, /data-arena-part="app-logo"[^>]*\bdata-arena-orientation="vertical"/);
 
   const horizontal = renderToStaticMarkup(<ArenaAppLogo mark={MARK} name="Draven" />);
-  assert.match(horizontal, /\barena-app-logo__root--orientation-horizontal\b/);
-  assert.match(horizontal, /\barena-app-logo__root--orientation-horizontal\b/);
+  assert.match(horizontal, /data-arena-part="app-logo"[^>]*\bdata-arena-orientation="horizontal"/);
+  assert.match(horizontal, /data-arena-part="app-logo"[^>]*\bdata-arena-orientation="horizontal"/);
 });
 
 test('the mark fills its sized slot through the slot, so nothing is cloned to make it', () => {

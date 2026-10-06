@@ -25,7 +25,7 @@ export interface ArenaActivityFeedProps {
 
 
 const feedStyles = arenaStyles(manifest);
-const TONES = Object.keys(manifest.variants.tone);
+const TONES: readonly string[] = manifest.values.tone;
 type ArenaTone = NonNullable<ArenaActivityItem['tone']>;
 const toneOf = (tone: string | undefined): ArenaTone | undefined =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : undefined);
@@ -66,21 +66,21 @@ export function ArenaActivityFeed({ className, items, label, busy = false }: Are
   return (
     <ul ref={feedRef} role="feed" aria-label={label} aria-busy={busy ? 'true' : 'false'}
       onKeyDown={onKeyDown}
-      className={arenaClassName('ArenaActivityFeed', feedStyles({}).root(), className)} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaActivityFeed', feedStyles({}).root(), className)} data-arena-part={manifest.parts.root} {...feedStyles({}).$data.root()}>
       {items.map((item, i) => (
         <li key={item.id != null ? item.id : i}
           role="article" tabIndex={0}
           aria-posinset={i + 1} aria-setsize={items.length}
-          className={feedStyles({ tone: toneOf(item.tone), divided: i > 0 }).item()} data-arena-part={manifest.parts.item}>
-          <span aria-hidden="true" className={feedStyles({ tone: toneOf(item.tone) }).dot()} data-arena-part={manifest.parts.dot} />
-          <span className={feedStyles({}).text()} data-arena-part={manifest.parts.text}>
-            <b className={feedStyles({}).actor()} data-arena-part={manifest.parts.actor}>{item.actor}</b>
+          className={feedStyles({ tone: toneOf(item.tone), divided: i > 0 }).item()} data-arena-part={manifest.parts.item} {...feedStyles({ tone: toneOf(item.tone), divided: i > 0 }).$data.item()}>
+          <span aria-hidden="true" className={feedStyles({ tone: toneOf(item.tone) }).dot()} data-arena-part={manifest.parts.dot} {...feedStyles({ tone: toneOf(item.tone) }).$data.dot()} />
+          <span className={feedStyles({}).text()} data-arena-part={manifest.parts.text} {...feedStyles({}).$data.text()}>
+            <b className={feedStyles({}).actor()} data-arena-part={manifest.parts.actor} {...feedStyles({}).$data.actor()}>{item.actor}</b>
             {` ${item.action}${item.target ? ' ' : ''}`}
-            {item.target && <span className={feedStyles({}).target()} data-arena-part={manifest.parts.target}>{item.target}</span>}
+            {item.target && <span className={feedStyles({}).target()} data-arena-part={manifest.parts.target} {...feedStyles({}).$data.target()}>{item.target}</span>}
           </span>
           {item.time && (item.dateTime
-            ? <time className={feedStyles({}).time()} data-arena-part={manifest.parts.time} dateTime={item.dateTime}>{item.time}</time>
-            : <span className={feedStyles({}).time()} data-arena-part={manifest.parts.time}>{item.time}</span>)}
+            ? <time className={feedStyles({}).time()} data-arena-part={manifest.parts.time} {...feedStyles({}).$data.time()} dateTime={item.dateTime}>{item.time}</time>
+            : <span className={feedStyles({}).time()} data-arena-part={manifest.parts.time} {...feedStyles({}).$data.time()}>{item.time}</span>)}
         </li>
       ))}
     </ul>

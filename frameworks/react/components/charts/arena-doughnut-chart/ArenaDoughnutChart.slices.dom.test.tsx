@@ -79,26 +79,26 @@ test('a legend row reports the same index the arc does, including for the slice 
 test('a narrow legend stacks the concept over the figure, and a wide one keeps one line', () => {
   const narrow = widths(390, () => render());
   const wideRow = () => narrow.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement;
-  assert.equal(wideRow().classList.contains('arena-doughnut-chart__legend-text--stacked-true'), true,
+  assert.equal(wideRow().hasAttribute('data-arena-stacked'), true,
     'on one line the figure does not yield, so the concept is what gets truncated');
 
   cleanup();
   const wide = widths(1200, () => render());
   const row = wide.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement;
-  assert.equal(row.classList.contains('arena-doughnut-chart__legend-text--stacked-true'), false);
+  assert.equal(row.hasAttribute('data-arena-stacked'), false);
 });
 
 test('the layout can be pinned either way, whatever the container measures', () => {
   const forced = widths(1200, () => render({ legendLayout: 'stacked' }));
   assert.equal(
-    (forced.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).classList.contains('arena-doughnut-chart__legend-text--stacked-true'),
+    (forced.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).hasAttribute('data-arena-stacked'),
     true,
   );
 
   cleanup();
   const inline = widths(390, () => render({ legendLayout: 'inline' }));
   assert.equal(
-    (inline.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).classList.contains('arena-doughnut-chart__legend-text--stacked-true'),
+    (inline.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).hasAttribute('data-arena-stacked'),
     false,
   );
 });

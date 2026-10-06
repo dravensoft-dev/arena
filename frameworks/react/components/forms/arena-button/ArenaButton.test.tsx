@@ -32,8 +32,8 @@ test('ArenaButton defaults its native type to button and honours an override', (
 
 test('ArenaButton renders danger as outline, never filled', () => {
   const html = renderToStaticMarkup(<ArenaButton destructive>Delete</ArenaButton>);
-  assert.match(html, /\barena-button__root--destructive-true\b/);
-  assert.match(html, /\barena-button__root--variant-primary\b/, 'destructive is a group beside variant and does not replace it');
+  assert.match(html, /data-arena-part="button"[^>]*\bdata-arena-destructive=""/);
+  assert.match(html, /data-arena-part="button"[^>]*\bdata-arena-variant="primary"/, 'destructive is a group beside variant and does not replace it');
   assert.doesNotMatch(html, /(?<!:)\bbg-error\b/,
     'an unmodified bg-error fills the danger surface; only the hover: form may tint it');
 });

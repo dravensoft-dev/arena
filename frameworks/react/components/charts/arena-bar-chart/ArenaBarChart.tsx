@@ -166,26 +166,26 @@ export function ArenaBarChart({ className,
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.stripH }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
-              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[s]?.[0] }} />
-              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
+              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...styles.$data.legendSwatch()} style={{ background: colors[s]?.[0] }} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {hover !== null && hover < n && (
-        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} style={{
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
           ...arenaTooltipAnchor(arenaBandCenter(bands, hover),
             Math.min(...(stack
               ? arenaStackSegments(series, hover).map((segment) => arenaScaleValue(yScale, segment.to))
               : series.map((one) => arenaScaleValue(yScale, one.values[hover] ?? 0))))),
         }}>
-          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel}>{labels[hover]}</div>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
-            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
+            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
               {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}

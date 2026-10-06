@@ -14,7 +14,7 @@ test('ArenaRadioGroup marks the child whose value matches, and only it', () => {
 
   assert.equal(html.match(/arena-radio__dot/g)?.length, 1,
     'the filled dot is drawn once, on the child whose value matches');
-  assert.equal(html.match(/\barena-radio__ring--checked-true\b/g)?.length, 1, 'and one ring takes the accent border');
+  assert.equal(html.match(/data-arena-part="radio.ring"[^>]*\bdata-arena-checked=""/g)?.length, 1, 'and one ring takes the accent border');
 });
 
 test('ArenaRadioGroup gives its children a shared name so the native radios group', () => {

@@ -9,12 +9,12 @@ import { ArenaConfirmDialog } from './ArenaConfirmDialog.tsx';
 
 test('destructive paints the filled danger surface, and nothing else does', () => {
   const html = renderToStaticMarkup(<ArenaConfirmDialog open destructive title="Delete" onConfirm={() => {}} />);
-  assert.match(html, /\barena-confirm-dialog__confirm--destructive-true\b/, 'the filled danger surface does not render');
-  assert.match(html, /\barena-confirm-dialog__confirm--destructive-true\b/, 'the filled surface carries no readable ink');
+  assert.match(html, /data-arena-part="confirm-dialog.confirm"[^>]*\bdata-arena-destructive=""/, 'the filled danger surface does not render');
+  assert.match(html, /data-arena-part="confirm-dialog.confirm"[^>]*\bdata-arena-destructive=""/, 'the filled surface carries no readable ink');
 
   const plain = renderToStaticMarkup(<ArenaConfirmDialog open title="Save" onConfirm={() => {}} />);
-  assert.doesNotMatch(plain, /\barena-confirm-dialog__confirm--destructive-true\b/, 'an ordinary confirm must not be filled with danger');
-  assert.match(plain, /\barena-confirm-dialog__confirm--destructive-false\b/, 'the ordinary confirm lost its primary surface');
+  assert.doesNotMatch(plain, /data-arena-part="confirm-dialog.confirm"[^>]*\bdata-arena-destructive=""/, 'an ordinary confirm must not be filled with danger');
+  assert.match(plain, /data-arena-part="confirm-dialog.confirm"(?:(?!data-arena-destructive=)[^>])*>/, 'the ordinary confirm lost its primary surface');
 });
 
 test('the footer wraps, the way ArenaDialog, ArenaPageHead and ArenaChartCard all do', () => {

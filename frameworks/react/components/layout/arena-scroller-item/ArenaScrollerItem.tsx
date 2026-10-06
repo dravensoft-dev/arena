@@ -15,5 +15,5 @@ export interface ArenaScrollerItemProps {
 const arenaScrollerItemStyles = arenaStyles(manifest);
 
 export function ArenaScrollerItem({ className, children }: ArenaScrollerItemProps) {
-  return <div className={arenaClassName('ArenaScrollerItem', arenaScrollerItemStyles().root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">{children}</div>;
+  return <div className={arenaClassName('ArenaScrollerItem', arenaScrollerItemStyles().root(), className)} data-arena-part={manifest.parts.root} {...arenaScrollerItemStyles().$data.root()} data-arena-boundary="">{children}</div>;
 }

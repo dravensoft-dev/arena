@@ -24,7 +24,7 @@ export interface ArenaScrollerProps {
 }
 
 const arenaScrollerStyles = arenaStyles(manifest);
-const BEHAVIOURS = Object.keys(manifest.variants.behaviour);
+const BEHAVIOURS: readonly string[] = manifest.values.behaviour;
 const behaviourOf = (behaviour: string | undefined): ArenaScrollerBehaviour =>
   (behaviour && BEHAVIOURS.includes(behaviour) ? behaviour as ArenaScrollerBehaviour : 'snap');
 
@@ -40,7 +40,7 @@ export function ArenaScroller({ className,
 
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={arenaClassName('ArenaScroller', arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
+      className={arenaClassName('ArenaScroller', arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root(), className)} data-arena-part={manifest.parts.root} {...arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).$data.root()} data-arena-boundary=""
       style={{ '--arena-scroller-item': itemWidth } as React.CSSProperties}>
       {children}
     </div>

@@ -18,10 +18,10 @@ export interface ArenaToastHostProps {
 }
 
 const arenaToastHostStyles = arenaStyles(manifest);
-const PLACEMENTS = Object.keys(manifest.variants.placement);
+const PLACEMENTS: readonly string[] = manifest.values.placement;
 const placementOf = (placement: string | undefined): ArenaToastPlacement | undefined =>
   (placement && PLACEMENTS.includes(placement) ? placement as ArenaToastPlacement : undefined);
 
 export function ArenaToastHost({ className, placement = 'bottom-end', children }: ArenaToastHostProps) {
-  return <div className={arenaClassName('ArenaToastHost', arenaToastHostStyles({ placement: placementOf(placement) }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">{children}</div>;
+  return <div className={arenaClassName('ArenaToastHost', arenaToastHostStyles({ placement: placementOf(placement) }).root(), className)} data-arena-part={manifest.parts.root} {...arenaToastHostStyles({ placement: placementOf(placement) }).$data.root()} data-arena-boundary="">{children}</div>;
 }

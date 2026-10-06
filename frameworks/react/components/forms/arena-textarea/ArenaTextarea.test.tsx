@@ -77,19 +77,19 @@ test('without a consumer id the label-derived one is still generated', () => {
 test('the counter warns near the cap through its own slot, not a recomputed colour', () => {
   const calm = renderToStaticMarkup(<ArenaTextarea label="A" counter maxLength={100} value={'x'.repeat(50)} />);
   assert.match(calm, /50\/100/);
-  assert.doesNotMatch(calm, /\barena-textarea__counter--near-true\b/);
+  assert.doesNotMatch(calm, /data-arena-part="textarea.counter"[^>]*\bdata-arena-near=""/);
 
   const near = renderToStaticMarkup(<ArenaTextarea label="A" counter maxLength={100} value={'x'.repeat(95)} />);
-  assert.match(near, /\barena-textarea__counter--near-true\b/);
+  assert.match(near, /data-arena-part="textarea.counter"[^>]*\bdata-arena-near=""/);
 });
 
 test('autoResize picks the resize branch of the recipe, and error picks the state branch', () => {
-  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" />), /\barena-textarea__field--resize-vertical\b/);
-  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" autoResize />), /\barena-textarea__field--resize-none\b/);
+  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" />), /data-arena-part="textarea.field"[^>]*\bdata-arena-resize="vertical"/);
+  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" autoResize />), /data-arena-part="textarea.field"[^>]*\bdata-arena-resize="none"/);
   assert.match(renderToStaticMarkup(<ArenaTextarea label="A" />), /arena-textarea__field/);
-  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" error="Nope" />), /\barena-textarea__field--state-error\b/);
+  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" error="Nope" />), /data-arena-part="textarea.field"[^>]*\bdata-arena-state="error"/);
 });
 
 test('readOnly is a group on the field', () => {
-  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" readOnly />), /\barena-textarea__field--read-only-true\b/);
+  assert.match(renderToStaticMarkup(<ArenaTextarea label="A" readOnly />), /data-arena-part="textarea.field"[^>]*\bdata-arena-read-only=""/);
 });

@@ -32,7 +32,7 @@ export function ArenaPeopleList({ className, label, ordered = false, size = 'md'
   const rows = React.Children.map(children, (child) =>
     (React.isValidElement(child) ? React.cloneElement(child, { size } as Partial<{ size: ArenaControlSize }>) : child));
   return (
-    <List aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({ size }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
+    <List aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({ size }).root(), className)} data-arena-part={manifest.parts.root} {...peopleStyles({ size }).$data.root()} data-arena-boundary="">
       {rows}
     </List>
   );

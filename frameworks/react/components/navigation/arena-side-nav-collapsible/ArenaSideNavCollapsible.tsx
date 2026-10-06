@@ -69,34 +69,34 @@ export function ArenaSideNavCollapsible({ className,
   const styles = arenaSideNavStyles({ collapsed });
   if (collapsed) {
     return (
-      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section}>
-        <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />
-        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} data-arena-boundary="">
+      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
+        <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />
+        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
           {arenaInjectInto(children, { depth, activeId, indentStep, onActivate, collapsed })}
         </div>
       </div>
     );
   }
-  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" /> : null;
+  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" /> : null;
 
   return (
-    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section}>
+    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
       {
 
 }
       <button id={triggerId} type="button" aria-expanded={expanded} aria-controls={regionId}
         onClick={press}
-        className={styles.trigger()} data-arena-part={manifest.parts.trigger}
+        className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}
         style={{ '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties}>
         {glyph}
-        <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel}>{label}</span>
-        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}
+        <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel} {...styles.$data.triggerLabel()}>{label}</span>
+        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
           aria-hidden="true" />
       </button>
       {
 }
       <div id={regionId} role="group" aria-labelledby={triggerId} hidden={!expanded}
-        className={styles.region()} data-arena-part={manifest.parts.region} data-arena-boundary="">
+        className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
         {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
       </div>
     </div>

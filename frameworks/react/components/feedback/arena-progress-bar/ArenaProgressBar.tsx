@@ -60,40 +60,40 @@ export function ArenaProgressBar({ className, children, progressPercentage = 0, 
 
   if (shape === 'radial') {
     return (
-      <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
-        <div {...live} className={styles.ring()} data-arena-part={manifest.parts.ring}>
-          <svg {...meter} className={styles.ringGeometry()} data-arena-part={manifest.parts.ringGeometry} viewBox="0 0 100 100">
-            <circle className={styles.ringTrack()} data-arena-part={manifest.parts.ringTrack}
+      <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+        <div {...live} className={styles.ring()} data-arena-part={manifest.parts.ring} {...styles.$data.ring()}>
+          <svg {...meter} className={styles.ringGeometry()} data-arena-part={manifest.parts.ringGeometry} {...styles.$data.ringGeometry()} viewBox="0 0 100 100">
+            <circle className={styles.ringTrack()} data-arena-part={manifest.parts.ringTrack} {...styles.$data.ringTrack()}
               cx={RING_CENTRE} cy={RING_CENTRE} r={RING_RADIUS} pathLength={100} />
             <circle className={styles.ringFill()}
-              data-arena-part={manifest.parts.ringFill}
+              data-arena-part={manifest.parts.ringFill} {...styles.$data.ringFill()}
               cx={RING_CENTRE} cy={RING_CENTRE} r={RING_RADIUS} pathLength={100}
               style={{ strokeDashoffset: indeterminate ? 100 - RING_SWEEP : 100 - pct }} />
           </svg>
-          {!indeterminate && <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{`${pct}%`}</span>}
-          <span className={styles.ringContent()} data-arena-part={manifest.parts.ringContent} data-arena-boundary="">{children}</span>
-          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{`${pct}%`}</span>}
+          {!indeterminate && <span className={styles.announcement()} data-arena-part={manifest.parts.announcement} {...styles.$data.announcement()}>{`${pct}%`}</span>}
+          <span className={styles.ringContent()} data-arena-part={manifest.parts.ringContent} {...styles.$data.ringContent()} data-arena-boundary="">{children}</span>
+          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value} {...styles.$data.value()}>{`${pct}%`}</span>}
         </div>
-        {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
+        {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
       </div>
     );
   }
 
   return (
-    <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {(showLabel || showValue) && (
-        <div className={styles.head()} data-arena-part={manifest.parts.head}>
-          {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>}
-          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value}>{`${pct}%`}</span>}
+        <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+          {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
+          {showValue && <span className={styles.value()} data-arena-part={manifest.parts.value} {...styles.$data.value()}>{`${pct}%`}</span>}
         </div>
       )}
       <div {...meter} {...live}
         className={styles.track()}
-        data-arena-part={manifest.parts.track}>
+        data-arena-part={manifest.parts.track} {...styles.$data.track()}>
         {!indeterminate && (
           <>
-            <span className={styles.announcement()} data-arena-part={manifest.parts.announcement}>{`${pct}%`}</span>
-            <span className={styles.fill()} data-arena-part={manifest.parts.fill} style={{ width: `${pct}%` }} />
+            <span className={styles.announcement()} data-arena-part={manifest.parts.announcement} {...styles.$data.announcement()}>{`${pct}%`}</span>
+            <span className={styles.fill()} data-arena-part={manifest.parts.fill} {...styles.$data.fill()} style={{ width: `${pct}%` }} />
           </>
         )}
       </div>

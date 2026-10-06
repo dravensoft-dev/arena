@@ -64,24 +64,24 @@ export function ArenaSheet({ className,
   if (!open) return null;
   const styles = arenaSheetStyles({ placement, open: true });
   return (
-    <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <div className={styles.head()} data-arena-part={manifest.parts.head}>
+    <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         <button type="button" id={triggerId} aria-expanded={!collapsed} aria-controls={bodyId}
-          onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger}>
+          onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>
           <span>{title}</span>
-          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}
+          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
             aria-hidden="true" />
         </button>
         {dismissible && (
-          <button type="button" onClick={onClose} aria-label={locale.sheetClose} className={styles.close()} data-arena-part={manifest.parts.close}>
+          <button type="button" onClick={onClose} aria-label={locale.sheetClose} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
             <i className="ph-bold ph-x" aria-hidden="true" />
           </button>
         )}
       </div>
-      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">
+      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
         {children}
       </div>
-      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot} data-arena-boundary="">{footer}</div>}
+      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()} data-arena-boundary="">{footer}</div>}
     </div>
   );
 }

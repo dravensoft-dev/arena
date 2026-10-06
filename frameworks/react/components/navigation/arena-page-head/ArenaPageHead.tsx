@@ -41,12 +41,12 @@ export function ArenaPageHead({ className, title, headingLevel = 'h1', subtitle,
   const styles = arenaPageHeadStyles({ narrow, align });
 
   return (
-    <div ref={ref} className={arenaClassName('ArenaPageHead', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
-        <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
-        {subtitle && <p className={styles.subtitle()} data-arena-part={manifest.parts.subtitle}>{subtitle}</p>}
+    <div ref={ref} className={arenaClassName('ArenaPageHead', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.titles()} data-arena-part={manifest.parts.titles} {...styles.$data.titles()}>
+        <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
+        {subtitle && <p className={styles.subtitle()} data-arena-part={manifest.parts.subtitle} {...styles.$data.subtitle()}>{subtitle}</p>}
       </div>
-      {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
+      {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">{actions}</div>}
     </div>
   );
 }

@@ -24,19 +24,19 @@ export function ArenaKeyValue({ className, rows, total }: ArenaKeyValueProps) {
   const figures = arenaKeyValueStyles({ numeric: true });
 
   return (
-    <dl className={arenaClassName('ArenaKeyValue', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <dl className={arenaClassName('ArenaKeyValue', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {rows.map((row, index) => (
-        <div key={`${row.term}-${index}`} className={styles.row()} data-arena-part={manifest.parts.row}>
-          <dt className={styles.term()} data-arena-part={manifest.parts.term}>{row.term}</dt>
+        <div key={`${row.term}-${index}`} className={styles.row()} data-arena-part={manifest.parts.row} {...styles.$data.row()}>
+          <dt className={styles.term()} data-arena-part={manifest.parts.term} {...styles.$data.term()}>{row.term}</dt>
           <dd className={(row.numeric ? figures : styles).value()}
-              data-arena-part={manifest.parts.value}>{row.value}</dd>
+              data-arena-part={manifest.parts.value} {...(row.numeric ? figures : styles).$data.value()}>{row.value}</dd>
         </div>
       ))}
       {total && (
-        <div className={styles.total()} data-arena-part={manifest.parts.total}>
-          <dt className={styles.totalTerm()} data-arena-part={manifest.parts.totalTerm}>{total.term}</dt>
+        <div className={styles.total()} data-arena-part={manifest.parts.total} {...styles.$data.total()}>
+          <dt className={styles.totalTerm()} data-arena-part={manifest.parts.totalTerm} {...styles.$data.totalTerm()}>{total.term}</dt>
           <dd className={(total.numeric ? figures : styles).totalValue()}
-            data-arena-part={manifest.parts.totalValue}>{total.value}</dd>
+            data-arena-part={manifest.parts.totalValue} {...(total.numeric ? figures : styles).$data.totalValue()}>{total.value}</dd>
         </div>
       )}
     </dl>

@@ -21,7 +21,7 @@ export function ArenaSkipLink({ className, label }: ArenaSkipLinkProps) {
   }
   return (
     <a href={`#${ARENA_MAIN_ID}`}
-      className={arenaClassName('ArenaSkipLink', arenaSkipLinkStyles().root(), className)} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaSkipLink', arenaSkipLinkStyles().root(), className)} data-arena-part={manifest.parts.root} {...arenaSkipLinkStyles().$data.root()}>
       {label}
     </a>
   );

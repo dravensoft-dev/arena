@@ -57,15 +57,16 @@ export function ArenaBottomNavItem({ className,
     },
     className: arenaClassName('ArenaBottomNavItem', styles.item(), className),
     'data-arena-part': manifest.parts.item,
+    ...styles.$data.item(),
   };
 
   const body = (
     <React.Fragment>
-      <span className={styles.glyph()} data-arena-part={manifest.parts.glyph}>
+      <span className={styles.glyph()} data-arena-part={manifest.parts.glyph} {...styles.$data.glyph()}>
         <i className={on ? arenaActiveWeight(icon) : icon} aria-hidden="true" />
-        {tally !== null && <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{tally}</span>}
+        {tally !== null && <span className={styles.badge()} data-arena-part={manifest.parts.badge} {...styles.$data.badge()}>{tally}</span>}
       </span>
-      <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
+      <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>
     </React.Fragment>
   );
 

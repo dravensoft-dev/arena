@@ -38,12 +38,12 @@ export function ArenaErrorState({ className, icon, title, headingLevel = 'h3', m
   const styles = errorStyles();
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   return (
-    <div role="alert" className={arenaClassName('ArenaErrorState', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
-      <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{heading}</Heading>
-      {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
-      {code && <code className={styles.code()} data-arena-part={manifest.parts.code}>{code}</code>}
-      <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">
+    <div role="alert" className={arenaClassName('ArenaErrorState', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+      <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{heading}</Heading>
+      {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
+      {code && <code className={styles.code()} data-arena-part={manifest.parts.code} {...styles.$data.code()}>{code}</code>}
+      <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">
         {retryLabel && <ArenaButton variant="primary" onClick={onRetry}>{retryLabel}</ArenaButton>}
         {secondaryAction}
       </div>

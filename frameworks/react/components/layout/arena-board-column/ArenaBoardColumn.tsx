@@ -47,17 +47,17 @@ export function ArenaBoardColumn({ className, title, headingLevel = 'h3', count,
   const styles = boardStyles({ identity: colorId !== undefined });
   const Heading = headingLevel;
   return (
-    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className)} data-arena-part={manifest.parts.column}
+    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className)} data-arena-part={manifest.parts.column} {...styles.$data.column()}
       style={colorId ? { '--arena-board-column-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
-      <div className={styles.head()} data-arena-part={manifest.parts.head}>
-        {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />}
-        <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
-        {count !== undefined && <span className={styles.count()} data-arena-part={manifest.parts.count}>{count}</span>}
-        <span className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</span>
+      <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+        {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
+        <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
+        {count !== undefined && <span className={styles.count()} data-arena-part={manifest.parts.count} {...styles.$data.count()}>{count}</span>}
+        <span className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</span>
       </div>
-      {summary && <span className={styles.summary()} data-arena-part={manifest.parts.summary}>{summary}</span>}
-      <div className={styles.stack()} data-arena-part={manifest.parts.stack} data-arena-boundary="">{children}</div>
-      <div className={styles.foot()} data-arena-part={manifest.parts.foot} data-arena-boundary="">{footer}</div>
+      {summary && <span className={styles.summary()} data-arena-part={manifest.parts.summary} {...styles.$data.summary()}>{summary}</span>}
+      <div className={styles.stack()} data-arena-part={manifest.parts.stack} {...styles.$data.stack()} data-arena-boundary="">{children}</div>
+      <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()} data-arena-boundary="">{footer}</div>
     </section>
   );
 }

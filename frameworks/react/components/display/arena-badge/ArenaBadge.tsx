@@ -20,15 +20,15 @@ export interface ArenaBadgeProps {
 }
 
 const arenaBadgeStyles = arenaStyles(manifest);
-const TONES = Object.keys(manifest.variants.tone);
+const TONES: readonly string[] = manifest.values.tone;
 const toneOf = (tone: string | undefined): ArenaTone | undefined =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'neutral');
 
 export function ArenaBadge({ className, children, tone = 'neutral', dot = false }: ArenaBadgeProps) {
   const styles = arenaBadgeStyles({ tone: toneOf(tone) });
   return (
-    <span className={arenaClassName('ArenaBadge', styles.root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
-      {dot && <span className={styles.dot()} data-arena-part={manifest.parts.dot} />}
+    <span className={arenaClassName('ArenaBadge', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+      {dot && <span className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
       {children}
     </span>
   );

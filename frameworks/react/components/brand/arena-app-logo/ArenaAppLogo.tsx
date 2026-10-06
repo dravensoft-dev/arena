@@ -32,10 +32,10 @@ export function ArenaAppLogo({ className, size = 'md', orientation = 'horizontal
   if (!mark || !name) throw new Error('ArenaAppLogo: `mark` and `name` are required');
   const styles = logoStyles({ size, orientation });
   return (
-    <span className={arenaClassName('ArenaAppLogo', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <span className={styles.mark()} data-arena-part={manifest.parts.mark} data-arena-boundary="">{mark}</span>
-      <span className={styles.name()} data-arena-part={manifest.parts.name}>
-        {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim}>{dim}</span>}
+    <span className={arenaClassName('ArenaAppLogo', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <span className={styles.mark()} data-arena-part={manifest.parts.mark} {...styles.$data.mark()} data-arena-boundary="">{mark}</span>
+      <span className={styles.name()} data-arena-part={manifest.parts.name} {...styles.$data.name()}>
+        {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim} {...styles.$data.dim()}>{dim}</span>}
       </span>
     </span>
   );

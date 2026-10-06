@@ -36,8 +36,8 @@ export interface ArenaHeroProps {
 }
 
 const arenaHeroStyles = arenaStyles(manifest);
-const LAYOUTS = Object.keys(manifest.variants.layout);
-const ALIGNS = Object.keys(manifest.variants.align);
+const LAYOUTS: readonly string[] = manifest.values.layout;
+const ALIGNS: readonly string[] = manifest.values.align;
 
 const layoutOf = (layout: string | undefined): ArenaHeroLayout =>
   (layout && LAYOUTS.includes(layout) ? layout as ArenaHeroLayout : 'split');
@@ -63,14 +63,14 @@ export function ArenaHero({ className,
     : undefined;
 
   return (
-    <section className={arenaClassName('ArenaHero', styles.root(), className)} data-arena-part={manifest.parts.root} style={{ gridTemplateColumns: tracks }}>
-      <div className={styles.words()} data-arena-part={manifest.parts.words}>
-        {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</p>}
-        <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
-        {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede}>{lede}</p>}
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
+    <section className={arenaClassName('ArenaHero', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} style={{ gridTemplateColumns: tracks }}>
+      <div className={styles.words()} data-arena-part={manifest.parts.words} {...styles.$data.words()}>
+        {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</p>}
+        <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
+        {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede} {...styles.$data.lede()}>{lede}</p>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">{actions}</div>}
       </div>
-      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure} data-arena-boundary="">{figure}</div>}
+      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure} {...styles.$data.figure()} data-arena-boundary="">{figure}</div>}
     </section>
   );
 }

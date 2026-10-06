@@ -27,11 +27,11 @@ test('an anchor switches the coachmark from the bottom-right corner to top/left 
 
   assert.match(anchored, /style="top:\d/, 'the anchored branch pins a computed top');
   assert.match(anchored, /left:\d/, 'the anchored branch pins a computed left');
-  assert.doesNotMatch(anchored, /\barena-onboarding__panel--placement-floating\b/, 'and stops floating off the corner');
+  assert.doesNotMatch(anchored, /data-arena-part="onboarding.panel"[^>]*\bdata-arena-placement="floating"/, 'and stops floating off the corner');
 
   assert.doesNotMatch(floating, /style="top:/, 'the default branch pins nothing computed');
-  assert.match(floating, /\barena-onboarding__panel--placement-floating\b/, 'the default branch floats off the corner through the recipe');
-  assert.match(floating, /\barena-onboarding__panel--placement-floating\b/);
+  assert.match(floating, /data-arena-part="onboarding.panel"[^>]*\bdata-arena-placement="floating"/, 'the default branch floats off the corner through the recipe');
+  assert.match(floating, /data-arena-part="onboarding.panel"[^>]*\bdata-arena-placement="floating"/);
 });
 
 test('an absent required member throws rather than rendering', () => {
@@ -43,6 +43,6 @@ test('an absent required member throws rather than rendering', () => {
 
 test('the current step is the dot with the current group selected and the others take its other value', () => {
   const html = renderToStaticMarkup(<ArenaOnboarding open steps={[{ title: 'One' }, { title: 'Two' }, { title: 'Three' }]} />);
-  assert.equal((html.match(/arena-onboarding__dot--current-true/g) || []).length, 1);
-  assert.equal((html.match(/arena-onboarding__dot--current-false/g) || []).length, 2);
+  assert.equal((html.match(/data-arena-part="onboarding.dot"[^>]*\bdata-arena-current=""/g) || []).length, 1);
+  assert.equal((html.match(/data-arena-part="onboarding.dot"(?:(?!data-arena-current=)[^>])*>/g) || []).length, 2);
 });

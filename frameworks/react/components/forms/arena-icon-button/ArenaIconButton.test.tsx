@@ -85,23 +85,23 @@ test('pressed keeps the label, because a toggle that renames itself is announced
 
 test('the pressed tint is a variant of the manifest, and absent means not a toggle at all', () => {
   const off = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" />);
-  assert.doesNotMatch(off, /\barena-icon-button__root--pressed-true\b/);
+  assert.doesNotMatch(off, /data-arena-part="icon-button"[^>]*\bdata-arena-pressed=""/);
   assert.doesNotMatch(off, /aria-pressed/);
 
   const on = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" pressed />);
-  assert.match(on, /\barena-icon-button__root--pressed-true\b/);
-  assert.match(on, /\barena-icon-button__root--pressed-true\b/);
+  assert.match(on, /data-arena-part="icon-button"[^>]*\bdata-arena-pressed=""/);
+  assert.match(on, /data-arena-part="icon-button"[^>]*\bdata-arena-pressed=""/);
   assert.match(on, /aria-pressed="true"/);
 });
 
 test('ghost and solid are two branches of one recipe, and hover is a modifier rather than a state', () => {
   const ghost = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" />);
-  assert.match(ghost, /\barena-icon-button__root--variant-ghost\b/);
-  assert.match(ghost, /arena-icon-button__root--variant-ghost/);
+  assert.match(ghost, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="ghost"/);
+  assert.match(ghost, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="ghost"/);
 
   const solid = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" variant="solid" />);
-  assert.match(solid, /\barena-icon-button__root--variant-solid\b/);
-  assert.match(solid, /\barena-icon-button__root--variant-solid\b/);
+  assert.match(solid, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="solid"/);
+  assert.match(solid, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="solid"/);
 });
 
 test('the disabled look is selected by the native attribute, so nothing is recomputed to draw it', () => {

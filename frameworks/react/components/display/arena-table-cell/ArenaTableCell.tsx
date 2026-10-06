@@ -39,7 +39,7 @@ export function ArenaTableCell({ className,
 
   const shown = href === undefined ? children : (
     <a href={href} className={cellStyles({ narrow: layout === 'card' }).link()}
-      data-arena-part={manifest.parts.link} data-arena-boundary=""
+      data-arena-part={manifest.parts.link} {...cellStyles({ narrow: layout === 'card' }).$data.link()} data-arena-boundary=""
       onClick={(event) => {
         if (!isArenaPrimaryActivation(event.nativeEvent)) return;
         event.preventDefault();
@@ -53,17 +53,17 @@ export function ArenaTableCell({ className,
     if (c.mobileLayout === 'block') {
 
       return (
-        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className)} data-arena-part={manifest.parts.cardBlock} data-arena-boundary="">
+        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className)} data-arena-part={manifest.parts.cardBlock} {...cellStyles({ narrow: true }).$data.cardBlock()} data-arena-boundary="">
           {shown}
         </td>
       );
     }
     const card = cellStyles({ narrow: true, numeric: Boolean(c.numeric) });
     return (
-      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} data-arena-part={manifest.parts.cardRow}>
-        <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel}>{c.header}</span>
+      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} data-arena-part={manifest.parts.cardRow} {...card.$data.cardRow()}>
+        <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel} {...card.$data.cardLabel()}>{c.header}</span>
         <span className={card.cardValue()}
-          data-arena-part={manifest.parts.cardValue} data-arena-boundary="">
+          data-arena-part={manifest.parts.cardValue} {...card.$data.cardValue()} data-arena-boundary="">
           {shown}
         </span>
       </td>
@@ -75,7 +75,7 @@ export function ArenaTableCell({ className,
 
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
       className={arenaClassName('ArenaTableCell', cellStyles({ narrow: false, align: c.align || 'left', numeric: Boolean(c.numeric) }).td(), className)}
-      data-arena-part={manifest.parts.td} data-arena-boundary="">
+      data-arena-part={manifest.parts.td} {...cellStyles({ narrow: false, align: c.align || 'left', numeric: Boolean(c.numeric) }).$data.td()} data-arena-boundary="">
       {shown}
     </td>
   );

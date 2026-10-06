@@ -210,27 +210,27 @@ export function ArenaCalendar({ className,
   const navBtn = (dir: number) => (
     <button type="button" aria-label={dir < 0 ? locale.calendarPrevious : locale.calendarNext}
       onClick={() => goto(arenaAddDays(anchor, dir * step))}
-      className={styles.nav()} data-arena-part={manifest.parts.nav}>
+      className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()}>
       <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} aria-hidden="true" />
     </button>
   );
 
   return (
     <section ref={ref} aria-label={arenaPhrase(locale.calendarRegion, { range })}
-      className={arenaClassName('ArenaCalendar', styles.root(), className)} data-arena-part={manifest.parts.root}>
+      className={arenaClassName('ArenaCalendar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
 
-      <div className={styles.toolbar()} data-arena-part={manifest.parts.toolbar}>
+      <div className={styles.toolbar()} data-arena-part={manifest.parts.toolbar} {...styles.$data.toolbar()}>
         {navBtn(-1)}
         <button type="button" onClick={() => goto(today)}
-          className={styles.today()} data-arena-part={manifest.parts.today}>{locale.calendarToday}</button>
+          className={styles.today()} data-arena-part={manifest.parts.today} {...styles.$data.today()}>{locale.calendarToday}</button>
         {navBtn(1)}
-        <div className={styles.heading()} data-arena-part={manifest.parts.heading}>
+        <div className={styles.heading()} data-arena-part={manifest.parts.heading} {...styles.$data.heading()}>
           {range}
         </div>
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} data-arena-boundary="">{actions}</div>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">{actions}</div>}
       </div>
 
-      <div className={styles.headStrip()} data-arena-part={manifest.parts.headStrip} style={{ gridTemplateColumns: TRACKS(days.length) }}>
+      <div className={styles.headStrip()} data-arena-part={manifest.parts.headStrip} {...styles.$data.headStrip()} style={{ gridTemplateColumns: TRACKS(days.length) }}>
         {days.map((d) => {
           const isToday = d === today;
           const DayHead = dayInteractive ? 'button' : 'div';
@@ -238,9 +238,9 @@ export function ArenaCalendar({ className,
             <DayHead key={d} onClick={activateDay(d)}
               type={dayInteractive ? 'button' : undefined}
               aria-label={dayInteractive ? arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.dayName) : undefined}
-              className={styles.dayHead()} data-arena-part={manifest.parts.dayHead}>
-              <div className={styles.weekday()} data-arena-part={manifest.parts.weekday}>{arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.weekdayShort)}</div>
-              <div className={arenaCalendarStyles({ today: isToday }).dayNumber()} data-arena-part={manifest.parts.dayNumber}>
+              className={styles.dayHead()} data-arena-part={manifest.parts.dayHead} {...styles.$data.dayHead()}>
+              <div className={styles.weekday()} data-arena-part={manifest.parts.weekday} {...styles.$data.weekday()}>{arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.weekdayShort)}</div>
+              <div className={arenaCalendarStyles({ today: isToday }).dayNumber()} data-arena-part={manifest.parts.dayNumber} {...arenaCalendarStyles({ today: isToday }).$data.dayNumber()}>
                 {arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.dayNumber)}
               </div>
             </DayHead>
@@ -251,12 +251,12 @@ export function ArenaCalendar({ className,
       {
 
 }
-      <div className={styles.scroll()} data-arena-part={manifest.parts.scroll}>
-        <div className={styles.body()} data-arena-part={manifest.parts.body} style={{ height: y(endMin) }}>
+      <div className={styles.scroll()} data-arena-part={manifest.parts.scroll} {...styles.$data.scroll()}>
+        <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} style={{ height: y(endMin) }}>
 
-          <div className={styles.gutter()} data-arena-part={manifest.parts.gutter}>
+          <div className={styles.gutter()} data-arena-part={manifest.parts.gutter} {...styles.$data.gutter()}>
             {hours.map((m) => (
-              <div key={m} className={styles.hourLabel()} data-arena-part={manifest.parts.hourLabel} style={{ top: y(m) }}>
+              <div key={m} className={styles.hourLabel()} data-arena-part={manifest.parts.hourLabel} {...styles.$data.hourLabel()} style={{ top: y(m) }}>
                 {arenaFormatHM(m)}
               </div>
             ))}
@@ -267,9 +267,9 @@ export function ArenaCalendar({ className,
 }
           <div ref={gridRef} role="grid" aria-label={arenaPhrase(locale.calendarGrid, { range })}
             onKeyDown={onGridKeyDown}
-            className={styles.grid()} data-arena-part={manifest.parts.grid} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS(days.length) }}>
+            className={styles.grid()} data-arena-part={manifest.parts.grid} {...styles.$data.grid()} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS(days.length) }}>
             {hours.map((m) => (
-              <div key={m} aria-hidden="true" className={styles.rule()} data-arena-part={manifest.parts.rule} style={{ top: y(m) }} />
+              <div key={m} aria-hidden="true" className={styles.rule()} data-arena-part={manifest.parts.rule} {...styles.$data.rule()} style={{ top: y(m) }} />
             ))}
 
             {days.map((d, di) => (
@@ -277,7 +277,7 @@ export function ArenaCalendar({ className,
                 aria-label={arenaFormatDate(d, locale.locale, ARENA_DATE_OPTIONS.dayName)}
                 aria-owns={ownedIds(di) || undefined}
                 onClick={activateDay(d)}
-                className={arenaCalendarStyles({ firstColumn: di === 0, dayInteractive }).column()} data-arena-part={manifest.parts.column}>
+                className={arenaCalendarStyles({ firstColumn: di === 0, dayInteractive }).column()} data-arena-part={manifest.parts.column} {...arenaCalendarStyles({ firstColumn: di === 0, dayInteractive }).$data.column()}>
                 {slots.map((s, si) => {
                   const isCursor = di === curDay && si === curHour;
                   return (
@@ -285,7 +285,7 @@ export function ArenaCalendar({ className,
                       tabIndex={isCursor ? 0 : -1}
 
                       onFocus={() => { if (di !== curDay || si !== curHour) setCursor({ day: di, hour: si }); }}
-                      className={styles.cell()} data-arena-part={manifest.parts.cell}
+                      className={styles.cell()} data-arena-part={manifest.parts.cell} {...styles.$data.cell()}
                       style={{ top: y(s.start), height: y(s.end) - y(s.start) }} />
                   );
                 })}
@@ -322,8 +322,8 @@ export function ArenaCalendar({ className,
             })}
 
             {showNow && (
-              <div aria-hidden="true" className={styles.now()} data-arena-part={manifest.parts.now} style={{ top: y(nowMin) }}>
-                <span className={styles.nowDot()} data-arena-part={manifest.parts.nowDot} />
+              <div aria-hidden="true" className={styles.now()} data-arena-part={manifest.parts.now} {...styles.$data.now()} style={{ top: y(nowMin) }}>
+                <span className={styles.nowDot()} data-arena-part={manifest.parts.nowDot} {...styles.$data.nowDot()} />
               </div>
             )}
           </div>

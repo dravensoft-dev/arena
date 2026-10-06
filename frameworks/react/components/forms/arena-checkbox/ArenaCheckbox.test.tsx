@@ -17,10 +17,10 @@ test('the native input carries no checked attribute when checked is false', () =
 test('checked draws the crimson fill; unchecked draws the input surface', () => {
   const on = renderToStaticMarkup(<ArenaCheckbox checked label="Notify" />);
   const off = renderToStaticMarkup(<ArenaCheckbox label="Notify" />);
-  assert.match(on, /\barena-checkbox__box--checked-true\b/);
-  assert.match(on, /\barena-checkbox__box--checked-true\b/);
-  assert.match(off, /\barena-checkbox__box--checked-false\b/);
-  assert.match(off, /\barena-checkbox__box--checked-false\b/);
+  assert.match(on, /data-arena-part="checkbox.box"[^>]*\bdata-arena-checked=""/);
+  assert.match(on, /data-arena-part="checkbox.box"[^>]*\bdata-arena-checked=""/);
+  assert.match(off, /data-arena-part="checkbox.box"(?:(?!data-arena-checked=)[^>])*>/);
+  assert.match(off, /data-arena-part="checkbox.box"(?:(?!data-arena-checked=)[^>])*>/);
 });
 
 test('the focus ring is a selector on the box, so nothing injects a stylesheet to reach the input', () => {

@@ -101,15 +101,15 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
   const styles = arenaMenuStyles({ align });
 
   return (
-    <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {decoratedTrigger}
       {open && (
         <div role="menu" ref={panelRef}
           className={styles.panel()}
-          data-arena-part={manifest.parts.panel}>
+          data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
           {items.map((it, i) => {
-            if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} />;
-            if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header}>{it.header}</div>;
+            if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />;
+            if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header} {...styles.$data.header()}>{it.header}</div>;
             return (
               <MenuRow key={i} item={it} onRun={() => run(it)} />
             );
@@ -124,10 +124,10 @@ function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
   const styles = arenaMenuStyles({ disabled: !!item.disabled, destructive: !!item.destructive });
   return (
     <button role="menuitem" onClick={onRun} disabled={item.disabled}
-      className={styles.item()} data-arena-part={manifest.parts.item}>
-      {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />}
-      <span className={styles.label()} data-arena-part={manifest.parts.label}>{item.label}</span>
-      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{item.shortcut}</span>}
+      className={styles.item()} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
+      {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+      <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{item.label}</span>
+      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{item.shortcut}</span>}
     </button>
   );
 }

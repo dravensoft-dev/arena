@@ -30,8 +30,8 @@ export interface ArenaAvatarProps {
 }
 
 const arenaAvatarStyles = arenaStyles(manifest);
-const STATUSES = Object.keys(manifest.variants.status);
-type Status = keyof typeof manifest.variants.status;
+const STATUSES: readonly string[] = manifest.values.status;
+type Status = typeof manifest.values.status[number];
 const statusOf = (status: string | undefined): Status | undefined =>
   (status && STATUSES.includes(status) ? status as Status : 'offline');
 
@@ -42,12 +42,12 @@ export function ArenaAvatar({ className, src, name = '', size = 'md', shape = 'c
   const initials = name.trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase();
   const styles = arenaAvatarStyles({ size, shape, status: status ? statusOf(status) : 'none' });
   return (
-    <span className={arenaClassName('ArenaAvatar', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <span className={styles.box()} data-arena-part={manifest.parts.box} aria-hidden={nameShown ? true : undefined}>
-        {src ? <img src={src} alt={name} className={styles.image()} data-arena-part={manifest.parts.image}
+    <span className={arenaClassName('ArenaAvatar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <span className={styles.box()} data-arena-part={manifest.parts.box} {...styles.$data.box()} aria-hidden={nameShown ? true : undefined}>
+        {src ? <img src={src} alt={name} className={styles.image()} data-arena-part={manifest.parts.image} {...styles.$data.image()}
           width={AVATAR_DIAMETER[size]} height={AVATAR_DIAMETER[size]} decoding="async" /> : initials}
       </span>
-      {status && <span aria-label={presence} title={presence} className={styles.status()} data-arena-part={manifest.parts.status} />}
+      {status && <span aria-label={presence} title={presence} className={styles.status()} data-arena-part={manifest.parts.status} {...styles.$data.status()} />}
     </span>
   );
 }

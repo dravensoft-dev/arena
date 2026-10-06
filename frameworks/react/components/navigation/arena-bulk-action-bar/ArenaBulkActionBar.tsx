@@ -74,28 +74,28 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
   return (
     <div role="toolbar" aria-label={locale.bulkActionBarLabel}
       ref={barRef} onKeyDown={onKeyDown}
-      className={arenaClassName('ArenaBulkActionBar', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <span className={styles.count()} data-arena-part={manifest.parts.count}>
+      className={arenaClassName('ArenaBulkActionBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <span className={styles.count()} data-arena-part={manifest.parts.count} {...styles.$data.count()}>
         {arenaPhraseParts(locale.bulkActionBarCount).map((part, i) => ('slot' in part && part.slot === 'count'
-          ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number}>{count}</b>
+          ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number} {...styles.$data.number()}>{count}</b>
           : <React.Fragment key={i}>{'text' in part ? part.text : counted}</React.Fragment>))}
       </span>
       {!narrow && (
-        <span aria-hidden="true" className={styles.divider()} data-arena-part={manifest.parts.divider} />
+        <span aria-hidden="true" className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />
       )}
-      <div className={styles.actions()} data-arena-part={manifest.parts.actions}>
+      <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()}>
         {actions.map((a, i) => (
           <button key={i} onClick={() => onRun && onRun(a)}
             tabIndex={i === at ? 0 : -1} onFocus={() => setCursor(i)}
-            className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action}>
-            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
+            className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action} {...barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).$data.action()}>
+            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
           </button>
         ))}
       </div>
       {clearable && (
         <button onClick={() => onClear && onClear()} aria-label={locale.bulkActionBarClearLabel}
           tabIndex={actions.length === at ? 0 : -1} onFocus={() => setCursor(actions.length)}
-          className={styles.clear()} data-arena-part={manifest.parts.clear}>
+          className={styles.clear()} data-arena-part={manifest.parts.clear} {...styles.$data.clear()}>
           {locale.bulkActionBarClear}
         </button>
       )}

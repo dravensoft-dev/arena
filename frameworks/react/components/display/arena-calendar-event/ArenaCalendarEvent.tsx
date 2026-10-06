@@ -124,15 +124,15 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 
   const body = (
     <>
-      <span className={styles.title()} data-arena-part={manifest.parts.title}>{title}</span>
+      <span className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</span>
       {showTime && (
-        <span className={styles.time()} data-arena-part={manifest.parts.time}>{timeLabel}</span>
+        <span className={styles.time()} data-arena-part={manifest.parts.time} {...styles.$data.time()}>{timeLabel}</span>
       )}
       {details.slice(0, shownDetails).map((line, i) => (
-        <span key={`d${i}`} className={styles.detail()} data-arena-part={manifest.parts.detail}>{line}</span>
+        <span key={`d${i}`} className={styles.detail()} data-arena-part={manifest.parts.detail} {...styles.$data.detail()}>{line}</span>
       ))}
       {!interactive && details.slice(shownDetails).map((line, i) => (
-        <span key={`s${i}`} className={styles.detailShed()} data-arena-part={manifest.parts.detailShed}>{line}</span>
+        <span key={`s${i}`} className={styles.detailShed()} data-arena-part={manifest.parts.detailShed} {...styles.$data.detailShed()}>{line}</span>
       ))}
     </>
   );
@@ -164,7 +164,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
         }
       } : undefined}
       id={domId}
-      className={arenaClassName('ArenaCalendarEvent', styles.chip(), className)} data-arena-part={manifest.parts.chip}
+      className={arenaClassName('ArenaCalendarEvent', styles.chip(), className)} data-arena-part={manifest.parts.chip} {...styles.$data.chip()}
       style={{ ...box,
         background: arenaCatTint(ink),
         borderLeftColor: ink }}>
@@ -176,21 +176,21 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
               aria-label={name}
               aria-disabled={disabled ? 'true' : undefined}
 
-              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
+              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody} {...styles.$data.chipBody()}>
               {body}
             </button>
           ) : (
             <span ref={setFocusable} tabIndex={tabIndex} onClick={activate}
-              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
+              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody} {...styles.$data.chipBody()}>
               {body}
             </span>
           )}
-          <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap}>
+          <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap} {...styles.$data.kebabWrap()}>
             <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} size="sm"
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (
-              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel} data-arena-boundary="">
+              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-boundary="">
                 {actions}
               </span>
             )}

@@ -29,7 +29,7 @@ export interface ArenaAlertProps {
 }
 
 const arenaAlertStyles = arenaStyles(manifest);
-const TONES = Object.keys(manifest.variants.tone);
+const TONES: readonly string[] = manifest.values.tone;
 const GLYPHS: Record<string, string> = {
   info: 'ph-fill ph-info',
   success: 'ph-fill ph-check-circle',
@@ -37,7 +37,7 @@ const GLYPHS: Record<string, string> = {
   danger: 'ph-fill ph-warning-octagon',
   neutral: 'ph-fill ph-note',
 };
-type ArenaTone = keyof typeof manifest.variants.tone;
+type ArenaTone = typeof manifest.values.tone[number];
 const toneOf = (tone: string | undefined): ArenaTone =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'info');
 
@@ -46,17 +46,17 @@ export function ArenaAlert({ className, tone = 'info', title, children, icon, ac
   const at = toneOf(tone);
   const styles = arenaAlertStyles({ tone: at, titled: Boolean(title) });
   return (
-    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} />
-      <div className={styles.body()} data-arena-part={manifest.parts.body}>
-        {title && <div className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>}
-        {children && <div className={styles.message()} data-arena-part={manifest.parts.message} data-arena-boundary="">{children}</div>}
+    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />
+      <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()}>
+        {title && <div className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>}
+        {children && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()} data-arena-boundary="">{children}</div>}
         {actionLabel && (
-          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action}>{actionLabel}</button>
+          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close}>
+        <button onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
           <i className="ph-bold ph-x" />
         </button>
       )}

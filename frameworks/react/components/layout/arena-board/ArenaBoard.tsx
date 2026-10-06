@@ -26,7 +26,7 @@ export function ArenaBoard({ className, label, children, minColumn = 'var(--grid
   if (React.Children.toArray(children).length === 0) throw new Error('ArenaBoard: `children` is required (a board with no columns is a tab stop over nothing)');
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={arenaClassName('ArenaBoard', boardStyles().root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
+      className={arenaClassName('ArenaBoard', boardStyles().root(), className)} data-arena-part={manifest.parts.root} {...boardStyles().$data.root()} data-arena-boundary=""
       style={{ '--arena-board-column': minColumn } as React.CSSProperties}>
       {children}
     </div>

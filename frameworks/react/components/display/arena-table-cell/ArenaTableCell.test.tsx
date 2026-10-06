@@ -19,6 +19,6 @@ test('a numeric column takes its own branch of the recipe', () => {
 
   const mono = renderToStaticMarkup(<ArenaTableCell column={{ header: 'Build', numeric: true }}>4821</ArenaTableCell>);
   assert.match(mono, /\barena-table__td\b/);
-  assert.match(mono, /\barena-table__td--numeric-true\b/);
+  assert.match(mono, /data-arena-part="table.td"[^>]*\bdata-arena-numeric=""/);
   assert.doesNotMatch(plain, /numeric-true/);
 });

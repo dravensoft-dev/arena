@@ -24,13 +24,13 @@ export interface ArenaGridProps {
 }
 
 const arenaGridStyles = arenaStyles(manifest);
-const GAPS = Object.keys(manifest.variants.gap);
+const GAPS: readonly string[] = manifest.values.gap;
 const gapOf = (gap: string | undefined): ArenaGridGap =>
   (gap && GAPS.includes(gap) ? gap as ArenaGridGap : 'md');
 
 export function ArenaGrid({ className, min = 'var(--grid-min)', gap = 'md', maxWidth, children }: ArenaGridProps) {
   return (
-    <div className={arenaClassName('ArenaGrid', arenaGridStyles({ gap: gapOf(gap), centred: maxWidth !== undefined }).root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
+    <div className={arenaClassName('ArenaGrid', arenaGridStyles({ gap: gapOf(gap), centred: maxWidth !== undefined }).root(), className)} data-arena-part={manifest.parts.root} {...arenaGridStyles({ gap: gapOf(gap), centred: maxWidth !== undefined }).$data.root()} data-arena-boundary=""
       style={{
         gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}, 100%), 1fr))`,
         maxWidth,

@@ -145,7 +145,7 @@ test('the require-text input substitutes a focus ring for the outline it removes
   const drawn = input.className;
   assert.ok(drawn.includes('arena-confirm-dialog__input'),
     'the outline is still removed -- what changed is that something takes its place');
-  assert.ok(drawn.includes('arena-confirm-dialog__input--invalid-false'),
+  assert.equal(input.hasAttribute('data-arena-invalid'), false,
     'the input draws the valid branch, and the ring it substitutes for the outline comes with it; '
     + 'for a TEXT input :focus-visible also matches a mouse click, so this is not about hiding a ring');
 

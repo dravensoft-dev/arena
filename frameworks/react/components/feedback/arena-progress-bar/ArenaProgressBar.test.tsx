@@ -29,7 +29,7 @@ test('indeterminate ignores progressPercentage: no fill, no aria-valuenow', () =
   assert.doesNotMatch(html, /aria-valuenow/, 'an indeterminate bar reported a value');
   assert.doesNotMatch(html, /width:64%/, 'an indeterminate bar drew a fill from progressPercentage');
 
-  assert.match(html, /\barena-progress-bar__track--indeterminate-true\b/,
+  assert.match(html, /data-arena-part="progress-bar.track"[^>]*\bdata-arena-indeterminate=""/,
     'the sweep is the shared utility, whose reduced-motion clause slows it rather than stopping it');
 });
 
@@ -70,19 +70,14 @@ test('an absent label throws rather than falling back to a name that says only w
 });
 
 test('every tone reaches the bar as its own branch of the recipe', () => {
-  const expected = {
-    accent: 'arena-progress-bar__track--tone-accent', gold: 'arena-progress-bar__track--tone-gold',
-    success: 'arena-progress-bar__track--tone-success',
-    danger: 'arena-progress-bar__track--tone-danger', info: 'arena-progress-bar__track--tone-info',
-  };
-  for (const [tone, cls] of Object.entries(expected)) {
+  for (const tone of ['accent', 'gold', 'success', 'danger', 'info']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" tone={tone} progressPercentage={50} />);
-    assert.ok(new RegExp(`\\b${cls}\\b`).test(html), `tone="${tone}" did not reach the bar as ${cls}`);
+    assert.match(html, new RegExp(`data-arena-part="progress-bar.track"[^>]*\\bdata-arena-tone="${tone}"`), `tone="${tone}" did not reach the bar`);
   }
 
   const fallback = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" progressPercentage={50} />);
-  assert.match(fallback, /\barena-progress-bar__track--tone-accent\b/);
+  assert.match(fallback, /data-arena-part="progress-bar.track"[^>]*\bdata-arena-tone="accent"/);
   assert.match(fallback, /\barena-progress-bar__fill\b/,
     'the fill reads the tone off the track rather than naming a colour of its own');
 });
@@ -120,14 +115,14 @@ test('a radial meter keeps the accessible name and the announcement the bar carr
 test('an indeterminate ring turns a fixed arc and reports no value', () => {
   const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" indeterminate label="Connecting" progressPercentage={64} />);
   assert.doesNotMatch(html, /aria-valuenow/);
-  assert.match(html, /\barena-progress-bar__ring-fill--indeterminate-true\b/,
+  assert.match(html, /data-arena-part="progress-bar.ring-fill"[^>]*\bdata-arena-indeterminate=""/,
     'the turn is the shared utility, whose reduced-motion clause slows it rather than stopping it');
   assert.match(html, /stroke-dashoffset:75/, 'the arc a wait turns is a fixed quarter and never the percentage');
 });
 
 test('the tone reaches the ring the way it reaches the track, and the arc reads it off the ring', () => {
   const html = renderToStaticMarkup(<ArenaProgressBar shape="radial" tone="success" label="Sync" progressPercentage={50} />);
-  assert.match(html, /\barena-progress-bar__ring--tone-success\b/);
+  assert.match(html, /data-arena-part="progress-bar.ring"[^>]*\bdata-arena-tone="success"/);
   assert.match(html, /\barena-progress-bar__ring-fill\b/);
 });
 

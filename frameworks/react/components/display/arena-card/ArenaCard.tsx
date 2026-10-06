@@ -73,20 +73,21 @@ export function ArenaCard({ className,
     'aria-disabled': acts && disabled ? true as const : undefined,
     className: arenaClassName('ArenaCard', styles.root(), className),
     'data-arena-part': manifest.parts.root,
+    ...styles.$data.root(),
   };
 
   const body = (
     <>
       {(title || eyebrow || action) && (
-        <div className={styles.head()} data-arena-part={manifest.parts.head} data-arena-boundary="">
+        <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()} data-arena-boundary="">
           <div>
-            {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
-            {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
+            {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</div>}
+            {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
           </div>
           {action}
         </div>
       )}
-      <div className={styles.body()} data-arena-part={manifest.parts.body} data-arena-boundary="">{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">{children}</div>
     </>
   );
 

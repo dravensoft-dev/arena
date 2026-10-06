@@ -175,12 +175,11 @@ test('a row takes one of three branches of the item recipe, and hover is a modif
   );
   const rows = [...open(root).querySelectorAll('[role="menuitem"]')];
   assert.equal(rows.length, 3);
-  const [ordinary, destructive, inert] = rows.map((r) => r.getAttribute('class') ?? '') as [string, string, string];
+  const [ordinary, destructive, inert] = rows as [Element, Element, Element];
 
-  assert.match(ordinary, /\barena-menu__item--cv3\b/, 'an ordinary row lifts to the accent tint');
-  assert.match(destructive, /\barena-menu__item--cv2\b/);
-  assert.doesNotMatch(destructive, /\barena-menu__item--cv3\b/, 'a destructive row lifts to its own tint, never the accent');
-  assert.match(inert, /\barena-menu__item--cv1\b/);
-  assert.doesNotMatch(inert, /\barena-menu__item--cv[23]\b/, 'disabled wins over the other two');
-  assert.doesNotMatch(inert, /hover:/, 'a disabled row lifts to nothing at all');
+  assert.equal(ordinary.hasAttribute('data-arena-disabled') || ordinary.hasAttribute('data-arena-destructive'), false, 'an ordinary row lifts to the accent tint');
+  assert.equal(destructive.hasAttribute('data-arena-destructive'), true);
+  assert.equal(destructive.hasAttribute('data-arena-disabled'), false, 'a destructive row lifts to its own tint, never the accent');
+  assert.equal(inert.hasAttribute('data-arena-disabled'), true);
+  assert.equal(inert.hasAttribute('data-arena-destructive'), false, 'disabled wins over the other two');
 });

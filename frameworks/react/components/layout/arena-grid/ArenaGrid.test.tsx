@@ -71,11 +71,11 @@ test('maxWidth caps and centres, and its absence leaves the grid filling its con
   const bare = renderToStaticMarkup(<ArenaGrid />);
   assert.match(bare, /\barena-grid__root\b/, 'a grid with no ceiling must fill what contains it');
   assert.ok(!('max-width' in styleOf(<ArenaGrid />)), 'and must declare no ceiling of its own');
-  assert.doesNotMatch(bare, /\barena-grid__root--centred-true\b/, 'and must not centre itself against nothing');
+  assert.doesNotMatch(bare, /data-arena-part="grid"[^>]*\bdata-arena-centred=""/, 'and must not centre itself against nothing');
 
   const capped = <ArenaGrid maxWidth="var(--container-max)" />;
   assert.equal(decl(capped, 'max-width'), 'var(--container-max)', 'the ceiling is the consumer\'s string');
-  assert.match(renderToStaticMarkup(capped), /\barena-grid__root--centred-true\b/,
+  assert.match(renderToStaticMarkup(capped), /data-arena-part="grid"[^>]*\bdata-arena-centred=""/,
     'a capped grid centres, or the ceiling reads as a left margin');
 });
 

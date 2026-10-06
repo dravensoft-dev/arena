@@ -32,11 +32,11 @@ export function ArenaTag({ className, children, tone = 'neutral', colorId, remov
   const locale = useArenaLocale();
   const styles = arenaTagStyles({ tone: colorId ? 'identity' : tone, disabled });
   return (
-    <span className={arenaClassName('ArenaTag', styles.root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary=""
+    <span className={arenaClassName('ArenaTag', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary=""
       style={colorId ? { '--arena-tag-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
-      <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} />
+      <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />
       {children}
-      {removable && <button type="button" className={styles.close()} data-arena-part={manifest.parts.close} aria-label={locale.tagRemove}
+      {removable && <button type="button" className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()} aria-label={locale.tagRemove}
         aria-disabled={disabled ? 'true' : undefined}
         onClick={disabled ? undefined : onRemove}><i className="ph-bold ph-x" aria-hidden="true" /></button>}
     </span>

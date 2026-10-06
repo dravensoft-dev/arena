@@ -171,20 +171,20 @@ export function ArenaScatterChart({ className,
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.stripH }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
-              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[s] }} />
-              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
+              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...styles.$data.legendSwatch()} style={{ background: colors[s] }} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {showsKey && (
-        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.sizeH }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.sizeH }}>
           {[sizes.min, (sizes.min + sizes.max) / 2, sizes.max].map((size, i) => (
-            <span key={i} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
+            <span key={i} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
               <svg width={strip.sizeH} height={strip.sizeH} style={{ display: 'block', flexShrink: 0 }}>
                 <circle cx={strip.sizeH / 2} cy={strip.sizeH / 2} r={arenaRadiusAt(rScale, size)}
                   fill="none" stroke="var(--border-strong)" style={{ strokeWidth: 'var(--bw)' }} />
@@ -196,20 +196,20 @@ export function ArenaScatterChart({ className,
       )}
 
       {active && (
-        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} style={{
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
           ...arenaTooltipAnchor(active.at.x, active.at.y),
         }}>
-          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel}>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>
             {series[active.seriesIndex]?.label}
           </div>
-          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
+          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
             {`${xLabel}: ${fmt(active.x)}`}
           </div>
-          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
+          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
             {`${yLabel}: ${fmt(active.y)}`}
           </div>
           {active.size !== undefined && (
-            <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
+            <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
               {`${sizeLabel}: ${fmt(active.size)}`}
             </div>
           )}

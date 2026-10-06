@@ -19,7 +19,7 @@ const arenaMainStyles = arenaStyles(manifest);
 export function ArenaMain({ className, children }: ArenaMainProps) {
   return (
     <main id={ARENA_MAIN_ID} tabIndex={-1}
-      className={arenaClassName('ArenaMain', arenaMainStyles().root(), className)} data-arena-part={manifest.parts.root} data-arena-boundary="">
+      className={arenaClassName('ArenaMain', arenaMainStyles().root(), className)} data-arena-part={manifest.parts.root} {...arenaMainStyles().$data.root()} data-arena-boundary="">
       {children}
     </main>
   );

@@ -45,15 +45,15 @@ export function ArenaPersonRow({ className, name, src, secondary, rank, figure, 
   if (!name?.trim()) throw new Error('ArenaPersonRow: `name` is required (it is the row\'s text and the face\'s initials at once)');
   const styles = peopleStyles({ size, current });
   return (
-    <li className={arenaClassName('ArenaPersonRow', styles.row(), className)} data-arena-part={manifest.parts.row} aria-current={current ? 'true' : undefined}>
-      {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank}>{rank}</span>}
+    <li className={arenaClassName('ArenaPersonRow', styles.row(), className)} data-arena-part={manifest.parts.row} {...styles.$data.row()} aria-current={current ? 'true' : undefined}>
+      {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank} {...styles.$data.rank()}>{rank}</span>}
       <ArenaAvatar name={name} src={src} size={FACE[size]} nameShown />
-      <span className={styles.text()} data-arena-part={manifest.parts.text}>
-        <span className={styles.name()} data-arena-part={manifest.parts.name}>{name}</span>
-        {secondary && <span className={styles.secondary()} data-arena-part={manifest.parts.secondary}>{secondary}</span>}
+      <span className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>
+        <span className={styles.name()} data-arena-part={manifest.parts.name} {...styles.$data.name()}>{name}</span>
+        {secondary && <span className={styles.secondary()} data-arena-part={manifest.parts.secondary} {...styles.$data.secondary()}>{secondary}</span>}
       </span>
-      {figure && <span className={styles.figure()} data-arena-part={manifest.parts.figure}>{figure}</span>}
-      <span className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</span>
+      {figure && <span className={styles.figure()} data-arena-part={manifest.parts.figure} {...styles.$data.figure()}>{figure}</span>}
+      <span className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</span>
     </li>
   );
 }

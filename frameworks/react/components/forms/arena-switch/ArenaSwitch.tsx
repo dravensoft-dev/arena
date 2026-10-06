@@ -61,17 +61,17 @@ export function ArenaSwitch({ className,
   };
 
   return (
-    <span className={arenaClassName('ArenaSwitch', styles.root(), className)} data-arena-part={manifest.parts.root}>
+    <span className={arenaClassName('ArenaSwitch', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <button type="button" role="switch" aria-checked={state} aria-label={label} disabled={disabled} onClick={activate}
-        className={styles.track()} data-arena-part={manifest.parts.track}>
-        <span aria-hidden="true" className={styles.knob()} data-arena-part={manifest.parts.knob}>
-          {icon && <i aria-hidden="true" className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} />}
+        className={styles.track()} data-arena-part={manifest.parts.track} {...styles.$data.track()}>
+        <span aria-hidden="true" className={styles.knob()} data-arena-part={manifest.parts.knob} {...styles.$data.knob()}>
+          {icon && <i aria-hidden="true" className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />}
         </span>
       </button>
       {label && (
-        <span onClick={activate} className={styles.label()} data-arena-part={manifest.parts.label}>
+        <span onClick={activate} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
           {label}
-          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} data-arena-part={manifest.parts.guard} aria-hidden="true" title={locale.switchConfirmHint} />}
+          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} data-arena-part={manifest.parts.guard} {...styles.$data.guard()} aria-hidden="true" title={locale.switchConfirmHint} />}
         </span>
       )}
     </span>

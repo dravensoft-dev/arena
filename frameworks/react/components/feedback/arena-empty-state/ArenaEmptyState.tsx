@@ -35,11 +35,11 @@ export function ArenaEmptyState({ className, icon, title, headingLevel = 'h3', m
   const styles = emptyStyles();
   const Heading = headingLevel;
   return (
-    <div className={arenaClassName('ArenaEmptyState', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
-      {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
-      {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
-      {action && <div className={styles.action()} data-arena-part={manifest.parts.action} data-arena-boundary="">{action}</div>}
+    <div className={arenaClassName('ArenaEmptyState', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+      {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
+      {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
+      {action && <div className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</div>}
     </div>
   );
 }

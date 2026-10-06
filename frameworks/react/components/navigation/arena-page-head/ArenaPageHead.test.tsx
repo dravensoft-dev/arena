@@ -22,13 +22,13 @@ test('ArenaPageHead throws when title is absent -- the fail-hard guard', () => {
 
 test('ArenaPageHead defaults to align="start" -- the wide layout is top-aligned', () => {
   const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" />);
-  assert.match(html, /\barena-page-head__root--cv1\b/);
+  assert.match(html, /data-arena-part="page-head"[^>]*\bdata-arena-align="start"/);
 });
 
 test('ArenaPageHead align="center" centers the actions block against the title, wide layout', () => {
   const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" align="center" />);
-  assert.match(html, /\b(?:arena-page-head__actions|arena-page-head__root--cv2)\b/);
-  assert.doesNotMatch(html, /\barena-page-head__root--cv1\b/);
+  assert.match(html, /data-arena-part="page-head"[^>]*\bdata-arena-align="center"/);
+  assert.doesNotMatch(html, /\bdata-arena-align="start"/);
 });
 
 test('ArenaPageHead no longer applies a baked bottom margin -- the parent composes spacing now', () => {

@@ -23,12 +23,12 @@ export function ArenaSiteFooter({ className, children, note }: ArenaSiteFooterPr
   const styles = arenaSiteFooterStyles();
 
   return (
-    <footer className={arenaClassName('ArenaSiteFooter', styles.root(), className)} data-arena-part={manifest.parts.root}>
-      <div className={styles.band()} data-arena-part={manifest.parts.band} style={{ maxWidth: PAGE }}>
+    <footer className={arenaClassName('ArenaSiteFooter', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.band()} data-arena-part={manifest.parts.band} {...styles.$data.band()} style={{ maxWidth: PAGE }}>
         {children && (
-          <div className={styles.columns()} data-arena-part={manifest.parts.columns} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS }}>{children}</div>
+          <div className={styles.columns()} data-arena-part={manifest.parts.columns} {...styles.$data.columns()} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS }}>{children}</div>
         )}
-        {note && <p className={styles.note()} data-arena-part={manifest.parts.note}>{note}</p>}
+        {note && <p className={styles.note()} data-arena-part={manifest.parts.note} {...styles.$data.note()}>{note}</p>}
       </div>
     </footer>
   );

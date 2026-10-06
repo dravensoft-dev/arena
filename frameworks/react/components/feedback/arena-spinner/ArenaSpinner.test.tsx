@@ -18,14 +18,14 @@ test('ArenaSpinner falls back to "Loading" when no label is given', () => {
 });
 
 test('ArenaSpinner renders the diameter its size names, not the default', () => {
-  assert.match(renderToStaticMarkup(<ArenaSpinner size="sm" />), /\barena-spinner__circle--size-sm\b/);
-  assert.match(renderToStaticMarkup(<ArenaSpinner size="lg" />), /\barena-spinner__circle--size-lg\b/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner size="lg" />), /\barena-spinner__circle--size-md\b/);
+  assert.match(renderToStaticMarkup(<ArenaSpinner size="sm" />), /data-arena-part="spinner.circle"[^>]*\bdata-arena-size="sm"/);
+  assert.match(renderToStaticMarkup(<ArenaSpinner size="lg" />), /data-arena-part="spinner.circle"[^>]*\bdata-arena-size="lg"/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner size="lg" />), /data-arena-part="spinner.circle"[^>]*\bdata-arena-size="md"/);
 });
 
 test('ArenaSpinner renders the colour its tone names, and the ring takes it from currentColor', () => {
-  assert.match(renderToStaticMarkup(<ArenaSpinner tone="on-accent" />), /\barena-spinner__root--tone-on-accent\b/);
-  assert.match(renderToStaticMarkup(<ArenaSpinner tone="gold" />), /\barena-spinner__root--tone-gold\b/);
+  assert.match(renderToStaticMarkup(<ArenaSpinner tone="on-accent" />), /data-arena-part="spinner"[^>]*\bdata-arena-tone="on-accent"/);
+  assert.match(renderToStaticMarkup(<ArenaSpinner tone="gold" />), /data-arena-part="spinner"[^>]*\bdata-arena-tone="gold"/);
   assert.match(renderToStaticMarkup(<ArenaSpinner />), /\barena-spinner__circle\b/,
     'the ring reads the tone off the root rather than naming a colour of its own');
 });
