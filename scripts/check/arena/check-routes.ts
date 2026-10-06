@@ -249,8 +249,8 @@ export const ROUTES: Route[] = [
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
       + 'sheet\'s variants. Cold walks missed each of those when the pages left it out. The page '
       + 'closes on the same least-to-most the surface page opens with. The number is what the '
-      + 'stops measure with room for one section, and it grows when Arena ships a piece for somebody '
-      + 'else\'s markup rather than when these pages argue again for one they already name.',
+      + 'stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
+      + 'than when these pages argue again for one they already name.',
   },
   {
     name: 'consumer-coldstart',

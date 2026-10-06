@@ -39,12 +39,13 @@ export function renderVocabulary(root = repoRoot) {
     : family.reach === 'box'
     ? 'reaches the nearest component, and stops at the content that component projects'
     : 'reaches every component inside, until a nearer class answers it again';
+  const context = families.filter((family) => isMarkup(family) && family.reach === 'context').map((family) => family.family);
   const lines = [
     BANNER, '', '# The vocabulary', '',
     '**Every vocabulary class you write is on this page.** A component family\'s class goes on the component, or on a container '
       + 'of yours whose components should all take it. The class nearest the component wins, whatever order '
       + 'your stylesheets load in. A markup family\'s box class goes on an element you wrote, never on a component. '
-      + 'A markup family\'s context class, density, goes on an element you wrote or on a component. '
+      + (context.length ? `A markup family's context class, ${context.join(' and ')}, goes on an element you wrote or on a component. ` : '')
       + 'A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. '
       + 'Write yours more specific to override it. '
       + 'A class that is not on this page does nothing on an Arena component, and the audit reports it. '

@@ -23,6 +23,7 @@ import { arenaClassesFor, classesManifest } from '../../lib/tailwind/component-c
 import { VOCABULARY_SHEETS, compileFamily } from '../../lib/tailwind/vocabulary.ts';
 import { readProximity, treeHtml, SUBJECT, type ProximityCase, type MarkupCase } from '../../lib/arena/proximity.ts';
 import { readManifests } from './check-measured-box.ts';
+import { loaded as loadFired } from './check-pixel-parity.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
 export const node = {
@@ -42,6 +43,12 @@ export const LOADED: Deadline = deadline('proximity:loaded', 20_000,
 
 export const LOADED_MARGIN: Deadline = deadline('proximity:loaded-margin', 1_000,
   'the in-page wait resolves false at its own deadline, and this is the time the answer takes to cross CDP');
+
+export const NAVIGATE: Deadline = deadline('proximity:navigate', 30_000,
+  'the first page is one small file from the local static server, and every case is written into it');
+
+export const FACE: Deadline = deadline('proximity:face', 10_000,
+  'a markup case loads the face its subject asks for from the local static server before it is measured');
 
 export type Order = 'components-first' | 'vocabulary-first';
 export const ORDERS: Order[] = ['components-first', 'vocabulary-first'];
@@ -122,11 +129,6 @@ const FACE_EXPRESSION = `(async () => {
 
 const WRITE_PAGE = (html: string) => `(() => { document.open(); document.write(${JSON.stringify(html)}); document.close(); return true; })()`;
 
-const SETTLED_EXPRESSION = `new Promise((resolve) => {
-  if (document.readyState === 'complete') resolve(true);
-  else addEventListener('load', () => resolve(true));
-})`;
-
 const LOADED_EXPRESSION = `new Promise((resolve) => {
   const until = Date.now() + ${LOADED.ms};
   const tick = () => {
@@ -162,8 +164,14 @@ async function main() {
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
     await cdp.send('Page.enable', {}, sessionId);
     await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
-    await cdp.send('Page.navigate', { url: `http://127.0.0.1:${server.port}/package.json` }, sessionId);
-    await evaluate(cdp, SETTLED_EXPRESSION, sessionId);
+    const origin = `http://127.0.0.1:${server.port}/package.json`;
+    const settled = loadFired(cdp, sessionId);
+    await withTimeout(cdp.send('Page.navigate', { url: origin }, sessionId), NAVIGATE.ms,
+      `${origin}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+    await withTimeout(settled, NAVIGATE.ms,
+      `${origin}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+    const landed = await evaluate(cdp, 'location.href', sessionId);
+    if (landed !== origin) throw new Error(`check-proximity: the page is at ${landed} and not ${origin}, so a case would be written onto the wrong origin`);
     const base = `<base href="http://127.0.0.1:${server.port}/">`;
     for (const kase of cases) {
       for (const layer of ['react', 'angular'] as const) {
@@ -195,7 +203,8 @@ async function main() {
         const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
           `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
         if (!loaded) { problems.push(`${kase.name} (${order}): a stylesheet never loaded, so nothing was measured`); continue; }
-        await evaluate(cdp, FACE_EXPRESSION, sessionId);
+        await withTimeout(evaluate(cdp, FACE_EXPRESSION, sessionId), FACE.ms,
+          `${kase.name} (${order}): the subject's face never loaded, within ${FACE.ms}ms, which is that size because ${FACE.why}`);
         const result = await evaluate(cdp, MEASURE_MARKUP(properties), sessionId) as Record<string, string> | null;
         if (!result) { problems.push(`${kase.name} (${order}): the markup carries no subject`); continue; }
         measured += 1;
