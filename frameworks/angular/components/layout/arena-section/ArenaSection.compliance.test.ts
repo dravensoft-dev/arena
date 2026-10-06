@@ -12,8 +12,8 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { ArenaSectionRhythm } from '../../../Api.generated';
 import { ArenaSection } from './ArenaSection';
+import manifest from './ArenaSection.classes.generated';
 import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-section/ArenaSection.behaviour.json');
@@ -22,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-section/ArenaSection.beha
   standalone: true,
   imports: [ArenaSection],
   template: `
-    <arena-section [title]="title" [eyebrow]="eyebrow" [description]="description" [rhythm]="rhythm">
+    <arena-section [title]="title" [eyebrow]="eyebrow" [description]="description">
       <span>One</span>
     </arena-section>
   `,
@@ -31,8 +31,14 @@ class SectionHost {
   title = 'Landed recently';
   eyebrow: string | undefined = undefined;
   description: string | undefined = undefined;
-  rhythm: ArenaSectionRhythm = 'md';
 }
+
+@Component({
+  standalone: true,
+  imports: [ArenaSection],
+  template: `<arena-section title="Landed" class="arena-rhythm-section"><span>One</span></arena-section>`,
+})
+class OptionSectionHost {}
 
 @Component({
   standalone: true,
@@ -106,4 +112,18 @@ test('the eyebrow and the description are drawn only when given', () => {
     assert.match(text, /This week/);
     assert.match(text, /Since Monday/);
   } finally { full.destroy(); }
+});
+
+test('an option class written on the host stays beside the recipe class and the host has no style', () => {
+  const fixture = TestBed.createComponent(OptionSectionHost);
+  fixture.detectChanges();
+  try {
+    const host = fixture.nativeElement.querySelector('arena-section') as HTMLElement;
+    assert.ok(host.classList.contains(manifest.slots.root));
+    assert.ok(host.classList.contains('arena-rhythm-section'));
+    assert.equal(host.getAttribute('style'), null);
+    assert.equal(host.hasAttribute('data-arena-rhythm'), false);
+  } finally {
+    fixture.destroy();
+  }
 });

@@ -11,8 +11,8 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { ArenaGridGap } from '../../../Api.generated';
 import { ArenaGrid } from './ArenaGrid';
+import manifest from './ArenaGrid.classes.generated';
 import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-grid/ArenaGrid.behaviour.json');
@@ -21,29 +21,24 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-grid/ArenaGrid.behaviour.
   standalone: true,
   imports: [ArenaGrid],
   template: `
-    <arena-grid [min]="min" [gap]="gap" [maxWidth]="maxWidth">
+    <arena-grid>
       <span>One</span>
       <span>Two</span>
       <span>Three</span>
     </arena-grid>
   `,
 })
-class GridHost {
-  min: string | undefined = undefined;
-  gap: ArenaGridGap = 'md';
-  maxWidth: string | undefined = undefined;
-}
+class GridHost {}
 
 @Component({
   standalone: true,
   imports: [ArenaGrid],
-  template: `<arena-grid><span>One</span></arena-grid>`,
+  template: `<arena-grid class="arena-grid-min-lg arena-grid-gap-group arena-grid-max-md"><span>One</span></arena-grid>`,
 })
-class BareGridHost {}
+class OptionGridHost {}
 
-function render(patch: Partial<GridHost> = {}) {
+function render() {
   const fixture = TestBed.createComponent(GridHost);
-  Object.assign(fixture.componentInstance, patch);
   fixture.detectChanges();
   return fixture;
 }
@@ -82,80 +77,31 @@ test('every child is one cell exactly as written -- nothing is wrapped and nothi
   }
 });
 
-test('the track list is auto-fill over the min, clamped against the container, so an unfilled row keeps its empty tracks', () => {
+test('the host carries the recipe class and no inline geometry', () => {
   const fixture = render();
   try {
-    const tracks = gridOf(fixture).style.gridTemplateColumns;
-    assert.match(tracks, /^repeat\(auto-fill, minmax\(min\(.+, 100%\), 1fr\)\)$/,
-      'the count must come from the room, and the min must be clamped or it overflows');
-    assert.ok(!/\d+px/.test(tracks.replace(/var\([^)]*\)/g, '')),
-      'the default min must reach the track list as a token derivation, never as a literal');
+    const host = gridOf(fixture);
+    assert.ok(host.classList.contains(manifest.slots.root), 'the root slot class is on the host');
+    assert.equal(host.getAttribute('style'), null, 'a grid takes no style: its tracks, ceiling and gap are the slot class');
+    assert.equal(host.getAttribute('data-arena-part'), manifest.parts.root);
+    for (const attr of ['data-arena-gap', 'data-arena-centred']) {
+      assert.equal(host.hasAttribute(attr), false, `${attr} was only produced by a retired member`);
+    }
   } finally {
     fixture.destroy();
   }
 });
 
-test('an unbound min is the ROLE, which is the only reading a style plugin can answer', () => {
-  const fixture = TestBed.createComponent(BareGridHost);
+test('an option class written on the host stays beside the recipe class and the host still has no style', () => {
+  const fixture = TestBed.createComponent(OptionGridHost);
   fixture.detectChanges();
   try {
-    const grid = fixture.nativeElement.querySelector('arena-grid') as HTMLElement;
-    assert.equal(grid.style.gridTemplateColumns,
-      'repeat(auto-fill, minmax(min(var(--grid-min), 100%), 1fr))',
-      'a transform resolves an absent value and never runs for an input nobody bound, so the '
-      + 'initial value is what an unbound grid reads: any other value pins the column count to '
-      + 'whatever the appearance the package installs with happens to answer');
+    const host = fixture.nativeElement.querySelector('arena-grid') as HTMLElement;
+    for (const cls of [manifest.slots.root, 'arena-grid-min-lg', 'arena-grid-gap-group', 'arena-grid-max-md']) {
+      assert.ok(host.classList.contains(cls), `${cls} is lost from the host`);
+    }
+    assert.equal(host.getAttribute('style'), null);
   } finally {
     fixture.destroy();
-  }
-});
-
-test('a bound-but-absent min and an unbound one reach the same track list', () => {
-  const bound = render({ min: undefined });
-  const bare = TestBed.createComponent(BareGridHost);
-  bare.detectChanges();
-  try {
-    assert.equal(
-      gridOf(bound).style.gridTemplateColumns,
-      (bare.nativeElement.querySelector('arena-grid') as HTMLElement).style.gridTemplateColumns,
-      'the two spellings of the default are one decision, and a grid that reads differently '
-      + 'depending on whether the caller wrote [min] has two',
-    );
-  } finally {
-    bound.destroy();
-    bare.destroy();
-  }
-});
-
-test('a min wider than any card still yields one clamped column rather than an overflow', () => {
-  const fixture = render({ min: 'calc(var(--sp-1) * 400)' });
-  try {
-    assert.match(gridOf(fixture).style.gridTemplateColumns, /min\(calc\(var\(--sp-1\) \* 400\), 100%\)/);
-  } finally {
-    fixture.destroy();
-  }
-});
-
-test('maxWidth caps and centres, and its absence leaves the grid filling its container', () => {
-  const bare = render();
-  try {
-    const host = gridOf(bare);
-    const style = host.getAttribute('style') ?? '';
-    assert.ok(!/max-width/.test(style), 'a grid with no ceiling must declare none and fill what contains it');
-    assert.equal(host.hasAttribute('data-arena-centred'), false,
-      'and must not centre itself against nothing');
-  } finally {
-    bare.destroy();
-  }
-
-  const capped = render({ maxWidth: 'var(--container-max)' });
-  try {
-    const host = capped.nativeElement.querySelector('arena-grid')!;
-    assert.match(host.getAttribute('style') ?? '', /max-width:\s*var\(--container-max\)/,
-      'the ceiling is the consumer\'s string and stays inline');
-    assert.equal(host.getAttribute('data-arena-centred'), '',
-      'a capped grid centres, or the ceiling reads as a left margin');
-  } finally {
-    capped.destroy();
   }
 });

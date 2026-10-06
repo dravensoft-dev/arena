@@ -120,8 +120,6 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    'the panel aligns to the anchor and clamps against the viewport width in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
   ['frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:width',
    'the fill is as wide as the clamped progress, computed by `frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:percentage()`'],
-  ['frameworks/angular/components/layout/arena-grid/ArenaGrid.ts:maxWidth',
-   "the consumer's own width cap, read from the `maxWidth` input of `frameworks/angular/components/layout/arena-grid/ArenaGrid.ts:maxWidth()`"],
   ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:height',
    'a slot is as tall as `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects its end minute past its start'],
   ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:top',

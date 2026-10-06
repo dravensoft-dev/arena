@@ -1,17 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaGridStyles } from './ArenaGrid.variants';
+import manifest from './ArenaGrid.classes.generated';
 
-const GAPS = ['none', 'sm', 'md', 'lg'] as const;
-
-function tokens(classString: string): string[] {
-  return classString.split(/\s+/).filter(Boolean);
-}
-
-test('the gap is the only thing the recipe decides -- the track list is the component\'s', () => {
-  for (const gap of GAPS) {
-    const root = tokens(arenaGridStyles({ gap }).root());
-    assert.ok(!root.some((cls) => cls.startsWith('grid-cols-')),
-      `${gap}: a fixed column count is exactly the breakpoint this component exists to avoid`);
-  }
+test('the recipe resolves the root slot class and takes no choice', () => {
+  assert.equal(arenaGridStyles().root(), manifest.slots.root);
+  assert.deepEqual(arenaGridStyles().$data.root(), {}, 'no attribute follows from a choice that no longer exists');
 });

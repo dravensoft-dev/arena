@@ -47,7 +47,7 @@ the title ladder and the right answer directly under a page head. A section insi
 takes `headingLevel="h3"`, and so does the card register under it, or a reader walking headings
 meets peers where the page holds a hierarchy. Nothing on screen moves with the value. The title's class is the same at every rung, so the register a style plugin sets is untouched by the level the outline takes. `none` is refused here, since a section is a heading over a group.
 
-`rhythm` is the distance from the head to the body, in the same three named steps the page rhythm
+The `rhythm` family is the distance from the head to the body, in the same three named steps the page rhythm
 scale carries, plus `none`. The padding is not the air between one section and the next. Arena draws no outer margin on anything, so that air stays yours to place with `.arena-stack--section`.
 
 **Do / Don't**
