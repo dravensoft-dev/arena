@@ -179,6 +179,41 @@
       "unit": "px"
     }
   },
+  "grid-min-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 176,
+      "unit": "px"
+    }
+  },
+  "grid-min-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 364,
+      "unit": "px"
+    }
+  },
+  "grid-max-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 656,
+      "unit": "px"
+    }
+  },
+  "grid-max-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 976,
+      "unit": "px"
+    }
+  },
+  "grid-max-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1080,
+      "unit": "px"
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {

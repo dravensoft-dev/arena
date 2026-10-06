@@ -49,8 +49,8 @@ export const EXCLUDED = new Map([
     + 'answering about one figure and not about the appearance. A theme key would also have collided with '
     + 'the token: v4 emits aspect-<key> from --aspect-*, and the role is already spelt --aspect-media'],
   ['grid-min', 'the narrowest column of an auto-filling grid, which lands inside a repeat(auto-fill, '
-    + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached as '
-    + 'grid-cols-[repeat(auto-fill,minmax(min(var(--grid-min),100%),1fr))]'],
+    + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached by the manifest '
+    + 'read of the grid-min family, grid-cols-[repeat(auto-fill,minmax(min(var(--arena-grid-min-width,var(--arena-grid-min,var(--grid-min))),100%),1fr))]'],
   ['bw', 'v4 has no border-width namespace; reached as border-[length:var(--bw)]'],
   ['bw-strong', 'v4 has no border-width namespace; no consumer today, available as border-[length:var(--bw-strong)]'],
   ['bw-surface', 'v4 has no border-width namespace, so a border role cannot become a named utility the way a radius role does; reached as border-[length:var(--bw-surface)]'],

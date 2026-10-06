@@ -182,6 +182,41 @@
       "unit": "px"
     }
   },
+  "grid-min-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 200,
+      "unit": "px"
+    }
+  },
+  "grid-min-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 408,
+      "unit": "px"
+    }
+  },
+  "grid-max-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 640,
+      "unit": "px"
+    }
+  },
+  "grid-max-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 960,
+      "unit": "px"
+    }
+  },
+  "grid-max-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 935,
+      "unit": "px"
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {

@@ -13,6 +13,7 @@ import { LAYER_TOKENS } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, REGIONS, openLine, closeLine, renderRegion, applyRegion, renderTarget,
 } from './generate-npm-pages.ts';
+import { axesOf, readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
 
 test('a shared region names no layer, because it is written into every layer at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -58,9 +59,9 @@ test('a region replaces what is between its markers and leaves the page around i
   assert.doesNotMatch(after, /old/);
 });
 
-test('the vocabulary region names arena-fill and stays under 2000 characters', () => {
+test('the vocabulary region names the fill family and stays under 2000 characters', () => {
   const region = renderRegion('vocabulary');
-  assert.ok(region.includes('arena-fill'), 'vocabulary region names arena-fill');
+  assert.ok(region.includes('- `fill`'), 'vocabulary region names the fill family');
   const lines = region.split('\n');
   const regionContent = lines.slice(2, -1).join('\n');
   assert.ok(regionContent.length < 2000, `vocabulary region is ${regionContent.length} characters, under 2000`);
@@ -71,7 +72,18 @@ test('the vocabulary region ends on its text, names each class with its dot, and
   const region = renderRegion('vocabulary');
   assert.ok(!/\n\n\n/.test(region), 'no double blank line');
   assert.ok(!region.includes(', and\n'), 'no dangling ", and"');
-  assert.ok(region.includes('`.arena-fill`'), 'class names carry the dot check:classes reads');
+  assert.ok(region.includes('`.arena-row`'), 'markup class names carry the dot check:classes reads');
+});
+
+test('the vocabulary region names each component family with its axes, as readFamilies and axesOf give them', () => {
+  const region = renderRegion('vocabulary');
+  const named = region.split('\n').filter((line) => line.startsWith('- `')).map((line) => line.slice(2));
+  const expected = [...readFamilies().values()].filter((family) => targetOf(family) === 'component')
+    .sort((a, b) => (a.family < b.family ? -1 : 1))
+    .map((family) => [`\`${family.family}\``, ...(axesOf(family).length ? [`(${axesOf(family).map((axis) => `\`${axis}\``).join(', ')})`] : [])].join(' ') + '.');
+  assert.ok(expected.some((line) => line.includes('--arena-grid-min')), 'a family with an axis is in the source');
+  assert.deepEqual(named, expected);
+  assert.ok(!region.includes('`.arena-grid-min-sm`'), 'the options are on the vocabulary page, not here');
 });
 
 test('the vocabulary region puts a markup class in the markup sentence and never in the component one', () => {
@@ -86,7 +98,7 @@ test('the vocabulary region puts a markup class in the markup sentence and never
   family('density', { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd',
     variants: { 'arena-compact': 'contracts/design/density.compact.json' } });
   const region = renderRegion('vocabulary', base);
-  assert.ok(region.includes('`.arena-fill`') && region.includes('`.arena-stack`'));
+  assert.ok(region.includes('- `fill`') && region.includes('`.arena-stack`') && !region.includes('`.arena-fill`'));
   const sentences = region.split(/(?<=\.)\s/);
   assert.ok(sentences.some((one) => one.includes('.arena-stack') && one.includes('markup you write')));
   assert.ok(!sentences.some((one) => one.includes('.arena-stack') && one.includes('this version ships')));

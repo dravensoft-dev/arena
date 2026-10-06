@@ -67,7 +67,6 @@ export const CSS_VALUED = new Map([
   ['contracts/api/components/ArenaBoard.json:api.minColumn', 'the narrowest a column may be'],
   ['contracts/api/components/ArenaDialog.json:api.width', 'the panel width'],
   ['contracts/api/components/ArenaFigure.json:api.ratio', 'the frame\'s aspect ratio'],
-  ['contracts/api/components/ArenaGrid.json:api.min', 'the narrowest a cell may be'],
   ['contracts/api/components/ArenaScroller.json:api.itemWidth', 'how wide each item is laid out'],
 ]);
 
@@ -254,9 +253,9 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
 ]);
 
 export const DESIGN_MEMBERS = new Map<string, Pending>([
-  ...[['ArenaGrid', 'min'], ['ArenaGrid', 'maxWidth'], ['ArenaGrid', 'gap'], ['ArenaBoard', 'minColumn'],
+  ...[['ArenaBoard', 'minColumn'],
     ['ArenaScroller', 'itemWidth'], ['ArenaDialog', 'width'], ['ArenaFigure', 'ratio'], ['ArenaSkeleton', 'width'],
-    ['ArenaSkeleton', 'height'], ['ArenaSkeleton', 'radius'], ['ArenaSkeleton', 'variant'], ['ArenaSection', 'rhythm'],
+    ['ArenaSkeleton', 'height'], ['ArenaSkeleton', 'radius'], ['ArenaSkeleton', 'variant'],
   ].map(([c, m]) => [at(c!, m!), { phase: 6, why: GEOMETRY }] as [string, Pending]),
   [field('arena-table-column', 'width'), { phase: 6, why: GEOMETRY }],
   [field('arena-table-column', 'align'), { phase: 6, why: GEOMETRY }],

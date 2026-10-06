@@ -13,11 +13,15 @@
 | [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
 | [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
+| [`grid-gap`](#grid-gap) | box | `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section` | `--arena-grid-gap` | ArenaGrid |
+| [`grid-max`](#grid-max) | box | `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm` | `--arena-grid-max` | ArenaGrid |
+| [`grid-min`](#grid-min) | box | `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm` | `--arena-grid-min` | ArenaGrid |
 | [`layout`](#layout) | box | `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked` |  | ArenaHero |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
 | [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo, ArenaSwitch |
 | [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
+| [`rhythm`](#rhythm) | box | `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section` | `--arena-rhythm` | ArenaSection |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
 | [`size`](#size) | context | `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs` |  | ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`), ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`), ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`), ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`), ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`) |
@@ -88,6 +92,33 @@ Whether a component takes the width of the box it sits in or the width of its ow
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:** ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip.
 
+## grid-gap
+
+The air between the cells of a grid, on both axes. The question is the adopter's, because rhythm is the page's and a grid is where a hand-picked gap shows worst. The options are the page rhythm scale itself. arena-grid-gap-group groups related cells, arena-grid-gap-component, the default, sets two peers apart, arena-grid-gap-section reads as two sections, and arena-grid-gap-none closes the gap. Set --arena-grid-gap on a container for a gap no step names. Write a length, or a derivation of tokens such as calc(var(--rhythm-group) / 2). A class on the grid wins over a property on its container.
+
+- **Options:** `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-grid-gap`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaGrid.
+
+## grid-max
+
+The widest a grid runs before it centres in whatever contains it. The question is the adopter's, because a page's own reading width is a decision about one page, and a grid nested in a page should fill its container. arena-grid-max-none is the default and sets no ceiling. arena-grid-max-sm, arena-grid-max-md and arena-grid-max-lg read grid-max-sm, grid-max-md and grid-max-lg. Set --arena-grid-max on a container for a ceiling no step names. Write a length, or a token such as var(--container-max). A class on the grid wins over a property on its container.
+
+- **Options:** `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-grid-max`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaGrid.
+
+## grid-min
+
+How narrow a cell of a grid may get before the grid drops a column, which decides how many cards a viewport shows. The question is the adopter's, because a gallery wants a dense wall and a ledger wants a wide column from the same markup. arena-grid-min-md is the default and reads grid-min. arena-grid-min-sm and arena-grid-min-lg read grid-min-sm and grid-min-lg. Set --arena-grid-min on a container for a width no step names. Write a length, or a token such as var(--grid-min) or calc(var(--grid-min) * 1.5). A class on the grid wins over a property on its container.
+
+- **Options:** `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-grid-min`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaGrid.
+
 ## layout
 
 How the words of a hero sit against its figure. Split puts them side by side and falls to one column when the room runs out. Stacked keeps one column at every width. Bleed lays them on the figure, over the wash the media overlay role paints.
@@ -129,6 +160,15 @@ The reading column for a document you write, an article, a changelog, a release 
 - **Options:** `arena-prose`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## rhythm
+
+How far the head of a section stands from its body. The question is the adopter's, because the distance depends on what the body holds, and a body that carries its own top edge wants none. The options are the page rhythm scale itself. arena-rhythm-group reads as one unit, arena-rhythm-component, the default, as a head over its own content, arena-rhythm-section as a head over a region of the page, and arena-rhythm-none closes the distance. Set --arena-rhythm on a container for a distance no step names. Write a length, or a derivation of tokens such as calc(var(--rhythm-group) * 1.5). A class on the section wins over a property on its container.
+
+- **Options:** `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-rhythm`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaSection.
 
 ## row
 

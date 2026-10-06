@@ -20,13 +20,12 @@ A named region of a page: a heading, what sits around it, and the group it names
 | `eyebrow` | primitive | `string` |  | A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. |
 | `description` | primitive | `string` |  | A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen. |
 | `action` | slot |  |  | Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case. |
-| `rhythm` | enum | `ArenaSectionRhythm` | `"md"` | How far the head stands from the body. The steps are the page rhythm scale itself, so sm reads as one unit, md as a head over its own content and lg as a head over a region of the page, and none closes the distance entirely for a section whose body carries its own top edge. Nothing here is a number this component chose. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`rhythm`](../../../../VOCABULARY.md#rhythm): `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section`. Write one as `className="arena-rhythm-group"` on the component, or on a container whose components should all take it. Property: `--arena-rhythm`, set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 

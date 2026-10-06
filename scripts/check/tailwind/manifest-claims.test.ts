@@ -187,10 +187,7 @@ export const CLAIMS = {
   ArenaSection: [
     { slot: 'title', has: ['text-title-section'], hasNot: ['text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a scale step here is a title no style plugin can re-pitch, which is the defect the role tier exists to prevent' },
     { slot: 'head', has: ['flex-wrap', 'items-baseline', 'justify-between'], why: 'the head puts its action at the far end on the title\'s own baseline, and wraps rather than squeezing' },
-    { chosen: { rhythm: 'none' }, slot: 'root', has: ['gap-0'], why: 'none closes the distance for a body that carries its own top edge' },
-    { chosen: { rhythm: 'sm' }, slot: 'root', has: ['gap-group'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
-    { chosen: { rhythm: 'md' }, slot: 'root', has: ['gap-component'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
-    { chosen: { rhythm: 'lg' }, slot: 'root', has: ['gap-section'], why: 'the four steps are the page rhythm scale itself, never a length this manifest chose' },
+    { slot: 'root', has: ['gap-[var(--arena-rhythm-gap,var(--arena-rhythm,var(--rhythm-component)))]'], why: 'the distance is read from the rhythm family\'s channel, then from its axis, then from the component step, and never a length this manifest chose' },
   ],
   ArenaSiteFooter: [
     { slot: 'band', has: [BAND_CEILING], hasNot: ['px-gutter'],
@@ -351,10 +348,9 @@ export const CLAIMS = {
     { chosen: { open: true }, slot: 'panel', has: ['w-120'], why: 'the panel carries its own default width, so the width member is an override rather than a requirement' },
   ],
   ArenaGrid: [
-    ...Object.entries({ none: 'gap-0', sm: 'gap-group', md: 'gap-component', lg: 'gap-section' })
-      .map(([step, cls]) => ({ chosen: { gap: step }, slot: 'root', has: [cls], why: 'four named gap steps are four visible ones, none really is none, and the three that are not spend the page rhythm scale rather than a step this component picked off the grid' })),
-    { chosen: { centred: true }, slot: 'root', has: ['mx-auto'], why: 'centred caps the grid against its own maximum and centres what is left' },
-    { chosen: { centred: false }, slot: 'root', hasNot: ['mx-auto'], why: 'without it the grid fills its container' },
+    { slot: 'root', has: ['gap-[var(--arena-grid-gap-size,var(--arena-grid-gap,var(--rhythm-component)))]'], why: 'the gap is read from the grid-gap family\'s channel, then from its axis, then from the component step, so the page rhythm scale is spent and not a step this component picked off the grid' },
+    { slot: 'root', has: ['grid-cols-[repeat(auto-fill,minmax(min(var(--arena-grid-min-width,var(--arena-grid-min,var(--grid-min))),100%),1fr))]'], why: 'the track list is the same repeat(auto-fill, minmax(min(min, 100%), 1fr)) in every layer, with the minimum read from the grid-min family, so an unfilled row keeps its empty tracks' },
+    { slot: 'root', has: ['max-w-[var(--arena-grid-max-width,var(--arena-grid-max,none))]', 'mx-auto'], why: 'a ceiling from the grid-max family centres what is left, and with none the grid fills its container' },
     { slot: 'root', has: ['content-start'], why: 'a grid given a height keeps its rows at their content height rather than stretching them to fill it' },
   ],
   ArenaEmptyState: [

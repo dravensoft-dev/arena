@@ -5,7 +5,9 @@
  * two density classes shipped inside the spacing sheet and were named on neither npm page, and a
  * consumer reading that page had no way to learn either exists. The subject is derived from the
  * sheets the assembly copies rather than listed here. NOT_WRITTEN declares the classes that are
- * Arena's own name for something rather than something a consumer puts on their own markup. */
+ * Arena's own name for something rather than something a consumer puts on their own markup. An
+ * option of a component family may instead be named on frameworks/VOCABULARY.md, which lists every
+ * option of every family. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -13,10 +15,17 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 import { LAYERS } from '../../lib/arena/site-pages.ts';
-import { sheetFamilies, VOCABULARY_SHEETS, sheetName, packageSheetName } from '../../lib/tailwind/vocabulary.ts';
+import { readFamilies, targetOf, sheetFamilies, VOCABULARY_SHEETS, sheetName, packageSheetName } from '../../lib/tailwind/vocabulary.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 
 export const PAGE = 'PACKAGE.md';
+
+export const VOCABULARY_PAGE = 'frameworks/VOCABULARY.md';
+
+export function componentOptions(base = root) {
+  return new Set([...readFamilies(base).values()].filter((family) => targetOf(family) === 'component')
+    .flatMap((family) => Object.keys(family.variants)));
+}
 
 export const SHEETS = [
   ...CSS_CHAIN,
@@ -28,7 +37,7 @@ export const UTILITIES = 'frameworks/tailwind/Utilities.generated.css';
 
 export const node = {
   name: 'check:classes',
-  reads: [...SHEETS, 'frameworks/*/PACKAGE.md', UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities],
+  reads: [...SHEETS, 'frameworks/*/PACKAGE.md', 'frameworks/VOCABULARY.md', 'frameworks/tailwind/vocabulary/**/*.family.json', UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities],
   writes: [],
   feeds: [],
 };
@@ -100,19 +109,22 @@ export function zeroClassProblems(names: string[]) {
     + 'by reading nothing rather than by finding nothing wrong. A fresh clone builds first'];
 }
 
-export function homeProblems(base = root, names = shipped(base), exempt = NOT_WRITTEN) {
+export function homeProblems(base = root, names = shipped(base), exempt = NOT_WRITTEN, options = componentOptions(base)) {
   const problems = [];
+  const vocabularyAt = join(base, ...VOCABULARY_PAGE.split('/'));
+  const vocabulary = existsSync(vocabularyAt) ? readFileSync(vocabularyAt, 'utf8') : '';
   for (const layer of LAYERS) {
     const page = join(base, 'frameworks', layer, PAGE);
     if (!existsSync(page)) continue;
     const text = readFileSync(page, 'utf8');
     for (const name of names) {
       if (exempt.has(name) || text.includes(`.${name}`)) continue;
+      if (options.has(name) && vocabulary.includes(`\`${name}\``)) continue;
       problems.push(
         `.${name} ships inside a stylesheet this package carries and frameworks/${layer}/${PAGE} `
         + 'never names it. A class a consumer writes reaches them through that page and through '
         + 'nothing else, so one it does not name is a class they replace with a rule of their own '
-        + 'and never learn they had. Name it there, or declare it in NOT_WRITTEN with the reason '
+        + 'and never learn they had. Name it there, or, for an option of a component family, on the vocabulary page; or declare it in NOT_WRITTEN with the reason '
         + 'it is not a consumer\'s to write.',
       );
     }

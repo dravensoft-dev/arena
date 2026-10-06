@@ -14,8 +14,6 @@
     "description": { "form": "primitive", "type": "string",
                      "description": "A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen." },
     "action": { "form": "slot",
-                "description": "Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case." },
-    "rhythm": { "form": "enum", "type": "ArenaSectionRhythm", "default": "md",
-                "description": "How far the head stands from the body. The steps are the page rhythm scale itself, so sm reads as one unit, md as a head over its own content and lg as a head over a region of the page, and none closes the distance entirely for a section whose body carries its own top edge. Nothing here is a number this component chose." }
+                "description": "Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case." }
   }
 }

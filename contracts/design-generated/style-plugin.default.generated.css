@@ -38,6 +38,11 @@
   --gap-inline:8px;
   --gap-items:12px;
   --grid-min:200px;
+  --grid-min-sm:136px;
+  --grid-min-lg:280px;
+  --grid-max-sm:640px;
+  --grid-max-md:960px;
+  --grid-max-lg:1240px;
   --container-max:1240px;
   --gutter:88px;
   --pad-surface:20px;

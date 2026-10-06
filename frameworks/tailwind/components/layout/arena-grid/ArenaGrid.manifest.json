@@ -1,38 +1,14 @@
 {
   "component": "ArenaGrid",
+  "answers": [
+    "grid-min",
+    "grid-max",
+    "grid-gap"
+  ],
   "slots": {
-    "root": "grid w-full content-start"
+    "root": "grid w-full content-start mx-auto grid-cols-[repeat(auto-fill,minmax(min(var(--arena-grid-min-width,var(--arena-grid-min,var(--grid-min))),100%),1fr))] max-w-[var(--arena-grid-max-width,var(--arena-grid-max,none))] gap-[var(--arena-grid-gap-size,var(--arena-grid-gap,var(--rhythm-component)))]"
   },
   "kind": {
     "root": "none"
-  },
-  "internal": {
-    "centred": "a maxWidth is given"
-  },
-  "variants": {
-    "gap": {
-      "none": {
-        "root": "gap-0"
-      },
-      "sm": {
-        "root": "gap-group"
-      },
-      "md": {
-        "root": "gap-component"
-      },
-      "lg": {
-        "root": "gap-section"
-      }
-    },
-    "centred": {
-      "true": {
-        "root": "mx-auto"
-      },
-      "false": {}
-    }
-  },
-  "defaultVariants": {
-    "gap": "md",
-    "centred": false
   }
 }

@@ -187,6 +187,26 @@
     "$type": "dimension",
     "$description": "The narrowest a column of an auto-filling grid may get before the grid drops one.\nAuthored as a literal because it is one: ArenaGrid defaults it today to a calc of sp.1 times 50,\nwhich is a length spelled as arithmetic rather than a step on any ladder, and 200px is what that\narithmetic produces. The card demo beside the manifest passes 136px of its own, which is a demo\nchoosing a narrower column and not the component default it was mistaken for once.\n\nIt is a role rather than a scale because it is the single number that decides how many cards a\nviewport shows, and a gallery and a ledger want opposite answers to that from the same markup."
   },
+  "grid-min-sm": {
+    "$type": "dimension",
+    "$description": "The narrowest a cell of ArenaGrid may get at arena-grid-min-sm, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it. arena-grid-min-md reads grid-min."
+  },
+  "grid-min-lg": {
+    "$type": "dimension",
+    "$description": "The narrowest a cell of ArenaGrid may get at arena-grid-min-lg, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "grid-max-sm": {
+    "$type": "dimension",
+    "$description": "The widest ArenaGrid runs at arena-grid-max-sm before it centres, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "grid-max-md": {
+    "$type": "dimension",
+    "$description": "The widest ArenaGrid runs at arena-grid-max-md before it centres, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "grid-max-lg": {
+    "$type": "dimension",
+    "$description": "The widest ArenaGrid runs at arena-grid-max-lg before it centres, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
   "container-max": {
     "$type": "dimension",
     "$description": "The widest the page's content column gets. Promoted here from spacing.json, where\nit sat among the scales without being one: nothing else steps off it and no second use shares it,\nso it was already a role wearing a scale's file.\n\nIt keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what\nchanges is that a style plugin may now re-answer it. A style plugin for reading wants a narrower page than\na style plugin for a dashboard, and that was unreachable before.\n\nEmitted into effects.generated.css beside the other roles rather than into spacing.generated.css,\nbecause arena-tokens.ts reads a fixed list of four generated files and the roles all live in one\nof them."

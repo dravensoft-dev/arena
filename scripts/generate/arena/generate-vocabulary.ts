@@ -19,7 +19,7 @@ export const node = {
   name: 'generate:vocabulary',
   reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [VOCABULARY_TARGET],
-  feeds: ['check:families', 'check:community', 'check:generated', 'check:icons', 'check:arbitrary', 'build:mcp-package', 'build:site'],
+  feeds: ['check:families', 'check:classes', 'check:community', 'check:generated', 'check:icons', 'check:arbitrary', 'build:mcp-package', 'build:site'],
 };
 
 const BANNER = `<!-- GENERATED from ${VOCABULARY_DIR}/ by bun run generate:vocabulary. Edit a family there, not this page. -->`;

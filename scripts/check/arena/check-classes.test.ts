@@ -9,7 +9,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  PAGE, SHEETS, NOT_WRITTEN, classesIn, shipped, zeroClassProblems, homeProblems,
+  PAGE, SHEETS, VOCABULARY_PAGE, NOT_WRITTEN, classesIn, shipped, zeroClassProblems, homeProblems,
   staleExemptProblems, collect, utilitiesIn, themeUtilities,
 } from './check-classes.ts';
 
@@ -73,6 +73,42 @@ test('a declared class is kept off the page without a report', () => {
     [`frameworks/angular/${PAGE}`]: 'names nothing\n',
   });
   assert.deepEqual(homeProblems(base, ['arena-light'], NOT_WRITTEN), []);
+});
+
+const FAMILY = (dir: string, target: string) => ({
+  [`frameworks/tailwind/vocabulary/${dir}/F.family.json`]: JSON.stringify({ family: dir, reach: 'box', ...(target === 'markup' ? { target } : {}),
+    description: 'd', variants: { [`arena-${dir}-a`]: '[--arena-x:1px]' } }),
+});
+
+test('a component family option named only on the vocabulary page passes, one named nowhere fails', () => {
+  const base = tree({
+    ...FAMILY('opt', 'component'),
+    [`frameworks/react/${PAGE}`]: 'names nothing\n',
+    [`frameworks/angular/${PAGE}`]: 'names nothing\n',
+    [VOCABULARY_PAGE]: '| `opt` | `arena-opt-a` |\n',
+  });
+  assert.deepEqual(homeProblems(base, ['arena-opt-a'], new Map()), []);
+  assert.equal(homeProblems(base, ['arena-opt-b'], new Map()).length, 2, 'named nowhere, so both pages fail');
+});
+
+test('a component family option fails when the vocabulary page is absent or does not name it', () => {
+  const files = {
+    ...FAMILY('opt', 'component'),
+    [`frameworks/react/${PAGE}`]: 'names nothing\n',
+    [`frameworks/angular/${PAGE}`]: 'names nothing\n',
+  };
+  assert.equal(homeProblems(tree(files), ['arena-opt-a'], new Map()).length, 2, 'no vocabulary page');
+  assert.equal(homeProblems(tree({ ...files, [VOCABULARY_PAGE]: '| `opt` | `arena-opt-z` |\n' }), ['arena-opt-a'], new Map()).length, 2, 'a page that names other options');
+});
+
+test('a markup class named only on the vocabulary page still fails', () => {
+  const base = tree({
+    ...FAMILY('opt', 'markup'),
+    [`frameworks/react/${PAGE}`]: 'names nothing\n',
+    [`frameworks/angular/${PAGE}`]: 'names nothing\n',
+    [VOCABULARY_PAGE]: '| `opt` | `arena-opt-a` |\n',
+  });
+  assert.equal(homeProblems(base, ['arena-opt-a'], new Map()).length, 2);
 });
 
 test('the tree it actually ships passes, which is the claim the gate prints', () => {

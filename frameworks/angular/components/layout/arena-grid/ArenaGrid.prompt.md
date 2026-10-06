@@ -17,16 +17,17 @@ page is as wide as one on a full page.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `min` | primitive | `string` | `"var(--grid-min)"` | The narrowest a cell may be before the count drops. It is the one number this component takes and it is page geometry rather than a step on the spacing scale, which models rhythm and not the width of a card. It is clamped against the container, so a minimum wider than the room available yields one full-width column instead of overflowing it. The default is a role rather than the arithmetic it used to spell, so a style plugin can answer how many cards a viewport shows: a gallery wants a dense wall and a ledger wants a wide column, from the same markup. |
-| `gap` | enum | `ArenaGridGap` | `"md"` | The air between cells, on both axes. Named steps rather than a length, because rhythm is what the spacing scale is for and a grid is where a hand-picked one shows worst. Its steps are the page rhythm scale itself, so sm groups related cells, md sets two peers apart and lg reads as two sections, and none closes the gap entirely; a grid is that rhythm plus a grid, and nothing here is a number this component chose. |
-| `maxWidth` | primitive | `string` |  | A ceiling on the grid's own width, centred in whatever contains it. Absent, it fills its container, which is what a grid nested inside a page should do; a page's own reading width is what this is for. |
 | `content` | slot |  |  | The cells, one per child. Nothing is wrapped and nothing is measured: a child is a grid item exactly as it was written, so a card, a chart or a definition list all lay out the same way. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`grid-min`](../../../../VOCABULARY.md#grid-min): `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm`. Write one as `class="arena-grid-min-lg"` on the component, or on a container whose components should all take it. Property: `--arena-grid-min`, set on a container of yours for a value no option names.
+
+**Answers** [`grid-max`](../../../../VOCABULARY.md#grid-max): `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm`. Write one as `class="arena-grid-max-lg"` on the component, or on a container whose components should all take it. Property: `--arena-grid-max`, set on a container of yours for a value no option names.
+
+**Answers** [`grid-gap`](../../../../VOCABULARY.md#grid-gap): `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section`. Write one as `class="arena-grid-gap-group"` on the component, or on a container whose components should all take it. Property: `--arena-grid-gap`, set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 
