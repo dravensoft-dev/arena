@@ -20,6 +20,8 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaScatterChartClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaScatterChart.classes.generated.ts';
 
 export interface ArenaScatterChartProps {
   className?: ArenaScatterChartClass;
@@ -57,11 +59,14 @@ export interface ArenaScatterChartProps {
 }
 
 
+const arenaScatterChartStyles = arenaStyles(manifest);
+
 export function ArenaScatterChart({ className, 
   series, label, xLabel, yLabel, sizeLabel, sizeLegend = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaScatterChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaScatterChartStyles();
   if (!label) throw new Error('ArenaScatterChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!xLabel) throw new Error('ArenaScatterChart: `xLabel` is required (both axes carry a quantity, and a table of bare X and Y columns names neither)');
   if (!yLabel) throw new Error('ArenaScatterChart: `yLabel` is required (both axes carry a quantity, and a table of bare X and Y columns names neither)');
@@ -166,16 +171,11 @@ export function ArenaScatterChart({ className,
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
+              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[s] }} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{one.label}</span>
             </span>
           ))}
         </div>
@@ -199,23 +199,20 @@ export function ArenaScatterChart({ className,
       )}
 
       {active && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} style={{
           ...arenaTooltipAnchor(active.at.x, active.at.y),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel}>
             {series[active.seriesIndex]?.label}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
             {`${xLabel}: ${fmt(active.x)}`}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
             {`${yLabel}: ${fmt(active.y)}`}
           </div>
           {active.size !== undefined && (
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
               {`${sizeLabel}: ${fmt(active.size)}`}
             </div>
           )}

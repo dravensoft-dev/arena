@@ -19,6 +19,8 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaPyramidChartClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaPyramidChart.classes.generated.ts';
 
 export interface ArenaPyramidChartProps {
   className?: ArenaPyramidChartClass;
@@ -47,11 +49,14 @@ export interface ArenaPyramidChartProps {
 }
 
 
+const arenaPyramidChartStyles = arenaStyles(manifest);
+
 export function ArenaPyramidChart({ className, 
   labels, series, label, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaPyramidChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaPyramidChartStyles();
   if (!label) throw new Error('ArenaPyramidChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaPyramidChart: `labels` is required');
   if (!series) throw new Error('ArenaPyramidChart: `series` is required');
@@ -135,31 +140,23 @@ export function ArenaPyramidChart({ className,
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.stripH }}>
           {sides.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s]?.[0], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
+              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[s]?.[0] }} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {hover !== null && hover < n && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} style={{
           ...arenaTooltipAnchor(axis.zeroX, arenaBandCenter(bands, hover)),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel}>{labels[hover]}</div>
           {sides.map((one, s) => one.values[hover] !== undefined && (
-            <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
               {`${one.label}: ${fmt(one.values[hover] as number)}`}
             </div>
           ))}

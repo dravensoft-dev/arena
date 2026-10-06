@@ -12,6 +12,8 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaDoughnutChartClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaDoughnutChart.classes.generated.ts';
 
 export interface ArenaDoughnutChartProps {
   className?: ArenaDoughnutChartClass;
@@ -46,6 +48,8 @@ export interface ArenaDoughnutChartProps {
 }
 
 
+const arenaDoughnutChartStyles = arenaStyles(manifest);
+
 export function ArenaDoughnutChart({ className, 
   labels, series, label, valueSuffix, valuePrefix, valueFormat,
   shape = 'doughnut', legendLayout = 'auto', onSliceActivate,
@@ -68,6 +72,7 @@ export function ArenaDoughnutChart({ className,
   );
 
   const stacked = arenaLegendStacked(legendLayout, width);
+  const styles = arenaDoughnutChartStyles({ stacked });
   const plotW = arenaLegendPlotWidth(width);
   const cx = plotW / 2;
   const cy = height / 2;
@@ -102,20 +107,17 @@ export function ArenaDoughnutChart({ className,
 
 }
       <div role="group" aria-label={shape === 'pie' ? locale.doughnutChartPieLegend : locale.doughnutChartLegend}
-        style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'calc(var(--sp-1) * 1.5)', overflow: 'auto' }}>
+        className={styles.legend()} data-arena-part={manifest.parts.legend}>
         {values.map((_, i) => (
           <button key={i} type="button" onPointerEnter={() => setHover(i)} onPointerLeave={() => setHover(null)}
             onFocus={() => setHover(i)} onBlur={() => setHover(null)}
             onClick={() => onSliceActivate?.(i)}
-            style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 2)', cursor: 'pointer', opacity: hover === null || hover === i ? 1 : 0.55,
-              background: 'none', border: 0, padding: 0, margin: 0, font: 'inherit', color: 'inherit', textAlign: 'left', width: '100%' }}>
-            <span aria-hidden="true" style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)', borderRadius: 'var(--r-xs)', background: colors[i], flexShrink: 0 }} />
-            <span style={stacked
-              ? { display: 'flex', flex: 1, minWidth: 0, flexDirection: 'column', alignItems: 'stretch' }
-              : { display: 'flex', flex: 1, minWidth: 0, alignItems: 'baseline', gap: 'calc(var(--sp-1) * 2)', justifyContent: 'space-between' }}>
-              <span style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)',
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{labels[i] ?? ''}</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'var(--mute)' }}>{fmt(values[i] ?? 0)}</span>
+            className={styles.legendRow()} data-arena-part={manifest.parts.legendRow}
+            style={{ opacity: hover === null || hover === i ? 1 : 0.55 }}>
+            <span aria-hidden="true" className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[i] }} />
+            <span className={styles.legendText()} data-arena-part={manifest.parts.legendText}>
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{labels[i] ?? ''}</span>
+              <span className={styles.legendValue()} data-arena-part={manifest.parts.legendValue}>{fmt(values[i] ?? 0)}</span>
             </span>
           </button>
         ))}

@@ -19,6 +19,8 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaBarChartClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaBarChart.classes.generated.ts';
 
 export interface ArenaBarChartProps {
   className?: ArenaBarChartClass;
@@ -53,11 +55,14 @@ export interface ArenaBarChartProps {
 }
 
 
+const arenaBarChartStyles = arenaStyles(manifest);
+
 export function ArenaBarChart({ className, 
   labels, series, label, stack = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaBarChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaBarChartStyles();
   if (!label) throw new Error('ArenaBarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaBarChart: `labels` is required');
   if (!series) throw new Error('ArenaBarChart: `series` is required');
@@ -161,34 +166,26 @@ export function ArenaBarChart({ className,
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s]?.[0], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem}>
+              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} style={{ background: colors[s]?.[0] }} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {hover !== null && hover < n && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} style={{
           ...arenaTooltipAnchor(arenaBandCenter(bands, hover),
             Math.min(...(stack
               ? arenaStackSegments(series, hover).map((segment) => arenaScaleValue(yScale, segment.to))
               : series.map((one) => arenaScaleValue(yScale, one.values[hover] ?? 0))))),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
-            <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue}>
               {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}

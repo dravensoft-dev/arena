@@ -46,8 +46,7 @@ function press(region: HTMLElement, key: string) {
 
 function reading(root: HTMLElement): string | null {
 
-  const tooltip = [...root.querySelectorAll<HTMLElement>('div')]
-    .find((el) => el.style.position === 'absolute' && el.style.pointerEvents === 'none');
+  const tooltip = root.querySelector<HTMLElement>('[data-arena-part$=".tooltip"]');
   return tooltip ? (tooltip.textContent ?? '').trim() : null;
 }
 
