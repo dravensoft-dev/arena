@@ -54,6 +54,7 @@ export type FixtureNode = {
   element?: string;
   text?: string;
   members?: Record<string, any>;
+  class?: string;
   slots?: Record<string, FixtureChild[]>;
   [other: string]: any;
 };
@@ -64,6 +65,7 @@ export type Fixture = {
   component: string;
   note?: string;
   seed?: Record<string, any>;
+  class?: string;
   slots?: Record<string, FixtureChild[]>;
   bind?: Record<string, any>;
   host?: FixtureChild;
@@ -82,6 +84,7 @@ export type PlaygroundModel = {
   events: PlaygroundEvent[];
   host: any;
   uses: string[];
+  class?: string;
 };
 
 export class UnmodelledForm extends Error {
@@ -277,5 +280,6 @@ export function playgroundModel(contract: ComponentContract,
     events,
     host,
     uses,
+    ...(fixture.class ? { class: fixture.class } : {}),
   };
 }

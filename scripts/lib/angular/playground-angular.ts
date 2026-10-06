@@ -141,6 +141,10 @@ export function nodeAttributes(node: FixtureNode, fields: FieldRef[]) {
     .join('');
 }
 
+export function classAttribute(value: string | undefined) {
+  return value ? ` class="${attributeText(value)}"` : '';
+}
+
 export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[],
   markers: Markers, tags: Tags, depth: number, imports: Set<string>): string {
   const pad = '  '.repeat(depth);
@@ -158,7 +162,7 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
   const open = `${tag}${hook(place.name, tags)}`;
   imports.add(place.name);
   const slots = node.slots ?? {};
-  const attrs = nodeAttributes(node, fields);
+  const attrs = nodeAttributes(node, fields) + classAttribute(node.class);
   const children = [];
   for (const [name, list] of Object.entries(slots) as [string, any[]][]) {
     for (const one of list) {
@@ -215,7 +219,7 @@ export function renderSubject(model: PlaygroundModel, places: Places,
     .concat(model.events.map((event) => (event.payload
       ? `\n${inner}(${event.name})="play.fire('${event.name}', $event)"`
       : `\n${inner}(${event.name})="play.fire('${event.name}')"`)))
-    .join('');
+    .join('') + (model.class ? `\n${inner}class="${attributeText(model.class)}"` : '');
 
   const slots = model.knobs.filter((knob) => knob.form === 'slot');
   if (slots.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
@@ -247,7 +251,7 @@ export function renderTree(model: PlaygroundModel, places: Places, fields: Field
     const tag = selector(place.name, tags);
     const open = `${tag}${hook(place.name, tags)}`;
     imports.add(place.name);
-    const attrs = nodeAttributes(node, fields);
+    const attrs = nodeAttributes(node, fields) + classAttribute(node.class);
     const children = [];
     for (const [name, list] of Object.entries(node.slots ?? {}) as [string, any[]][]) {
       for (const one of list) {

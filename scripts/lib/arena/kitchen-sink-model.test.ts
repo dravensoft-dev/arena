@@ -123,3 +123,10 @@ test('the model carries the staging flag and the components every section reache
   assert.deepEqual(model.sections[0]?.items.map((one) => [one.component, one.staged]),
     [['ArenaDialog', true], ['ArenaBadge', false]]);
 });
+
+test('a fixture class is carried onto the subject node and survives a rebase', () => {
+  const node = instanceNode({ component: 'ArenaButton', class: 'arena-fill arena-compact' });
+  assert.equal(node.class, 'arena-fill arena-compact');
+  assert.equal((rebaseNode(node, '../../../../../', '../../../../') as any).class, 'arena-fill arena-compact');
+  assert.equal(instanceNode({ component: 'ArenaButton' }).class, undefined);
+});

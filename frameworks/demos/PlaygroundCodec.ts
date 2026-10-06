@@ -51,6 +51,7 @@ export interface KnobModel {
   events: KnobEvent[];
   host: unknown;
   uses: string[];
+  class?: string;
 }
 
 export interface PlaygroundState {

@@ -39,6 +39,11 @@ notices.
   // default. A member that does not appear starts unbound, holding its form's neutral.
   "seed": { "title": "checkout-api", "eyebrow": "Delivery" },
 
+  // Vocabulary classes on the component under test, written as the class attribute of its
+  // tag in both layers. Each is an option of a family the component answers, and a node holds
+  // one option per family. The page shows them fixed: there is no knob. Optional.
+  "class": "arena-fill",
+
   // A slot listed here starts filled; one omitted starts empty. Every required slot
   // appears. The value is a list of nodes.
   "slots": {
@@ -61,7 +66,7 @@ notices.
 }
 ```
 
-Those six keys are the whole schema, and a seventh fails the gate.
+Those seven keys are the whole schema, and an eighth fails the gate.
 
 ## A node
 
@@ -71,7 +76,7 @@ Three shapes, and the recursion is what lets one rule cover both slot content an
 | --- | --- |
 | `"$subject"` | where the component under test goes. Legal inside `host` and nowhere else, exactly once. |
 | `{ "text": "…", "element": "span", "attrs": {} }` | literal content. `element` and `attrs` are optional; with neither, the text is projected bare. |
-| `{ "component": "ArenaBadge", "members": {}, "slots": {} }` | a real Arena component, its members literal and its own slots recursive. |
+| `{ "component": "ArenaBadge", "members": {}, "class": "arena-fill", "slots": {} }` | a real Arena component, its members literal, an optional `class` of vocabulary options it answers, and its own slots recursive. |
 
 A slot holding exactly one text node becomes an **editable** knob, so the page can change the
 words. A slot holding anything else becomes a **presence** knob: the tree is fixed and only

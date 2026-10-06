@@ -86,6 +86,7 @@ export function substitute(node: FixtureChild, subject: FixtureNode): FixtureChi
 export function instanceNode(fixture: Fixture): FixtureNode {
   const subject: FixtureNode = { component: fixture.component };
   if (fixture.seed && Object.keys(fixture.seed).length > 0) subject.members = fixture.seed;
+  if (fixture.class) subject.class = fixture.class;
   if (fixture.slots && Object.keys(fixture.slots).length > 0) subject.slots = fixture.slots;
   if (!fixture.host) return subject;
   const hosted = substitute(fixture.host, subject);

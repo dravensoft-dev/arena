@@ -227,3 +227,12 @@ test('a component reached twice is imported once', () => {
   const out = angularEntry(twice, places, contracts, MARKERS, '');
   assert.equal(out.match(/import \{ ArenaCard \}/g)?.length, 1);
 });
+
+test('a class on the subject and on a node is written as class on the tag', () => {
+  const tags = componentTags(new Map());
+  const subject = renderSubject({ ...model, class: 'arena-fill arena-compact' }, places, [], new Map(), tags, 0, new Set());
+  assert.match(subject, /class="arena-fill arena-compact"/);
+  const node = renderNode({ component: 'ArenaBadge', class: 'arena-fill' }, places, [], new Map(), tags, 0, new Set());
+  assert.match(node, /class="arena-fill"/);
+  assert.doesNotMatch(renderSubject(model, places, [], new Map(), tags, 0, new Set()), /class=/);
+});
