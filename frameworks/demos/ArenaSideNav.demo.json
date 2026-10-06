@@ -67,5 +67,5 @@
   "bind": {
     "nav": "active"
   },
-  "note": "The recursive family: each level indents by indentStep multiples of --sp-1."
+  "note": "The recursive family: each level indents by one more level of the theme's indent role."
 }

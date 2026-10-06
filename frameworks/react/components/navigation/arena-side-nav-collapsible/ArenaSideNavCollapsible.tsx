@@ -46,7 +46,7 @@ export function arenaSubtreeHasItem(children: React.ReactNode, id: string | unde
 
 export function ArenaSideNavCollapsible({ className, 
   id, label, icon, defaultExpanded = false, children, onToggle,
-  depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
+  depth = 0, activeId, onActivate, collapsed = false,
 }: ArenaSideNavCollapsibleProps & Partial<ArenaSideNavInjected>) {
 
   if (!id) throw new Error('ArenaSideNavCollapsible: `id` is required');
@@ -72,7 +72,7 @@ export function ArenaSideNavCollapsible({ className,
       <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
         <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />
         <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
-          {arenaInjectInto(children, { depth, activeId, indentStep, onActivate, collapsed })}
+          {arenaInjectInto(children, { depth, activeId, onActivate, collapsed })}
         </div>
       </div>
     );
@@ -87,7 +87,7 @@ export function ArenaSideNavCollapsible({ className,
       <button id={triggerId} type="button" aria-expanded={expanded} aria-controls={regionId}
         onClick={press}
         className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}
-        style={{ '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties}>
+        style={{ '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties}>
         {glyph}
         <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel} {...styles.$data.triggerLabel()}>{label}</span>
         <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
@@ -97,7 +97,7 @@ export function ArenaSideNavCollapsible({ className,
 }
       <div id={regionId} role="group" aria-labelledby={triggerId} hidden={!expanded}
         className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
-        {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
+        {arenaInjectInto(children, { depth: depth + 1, activeId, onActivate, collapsed })}
       </div>
     </div>
   );

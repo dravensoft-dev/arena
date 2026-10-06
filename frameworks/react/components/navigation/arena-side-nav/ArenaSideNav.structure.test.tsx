@@ -29,12 +29,13 @@ test('a section indents its children by one step and leaves a root item alone', 
 
   assert.match(html, /--arena-side-nav-depth:0/);
 
-  assert.match(html, /style="--arena-side-nav-depth:3"/);
+  assert.match(html, /style="--arena-side-nav-depth:1"/);
 });
 
-test('indentStep multiplies the token, and the caller can only supply a multiplier', () => {
-  const html = renderToStaticMarkup(section({ indentStep: 5 }));
-  assert.match(html, /--arena-side-nav-depth:5/);
+test('the depth channel is the row\'s depth, and the caller supplies no multiplier', () => {
+  const html = renderToStaticMarkup(section());
+  assert.match(html, /--arena-side-nav-depth:1/);
+  assert.doesNotMatch(html, /--arena-side-nav-depth:3/);
 });
 
 test('a section with no children throws -- a childless section is not a legal shape', () => {
@@ -120,7 +121,7 @@ test('a subtree holding the active id renders expanded with no effect having run
 
 test('nesting compounds the indent: an item inside a section inside a collapsible sits at depth 2', () => {
   const html = renderToStaticMarkup(nested({ active: 'prod' }));
-  assert.match(html, /--arena-side-nav-depth:6/);
+  assert.match(html, /--arena-side-nav-depth:2/);
 });
 
 test('ArenaSideNavCollapsible: `id` and `label` are required, blank included', () => {

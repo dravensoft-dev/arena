@@ -2,7 +2,6 @@ import React from 'react';
 
 export interface ArenaSideNavInjected {
   depth: number;
-  indentStep: number;
   activeId?: string;
   onActivate?: (id: string) => void;
   collapsed?: boolean;
@@ -14,6 +13,6 @@ export function arenaInjectInto(children: React.ReactNode, injected: ArenaSideNa
   ));
 }
 
-export function arenaIndentDepth(indentStep: number, depth: number): number {
-  return indentStep * depth;
+export function arenaIndentDepth(depth: number): number {
+  return depth;
 }

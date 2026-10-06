@@ -241,7 +241,7 @@
   },
   "pad-row-indent": {
     "$type": "dimension",
-    "$value": "{sp.1}"
+    "$value": "{sp.3}"
   },
   "gap-marker": {
     "$type": "dimension",

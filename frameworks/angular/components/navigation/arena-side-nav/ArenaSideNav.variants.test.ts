@@ -16,6 +16,6 @@ test('only the item varies with current -- the section, its heading, the trigger
 });
 
 test('the indent depth is a number the component binds, never a length held by a static utility', () => {
-  assert.equal(typeof arenaIndentDepth(3, 2), 'number',
+  assert.equal(typeof arenaIndentDepth(2), 'number',
     'a static utility cannot hold a runtime multiplier, so the depth travels as a unitless channel');
 });

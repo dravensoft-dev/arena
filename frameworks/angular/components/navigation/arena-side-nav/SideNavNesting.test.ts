@@ -117,11 +117,11 @@ test('depth compounds one step per container, and the leaf pulls it rather than 
   try {
     assert.equal(indentOf(rowFor(nav, 'Projects')), '0',
       'depth 0: a row directly under the nav sits at the flat base');
-    assert.equal(indentOf(rowFor(nav, 'Members')), '3',
+    assert.equal(indentOf(rowFor(nav, 'Members')), '1',
       'depth 1: one section deep');
-    assert.equal(indentOf(rowFor(nav, 'Deployments')), '3',
+    assert.equal(indentOf(rowFor(nav, 'Deployments')), '1',
       'a collapsible trigger sits at its OWN depth, alongside its siblings, not at its region\'s');
-    assert.equal(indentOf(rowFor(nav, 'Production')), '6',
+    assert.equal(indentOf(rowFor(nav, 'Production')), '2',
       'depth 2: a section and a collapsible compound');
 
     const heading = nav.querySelector('arena-side-nav-section div') as HTMLElement;
@@ -136,8 +136,8 @@ test('nesting is arbitrary: two collapsibles deep still compounds, with no conte
   const { fixture, nav } = render(DeepHost);
   try {
     assert.equal(indentOf(rowFor(nav, 'Outer')), '0');
-    assert.equal(indentOf(rowFor(nav, 'Inner')), '3');
-    assert.equal(indentOf(rowFor(nav, 'Production')), '6');
+    assert.equal(indentOf(rowFor(nav, 'Inner')), '1');
+    assert.equal(indentOf(rowFor(nav, 'Production')), '2');
   } finally {
     fixture.destroy();
   }

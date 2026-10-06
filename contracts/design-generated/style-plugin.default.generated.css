@@ -50,7 +50,7 @@
   --pad-marker-y:4px;
   --pad-row-x:12px;
   --pad-row-y:10px;
-  --pad-row-indent:4px;
+  --pad-row-indent:12px;
   --gap-marker:6px;
   --gap-row:12px;
   --fill-surface:var(--color-base-200);

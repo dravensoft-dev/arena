@@ -4,7 +4,6 @@ import { computed, Injectable, Signal, signal } from '@angular/core';
 export class ArenaSideNavState {
   depth: Signal<number> = signal(0);
   activeId: Signal<string | undefined> = signal(undefined);
-  indentStep: Signal<number> = signal(3);
   collapsed: Signal<boolean> = signal(false);
   activate: (id: string) => void = () => {};
 
@@ -37,6 +36,6 @@ export class ArenaSideNavState {
   }
 }
 
-export function arenaIndentDepth(indentStep: number, depth: number): number {
-  return indentStep * depth;
+export function arenaIndentDepth(depth: number): number {
+  return depth;
 }

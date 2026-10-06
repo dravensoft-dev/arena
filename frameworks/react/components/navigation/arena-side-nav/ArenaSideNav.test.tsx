@@ -122,9 +122,9 @@ test('the item text re-densifies with the control scale', () => {
     'the control text step is what .arena-compact re-densifies, and the row reads it as a utility');
 });
 
-test('arenaIndentDepth returns the unitless step count at every depth', () => {
-  assert.equal(arenaIndentDepth(3, 0), 0);
-  assert.equal(arenaIndentDepth(3, 2), 6);
+test('arenaIndentDepth returns the depth itself at every depth', () => {
+  assert.equal(arenaIndentDepth(0), 0);
+  assert.equal(arenaIndentDepth(2), 2);
 });
 
 test('ArenaSideNavItem: `id` is required and a blank one throws too', () => {

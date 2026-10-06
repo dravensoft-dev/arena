@@ -71,14 +71,13 @@ export class ArenaSideNavCollapsible {
     return text;
   });
 
-  protected readonly depthChannel = computed(() => (this.parent.collapsed() ? null : arenaIndentDepth(this.parent.indentStep(), this.parent.depth())));
+  protected readonly depthChannel = computed(() => (this.parent.collapsed() ? null : arenaIndentDepth(this.parent.depth())));
   protected readonly rail = computed(() => this.parent.collapsed());
   protected readonly styles = computed(() => arenaSideNavStyles({ collapsed: this.parent.collapsed() }));
 
   constructor() {
     this.own.depth = computed(() => this.parent.depth() + 1);
     this.own.activeId = this.parent.activeId;
-    this.own.indentStep = this.parent.indentStep;
     this.own.collapsed = this.parent.collapsed;
     this.own.activate = (id: string) => this.parent.activate(id);
     this.parent.adopt(this.own);

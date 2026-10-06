@@ -1,5 +1,5 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, numberAttribute, output, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output, signal,
 } from '@angular/core';
 import { ArenaSideNavState } from './ArenaSideNavState';
 import { arenaSideNavStyles } from './ArenaSideNav.variants';
@@ -27,8 +27,6 @@ export class ArenaSideNav {
   readonly active = input<string>();
   /** Names this navigation landmark. Required, and guarded at runtime: the guard trims before it decides, so a blank name is refused as well as an absent one, because ariaLabel="" renders a landmark with no accessible name, which is the defect arriving through a value that is present. Guarded rather than defaulted: the navigation pattern asks each landmark on a page for a UNIQUE name, and a constant default satisfies the existence half while two sidebars on one page stay indistinguishable. Nothing can derive it either; what a nav is FOR is editorial. Say what it navigates -- "Primary", "Project settings" -- the ArenaTable.label and ArenaSegmentedControl.ariaLabel shape. */
   readonly ariaLabel = input.required<string>();
-  /** The number of indent steps each nesting level adds, a multiplier the theme's indent role answers: the row at depth N is indented by indentStep * N steps beyond its base padding. */
-  readonly indentStep = input(3, { transform: numberAttribute });
   /** Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name; a badge becomes a dot whose count joins the name; a section's label is hidden and stays the group's name; a collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. */
   readonly collapsed = input(false, { transform: booleanAttribute });
   /** An item was activated, carrying its id. It carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself, and under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. */
@@ -49,7 +47,6 @@ export class ArenaSideNav {
   constructor() {
     this.state.depth = signal(0);
     this.state.activeId = this.active;
-    this.state.indentStep = this.indentStep;
     this.state.collapsed = this.collapsed;
     this.state.activate = (id: string) => this.nav.emit(id);
   }

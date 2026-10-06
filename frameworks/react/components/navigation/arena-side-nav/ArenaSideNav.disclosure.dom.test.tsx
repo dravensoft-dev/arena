@@ -136,7 +136,7 @@ test('aria-current lands on the one item at depth 2, indented by two compounded 
   assert.equal(current.length, 1, 'aria-current is on more than one element, or on none');
   assert.equal(current[0]!.tagName, 'A');
   assert.match(current[0]!.getAttribute('style')!,
-    /--arena-side-nav-depth:\s*6/,
+    /--arena-side-nav-depth:\s*2/,
     'the depth did not compound through the section and the collapsible');
 });
 

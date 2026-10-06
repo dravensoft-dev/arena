@@ -237,7 +237,7 @@
   },
   "pad-row-indent": {
     "$type": "dimension",
-    "$description": "The length one nesting step indents a row by. The side nav's indentStep multiplies it. It is cut from pad-row-x because the indent says how deep a row sits and the padding says how much room its content has."
+    "$description": "The length of one level of indent, which the row's depth multiplies. It is cut from pad-row-x because the indent says how deep a row sits and the padding says how much room its content has."
   },
   "gap-marker": {
     "$type": "dimension",

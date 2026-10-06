@@ -189,7 +189,7 @@ into its own children with `depth + 1`. The shared helper is
 `components/navigation/arena-side-nav/SideNavInject.tsx`, which covers that family and no more, so the
 placement rule sends it to the family's parent directory. **Its `.tsx` style plugin is
 load-bearing**: `check:dimensions` never opens a `.js`, and its
-`components/navigation/arena-side-nav/SideNavInject.tsx:arenaIndentDepth(indentStep, depth)` feeds the `--arena-side-nav-depth` channel. It is a `.tsx` under `components/` that is **not a component**, since a
+`components/navigation/arena-side-nav/SideNavInject.tsx:arenaIndentDepth(depth)` feeds the `--arena-side-nav-depth` channel. It is a `.tsx` under `components/` that is **not a component**, since a
 component is a **directory**, in `reactComponents()` and in every count of the set.
 
 **One hop is also the limit, and a consumer's own wrapper component between two levels breaks

@@ -22,7 +22,7 @@ const arenaSideNavStyles = arenaStyles(manifest);
 
 export function ArenaSideNavSection({ className, 
   label, children,
-  depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
+  depth = 0, activeId, onActivate, collapsed = false,
 }: ArenaSideNavSectionProps & Partial<ArenaSideNavInjected>) {
 
   if (!label?.trim()) throw new Error('ArenaSideNavSection: `label` is required');
@@ -36,8 +36,8 @@ export function ArenaSideNavSection({ className,
     <div role="group" aria-labelledby={labelId} className={arenaClassName('ArenaSideNavSection', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()} data-arena-boundary="">
       {collapsed && <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />}
       <div id={labelId} className={styles.sectionLabel()} data-arena-part={manifest.parts.sectionLabel} {...styles.$data.sectionLabel()}
-        style={collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties}>{label}</div>
-      {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
+        style={collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties}>{label}</div>
+      {arenaInjectInto(children, { depth: depth + 1, activeId, onActivate, collapsed })}
     </div>
   );
 }

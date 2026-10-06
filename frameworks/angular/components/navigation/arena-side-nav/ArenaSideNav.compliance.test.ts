@@ -22,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-side-nav/ArenaSideNav
   standalone: true,
   imports: [ArenaSideNav, ArenaSideNavItem],
   template: `
-    <arena-side-nav [ariaLabel]="label" [active]="active()" [indentStep]="indentStep()" [collapsed]="collapsed()"
+    <arena-side-nav [ariaLabel]="label" [active]="active()" [collapsed]="collapsed()"
                     (nav)="chosen.push($event)">
       <arena-side-nav-item id="projects" label="Projects" icon="ph-bold ph-squares-four" href="#projects" />
       <arena-side-nav-item id="settings" label="Settings" icon="ph-bold ph-gear" />
@@ -32,7 +32,6 @@ const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-side-nav/ArenaSideNav
 class SideNavHost {
   readonly label = 'Primary';
   readonly active = signal<string | undefined>('projects');
-  readonly indentStep = signal(3);
   readonly collapsed = signal(false);
   readonly chosen: string[] = [];
 }
@@ -108,11 +107,6 @@ test('a root-level row binds the depth channel to 0 and carries no inline paddin
       'depth 0 binds a zero channel');
     assert.equal(row.style.getPropertyValue('padding-inline-start'), '', 'the inset is the theme\'s, never an inline length');
 
-    fixture.componentInstance.indentStep.set(5);
-    fixture.detectChanges();
-    assert.equal(row.style.getPropertyValue('--arena-side-nav-depth'), '0',
-      'a multiplier changes nothing at depth 0, because it multiplies the depth');
-
     fixture.componentInstance.collapsed.set(true);
     fixture.detectChanges();
     const railRow = nav.querySelector('a') as HTMLElement;
@@ -123,13 +117,11 @@ test('a root-level row binds the depth channel to 0 and carries no inline paddin
   }
 });
 
-test('arenaIndentDepth multiplies the step by the depth and returns a number', () => {
-  assert.equal(arenaIndentDepth(3, 0), 0);
-  assert.equal(arenaIndentDepth(3, 1), 3);
-  assert.equal(arenaIndentDepth(3, 2), 6);
-  assert.equal(arenaIndentDepth(5, 1), 5);
-  assert.equal(arenaIndentDepth(3, 5), 15);
-  assert.equal(typeof arenaIndentDepth(3, 5), 'number');
+test('arenaIndentDepth is the depth and returns a number', () => {
+  assert.equal(arenaIndentDepth(0), 0);
+  assert.equal(arenaIndentDepth(1), 1);
+  assert.equal(arenaIndentDepth(5), 5);
+  assert.equal(typeof arenaIndentDepth(5), 'number');
 });
 
 test('an item with href renders an anchor and one without renders a button, and both are the same row', () => {
