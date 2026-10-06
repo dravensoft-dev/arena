@@ -11,9 +11,12 @@ export const ARENA_CAT_SLOTS = catSlots;
 export const ARENA_CHART_HEIGHT = chartHeight;
 export const ARENA_PAD = { t: chartPadTop, r: chartPadRight, b: chartPadBottom, l: chartPadLeft };
 
+export function arenaCatIndex(slot: number): number {
+  return Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
+}
+
 export function arenaCatColor(slot: number): string {
-  const n = Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
-  return `var(--color-cat-${n})`;
+  return `var(--color-cat-${arenaCatIndex(slot)})`;
 }
 
 export function arenaCatSlotFor(key: string): number {

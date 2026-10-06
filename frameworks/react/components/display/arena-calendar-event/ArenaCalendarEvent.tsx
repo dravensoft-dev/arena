@@ -2,7 +2,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated.ts';
 import React from 'react';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
-import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
+import { arenaCatIndex } from '../../../DataVisuals.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
@@ -51,7 +51,6 @@ export interface ArenaCalendarEventProps {
 export interface ArenaCalendarEventInjected {
   box: React.CSSProperties;
   domId: string;
-  color: string;
   timeLabel: string;
   dateLabel: string;
   showTime: boolean;
@@ -68,11 +67,10 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 >(function ArenaCalendarEvent({
   className, id, title, start, end, colorId, onClick, interactive = false, disabled = false,
   actionsEnabled = false, actions, details = [],
-  box, domId, color, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
+  box, domId, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
 
   const locale = useArenaLocale();
-  const ink = color ?? arenaCatColor(colorId ?? 1);
 
   if (!id) throw new Error('ArenaCalendarEvent: `id` is required');
   if (!title) throw new Error('ArenaCalendarEvent: `title` is required');
@@ -84,6 +82,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 
   const [panelOpen, setPanelOpen] = React.useState(Boolean(defaultPanelOpen));
   const styles = chipStyles({
+    colorId: String(arenaCatIndex(colorId ?? 1)),
     reserve: hasPanel && !actionsBelow,
     panelOpen,
     clickable: interactive,
@@ -165,9 +164,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
       } : undefined}
       id={domId}
       className={arenaClassName('ArenaCalendarEvent', styles.chip(), className)} data-arena-part={manifest.parts.chip} {...styles.$data.chip()}
-      style={{ ...box,
-        background: arenaCatTint(ink),
-        borderLeftColor: ink }}>
+      style={box}>
       {hasPanel ? (
         <>
           {interactive ? (

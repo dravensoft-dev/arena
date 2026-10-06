@@ -104,7 +104,7 @@ test('ArenaCalendarEvent drops a consumer attribute -- no {...rest} spread on th
 
 test('an event colours its chip from colorId, not from the old slot field', () => {
   const html = render({});
-  const two = 'var(--color-cat-2)';
+  const two = 'data-arena-color-id="2"';
   assert.ok(html.includes(two), 'the second event did not take its ramp colour from colorId');
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   const staleChip = <ArenaCalendarEvent id="c" title="Stale" start="2026-07-20T09:00:00Z" end="2026-07-20T10:00:00Z" slot={2} />;
@@ -205,11 +205,22 @@ test('a paneled chip carries a focusable body for Enter to land on', () => {
   );
 });
 
+test('a chip renders its colour id as an attribute, clamped and rounded, 1 without one, and paints nothing inline', () => {
+  const chip = (extra: Record<string, unknown> = {}) => renderToStaticMarkup(
+    <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
+      box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July" {...extra} />,
+  );
+  assert.match(chip(), /data-arena-part="calendar.chip"[^>]*\bdata-arena-color-id="1"/);
+  assert.match(chip({ colorId: 9 }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-color-id="8"/);
+  assert.match(chip({ colorId: 2.6 }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-color-id="3"/);
+  assert.doesNotMatch(chip({ colorId: 4 }), /background|border-left-color/);
+});
+
 test('ArenaCalendarEvent renders its panel content when the panel is open', () => {
   const html = renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
-      box={{}} color="var(--color-cat-1)" timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
+      box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
       defaultPanelOpen />,
   );
   assert.match(html, /Delete/, 'an open panel did not render its content');
@@ -219,7 +230,7 @@ test('the chip lifts its clip while the panel is open, and only then', () => {
   const chip = (extra: Record<string, unknown> = {}) => renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
-      box={{}} color="var(--color-cat-1)" timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
+      box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
       {...extra} />,
   );
   assert.match(chip({ defaultPanelOpen: true }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-panel-open=""/,
@@ -311,7 +322,7 @@ test('a stacked chip anchors its kebab to the bottom and reserves no lateral ban
   const stacked = renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Client review — Northwind" start="2026-07-20T10:00:00Z" end="2026-07-20T11:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>} actionsBelow
-      box={{}} color="var(--color-cat-1)" timeLabel="10:00 – 11:30" dateLabel="Monday 20 July" />,
+      box={{}} timeLabel="10:00 – 11:30" dateLabel="Monday 20 July" />,
   );
   assert.match(stacked, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/,
     'the kebab is not anchored to the chip bottom');
@@ -323,7 +334,7 @@ test('an unstacked chip keeps the top-right kebab and its reserve', () => {
   const plain = renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Release window" start="2026-07-20T15:00:00Z" end="2026-07-20T16:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
-      box={{}} color="var(--color-cat-1)" timeLabel="15:00 – 16:30" dateLabel="Monday 20 July" />,
+      box={{}} timeLabel="15:00 – 16:30" dateLabel="Monday 20 July" />,
   );
   assert.doesNotMatch(plain, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/, 'the kebab left its conventional corner');
   assert.match(plain, /data-arena-part="calendar.chip"[^>]*\bdata-arena-reserve=""/,

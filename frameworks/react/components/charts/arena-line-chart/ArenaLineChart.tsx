@@ -9,7 +9,7 @@ import {
 } from '../ChartScales.ts';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks.ts';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
-import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
+import { arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
@@ -180,7 +180,7 @@ export function ArenaLineChart({ className,
         <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
             <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
-              <span className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...styles.$data.legendSwatch()} style={{ background: colors[s] }} />
+              <span className={arenaLineChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaLineChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}

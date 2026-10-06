@@ -15,22 +15,25 @@ test('a tone renders its dot and the tone colour; default is neutral', () => {
   assert.match(neutral, /data-arena-part="tag"[^>]*\bdata-arena-tone="neutral"/);
 });
 
-test('a colorId draws the identity arm and carries the ramp colour as a custom property', () => {
+test('a colorId renders its slot as an attribute, clamped to 1..8 and rounded, and writes no custom property', () => {
   const html = renderToStaticMarkup(<ArenaTag colorId={3}>Backend</ArenaTag>);
-  assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-tone="identity"/);
-  assert.match(html, /--arena-tag-cat:\s*var\(--color-cat-3\)/);
+  assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-color-id="3"/);
+  assert.doesNotMatch(html, /--arena-tag-cat/);
+  assert.doesNotMatch(html, /data-arena-tone="identity"/);
+  assert.match(renderToStaticMarkup(<ArenaTag colorId={9 as never}>x</ArenaTag>), /data-arena-color-id="8"/);
+  assert.match(renderToStaticMarkup(<ArenaTag colorId={2.6 as never}>x</ArenaTag>), /data-arena-color-id="3"/);
 });
 
 test('a colorId replaces the tone rather than joining it, so one colour reaches the pill', () => {
   const html = renderToStaticMarkup(<ArenaTag tone="danger" colorId={5}>Backend</ArenaTag>);
-  assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-tone="identity"/);
-  assert.doesNotMatch(html, /data-arena-part="tag"[^>]*\bdata-arena-tone="danger"/);
+  assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-color-id="5"/);
+  assert.doesNotMatch(html, /data-arena-tone="danger"/);
 });
 
-test('no colorId leaves the tone alone and writes no custom property', () => {
+test('no colorId leaves the tone alone and writes no colour attribute', () => {
   const html = renderToStaticMarkup(<ArenaTag tone="warning">Late</ArenaTag>);
   assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-tone="warning"/);
-  assert.doesNotMatch(html, /--arena-tag-cat/);
+  assert.doesNotMatch(html, /data-arena-color-id|--arena-tag-cat/);
 });
 
 test('removable renders a labelled dismiss button that calls onRemove', () => {

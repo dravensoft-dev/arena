@@ -1,6 +1,6 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
-import { arenaCatColor } from '../../../DataVisuals.ts';
+import { arenaCatIndex } from '../../../DataVisuals.ts';
 import manifest from '../arena-board/ArenaBoard.classes.generated.ts';
 
 import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
@@ -44,11 +44,10 @@ export function ArenaBoardColumn({ className, title, headingLevel = 'h3', count,
   if (headingLevel === 'none') {
     throw new Error('ArenaBoardColumn: `headingLevel` cannot be none, because `title` is required and names the column it heads');
   }
-  const styles = boardStyles({ identity: colorId !== undefined });
+  const styles = boardStyles({ colorId: colorId === undefined ? undefined : String(arenaCatIndex(colorId)) });
   const Heading = headingLevel;
   return (
-    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className)} data-arena-part={manifest.parts.column} {...styles.$data.column()}
-      style={colorId ? { '--arena-board-column-cat': arenaCatColor(colorId) } as React.CSSProperties : undefined}>
+    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className)} data-arena-part={manifest.parts.column} {...styles.$data.column()}>
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
         <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>

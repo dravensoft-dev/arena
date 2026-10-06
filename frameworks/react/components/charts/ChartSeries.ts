@@ -1,8 +1,8 @@
-import { arenaCatColor, arenaToneColor } from '../../DataVisuals.ts';
+import { arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../WarnOnce.ts';
 import { arenaNiceDomain } from './ChartScales.ts';
 import type { ArenaDomain } from './ChartScales.ts';
-import type { ArenaPointSeries, ArenaSeries } from '../../Api.generated';
+import type { ArenaPointSeries, ArenaSeries, ArenaSeriesTone } from '../../Api.generated';
 
 export interface ArenaChartTableRow {
   header: string;
@@ -32,6 +32,17 @@ export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSl
   }
   if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? index + 1));
   return Array.from({ length: count }, () => arenaCatColor(colorId ?? fallbackSlot));
+}
+
+export type ArenaSwatchHue = { tone: ArenaSeriesTone } | { colorId: string };
+
+export function arenaSwatchHue(
+  series: { tone?: ArenaSeriesTone; colorId?: number; colorIds?: readonly number[] }, index: number, fallbackSlot: number,
+): ArenaSwatchHue {
+  const { tone, colorId, colorIds } = series;
+  if (tone && arenaToneColor(tone)) return { tone };
+  if (colorIds) return { colorId: String(arenaCatIndex(colorIds[index] ?? index + 1)) };
+  return { colorId: String(arenaCatIndex(colorId ?? fallbackSlot)) };
 }
 
 export function arenaSeriesPointCount(series: readonly ArenaSeries[]): number {

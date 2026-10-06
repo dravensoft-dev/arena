@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCalendar.classes.generated.ts';
-import { arenaCatColor } from '../../../DataVisuals.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import { calendarGutterW, calendarHourH } from '../../../Tokens.generated.js';
@@ -312,7 +311,6 @@ export function ArenaCalendar({ className,
                 box: { top, height: `max(calc(var(--sp-1) * 6.5), ${rawH}px)`,
                   left: `${leftShare}%`,
                   right: `${100 - leftShare - widthShare}%` },
-                color: arenaCatColor(p.ev.colorId ?? 1),
                 timeLabel: `${arenaFormatHM(p.startMin)} – ${arenaFormatHM(p.endMin)}`,
                 dateLabel: arenaFormatDate(days[di] ?? '', locale.locale, ARENA_DATE_OPTIONS.dayName),
                 showTime: arenaShowsTime(rawH, slotFor(p.cols)),

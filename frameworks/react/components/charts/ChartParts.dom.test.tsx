@@ -53,6 +53,46 @@ for (const [name, part, render] of SERIES_CHARTS) {
   });
 }
 
+const TONED_CHARTS: [string, string, (series: object[]) => React.ReactElement][] = [
+  ['ArenaBarChart', 'bar-chart', (series) => <ArenaBarChart labels={LABELS} series={series as never} label="Deliveries" />],
+  ['ArenaHorizontalBarChart', 'horizontal-bar-chart', (series) => <ArenaHorizontalBarChart labels={LABELS} series={series as never} label="Deliveries" />],
+  ['ArenaLineChart', 'line-chart', (series) => <ArenaLineChart labels={LABELS} series={series as never} label="Deliveries" />],
+  ['ArenaPyramidChart', 'pyramid-chart', (series) => <ArenaPyramidChart labels={LABELS} series={series as never} label="Deliveries" />],
+  ['ArenaRadarChart', 'radar-chart', (series) => <ArenaRadarChart labels={LABELS} series={series as never} label="Deliveries" />],
+];
+
+for (const [name, part, render] of TONED_CHARTS) {
+  test(`${name} paints a legend swatch through an attribute, a tone for a toned series and a colour id otherwise`, () => {
+    const root = mount(render([{ label: 'North', values: [12, 30, 7], tone: 'success' }, { label: 'South', values: [5, 9, 14], colorId: 9 }]));
+    const swatches = root.querySelectorAll<HTMLElement>(`[data-arena-part="${part}.legend-swatch"]`);
+    assert.equal(swatches.length, 2);
+    assert.equal(swatches[0]!.getAttribute('data-arena-tone'), 'success');
+    assert.equal(swatches[0]!.hasAttribute('data-arena-color-id'), false);
+    assert.equal(swatches[1]!.getAttribute('data-arena-color-id'), '8');
+    assert.equal(swatches[1]!.hasAttribute('data-arena-tone'), false);
+    for (const swatch of swatches) assert.equal(swatch.style.background, '', 'the swatch carries no inline background');
+  });
+}
+
+test('ArenaScatterChart swatches read tone or colour id from the series, by position when it names neither', () => {
+  const root = mount(<ArenaScatterChart series={[{ ...CLOUD[0]!, tone: 'danger' }, CLOUD[1]!]} label="Latency" xLabel="Requests" yLabel="p95" />);
+  const swatches = root.querySelectorAll<HTMLElement>('[data-arena-part="scatter-chart.legend-swatch"]');
+  assert.equal(swatches[0]!.getAttribute('data-arena-tone'), 'danger');
+  assert.equal(swatches[1]!.getAttribute('data-arena-color-id'), '2');
+  for (const swatch of swatches) assert.equal(swatch.style.background, '');
+});
+
+test('ArenaDoughnutChart legend swatches carry a colour id by slice position, or the series tone', () => {
+  const plain = mount(<ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />);
+  const ids = [...plain.querySelectorAll('[data-arena-part="doughnut-chart.legend-swatch"]')].map((one) => one.getAttribute('data-arena-color-id'));
+  assert.deepEqual(ids, ['1', '2', '3']);
+  const toned = mount(<ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7], tone: 'info' }]} label="Deliveries" />);
+  for (const one of toned.querySelectorAll<HTMLElement>('[data-arena-part="doughnut-chart.legend-swatch"]')) {
+    assert.equal(one.getAttribute('data-arena-tone'), 'info');
+    assert.equal(one.style.background, '');
+  }
+});
+
 test('ArenaDoughnutChart draws its legend row from the manifest', () => {
   const root = mount(<ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />);
   const row = root.querySelector<HTMLElement>('[data-arena-part="doughnut-chart.legend-row"]');

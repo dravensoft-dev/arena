@@ -5,7 +5,7 @@ import { arenaDoughnutSlices } from '../ChartScales.ts';
 import { arenaArcPath } from '../ChartMarks.ts';
 import { arenaDoughnutRadii } from '../ChartAxis.ts';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend.ts';
-import { arenaChartTable, arenaOneSeries, arenaSeriesColors } from '../ChartSeries.ts';
+import { arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSwatchHue } from '../ChartSeries.ts';
 
 import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
@@ -67,9 +67,8 @@ export function ArenaDoughnutChart({ className,
   const values = only.values;
   const n = values.length;
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
-  const colors = arenaSeriesColors(
-    { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => i + 1) }, n, 1,
-  );
+  const tonedSeries = { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => i + 1) };
+  const colors = arenaSeriesColors(tonedSeries, n, 1);
 
   const stacked = arenaLegendStacked(legendLayout, width);
   const styles = arenaDoughnutChartStyles({ stacked });
@@ -114,7 +113,7 @@ export function ArenaDoughnutChart({ className,
             onClick={() => onSliceActivate?.(i)}
             className={styles.legendRow()} data-arena-part={manifest.parts.legendRow} {...styles.$data.legendRow()}
             style={{ opacity: hover === null || hover === i ? 1 : 0.55 }}>
-            <span aria-hidden="true" className={styles.legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...styles.$data.legendSwatch()} style={{ background: colors[i] }} />
+            <span aria-hidden="true" className={arenaDoughnutChartStyles(arenaSwatchHue(tonedSeries, i, 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaDoughnutChartStyles(arenaSwatchHue(tonedSeries, i, 1)).$data.legendSwatch()} />
             <span className={styles.legendText()} data-arena-part={manifest.parts.legendText} {...styles.$data.legendText()}>
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{labels[i] ?? ''}</span>
               <span className={styles.legendValue()} data-arena-part={manifest.parts.legendValue} {...styles.$data.legendValue()}>{fmt(values[i] ?? 0)}</span>
