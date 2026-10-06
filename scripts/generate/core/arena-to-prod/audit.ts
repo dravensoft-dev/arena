@@ -359,19 +359,61 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
   return found;
 }
 
-export const APPEARANCE_ATTRIBUTES = new Map<string, { family: string; write: string }>([
+export type AppearanceTarget = { family: string } | { role: string } | { member: string };
+
+export const APPEARANCE_ATTRIBUTES = new Map<string, AppearanceTarget & { write: string }>([
   ['ArenaButton.full', { family: 'fill', write: 'arena-fill' }],
+  ['ArenaButton.variant', { family: 'emphasis', write: 'arena-emphasis-<value>' }],
+  ['ArenaButton.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaIconButton.variant', { family: 'emphasis', write: 'arena-emphasis-<value>' }],
+  ['ArenaIconButton.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaSegmentedControl.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaSwitch.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaSwitch.orientation', { family: 'orientation', write: 'arena-orientation-<value>' }],
+  ['ArenaSpinner.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaSpinner.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
+  ['ArenaSpinner.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
+  ['ArenaSpinner.tone=neutral', { family: 'accent', write: 'arena-accent-muted' }],
+  ['ArenaSpinner.tone=on-accent', { family: 'accent', write: 'arena-accent-ink' }],
+  ['ArenaProgressBar.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaProgressBar.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
+  ['ArenaProgressBar.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
+  ['ArenaToast.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
+  ['ArenaBadge.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
+  ['ArenaBadge.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
+  ['ArenaStatCard.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
+  ['ArenaStatCard.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
+  ['ArenaTag.tone=primary', { family: 'accent', write: 'arena-accent-primary' }],
+  ['ArenaAvatar.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaAvatar.shape', { member: 'kind', write: 'kind="team" for a team, nothing for a person' }],
+  ['ArenaAppLogo.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaAppLogo.orientation', { family: 'orientation', write: 'arena-orientation-<value>' }],
+  ['ArenaPeopleList.size', { family: 'size', write: 'arena-size-<value>' }],
+  ['ArenaCard.accent', { family: 'accent', write: 'arena-accent-primary' }],
+  ['ArenaCard.floating', { family: 'elevation', write: 'arena-elevation-floating' }],
+  ['ArenaHero.align', { family: 'align', write: 'arena-align-<value>' }],
+  ['ArenaHero.layout', { family: 'layout', write: 'arena-layout-<value>' }],
+  ['ArenaPageHead.align', { family: 'align', write: 'arena-align-<value>' }],
+  ['ArenaSheet.placement', { family: 'placement', write: 'arena-placement-<value>' }],
+  ['ArenaToastHost.placement', { family: 'placement', write: 'arena-placement-<value>' }],
+  ['ArenaSideNav.indentStep', { role: 'pad-row-indent', write: 'answer pad-row-indent in your style plugin with the indent of one level' }],
 ]);
+
+const LITERAL_VALUE = /^\s*=\s*(?:\{\s*)?["'`]{1,2}\s*([\w-]+)\s*["'`]/;
 
 export function designMemberFindings(tag: string, attributes: string, page?: string): string[] {
   const component = componentOf(tag);
   const found: string[] = [];
   for (const [key, { write }] of APPEARANCE_ATTRIBUTES) {
-    const [owner, attribute = ''] = key.split('.');
+    const [owner, rest = ''] = key.split('.');
     if (owner !== component) continue;
-    if (!new RegExp(`(?:^|\\s)\\[?${attribute}\\]?(?=\\s*=|\\s|$)`).test(attributes)) continue;
-    found.push(`\`${attribute}\` on ${component} is appearance: \`${write}\`. Write the class on the component, `
-      + `or on a container whose components should all take it${page ? `. ${page}` : ''}`);
+    const [attribute = '', retired] = rest.split('=');
+    const opening = new RegExp(`(?:^|\\s)\\[?${attribute}\\]?(?=\\s*=|\\s|$)`).exec(attributes);
+    if (opening === null) continue;
+    const value = LITERAL_VALUE.exec(attributes.slice(opening.index + opening[0].length))?.[1];
+    if (retired !== undefined && value !== retired) continue;
+    found.push(`\`${attribute}\` on ${component} is appearance: \`${write.replace('<value>', value ?? '<value>')}\`. `
+      + `Write the class on the component, or on a container whose components should all take it${page ? `. ${page}` : ''}`);
   }
   return found;
 }
@@ -401,12 +443,13 @@ export function statedRung(attributes: string) {
   return stated === 'none' ? null : Number(stated.slice(1));
 }
 
-export const STATED_PRIMARY = /(?:^|\s)\[?variant\]?\s*=\s*["']\{?\s*'?primary'?\s*\}?["']/;
+export const STATED_PRIMARY = /(?:^|\s)\[?(?:class|className)\]?\s*=\s*\{?\s*["'`]{1,2}[^"'`]*?(?<![\w-])arena-emphasis-primary(?![\w-])/;
 
 export function primaryMessage(first: number) {
   return `a second primary action on this screen, and the first is on line ${first}. Crimson is `
-    + 'the voice, so at most one variant="primary" stands in a view. Make the others secondary or '
-    + 'ghost, and keep the primary for the one action the screen is for';
+    + 'the voice, so at most one arena-emphasis-primary action stands in a view. Write '
+    + 'arena-emphasis-secondary or arena-emphasis-ghost on the others, and keep the primary for the '
+    + 'one action the screen is for';
 }
 
 export const LINKABLE_TAGS = new Set([

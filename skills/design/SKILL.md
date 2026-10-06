@@ -113,9 +113,9 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
   content read `--danger`. Arena draws one filled danger surface, and it is the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
   tint. **`--audit` reports this one.**
-- **One primary accent per view.** Crimson is the voice, so at most one `variant="primary"` action
-  stands on a screen. Gold is distinction and focus, and never a second primary. **`--audit`
-  reports this one.**
+- **One primary accent per view.** Crimson is the voice, so at most one `arena-emphasis-primary`
+  action stands on a screen. Gold is distinction and focus, and never a second primary.
+  **`--audit` reports this one.**
 - **No gradients, on any surface.** Depth comes from the `base-100` to `base-200` to `base-300`
   surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
   one exception. **`--audit` reports this one.**

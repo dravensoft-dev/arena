@@ -56,7 +56,7 @@ export const RULES: LanguageRule[] = [
   {
     id: 'one-primary',
     short: 'One primary accent per view.',
-    body: 'Crimson is the voice, so at most one `variant="primary"` action stands on a screen. '
+    body: 'Crimson is the voice, so at most one `arena-emphasis-primary` action stands on a screen. '
       + 'Gold is distinction and focus, and never a second primary.',
     held: 'one-primary',
     unheld: null,

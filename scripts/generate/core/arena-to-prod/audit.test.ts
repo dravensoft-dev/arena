@@ -16,11 +16,15 @@ function rules(source: string, path = 'src/App.tsx') {
   return auditText(path, source).join('\n');
 }
 
+function primaries(source: string, path = 'src/App.tsx') {
+  return auditText(path, source).filter((line) => line.includes('one-primary')).join('\n');
+}
+
 test('a class of your own on an Arena component is reported in either layer idiom', () => {
   assert.match(rules('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
   assert.match(rules('<arena-button class="mine"></arena-button>', 'src/app.html'), /own-class/);
   assert.match(rules('<arena-card [ngClass]="k"></arena-card>', 'src/app.html'), /own-class/);
-  assert.equal(rules('<ArenaButton variant="primary">Go</ArenaButton>'), '');
+  assert.equal(rules('<ArenaButton>Go</ArenaButton>'), '');
 });
 
 test('a stylesheet rule reaching an arena- slot is reported, and only in a stylesheet', () => {
@@ -395,25 +399,33 @@ test('the components a link may wrap are the ones whose contract takes an href, 
 
 
 test('a second primary action on one screen is reported, and the first one is not', () => {
-  assert.equal(rules('<ArenaButton variant="primary">Save</ArenaButton>'), '');
-  const two = rules('<ArenaButton variant="primary">Save</ArenaButton>\n'
-    + '<ArenaButton variant="primary">Publish</ArenaButton>');
+  assert.equal(primaries('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>'), '');
+  const two = primaries('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>');
   assert.match(two, /one-primary/);
+  assert.match(two, /at most one arena-emphasis-primary action stands in a view/);
   assert.equal(two.split('\n').length, 1, 'the first primary is the one the screen is for, so only '
     + 'the ones after it are findings');
   assert.match(two, /line 1/);
 });
 
-test('a primary variant is read in either layer idiom, and an expression is not read at all', () => {
-  assert.match(rules('<arena-button variant="primary"></arena-button>\n'
-    + '<arena-button variant="primary"></arena-button>', 'src/app.html'), /one-primary/);
-  assert.match(rules('<arena-button [variant]="\'primary\'"></arena-button>\n'
-    + '<arena-button [variant]="\'primary\'"></arena-button>', 'src/app.html'), /one-primary/);
-  assert.equal(rules('<ArenaButton variant={kind}>a</ArenaButton>\n'
-    + '<ArenaButton variant={kind}>b</ArenaButton>'), '',
-    'a variant an expression decides is not a variant this file states, and reporting it would '
+test('a primary emphasis class is read in either layer idiom, and an expression is not read at all', () => {
+  assert.equal(primaries('<arena-button class="arena-emphasis-primary"></arena-button>', 'src/app.html'), '');
+  assert.match(primaries('<arena-button class="arena-emphasis-primary"></arena-button>\n'
+    + '<arena-button class="a arena-emphasis-primary"></arena-button>', 'src/app.html'), /one-primary/);
+  assert.match(primaries('<arena-button [class]="\'arena-emphasis-primary\'"></arena-button>\n'
+    + '<arena-button [class]="\'arena-emphasis-primary\'"></arena-button>', 'src/app.html'), /one-primary/);
+  assert.equal(primaries('<ArenaButton className={kind}>a</ArenaButton>\n'
+    + '<ArenaButton className={kind}>b</ArenaButton>'), '',
+    'a class an expression decides is not a class this file states, and reporting it would '
     + 'report the one screen that cannot be read');
+  assert.equal(primaries('<ArenaButton className="arena-emphasis-primary-x">a</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary-x">b</ArenaButton>'), '');
+  assert.equal(primaries('<ArenaButton variant="primary">a</ArenaButton>\n'
+    + '<ArenaButton variant="primary">b</ArenaButton>').includes('one-primary'), false,
+    'the rule no longer reads variant="primary"');
 });
+
 
 test('a variant of your own that happens to be primary on a tag Arena does not draw is not counted', () => {
   assert.equal(rules('<MyButton variant="primary">a</MyButton>\n'
@@ -547,13 +559,59 @@ test('full on ArenaButton is appearance, named with the class that says it, in b
   assert.ok((RULE_TAGS as readonly string[]).includes('design-member'));
 });
 
-test('every appearance attribute points at a family that exists, on a member no contract still declares', () => {
+const APPEARANCE_SAMPLES = new Map<string, string>([['size', 'sm'], ['variant', 'ghost'], ['orientation', 'vertical'],
+  ['align', 'center'], ['layout', 'split'], ['placement', 'end']]);
+
+function sampleOf(attribute: string, retired?: string) {
+  return retired ?? APPEARANCE_SAMPLES.get(attribute) ?? 'x';
+}
+
+test('every appearance attribute is reported in both idioms, naming the class that says it', () => {
+  assert.ok(APPEARANCE_ATTRIBUTES.size > 0, 'no entry, so this checked nothing');
+  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
+    const [component = '', rest = ''] = key.split('.');
+    const [attribute = '', retired] = rest.split('=');
+    const value = sampleOf(attribute, retired);
+    const named = target.write.replace('<value>', value);
+    const kebab = kebabTag(component);
+    for (const attributes of [` ${attribute}="${value}"`, ` ${attribute}={'${value}'}`, ` [${attribute}]="'${value}'"`]) {
+      for (const tag of [component, kebab]) {
+        assert.ok(designMemberFindings(tag, attributes).some((one) => one.includes(`\`${attribute}\` on ${component} is appearance: \`${named}\``)),
+          `${tag}${attributes} is not named with ${named}`);
+      }
+    }
+  }
+  assert.match(designMemberFindings('ArenaButton', ' size="sm"')[0] ?? '', /`size` on ArenaButton is appearance: `arena-size-sm`/);
+  assert.match(findings('src/a.tsx', '<ArenaButton size="sm">Go</ArenaButton>')
+    .filter((one) => one.rule === 'design-member')[0]?.message ?? '', /arena-size-sm/);
+});
+
+test('a retired value is reported and a value the type still holds is not', () => {
+  assert.equal(designMemberFindings('ArenaBadge', ' tone="gold"').length, 1);
+  assert.match(designMemberFindings('ArenaBadge', ' tone="gold"')[0] ?? '', /arena-accent-gold/);
+  assert.deepEqual(designMemberFindings('ArenaBadge', ' tone="success"'), []);
+  assert.deepEqual(designMemberFindings('ArenaBadge', ' [tone]="kind"'), []);
+  assert.deepEqual(designMemberFindings('ArenaTag', ' tone="danger"'), []);
+});
+
+test('every appearance attribute holds its target, and states a version of the contract that no longer declares it', () => {
   const families = readFamilies(repoRoot);
-  for (const [key, { family }] of APPEARANCE_ATTRIBUTES) {
-    const [component = '', attribute = ''] = key.split('.');
-    assert.ok(families.has(family), `${key} points at ${family}, which no family declares`);
-    const contract = JSON.parse(readFileSync(join(repoRoot, 'contracts/api/components', `${component}.json`), 'utf8'));
-    assert.equal(contract.api?.[attribute], undefined, `${component} still declares ${attribute}, so the entry is not a statement about this version`);
+  const roles = JSON.parse(readFileSync(join(repoRoot, 'contracts/design/roles.json'), 'utf8'));
+  const contractOf = (component: string) =>
+    JSON.parse(readFileSync(join(repoRoot, 'contracts/api/components', `${component}.json`), 'utf8'));
+  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
+    const [component = '', rest = ''] = key.split('.');
+    const [attribute = '', retired] = rest.split('=');
+    if ('family' in target) assert.ok(families.has(target.family), `${key} points at family ${target.family}, which no family declares`);
+    else if ('role' in target) assert.ok(roles[target.role] !== undefined, `${key} points at role ${target.role}, which roles.json does not declare`);
+    else assert.ok(contractOf(component).api?.[target.member] !== undefined, `${key} points at member ${target.member}, which ${component} does not declare`);
+    const declared = contractOf(component).api?.[attribute];
+    if (retired === undefined) {
+      assert.equal(declared, undefined, `${component} still declares ${attribute}, so the entry is not a statement about this version`);
+    } else if (declared !== undefined) {
+      const type = JSON.parse(readFileSync(join(repoRoot, 'contracts/api/types', `${kebabTag(declared.type)}.json`), 'utf8'));
+      assert.ok(!type.values.includes(retired), `${declared.type} still holds ${retired}, so ${key} is not a statement about this version`);
+    }
   }
 });
 
