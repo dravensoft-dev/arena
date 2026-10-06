@@ -96,7 +96,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
   for (const [component, group, values] of [
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral', 'accent', 'gold']],
     ['ArenaToast', 'tone', ['neutral', 'gold']], ['ArenaAvatar', 'status', ['none', 'offline']],
-    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral', 'primary', 'identity']],
+    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral', 'primary']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -289,7 +289,7 @@ export const CLAIMS = {
     { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger is outline: border and text in the danger hue, never a filled background' },
     ...hueClaims('root', Object.fromEntries(['success', 'warning'].map((tone) => [tone, [EDGE, INK]]))),
     ...[1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ chosen: { colorId: String(id) }, slot: 'root', has: [EDGE, INK], why: HUE_WHY })),
-    ...['neutral', 'primary', 'success', 'warning', 'danger', 'identity'].map((tone) => ({
+    ...['neutral', 'primary', 'success', 'warning', 'danger'].map((tone) => ({
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),

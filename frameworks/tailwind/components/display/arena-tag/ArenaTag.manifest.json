@@ -26,9 +26,6 @@
       },
       "danger": {
         "root": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
-      },
-      "identity": {
-        "root": "border-[color:var(--arena-tag-cat)] text-[color:var(--arena-tag-cat)]"
       }
     },
     "colorId": {
@@ -74,8 +71,7 @@
       "primary": null,
       "success": "success",
       "warning": "warning",
-      "danger": "danger",
-      "identity": null
+      "danger": "danger"
     },
     "colorId": {
       "1": "identity-1",

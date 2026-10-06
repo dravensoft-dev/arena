@@ -54,15 +54,6 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
     + 'depth and a class string cannot name the depth. It is the same channel ArenaBoard opens for its column, and '
     + 'its var() fallback of zero is the unindented row'],
-  ['arena-board-column-cat', 'written by ArenaBoardColumn onto its own section from the colorId member, in both '
-    + 'layers, for the reason ArenaTag writes its own: a ramp slot is data rather than a design value and a class '
-    + 'string cannot name which of the eight it is. It is set only while colorId names one, and a style plugin '
-    + 'reads it to fill the whole head with the identity colour'],
-  ['arena-tag-cat', 'written by ArenaTag onto its own root from the colorId member, in both layers, because '
-    + 'the ramp slot a tag carries is data rather than a design value and a class string cannot name which '
-    + 'of the eight it is. It is set only while colorId names one, so the identity arm is the only rule that '
-    + 'reads it and an unset property reaches no declaration. A style plugin reads it too, which is how an '
-    + 'appearance fills the pill with the identity colour without a member for it'],
 ]);
 
 export function selectorsIn(css: string) {

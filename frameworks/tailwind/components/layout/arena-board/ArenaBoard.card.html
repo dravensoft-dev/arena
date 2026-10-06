@@ -11,14 +11,14 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 const manifest = await (await fetch('./ArenaBoard.manifest.json')).json();
 
 function column(title, count, summary, slot, cards) {
-  const c = arenaClassesFor(manifest, { identity: slot !== undefined });
-  const d = arenaSlotDataFor(manifest, { identity: slot !== undefined });
+  const c = arenaClassesFor(manifest, { colorId: slot === undefined ? undefined : String(slot) });
+  const d = arenaSlotDataFor(manifest, { colorId: slot === undefined ? undefined : String(slot) });
   const head = el('div', { class: c.head, ...d.head });
   if (slot !== undefined) head.append(el('span', { class: c.dot, ...d.dot }));
   head.append(el('span', { class: c.title, ...d.title }, title), el('span', { class: c.count, ...d.count }, String(count)));
   const stack = el('div', { class: c.stack, ...d.stack });
   for (const card of cards) stack.append(el('span', { class: c.title, ...d.title }, card));
-  const box = el('section', { class: c.column, ...d.column, style: slot ? `--arena-board-column-cat: var(--color-cat-${slot})` : '' }, head);
+  const box = el('section', { class: c.column, ...d.column }, head);
   if (summary) box.append(el('span', { class: c.summary, ...d.summary }, summary));
   box.append(stack);
   return box;
