@@ -4,7 +4,7 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 ```html
 <arena-button (click)="save()">Save changes</arena-button>
 <arena-button variant="secondary" size="sm">Cancel</arena-button>
-<arena-button variant="danger" icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
+<arena-button destructive icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
 <arena-button variant="ghost" iconRight="ph-bold ph-caret-down">More</arena-button>
 <arena-button loading>Deploying</arena-button>
 <arena-button type="submit" form="project-form" class="arena-fill">Create project</arena-button>
@@ -41,7 +41,7 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 <!-- @answers end -->
 
 **Do / Don't**
-- Use `variant="danger"` for a destructive action: transparent background, border and text in
+- Use `destructive` for a destructive action, whatever `variant` is: transparent background, border and text in
   `--error`. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
 - `loading` implies `disabled`: it swaps the leading icon for a spinner and blocks activation,
   so there is no need to set both. The spin **slows** under `prefers-reduced-motion` rather

@@ -54,7 +54,7 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
   `ghost` is the default and the right answer nearly always; a row of solid icon buttons has no
   hierarchy left to spend.
 - There is no `danger` variant, and that is the danger convention rather than an omission: a
-  destructive action needs a word, so use `<arena-button variant="danger">`.
+  destructive action needs a word, so use `<arena-button destructive>`.
 - `size` reads the same density tokens `arena-button` does, so the two re-densify together in a
   toolbar. Set the same `size` on both or they will not line up.
 - Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in.

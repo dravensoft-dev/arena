@@ -1,12 +1,12 @@
 Arena bar chart. One axis, hand-written SVG, every colour a token, so it re-themes
-with the rest of Arena and costs no dependency. The chart takes series, and a series names itself. Identity comes from a series' `slot` (one colour for the whole series) or its
-`slots` (a colour per bar, **in ramp order, never cycled**); meaning comes from its
+with the rest of Arena and costs no dependency. The chart takes series, and a series names itself. Identity comes from a series' `colorId` (one colour for the whole series) or its
+`colorIds` (a colour per bar, **in ramp order, never cycled**); meaning comes from its
 `tone`. Passing both warns and `tone` wins, because a chart carries identity or meaning,
 never both. A series with no identity of its own takes the slot its position gives it,
 so two series are never the same colour by accident.
 
 ```ts
-readonly deployments = computed<ArenaSeries[]>(() => [{ label: 'Deployments', values: this.counts(), slot: 1 }]);
+readonly deployments = computed<ArenaSeries[]>(() => [{ label: 'Deployments', values: this.counts(), colorId: 1 }]);
 readonly latency = computed<ArenaSeries[]>(() => [
   { label: 'p50', values: this.median() },
   { label: 'p95', values: this.p95() },
@@ -71,7 +71,7 @@ tooltip is positioned against.
   column in the same table, and the two names are different things.
 - Use `tone` only when the series genuinely *is* a state. A red bar means "bad", and a
   red bar that just means "the second category" makes the chart lie.
-- Don't pass a ninth `slots` entry expecting a ninth colour. The ramp is eight, in
+- Don't pass a ninth `colorIds` entry expecting a ninth colour. The ramp is eight, in
   order; a ninth series folds into "Other" or becomes small multiples.
 - Don't add a second axis. Arena's charts are one axis, always. Several series on one
   scale is what `series` is for; several that do not share a scale are several charts.

@@ -2,12 +2,12 @@ Arena line chart, a value over an ordered sequence, hand-written SVG, every colo
 The chart takes series, one polyline each over the same sequence, and a series names itself. An
 optional 18% area tint sits under the line, for one series only. The crosshair snaps to the
 nearest point rather than drifting between them, and the numbers are also a real table for
-anyone who cannot see the line. Identity comes from a series' `slot`, meaning from its
+anyone who cannot see the line. Identity comes from a series' `colorId`, meaning from its
 `tone`; passing both warns and `tone` wins, because a chart carries identity or meaning,
 never both.
 
 ```ts
-readonly p95 = computed<ArenaSeries[]>(() => [{ label: 'p95 latency', values: this.latency(), slot: 3 }]);
+readonly p95 = computed<ArenaSeries[]>(() => [{ label: 'p95 latency', values: this.latency(), colorId: 3 }]);
 readonly percentiles = computed<ArenaSeries[]>(() => [
   { label: 'p50', values: this.median() },
   { label: 'p95', values: this.latency() },

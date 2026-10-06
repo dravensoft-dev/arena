@@ -33,10 +33,10 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 
 **Do**
 - Keep it to a handful of slices. Past five or six, the small ones are unreadable; fold the tail into "Other", or use bars.
-- Let the series' `slots` default. Ramp slots 1..N in order is the rule, not a starting point to tweak.
+- Let the series' `colorIds` default. Ramp slots 1..N in order is the rule, not a starting point to tweak.
 - Use it only when the parts genuinely sum to one whole. If they don't, it is a bar chart.
 - Pass `label`, because it names the chart for a screen reader and captions the numbers table. Without it the chart throws: a fallback of "Doughnut chart" identifies the chart *type* and not the chart, so two rings on one page would announce identically.
-- Pass exactly one series. The slices are that series' values read as shares of their own total, and the slice identities are its `slots`.
+- Pass exactly one series. The slices are that series' values read as shares of their own total, and the slice identities are its `colorIds`.
 - Pass `valueSuffix` for units. The member reaches the legend and the accessible table, and never the centre percentage.
 
 **Don't**

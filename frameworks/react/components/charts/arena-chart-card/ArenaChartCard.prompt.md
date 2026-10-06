@@ -8,7 +8,7 @@ The card a chart sits on: an uppercase muted microlabel, optional actions on the
 
 <ArenaChartCard title="p95 latency" actions={<ArenaSelect options={ranges} value={range} onChange={setRange} />}>
   <ArenaLineChart label="p95 latency" labels={days}
-    series={[{ label: 'p95', values: latency, slot: 5 }]} area valueSuffix=" ms" />
+    series={[{ label: 'p95', values: latency, colorId: 5 }]} area valueSuffix=" ms" />
 </ArenaChartCard>
 ```
 

@@ -6,10 +6,10 @@ The table is a **compound** component. `columns` says how each column is headed 
 <ArenaTable
   label="Recent deployments"
   columns={[
-    { header:'Build', mono:true },
+    { header:'Build', numeric:true },
     { header:'Project' },
     { header:'Status' },
-    { header:'p95', align:'right', mono:true },
+    { header:'p95', align:'right', numeric:true },
   ]}>
   {deploys.map((d) => (
     <ArenaTableRow key={d.build} interactive onClick={() => openDeploy(d)}>
@@ -54,7 +54,7 @@ The table is a **compound** component. `columns` says how each column is headed 
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as in "Recent deployments" or "Team members", and never "Table". There is nothing to derive it from, which is why it throws when omitted rather than falling back.
 - Put your own components in a cell: an `ArenaBadge` for a status, an `ArenaButton` for an action. The compound shape is for exactly that. A column carries **no** `render`, and passing one does nothing.
 - `key` goes on the `ArenaTableRow`. The key is React's own reconciliation rather than an Arena member, and there is no `getRowKey`.
-- Numeric data and codes in `mono` columns with `align:'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, take the face alone: `style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}`, which aligns a column of figures by digit the way the table does.
+- Numeric data and codes in `numeric` columns with `align:'right'`. `numeric` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, take the face alone: `style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}`, which aligns a column of figures by digit the way the table does.
 - Statuses with `ArenaBadge`, not loose text.
 - Don't use it for layout; it's for real tabular data.
 - Mark the actions column `mobileLayout:'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
@@ -73,7 +73,7 @@ Each column picks its card-mode layout with `mobileLayout`:
   label="Active projects"
   columns={[
     { header: 'Project' },
-    { header: 'Build', mono: true },
+    { header: 'Build', numeric: true },
     { header: 'Status' },
     { header: '', mobileLayout: 'block' },
   ]}>

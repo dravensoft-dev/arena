@@ -5,7 +5,7 @@ Action button. The main action uses `variant="primary"` (crimson), maximum one p
 <ArenaButton variant="secondary" icon="ph-bold ph-arrow-counter-clockwise">Roll back</ArenaButton>
 <ArenaButton variant="secondary" iconRight="ph-bold ph-caret-down">Actions</ArenaButton>
 <ArenaButton variant="ghost" size="sm">Cancel</ArenaButton>
-<ArenaButton variant="danger" loading>Deleting…</ArenaButton>
+<ArenaButton destructive loading>Deleting…</ArenaButton>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaButton.json. Edit the contract, not this table. -->
@@ -37,7 +37,7 @@ Action button. The main action uses `variant="primary"` (crimson), maximum one p
 **Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit`. Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
-Variants: primary · secondary · ghost · danger. Sizes sm/md/lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
+Variants: primary · secondary · ghost; `destructive` adds the danger outline. Sizes sm/md/lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
 
 - Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
 - Keyboard focus draws Arena's own gold ring, on every one of the four variants, including `ghost`, whose border is transparent. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.

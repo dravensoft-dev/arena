@@ -7,7 +7,7 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 
 {/* identity: per-bar, when the bars are different things */}
 <ArenaBarChart label="Load by service" labels={['Web','API','Worker']}
-  series={[{ label: 'Requests', values: [24,18,7], slots: [1,2,3] }]} />
+  series={[{ label: 'Requests', values: [24,18,7], colorIds: [1,2,3] }]} />
 
 {/* two series: one group of bars per category, each series its own ramp slot */}
 <ArenaBarChart label="Latency by region" labels={['EU','US','APAC']}
@@ -46,13 +46,13 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 
 **Do**
 - Give `label` and give every series its own `label`. The two are different names. `label` is the chart's, and it becomes the accessible name and the table caption. A series' `label` heads that series' column in the same table.
-- Default to one identity color for the series. Per-bar `slots` is for when each bar is genuinely a different thing, not for decoration.
+- Default to one identity color for the series. Per-bar `colorIds` is for when each bar is genuinely a different thing, not for decoration.
 - Assign slots in order (1, 2, 3) and let a ninth category fold into "Other". The ramp is eight slots and is never cycled.
 - Reach for `tone` only when the series *is* a state: failed builds, error rate. One meaning per colour is what makes red mean red. The tone goes on the series, because the series is what is in a state.
 - Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
-- Don't pass `tone` together with `slot`/`slots` on one series. A chart carries identity or meaning, never both; it warns in development and `tone` wins.
+- Don't pass `tone` together with `colorId`/`colorIds` on one series. A chart carries identity or meaning, never both; it warns in development and `tone` wins.
 - Don't use status colors as series colors by hand. A series painted `--danger` reads as an error, and that is exactly the bug this API exists to prevent.
 - Don't reach past eight categories, or past eight series. Nine bars in eight slots means two of them lie about being the same.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed.

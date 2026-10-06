@@ -50,12 +50,12 @@ old behaviour.
 `label` names the chart for a screen reader and captions the numbers table. The member is required and guarded, because a fallback of "Doughnut chart" identifies the chart type rather than the chart. Two rings on one page would announce identically. The series' own `label` names
 its value column in that same table.
 
-The series' `slots` overrides the ramp order, for when a category must keep the same colour
+The series' `colorIds` overrides the ramp order, for when a category must keep the same colour
 it has in a sibling chart:
 
 ```ts
 readonly revenue = computed<ArenaSeries[]>(() => [
-  { label: 'Revenue', values: this.byRegion(), slots: [3, 1, 5] },
+  { label: 'Revenue', values: this.byRegion(), colorIds: [3, 1, 5] },
 ]);
 ```
 

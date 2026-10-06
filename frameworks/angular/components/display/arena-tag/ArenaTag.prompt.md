@@ -22,7 +22,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 |---|---|---|---|---|
 | `content` | slot |  |  | The tag's label. |
 | `tone` | enum | `ArenaTagTone` | `"neutral"` | The tag's emphasis colour. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot's colour also reaches the tag as a custom property, `--arena-tag-cat`, so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
 | `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `remove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
 | `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the × keeps its place in the tab order and a screen-reader user is told the action is unavailable instead of never finding it. With `removable` false there is no × and nothing to disable. |
 | `remove` | event |  |  | The dismiss × was activated. Never emitted while `disabled`. |
@@ -55,7 +55,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a chip that
   carried a state colour and an identity colour at once would read as neither.
 - The identity chip outlines, like every other tone. A filled one is an appearance decision: the
-  ramp colour reaches the host as `--arena-tag-cat`, so a style plugin fills `tag` with it and no
+  ramp colour reaches the host as `data-arena-color-id` and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and `--arena-hue-fill-soft`), so a style plugin fills `tag` with it and no
   member is needed here.
 
 **Words.** `tagRemove` names the remove button.

@@ -23,7 +23,7 @@ export interface ArenaBoardColumnProps {
   /** One line under the head: the total the column adds up to, an estimate, a limit. A string rather than a number because the unit travels with it, and a column reading "19 pts" is one value and not two. */
   summary?: string;
 
-  /** An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. It inks the head's mark and reaches the column as a custom property, `--arena-board-column-cat`, so an appearance that fills the whole head with it is a style plugin's to write and needs no member here. */
+  /** An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. It inks the head's mark and reaches the column as `data-arena-color-id` and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the whole head with it is a style plugin's to write and needs no member here. */
   colorId?: ArenaCatSlot;
 
   /** One control in the head: a menu, a filter, an add. It sits after the count, and the column draws nothing for it beyond the space it takes. */

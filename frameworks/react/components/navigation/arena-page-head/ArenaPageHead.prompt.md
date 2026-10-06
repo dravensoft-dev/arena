@@ -46,7 +46,7 @@ that spacing, the way `Shell.tsx`'s header owns its own padding.
 
 **Don't**
 - Don't use it as a section header inside a page: that is `ArenaSection`, which is a heading over a region and already sits a rung below. Dropping a page head to `h3` gets the outline right and still draws the page register, which is the wrong size for a section.
-- Don't pass a destructive action as the visual lead. Danger stays outline (`variant="danger"`), never the filled primary.
+- Don't pass a destructive action as the visual lead. Danger stays outline (`destructive`), never the filled primary.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
