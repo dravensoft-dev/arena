@@ -7,6 +7,8 @@ import { arenaDoughnutRadii } from '../ChartAxis';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend';
 import { arenaChartTable, arenaOneSeries, arenaSeriesColors } from '../ChartSeries';
 import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import { arenaDoughnutChartStyles } from './ArenaDoughnutChart.variants';
+import manifest from './ArenaDoughnutChart.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
 
@@ -25,40 +27,6 @@ const SEGMENT_STYLE = {
 } as const satisfies Readonly<Record<string, string>>;
 
 const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies Readonly<Record<string, string>>;
-
-const LEGEND_STYLE = {
-  flex: '1', minWidth: '0', display: 'flex', flexDirection: 'column',
-  justifyContent: 'center', gap: 'calc(var(--sp-1) * 1.5)', overflow: 'auto',
-} as const satisfies Readonly<Record<string, string>>;
-
-const LEGEND_ROW_STYLE = {
-  display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 2)', cursor: 'pointer',
-  background: 'none', border: '0', padding: '0', margin: '0', font: 'inherit',
-  color: 'inherit', textAlign: 'left', width: '100%',
-} as const satisfies Readonly<Record<string, string>>;
-
-const LEGEND_TEXT_INLINE_STYLE = {
-  display: 'flex', flex: '1', minWidth: '0', alignItems: 'baseline',
-  gap: 'calc(var(--sp-1) * 2)', justifyContent: 'space-between',
-} as const satisfies Readonly<Record<string, string>>;
-
-const LEGEND_TEXT_STACKED_STYLE = {
-  display: 'flex', flex: '1', minWidth: '0', flexDirection: 'column', alignItems: 'stretch',
-} as const satisfies Readonly<Record<string, string>>;
-
-const SWATCH_STYLE = {
-  width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-  borderRadius: 'var(--r-xs)', flexShrink: '0',
-} as const satisfies Readonly<Record<string, string>>;
-
-const LEGEND_LABEL_STYLE = {
-  flex: '1', minWidth: '0', fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)',
-  color: 'var(--text-body)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-} as const satisfies Readonly<Record<string, string>>;
-
-const LEGEND_VALUE_STYLE = {
-  fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'var(--mute)',
-} as const satisfies Readonly<Record<string, string>>;
 
 @Component({
   selector: 'arena-doughnut-chart',
@@ -84,17 +52,17 @@ const LEGEND_VALUE_STYLE = {
       }
     </svg>
 
-    <div [style]="legendStyle" role="group" [attr.aria-label]="legendName()">
+    <div [class]="styles().legend()" [attr.data-arena-part]="parts.legend" role="group" [attr.aria-label]="legendName()">
       @for (segment of segments(); track segment.index) {
-        <button type="button" [style]="legendRowStyle"
+        <button type="button" [class]="styles().legendRow()" [attr.data-arena-part]="parts.legendRow"
                 [style.opacity]="hover() === null || hover() === segment.index ? 1 : dimOpacity"
                 (pointerenter)="hover.set(segment.index)" (pointerleave)="hover.set(null)"
                 (focus)="hover.set(segment.index)" (blur)="hover.set(null)"
                 (click)="sliceActivate.emit(segment.index)">
-          <span aria-hidden="true" [style]="swatchStyle" [style.background]="segment.color"></span>
-          <span [style]="legendTextStyle()">
-            <span [style]="legendLabelStyle">{{ segment.label }}</span>
-            <span [style]="legendValueStyle">{{ segment.formatted }}</span>
+          <span aria-hidden="true" [class]="styles().legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="segment.color"></span>
+          <span [class]="styles().legendText()" [attr.data-arena-part]="parts.legendText">
+            <span [class]="styles().legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ segment.label }}</span>
+            <span [class]="styles().legendValue()" [attr.data-arena-part]="parts.legendValue">{{ segment.formatted }}</span>
           </span>
         </button>
       }
@@ -139,16 +107,12 @@ export class ArenaDoughnutChart {
   /** A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row, which is a real button and answers Enter and Space without the component binding either. It carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**, and that is the whole member: a slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists, and a consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. It is reverse engineering of a component's own DOM, which the next release breaks in silence. */
   readonly sliceActivate = output<number>();
 
+  protected readonly parts = manifest.parts;
   protected readonly height = ARENA_CHART_HEIGHT;
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly svgStyle = SVG_STYLE;
   protected readonly segmentStyle = SEGMENT_STYLE;
   protected readonly centreLabelStyle = CENTRE_LABEL_STYLE;
-  protected readonly legendStyle = LEGEND_STYLE;
-  protected readonly legendRowStyle = LEGEND_ROW_STYLE;
-  protected readonly swatchStyle = SWATCH_STYLE;
-  protected readonly legendLabelStyle = LEGEND_LABEL_STYLE;
-  protected readonly legendValueStyle = LEGEND_VALUE_STYLE;
   protected readonly dimOpacity = DIM_OPACITY;
   protected readonly hover = signal<number | null>(null);
 
@@ -166,9 +130,7 @@ export class ArenaDoughnutChart {
 
   protected readonly stacked = computed(() => arenaLegendStacked(this.legendLayout(), this.width()));
 
-  protected readonly legendTextStyle = computed(
-    () => (this.stacked() ? LEGEND_TEXT_STACKED_STYLE : LEGEND_TEXT_INLINE_STYLE),
-  );
+  protected readonly styles = computed(() => arenaDoughnutChartStyles({ stacked: this.stacked() }));
 
   protected readonly name = computed(() => {
     return arenaPhrase(this.shape() === 'pie' ? this.locale.doughnutChartPieName : this.locale.doughnutChartName, { label: this.label() });

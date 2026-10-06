@@ -167,8 +167,7 @@ function press(fixture: { detectChanges: () => void }, region: Element, key: str
 
 function reading(host: Element): string | null {
 
-  const tooltip = [...host.querySelectorAll('div')]
-    .find((el) => (el as HTMLElement).style.position === 'absolute' && (el as HTMLElement).style.pointerEvents === 'none');
+  const tooltip = host.querySelector('[data-arena-part$=".tooltip"]');
   return tooltip ? (tooltip.textContent ?? '').trim() : null;
 }
 

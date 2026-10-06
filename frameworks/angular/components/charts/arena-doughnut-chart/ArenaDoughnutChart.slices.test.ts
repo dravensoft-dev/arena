@@ -74,6 +74,10 @@ function textWrapper(fixture: ComponentFixture<DoughnutHost>): HTMLElement {
   return host(fixture).querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement;
 }
 
+function stackedText(fixture: ComponentFixture<DoughnutHost>): boolean {
+  return textWrapper(fixture).className.includes('--stacked-true');
+}
+
 test('a zero-valued slice paints no path, so the drawn shapes are not the values', async () => {
   const fixture = await render();
   try {
@@ -113,14 +117,14 @@ test('a narrow legend stacks the concept over the figure, and a wide one keeps o
   const restoreNarrow = stubResize(390);
   try {
     narrow = await render();
-    assert.equal(textWrapper(narrow).style.flexDirection, 'column',
+    assert.ok(stackedText(narrow),
       'on one line the figure does not yield, so the concept is what gets truncated');
     restoreNarrow();
 
     const restoreWide = stubResize(1200);
     try {
       wide = await render();
-      assert.notEqual(textWrapper(wide).style.flexDirection, 'column');
+      assert.ok(!stackedText(wide));
     } finally { restoreWide(); }
   } finally {
     narrow?.destroy();
@@ -134,13 +138,13 @@ test('the layout can be pinned either way, whatever the container measures', asy
   const restoreWide = stubResize(1200);
   try {
     forced = await render({ legendLayout: 'stacked' });
-    assert.equal(textWrapper(forced).style.flexDirection, 'column');
+    assert.ok(stackedText(forced));
     restoreWide();
 
     const restoreNarrow = stubResize(390);
     try {
       inline = await render({ legendLayout: 'inline' });
-      assert.notEqual(textWrapper(inline).style.flexDirection, 'column');
+      assert.ok(!stackedText(inline));
     } finally { restoreNarrow(); }
   } finally {
     forced?.destroy();

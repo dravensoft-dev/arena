@@ -14,10 +14,8 @@ import {
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
-import { ARENA_TOOLTIP_STYLE, ARENA_TOOLTIP_LABEL_STYLE, ARENA_TOOLTIP_VALUE_STYLE } from '../ChartTooltipStyles';
-import {
-  ARENA_LEGEND_STRIP_STYLE, ARENA_LEGEND_ITEM_STYLE, ARENA_LEGEND_SWATCH_STYLE, ARENA_LEGEND_LABEL_STYLE,
-} from '../ChartLegendStyles';
+import { arenaScatterChartStyles } from './ArenaScatterChart.variants';
+import manifest from './ArenaScatterChart.classes.generated';
 import type { ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -91,20 +89,20 @@ const MARK_STYLE = {
     </div>
 
     @if (legend(); as keys) {
-      <div aria-hidden="true" [style]="legendStripStyle" [style.height.px]="stripH()">
+      <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
-          <span [style]="legendItemStyle">
-            <span [style]="legendSwatchStyle" [style.background]="key.color"></span>
-            <span [style]="legendLabelStyle">{{ key.label }}</span>
+          <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
+            <span [class]="styles.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="key.color"></span>
+            <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
       </div>
     }
 
     @if (sizeKey(); as keys) {
-      <div aria-hidden="true" [style]="legendStripStyle" [style.height.px]="sizeH()">
+      <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="sizeH()">
         @for (key of keys; track key.index) {
-          <span [style]="legendItemStyle">
+          <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
             <svg [attr.width]="sizeH()" [attr.height]="sizeH()" style="display:block;flex-shrink:0">
               <circle [attr.cx]="sizeH() / 2" [attr.cy]="sizeH() / 2" [attr.r]="key.r"
                       fill="none" stroke="var(--border-strong)" [style]="lineStyle" />
@@ -116,12 +114,12 @@ const MARK_STYLE = {
     }
 
     @if (active(); as point) {
-      <div [style]="tooltipStyle" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
-        <div [style]="tooltipLabelStyle">{{ point.series }}</div>
-        <div [style]="tooltipValueStyle">{{ xLabel() }}: {{ point.x }}</div>
-        <div [style]="tooltipValueStyle">{{ yLabel() }}: {{ point.y }}</div>
+      <div [class]="styles.tooltip()" [attr.data-arena-part]="parts.tooltip" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
+        <div [class]="styles.tooltipLabel()" [attr.data-arena-part]="parts.tooltipLabel">{{ point.series }}</div>
+        <div [class]="styles.tooltipValue()" [attr.data-arena-part]="parts.tooltipValue">{{ xLabel() }}: {{ point.x }}</div>
+        <div [class]="styles.tooltipValue()" [attr.data-arena-part]="parts.tooltipValue">{{ yLabel() }}: {{ point.y }}</div>
         @if (point.size) {
-          <div [style]="tooltipValueStyle">{{ sizeLabel() }}: {{ point.size }}</div>
+          <div [class]="styles.tooltipValue()" [attr.data-arena-part]="parts.tooltipValue">{{ sizeLabel() }}: {{ point.size }}</div>
         }
       </div>
     }
@@ -163,18 +161,13 @@ export class ArenaScatterChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  protected readonly parts = manifest.parts;
+  protected readonly styles = arenaScatterChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;
   protected readonly lineStyle = LINE_STYLE;
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
   protected readonly markStyle = MARK_STYLE;
-  protected readonly tooltipStyle = ARENA_TOOLTIP_STYLE;
-  protected readonly tooltipLabelStyle = ARENA_TOOLTIP_LABEL_STYLE;
-  protected readonly tooltipValueStyle = ARENA_TOOLTIP_VALUE_STYLE;
-  protected readonly legendStripStyle = ARENA_LEGEND_STRIP_STYLE;
-  protected readonly legendItemStyle = ARENA_LEGEND_ITEM_STYLE;
-  protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
-  protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
   protected readonly sizeKeyValueStyle = SIZE_KEY_VALUE_STYLE;
   protected readonly tickLabelX = computed(() => arenaTickLabelX(this.gutter()));
   protected readonly pointR = chartPointR;
