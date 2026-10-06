@@ -169,8 +169,8 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaCalendar:dayHead:px-[calc(var(--sp-1)*2*var(--dz-row-scale-x))]', 'the head of a day column, naming its weekday and date, on its sides, a row at 8px before density scales it, where pad-row-x answers 12px: it keeps its own length and still re-densifies with the row factor'],
   ['ArenaCalendar:dayNumber:mt-0.5', 'the date under the weekday in a day head: 2px of separation inside the component, which no role answers'],
   ['ArenaCalendar:heading:ml-1', 'the heading of a calendar toolbar, after its navigation buttons: 4px of separation inside the component, which no role answers'],
-  ['ArenaCalendar:hourLabel:-mt-1', 'the hour down the side of a day, lifted to centre on the rule it names: -4px of separation inside the component, which no role answers'],
-  ['ArenaCalendar:panel:gap-2', 'the action panel an event chip opens, between one action and the next on its line, at 8px, where gap-inline answers 8px: the length is this slot\'s own and the role does not move it'],
+  ['ArenaCalendar:hourLabel:-mt-1', 'the hour down the side of a day, lifted to centre on the rule it names: it pulls the label up by 4px, which no role answers'],
+  ['ArenaCalendar:panel:gap-2', 'the action panel an event chip opens, between one action and the next on its line, at 8px: the step equals what gap-inline answers today and stays a step, since the panel\'s spacing is its own to retune'],
   ['ArenaCalendar:panel:p-2', 'the action panel an event chip opens, at 8px on every side, where pad-surface answers 20px: the length is this slot\'s own and the role does not move it'],
   ['ArenaCalendar:panel:rounded-control', 'the action panel an event chip opens, whose corner is rounded-control rather than the surface tier'],
   ['ArenaCalendar:scroll:py-2', 'the scrolling body of a calendar, above its first hour and below its last: 8px of padding inside the component, which no role answers'],
@@ -200,7 +200,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaDialog:foot:gap-2.5', 'the foot of a dialog, between its buttons on one line, at 10px, where gap-inline answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:foot:pb-5.5', 'the foot of a dialog, at 22px from the panel\'s bottom edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:foot:pb-[max(calc(var(--sp-1)*5.5),var(--pad-safe-bottom))]', 'the foot of a dialog filling a narrow screen, at 22px from the screen\'s bottom edge or the safe-area inset, whichever is larger, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaDialog:head:pt-5.5', 'the head of a dialog, at 22px from the panel\'s top edge, where the floating role answers 16px: the length is this slot\'s own and the role does not move it'],
+  ['ArenaDialog:head:pt-5.5', 'the head of a dialog, at 22px from the panel\'s top edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:head:pt-[calc(var(--sp-1)*5.5+var(--pad-safe-top))]', 'the head of a dialog filling a narrow screen, at 22px below the safe-area inset at the screen\'s top edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:panel:rounded-surface', 'the panel of a dialog, whose corner is rounded-surface rather than the floating tier'],
   ['ArenaEmptyState:action:mt-1.5', 'the action under an empty state\'s message: 6px of separation inside the component, which no role answers'],
@@ -213,7 +213,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaErrorState:root:px-8', 'an error state, the panel standing in for content that failed to load, at 32px on its sides, where pad-status-x answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaErrorState:root:py-14', 'an error state, the panel standing in for content that failed to load, at 56px above and below, where pad-status-y answers 14px: the length is this slot\'s own and the role does not move it'],
   ['ArenaErrorState:root:rounded-surface', 'an error state, the panel standing in for content that failed to load, whose corner is rounded-surface rather than the status tier'],
-  ['ArenaIconButton:root:pl-3', 'an icon button showing its label, at 12px before its glyph, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
+  ['ArenaIconButton:root:pl-3', 'an icon button showing its label, at 12px before its glyph: the step equals what pad-control-x answers today and stays a step, since the glyph inset is not the control\'s side padding'],
   ['ArenaIconButton:root:pr-3.5', 'an icon button showing its label, at 14px after its label, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaInput:required:ml-1', 'the required mark after an input\'s label: 4px of separation inside the component, which no role answers'],
   ['ArenaInput:root:gap-1.5', 'an input, between its label, its field and its hint: 6px of gap inside the component, which no role answers'],
@@ -244,7 +244,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaPeopleList:root:gap-2', 'a medium people list, between one row and the next: 8px of gap inside the component, which no role answers'],
   ['ArenaPeopleList:root:gap-3', 'a large people list, between one row and the next: 12px of gap inside the component, which no role answers'],
   ['ArenaPeopleList:row:gap-2', 'a row of a small people list, between its rank, its name and its figure, at 8px, where gap-row answers 12px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaPeopleList:row:gap-3', 'a row of a medium people list, between its rank, its name and its figure, at 12px, where gap-row answers 12px: the length is this slot\'s own and the role does not move it'],
+  ['ArenaPeopleList:row:gap-3', 'a row of a medium people list, between its rank, its name and its figure, at 12px: the step equals what gap-row answers today and stays a step, since the list sets its own rhythm'],
   ['ArenaPeopleList:row:gap-4', 'a row of a large people list, between its rank, its name and its figure, at 16px, where gap-row answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaPeopleList:row:px-[calc(var(--sp-1)*1.5*var(--dz-row-scale-x))]', 'a row of a small people list, on its sides, a row at 6px before density scales it, where pad-row-x answers 12px: it keeps its own length and still re-densifies with the row factor'],
   ['ArenaPeopleList:row:px-[calc(var(--sp-1)*2*var(--dz-row-scale-x))]', 'a row of a medium people list, on its sides, a row at 8px before density scales it, where pad-row-x answers 12px: it keeps its own length and still re-densifies with the row factor'],
@@ -261,7 +261,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSegmentedControl:segment:px-3.5', 'a segment of a medium segmented control, at 14px on its sides, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSegmentedControl:track:gap-0.5', 'the track of a segmented control, between one segment and the next, at 2px, where gap-control answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSegmentedControl:track:p-1', 'the track of a segmented control, around its segments, at 4px on every side, where pad-control-x answers 12px and pad-control-y 8px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaSelect:field:pl-3', 'the field of a select, at 12px before its value, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
+  ['ArenaSelect:field:pl-3', 'the field of a select, at 12px before its value: the step equals what pad-control-x answers today and stays a step, since the value inset is not the field\'s side padding'],
   ['ArenaSelect:field:pl-9', 'the field of a select with a leading icon, at 36px before its value, clearing that icon, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSelect:field:pr-9', 'the field of a select, at 36px after its value, clearing its caret, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSelect:root:gap-1.5', 'a select, between its label, its field and its hint: 6px of gap inside the component, which no role answers'],
@@ -370,7 +370,7 @@ export type Finding = { component: string; slot: string; utility: string; role: 
 const PAD = '(?:p|px|py|pt|pb|pl|pr|ps|pe)';
 const SPACE = '(?:p|px|py|pt|pb|pl|pr|ps|pe|gap|gap-x|gap-y|m|mx|my|mt|mb|ml|mr|ms|me)';
 const STEP = new RegExp(`^-?${SPACE}-(\\d+(?:\\.\\d+)?)$`);
-const PAD_ROLE = new RegExp(`^${PAD}-([a-z]+-[a-z]+)$`);
+const PAD_ROLE = new RegExp(`^${PAD}-([a-z]+(?:-[a-z]+)*)$`);
 const PAD_ARBITRARY = new RegExp(`^${PAD}-\\[(.*)\\]$`);
 const GAP_ROLES = new Set(['gap-control', 'gap-marker', 'gap-row']);
 const PAD_STEMS = new Set(KINDS.flatMap((k) => KIND_AIR[k].pad));
@@ -394,7 +394,7 @@ function kindProblem(utility: string, kind: SlotKind) {
   const role = PAD_ROLE.exec(utility);
   if (role && PAD_STEMS.has(role[1]!)) return !air.pad.includes(role[1]!);
   const arbitrary = PAD_ARBITRARY.exec(utility);
-  const operand = arbitrary && /var\(--pad-([a-z]+-[a-z]+)\)/.exec(arbitrary[1]!);
+  const operand = arbitrary && /var\(--pad-([a-z]+(?:-[a-z]+)*)\)/.exec(arbitrary[1]!);
   if (operand && PAD_STEMS.has(operand[1]!)) return true;
   if (GAP_ROLES.has(utility.replace(/^gap-[xy]-/, 'gap-'))) return !air.gap.includes(utility.replace(/^gap-[xy]-/, 'gap-'));
   const radius = utility.replace(/^rounded-(?:tl|tr|bl|br|ss|se|es|ee|[trblse])-/, 'rounded-');

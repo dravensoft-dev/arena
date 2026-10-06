@@ -252,7 +252,7 @@
   },
   "gap-row": {
     "$type": "dimension",
-    "$value": "{sp.3}"
+    "$value": "{sp.2}"
   },
   "fill-surface": {
     "$type": "color",

@@ -113,17 +113,17 @@ describes. A plugin answers each role once and every slot of the kind follows.
 
 | Kind | Padding roles | Gap role | Radius role |
 |---|---|---|---|
-| `surface` | `pad-surface`, `pad-surface-head` | `gap-items`, `gap-inline` | `rounded-surface` |
-| `floating` | `pad-floating-x`, `pad-floating-y` | `gap-items`, `gap-inline` | `rounded-surface-floating` |
+| `surface` | `pad-surface`, `pad-surface-head` | the kind-free rhythm | `rounded-surface` |
+| `floating` | `pad-floating-x`, `pad-floating-y` | the kind-free rhythm | `rounded-surface-floating` |
 | `control` | `pad-control-x`, `pad-control-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
 | `field` | `pad-control-x`, `pad-control-y` | `gap-control` | `rounded-field` |
 | `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
-| `status` | `pad-status-x`, `pad-status-y` | `gap-items`, `gap-inline` | `rounded-surface-floating` |
+| `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
 | `row` | `pad-row-x`, `pad-row-y`, `pad-row-indent`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row` | `rounded-control` |
 | `none` | none | the kind-free rhythm only | the kind-free shapes only |
 
 The table is `scripts/lib/tailwind/slot-kinds.ts:KIND_AIR`, and the rhythm and shapes any kind
-may ask are `KIND_FREE` in the same file. The fill of a small readout raised over the content it
+may ask are `KIND_FREE` in the same file, which holds `gap-items` and `gap-inline`. The fill of a small readout raised over the content it
 annotates, a chart's tooltip, is `fill-surface-raised`.
 
 **A row's padding is the role times the density row factor.** `pad-row-x` and `pad-row-y` are

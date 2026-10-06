@@ -145,6 +145,19 @@ test('a row exception that keeps the control padding role is a kind finding, and
   assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => [f.slot, f.why]), [['a', 'kind'], ['b', 'step']]);
 });
 
+test('the one-word surface padding stem is judged by kind, bare and as an operand', () => {
+  const manifest = {
+    component: 'Fixture',
+    slots: { a: 'p-surface', b: 'px-surface', c: 'px-[var(--pad-surface)]', d: 'p-surface' },
+    kind: { a: 'row', b: 'floating', c: 'row', d: 'surface' },
+  };
+  assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => [f.slot, f.utility, f.why]), [
+    ['a', 'p-surface', 'kind'],
+    ['b', 'px-surface', 'kind'],
+    ['c', 'px-[var(--pad-surface)]', 'kind'],
+  ]);
+});
+
 test('a radius role outside the kind is a kind finding', () => {
   const manifest = { component: 'Fixture', slots: { panel: 'rounded-surface' }, kind: { panel: 'floating' } };
   assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => [f.utility, f.why]), [['rounded-surface', 'kind']]);

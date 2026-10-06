@@ -1,6 +1,6 @@
 /* A chart's legend and tooltip are drawn from its manifest: each part carries its manifest part
  * name and a class, and the inline style holds only what the render computes. The legend item's
- * gap and the tooltip's padding and background are the values that used to sit inline. */
+ * gap and the tooltip's padding and background come from the manifest, never from inline style. */
 
 import { useTestEnvironment } from '../../test/TestbedEnv';
 useTestEnvironment();

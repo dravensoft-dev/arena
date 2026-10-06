@@ -233,7 +233,7 @@
   },
   "pad-row-x": {
     "$type": "dimension",
-    "$value": "{sp.3}"
+    "$value": "{sp.5}"
   },
   "pad-row-y": {
     "$type": "dimension",
@@ -255,7 +255,7 @@
   },
   "gap-row": {
     "$type": "dimension",
-    "$value": "{sp.3}"
+    "$value": "{sp.4}"
   },
   "fill-surface": {
     "$type": "color",

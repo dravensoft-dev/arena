@@ -1,8 +1,10 @@
 /* Fails on a bare dimension literal in a framework layer. EXEMPT and PASSTHROUGH are
  * asserted by name in the paired suite, so changing either is a change to both.
- * One blind spot is known and unfixed: a kebab-case SVG attribute. A write of a PROPS property
- * into style in a component file passes as var(--…) with no literal operand and otherwise is
- * listed in COMPUTED, the render's own arithmetic. */
+ * A write of a PROPS property into style in a component file passes as a channel binding,
+ * var(--…) alone, and otherwise is listed in COMPUTED, the render's own arithmetic, or EXEMPT.
+ * Three writes stay unscanned: a kebab-case SVG attribute, a [style] bound whole to a class
+ * member (ArenaCalendarEvent's across), and a reassigned local style object (ArenaOnboarding's
+ * pos). */
 
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';

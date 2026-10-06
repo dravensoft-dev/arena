@@ -1,6 +1,6 @@
 /* The legend and the tooltip of every chart are drawn from the chart's manifest:
  * each carries its data-arena-part and none of the inline properties the manifest
- * now answers. What stays inline is a value the render computes. */
+ * answers. What stays inline is a value the render computes. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';

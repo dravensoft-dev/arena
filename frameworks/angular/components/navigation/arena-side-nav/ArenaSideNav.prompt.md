@@ -47,8 +47,7 @@ sits three levels down.
 
 `indentStep` is a **number**, never a CSS string: a count of the theme's indent steps, not a length. Each
 row binds `--arena-side-nav-depth` to `indentStep * depth`, and the theme's indent role turns that
-count into the inset. Pass a step, never a length: a CSS string here
-would survive the type and then stop tracking the density and the theme.
+count into the inset. Pass a step, never a length: the theme's indent role reads a count, and a CSS string is not one.
 
 `active` is the id of the current destination and `nav` reports the id of the row pressed. An item with `href` splits its activations. The plain one is reported through `nav`, so `router.navigateByUrl` in that handler is the whole bridge and nothing navigates twice. The rest keep working for a consumer who wires no handler.
 

@@ -84,11 +84,11 @@ so those pages stay clean only because they are tokenized by hand. The `*.card.h
 under `frameworks/tailwind/` are the one family of unscanned pages that stays clean
 structurally: every class they render comes from the manifest through `classesFor()`.
 
-**Two blind spots are known and neither is fixed**: a kebab-case SVG attribute, and Angular's
-`[style.x]` binding form, which sits outside all four scanners. This is why a chart drawing geometry
-writes its static styling as camelCase `[style]` **objects**: in that shape
-`strokeWidth` and `fontSize` are judged as themselves, which is strictly more coverage than an
-attribute.
+A style write in a component file passes as a channel
+binding, `var(--token)`; a computed write is listed in `COMPUTED` with the function that computes
+it; a literal needs `EXEMPT`. Three writes stay unscanned: a kebab-case SVG attribute, a `[style]`
+bound to a class member (ArenaCalendarEvent's `across`), a reassigned local style object
+(ArenaOnboarding's `pos`).
 
 A handful of sites are exempt by name with a reason each: read `EXEMPT` for the current set
 rather than a count. A stale exemption fails the gate itself, and a change to `EXEMPT` or
