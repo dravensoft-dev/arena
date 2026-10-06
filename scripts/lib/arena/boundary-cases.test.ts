@@ -14,13 +14,20 @@ const kase: BoundaryCase = {
 };
 
 test('a probe whose parent is a boundary passes', () => {
-  assert.deepEqual(siteProblems(kase, [{ slot: 'content', found: true, boundary: true, part: 'tooltip' }], 'react').problems, []);
+  assert.deepEqual(siteProblems({ ...kase, transparent: {} }, [{ slot: 'content', found: true, boundary: true, part: 'tooltip' }], 'react').problems, []);
 });
 
 test('a probe whose parent is no boundary fails, naming the slot and the part, which is the missing-boundary mutation', () => {
   const { problems } = siteProblems({ ...kase, transparent: {} },
     [{ slot: 'content', found: true, boundary: false, part: 'tooltip' }], 'react');
   assert.match(problems[0] ?? '', /react\/ArenaTooltip\.content projects into part "tooltip", which carries no data-arena-boundary/);
+});
+
+test('a boundary on a slot the manifest declares transparent fails, which is the contradiction mutation', () => {
+  const { problems, spent } = siteProblems(kase, [{ slot: 'content', found: true, boundary: true, part: 'tooltip' }], 'angular');
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /angular\/ArenaTooltip\.content projects into part "tooltip", declared transparent in the manifest yet carrying data-arena-boundary: remove one of them/);
+  assert.deepEqual(spent, []);
 });
 
 test('a probe inside a transparent slot passes and spends that entry', () => {

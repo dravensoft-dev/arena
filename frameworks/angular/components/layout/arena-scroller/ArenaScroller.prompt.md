@@ -3,7 +3,7 @@ slideshow. Standalone, `OnPush`, signal I/O. The host **is** the scrolling regio
 `<arena-scroller>` is the element you place, and it is one tab stop with a group role and a name.
 
 ```html
-<arena-scroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
+<arena-scroller label="Recently landed lots" class="arena-scroller-item-lg">
   @for (lot of arrivals(); track lot.id) { <app-lot-card [lot]="lot" /> }
 </arena-scroller>
 ```

@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -51,6 +51,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'grid-min-stops-at-the-card-content': () => <div style={axis}><ArenaGrid><ArenaCard title="A"><ArenaGrid>{null}</ArenaGrid></ArenaCard></ArenaGrid></div>,
   'grid-min-stops-at-a-lone-card-body': () => <div style={axis}><ArenaCard title="A"><ArenaGrid>{null}</ArenaGrid></ArenaCard></div>,
   'grid-min-class-beats-the-property': () => <div style={axis}><ArenaGrid className="arena-grid-min-sm"><ArenaCard title="A">{null}</ArenaCard></ArenaGrid></div>,
+  'scroller-class-reaches-its-items': () => <ArenaScroller className="arena-scroller-item-sm" label="Lots"><ArenaScrollerItem>{null}</ArenaScrollerItem></ArenaScroller>,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -64,6 +65,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'grid-min-stops-at-the-card-content': { part: 'grid', at: -1 },
   'grid-min-stops-at-a-lone-card-body': { part: 'grid', at: 0 },
   'grid-min-class-beats-the-property': { part: 'grid', at: 0 },
+  'scroller-class-reaches-its-items': { part: 'scroller-item', at: 0 },
 };
 
 const { families, cases } = readProximity();

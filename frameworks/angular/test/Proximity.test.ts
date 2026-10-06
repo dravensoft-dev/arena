@@ -24,6 +24,8 @@ import { ArenaCard } from '../components/display/arena-card/ArenaCard';
 import { ArenaBadge } from '../components/display/arena-badge/ArenaBadge';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaGrid } from '../components/layout/arena-grid/ArenaGrid';
+import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller';
+import { ArenaScrollerItem } from '../components/layout/arena-scroller-item/ArenaScrollerItem';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
@@ -58,6 +60,7 @@ const TEMPLATES: Record<string, string> = {
   'grid-min-stops-at-the-card-content': '<div style="display: contents; --arena-grid-min: 300px"><arena-grid><arena-card title="A"><arena-grid /></arena-card></arena-grid></div>',
   'grid-min-stops-at-a-lone-card-body': '<div style="display: contents; --arena-grid-min: 300px"><arena-card title="A"><arena-grid /></arena-card></div>',
   'grid-min-class-beats-the-property': '<div style="display: contents; --arena-grid-min: 300px"><arena-grid class="arena-grid-min-sm"><arena-card title="A" /></arena-grid></div>',
+  'scroller-class-reaches-its-items': '<arena-scroller class="arena-scroller-item-sm" label="Lots"><arena-scroller-item /></arena-scroller>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -71,6 +74,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'grid-min-stops-at-the-card-content': { part: 'grid', index: -1 },
   'grid-min-stops-at-a-lone-card-body': { part: 'grid', index: 0 },
   'grid-min-class-beats-the-property': { part: 'grid', index: 0 },
+  'scroller-class-reaches-its-items': { part: 'scroller-item', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -84,7 +88,7 @@ for (const kase of cases) {
   test(`${kase.name}: Angular renders the tree the gate measures`, () => {
     const Host = Component({
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

@@ -2,7 +2,7 @@ Arena scroller item, one cell of an `arena-scroller`: the box that carries the w
 decided and the point the row settles on. Standalone, `OnPush`. The host **is** the cell.
 
 ```html
-<arena-scroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
+<arena-scroller label="Recently landed lots" class="arena-scroller-item-lg">
   @for (lot of arrivals(); track lot.id) {
     <arena-scroller-item><app-lot-card [lot]="lot" /></arena-scroller-item>
   }

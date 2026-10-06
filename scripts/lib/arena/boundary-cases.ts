@@ -133,8 +133,13 @@ export function siteProblems(kase: BoundaryCase, sites: ProbeSite[], layer: stri
         + 'where it lands: seed the fixture so it renders, or name it in ITEM_SLOTS if it takes Arena items');
       continue;
     }
-    if (site.boundary) continue;
     const slot = site.part ? kase.slotOfPart[site.part] : undefined;
+    if (site.boundary) {
+      if (slot !== undefined && kase.transparent[slot] !== undefined) {
+        problems.push(`${where} projects into part "${site.part}", declared transparent in the manifest yet carrying ${BOUNDARY}: remove one of them`);
+      }
+      continue;
+    }
     if (slot !== undefined && kase.transparent[slot] !== undefined) { spent.push(`${kase.manifest}.${slot}`); continue; }
     problems.push(`${where} projects into part "${site.part ?? '(none)'}", which carries no ${BOUNDARY}. `
       + 'A box class written above the component would reach the adopter\'s content: put the attribute on '
