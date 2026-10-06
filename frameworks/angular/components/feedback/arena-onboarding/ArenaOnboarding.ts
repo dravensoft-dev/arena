@@ -30,6 +30,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
     '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '(click)': 'onScrimClick()',

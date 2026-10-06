@@ -33,6 +33,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().scrim()',
+    '[attr.data-arena-surface]': "'floating'",
     '[attr.data-arena-open]': "styles().$data.scrim()['data-arena-open'] ?? null",
     '[attr.data-arena-fill]': "styles().$data.scrim()['data-arena-fill'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.scrim : null',

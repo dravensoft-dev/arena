@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { arenaAppLogoStyles } from './ArenaAppLogo.variants';
 import manifest from './ArenaAppLogo.classes.generated';
-import type { ArenaLogoSize, ArenaOrientation } from '../../../Api.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
@@ -11,7 +10,6 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
-    '[attr.data-arena-orientation]': "styles().$data.root()['data-arena-orientation'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
@@ -27,17 +25,6 @@ export class ArenaAppLogo {
   readonly name = input.required<string>();
   /** The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. It is the second half of a name and never a tagline beside it: a product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */
   readonly dim = input<string>();
-  /** Both halves at once: the mark's slot and the wordmark. */
-  readonly size = input<ArenaLogoSize, ArenaLogoSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
-  /** Mark beside the name, or above it. */
-  readonly orientation = input<ArenaOrientation, ArenaOrientation | undefined>(
-    'horizontal',
-    { transform: (value) => value ?? 'horizontal' },
-  );
 
-  protected readonly styles = computed(() =>
-    arenaAppLogoStyles({ size: this.size(), orientation: this.orientation() }));
+  protected readonly styles = computed(() => arenaAppLogoStyles({}));
 }

@@ -18,6 +18,10 @@ import { ANGULAR_COMPONENTS } from './Compliance';
 const LAYER = join(ANGULAR_COMPONENTS, '..');
 
 const PRIVATE = new Map([
+  ['display/arena-avatar/AvatarFace.ts',
+   'the token a person row provides to the avatar it draws, so the avatar binds its size channel to '
+   + 'the list\'s face; an adopter never provides it, and it is typechecked through the avatar that '
+   + 'injects it.'],
   ['feedback/arena-tooltip/TooltipName.ts',
    'the redundancy test the tooltip runs on its own trigger when it opens; nothing outside the '
    + 'component calls it, and it is typechecked through the tooltip that imports it.'],

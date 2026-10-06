@@ -1,7 +1,5 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import type { ArenaControlSize } from '../../../Api.generated';
-import { ArenaPeopleListState } from './ArenaPeopleListState';
 import { arenaPeopleListStyles } from './ArenaPeopleList.variants';
 import manifest from './ArenaPeopleList.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -10,7 +8,6 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   selector: 'arena-people-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ArenaPeopleListState],
   host: { style: 'display: contents' },
   imports: [ArenaSlotAttributes, NgTemplateOutlet],
   template: `
@@ -33,11 +30,6 @@ export class ArenaPeopleList {
   readonly label = input.required<string>();
   /** Whether the order is part of the meaning. A standings table read in any other order is a different claim, and its rows are numbered; a set of suggestions is a set. It is a declared input rather than something inferred from the rows carrying a `rank`, because Arena never derives what it draws from what a consumer happened to pass, and a numbered list whose numbers are decoration is a lie told to a screen reader. */
   readonly ordered = input(false, { transform: booleanAttribute });
-  /** How big every row in the list is: the face, the name and the figure move together. It sits on the list rather than on the row because rows in one list that disagree about their size are a defect and never a design, and how the list hands it down is each layer's business rather than this contract's. */
-  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
 
   protected readonly named = computed(() => {
     const name = this.label();
@@ -47,11 +39,5 @@ export class ArenaPeopleList {
     return name;
   });
 
-  protected readonly styles = computed(() => arenaPeopleListStyles({ size: this.size() }));
-
-  private readonly state = inject(ArenaPeopleListState);
-
-  constructor() {
-    this.state.size = this.size;
-  }
+  protected readonly styles = computed(() => arenaPeopleListStyles({}));
 }

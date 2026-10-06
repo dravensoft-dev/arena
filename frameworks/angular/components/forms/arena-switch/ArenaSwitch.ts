@@ -1,23 +1,11 @@
 import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input, output,
 } from '@angular/core';
-import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { arenaSwitchStyles } from './ArenaSwitch.variants';
 import manifest from './ArenaSwitch.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
-
-export type SwitchFootprint = `${ArenaOrientation}-${ArenaSwitchSize}`;
-export type SwitchThumb = `${'on' | 'off'}-${ArenaOrientation}`;
-
-export function arenaFootprintFor(orientation: ArenaOrientation, size: ArenaSwitchSize): SwitchFootprint {
-  return `${orientation}-${size}`;
-}
-
-export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): SwitchThumb {
-  return `${state ? 'on' : 'off'}-${orientation}`;
-}
 
 @Component({
   selector: 'arena-switch',
@@ -58,16 +46,6 @@ export class ArenaSwitch {
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });
-  /** Whether the switch lies horizontally or stands vertically. */
-  readonly orientation = input<ArenaOrientation, ArenaOrientation | undefined>(
-    'horizontal',
-    { transform: (value) => value ?? 'horizontal' },
-  );
-  /** The switch's overall size. */
-  readonly size = input<ArenaSwitchSize, ArenaSwitchSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
   /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
   readonly iconOn = input<string>();
   /** A Phosphor class name for the glyph shown while off. */
@@ -88,12 +66,8 @@ export class ArenaSwitch {
   protected readonly glyph = computed(() => (this.drawn() ? this.iconOn() : this.iconOff()));
 
   protected readonly styles = computed(() => arenaSwitchStyles({
-    size: this.size(),
-    orientation: this.orientation(),
     state: this.drawn(),
     disabled: this.off(),
-    footprint: arenaFootprintFor(this.orientation(), this.size()),
-    thumb: arenaThumbFor(this.drawn(), this.orientation()),
   }));
 
   protected readonly glyphClass = computed(() => `${this.styles().icon()} ${this.glyph() ?? ''}`.trim());

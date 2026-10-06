@@ -10,6 +10,7 @@ import manifest from './ArenaToastHost.classes.generated';
   host: {
     'data-arena-boundary': '',
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
     '[attr.data-arena-placement]': "styles().$data.root()['data-arena-placement'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
   },

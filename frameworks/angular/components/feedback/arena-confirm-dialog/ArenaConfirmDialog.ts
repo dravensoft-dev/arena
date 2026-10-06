@@ -32,6 +32,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
     '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.root : null',
     '(keydown)': 'onKeydown($event)',

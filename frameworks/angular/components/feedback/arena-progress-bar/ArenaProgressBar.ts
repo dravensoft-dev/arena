@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, numberAttribute } from '@angular/core';
-import type { ArenaControlSize, ArenaProgressShape, ArenaProgressTone } from '../../../Api.generated';
+import type { ArenaProgressShape, ArenaProgressTone } from '../../../Api.generated';
 import { arenaProgressBarStyles } from './ArenaProgressBar.variants';
 import manifest from './ArenaProgressBar.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -92,11 +92,6 @@ export class ArenaProgressBar {
   readonly showLabel = input(true, { transform: booleanAttribute });
   /** Shows the percentage: beside the label on a bar, and in the middle of a ring, which is the figure a meter in a tile is read by. Determinate only. Turn it off when `content` fills a ring's middle: the two share that space, and Arena never derives what it draws from what a consumer projected, because projected content is not inspectable in at least one layer. */
   readonly showPercentage = input(true, { transform: booleanAttribute });
-  /** How heavy the meter is: the bar's thickness, and a ring's diameter with a band the same weight as the bar it replaces. */
-  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
   /** Whether the meter is drawn as a bar or as a ring. A ring puts the percentage inside its own track and the label under it, which is the arrangement a tile wants and the one a row cannot give: a bar is as wide as its row and reads along it, while a ring is as wide as it is tall and reads at a glance. It is a shape rather than a second component because everything else is the same question answered once: the percentage, the tone, the required name, the announcement and the sweep a wait draws. */
   readonly shape = input<ArenaProgressShape, ArenaProgressShape | undefined>(
     'linear',
@@ -111,6 +106,6 @@ export class ArenaProgressBar {
   );
 
   protected readonly styles = computed(
-    () => arenaProgressBarStyles({ shape: this.shape(), tone: this.tone(), size: this.size(), indeterminate: this.indeterminate() }),
+    () => arenaProgressBarStyles({ shape: this.shape(), tone: this.tone(), indeterminate: this.indeterminate() }),
   );
 }

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import type { ArenaControlSize, ArenaSpinnerTone } from '../../../Api.generated';
+import type { ArenaSpinnerTone } from '../../../Api.generated';
 import { arenaSpinnerStyles } from './ArenaSpinner.variants';
 import manifest from './ArenaSpinner.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -25,11 +25,6 @@ export class ArenaSpinner {
   protected readonly locale = inject(ARENA_LOCALE);
   protected readonly name = computed(() => this.label() ?? this.locale.spinnerLabel);
 
-  /** Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. */
-  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
   /** Colour of the ring. 'on-accent' inside a filled button; 'accent' on a page surface. */
   readonly tone = input<ArenaSpinnerTone, ArenaSpinnerTone | undefined>(
     'accent',
@@ -38,5 +33,5 @@ export class ArenaSpinner {
   /** Accessible name, announced by the status role. Say what is loading when you can. Absent, the provided locale's spinnerLabel answers it, which reads Loading by default. */
   readonly label = input<string>();
 
-  protected readonly styles = computed(() => arenaSpinnerStyles({ tone: this.tone(), size: this.size() }));
+  protected readonly styles = computed(() => arenaSpinnerStyles({ tone: this.tone() }));
 }

@@ -12,6 +12,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { TestBed } from '@angular/core/testing';
+import { assertNoNode } from './NodeAssert';
 import { ANGULAR_COMPONENTS } from './Compliance';
 import { ArenaBadge } from '../components/display/arena-badge/ArenaBadge';
 import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
@@ -100,13 +101,13 @@ test('a host that binds the scrim renders the scrim\'s attributes', () => {
   assert.equal((fixture.nativeElement as HTMLElement).getAttribute('data-arena-open'), '');
 });
 
-test('the switch renders its state, orientation and size as attributes on the slots that carry them', () => {
+test('the switch renders its state as an attribute on the slots that carry it and no orientation or size', () => {
   const fixture = TestBed.createComponent(ArenaSwitch);
   fixture.componentRef.setInput('label', 'Notify');
   fixture.componentRef.setInput('state', true);
   fixture.detectChanges();
   const host = fixture.nativeElement as HTMLElement;
   assert.equal(host.querySelector('[role="switch"]')?.getAttribute('data-arena-state'), '', 'the track does not carry the on state');
-  assert.ok(host.querySelector('[data-arena-orientation="horizontal"]'), 'no element carries the orientation');
-  assert.ok(host.querySelector('[data-arena-size="md"]'), 'no element carries the size');
+  assertNoNode(host.querySelector('[data-arena-orientation]'), 'an element still carries the orientation');
+  assertNoNode(host.querySelector('[data-arena-size]'), 'an element still carries the size');
 });

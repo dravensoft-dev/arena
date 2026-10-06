@@ -46,7 +46,7 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   template: `
     <ng-content />
     <ng-template #bubble>
-      <span [class]="styles().bubble()" [arenaSlotData]="styles().$data.bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">@if (quiet()) {<span aria-hidden="true">{{ label() }}</span>} @else {{{ label() }}}</span>
+      <span [class]="styles().bubble()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">@if (quiet()) {<span aria-hidden="true">{{ label() }}</span>} @else {{{ label() }}}</span>
     </ng-template>
   `,
 })

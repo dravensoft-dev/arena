@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, Component, ElementRef, afterNextRender, booleanAttribute, computed,
   input, output, viewChild,
 } from '@angular/core';
-import type { ArenaButtonType, ArenaControlSize, ArenaIconButtonVariant } from '../../../Api.generated';
+import type { ArenaButtonType, ArenaIconButtonVariant } from '../../../Api.generated';
 import { arenaIconButtonStyles } from './ArenaIconButton.variants';
 import manifest from './ArenaIconButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -37,11 +37,6 @@ export class ArenaIconButton {
   readonly icon = input.required<string>();
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   readonly label = input.required<string>();
-  /** Height, from the density tokens: the same scale ArenaButton uses, so the two re-densify together in a toolbar. */
-  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
   /** Visual treatment. */
   readonly variant = input<ArenaIconButtonVariant, ArenaIconButtonVariant | undefined>(
     'ghost',
@@ -72,7 +67,7 @@ export class ArenaIconButton {
   readonly click = output<void>();
 
   protected readonly styles = computed(() => arenaIconButtonStyles({
-    variant: this.variant(), size: this.size(), showLabel: this.showLabel(),
+    variant: this.variant(), showLabel: this.showLabel(),
     pressed: this.pressed() === true,
   }));
 

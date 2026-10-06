@@ -46,7 +46,7 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
   template: `
     <ng-content select="[trigger]" />
     <ng-template #panel>
-      <div role="menu" [class]="styles().panel()" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel">
+      <div role="menu" [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel">
         @for (item of items(); track $index) {
           @if (item.divider) {
             <div [class]="styles().divider()" [attr.data-arena-part]="parts.divider"></div>

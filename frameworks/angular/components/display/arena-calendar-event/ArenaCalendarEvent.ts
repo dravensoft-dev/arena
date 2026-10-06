@@ -58,7 +58,7 @@ let seq = 0;
             </span>
           }
           <span #kebabWrap [class]="kebabStyles().kebabWrap()" [arenaSlotData]="kebabStyles().$data.kebabWrap()" [attr.data-arena-part]="parts.kebabWrap">
-            <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" size="sm"
+            <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" class="arena-size-sm"
                                [tabStop]="false" (click)="togglePanel()" />
             @if (panelOpen()) {
               <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" data-arena-boundary [style.zIndex]="1">

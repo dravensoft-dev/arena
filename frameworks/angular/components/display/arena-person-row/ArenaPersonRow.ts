@@ -1,25 +1,23 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, inject, input } from '@angular/core';
-import type { ArenaAvatarSize, ArenaControlSize } from '../../../Api.generated';
+import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input } from '@angular/core';
 import { ArenaAvatar } from '../arena-avatar/ArenaAvatar';
-import { ArenaPeopleListState } from '../arena-people-list/ArenaPeopleListState';
+import { ARENA_AVATAR_FACE } from '../arena-avatar/AvatarFace';
 import { arenaPeopleListStyles } from '../arena-people-list/ArenaPeopleList.variants';
 import manifest from '../arena-people-list/ArenaPeopleList.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
-
-const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg: 'md' };
 
 @Component({
   selector: 'arena-person-row',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ArenaSlotAttributes, ArenaAvatar],
+  viewProviders: [{ provide: ARENA_AVATAR_FACE, useValue: true }],
   host: { style: 'display: contents', '[attr.name]': 'null' },
   template: `
     <li [class]="styles().row()" [arenaSlotData]="styles().$data.row()" [attr.data-arena-part]="parts.row" [attr.aria-current]="current() ? 'true' : null">
       @if (rank() !== undefined) {
         <span [class]="styles().rank()" [arenaSlotData]="styles().$data.rank()" [attr.data-arena-part]="parts.rank">{{ rank() }}</span>
       }
-      <arena-avatar [name]="named()" [src]="src()" [size]="face()" nameShown />
+      <arena-avatar [name]="named()" [src]="src()" nameShown />
       <span [class]="styles().text()" [attr.data-arena-part]="parts.text">
         <span [class]="styles().name()" [arenaSlotData]="styles().$data.name()" [attr.data-arena-part]="parts.name">{{ named() }}</span>
         @if (secondary(); as line) {
@@ -51,8 +49,6 @@ export class ArenaPersonRow {
   /** Whether this row is the reader's own. It fills the row so it can be found without reading it, and it says so rather than only showing it, because a highlight nothing announces is a highlight half the readers do not get. */
   readonly current = input(false, { transform: booleanAttribute });
 
-  private readonly list = inject(ArenaPeopleListState);
-
   protected readonly named = computed(() => {
     const name = this.name();
     if (name.trim() === '') {
@@ -61,9 +57,7 @@ export class ArenaPersonRow {
     return name;
   });
 
-  protected readonly face = computed(() => FACE[this.list.size()]);
-
   protected readonly styles = computed(
-    () => arenaPeopleListStyles({ size: this.list.size(), current: this.current() }),
+    () => arenaPeopleListStyles({ current: this.current() }),
   );
 }

@@ -116,3 +116,15 @@ test('a person row says the name once, from its text, with and without an image'
     }
   }
 });
+
+test('a person row hands its avatar the list face on the avatar root', () => {
+  const fixture = TestBed.createComponent(RowHost);
+  try {
+    fixture.detectChanges();
+    const avatar = (fixture.nativeElement as Element).querySelector('li arena-avatar') as HTMLElement | null;
+    assert.ok(avatar, 'the row draws an avatar');
+    assert.equal(avatar.style.getPropertyValue('--arena-size-avatar'), 'var(--arena-size-face, var(--size-md-face))');
+  } finally {
+    fixture.destroy();
+  }
+});

@@ -28,7 +28,7 @@ const RANGES: ArenaSegmentOption[] = [
   standalone: true,
   imports: [ArenaSegmentedControl],
   template: `<arena-segmented-control [options]="options" [ariaLabel]="ariaLabel" [name]="name"
-                                      [value]="value" [defaultValue]="defaultValue" [size]="size"
+                                      [value]="value" [defaultValue]="defaultValue"
                                       (change)="chosen.push($event)" />`,
 })
 class SegmentedControlHost {
@@ -37,7 +37,6 @@ class SegmentedControlHost {
   name: string | undefined = 'range';
   value: string | undefined = '7d';
   defaultValue: string | undefined = undefined;
-  size: 'sm' | 'md' = 'md';
   chosen: string[] = [];
 }
 

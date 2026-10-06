@@ -14,6 +14,7 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
     '[attr.data-arena-placement]': "styles().$data.root()['data-arena-placement'] ?? null",
     '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.root : null',
