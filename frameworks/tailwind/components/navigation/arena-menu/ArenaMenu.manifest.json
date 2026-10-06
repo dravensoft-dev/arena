@@ -10,7 +10,7 @@
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
     "panel": "arena-menu z-dropdown min-w-50 p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
     "panelEnd": "left-auto right-0",
-    "item": "flex items-center gap-2.5 w-full text-left px-[calc(var(--sp-1)*2.5*var(--dz-row-scale-x))] py-[calc(var(--pad-control-y)*var(--dz-row-scale-y))] border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "item": "flex items-center gap-2.5 w-full min-h-row-min text-left px-[calc(var(--sp-1)*2.5*var(--dz-row-scale-x))] py-[calc(var(--pad-control-y)*var(--dz-row-scale-y))] border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "itemDefault": "cursor-pointer text-ink-body/(--level-ink-body) hover:bg-primary/14",
     "itemDestructive": "cursor-pointer text-error hover:bg-hover",
     "itemDisabled": "text-ink-muted/(--level-ink-muted) opacity-60 cursor-not-allowed",
