@@ -14,11 +14,12 @@ import { join } from 'node:path';
 import { parseDecls } from '../arena/css-decls.ts';
 import { toPosix, type PathModule } from '../../utils/posix-path.ts';
 import {
-  classBase, classesManifest as rawClassesManifest, compoundClass, slotClass, slotPart,
-  variantClass,
+  classBase, classesManifest as rawClassesManifest, compoundClass, dataAttribute, slotClass, slotPart,
+  variantClass, groupSlots as rawGroupSlots, slotData as rawSlotData,
+  arenaSlotDataFor as rawArenaSlotDataFor,
   classesFor as rawClassesFor, arenaClassesFor as rawArenaClassesFor,
 } from '../../../frameworks/tailwind/ManifestClasses.js';
-import type { ArenaClassManifest, ArenaSelection } from '../../../frameworks/tailwind/ArenaStyles.ts';
+import type { ArenaClassManifest, ArenaSelection, ArenaSlotData } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import type { ComponentManifest, Manifests, SlotClasses } from './manifest-shapes.ts';
 import { captured } from '../../utils/captures.ts';
 
@@ -28,7 +29,14 @@ export const classesFor =
 export const arenaClassesFor =
   rawArenaClassesFor as (manifest: ComponentManifest, chosen?: ArenaSelection) => SlotClasses;
 
-export { classBase, compoundClass, slotClass, slotPart, variantClass };
+export const groupSlots =
+  rawGroupSlots as (manifest: ComponentManifest) => Record<string, string[]>;
+export const slotData =
+  rawSlotData as (manifest: ArenaClassManifest, chosen?: ArenaSelection) => Record<string, ArenaSlotData>;
+export const arenaSlotDataFor =
+  rawArenaSlotDataFor as (manifest: ComponentManifest, chosen?: ArenaSelection) => Record<string, ArenaSlotData>;
+
+export { classBase, compoundClass, dataAttribute, slotClass, slotPart, variantClass };
 
 export const INDIRECTION = /var\(\s*--([a-z0-9-]+)\s*,\s*var\(\s*--([a-z0-9-]+)\s*\)\s*\)/g;
 export const isThemeKey = (name: string) => !name.startsWith('tw-');

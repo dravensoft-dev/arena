@@ -92,3 +92,16 @@ test('every manifest that ships names a part for every slot it names', () => {
       `${manifest.component}: a slot with no part is a slot a style plugin cannot reach`);
   }
 });
+
+test('classesManifest carries values and attributes for every manifest and never copies internal or hues', () => {
+  const all = [...layerManifests().values()];
+  assert.ok(all.length > 0, 'no manifest was read, so this asserts nothing');
+  for (const manifest of all) {
+    const out = classesManifest(manifest) as unknown as Record<string, unknown>;
+    const groups = Object.keys(manifest.variants ?? {}).sort();
+    assert.deepEqual(Object.keys(out.values as object).sort(), groups, `${manifest.component}: values`);
+    assert.deepEqual(Object.keys(out.attributes as object).sort(), groups, `${manifest.component}: attributes`);
+    assert.equal('internal' in out, false, `${manifest.component}: internal copied`);
+    assert.equal('hues' in out, false, `${manifest.component}: hues copied`);
+  }
+});

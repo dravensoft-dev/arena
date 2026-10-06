@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { arenaStyles } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import type { ArenaSelection } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
-import { classesManifest, slotClass, variantClass } from '../../lib/tailwind/component-css.ts';
+import { classesManifest, groupSlots, slotClass, variantClass } from '../../lib/tailwind/component-css.ts';
 import type { CompoundVariant } from '../../lib/tailwind/manifest-shapes.ts';
 
 const manifests = [...layerManifests().values()];
@@ -190,4 +190,42 @@ test('a value spelled as a boolean and as its string are one selection, the way 
       + 'value compose identically and may not be two entries');
   }
   assert.ok(seen > 0, 'no manifest carries a boolean variant group, so this proves nothing');
+});
+
+const dataOf = (data: Record<string, (() => Readonly<Record<string, string>>) | undefined>, slot: string) => {
+  const read = data[slot];
+  if (!read) throw new Error(`no $data accessor for ${slot}`);
+  return read();
+};
+
+const probe = {
+  component: 'ArenaProbe',
+  slots: { root: 'flex', icon: 'size-4', label: '' },
+  variants: {
+    tone: { neutral: { root: 'a' }, danger: { root: 'b', icon: 'c' } },
+    sticky: { true: { root: 'd' }, false: {} },
+    align: { start: {}, end: {} },
+  },
+  defaultVariants: { tone: 'neutral', sticky: true },
+  compoundVariants: [{ align: 'end', sticky: true, class: { label: 'e' } }],
+  hues: { tone: { neutral: null, danger: 'danger', on: ['label'] } },
+};
+
+test('a group renders on every slot a value, a compound naming it, or its hues.on writes', () => {
+  assert.deepEqual(groupSlots(probe), { tone: ['root', 'icon', 'label'], sticky: ['root', 'label'], align: ['label'] });
+});
+test('an enum renders its resolved value, the default included', () => {
+  const s = arenaStyles(classesManifest(probe))();
+  assert.deepEqual(dataOf(s.$data, 'root'), { 'data-arena-tone': 'neutral', 'data-arena-sticky': '' });
+  assert.deepEqual(dataOf(s.$data, 'icon'), { 'data-arena-tone': 'neutral' });
+});
+test('a boolean is present when true and absent when false, a default of true included', () => {
+  const off = arenaStyles(classesManifest(probe))({ sticky: false });
+  assert.equal('data-arena-sticky' in dataOf(off.$data, 'root'), false);
+});
+test('an unknown value throws from $data as it does from the class accessor', () => {
+  assert.throws(() => arenaStyles(classesManifest(probe))({ tone: 'dangr' }).$data.root?.(), /tone="dangr" is not in the manifest/);
+});
+test('a slot no group touches carries no attribute', () => {
+  assert.deepEqual(dataOf(arenaStyles(classesManifest({ ...probe, hues: undefined }))().$data, 'label'), { 'data-arena-sticky': '' });
 });

@@ -16,6 +16,30 @@ export function slotPart(manifest, slot) {
   return slot === 'root' ? base : `${base}.${kebab(slot)}`;
 }
 
+export const dataAttribute = (group) => `data-arena-${kebab(group)}`;
+
+export function groupSlots(manifest) {
+  const slotNames = Object.keys(manifest.slots ?? {});
+  const touched = {};
+  const touch = (group, slot) => { (touched[group] ??= new Set()).add(slot); };
+  for (const [group, values] of Object.entries(manifest.variants ?? {})) {
+    touched[group] ??= new Set();
+    for (const slots of Object.values(values))
+      for (const [slot, classes] of Object.entries(slots ?? {}))
+        if (String(classes ?? '').trim()) touch(group, slot);
+  }
+  for (const compound of manifest.compoundVariants ?? []) {
+    const { class: applied, ...conditions } = compound;
+    for (const group of Object.keys(conditions))
+      if (touched[group]) for (const slot of Object.keys(applied ?? {})) touch(group, slot);
+  }
+  for (const [group, hue] of Object.entries(manifest.hues ?? {}))
+    if (touched[group]) for (const slot of hue.on ?? []) touch(group, slot);
+  return Object.fromEntries(Object.entries(touched).map(([group, set]) => [
+    group, slotNames.filter((slot) => set.has(slot)),
+  ]));
+}
+
 export function classesManifest(manifest) {
   const named = (map, name) => Object.fromEntries(
     Object.keys(map ?? {}).filter((slot) => String(map[slot] ?? '').trim()).map((slot) => [slot, name(slot)]),
@@ -47,6 +71,25 @@ export function classesManifest(manifest) {
       ...conditions,
       class: named(applied, (slot) => compoundClass(manifest.component, slot, index)),
     }));
+  }
+  out.values = Object.fromEntries(
+    Object.entries(manifest.variants ?? {}).map(([group, values]) => [group, Object.keys(values)]),
+  );
+  out.attributes = groupSlots(manifest);
+  return out;
+}
+
+export function slotData(manifest, chosen = {}) {
+  const out = Object.fromEntries(Object.keys(manifest.slots ?? {}).map((slot) => [slot, {}]));
+  for (const [group, known] of Object.entries(manifest.values ?? {})) {
+    const value = chosen[group] ?? manifest.defaultVariants?.[group];
+    if (value === undefined) continue;
+    if (!known.includes(String(value))) {
+      throw new Error(`${manifest.component}: ${group}="${value}" is not in the manifest, known values: ${known.join(', ')}`);
+    }
+    if (value === false || value === 'false') continue;
+    const rendered = value === true || value === 'true' ? '' : String(value);
+    for (const slot of manifest.attributes?.[group] ?? []) out[slot][dataAttribute(group)] = rendered;
   }
   return out;
 }
@@ -83,4 +126,8 @@ export function classesFor(manifest, chosen = {}) {
 
 export function arenaClassesFor(manifest, chosen = {}) {
   return classesFor(classesManifest(manifest), chosen);
+}
+
+export function arenaSlotDataFor(manifest, chosen = {}) {
+  return slotData(classesManifest(manifest), chosen);
 }

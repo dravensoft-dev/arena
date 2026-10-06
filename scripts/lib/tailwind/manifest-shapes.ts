@@ -10,19 +10,21 @@
  * Readers wanting only class strings take the partial. */
 
 import type {
-  ArenaClassManifest, ArenaCompoundVariant, ArenaSlotClasses,
+  ArenaClassManifest, ArenaCompoundVariant, ArenaHueGroup, ArenaSlotClasses,
 } from '../../../frameworks/tailwind/ArenaStyles.ts';
 
 export type SlotClasses = ArenaSlotClasses;
 
 export type CompoundVariant = ArenaCompoundVariant;
 
-export type ComponentManifest = Omit<ArenaClassManifest, 'slots'> & {
+export type ComponentManifest = Omit<ArenaClassManifest, 'slots' | 'values' | 'attributes'> & {
   readonly slots?: SlotClasses;
   readonly partOf?: Readonly<Record<string, string>>;
   readonly answers?: readonly string[];
   readonly transparent?: Readonly<Record<string, string>>;
   readonly kind?: Readonly<Record<string, string>>;
+  readonly internal?: Readonly<Record<string, string>>;
+  readonly hues?: Readonly<Record<string, ArenaHueGroup>>;
 };
 
 export type ManifestClassSource = Partial<ComponentManifest>;
