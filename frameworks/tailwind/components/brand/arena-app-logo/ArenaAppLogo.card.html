@@ -6,15 +6,16 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaAppLogo.manifest.json')).json();
 
 function logo(size, orientation = 'horizontal') {
   const c = arenaClassesFor(manifest, { size, orientation });
-  return el('span', { class: c.root },
-    el('span', { class: c.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
-    el('span', { class: c.name }, 'Draven', el('span', { class: c.dim, text: 'soft' })));
+  const d = arenaSlotDataFor(manifest, { size, orientation });
+  return el('span', { class: c.root, ...d.root },
+    el('span', { class: c.mark, ...d.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
+    el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
 }
 
 mountSpecimen({ sections: [

@@ -6,15 +6,16 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaBadge.manifest.json')).json();
 const TONES = ['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'];
 
 function badge(tone, label, dot = false) {
   const c = arenaClassesFor(manifest, { tone });
-  const node = el('span', { class: c.root });
-  if (dot) node.append(el('span', { class: c.dot }));
+  const d = arenaSlotDataFor(manifest, { tone });
+  const node = el('span', { class: c.root, ...d.root });
+  if (dot) node.append(el('span', { class: c.dot, ...d.dot }));
   node.append(label);
   return node;
 }

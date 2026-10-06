@@ -6,10 +6,11 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCommandPalette.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
 
 const COMMANDS = [
   { label: 'Create a project', icon: 'ph-bold ph-plus', shortcut: 'C' },
@@ -19,22 +20,23 @@ const COMMANDS = [
 ];
 
 function palette({ query, activeIndex, commands }) {
-  const list = el('div', { class: c.list });
-  if (commands.length === 0) list.append(el('div', { class: c.empty, text: `No results for "${query}".` }));
+  const list = el('div', { class: c.list, ...d.list });
+  if (commands.length === 0) list.append(el('div', { class: c.empty, ...d.empty, text: `No results for "${query}".` }));
   commands.forEach((command, i) => {
     const active = i === activeIndex;
     const own = arenaClassesFor(manifest, { open: 'true', active: String(active) });
-    const row = el('button', { class: own.row, type: 'button' });
-    if (command.icon) row.append(el('span', { class: c.rowIcon }, el('i', { class: command.icon, 'aria-hidden': 'true' })));
-    row.append(el('span', { class: own.rowLabel, text: command.label }));
-    if (command.shortcut) row.append(el('span', { class: c.shortcut, text: command.shortcut }));
+    const dOwn = arenaSlotDataFor(manifest, { open: 'true', active: String(active) });
+    const row = el('button', { class: own.row, ...dOwn.row, type: 'button' });
+    if (command.icon) row.append(el('span', { class: c.rowIcon, ...d.rowIcon }, el('i', { class: command.icon, 'aria-hidden': 'true' })));
+    row.append(el('span', { class: own.rowLabel, ...dOwn.rowLabel, text: command.label }));
+    if (command.shortcut) row.append(el('span', { class: c.shortcut, ...d.shortcut, text: command.shortcut }));
     list.append(row);
   });
-  const search = el('div', { class: c.search },
-    el('i', { class: `${c.searchIcon} ph-bold ph-magnifying-glass`, 'aria-hidden': 'true' }),
-    el('input', { class: c.input, value: query, placeholder: 'Search for an action or project…' }),
-    el('span', { class: c.esc, text: 'ESC' }));
-  return el('div', { class: c.panel }, search, list);
+  const search = el('div', { class: c.search, ...d.search },
+    el('i', { class: `${c.searchIcon} ph-bold ph-magnifying-glass`, ...d.searchIcon, 'aria-hidden': 'true' }),
+    el('input', { class: c.input, ...d.input, value: query, placeholder: 'Search for an action or project…' }),
+    el('span', { class: c.esc, ...d.esc, text: 'ESC' }));
+  return el('div', { class: c.panel, ...d.panel }, search, list);
 }
 
 mountSpecimen({ sections: [

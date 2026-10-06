@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaGrid.manifest.json')).json();
 
@@ -21,7 +21,7 @@ function cell(text) {
 }
 
 function grid(gap, count) {
-  const box = el('div', { class: arenaClassesFor(manifest, { gap }).root, style: { gridTemplateColumns: TRACKS } });
+  const box = el('div', { class: arenaClassesFor(manifest, { gap }).root, ...arenaSlotDataFor(manifest, { gap }).root, style: { gridTemplateColumns: TRACKS } });
   for (let i = 1; i <= count; i += 1) box.append(cell(`Cell ${i}`));
   return box;
 }

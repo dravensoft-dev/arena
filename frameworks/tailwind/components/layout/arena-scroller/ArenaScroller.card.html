@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaScroller.manifest.json')).json();
 
@@ -14,7 +14,7 @@ const LOTS = ['Finca El Injerto', 'Kochere Lot 4', 'La Esperanza', 'Kiangoi AA',
 
 function row(behaviour) {
   const box = el('div', {
-    class: arenaClassesFor(manifest, { behaviour }).root,
+    class: arenaClassesFor(manifest, { behaviour }).root, ...arenaSlotDataFor(manifest, { behaviour }).root,
     style: { '--arena-scroller-item': 'calc(var(--sp-1) * 62)' },
   });
   box.setAttribute('role', 'group');

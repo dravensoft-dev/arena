@@ -6,15 +6,16 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTabs.manifest.json')).json();
 
 function tabs(labels, active) {
-  const root = el('div', { class: arenaClassesFor(manifest).root });
+  const root = el('div', { class: arenaClassesFor(manifest).root, ...arenaSlotDataFor(manifest).root });
   for (const label of labels) {
     const c = arenaClassesFor(manifest, { selected: String(label === active) });
-    root.append(el('button', { class: c.tab, type: 'button', text: label }));
+    const d = arenaSlotDataFor(manifest, { selected: String(label === active) });
+    root.append(el('button', { class: c.tab, ...d.tab, type: 'button', text: label }));
   }
   return root;
 }

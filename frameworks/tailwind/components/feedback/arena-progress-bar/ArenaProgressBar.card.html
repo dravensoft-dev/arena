@@ -6,26 +6,27 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaProgressBar.manifest.json')).json();
 
 function bar({ label, value, tone = 'accent', size = 'md', indeterminate = false }) {
   const c = arenaClassesFor(manifest, { tone, size, indeterminate });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { tone, size, indeterminate });
+  const root = el('div', { class: c.root, ...d.root });
   root.style.width = '260px';
   if (label) {
-    const head = el('div', { class: c.head }, el('span', { class: c.label, text: label }));
-    if (!indeterminate) head.append(el('span', { class: c.value, text: `${value}%` }));
+    const head = el('div', { class: c.head, ...d.head }, el('span', { class: c.label, ...d.label, text: label }));
+    if (!indeterminate) head.append(el('span', { class: c.value, ...d.value, text: `${value}%` }));
     root.append(head);
   }
   const track = el('div', {
-    class: c.track, role: 'progressbar',
+    class: c.track, ...d.track, role: 'progressbar',
     'aria-valuenow': indeterminate ? undefined : value, 'aria-valuemin': 0, 'aria-valuemax': 100,
     'aria-label': label ?? 'Progress',
   });
   if (!indeterminate) {
-    const fill = el('span', { class: c.fill });
+    const fill = el('span', { class: c.fill, ...d.fill });
     fill.style.width = `${value}%`;
     track.append(fill);
   }

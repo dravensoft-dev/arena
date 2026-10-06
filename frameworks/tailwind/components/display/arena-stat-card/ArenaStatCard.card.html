@@ -6,22 +6,23 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaStatCard.manifest.json')).json();
 
 function tile({ label, value, delta, tone = 'neutral', deltaTone = 'neutral', direction = 'up', sub }) {
   const c = arenaClassesFor(manifest, { tone, deltaTone });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { tone, deltaTone });
+  const root = el('div', { class: c.root, ...d.root });
   root.style.width = '220px';
-  root.append(el('div', { class: c.head }, el('span', { class: c.label, text: label })));
-  root.append(el('div', { class: c.value, text: value }));
+  root.append(el('div', { class: c.head, ...d.head }, el('span', { class: c.label, ...d.label, text: label })));
+  root.append(el('div', { class: c.value, ...d.value, text: value }));
   if (delta) {
-    root.append(el('span', { class: c.delta },
+    root.append(el('span', { class: c.delta, ...d.delta },
       el('i', { class: direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up', 'aria-hidden': 'true' }),
       delta));
   }
-  if (sub) root.append(el('span', { class: c.sub, text: sub }));
+  if (sub) root.append(el('span', { class: c.sub, ...d.sub, text: sub }));
   return root;
 }
 

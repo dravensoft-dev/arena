@@ -7,7 +7,7 @@
 <style>.static-panel{position:static!important}</style>
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaOnboarding.manifest.json')).json();
 
@@ -19,34 +19,38 @@ const manifest = await (await fetch('./ArenaOnboarding.manifest.json')).json();
    third section exists. */
 function coachmark({ eyebrow, title, body, index, total }) {
   const c = arenaClassesFor(manifest, { placement: 'floating' });
+  const d = arenaSlotDataFor(manifest, { placement: 'floating' });
   const current = arenaClassesFor(manifest, { placement: 'floating', current: true });
-  const dots = el('div', { class: c.dots });
-  for (let i = 0; i < total; i++) dots.append(el('span', { class: (i === index ? current : c).dot }));
-  const foot = el('div', { class: c.foot }, dots);
-  if (index > 0) foot.append(el('button', { class: c.text, type: 'button', text: 'Back' }));
-  if (index < total - 1) foot.append(el('button', { class: c.text, type: 'button', text: 'Skip' }));
-  foot.append(el('button', { class: c.next, type: 'button', text: index === total - 1 ? 'Got it' : 'Next' }));
-  return el('div', { class: `${c.panel} static-panel` },
-    el('div', { class: c.eyebrow, text: eyebrow }),
-    el('div', { class: c.title, text: title }),
-    el('div', { class: c.body, text: body }),
+  const dCurrent = arenaSlotDataFor(manifest, { placement: 'floating', current: true });
+  const dots = el('div', { class: c.dots, ...d.dots });
+  for (let i = 0; i < total; i++) dots.append(el('span', { class: (i === index ? current : c).dot, ...(i === index ? dCurrent : d).dot }));
+  const foot = el('div', { class: c.foot, ...d.foot }, dots);
+  if (index > 0) foot.append(el('button', { class: c.text, ...d.text, type: 'button', text: 'Back' }));
+  if (index < total - 1) foot.append(el('button', { class: c.text, ...d.text, type: 'button', text: 'Skip' }));
+  foot.append(el('button', { class: c.next, ...d.next, type: 'button', text: index === total - 1 ? 'Got it' : 'Next' }));
+  return el('div', { class: `${c.panel} static-panel`, ...d.panel },
+    el('div', { class: c.eyebrow, ...d.eyebrow, text: eyebrow }),
+    el('div', { class: c.title, ...d.title, text: title }),
+    el('div', { class: c.body, ...d.body, text: body }),
     foot);
 }
 
 function overlay() {
   const c = arenaClassesFor(manifest, { open: 'true', placement: 'floating' });
+  const d = arenaSlotDataFor(manifest, { open: 'true', placement: 'floating' });
   const current = arenaClassesFor(manifest, { open: 'true', placement: 'floating', current: true });
-  const dots = el('div', { class: c.dots });
-  for (let i = 0; i < 3; i++) dots.append(el('span', { class: (i === 0 ? current : c).dot }));
-  const foot = el('div', { class: c.foot }, dots,
-    el('button', { class: c.text, type: 'button', text: 'Skip' }),
-    el('button', { class: c.next, type: 'button', text: 'Next' }));
-  const panel = el('div', { class: c.panel },
-    el('div', { class: c.eyebrow, text: 'Getting started' }),
-    el('div', { class: c.title, text: 'Cmd+K runs anything' }),
-    el('div', { class: c.body, text: 'The command palette reaches every action without leaving the keyboard.' }),
+  const dCurrent = arenaSlotDataFor(manifest, { open: 'true', placement: 'floating', current: true });
+  const dots = el('div', { class: c.dots, ...d.dots });
+  for (let i = 0; i < 3; i++) dots.append(el('span', { class: (i === 0 ? current : c).dot, ...(i === 0 ? dCurrent : d).dot }));
+  const foot = el('div', { class: c.foot, ...d.foot }, dots,
+    el('button', { class: c.text, ...d.text, type: 'button', text: 'Skip' }),
+    el('button', { class: c.next, ...d.next, type: 'button', text: 'Next' }));
+  const panel = el('div', { class: c.panel, ...d.panel },
+    el('div', { class: c.eyebrow, ...d.eyebrow, text: 'Getting started' }),
+    el('div', { class: c.title, ...d.title, text: 'Cmd+K runs anything' }),
+    el('div', { class: c.body, ...d.body, text: 'The command palette reaches every action without leaving the keyboard.' }),
     foot);
-  return el('div', { class: c.root }, panel);
+  return el('div', { class: c.root, ...d.root }, panel);
 }
 
 mountSpecimen({ sections: [

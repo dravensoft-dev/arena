@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaAppBar.manifest.json')).json();
 
@@ -18,16 +18,17 @@ const chip = (text) => el('span', {
 
 function bar(sticky) {
   const c = arenaClassesFor(manifest, { sticky });
-  const band = el('div', { class: c.band, style: { maxWidth: 'var(--container-max)' } });
-  band.append(el('div', { class: c.brand }, chip('Meridian')));
-  const nav = el('div', { class: c.nav });
+  const d = arenaSlotDataFor(manifest, { sticky });
+  const band = el('div', { class: c.band, ...d.band, style: { maxWidth: 'var(--container-max)' } });
+  band.append(el('div', { class: c.brand, ...d.brand }, chip('Meridian')));
+  const nav = el('div', { class: c.nav, ...d.nav });
   for (const label of ['Shop', 'Single origin', 'Equipment']) nav.append(chip(label));
   band.append(nav);
-  const actions = el('div', { class: c.actions });
+  const actions = el('div', { class: c.actions, ...d.actions });
   for (const label of ['Search', 'Basket']) actions.append(chip(label));
   band.append(actions);
 
-  const root = el('header', { class: c.root });
+  const root = el('header', { class: c.root, ...d.root });
   root.append(band);
   return root;
 }

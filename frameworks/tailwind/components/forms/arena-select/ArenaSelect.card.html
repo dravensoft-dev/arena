@@ -6,21 +6,22 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSelect.manifest.json')).json();
 
 function select({ label, options, value, disabled }) {
   const c = arenaClassesFor(manifest, { disabled: String(Boolean(disabled)) });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { disabled: String(Boolean(disabled)) });
+  const root = el('div', { class: c.root, ...d.root });
   root.style.width = '240px';
   const selectId = label ? 'tw-select-' + label.replace(/\s+/g, '-').toLowerCase() : undefined;
-  if (label) root.append(el('label', { class: c.label, for: selectId, text: label }));
-  const field = el('select', { class: c.field, id: selectId, disabled: disabled || undefined });
+  if (label) root.append(el('label', { class: c.label, ...d.label, for: selectId, text: label }));
+  const field = el('select', { class: c.field, ...d.field, id: selectId, disabled: disabled || undefined });
   for (const option of options) {
     field.append(el('option', { value: option, selected: option === value || undefined }, option));
   }
-  root.append(el('div', { class: c.wrap }, field, el('span', { class: c.caret }, el('i', { class: 'ph-bold ph-caret-down', 'aria-hidden': 'true' }))));
+  root.append(el('div', { class: c.wrap, ...d.wrap }, field, el('span', { class: c.caret, ...d.caret }, el('i', { class: 'ph-bold ph-caret-down', 'aria-hidden': 'true' }))));
   return root;
 }
 

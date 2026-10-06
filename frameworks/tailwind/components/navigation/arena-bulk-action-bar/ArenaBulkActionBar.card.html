@@ -6,25 +6,27 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaBulkActionBar.manifest.json')).json();
 const base = arenaClassesFor(manifest, { open: true });
+const dBase = arenaSlotDataFor(manifest, { open: true });
 
 function bar(count, noun, actions) {
-  const list = el('div', { class: base.actions });
+  const list = el('div', { class: base.actions, ...dBase.actions });
   for (const action of actions) {
     const c = arenaClassesFor(manifest, { destructive: !!action.destructive });
-    const button = el('button', { class: c.action, type: 'button' });
-    if (action.icon) button.append(el('span', { class: base.actionIcon }, el('i', { class: action.icon, 'aria-hidden': 'true' })));
+    const d = arenaSlotDataFor(manifest, { destructive: !!action.destructive });
+    const button = el('button', { class: c.action, ...d.action, type: 'button' });
+    if (action.icon) button.append(el('span', { class: base.actionIcon, ...dBase.actionIcon }, el('i', { class: action.icon, 'aria-hidden': 'true' })));
     button.append(action.label);
     list.append(button);
   }
-  return el('div', { class: base.root, role: 'region', 'aria-label': 'Actions on the selection' },
-    el('span', { class: base.count }, el('b', { class: base.number, text: String(count) }), ` ${noun} selected`),
-    el('span', { class: base.divider }),
+  return el('div', { class: base.root, ...dBase.root, role: 'region', 'aria-label': 'Actions on the selection' },
+    el('span', { class: base.count, ...dBase.count }, el('b', { class: base.number, ...dBase.number, text: String(count) }), ` ${noun} selected`),
+    el('span', { class: base.divider, ...dBase.divider }),
     list,
-    el('button', { class: base.clear, type: 'button', text: 'Clear' }));
+    el('button', { class: base.clear, ...dBase.clear, type: 'button', text: 'Clear' }));
 }
 
 mountSpecimen({ sections: [

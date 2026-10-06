@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const item = await (await fetch('./ArenaScrollerItem.manifest.json')).json();
 const row = await (await fetch('../arena-scroller/ArenaScroller.manifest.json')).json();
@@ -16,11 +16,11 @@ const LOTS = ['Finca El Injerto', 'Kochere Lot 4 with a much longer name than it
 
 function rail() {
   const box = el('div', {
-    class: arenaClassesFor(row, { behaviour: 'snap' }).root,
+    class: arenaClassesFor(row, { behaviour: 'snap' }).root, ...arenaSlotDataFor(row, { behaviour: 'snap' }).root,
     style: { '--arena-scroller-item': 'calc(var(--sp-1) * 44)' },
   });
   for (const name of LOTS) {
-    const cell = el('div', { class: arenaClassesFor(item, {}).root });
+    const cell = el('div', { class: arenaClassesFor(item, {}).root, ...arenaSlotDataFor(item, {}).root });
     cell.append(el('div', {
       class: 'bg-base-300 border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2.5 '
         + 'font-mono text-ctl-sm text-base-content/82',

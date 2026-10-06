@@ -6,19 +6,20 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaAlert.manifest.json')).json();
 const ICONS = { info: 'ph-fill ph-info', success: 'ph-fill ph-check-circle', warning: 'ph-fill ph-warning', danger: 'ph-fill ph-warning-octagon', neutral: 'ph-fill ph-note' };
 
 function alert({ tone, title, message, actionLabel, dismissible }) {
   const c = arenaClassesFor(manifest, { tone, titled: !!title });
-  const body = el('div', { class: c.body },
-    ...(title ? [el('div', { class: c.title, text: title })] : []),
-    el('div', { class: c.message, text: message }));
-  if (actionLabel) body.append(el('button', { class: c.action, type: 'button', text: actionLabel }));
-  const root = el('div', { class: c.root }, el('i', { class: `${c.icon} ${ICONS[tone]}`, 'aria-hidden': 'true' }), body);
-  if (dismissible) root.append(el('button', { class: c.close, type: 'button', 'aria-label': 'Dismiss' }, el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
+  const d = arenaSlotDataFor(manifest, { tone, titled: !!title });
+  const body = el('div', { class: c.body, ...d.body },
+    ...(title ? [el('div', { class: c.title, ...d.title, text: title })] : []),
+    el('div', { class: c.message, ...d.message, text: message }));
+  if (actionLabel) body.append(el('button', { class: c.action, ...d.action, type: 'button', text: actionLabel }));
+  const root = el('div', { class: c.root, ...d.root }, el('i', { class: `${c.icon} ${ICONS[tone]}`, ...d.icon, 'aria-hidden': 'true' }), body);
+  if (dismissible) root.append(el('button', { class: c.close, ...d.close, type: 'button', 'aria-label': 'Dismiss' }, el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
   return root;
 }
 

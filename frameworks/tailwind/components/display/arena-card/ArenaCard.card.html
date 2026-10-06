@@ -6,21 +6,22 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCard.manifest.json')).json();
 
 function card({ eyebrow, title, body, accent = false, floating = false }) {
   const c = arenaClassesFor(manifest, { accent: String(accent), floating: String(floating) });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { accent: String(accent), floating: String(floating) });
+  const root = el('div', { class: c.root, ...d.root });
   root.style.width = '240px';
   if (eyebrow || title) {
-    const head = el('div', { class: c.head }, el('div', {},
-      eyebrow ? el('div', { class: c.eyebrow, text: eyebrow }) : '',
-      title ? el('div', { class: c.title, text: title }) : ''));
+    const head = el('div', { class: c.head, ...d.head }, el('div', {},
+      eyebrow ? el('div', { class: c.eyebrow, ...d.eyebrow, text: eyebrow }) : '',
+      title ? el('div', { class: c.title, ...d.title, text: title }) : ''));
     root.append(head);
   }
-  root.append(el('div', { class: c.body }, el('span', { class: 'font-body text-md text-base-content/82', text: body })));
+  root.append(el('div', { class: c.body, ...d.body }, el('span', { class: 'font-body text-md text-base-content/82', text: body })));
   return root;
 }
 

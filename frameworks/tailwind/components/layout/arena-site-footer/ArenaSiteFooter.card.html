@@ -6,10 +6,11 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSiteFooter.manifest.json')).json();
 const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
 const TRACKS = 'repeat(auto-fit, minmax(min(var(--grid-min), 100%), 1fr))';
 
 function column(title, links) {
@@ -24,16 +25,16 @@ function column(title, links) {
 }
 
 function footer() {
-  const columns = el('div', { class: c.columns, style: { gridTemplateColumns: TRACKS } });
+  const columns = el('div', { class: c.columns, ...d.columns, style: { gridTemplateColumns: TRACKS } });
   columns.append(column('Shop', ['Single origin', 'Blends', 'Equipment']));
   columns.append(column('Company', ['How we buy', 'Roasting', 'Contact']));
   columns.append(column('Help', ['Delivery', 'Returns', 'Brewing guides']));
 
-  const band = el('div', { class: c.band, style: { maxWidth: 'var(--container-max)' } });
+  const band = el('div', { class: c.band, ...d.band, style: { maxWidth: 'var(--container-max)' } });
   band.append(columns);
-  band.append(el('p', { class: c.note, text: 'Roasted in Bilbao. Every lot traceable to the farm.' }));
+  band.append(el('p', { class: c.note, ...d.note, text: 'Roasted in Bilbao. Every lot traceable to the farm.' }));
 
-  const root = el('footer', { class: c.root });
+  const root = el('footer', { class: c.root, ...d.root });
   root.append(band);
   return root;
 }

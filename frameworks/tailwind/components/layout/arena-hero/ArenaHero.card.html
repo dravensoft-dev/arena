@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaHero.manifest.json')).json();
 
@@ -14,26 +14,27 @@ const TRACKS = 'repeat(auto-fit, minmax(min(calc(var(--grid-min) * 1.5), 100%), 
 
 function hero(layout, align) {
   const c = arenaClassesFor(manifest, { layout, align });
+  const d = arenaSlotDataFor(manifest, { layout, align });
 
-  const words = el('div', { class: c.words });
-  words.append(el('p', { class: c.eyebrow, text: 'Single origin' }));
-  words.append(el('h1', { class: c.title, text: 'Coffee that tells you where it grew' }));
-  words.append(el('p', { class: c.lede,
+  const words = el('div', { class: c.words, ...d.words });
+  words.append(el('p', { class: c.eyebrow, ...d.eyebrow, text: 'Single origin' }));
+  words.append(el('h1', { class: c.title, ...d.title, text: 'Coffee that tells you where it grew' }));
+  words.append(el('p', { class: c.lede, ...d.lede,
     text: 'Every lot is traceable to the farm, the altitude and the week it was picked.' }));
-  const actions = el('div', { class: c.actions });
+  const actions = el('div', { class: c.actions, ...d.actions });
   actions.append(el('span', {
     class: 'bg-primary text-primary-content rounded-control px-4 py-2.5 font-body text-ctl-sm',
     text: 'Shop the lots',
   }));
   words.append(actions);
 
-  const figure = el('div', { class: c.figure });
+  const figure = el('div', { class: c.figure, ...d.figure });
   figure.append(el('div', {
     class: 'grid place-items-center bg-base-300 rounded-media aspect-square text-primary',
     style: { minHeight: 'calc(var(--sp-1) * 40)' },
   }, el('i', { class: 'ph-bold ph-mountains text-[length:var(--fs-display)]' })));
 
-  const root = el('section', { class: c.root, style: layout === 'split' ? { gridTemplateColumns: TRACKS } : {} });
+  const root = el('section', { class: c.root, ...d.root, style: layout === 'split' ? { gridTemplateColumns: TRACKS } : {} });
   root.append(words, figure);
   return root;
 }

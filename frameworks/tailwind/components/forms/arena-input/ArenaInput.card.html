@@ -6,29 +6,30 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaInput.manifest.json')).json();
 
 function input({ label, value, placeholder, hint, error, state = 'neutral', required, prefix, icon, disabled }) {
   const c = arenaClassesFor(manifest, { state, disabled: String(Boolean(disabled)) });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { state, disabled: String(Boolean(disabled)) });
+  const root = el('div', { class: c.root, ...d.root });
   root.style.width = '260px';
   const inputId = label ? 'tw-input-' + label.replace(/\s+/g, '-').toLowerCase() : undefined;
   if (label) {
-    const tag = el('label', { class: c.label, for: inputId }, label);
-    if (required) tag.append(el('span', { class: c.required, text: '*' }));
+    const tag = el('label', { class: c.label, ...d.label, for: inputId }, label);
+    if (required) tag.append(el('span', { class: c.required, ...d.required, text: '*' }));
     root.append(tag);
   }
-  const field = el('div', { class: c.field });
-  if (icon) field.append(el('span', { class: c.icon }, el('i', { class: icon, 'aria-hidden': 'true' })));
-  if (prefix) field.append(el('span', { class: c.prefix, text: prefix }));
-  field.append(el('input', { class: c.input, id: inputId, value: value ?? '', placeholder, disabled: disabled || undefined }));
-  if (state === 'error') field.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, 'aria-hidden': 'true' }));
-  if (state === 'valid') field.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, 'aria-hidden': 'true' }));
+  const field = el('div', { class: c.field, ...d.field });
+  if (icon) field.append(el('span', { class: c.icon, ...d.icon }, el('i', { class: icon, 'aria-hidden': 'true' })));
+  if (prefix) field.append(el('span', { class: c.prefix, ...d.prefix, text: prefix }));
+  field.append(el('input', { class: c.input, ...d.input, id: inputId, value: value ?? '', placeholder, disabled: disabled || undefined }));
+  if (state === 'error') field.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (state === 'valid') field.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
   root.append(field);
-  if (error) root.append(el('span', { class: c.error, text: error }));
-  else if (hint) root.append(el('span', { class: c.hint, text: hint }));
+  if (error) root.append(el('span', { class: c.error, ...d.error, text: error }));
+  else if (hint) root.append(el('span', { class: c.hint, ...d.hint, text: hint }));
   return root;
 }
 

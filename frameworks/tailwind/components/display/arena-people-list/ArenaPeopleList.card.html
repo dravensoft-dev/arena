@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaPeopleList.manifest.json')).json();
 const avatar = await (await fetch('../arena-avatar/ArenaAvatar.manifest.json')).json();
@@ -16,24 +16,27 @@ const FACE = { sm: 'xs', md: 'sm', lg: 'md' };
 
 function face(name, size) {
   const a = arenaClassesFor(avatar, { size: FACE[size] });
+  const dA = arenaSlotDataFor(avatar, { size: FACE[size] });
   const initials = name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
-  return el('span', { class: a.root }, el('span', { class: a.box }, initials));
+  return el('span', { class: a.root, ...dA.root }, el('span', { class: a.box, ...dA.box }, initials));
 }
 
 function row(size, current, rank, name, secondary, figure) {
   const c = arenaClassesFor(manifest, { size, current });
-  return el('li', { class: c.row },
-    el('span', { class: c.rank }, String(rank)),
+  const d = arenaSlotDataFor(manifest, { size, current });
+  return el('li', { class: c.row, ...d.row },
+    el('span', { class: c.rank, ...d.rank }, String(rank)),
     face(name, size),
-    el('span', { class: c.text },
-      el('span', { class: c.name }, name),
-      el('span', { class: c.secondary }, secondary)),
-    el('span', { class: c.figure }, figure));
+    el('span', { class: c.text, ...d.text },
+      el('span', { class: c.name, ...d.name }, name),
+      el('span', { class: c.secondary, ...d.secondary }, secondary)),
+    el('span', { class: c.figure, ...d.figure }, figure));
 }
 
 function list(size) {
   const c = arenaClassesFor(manifest, { size });
-  return el('ol', { class: c.root },
+  const d = arenaSlotDataFor(manifest, { size });
+  return el('ol', { class: c.root, ...d.root },
     row(size, false, 1, 'Ines Marchetti', 'Promoted last week', '2480 XP'),
     row(size, true, 2, 'Kofi Mensah', 'You', '2210 XP'));
 }

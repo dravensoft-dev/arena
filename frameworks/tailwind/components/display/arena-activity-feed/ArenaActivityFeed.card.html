@@ -6,18 +6,19 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaActivityFeed.manifest.json')).json();
 
 function feed(items) {
-  const root = el('ul', { class: arenaClassesFor(manifest).root });
+  const root = el('ul', { class: arenaClassesFor(manifest).root, ...arenaSlotDataFor(manifest).root });
   items.forEach((item, i) => {
     const c = arenaClassesFor(manifest, { tone: item.tone ?? 'accent', divided: i > 0 });
-    const text = el('span', { class: c.text }, el('b', { class: c.actor, text: item.actor }), ` ${item.action} `);
-    if (item.target) text.append(el('span', { class: c.target, text: item.target }));
-    const li = el('li', { class: c.item }, el('span', { class: c.dot }), text);
-    if (item.time) li.append(el('span', { class: c.time, text: item.time }));
+    const d = arenaSlotDataFor(manifest, { tone: item.tone ?? 'accent', divided: i > 0 });
+    const text = el('span', { class: c.text, ...d.text }, el('b', { class: c.actor, ...d.actor, text: item.actor }), ` ${item.action} `);
+    if (item.target) text.append(el('span', { class: c.target, ...d.target, text: item.target }));
+    const li = el('li', { class: c.item, ...d.item }, el('span', { class: c.dot, ...d.dot }), text);
+    if (item.time) li.append(el('span', { class: c.time, ...d.time, text: item.time }));
     root.append(li);
   });
   root.style.width = '520px';

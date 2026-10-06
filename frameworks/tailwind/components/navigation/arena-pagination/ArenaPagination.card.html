@@ -6,10 +6,11 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaPagination.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
 
 /* The page list ArenaPagination.json contracts: first, last, the current page and its
    neighbours, with an ellipsis wherever the run breaks. */
@@ -31,18 +32,18 @@ function pages(current, total) {
    no ordering to reason about. */
 function arrow(direction, disabled) {
   return el('button', {
-    class: c.nav, type: 'button',
+    class: c.nav, ...d.nav, type: 'button',
     'aria-label': direction < 0 ? 'Previous' : 'Next', disabled: disabled || undefined,
   }, el('i', { class: direction < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right', 'aria-hidden': 'true' }));
 }
 
 function pagination(current, total) {
-  const nav = el('nav', { class: c.root, 'aria-label': 'ArenaPagination' }, arrow(-1, current <= 1));
+  const nav = el('nav', { class: c.root, ...d.root, 'aria-label': 'ArenaPagination' }, arrow(-1, current <= 1));
   for (const page of pages(current, total)) {
-    if (page === '…') { nav.append(el('span', { class: c.ellipsis, text: '…' })); continue; }
+    if (page === '…') { nav.append(el('span', { class: c.ellipsis, ...d.ellipsis, text: '…' })); continue; }
     const isCurrent = page === current;
     nav.append(el('button', {
-      class: arenaClassesFor(manifest, { current: String(isCurrent) }).page, type: 'button',
+      class: arenaClassesFor(manifest, { current: String(isCurrent) }).page, ...arenaSlotDataFor(manifest, { current: String(isCurrent) }).page, type: 'button',
       'aria-current': isCurrent ? 'page' : undefined, text: String(page),
     }));
   }

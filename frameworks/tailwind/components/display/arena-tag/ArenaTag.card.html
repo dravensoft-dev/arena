@@ -6,13 +6,14 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTag.manifest.json')).json();
 
 function tag(tone, label) {
   const c = arenaClassesFor(manifest, { tone });
-  return el('span', { class: c.root }, el('span', { class: c.dot }), label);
+  const d = arenaSlotDataFor(manifest, { tone });
+  return el('span', { class: c.root, ...d.root }, el('span', { class: c.dot, ...d.dot }), label);
 }
 
 mountSpecimen({ sections: [

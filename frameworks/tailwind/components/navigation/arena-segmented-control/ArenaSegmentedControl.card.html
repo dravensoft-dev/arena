@@ -6,18 +6,19 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSegmentedControl.manifest.json')).json();
 
 function control({ options, value, size = 'md', ariaLabel }) {
   const name = 'sc-' + Math.random().toString(36).slice(2, 7);
-  const track = el('div', { class: arenaClassesFor(manifest, { size }).track, role: 'radiogroup', 'aria-label': ariaLabel });
+  const track = el('div', { class: arenaClassesFor(manifest, { size }).track, ...arenaSlotDataFor(manifest, { size }).track, role: 'radiogroup', 'aria-label': ariaLabel });
   for (const option of options) {
     const on = option === value;
     const c = arenaClassesFor(manifest, { size, selected: String(on) });
-    const input = el('input', { type: 'radio', name, class: c.input, checked: on || undefined });
-    track.append(el('label', { class: c.segment }, option, input));
+    const d = arenaSlotDataFor(manifest, { size, selected: String(on) });
+    const input = el('input', { type: 'radio', name, class: c.input, ...d.input, checked: on || undefined });
+    track.append(el('label', { class: c.segment, ...d.segment }, option, input));
   }
   return track;
 }

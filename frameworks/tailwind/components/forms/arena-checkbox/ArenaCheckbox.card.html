@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCheckbox.manifest.json')).json();
 
@@ -18,14 +18,15 @@ const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
 
 function checkbox({ label, checked = false, disabled = false }) {
   const c = arenaClassesFor(manifest, { checked: String(checked), disabled: String(disabled) });
-  const box = el('span', { class: c.box });
+  const d = arenaSlotDataFor(manifest, { checked: String(checked), disabled: String(disabled) });
+  const box = el('span', { class: c.box, ...d.box });
   if (checked) {
-    const svg = el('svg', { viewBox: '0 0 12 12', fill: 'none', class: c.check, style: ARENA_CHECK_GLYPH_STYLE });
+    const svg = el('svg', { viewBox: '0 0 12 12', fill: 'none', class: c.check, ...d.check, style: ARENA_CHECK_GLYPH_STYLE });
     svg.append(el('path', { d: 'M2 6l3 3 5-6', stroke: 'currentColor', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', style: ARENA_CHECK_STROKE_STYLE }));
     box.append(svg);
   }
-  const input = el('input', { type: 'checkbox', class: c.input, checked: checked || undefined, disabled: disabled || undefined });
-  return el('label', { class: c.root }, box, el('span', { class: c.label, text: label }), input);
+  const input = el('input', { type: 'checkbox', class: c.input, ...d.input, checked: checked || undefined, disabled: disabled || undefined });
+  return el('label', { class: c.root, ...d.root }, box, el('span', { class: c.label, ...d.label, text: label }), input);
 }
 
 mountSpecimen({ sections: [

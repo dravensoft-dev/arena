@@ -7,23 +7,24 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const hostManifest = await (await fetch('./ArenaToastHost.manifest.json')).json();
 const toastManifest = await (await fetch('../arena-toast/ArenaToast.manifest.json')).json();
 
 function toast({ tone = 'neutral', title, message }) {
   const c = arenaClassesFor(toastManifest, { tone });
+  const d = arenaSlotDataFor(toastManifest, { tone });
   return el('div', {
-    class: c.root, role: tone === 'danger' ? 'alert' : 'status',
+    class: c.root, ...d.root, role: tone === 'danger' ? 'alert' : 'status',
     'aria-live': tone === 'danger' ? 'assertive' : 'polite',
-  }, el('div', { class: c.body },
-    el('div', { class: c.title }, title),
-    el('div', { class: c.message, text: message })));
+  }, el('div', { class: c.body, ...d.body },
+    el('div', { class: c.title, ...d.title }, title),
+    el('div', { class: c.message, ...d.message, text: message })));
 }
 
 function host(placement, notice) {
-  return el('div', { class: arenaClassesFor(hostManifest, { placement }).root }, toast(notice));
+  return el('div', { class: arenaClassesFor(hostManifest, { placement }).root, ...arenaSlotDataFor(hostManifest, { placement }).root }, toast(notice));
 }
 
 const corners = [

@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSwitch.manifest.json')).json();
 
@@ -23,12 +23,13 @@ function toggle({ label, size = 'md', orientation = 'horizontal', checked = fals
   const footprint = `${orientation}-${size}`;
   const thumb = `${checked ? 'on' : 'off'}-${orientation}`;
   const c = arenaClassesFor(manifest, { size, orientation, state: String(checked), disabled: String(disabled), footprint, thumb });
+  const d = arenaSlotDataFor(manifest, { size, orientation, state: String(checked), disabled: String(disabled), footprint, thumb });
   const icon = checked ? iconOn : iconOff;
-  const knob = el('span', { class: c.knob }, icon ? el('i', { class: `${c.icon} ${icon}` }) : '');
-  const track = el('button', { type: 'button', role: 'switch', class: c.track, 'aria-checked': String(checked), 'aria-label': label, disabled: disabled || undefined }, knob);
-  const text = el('span', { class: c.label }, label);
-  if (confirm) text.append(el('i', { class: `${c.guard} ph-bold ph-shield-check`, title: 'Requires confirmation' }));
-  return el('span', { class: c.root }, track, text);
+  const knob = el('span', { class: c.knob, ...d.knob }, icon ? el('i', { class: `${c.icon} ${icon}`, ...d.icon }) : '');
+  const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': String(checked), 'aria-label': label, disabled: disabled || undefined }, knob);
+  const text = el('span', { class: c.label, ...d.label }, label);
+  if (confirm) text.append(el('i', { class: `${c.guard} ph-bold ph-shield-check`, ...d.guard, title: 'Requires confirmation' }));
+  return el('span', { class: c.root, ...d.root }, track, text);
 }
 
 mountSpecimen({ sections: [
