@@ -80,7 +80,7 @@ top clamped against `window.innerHeight`, a consumer's own width string. The ope
 the gate's, and it needs no list of properties: *if every branch of the value is a literal it
 belongs in the manifest; if any branch reads an identifier or an interpolation it is a
 computation and stays*. The gate enforces it in both layers: a write of a layout property into
-`style`, whether a React `style` object or an Angular `[style.x]` binding, passes when its value is
+`style` passes when its value is
 `var(--…)` with no literal operand, and otherwise is listed in `COMPUTED` in
 `scripts/check/arena/check-dimension-literals.ts` with the function that computes it. A hover or focus colour is never a computation, and no component here
 keeps a `useState` to paint one.
@@ -239,7 +239,7 @@ beside the source and the manifest one layer over are the rest of it, and
 fixture, into this layer and into every other, which is what makes two layers' pages comparable
 at all.
 
-**There is no hand-written `.d.ts`, and that is the point.** The interface sits in the file
+**There is no hand-written declaration file, and that is the point.** The interface sits in the file
 it describes, so it cannot disagree with the implementation beside it, and the declaration a
 consumer installs is emitted from that source at assembly time rather than maintained by
 hand. The layer whose recipe is a separate file carries one more.

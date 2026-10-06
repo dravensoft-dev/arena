@@ -106,7 +106,7 @@ stale one and an untracked one.
 **React is a trio, in the component's own directory**,
 `react/components/<category>/<component-kebab>/`: `<Name>.tsx` (implementation and its exported
 `<Name>Props`), `<Name>.prompt.md` (its prose, its examples and its Do/Don't around a generated
-member table) and a fixture at `demos/<Name>.demo.json`. **The layer carries no hand-written `.d.ts`**: the
+member table) and a fixture at `demos/<Name>.demo.json`. **The layer carries no hand-written declaration file**: the
 published one is emitted from the source, so the two cannot disagree.
 
 **Angular is a quartet**, the same three plus its recipe, in

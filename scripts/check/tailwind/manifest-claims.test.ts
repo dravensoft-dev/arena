@@ -23,7 +23,7 @@ export function resolve(component: string, chosen: Record<string, string | boole
   if (!manifest) throw new Error(`manifest-claims: no manifest called ${component}`);
   const slots = classesFor(manifest, chosen) as Record<string, string>;
   if (!(slot in slots)) throw new Error(`manifest-claims: ${component} has no slot called ${slot}`);
-  return slots[slot].split(/\s+/).filter(Boolean);
+  return slots[slot]!.split(/\s+/).filter(Boolean);
 }
 
 type Claim = { chosen?: Record<string, string>; slot: string; has?: string[]; hasNot?: string[]; why: string };

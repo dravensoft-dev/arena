@@ -777,7 +777,7 @@ function findManifestFile(componentsDir: string, filename: string): string | und
   return paths.find((p) => basename(p) === filename);
 }
 
-const NO_MANIFEST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart']);
+const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart']);
 
 const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
   'arena-bottom-nav-item': { manifest: 'ArenaBottomNav.manifest.json', slot: 'item' },
@@ -809,22 +809,19 @@ test('every Angular primitive host-binds a slot that carries a display utility, 
     );
   assert.ok(names.length > 0, 'no primitive directories found -- the guard would silently check nothing');
 
-  for (const excluded of NO_MANIFEST) {
-    assert.ok(names.includes(excluded), `NO_MANIFEST names "${excluded}", which is not a primitive directory -- stale entry`);
-    const excludedManifestName = `${kebabToPascal(excluded)}.manifest.json`;
-    const excludedManifestPath = findManifestFile(manifestsDir, excludedManifestName);
-    assert.ok(
-      excludedManifestPath === undefined,
-      `NO_MANIFEST names "${excluded}", but ${excludedManifestPath} now exists -- the exclusion is stale and should be removed so this primitive is checked like every other one`,
-    );
-  }
-
   for (const dir of Object.keys(HOST_SLOT)) {
     assert.ok(names.includes(dir), `HOST_SLOT names "${dir}", which is not a primitive directory -- stale entry`);
   }
 
+  for (const owner of OWN_HOST) {
+    assert.ok(names.includes(owner), `OWN_HOST names "${owner}", which is not a primitive directory -- stale entry`);
+    const ownerPath = findManifestFile(manifestsDir, `${kebabToPascal(owner)}.manifest.json`);
+    const ownerSlots = ownerPath === undefined ? {} : (JSON.parse(readFileSync(ownerPath, 'utf8')) as { slots?: Record<string, string> }).slots ?? {};
+    assert.ok(!('root' in ownerSlots), `OWN_HOST names "${owner}", but its manifest now carries a root slot -- the exclusion is stale and should be removed so this primitive is checked like every other one`);
+  }
+
   for (const name of names) {
-    if (NO_MANIFEST.has(name)) continue;
+    if (OWN_HOST.has(name)) continue;
     const override = HOST_SLOT[name];
     const slot = override?.slot ?? 'root';
     const manifestName = override?.manifest ?? `${kebabToPascal(name)}.manifest.json`;
@@ -1142,8 +1139,8 @@ test('arena-doughnut-chart: the style objects that render without data reach the
 
   const legend = host.querySelector(':scope > div > div') as HTMLElement;
   assert.ok(legend, 'the legend column did not render');
-  assert.equal(legend.style.gap, 'calc(var(--sp-1) * 1.5)');
-  assert.equal(legend.style.flexDirection, 'column');
+  assert.ok(legend.classList.contains('arena-doughnut-chart__legend'), 'the legend column carries its manifest class, which the sheet gives its gap and direction');
+  assert.ok(legend.hasAttribute('data-arena-part'), 'the legend column is a drawn part of the manifest');
 });
 
 test('arena-doughnut-chart: the picture carries an accessible name and the numbers carry a caption', async () => {

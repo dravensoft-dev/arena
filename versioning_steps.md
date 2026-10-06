@@ -66,7 +66,7 @@ where a wrong declaration has to surface, because it is the run nothing downstre
 
 `dist/` is git-ignored and no other build touches it, so it holds whatever was last built there,
 which after any component work is not what the tree says. `check:packages` reads both the version
-stamp and whether every component `Components.json` declares is in the emitted `.d.ts`, so a
+stamp and whether every component `Components.json` declares is in the emitted type declarations, so a
 skipped rebuild reports itself rather than shipping. It compares the manifest it just assembled
 against `plugin.json`, which is why the bump is step 1: run in the other order and this gate fails on the
 version you just wrote, and the only fix is to build again.

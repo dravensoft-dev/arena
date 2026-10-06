@@ -50,12 +50,11 @@ for (const [layer, match] of [['angular', 'selector'], ['react', 'symbol']] as [
   });
 }
 
-test('a component with no manifest of its own resolves to no sheet, which is what a chart is', () => {
+test('a chart resolves to the sheet of its own manifest, which carries its legend and tooltip', () => {
   const angular = componentMap('angular', repoRoot);
   const react = componentMap('react', repoRoot);
-  assert.equal(angular.draws['arena-bar-chart'], null);
-  assert.equal(react.draws.ArenaBarChart, null);
-  assert.ok('arena-bar-chart' in angular.draws, 'it is placed and costs nothing, which is not the same as unplaced');
+  assert.equal(angular.draws['arena-bar-chart'], 'arena-bar-chart');
+  assert.equal(react.draws.ArenaBarChart, 'arena-bar-chart');
 });
 
 test('a component wears its parent\'s sheet, because 43 sheets dress 55 components', () => {

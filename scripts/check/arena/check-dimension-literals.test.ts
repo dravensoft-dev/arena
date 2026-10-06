@@ -329,11 +329,9 @@ test('the ARENA_SR_ONLY object shape produces exactly the raws those keys are cu
   assert.deepEqual(hits.map((h) => `${h.prop}:${h.raw}`), ["width:'1px'", "height:'1px'", "margin:'-1px'"]);
 });
 
-test('no local-stacking zIndex literal is exempt any more, because none is written', () => {
-  for (const key of EXEMPT.keys()) {
-    assert.doesNotMatch(key, /zIndex/,
-      'a zIndex literal is exempt again; the calendar pair took theirs from the manifest instead');
-  }
+test('the one zIndex literal exempt is the Angular calendar event action panel, a paint order within its chip', () => {
+  const stacking = [...EXEMPT.keys()].filter((key) => /zIndex/.test(key));
+  assert.deepEqual(stacking, ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:zIndex:1']);
 });
 
 test('every current EXEMPT key is matched by this run -- none are stale', () => {
