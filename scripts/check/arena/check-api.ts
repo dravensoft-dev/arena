@@ -28,6 +28,7 @@ import type { SurfaceMember } from '../../lib/arena/api-surface.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { kebab } from '../../utils/case.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { hueProblems, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { coveredContracts } from '../../lib/tailwind/manifest-surfaces.ts';
 import type { ComponentManifest, Manifests } from '../../lib/tailwind/manifest-shapes.ts';
 import { DESIGN_MEMBERS } from './check-contracts-neutrality.ts';
@@ -714,8 +715,10 @@ function main() {
     const c = readJson(join(contractDir, f));
     return [c.component, c];
   }));
-  const judged = judgeGroups(manifests, contractsByName, typesByName, {});
+  const hues = readHues();
+  const judged = judgeGroups(manifests, contractsByName, typesByName, { hueNames: new Set(hues.keys()) });
   problems.push(...judged.problems);
+  for (const manifest of manifests.values()) problems.push(...hueProblems(manifest, hues));
 
   if (problems.length) {
     console.error(`check-api: ${problems.length} problem(s)\n`);

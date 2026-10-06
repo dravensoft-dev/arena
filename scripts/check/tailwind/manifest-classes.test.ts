@@ -20,7 +20,7 @@ test('the default variants apply when nothing is chosen', () => {
 
 test('a chosen variant replaces the default', () => {
   const { root = '' } = classesFor(tag, { tone: 'danger' });
-  assert.ok(root.includes('border-error'), 'the chosen tone applies');
+  assert.ok(root.includes('border-[color:var(--arena-hue-edge)]'), 'the chosen tone applies');
   assert.ok(!root.includes('border-base-300'), 'the default tone does not');
 });
 

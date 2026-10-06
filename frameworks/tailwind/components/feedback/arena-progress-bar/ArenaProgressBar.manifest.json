@@ -49,16 +49,16 @@
         "ring": "text-secondary"
       },
       "success": {
-        "track": "text-success",
-        "ring": "text-success"
+        "track": "text-[color:var(--arena-hue-ink)]",
+        "ring": "text-[color:var(--arena-hue-ink)]"
       },
       "danger": {
-        "track": "text-error",
-        "ring": "text-error"
+        "track": "text-[color:var(--arena-hue-ink)]",
+        "ring": "text-[color:var(--arena-hue-ink)]"
       },
       "info": {
-        "track": "text-info",
-        "ring": "text-info"
+        "track": "text-[color:var(--arena-hue-ink)]",
+        "ring": "text-[color:var(--arena-hue-ink)]"
       }
     },
     "size": {
@@ -94,5 +94,14 @@
     "tone": "accent",
     "size": "md",
     "indeterminate": false
+  },
+  "hues": {
+    "tone": {
+      "accent": null,
+      "gold": null,
+      "success": "success",
+      "danger": "danger",
+      "info": "info"
+    }
   }
 }

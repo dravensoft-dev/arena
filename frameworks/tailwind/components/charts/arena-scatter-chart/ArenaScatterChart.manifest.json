@@ -17,5 +17,65 @@
     "tooltip": "floating",
     "tooltipLabel": "none",
     "tooltipValue": "none"
+  },
+  "variants": {
+    "tone": {
+      "success": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "warning": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "danger": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "info": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      }
+    },
+    "colorId": {
+      "1": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "2": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "3": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "4": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "5": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "6": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "7": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "8": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      }
+    }
+  },
+  "hues": {
+    "tone": {
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    },
+    "colorId": {
+      "1": "identity-1",
+      "2": "identity-2",
+      "3": "identity-3",
+      "4": "identity-4",
+      "5": "identity-5",
+      "6": "identity-6",
+      "7": "identity-7",
+      "8": "identity-8"
+    }
   }
 }

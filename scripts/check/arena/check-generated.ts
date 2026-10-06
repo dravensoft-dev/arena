@@ -125,6 +125,11 @@ export const UNTRACKED = {
     + 'directory is the one consumption surface, so no copy of it can disagree with another. '
     + 'The package build collects these into css/components/; check:component-css holds each to '
     + 'the manifest it came from.',
+  'frameworks/tailwind/consume/hues/**/*.hues.generated.css':
+    'the hue sheet of one component: one rule per slot and value of every group the manifest maps to '
+    + 'a hue, writing the four hue channels on the element that reads them, compiled from the '
+    + 'manifest and Hues.json. The component sheet imports it after the prelude, and the package '
+    + 'build collects these into css/hues/.',
   'frameworks/tailwind/consume/Components.generated.css':
     'the barrel of every component sheet, in one import, which is what a page drawing most of '
     + 'the library links and what the package ships as css/components.css. A page that draws a '

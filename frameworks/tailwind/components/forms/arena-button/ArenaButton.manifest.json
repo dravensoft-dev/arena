@@ -25,7 +25,7 @@
     },
     "destructive": {
       "true": {
-        "root": "bg-transparent border-error text-error hover:bg-hover"
+        "root": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover"
       },
       "false": {}
     },
@@ -45,5 +45,11 @@
     "variant": "primary",
     "destructive": false,
     "size": "md"
+  },
+  "hues": {
+    "destructive": {
+      "true": "danger",
+      "false": null
+    }
   }
 }

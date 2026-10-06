@@ -33,16 +33,16 @@
         "value": "text-secondary"
       },
       "success": {
-        "value": "text-success"
+        "value": "text-[color:var(--arena-hue-ink)]"
       },
       "warning": {
-        "value": "text-warning"
+        "value": "text-[color:var(--arena-hue-ink)]"
       },
       "danger": {
-        "value": "text-error"
+        "value": "text-[color:var(--arena-hue-ink)]"
       },
       "info": {
-        "value": "text-info"
+        "value": "text-[color:var(--arena-hue-ink)]"
       }
     },
     "deltaTone": {
@@ -50,15 +50,31 @@
         "delta": "border-edge-marker text-ink-muted/(--level-ink-muted)"
       },
       "positive": {
-        "delta": "border-success text-success"
+        "delta": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
       },
       "negative": {
-        "delta": "border-error text-error"
+        "delta": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
       }
     }
   },
   "defaultVariants": {
     "tone": "neutral",
     "deltaTone": "neutral"
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "accent": null,
+      "gold": null,
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    },
+    "deltaTone": {
+      "neutral": null,
+      "positive": "success",
+      "negative": "danger"
+    }
   }
 }

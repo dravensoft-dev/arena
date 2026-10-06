@@ -33,16 +33,16 @@
         "dot": "text-secondary"
       },
       "success": {
-        "dot": "text-success"
+        "dot": "text-[color:var(--arena-hue-ink)]"
       },
       "warning": {
-        "dot": "text-warning"
+        "dot": "text-[color:var(--arena-hue-ink)]"
       },
       "danger": {
-        "dot": "text-error"
+        "dot": "text-[color:var(--arena-hue-ink)]"
       },
       "info": {
-        "dot": "text-info"
+        "dot": "text-[color:var(--arena-hue-ink)]"
       }
     },
     "divided": {
@@ -57,5 +57,16 @@
   "defaultVariants": {
     "tone": "accent",
     "divided": true
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "accent": null,
+      "gold": null,
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    }
   }
 }

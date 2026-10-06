@@ -84,6 +84,7 @@ test('every ignore pattern carries a reason, and each names a real tree', () => 
     'frameworks/tailwind/consume/Preflight.generated.css',
     'frameworks/tailwind/consume/Prelude.generated.css',
     'frameworks/tailwind/consume/components/**/*.styles.generated.css',
+    'frameworks/tailwind/consume/hues/**/*.hues.generated.css',
     'frameworks/tailwind/consume/vocabulary/*.generated.css',
   ]);
   for (const [name, reason] of Object.entries(UNTRACKED)) {

@@ -33,12 +33,12 @@
         "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16"
       },
       "error": {
-        "field": "border-error ring-[length:var(--focus-width)] ring-error/14",
-        "statusIcon": "text-error"
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
       },
       "valid": {
-        "field": "border-success ring-[length:var(--focus-width)] ring-success/16 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
-        "statusIcon": "text-success"
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
       }
     },
     "disabled": {
@@ -59,5 +59,12 @@
     "state": "neutral",
     "disabled": false,
     "readOnly": false
+  },
+  "hues": {
+    "state": {
+      "neutral": null,
+      "error": "danger",
+      "valid": "success"
+    }
   }
 }

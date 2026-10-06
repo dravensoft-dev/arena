@@ -61,7 +61,7 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
                 (pointerenter)="hover.set(segment.index)" (pointerleave)="hover.set(null)"
                 (focus)="hover.set(segment.index)" (blur)="hover.set(null)"
                 (click)="sliceActivate.emit(segment.index)">
-          <span aria-hidden="true" [class]="styles().legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="segment.color"></span>
+          <span aria-hidden="true" [class]="styles().legendSwatch()" [arenaSlotData]="styles().$data.legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="segment.color"></span>
           <span [class]="styles().legendText()" [arenaSlotData]="styles().$data.legendText()" [attr.data-arena-part]="parts.legendText">
             <span [class]="styles().legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ segment.label }}</span>
             <span [class]="styles().legendValue()" [attr.data-arena-part]="parts.legendValue">{{ segment.formatted }}</span>

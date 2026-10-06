@@ -9,7 +9,7 @@
  * negative -- which on Windows it was, by three, for every component in the tree. */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, posix } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { compileLayer, compileEntry, layerInputs, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import {
@@ -17,12 +17,14 @@ import {
 } from '../../lib/tailwind/component-css.ts';
 import { dropBlindFallbacks, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
 import {
-  componentSheet, matchingBrace, preflightSheet, preludeSheet, splitUtilities,
+  componentSheet, hueSheet, matchingBrace, preflightSheet, preludeSheet, splitUtilities,
 } from '../../lib/tailwind/component-sheets.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { HUE_SHEETS, hueRules, huePath, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { readJson } from '../../utils/read-file.ts';
 import {
   VOCABULARY_DIR, VOCABULARY_SHEETS, answeringParts, compileFamily, familyFiles, readFamilies, sheetName, targetOf,
@@ -77,12 +79,12 @@ export const PRESET = [
 export const node = {
   name: 'build:tailwind',
   reads: [
-    ...PRESET, MANIFESTS, `${VOCABULARY_DIR}/**`, 'contracts/api/components',
+    ...PRESET, MANIFESTS, 'frameworks/tailwind/Hues.json', `${VOCABULARY_DIR}/**`, 'contracts/api/components',
     'frameworks/tailwind/ArenaStyles.ts',
   ],
   writes: [
     'frameworks/tailwind/Utilities.generated.css', PRELUDE, BARREL, PREFLIGHT,
-    `${CONSUME}/**/*.styles.generated.css`, `${VOCABULARY_SHEETS}/*.generated.css`, VOCABULARY_TYPES,
+    `${CONSUME}/**/*.styles.generated.css`, `${HUE_SHEETS}/**/*.hues.generated.css`, `${VOCABULARY_SHEETS}/*.generated.css`, VOCABULARY_TYPES,
     ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.manifest.generated.ts`),
     ...CSS_CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.classes.generated.ts`),
     ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/ArenaStyles.generated.ts`),
@@ -177,13 +179,18 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const out = new Map();
   out.set(join(root, PRELUDE), BANNER + preludeSheet(shared, keyframesOf(root)));
 
+  const hues = readHues(root);
   const sheets = [];
   for (const [name, rules] of components) {
     const file = byComponent.get(name);
     if (!file) throw new Error(`build-tailwind: ${name} has rules but no manifest to write them beside`);
     const rel = sheetPath(file);
     sheets.push(rel);
-    out.set(join(root, rel), BANNER + componentSheet(rules, preludeSpecifier(rel)));
+    const written = hueRules(manifests.get(file) as ComponentManifest, hues);
+    const hueRel = huePath(file);
+    if (written) out.set(join(root, hueRel), BANNER + hueSheet(written));
+    out.set(join(root, rel), BANNER + componentSheet(rules, preludeSpecifier(rel),
+      written ? [relPosix(posix.dirname(rel), hueRel, posix)] : []));
   }
 
   const imports = sheets.sort().map((rel) => `@import './${rel.replace(`${CONSUME}/`, '')}';`);

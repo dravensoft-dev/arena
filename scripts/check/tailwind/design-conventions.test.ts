@@ -1,7 +1,7 @@
 /* Danger is outline: the error token is ink, a border and a tint, never a full-strength
  * background. The one filled danger surface in the system is the final irreversible
- * confirmation inside ArenaConfirmDialog, and it says so by reaching for a token of its own,
- * --error-fill, rather than for --error at full strength. Both halves used to be asserted per
+ * confirmation inside ArenaConfirmDialog, and it says so by reading roles of its own, through
+ * bg-confirm-final, rather than --error at full strength. Both halves used to be asserted per
  * component against a resolved class string, which stopped being possible once a component
  * renders its own class names. Asserting them once over the authored manifests is what
  * survived, and the second half was never asserted anywhere at all. */
@@ -29,38 +29,20 @@ test('every manifest is read, or these conventions are asserted over nothing', (
   assert.ok(manifests.size > 0);
 });
 
-const STATUS_RAMP = new Map([
-  ['ArenaAvatar', 'the busy presence dot, which is a status colour beside bg-success and bg-warning on the '
-    + 'same four-value ramp rather than a danger affordance; the convention governs what a user can act on'],
-]);
-
 const fillsAtFullStrength = (manifest: ComponentManifest) => everyClassString(manifest)
   .flatMap(({ where, classes }) => classes.filter((cls: string) => /^bg-(error|danger)$/.test(cls)).map((cls: string) => `${where}: ${cls}`));
 
 test('danger is outline: no manifest paints a full-strength error background', () => {
-  const offenders = [...manifests.values()]
-    .filter((manifest) => !STATUS_RAMP.has(manifest.component))
-    .flatMap(fillsAtFullStrength);
+  const offenders = [...manifests.values()].flatMap(fillsAtFullStrength);
   assert.deepEqual(offenders, [], offenders.join('\n'));
 });
 
-test('the one filled danger surface reaches for --error-fill, and it is the only one that does', () => {
+test('the one filled danger surface reads bg-confirm-final, and it is the only one that does', () => {
   const filled = [...manifests.values()]
-    .filter((manifest) => everyClassString(manifest).some(({ classes }) => classes.some((c) => /error-fill/.test(c))))
+    .filter((manifest) => everyClassString(manifest).some(({ classes }) => classes.some((c) => /^bg-confirm-final$|error-fill/.test(c))))
     .map((manifest) => manifest.component);
   assert.deepEqual(filled, ['ArenaConfirmDialog'],
     'the final irreversible confirmation is the one filled danger surface in the system');
-});
-
-test('every status-ramp exemption is still needed, so a stale one fails rather than lingering', () => {
-  const byName = new Map([...manifests.values()].map((m) => [m.component, m]));
-  for (const [component, reason] of STATUS_RAMP) {
-    const manifest = byName.get(component);
-    assert.ok(manifest, `STATUS_RAMP names ${component}, which is no manifest`);
-    assert.ok(reason && reason.length > 10, `${component} has no usable reason`);
-    assert.ok(fillsAtFullStrength(manifest).length > 0,
-      `STATUS_RAMP excuses ${component}, which no longer paints one; drop the entry`);
-  }
 });
 
 test('no manifest introduces a raw hex, because a colour is a token or it is not Arena', () => {

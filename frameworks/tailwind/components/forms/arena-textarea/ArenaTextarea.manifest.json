@@ -31,7 +31,7 @@
         "field": "border-edge-field focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
       },
       "error": {
-        "field": "border-error ring-[length:var(--focus-width)] ring-error/14"
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]"
       }
     },
     "resize": {
@@ -69,5 +69,11 @@
     "disabled": false,
     "readOnly": false,
     "near": false
+  },
+  "hues": {
+    "state": {
+      "neutral": null,
+      "error": "danger"
+    }
   }
 }

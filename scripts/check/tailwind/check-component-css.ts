@@ -33,6 +33,7 @@ export const node = {
 };
 import type { Manifests } from '../../lib/tailwind/manifest-shapes.ts';
 import { channelPrefix, readFamilies, VOCABULARY_DIR } from '../../lib/tailwind/vocabulary.ts';
+import { HUE_CHANNELS } from '../../lib/tailwind/hue-sheet.ts';
 
 export const THEME_NAMESPACES = [
   'spacing', 'radius', 'text', 'z-index', 'leading', 'tracking', 'container',
@@ -82,6 +83,10 @@ export function themeLeaks(css: string) {
   return [...leaked].sort();
 }
 
+export function isHueChannel(name: string) {
+  return (HUE_CHANNELS as readonly string[]).includes(`--${name}`);
+}
+
 export function isFamilyChannel(name: string, families: Map<string, { family: string }>) {
   return [...families.keys()].some((family) => `--${name}`.startsWith(channelPrefix(family)));
 }
@@ -116,7 +121,7 @@ export function sheetProblems(manifests: Manifests, base = root) {
     }
     for (const name of propertiesIn(css)) {
       if (name === undefined) continue;
-      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || isFamilyChannel(name, families)) continue;
+      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || isFamilyChannel(name, families) || isHueChannel(name)) continue;
       problems.push(`${manifest.component}: reads --${name}, which is no Arena token and is not `
         + 'declared external, so nothing in either package defines it');
     }

@@ -24,24 +24,24 @@
   "variants": {
     "tone": {
       "info": {
-        "root": "bg-info/16 border-info",
-        "icon": "text-info",
-        "action": "text-info"
+        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
+        "icon": "text-[color:var(--arena-hue-ink)]",
+        "action": "text-[color:var(--arena-hue-ink)]"
       },
       "success": {
-        "root": "bg-success/16 border-success",
-        "icon": "text-success",
-        "action": "text-success"
+        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
+        "icon": "text-[color:var(--arena-hue-ink)]",
+        "action": "text-[color:var(--arena-hue-ink)]"
       },
       "warning": {
-        "root": "bg-warning/18 border-warning",
-        "icon": "text-warning",
-        "action": "text-warning"
+        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
+        "icon": "text-[color:var(--arena-hue-ink)]",
+        "action": "text-[color:var(--arena-hue-ink)]"
       },
       "danger": {
-        "root": "bg-error/14 border-error",
-        "icon": "text-error",
-        "action": "text-error"
+        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
+        "icon": "text-[color:var(--arena-hue-ink)]",
+        "action": "text-[color:var(--arena-hue-ink)]"
       },
       "neutral": {
         "root": "bg-surface border-edge-surface-floating",
@@ -59,5 +59,14 @@
   "defaultVariants": {
     "tone": "info",
     "titled": false
+  },
+  "hues": {
+    "tone": {
+      "info": "info",
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "neutral": null
+    }
   }
 }

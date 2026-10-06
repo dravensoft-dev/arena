@@ -63,7 +63,7 @@
       "disabled": false,
       "destructive": true,
       "class": {
-        "item": "cursor-pointer text-error hover:bg-hover"
+        "item": "cursor-pointer text-[color:var(--arena-hue-ink)] hover:bg-hover"
       }
     },
     {
@@ -79,5 +79,11 @@
     "align": "start",
     "disabled": false,
     "destructive": false
+  },
+  "hues": {
+    "destructive": {
+      "true": "danger",
+      "false": null
+    }
   }
 }

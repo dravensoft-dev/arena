@@ -102,6 +102,66 @@ export function levelsIn(
   return out;
 }
 
+const HUE_READ = /var\(--(arena-hue-(?:ink|edge|fill-strong|fill-soft))\)/g;
+const CONDITION = /:not\(\[[^\]]+\]\)|\[[^\]]+\]/g;
+
+function conditionsOf(selector: string) {
+  const at = selector.indexOf(':where(');
+  if (at === -1) return { base: selector.trim(), held: new Set<string>() };
+  return { base: selector.slice(0, at).trim(), held: new Set(selector.slice(at).match(CONDITION) ?? []) };
+}
+
+function hueWrites(hueCss: string) {
+  const writes: { base: string; held: Set<string>; channels: Map<string, string> }[] = [];
+  const walk = (block: CssBlock) => {
+    const channels = new Map(block.decls
+      .filter((decl) => decl.name.startsWith('--arena-hue-') && decl.value !== 'initial')
+      .map((decl) => [decl.name.slice(2), decl.value]));
+    if (channels.size > 0) writes.push({ ...conditionsOf(block.selector), channels });
+    for (const child of block.children) walk(child);
+  };
+  walk(parseBlocks(hueCss));
+  return writes;
+}
+
+function settled(value: string, roles: Map<string, string>, levels: Record<string, string>) {
+  let out = value;
+  for (let pass = 0; pass < 4; pass += 1) {
+    out = out.replace(/var\(--([\w-]+)\)/g, (read, name: string) => {
+      const level = levels[name];
+      if (level !== undefined) return /%$/.test(level) ? level : `${level}%`;
+      return roles.get(name) ?? read;
+    });
+  }
+  return out;
+}
+
+export function inlineHues(
+  componentCss: string, hueCss: string, roles: Map<string, string>, levels: Record<string, string>,
+): string {
+  const writes = hueWrites(hueCss);
+  const edits: { from: number; to: number; text: string }[] = [];
+  const walk = (block: CssBlock) => {
+    const own = washedClass(block);
+    const here = own ? conditionsOf(own) : null;
+    for (const decl of block.decls) {
+      if (!here || !decl.value.includes('var(--arena-hue-')) continue;
+      const text = componentCss.slice(decl.from, decl.to).replace(HUE_READ, (read, channel: string) => {
+        const rule = writes.find((one) => one.base === here.base && [...one.held].every((c) => here.held.has(c))
+          && one.channels.has(channel));
+        const value = rule?.channels.get(channel);
+        return value === undefined ? read : settled(value, roles, levels);
+      });
+      edits.push({ from: decl.from, to: decl.to, text });
+    }
+    for (const child of block.children) walk(child);
+  };
+  walk(parseBlocks(componentCss));
+  let out = componentCss;
+  for (const edit of edits.reverse()) out = out.slice(0, edit.from) + edit.text + out.slice(edit.to);
+  return out;
+}
+
 export type Wash = { selector: string; variable: string; percent: number };
 
 const WASH_PERCENT = /color-mix\(in oklab,\s*var\(--[\w-]+\)\s*([\d.]+)%\s*,\s*transparent\)/;

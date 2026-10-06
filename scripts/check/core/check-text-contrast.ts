@@ -2,17 +2,19 @@
  * collects a node's declaration by importing the script that carries it. A gate doing its work
  * where an import reaches it cannot be collected, and this one exits the process outright. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { contrast } from '../../lib/core/validate-palette.mjs';
 import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
+import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
 import {
-  derivedLevels, drawnBy, levelDefaults, levelReports, levelsIn, raisedReports,
+  derivedLevels, drawnBy, inlineHues, levelDefaults, levelReports, levelsIn, raisedReports,
   washesIn, washReports,
 } from '../../generate/core/arena-to-prod/levels.ts';
 import {
@@ -33,16 +35,20 @@ export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components/**/*.sty
 
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS, ...ROLE_SHEETS, COMPONENT_SHEETS],
+  reads: [PALETTE, COLORS, ...ROLE_SHEETS, COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`],
   writes: [],
   feeds: [],
 };
 
-export function componentSheets() {
+export function componentSheets(roles: Map<string, string> = new Map(), levels: Record<string, string> = {}) {
   const at = join(root, 'frameworks/tailwind/consume/components');
   return walkFiles(at)
     .filter((file) => file.endsWith('.styles.generated.css'))
-    .map((file) => readFileSync(file, 'utf8'));
+    .map((file) => {
+      const css = readFileSync(file, 'utf8');
+      const hue = join(root, HUE_SHEETS, relPosix(at, file).replace('.styles.generated.css', '.hues.generated.css'));
+      return existsSync(hue) ? inlineHues(css, readFileSync(hue, 'utf8'), roles, levels) : css;
+    });
 }
 
 export function paletteColours(body: string) {
@@ -148,8 +154,11 @@ function main() {
     ok = false;
     console.log(`\n[FAIL] --${token} is declared in contracts/design/colors.css. It is not a token Arena has; use ${use}.`);
   }
-  const sheets = componentSheets();
   const defaults = levelDefaults(readFileSync(join(root, COLORS), 'utf8'));
+  const sheets = componentSheets(
+    resolvedFor(effects, '', THEMES[0]?.name ?? 'light'),
+    Object.fromEntries(Object.entries(defaults).map(([name, percent]) => [name, `${percent}%`])),
+  );
   const levels = sheets.flatMap((css) => levelsIn(css, defaults));
   const washes = sheets.flatMap(washesIn);
   for (const t of THEMES) {

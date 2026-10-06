@@ -62,6 +62,46 @@ test('every claim carries a reason, because one that cannot be judged stale is n
   }
 });
 
+const HUES = {
+  ArenaActivityFeed: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
+  ArenaAvatar: { status: { online: 'success', busy: 'danger', away: 'warning' } },
+  ArenaBadge: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
+  ArenaStatCard: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' }, deltaTone: { positive: 'success', negative: 'danger' } },
+  ArenaTag: { tone: { success: 'success', warning: 'warning', danger: 'danger' } },
+  ArenaAlert: { tone: { info: 'info', success: 'success', warning: 'warning', danger: 'danger' } },
+  ArenaConfirmDialog: { destructive: { true: 'danger' } },
+  ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
+  ArenaToast: { tone: { success: 'success', danger: 'danger' } },
+  ArenaButton: { destructive: { true: 'danger' } },
+  ArenaInput: { state: { error: 'danger', valid: 'success' } },
+  ArenaSelect: { state: { error: 'danger', valid: 'success' } },
+  ArenaTextarea: { state: { error: 'danger' } },
+  ArenaBulkActionBar: { destructive: { true: 'danger' } },
+  ArenaMenu: { destructive: { true: 'danger' } },
+} as Record<string, Record<string, Record<string, string>>>;
+
+test('every status value maps to its own hue, and a neutral or editorial value to none', () => {
+  for (const [component, groups] of Object.entries(HUES)) {
+    const manifest = manifests.get(component);
+    assert.ok(manifest, `HUES names ${component}, which is no manifest`);
+    for (const [group, values] of Object.entries(groups)) {
+      for (const [value, hue] of Object.entries(values))
+        assert.equal(manifest.hues?.[group]?.[value], hue, `${component}.hues.${group}.${value} is not ${hue}`);
+      for (const [value, hue] of Object.entries(manifest.hues?.[group] ?? {})) {
+        if (value === 'on' || hue === null) continue;
+        assert.equal(values[value], hue, `${component}.hues.${group}.${value} maps to ${String(hue)}, which no claim here states`);
+      }
+    }
+  }
+  for (const [component, group, values] of [
+    ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral', 'accent', 'gold']],
+    ['ArenaToast', 'tone', ['neutral', 'gold']], ['ArenaAvatar', 'status', ['none', 'offline']],
+    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral', 'primary', 'identity']],
+  ] as [string, string, string[]][])
+    for (const value of values)
+      assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
+});
+
 test('every manifest claim holds', () => {
   const problems = claimProblems(CLAIMS as unknown as Record<string, Claim[]>);
   assert.deepEqual(problems, [], problems.join('\n'));
@@ -119,6 +159,15 @@ test('every ArenaSideNav slot that indents carries the depth inset while expande
 
 const BAND_CEILING = 'px-[min(var(--gutter),7%)]';
 
+const INK = 'text-[color:var(--arena-hue-ink)]';
+const EDGE = 'border-[color:var(--arena-hue-edge)]';
+const SOFT = 'bg-[color:var(--arena-hue-fill-soft)]';
+const STRONG = 'bg-[color:var(--arena-hue-fill-strong)]';
+const STATUS = ['success', 'warning', 'danger', 'info'];
+const HUE_WHY = 'a status colour is a read of the hue channel the hue sheet writes on this slot, so the style plugin that answers the hue roles moves every surface wearing it';
+const hueClaims = (slot: string, tones: Record<string, string[]>, group = 'tone') =>
+  Object.entries(tones).map(([tone, has]) => ({ chosen: { [group]: tone }, slot, has, why: HUE_WHY }));
+
 export const CLAIMS = {
   ArenaSection: [
     { slot: 'title', has: ['text-title-section'], hasNot: ['text-h1', 'text-h2', 'text-h3', 'text-h4'], why: 'a scale step here is a title no style plugin can re-pitch, which is the defect the role tier exists to prevent' },
@@ -171,6 +220,7 @@ export const CLAIMS = {
   ],
   ArenaActivityFeed: [
     { slot: 'dot', has: ['bg-current'], hasNot: ['bg-error', 'bg-success', 'bg-warning', 'bg-info', 'bg-primary', 'bg-secondary'], why: 'the dot carries the tone as a colour, never as a fill of its own' },
+    ...hueClaims('dot', Object.fromEntries(STATUS.map((tone) => [tone, [INK]]))),
     { chosen: { divided: true }, slot: 'item', has: ['border-t-[length:var(--bw-separator)]'], why: 'divided draws the rule between rows' },
     { chosen: { divided: false }, slot: 'item', has: ['border-t-0'], why: 'the first row carries no divider above it' },
   ],
@@ -185,9 +235,10 @@ export const CLAIMS = {
     })),
     { chosen: { shape: 'circle' }, slot: 'box', has: ['rounded-pill'], why: 'circle rounds the box fully and rounded takes the medium radius' },
     { chosen: { shape: 'rounded' }, slot: 'box', has: ['rounded-md'], why: 'circle rounds the box fully and rounded takes the medium radius' },
-    { chosen: { status: 'online' }, slot: 'status', has: ['bg-success'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
-    { chosen: { status: 'busy' }, slot: 'status', has: ['bg-error'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
-    { chosen: { status: 'away' }, slot: 'status', has: ['bg-warning'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
+    ...['online', 'busy', 'away'].map((status) => ({
+      chosen: { status }, slot: 'status', has: ['bg-[color:var(--arena-hue-ink)]'], hasNot: ['bg-success', 'bg-error', 'bg-warning'],
+      why: 'a presence dot is filled with the ink of its status hue, which is how a danger hue whose fill is transparent still shows a busy dot',
+    })),
     { chosen: { status: 'offline' }, slot: 'status', has: ['bg-base-content/(--level-presence)'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
@@ -208,13 +259,13 @@ export const CLAIMS = {
   ],
   ArenaStatCard: [
     ...Object.entries({ neutral: 'text-ink-body', accent: 'text-primary', gold: 'text-secondary',
-      success: 'text-success', warning: 'text-warning', danger: 'text-error', info: 'text-info' })
+      success: INK, warning: INK, danger: INK, info: INK })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'value', has: [cls], why: 'every value tone maps to its own text colour and no other survives beside it' })),
     { slot: 'value', has: ['text-ink-body'], why: 'the default value tone is neutral' },
-    { chosen: { tone: 'danger' }, slot: 'value', has: ['text-error'], why: 'a danger value tone colours text only, so the value slot carries no background' },
-    { chosen: { tone: 'danger', deltaTone: 'positive' }, slot: 'delta', has: ['border-success', 'text-success'], why: 'tone and deltaTone are independent, which is why the contract declares them separately' },
-    { chosen: { deltaTone: 'negative' }, slot: 'delta', has: ['border-error', 'text-error', 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta is outline: border and text in --error, never a filled background' },
-    { chosen: { deltaTone: 'positive' }, slot: 'delta', has: ['border-success', 'text-success'], why: 'a positive delta reads success, not the danger family' },
+    { chosen: { tone: 'danger' }, slot: 'value', has: [INK], hasNot: ['bg-error'], why: 'a danger value tone colours text only, so the value slot carries no background' },
+    { chosen: { tone: 'danger', deltaTone: 'positive' }, slot: 'delta', has: [EDGE, INK], why: 'tone and deltaTone are independent, which is why the contract declares them separately' },
+    { chosen: { deltaTone: 'negative' }, slot: 'delta', has: [EDGE, INK, 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta is outline: border and text in the danger hue, never a filled background' },
+    { chosen: { deltaTone: 'positive' }, slot: 'delta', has: [EDGE, INK], hasNot: ['border-error', 'text-error'], why: 'a positive delta reads the success hue, not the danger family' },
     { chosen: { deltaTone: 'neutral' }, slot: 'delta', has: ['rounded-marker'], why: 'every delta tone keeps the shared marker base, which is the corner roles.json gives a delta badge' },
   ],
   ArenaTable: [
@@ -235,7 +286,9 @@ export const CLAIMS = {
     { slot: 'td', has: ['table-cell'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
   ],
   ArenaTag: [
-    { chosen: { tone: 'danger' }, slot: 'root', has: ['border-error', 'text-error'], hasNot: ['bg-error'], why: 'danger is outline: border and text in --error, never a filled background' },
+    { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger is outline: border and text in the danger hue, never a filled background' },
+    ...hueClaims('root', Object.fromEntries(['success', 'warning'].map((tone) => [tone, [EDGE, INK]]))),
+    ...[1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ chosen: { colorId: String(id) }, slot: 'root', has: [EDGE, INK], why: HUE_WHY })),
     ...['neutral', 'primary', 'success', 'warning', 'danger', 'identity'].map((tone) => ({
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
@@ -245,13 +298,13 @@ export const CLAIMS = {
     { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
   ],
   ArenaAlert: [
-    ...Object.entries({ info: 'info', success: 'success', warning: 'warning', danger: 'error', neutral: 'neutral' })
-      .flatMap(([tone, family]) => [
-        { chosen: { tone }, slot: 'root', has: [family === 'neutral' ? 'border-edge-surface-floating' : `border-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family; the neutral tone is the absence of one, so its edge is the floating surface role rather than a status colour' },
-        { chosen: { tone }, slot: 'icon', has: [`text-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family' },
-        { chosen: { tone }, slot: 'action', has: [`text-${family}`], why: 'every tone colours its root, icon and action from the same status family, never the danger family' },
-      ]),
-    { chosen: { tone: 'danger' }, slot: 'root', has: ['border-error', 'bg-error/14'], hasNot: ['bg-error'], why: 'danger is outline at a soft tint rather than the filled danger surface' },
+    ...STATUS.flatMap((tone) => [
+      { chosen: { tone }, slot: 'root', has: [SOFT, EDGE], hasNot: ['bg-error', 'bg-error-fill'], why: 'every status tone colours its root from the hue channels, as a soft wash and an edge, never as the filled danger surface' },
+      { chosen: { tone }, slot: 'icon', has: [INK], why: HUE_WHY },
+      { chosen: { tone }, slot: 'action', has: [INK], why: HUE_WHY },
+    ]),
+    { chosen: { tone: 'neutral' }, slot: 'root', has: ['border-edge-surface-floating'], hasNot: [SOFT, EDGE], why: 'the neutral tone is the absence of a hue, so its edge is the floating surface role rather than a status colour' },
+    { chosen: { tone: 'neutral' }, slot: 'icon', has: ['text-neutral'], hasNot: [INK], why: 'the neutral tone is the absence of a hue, so its icon is the neutral ink' },
     { slot: 'action', has: ['bg-transparent', 'border-none'], why: 'the close and action controls are text-only chrome, carrying no border or fill of their own' },
     { slot: 'close', has: ['bg-transparent', 'border-none'], why: 'the close and action controls are text-only chrome, carrying no border or fill of their own' },
     { chosen: { titled: true }, slot: 'message', has: ['mt-1'], why: 'the message carries the title-separating margin only when a title is present' },
@@ -274,6 +327,8 @@ export const CLAIMS = {
     { slot: 'current', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the same register at the last segment, which is the one drawn bold' },
   ],
   ArenaBulkActionBar: [
+    { chosen: { destructive: true }, slot: 'action', has: [EDGE, INK], why: HUE_WHY },
+    { chosen: { destructive: false }, slot: 'action', hasNot: [EDGE, INK], why: 'a quiet action is the absence of a hue' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { slot: 'divider', has: ['w-px'], why: 'the divider uses the one-pixel utility rather than a border-width token, since it is not a border' },
   ],
@@ -281,6 +336,9 @@ export const CLAIMS = {
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
   ],
   ArenaConfirmDialog: [
+    { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
+    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-confirm-final', 'text-ink-confirm-final'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation is the one filled danger surface, and it reads the roles of its own rather than the danger hue, whose fill is closed to transparent' },
+    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { chosen: { invalid: true }, slot: 'input', has: ['border-error'], hasNot: ['border-edge-field'], why: 'invalid borders the require-text input in --error and drops the neutral border' },
@@ -311,19 +369,19 @@ export const CLAIMS = {
     { slot: 'dot', has: ['duration-[var(--dur-state)]'], why: 'the dot width transition rides the token duration scale, never a literal' },
   ],
   ArenaProgressBar: [
-    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', success: 'text-success', danger: 'text-error', info: 'text-info' })
+    ...Object.entries({ accent: 'text-primary', gold: 'text-secondary', success: INK, danger: INK, info: INK })
       .map(([tone, cls]) => ({ chosen: { tone }, slot: 'track', has: [cls], why: 'every tone inks the track, which is what the fill reads through bg-current' })),
     ...Object.entries({ sm: 'h-1', md: 'h-1.5', lg: 'h-2.5' })
       .map(([s, cls]) => ({ chosen: { size: s }, slot: 'track', has: [cls], why: 'size sets the track height and nothing else' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
-    { chosen: { tone: 'danger' }, slot: 'track', has: ['text-error', 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
+    { chosen: { tone: 'danger' }, slot: 'track', has: [INK, 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
     { chosen: { indeterminate: true }, slot: 'track', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
     { slot: 'track', has: ['overflow-hidden', 'rounded-pill'], hasNot: ['rounded-full'], why: 'the track clips its own fill and takes the pill radius' },
     { slot: 'root', has: ['grid', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline, and the bar stacks its head over its track' },
     { chosen: { shape: 'radial' }, slot: 'root', has: ['grid', 'w-fit'], hasNot: ['w-full'], why: 'a ring is as wide as it is tall, so the root shrinks to it rather than filling the row the way a bar does' },
     ...Object.entries({ sm: 'size-12', md: 'size-16', lg: 'size-24' })
       .map(([s, cls]) => ({ chosen: { shape: 'radial', size: s }, slot: 'ring', has: [cls], why: 'size sets the ring diameter the way it sets the track height' })),
-    { chosen: { tone: 'danger' }, slot: 'ring', has: ['text-error'], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
+    { chosen: { tone: 'danger' }, slot: 'ring', has: [INK], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
     { slot: 'ringFill', has: ['stroke-current', '[stroke-dasharray:100]'], why: 'the arc reads the tone the ring inks, and its length is hundredths of the path, so the percentage is the offset and the radius is free' },
     { chosen: { indeterminate: true }, slot: 'ringFill', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
   ],
@@ -336,6 +394,8 @@ export const CLAIMS = {
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
   ],
   ArenaToast: [
+    ...['success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'root', has: ['border-l-[color:var(--arena-hue-edge)]'], why: HUE_WHY })),
+    { chosen: { tone: 'success' }, slot: 'action', has: ['text-primary'], hasNot: [INK], why: 'every action but the danger one is the brand ink, an editorial choice rather than a hue' },
     { chosen: { tone: 'danger' }, slot: 'action', has: ['text-secondary'], why: 'danger is the one tone whose action flips to the secondary ink, so it never sits crimson on crimson' },
     { chosen: { tone: 'neutral' }, slot: 'action', has: ['text-primary'], why: 'every other tone leaves the action on the brand ink' },
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
@@ -348,7 +408,7 @@ export const CLAIMS = {
     { chosen: { anchored: true }, slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'anchored, the overlay pane owns the position and every wrapper-relative utility is gone' },
   ],
   ArenaButton: [
-    { chosen: { destructive: true }, slot: 'root', has: ['border-error', 'text-error', 'bg-transparent'], why: 'destructive is outline: border and text in --error, and its only error fill is a hover wash' },
+    { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive is outline: border and text in the danger hue, and its fill channel is closed to transparent, so its only error fill is a hover wash' },
     { chosen: { variant: 'primary' }, slot: 'root', has: ['bg-primary', 'text-primary-content'], why: 'primary is the one filled variant, and it fills with the brand rather than a status colour' },
     ...['primary', 'secondary', 'ghost'].map((variant) => ({
       chosen: { variant }, slot: 'root', has: ['rounded-control', 'inline-flex', 'h-ctl-h'],
@@ -383,10 +443,10 @@ export const CLAIMS = {
   ],
   ArenaInput: [
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-secondary'], why: 'neutral rings gold only on focus, where error and valid ring at rest and say which they are' },
-    { chosen: { state: 'error' }, slot: 'field', has: ['border-error', 'ring-error/14'], why: 'error and valid ring at rest and say which they are, at the soft tint rather than full strength' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-error'], why: 'error and valid ring at rest and say which they are' },
-    { chosen: { state: 'valid' }, slot: 'field', has: ['border-success', 'focus-within:border-secondary'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
-    { chosen: { state: 'valid' }, slot: 'statusIcon', has: ['text-success'], why: 'error and valid ring at rest and say which they are' },
+    { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], why: 'error and valid ring at rest and say which they are, at the soft tint rather than full strength' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
+    { chosen: { state: 'valid' }, slot: 'field', has: [EDGE, 'focus-within:border-secondary'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
+    { chosen: { state: 'valid' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { chosen: { readOnly: true }, slot: 'input', has: ['cursor-default'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
@@ -397,6 +457,7 @@ export const CLAIMS = {
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
+    { chosen: { destructive: true, disabled: false }, slot: 'item', has: [INK, 'hover:bg-hover'], hasNot: ['text-error'], why: HUE_WHY },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
     { chosen: { anchored: true }, slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5'], why: 'anchored, the CDK positions the pane, so every in-flow positioning class is gone' },
     { chosen: { anchored: true }, slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
@@ -472,7 +533,7 @@ export const CLAIMS = {
   ArenaTextarea: [
     { slot: 'field', has: ['focus:border-secondary'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus:border-secondary'], hasNot: ['border-success'], why: 'a textarea takes focus itself, so its ring is focus rather than focus-within' },
-    { chosen: { state: 'error' }, slot: 'field', has: ['border-error', 'ring-error/14'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
+    { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
     { chosen: { resize: 'vertical' }, slot: 'field', has: ['resize-y'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group' },
@@ -482,6 +543,8 @@ export const CLAIMS = {
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],
   ArenaBadge: [
+    ...hueClaims('root', Object.fromEntries(STATUS.map((tone) => [tone, [SOFT]]))),
+    { chosen: { tone: 'neutral' }, slot: 'root', has: ['bg-base-300'], hasNot: [SOFT], why: 'a neutral badge is the absence of a hue and keeps its own surface' },
     { slot: 'root', has: ['w-fit'], why: 'a badge is as wide as its label in a card body, where a width of auto would stretch it' },
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
     ...['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'].map((tone) => ({

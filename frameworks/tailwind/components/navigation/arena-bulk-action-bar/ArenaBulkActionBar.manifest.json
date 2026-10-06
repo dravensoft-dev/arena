@@ -27,7 +27,7 @@
   "variants": {
     "destructive": {
       "true": {
-        "action": "border-error text-error hover:bg-hover"
+        "action": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover"
       },
       "false": {
         "action": "border-edge-control-quiet text-ink-body/(--level-ink-body) hover:bg-base-200"
@@ -52,5 +52,11 @@
     "destructive": false,
     "open": false,
     "narrow": false
+  },
+  "hues": {
+    "destructive": {
+      "true": "danger",
+      "false": null
+    }
   }
 }

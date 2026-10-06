@@ -25,11 +25,11 @@
         "action": "text-primary"
       },
       "success": {
-        "root": "border-l-success",
+        "root": "border-l-[color:var(--arena-hue-edge)]",
         "action": "text-primary"
       },
       "danger": {
-        "root": "border-l-error",
+        "root": "border-l-[color:var(--arena-hue-edge)]",
         "action": "text-secondary"
       },
       "gold": {
@@ -40,5 +40,13 @@
   },
   "defaultVariants": {
     "tone": "neutral"
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "success": "success",
+      "danger": "danger",
+      "gold": null
+    }
   }
 }

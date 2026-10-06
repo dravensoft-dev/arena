@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  DECORATIVE, derivedLevels, exemptionFor, gateFor, levelReports, levelsIn, raisedReports,
+  DECORATIVE, derivedLevels, exemptionFor, gateFor, inlineHues, levelReports, levelsIn, raisedReports,
   surfaceKeys, washesIn, washReports,
 } from './levels.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -226,4 +226,52 @@ test('a compound that waits for a disabled row is exempt by its condition, one t
   const [disabled, enabled] = levelsIn(MENU, DEFAULTS);
   assert.ok(exemptionFor(disabled as never), 'the disabled compound keeps the inactive-component exemption');
   assert.equal(exemptionFor(enabled as never), null, 'a compound that names disabled only to negate it is not inactive');
+});
+
+const HUE_SHEET = [
+  '@layer utilities {',
+  '  .x:where([data-arena-tone="danger"]) {',
+  '    --arena-hue-ink: var(--hue-danger-ink);',
+  '    --arena-hue-edge: var(--hue-danger-edge);',
+  '    --arena-hue-fill-strong: var(--hue-danger-fill-strong);',
+  '    --arena-hue-fill-soft: color-mix(in oklab, var(--hue-danger-fill-soft) var(--level-hue-soft-danger), transparent);',
+  '  }',
+  '  .x:where([data-arena-tone="neutral"]) {',
+  '    --arena-hue-ink: initial;',
+  '    --arena-hue-fill-soft: initial;',
+  '  }',
+  '}',
+].join('\n');
+
+const HUE_ROLES = new Map([
+  ['hue-danger-ink', 'var(--color-error)'],
+  ['hue-danger-edge', 'var(--color-error)'],
+  ['hue-danger-fill-strong', 'transparent'],
+  ['hue-danger-fill-soft', 'var(--color-error)'],
+]);
+
+test('inlineHues reads a channel through the hue sheet, so the sweeps see the wash the browser paints', () => {
+  const css = [
+    '@layer utilities {',
+    '  .x:where([data-arena-tone="danger"]) {',
+    '    background-color: var(--arena-hue-fill-soft);',
+    '    border-color: var(--arena-hue-edge);',
+    '  }',
+    '}',
+  ].join('\n');
+  const inlined = inlineHues(css, HUE_SHEET, HUE_ROLES, { 'level-hue-soft-danger': '14%' });
+  assert.match(inlined, /background-color: color-mix\(in oklab, var\(--color-error\) 14%, transparent\);/);
+  assert.match(inlined, /border-color: var\(--color-error\);/);
+  assert.equal(washesIn(inlined).length, washesIn(css).length);
+  assert.equal(levelsIn(inlined).length, 1);
+});
+
+test('inlineHues leaves a read the hue sheet does not write, and an initial one, as it stands', () => {
+  const css = '.x:where([data-arena-tone="neutral"]) {\n  color: var(--arena-hue-ink);\n}\n.y {\n  color: var(--arena-hue-ink);\n}\n';
+  assert.equal(inlineHues(css, HUE_SHEET, HUE_ROLES, {}), css);
+});
+
+test('inlineHues reads a compound selector through the rule whose conditions it holds', () => {
+  const css = '.x:where(:not([data-arena-disabled])[data-arena-tone="danger"]) {\n  color: var(--arena-hue-ink);\n}\n';
+  assert.match(inlineHues(css, HUE_SHEET, HUE_ROLES, {}), /color: var\(--color-error\);/);
 });

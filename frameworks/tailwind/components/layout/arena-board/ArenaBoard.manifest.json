@@ -33,9 +33,50 @@
         "title": "text-[color:var(--arena-board-column-cat)]"
       },
       "false": {}
+    },
+    "colorId": {
+      "1": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "2": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "3": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "4": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "5": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "6": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "7": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "8": {
+        "title": "text-[color:var(--arena-hue-ink)]"
+      }
     }
   },
   "defaultVariants": {
     "identity": false
+  },
+  "hues": {
+    "colorId": {
+      "on": [
+        "column"
+      ],
+      "1": "identity-1",
+      "2": "identity-2",
+      "3": "identity-3",
+      "4": "identity-4",
+      "5": "identity-5",
+      "6": "identity-6",
+      "7": "identity-7",
+      "8": "identity-8"
+    }
   }
 }

@@ -99,6 +99,8 @@
 
   /* the system's only filled danger surface — ArenaConfirmDialog's final step */
   --color-error-fill: var(--color-error-fill);
+  --color-confirm-final: var(--fill-confirm-final);
+  --color-ink-confirm-final: var(--ink-confirm-final);
 
   --color-neutral: var(--color-neutral);
   --color-neutral-content: var(--color-neutral-content);

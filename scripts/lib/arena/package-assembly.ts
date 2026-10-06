@@ -19,6 +19,7 @@ import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
+import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { VOCABULARY_SHEETS, packageSheetName, readFamilies, sheetName } from '../tailwind/vocabulary.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
@@ -134,16 +135,29 @@ export function componentSheets(css: string, split: (css: string) => { base: str
     throw new Error('package-assembly: no component stylesheet was found, so the package would ship '
       + 'a barrel that imports nothing and every component would render unstyled');
   }
-  const named = files.map((file) => ({
-    to: `css/components/${kebab(basename(file).split('.')[0] ?? '')}.css`,
-    content: readFileSync(file, 'utf8').replace(/@import '(?:\.\.\/)+Prelude\.generated\.css';/, "@import '../prelude.css';"),
-    linked: false,
-  }));
+  const named = files.map((file) => {
+    const name = kebab(basename(file).split('.')[0] ?? '');
+    return {
+      to: `css/components/${name}.css`,
+      content: readFileSync(file, 'utf8')
+        .replace(/@import '(?:\.\.\/)+Prelude\.generated\.css';/, "@import '../prelude.css';")
+        .replace(/@import '(?:\.\.\/)+hues\/[^']+';/, `@import '../hues/${name}.css';`),
+      linked: false,
+    };
+  });
+  const hueSheets = manifestFiles(join(dir, 'components')).flatMap((file) => {
+    const rel = relPosix(root, file);
+    const hue = join(root, huePath(rel));
+    return existsSync(hue)
+      ? [{ to: `css/hues/${kebab(basename(rel).split('.')[0] ?? '')}.css`, content: readFileSync(hue, 'utf8'), linked: false }]
+      : [];
+  });
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
     { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
     { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
+    ...hueSheets,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
     ...[...readFamilies(root).keys()].sort().map((family) => ({
       to: packageSheetName(family),

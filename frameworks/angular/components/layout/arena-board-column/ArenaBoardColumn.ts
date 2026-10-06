@@ -12,7 +12,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents', '[attr.title]': 'null' },
   template: `
-    <section [class]="styles().column()" [attr.data-arena-part]="parts.column"
+    <section [class]="styles().column()" [arenaSlotData]="styles().$data.column()" [attr.data-arena-part]="parts.column"
              role="group" [attr.aria-label]="named()"
              [style.--arena-board-column-cat]="catColour()">
       <div [class]="styles().head()" [attr.data-arena-part]="parts.head">

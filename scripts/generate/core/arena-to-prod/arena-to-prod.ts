@@ -31,7 +31,7 @@ import { markerProblems } from './markers.ts';
 import { auditText, paintedParts, sourceScope, type VocabularyIndex } from './audit.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
-import { levelDefaults, levelsIn, washesIn } from './levels.ts';
+import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
 import type { Report, StrictKind } from './reports.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -220,9 +220,14 @@ export function packageSheets(root: string): PackageSheets {
       .sort();
     if (!layers.length || !components.length) return null;
     const catalogue = packageCatalogue(root);
-    const sheets = components.map((name) =>
-      readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'));
     const defaults = levelDefaults(read(join(root, 'css', 'colors.css')));
+    const roles = new Map<string, string>();
+    for (const [, name, value] of read(join(root, 'css', 'style-plugin-default.css'))
+      .matchAll(/--(hue-[\w-]+)\s*:\s*([^;]+);/g)) if (!roles.has(name as string)) roles.set(name as string, (value as string).trim());
+    const held = Object.fromEntries(Object.entries(defaults).map(([name, percent]) => [name, `${percent}%`]));
+    const sheets = components.map((name) => inlineHues(
+      readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'),
+      read(join(root, 'css', 'hues', `${name}.css`)), roles, held));
     const levels = sheets.flatMap((css) => levelsIn(css, defaults));
     const washes = sheets.flatMap(washesIn);
     const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));

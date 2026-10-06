@@ -4,6 +4,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
+import { readHues } from '../../lib/tailwind/hue-sheet.ts';
 
 export const node = {
   name: 'check:coverage',
@@ -98,6 +99,13 @@ export const EXCLUDED = new Map([
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
 ]);
+
+for (const [hue, channels] of readHues()) {
+  if (hue.startsWith('identity-')) continue;
+  for (const channel of Object.keys(channels))
+    EXCLUDED.set(`hue-${hue}-${channel}`, 'a hue role, answered by the style plugin and read by the hue sheet '
+      + '(frameworks/tailwind/Hues.json) into a channel a manifest reads, so no utility is named after it');
+}
 
 export function presetTokens(css: string) {
   const out = new Set<string>();

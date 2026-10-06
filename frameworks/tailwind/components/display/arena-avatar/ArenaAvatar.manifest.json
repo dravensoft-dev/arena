@@ -6,25 +6,71 @@
     "image": "w-full h-full object-cover",
     "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200"
   },
-  "kind": { "root": "none", "box": "none", "image": "none", "status": "none" },
+  "kind": {
+    "root": "none",
+    "box": "none",
+    "image": "none",
+    "status": "none"
+  },
   "variants": {
     "size": {
-      "xs": { "root": "size-avatar-xs", "box": "size-avatar-xs text-[length:calc(var(--avatar-xs)*0.4)]", "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-xs)*0.28))]" },
-      "sm": { "root": "size-avatar-sm", "box": "size-avatar-sm text-[length:calc(var(--avatar-sm)*0.4)]", "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-sm)*0.28))]" },
-      "md": { "root": "size-avatar-md", "box": "size-avatar-md text-[length:calc(var(--avatar-md)*0.4)]", "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-md)*0.28))]" },
-      "lg": { "root": "size-avatar-lg", "box": "size-avatar-lg text-[length:calc(var(--avatar-lg)*0.4)]", "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-lg)*0.28))]" }
+      "xs": {
+        "root": "size-avatar-xs",
+        "box": "size-avatar-xs text-[length:calc(var(--avatar-xs)*0.4)]",
+        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-xs)*0.28))]"
+      },
+      "sm": {
+        "root": "size-avatar-sm",
+        "box": "size-avatar-sm text-[length:calc(var(--avatar-sm)*0.4)]",
+        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-sm)*0.28))]"
+      },
+      "md": {
+        "root": "size-avatar-md",
+        "box": "size-avatar-md text-[length:calc(var(--avatar-md)*0.4)]",
+        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-md)*0.28))]"
+      },
+      "lg": {
+        "root": "size-avatar-lg",
+        "box": "size-avatar-lg text-[length:calc(var(--avatar-lg)*0.4)]",
+        "status": "size-[max(calc(var(--sp-1)*2),calc(var(--avatar-lg)*0.28))]"
+      }
     },
     "shape": {
-      "circle": { "box": "rounded-pill" },
-      "rounded": { "box": "rounded-md" }
+      "circle": {
+        "box": "rounded-pill"
+      },
+      "rounded": {
+        "box": "rounded-md"
+      }
     },
     "status": {
       "none": {},
-      "online": { "status": "bg-success" },
-      "busy": { "status": "bg-error" },
-      "away": { "status": "bg-warning" },
-      "offline": { "status": "bg-base-content/(--level-presence)" }
+      "online": {
+        "status": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "busy": {
+        "status": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "away": {
+        "status": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "offline": {
+        "status": "bg-base-content/(--level-presence)"
+      }
     }
   },
-  "defaultVariants": { "size": "md", "shape": "circle", "status": "none" }
+  "defaultVariants": {
+    "size": "md",
+    "shape": "circle",
+    "status": "none"
+  },
+  "hues": {
+    "status": {
+      "none": null,
+      "online": "success",
+      "busy": "danger",
+      "away": "warning",
+      "offline": null
+    }
+  }
 }

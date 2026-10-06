@@ -4,17 +4,47 @@
     "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit",
     "dot": "size-1.5 rounded-pill bg-current"
   },
-  "kind": { "root": "marker", "dot": "none" },
+  "kind": {
+    "root": "marker",
+    "dot": "none"
+  },
   "variants": {
     "tone": {
-      "neutral": { "root": "bg-base-300 text-ink-body/(--level-ink-body)" },
-      "accent": { "root": "bg-primary/14 text-ink-body/(--level-ink-body)" },
-      "gold": { "root": "bg-secondary/16 text-ink-body/(--level-ink-body)" },
-      "success": { "root": "bg-success/16 text-ink-body/(--level-ink-body)" },
-      "warning": { "root": "bg-warning/18 text-ink-body/(--level-ink-body)" },
-      "danger": { "root": "bg-error/14 text-ink-body/(--level-ink-body)" },
-      "info": { "root": "bg-info/16 text-ink-body/(--level-ink-body)" }
+      "neutral": {
+        "root": "bg-base-300 text-ink-body/(--level-ink-body)"
+      },
+      "accent": {
+        "root": "bg-primary/14 text-ink-body/(--level-ink-body)"
+      },
+      "gold": {
+        "root": "bg-secondary/16 text-ink-body/(--level-ink-body)"
+      },
+      "success": {
+        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+      },
+      "warning": {
+        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+      },
+      "danger": {
+        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+      },
+      "info": {
+        "root": "bg-[color:var(--arena-hue-fill-soft)] text-ink-body/(--level-ink-body)"
+      }
     }
   },
-  "defaultVariants": { "tone": "neutral" }
+  "defaultVariants": {
+    "tone": "neutral"
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "accent": null,
+      "gold": null,
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    }
+  }
 }
