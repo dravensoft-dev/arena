@@ -13,21 +13,17 @@ export interface ArenaBoardProps {
 
   /** The columns, one ArenaBoardColumn each. Required and guarded at runtime: a board with no columns is a tab stop over nothing, which is the dead stop a component with a group role must not ship. */
   children: React.ReactNode;
-
-  /** The narrowest a column may be before the board scrolls rather than squeezing. Columns share the room equally above it, so a board of four fills the width it is given and a board of twelve scrolls. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one: this is page geometry and the spacing scale models rhythm. The default is the same role a grid's cell reads, and here it is a floor rather than a width. A board's columns share the room they are given, so a card on a board is as wide as its column. */
-  minColumn?: string;
 }
 
 
 const boardStyles = arenaStyles(manifest);
 
-export function ArenaBoard({ className, label, children, minColumn = 'var(--grid-min)' }: ArenaBoardProps) {
+export function ArenaBoard({ className, label, children }: ArenaBoardProps) {
   if (!label?.trim()) throw new Error('ArenaBoard: `label` is required (it names what the columns are columns of, and nothing can derive that)');
   if (React.Children.toArray(children).length === 0) throw new Error('ArenaBoard: `children` is required (a board with no columns is a tab stop over nothing)');
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={arenaClassName('ArenaBoard', boardStyles().root(), className)} data-arena-part={manifest.parts.root} {...boardStyles().$data.root()} data-arena-boundary=""
-      style={{ '--arena-board-column': minColumn } as React.CSSProperties}>
+      className={arenaClassName('ArenaBoard', boardStyles().root(), className)} data-arena-part={manifest.parts.root} {...boardStyles().$data.root()} data-arena-boundary="">
       {children}
     </div>
   );
