@@ -3,10 +3,12 @@ import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
 import { arenaCatColor } from '../../../DataVisuals';
 import { arenaBoardStyles } from '../arena-board/ArenaBoard.variants';
 import manifest from '../arena-board/ArenaBoard.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-board-column',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents', '[attr.title]': 'null' },
   template: `
@@ -18,10 +20,10 @@ import manifest from '../arena-board/ArenaBoard.classes.generated';
           <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
         }
         @switch (level()) {
-          @case ('h1') { <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h1> }
-          @case ('h2') { <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h2> }
-          @case ('h4') { <h4 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h4> }
-          @default { <h3 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ named() }}</h3> }
+          @case ('h1') { <h1 [class]="styles().title()" [arenaSlotData]="styles().$data.title()" [attr.data-arena-part]="parts.title">{{ named() }}</h1> }
+          @case ('h2') { <h2 [class]="styles().title()" [arenaSlotData]="styles().$data.title()" [attr.data-arena-part]="parts.title">{{ named() }}</h2> }
+          @case ('h4') { <h4 [class]="styles().title()" [arenaSlotData]="styles().$data.title()" [attr.data-arena-part]="parts.title">{{ named() }}</h4> }
+          @default { <h3 [class]="styles().title()" [arenaSlotData]="styles().$data.title()" [attr.data-arena-part]="parts.title">{{ named() }}</h3> }
         }
         @if (count() !== undefined) {
           <span [class]="styles().count()" [attr.data-arena-part]="parts.count">{{ count() }}</span>

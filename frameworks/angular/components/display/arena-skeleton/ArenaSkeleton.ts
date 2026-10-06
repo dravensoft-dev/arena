@@ -3,6 +3,7 @@ import { arenaSkeletonStyles } from './ArenaSkeleton.variants';
 import manifest from './ArenaSkeleton.classes.generated';
 import type { ArenaSkeletonVariant } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function arenaSkeletonRowIsLast(row: number, total: number): boolean {
   return row === total && total > 1;
@@ -11,9 +12,11 @@ export function arenaSkeletonRowIsLast(row: number, total: number): boolean {
 @Component({
   selector: 'arena-skeleton',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'hostClass()',
+    '[attr.data-arena-variant]': "hostData()['data-arena-variant'] ?? null",
     '[attr.data-arena-part]': 'stacked() ? parts.stack : parts.root',
     '[style.width]': 'hostWidth()',
     '[style.height]': 'hostHeight()',
@@ -25,6 +28,7 @@ export function arenaSkeletonRowIsLast(row: number, total: number): boolean {
     @if (stacked()) {
       @for (row of rows(); track row) {
         <div [class]="(isLast(row, rows().length) ? lastStyles() : styles()).line()"
+             [arenaSlotData]="(isLast(row, rows().length) ? lastStyles() : styles()).$data.line()"
              [attr.data-arena-part]="parts.line"></div>
       }
     }
@@ -52,6 +56,7 @@ export class ArenaSkeleton {
   protected readonly stacked = computed(() => this.variant() === 'text');
   protected readonly rows = computed(() => Array.from({ length: this.lines() }, (_, i) => i + 1));
   protected readonly hostClass = computed(() => (this.stacked() ? this.styles().stack() : this.styles().root()));
+  protected readonly hostData = computed(() => (this.stacked() ? this.styles().$data.stack() : this.styles().$data.root()));
   protected readonly lastStyles = computed(() => arenaSkeletonStyles({ variant: this.variant(), last: true }));
   protected readonly isLast = arenaSkeletonRowIsLast;
 

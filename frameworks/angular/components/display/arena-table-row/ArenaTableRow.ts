@@ -17,6 +17,8 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
   host: {
     'data-arena-boundary': '',
     '[class]': 'rowClass()',
+    '[attr.data-arena-first]': "rowData()['data-arena-first'] ?? null",
+    '[attr.data-arena-interactive]': "rowData()['data-arena-interactive'] ?? null",
     '[attr.data-arena-part]': 'narrow() ? parts.card : parts.row',
     '[attr.role]': 'role()',
     '[attr.aria-disabled]': 'inert()',
@@ -56,15 +58,19 @@ export class ArenaTableRow {
 
   protected readonly narrow = computed(() => this.table.narrow());
 
-  protected readonly rowClass = computed(() => {
+  protected readonly rowStyles = computed(() => {
     const narrow = this.table.narrow();
-    if (narrow) return arenaTableRowStyles({ narrow }).card();
+    if (narrow) return arenaTableRowStyles({ narrow });
     return arenaTableRowStyles({
       narrow,
       first: this.table.rowIndexOf(this) === 1,
       interactive: this.interactive() && !this.disabled(),
-    }).row();
+    });
   });
+
+  protected readonly rowClass = computed(() => (this.table.narrow() ? this.rowStyles().card() : this.rowStyles().row()));
+
+  protected readonly rowData = computed(() => (this.table.narrow() ? this.rowStyles().$data.card() : this.rowStyles().$data.row()));
 
   constructor() {
     this.arenaRowState.index = computed(() => this.table.rowIndexOf(this));

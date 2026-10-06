@@ -6,6 +6,7 @@ import { arenaSwitchStyles } from './ArenaSwitch.variants';
 import manifest from './ArenaSwitch.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export type SwitchFootprint = `${ArenaOrientation}-${ArenaSwitchSize}`;
 export type SwitchThumb = `${'on' | 'off'}-${ArenaOrientation}`;
@@ -21,17 +22,19 @@ export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): Sw
 @Component({
   selector: 'arena-switch',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: { '[class]': 'styles().root()',
+    '[attr.data-arena-disabled]': "styles().$data.root()['data-arena-disabled'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
   template: `
-    <button type="button" role="switch" [class]="styles().track()" [attr.data-arena-part]="parts.track"
+    <button type="button" role="switch" [class]="styles().track()" [arenaSlotData]="styles().$data.track()" [attr.data-arena-part]="parts.track"
             [attr.aria-checked]="drawn()" [attr.aria-label]="label()"
             [disabled]="off()" (click)="activate()">
-      <span [class]="styles().knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
+      <span [class]="styles().knob()" [arenaSlotData]="styles().$data.knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
         @if (glyph()) {
-          <i [class]="glyphClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          <i [class]="glyphClass()" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
       </span>
     </button>

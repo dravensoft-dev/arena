@@ -5,10 +5,12 @@ import { ArenaSideNavState, arenaIndentDepth } from '../arena-side-nav/ArenaSide
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-side-nav-section',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaSideNavState],
   host: {
@@ -22,7 +24,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
     @if (rail()) {
       <div aria-hidden="true" [class]="styles().separator()" [attr.data-arena-part]="parts.separator"></div>
     }
-    <div [id]="labelId" [class]="styles().sectionLabel()" [attr.data-arena-part]="parts.sectionLabel" [style.--arena-side-nav-depth]="depthChannel()">{{ heading() }}</div>
+    <div [id]="labelId" [class]="styles().sectionLabel()" [arenaSlotData]="styles().$data.sectionLabel()" [attr.data-arena-part]="parts.sectionLabel" [style.--arena-side-nav-depth]="depthChannel()">{{ heading() }}</div>
     <ng-content />
   `,
 })

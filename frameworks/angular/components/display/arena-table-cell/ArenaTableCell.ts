@@ -6,6 +6,7 @@ import { ArenaTableState } from '../arena-table/ArenaTableState';
 import { ArenaTableRowState } from '../arena-table-row/ArenaTableRowState';
 import { arenaTableCellStyles } from './ArenaTableCell.variants';
 import manifest from '../arena-table/ArenaTable.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const PLAIN: ArenaTableColumn = { header: '' };
 
@@ -15,6 +16,8 @@ const PLAIN: ArenaTableColumn = { header: '' };
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'cellClass()',
+    '[attr.data-arena-align]': "cellData()['data-arena-align'] ?? null",
+    '[attr.data-arena-numeric]': "cellData()['data-arena-numeric'] ?? null",
     'data-arena-boundary': '',
     '[attr.data-arena-part]': 'narrow() ? (blocked() ? parts.cardBlock : parts.cardRow) : parts.td',
     '[attr.role]': 'role()',
@@ -22,7 +25,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
     '[style.width]': 'width()',
     '(focus)': 'onFocus()',
   },
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, ArenaSlotAttributes],
   template: `
     <ng-template #value><ng-content /></ng-template>
     <ng-template #shown>
@@ -37,7 +40,7 @@ const PLAIN: ArenaTableColumn = { header: '' };
       @if (labelled()) {
         <span [class]="styles().cardLabel()" [attr.data-arena-part]="parts.cardLabel">{{ column().header }}</span>
       }
-      <span [class]="valueClass()" [attr.data-arena-part]="parts.cardValue" data-arena-boundary><ng-container *ngTemplateOutlet="shown" /></span>
+      <span [class]="valueClass()" [arenaSlotData]="valueData()" [attr.data-arena-part]="parts.cardValue" data-arena-boundary><ng-container *ngTemplateOutlet="shown" /></span>
     } @else {
       <ng-container *ngTemplateOutlet="shown" />
     }
@@ -82,6 +85,20 @@ export class ArenaTableCell {
       return column.mobileLayout === 'block' ? styles.cardBlock() : styles.cardRow();
     }
     return arenaTableCellStyles({ narrow: false, align: column.align ?? 'left', numeric: Boolean(column.numeric) }).td();
+  });
+
+  protected readonly cellData = computed(() => {
+    const column = this.column();
+    if (this.narrow()) {
+      const styles = arenaTableCellStyles({ narrow: true });
+      return column.mobileLayout === 'block' ? styles.$data.cardBlock() : styles.$data.cardRow();
+    }
+    return arenaTableCellStyles({ narrow: false, align: column.align ?? 'left', numeric: Boolean(column.numeric) }).$data.td();
+  });
+
+  protected readonly valueData = computed(() => {
+    if (!this.narrow() || this.column().mobileLayout === 'block') return {};
+    return arenaTableCellStyles({ narrow: true, numeric: Boolean(this.column().numeric) }).$data.cardValue();
   });
 
   protected readonly valueClass = computed(() => {

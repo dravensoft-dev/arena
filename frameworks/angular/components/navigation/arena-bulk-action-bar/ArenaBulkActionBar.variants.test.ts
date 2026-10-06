@@ -10,7 +10,7 @@ test('the count, number, divider and clear slots do not vary with destructive or
   const a = arenaBulkActionBarStyles({ destructive: true, open: true });
   const b = arenaBulkActionBarStyles({ destructive: false, open: false });
   for (const slot of ['count', 'number', 'divider', 'clear'] as const) {
-    assert.equal(a[slot](), b[slot](), `${slot} must not vary with destructive or open`);
+    assert.equal(JSON.stringify(a.$data[slot]()), JSON.stringify(b.$data[slot]()), `${slot} must not vary with destructive or open`);
   }
 });
 

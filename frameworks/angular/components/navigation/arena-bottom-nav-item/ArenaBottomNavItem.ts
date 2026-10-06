@@ -4,10 +4,12 @@ import { ArenaBottomNavState } from '../arena-bottom-nav/ArenaBottomNavState';
 import { arenaBottomNavStyles } from '../arena-bottom-nav/ArenaBottomNav.variants';
 import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-bottom-nav-item',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -15,7 +17,7 @@ import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
   },
   template: `
     @if (href(); as url) {
-      <a [class]="styles().item()" [attr.data-arena-part]="parts.item" [href]="url"
+      <a [class]="styles().item()" [arenaSlotData]="styles().$data.item()" [attr.data-arena-part]="parts.item" [href]="url"
          [attr.aria-current]="current()" [attr.aria-disabled]="off()"
          (click)="activateAnchor($event)">
         <span [class]="styles().glyph()" [attr.data-arena-part]="parts.glyph">
@@ -27,7 +29,7 @@ import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
         <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ name() }}</span>
       </a>
     } @else {
-      <button type="button" [class]="styles().item()" [attr.data-arena-part]="parts.item"
+      <button type="button" [class]="styles().item()" [arenaSlotData]="styles().$data.item()" [attr.data-arena-part]="parts.item"
               [attr.aria-current]="current()" [attr.aria-disabled]="off()"
               (click)="activate($event)">
         <span [class]="styles().glyph()" [attr.data-arena-part]="parts.glyph">

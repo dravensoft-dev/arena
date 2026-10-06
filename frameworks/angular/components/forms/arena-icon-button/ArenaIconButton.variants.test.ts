@@ -8,8 +8,8 @@ import { arenaIconButtonStyles } from './ArenaIconButton.variants';
 
 test('the default is a ghost md control with no visible label', () => {
   assert.equal(
-    arenaIconButtonStyles().root(),
-    arenaIconButtonStyles({ variant: 'ghost', size: 'md', showLabel: false }).root(),
+    JSON.stringify(arenaIconButtonStyles().$data.root()),
+    JSON.stringify(arenaIconButtonStyles({ variant: 'ghost', size: 'md', showLabel: false }).$data.root()),
   );
 });
 

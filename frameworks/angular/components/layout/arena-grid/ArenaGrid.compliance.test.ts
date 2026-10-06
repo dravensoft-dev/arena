@@ -142,7 +142,7 @@ test('maxWidth caps and centres, and its absence leaves the grid filling its con
     const host = gridOf(bare);
     const style = host.getAttribute('style') ?? '';
     assert.ok(!/max-width/.test(style), 'a grid with no ceiling must declare none and fill what contains it');
-    assert.ok(!/arena-grid__root--centred-true/.test(host.getAttribute('class') ?? ''),
+    assert.equal(host.hasAttribute('data-arena-centred'), false,
       'and must not centre itself against nothing');
   } finally {
     bare.destroy();
@@ -153,7 +153,7 @@ test('maxWidth caps and centres, and its absence leaves the grid filling its con
     const host = capped.nativeElement.querySelector('arena-grid')!;
     assert.match(host.getAttribute('style') ?? '', /max-width:\s*var\(--container-max\)/,
       'the ceiling is the consumer\'s string and stays inline');
-    assert.match(host.getAttribute('class') ?? '', /arena-grid__root--centred-true/,
+    assert.equal(host.getAttribute('data-arena-centred'), '',
       'a capped grid centres, or the ceiling reads as a left margin');
   } finally {
     capped.destroy();

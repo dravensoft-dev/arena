@@ -40,6 +40,10 @@ const ROOT_PRIVATE = new Map([
    'the substitution behind every sentence Arena draws with a value in it. A consumer provides '
    + 'the template through the locale and never calls it; exporting it would promise a helper '
    + 'nobody outside this layer has a reason to hold.'],
+  ['SlotData.ts',
+   'the directive a component\'s own template puts on a slot element to render the slot\'s '
+   + 'data-arena attributes, which Angular cannot spread. An adopter renders a component and '
+   + 'never a slot, and it is typechecked through the components that import it.'],
   ['Tokens.generated.ts',
    'generated bare numbers a component reads to compute a position. `Api.generated.ts` is '
    + 'exported because a consumer needs those types to type their own data; nobody types data '

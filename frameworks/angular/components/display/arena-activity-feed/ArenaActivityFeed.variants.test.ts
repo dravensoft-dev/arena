@@ -6,7 +6,7 @@ import { arenaActivityFeedStyles } from './ArenaActivityFeed.variants';
 
 test('the seven tones resolve to seven distinct dot classes', () => {
   const tones = ['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'] as const;
-  const classes = tones.map((tone) => arenaActivityFeedStyles({ tone }).dot());
+  const classes = tones.map((tone) => JSON.stringify(arenaActivityFeedStyles({ tone }).$data.dot()));
   assert.equal(new Set(classes).size, tones.length, `expected ${tones.length} distinct dot classes, got ${JSON.stringify(classes)}`);
 });
 

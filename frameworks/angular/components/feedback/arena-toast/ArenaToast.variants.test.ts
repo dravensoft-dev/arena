@@ -12,7 +12,7 @@ test('only root and action vary with tone -- the body, title, pinned marker, mes
   const neutral = arenaToastStyles({ tone: 'neutral' });
   const danger = arenaToastStyles({ tone: 'danger' });
   for (const slot of ['body', 'title', 'pinned', 'message', 'close'] as const) {
-    assert.equal(neutral[slot](), danger[slot](), `${slot} must not vary with tone`);
+    assert.equal(JSON.stringify(neutral.$data[slot]()), JSON.stringify(danger.$data[slot]()), `${slot} must not vary with tone`);
   }
 });
 

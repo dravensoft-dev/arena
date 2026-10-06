@@ -15,18 +15,18 @@ function renderTag(inputs: Record<string, unknown>) {
 
 test('a colorId draws the identity arm and carries the ramp colour as a custom property', () => {
   const host = renderTag({ colorId: 3 });
-  assert.match(host.className, /\barena-tag__root--tone-identity\b/);
+  assert.equal(host.getAttribute('data-arena-tone'), 'identity');
   assert.equal(host.style.getPropertyValue('--arena-tag-cat'), 'var(--color-cat-3)');
 });
 
 test('a colorId replaces the tone rather than joining it, so one colour reaches the pill', () => {
   const host = renderTag({ tone: 'danger', colorId: 5 });
-  assert.match(host.className, /\barena-tag__root--tone-identity\b/);
-  assert.doesNotMatch(host.className, /\barena-tag__root--tone-danger\b/);
+  assert.equal(host.getAttribute('data-arena-tone'), 'identity');
+  assert.notEqual(host.getAttribute('data-arena-tone'), 'danger');
 });
 
 test('no colorId leaves the tone alone and writes no custom property', () => {
   const host = renderTag({ tone: 'warning' });
-  assert.match(host.className, /\barena-tag__root--tone-warning\b/);
+  assert.equal(host.getAttribute('data-arena-tone'), 'warning');
   assert.equal(host.style.getPropertyValue('--arena-tag-cat'), '');
 });

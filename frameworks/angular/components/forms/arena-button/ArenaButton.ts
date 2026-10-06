@@ -5,17 +5,19 @@ import {
 import type { ArenaButtonType, ArenaButtonVariant, ArenaControlSize } from '../../../Api.generated';
 import { arenaButtonStyles } from './ArenaButton.variants';
 import manifest from './ArenaButton.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-button',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
     '[attr.name]': 'null',
   },
   template: `
-    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.type]="type()" [disabled]="inert()"
+    <button #control [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.type]="type()" [disabled]="inert()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
             [attr.tabindex]="tabStop() ? null : -1" (click)="onClick($event)">
       @if (loading()) {

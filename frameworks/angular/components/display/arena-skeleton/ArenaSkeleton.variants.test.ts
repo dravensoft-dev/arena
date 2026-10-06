@@ -14,6 +14,6 @@ test('with more than one line, only the final row is the narrow closing line', (
 });
 
 test('the last line is the line slot with the last group selected', () => {
-  assert.notEqual(arenaSkeletonStyles({ variant: 'text', last: true }).line(),
-    arenaSkeletonStyles({ variant: 'text', last: false }).line());
+  assert.notEqual(JSON.stringify(arenaSkeletonStyles({ variant: 'text', last: true }).$data.line()),
+    JSON.stringify(arenaSkeletonStyles({ variant: 'text', last: false }).$data.line()));
 });

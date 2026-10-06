@@ -11,7 +11,7 @@ const RHYTHMS: ArenaSectionRhythm[] = ['none', 'sm', 'md', 'lg'];
 const SLOTS = ['head', 'titles', 'eyebrow', 'title', 'description', 'action', 'body'] as const;
 
 test('the four named steps are four distinct roots', () => {
-  const seen = new Set(RHYTHMS.map((rhythm) => arenaSectionStyles({ rhythm }).root()));
+  const seen = new Set(RHYTHMS.map((rhythm) => JSON.stringify(arenaSectionStyles({ rhythm }).$data.root())));
   assert.equal(seen.size, RHYTHMS.length, 'two steps compiled to the same root');
 });
 
@@ -19,7 +19,7 @@ test('the rhythm moves the root alone, so a step cannot re-register the head', (
   const md = arenaSectionStyles({ rhythm: 'md' });
   for (const rhythm of RHYTHMS) {
     const other = arenaSectionStyles({ rhythm });
-    for (const slot of SLOTS) assert.equal(other[slot](), md[slot](), `${rhythm} moved the ${slot} slot`);
+    for (const slot of SLOTS) assert.equal(JSON.stringify(other.$data[slot]()), JSON.stringify(md.$data[slot]()), `${rhythm} moved the ${slot} slot`);
   }
 });
 

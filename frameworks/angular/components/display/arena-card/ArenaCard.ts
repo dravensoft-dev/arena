@@ -7,6 +7,7 @@ import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorA
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaCardStyles } from './ArenaCard.variants';
 import manifest from './ArenaCard.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-card',
@@ -16,7 +17,7 @@ import manifest from './ArenaCard.classes.generated';
     style: 'display: contents',
     '[attr.title]': 'null',
   },
-  imports: [NgTemplateOutlet],
+  imports: [ArenaSlotAttributes, NgTemplateOutlet],
   template: `
     <ng-template #body>
       @if (headed()) {
@@ -42,12 +43,12 @@ import manifest from './ArenaCard.classes.generated';
     </ng-template>
 
     @if (href(); as url) {
-      <a [class]="styles().root()" [attr.data-arena-part]="parts.root" [href]="url" [attr.aria-disabled]="inert()"
+      <a [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" [href]="url" [attr.aria-disabled]="inert()"
          (click)="onAnchorClick($event)">
         <ng-container *ngTemplateOutlet="body" />
       </a>
     } @else {
-      <div [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.role]="role()" [attr.tabindex]="stop()"
+      <div [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" [attr.role]="role()" [attr.tabindex]="stop()"
            [attr.aria-disabled]="inert()" (click)="onClick($event)" (keydown)="onKeydown($event)">
         <ng-container *ngTemplateOutlet="body" />
       </div>

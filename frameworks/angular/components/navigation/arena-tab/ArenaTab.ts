@@ -12,6 +12,7 @@ import manifest from '../arena-tabs/ArenaTabs.classes.generated';
   host: {
     'data-arena-boundary': '',
     '[class]': 'styles().panel()',
+    '[attr.data-arena-selected]': "styles().$data.panel()['data-arena-selected'] ?? null",
     '[attr.data-arena-part]': 'parts.panel',
     role: 'tabpanel',
     '[attr.id]': 'panelId()',

@@ -12,6 +12,6 @@ test('only the root varies with placement -- the head, controls, body and foot a
   const bottom = arenaSheetStyles({ placement: 'bottom', open: true });
   const end = arenaSheetStyles({ placement: 'end', open: true });
   for (const slot of ['head', 'trigger', 'caret', 'close', 'body', 'foot'] as const) {
-    assert.equal(bottom[slot](), end[slot](), `${slot} must not vary with placement`);
+    assert.equal(JSON.stringify(bottom.$data[slot]()), JSON.stringify(end.$data[slot]()), `${slot} must not vary with placement`);
   }
 });

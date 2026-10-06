@@ -204,7 +204,7 @@ test('a narrow container drops the time label on width alone, and that is what l
     assert.ok(paneled, 'the chip carrying a kebab did not render');
     const wrap = paneled.querySelector('arena-icon-button')?.parentElement as HTMLElement;
     assert.ok(wrap, 'the kebab wrapper did not render');
-    assert.ok(wrap.className.includes('arena-calendar__kebab-wrap--actions-below-true'),
+    assert.equal(wrap.getAttribute('data-arena-actions-below'), '',
       `a chip at or above the stacking height with no time label puts its kebab below the title: "${wrap.className}"`);
     assert.ok(!paneled.className.includes('pr-['),
       'a chip stacking its kebab must stop reserving the lateral band as well');

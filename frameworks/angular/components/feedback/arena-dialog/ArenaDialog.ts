@@ -24,13 +24,17 @@ import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from 
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import type { ArenaBreakpoint } from '../../../Api.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-dialog',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().scrim()',
+    '[attr.data-arena-open]': "styles().$data.scrim()['data-arena-open'] ?? null",
+    '[attr.data-arena-fill]': "styles().$data.scrim()['data-arena-fill'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.scrim : null',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
@@ -38,18 +42,18 @@ import type { ArenaBreakpoint } from '../../../Api.generated';
   },
   template: `
     @if (open()) {
-      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
+      <div #panel [class]="styles().panel()" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
            [attr.aria-labelledby]="titleId" [style.width]="fill() ? null : width()"
            (click)="$event.stopPropagation()">
-        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+        <div [class]="styles().head()" [arenaSlotData]="styles().$data.head()" [attr.data-arena-part]="parts.head">
           @if (eyebrow(); as label) {
             <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
           }
           <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
+        <div [class]="styles().body()" [arenaSlotData]="styles().$data.body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
         @if (footer()) {
-          <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary><ng-content select="[footer]" /></div>
+          <div [class]="styles().foot()" [arenaSlotData]="styles().$data.foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary><ng-content select="[footer]" /></div>
         }
       </div>
     }

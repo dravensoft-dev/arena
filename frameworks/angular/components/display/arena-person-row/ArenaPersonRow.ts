@@ -4,6 +4,7 @@ import { ArenaAvatar } from '../arena-avatar/ArenaAvatar';
 import { ArenaPeopleListState } from '../arena-people-list/ArenaPeopleListState';
 import { arenaPeopleListStyles } from '../arena-people-list/ArenaPeopleList.variants';
 import manifest from '../arena-people-list/ArenaPeopleList.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg: 'md' };
 
@@ -11,22 +12,22 @@ const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg
   selector: 'arena-person-row',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ArenaAvatar],
+  imports: [ArenaSlotAttributes, ArenaAvatar],
   host: { style: 'display: contents', '[attr.name]': 'null' },
   template: `
-    <li [class]="styles().row()" [attr.data-arena-part]="parts.row" [attr.aria-current]="current() ? 'true' : null">
+    <li [class]="styles().row()" [arenaSlotData]="styles().$data.row()" [attr.data-arena-part]="parts.row" [attr.aria-current]="current() ? 'true' : null">
       @if (rank() !== undefined) {
-        <span [class]="styles().rank()" [attr.data-arena-part]="parts.rank">{{ rank() }}</span>
+        <span [class]="styles().rank()" [arenaSlotData]="styles().$data.rank()" [attr.data-arena-part]="parts.rank">{{ rank() }}</span>
       }
       <arena-avatar [name]="named()" [src]="src()" [size]="face()" nameShown />
       <span [class]="styles().text()" [attr.data-arena-part]="parts.text">
-        <span [class]="styles().name()" [attr.data-arena-part]="parts.name">{{ named() }}</span>
+        <span [class]="styles().name()" [arenaSlotData]="styles().$data.name()" [attr.data-arena-part]="parts.name">{{ named() }}</span>
         @if (secondary(); as line) {
-          <span [class]="styles().secondary()" [attr.data-arena-part]="parts.secondary">{{ line }}</span>
+          <span [class]="styles().secondary()" [arenaSlotData]="styles().$data.secondary()" [attr.data-arena-part]="parts.secondary">{{ line }}</span>
         }
       </span>
       @if (figure(); as value) {
-        <span [class]="styles().figure()" [attr.data-arena-part]="parts.figure">{{ value }}</span>
+        <span [class]="styles().figure()" [arenaSlotData]="styles().$data.figure()" [attr.data-arena-part]="parts.figure">{{ value }}</span>
       }
       <span [class]="styles().action()" [attr.data-arena-part]="parts.action" data-arena-boundary>
         <ng-content select="[action]" />

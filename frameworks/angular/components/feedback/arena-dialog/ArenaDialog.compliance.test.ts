@@ -131,7 +131,7 @@ test('a closed dialog reports nothing, so its full-viewport host cannot dismiss 
   try {
     fixture.detectChanges();
     const scrim = fixture.nativeElement.querySelector('arena-dialog') as HTMLElement;
-    assert.match(scrim.className, /arena-dialog__scrim--open-false/, 'a closed dialog must take the hidden branch of the open variant');
+    assert.equal(scrim.hasAttribute('data-arena-open'), false, 'a closed dialog must take the hidden branch of the open group');
 
     scrim.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     press(scrim, 'Escape');

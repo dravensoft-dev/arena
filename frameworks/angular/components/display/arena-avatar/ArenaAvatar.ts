@@ -4,6 +4,7 @@ import { arenaAvatarStyles } from './ArenaAvatar.variants';
 import manifest from './ArenaAvatar.classes.generated';
 import type { ArenaAvatarSize, ArenaAvatarShape, ArenaAvatarStatus } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
   xs: avatarXs, sm: avatarSm, md: avatarMd, lg: avatarLg,
@@ -12,14 +13,16 @@ const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
 @Component({
   selector: 'arena-avatar',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-size]': "styles().$data.root()['data-arena-size'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
   template: `
-    <span [class]="styles().box()" [attr.data-arena-part]="parts.box" [attr.aria-hidden]="nameShown() ? 'true' : null">
+    <span [class]="styles().box()" [arenaSlotData]="styles().$data.box()" [attr.data-arena-part]="parts.box" [attr.aria-hidden]="nameShown() ? 'true' : null">
       @if (src(); as source) {
         <img [src]="source" [alt]="name()" [class]="styles().image()" [attr.data-arena-part]="parts.image"
              [attr.width]="diameter()" [attr.height]="diameter()" decoding="async" />
@@ -28,7 +31,7 @@ const AVATAR_DIAMETER: Record<ArenaAvatarSize, number> = {
       }
     </span>
     @if (status(); as presence) {
-      <span [class]="styles().status()" [attr.data-arena-part]="parts.status" [attr.aria-label]="presenceName(presence)" [title]="presenceName(presence)"></span>
+      <span [class]="styles().status()" [arenaSlotData]="styles().$data.status()" [attr.data-arena-part]="parts.status" [attr.aria-label]="presenceName(presence)" [title]="presenceName(presence)"></span>
     }
   `,
 })

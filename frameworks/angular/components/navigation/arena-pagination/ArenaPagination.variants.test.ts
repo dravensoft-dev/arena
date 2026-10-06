@@ -9,7 +9,7 @@ import { arenaPaginationStyles } from './ArenaPagination.variants';
 test('the current page differs from the other pages on the page slot only', () => {
   const on = arenaPaginationStyles({ current: true });
   const off = arenaPaginationStyles({ current: false });
-  assert.notEqual(on.page(), off.page());
-  assert.equal(on.nav(), off.nav());
-  assert.equal(on.ellipsis(), off.ellipsis());
+  assert.notEqual(JSON.stringify(on.$data.page()), JSON.stringify(off.$data.page()));
+  assert.equal(JSON.stringify(on.$data.nav()), JSON.stringify(off.$data.nav()));
+  assert.equal(JSON.stringify(on.$data.ellipsis()), JSON.stringify(off.$data.ellipsis()));
 });

@@ -8,8 +8,8 @@ import { arenaSegmentedControlStyles } from './ArenaSegmentedControl.variants';
 
 test('the default is an md track with nothing selected', () => {
   assert.equal(
-    arenaSegmentedControlStyles().segment(),
-    arenaSegmentedControlStyles({ size: 'md', selected: false }).segment(),
+    JSON.stringify(arenaSegmentedControlStyles().$data.segment()),
+    JSON.stringify(arenaSegmentedControlStyles({ size: 'md', selected: false }).$data.segment()),
   );
 });
 

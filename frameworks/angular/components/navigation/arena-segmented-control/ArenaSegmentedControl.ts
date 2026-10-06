@@ -5,10 +5,12 @@ import type { ArenaSegmentOption, ArenaSegmentedControlSize } from '../../../Api
 import { arenaSegmentedControlStyles } from './ArenaSegmentedControl.variants';
 import manifest from './ArenaSegmentedControl.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-segmented-control',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().track()',
@@ -19,7 +21,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   },
   template: `
     @for (option of options(); track option.value) {
-      <label [class]="segmentClass(option.value)" [attr.data-arena-part]="parts.segment">
+      <label [class]="segmentStyles(option.value).segment()" [arenaSlotData]="segmentStyles(option.value).$data.segment()" [attr.data-arena-part]="parts.segment">
         {{ option.label }}
         <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
                [attr.value]="option.value" [checked]="option.value === selected()"
@@ -61,8 +63,8 @@ export class ArenaSegmentedControl {
 
   protected readonly styles = computed(() => arenaSegmentedControlStyles({ size: this.size() }));
 
-  protected segmentClass(value: string): string {
-    return arenaSegmentedControlStyles({ size: this.size(), selected: value === this.selected() }).segment();
+  protected segmentStyles(value: string) {
+    return arenaSegmentedControlStyles({ size: this.size(), selected: value === this.selected() });
   }
 
   protected choose(value: string, event: Event): void {

@@ -6,14 +6,17 @@ import { arenaSelectStyles } from './ArenaSelect.variants';
 import manifest from './ArenaSelect.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-select',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-disabled]': "styles().$data.root()['data-arena-disabled'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
   },
@@ -25,7 +28,7 @@ import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBin
       @if (icon(); as glyph) {
         <i [class]="styles().iconWrap() + ' ' + glyph" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"></i>
       }
-      <select [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
+      <select [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
               [required]="required()" [attr.name]="name()"
               [attr.aria-invalid]="hasError()" [attr.aria-describedby]="describedBy()"
               (change)="onChange($event)">

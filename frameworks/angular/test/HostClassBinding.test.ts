@@ -357,10 +357,9 @@ test('arena-activity-feed: the first <li> carries no divider and every later one
   fixture.detectChanges();
   const rows = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('li'));
   assert.equal(rows.length, 3);
-  const dividerClass = 'arena-activity-feed__item--divided-true';
-  assert.ok(!rows[0].className.includes(dividerClass), `the first <li> must not carry the divider: "${rows[0].className}"`);
+  assert.equal(rows[0].hasAttribute('data-arena-divided'), false, 'the first <li> must not carry the divider');
   for (const row of rows.slice(1))
-    assert.ok(row.className.includes(dividerClass), `every <li> after the first must carry the divider: "${row.className}"`);
+    assert.equal(row.getAttribute('data-arena-divided'), '', 'every <li> after the first must carry the divider');
   fixture.destroy();
 });
 
@@ -579,8 +578,7 @@ test('arena-bulk-action-bar: the root recipe classes land on the host element it
   const host = fixture.nativeElement.querySelector('arena-bulk-action-bar') as HTMLElement;
   for (const cls of arenaBulkActionBarStyles().root().split(/\s+/))
     assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  assert.ok(host.classList.contains('arena-bulk-action-bar__root--open-false'),
-    'a bar with no selection (count 0) must render hidden');
+  assert.equal(host.hasAttribute('data-arena-open'), false, 'a bar with no selection (count 0) must render hidden');
 });
 
 test('arena-bulk-action-bar: a consumer-supplied class on the host survives the [class] binding', async () => {
@@ -715,12 +713,10 @@ test('arena-page-head: an unmeasured width renders the WIDE layout, so the narro
     fixture.detectChanges();
     await fixture.whenStable();
     const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assert.ok(host.classList.contains('arena-page-head__root--narrow-false'),
-      `an unmeasured page head must render as a row: "${host.className}"`);
-    assert.ok(host.classList.contains('arena-page-head__root--cv1'),
-      `an unmeasured page head must render top-aligned: "${host.className}"`);
-    assert.ok(!host.classList.contains('arena-page-head__root--narrow-true'),
-      'the narrow branch must not render before anything has been measured');
+    assert.equal(host.hasAttribute('data-arena-narrow'), false,
+      'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
+    assert.equal(host.getAttribute('data-arena-align'), 'start',
+      'an unmeasured page head must render top-aligned');
   } finally {
     document.documentElement.style.removeProperty('--bp-sm');
   }
@@ -755,8 +751,8 @@ test('arena-page-head: a platform with no ResizeObserver still renders, on the w
     fixture.detectChanges();
     await fixture.whenStable();
     const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assert.ok(host.classList.contains('arena-page-head__root--narrow-false'),
-      `with no ResizeObserver the width stays null, which is the wide layout: "${host.className}"`);
+    assert.equal(host.hasAttribute('data-arena-narrow'), false,
+      'with no ResizeObserver the width stays null, which is the wide layout');
   } finally {
     globals.ResizeObserver = saved;
     document.documentElement.style.removeProperty('--bp-sm');

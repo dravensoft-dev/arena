@@ -10,14 +10,14 @@ const LAYOUTS: ArenaHeroLayout[] = ['stacked', 'split', 'bleed'];
 const ALIGNS: ArenaHeroAlign[] = ['start', 'center'];
 
 test('the three layouts are three distinct roots', () => {
-  const seen = new Set(LAYOUTS.map((layout) => arenaHeroStyles({ layout, align: 'start' }).root()));
+  const seen = new Set(LAYOUTS.map((layout) => JSON.stringify(arenaHeroStyles({ layout, align: 'start' }).$data.root())));
   assert.equal(seen.size, LAYOUTS.length, 'two layouts compiled to the same root');
 });
 
 test('the two alignments move the words and never the root', () => {
   for (const layout of LAYOUTS) {
-    const roots = new Set(ALIGNS.map((align) => arenaHeroStyles({ layout, align }).root()));
-    const words = new Set(ALIGNS.map((align) => arenaHeroStyles({ layout, align }).words()));
+    const roots = new Set(ALIGNS.map((align) => JSON.stringify(arenaHeroStyles({ layout, align }).$data.root())));
+    const words = new Set(ALIGNS.map((align) => JSON.stringify(arenaHeroStyles({ layout, align }).$data.words())));
     assert.equal(roots.size, 1, `${layout}: the alignment moved the root, which is the layout's`);
     assert.equal(words.size, ALIGNS.length, `${layout}: the two alignments compiled to the same words block`);
   }
@@ -28,7 +28,7 @@ test('the layout moves the root, the words and the figure, and leaves the regist
   for (const layout of LAYOUTS) {
     const other = arenaHeroStyles({ layout, align: 'start' });
     for (const slot of ['eyebrow', 'title', 'lede', 'actions'] as const) {
-      assert.equal(other[slot](), base[slot](), `${layout} moved the ${slot} slot`);
+      assert.equal(JSON.stringify(other.$data[slot]()), JSON.stringify(base.$data[slot]()), `${layout} moved the ${slot} slot`);
     }
   }
 });

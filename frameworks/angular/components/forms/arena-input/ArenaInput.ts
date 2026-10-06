@@ -6,6 +6,7 @@ import type { ArenaInputType, ArenaValidateOn } from '../../../Api.generated';
 import { arenaInputStyles } from './ArenaInput.variants';
 import manifest from './ArenaInput.classes.generated';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function arenaInputIdFor(id: string | undefined, label: string | undefined): string | null {
   if (id) return id;
@@ -15,10 +16,12 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
 @Component({
   selector: 'arena-input',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-disabled]': "styles().$data.root()['data-arena-disabled'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
     '[attr.id]': 'null',
@@ -29,14 +32,14 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
         <span [class]="styles().required()" [attr.data-arena-part]="parts.required">*</span>
       }</label>
     }
-    <div [class]="styles().field()" [attr.data-arena-part]="parts.field">
+    <div [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon()) {
         <i [class]="iconClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
       }
       @if (prefix(); as text) {
         <span [class]="styles().prefix()" [attr.data-arena-part]="parts.prefix">{{ text }}</span>
       }
-      <input #control [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.id]="controlId()" [attr.type]="type()"
+      <input #control [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input" [attr.id]="controlId()" [attr.type]="type()"
              [value]="drawn() ?? ''" [disabled]="off()" [readOnly]="readOnly()"
              [required]="required()" [attr.aria-invalid]="hasError()"
              [attr.placeholder]="placeholder()" [attr.name]="name()"
@@ -44,9 +47,9 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
              [attr.step]="step()" [attr.maxlength]="maxLength()" [attr.pattern]="pattern()"
              (input)="onInput($event)" (change)="onNativeChange($event)" (blur)="onBlur($event)" />
       @if (hasError()) {
-        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
       } @else if (isValid()) {
-        <i [class]="statusIconClass('ph-fill ph-check-circle')" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <i [class]="statusIconClass('ph-fill ph-check-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
       }
     </div>
     @if (shownError(); as message) {

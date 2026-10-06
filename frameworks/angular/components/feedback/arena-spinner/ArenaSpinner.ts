@@ -3,19 +3,22 @@ import type { ArenaControlSize, ArenaSpinnerTone } from '../../../Api.generated'
 import { arenaSpinnerStyles } from './ArenaSpinner.variants';
 import manifest from './ArenaSpinner.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-spinner',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     role: 'progressbar',
     'aria-live': 'polite',
     '[attr.aria-label]': 'name()',
   },
-  template: `<span [class]="styles().circle()" [attr.data-arena-part]="parts.circle" aria-hidden="true"></span>`,
+  template: `<span [class]="styles().circle()" [arenaSlotData]="styles().$data.circle()" [attr.data-arena-part]="parts.circle" aria-hidden="true"></span>`,
 })
 export class ArenaSpinner {
   protected readonly parts = manifest.parts;

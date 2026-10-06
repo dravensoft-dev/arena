@@ -16,12 +16,14 @@ import {
 } from './CalendarInternals';
 import { arenaCalendarStyles } from './ArenaCalendar.variants';
 import manifest from './ArenaCalendar.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const MINUTE = 60000;
 
 @Component({
   selector: 'arena-calendar',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaCalendarState],
   host: { style: 'display: contents' },
@@ -44,15 +46,15 @@ const MINUTE = 60000;
       <div [class]="styles().headStrip()" [attr.data-arena-part]="parts.headStrip" [style.gridTemplateColumns]="tracks()">
         @for (day of days(); track day) {
           @if (dayInteractive()) {
-            <button type="button" [class]="dayHeadClass()" [attr.data-arena-part]="parts.dayHead" [attr.aria-label]="dayLabel(day)"
+            <button type="button" [class]="dayHeadStyles().dayHead()" [arenaSlotData]="dayHeadStyles().$data.dayHead()" [attr.data-arena-part]="parts.dayHead" [attr.aria-label]="dayLabel(day)"
                     (click)="onDateClick(day)">
               <div [class]="styles().weekday()" [attr.data-arena-part]="parts.weekday">{{ arenaWeekdayOf(day) }}</div>
-              <div [class]="dayNumberClass(day)" [attr.data-arena-part]="parts.dayNumber">{{ dayNumberOf(day) }}</div>
+              <div [class]="dayNumberStyles(day).dayNumber()" [arenaSlotData]="dayNumberStyles(day).$data.dayNumber()" [attr.data-arena-part]="parts.dayNumber">{{ dayNumberOf(day) }}</div>
             </button>
           } @else {
-            <div [class]="dayHeadClass()" [attr.data-arena-part]="parts.dayHead">
+            <div [class]="dayHeadStyles().dayHead()" [arenaSlotData]="dayHeadStyles().$data.dayHead()" [attr.data-arena-part]="parts.dayHead">
               <div [class]="styles().weekday()" [attr.data-arena-part]="parts.weekday">{{ arenaWeekdayOf(day) }}</div>
-              <div [class]="dayNumberClass(day)" [attr.data-arena-part]="parts.dayNumber">{{ dayNumberOf(day) }}</div>
+              <div [class]="dayNumberStyles(day).dayNumber()" [arenaSlotData]="dayNumberStyles(day).$data.dayNumber()" [attr.data-arena-part]="parts.dayNumber">{{ dayNumberOf(day) }}</div>
             </div>
           }
         }
@@ -73,7 +75,7 @@ const MINUTE = 60000;
             }
 
             @for (day of days(); track day; let di = $index) {
-              <div role="row" [class]="columnClass(di)" [attr.data-arena-part]="parts.column" [attr.aria-label]="dayLabel(day)"
+              <div role="row" [class]="columnStyles(di).column()" [arenaSlotData]="columnStyles(di).$data.column()" [attr.data-arena-part]="parts.column" [attr.aria-label]="dayLabel(day)"
                    [attr.aria-owns]="state.ownedIds(day)" (click)="onDateClick(day)">
                 @for (slot of slots(); track slot.start; let si = $index) {
                   <div role="gridcell" [class]="styles().cell()" [attr.data-arena-part]="parts.cell" [attr.aria-label]="hm(slot.start)"
@@ -272,18 +274,18 @@ export class ArenaCalendar {
     return arenaFormatDate(day, this.locale.locale, ARENA_DATE_OPTIONS.dayName);
   }
 
-  protected dayNumberClass(day: string): string {
-    return arenaCalendarStyles({ today: day === this.today() }).dayNumber();
+  protected dayNumberStyles(day: string) {
+    return arenaCalendarStyles({ today: day === this.today() });
   }
 
-  protected dayHeadClass(): string {
-    return arenaCalendarStyles({ dayInteractive: this.dayInteractive() }).dayHead();
+  protected dayHeadStyles() {
+    return arenaCalendarStyles({ dayInteractive: this.dayInteractive() });
   }
 
-  protected columnClass(index: number): string {
+  protected columnStyles(index: number) {
     return arenaCalendarStyles({
       firstColumn: index === 0, dayInteractive: this.dayInteractive(),
-    }).column();
+    });
   }
 
   protected goto(iso: string): void {

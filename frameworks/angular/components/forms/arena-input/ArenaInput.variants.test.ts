@@ -10,8 +10,8 @@ import { arenaInputStyles } from './ArenaInput.variants';
 
 test('the default is a neutral, enabled, editable field', () => {
   assert.equal(
-    arenaInputStyles().field(),
-    arenaInputStyles({ state: 'neutral', disabled: false, readOnly: false }).field(),
+    JSON.stringify(arenaInputStyles().$data.field()),
+    JSON.stringify(arenaInputStyles({ state: 'neutral', disabled: false, readOnly: false }).$data.field()),
   );
 });
 
@@ -24,6 +24,6 @@ test('arenaInputIdFor prefers an explicit id and otherwise derives the contracte
 });
 
 test('readOnly is a group on the field and the input', () => {
-  assert.notEqual(arenaInputStyles({ readOnly: true }).field(), arenaInputStyles({ readOnly: false }).field());
-  assert.notEqual(arenaInputStyles({ readOnly: true }).input(), arenaInputStyles({ readOnly: false }).input());
+  assert.notEqual(JSON.stringify(arenaInputStyles({ readOnly: true }).$data.field()), JSON.stringify(arenaInputStyles({ readOnly: false }).$data.field()));
+  assert.notEqual(JSON.stringify(arenaInputStyles({ readOnly: true }).$data.input()), JSON.stringify(arenaInputStyles({ readOnly: false }).$data.input()));
 });

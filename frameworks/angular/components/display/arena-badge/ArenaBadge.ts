@@ -9,6 +9,7 @@ import manifest from './ArenaBadge.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     'data-arena-boundary': '', '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (dot()) {

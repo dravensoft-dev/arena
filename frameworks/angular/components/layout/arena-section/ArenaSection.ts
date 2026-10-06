@@ -11,6 +11,7 @@ import manifest from './ArenaSection.classes.generated';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class]': 'styles().root()',
+    '[attr.data-arena-rhythm]': "styles().$data.root()['data-arena-rhythm'] ?? null",
     '[attr.data-arena-part]': 'parts.root', '[attr.title]': 'null' },
   template: `
     <div [class]="styles().head()" [attr.data-arena-part]="parts.head">

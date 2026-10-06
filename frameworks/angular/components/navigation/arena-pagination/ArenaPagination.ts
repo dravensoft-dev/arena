@@ -3,10 +3,12 @@ import { arenaPageWindow } from './PaginationWindow';
 import { arenaPaginationStyles } from './ArenaPagination.variants';
 import manifest from './ArenaPagination.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-pagination',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -19,7 +21,7 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
         @if (slot === '…') {
           <span [class]="styles().ellipsis()" [attr.data-arena-part]="parts.ellipsis">{{ slot }}</span>
         } @else {
-          <button type="button" [class]="pageClass(slot)" [attr.data-arena-part]="parts.page"
+          <button type="button" [class]="pageStyles(slot).page()" [arenaSlotData]="pageStyles(slot).$data.page()" [attr.data-arena-part]="parts.page"
                   [attr.aria-current]="slot === page() ? 'page' : null"
                   (click)="go(slot)">{{ slot }}</button>
         }
@@ -62,8 +64,8 @@ export class ArenaPagination {
 
   protected readonly styles = computed(() => arenaPaginationStyles());
 
-  protected pageClass(page: number): string {
-    return arenaPaginationStyles({ current: page === this.page() }).page();
+  protected pageStyles(page: number) {
+    return arenaPaginationStyles({ current: page === this.page() });
   }
 
   protected go(page: number): void {

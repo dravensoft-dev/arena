@@ -10,8 +10,8 @@ import { arenaTextareaStyles } from './ArenaTextarea.variants';
 
 test('the default is a neutral, vertically resizable, enabled, editable field', () => {
   assert.equal(
-    arenaTextareaStyles().field(),
-    arenaTextareaStyles({ state: 'neutral', resize: 'vertical', disabled: false, readOnly: false }).field(),
+    JSON.stringify(arenaTextareaStyles().$data.field()),
+    JSON.stringify(arenaTextareaStyles({ state: 'neutral', resize: 'vertical', disabled: false, readOnly: false }).$data.field()),
   );
 });
 
@@ -37,6 +37,6 @@ test('arenaBorderBoxSlack is the border, which scrollHeight leaves out and a bor
 });
 
 test('readOnly and near are groups, near on the one counter slot', () => {
-  assert.notEqual(arenaTextareaStyles({ readOnly: true }).field(), arenaTextareaStyles({ readOnly: false }).field());
-  assert.notEqual(arenaTextareaStyles({ near: true }).counter(), arenaTextareaStyles({ near: false }).counter());
+  assert.notEqual(JSON.stringify(arenaTextareaStyles({ readOnly: true }).$data.field()), JSON.stringify(arenaTextareaStyles({ readOnly: false }).$data.field()));
+  assert.notEqual(JSON.stringify(arenaTextareaStyles({ near: true }).$data.counter()), JSON.stringify(arenaTextareaStyles({ near: false }).$data.counter()));
 });

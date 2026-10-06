@@ -40,7 +40,7 @@ test('an indeterminate ring turns a fixed arc and reports no value', () => {
   const meter = host.querySelector('[role="progressbar"]') as HTMLElement;
   assert.equal(meter.getAttribute('aria-valuenow'), null);
   const fill = host.querySelector('.arena-progress-bar__ring-fill') as SVGCircleElement;
-  assert.match(fill.getAttribute('class') ?? '', /\barena-progress-bar__ring-fill--indeterminate-true\b/,
+  assert.equal(fill.getAttribute('data-arena-indeterminate'), '',
     'the turn is the shared utility, whose reduced-motion clause slows it rather than stopping it');
   assert.equal(fill.style.getPropertyValue('stroke-dashoffset'), '75',
     'the arc a wait turns is a fixed quarter and never the percentage');

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, 
 import type { ArenaControlSize, ArenaProgressShape, ArenaProgressTone } from '../../../Api.generated';
 import { arenaProgressBarStyles } from './ArenaProgressBar.variants';
 import manifest from './ArenaProgressBar.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function arenaClampPercentage(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
@@ -14,22 +15,24 @@ export const ARENA_RING_SWEEP = 25;
 @Component({
   selector: 'arena-progress-bar',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-shape]': "styles().$data.root()['data-arena-shape'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
   },
   template: `
     @if (radial()) {
-      <div [class]="styles().ring()" [attr.data-arena-part]="parts.ring" aria-live="polite">
+      <div [class]="styles().ring()" [arenaSlotData]="styles().$data.ring()" [attr.data-arena-part]="parts.ring" aria-live="polite">
         <svg [class]="styles().ringGeometry()" [attr.data-arena-part]="parts.ringGeometry"
              viewBox="0 0 100 100" role="progressbar"
              [attr.aria-valuenow]="indeterminate() ? null : percentage()"
              aria-valuemin="0" aria-valuemax="100"
              [attr.aria-label]="label()">
-          <circle [class]="styles().ringTrack()" [attr.data-arena-part]="parts.ringTrack"
+          <circle [class]="styles().ringTrack()" [arenaSlotData]="styles().$data.ringTrack()" [attr.data-arena-part]="parts.ringTrack"
                   [attr.cx]="centre" [attr.cy]="centre" [attr.r]="radius" pathLength="100"></circle>
-          <circle [class]="ringFillClass()" [attr.data-arena-part]="parts.ringFill"
+          <circle [class]="styles().ringFill()" [arenaSlotData]="styles().$data.ringFill()" [attr.data-arena-part]="parts.ringFill"
                   [attr.cx]="centre" [attr.cy]="centre" [attr.r]="radius" pathLength="100"
                   [style.stroke-dashoffset]="dashOffset()"></circle>
         </svg>
@@ -40,24 +43,24 @@ export const ARENA_RING_SWEEP = 25;
           <ng-content />
         </span>
         @if (showsValue()) {
-          <span [class]="styles().value()" [attr.data-arena-part]="parts.value">{{ percentage() }}%</span>
+          <span [class]="styles().value()" [arenaSlotData]="styles().$data.value()" [attr.data-arena-part]="parts.value">{{ percentage() }}%</span>
         }
       </div>
       @if (showLabel()) {
-        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
+        <span [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
       }
     } @else {
       @if (showLabel() || showsValue()) {
         <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
           @if (showLabel()) {
-            <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
+            <span [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
           }
           @if (showsValue()) {
-            <span [class]="styles().value()" [attr.data-arena-part]="parts.value">{{ percentage() }}%</span>
+            <span [class]="styles().value()" [arenaSlotData]="styles().$data.value()" [attr.data-arena-part]="parts.value">{{ percentage() }}%</span>
           }
         </div>
       }
-      <div [class]="trackClass()" [attr.data-arena-part]="parts.track" role="progressbar" aria-live="polite"
+      <div [class]="styles().track()" [arenaSlotData]="styles().$data.track()" [attr.data-arena-part]="parts.track" role="progressbar" aria-live="polite"
            [attr.aria-valuenow]="indeterminate() ? null : percentage()"
            aria-valuemin="0" aria-valuemax="100"
            [attr.aria-label]="label()">
@@ -110,8 +113,4 @@ export class ArenaProgressBar {
   protected readonly styles = computed(
     () => arenaProgressBarStyles({ shape: this.shape(), tone: this.tone(), size: this.size(), indeterminate: this.indeterminate() }),
   );
-
-  protected readonly trackClass = computed(() => this.styles().track());
-
-  protected readonly ringFillClass = computed(() => this.styles().ringFill());
 }

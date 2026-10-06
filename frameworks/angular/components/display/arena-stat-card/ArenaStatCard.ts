@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { arenaStatCardStyles } from './ArenaStatCard.variants';
 import manifest from './ArenaStatCard.classes.generated';
 import type { ArenaTone, ArenaStatDelta } from '../../../Api.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-stat-card',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root', },
@@ -16,9 +18,9 @@ import type { ArenaTone, ArenaStatDelta } from '../../../Api.generated';
         <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><i [class]="glyph"></i></span>
       }
     </div>
-    <div [class]="styles().value()" [attr.data-arena-part]="parts.value">{{ value() }}</div>
+    <div [class]="styles().value()" [arenaSlotData]="styles().$data.value()" [attr.data-arena-part]="parts.value">{{ value() }}</div>
     @if (delta()?.value; as amount) {
-      <span [class]="styles().delta()" [attr.data-arena-part]="parts.delta">
+      <span [class]="styles().delta()" [arenaSlotData]="styles().$data.delta()" [attr.data-arena-part]="parts.delta">
         <i [class]="delta()?.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'" aria-hidden="true"></i>
         {{ amount }}
       </span>

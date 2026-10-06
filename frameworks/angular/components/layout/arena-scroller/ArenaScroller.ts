@@ -12,6 +12,7 @@ import manifest from './ArenaScroller.classes.generated';
   host: {
     'data-arena-boundary': '',
     '[class]': 'styles().root()',
+    '[attr.data-arena-behaviour]': "styles().$data.root()['data-arena-behaviour'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     role: 'group',
     tabindex: '0',

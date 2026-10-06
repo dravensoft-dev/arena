@@ -14,6 +14,6 @@ test('a resting row carries no danger classes -- an active command row is a sele
 test('active is a group on the row and its label', () => {
   const on = arenaCommandPaletteStyles({ active: true });
   const off = arenaCommandPaletteStyles({ active: false });
-  assert.notEqual(on.row(), off.row());
-  assert.notEqual(on.rowLabel(), off.rowLabel());
+  assert.notEqual(JSON.stringify(on.$data.row()), JSON.stringify(off.$data.row()));
+  assert.notEqual(JSON.stringify(on.$data.rowLabel()), JSON.stringify(off.$data.rowLabel()));
 });

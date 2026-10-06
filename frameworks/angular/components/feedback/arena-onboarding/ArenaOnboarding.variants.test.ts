@@ -8,5 +8,5 @@ function tokens(classString: string): string[] {
 
 
 test('the current dot is the dot slot with the current group selected', () => {
-  assert.notEqual(arenaOnboardingStyles({ current: true }).dot(), arenaOnboardingStyles({ current: false }).dot());
+  assert.notEqual(JSON.stringify(arenaOnboardingStyles({ current: true }).$data.dot()), JSON.stringify(arenaOnboardingStyles({ current: false }).$data.dot()));
 });

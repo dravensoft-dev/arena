@@ -8,10 +8,12 @@ import { ArenaTabsState } from './ArenaTabsState';
 import { arenaTabsStyles } from './ArenaTabs.variants';
 import manifest from './ArenaTabs.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-tabs',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTabsState],
   host: {
@@ -19,7 +21,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   template: `
     <div role="tablist" [class]="styles().root()" [attr.data-arena-part]="parts.root" (keydown)="onKeydown($event)">
       @for (tab of tabs(); track tab.value(); let i = $index) {
-        <button #tabButton type="button" role="tab" [class]="tabClass(tab.value())" [attr.data-arena-part]="parts.tab"
+        <button #tabButton type="button" role="tab" [class]="tabStyles(tab.value()).tab()" [arenaSlotData]="tabStyles(tab.value()).$data.tab()" [attr.data-arena-part]="parts.tab"
                 [attr.id]="tabId(tab.value())" [attr.aria-controls]="panelId(tab.value())"
                 [attr.aria-selected]="tab.value() === active()"
                 [attr.tabindex]="i === stopIndex() ? 0 : -1"
@@ -84,8 +86,8 @@ export class ArenaTabs {
     });
   }
 
-  protected tabClass(value: string): string {
-    return arenaTabsStyles({ selected: value === this.active() }).tab();
+  protected tabStyles(value: string) {
+    return arenaTabsStyles({ selected: value === this.active() });
   }
 
   protected tabId(value: string): string | null {

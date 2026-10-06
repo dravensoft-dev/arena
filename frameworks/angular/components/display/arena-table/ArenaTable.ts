@@ -15,6 +15,7 @@ import { ArenaTableState } from './ArenaTableState';
 import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -32,8 +33,9 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableState],
-  imports: [ArenaPagination, ArenaSelect],
+  imports: [ArenaSlotAttributes, ArenaPagination, ArenaSelect],
   host: { '[class]': 'styles().root()',
+    '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (sortBar()) {
@@ -44,7 +46,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
         </div>
       </div>
     }
-    <table [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
+    <table [class]="styles().grid()" [arenaSlotData]="styles().$data.grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
            [attr.aria-label]="gridName()" [attr.aria-rowcount]="rowCount()"
            (keydown)="onKeydown($event)">
       @if (!narrow() && !empty()) {
@@ -52,7 +54,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
           <tr [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow"
               [attr.aria-rowindex]="extent() ? 1 : null">
             @for (column of columns(); track $index; let i = $index) {
-              <th scope="col" [class]="headerClass(column)" [attr.data-arena-part]="parts.th" [style.width]="column.width"
+              <th scope="col" [class]="headerStyles(column).th()" [arenaSlotData]="headerStyles(column).$data.th()" [attr.data-arena-part]="parts.th" [style.width]="column.width"
                   [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
                   [attr.aria-sort]="sortStateOf(i)"
                   (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
@@ -62,7 +64,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
           </tr>
         </thead>
       }
-      <tbody [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary [attr.role]="groupRole()"><ng-content /></tbody>
+      <tbody [class]="styles().body()" [arenaSlotData]="styles().$data.body()" [attr.data-arena-part]="parts.body" data-arena-boundary [attr.role]="groupRole()"><ng-content /></tbody>
     </table>
     @if (empty()) {
       <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty" data-arena-boundary><ng-content select="[empty]">{{ locale.tableEmpty }}</ng-content></div>
@@ -201,8 +203,8 @@ export class ArenaTable {
     return this.sort()?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down';
   }
 
-  protected headerClass(column: ArenaTableColumn): string {
-    return arenaTableStyles({ narrow: false, align: column.align ?? 'left', sortable: Boolean(column.sortable && this.sort()) }).th();
+  protected headerStyles(column: ArenaTableColumn) {
+    return arenaTableStyles({ narrow: false, align: column.align ?? 'left', sortable: Boolean(column.sortable && this.sort()) });
   }
 
   protected onHeader(column: number): void {

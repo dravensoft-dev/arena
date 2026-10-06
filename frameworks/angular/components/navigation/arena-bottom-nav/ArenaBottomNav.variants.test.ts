@@ -8,5 +8,5 @@ function tokens(classString: string): string[] {
 
 
 test('current is a group on the item', () => {
-  assert.notEqual(arenaBottomNavStyles({ current: true }).item(), arenaBottomNavStyles({ current: false }).item());
+  assert.notEqual(JSON.stringify(arenaBottomNavStyles({ current: true }).$data.item()), JSON.stringify(arenaBottomNavStyles({ current: false }).$data.item()));
 });

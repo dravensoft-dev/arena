@@ -10,6 +10,8 @@ import manifest from './ArenaGrid.classes.generated';
   host: {
     'data-arena-boundary': '',
     '[class]': 'styles().root()',
+    '[attr.data-arena-gap]': "styles().$data.root()['data-arena-gap'] ?? null",
+    '[attr.data-arena-centred]': "styles().$data.root()['data-arena-centred'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[style.gridTemplateColumns]': 'tracks()',
     '[style.maxWidth]': 'maxWidth()',

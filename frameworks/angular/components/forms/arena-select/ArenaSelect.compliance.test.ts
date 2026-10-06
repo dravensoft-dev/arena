@@ -140,7 +140,7 @@ test('error takes the crimson state and names itself to the control, so the fail
     const note = host.querySelector(`#${id}`);
     assert.ok(note, 'aria-describedby names an id the render does not contain');
     assert.equal(note.textContent?.trim(), 'Pick a customer');
-    assert.match(field.getAttribute('class') ?? '', /arena-select__field--state-error/, 'the error state did not reach the field');
+    assert.equal(field.getAttribute('data-arena-state'), 'error', 'the error state did not reach the field');
   } finally {
     fixture.destroy();
   }
@@ -171,14 +171,14 @@ test('a hint alone is neutral, and is still named to the control', () => {
 test('valid takes the green state, and error still beats it', () => {
   const ok = noted({ valid: true });
   try {
-    assert.match(ok.field.getAttribute('class') ?? '', /arena-select__field--state-valid/);
+    assert.equal(ok.field.getAttribute('data-arena-state'), 'valid');
   } finally {
     ok.fixture.destroy();
   }
 
   const both = noted({ valid: true, error: 'No' });
   try {
-    assert.match(both.field.getAttribute('class') ?? '', /arena-select__field--state-error/,
+    assert.equal(both.field.getAttribute('data-arena-state'), 'error',
       'valid won over error, so a field reports success while it is failing');
   } finally {
     both.fixture.destroy();
@@ -204,7 +204,7 @@ test('icon is drawn hidden and pushes the text clear of it', () => {
     assert.ok(glyph, 'no <i> was drawn for the icon');
     assert.match(glyph.getAttribute('class') ?? '', /ph-bold ph-user/);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
-    assert.match(field.getAttribute('class') ?? '', /arena-select__field--has-icon-true/, 'the text runs under the glyph');
+    assert.equal(field.getAttribute('data-arena-has-icon'), '', 'the text runs under the glyph');
   } finally {
     fixture.destroy();
   }

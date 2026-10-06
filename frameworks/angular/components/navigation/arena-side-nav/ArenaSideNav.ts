@@ -13,6 +13,7 @@ import manifest from './ArenaSideNav.classes.generated';
   host: {
     'data-arena-boundary': '',
     '[class]': 'styles().root()',
+    '[attr.data-arena-collapsed]': "styles().$data.root()['data-arena-collapsed'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     role: 'navigation',
     '[attr.aria-label]': 'label()',

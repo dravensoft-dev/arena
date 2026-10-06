@@ -22,6 +22,7 @@ import type { ArenaCommand } from '../../../Api.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function arenaFilterCommands(commands: readonly ArenaCommand[], query: string): ArenaCommand[] {
   const needle = query.toLowerCase();
@@ -86,9 +87,11 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
 @Component({
   selector: 'arena-command-palette',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.root : null',
     '(click)': 'onScrimClick()',
   },
@@ -118,13 +121,13 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
             @if (command.route; as target) {
               <a [id]="optionId(i)" role="option" [attr.aria-selected]="i === active()" tabindex="-1"
                  [href]="target"
-                 [class]="rowStyles(i).row()"
+                 [class]="rowStyles(i).row()" [arenaSlotData]="rowStyles(i).$data.row()"
                  [attr.data-arena-part]="parts.row"
                  (mouseenter)="onHover(i)" (click)="onRouteClick(command, $event)">
                 @if (command.icon; as glyph) {
                   <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
                 }
-                <span [class]="rowStyles(i).rowLabel()"
+                <span [class]="rowStyles(i).rowLabel()" [arenaSlotData]="rowStyles(i).$data.rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
                 @if (command.shortcut; as shortcut) {
                   <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
@@ -132,13 +135,13 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
               </a>
             } @else {
             <button type="button" [id]="optionId(i)" role="option" [attr.aria-selected]="i === active()" tabindex="-1"
-                    [class]="rowStyles(i).row()"
+                    [class]="rowStyles(i).row()" [arenaSlotData]="rowStyles(i).$data.row()"
                  [attr.data-arena-part]="parts.row"
                     (mouseenter)="onHover(i)" (click)="onRun(command)">
               @if (command.icon; as glyph) {
                 <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
               }
-              <span [class]="rowStyles(i).rowLabel()"
+              <span [class]="rowStyles(i).rowLabel()" [arenaSlotData]="rowStyles(i).$data.rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
               @if (command.shortcut; as shortcut) {
                 <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>

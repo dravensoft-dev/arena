@@ -11,6 +11,7 @@ import { arenaDoughnutChartStyles } from './ArenaDoughnutChart.variants';
 import manifest from './ArenaDoughnutChart.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const ASSUMED_WIDTH = 600;
 
@@ -31,6 +32,7 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
 @Component({
   selector: 'arena-doughnut-chart',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -60,7 +62,7 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
                 (focus)="hover.set(segment.index)" (blur)="hover.set(null)"
                 (click)="sliceActivate.emit(segment.index)">
           <span aria-hidden="true" [class]="styles().legendSwatch()" [attr.data-arena-part]="parts.legendSwatch" [style.background]="segment.color"></span>
-          <span [class]="styles().legendText()" [attr.data-arena-part]="parts.legendText">
+          <span [class]="styles().legendText()" [arenaSlotData]="styles().$data.legendText()" [attr.data-arena-part]="parts.legendText">
             <span [class]="styles().legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ segment.label }}</span>
             <span [class]="styles().legendValue()" [attr.data-arena-part]="parts.legendValue">{{ segment.formatted }}</span>
           </span>

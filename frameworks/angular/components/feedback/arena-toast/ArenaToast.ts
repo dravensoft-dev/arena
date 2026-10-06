@@ -4,15 +4,18 @@ import { dismissDefault, dismissActionable } from '../../../Tokens.generated';
 import { arenaToastStyles } from './ArenaToast.variants';
 import manifest from './ArenaToast.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
 
 @Component({
   selector: 'arena-toast',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "tone() === 'danger' ? 'alert' : 'status'",
     '[attr.aria-live]': "tone() === 'danger' ? 'assertive' : 'polite'",
@@ -30,7 +33,7 @@ export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismis
         <div [class]="styles().message()" [attr.data-arena-part]="parts.message">{{ text }}</div>
       }
       @if (actionLabel(); as label) {
-        <button type="button" [class]="styles().action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
+        <button type="button" [class]="styles().action()" [arenaSlotData]="styles().$data.action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
       }
     </div>
     @if (dismissible()) {

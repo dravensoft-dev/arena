@@ -3,21 +3,24 @@ import type { ArenaHeadingLevel, ArenaHeroAlign, ArenaHeroLayout } from '../../.
 import { ArenaActions, ArenaFigureSlot } from '../../../ProjectionMarkers';
 import { arenaHeroStyles } from './ArenaHero.variants';
 import manifest from './ArenaHero.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
 
 @Component({
   selector: 'arena-hero',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-layout]': "styles().$data.root()['data-arena-layout'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[style.gridTemplateColumns]': 'tracks()',
     '[attr.title]': 'null',
   },
   template: `
-    <div [class]="styles().words()" [attr.data-arena-part]="parts.words">
+    <div [class]="styles().words()" [arenaSlotData]="styles().$data.words()" [attr.data-arena-part]="parts.words">
       @if (eyebrow(); as label) { <p [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</p> }
       @switch (level()) {
         @case ('h2') { <h2 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h2> }
@@ -28,7 +31,7 @@ const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
       @if (lede(); as line) { <p [class]="styles().lede()" [attr.data-arena-part]="parts.lede">{{ line }}</p> }
       @if (actions()) { <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div> }
     </div>
-    @if (figure()) { <div [class]="styles().figure()" [attr.data-arena-part]="parts.figure" data-arena-boundary><ng-content select="[figure]" /></div> }
+    @if (figure()) { <div [class]="styles().figure()" [arenaSlotData]="styles().$data.figure()" [attr.data-arena-part]="parts.figure" data-arena-boundary><ng-content select="[figure]" /></div> }
   `,
 })
 export class ArenaHero {

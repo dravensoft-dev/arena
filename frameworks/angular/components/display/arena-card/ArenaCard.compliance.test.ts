@@ -214,12 +214,12 @@ test('accent and floating reach the styled root, and the host itself stays out o
     assert.match(host.getAttribute('style') ?? '', /display:\s*contents/,
       'a bare host must leave layout, or as a flex item it shrinks to fit around the card');
 
-    const plainClass = rootOf(plain).getAttribute('class') ?? '';
-    const markedClass = rootOf(marked).getAttribute('class') ?? '';
-    assert.notEqual(plainClass, markedClass, 'accent and floating changed nothing on the root');
-    assert.match(markedClass, /arena-card__root--accent-true/, 'accent did not reach the styled root');
-    assert.match(markedClass, /arena-card__root--floating-true/, 'floating did not reach the styled root');
-    assert.doesNotMatch(plainClass, /arena-card__root--floating-true/);
+    const plainRoot = rootOf(plain);
+    const markedRoot = rootOf(marked);
+    assert.equal(markedRoot.getAttribute('data-arena-accent'), '', 'accent did not reach the styled root');
+    assert.equal(markedRoot.getAttribute('data-arena-floating'), '', 'floating did not reach the styled root');
+    assert.equal(plainRoot.hasAttribute('data-arena-floating'), false);
+    assert.equal(plainRoot.hasAttribute('data-arena-accent'), false);
   } finally {
     plain.destroy();
     marked.destroy();

@@ -4,15 +4,17 @@ import {
 import { ArenaRadioGroupState } from '../arena-radio-group/ArenaRadioGroupState';
 import { arenaRadioStyles } from './ArenaRadio.variants';
 import manifest from './ArenaRadio.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-radio',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <label [class]="styles().root()" [attr.data-arena-part]="parts.root">
-      <span [class]="styles().ring()" [attr.data-arena-part]="parts.ring">
+    <label [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root">
+      <span [class]="styles().ring()" [arenaSlotData]="styles().$data.ring()" [attr.data-arena-part]="parts.ring">
         @if (checked()) {
           <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
         }

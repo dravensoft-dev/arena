@@ -4,20 +4,23 @@ import { arenaCatColor } from '../../../DataVisuals';
 import { arenaTagStyles } from './ArenaTag.variants';
 import manifest from './ArenaTag.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-tag',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     'data-arena-boundary': '', '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[style.--arena-tag-cat]': 'catColour()', },
   template: `
     <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
     <ng-content />
     @if (removable()) {
-      <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.tagRemove"
+      <button type="button" [class]="styles().close()" [arenaSlotData]="styles().$data.close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.tagRemove"
               [attr.aria-disabled]="disabled() ? 'true' : null" (click)="onRemove()">
         <i class="ph-bold ph-x" aria-hidden="true"></i>
       </button>

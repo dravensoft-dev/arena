@@ -13,11 +13,11 @@ const SIZES = ['sm', 'md', 'lg', 'xl', '2xl'] as const;
 
 test('the default is a horizontal md switch that is off and enabled', () => {
   assert.equal(
-    arenaSwitchStyles().track(),
-    arenaSwitchStyles({
+    JSON.stringify(arenaSwitchStyles().$data.track()),
+    JSON.stringify(arenaSwitchStyles({
       size: 'md', orientation: 'horizontal', state: false, disabled: false,
       footprint: 'horizontal-md', thumb: 'off-horizontal',
-    }).track(),
+    }).$data.track()),
   );
 });
 

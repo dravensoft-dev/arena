@@ -12,21 +12,22 @@ test('the surface, the ink and the row metrics do not vary with anchoring -- onl
   const anchored = arenaMenuStyles({ anchored: true });
   const inFlow = arenaMenuStyles({ anchored: false });
   for (const slot of ['item', 'icon', 'label', 'shortcut', 'divider', 'header'] as const) {
-    assert.equal(anchored[slot](), inFlow[slot](), `${slot} must not vary with anchored`);
+    assert.equal(JSON.stringify(anchored.$data[slot]()), JSON.stringify(inFlow.$data[slot]()), `${slot} must not vary with anchored`);
   }
 });
 
-test('the item takes one of three compounds of disabled and destructive, and disabled outranks destructive', () => {
-  const plain = arenaMenuStyles({ disabled: false, destructive: false }).item();
-  const destructive = arenaMenuStyles({ disabled: false, destructive: true }).item();
-  const disabled = arenaMenuStyles({ disabled: true, destructive: false }).item();
+test('the item carries disabled and destructive as two attributes, and an item that is both carries both', () => {
+  const plain = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: false }).$data.item());
+  const destructive = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: true }).$data.item());
+  const disabled = JSON.stringify(arenaMenuStyles({ disabled: true, destructive: false }).$data.item());
   assert.equal(new Set([plain, destructive, disabled]).size, 3);
-  assert.equal(arenaMenuStyles({ disabled: true, destructive: true }).item(), disabled);
+  assert.deepEqual(arenaMenuStyles({ disabled: true, destructive: true }).$data.item(),
+    { 'data-arena-disabled': '', 'data-arena-destructive': '' });
 });
 
 test('align end moves the panel and nothing else', () => {
-  assert.notEqual(arenaMenuStyles({ align: 'end' }).panel(), arenaMenuStyles({ align: 'start' }).panel());
-  assert.equal(arenaMenuStyles({ align: 'end' }).item(), arenaMenuStyles({ align: 'start' }).item());
+  assert.notEqual(JSON.stringify(arenaMenuStyles({ align: 'end' }).$data.panel()), JSON.stringify(arenaMenuStyles({ align: 'start' }).$data.panel()));
+  assert.equal(JSON.stringify(arenaMenuStyles({ align: 'end' }).$data.item()), JSON.stringify(arenaMenuStyles({ align: 'start' }).$data.item()));
 });
 
 test('a divider and a header are not activatable; everything else is', () => {

@@ -4,13 +4,17 @@ import { ArenaActions } from '../../../ProjectionMarkers';
 import { arenaPageHeadStyles } from './ArenaPageHead.variants';
 import manifest from './ArenaPageHead.classes.generated';
 import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-page-head',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
+    '[attr.data-arena-align]': "styles().$data.root()['data-arena-align'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.title]': 'null',
   },
@@ -27,7 +31,7 @@ import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generat
       }
     </div>
     @if (actions()) {
-      <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div>
+      <div [class]="styles().actions()" [arenaSlotData]="styles().$data.actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div>
     }
   `,
 })

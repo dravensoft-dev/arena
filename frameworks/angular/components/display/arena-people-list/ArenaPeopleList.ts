@@ -4,6 +4,7 @@ import type { ArenaControlSize } from '../../../Api.generated';
 import { ArenaPeopleListState } from './ArenaPeopleListState';
 import { arenaPeopleListStyles } from './ArenaPeopleList.variants';
 import manifest from './ArenaPeopleList.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-people-list',
@@ -11,15 +12,15 @@ import manifest from './ArenaPeopleList.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaPeopleListState],
   host: { style: 'display: contents' },
-  imports: [NgTemplateOutlet],
+  imports: [ArenaSlotAttributes, NgTemplateOutlet],
   template: `
     <ng-template #rows><ng-content /></ng-template>
     @if (ordered()) {
-      <ol [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.aria-label]="named()">
+      <ol [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.aria-label]="named()">
         <ng-container [ngTemplateOutlet]="rows" />
       </ol>
     } @else {
-      <ul [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.aria-label]="named()">
+      <ul [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.aria-label]="named()">
         <ng-container [ngTemplateOutlet]="rows" />
       </ul>
     }
