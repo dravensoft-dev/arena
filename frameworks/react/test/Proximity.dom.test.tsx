@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -40,6 +40,17 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'size-re-densifies-in-comfortable': () => <ArenaButton className="arena-size-sm">Save</ArenaButton>,
   'size-re-densifies-in-comfortable-under-the-size': () => <div className="arena-comfortable"><ArenaButton>Save</ArenaButton></div>,
   'people-list-face-follows-the-list': () => <ArenaPeopleList className="arena-size-lg" label="Standings"><ArenaPersonRow name="Ines Marchetti" /></ArenaPeopleList>,
+  'meaning-follows-the-base': () => <><ArenaButton destructive>Delete</ArenaButton><ArenaButton>Save</ArenaButton></>,
+  'meaning-wins-over-accent': () => <ArenaBadge className="arena-accent-gold" tone="success">Paid</ArenaBadge>,
+  'accent-stops-at-the-card-body': () => <ArenaCard className="arena-accent-primary"><ArenaTag>Draft</ArenaTag></ArenaCard>,
+};
+
+const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
+const SUBJECT: Record<string, { part: string; at: number }> = {
+  'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
+  'meaning-follows-the-base': { part: 'button', at: 0 },
+  'meaning-wins-over-accent': { part: 'badge', at: 0 },
+  'accent-stops-at-the-card-body': { part: 'card', at: 0 },
 };
 
 const { families, cases } = readProximity();
@@ -51,10 +62,13 @@ test('every case has a React composition, and every composition a case', () => {
 
 for (const kase of cases) {
   test(`${kase.name}: React renders the tree the gate measures`, () => {
-    const root = mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
+    const root = BARE.has(kase.name)
+      ? mount(COMPOSITIONS[kase.name]!())
+      : mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
     const container = root.firstElementChild!;
-    const subjectPart = kase.name === 'people-list-face-follows-the-list' ? 'avatar.box' : 'button';
-    const subject = [...container.querySelectorAll(`[data-arena-part="${subjectPart}"]`)].at(-1) ?? null;
+    const { part: subjectPart, at } = SUBJECT[kase.name] ?? { part: 'button', at: -1 };
+    const found = [...container.querySelectorAll(`[data-arena-part="${subjectPart}"]`)];
+    const subject = (BARE.has(kase.name) && container.getAttribute('data-arena-part') === subjectPart ? container : found.at(at)) ?? null;
     const tree = normalize(container as unknown as NodeLike, vocabulary, subject as unknown as NodeLike);
     assert.deepEqual(tree, kase.react, `recorded tree for ${kase.name}:\n${JSON.stringify(tree)}`);
   });

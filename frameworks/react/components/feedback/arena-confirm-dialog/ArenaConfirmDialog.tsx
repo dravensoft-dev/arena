@@ -75,7 +75,7 @@ export function ArenaConfirmDialog({ className, open, onCancel, onConfirm, title
           )}
         </div>
         <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()}>
-          <ArenaButton variant="ghost" onClick={onCancel}>{cancelText}</ArenaButton>
+          <ArenaButton className="arena-emphasis-ghost" onClick={onCancel}>{cancelText}</ArenaButton>
           <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()} data-arena-part={manifest.parts.confirm} {...styles.$data.confirm()}>
             {confirmText}
           </button>

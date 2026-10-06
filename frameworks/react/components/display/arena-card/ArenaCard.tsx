@@ -22,10 +22,6 @@ export interface ArenaCardProps {
 
   /** Right-aligned in the header, beside the title. Arena draws the header row; the consumer draws what sits in it. */
   action?: React.ReactNode;
-  /** Adds the warm shadow. Depth comes from the shadow and the surface scale, never a gradient. */
-  floating?: boolean;
-  /** Draws the border in the accent colour instead of the surface hairline. */
-  accent?: boolean;
 
   /** Whether the whole card is one activation target, which is the ordinary shape of a list on a phone. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, the same reason ArenaTableRow.interactive is one. An interactive card is a role="button" tab stop with an Enter/Space handler and the surface's own hover and focus states; a non-interactive one is inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap it would close. It is a ROLE rather than a <button> element for the same reason ArenaTableRow's card shape is: a card body may hold controls of its own, and a control inside a control is reachable by nobody. */
   interactive?: boolean;
@@ -42,13 +38,13 @@ export interface ArenaCardProps {
 const arenaCardStyles = arenaStyles(manifest);
 
 export function ArenaCard({ className, 
-  children, title, headingLevel = 'h3', eyebrow, action, floating = false, accent = false,
+  children, title, headingLevel = 'h3', eyebrow, action,
   interactive = false, disabled = false, href, onClick,
 }: ArenaCardProps) {
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   const target = href !== undefined;
   const acts = interactive || target;
-  const styles = arenaCardStyles({ accent, floating, interactive: acts });
+  const styles = arenaCardStyles({ interactive: acts });
 
   const activate = () => {
     if (acts && !disabled) onClick?.();

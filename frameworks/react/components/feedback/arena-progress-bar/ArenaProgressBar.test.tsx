@@ -70,14 +70,14 @@ test('an absent label throws rather than falling back to a name that says only w
 });
 
 test('every tone reaches the bar as its own branch of the recipe', () => {
-  for (const tone of ['accent', 'gold', 'success', 'danger', 'info']) {
+  for (const tone of ['success', 'danger', 'info']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" tone={tone} progressPercentage={50} />);
     assert.match(html, new RegExp(`data-arena-part="progress-bar.track"[^>]*\\bdata-arena-tone="${tone}"`), `tone="${tone}" did not reach the bar`);
   }
 
   const fallback = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" progressPercentage={50} />);
-  assert.match(fallback, /data-arena-part="progress-bar.track"[^>]*\bdata-arena-tone="accent"/);
+  assert.doesNotMatch(fallback, /data-arena-part="progress-bar.track"[^>]*\bdata-arena-tone=/);
   assert.match(fallback, /\barena-progress-bar__fill\b/,
     'the fill reads the tone off the track rather than naming a colour of its own');
 });

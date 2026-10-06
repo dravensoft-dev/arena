@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ArenaButtonType, ArenaButtonVariant } from '../../../Api.generated';
+import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaButton.classes.generated.ts';
 import type { ArenaButtonClass } from '../../../Vocabulary.generated.ts';
@@ -12,8 +12,6 @@ export interface ArenaButtonProps {
 
   /** The button's label. Sits between the two icons when both are given. */
   children?: React.ReactNode;
-  /** Which action this is. */
-  variant?: ArenaButtonVariant;
   /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   destructive?: boolean;
 
@@ -55,11 +53,11 @@ export interface ArenaButtonProps {
 const arenaButtonStyles = arenaStyles(manifest);
 
 export function ArenaButton({ className, 
-  children, variant = 'primary', destructive = false, icon, iconRight,
+  children, destructive = false, icon, iconRight,
   disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaButtonProps) {
-  const styles = arenaButtonStyles({ variant, destructive });
+  const styles = arenaButtonStyles({ destructive });
 
   return (
     <button

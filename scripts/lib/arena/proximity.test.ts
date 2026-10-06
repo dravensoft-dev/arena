@@ -59,8 +59,9 @@ test('the gate writes the surface and the binding back as attributes', () => {
 test('a destructive part keeps its flag, and the gate writes it over the default the slot carries', () => {
   const button = node('button', { 'data-arena-part': 'button', 'data-arena-destructive': 'true' });
   const quiet = node('button', { 'data-arena-part': 'button', 'data-arena-destructive': 'false' });
-  assert.deepEqual(normalize(node('div', {}, [button, quiet]), new Set()), {
-    tag: 'div', children: [{ tag: 'button', part: 'button', destructive: true }, { tag: 'button', part: 'button' }],
+  const bare = node('button', { 'data-arena-part': 'button', 'data-arena-destructive': '' });
+  assert.deepEqual(normalize(node('div', {}, [button, quiet, bare]), new Set()), {
+    tag: 'div', children: [{ tag: 'button', part: 'button', destructive: true }, { tag: 'button', part: 'button' }, { tag: 'button', part: 'button', destructive: true }],
   });
   const html = treeHtml({ tag: 'button', part: 'button', destructive: true }, () => '', () => ({ [DESTRUCTIVE]: 'false' }));
   assert.equal(html, '<button data-arena-part="button" data-arena-destructive="true"></button>');

@@ -44,7 +44,7 @@ export function ArenaErrorState({ className, icon, title, headingLevel = 'h3', m
       {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
       {code && <code className={styles.code()} data-arena-part={manifest.parts.code} {...styles.$data.code()}>{code}</code>}
       <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">
-        {retryLabel && <ArenaButton variant="primary" onClick={onRetry}>{retryLabel}</ArenaButton>}
+        {retryLabel && <ArenaButton onClick={onRetry}>{retryLabel}</ArenaButton>}
         {secondaryAction}
       </div>
     </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaIconButton.classes.generated.ts';
 
-import type { ArenaButtonType, ArenaIconButtonVariant } from '../../../Api.generated';
+import type { ArenaButtonType } from '../../../Api.generated';
 import type { ArenaIconButtonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 
@@ -15,8 +15,6 @@ export interface ArenaIconButtonProps {
 
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   label: string;
-  /** Visual treatment. */
-  variant?: ArenaIconButtonVariant;
 
   /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. */
   pressed?: boolean;
@@ -52,12 +50,12 @@ export interface ArenaIconButtonProps {
 const arenaIconButtonStyles = arenaStyles(manifest);
 
 export function ArenaIconButton({ className, 
-  icon, label, variant = 'ghost', pressed, showLabel = false, disabled = false,
+  icon, label, pressed, showLabel = false, disabled = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaIconButtonProps) {
   if (!icon) throw new Error('ArenaIconButton: `icon` is required');
   if (!label) throw new Error('ArenaIconButton: `label` is required');
-  const styles = arenaIconButtonStyles({ variant, showLabel, pressed });
+  const styles = arenaIconButtonStyles({ showLabel, pressed });
   return (
     <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onClick}
 

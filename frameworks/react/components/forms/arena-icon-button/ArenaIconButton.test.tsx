@@ -94,14 +94,14 @@ test('the pressed tint is a variant of the manifest, and absent means not a togg
   assert.match(on, /aria-pressed="true"/);
 });
 
-test('ghost and solid are two branches of one recipe, and hover is a modifier rather than a state', () => {
-  const ghost = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" />);
-  assert.match(ghost, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="ghost"/);
-  assert.match(ghost, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="ghost"/);
+test('ghost and solid are classes of the emphasis family, and the component writes no variant attribute', () => {
+  const ghost = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" className="arena-emphasis-ghost" />);
+  assert.match(ghost, /\bclass="[^"]*\barena-emphasis-ghost\b[^"]*"[^>]*data-arena-part="icon-button"/);
+  assert.doesNotMatch(ghost, /data-arena-variant/);
 
-  const solid = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" variant="solid" />);
-  assert.match(solid, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="solid"/);
-  assert.match(solid, /data-arena-part="icon-button"[^>]*\bdata-arena-variant="solid"/);
+  const solid = renderToStaticMarkup(<ArenaIconButton icon="ph-x" label="L" className="arena-emphasis-solid" />);
+  assert.match(solid, /\bclass="[^"]*\barena-emphasis-solid\b[^"]*"[^>]*data-arena-part="icon-button"/);
+  assert.doesNotMatch(solid, /data-arena-variant/);
 });
 
 test('the disabled look is selected by the native attribute, so nothing is recomputed to draw it', () => {

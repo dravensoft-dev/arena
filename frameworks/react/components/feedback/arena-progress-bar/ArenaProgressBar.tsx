@@ -42,7 +42,7 @@ const RING_CENTRE = 50;
 const RING_RADIUS = 42;
 const RING_SWEEP = 25;
 
-export function ArenaProgressBar({ className, children, progressPercentage = 0, indeterminate = false, tone = 'accent', label, showLabel = true, showPercentage = true, shape = 'linear' }: ArenaProgressBarProps) {
+export function ArenaProgressBar({ className, children, progressPercentage = 0, indeterminate = false, tone, label, showLabel = true, showPercentage = true, shape = 'linear' }: ArenaProgressBarProps) {
   if (!label) throw new Error('ArenaProgressBar: `label` is required (it names what is progressing, and nothing can derive that)');
   const styles = progressStyles({ shape, tone, indeterminate });
   const pct = Math.max(0, Math.min(100, Math.round(progressPercentage)));

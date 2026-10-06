@@ -43,7 +43,7 @@ test('the danger tone announces assertively as an alert', () => {
 });
 
 test('every other tone announces politely as a status', () => {
-  for (const tone of ['neutral', 'success', 'gold']) {
+  for (const tone of ['neutral', 'success']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderToStaticMarkup(<ArenaToast tone={tone} title="Deployment archived" />);
     assert.match(html, /role="status"/, `tone="${tone}" announced as an alert`);
@@ -69,4 +69,10 @@ test('ARENA_TOAST_DISMISS carries the two token intervals, and the actionable on
   assert.deepEqual({ ...ARENA_TOAST_DISMISS }, { default: dismissDefault, actionable: dismissActionable });
   assert.ok(ARENA_TOAST_DISMISS.actionable > ARENA_TOAST_DISMISS.default,
     'a notice carrying a button asks the reader to decide rather than only to read, so it lives longer');
+});
+
+test('a gold toast is a toast with the arena-accent-gold class, and carries no gold tone', () => {
+  const html = renderToStaticMarkup(<ArenaToast className="arena-accent-gold" title="Deployment archived" />);
+  assert.match(html, /\bclass="[^"]*\barena-accent-gold\b[^"]*"[^>]*data-arena-part="toast"/);
+  assert.doesNotMatch(html, /data-arena-tone="gold"/);
 });

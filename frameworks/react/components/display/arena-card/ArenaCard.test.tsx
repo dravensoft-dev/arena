@@ -36,13 +36,11 @@ test('an interactive card carries the manifest\'s own hover and focus classes, n
     'the disabled look is a state the attribute selects, so nothing has to be recomputed to draw it');
 });
 
-test('accent and floating each pick their branch of the surface', () => {
-  assert.match(renderToStaticMarkup(<ArenaCard>x</ArenaCard>), /data-arena-part="card"(?:(?!data-arena-accent=)[^>])*>/);
-  assert.match(renderToStaticMarkup(<ArenaCard accent>x</ArenaCard>), /data-arena-part="card"[^>]*\bdata-arena-accent=""/);
-  assert.match(renderToStaticMarkup(<ArenaCard floating>x</ArenaCard>), /data-arena-part="card"[^>]*\bdata-arena-floating=""/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaCard>x</ArenaCard>), /data-arena-floating/,
-    'a resting card carries no floating attribute: the root slot already paints shadow-surface-rest, '
-    + 'and a branch that restated that as the literal shadow-none is what stopped an extension moving it');
+test('accent and elevation reach the card as classes, and it writes no attribute for either', () => {
+  const html = renderToStaticMarkup(<ArenaCard className="arena-accent-primary arena-elevation-floating">x</ArenaCard>);
+  assert.match(html, /\bclass="[^"]*\barena-accent-primary\b[^"]*"[^>]*data-arena-part="card"/);
+  assert.match(html, /\bclass="[^"]*\barena-elevation-floating\b[^"]*"[^>]*data-arena-part="card"/);
+  assert.doesNotMatch(html, /data-arena-(accent|floating)/);
 });
 
 test('an href card is interactive without being told so, because navigating IS acting', () => {

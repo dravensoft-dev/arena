@@ -70,7 +70,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   const style = element.getAttribute?.('style') ?? '';
   if (/display:\s*contents/.test(style)) tree.contents = true;
   if (element.hasAttribute?.(OPEN)) tree.open = true;
-  if (element.getAttribute?.(DESTRUCTIVE) === 'true') tree.destructive = true;
+  if (element.hasAttribute?.(DESTRUCTIVE) && element.getAttribute?.(DESTRUCTIVE) !== 'false') tree.destructive = true;
   const tone = element.getAttribute?.(TONE);
   if (tone && tone !== 'neutral') tree.tone = tone;
   const surface = element.getAttribute?.(SURFACE);

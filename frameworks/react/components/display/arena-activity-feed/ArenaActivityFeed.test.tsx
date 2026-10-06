@@ -26,15 +26,15 @@ test('each part of the grammar takes its own ink', () => {
   assert.match(html, /\barena-activity-feed__time\b/, 'the time reads muted');
 });
 
-test('tone drives the dot and defaults to accent', () => {
-  assert.match(renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[ITEMS[0]!]} />), /data-arena-part="activity-feed.dot"[^>]*\bdata-arena-tone="accent"/);
+test('tone drives the dot, and an absent tone leaves the feed accent', () => {
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[ITEMS[0]!]} />), /data-arena-part="activity-feed.dot"[^>]*\bdata-arena-tone=/);
   assert.match(renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[ITEMS[1]!]} />), /data-arena-part="activity-feed.dot"[^>]*\bdata-arena-tone="danger"/);
 });
 
-test('an unknown tone falls back to accent rather than rendering nothing', () => {
+test('an unknown tone leaves the feed accent rather than rendering nothing', () => {
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   const html = renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[{ id: '3', actor: 'a', action: 'b', tone: 'chartreuse' }]} />);
-  assert.match(html, /data-arena-part="activity-feed.dot"[^>]*\bdata-arena-tone="accent"/);
+  assert.doesNotMatch(html, /data-arena-part="activity-feed.dot"[^>]*\bdata-arena-tone=/);
 });
 
 test('an item missing a target or a time still renders', () => {

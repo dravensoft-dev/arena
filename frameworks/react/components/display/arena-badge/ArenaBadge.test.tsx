@@ -12,7 +12,7 @@ test('ArenaBadge renders the tone it was given, not the neutral default', () => 
   const danger = renderToStaticMarkup(<ArenaBadge tone="danger">X</ArenaBadge>);
   assert.match(danger, /data-arena-part="badge"[^>]*\bdata-arena-tone="danger"/);
   assert.doesNotMatch(danger, /data-arena-part="badge"[^>]*\bdata-arena-tone="neutral"/);
-  assert.match(renderToStaticMarkup(<ArenaBadge tone="gold">X</ArenaBadge>), /data-arena-part="badge"[^>]*\bdata-arena-tone="gold"/);
+  assert.match(renderToStaticMarkup(<ArenaBadge className="arena-accent-gold">X</ArenaBadge>), /\bclass="[^"]*\barena-accent-gold\b[^"]*"[^>]*data-arena-part="badge"/);
 });
 
 test('an unknown tone falls back to neutral rather than drawing no tone at all', () => {
