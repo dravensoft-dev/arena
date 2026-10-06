@@ -58,10 +58,6 @@ export const WEB_PROSE = new Map([
   ['contracts/design/effects.json:tint',
    'it says why a ratio is a number carrying a render hint rather than a dimension, which is a '
    + 'statement about DTCG and reaches every target'],
-  ['contracts/api/components/ArenaSideNav.json:api.indentStep',
-   'the member is a neutral multiplier and the sentence is the argument for why: it spells out the '
-   + 'CSS a caller-supplied length would have replaced, and why that would stop re-densifying. The '
-   + 'web spelling IS what the paragraph is about'],
 ]);
 
 export const CSS_VALUED = new Map([

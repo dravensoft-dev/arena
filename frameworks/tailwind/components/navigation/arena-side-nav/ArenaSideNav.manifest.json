@@ -6,8 +6,8 @@
     "icon": "inline-flex text-[length:var(--icon-lg)]",
     "badge": "ms-auto inline-flex items-center justify-center min-w-5 px-marker-x rounded-pill font-mono text-ctl-2xs font-bold tracking-badge",
     "section": "flex flex-col gap-1",
-    "sectionLabel": "ps-row-x py-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "trigger": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control border-none cursor-pointer text-left font-body text-ctl bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "sectionLabel": "py-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "trigger": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control border-none cursor-pointer text-left font-body text-ctl ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))] bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "triggerLabel": "flex-1",
     "caret": "inline-flex text-[length:var(--icon-md)]",
     "region": "flex flex-col gap-1",
@@ -49,7 +49,9 @@
         "sectionLabel": "sr-only"
       },
       "false": {
-        "root": "w-full"
+        "root": "w-full",
+        "item": "ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]",
+        "sectionLabel": "ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]"
       }
     }
   },

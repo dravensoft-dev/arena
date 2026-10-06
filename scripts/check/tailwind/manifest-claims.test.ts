@@ -104,10 +104,16 @@ test('selection never moves the tab padding', () => {
     'a tab that changed its padding when selected would shift every tab beside it');
 });
 
-test('no ArenaSideNav slot hard-codes an indent bracket, because a static utility holds no runtime multiplier', () => {
+const SIDE_NAV_INSET = 'ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]';
+
+test('every ArenaSideNav slot that indents carries the depth inset while expanded and none while collapsed', () => {
   for (const slot of ['item', 'trigger', 'sectionLabel']) {
-    const carried = resolve('ArenaSideNav', {}, slot).filter((cls) => cls.startsWith('ps-['));
-    assert.deepEqual(carried, [], `${slot} hard-codes ${carried.join(' ')}; the depth-0 inline start is all a slot may carry`);
+    const expanded = resolve('ArenaSideNav', { collapsed: false }, slot).filter((cls) => cls.startsWith('ps-['));
+    assert.deepEqual(expanded, [SIDE_NAV_INSET], `${slot} carries ${expanded.join(' ') || 'no inset'} while expanded`);
+  }
+  for (const slot of ['item', 'sectionLabel']) {
+    const collapsed = resolve('ArenaSideNav', { collapsed: true }, slot).filter((cls) => cls.startsWith('ps-['));
+    assert.deepEqual(collapsed, [], `${slot} carries ${collapsed.join(' ')} while collapsed`);
   }
 });
 
