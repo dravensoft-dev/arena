@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import {
   THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
-  ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem,
+  ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem, maskedProblem, allowancesFor,
 } from './check-pixel-parity.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 
@@ -142,8 +142,8 @@ const raster = (width: number, height: number, fill: number) =>
   ({ width, height, channels: 4, data: Buffer.alloc(width * height * 4, fill) });
 
 test('--baseline takes a ref, and with no ref after it the run refuses rather than guessing', () => {
-  assert.deepEqual(parseParityArgs([]), { baseline: null });
-  assert.deepEqual(parseParityArgs(['--baseline', 'HEAD~1']), { baseline: 'HEAD~1' });
+  assert.deepEqual(parseParityArgs([]), { baseline: null, allow: [] });
+  assert.deepEqual(parseParityArgs(['--baseline', 'HEAD~1']), { baseline: 'HEAD~1', allow: [] });
   assert.throws(() => parseParityArgs(['--baseline']), /takes a git ref/);
   assert.throws(() => parseParityArgs(['--baseline', '--x']), /takes a git ref/);
 });
@@ -164,4 +164,36 @@ test('a page whose size moved against its baseline says so before any box', () =
 
 test('the sinks of a baseline are read from that tree and not from this one', () => {
   assert.deepEqual(sinksIn('react', '/nowhere'), []);
+});
+
+const solid = (width: number, height: number, rgba: number[]) => ({
+  width, height, channels: 4, data: Buffer.from(Array.from({ length: width * height }, () => rgba).flat()),
+});
+const paint = (r: { width: number; height: number; channels: number; data: Buffer }, x: number, y: number) => {
+  const data = Buffer.from(r.data);
+  data[(y * r.width + x) * r.channels] = 255;
+  return { ...r, data };
+};
+
+test('an allowance is a sink and a selector, repeatable, and only with a baseline', () => {
+  assert.deepEqual(parseParityArgs(['--baseline', 'HEAD', '--allow', 'complete=[data-arena-part*="-chart"]']).allow,
+    [{ sink: 'complete', selector: '[data-arena-part*="-chart"]' }]);
+  assert.throws(() => parseParityArgs(['--allow', 'complete=x']), /--allow needs --baseline/);
+  assert.throws(() => parseParityArgs(['--baseline', 'HEAD', '--allow', 'complete']), /--allow takes <sink>=<selector>/);
+});
+
+test('a difference inside an allowed rect is spent, one outside fails, and a size change always fails', () => {
+  const base = solid(10, 10, [0, 0, 0, 255]);
+  const inside = paint(base, 2, 2);
+  assert.deepEqual(maskedProblem('p', base, inside, [{ left: 0, top: 0, right: 5, bottom: 5 }]), { problem: null, inside: 1, outside: 0 });
+  const outside = paint(base, 8, 8);
+  assert.match(maskedProblem('p', base, outside, [{ left: 0, top: 0, right: 5, bottom: 5 }]).problem ?? '', /1 pixel\(s\) differ outside the allowed parts/);
+  assert.match(maskedProblem('p', base, solid(10, 11, [0, 0, 0, 255]), []).problem ?? '', /not the size it was/);
+});
+
+test('an allowance applies to its own sink and to every sink when it names *, and to no other', () => {
+  const allow = [{ sink: '*', selector: 'a' }, { sink: 'complete', selector: 'b' }];
+  assert.deepEqual(allowancesFor(allow, 'complete').map(({ index }) => index), [0, 1]);
+  assert.deepEqual(allowancesFor(allow, 'default').map(({ index }) => index), [0]);
+  assert.deepEqual(allowancesFor([{ sink: 'nope', selector: 'c' }], 'default'), []);
 });

@@ -242,7 +242,14 @@ export function loaded(cdp: Cdp, sessionId: string) {
   });
 }
 
-export async function capture(cdp: Cdp, url: string) {
+export type Rect = { left: number; top: number; right: number; bottom: number };
+
+export function rectsExpression(selector: string) {
+  return `[...document.querySelectorAll(${JSON.stringify(selector)})].map((e) => { const r = e.getBoundingClientRect(); `
+    + 'return { left: r.left + scrollX, top: r.top + scrollY, right: r.right + scrollX, bottom: r.bottom + scrollY }; })';
+}
+
+export async function capture(cdp: Cdp, url: string, selectors: string[] = []) {
   const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
   try {
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
@@ -260,6 +267,11 @@ export async function capture(cdp: Cdp, url: string) {
       `${url}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
     const ev = (expression: string) => evaluate(cdp, expression, sessionId);
+    const rectsOf = async () => {
+      const rects: Rect[][] = [];
+      for (const selector of selectors) rects.push(await ev(rectsExpression(selector)) as Rect[]);
+      return rects;
+    };
 
     let painted: Painted = { ready: false, waitedMs: 0 };
     let threw: string | undefined;
@@ -273,7 +285,7 @@ export async function capture(cdp: Cdp, url: string) {
       if (error instanceof PageThrew) return undefined;
       throw error;
     }) as Silence | undefined;
-    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw };
+    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw, rects: [] as Rect[][] };
 
     await ev(STILL);
     await ev(stableHeightExpression(PAINTED));
@@ -294,11 +306,11 @@ export async function capture(cdp: Cdp, url: string) {
     let previous = await once();
     for (let tries = 1; tries <= SETTLE_TRIES; tries += 1) {
       const next = await once();
-      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence };
+      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf() };
       previous = next;
       if (Date.now() >= until) break;
     }
-    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw };
+    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf() };
   } finally {
     try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
   }
@@ -326,14 +338,64 @@ export function paintProblem(name: string, layer: string,
   return null;
 }
 
-export function parseParityArgs(argv: string[]) {
+export type Allow = { sink: string; selector: string };
+
+export function parseParityArgs(argv: string[]): { baseline: string | null; allow: Allow[] } {
+  const allow: Allow[] = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] !== '--allow') continue;
+    const value = argv[i + 1] ?? '';
+    const eq = value.indexOf('=');
+    if (eq <= 0 || eq === value.length - 1) {
+      throw new Error('check-pixel-parity: --allow takes <sink>=<selector>, as in --allow \'complete=[data-arena-part*="-chart"]\'');
+    }
+    allow.push({ sink: value.slice(0, eq), selector: value.slice(eq + 1) });
+  }
   const at = argv.indexOf('--baseline');
-  if (at === -1) return { baseline: null };
+  if (at === -1) {
+    if (allow.length > 0) throw new Error('check-pixel-parity: --allow needs --baseline, since only a baseline run has a difference to allow');
+    return { baseline: null, allow };
+  }
   const ref = argv[at + 1];
   if (!ref || ref.startsWith('--')) {
     throw new Error('check-pixel-parity: --baseline takes a git ref, as in --baseline HEAD~1');
   }
-  return { baseline: ref };
+  return { baseline: ref, allow };
+}
+
+export function allowancesFor(allow: Allow[], sink: string) {
+  return allow.map((one, index) => ({ one, index }))
+    .filter(({ one }) => one.sink === '*' || one.sink === sink);
+}
+
+export function maskedProblem(name: string, baseline: Raster, tree: Raster, rects: Rect[]) {
+  if (baseline.width !== tree.width || baseline.height !== tree.height) {
+    return { problem: `${name}: the page is not the size it was. The baseline is ${baseline.width}x${baseline.height} `
+      + `and the tree is ${tree.width}x${tree.height}, which is content that reflowed, and no allowance covers that`,
+    inside: 0, outside: 0 };
+  }
+  const { width, height, channels } = baseline;
+  const boxes = rects.map((r) => ({ left: Math.floor(r.left), top: Math.floor(r.top),
+    right: Math.ceil(r.right), bottom: Math.ceil(r.bottom) }));
+  let inside = 0;
+  let outside = 0;
+  let box: Rect | null = null;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const at = (y * width + x) * channels;
+      let differs = false;
+      for (let c = 0; c < channels; c += 1) if (baseline.data[at + c] !== tree.data[at + c]) { differs = true; break; }
+      if (!differs) continue;
+      if (boxes.some((r) => x >= r.left && x < r.right && y >= r.top && y < r.bottom)) { inside += 1; continue; }
+      outside += 1;
+      box = box ? { left: Math.min(box.left, x), top: Math.min(box.top, y), right: Math.max(box.right, x),
+        bottom: Math.max(box.bottom, y) } : { left: x, top: y, right: x, bottom: y };
+    }
+  }
+  if (outside === 0) return { problem: null, inside, outside };
+  return { problem: `${name}: ${outside} pixel(s) differ outside the allowed parts, inside x=${box?.left}..${box?.right} `
+    + `y=${box?.top}..${box?.bottom}; ${inside} more differ inside them. Set ARENA_PIXEL_DUMP to a directory to have both captures written`,
+  inside, outside };
 }
 
 export function rasterProblem(name: string, baseline: Raster, tree: Raster) {
@@ -349,7 +411,7 @@ export function rasterProblem(name: string, baseline: Raster, tree: Raster) {
   pixels };
 }
 
-async function baselineMain(ref: string) {
+async function baselineMain(ref: string, allow: Allow[]) {
   const { dir, sha, reused } = prepareBaseline(ref, root);
   const pairs = SINK_LAYERS.flatMap((layer) => sinksIn(layer)
     .filter((sink) => sinksIn(layer, dir).includes(sink))
@@ -366,21 +428,34 @@ async function baselineMain(ref: string) {
   const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems: string[] = [];
+  const spent = allow.map(() => 0);
+  const matched = new Set<number>();
   let compared = 0;
   try {
     for (const { layer, sink } of pairs) {
+      const mine = allowancesFor(allow, sink);
+      for (const { index } of mine) matched.add(index);
+      const selectors = mine.map(({ one }) => one.selector);
       for (const theme of THEMES) {
         const name = `${layer}/${sink}:${theme}`;
         const page = (port: number) => `http://127.0.0.1:${port}/${pagePath(layer, sink)}?theme=${theme}`;
-        const now = await capture(cdp, page(tree.port));
-        const then = await capture(cdp, page(base.port));
+        const now = await capture(cdp, page(tree.port), selectors);
+        const then = await capture(cdp, page(base.port), selectors);
         const unpainted = [paintProblem(name, 'tree', now), paintProblem(name, 'baseline', then)]
           .filter((one): one is string => one !== null);
         if (unpainted.length > 0) { problems.push(...unpainted); continue; }
         if (!now.png || !then.png) continue;
         compared += 1;
         if (now.png.equals(then.png)) continue;
-        const { problem } = rasterProblem(name, decode(then.png), decode(now.png));
+        const before = decode(then.png);
+        const after = decode(now.png);
+        const rects = mine.flatMap((_, k) => [...(now.rects[k] ?? []), ...(then.rects[k] ?? [])]);
+        const { problem } = mine.length === 0 ? rasterProblem(name, before, after)
+          : maskedProblem(name, before, after, rects);
+        mine.forEach(({ index }, k) => {
+          const own = [...(now.rects[k] ?? []), ...(then.rects[k] ?? [])];
+          spent[index] = (spent[index] ?? 0) + maskedProblem(name, before, after, own).inside;
+        });
         if (problem === null) continue;
         problems.push(problem);
         if (into) dump(into, name.replace(/[/:]/g, '-'), { tree: now.png, baseline: then.png });
@@ -397,7 +472,11 @@ async function baselineMain(ref: string) {
     for (const p of problems) console.error(`  ${p}\n`);
     process.exit(1);
   }
-  console.log(`check-pixel-parity --baseline ${ref}: ${compared} page(s) identical to ${sha.slice(0, 12)} byte for byte (${where})`);
+  console.log(`check-pixel-parity --baseline ${ref}: ${compared} page(s) identical to ${sha.slice(0, 12)} byte for byte bar the allowed parts (${where})`);
+  allow.forEach((one, index) => {
+    const pixels = spent[index] ?? 0;
+    console.log(`  allow ${one.sink}=${one.selector}: ${!matched.has(index) ? 'no such sink' : pixels === 0 ? 'unspent' : `${pixels} pixel(s) spent`}`);
+  });
 }
 
 const skip: (reason: string) => never = (reason) => cannotRun('check-pixel-parity', reason);
@@ -472,7 +551,7 @@ async function main() {
 
 if (isMainModule(import.meta.url)) {
   if (SINK_LAYERS.length < 2) skip('a comparison needs two layers, and the emitter names fewer');
-  const { baseline } = parseParityArgs(process.argv.slice(2));
-  if (baseline) await baselineMain(baseline);
+  const { baseline, allow } = parseParityArgs(process.argv.slice(2));
+  if (baseline) await baselineMain(baseline, allow);
   else await main();
 }
