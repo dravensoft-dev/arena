@@ -13,6 +13,9 @@
     "segment": "control",
     "input": "none"
   },
+  "internal": {
+    "selected": "the option is the selected one"
+  },
   "variants": {
     "size": {
       "sm": {

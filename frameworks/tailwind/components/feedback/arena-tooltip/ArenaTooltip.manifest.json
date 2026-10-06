@@ -14,6 +14,9 @@
     "root": "none",
     "bubble": "floating"
   },
+  "internal": {
+    "anchored": "the layer positions the bubble itself (Angular, CDK) rather than by CSS (React)"
+  },
   "variants": {
     "anchored": {
       "false": {

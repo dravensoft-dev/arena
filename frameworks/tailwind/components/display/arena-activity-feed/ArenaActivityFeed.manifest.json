@@ -9,21 +9,53 @@
     "target": "font-mono text-ctl-md text-secondary",
     "time": "ml-auto font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)"
   },
-  "kind": { "root": "none", "item": "row", "dot": "none", "text": "none", "actor": "none", "target": "none", "time": "none" },
+  "kind": {
+    "root": "none",
+    "item": "row",
+    "dot": "none",
+    "text": "none",
+    "actor": "none",
+    "target": "none",
+    "time": "none"
+  },
+  "internal": {
+    "divided": "every row after the first draws the separator (index > 0)"
+  },
   "variants": {
     "tone": {
-      "neutral": { "dot": "text-ink-body/(--level-ink-body)" },
-      "accent": { "dot": "text-primary" },
-      "gold": { "dot": "text-secondary" },
-      "success": { "dot": "text-success" },
-      "warning": { "dot": "text-warning" },
-      "danger": { "dot": "text-error" },
-      "info": { "dot": "text-info" }
+      "neutral": {
+        "dot": "text-ink-body/(--level-ink-body)"
+      },
+      "accent": {
+        "dot": "text-primary"
+      },
+      "gold": {
+        "dot": "text-secondary"
+      },
+      "success": {
+        "dot": "text-success"
+      },
+      "warning": {
+        "dot": "text-warning"
+      },
+      "danger": {
+        "dot": "text-error"
+      },
+      "info": {
+        "dot": "text-info"
+      }
     },
     "divided": {
-      "true": { "item": "border-t-[length:var(--bw-separator)] border-edge-separator" },
-      "false": { "item": "border-t-0" }
+      "true": {
+        "item": "border-t-[length:var(--bw-separator)] border-edge-separator"
+      },
+      "false": {
+        "item": "border-t-0"
+      }
     }
   },
-  "defaultVariants": { "tone": "accent", "divided": true }
+  "defaultVariants": {
+    "tone": "accent",
+    "divided": true
+  }
 }

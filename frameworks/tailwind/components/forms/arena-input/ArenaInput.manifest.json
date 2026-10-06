@@ -24,6 +24,9 @@
     "hint": "none",
     "error": "none"
   },
+  "internal": {
+    "state": "error when an error shows, valid when valid holds, from error, validate, touched and valid"
+  },
   "variants": {
     "state": {
       "neutral": {

@@ -20,6 +20,9 @@
     "hint": "none",
     "input": "none"
   },
+  "internal": {
+    "checked": "the group's value is this radio's value"
+  },
   "variants": {
     "checked": {
       "true": {

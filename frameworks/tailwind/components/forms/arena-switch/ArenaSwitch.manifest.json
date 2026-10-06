@@ -16,6 +16,10 @@
     "label": "none",
     "guard": "none"
   },
+  "internal": {
+    "footprint": "orientation and size together (arenaFootprintFor)",
+    "thumb": "state and orientation together (arenaThumbFor)"
+  },
   "variants": {
     "size": {
       "sm": {

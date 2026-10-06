@@ -20,6 +20,10 @@
     "error": "none",
     "iconWrap": "none"
   },
+  "internal": {
+    "state": "error when error is given, valid when valid holds",
+    "hasIcon": "an icon is given"
+  },
   "variants": {
     "state": {
       "neutral": {

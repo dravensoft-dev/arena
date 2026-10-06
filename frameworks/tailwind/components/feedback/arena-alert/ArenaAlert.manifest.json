@@ -18,6 +18,9 @@
     "action": "none",
     "close": "none"
   },
+  "internal": {
+    "titled": "a title is given"
+  },
   "variants": {
     "tone": {
       "info": {

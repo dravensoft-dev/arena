@@ -12,6 +12,9 @@
     "current": "none",
     "separator": "none"
   },
+  "internal": {
+    "linked": "the crumb has an href"
+  },
   "variants": {
     "linked": {
       "true": {

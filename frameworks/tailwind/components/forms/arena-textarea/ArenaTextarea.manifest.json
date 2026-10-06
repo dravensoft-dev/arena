@@ -22,6 +22,10 @@
     "counter": "none",
     "counterNear": "none"
   },
+  "internal": {
+    "state": "error when error is given",
+    "resize": "none while autoResize grows the field, vertical otherwise"
+  },
   "partOf": {
     "counterNear": "counter"
   },

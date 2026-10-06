@@ -10,6 +10,9 @@
     "tab": "row",
     "panel": "none"
   },
+  "internal": {
+    "selected": "the tab or panel is the selected one"
+  },
   "variants": {
     "selected": {
       "true": {

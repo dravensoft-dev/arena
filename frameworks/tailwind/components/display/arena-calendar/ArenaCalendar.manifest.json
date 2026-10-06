@@ -30,7 +30,44 @@
     "kebabWrap": "absolute right-0",
     "panel": "absolute top-full right-0 flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface rounded-control shadow-surface-floating"
   },
-  "kind": { "root": "none", "toolbar": "none", "nav": "control", "today": "control", "heading": "none", "actions": "none", "headStrip": "none", "dayHead": "row", "weekday": "none", "dayNumber": "none", "scroll": "none", "body": "none", "gutter": "none", "hourLabel": "none", "grid": "none", "rule": "none", "column": "none", "cell": "none", "now": "none", "nowDot": "none", "chip": "marker", "chipBody": "none", "title": "none", "time": "none", "detail": "none", "detailShed": "none", "kebabWrap": "none", "panel": "surface" },
+  "kind": {
+    "root": "none",
+    "toolbar": "none",
+    "nav": "control",
+    "today": "control",
+    "heading": "none",
+    "actions": "none",
+    "headStrip": "none",
+    "dayHead": "row",
+    "weekday": "none",
+    "dayNumber": "none",
+    "scroll": "none",
+    "body": "none",
+    "gutter": "none",
+    "hourLabel": "none",
+    "grid": "none",
+    "rule": "none",
+    "column": "none",
+    "cell": "none",
+    "now": "none",
+    "nowDot": "none",
+    "chip": "marker",
+    "chipBody": "none",
+    "title": "none",
+    "time": "none",
+    "detail": "none",
+    "detailShed": "none",
+    "kebabWrap": "none",
+    "panel": "surface"
+  },
+  "internal": {
+    "today": "the day is today",
+    "firstColumn": "the first day column of the week",
+    "reserve": "the chip reserves room for its panel (hasPanel and not actionsBelow)",
+    "panelOpen": "the event's own panel is open",
+    "clickable": "the event activates (interactive, and in Angular not disabled)",
+    "actionsBelow": "the event is too short to hold its actions beside the title (arenaStacksActions)"
+  },
   "variants": {
     "today": {
       "true": {

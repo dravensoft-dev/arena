@@ -34,6 +34,9 @@
     "divider": "none",
     "header": "row"
   },
+  "internal": {
+    "anchored": "the layer positions the panel itself (Angular, CDK) rather than by CSS (React)"
+  },
   "partOf": {
     "itemDefault": "item",
     "itemDestructive": "item",

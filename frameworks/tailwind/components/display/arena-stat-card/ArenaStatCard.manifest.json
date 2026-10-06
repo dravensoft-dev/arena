@@ -9,7 +9,18 @@
     "delta": "self-start inline-flex items-center gap-1 rounded-marker px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
     "sub": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)"
   },
-  "kind": { "root": "surface", "head": "none", "label": "none", "icon": "none", "value": "none", "delta": "marker", "sub": "none" },
+  "kind": {
+    "root": "surface",
+    "head": "none",
+    "label": "none",
+    "icon": "none",
+    "value": "none",
+    "delta": "marker",
+    "sub": "none"
+  },
+  "internal": {
+    "deltaTone": "the delta object's tone (ArenaStatDelta.tone), on the delta slot, which cannot share a name with the card's own tone"
+  },
   "variants": {
     "tone": {
       "neutral": {

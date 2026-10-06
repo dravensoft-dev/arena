@@ -16,6 +16,9 @@
     "legendLabel": "none",
     "legendValue": "none"
   },
+  "internal": {
+    "stacked": "the legend stacks when legendLayout and the measured width say so (arenaLegendStacked)"
+  },
   "variants": {
     "stacked": {
       "false": {

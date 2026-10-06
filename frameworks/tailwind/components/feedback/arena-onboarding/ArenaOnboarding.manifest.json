@@ -28,6 +28,9 @@
     "text": "none",
     "next": "control"
   },
+  "internal": {
+    "placement": "anchored when an anchor is given, floating otherwise"
+  },
   "partOf": {
     "dotOff": "dot",
     "dotOn": "dot"

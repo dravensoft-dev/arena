@@ -18,6 +18,9 @@
     "body": "floating",
     "foot": "floating"
   },
+  "internal": {
+    "fill": "the container is narrower than fillBelow"
+  },
   "variants": {
     "open": {
       "true": {},

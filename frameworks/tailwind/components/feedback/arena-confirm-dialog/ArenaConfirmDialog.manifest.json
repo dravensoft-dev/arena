@@ -26,6 +26,9 @@
     "foot": "floating",
     "confirm": "control"
   },
+  "internal": {
+    "invalid": "the typed confirmation text does not match yet"
+  },
   "variants": {
     "destructive": {
       "true": {

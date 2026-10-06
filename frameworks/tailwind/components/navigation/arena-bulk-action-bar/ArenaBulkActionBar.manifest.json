@@ -20,6 +20,10 @@
     "actionIcon": "none",
     "clear": "none"
   },
+  "internal": {
+    "open": "the selection count is above zero",
+    "narrow": "layout auto and the container narrower than sm"
+  },
   "variants": {
     "destructive": {
       "true": {

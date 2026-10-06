@@ -6,6 +6,9 @@
   "kind": {
     "root": "none"
   },
+  "internal": {
+    "centred": "a maxWidth is given"
+  },
   "variants": {
     "gap": {
       "none": {
