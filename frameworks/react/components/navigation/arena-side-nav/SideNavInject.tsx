@@ -14,9 +14,6 @@ export function arenaInjectInto(children: React.ReactNode, injected: ArenaSideNa
   ));
 }
 
-export function arenaIndentFor(indentStep: number, depth: number): string {
-  const steps = indentStep * depth;
-  return steps === 0
-    ? 'calc(var(--sp-1) * 3)'
-    : `calc(var(--sp-1) * 3 + var(--sp-1) * ${steps})`;
+export function arenaIndentDepth(indentStep: number, depth: number): number {
+  return indentStep * depth;
 }

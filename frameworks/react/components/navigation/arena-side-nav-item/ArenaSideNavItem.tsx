@@ -1,7 +1,7 @@
 import React from 'react';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import type { ArenaSideNavInjected } from '../arena-side-nav/SideNavInject.tsx';
-import { arenaIndentFor } from '../arena-side-nav/SideNavInject.tsx';
+import { arenaIndentDepth } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
@@ -61,7 +61,7 @@ export function ArenaSideNavItem({ className,
     },
     className: arenaClassName('ArenaSideNavItem', styles.item(), className),
     'data-arena-part': manifest.parts.item,
-    style: collapsed ? undefined : { paddingInlineStart: arenaIndentFor(indentStep, depth) },
+    style: collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties,
   };
 
   const glyph = icon

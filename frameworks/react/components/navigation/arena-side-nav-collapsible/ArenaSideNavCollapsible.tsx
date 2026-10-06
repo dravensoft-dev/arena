@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { ArenaSideNavInjected } from '../arena-side-nav/SideNavInject.tsx';
-import { arenaIndentFor, arenaInjectInto } from '../arena-side-nav/SideNavInject.tsx';
+import { arenaIndentDepth, arenaInjectInto } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
@@ -87,7 +87,7 @@ export function ArenaSideNavCollapsible({ className,
       <button id={triggerId} type="button" aria-expanded={expanded} aria-controls={regionId}
         onClick={press}
         className={styles.trigger()} data-arena-part={manifest.parts.trigger}
-        style={{ paddingInlineStart: arenaIndentFor(indentStep, depth) }}>
+        style={{ '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties}>
         {glyph}
         <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel}>{label}</span>
         <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}

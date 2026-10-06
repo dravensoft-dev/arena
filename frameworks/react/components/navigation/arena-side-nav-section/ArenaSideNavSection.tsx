@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import type { ArenaSideNavInjected } from '../arena-side-nav/SideNavInject.tsx';
-import { arenaIndentFor, arenaInjectInto } from '../arena-side-nav/SideNavInject.tsx';
+import { arenaIndentDepth, arenaInjectInto } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import type { ArenaSideNavSectionClass } from '../../../Vocabulary.generated.ts';
@@ -36,7 +36,7 @@ export function ArenaSideNavSection({ className,
     <div role="group" aria-labelledby={labelId} className={arenaClassName('ArenaSideNavSection', styles.section(), className)} data-arena-part={manifest.parts.section} data-arena-boundary="">
       {collapsed && <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />}
       <div id={labelId} className={styles.sectionLabel()} data-arena-part={manifest.parts.sectionLabel}
-        style={collapsed ? undefined : { paddingInlineStart: arenaIndentFor(indentStep, depth) }}>{label}</div>
+        style={collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(indentStep, depth) } as React.CSSProperties}>{label}</div>
       {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
     </div>
   );
