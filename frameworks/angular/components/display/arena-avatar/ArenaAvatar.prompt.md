@@ -40,9 +40,8 @@ a presence dot.
   same thing, because it silences the presence along with the face. Leave `nameShown` off when the
   avatar is a control's whole content, since then it is how the control is named.
 - Don't use the presence dot as a status badge for anything but presence. The offline tone is a muted grey by design, and it reads as "not here" rather than as "disabled".
-- The presence dot is filled (`bg-success`/`bg-warning`/`bg-error`/`bg-base-content/(--level-presence)`)
-  even though danger is outline everywhere else, presence is its own semantic
-  family, not a danger surface. convention section.
+- The presence dot is filled in its status hue even though danger is outline everywhere else:
+  presence is its own semantic family, not a danger surface.
 - Don't put an avatar in place of an icon. The avatar represents a person or an entity. A role or an action is an icon.
 
 **Three things products asked this component for, and what each one measured.** Each is recorded here because reading the code does not answer it. Every one of them was refused with a reason rather than deferred.

@@ -466,7 +466,9 @@ per slot and value on the element given the hue, never on an ancestor, so a badg
 alert reads its own colour. What each hue writes is authored once, in
 [`Hues.json`](./Hues.json), and not as a `:root` rule, since a `var()` resolves where it is
 declared and a root definition would freeze the plugin scope. A slot reads a channel,
-`bg-[color:var(--arena-hue-fill-soft)]`, and declares none.
+`bg-[color:var(--arena-hue-fill-soft)]`, and declares none. **A slot whose hue no value varies
+names it under `hues.always`**, `{ slot: hue }`, written on the bare slot class ahead of the group
+rules, and no hued group reaches that slot; `check:api` holds both.
 
 ## What a manifest is compiled into
 
@@ -487,7 +489,8 @@ repository does not have.
 
 ## Invariants the manifests must reproduce
 
-- **Danger is outline:** the danger hue's edge and ink, no slot reading `hue-danger-fill-strong`;
+- **Danger is outline:** the danger hue's edge and ink, its strong fill closed to `transparent`, so a
+  solid status mark reads `--arena-hue-fill-strong` for the other hues and the ink for danger;
   the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
 - **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
   gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around

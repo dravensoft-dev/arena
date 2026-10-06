@@ -49,16 +49,16 @@
         "ring": "text-secondary"
       },
       "success": {
-        "track": "text-[color:var(--arena-hue-ink)]",
-        "ring": "text-[color:var(--arena-hue-ink)]"
+        "track": "text-[color:var(--arena-hue-fill-strong)]",
+        "ring": "text-[color:var(--arena-hue-fill-strong)]"
       },
       "danger": {
         "track": "text-[color:var(--arena-hue-ink)]",
         "ring": "text-[color:var(--arena-hue-ink)]"
       },
       "info": {
-        "track": "text-[color:var(--arena-hue-ink)]",
-        "ring": "text-[color:var(--arena-hue-ink)]"
+        "track": "text-[color:var(--arena-hue-fill-strong)]",
+        "ring": "text-[color:var(--arena-hue-fill-strong)]"
       }
     },
     "size": {

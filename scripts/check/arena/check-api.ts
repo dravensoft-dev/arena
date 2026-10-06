@@ -28,7 +28,7 @@ import type { SurfaceMember } from '../../lib/arena/api-surface.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { kebab } from '../../utils/case.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
-import { hueProblems, readHues } from '../../lib/tailwind/hue-sheet.ts';
+import { ALWAYS, alwaysProblems, hueProblems, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { coveredContracts } from '../../lib/tailwind/manifest-surfaces.ts';
 import type { ComponentManifest, Manifests } from '../../lib/tailwind/manifest-shapes.ts';
 import { DESIGN_MEMBERS } from './check-contracts-neutrality.ts';
@@ -603,6 +603,7 @@ function judgeGroups(manifests: Manifests, contracts: Map<string, ContractCandid
   let designGroups = 0;
   let swept = 0;
   for (const manifest of manifests.values()) {
+    problems.push(...alwaysProblems(manifest, options.hueNames));
     const groups = groupsOf(manifest);
     if (groups.size === 0) continue;
     swept += 1;
@@ -619,6 +620,7 @@ function judgeGroups(manifests: Manifests, contracts: Map<string, ContractCandid
     for (const key of Object.keys(internal))
       if (!groups.has(key)) problems.push(`${name}.internal.${key} names no group, so the entry is stale: drop it`);
     for (const [group, hue] of Object.entries(manifest.hues ?? {})) {
+      if (group === ALWAYS) continue;
       if (!groups.has(group)) { problems.push(`${name}.hues.${group} names no group of the manifest`); continue; }
       const values = groupValues(manifest, group);
       for (const [value, hueName] of Object.entries(hue)) {

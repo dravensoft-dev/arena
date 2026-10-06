@@ -141,7 +141,9 @@ manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`,
 renders the group as `data-arena-<group>`, and the hue sheet writes four channels on the slots that
 carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
 `--arena-hue-fill-soft`. A slot reads the channel it needs and never a status colour by name, so a
-plugin that moves one role moves every surface wearing that hue. The roles are in
+plugin that moves one role moves every surface wearing that hue. A slot whose hue no value varies,
+a field's error message, names it under `hues.always`. A solid status mark (a presence or feed dot,
+a progress fill) reads the strong fill, and danger's marks the ink, its strong fill being closed. The roles are in
 [`roles.json`](./roles.json), one per hue and channel, each answered with a `{color.*}` alias:
 
 | Hue | Ink | Edge | Fill, strong | Fill, soft |
@@ -184,6 +186,7 @@ an application source and says nothing about it inside a declared plugin directo
 | the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
 | the danger hue's strong fill, `hue-danger-fill-strong`, answered `transparent` | `check:style-plugin` | the root plugin and every scoped plugin, in both polarities |
 | the same floor | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities |
+| no `plugin.css` writes a `--arena-hue-*` channel, so a destructive control never takes the danger hue's strong fill from a plugin sheet (reading one is allowed) | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |

@@ -33,16 +33,16 @@
         "dot": "text-secondary"
       },
       "success": {
-        "dot": "text-[color:var(--arena-hue-ink)]"
+        "dot": "text-[color:var(--arena-hue-fill-strong)]"
       },
       "warning": {
-        "dot": "text-[color:var(--arena-hue-ink)]"
+        "dot": "text-[color:var(--arena-hue-fill-strong)]"
       },
       "danger": {
         "dot": "text-[color:var(--arena-hue-ink)]"
       },
       "info": {
-        "dot": "text-[color:var(--arena-hue-ink)]"
+        "dot": "text-[color:var(--arena-hue-fill-strong)]"
       }
     },
     "divided": {

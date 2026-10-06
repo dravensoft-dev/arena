@@ -46,13 +46,13 @@
     "status": {
       "none": {},
       "online": {
-        "status": "bg-[color:var(--arena-hue-ink)]"
+        "status": "bg-[color:var(--arena-hue-fill-strong)]"
       },
       "busy": {
         "status": "bg-[color:var(--arena-hue-ink)]"
       },
       "away": {
-        "status": "bg-[color:var(--arena-hue-ink)]"
+        "status": "bg-[color:var(--arena-hue-fill-strong)]"
       },
       "offline": {
         "status": "bg-base-content/(--level-presence)"

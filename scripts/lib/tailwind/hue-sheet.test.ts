@@ -2,7 +2,8 @@
  * per value, `initial` for a value mapped to no hue. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HUE_CHANNELS, hueProblems, hueRules, huePath, readHues } from './hue-sheet.ts';
+import { HUE_CHANNELS, alwaysProblems, hueProblems, hueRules, huePath, readHues } from './hue-sheet.ts';
+import { channelProblems } from '../../check/tailwind/check-channels.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
 const hues = readHues();
@@ -86,4 +87,41 @@ test('a boolean group is selected by presence, and its false value by absence', 
 test('a hue sheet sits under consume/hues, mirroring the manifest folder', () => {
   assert.equal(huePath('frameworks/tailwind/components/display/arena-badge/ArenaBadge.manifest.json'),
     'frameworks/tailwind/consume/hues/display/arena-badge/ArenaBadge.hues.generated.css');
+});
+
+const fixed = (extra: Partial<ComponentManifest> = {}): ComponentManifest => probe({
+  slots: { root: 'flex', mark: 'size-1', note: 'text-[color:var(--arena-hue-ink)]' },
+  hues: { always: { note: 'danger' }, tone: { neutral: null, danger: 'danger' }, colorId: { 1: 'identity-1', 3: 'identity-3' } },
+  ...extra,
+} as Partial<ComponentManifest>);
+
+test('always writes a slot\'s fixed hue on the bare slot class, ahead of every group rule', () => {
+  const css = hueRules(fixed(), hues);
+  assert.match(css, /^\.arena-probe__note \{\n\s+--arena-hue-ink: var\(--hue-danger-ink\);/);
+  assert.doesNotMatch(css, /arena-probe__note:where/);
+  assert.deepEqual(hueProblems(fixed(), hues), []);
+});
+
+test('an always entry naming a missing slot, no hue, an unknown hue or a slot a hued group reaches is reported', () => {
+  const text = (always: Record<string, unknown>) =>
+    hueProblems(fixed({ hues: { always, tone: { neutral: null, danger: 'danger' } } } as Partial<ComponentManifest>), hues).join('\n');
+  assert.match(text({ gone: 'danger' }), /hues\.always\.gone names a slot the manifest lacks/);
+  assert.match(text({ note: null }), /hues\.always\.note names no hue/);
+  assert.match(text({ note: 'crimson' }), /hues\.always\.note names hue "crimson"/);
+  assert.match(text({ root: 'danger' }), /hues\.always\.root is a slot the hued group tone also reaches/);
+  assert.match(alwaysProblems(fixed({ variants: { always: { a: {} } } } as Partial<ComponentManifest>)).join('\n'), /has a group named always/);
+});
+
+test('check:channels accepts a base read only while always gives its slot the hue', () => {
+  const component = { kind: 'component' as const, rel: 'c/components/ArenaProbe.styles.generated.css', css: '.arena-probe__note { color: var(--arena-hue-ink); }' };
+  const others = [
+    { kind: 'family' as const, rel: 'f/a.css', css: '.f { --arena-f-x: 1; }' },
+    { kind: 'token' as const, rel: 't/a.css', css: ':root { --hue-danger-ink: red; }' },
+  ];
+  const hueSheet = (manifest: ComponentManifest) => ({ kind: 'hue' as const, rel: 'h/hues/ArenaProbe.hues.generated.css', css: hueRules(manifest, hues) });
+  const reads = (manifest: ComponentManifest) => channelProblems([...others, component, hueSheet(manifest)])
+    .filter((problem) => problem.includes('ArenaProbe'));
+  assert.deepEqual(reads(fixed()), []);
+  const dropped = fixed({ hues: { tone: { neutral: null, danger: 'danger' } } } as Partial<ComponentManifest>);
+  assert.match(reads(dropped).join('\n'), /reads a hue channel its own element is not given/);
 });

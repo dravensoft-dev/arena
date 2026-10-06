@@ -7,7 +7,7 @@
     "field": "w-full px-control-x py-2.5 bg-field border-[length:var(--bw-field)] rounded-field text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "foot": "flex justify-between gap-items",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-error",
+    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
     "counter": "font-mono text-ctl-xs"
   },
   "kind": {
@@ -71,6 +71,9 @@
     "near": false
   },
   "hues": {
+    "always": {
+      "error": "danger"
+    },
     "state": {
       "neutral": null,
       "error": "danger"
