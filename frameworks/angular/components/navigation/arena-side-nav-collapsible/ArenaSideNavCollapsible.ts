@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, DestroyRef, effect,
   inject, input, output, signal, untracked,
 } from '@angular/core';
-import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentDepth } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 
@@ -21,7 +21,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
       <div aria-hidden="true" [class]="styles().separator()" [attr.data-arena-part]="parts.separator"></div>
     } @else {
       <button type="button" [id]="triggerId()" [class]="styles().trigger()" [attr.data-arena-part]="parts.trigger"
-              [style.paddingInlineStart]="indent()"
+              [style.--arena-side-nav-depth]="depthChannel()"
               [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
               (click)="press()" (keydown)="onKeydown($event)">
         @if (icon(); as glyph) {
@@ -71,7 +71,7 @@ export class ArenaSideNavCollapsible {
     return text;
   });
 
-  protected readonly indent = computed(() => (this.parent.collapsed() ? null : arenaIndentFor(this.parent.indentStep(), this.parent.depth())));
+  protected readonly depthChannel = computed(() => (this.parent.collapsed() ? null : arenaIndentDepth(this.parent.indentStep(), this.parent.depth())));
   protected readonly rail = computed(() => this.parent.collapsed());
   protected readonly styles = computed(() => arenaSideNavStyles({ collapsed: this.parent.collapsed() }));
 

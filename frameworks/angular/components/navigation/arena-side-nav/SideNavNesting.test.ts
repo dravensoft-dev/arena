@@ -69,7 +69,7 @@ function render<T>(type: Type<T>) {
 }
 
 function indentOf(el: Element): string {
-  return (el as HTMLElement).style.paddingInlineStart;
+  return (el as HTMLElement).style.getPropertyValue('--arena-side-nav-depth');
 }
 
 function rowFor(nav: Element, text: string): HTMLElement {
@@ -115,17 +115,17 @@ test('a section with no children throws, because its heading would name nothing'
 test('depth compounds one step per container, and the leaf pulls it rather than being handed it', () => {
   const { fixture, nav } = render(NestedHost);
   try {
-    assert.equal(indentOf(rowFor(nav, 'Projects')), 'calc(var(--sp-1) * 3)',
+    assert.equal(indentOf(rowFor(nav, 'Projects')), '0',
       'depth 0: a row directly under the nav sits at the flat base');
-    assert.equal(indentOf(rowFor(nav, 'Members')), 'calc(var(--sp-1) * 3 + var(--sp-1) * 3)',
+    assert.equal(indentOf(rowFor(nav, 'Members')), '3',
       'depth 1: one section deep');
-    assert.equal(indentOf(rowFor(nav, 'Deployments')), 'calc(var(--sp-1) * 3 + var(--sp-1) * 3)',
+    assert.equal(indentOf(rowFor(nav, 'Deployments')), '3',
       'a collapsible trigger sits at its OWN depth, alongside its siblings, not at its region\'s');
-    assert.equal(indentOf(rowFor(nav, 'Production')), 'calc(var(--sp-1) * 3 + var(--sp-1) * 6)',
+    assert.equal(indentOf(rowFor(nav, 'Production')), '6',
       'depth 2: a section and a collapsible compound');
 
     const heading = nav.querySelector('arena-side-nav-section div') as HTMLElement;
-    assert.equal(indentOf(heading), 'calc(var(--sp-1) * 3)',
+    assert.equal(indentOf(heading), '0',
       'a section heading is indented at its own depth, so it lines up with its siblings and not with its children');
   } finally {
     fixture.destroy();
@@ -135,9 +135,9 @@ test('depth compounds one step per container, and the leaf pulls it rather than 
 test('nesting is arbitrary: two collapsibles deep still compounds, with no context anywhere', () => {
   const { fixture, nav } = render(DeepHost);
   try {
-    assert.equal(indentOf(rowFor(nav, 'Outer')), 'calc(var(--sp-1) * 3)');
-    assert.equal(indentOf(rowFor(nav, 'Inner')), 'calc(var(--sp-1) * 3 + var(--sp-1) * 3)');
-    assert.equal(indentOf(rowFor(nav, 'Production')), 'calc(var(--sp-1) * 3 + var(--sp-1) * 6)');
+    assert.equal(indentOf(rowFor(nav, 'Outer')), '0');
+    assert.equal(indentOf(rowFor(nav, 'Inner')), '3');
+    assert.equal(indentOf(rowFor(nav, 'Production')), '6');
   } finally {
     fixture.destroy();
   }

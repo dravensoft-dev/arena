@@ -14,7 +14,7 @@ import { TestBed } from '@angular/core/testing';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem';
 import { ArenaSideNav } from './ArenaSideNav';
-import { arenaIndentFor } from './ArenaSideNavState';
+import { arenaIndentDepth } from './ArenaSideNavState';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-side-nav/ArenaSideNav.behaviour.json');
 
@@ -22,10 +22,10 @@ const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-side-nav/ArenaSideNav
   standalone: true,
   imports: [ArenaSideNav, ArenaSideNavItem],
   template: `
-    <arena-side-nav [ariaLabel]="label" [active]="active()" [indentStep]="indentStep()"
+    <arena-side-nav [ariaLabel]="label" [active]="active()" [indentStep]="indentStep()" [collapsed]="collapsed()"
                     (nav)="chosen.push($event)">
       <arena-side-nav-item id="projects" label="Projects" icon="ph-bold ph-squares-four" href="#projects" />
-      <arena-side-nav-item id="settings" label="Settings" />
+      <arena-side-nav-item id="settings" label="Settings" icon="ph-bold ph-gear" />
     </arena-side-nav>
   `,
 })
@@ -33,6 +33,7 @@ class SideNavHost {
   readonly label = 'Primary';
   readonly active = signal<string | undefined>('projects');
   readonly indentStep = signal(3);
+  readonly collapsed = signal(false);
   readonly chosen: string[] = [];
 }
 
@@ -99,32 +100,36 @@ test('exactly one row is current, and it moves when active moves', () => {
   }
 });
 
-test('a root-level row sits at the flat base, and indentStep multiplies the token rather than supplying a length', () => {
+test('a root-level row binds the depth channel to 0 and carries no inline padding, and a collapsed nav binds none', () => {
   const { fixture, nav } = render();
   try {
     const row = nav.querySelector('a') as HTMLElement;
-    assert.equal(row.style.paddingInlineStart, 'calc(var(--sp-1) * 3)',
-      'depth 0 is the flat base, with no second term at all');
+    assert.equal(row.style.getPropertyValue('--arena-side-nav-depth'), '0',
+      'depth 0 binds a zero channel');
+    assert.equal(row.style.getPropertyValue('padding-inline-start'), '', 'the inset is the theme\'s, never an inline length');
 
     fixture.componentInstance.indentStep.set(5);
     fixture.detectChanges();
-    assert.equal(row.style.paddingInlineStart, 'calc(var(--sp-1) * 3)',
+    assert.equal(row.style.getPropertyValue('--arena-side-nav-depth'), '0',
       'a multiplier changes nothing at depth 0, because it multiplies the depth');
+
+    fixture.componentInstance.collapsed.set(true);
+    fixture.detectChanges();
+    const railRow = nav.querySelector('a') as HTMLElement;
+    assert.equal(railRow.style.getPropertyValue('--arena-side-nav-depth'), '',
+      'a collapsed nav leaves the channel unbound');
   } finally {
     fixture.destroy();
   }
 });
 
-test('arenaIndentFor multiplies the token and never emits a length, at every depth', () => {
-  assert.equal(arenaIndentFor(3, 0), 'calc(var(--sp-1) * 3)');
-  assert.equal(arenaIndentFor(3, 1), 'calc(var(--sp-1) * 3 + var(--sp-1) * 3)');
-  assert.equal(arenaIndentFor(3, 2), 'calc(var(--sp-1) * 3 + var(--sp-1) * 6)');
-  assert.equal(arenaIndentFor(5, 1), 'calc(var(--sp-1) * 3 + var(--sp-1) * 5)');
-  assert.equal(arenaIndentFor(3, 5), 'calc(var(--sp-1) * 3 + var(--sp-1) * 15)');
-  for (const depth of [0, 1, 2, 5]) {
-    assert.doesNotMatch(arenaIndentFor(3, depth), /\d+(px|rem|em)/,
-      'the indent must stay a multiple of --sp-1, so it re-densifies and re-themes with the token');
-  }
+test('arenaIndentDepth multiplies the step by the depth and returns a number', () => {
+  assert.equal(arenaIndentDepth(3, 0), 0);
+  assert.equal(arenaIndentDepth(3, 1), 3);
+  assert.equal(arenaIndentDepth(3, 2), 6);
+  assert.equal(arenaIndentDepth(5, 1), 5);
+  assert.equal(arenaIndentDepth(3, 5), 15);
+  assert.equal(typeof arenaIndentDepth(3, 5), 'number');
 });
 
 test('an item with href renders an anchor and one without renders a button, and both are the same row', () => {
