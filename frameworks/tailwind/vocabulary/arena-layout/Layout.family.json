@@ -1,0 +1,11 @@
+{
+  "family": "layout",
+  "reach": "box",
+  "description": "How the words of a hero sit against its figure. Split puts them side by side and falls to one column when the room runs out. Stacked keeps one column at every width. Bleed lays them on the figure, over the wash the media overlay role paints.",
+  "default": "arena-layout-split",
+  "variants": {
+    "arena-layout-split": "[--arena-layout-cols:repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr))] [--arena-layout-items:center] [--arena-layout-gap:var(--rhythm-section)] [--arena-layout-frame:static] [--arena-layout-clip:visible] [--arena-layout-radius:0] [--arena-layout-pad-block:var(--rhythm-section)] [--arena-layout-pad-inline:0] [--arena-layout-place:auto] [--arena-layout-z:auto] [--arena-layout-self:auto] [--arena-layout-words-justify:normal]",
+    "arena-layout-stacked": "[--arena-layout-cols:repeat(1,minmax(0,1fr))] [--arena-layout-items:normal] [--arena-layout-gap:var(--rhythm-component)] [--arena-layout-frame:static] [--arena-layout-clip:visible] [--arena-layout-radius:0] [--arena-layout-pad-block:var(--rhythm-section)] [--arena-layout-pad-inline:0] [--arena-layout-place:auto] [--arena-layout-z:auto] [--arena-layout-self:auto] [--arena-layout-words-justify:normal]",
+    "arena-layout-bleed": "[--arena-layout-cols:repeat(1,minmax(0,1fr))] [--arena-layout-items:normal] [--arena-layout-gap:normal] [--arena-layout-frame:relative] [--arena-layout-clip:hidden] [--arena-layout-radius:var(--r-media)] [--arena-layout-pad-block:var(--pad-surface)] [--arena-layout-pad-inline:var(--pad-surface)] [--arena-layout-place:1] [--arena-layout-z:10] [--arena-layout-self:stretch] [--arena-layout-words-justify:var(--arena-align-bleed-justify,flex-end)]"
+  }
+}

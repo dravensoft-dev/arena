@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-toast/ArenaToast.styles.generated.css">
 <link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-toast-host/ArenaToastHost.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Placement.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -25,7 +26,7 @@ function toast({ tone = 'neutral', accent = '', title, message }) {
 }
 
 function host(placement, notice) {
-  return el('div', { class: arenaClassesFor(hostManifest, { placement }).root, ...arenaSlotDataFor(hostManifest, { placement }).root }, toast(notice));
+  return el('div', { class: `${arenaClassesFor(hostManifest).root} arena-placement-${placement}`, ...arenaSlotDataFor(hostManifest).root }, toast(notice));
 }
 
 const corners = [

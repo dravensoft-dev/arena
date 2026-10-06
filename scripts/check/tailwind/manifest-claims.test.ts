@@ -210,10 +210,10 @@ export const CLAIMS = {
     { slot: 'frame', hasNot: ['aspect-square', 'aspect-video'], why: 'the shape is a member the component writes inline, because a consumer pinning a video is answering about one figure and not about the appearance' },
   ],
   ArenaHero: [
-    { chosen: { layout: 'split', align: 'start' }, slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
-    { chosen: { layout: 'split', align: 'start' }, slot: 'lede', has: ['max-w-prose'], why: 'a line that runs the whole width of a hero loses its return sweep, and the reading width is the role that already answers how long a line may be' },
-    { chosen: { layout: 'bleed', align: 'center' }, slot: 'words', has: ['col-start-1', 'row-start-1', 'items-center'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and centring is the alignment that arrangement usually wants' },
-    { chosen: { layout: 'split', align: 'start' }, slot: 'root', hasNot: ['grid-cols-1'], why: 'split is the only layout whose track list comes from the room, so it is the only one the recipe leaves alone' },
+    { slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
+    { slot: 'lede', has: ['max-w-prose'], why: 'a line that runs the whole width of a hero loses its return sweep, and the reading width is the role that already answers how long a line may be' },
+    { slot: 'words', has: ['col-start-[var(--arena-layout-place,auto)]', 'row-start-[var(--arena-layout-place,auto)]', '[align-items:var(--arena-align-items,flex-start)]'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and the layout writes that cell as a channel the words and the figure both read' },
+    { slot: 'root', has: ['[grid-template-columns:var(--arena-layout-cols,repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr)))]'], hasNot: ['grid-cols-1', 'py-section'], why: 'split is the only layout whose track list comes from the room, so the tracks are the fallback of the channel and no other layout is a class on the root' },
   ],
   ArenaScrollerItem: [
     { slot: 'root', has: ['basis-[var(--arena-scroller-item)]', 'shrink-0', 'grow-0', 'snap-start'], why: 'the cell is the box the row sizes and settles on, and it carries both on itself rather than inheriting either from a rule aimed at somebody else\'s children' },
@@ -462,11 +462,10 @@ export const CLAIMS = {
   ArenaPageHead: [
     ...[true, false].map((narrow) => ({ chosen: { narrow }, slot: 'actions', has: ['flex-wrap'],
       why: 'three buttons at 390px overflow the page without it, and the row wraps its own children at every width' })),
-    { chosen: { narrow: false }, slot: 'root', has: ['flex', 'flex-row', 'items-start'], hasNot: ['flex-col', 'items-stretch'], why: 'the wide layout is a row, and it is the default because nothing has been measured yet' },
+    { chosen: { narrow: false }, slot: 'root', has: ['flex', 'flex-row', '[align-items:var(--arena-align-items,flex-start)]'], hasNot: ['flex-col', 'items-stretch'], why: 'the wide layout is a row, and it is the default because nothing has been measured yet' },
     { chosen: { narrow: false }, slot: 'actions', has: ['w-auto'], hasNot: ['w-full'], why: 'the wide layout pins the actions to their content' },
-    { chosen: { narrow: true }, slot: 'root', has: ['flex-col', 'items-stretch'], hasNot: ['flex-row', 'items-start'], why: 'below the breakpoint the row stacks and neither branch leaks the other direction' },
+    { chosen: { narrow: true }, slot: 'root', has: ['flex-col', 'items-stretch'], hasNot: ['flex-row'], why: 'below the breakpoint the row stacks and neither branch leaks the other direction' },
     { chosen: { narrow: true }, slot: 'actions', has: ['w-full'], hasNot: ['w-auto'], why: 'below the breakpoint the actions go full width' },
-    { chosen: { align: 'center', narrow: false }, slot: 'root', has: ['items-center'], hasNot: ['items-start'], why: 'align centre, wide, centres the actions block against the title' },
   ],
   ArenaPagination: [
     { slot: 'root', has: ['inline-flex', 'items-center'], why: 'a host-bound root is never the UA-default inline box' },
@@ -491,10 +490,8 @@ export const CLAIMS = {
     { slot: 'field', has: ['focus:border-secondary', 'focus:outline-none'], why: 'a select takes focus itself, so the ring is focus rather than focus-within' },
   ],
   ArenaSheet: [
-    ...['bottom', 'start', 'end'].map((placement) => ({
-      chosen: { placement, open: true }, slot: 'root', has: ['flex'],
-      why: 'every placement keeps its display utility, since the host binds the root slot',
-    })),
+    { chosen: { open: true }, slot: 'root', has: ['flex'],
+      why: 'the display utility stays on the base, since the host binds the root slot and a placement class writes no display' },
   ],
   ArenaSideNav: [
     ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-row', 'px-row-x', 'py-row-y', 'rounded-control'],
@@ -601,6 +598,17 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaTag', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
   ['ArenaToast', 'root', 'accent.side-edge', ['border-l-[color:var(--arena-accent-side-edge,var(--accent-plain-side-edge))]']],
   ['ArenaCard', 'root', 'elevation.shadow', ['shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]']],
+  ['ArenaHero', 'words', 'align.items', ['[align-items:var(--arena-align-items,flex-start)]']],
+  ['ArenaPageHead', 'root', 'align.items', ['[align-items:var(--arena-align-items,flex-start)]']],
+  ['ArenaHero', 'words', 'align.text', ['[text-align:var(--arena-align-text,start)]']],
+  ['ArenaHero', 'root', 'layout.cols', ['[grid-template-columns:var(--arena-layout-cols,repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr)))]']],
+  ['ArenaHero', 'root', 'layout.items', ['[align-items:var(--arena-layout-items,center)]']],
+  ['ArenaHero', 'root', 'layout.gap', ['gap-[var(--arena-layout-gap,var(--rhythm-section))]']],
+  ['ArenaHero', 'root', 'layout.frame', ['[position:var(--arena-layout-frame,static)]', '[overflow:var(--arena-layout-clip,visible)]', 'rounded-[var(--arena-layout-radius,0)]', 'py-[var(--arena-layout-pad-block,var(--rhythm-section))]', 'px-[var(--arena-layout-pad-inline,0)]']],
+  ['ArenaHero', 'words', 'layout.place', ['col-start-[var(--arena-layout-place,auto)]', 'row-start-[var(--arena-layout-place,auto)]', 'z-[var(--arena-layout-z,auto)]', '[justify-content:var(--arena-layout-words-justify,normal)]']],
+  ['ArenaHero', 'figure', 'layout.place', ['col-start-[var(--arena-layout-place,auto)]', 'row-start-[var(--arena-layout-place,auto)]', '[align-self:var(--arena-layout-self,auto)]']],
+  ['ArenaSheet', 'root', 'placement.top', ['top-[var(--arena-placement-top,auto)]', 'bottom-[var(--arena-placement-bottom,0)]', 'start-[var(--arena-placement-start,0)]', 'end-[var(--arena-placement-end,0)]', 'w-[var(--arena-placement-width,auto)]', 'max-w-[var(--arena-placement-max-width,none)]', 'max-h-[var(--arena-placement-max-height,80vh)]', 'rounded-ss-[var(--arena-placement-radius-ss,var(--r-lg))]', 'rounded-se-[var(--arena-placement-radius-se,var(--r-lg))]', 'rounded-es-[var(--arena-placement-radius-es,0)]', 'rounded-ee-[var(--arena-placement-radius-ee,0)]', 'pt-[var(--arena-placement-pad-top,0)]', 'pb-[var(--pad-safe-bottom)]']],
+  ['ArenaToastHost', 'root', 'placement.top', ['top-[var(--arena-placement-top,auto)]', 'bottom-[var(--arena-placement-bottom,max(var(--sp-6),var(--pad-safe-bottom)))]', 'start-[var(--arena-placement-start,auto)]', 'end-[var(--arena-placement-end,var(--sp-6))]']],
   ['ArenaButton', 'root', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]']],
 ];
 
@@ -612,8 +620,8 @@ for (const [component, slot, question, reads, chosen] of READS) {
   });
 }
 
-test('every size, orientation, emphasis, accent and elevation question a slot answers is read through its own channel with a fallback', () => {
-  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis|accent|elevation)-[a-z0-9-]+,/g)]));
+test('every size, orientation, emphasis, accent, elevation, align, layout and placement question a slot answers is read through its own channel with a fallback', () => {
+  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis|accent|elevation|align|layout|placement)-[a-z0-9-]+,/g)]));
   assert.ok(channels.length >= READS.length, 'a read names a channel and the fallback that stands in for it');
   for (const [component, slot, question, reads] of READS) {
     const family = question.split('.')[0]!;

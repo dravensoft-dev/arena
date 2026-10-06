@@ -7,13 +7,16 @@
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
 | [`accent`](#accent) | box | `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary` |  | ArenaActivityFeed and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`), ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`), ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`), ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`), ArenaToast (`arena-accent-gold`, `arena-accent-plain`) |
+| [`align`](#align) | box | `arena-align-center`, `arena-align-start` (default) |  | ArenaHero, ArenaPageHead |
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
 | [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
 | [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
 | [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
+| [`layout`](#layout) | box | `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked` |  | ArenaHero |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
 | [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo, ArenaSwitch |
+| [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
@@ -33,6 +36,14 @@ Which editorial colour a component wears when nothing it says calls for a hue. A
   - ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`).
   - ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`).
   - ArenaToast (`arena-accent-gold`, `arena-accent-plain`).
+
+## align
+
+Whether a block of words and actions runs from the start edge or is centred in its column. The alignment is a decision about one composition, separate from its layout.
+
+- **Options:** `arena-align-center`, `arena-align-start` (default).
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:** ArenaHero, ArenaPageHead.
 
 ## band
 
@@ -77,6 +88,14 @@ Whether a component takes the width of the box it sits in or the width of its ow
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:** ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip.
 
+## layout
+
+How the words of a hero sit against its figure. Split puts them side by side and falls to one column when the room runs out. Stacked keeps one column at every width. Bleed lays them on the figure, over the wash the media overlay role paints.
+
+- **Options:** `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:** ArenaHero.
+
 ## num
 
 The mono face and tabular figures for a figure you draw yourself, in a definition list, a KPI or a cart line, and no colour. A column of them aligns by digit and does not jitter as it counts. The class is the half of a table's mono column that travels: the gold ink says identifier, and a sale total in gold says the wrong thing.
@@ -92,6 +111,16 @@ Whether a component lies along the line it sits in or stands across it. Orientat
 - **Options:** `arena-orientation-horizontal` (default), `arena-orientation-vertical`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:** ArenaAppLogo, ArenaSwitch.
+
+## placement
+
+Which edge or corner of the viewport a fixed surface is pinned to. Each placement clears the device inset on the edges it touches.
+
+- **Options:** `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:**
+  - ArenaSheet (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`).
+  - ArenaToastHost (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`).
 
 ## prose
 

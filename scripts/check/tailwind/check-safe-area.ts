@@ -7,7 +7,9 @@
  * unpinned ones. UNPINNED is for a surface that covers an edge on purpose rather than sitting
  * against it, which is what a scrim is, and a stale entry fails. The claim is about the two edges a
  * notch and a home indicator occupy; what a landscape cutout does to a full-width bar is a question
- * this gate does not ask rather than one it implies an answer to. */
+ * this gate does not ask rather than one it implies an answer to. A slot that reads a family's
+ * channel for an edge pays that edge's inset when every option of the family that pins the edge
+ * names the inset, since the inset is then written where the edge is. */
 
 import { basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -16,6 +18,8 @@ import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
 import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
+import { readFamilies, channelPrefix } from '../../lib/tailwind/vocabulary.ts';
+import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
 export const COMPONENTS_DIR = join(repoRoot, 'frameworks/tailwind/components');
 
@@ -46,7 +50,17 @@ export const UNPINNED = new Map<string, string>([
 
 export type Pin = { component: string; slot: string; edge: string; owes: string; names: boolean };
 
-export function pinsIn(component: string, manifest: unknown) {
+export function paidByFamily(classes: string, edge: string, owes: string, families: Map<string, Family>) {
+  for (const [name, family] of families) {
+    if (!classes.includes(`var(${channelPrefix(name)}`)) continue;
+    const pinning = Object.values(family.variants)
+      .filter((value) => [...value.matchAll(new RegExp(`\\[${channelPrefix(name)}${edge}:([^\\]]*)\\]`, 'g'))].some((one) => one[1] !== 'auto'));
+    if (pinning.length > 0 && pinning.every((value) => value.includes(owes))) return true;
+  }
+  return false;
+}
+
+export function pinsIn(component: string, manifest: unknown, families: Map<string, Family> = new Map()) {
   const found: Pin[] = [];
   const covered: string[] = [];
   for (const [slot, classList] of classStringsBySlot(manifest as never)) {
@@ -58,7 +72,7 @@ export function pinsIn(component: string, manifest: unknown) {
       const pinned = tokens.some((one) => edge.pins.some((re) => re.test(one)))
         || tokens.some((one) => one.startsWith(`${edge.name}-[`));
       if (!pinned) continue;
-      found.push({ component, slot, edge: edge.name, owes: edge.owes, names: all.includes(edge.owes) });
+      found.push({ component, slot, edge: edge.name, owes: edge.owes, names: all.includes(edge.owes) || paidByFamily(all, edge.name, edge.owes, families) });
     }
   }
   return { found, covered };
@@ -99,9 +113,10 @@ export function collect(dir = COMPONENTS_DIR) {
   const files = manifestFiles(dir);
   const pins: Pin[] = [];
   const covered: string[] = [];
+  const families = readFamilies();
   for (const p of files) {
     const component = basename(p).replace(/\.manifest\.json$/, '');
-    const result = pinsIn(component, readJson(p));
+    const result = pinsIn(component, readJson(p), families);
     pins.push(...result.found);
     covered.push(...result.covered);
   }

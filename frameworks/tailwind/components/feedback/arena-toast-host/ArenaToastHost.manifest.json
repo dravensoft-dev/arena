@@ -1,31 +1,24 @@
 {
   "component": "ArenaToastHost",
+  "answers": [
+    {
+      "family": "placement",
+      "options": [
+        "arena-placement-top-start",
+        "arena-placement-top-end",
+        "arena-placement-bottom-start",
+        "arena-placement-bottom-end"
+      ],
+      "default": "arena-placement-bottom-end"
+    }
+  ],
   "slots": {
-    "root": "fixed flex flex-col gap-items z-toast"
+    "root": "fixed flex flex-col gap-items z-toast top-[var(--arena-placement-top,auto)] bottom-[var(--arena-placement-bottom,max(var(--sp-6),var(--pad-safe-bottom)))] start-[var(--arena-placement-start,auto)] end-[var(--arena-placement-end,var(--sp-6))]"
   },
   "kind": {
     "root": "none"
   },
   "floating": {
     "root": "a toast stack is pinned to the viewport, so the region that raised a toast does not decide its controls"
-  },
-  "variants": {
-    "placement": {
-      "top-start": {
-        "root": "top-[max(var(--sp-6),var(--pad-safe-top))] start-6"
-      },
-      "top-end": {
-        "root": "top-[max(var(--sp-6),var(--pad-safe-top))] end-6"
-      },
-      "bottom-start": {
-        "root": "bottom-[max(var(--sp-6),var(--pad-safe-bottom))] start-6"
-      },
-      "bottom-end": {
-        "root": "bottom-[max(var(--sp-6),var(--pad-safe-bottom))] end-6"
-      }
-    }
-  },
-  "defaultVariants": {
-    "placement": "bottom-end"
   }
 }

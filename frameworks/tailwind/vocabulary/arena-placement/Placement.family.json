@@ -1,0 +1,15 @@
+{
+  "family": "placement",
+  "reach": "box",
+  "description": "Which edge or corner of the viewport a fixed surface is pinned to. Each placement clears the device inset on the edges it touches.",
+  "default": "arena-placement-bottom",
+  "variants": {
+    "arena-placement-bottom": "[--arena-placement-top:auto] [--arena-placement-bottom:0] [--arena-placement-start:0] [--arena-placement-end:0] [--arena-placement-width:auto] [--arena-placement-max-width:none] [--arena-placement-max-height:80vh] [--arena-placement-radius-ss:var(--r-lg)] [--arena-placement-radius-se:var(--r-lg)] [--arena-placement-radius-es:0] [--arena-placement-radius-ee:0] [--arena-placement-pad-top:0]",
+    "arena-placement-start": "[--arena-placement-top:0] [--arena-placement-bottom:0] [--arena-placement-start:0] [--arena-placement-end:auto] [--arena-placement-width:calc(var(--sp-1)*120)] [--arena-placement-max-width:92vw] [--arena-placement-max-height:none] [--arena-placement-radius-ss:0] [--arena-placement-radius-se:var(--r-lg)] [--arena-placement-radius-es:0] [--arena-placement-radius-ee:var(--r-lg)] [--arena-placement-pad-top:var(--pad-safe-top)]",
+    "arena-placement-end": "[--arena-placement-top:0] [--arena-placement-bottom:0] [--arena-placement-start:auto] [--arena-placement-end:0] [--arena-placement-width:calc(var(--sp-1)*120)] [--arena-placement-max-width:92vw] [--arena-placement-max-height:none] [--arena-placement-radius-ss:var(--r-lg)] [--arena-placement-radius-se:0] [--arena-placement-radius-es:var(--r-lg)] [--arena-placement-radius-ee:0] [--arena-placement-pad-top:var(--pad-safe-top)]",
+    "arena-placement-top-start": "[--arena-placement-top:max(var(--sp-6),var(--pad-safe-top))] [--arena-placement-bottom:auto] [--arena-placement-start:var(--sp-6)] [--arena-placement-end:auto]",
+    "arena-placement-top-end": "[--arena-placement-top:max(var(--sp-6),var(--pad-safe-top))] [--arena-placement-bottom:auto] [--arena-placement-start:auto] [--arena-placement-end:var(--sp-6)]",
+    "arena-placement-bottom-start": "[--arena-placement-top:auto] [--arena-placement-bottom:max(var(--sp-6),var(--pad-safe-bottom))] [--arena-placement-start:var(--sp-6)] [--arena-placement-end:auto]",
+    "arena-placement-bottom-end": "[--arena-placement-top:auto] [--arena-placement-bottom:max(var(--sp-6),var(--pad-safe-bottom))] [--arena-placement-start:auto] [--arena-placement-end:var(--sp-6)]"
+  }
+}

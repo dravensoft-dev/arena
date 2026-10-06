@@ -1,9 +1,9 @@
 {
   "component": "ArenaSheet",
+  "class": "arena-placement-end",
   "seed": {
     "open": true,
     "title": "checkout-api",
-    "placement": "end",
     "dismissible": true
   },
   "slots": {

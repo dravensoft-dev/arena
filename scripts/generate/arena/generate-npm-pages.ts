@@ -148,9 +148,9 @@ ${listed(layout)} go on markup of yours${context.length ? `, along with the ${CO
 
   vocabulary: (base = root) => {
     const families = [...readFamilies(base).values()];
-    const named = (target: 'component' | 'markup') => families.filter((family) => targetOf(family) === target)
-      .flatMap((family) => Object.keys(family.variants)).sort().map((one) => `\`.${one}\``).join(', ');
-    const classes = named('component');
+    const byFamily = families.filter((family) => targetOf(family) === 'component')
+      .sort((a, b) => (a.family < b.family ? -1 : 1))
+      .map((family) => `- ${family.family}: ${Object.keys(family.variants).sort().map((one) => `\`.${one}\``).join(', ')}.`);
     const markupOf = (reach: 'box' | 'context') => families.filter((family) => targetOf(family) === 'markup' && family.reach === reach)
       .flatMap((family) => Object.keys(family.variants)).sort().map((one) => `\`.${one}\``).join(', ');
     const markup = markupOf('box');
@@ -161,7 +161,8 @@ ${listed(layout)} go on markup of yours${context.length ? `, along with the ${CO
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
 on a container of yours whose components should all take it, and the nearest one wins. The classes
-this version ships are ${classes}.
+this version ships come by family:
+${byFamily.join('\n')}
 ${markup ? `The classes for markup you write are ${markup}. Each goes on an element you wrote, never on a component.\n` : ''}${context ? `The ${contextFamilies} classes ${context} go on an element you wrote or on a component.\n` : ''}[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists each with the components
 that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
 component sheets one by one imports those as well.`;

@@ -1,7 +1,17 @@
 {
   "component": "ArenaPageHead",
+  "answers": [
+    {
+      "family": "align",
+      "options": [
+        "arena-align-start",
+        "arena-align-center"
+      ],
+      "default": "arena-align-start"
+    }
+  ],
   "slots": {
-    "root": "flex justify-between gap-4",
+    "root": "flex justify-between gap-4 [align-items:var(--arena-align-items,flex-start)]",
     "titles": "min-w-0",
     "title": "font-face-heading font-heading text-title-page leading-snug tracking-heading text-ink-heading m-0",
     "subtitle": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose mt-0.5 mb-0",
@@ -27,30 +37,9 @@
         "root": "flex-row",
         "actions": "w-auto"
       }
-    },
-    "align": {
-      "start": {},
-      "center": {}
     }
   },
-  "compoundVariants": [
-    {
-      "narrow": false,
-      "align": "start",
-      "class": {
-        "root": "items-start"
-      }
-    },
-    {
-      "narrow": false,
-      "align": "center",
-      "class": {
-        "root": "items-center"
-      }
-    }
-  ],
   "defaultVariants": {
-    "narrow": false,
-    "align": "start"
+    "narrow": false
   }
 }

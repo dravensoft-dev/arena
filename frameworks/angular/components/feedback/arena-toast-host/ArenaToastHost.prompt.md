@@ -19,14 +19,13 @@ The host exists because `arena-toast` carries `--z-toast` and no `position` of i
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `placement` | enum | `ArenaToastPlacement` | `"bottom-end"` | Which corner the stack is pinned to. A bottom placement clears the device's own bottom inset, so a stack on a phone never lands under the home indicator. |
 | `content` | slot |  |  | The notices, in the order they are read. The stack is a plain column and the visual order is the source order, whatever the corner: a reversed one would put the newest notice first on screen and last in the reading order, and the two must agree. Nothing here caps the count or times a dismissal, because the queue that produced these notices already holds their identity and their order, and a cap applied by the box that draws them would fight the queue that owns them. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom`, `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start`. Write one as `class="arena-placement-bottom"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

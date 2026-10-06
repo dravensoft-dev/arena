@@ -24,13 +24,12 @@ The title block at the top of a page. The block holds the page's own heading, wh
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h1"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h1` because a page head is the page's own title and the screen it heads carries no other. Under a hero, the one rung above it on the title ladder, it takes `h2` and leaves the page's single `h1` to the hero; that is the one arrangement where the default is wrong, and it is a member rather than something read off the page, because what a component renders is never derived from what sits above it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
 | `subtitle` | primitive | `string` |  | A muted line under the title. |
 | `actions` | slot |  |  | Page-level controls, right-aligned in the head. |
-| `align` | enum | `ArenaPageHeadAlign` | `"start"` | Cross-axis alignment of the actions block against the title, wide layout only. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start`. Write one as `className="arena-align-center"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

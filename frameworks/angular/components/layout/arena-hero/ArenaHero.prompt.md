@@ -26,14 +26,14 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 | `lede` | primitive | `string` |  | The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading. |
 | `actions` | slot |  |  | What the page asks the reader to do, in a wrapping row under the lede. Arena draws the row; the consumer draws what sits in it, and one primary action beside one secondary is the shape this is sized for. |
 | `figure` | slot |  |  | The picture, the mark or the shape beside the words, or behind them under the bleed layout. It is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way. |
-| `layout` | enum | `ArenaHeroLayout` | `"split"` | How the words sit against the figure. Split puts them side by side and falls to one column when the room runs out, with no breakpoint deciding when; stacked keeps them in one column at every width, for a hero whose figure is a band rather than a partner; bleed lays the words on the figure, over the wash the media overlay role paints, which is the arrangement that needs that role to be readable. |
-| `align` | enum | `ArenaHeroAlign` | `"start"` | Whether the words run from the start edge or are centred in their column. Centred is what a bleed hero usually wants and a split one usually does not, and it is a separate decision from the layout because a stacked hero can want either. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start`. Write one as `class="arena-align-center"` on the component, or on a container whose components should all take it.
+
+**Answers** [`layout`](../../../../VOCABULARY.md#layout): `arena-layout-bleed`, `arena-layout-split`, `arena-layout-stacked`. Write one as `class="arena-layout-bleed"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
 

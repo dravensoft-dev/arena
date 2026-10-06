@@ -1,7 +1,18 @@
 {
   "component": "ArenaSheet",
+  "answers": [
+    {
+      "family": "placement",
+      "options": [
+        "arena-placement-bottom",
+        "arena-placement-start",
+        "arena-placement-end"
+      ],
+      "default": "arena-placement-bottom"
+    }
+  ],
   "slots": {
-    "root": "fixed z-sheet flex flex-col bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating shadow-surface-deep overflow-hidden",
+    "root": "fixed z-sheet flex flex-col bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating shadow-surface-deep overflow-hidden top-[var(--arena-placement-top,auto)] bottom-[var(--arena-placement-bottom,0)] start-[var(--arena-placement-start,0)] end-[var(--arena-placement-end,0)] w-[var(--arena-placement-width,auto)] max-w-[var(--arena-placement-max-width,none)] max-h-[var(--arena-placement-max-height,80vh)] rounded-ss-[var(--arena-placement-radius-ss,var(--r-lg))] rounded-se-[var(--arena-placement-radius-se,var(--r-lg))] rounded-es-[var(--arena-placement-radius-es,0)] rounded-ee-[var(--arena-placement-radius-ee,0)] pt-[var(--arena-placement-pad-top,0)] pb-[var(--pad-safe-bottom)]",
     "head": "flex items-center gap-items px-5 py-floating-y border-b-[length:var(--bw-separator)] border-edge-separator",
     "trigger": "flex flex-1 items-center min-h-ctl-h gap-control bg-transparent border-none p-0 cursor-pointer text-left font-display font-heading text-h3 text-ink-body tracking-heading transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body/(--level-ink-body) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
     "caret": "shrink-0 text-[length:var(--icon-md)] leading-ctl text-ink-muted/(--level-ink-muted)",
@@ -22,17 +33,6 @@
     "root": "a sheet is pinned to the viewport, so the region it was opened from does not decide its controls"
   },
   "variants": {
-    "placement": {
-      "bottom": {
-        "root": "start-0 end-0 bottom-0 max-h-[80vh] rounded-t-lg pb-[var(--pad-safe-bottom)]"
-      },
-      "start": {
-        "root": "inset-y-0 start-0 w-120 max-w-[92vw] rounded-e-lg pt-[var(--pad-safe-top)] pb-[var(--pad-safe-bottom)]"
-      },
-      "end": {
-        "root": "inset-y-0 end-0 w-120 max-w-[92vw] rounded-s-lg pt-[var(--pad-safe-top)] pb-[var(--pad-safe-bottom)]"
-      }
-    },
     "open": {
       "true": {},
       "false": {
@@ -41,7 +41,6 @@
     }
   },
   "defaultVariants": {
-    "placement": "bottom",
     "open": false
   }
 }

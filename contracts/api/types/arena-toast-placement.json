@@ -1,6 +1,0 @@
-{
-  "name": "ArenaToastPlacement",
-  "kind": "enum",
-  "description": "Which corner the stack of notices is pinned to, block edge first. Checked against every enum already declared here before it was added; nothing carries this set. ArenaMenuAlign is the near miss and is a different question: it names which edge of a trigger a panel lines up with, on one axis, where this names a corner of the viewport and needs both. The inline half is `start`/`end` rather than left/right so a right-to-left reading flips it with the document.",
-  "values": ["top-start", "top-end", "bottom-start", "bottom-end"]
-}

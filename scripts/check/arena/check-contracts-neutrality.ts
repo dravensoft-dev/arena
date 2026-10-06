@@ -254,10 +254,7 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
 ]);
 
 export const DESIGN_MEMBERS = new Map<string, Pending>([
-  ...[['ArenaSheet', 'placement'], ['ArenaToastHost', 'placement'],
-  ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
-  ...[['ArenaHero', 'align'], ['ArenaPageHead', 'align'], ['ArenaHero', 'layout'],
-    ['ArenaSideNav', 'indentStep'],
+  ...[['ArenaSideNav', 'indentStep'],
   ].map(([c, m]) => [at(c!, m!), { phase: 5, why: EDITORIAL }] as [string, Pending]),
   ...[['ArenaGrid', 'min'], ['ArenaGrid', 'maxWidth'], ['ArenaGrid', 'gap'], ['ArenaBoard', 'minColumn'],
     ['ArenaScroller', 'itemWidth'], ['ArenaDialog', 'width'], ['ArenaFigure', 'ratio'], ['ArenaSkeleton', 'width'],

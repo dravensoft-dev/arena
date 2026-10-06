@@ -39,8 +39,7 @@ test('a width-decided branch adding mx-2 to a measured slot fails', () => {
 
 test('a compound selecting on a width-decided group is read too', () => {
   const head = clone('ArenaPageHead');
-  const compounds = head.compoundVariants as Array<{ class: Record<string, string> }>;
-  compounds[0]!.class['root'] = `${compounds[0]!.class['root'] ?? ''} w-full`;
+  (head as { compoundVariants?: unknown }).compoundVariants = [{ narrow: false, class: { root: 'w-full' } }];
   assert.equal(branchProblems('ArenaPageHead', MEASURED.get('ArenaPageHead')!, head).length, 1);
 });
 
