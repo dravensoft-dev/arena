@@ -49,6 +49,10 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'a board lays its columns out at one minimum width and cannot reach inside them to set it. It is the same '
     + 'channel ArenaScroller opens for the same reason, and its default is the grid-min role resolved by the '
     + 'component rather than by this sheet'],
+  ['arena-side-nav-depth', 'written by ArenaSideNav\'s rows onto their own root as a unitless count of the row\'s '
+    + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
+    + 'depth and a class string cannot name the depth. It is the same channel ArenaBoard opens for its column, and '
+    + 'its var() fallback of zero is the unindented row'],
   ['arena-board-column-cat', 'written by ArenaBoardColumn onto its own section from the colorId member, in both '
     + 'layers, for the reason ArenaTag writes its own: a ramp slot is data rather than a design value and a class '
     + 'string cannot name which of the eight it is. It is set only while colorId names one, and a style plugin '

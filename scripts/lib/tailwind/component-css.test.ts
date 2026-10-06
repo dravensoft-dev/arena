@@ -91,3 +91,15 @@ test('an indirection the preset does not explain is a problem rather than a sile
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /is not a pair Theme\.css declares/);
 });
+
+test('the strip resolves a theme key whose value is a calc over Arena tokens and refuses a calc the preset does not declare', () => {
+  const map = themeKeyMap('@theme { --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x)); --spacing: var(--sp-1); }');
+  const calc = 'calc(var(--pad-row-x) * var(--dz-row-scale-x))';
+  assert.equal(map.get('spacing-row-x'), calc);
+  assert.equal(
+    stripIndirection(`padding-inline: var(--spacing-row-x, ${calc}); gap: var(--spacing, var(--sp-1));`, map),
+    `padding-inline: ${calc}; gap: var(--sp-1);`,
+  );
+  assert.deepEqual(stripProblems(`padding-inline: var(--spacing-row-x, ${calc})`, map), []);
+  assert.equal(stripProblems('padding-inline: var(--spacing-row-x, calc(var(--pad-row-y) * 2))', map).length, 1);
+});

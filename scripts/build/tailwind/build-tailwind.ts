@@ -172,7 +172,7 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const byComponent = new Map();
   for (const [file, manifest] of manifests) byComponent.set(classBase(manifest.component), file);
 
-  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw)));
+  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw, themeMapFor(root))));
   const { shared, components } = splitUtilities(settled, new Set(byComponent.keys()));
   const out = new Map();
   out.set(join(root, PRELUDE), BANNER + preludeSheet(shared, keyframesOf(root)));

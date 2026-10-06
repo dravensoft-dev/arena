@@ -69,6 +69,28 @@ export function entryStylesheet(presetPath: string, manifests: Manifests, on?: P
   return `@reference '${toPosix(presetPath, on)}';\n\n@layer utilities {\n${body}\n}\n`;
 }
 
+const squeeze = (value: string) => value.trim().replace(/\s+/g, ' ');
+
+function calcReads(css: string, themeMap: Map<string, string>) {
+  const reads: { start: number; end: number; key: string; fallback: string; expression: string }[] = [];
+  for (const m of css.matchAll(/var\(\s*--([a-z0-9-]+)\s*,\s*(calc\()/g)) {
+    const key = captured(m);
+    const expression = themeMap.get(key);
+    if (!isThemeKey(key) || !expression?.startsWith('calc(')) continue;
+    const open = m.index + m[0].length - 1;
+    let depth = 0;
+    let end = -1;
+    for (let i = open; i < css.length; i++) {
+      if (css[i] === '(') depth++;
+      else if (css[i] === ')' && --depth === 0) { end = i + 1; break; }
+    }
+    if (end < 0) continue;
+    const fallback = squeeze(css.slice(m.index + m[0].length - 5, end));
+    reads.push({ start: m.index, end: css.indexOf(")", end) + 1, key, fallback, expression });
+  }
+  return reads;
+}
+
 export function themeKeyMap(themeCss: string) {
   const map = new Map();
   for (const decls of parseDecls(themeCss).values()) {
@@ -76,6 +98,7 @@ export function themeKeyMap(themeCss: string) {
       if (name.endsWith('-*')) continue;
       const single = /^\s*var\(\s*--([a-z0-9-]+)\s*\)\s*$/.exec(value);
       if (single) map.set(name, single[1]);
+      else if (/^\s*calc\(/.test(value) && [...value.matchAll(/var\(\s*--/g)].length > 0) map.set(name, squeeze(value));
     }
   }
   return map;
@@ -92,11 +115,20 @@ export function stripProblems(css: string, themeMap: Map<string, string>) {
         + `cannot know that --${token} is what --${key} means; add it to the preset or stop emitting it`);
     }
   }
+  for (const read of calcReads(css, themeMap)) {
+    if (read.fallback !== read.expression) {
+      problems.push(`var(--${read.key}, ${read.fallback}) is not the calc Theme.css declares for --${read.key}, so the `
+        + `strip cannot know it is what --${read.key} means; add it to the preset or stop emitting it`);
+    }
+  }
   return [...new Set(problems)];
 }
 
-export function stripIndirection(css: string) {
+export function stripIndirection(css: string, themeMap: Map<string, string> = new Map()) {
   let out = css;
+  for (const read of calcReads(out, themeMap).reverse()) {
+    if (read.fallback === read.expression) out = out.slice(0, read.start) + read.expression + out.slice(read.end);
+  }
   for (let previous = null; previous !== out;) {
     previous = out;
     out = out.replace(INDIRECTION, (match, key: string, token: string) => (isThemeKey(key) ? `var(--${token})` : match));
