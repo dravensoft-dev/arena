@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, EXEMPT } from './check-dimension-literals.ts';
+import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, scanStyleWrites, staleComputed, COMPUTED, EXEMPT } from './check-dimension-literals.ts';
 
 test('a bare number is a violation for a dimension-valued property', () => {
   assert.ok(scanValue('fontSize', '13'));
@@ -634,4 +634,55 @@ test('an Angular input transform is not the CSS transform, so the value it resol
   assert.deepEqual(scanText('readonly lines = input<number, number | undefined>(3, { transform: (value) => value ?? 3 });'), []);
   assert.equal(scanText('const s = { transform: `translateY(4px)` };').length, 1,
     'a real CSS transform still has to be a token');
+});
+
+test('an Angular style binding of a literal calc is a style write that fails', () => {
+  const hits = scanStyleWrites(`<div [style.paddingInlineStart]="'calc(var(--sp-1) * 3)'"></div>`);
+  assert.deepEqual(hits.map((h) => h.prop), ['paddingInlineStart']);
+});
+
+test('an Angular binding of a channel passes, as does a var() value', () => {
+  assert.deepEqual(scanStyleWrites('<div [style.--arena-x]="n()"></div>'), []);
+  assert.deepEqual(scanStyleWrites(`<div [style.maxWidth]="'var(--arena-board-column)'"></div>`), []);
+  assert.deepEqual(scanStyleWrites(`<div [style.maxWidth]="'var(--a, var(--b))'"></div>`), []);
+});
+
+test('an Angular unit binding writes a computed number, so it fails', () => {
+  assert.deepEqual(scanStyleWrites('<div [style.top.px]="y()"></div>').map((h) => h.prop), ['top']);
+  assert.deepEqual(scanStyleWrites('<div [style.width.%]="p()"></div>').map((h) => h.prop), ['width']);
+});
+
+test('an Angular host style binding and a [style] object are read', () => {
+  assert.deepEqual(scanStyleWrites("host: { '[style.width]': 'width()' }").map((h) => h.prop), ['width']);
+  assert.deepEqual(scanStyleWrites('<div [style]="{ gap: 4 }"></div>').map((h) => h.prop), ['gap']);
+});
+
+test('a React style object with a literal calc fails, and a var() passes', () => {
+  assert.deepEqual(scanStyleWrites("<div style={{ gap: 'calc(var(--sp-1) * 4)' }} />").map((h) => h.prop), ['gap']);
+  assert.deepEqual(scanStyleWrites("<div style={{ gap: 'var(--chart-legend-gap)' }} />"), []);
+});
+
+test('a React interpolated width fails until COMPUTED lists it', () => {
+  const hits = scanStyleWrites('<div style={{ width: `${pct}%` }} />');
+  assert.deepEqual(hits.map((h) => h.prop), ['width']);
+});
+
+test('a style value bound to a constant that holds a channel passes', () => {
+  assert.deepEqual(scanStyleWrites("const PAGE = 'var(--container-max)';\n<div style={{ maxWidth: PAGE }} />"), []);
+});
+
+test('a property outside PROPS is not a style write the gate judges', () => {
+  assert.deepEqual(scanStyleWrites('<div style={{ opacity: hover }} />'), []);
+});
+
+test('an unused COMPUTED key is stale and a matched one is not', () => {
+  const [first] = [...COMPUTED.keys()];
+  assert.ok(first);
+  assert.deepEqual(staleComputed(new Set(COMPUTED.keys())), []);
+  assert.deepEqual(staleComputed(new Set()), [...COMPUTED.keys()]);
+});
+
+test('every COMPUTED reason cites a function as path:member(parameters)', () => {
+  for (const [key, reason] of COMPUTED)
+    assert.match(reason, /`frameworks\/[^`:]+:[\w.]+\([^`]*\)`|`frameworks\/[^`:]+:\w+`/, key);
 });

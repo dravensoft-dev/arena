@@ -79,7 +79,10 @@ measurement: a chip's position from an hour, a fill's width from a percentage, a
 top clamped against `window.innerHeight`, a consumer's own width string. The operative rule is
 the gate's, and it needs no list of properties: *if every branch of the value is a literal it
 belongs in the manifest; if any branch reads an identifier or an interpolation it is a
-computation and stays*. A hover or focus colour is never a computation, and no component here
+computation and stays*. The gate enforces it in both layers: a write of a layout property into
+`style`, whether a React `style` object or an Angular `[style.x]` binding, passes when its value is
+`var(--…)` with no literal operand, and otherwise is listed in `COMPUTED` in
+`scripts/check/arena/check-dimension-literals.ts` with the function that computes it. A hover or focus colour is never a computation, and no component here
 keeps a `useState` to paint one.
 
 **A variant key the manifest does not declare resolves to no classes at all**, rather than

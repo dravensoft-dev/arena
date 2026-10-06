@@ -1,7 +1,8 @@
 /* Fails on a bare dimension literal in a framework layer. EXEMPT and PASSTHROUGH are
  * asserted by name in the paired suite, so changing either is a change to both.
- * Two blind spots are known and unfixed: a kebab-case SVG attribute, and Angular's [style.x]
- * binding form, which sits outside all four of the scanners below. */
+ * One blind spot is known and unfixed: a kebab-case SVG attribute. A write of a PROPS property
+ * into style in a component file passes as var(--…) with no literal operand and otherwise is
+ * listed in COMPUTED, the render's own arithmetic. */
 
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -70,6 +71,123 @@ export const EXEMPT = new Map([
    'the other axis of the same 1px visually-hidden box as the width entry above'],
   ['frameworks/angular/DataVisuals.ts:margin:\'-1px\'',
    'the same idiom\'s negative pull, which must cancel exactly the 1px box above so the hidden table shifts no sibling — it is bound to that literal, not to Arena\'s spacing scale, and a token here would break the cancellation'],
+  ["frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:width:'100%'",
+   'the chart frame fills its container, a plot-geometry fraction of the parent rather than a design dimension, and the plot inside it draws against the width the container measures'],
+  ["frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:gap:'calc(var(--sp-1) * 4)'",
+   "the gap between the size key's marks is plot geometry, outside the padding roles, and reads the spacing scale through calc(var(--sp-1) * n)"],
+  ["frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:gap:'calc(var(--sp-1) * 1.5)'",
+   'the gap between a size key mark and its label is plot geometry, outside the padding roles, and reads the spacing scale through calc(var(--sp-1) * n)'],
+  ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:zIndex:1',
+   'the action panel stacks one layer above its chip, a paint order within the chip rather than a design dimension'],
+  ['frameworks/angular/components/charts/arena-doughnut-chart/ArenaDoughnutChart.ts:height:height.px',
+   'the frame is as tall as the plot, bound to the ARENA_CHART_HEIGHT constant the chart does its arithmetic with, a number and not a dimension string'],
+]);
+
+export const COMPUTED: ReadonlyMap<string, string> = new Map([
+  ['frameworks/angular/components/display/arena-calendar/ArenaCalendar.ts:height',
+   'the grid body spans the visible hours, a pixel height `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects from the last visible minute'],
+  ['frameworks/angular/components/display/arena-calendar/ArenaCalendar.ts:top',
+   'an hour line, a slot and the now line sit where `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects their minute'],
+  ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:top',
+   'a chip starts where `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects its start minute'],
+  ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:height',
+   'a chip is as tall as `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects its end minute past its start'],
+  ['frameworks/angular/components/display/arena-skeleton/ArenaSkeleton.ts:width',
+   "the consumer's own width string, resolved by `frameworks/angular/components/display/arena-skeleton/ArenaSkeleton.ts:hostWidth()`"],
+  ['frameworks/angular/components/display/arena-skeleton/ArenaSkeleton.ts:height',
+   "the consumer's own height string, resolved by `frameworks/angular/components/display/arena-skeleton/ArenaSkeleton.ts:hostHeight()`"],
+  ['frameworks/angular/components/display/arena-skeleton/ArenaSkeleton.ts:borderRadius',
+   "the consumer's own radius string, resolved by `frameworks/angular/components/display/arena-skeleton/ArenaSkeleton.ts:hostRadius()`"],
+  ['frameworks/angular/components/display/arena-table/ArenaTable.ts:width',
+   "the consumer's own column width, read from the definition `frameworks/angular/components/display/arena-table/ArenaTable.ts:columns()` returns"],
+  ['frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:width',
+   "the consumer's own column width, resolved by `frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:width()`"],
+  ['frameworks/angular/components/feedback/arena-dialog/ArenaDialog.ts:width',
+   "the consumer's own panel width, withheld by `frameworks/angular/components/feedback/arena-dialog/ArenaDialog.ts:fill()` below the fill breakpoint"],
+  ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:top',
+   'the panel sits below the anchor and clamps against the viewport height in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
+  ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:left',
+   'the panel aligns to the anchor and clamps against the viewport width in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
+  ['frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:width',
+   'the fill is as wide as the clamped progress, computed by `frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:percentage()`'],
+  ['frameworks/angular/components/layout/arena-grid/ArenaGrid.ts:maxWidth',
+   "the consumer's own width cap, read from the `maxWidth` input of `frameworks/angular/components/layout/arena-grid/ArenaGrid.ts:maxWidth()`"],
+  ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:height',
+   'a slot is as tall as `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects its end minute past its start'],
+  ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:top',
+   'an hour line, a slot and the now line sit where `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects their minute'],
+  ['frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:width',
+   "the consumer's own width, resolved by `frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:ArenaSkeleton({ variant, width, height, lines, radius })`"],
+  ['frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:height',
+   "the consumer's own height, resolved by `frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:ArenaSkeleton({ variant, width, height, lines, radius })`"],
+  ['frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:borderRadius',
+   "the consumer's own radius, passed through `frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:ArenaSkeleton({ variant, width, height, lines, radius })`"],
+  ['frameworks/react/components/display/arena-table/ArenaTable.tsx:width',
+   "the consumer's own column width, read from the column definition `frameworks/react/components/display/arena-table/ArenaTable.tsx:ArenaTable(props)` renders"],
+  ['frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:width',
+   "the consumer's own panel width, withheld below the fill breakpoint by `frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:ArenaDialog({ width, fillBelow })`"],
+  ['frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:width',
+   'the fill is as wide as the clamped progress `frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:ArenaProgressBar({ progressPercentage })` computes'],
+  ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes and the size key, as tall as the same function's size key height"],
+  ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:height',
+   "the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes, and the size key, as tall as the same function's size key height"],
 ]);
 
 export { UNMODELLED_UNITS };
@@ -405,6 +523,88 @@ export function scanAttributes(rawText: string) {
   return out;
 }
 
+const COMPONENT_FILE = /^frameworks\/(react|angular)\/components\/.*\.(ts|tsx)$/;
+const CHANNEL_VALUE = /^['"`]var\(\s*--[\w-]+\s*(?:,\s*var\(\s*--[\w-]+\s*\)\s*)*\)['"`]$/;
+const ANGULAR_STYLE = /\[style\.([\w-]+)(\.[a-z%]+)?\]['"]?\s*[:=]\s*(?:"([^"]*)"|'([^']*)')/g;
+const ANGULAR_STYLE_OBJECT = /\[style\]\s*=\s*"([^"]*)"/g;
+const REACT_STYLE = /\bstyle\s*=\s*\{/g;
+
+export function isChannelValue(rawValue: string) {
+  return expressionLeaves(rawValue).every((leaf) => CHANNEL_VALUE.test(leaf.trim()));
+}
+
+function objectEntries(body: string) {
+  const out: { prop: string; value: string; at: number }[] = [];
+  let at = 0;
+  while (at <= body.length) {
+    const { text: entry, end } = readValue(body, at, new Set([',']));
+    const m = /^\s*([a-zA-Z]+)\s*:\s*([\s\S]*)$/.exec(entry);
+    if (m && PROPS.has(captured(m))) out.push({ prop: captured(m), value: captured(m, 2).trim(), at });
+    at = end + 1;
+  }
+  return out;
+}
+
+function objectBody(text: string, open: number) {
+  if (text[open] !== '{') return null;
+  const { text: inner } = readValue(text, open + 1, new Set(['}']));
+  return inner;
+}
+
+const CHANNEL_DECL = /(?<![\w.])(?:const|let|readonly)\s+([a-zA-Z_$][\w$]*)\s*(?::[^=;]+)?=\s*/g;
+
+function boundChannels(text: string) {
+  const rhsOf = new Map<string, string>();
+  for (const m of text.matchAll(CHANNEL_DECL)) {
+    const { text: rhs } = readValue(text, m.index + m[0].length, STATEMENT_STOP);
+    rhsOf.set(captured(m), rhs.trim());
+  }
+  const bound = new Map<string, string>();
+  for (const name of rhsOf.keys()) {
+    let value = rhsOf.get(name) ?? '';
+    for (let hop = 0; hop < 3 && BARE_IDENTIFIER.test(value) && rhsOf.has(value); hop++) value = rhsOf.get(value) ?? '';
+    if (isChannelValue(value)) bound.set(name, value);
+  }
+  return bound;
+}
+
+export function scanStyleWrites(rawText: string) {
+  const text = blankComments(rawText);
+  const out: { prop: string; raw: string; line: number }[] = [];
+  const bound = boundChannels(text);
+  const push = (prop: string, raw: string, line: number) => {
+    const resolved = BARE_IDENTIFIER.test(raw.trim()) && bound.has(raw.trim()) ? bound.get(raw.trim()) ?? raw : raw;
+    if (!isChannelValue(resolved)) out.push({ prop, raw, line });
+  };
+  for (const m of text.matchAll(ANGULAR_STYLE)) {
+    const prop = camel(captured(m));
+    if (!PROPS.has(prop)) continue;
+    push(prop, `${m[3] ?? m[4] ?? ''}${m[2] ?? ''}`, lineOf(text, m.index));
+  }
+  for (const m of text.matchAll(ANGULAR_STYLE_OBJECT)) {
+    const expr = captured(m).trim();
+    const body = expr.startsWith('{') ? objectBody(expr, 0) : null;
+    for (const e of objectEntries(body ?? '')) push(e.prop, e.value, lineOf(text, m.index));
+  }
+  const decls = localDeclarations(text);
+  for (const m of text.matchAll(REACT_STYLE)) {
+    const open = m.index + m[0].length;
+    const line = lineOf(text, m.index);
+    let body = objectBody(text, open);
+    if (body === null) {
+      const ident = /^\s*([a-zA-Z_$][\w$]*)\s*\}/.exec(text.slice(open));
+      for (const d of ident ? decls.get(captured(ident)) ?? [] : []) {
+        const rhs = d.rhs.trim();
+        body = rhs.startsWith('{') ? objectBody(rhs, 0) : null;
+        for (const e of objectEntries(body ?? '')) push(e.prop, e.value, d.line);
+      }
+      continue;
+    }
+    for (const e of objectEntries(body)) push(e.prop, e.value, line);
+  }
+  return out;
+}
+
 const PASSTHROUGH = new Map([
   ['ArenaAppLogo', { prop: 'size', governs: 'width' }],
 ]);
@@ -473,14 +673,28 @@ export function staleExemptions(matchedKeys: Set<string>) {
   return [...EXEMPT.keys()].filter((k) => !matchedKeys.has(k));
 }
 
+export function staleComputed(matchedKeys: Set<string>) {
+  return [...COMPUTED.keys()].filter((k) => !matchedKeys.has(k));
+}
+
 function collect() {
   const found = [];
   const matchedKeys = new Set<string>();
   const seenComponents = new Set<string>();
   let paramLists = 0;
+  const computedMatched = new Set<string>();
+  const undeclared: { file: string; line: number; prop: string; raw: string }[] = [];
   for (const file of sourceFiles(join(repoRoot, 'frameworks'))) {
     const rel = relPosix(repoRoot, file);
     const text = readFileSync(file, 'utf8');
+    if (COMPONENT_FILE.test(rel) && !/\.(test|spec)\./.test(rel))
+      for (const w of scanStyleWrites(text)) {
+        const key = `${rel}:${w.prop}`;
+        computedMatched.add(key);
+        const exemptKey = `${rel}:${w.prop}:${w.raw}`;
+        if (EXEMPT.has(exemptKey)) { matchedKeys.add(exemptKey); continue; }
+        if (!COMPUTED.has(key)) undeclared.push({ file: rel, ...w });
+      }
     paramLists += componentParamCount(text);
     for (const name of passthroughSightings(text)) seenComponents.add(name);
     const hits = [...scanText(text), ...scanDefaultsAndCallSites(text), ...scanInjectedCss(text), ...scanAttributes(text)];
@@ -493,6 +707,8 @@ function collect() {
   }
   return {
     found,
+    undeclared,
+    staleComputed: staleComputed(computedMatched),
     stale: staleExemptions(matchedKeys),
     stalePassthrough: stalePassthrough(seenComponents),
     zeroParams: zeroComponentParamProblems(paramLists),
@@ -524,7 +740,7 @@ function reportSites(found: DimensionHit[]) {
 }
 
 function main() {
-  const { found, stale, stalePassthrough: stalePT, zeroParams } = collect();
+  const { found, undeclared, staleComputed: staleC, stale, stalePassthrough: stalePT, zeroParams } = collect();
   if (process.argv.includes('--report=sites')) { reportSites(found); return; }
   if (process.argv.includes('--report')) { report(found); return; }
   let failed = false;
@@ -539,6 +755,16 @@ function main() {
     for (const key of stale) console.error(`  ${key} — ${EXEMPT.get(key)}`);
     console.error('\nThe site was fixed, deleted, or its raw text changed shape. Remove the');
     console.error('entry, or re-key it to match the current text exactly.');
+  }
+  if (staleC.length) {
+    failed = true;
+    console.error(`check-dimension-literals: ${staleC.length} stale COMPUTED entr${staleC.length === 1 ? 'y' : 'ies'}, naming a style write that no longer exists\n`);
+    for (const key of staleC) console.error(`  ${key} - ${COMPUTED.get(key)}`);
+  }
+  if (undeclared.length) {
+    failed = true;
+    console.error(`check-dimension-literals: ${undeclared.length} style write(s) that are neither var(--...) nor listed in COMPUTED\n`);
+    for (const f of undeclared) console.error(`  ${f.file}:${f.line}: ${f.prop}: ${f.raw}`);
   }
   if (stalePT.length) {
     failed = true;
