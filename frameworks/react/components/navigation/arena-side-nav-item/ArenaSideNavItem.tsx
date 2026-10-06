@@ -46,7 +46,7 @@ export function ArenaSideNavItem({ className,
     throw new Error(`ArenaSideNavItem: \`icon\` is required while ArenaSideNav is collapsed, and the item "${id}" has none`);
   }
   const on = id === activeId;
-  const styles = arenaSideNavStyles({ active: on, collapsed });
+  const styles = arenaSideNavStyles({ current: on, collapsed });
 
   const shared = {
     'aria-current': on ? 'page' as const : undefined,

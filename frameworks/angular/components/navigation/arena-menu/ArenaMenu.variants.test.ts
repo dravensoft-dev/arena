@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaMenuStyles } from './ArenaMenu.variants';
-import { ARENA_MENU_POSITIONS, isArenaActivatable, arenaRowState } from './ArenaMenu';
+import { ARENA_MENU_POSITIONS, isArenaActivatable } from './ArenaMenu';
 import { sp1 } from '../../../Tokens.generated';
 
 function tokens(classString: string): string[] {
@@ -11,15 +11,22 @@ function tokens(classString: string): string[] {
 test('the surface, the ink and the row metrics do not vary with anchoring -- only the position does', () => {
   const anchored = arenaMenuStyles({ anchored: true });
   const inFlow = arenaMenuStyles({ anchored: false });
-  for (const slot of ['item', 'itemDefault', 'itemDestructive', 'itemDisabled', 'icon', 'label', 'shortcut', 'divider', 'header'] as const) {
+  for (const slot of ['item', 'icon', 'label', 'shortcut', 'divider', 'header'] as const) {
     assert.equal(anchored[slot](), inFlow[slot](), `${slot} must not vary with anchored`);
   }
 });
 
-test('arenaRowState picks the modifier the row draws with, and disabled outranks destructive', () => {
-  assert.equal(arenaRowState({ label: 'Promote' }), 'default');
-  assert.equal(arenaRowState({ label: 'Delete', destructive: true }), 'destructive');
-  assert.equal(arenaRowState({ label: 'Delete', destructive: true, disabled: true }), 'disabled');
+test('the item takes one of three compounds of disabled and destructive, and disabled outranks destructive', () => {
+  const plain = arenaMenuStyles({ disabled: false, destructive: false }).item();
+  const destructive = arenaMenuStyles({ disabled: false, destructive: true }).item();
+  const disabled = arenaMenuStyles({ disabled: true, destructive: false }).item();
+  assert.equal(new Set([plain, destructive, disabled]).size, 3);
+  assert.equal(arenaMenuStyles({ disabled: true, destructive: true }).item(), disabled);
+});
+
+test('align end moves the panel and nothing else', () => {
+  assert.notEqual(arenaMenuStyles({ align: 'end' }).panel(), arenaMenuStyles({ align: 'start' }).panel());
+  assert.equal(arenaMenuStyles({ align: 'end' }).item(), arenaMenuStyles({ align: 'start' }).item());
 });
 
 test('a divider and a header are not activatable; everything else is', () => {

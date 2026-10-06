@@ -6,3 +6,7 @@ function tokens(classString: string): string[] {
   return classString.split(/\s+/).filter(Boolean);
 }
 
+
+test('current is a group on the item', () => {
+  assert.notEqual(arenaBottomNavStyles({ current: true }).item(), arenaBottomNavStyles({ current: false }).item());
+});

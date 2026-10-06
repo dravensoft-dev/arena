@@ -83,7 +83,7 @@ export function arenaStyles<M extends ArenaClassManifest>(manifest: M) {
     for (const compound of manifest.compoundVariants ?? []) {
       const { class: classes, ...conditions } = compound;
       const holds = Object.entries(conditions)
-        .every(([group, value]) => resolved(group) === value);
+        .every(([group, value]) => String(resolved(group)) === String(value));
       if (holds) append(classes);
     }
 

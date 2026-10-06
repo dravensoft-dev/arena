@@ -48,7 +48,7 @@ export function ArenaPagination({ className, page, pageCount, ariaLabel, onChang
           ? <span key={'e' + i} className={styles.ellipsis()} data-arena-part={manifest.parts.ellipsis}>{'\u2026'}</span>
           : (
             <button key={p} onClick={() => go(Number(p))} aria-current={p === page ? 'page' : undefined}
-              className={`${styles.page()} ${p === page ? styles.pageCurrent() : styles.pageOther()}`}
+              className={arenaPaginationStyles({ current: p === page }).page()}
               data-arena-part={manifest.parts.page}>{p}</button>
           ))}
       {nav(1, page >= pageCount)}

@@ -116,7 +116,7 @@ export class ArenaSideNavItem {
 
   protected readonly current = computed(() => (this.on() ? 'page' : null));
   protected readonly depthChannel = computed(() => (this.rail() ? null : arenaIndentDepth(this.nav.indentStep(), this.nav.depth())));
-  protected readonly styles = computed(() => arenaSideNavStyles({ active: this.on(), collapsed: this.rail() }));
+  protected readonly styles = computed(() => arenaSideNavStyles({ current: this.on(), collapsed: this.rail() }));
 
   protected readonly off = computed(() => (this.disabled() ? 'true' : null));
 

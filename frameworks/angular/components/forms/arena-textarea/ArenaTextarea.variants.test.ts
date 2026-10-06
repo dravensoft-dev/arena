@@ -11,7 +11,7 @@ import { arenaTextareaStyles } from './ArenaTextarea.variants';
 test('the default is a neutral, vertically resizable, enabled, editable field', () => {
   assert.equal(
     arenaTextareaStyles().field(),
-    arenaTextareaStyles({ state: 'neutral', resize: 'vertical', disabled: false, readonly: false }).field(),
+    arenaTextareaStyles({ state: 'neutral', resize: 'vertical', disabled: false, readOnly: false }).field(),
   );
 });
 
@@ -34,4 +34,9 @@ test('arenaBorderBoxSlack is the border, which scrollHeight leaves out and a bor
     'the Tailwind layer is border-box, so height must cover the border; scrollHeight covers only '
     + 'content plus padding, and the two-pixel shortfall is exactly one hairline top and bottom');
   assert.equal(arenaBorderBoxSlack({ offsetHeight: 80, clientHeight: 80 } as HTMLElement), 0);
+});
+
+test('readOnly and near are groups, near on the one counter slot', () => {
+  assert.notEqual(arenaTextareaStyles({ readOnly: true }).field(), arenaTextareaStyles({ readOnly: false }).field());
+  assert.notEqual(arenaTextareaStyles({ near: true }).counter(), arenaTextareaStyles({ near: false }).counter());
 });

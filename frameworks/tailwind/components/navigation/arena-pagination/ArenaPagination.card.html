@@ -42,7 +42,7 @@ function pagination(current, total) {
     if (page === '…') { nav.append(el('span', { class: c.ellipsis, text: '…' })); continue; }
     const isCurrent = page === current;
     nav.append(el('button', {
-      class: `${c.page} ${isCurrent ? c.pageCurrent : c.pageOther}`, type: 'button',
+      class: arenaClassesFor(manifest, { current: String(isCurrent) }).page, type: 'button',
       'aria-current': isCurrent ? 'page' : undefined, text: String(page),
     }));
   }

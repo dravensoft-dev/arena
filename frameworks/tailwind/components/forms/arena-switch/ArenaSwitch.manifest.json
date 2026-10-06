@@ -51,7 +51,7 @@
         "track": "flex-col"
       }
     },
-    "checked": {
+    "state": {
       "true": {
         "track": "bg-primary"
       },
@@ -117,7 +117,7 @@
   "defaultVariants": {
     "size": "md",
     "orientation": "horizontal",
-    "checked": false,
+    "state": false,
     "disabled": false,
     "footprint": "horizontal-md",
     "thumb": "off-horizontal"

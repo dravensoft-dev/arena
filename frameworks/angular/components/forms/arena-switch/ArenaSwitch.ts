@@ -87,7 +87,7 @@ export class ArenaSwitch {
   protected readonly styles = computed(() => arenaSwitchStyles({
     size: this.size(),
     orientation: this.orientation(),
-    checked: this.drawn(),
+    state: this.drawn(),
     disabled: this.off(),
     footprint: arenaFootprintFor(this.orientation(), this.size()),
     thumb: arenaThumbFor(this.drawn(), this.orientation()),

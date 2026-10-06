@@ -142,13 +142,13 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
                     }
                     run(c);
                   },
-                  className: `${styles.row()} ${on ? styles.rowActive() : styles.rowDefault()}`,
+                  className: paletteStyles({ open: true, active: on }).row(),
                   'data-arena-part': manifest.parts.row,
                 };
                 const body = (
                   <>
                     {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon}><i className={c.icon} aria-hidden="true" /></span>}
-                    <span className={`${styles.rowLabel()} ${on ? styles.rowLabelActive() : styles.rowLabelDefault()}`}
+                    <span className={paletteStyles({ open: true, active: on }).rowLabel()}
                       data-arena-part={manifest.parts.rowLabel}>{c.label}</span>
                     {c.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{c.shortcut}</span>}
                   </>

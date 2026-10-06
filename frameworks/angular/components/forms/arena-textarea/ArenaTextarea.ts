@@ -52,7 +52,7 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
         <span></span>
       }
       @if (counterText(); as text) {
-        <span [class]="counterClass()" [attr.data-arena-part]="parts.counter">{{ text }}</span>
+        <span [class]="styles().counter()" [attr.data-arena-part]="parts.counter">{{ text }}</span>
       }
     </div>
   `,
@@ -101,26 +101,20 @@ export class ArenaTextarea {
   protected readonly shownError = computed(() => this.error() ?? null);
   protected readonly hasError = computed(() => Boolean(this.shownError()));
 
+  protected readonly length = computed(() => (this.drawn() ?? '').length);
+
   protected readonly styles = computed(() => arenaTextareaStyles({
     state: this.hasError() ? 'error' : 'neutral',
     resize: this.autoResize() ? 'none' : 'vertical',
     disabled: this.off(),
-    readonly: this.readOnly(),
+    readOnly: this.readOnly(),
+    near: this.counter() && this.maxLength() !== undefined && arenaCounterIsNear(this.length(), this.maxLength()!),
   }));
-
-  protected readonly length = computed(() => (this.drawn() ?? '').length);
 
   protected readonly counterText = computed(() => {
     const cap = this.maxLength();
     if (!this.counter() || cap === undefined) return null;
     return `${this.length()}/${cap}`;
-  });
-
-  protected readonly counterClass = computed(() => {
-    const cap = this.maxLength();
-    return cap !== undefined && arenaCounterIsNear(this.length(), cap)
-      ? this.styles().counterNear()
-      : this.styles().counter();
   });
 
   private readonly control = viewChild<ElementRef<HTMLTextAreaElement>>('control');

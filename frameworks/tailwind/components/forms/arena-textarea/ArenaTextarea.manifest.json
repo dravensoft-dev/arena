@@ -8,8 +8,7 @@
     "foot": "flex justify-between gap-items",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-error",
-    "counter": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
-    "counterNear": "font-mono text-ctl-xs text-warning"
+    "counter": "font-mono text-ctl-xs"
   },
   "kind": {
     "root": "none",
@@ -19,15 +18,12 @@
     "foot": "none",
     "hint": "none",
     "error": "none",
-    "counter": "none",
-    "counterNear": "none"
+    "counter": "none"
   },
   "internal": {
     "state": "error when error is given",
-    "resize": "none while autoResize grows the field, vertical otherwise"
-  },
-  "partOf": {
-    "counterNear": "counter"
+    "resize": "none while autoResize grows the field, vertical otherwise",
+    "near": "the length is past 90% of maxLength"
   },
   "variants": {
     "state": {
@@ -52,17 +48,26 @@
       },
       "false": {}
     },
-    "readonly": {
+    "readOnly": {
       "true": {
         "field": "bg-base-200 cursor-default"
       },
       "false": {}
+    },
+    "near": {
+      "true": {
+        "counter": "text-warning"
+      },
+      "false": {
+        "counter": "text-ink-muted/(--level-ink-muted)"
+      }
     }
   },
   "defaultVariants": {
     "state": "neutral",
     "resize": "vertical",
     "disabled": false,
-    "readonly": false
+    "readOnly": false,
+    "near": false
   }
 }

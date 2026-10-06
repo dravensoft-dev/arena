@@ -32,11 +32,6 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
   return !item.divider && item.header === undefined;
 }
 
-export function arenaRowState(item: ArenaMenuItem): 'disabled' | 'destructive' | 'default' {
-  if (item.disabled) return 'disabled';
-  return item.destructive ? 'destructive' : 'default';
-}
-
 @Component({
   selector: 'arena-menu',
   standalone: true,
@@ -55,7 +50,7 @@ export function arenaRowState(item: ArenaMenuItem): 'disabled' | 'destructive' |
           } @else if (item.header; as heading) {
             <div [class]="styles().header()" [attr.data-arena-part]="parts.header">{{ heading }}</div>
           } @else {
-            <button type="button" role="menuitem" [class]="rowClass(item)" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
+            <button type="button" role="menuitem" [class]="rowStyles(item).item()" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
                     (click)="run(item)">
               @if (item.icon; as glyph) {
                 <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
@@ -84,7 +79,7 @@ export class ArenaMenu {
   /** An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   readonly select = output<ArenaMenuItem>();
 
-  protected readonly styles = computed(() => arenaMenuStyles({ anchored: true }));
+  protected readonly styles = computed(() => arenaMenuStyles({ anchored: true, align: this.align() }));
 
   private readonly open = signal(false);
   private readonly panel = viewChild.required<TemplateRef<unknown>>('panel');
@@ -109,12 +104,8 @@ export class ArenaMenu {
     });
   }
 
-  protected rowClass(item: ArenaMenuItem): string {
-    const styles = this.styles();
-    const state = arenaRowState(item);
-    const modifier = state === 'disabled' ? styles.itemDisabled()
-      : state === 'destructive' ? styles.itemDestructive() : styles.itemDefault();
-    return `${styles.item()} ${modifier}`;
+  protected rowStyles(item: ArenaMenuItem) {
+    return arenaMenuStyles({ anchored: true, disabled: !!item.disabled, destructive: !!item.destructive });
   }
 
   protected run(item: ArenaMenuItem): void {

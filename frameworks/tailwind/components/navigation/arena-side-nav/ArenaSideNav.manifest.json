@@ -30,8 +30,11 @@
     "dot": "none",
     "separator": "none"
   },
+  "internal": {
+    "current": "the item's key is the nav's activeId"
+  },
   "variants": {
-    "active": {
+    "current": {
       "true": {
         "item": "bg-primary/14 text-ink-body/(--level-ink-body) font-control",
         "badge": "bg-primary text-primary-content"
@@ -56,7 +59,7 @@
     }
   },
   "defaultVariants": {
-    "active": false,
+    "current": false,
     "collapsed": false
   }
 }

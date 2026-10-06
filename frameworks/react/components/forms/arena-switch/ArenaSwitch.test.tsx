@@ -23,11 +23,11 @@ test('the track footprint and the knob travel are two composite variants, not a 
   assert.match(off, /\barena-switch__track--footprint-horizontal-md\b/);
   assert.match(off, /\barena-switch__track--footprint-horizontal-md\b/);
   assert.match(off, /\barena-switch__knob--thumb-off-horizontal\b/);
-  assert.match(off, /\barena-switch__track--checked-false\b/);
+  assert.match(off, /\barena-switch__track--state-false\b/);
 
   const on = renderToStaticMarkup(<ArenaSwitch state label="Dark theme" />);
   assert.match(on, /\barena-switch__knob--thumb-on-horizontal\b/);
-  assert.match(on, /\barena-switch__track--checked-true\b/);
+  assert.match(on, /\barena-switch__track--state-true\b/);
 
   const tall = renderToStaticMarkup(<ArenaSwitch label="Dark theme" orientation="vertical" size="lg" />);
   assert.match(tall, /\barena-switch__track--footprint-vertical-lg\b/);

@@ -139,7 +139,7 @@ export class ArenaInput {
   protected readonly styles = computed(() => arenaInputStyles({
     state: this.hasError() ? 'error' : this.isValid() ? 'valid' : 'neutral',
     disabled: this.off(),
-    readonly: this.readOnly(),
+    readOnly: this.readOnly(),
   }));
 
   protected readonly iconClass = computed(() => `${this.styles().icon()} ${this.icon() ?? ''}`.trim());

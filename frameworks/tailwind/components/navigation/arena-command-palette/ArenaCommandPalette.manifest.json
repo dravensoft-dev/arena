@@ -12,12 +12,8 @@
     "group": "flex flex-col",
     "groupLabel": "px-row-x pt-[calc(var(--sp-1)*3*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "row": "flex items-center gap-row w-full min-h-ctl-h text-left px-row-x py-row-y rounded-control border-none cursor-pointer no-underline shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
-    "rowDefault": "bg-transparent text-ink-body/(--level-ink-body)",
-    "rowActive": "bg-primary/14 text-ink-body/(--level-ink-body)",
     "rowIcon": "inline-flex text-[length:var(--icon-lg)]",
     "rowLabel": "flex-1 font-body text-ctl",
-    "rowLabelDefault": "font-medium",
-    "rowLabelActive": "font-control",
     "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)"
   },
   "kind": {
@@ -32,19 +28,12 @@
     "group": "none",
     "groupLabel": "row",
     "row": "row",
-    "rowDefault": "none",
-    "rowActive": "none",
     "rowIcon": "none",
     "rowLabel": "none",
-    "rowLabelDefault": "none",
-    "rowLabelActive": "none",
     "shortcut": "none"
   },
-  "partOf": {
-    "rowActive": "row",
-    "rowDefault": "row",
-    "rowLabelActive": "rowLabel",
-    "rowLabelDefault": "rowLabel"
+  "internal": {
+    "active": "the row the keyboard cursor is on"
   },
   "variants": {
     "open": {
@@ -52,9 +41,20 @@
       "false": {
         "root": "hidden"
       }
+    },
+    "active": {
+      "true": {
+        "row": "bg-primary/14 text-ink-body/(--level-ink-body)",
+        "rowLabel": "font-control"
+      },
+      "false": {
+        "row": "bg-transparent text-ink-body/(--level-ink-body)",
+        "rowLabel": "font-medium"
+      }
     }
   },
   "defaultVariants": {
-    "open": false
+    "open": false,
+    "active": false
   }
 }

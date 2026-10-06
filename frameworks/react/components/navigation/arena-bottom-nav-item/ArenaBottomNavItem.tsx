@@ -42,7 +42,7 @@ export function ArenaBottomNavItem({ className,
   if (!icon) throw new Error('ArenaBottomNavItem: `icon` is required');
   const on = id === activeId;
   const tally = arenaBadgeCount(badge);
-  const styles = arenaBottomNavStyles({ active: on });
+  const styles = arenaBottomNavStyles({ current: on });
 
   const shared = {
     'aria-current': on ? 'page' as const : undefined,

@@ -14,8 +14,11 @@
     "label": "none",
     "badge": "marker"
   },
+  "internal": {
+    "current": "the item's key is the nav's activeId"
+  },
   "variants": {
-    "active": {
+    "current": {
       "true": {
         "item": "text-primary"
       },
@@ -23,6 +26,6 @@
     }
   },
   "defaultVariants": {
-    "active": false
+    "current": false
   }
 }

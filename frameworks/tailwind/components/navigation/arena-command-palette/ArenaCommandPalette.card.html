@@ -23,9 +23,10 @@ function palette({ query, activeIndex, commands }) {
   if (commands.length === 0) list.append(el('div', { class: c.empty, text: `No results for "${query}".` }));
   commands.forEach((command, i) => {
     const active = i === activeIndex;
-    const row = el('button', { class: `${c.row} ${active ? c.rowActive : c.rowDefault}`, type: 'button' });
+    const own = arenaClassesFor(manifest, { open: 'true', active: String(active) });
+    const row = el('button', { class: own.row, type: 'button' });
     if (command.icon) row.append(el('span', { class: c.rowIcon }, el('i', { class: command.icon, 'aria-hidden': 'true' })));
-    row.append(el('span', { class: `${c.rowLabel} ${active ? c.rowLabelActive : c.rowLabelDefault}`, text: command.label }));
+    row.append(el('span', { class: own.rowLabel, text: command.label }));
     if (command.shortcut) row.append(el('span', { class: c.shortcut, text: command.shortcut }));
     list.append(row);
   });

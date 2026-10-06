@@ -150,7 +150,7 @@ test('the counter changes slot past nine tenths of the cap rather than changing 
   try {
     const el = Array.from(calm.host.querySelectorAll('span')).find((s) => s.textContent === '90/100');
     assert.ok(el, 'the counter did not render at 90/100');
-    assert.doesNotMatch(el.getAttribute('class') ?? '', /arena-textarea__counter-near/);
+    assert.doesNotMatch(el.getAttribute('class') ?? '', /arena-textarea__counter--near-true/);
   } finally {
     calm.fixture.destroy();
   }
@@ -159,7 +159,7 @@ test('the counter changes slot past nine tenths of the cap rather than changing 
   try {
     const el = Array.from(near.host.querySelectorAll('span')).find((s) => s.textContent === '95/100');
     assert.ok(el);
-    assert.match(el.getAttribute('class') ?? '', /arena-textarea__counter-near/);
+    assert.match(el.getAttribute('class') ?? '', /arena-textarea__counter--near-true/);
   } finally {
     near.fixture.destroy();
   }

@@ -229,3 +229,11 @@ test('an unknown value throws from $data as it does from the class accessor', ()
 test('a slot no group touches carries no attribute', () => {
   assert.deepEqual(dataOf(arenaStyles(classesManifest({ ...probe, hues: undefined }))().$data, 'label'), { 'data-arena-sticky': '' });
 });
+
+test('a compound condition resolves through String(value), so a spelling of a value cannot poison another selection', () => {
+  const styles = arenaStyles(classesOf('ArenaMenu'));
+  const string = styles({ disabled: 'false', destructive: 'false' });
+  const boolean = styles({ disabled: false, destructive: false });
+  assert.match(slotted(string, 'item'), /--cv3\b/);
+  assert.equal(slotted(string, 'item'), slotted(boolean, 'item'));
+});

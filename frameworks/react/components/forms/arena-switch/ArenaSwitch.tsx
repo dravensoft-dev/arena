@@ -48,7 +48,7 @@ export function ArenaSwitch({ className,
   const styles = arenaSwitchStyles({
     size,
     orientation,
-    checked: state,
+    state,
     disabled,
     footprint: `${orientation}-${size}`,
     thumb: `${state ? 'on' : 'off'}-${orientation}`,

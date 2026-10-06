@@ -78,7 +78,8 @@ export function ArenaTextarea({ className,
     state: error ? 'error' : 'neutral',
     resize: autoResize ? 'none' : 'vertical',
     disabled,
-    readonly: readOnly,
+    readOnly,
+    near: Boolean(counter && maxLength && len > maxLength * 0.9),
   });
   useEffect(() => {
     if (autoResize) arenaFitToContent(boxRef.current);
@@ -99,7 +100,7 @@ export function ArenaTextarea({ className,
         {error ? <span className={styles.error()} data-arena-part={manifest.parts.error}>{error}</span>
           : hint ? <span className={styles.hint()} data-arena-part={manifest.parts.hint}>{hint}</span> : <span />}
         {counter && maxLength && (
-          <span className={len > maxLength * 0.9 ? styles.counterNear() : styles.counter()}
+          <span className={styles.counter()}
             data-arena-part={manifest.parts.counter}>{`${len}/${maxLength}`}</span>
         )}
       </div>

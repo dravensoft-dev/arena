@@ -15,7 +15,7 @@ test('the default is a horizontal md switch that is off and enabled', () => {
   assert.equal(
     arenaSwitchStyles().track(),
     arenaSwitchStyles({
-      size: 'md', orientation: 'horizontal', checked: false, disabled: false,
+      size: 'md', orientation: 'horizontal', state: false, disabled: false,
       footprint: 'horizontal-md', thumb: 'off-horizontal',
     }).track(),
   );

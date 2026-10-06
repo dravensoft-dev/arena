@@ -63,7 +63,7 @@ export class ArenaBottomNavItem {
   protected readonly current = computed(() => (this.on() ? 'page' : null));
   protected readonly off = computed(() => (this.disabled() ? 'true' : null));
   protected readonly count = computed(() => arenaBadgeCount(this.badge()));
-  protected readonly styles = computed(() => arenaBottomNavStyles({ active: this.on() }));
+  protected readonly styles = computed(() => arenaBottomNavStyles({ current: this.on() }));
 
   protected readonly name = computed(() => {
     const text = this.label();

@@ -117,7 +117,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   const styles = arenaInputStyles({
     state: shownError ? 'error' : isValid ? 'valid' : 'neutral',
     disabled,
-    readonly: readOnly,
+    readOnly,
   });
 
   return (

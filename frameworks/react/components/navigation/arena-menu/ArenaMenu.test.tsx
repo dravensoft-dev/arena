@@ -56,3 +56,11 @@ test('a trigger that cannot carry attributes throws rather than silently losing 
     /ArenaMenu: `trigger` must be a single element/,
   );
 });
+
+test('an item selects the disabled and destructive groups, and align end the panel group', async () => {
+  const { arenaMenuStyles } = await import('../../../ArenaStyles.generated.ts').then(async (m) => ({ arenaMenuStyles: m.arenaStyles((await import('./ArenaMenu.classes.generated.ts')).default) }));
+  assert.match(arenaMenuStyles({ align: 'end' }).panel(), /\barena-menu__panel--align-end\b/);
+  assert.doesNotMatch(arenaMenuStyles().panel(), /align-end/);
+  assert.notEqual(arenaMenuStyles({ disabled: true }).item(), arenaMenuStyles({ destructive: true }).item());
+  assert.equal(arenaMenuStyles({ disabled: true, destructive: true }).item(), arenaMenuStyles({ disabled: true }).item());
+});

@@ -1,10 +1,15 @@
-/* No DOM and no TestBed. The manifest carries no `variants` at all -- the current page and
- * the rest are two sibling SLOTS the component picks between -- so what is worth asserting
- * is that the pair stays disjoint from the shared `page` slot. The moment one of them
- * declares a border width or a display, the concatenation in pageClass() has two winners
- * and the sheet's order decides which, silently. */
+/* No DOM and no TestBed: the current page is a group on the one page slot, so the recipe's output
+ * differs per selection and nothing else in the slot set moves with it. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaPaginationStyles } from './ArenaPagination.variants';
 
+
+test('the current page differs from the other pages on the page slot only', () => {
+  const on = arenaPaginationStyles({ current: true });
+  const off = arenaPaginationStyles({ current: false });
+  assert.notEqual(on.page(), off.page());
+  assert.equal(on.nav(), off.nav());
+  assert.equal(on.ellipsis(), off.ellipsis());
+});

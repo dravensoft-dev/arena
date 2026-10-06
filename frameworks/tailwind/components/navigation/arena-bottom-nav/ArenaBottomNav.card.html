@@ -11,7 +11,7 @@ import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.j
 const manifest = await (await fetch('./ArenaBottomNav.manifest.json')).json();
 
 function column({ icon, label, active = false, badge = null }) {
-  const c = arenaClassesFor(manifest, { active });
+  const c = arenaClassesFor(manifest, { current: active });
   const glyph = el('span', { class: c.glyph },
     el('i', { class: `${active ? 'ph-fill' : 'ph-bold'} ${icon}`, 'aria-hidden': 'true' }));
   if (badge) glyph.append(el('span', { class: c.badge, text: badge }));

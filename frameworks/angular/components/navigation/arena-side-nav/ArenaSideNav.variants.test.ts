@@ -7,11 +7,11 @@ function tokens(classString: string): string[] {
   return classString.split(/\s+/).filter(Boolean);
 }
 
-test('only the item varies with active -- the section, its heading, the trigger and the region are constant', () => {
-  const on = arenaSideNavStyles({ active: true });
-  const off = arenaSideNavStyles({ active: false });
+test('only the item varies with current -- the section, its heading, the trigger and the region are constant', () => {
+  const on = arenaSideNavStyles({ current: true });
+  const off = arenaSideNavStyles({ current: false });
   for (const slot of ['root', 'icon', 'section', 'sectionLabel', 'trigger', 'triggerLabel', 'caret', 'region'] as const) {
-    assert.equal(on[slot](), off[slot](), `${slot} must not vary with active`);
+    assert.equal(on[slot](), off[slot](), `${slot} must not vary with current`);
   }
 });
 

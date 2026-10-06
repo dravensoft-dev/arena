@@ -165,7 +165,7 @@ test('the active column takes the accent from the variant, and its badge from th
     </ArenaBottomNav>,
   );
   const columns = [...root.querySelectorAll('nav > *')].map((c) => c.getAttribute('class') ?? '');
-  assert.equal(columns.filter((c) => /\barena-bottom-nav__item--active-true\b/.test(c)).length, 1,
+  assert.equal(columns.filter((c) => /\barena-bottom-nav__item--current-true\b/.test(c)).length, 1,
     'exactly the current column is accented');
   assert.match(columns[0]!, /arena-bottom-nav__item/, 'and every column lifts through a modifier');
   assert.match(root.querySelector('nav')!.innerHTML, /\barena-bottom-nav__badge\b/, 'the badge is the accent chip');

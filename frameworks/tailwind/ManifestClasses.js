@@ -118,7 +118,7 @@ export function classesFor(manifest, chosen = {}) {
 
   for (const compound of manifest.compoundVariants ?? []) {
     const { class: applied, ...conditions } = compound;
-    if (Object.entries(conditions).every(([name, value]) => resolved(name) === value)) append(applied);
+    if (Object.entries(conditions).every(([name, value]) => String(resolved(name)) === String(value))) append(applied);
   }
 
   return out;

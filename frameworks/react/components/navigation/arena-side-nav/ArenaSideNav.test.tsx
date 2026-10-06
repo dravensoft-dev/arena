@@ -29,11 +29,11 @@ test('the nav is labelled', () => {
 
 test('active and inactive items differ in weight and colour', () => {
   const html = renderToStaticMarkup(<ArenaSideNav ariaLabel="Primary" active="dashboard">{TREE}</ArenaSideNav>);
-  assert.match(html, /\barena-side-nav__item--active-true\b/);
-  assert.match(html, /\barena-side-nav__item--active-true\b/);
-  assert.match(html, /\barena-side-nav__item--active-true\b/);
-  assert.match(html, /\b(?:arena-side-nav__trigger|arena-side-nav__item--active-false)\b/);
-  assert.match(html, /\b(?:arena-side-nav__trigger|arena-side-nav__item--active-false)\b/);
+  assert.match(html, /\barena-side-nav__item--current-true\b/);
+  assert.match(html, /\barena-side-nav__item--current-true\b/);
+  assert.match(html, /\barena-side-nav__item--current-true\b/);
+  assert.match(html, /\b(?:arena-side-nav__trigger|arena-side-nav__item--current-false)\b/);
+  assert.match(html, /\b(?:arena-side-nav__trigger|arena-side-nav__item--current-false)\b/);
 });
 
 test('onNav carries the activated id alone, and no DOM event reaches the handler', () => {

@@ -113,7 +113,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaPeopleList:figure:font-mono', 'the quantity a row of people is sorted by, read as a figure beside the name rather than as a register'],
   ['ArenaProgressBar:value:font-mono', 'a percentage that must not jitter as it counts'],
   ['ArenaTextarea:counter:font-mono', 'a character count that must not jitter as it counts'],
-  ['ArenaTextarea:counterNear:font-mono', 'the same count at its warning threshold'],
   ['ArenaBulkActionBar:count:font-mono', 'a selection count that must not jitter as it counts'],
   ['ArenaPagination:page:font-mono', 'a page number, and the row of them has to align'],
   ['ArenaPagination:ellipsis:font-mono', 'the gap between two page numbers, which sits on their grid'],

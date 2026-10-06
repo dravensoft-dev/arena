@@ -118,13 +118,13 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
             @if (command.route; as target) {
               <a [id]="optionId(i)" role="option" [attr.aria-selected]="i === active()" tabindex="-1"
                  [href]="target"
-                 [class]="styles().row() + ' ' + (i === active() ? styles().rowActive() : styles().rowDefault())"
+                 [class]="rowStyles(i).row()"
                  [attr.data-arena-part]="parts.row"
                  (mouseenter)="onHover(i)" (click)="onRouteClick(command, $event)">
                 @if (command.icon; as glyph) {
                   <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
                 }
-                <span [class]="styles().rowLabel() + ' ' + (i === active() ? styles().rowLabelActive() : styles().rowLabelDefault())"
+                <span [class]="rowStyles(i).rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
                 @if (command.shortcut; as shortcut) {
                   <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
@@ -132,13 +132,13 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
               </a>
             } @else {
             <button type="button" [id]="optionId(i)" role="option" [attr.aria-selected]="i === active()" tabindex="-1"
-                    [class]="styles().row() + ' ' + (i === active() ? styles().rowActive() : styles().rowDefault())"
+                    [class]="rowStyles(i).row()"
                  [attr.data-arena-part]="parts.row"
                     (mouseenter)="onHover(i)" (click)="onRun(command)">
               @if (command.icon; as glyph) {
                 <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
               }
-              <span [class]="styles().rowLabel() + ' ' + (i === active() ? styles().rowLabelActive() : styles().rowLabelDefault())"
+              <span [class]="rowStyles(i).rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
               @if (command.shortcut; as shortcut) {
                 <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
@@ -178,6 +178,10 @@ export class ArenaCommandPalette {
   protected readonly query = signal('');
   protected readonly active = signal(0);
   protected readonly styles = computed(() => arenaCommandPaletteStyles({ open: this.open() }));
+
+  protected rowStyles(index: number) {
+    return arenaCommandPaletteStyles({ open: this.open(), active: index === this.active() });
+  }
   protected readonly filtered = computed(() => arenaOrderCommands(
     arenaCapCommands(arenaFilterCommands(this.commands(), this.query()), this.maxResults()),
   ));

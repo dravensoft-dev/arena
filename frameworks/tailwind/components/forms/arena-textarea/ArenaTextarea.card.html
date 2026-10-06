@@ -26,7 +26,7 @@ function textarea({ label, value = '', hint, error, state = 'neutral', maxLength
     : hint ? el('span', { class: c.hint, text: hint }) : el('span'));
   if (maxLength) {
     const near = value.length > maxLength * 0.9;
-    foot.append(el('span', { class: near ? c.counterNear : c.counter, text: `${value.length}/${maxLength}` }));
+    foot.append(el('span', { class: arenaClassesFor(manifest, { near: String(near) }).counter, text: `${value.length}/${maxLength}` }));
   }
   root.append(foot);
   return root;

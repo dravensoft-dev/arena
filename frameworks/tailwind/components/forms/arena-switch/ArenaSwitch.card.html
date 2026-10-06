@@ -14,7 +14,7 @@ const manifest = await (await fetch('./ArenaSwitch.manifest.json')).json();
  * ManifestClasses.js (this harness) does not apply
  * compoundVariants -- track's width/height genuinely depend on BOTH size
  * and orientation, and the knob's translate direction genuinely depends on
- * BOTH checked and orientation, so those two crossed pairs are flattened
+ * BOTH state and orientation, so those two crossed pairs are flattened
  * into their own enumerated variants rather than declared as a compound.
  * `arena-switch` crosses the same two
  * pairs in `arenaFootprintFor()` and `arenaThumbFor()` -- the flattening stays because
@@ -22,7 +22,7 @@ const manifest = await (await fetch('./ArenaSwitch.manifest.json')).json();
 function toggle({ label, size = 'md', orientation = 'horizontal', checked = false, disabled = false, confirm = false, iconOn, iconOff }) {
   const footprint = `${orientation}-${size}`;
   const thumb = `${checked ? 'on' : 'off'}-${orientation}`;
-  const c = arenaClassesFor(manifest, { size, orientation, checked: String(checked), disabled: String(disabled), footprint, thumb });
+  const c = arenaClassesFor(manifest, { size, orientation, state: String(checked), disabled: String(disabled), footprint, thumb });
   const icon = checked ? iconOn : iconOff;
   const knob = el('span', { class: c.knob }, icon ? el('i', { class: `${c.icon} ${icon}` }) : '');
   const track = el('button', { type: 'button', role: 'switch', class: c.track, 'aria-checked': String(checked), 'aria-label': label, disabled: disabled || undefined }, knob);

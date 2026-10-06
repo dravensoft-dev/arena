@@ -63,8 +63,7 @@ export class ArenaPagination {
   protected readonly styles = computed(() => arenaPaginationStyles());
 
   protected pageClass(page: number): string {
-    const styles = arenaPaginationStyles();
-    return `${styles.page()} ${page === this.page() ? styles.pageCurrent() : styles.pageOther()}`;
+    return arenaPaginationStyles({ current: page === this.page() }).page();
   }
 
   protected go(page: number): void {

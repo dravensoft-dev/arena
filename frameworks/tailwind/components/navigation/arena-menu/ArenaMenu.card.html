@@ -28,14 +28,12 @@ function menu() {
   for (const item of ITEMS) {
     if (item.divider) { panel.append(el('div', { class: c.divider })); continue; }
     if (item.header) { panel.append(el('div', { class: c.header, text: item.header })); continue; }
-    /* Exactly one modifier is combined with the base `item`, and the order is
-       disabled first, then destructive, then default -- the disabled branch wins
-       unconditionally. Stacking
-       itemDestructive's hover alongside itemDefault's would put two same-property
-       hover rules on one row, and Tailwind's generated order — alphabetical by value,
-       not by manifest order — lets the wrong one win the cascade. */
-    const modifier = item.disabled ? c.itemDisabled : item.destructive ? c.itemDestructive : c.itemDefault;
-    const classes = [c.item, modifier].filter(Boolean).join(' ');
+    /* The item is three compounds of disabled and destructive, in this order: disabled, then
+       destructive, then the default row. Disabled wins unconditionally, and the default row's
+       hover must not reach a disabled or destructive row, because Tailwind orders the generated
+       rules alphabetically by value rather than by manifest order and the wrong hover would win
+       the cascade. */
+    const classes = arenaClassesFor(manifest, { disabled: Boolean(item.disabled), destructive: Boolean(item.destructive) }).item;
     const row = el('button', { class: classes, type: 'button', role: 'menuitem', disabled: item.disabled },
       el('span', { class: c.icon }, el('i', { class: item.icon, 'aria-hidden': 'true' })),
       el('span', { class: c.label, text: item.label }));

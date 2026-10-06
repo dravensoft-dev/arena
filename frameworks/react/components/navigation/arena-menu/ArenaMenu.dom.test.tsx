@@ -177,9 +177,10 @@ test('a row takes one of three branches of the item recipe, and hover is a modif
   assert.equal(rows.length, 3);
   const [ordinary, destructive, inert] = rows.map((r) => r.getAttribute('class') ?? '') as [string, string, string];
 
-  assert.match(ordinary, /arena-menu__item-default/, 'an ordinary row lifts to the accent tint');
-  assert.match(destructive, /\barena-menu__item-destructive\b/);
-  assert.match(destructive, /arena-menu__item-destructive/, 'a destructive row lifts to its own tint, never the accent');
-  assert.match(inert, /\barena-menu__item-disabled\b/);
+  assert.match(ordinary, /\barena-menu__item--cv3\b/, 'an ordinary row lifts to the accent tint');
+  assert.match(destructive, /\barena-menu__item--cv2\b/);
+  assert.doesNotMatch(destructive, /\barena-menu__item--cv3\b/, 'a destructive row lifts to its own tint, never the accent');
+  assert.match(inert, /\barena-menu__item--cv1\b/);
+  assert.doesNotMatch(inert, /\barena-menu__item--cv[23]\b/, 'disabled wins over the other two');
   assert.doesNotMatch(inert, /hover:/, 'a disabled row lifts to nothing at all');
 });

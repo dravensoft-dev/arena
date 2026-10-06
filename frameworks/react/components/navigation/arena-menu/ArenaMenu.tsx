@@ -98,14 +98,14 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
     },
   });
 
-  const styles = arenaMenuStyles();
+  const styles = arenaMenuStyles({ align });
 
   return (
     <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root}>
       {decoratedTrigger}
       {open && (
         <div role="menu" ref={panelRef}
-          className={align === 'end' ? `${styles.panel()} ${styles.panelEnd()}` : styles.panel()}
+          className={styles.panel()}
           data-arena-part={manifest.parts.panel}>
           {items.map((it, i) => {
             if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} />;
@@ -121,13 +121,10 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
 }
 
 function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
-  const styles = arenaMenuStyles();
-  const state = item.disabled
-    ? styles.itemDisabled()
-    : item.destructive ? styles.itemDestructive() : styles.itemDefault();
+  const styles = arenaMenuStyles({ disabled: !!item.disabled, destructive: !!item.destructive });
   return (
     <button role="menuitem" onClick={onRun} disabled={item.disabled}
-      className={`${styles.item()} ${state}`} data-arena-part={manifest.parts.item}>
+      className={styles.item()} data-arena-part={manifest.parts.item}>
       {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />}
       <span className={styles.label()} data-arena-part={manifest.parts.label}>{item.label}</span>
       {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{item.shortcut}</span>}

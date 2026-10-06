@@ -124,3 +124,10 @@ test('without a consumer id the label-derived one is still generated', () => {
   assert.match(html, /id="in-email"/);
   assert.match(html, /for="in-email"/);
 });
+
+test('readOnly is a group on the field and the input', () => {
+  const on = renderToStaticMarkup(<ArenaInput label="Slug" readOnly />);
+  assert.match(on, /\barena-input__field--read-only-true\b/);
+  assert.match(on, /\barena-input__input--read-only-true\b/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaInput label="Slug" />), /read-only-true/);
+});

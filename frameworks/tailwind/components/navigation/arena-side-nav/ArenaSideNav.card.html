@@ -16,7 +16,7 @@ const c = arenaClassesFor(manifest);
    name the consumer supplies -- the single-icon convention: Arena styles the
    element, the consumer names it. */
 function item({ label, href, icon, current }) {
-  const active = arenaClassesFor(manifest, { active: String(Boolean(current)) });
+  const active = arenaClassesFor(manifest, { current: String(Boolean(current)) });
   const kids = [];
   if (icon) kids.push(el('i', { class: `${c.icon} ${icon}`, 'aria-hidden': 'true' }));
   kids.push(label);
