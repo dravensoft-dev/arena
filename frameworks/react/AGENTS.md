@@ -119,8 +119,8 @@ one of them can see.
 `ArenaConfirmDialog` draws its cancel as `<ArenaButton className="arena-emphasis-ghost">`, the
 same class an adopter writes, and no inner component has a prop for it. The class is held to the
 inner component's vocabulary by `frameworks/react/VocabularyClass.ts:arenaClassName(component, base, own, allowed)`,
-so an option the inner component does not answer is dropped with a warning rather than reaching
-the DOM.
+so a class outside that vocabulary is dropped with a warning. A context option the inner component
+does not answer reaches the DOM and changes nothing on it.
 
 **An injected internal prop is how a component hands an inner component what no adopter chooses.**
 `ArenaAvatarInjected { face }` is declared beside the avatar, and the component's props are

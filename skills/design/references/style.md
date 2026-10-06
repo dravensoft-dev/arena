@@ -107,13 +107,12 @@ by side are already a row.
 trailing figure against a wrapping name. The five sit here rather than in the kernel for that reason.
 
 **These classes go on an element you wrote, and they are useless on an Arena element.** A component's own element may declare `display: contents` and carry no box. One component renders
-no element of its own at all. So an Arena element is never a layout target. **When the element you need to lay out is a component, the answer is a `<div>` of your own around
-it.** Dropping the class is not the answer. Refusing the class and writing no wrapper leaves the
-layout unstated, which looks like restraint and reads on the screen as a bug.
+no element at all. So an Arena element is never a layout target. **When the element you need to lay out is a component, the answer is a `<div>` of your own around
+it.** Refusing the class and writing no wrapper leaves the
+layout unstated, which reads on the screen as a bug.
 
 **The air inside a component is not this.** `gap-control`, `gap-inline`, `gap-items`,
-`pad-surface`, `pad-control-x` and `pad-control-y` are kernel roles. Move them by answering them
-differently in your style plugin, never by writing a rule against a component. The cut is whole:
+`pad-surface`, `pad-control-x` and `pad-control-y` are kernel roles. The option roles of those are `size-<option>-control-pad-x` and `elevation-<option>-shadow`. Move them by answering them in your style plugin, never by a rule against a component. The cut is whole:
 between is yours and comes from here, inside is the kernel's and comes from [`style-kernel.md`](./style-kernel.md).
 
 ## Density

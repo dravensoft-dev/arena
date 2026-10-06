@@ -261,9 +261,9 @@ no better in either idiom: a protected input fails the row's binding, since a te
 what a class exposes, and a public one is a member `check:api` refuses because no contract declares
 it.
 
-**A floating surface carries `data-arena-surface="floating"`**, bound on its host as
-`'[attr.data-arena-surface]': "'floating'"`, on the element its manifest declares `floating`, as
-the tooltip's bubble, the toast stack and the dialogs do. A context class written above the
+**A floating surface carries `data-arena-surface="floating"`**, bound on the host when the floating slot is the root, as
+`'[attr.data-arena-surface]': "'floating'"`, and on the slot's element otherwise, as the tooltip's
+bubble and the menu panel do in their templates. A context class written above the
 trigger stops there.
 
 ## What Arena implements

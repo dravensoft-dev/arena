@@ -169,10 +169,9 @@ its own and assigns several of these differently, so it is a plugin to read rath
 to inherit. A plugin you write answers every role itself, and nothing is inherited from it.
 The default plugin is
 [`plugin-style-store/default/plugin.tokens.json`](../../../plugin-style-store/default/plugin.tokens.json)
-in the Arena repository, and
+and
 [`plugin-style-store/complete/`](../../../plugin-style-store/complete/plugin.tokens.json) beside
-it is a second one answering the same roles differently. Read one of them before writing yours. Answering every role from a list of role names is
-the hardest instruction on this page, and a worked answer is worth more than the list. **Both are in the repository rather than in the
+it is a second one answering the same roles differently. Read one before writing yours, because a worked answer is worth more than a list of role names. **Both are in the repository rather than in the
 package.** From an installed project, read them on the Arena repository. Or start from
 `"stylePlugins": ["default"]` and replace one role at a time against something that already
 runs.
@@ -186,14 +185,16 @@ them:
 | `bw-surface`, `bw-control`, `bw-field`, `bw-separator`, `bw-marker` | whether an edge is a hairline, a drawn line, or absent |
 | `fw-heading`, `fw-eyebrow`, `fw-control` | how loud type is before any size changes |
 | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | whether small text shouts in capitals or reads as a word |
-| `pad-control-x`, `pad-control-y`, `gap-inline`, `gap-items`, `gap-control` | how tight the product is to the hand |
+| `pad-control-x`, `pad-control-y`, `size-<option>-control-pad-x`, `gap-inline`, `gap-items`, `gap-control` | how tight the product is to the hand |
 | `container-max`, `measure-prose`, `grid-min`, `gutter` | how wide it breathes, and it ranges from a dense console to a reading column |
-| `shadow-surface-rest`, `shadow-surface-floating`, `shadow-surface-deep`, `shadow-control-raised` | whether depth is a soft blur, a hard offset or nothing at all, and whether a surface has any at rest |
+| `shadow-surface-rest`, `shadow-surface-floating`, `shadow-surface-deep`, `shadow-control-raised`, `elevation-<option>-shadow`, `emphasis-primary-shadow-hover` | whether depth is a soft blur, a hard offset or nothing at all, and whether a surface has any at rest |
 | `press-scale`, `lift-control`, `dur-state`, `ease-state` | how the product answers a hand |
 | `aspect-media`, `fit-media` | what shape an image is, before any of it is cropped |
 | `fill-page`, `fill-surface`, `fill-surface-sunken`, `fill-field` | which surface is the page and which is the thing standing on it |
-| `edge-control`, `edge-field`, `edge-marker` | whether a control, a field and a marker are outlined at all, and in what |
+| `edge-control`, `emphasis-secondary-edge`, `edge-field`, `edge-marker` | whether a control, a field and a marker are outlined at all, and in what |
 | `ff-eyebrow`, `ff-label` | whether small text is the body face or the mono one, which is the difference between a shopfront and a console |
+
+The `<option>` roles: `contracts/design/StylePlugins.md` "The option roles".
 
 **So the order of work is: shapes, then space, then weight, then depth.** Leave the colour roles
 where they are until those read as your product, because a plugin that starts by reassigning
