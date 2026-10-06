@@ -45,8 +45,31 @@ function insideMathParens(rest: string, index: number) {
   return stack.length > 0 && stack[stack.length - 1];
 }
 
+const CHANNEL_READ = /var\(\s*--arena-[a-z0-9-]+\s*,/;
+
+function withoutLegalFallbacks(value: string): string | null {
+  let out = '';
+  let rest = value;
+  for (let match = CHANNEL_READ.exec(rest); match !== null; match = CHANNEL_READ.exec(rest)) {
+    const from = match.index + match[0].length;
+    let depth = 1;
+    let at = from;
+    for (; at < rest.length && depth > 0; at += 1) {
+      if (rest[at] === '(') depth += 1;
+      else if (rest[at] === ')') depth -= 1;
+    }
+    const fallback = rest.slice(from, depth === 0 ? at - 1 : at).trim();
+    if (fallback !== '0' && !isLegalBracket(fallback.replaceAll(' ', '_'))) return null;
+    out += `${rest.slice(0, match.index)}${match[0].replace(/\s*,$/, '')})`;
+    rest = rest.slice(at);
+  }
+  return out + rest;
+}
+
 export function isLegalBracket(content: string) {
-  const value = content.replace(HINT, '').replaceAll('_', ' ');
+  const unhinted = content.replace(HINT, '').replaceAll('_', ' ');
+  const value = withoutLegalFallbacks(unhinted);
+  if (value === null) return false;
   if (UNMODELLED.test(value.trim())) return true;
   if (!/[\d#]/.test(value)) return true;
   if (value.includes('#')) return false;
@@ -280,6 +303,7 @@ export type VocabularyIndex = {
   page: string;
   classes: Record<string, { family: string; reach: 'context' | 'box'; target?: 'component' | 'markup' }>;
   answers: Record<string, string[]>;
+  options: Record<string, string[]>;
 };
 
 const STATIC_CLASS = /(?:^|\s)(?:className|class)\s*=\s*(["'])([^"']*)\1/;
@@ -315,6 +339,14 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
     if (entry.reach === 'box' && !(vocabulary.answers[component] ?? []).includes(entry.family)) {
       found.push(`${token} decides ${entry.family}, and ${component} does not answer ${entry.family}, so the `
         + `class reaches nothing in its box. ${vocabulary.page}`);
+    } else if (entry.reach === 'box') {
+      const answered = (vocabulary.options[component] ?? []).filter((option) => vocabulary.classes[option]?.family === entry.family);
+      if (answered.length > 0 && !answered.includes(token)) {
+        const prefix = (answered[0] ?? '').slice(0, (answered[0] ?? '').lastIndexOf('-') + 1);
+        const named = answered.map((option, at) => (at > 0 && option.startsWith(prefix) ? option.slice(prefix.length - 1) : option));
+        const list = named.length > 1 ? `${named.slice(0, -1).join(', ')} and ${named.at(-1)}` : named.join('');
+        found.push(`\`${token}\` is an option ${component} does not answer: it answers ${list}. ${vocabulary.page}`);
+      }
     }
   }
   for (const [family, written] of byFamily) {

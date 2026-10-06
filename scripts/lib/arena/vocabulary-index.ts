@@ -3,7 +3,7 @@
  * nor a manifest from there. */
 
 import { join } from 'node:path';
-import { answeredFamilies, readFamilies, targetOf, type Family } from '../tailwind/vocabulary.ts';
+import { answerOf, answeredFamilies, readFamilies, targetOf, type Family } from '../tailwind/vocabulary.ts';
 import { layerManifests } from '../tailwind/tailwind-compile.ts';
 import { DOMAIN } from './site-pages.ts';
 import { repoRoot } from './repo-root.ts';
@@ -18,8 +18,13 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
   for (const family of families)
     for (const option of Object.keys(family.variants).sort()) classes[option] = { family: family.family, reach: family.reach, target: targetOf(family) };
   const answers: VocabularyIndex['answers'] = {};
-  for (const manifest of manifests) if (manifest.answers?.length) answers[manifest.component] = answeredFamilies(manifest);
-  return { page, classes, answers };
+  const options: VocabularyIndex['options'] = {};
+  for (const manifest of manifests) {
+    if (!manifest.answers?.length) continue;
+    answers[manifest.component] = answeredFamilies(manifest);
+    options[manifest.component] = families.flatMap((family) => answerOf(manifest as ComponentManifest, family)?.options ?? []);
+  }
+  return { page, classes, answers, options };
 }
 
 export function vocabularyIndex(root = repoRoot) {

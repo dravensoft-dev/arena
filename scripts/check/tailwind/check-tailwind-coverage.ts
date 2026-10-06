@@ -5,6 +5,9 @@ import { arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
 import { readHues } from '../../lib/tailwind/hue-sheet.ts';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 
 export const node = {
   name: 'check:coverage',
@@ -107,6 +110,22 @@ for (const [hue, channels] of readHues()) {
       + '(frameworks/tailwind/Hues.json) into a channel a manifest reads, so no utility is named after it');
 }
 
+export const OPTION_ROLE_REASON = 'an option role, read through a family channel rather than a utility';
+
+export function optionRoles(roles: Iterable<string>, families: Iterable<string>, reached: ReadonlySet<string> = new Set()) {
+  const out = new Map<string, string>();
+  const prefixes = [...families].map((family) => `${family}-`);
+  for (const role of roles)
+    if (!reached.has(role) && prefixes.some((prefix) => role.startsWith(prefix))) out.set(role, OPTION_ROLE_REASON);
+  return out;
+}
+
+export function pluginOptionRoles(root = repoRoot) {
+  const reached = presetTokens(readFileSync(join(root, 'frameworks/tailwind/Theme.css'), 'utf8'));
+  const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object);
+  return { roles, excluded: optionRoles(roles, readFamilies(root).keys(), reached), reached };
+}
+
 export function presetTokens(css: string) {
   const out = new Set<string>();
   const m = css.match(/@theme\s*\{([\s\S]*)\}/);
@@ -146,13 +165,14 @@ function main() {
   const tokens = arenaTokens();
   const preset = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
   const exposed = presetTokens(preset);
-  const errs = checkCoverage(tokens, exposed, EXCLUDED);
+  const excluded = new Map([...EXCLUDED, ...pluginOptionRoles().excluded]);
+  const errs = checkCoverage(tokens, exposed, excluded);
   if (errs.length) {
     console.error(`check-tailwind-coverage: ${errs.length} token(s) undeclared\n`);
     for (const e of errs) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${EXCLUDED.size} excluded on the record`);
+  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${excluded.size} excluded on the record`);
 }
 
 if (isMainModule(import.meta.url)) main();

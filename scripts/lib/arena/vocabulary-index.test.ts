@@ -12,6 +12,7 @@ test('every option is indexed with its family and reach, and every answering com
     page: 'https://x/p',
     classes: { 'arena-fill': { family: 'fill', reach: 'box', target: 'component' }, 'arena-fit': { family: 'fill', reach: 'box', target: 'component' } },
     answers: { ArenaButton: ['fill'] },
+    options: { ArenaButton: ['arena-fill', 'arena-fit'] },
   });
 });
 
@@ -19,4 +20,12 @@ test('an option of a markup family is indexed with target markup', () => {
   const index = vocabularyIndexOf(
     [{ family: 'stack', reach: 'box', target: 'markup', description: 'd', variants: { 'arena-stack': '[display:flex]' } }], [], 'https://x/p');
   assert.deepEqual(index.classes, { 'arena-stack': { family: 'stack', reach: 'box', target: 'markup' } });
+});
+
+test('an answers object narrows the options a component keeps', () => {
+  const index = vocabularyIndexOf(
+    [{ family: 'placement', reach: 'box', description: 'd', variants: { 'arena-placement-top': 'a', 'arena-placement-end': 'b' } }],
+    [{ component: 'ArenaSheet', answers: [{ family: 'placement', options: ['arena-placement-end'], default: 'arena-placement-end' }] }], 'https://x/p');
+  assert.deepEqual(index.answers, { ArenaSheet: ['placement'] });
+  assert.deepEqual(index.options, { ArenaSheet: ['arena-placement-end'] });
 });

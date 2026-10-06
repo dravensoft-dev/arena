@@ -170,6 +170,10 @@ test('the moved bracket rule decides exactly what it decided inside the gate', (
   assert.equal(isLegalBracket('#b52a20'), false);
   assert.equal(isLegalBracket('16px'), false);
   assert.equal(isLegalBracket('50%'), true);
+  assert.equal(isLegalBracket('var(--arena-layout-radius,0)'), true);
+  assert.equal(isLegalBracket('var(--arena-placement-max-height,80vh)'), true);
+  assert.equal(isLegalBracket('var(--arena-x,var(--r-lg))'), true);
+  assert.equal(isLegalBracket('var(--arena-x,12px)'), false);
   assert.equal(isLegalBracket('calc(var(--sp-4)_*_2)'), true);
   assert.deepEqual(scanText('mt-[var(--sp-4)]'), []);
   assert.equal(scanText('bg-[#fff]').length, 1);
@@ -499,6 +503,7 @@ const VOCABULARY: VocabularyIndex = {
   classes: { 'arena-fill': { family: 'fill', reach: 'box' }, 'arena-fit': { family: 'fill', reach: 'box' },
     'arena-witness-on': { family: 'witness', reach: 'context' } },
   answers: { ArenaButton: ['fill'] },
+  options: { ArenaButton: ['arena-fill', 'arena-fit'] },
 };
 
 test('a vocabulary class on a component that answers its family is no finding, in either layer\'s idiom', () => {
@@ -553,7 +558,19 @@ test('every appearance attribute points at a family that exists, on a member no 
 });
 
 test('a markup class on a component is reported as markup-only', () => {
-  const vocabulary = { page: 'P', answers: {}, classes: { 'arena-stack': { family: 'stack', reach: 'box', target: 'markup' } } } as VocabularyIndex;
+  const vocabulary = { page: 'P', answers: {}, options: {}, classes: { 'arena-stack': { family: 'stack', reach: 'box', target: 'markup' } } } as VocabularyIndex;
   assert.match(ownClassFindings('ArenaCard', ' class="arena-stack"', vocabulary).join('\n'),
     /arena-stack goes on an element you wrote and never on a component/);
+});
+
+test('an option of a box family the component does not answer is refused, naming the options it answers', () => {
+  const vocabulary: VocabularyIndex = {
+    page: 'P',
+    classes: Object.fromEntries(['top', 'bottom', 'start', 'end', 'top-end'].map((o) => [`arena-placement-${o}`, { family: 'placement', reach: 'box' as const }])),
+    answers: { ArenaSheet: ['placement'] },
+    options: { ArenaSheet: ['arena-placement-bottom', 'arena-placement-start', 'arena-placement-end'] },
+  };
+  assert.match(ownClassFindings('ArenaSheet', ' class="arena-placement-top-end"', vocabulary).join('\n'),
+    /`arena-placement-top-end` is an option ArenaSheet does not answer: it answers arena-placement-bottom, -start and -end/);
+  assert.deepEqual(ownClassFindings('ArenaSheet', ' class="arena-placement-start"', vocabulary), []);
 });

@@ -795,7 +795,7 @@ test('the audit reads a class against the vocabulary the package carries, and wi
   const options = resolved(parseArgs([
     '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
   ]));
-  const vocabulary = { page: 'p', classes: { 'arena-fill': { family: 'fill', reach: 'box' as const } }, answers: { ArenaButton: ['fill'] } };
+  const vocabulary = { page: 'p', classes: { 'arena-fill': { family: 'fill', reach: 'box' as const } }, answers: { ArenaButton: ['fill'] }, options: { ArenaButton: ['arena-fill'] } };
   const ownClass = (found: { reports: { message: string }[] }) => found.reports.filter((one) => one.message.includes('(own-class)'));
   assert.deepEqual(ownClass(auditStep(options, null, null, vocabulary)), []);
   assert.equal(ownClass(auditStep(options, null, null, null)).length, 1);
@@ -805,7 +805,7 @@ test('the audit reads a class against the vocabulary the package carries, and wi
 test('the vocabulary index is read from beside the command, and a file that is not one reads as none', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-vocab-index-'));
   assert.equal(loadVocabulary(root), null);
-  writeFileSync(join(root, VOCABULARY_INDEX), JSON.stringify({ page: 'p', classes: {}, answers: {} }));
-  assert.deepEqual(loadVocabulary(root), { page: 'p', classes: {}, answers: {} });
+  writeFileSync(join(root, VOCABULARY_INDEX), JSON.stringify({ page: 'p', classes: {}, answers: {}, options: {} }));
+  assert.deepEqual(loadVocabulary(root), { page: 'p', classes: {}, answers: {}, options: {} });
   rmSync(root, { recursive: true, force: true });
 });
