@@ -26,6 +26,12 @@ and `<arena-main>` itself occupies nothing.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`main`](../../../../../contracts/behaviour/main.json), which names no key.
+
+<!-- @keys end -->
+
 **The component draws no box, and that is the whole design.** The recipe carries one declaration, `display: block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
 whose main landmark is swapped for a plain `<div>` looks identical. Where things go stays the
 container you own, which is what [`style.md`](../../../../../skills/design/references/style.md) says under "Where does my spacing and sizing go?" and what this deliberately does not reopen.

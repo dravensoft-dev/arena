@@ -27,6 +27,12 @@ rendered inside.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **The content is required, and it is the only slot in the repository that is.** A section renders a heading naming the group, so a childless one labels nothing. The section **throws** at content-init rather than rendering. Slot required-ness is not comparable between layers and no gate can catch a caller
 who omits it, which is why the guard is runtime code and not a declaration.
 

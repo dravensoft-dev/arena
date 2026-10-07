@@ -29,6 +29,15 @@ A compact inline filter over mutually exclusive options: a scope, a range, a den
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json) pattern this component binds:
+
+- `ArrowKeys` Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
+- `Space` checks the focused radio button if it is not already checked.
+
+<!-- @keys end -->
+
 ```tsx
 <ArenaSegmentedControl ariaLabel="Deployment status" className="arena-size-sm"
   options={[{ value: 'all', label: 'All' }, { value: 'live', label: 'Live' }, { value: 'failed', label: 'Failed' }]}

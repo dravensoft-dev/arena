@@ -25,6 +25,12 @@ and the accessible name all sit on it, with the spinning ring a decorative `aria
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`progressbar`](../../../../../contracts/behaviour/progressbar.json), which names no key.
+
+<!-- @keys end -->
+
 The spinner reports **no value at all**: no `aria-valuenow`, no `aria-valuemin` and no `aria-valuemax`. A spinner is indeterminate by definition, and ARIA expresses that by omitting the value.
 Reporting zero would be a determinate claim that nothing has happened.
 

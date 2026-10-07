@@ -29,6 +29,12 @@ navigation and focus semantics are never re-implemented.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **`href` decides the element.** With one it renders an `<a>`; without one, a `<button
 type="button">`. Both carry the same row styling, the same `aria-current="page"` when active, and
 both report through the enclosing nav's `nav` output. The anchor's native navigation is **not**

@@ -27,6 +27,12 @@ sees and `<arena-skip-link>` itself occupies nothing.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Place it first, above everything it exists to skip.** Placement is the one of the four details the link cannot do for itself. Placement decides whether the link works at all. Tab order follows the document, so a skip link written under a nav of nine destinations is reached on the tenth Tab. By then the reader has already been through everything the link was going to save them. Write it as the first element of the shell.
 
 **Arena owns the other three.** Arena keeps the link out of sight until the link takes focus. The link becomes visible the moment it does. Opacity does that rather than mounting. The link stays reachable by Tab at every moment, and nothing appears or disappears from the tree. The link is fixed at the top of the page, on the layering slot directly above `nav`. A link that lands under a sticky header is a link nobody can read. And the region it points at is focusable programmatically, which `arena-main` carries: an

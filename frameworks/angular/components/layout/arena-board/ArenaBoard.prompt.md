@@ -38,6 +38,12 @@ what a card does when it is picked up is a question about your data rather than 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`scrollable-region`](../../../../../contracts/behaviour/scrollable-region.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - **Do** say what the columns are columns OF in `label`. The label is the name a keyboard user lands on, and "Board" tells them nothing.
 - **Do** leave the board's column width alone unless a card needs more room than a grid cell: write `class="arena-board-column-lg"` for that and `arena-board-column-sm` for many slim lanes. The default, `arena-board-column-md`, is

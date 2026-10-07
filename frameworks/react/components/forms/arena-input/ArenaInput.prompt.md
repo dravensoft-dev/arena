@@ -46,6 +46,12 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`textbox`](../../../../../contracts/behaviour/textbox.json), which names no key.
+
+<!-- @keys end -->
+
 Rules: validates on `blur` by default; use `validateOn="change"` only for live feedback (passwords, availability). Mark required fields with `required`.
 
 `validate` is the **ninth form**, a `functionInput`: the consumer hands Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string, and returns the error message or nothing when the value is valid. The function is the only inbound one in the library, and it is legal only because `ArenaInput` is a data-entry control.

@@ -34,6 +34,12 @@ Persistent message on the page (status notice, system condition, context). Stays
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - ArenaAlert = persistent and inline; ArenaToast = ephemeral and floating. Don't swap them.
 - If dismissible, the close is the standard `ph-x` icon (H4). `dismissible` gates the

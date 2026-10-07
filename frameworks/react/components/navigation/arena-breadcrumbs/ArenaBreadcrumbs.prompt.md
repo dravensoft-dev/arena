@@ -28,6 +28,12 @@ Breadcrumb navigation (H3). Gives an explicit return path when the hierarchy is 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
+
+<!-- @keys end -->
+
 `ariaLabel` names the landmark and is **required**, throwing when absent. A constant like
 `"Breadcrumb"` names the WIDGET rather than the trail, which leaves two of these on one page
 as indistinguishable landmarks while the requirement reads as met. Say which hierarchy this is

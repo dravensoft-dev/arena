@@ -27,6 +27,15 @@ One option inside an `ArenaRadioGroup`. Selected shows a crimson dot inside the 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json) pattern this component binds:
+
+- `ArrowKeys` Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
+- `Space` checks the focused radio button if it is not already checked.
+
+<!-- @keys end -->
+
 **Do / Don't** - Always render an ArenaRadio inside an `ArenaRadioGroup`. The group injects the shared name and the selected state, so a standalone ArenaRadio is never selected and never groups.
 - To toggle a single thing on/off, use `ArenaSwitch` or `ArenaCheckbox`, not a standalone ArenaRadio.
 - Don't pass `style` or stray DOM attributes. ArenaRadio declares `value`, `label`, `hint` and `disabled`, and renders nothing else. To lay options out differently, style the container you put the group in.

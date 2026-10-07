@@ -33,6 +33,12 @@ The control at the end is projected with the `action` marker. `name` is the row'
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - **Do** bind `rank`, `[rank]="4"`, rather than writing `rank="4"`: it takes a number and an
   unbound attribute hands it the string.

@@ -36,6 +36,14 @@ const [step, setStep] = useState(0);
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json) pattern this component binds:
+
+- `Escape` close.
+
+<!-- @keys end -->
+
 **Behaviour.** The coachmark is a modal dialog and behaves like one. Opening moves focus to the first control inside it, Tab is trapped at both ends of that set, and closing restores focus to whatever had it before. **Escape dismisses through `onSkip`**, the same channel the scrim click uses, so Escape joins the mouse path rather than replacing it. There is no
 separate "dismiss" callback to wire.
 

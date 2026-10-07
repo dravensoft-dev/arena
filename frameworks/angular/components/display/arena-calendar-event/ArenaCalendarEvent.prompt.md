@@ -35,6 +35,12 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 `id`, `title`, `start` and `end` are all required and **throw** when blank, `input.required` proves only that something was bound. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.
 
 **`click` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from.

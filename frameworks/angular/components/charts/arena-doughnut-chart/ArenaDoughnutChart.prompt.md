@@ -37,6 +37,14 @@ readonly revenue = computed<ArenaSeries[]>(() => [{ label: 'Revenue', values: th
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
+
+- `legend-reachable`: Every legend row is a real <button type="button">, so sliceActivate is reachable by keyboard and the row answers Enter and Space without the component binding either.
+
+<!-- @keys end -->
+
 `valueSuffix` is appended verbatim to the legend value and to the numbers table, write the
 space yourself. `valuePrefix` is drawn before the number the same way, for a currency that precedes its
 amount. Between them, `valueFormat` says how the number itself is written: the locale, the

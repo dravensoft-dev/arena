@@ -31,6 +31,12 @@ The card a chart sits on: an uppercase muted microlabel, optional actions on the
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do**
 - Let `title` and the chart's own `label` say the same thing when the card holds one chart. The two are not redundant. `title` is what a sighted reader sees on the tile. `label` is what a screen reader hears and what captions the numbers table, and neither is derivable from the other.
 - Keep `title` to a short uppercase microlabel, like every other label in Arena (H2/H6/H8).

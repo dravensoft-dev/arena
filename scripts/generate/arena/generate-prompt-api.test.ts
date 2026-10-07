@@ -8,6 +8,7 @@ import {
   typeCell, defaultCell, memberRow, renderRegion, applyRegion, fenceEnd, signature,
   promptPaths, writePromptApis, openLine, CLOSE_LINE, CONSUMER_DATA,
   renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE, ANSWERS_OPEN_LINE, answeredFamilies,
+  renderKeysRegion, applyKeysRegion, KEYS_CLOSE_LINE,
 } from './generate-prompt-api.ts';
 
 test('an array names what it holds, and consumer data keeps its one spelling', () => {
@@ -184,4 +185,43 @@ test('a keyed family reaches the prompt of each component it binds, and of no ot
   const manifests = new Map<string, any>();
   assert.deepEqual(answeredFamilies('ArenaTable', repoRoot, families, manifests).map((one) => one.family), ['column']);
   assert.deepEqual(answeredFamilies('ArenaCard', repoRoot, families, manifests), []);
+});
+
+const TABS = { name: 'tabs', requires: {
+  'roles.tab': 'tab',
+  'keyboard.ArrowLeft': 'moves focus to the previous tab, wrapping to the last',
+  'keyboard.ArrowRight': 'moves focus to the next tab, wrapping to the first',
+} };
+
+test('the keys region lists every key the bound pattern requires, linked to the pattern', () => {
+  const region = renderKeysRegion({ pattern: 'tabs' }, TABS);
+  assert.match(region, /\[`tabs`\]\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/contracts\/behaviour\/tabs\.json\)/);
+  assert.match(region, /- `ArrowLeft` moves focus to the previous tab, wrapping to the last/);
+  assert.match(region, /- `ArrowRight` moves focus to the next tab/);
+  assert.doesNotMatch(region, /roles\.tab/);
+  assert.ok(region.endsWith(KEYS_CLOSE_LINE));
+});
+
+test('an excepted key is left out and a keyboard addition is listed with its first sentence', () => {
+  const region = renderKeysRegion({
+    pattern: 'tabs',
+    exceptions: [{ requirement: 'keyboard.ArrowLeft' }],
+    additions: [{ provides: 'keyboard.data-cursor', reason: 'The plot is one keyboard region. More detail.' }],
+  }, TABS);
+  assert.doesNotMatch(region, /ArrowLeft/);
+  assert.match(region, /- `data-cursor`: The plot is one keyboard region\./);
+  assert.doesNotMatch(region, /More detail/);
+});
+
+test('a pattern with no key, and no binding at all, each say so in one line', () => {
+  assert.match(renderKeysRegion({ pattern: 'status' }, { name: 'status', requires: { 'roles.status': 'status' } }),
+    /binds \[`status`\]\([^)]*\), which names no key/);
+  assert.match(renderKeysRegion(null, null), /binds no behaviour pattern/);
+});
+
+test('the keys region goes after the answers region and replaces itself on a second run', () => {
+  const source = `# X\n\n${ANSWERS_CLOSE_LINE}\n\ntail\n`;
+  const once = applyKeysRegion(source, renderKeysRegion({ pattern: 'tabs' }, TABS));
+  assert.ok(once.indexOf(ANSWERS_CLOSE_LINE) < once.indexOf('@keys'));
+  assert.equal(applyKeysRegion(once, renderKeysRegion({ pattern: 'tabs' }, TABS)), once);
 });

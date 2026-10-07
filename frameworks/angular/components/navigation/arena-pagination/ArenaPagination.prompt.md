@@ -26,6 +26,12 @@ Jumps between pages of a large set, the companion to a table or a long list. The
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
+
+<!-- @keys end -->
+
 `page`, `pageCount` and `ariaLabel` are all required, and the last two are **guarded at
 runtime** rather than defaulted. `input.required` only proves something was bound:
 `[ariaLabel]="row.title"` with an empty title, or `[pageCount]="0"`, both satisfy it and

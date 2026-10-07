@@ -34,6 +34,12 @@ Single metric on the card surface: uppercase label, one big tabular-nums value, 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 `tone` on the card colors the **value**; `delta.tone` colors the **chip**. The two answer different questions: what the number *is*, against how it *moved*. Either can be set without the other:
 
 ```tsx

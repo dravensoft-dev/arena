@@ -35,6 +35,12 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: the chip's border and
   text render in the danger hue (`--arena-hue-ink`), never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.

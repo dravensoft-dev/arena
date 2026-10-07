@@ -23,6 +23,12 @@ Jumps between pages of a large set (accompanies `ArenaTable` or long lists). Col
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
+
+<!-- @keys end -->
+
 `page` and `pageCount` are both required and both throw when absent. Neither has
 a default worth having, since an `ArenaPagination` that assumes page 1 of 1 draws a
 one-page control over a set whose size nobody told it.

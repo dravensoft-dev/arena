@@ -37,6 +37,12 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **The two slots are attributes**, `actions` and `figure`, projected through the marker directives.
 The actions slot takes one element, so wrap your buttons in a container of your own if there is
 more than one.

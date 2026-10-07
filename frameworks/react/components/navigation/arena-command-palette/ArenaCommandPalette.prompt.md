@@ -39,6 +39,16 @@ useEffect(() => {
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`combobox`](../../../../../contracts/behaviour/combobox.json) pattern this component binds:
+
+- `ArrowDown` opens the popup if closed; moves into it.
+- `Escape` closes the popup if it is visible.
+- `Enter` accepts the active option and closes the popup.
+
+<!-- @keys end -->
+
 ### Groups and routes
 
 `group` heads a command's section. Commands with no group list first and ungrouped, then each group in the order its first command appears. A palette built by concatenating four collections gets its headings back without the caller reordering anything. The heading is

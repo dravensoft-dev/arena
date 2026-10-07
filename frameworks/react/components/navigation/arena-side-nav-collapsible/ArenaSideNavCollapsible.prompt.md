@@ -34,6 +34,15 @@ A named group inside an `ArenaSideNav` that shows and hides its own contents -- 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`disclosure`](../../../../../contracts/behaviour/disclosure.json) pattern this component binds:
+
+- `Enter` activates the button and toggles the region.
+- `Space` activates the button and toggles the region.
+
+<!-- @keys end -->
+
 The trigger carries `aria-expanded` and an `aria-controls` naming the region it toggles.
 The region is **always rendered** and hidden while collapsed, so `aria-controls` never points at nothing. Both `hidden` and the inline `display` are driven by the same state. An inline `display: flex` would otherwise beat `[hidden]`'s `display: none` and leave a "hidden" region on screen. Enter and Space work because the trigger is a native
 `<button type="button">` and nothing here intercepts either key.

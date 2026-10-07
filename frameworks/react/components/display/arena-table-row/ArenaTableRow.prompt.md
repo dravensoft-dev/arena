@@ -27,6 +27,12 @@ One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Put `key` on the row. The key is React's own reconciliation rather than an Arena member. `ArenaTable` has no `getRowKey`.
 - `onClick` takes no argument. You wrote this element inside your own `.map()`, so you already hold the row it is about; a payload would hand you back what you just had.

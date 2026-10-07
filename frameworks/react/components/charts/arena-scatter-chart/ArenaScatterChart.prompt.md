@@ -34,6 +34,19 @@ Two quantities against each other, one mark per pair. The first chart here whose
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
+
+- `ArrowLeft` moves the data cursor to the previous point, clamping at the first.
+- `ArrowRight` moves the data cursor to the next point, clamping at the last.
+- `Home` moves the data cursor to the first point.
+- `End` moves the data cursor to the last point.
+- `Escape` clears the data cursor.
+- `data-cursor`: The plot is one keyboard region and the data cursor rides inside it: the group carries tabindex="0", role="group" and the chart name, and ArrowLeft, ArrowRight, Home, End and Escape move a cursor that drives exactly what hover drives.
+
+<!-- @keys end -->
+
 ### Why the series type is a different one
 
 `ArenaPointSeries` is not a variant of `ArenaSeries`, because the two disagree about what a mark is. An `ArenaSeries` value takes its place on the axis from its index, and a pair carries both coordinates. Folding them together would give every chart in the library a member most of them cannot use. Folding would also let a caller hand an indexed series to a chart with no index to read it against.

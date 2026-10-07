@@ -17,9 +17,10 @@ import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { readManifests } from './check-measured-box.ts';
 import { loadContract } from '../../generate/arena/generate-skills.ts';
 import {
-  renderRegion, renderRulesRegion, renderAnswersRegion, answeredFamilies, promptPaths,
+  renderRegion, renderRulesRegion, renderKeysRegion, keysOf, KEYS_OPEN_LINE, KEYS_CLOSE_LINE,
+  renderAnswersRegion, answeredFamilies, promptPaths,
   OPEN_LINE, CLOSE_LINE, RULES_OPEN_LINE, RULES_CLOSE_LINE, ANSWERS_OPEN_LINE, ANSWERS_CLOSE_LINE,
-  type Family,
+  type Family, type Binding, type Pattern,
 } from '../../generate/arena/generate-prompt-api.ts';
 
 export const node = {
@@ -70,6 +71,19 @@ export function answersProblem(
   return [];
 }
 
+export function keysProblem(path: string, source: string, binding: Binding | null, pattern: Pattern | null) {
+  const found = sliceRegion(source, KEYS_OPEN_LINE, KEYS_CLOSE_LINE);
+  if (found === null) {
+    return [`${path}: carries no @keys region, so it names no key its pattern requires. `
+      + 'Run bun run generate:api, which places one after the @answers region'];
+  }
+  if (found !== renderKeysRegion(binding, pattern)) {
+    return [`${path}: its @keys region does not match its behaviour binding and pattern. `
+      + 'Fix the binding or the pattern and run bun run generate:api'];
+  }
+  return [];
+}
+
 export function promptProblems(base = root, prompts = promptPaths(base)) {
   const problems = [];
   let held = 0;
@@ -95,6 +109,9 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
     problems.push(...answersProblem(
       path, source, component, layer, answeredFamilies(component, base, families, manifests),
     ));
+
+    const { binding, pattern } = keysOf(path, component, base);
+    problems.push(...keysProblem(path, source, binding, pattern));
 
     const contract = loadContract(component, base);
     if (!contract) { uncontracted += 1; continue; }

@@ -44,6 +44,14 @@ supplies the state.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`switch`](../../../../../contracts/behaviour/switch.json) pattern this component binds:
+
+- `Space` toggle between on and off.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - It is **controlled**. `state` is what the consumer owns; the component holds no copy, so a
   `funcOn` you ignore is a switch that visibly does not move.

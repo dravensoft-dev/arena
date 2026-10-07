@@ -27,6 +27,12 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Keep the grammar. The actor is bold, the action is prose, the target is mono, a feed
   whose rows each read differently is a list, not a feed.

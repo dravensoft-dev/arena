@@ -28,6 +28,14 @@ A single checkbox. Checked shows a crimson fill with a check. `onChange` carries
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`checkbox`](../../../../../contracts/behaviour/checkbox.json) pattern this component binds:
+
+- `Space` toggle the checked state.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Read the boolean the handler hands you (`onChange={next => …}`); there is no event to reach into, so `e.target.checked` reaches nothing.
 - Use `name` and `value` together when the checkbox is submitted by a real form. `value` is the string sent under `name` while the box is ticked, and it is not the checked state.

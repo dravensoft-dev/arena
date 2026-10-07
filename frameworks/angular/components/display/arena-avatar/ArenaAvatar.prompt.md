@@ -30,6 +30,12 @@ a presence dot.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Always pass `name`, even with `src`: it is the image's `alt` text and the fallback
   when the image fails to load.

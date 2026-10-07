@@ -34,6 +34,15 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`disclosure`](../../../../../contracts/behaviour/disclosure.json) pattern this component binds:
+
+- `Enter` activates the button and toggles the region.
+- `Space` activates the button and toggles the region.
+
+<!-- @keys end -->
+
 **Closed and collapsed are two different states, and both exist.** `open` decides whether the panel is on the page at all. `collapsed` folds the body away and leaves the header and the footer where they were. The two states are what the pattern buys. A reader can put the cart out of the way, still see what it is and still check out, without losing it.
 
 `title` is required and guarded rather than defaulted. The title heads the panel, and it is also the accessible name of the fold control. A screen-reader user hears "Cart, collapse" rather than "Toggle". Nothing can derive it, because what the panel is showing is editorial.

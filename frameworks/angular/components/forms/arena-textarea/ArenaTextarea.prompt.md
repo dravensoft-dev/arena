@@ -48,6 +48,12 @@ a real `<textarea>`, named by a real `<label for>`.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`textbox`](../../../../../contracts/behaviour/textbox.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - It is **controlled**, and Angular will not force the DOM back: ignore `change` and the box keeps
   what the user typed. Wire the signal.

@@ -42,6 +42,15 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`button`](../../../../../contracts/behaviour/button.json) pattern this component binds:
+
+- `Space` activate.
+- `Enter` activate.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Use `destructive` for a destructive action, at every emphasis: transparent background, border and text in
   `--error`. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.

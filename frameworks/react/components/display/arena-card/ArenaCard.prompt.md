@@ -34,6 +34,12 @@ Base container. Use `eyebrow` (crimson mono) + `title` (Archivo) for the header.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `onClick` bound?". Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` gives the same answer. Arena writes `role="button"`, a tab stop and an
 Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap

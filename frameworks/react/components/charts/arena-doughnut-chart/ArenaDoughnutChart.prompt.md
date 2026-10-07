@@ -31,6 +31,14 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
+
+- `legend-reachable`: Every legend row is a real <button type="button">, so onSliceActivate is reachable by keyboard and the row answers Enter and Space without the component binding either.
+
+<!-- @keys end -->
+
 **Do**
 - Keep it to a handful of slices. Past five or six, the small ones are unreadable; fold the tail into "Other", or use bars.
 - Let the series' `colorIds` default. Ramp slots 1..N in order is the rule, not a starting point to tweak.

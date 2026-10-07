@@ -37,6 +37,12 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside `ArenaUnauthCard` in the host component's `imports`. `brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
 own margin, so a card that omits one ships no dead space for it.
 

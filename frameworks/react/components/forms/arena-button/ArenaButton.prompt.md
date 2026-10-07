@@ -39,6 +39,15 @@ Action button. The main action is the default emphasis, `arena-emphasis-primary`
 **Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
 
 <!-- @answers end -->
+
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`button`](../../../../../contracts/behaviour/button.json) pattern this component binds:
+
+- `Space` activate.
+- `Enter` activate.
+
+<!-- @keys end -->
 The `arena-emphasis-*` classes pick primary, secondary or ghost, and `destructive` adds the danger outline. The `arena-size-*` classes pick sm, md or lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
 
 - Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.

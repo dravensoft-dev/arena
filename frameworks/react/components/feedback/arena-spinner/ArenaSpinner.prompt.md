@@ -24,6 +24,12 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`progressbar`](../../../../../contracts/behaviour/progressbar.json), which names no key.
+
+<!-- @keys end -->
+
 **Do**
 - Reach for `ArenaProgressBar` first. A spinner is the fallback for when no real percentage exists; a determinate bar communicates remaining time and a spinner cannot.
 - Give `label` the real subject ("Loading projects"), because it is the accessible name, and "Loading" alone tells a screen-reader user nothing.

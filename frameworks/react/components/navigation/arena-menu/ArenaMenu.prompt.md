@@ -31,6 +31,16 @@ Actions menu on a trigger (overflow "⋮", more actions, context). Don't confuse
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`menu-button`](../../../../../contracts/behaviour/menu-button.json) pattern this component binds:
+
+- `Enter` opens the menu and moves focus to its first item.
+- `Space` opens the menu and moves focus to its first item.
+- `Escape` closes the menu and returns focus to the button.
+
+<!-- @keys end -->
+
 An entry has no `onClick` of its own. Activating one reports `onSelect(item)` --
 the whole item, not a key into the list -- so the handler switches on whatever
 field it finds useful, usually `label`. There is deliberately no `id`. `{ divider:true }` and `{ header:'Text' }` are legitimate entries carrying neither a label nor anything to identify. A required `id` would force a meaningless one onto every rule and every group heading. A `disabled` entry reports nothing,

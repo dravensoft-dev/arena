@@ -33,6 +33,15 @@ from `@dravensoft/arena-angular` for the `actions` input's element type.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`toolbar`](../../../../../contracts/behaviour/toolbar.json) pattern this component binds:
+
+- `ArrowRight` moves focus to the next control, optionally wrapping from the last to the first.
+- `ArrowLeft` moves focus to the previous control, optionally wrapping from the first to the last.
+
+<!-- @keys end -->
+
 `clearable` (default `true`) gates whether Clear is drawn. Every layer gates on this member
 and never on whether anything listens for `clear`.
 

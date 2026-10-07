@@ -36,6 +36,19 @@ Several measures on one shape: an axis per label around a polar grid, one closed
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
+
+- `ArrowLeft` moves the data cursor to the previous point, clamping at the first.
+- `ArrowRight` moves the data cursor to the next point, clamping at the last.
+- `Home` moves the data cursor to the first point.
+- `End` moves the data cursor to the last point.
+- `Escape` clears the data cursor.
+- `data-cursor`: The plot is one keyboard region and the data cursor rides inside it: the group carries tabindex="0", role="group" and the chart name, and ArrowLeft, ArrowRight, Home, End and Escape move a cursor that drives exactly what hover drives.
+
+<!-- @keys end -->
+
 ### What the grid is, and what it is not
 
 The axes start at 12 o'clock and run clockwise, the same way the doughnut's slices do, so two

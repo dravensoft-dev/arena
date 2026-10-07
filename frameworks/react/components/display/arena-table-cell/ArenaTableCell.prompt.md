@@ -24,6 +24,12 @@ One cell of an `ArenaTableRow`. The cell draws the cell box: the padding, the al
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Put a value in it, or one of Arena's own components: an `ArenaBadge` for a status, an `ArenaButton` for an action. This member is why `ArenaTable` is a compound component at all. A column-level `render` function would be per-item projection, which the library does not do. A cell **you** instantiate is just an element you wrote.
 - Don't set alignment, width or the mono face here. Those belong to the column: its `key` names `--arena-column-<key>-width` and `--arena-column-<key>-align` on the table or a container, and the column stays consistent down its whole length. A cell that styled itself would drift from its header.

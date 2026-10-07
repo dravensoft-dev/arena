@@ -28,6 +28,12 @@ slideshow. Standalone, `OnPush`, signal I/O. The host **is** the scrolling regio
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`scrollable-region`](../../../../../contracts/behaviour/scrollable-region.json), which names no key.
+
+<!-- @keys end -->
+
 **Nothing moves on its own.** `snap` and `flow` both describe where a scroll SETTLES, not anything
 that animates: `snap` lands on an item, `flow` lands wherever the reader left it. Nothing moves on its own, so no pause control is owed under WCAG 2.2.2 and `prefers-reduced-motion` has nothing to answer here.
 

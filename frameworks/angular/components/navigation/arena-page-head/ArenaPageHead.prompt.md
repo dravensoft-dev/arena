@@ -28,6 +28,12 @@ head lays out controls the consumer wrote rather than declaring a second button 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 `title` is required: a page head with no title is a bug, not a state. `arena-align-start` (the default) keeps the actions top-aligned with a tall title, and `arena-align-center` centers them against it.
 Both govern only the wide layout; below `--bp-sm` the row always stacks and the align class has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.

@@ -46,6 +46,12 @@ handler instead:
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
+
+<!-- @keys end -->
+
 ```ts
 go(crumb: ArenaCrumb): void {
   this.router.navigateByUrl(crumb.href ?? '/');

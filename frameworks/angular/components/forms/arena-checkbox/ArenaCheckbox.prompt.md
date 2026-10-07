@@ -30,6 +30,14 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`checkbox`](../../../../../contracts/behaviour/checkbox.json) pattern this component binds:
+
+- `Space` toggle the checked state.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - The control is **controlled**. `checked` is what the consumer owns and pushes back in; the component
   never holds a copy, so a `(change)` you ignore is a checkbox that visibly does not move.

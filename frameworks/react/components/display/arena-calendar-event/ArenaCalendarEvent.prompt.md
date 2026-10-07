@@ -35,6 +35,12 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 `id`, `title`, `start` and `end` are all required and **throw** when absent. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.
 
 **`onClick` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from. `onClick={() => open(c)}` reaches the whole of `c` with no id-to-object lookup. A payload would have handed back the five fields you had just passed in.

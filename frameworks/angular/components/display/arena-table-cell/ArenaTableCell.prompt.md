@@ -24,6 +24,12 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Put a value in it, or one of Arena's own components: an `arena-badge` for a status, an
   `arena-button` for an action. The cell is why the table is a compound primitive at all. A column's render function would be per-item projection, which this library does not do. A cell **you** instantiate is just an element you wrote.

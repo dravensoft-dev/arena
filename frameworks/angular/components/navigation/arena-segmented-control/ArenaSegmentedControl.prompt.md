@@ -34,6 +34,15 @@ the accessible name and the focus ring.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json) pattern this component binds:
+
+- `ArrowKeys` Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
+- `Space` checks the focused radio button if it is not already checked.
+
+<!-- @keys end -->
+
 ```ts
 readonly ranges: ArenaSegmentOption[] = [
   { value: '24h', label: '24h' },

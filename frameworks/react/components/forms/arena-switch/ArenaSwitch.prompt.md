@@ -35,6 +35,14 @@ const [dark, setDark] = useState(false);
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`switch`](../../../../../contracts/behaviour/switch.json) pattern this component binds:
+
+- `Space` toggle between on and off.
+
+<!-- @keys end -->
+
 `onFuncOn`/`onFuncOff` are transition events rather than a value; each fires with no payload,
 once, for the direction the activation moved. There is no `onChange`: read the direction
 from which handler fired, not from an event argument.

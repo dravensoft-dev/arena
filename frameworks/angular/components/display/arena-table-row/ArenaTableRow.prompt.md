@@ -27,6 +27,12 @@ One row of an `arena-table`. The row is an **attribute on a real `<tr>`**, not a
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - `(click)` takes no payload. You wrote this element inside your own `@for`, so you already
   hold the row it is about; a payload would hand you back what you just had.

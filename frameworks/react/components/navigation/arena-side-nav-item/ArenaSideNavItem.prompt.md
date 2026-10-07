@@ -28,6 +28,12 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 `href` decides which element the item renders, so it is the field to read first:
 present ⇒ an `<a>`, absent ⇒ a `<button>`. The active item, the one whose `id`
 matches `ArenaSideNav.active`, takes `aria-current="page"`, `--crimson-soft` behind

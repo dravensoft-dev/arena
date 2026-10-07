@@ -31,6 +31,12 @@ One `arena-size-*` class sizes both the mark's box and the wordmark, from the `-
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Give the projected mark no width or height of its own. The slot sizes it; a mark that
   brings its own dimensions breaks the ratio the lock-up exists to hold.

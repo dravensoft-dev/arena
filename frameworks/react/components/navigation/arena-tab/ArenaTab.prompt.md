@@ -26,6 +26,12 @@ panel `ArenaTabs` renders below the strip.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Do give every tab a `value` and a `label`. Both are required and both are guarded: a blank one
   throws rather than drawing a nameless tab.

@@ -52,6 +52,12 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 `icon` is a Phosphor class name, not a slot, Arena draws the `<i>` and its
 aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
 

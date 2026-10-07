@@ -43,6 +43,12 @@ rows in one list that disagreed about their size would be a defect rather than a
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - **Do** say what the list is OF in `label`: "Ruby league standings", "Reviewers on this pull
   request". The label is the name a screen-reader user navigates by, and "People" tells them nothing.

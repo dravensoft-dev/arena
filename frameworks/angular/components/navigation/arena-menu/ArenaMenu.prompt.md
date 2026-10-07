@@ -31,6 +31,16 @@ unpositioned.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`menu-button`](../../../../../contracts/behaviour/menu-button.json) pattern this component binds:
+
+- `Enter` opens the menu and moves focus to its first item.
+- `Space` opens the menu and moves focus to its first item.
+- `Escape` closes the menu and returns focus to the button.
+
+<!-- @keys end -->
+
 ```ts
 protected readonly rowActions: ArenaMenuItem[] = [
   { header: 'Build 482' },

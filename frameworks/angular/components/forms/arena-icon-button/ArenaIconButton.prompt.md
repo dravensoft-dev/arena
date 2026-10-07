@@ -41,6 +41,15 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`button`](../../../../../contracts/behaviour/button.json) pattern this component binds:
+
+- `Space` activate.
+- `Enter` activate.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - `label` is **required and is the accessible name**, not a decoration. The member is the `aria-label` in every state, the visible text under `showLabel`, and the `title` when there is none. An icon
   button without it announces nothing at all, which is why this input has no default.

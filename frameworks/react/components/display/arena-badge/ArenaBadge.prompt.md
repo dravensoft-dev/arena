@@ -23,6 +23,12 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Tone taxonomy (H4).** Two families, don't mix them:
 - **Status**: `success` `warning` `danger` `info`: reflect the actual state of the system (deploy, service, version). The `dot` reinforces "live status".
 - **Emphasis**: `arena-accent-primary` (new/featured) and `arena-accent-gold` (priority/distinction) colour the badge as editorial emphasis, never a status. `neutral` = no semantic weight.

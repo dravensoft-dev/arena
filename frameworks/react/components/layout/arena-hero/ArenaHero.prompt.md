@@ -35,6 +35,12 @@ The opening of a landing page. The hero holds one line the page is built around 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **`split` falls to one column with no breakpoint deciding when.** The threshold is derived from `--grid-min`, the role that already answers how narrow a card may get. A style plugin that widens the grid minimum widens when a hero splits, which is one decision about how dense a page is rather than two that can disagree.
 
 **`bleed` lays the words on the figure**, which is the arrangement that makes the media overlay

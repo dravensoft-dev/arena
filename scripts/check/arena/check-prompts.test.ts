@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
-  promptProblems, regionOf, rulesRegionOf, answersRegionOf, answersProblem, zeroScanProblems,
+  promptProblems, regionOf, rulesRegionOf, answersRegionOf, answersProblem, zeroScanProblems, keysProblem,
 } from './check-prompts.ts';
 import {
-  openLine, CLOSE_LINE, renderAnswersRegion, answeredFamilies, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT,
+  openLine, CLOSE_LINE, renderAnswersRegion, answeredFamilies, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT, renderKeysRegion,
 } from '../../generate/arena/generate-prompt-api.ts';
 
 test('every committed prompt carries the region its contract emits', () => {
@@ -26,8 +26,9 @@ test('a file with no region is reported for each, since each answers its own que
   const { problems } = promptProblems(undefined, [
     { component: 'ArenaBadge', layer: 'react', path: 'frameworks/react/components/display/arena-badge/ArenaBadge.tsx' },
   ]);
-  assert.equal(problems.length, 3);
+  assert.equal(problems.length, 4);
   assert.ok(problems.some((one) => /carries no @answers region/.test(one)));
+  assert.ok(problems.some((one) => /carries no @keys region/.test(one)));
   assert.ok(problems.some((one) => /carries no @api region/.test(one)));
   assert.ok(problems.some((one) => /carries no @rules region/.test(one)));
 });
@@ -85,4 +86,13 @@ test('the real tree answers fill, emphasis and size for ArenaButton, so the gene
   }
   const path = 'frameworks/react/components/forms/arena-button/ArenaButton.prompt.md';
   assert.match(answersRegionOf(readFileSync(join(repoRoot, path), 'utf8')) ?? '', /`arena-fill`/);
+});
+
+test('a prompt whose keys region is missing or stale is a problem, and a fresh one is not', () => {
+  const pattern = { name: 'tabs', requires: { 'keyboard.ArrowLeft': 'moves left' } };
+  const fresh = `x\n\n${renderKeysRegion({ pattern: 'tabs' }, pattern)}\n`;
+  assert.deepEqual(keysProblem('p.md', fresh, { pattern: 'tabs' }, pattern), []);
+  assert.match(keysProblem('p.md', 'x\n', { pattern: 'tabs' }, pattern)[0] ?? '', /carries no @keys region/);
+  assert.match(keysProblem('p.md', fresh.replace('moves left', 'moves right'), { pattern: 'tabs' }, pattern)[0] ?? '',
+    /does not match/);
 });

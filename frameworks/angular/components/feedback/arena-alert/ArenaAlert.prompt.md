@@ -37,6 +37,12 @@ uppercase mono action; `dismissible` adds the single `ph-x` close control.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Use `tone="danger"` only for a condition the user must act on. The danger tone renders `role="alert"`, which interrupts a screen reader. Every other tone renders `role="status"`, which does not.
 - Don't use an alert for something transient: that is `MatSnackBar` wearing Arena.

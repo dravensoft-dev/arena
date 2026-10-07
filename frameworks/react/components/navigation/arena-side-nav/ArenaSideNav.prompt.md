@@ -34,6 +34,12 @@ the same shape as `ArenaTable`/`ArenaTableRow` and `ArenaRadioGroup`/`ArenaRadio
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
+
+<!-- @keys end -->
+
 An item's click reports `onNav(id)` -- the activated item's `id`, with no DOM event.
 There is no item datum to carry: you wrote the element, so you already hold
 everything on it. An item with `href` splits its activations. The plain one is reported through `onNav`, so routing from there does not race the browser. The rest keep working for a consumer who wires no handler.

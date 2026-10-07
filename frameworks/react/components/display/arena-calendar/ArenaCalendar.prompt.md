@@ -48,6 +48,16 @@ Two things this default is not. The default is not a `'UTC'` fallback. Such a fa
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`grid`](../../../../../contracts/behaviour/grid.json) pattern this component binds:
+
+- `ArrowKeys` moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
+- `Home` moves focus to the first cell in the current row.
+- `End` moves focus to the last cell in the current row.
+
+<!-- @keys end -->
+
 The anchor is internal, so prev/Today/next work with nothing wired. `onRangeChange` reports the new anchor date; take it as the cue to refetch. Pass `anchorDate` only when you want to drive the date yourself; it wins whenever it changes.
 
 **The range in the toolbar is a label, not a heading.** The caption says which dates are on screen, and it is rewritten every time the reader steps a week. A document outline built on it would carry "13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes

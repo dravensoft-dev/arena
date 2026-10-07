@@ -33,6 +33,16 @@ command also closes the palette. The search field is an ARIA 1.2 combobox wired 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`combobox`](../../../../../contracts/behaviour/combobox.json) pattern this component binds:
+
+- `ArrowDown` opens the popup if closed; moves into it.
+- `Escape` closes the popup if it is visible.
+- `Enter` accepts the active option and closes the popup.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Put every command's real shortcut in `shortcut`. The palette is where people learn
   the shortcuts that let them stop using the palette.

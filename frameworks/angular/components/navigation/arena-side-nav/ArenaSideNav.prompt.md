@@ -34,6 +34,12 @@ the accessible name and the column layout all sit on it.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
+
+<!-- @keys end -->
+
 `ariaLabel` is **required and guarded at runtime**, because `input.required` is a compile-time
 claim and a blank string satisfies it. Two navigation landmarks on one page must not share a name.
 

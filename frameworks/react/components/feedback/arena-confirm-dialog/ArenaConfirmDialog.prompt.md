@@ -33,6 +33,14 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json) pattern this component binds:
+
+- `Escape` close.
+
+<!-- @keys end -->
+
 `destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline.
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.

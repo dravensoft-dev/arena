@@ -32,6 +32,12 @@ position in front and an optional figure behind. The row's size comes from the l
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Put the unit in `figure`: "1815 XP", "12 open", "38%". The value is one a reader says out loud, and formatting it where the data is beats formatting it here.
 - Use `current` for the reader's own row. The state fills the row and announces itself, which is what a highlight has to do to be worth drawing.

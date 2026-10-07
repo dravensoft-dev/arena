@@ -63,6 +63,12 @@ The table is a **compound** component. `columns` says how each column is headed 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
 - **`page` is what the table knows and `pageControl` is what it draws.** Bind `page` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `ArenaPagination` somewhere else, or want one control over two tables. Withholding `page` to move the control is the shape this member exists to replace: it left the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as in "Recent deployments" or "Team members", and never "Table". There is nothing to derive it from, which is why it throws when omitted rather than falling back.

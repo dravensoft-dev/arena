@@ -29,6 +29,12 @@ Loading placeholder for asynchronous data (H1). Use it in tables and dashboards 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`status`](../../../../../contracts/behaviour/status.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Reproduce the shape of the real content (same approximate height/width) to avoid layout shift on load.
 - The size properties take a length or a token expression, not a bare number; write `calc(var(--sp-1) * 10)`, not `40`.

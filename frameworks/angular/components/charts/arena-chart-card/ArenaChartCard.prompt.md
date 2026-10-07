@@ -29,6 +29,12 @@ says so with `headingLevel`, and `h3` is the rung a chart card inside a section 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaChartCard` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the card detects that actions were projected at all. Without it the attribute is inert, the
 head row never renders when there is no title, and the button silently disappears.
 `ArenaActions` is shared: every primitive with a plural, toolbar-shaped projected slot

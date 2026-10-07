@@ -46,6 +46,12 @@ here decides what it draws from what you projected.
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 `progressPercentage` is 0–100, clamped and rounded; it is not a form control's `value`,
 which is what that name means everywhere else in this library. `showPercentage` (default
 `true`) shows the number beside the label; it is drawn in determinate mode only.

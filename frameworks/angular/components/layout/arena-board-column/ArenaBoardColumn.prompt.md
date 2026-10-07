@@ -38,6 +38,12 @@ everything else you project is the stack. `count` is passed rather than counted,
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds no behaviour pattern.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - **Do** bind the numbers, `[count]="3"` and `[colorId]="1"`, rather than writing them as bare
   attributes: both take a number and an unbound attribute hands them the string.

@@ -6,7 +6,7 @@
  * check:prompts holds all three regions equal to a fresh emit. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { bindingName, normaliseDoc } from '../../lib/arena/api-surface.ts';
@@ -24,7 +24,8 @@ export const PROMPTS = CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/compo
 export const node = {
   name: 'generate:prompt-api',
   reads: ['contracts/api/components', 'frameworks/Components.json', VOCABULARY_DIR,
-    'frameworks/tailwind/components', ...PROMPTS],
+    'frameworks/tailwind/components', 'contracts/behaviour',
+    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components`), ...PROMPTS],
   writes: PROMPTS,
   feeds: [
     'check:families',
@@ -260,6 +261,60 @@ export function promptPaths(base = root) {
   return found;
 }
 
+export const KEYS_OPEN_LINE = /^<!-- @keys GENERATED[^\n]*-->$/m;
+export const KEYS_CLOSE_LINE = '<!-- @keys end -->';
+export const KEYS_OPEN = '<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->';
+export const BEHAVIOUR_FROM_PROMPT = '../../../../../contracts/behaviour';
+const KEY = 'keyboard.';
+
+export type Binding = { pattern: string; exceptions?: { requirement: string }[]; additions?: { provides: string; reason: string }[] };
+export type Pattern = { name: string; requires: Record<string, string> };
+
+const firstSentence = (text: string) => /^[\s\S]*?[.!?](?=\s|$)/.exec(text)?.[0] ?? text;
+
+export function renderKeysRegion(binding: Binding | null, pattern: Pattern | null) {
+  let body: string;
+  if (!binding || !pattern) {
+    body = '**Keys.** This component binds no behaviour pattern.';
+  } else {
+    const link = `[\`${pattern.name}\`](${BEHAVIOUR_FROM_PROMPT}/${pattern.name}.json)`;
+    const excepted = new Set((binding.exceptions ?? []).map((one) => one.requirement));
+    const keys = Object.entries(pattern.requires)
+      .filter(([key]) => key.startsWith(KEY) && !excepted.has(key))
+      .map(([key, what]) => `- \`${key.slice(KEY.length)}\` ${what.replace(/\.$/, '')}.`);
+    const added = (binding.additions ?? [])
+      .filter((one) => one.provides.startsWith(KEY))
+      .map((one) => `- \`${one.provides.slice(KEY.length)}\`: ${firstSentence(one.reason)}`);
+    const listed = [...keys, ...added];
+    body = listed.length === 0
+      ? `**Keys.** This component binds ${link}, which names no key.`
+      : [`**Keys**, from the ${link} pattern this component binds:`, '', ...listed].join('\n');
+  }
+  return [KEYS_OPEN, '', body, '', KEYS_CLOSE_LINE].join('\n');
+}
+
+export function applyKeysRegion(source: string, region: string) {
+  const lines = source.split('\n');
+  const opensAt = lines.findIndex((line) => KEYS_OPEN_LINE.test(line));
+  if (opensAt !== -1) {
+    const closesAt = lines.indexOf(KEYS_CLOSE_LINE, opensAt);
+    if (closesAt === -1) throw new Error('generate-prompt-api: a @keys region opens and never closes');
+    return [...lines.slice(0, opensAt), ...region.split('\n'), ...lines.slice(closesAt + 1)].join('\n');
+  }
+  const after = lines.indexOf(ANSWERS_CLOSE_LINE);
+  if (after === -1) return `${source.replace(/\s*$/, '')}\n\n${region}\n`;
+  return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
+}
+
+export function keysOf(path: string, component: string, base = root) {
+  const at = join(base, dirname(path), `${component}.behaviour.json`);
+  if (!existsSync(at)) return { binding: null, pattern: null };
+  const binding = JSON.parse(readFileSync(at, 'utf8')) as Binding;
+  const file = join(base, 'contracts/behaviour', `${binding.pattern}.json`);
+  const pattern = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) as Pattern : null;
+  return { binding, pattern };
+}
+
 export function writePromptApis({
   base = root, read = readFileSync, write = writeFileSync, prompts = promptPaths(base),
 } = {}) {
@@ -273,7 +328,9 @@ export function writePromptApis({
     const withAnswers = applyAnswersRegion(
       withApi, renderAnswersRegion(component, layer, answeredFamilies(component, base, families, manifests)),
     );
-    const after = applyRulesRegion(withAnswers, renderRulesRegion(layer));
+    const { binding, pattern } = keysOf(path, component, base);
+    const withKeys = applyKeysRegion(withAnswers, renderKeysRegion(binding, pattern));
+    const after = applyRulesRegion(withKeys, renderRulesRegion(layer));
     if (after !== before) { write(join(base, path), after); written.push(path); }
   }
   return written;

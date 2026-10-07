@@ -56,6 +56,12 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`textbox`](../../../../../contracts/behaviour/textbox.json), which names no key.
+
+<!-- @keys end -->
+
 **`validate` is the one member that takes a function.** You supply it, the component calls it on
 the field's value, and it returns the error message or the empty string. Bind it as a bare
 arrow: the input is optional already, so a `| undefined` arm in the type says a second time what

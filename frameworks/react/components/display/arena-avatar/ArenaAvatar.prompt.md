@@ -27,6 +27,12 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - `circle` for people, `rounded` for teams/organizations.
 - Always pass `name` (accessible name + fallback initials), even when there's a `src`.

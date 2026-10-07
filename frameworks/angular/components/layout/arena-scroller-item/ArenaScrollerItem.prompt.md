@@ -25,6 +25,12 @@ decided and the point the row settles on. Standalone, `OnPush`. The host **is** 
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
+
+<!-- @keys end -->
+
 **Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. Several Arena components take their host out of layout with `display: contents`, so a rule aimed at the row's direct children lands on an element with no box. Whether it lands at all then depends on which component the caller put in the row, with every gate green. The item is the box that is
 always there, and its own host carries a real one.
 

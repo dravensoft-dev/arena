@@ -35,6 +35,14 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys**, from the [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json) pattern this component binds:
+
+- `Escape` close.
+
+<!-- @keys end -->
+
 `title` and `open` are both **required inputs**. `title` names the dialog for assistive
 technology, the panel's `aria-labelledby` points at it, and nothing can derive it, because a
 dialog's subject is editorial. `open` is required because `false` is the closed state and not an

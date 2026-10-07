@@ -36,6 +36,12 @@ frame, the column and its head, and stops. `ArenaCard` is a good card; so is you
 
 <!-- @answers end -->
 
+<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
+
+**Keys.** This component binds [`scrollable-region`](../../../../../contracts/behaviour/scrollable-region.json), which names no key.
+
+<!-- @keys end -->
+
 **Do / Don't**
 - Say what the columns are columns OF in `label`: "Sprint 32 tasks by status", "Candidates by
   stage". The label is the name a keyboard user lands on, and "Board" tells them nothing.
