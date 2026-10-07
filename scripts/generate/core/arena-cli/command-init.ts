@@ -20,8 +20,8 @@ export function run(argv: string[], io: Io): number {
   const say = voice(io, 'init');
   const typed = parseArgs('init', argv);
   const typedConfig = typed.kind === 'options' ? typed.options.config : DEFAULT_CONFIG;
-  if (/["$`%!]/.test(typedConfig)) {
-    say.err(`--config ${typedConfig} holds ", $, \`, % or !, which a package.json script cannot quote the same way under sh and cmd.exe; pick a path without them`);
+  if (/["$`%!\\]/.test(typedConfig)) {
+    say.err(`--config ${typedConfig} holds ", $, \`, %, ! or \\, which a package.json script cannot quote the same way under sh and cmd.exe; pick a path without them`);
     return 2;
   }
   const env = resolveEnvironment(io.environment);

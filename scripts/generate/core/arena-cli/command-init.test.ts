@@ -192,12 +192,12 @@ test('a --config path with a space is wrapped in plain double quotes, with no ba
   assert.equal(scriptsOf(plain.cwd).prebuild, 'arena build --config conf/a-b_c.json');
 });
 
-for (const bad of ['a"b.json', 'a$b.json', 'a`b.json', 'a%b%.json', 'a!b.json']) {
+for (const bad of ['a"b.json', 'a$b.json', 'a`b.json', 'a%b%.json', 'a!b.json', 'conf\\a.json']) {
   test(`a --config path holding a character no shell quotes the same way (${bad}) exits 2 naming it and writes nothing`, () => {
     const { cwd, io, out, err } = setup();
     assert.equal(run(['--config', bad], io), 2);
     assert.deepEqual(out, []);
-    assert.deepEqual(err, [`arena init: --config ${bad} holds ", $, \`, % or !, which a package.json script cannot quote the same way under sh and cmd.exe; pick a path without them`]);
+    assert.deepEqual(err, [`arena init: --config ${bad} holds ", $, \`, %, ! or \\, which a package.json script cannot quote the same way under sh and cmd.exe; pick a path without them`]);
     assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), '{}\n');
     assert.ok(!existsSync(join(cwd, bad)));
   });
