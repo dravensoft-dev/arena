@@ -2,7 +2,6 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSkeleton.classes.generated.ts';
 
-import type { ArenaSkeletonVariant } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaSkeletonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
@@ -10,42 +9,30 @@ import { arenaClassName } from '../../../VocabularyClass.ts';
 export interface ArenaSkeletonProps {
   className?: ArenaSkeletonClass;
 
-  /** The shape the placeholder reserves. */
-  variant?: ArenaSkeletonVariant;
-
-  /** CSS width, e.g. "100%" or "12rem". Defaults to full width. */
-  width?: string;
-
-  /** CSS height. Defaults per variant. For the `circle` variant a single diameter is what is wanted, so `height` wins over `width` when both are set. */
-  height?: string;
-
   /** How many lines of text the placeholder stands in for. Absent, it is one box in the shape its class names; given, it is a stack of that many lines, the last running short when there is more than one. */
   lines?: number;
-
-  /** CSS border radius. Defaults to a small token radius. */
-  radius?: string;
 }
-
 
 const arenaSkeletonStyles = arenaStyles(manifest);
 
-export function ArenaSkeleton({ className, variant = 'block', width, height, lines = 3, radius }: ArenaSkeletonProps) {
+export function ArenaSkeleton({ className, lines }: ArenaSkeletonProps) {
   const locale = useArenaLocale();
-  const styles = arenaSkeletonStyles({ variant });
-  const last = arenaSkeletonStyles({ variant, last: true });
-  if (variant === 'text' && lines > 1) {
+  const styles = arenaSkeletonStyles({});
+  if (lines !== undefined) {
+    const count = Math.max(0, Math.floor(lines));
+    const last = arenaSkeletonStyles({ last: true });
     return (
-      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)} data-arena-part={manifest.parts.stack} {...styles.$data.stack()} style={{ width }}>
-        {Array.from({ length: lines }).map((_, i) => (
-          <div key={i} className={(i === lines - 1 ? last : styles).line()}
-            data-arena-part={manifest.parts.line} {...(i === lines - 1 ? last : styles).$data.line()} />
-        ))}
+      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)}
+        data-arena-part={manifest.parts.stack} {...styles.$data.stack()}>
+        {Array.from({ length: count }).map((_, i) => {
+          const row = i === count - 1 && count > 1 ? last : styles;
+          return <div key={i} className={row.line()} data-arena-part={manifest.parts.line} {...row.$data.line()} />;
+        })}
       </div>
     );
   }
-  const box = variant === 'circle' ? (height || width) : undefined;
   return (
-    <div className={arenaClassName('ArenaSkeleton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} role="status" aria-label={locale.skeletonLabel}
-      style={{ width: box ?? width, height: box ?? height, borderRadius: radius }} />
+    <div className={arenaClassName('ArenaSkeleton', styles.root(), className)} data-arena-part={manifest.parts.root}
+      {...styles.$data.root()} role="status" aria-label={locale.skeletonLabel} />
   );
 }

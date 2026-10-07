@@ -131,7 +131,7 @@ const CASES: Record<string, Case> = {
   ArenaSheet: { renders: [() => <ArenaSheet open title="Filters" dismissible>Body</ArenaSheet>], consumer: ['Filters', 'Body'] },
   ArenaAlert: { renders: [() => <ArenaAlert tone="info" title="Heads up" dismissible>Body</ArenaAlert>], consumer: ['Heads up', 'Body'] },
   ArenaTag: { renders: [() => <ArenaTag removable>Beta</ArenaTag>], consumer: ['Beta'] },
-  ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton variant="text" lines={2} />], consumer: [] },
+  ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton lines={2} />], consumer: [] },
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },
