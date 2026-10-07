@@ -214,3 +214,34 @@ test('a search for a family name finds that family', () => {
   assert.equal(found[0]?.entry.uri, `${SCHEME}://family/fill`, 'fill family is ranked first');
   rmSync(dir, { recursive: true });
 });
+
+test('a token group and a behaviour pattern each get a URI, and the roles keep their own', () => {
+  const dir = payload({
+    'contracts/design/spacing.json': '{"sp":{}}',
+    'contracts/behaviour/tabs.json': '{"name":"tabs","requires":{}}',
+  });
+  try {
+    const uris = entries(dir, MANIFEST).map((one) => one.uri);
+    assert.ok(uris.includes(`${SCHEME}://tokens/spacing`));
+    assert.ok(uris.includes(`${SCHEME}://behaviour/tabs`));
+    assert.ok(uris.includes(ROLES_URI));
+    assert.equal(uris.includes(`${SCHEME}://tokens/roles`), false);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a relative link to a carried token group or pattern resolves to its URI', () => {
+  const dir = payload({
+    'skills/design/references/page.md': '# The page\n\n[spacing](../../../contracts/design/spacing.json) '
+      + 'and [tabs](../../../contracts/behaviour/tabs.json)\n',
+    'contracts/design/spacing.json': '{}',
+    'contracts/behaviour/tabs.json': '{}',
+  });
+  try {
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    const page = byUri.get(`${SCHEME}://reference/page`);
+    assert.ok(page);
+    const text = textOf(dir, page, byRel) ?? '';
+    assert.match(text, /\]\(arena:\/\/tokens\/spacing\)/);
+    assert.match(text, /\]\(arena:\/\/behaviour\/tabs\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

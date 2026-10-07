@@ -21,6 +21,7 @@ export const REFERENCE_DIR = 'skills/design/references';
 
 export const LAYER_NEUTRAL_INDEX = 'frameworks/INDEX.md';
 export const ROLES = 'contracts/design/roles.json';
+export const TOKENS = 'contracts/design/*.json';
 export const BEHAVIOUR = 'contracts/behaviour/*.json';
 
 export const CARRIED_SHARED = [
@@ -28,6 +29,7 @@ export const CARRIED_SHARED = [
   LAYER_NEUTRAL_INDEX,
   'frameworks/VOCABULARY.md',
   ROLES,
+  TOKENS,
   BEHAVIOUR,
 ];
 

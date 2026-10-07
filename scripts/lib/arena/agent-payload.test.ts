@@ -30,7 +30,7 @@ test('the payload carries the references, the neutral index, the roles and the p
 });
 
 test('a spec list names the shared files plus the layer tree, and nothing else', () => {
-  assert.equal(carriedSpecs('react').length, 8);
+  assert.equal(carriedSpecs('react').length, 9);
   assert.ok(carriedSpecs('react').every((spec) => !spec.includes('angular')));
 });
 
@@ -114,4 +114,12 @@ test('a link into a tree the site serves but did not carry is pointed at the tag
   const out = retarget('[a](../../frameworks/CHARTS.md) [b](../../frameworks/INDEX.md)', 'contracts/design/S.md', tag,
     (path) => path === 'frameworks/INDEX.md');
   assert.equal(out, `[a](${tag}/frameworks/CHARTS.md) [b](../../frameworks/INDEX.md)`);
+});
+
+test('the payload carries every token group, so a value a reference names can be read offline', () => {
+  for (const rel of ['contracts/design/spacing.json', 'contracts/design/typography.json']) {
+    assert.ok(inPayload(rel, 'react'), `${rel} is not carried`);
+  }
+  assert.equal(inPayload('contracts/design/Scales.md', 'react'), false,
+    'the prose specification stays on the site, only the DTCG groups travel');
 });

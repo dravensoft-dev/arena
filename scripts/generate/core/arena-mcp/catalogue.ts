@@ -29,6 +29,15 @@ export const ROLES = 'contracts/design/roles.json';
 export const RULES = 'rules.json';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const INDEX = 'INDEX.md';
+export const TOKENS_DIR = 'contracts/design';
+export const BEHAVIOUR_DIR = 'contracts/behaviour';
+export const TOKENS_PREFIX = `${SCHEME}://tokens/`;
+export const BEHAVIOUR_PREFIX = `${SCHEME}://behaviour/`;
+
+const jsonIn = (rel: string, dir: string) => rel.startsWith(`${dir}/`) && rel.endsWith('.json')
+  && !rel.slice(dir.length + 1).includes('/');
+const jsonName = (rel: string) => (rel.split('/').at(-1) ?? '').replace(/\.json$/, '');
+
 export const FAMILY_PREFIX = `${SCHEME}://family/`;
 
 export type Entry = { uri: string; rel: string; title: string; mime: string };
@@ -104,6 +113,16 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       title: `Every ${layer} component, under the category it is filed under` });
   }
   for (const rel of files) {
+    if (jsonIn(rel, TOKENS_DIR) && rel !== ROLES) {
+      found.push({ uri: `${TOKENS_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
+        title: `Tokens: the ${jsonName(rel)} group, every value as DTCG JSON` });
+      continue;
+    }
+    if (jsonIn(rel, BEHAVIOUR_DIR)) {
+      found.push({ uri: `${BEHAVIOUR_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
+        title: `Behaviour: the ${jsonName(rel)} pattern, the roles, keys and focus it requires` });
+      continue;
+    }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
       found.push({ uri: `${SCHEME}://reference/${nameOf(rel)}`, rel, mime: 'text/markdown',
         title: `Reference: ${nameOf(rel)}` });
