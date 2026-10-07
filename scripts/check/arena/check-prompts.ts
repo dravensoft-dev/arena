@@ -28,7 +28,7 @@ export const node = {
   reads: [
     'contracts/api/components', 'frameworks/Components.json',
     'frameworks/tailwind/vocabulary', 'frameworks/tailwind/components', 'contracts/behaviour',
-    'frameworks/react/components', 'frameworks/angular/components',
+    'frameworks/react/components/**/*.behaviour.json', 'frameworks/angular/components/**/*.behaviour.json',
     'frameworks/react/components/**/*.prompt.md', 'frameworks/angular/components/**/*.prompt.md',
   ],
   writes: [],

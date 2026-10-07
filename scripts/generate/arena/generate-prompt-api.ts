@@ -25,7 +25,7 @@ export const node = {
   name: 'generate:prompt-api',
   reads: ['contracts/api/components', 'frameworks/Components.json', VOCABULARY_DIR,
     'frameworks/tailwind/components', 'contracts/behaviour',
-    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components`), ...PROMPTS],
+    ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.behaviour.json`), ...PROMPTS],
   writes: PROMPTS,
   feeds: [
     'check:families',
