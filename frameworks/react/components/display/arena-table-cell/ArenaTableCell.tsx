@@ -1,4 +1,6 @@
 import React from 'react';
+import type { CSSProperties } from 'react';
+import { arenaColumnKey } from '../arena-table/ColumnKey.ts';
 import type { ArenaTableColumn } from '../../../Api.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
@@ -24,6 +26,7 @@ export interface ArenaTableCellProps {
 
 export interface ArenaTableCellInjected {
   column: ArenaTableColumn;
+  label: string;
   layout: 'table' | 'card';
   tabIndex: number | undefined;
   onCellFocus: (() => void) | undefined;
@@ -32,10 +35,16 @@ export interface ArenaTableCellInjected {
 
 
 export function ArenaTableCell({ className, 
-  children, href, onNavigate, column, layout = 'table', tabIndex, onCellFocus,
+  children, href, onNavigate, column, label = '', layout = 'table', tabIndex, onCellFocus,
 }: ArenaTableCellProps & Partial<ArenaTableCellInjected>) {
 
   const c: Partial<ArenaTableColumn> = column ?? {};
+
+  const key = layout === 'card' ? null : arenaColumnKey(label, c.key);
+  const channels = {
+    '--arena-column-width': key === null ? 'initial' : `var(--arena-column-${key}-width)`,
+    '--arena-column-align': key === null ? 'initial' : `var(--arena-column-${key}-align)`,
+  } as CSSProperties;
 
   const shown = href === undefined ? children : (
     <a href={href} className={cellStyles({ narrow: layout === 'card' }).link()}
@@ -53,14 +62,14 @@ export function ArenaTableCell({ className,
     if (c.mobileLayout === 'block') {
 
       return (
-        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className)} data-arena-part={manifest.parts.cardBlock} {...cellStyles({ narrow: true }).$data.cardBlock()} data-arena-boundary="">
+        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className)} style={channels} data-arena-part={manifest.parts.cardBlock} {...cellStyles({ narrow: true }).$data.cardBlock()} data-arena-boundary="">
           {shown}
         </td>
       );
     }
     const card = cellStyles({ narrow: true, numeric: Boolean(c.numeric) });
     return (
-      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} data-arena-part={manifest.parts.cardRow} {...card.$data.cardRow()}>
+      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} style={channels} data-arena-part={manifest.parts.cardRow} {...card.$data.cardRow()}>
         <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel} {...card.$data.cardLabel()}>{c.header}</span>
         <span className={card.cardValue()}
           data-arena-part={manifest.parts.cardValue} {...card.$data.cardValue()} data-arena-boundary="">
@@ -74,8 +83,9 @@ export function ArenaTableCell({ className,
     <td tabIndex={tabIndex}
 
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
-      className={arenaClassName('ArenaTableCell', cellStyles({ narrow: false, align: c.align || 'left', numeric: Boolean(c.numeric) }).td(), className)}
-      data-arena-part={manifest.parts.td} {...cellStyles({ narrow: false, align: c.align || 'left', numeric: Boolean(c.numeric) }).$data.td()} data-arena-boundary="">
+      className={arenaClassName('ArenaTableCell', cellStyles({ narrow: false, numeric: Boolean(c.numeric) }).td(), className)}
+      style={channels}
+      data-arena-part={manifest.parts.td} {...cellStyles({ narrow: false, numeric: Boolean(c.numeric) }).$data.td()} data-arena-boundary="">
       {shown}
     </td>
   );

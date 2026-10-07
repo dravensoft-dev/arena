@@ -116,8 +116,6 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    'a slot is as tall as `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects its end minute past its start'],
   ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:top',
    'an hour line, a slot and the now line sit where `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects their minute'],
-  ['frameworks/react/components/display/arena-table/ArenaTable.tsx:width',
-   "the consumer's own column width, read from the column definition `frameworks/react/components/display/arena-table/ArenaTable.tsx:ArenaTable(props)` renders"],
   ['frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:width',
    'the fill is as wide as the clamped progress `frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:ArenaProgressBar({ progressPercentage })` computes'],
   ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:height',

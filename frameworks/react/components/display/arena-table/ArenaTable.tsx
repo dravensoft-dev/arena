@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
+import { arenaColumnKey } from './ColumnKey.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTable.classes.generated.ts';
 
@@ -202,7 +204,7 @@ export function ArenaTable({ className,
   const sortValue = sort ? arenaSortOptionValue(sort.column, sort.direction) : undefined;
 
   const headerStyles = (c: ArenaTableColumn) =>
-    arenaTableStyles({ narrow: false, align: c.align || 'left', sortable: Boolean(c.sortable && sort) });
+    arenaTableStyles({ narrow: false, sortable: Boolean(c.sortable && sort) });
 
   return (
     <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root} {...arenaTableStyles({ narrow }).$data.root()}>
@@ -224,12 +226,16 @@ export function ArenaTable({ className,
               className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow} {...arenaTableStyles({ narrow: false }).$data.headRow()}>
               {columns.map((c, ci) => {
                 const state = sortStateOf(ci);
+                const key = arenaColumnKey(label, c.key);
                 return (
                   <th key={ci} scope="col" {...headerNav(ci)}
                     aria-sort={state}
                     onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
                     className={headerStyles(c).th()} data-arena-part={manifest.parts.th} {...headerStyles(c).$data.th()}
-                    style={{ width: c.width }}>{c.header}{state && state !== 'none' && (
+                    style={{
+                      '--arena-column-width': key === null ? 'initial' : `var(--arena-column-${key}-width)`,
+                      '--arena-column-align': key === null ? 'initial' : `var(--arena-column-${key}-align)`,
+                    } as CSSProperties}>{c.header}{state && state !== 'none' && (
                         <i aria-hidden="true"
                           className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} {...arenaTableStyles({ narrow: false }).$data.sortCaret()} />
                       )}</th>
@@ -245,6 +251,7 @@ export function ArenaTable({ className,
               rowIndex: ri + 1,
               ariaRowIndex: flat || !extent ? null : extent.offset + ri + 2,
               columns,
+              label,
               layout: narrow ? 'card' : 'table',
               cursorCol: narrow || curRow !== ri + 1 ? null : curCol,
               onCellFocus: narrow ? undefined : onCellFocus,

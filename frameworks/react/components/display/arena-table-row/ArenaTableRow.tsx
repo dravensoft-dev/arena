@@ -13,6 +13,7 @@ export interface ArenaTableRowInjected {
   rowIndex: number;
   ariaRowIndex: number | null;
   columns: readonly ArenaTableColumn[];
+  label: string;
   layout: 'table' | 'card';
   cursorCol: number | null;
   onCellFocus: (row: number, col: number) => void;
@@ -38,13 +39,14 @@ export interface ArenaTableRowProps {
 
 export function ArenaTableRow({ className, 
   children, onClick, interactive = false, disabled = false,
-  rowIndex = 0, ariaRowIndex = null, columns = [], layout = 'table', cursorCol = null, onCellFocus,
+  rowIndex = 0, ariaRowIndex = null, columns = [], label = '', layout = 'table', cursorCol = null, onCellFocus,
 }: ArenaTableRowProps & Partial<ArenaTableRowInjected>) {
 
   const cells = React.Children.toArray(children).map((child, ci) => (
     React.isValidElement<Partial<ArenaTableCellInjected>>(child)
       ? React.cloneElement(child, {
         column: columns[ci],
+        label,
         layout,
 
         tabIndex: layout === 'card' ? undefined : (ci === cursorCol ? 0 : -1),

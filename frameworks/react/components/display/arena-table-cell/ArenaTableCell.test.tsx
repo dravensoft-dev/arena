@@ -10,7 +10,19 @@ test('the roving ring is a focus modifier on the cell, not a flag pushed down th
   );
   assert.match(html, /\barena-table__(?:th|td)\b/);
   assert.match(html, /\barena-table__(?:th|td)\b/, 'the ring replaces an outline rather than adding to one');
-  assert.doesNotMatch(html, /style="/, 'nothing is recomputed to draw it');
+  const declared = (html.match(/style="([^"]*)"/)?.[1] ?? '').split(';').filter(Boolean);
+  assert.equal(declared.length, 2, 'the cell writes its two channels and nothing else');
+  assert.ok(declared.includes('--arena-column-width:initial'), 'width channel is not initial');
+  assert.ok(declared.includes('--arena-column-align:initial'), 'align channel is not initial');
+});
+
+test('a keyed column binds both channels under its key, and an invalid key writes initial', () => {
+  const keyed = renderToStaticMarkup(<ArenaTableCell label="T" column={{ header: 'Status', key: 'status' }}>ok</ArenaTableCell>);
+  const keyedDecls = keyed.match(/style="([^"]*)"/)?.[1].split(';') ?? [];
+  assert.ok(keyedDecls.includes('--arena-column-width:var(--arena-column-status-width)'), 'width is not bound under the key');
+  assert.ok(keyedDecls.includes('--arena-column-align:var(--arena-column-status-align)'), 'align is not bound under the key');
+  const invalid = renderToStaticMarkup(<ArenaTableCell label="T" column={{ header: 'Status', key: 'order.id' }}>ok</ArenaTableCell>);
+  assert.doesNotMatch(invalid, /var\(--arena-column-/);
 });
 
 test('a numeric column takes its own branch of the recipe', () => {
