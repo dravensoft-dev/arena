@@ -1,11 +1,12 @@
-/* The repertoire against the tree it describes. Three claims: the emitted regions are what a
+/* The repertoire against the tree it describes. Four claims: the emitted regions are what a
  * fresh emit produces, so a range moves in one file and lands in every page that states it; no
  * consumer page names a peer at a version the manifests do not declare, which is the way a
  * hand-typed range goes stale without anything failing; and no consumer page hands a reader a
  * runner without an alternative beside it. The third is the anti-regression rule and it is the
  * reason this gate exists at all: bunx was written into five consumer pages while the shipped
  * command was a Node program reading three node modules, so the branch documented a dependency
- * Arena does not have, and nothing on the board could see it. */
+ * Arena does not have, and nothing on the board could see it. A registry runner may not fetch
+ * the foreign `arena` package either. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -117,6 +118,27 @@ export function runnerProblems(rel: string, source: string) {
   return problems;
 }
 
+const REGISTRY_RUNNERS = /\b(npx|bunx|npm exec)((?:\s+--?[\w-]+(?:=\S+)?)*(?:\s+--)?)\s+arena(?![\w@/.-])/g;
+const ALWAYS_FETCHING = /\b(?:pnpm|yarn) dlx\s+(?:--?[\w-]+(?:=\S+)?\s+)*arena(?![\w@/.-])/;
+const REFUSES_INSTALL = /(?:^|\s)--(?:no-install|no)(?=\s|$)/;
+
+export function registryRunnerProblems(rel: string, source: string) {
+  const problems = [];
+  for (const line of source.split('\n')) {
+    const fetching = ALWAYS_FETCHING.test(line)
+      || [...line.matchAll(REGISTRY_RUNNERS)].some((match) => !REFUSES_INSTALL.test(match[2] ?? ''));
+    if (!fetching) continue;
+    problems.push(
+      `${rel}: runs \`arena\` through a registry runner that would download a package, and the `
+      + 'registry holds a different `arena`, so a reader who runs the line executes a stranger\'s '
+      + 'code and not this command. Pass --no-install (npx, npm exec: --no) so the runner takes '
+      + 'the installed bin or stops, or name pnpm exec, yarn or the bare command, since pnpm dlx '
+      + `and yarn dlx always download. Line: ${JSON.stringify(line.trim())}`,
+    );
+  }
+  return problems;
+}
+
 export function axisProblems(axes = AXES) {
   const problems = [];
   const seen = new Set<string>();
@@ -146,6 +168,7 @@ export function collect(base = root) {
       ...rangeProblems(rel, source, ranges),
       ...engineProblems(rel, source),
       ...runnerProblems(rel, source),
+      ...registryRunnerProblems(rel, source),
     );
   }
   return { problems, scanned: scanned.length };
@@ -160,7 +183,8 @@ function main() {
   }
   console.log(`check-support: ${AXES.length} axes over ${AXES.reduce((n, a) => n + a.rows.length, 0)} `
     + `answer(s), each carrying its evidence, and ${scanned} consumer document(s) state no peer range `
-    + 'the manifests do not, no other node engine, and no runner without an alternative');
+    + 'the manifests do not, no other node engine, no runner without an alternative, and no runner that '
+    + 'would fetch the foreign arena package');
 }
 
 if (isMainModule(import.meta.url)) main();

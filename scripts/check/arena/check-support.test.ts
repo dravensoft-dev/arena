@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  collect, axisProblems, rangeProblems, engineProblems, runnerProblems, regionProblems,
+  collect, axisProblems, rangeProblems, engineProblems, runnerProblems, registryRunnerProblems, regionProblems,
   declaredRanges, documents,
 } from './check-support.ts';
 import { AXES, PEERS, NODE_ENGINE } from '../../lib/arena/support-matrix.ts';
@@ -68,14 +68,43 @@ test('another node engine is reported, because the floor reaches a consumer thro
 });
 
 test('a runner with no alternative on its line is reported', () => {
-  const problems = runnerProblems('page.md', 'Run `bunx arena-to-prod --audit` before you build');
+  const problems = runnerProblems('page.md', 'Run `bunx --no-install arena audit` before you build');
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /with no alternative on the line/);
 });
 
 test('a runner beside an alternative passes, and so does the command named bare', () => {
-  assert.deepEqual(runnerProblems('page.md', 'npx arena-to-prod   # or: bunx / pnpm exec / yarn dlx'), []);
-  assert.deepEqual(runnerProblems('page.md', 'Run `arena-to-prod --audit`'), []);
+  assert.deepEqual(runnerProblems('page.md', 'npx --no-install arena   # or: bunx / pnpm exec / yarn dlx'), []);
+  assert.deepEqual(runnerProblems('page.md', 'Run `arena audit`'), []);
+});
+
+test('a registry runner that would fetch the foreign arena package is reported', () => {
+  for (const line of [
+    'npx arena build', 'npx -y arena doctor', 'bunx arena audit', 'npm exec arena', 'npm exec -- arena build',
+    'pnpm dlx arena build', 'yarn dlx arena doctor', 'pnpm dlx arena --no-install',
+  ]) {
+    const problems = registryRunnerProblems('page.md', line);
+    assert.equal(problems.length, 1, line);
+    assert.match(problems[0] ?? '', /registry holds a different `arena`/);
+  }
+});
+
+test('a registry runner that refuses to install, a scoped package and the bare command pass', () => {
+  for (const line of [
+    'npx --no-install arena doctor', 'npx --no arena doctor', 'bunx --no-install arena build',
+    'npm exec --no -- arena build', 'npx @dravensoft/arena-mcp', 'bunx @dravensoft/arena-mcp',
+    'arena build', 'pnpm exec arena doctor', 'yarn arena doctor', 'the arena command, run with npx',
+  ]) {
+    assert.deepEqual(registryRunnerProblems('page.md', line), [], line);
+  }
+});
+
+test('a line can satisfy the runner rule and the registry rule together', () => {
+  const line = 'npx --no-install arena doctor   # or: pnpm exec arena doctor / yarn arena doctor';
+  assert.deepEqual(runnerProblems('page.md', line), []);
+  assert.deepEqual(registryRunnerProblems('page.md', line), []);
+  const bunx = 'bunx --no-install arena doctor   # or: pnpm exec arena doctor / yarn arena doctor';
+  assert.ok(runnerProblems('page.md', bunx).length === 0 && registryRunnerProblems('page.md', bunx).length === 0);
 });
 
 test('the repertoire page matches a fresh emit', () => {
