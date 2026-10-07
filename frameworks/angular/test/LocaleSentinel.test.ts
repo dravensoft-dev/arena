@@ -146,7 +146,7 @@ class AlertHost {}
 @Component({ standalone: true, imports: [ArenaTag], template: `<arena-tag [removable]="true">Beta</arena-tag>` })
 class TagHost {}
 
-@Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton variant="text" [lines]="2" />` })
+@Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton [lines]="2" />` })
 class SkeletonHost {}
 
 @Component({ standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })

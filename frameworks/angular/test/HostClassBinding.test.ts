@@ -425,7 +425,7 @@ test('arena-tag: a consumer-supplied class on the host survives the [class] bind
   assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
 });
 
-test('arena-skeleton: the default variant\'s root recipe classes land on the host element itself', async () => {
+test('arena-skeleton: the root recipe classes land on the host element itself', async () => {
   const fixture = TestBed.createComponent(SkeletonHost);
   fixture.detectChanges();
   await fixture.whenStable();
@@ -449,7 +449,7 @@ test('arena-skeleton: the host itself carries the loading status, not a wrapper 
   const host = fixture.nativeElement.querySelector('arena-skeleton') as HTMLElement;
   assert.equal(host.getAttribute('role'), 'status');
   assert.equal(host.getAttribute('aria-label'), 'Loading');
-  assert.equal(host.children.length, 0, 'the default (non-stacked) variant renders no children of its own');
+  assert.equal(host.children.length, 0, 'a skeleton with no lines renders no children of its own');
 });
 
 test('arena-breadcrumbs: the root recipe classes land on the <nav>, which is the carve-out', async () => {
