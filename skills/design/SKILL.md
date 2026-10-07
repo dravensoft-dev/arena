@@ -115,10 +115,10 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **One primary accent per view.** Crimson is the voice: one `arena-emphasis-primary` action at
   most stands on a screen, and a button with no emphasis class is it. Gold is distinction and
   focus, not a second primary. **`arena audit` reports this one.**
-- **No gradients, on any surface.** Depth comes from the `base-100` to `base-300` surface scale,
-  the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the one exception.
-  A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`. **`arena audit`
-  reports this one.**
+- **No gradients, on any surface.** Depth comes from the `base-100`, `base-200`, `base-300`
+  surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
+  one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
+  **`arena audit` reports this one.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
   ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
@@ -133,9 +133,9 @@ source text cannot show, is `arena://rules` on the MCP server.
   browser, which opens the `href` and reports nothing.
 - **A press that starts on a control keeps to that control.** Arena draws an activation target
   around content you write, such as a card or a table row. A click or an Enter that begins on a
-  button, a link or a field inside that target runs the control and nothing else. A press anywhere
-  else on the surface activates the surface. So a card or a row may hold controls of your own, or
-  hand the press over entirely by not being interactive.
+  button, a link or a field inside that target runs the control and nothing else. A press
+  elsewhere on the surface activates it. So a card or a row may hold controls of your own, or hand
+  the press over entirely by not being interactive.
 - **Two themes, dark first.** Dark is `:root`, light is `.arena-light`. Components never rewrite
   per theme; they read tokens. `.arena-compact` and `.arena-comfortable` are the density family on
   the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second

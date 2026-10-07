@@ -66,7 +66,7 @@ export const RULES: LanguageRule[] = [
   {
     id: 'no-gradients',
     short: 'No gradients, on any surface.',
-    body: 'Depth comes from the `base-100` to `base-300` surface scale, the hairline '
+    body: 'Depth comes from the `base-100`, `base-200`, `base-300` surface scale, the hairline '
       + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
       + 'A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.',
     held: 'raw-value',
@@ -112,8 +112,7 @@ export const RULES: LanguageRule[] = [
     short: 'A press that starts on a control keeps to that control.',
     body: 'Arena draws an activation target around content you write, such as a card or a table '
       + 'row. A click or an Enter that begins on a button, a link or a field inside that target '
-      + 'runs the control and nothing else. A press anywhere else on the surface activates the '
-      + 'surface. So a card or a row may hold controls of your own, or hand the press '
+      + 'runs the control and nothing else. A press elsewhere on the surface activates it. So a card or a row may hold controls of your own, or hand the press '
       + 'over entirely by not being interactive.',
     held: null,
     unheld: 'which control a press lands on is decided at run time',
