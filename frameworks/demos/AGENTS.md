@@ -64,7 +64,9 @@ notices.
   // Properties of the component's vocabulary the demo sets the way an adopter would: a map of
   // --arena-* names to string values, written as the style of the element the page already
   // wraps the component in (a tile of the kitchen sink, the stage of a playground), so no
-  // element is added and the properties are inherited by everything drawn inside it. Optional.
+  // element is added and the properties are inherited by everything drawn inside it. The page shows
+  // them fixed, like `class`: it shows the class and the properties a fixture carries and offers no
+  // control to change them. Optional.
   "vars": { "--arena-column-status-align": "right" },
 
   // One line under the page title. Optional.

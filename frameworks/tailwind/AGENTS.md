@@ -92,14 +92,21 @@ and declares:
   never a Tailwind theme key: the build compiles in `@reference` mode and emits none, so a read of
   one is empty at runtime.
 - `default`: the option in effect when nothing is written.
-- `axis`, on a box family that has one: the public `--arena-<family>` property an adopter sets for
-  a value no option names.
+- `axis`, on a box family that has one: the public property an adopter sets for a value no option
+  names, a string or a list of strings when a family has more than one. Each is `--arena-<family>`
+  or `--arena-<family>-<suffix>`, belongs to one family, and is read by a manifest that answers the
+  family; an axis nobody reads, an axis of a family no manifest answers and an axis two families
+  share each fail `check:families`. A skeleton's width, height and corner are the axes of one family.
 
 **A manifest takes part with a few keys.** `answers` names the families the component responds to,
 and a slot reads each channel with today's value as the `var()` fallback, as
 `w-[var(--arena-fill-width,fit-content)]`. The fallback IS the default and names an Arena token, never a theme key; a manifest
 never declares a channel, because a declaration on the slot would tie the family's rule on
-specificity and source order would decide again.
+specificity and source order would decide again. **A read of a channel falls back through the
+family's axis**, `var(<channel>,var(<axis>,<default>))`: a class on the component sets the channel
+and wins, the property an adopter sets on a container is read when no class does, and the default
+is read when neither is there. `check:families` compares the fallback with the value the family
+writes, wrapped in its axis or not.
 
 **An `answers` entry is a bare family name or an object.** The object,
 `{ "family": "size", "options": ["arena-size-sm", "arena-size-md", "arena-size-lg"], "default":
@@ -115,7 +122,9 @@ the manifests that answer it, so a class naming an option a component lacks sele
 - `floating` names a slot that is a floating surface, with its reason, and the component renders
   it with `data-arena-surface="floating"`.
 - `transparent` names a slot that projects adopter content without being a boundary, with its
-  reason; the triggers of `ArenaTooltip` and `ArenaMenu` are the case.
+  reason; the triggers of `ArenaTooltip` and `ArenaMenu` are the case, and so is the root of
+  `ArenaScroller`, which sets the width of the items it holds and paints nothing, each item being
+  a boundary of its own.
 
 **`build:tailwind` compiles a family to `consume/vocabulary/<Family>.generated.css`**, one `@scope`
 block per option over the parts of the manifests that answer that option, each selected as the
@@ -141,6 +150,15 @@ defines any more fails as stale.
 `check:families` holds the files and the manifests' use of them, `check:channels` holds one writer
 kind per custom property, `check:boundaries` holds the boundary records, and `check:proximity`
 measures the cascade in Chromium in both load orders.
+
+**A keyed family has no options, no default and no axis**: `target: keyed` names a `keyed` field a
+component reads its key from, the `properties` an adopter sets with the key written into the name
+(`--arena-column-<key>-width`), the `channels` a manifest reads, and the components it `binds`. It
+compiles to no sheet, because no class writes it. The manifests answering it are exactly `binds`,
+the key field is reachable from a bound component's contract, and both layers write the binding
+beside a channel name, so a key no property names leaves the channel unset. The table's column is
+the case: each cell writes both column channels, as `initial` when it has no valid key, a card
+layout included, and a key that cannot name a property warns once.
 
 **A markup family has no default, no axis, and no answering manifest.** Its options are
 `[property:value]` tokens. A non-restating option writes declarations and never a custom property.
@@ -428,11 +446,11 @@ comm -13 <(find components -name '*.manifest.json' -exec basename {} .manifest.j
 Two reasons put a component in it. **A compound family draws one surface**, so the parent's
 manifest holds every level of it and its members have none of their own. `MANIFEST_COVERS` in
 `scripts/lib/tailwind/manifest-surfaces.ts` is the mapping, read it there rather than from a list
-here. **And a chart drawing geometry has no surface a class string can describe**: a chart is SVG
-geometry driven by measured container width, its identity is path data and attribute bindings, and
-a manifest holding it would be a lie about where the styling lives. `HAND_DRAWN` beside
-`MANIFEST_COVERS` is that roster. `ArenaChartCard` is in neither and does have a manifest, since
-it is a bordered tile.
+here. **And a chart's plot has no surface a class string can describe**: it is SVG geometry driven by
+measured container width, its identity is path data and attribute bindings. `HAND_DRAWN` beside
+`MANIFEST_COVERS` is that roster, and each chart also has a manifest for what a class can say: the
+`frame` slot a plugin reaches, the legend and the tooltip. `ArenaChartCard` is in neither, since it
+is a bordered tile.
 
 `Utilities.generated.css` is **generated** and **git-ignored**: `bun run build:tailwind`
 compiles the preset with the manifests as content, and `bun run check:tailwind-generated` fails

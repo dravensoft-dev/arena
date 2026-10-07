@@ -73,7 +73,12 @@ so a family added tomorrow catches a member declared yesterday. **`COMPUTED` is 
 A design decision the render computes with (a chart's height, a calendar's view, a menu's
 alignment, which the panel is positioned from) stays a member, recorded in `COMPUTED` in
 `scripts/check/arena/check-contracts-neutrality.ts` with the function that reads it, and the gate
-opens that file and fails an entry whose function is not there. **React's `className` is the one member
+opens that file and fails an entry whose function is not there. **`ArenaTextarea.rows` is a member
+by that ruling**: it is a number of lines, which the native control lays its initial height out
+from, and not a length an adopter could write as a class. **A member that names a thing the adopter
+styles is a key and not a value**: `ArenaTableColumn.key` names a column, and its width and
+alignment are the properties `--arena-column-<key>-width` and `--arena-column-<key>-align`, so the
+contract carries no width or alignment member for a column. **React's `className` is the one member
 no contract names**, typed with the component's generated vocabulary class, and `check:api` holds
 it to that type.
 

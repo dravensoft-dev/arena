@@ -89,11 +89,21 @@ computation and stays*. The gate enforces it in both layers: a write of a layout
 `scripts/check/arena/check-dimension-literals.ts` with the function that computes it. A hover or focus colour is never a computation, and no component here
 keeps a `useState` to paint one.
 
+**A binding may interpolate the name of the property it reads**: the table's cells write
+`--arena-column-width` as `var(--arena-column-<key>-width)`, or `initial` when the column has no
+valid key, a card layout included. The value is a `var(--…)` with no literal operand, so it is not a
+computation the gate lists.
+
+**`anchored` is the one attribute the two layers build from different values.** React leaves it
+unset on `ArenaTooltip` and `ArenaMenu` and positions them in CSS; Angular passes `true` and
+positions them with the CDK overlay. It is an internal group of the recipe that no contract
+declares as a member, and the pixels agree, so no gate compares the two.
+
 **A variant key the manifest does not declare resolves to no classes at all**, rather than
 falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the
 manifest has never heard of, the guard that answers it is **derived from the manifest** rather
-than written out beside it; `ArenaActivityFeed`, `ArenaBadge`, `ArenaAlert`, `ArenaToast`, `ArenaAvatar`, `ArenaToastHost`
-and `ArenaGrid` all carry one.
+than written out beside it; `ArenaActivityFeed`, `ArenaBadge`, `ArenaAlert`, `ArenaToast`, `ArenaAvatar` and `ArenaToastHost`
+all carry one.
 
 **What a component inherits is not the browser's.** The layer's pages and its package carry the
 compiled utility sheet, which is both the utilities the manifests resolve to and the `@layer

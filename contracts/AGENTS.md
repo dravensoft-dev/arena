@@ -67,7 +67,7 @@ construction rather than by a precedence rule. Five questions, five owners:
 | Value: which lengths, colours and durations exist | `design/` | custom properties on `:root` | nowhere outside Arena |
 | Register: what each option looks like | the style plugin and the palette | `:root`, `.arena-<plugin>` and `plugin.css` | the plugin directory and `arena.config.json` |
 | Context: which option governs a region | a context family | a class on an ancestor or the component, crossing components | the adopter's markup |
-| Instance: which option this component takes in its box | a box family | a class on the component or an ancestor, reaching the nearest component only | the adopter's markup |
+| Instance: which option this component takes in its box, or a value no option names | a box family | a class on the component or an ancestor, or the family's axis property on a container, reaching the nearest component only; a keyed family's property under the key a member names | the adopter's markup |
 | Behaviour: state, data, events, semantics, accessibility | `api/` | members; semantics reaches the DOM as `data-arena-*` | the component call |
 
 **Inside a channel the nearest class wins**, by scope proximity rather than by source order, so a
@@ -95,6 +95,13 @@ Tailwind rule keyed on it writes `--arena-hue-ink`, `-edge`, `-fill-strong` and 
 the roles a plugin answers, and a slot reads them. No component chooses a class or a colour by a
 member's value. **A floor lives in the answer**: a closed set on the role, `hue-danger-fill-strong`
 answering `transparent`, held in every plugin ([`design/StylePlugins.md`](./design/StylePlugins.md)).
+
+**A value no option names is the family's property, set on a container with a token**:
+`--arena-grid-min: calc(var(--grid-min) * 1.5)`, and a class on the component wins over it. A
+component takes no member for it, and its default is the fallback of the channel read. **A keyed
+family is the exception to a class**: a table's column is named by an optional `key` member, and
+its width and alignment are `--arena-column-<key>-width` and `-align`, because the table cannot
+know what a column holds and an adopter has no element of the column to put a class on.
 
 The families, their reach and their compilation are [`../frameworks/tailwind/AGENTS.md`](../frameworks/tailwind/AGENTS.md);
 the rule that keeps appearance out of a member is [`api/AGENTS.md`](./api/AGENTS.md).

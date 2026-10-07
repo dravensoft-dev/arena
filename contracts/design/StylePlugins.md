@@ -19,9 +19,12 @@ Not one value of appearance.
 
 **A part hook belongs to a manifest, so the plot of a chart has none.** A chart draws geometry
 whose coordinates are the data, and a plot with no slot has no hook: a plugin reaches
-`ArenaChartCard`, the frame, and the legend and tooltip each chart's own manifest carries, and
-nothing inside the plot. What carries the skin there instead is the token tier, since every value
-a chart paints is one the palette moves, and
+`ArenaChartCard`, the `frame` slot every chart draws inside, and the legend and tooltip each
+chart's own manifest carries, and nothing inside the plot. What carries the skin there instead is
+the token tier, since every value a chart paints is one the palette moves, and `edge-axis` is the
+role that draws the axis lines, the zero line and the crosshair, heavier than the grid rules
+`edge-separator` draws behind the marks. The remaining chart paint reads roles and never a compat
+alias, so a plugin that answers a role moves every chart.
 [`frameworks/CHARTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/CHARTS.md)
 records why the plot geometry cannot be a role at all.
 
@@ -113,25 +116,40 @@ describes. A plugin answers each role once and every slot of the kind follows.
 
 | Kind | Padding roles | Gap role | Radius role |
 |---|---|---|---|
-| `surface` | `pad-surface`, `pad-surface-head` | the kind-free rhythm | `rounded-surface` |
-| `floating` | `pad-floating-x`, `pad-floating-y` | the kind-free rhythm | `rounded-surface-floating` |
-| `control` | `pad-control-x`, `pad-control-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
-| `field` | `pad-control-x`, `pad-control-y` | `gap-control` | `rounded-field` |
+| `surface` | `pad-surface`, `pad-surface-head`, `pad-surface-head-top` | the kind-free rhythm | `rounded-surface` |
+| `floating` | `pad-floating-x`, `pad-floating-y`, `pad-floating-edge-x` | the kind-free rhythm, `gap-actions` | `rounded-surface-floating` |
+| `control` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
+| `field` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-field` |
 | `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
 | `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
-| `row` | `pad-row-x`, `pad-row-y`, `pad-row-indent`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row` | `rounded-control` |
+| `row` | `pad-row-x`, `pad-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
 | `none` | none | the kind-free rhythm only | the kind-free shapes only |
 
 The table is `scripts/lib/tailwind/slot-kinds.ts:KIND_AIR`, and the rhythm and shapes any kind
 may ask are `KIND_FREE` in the same file, which holds `gap-items` and `gap-inline`. The fill of a small readout raised over the content it
 annotates, a chart's tooltip, is `fill-surface-raised`.
 
+**A role answers a question the kind asks, and a numeric step on a kind with roles says what it
+sizes.** A card head's top, a sheet pinned to an edge, a skip link's and a textarea's block padding,
+a floating list's rows and the buttons of an action row at the foot of a floating surface each have
+a role their kind answers, so a plugin moves them. A slot that still spends a numeric step on a
+kind with roles is an entry of `SCALE_USES` in `scripts/check/tailwind/check-role-tokens.ts`, and
+its reason says one of two things: the length sizes air this slot spends at its own size, which no
+kind role asks, so a plugin cannot move it; or it sizes something other than air, such as a nesting
+depth, a clearance from a rule or a hairline added up. An entry that says neither is a decision
+nobody wrote down.
+
+**The glyph a component chooses by tone is content and not a class of a slot**: the alert's icon,
+an input's status icon, the stat card's arrow and a caret are chosen by the component from a
+member's value, so they read no hue channel. A constant a component writes inline, such as the
+scatter size legend's ink, is a constant and not a member's value, so it reads none either.
+
 **A row's padding is the role times the density row factor.** `pad-row-x` and `pad-row-y` are
 multiplied by `--dz-row-scale-x` and `--dz-row-scale-y`, which density restates, so a plugin
 answers the register of a row, how much air an item of that kind takes, and density answers how
 tight the row is. A plugin never writes a density factor into a row role. `--dz-row-min`, reached
 through `min-h-row-min`, is the floor a row takes to reach the pointer target in comfortable
-density. `pad-row-indent` is the side nav's inset per level of depth, read times the
+density. The interactive day head of `ArenaCalendar` takes it too, and `check:proximity` measures that the head clears the comfortable row. `pad-row-indent` is the side nav's inset per level of depth, read times the
 `--arena-side-nav-depth` channel the component writes.
 
 ## The option roles

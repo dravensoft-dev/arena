@@ -163,8 +163,8 @@ page only *links* the CSS, which is identical whoever renders it, so it lives on
 `scripts/lib/tailwind/manifest-surfaces.ts`, names the ones that still do with a reason each.
 
 **No gate compares a manifest against a rendered component, and the mapping is not one-to-one**:
-a manifest mirrors a *surface*, so a compound family's members share the parent's and the three
-SVG charts have none. `check:tailwind` proves every class resolves; nothing proves a manifest
+a manifest mirrors a *surface*, so a compound family's members share the parent's and a chart's
+manifest holds its frame, legend and tooltip while its plot is drawn by hand. `check:tailwind` proves every class resolves; nothing proves a manifest
 still matches the contract it was written from, **so check by hand when either has moved**. One
 narrow slice is machine-checked: `check:states` fails a `hover:`/`focus:`-family modifier no
 contract the manifest covers declares. It checks states only, and nothing about colors, sizes or

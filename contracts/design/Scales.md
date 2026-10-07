@@ -113,7 +113,7 @@ The air BETWEEN two components, which Arena itself never draws: every component 
 | `--rhythm-component` | 16px (`sp-4`) | between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing |
 | `--rhythm-section` | 24px (`sp-6`) | between two sections of a page. The two sides answer different questions, and this gap is what says so |
 
-**These three were already chosen, and what they lacked was names.** `ArenaGrid`'s `gap` variant has always spent `sm`/`md`/`lg` on exactly 12/16/24px with the middle as its default, and it reads the tokens now rather than the raw steps, so a grid is the rhythm plus a grid.
+**These three were already chosen, and what they lacked was names.** A grid's gap and a section's rhythm spend `group`, `component` and `section` on exactly 12/16/24px with the middle as the default, and `arena-grid-gap-<value>` and `arena-rhythm-<value>` read the tokens rather than the raw steps, so a grid is the rhythm plus a grid.
 
 **The scale is closed at both ends.** A gap tighter than `--rhythm-group` is inside a component rather than between two, which is that component's own recipe and not a page decision. A gap wider than `--rhythm-section` is the frame a page draws around its content rather than rhythm within it, and a frame is the consumer's.
 
@@ -122,6 +122,18 @@ The air BETWEEN two components, which Arena itself never draws: every component 
 **`--rhythm-group` and `--dz-stack` are both 12px, and that is not a duplicate.** The precedent is one section up: `fs.sm` / `dz.text-md` are both 13px and `fs.xs` / `dz.text-xs` are both 11px, told apart by namespace because the role differs. Here `--dz-stack` separates stacked items on a control-dense surface and compresses to 8px under `.arena-compact`; `--rhythm-group` separates a page's own content and holds at 12px. Same length today, different question, and only one of them moves.
 
 Exposed in the Tailwind layer as `--spacing-group` / `--spacing-component` / `--spacing-section` (`frameworks/tailwind/Theme.css`), so the utilities read `gap-section`, `p-group` and so on. The middle step is named `component` rather than `block` because `p-block` and `m-block` would read as the block axis of a logical property instead of as a step on this scale.
+
+## Frame shapes (`aspect`)
+The shape of a frame, as the ratio of its width to its height. A number rather than a keyword, because a ratio is two numbers: `0.8` is the same shape as four by five, and `aspect-ratio` takes it. The source is `contracts/design/spacing.json`, generated into `contracts/design-generated/spacing.generated.css`. The `ratio` family reads each step: `arena-ratio-<step>` writes the frame of an `ArenaFigure`, and `arena-ratio-media` reads the `aspect-media` role, which a style plugin answers for every figure at once.
+
+| Token | Value | Role |
+|---|---|---|
+| `--aspect-square` | 1 | a square frame, the shape a gallery tiles |
+| `--aspect-video` | 1.7777777778 | a video frame, sixteen by nine |
+| `--aspect-portrait` | 0.8 | a portrait frame, four by five: a product that fills more of a column |
+| `--aspect-wide` | 2.3333333333 | a cinema frame, twenty-one by nine |
+
+**No utility reads these tokens**: `frameworks/tailwind/Theme.css` clears `--aspect-*` so no utility resolves one, and the family is the one reader. A shape no step names is the family's property, `--arena-ratio` on a container, which takes a number, a fraction such as `3 / 2` or one of these tokens.
 
 ## Tracking scale (`ls`)
 Letter-spacing across the system is one role hierarchy: **tracking decreases as the text gets longer**, from the shortest mono micro-labels down through prose-adjacent chrome to the tightest display headings. The family below is that hierarchy, generated into `contracts/design-generated/typography.generated.css` from `contracts/design/typography.json`:

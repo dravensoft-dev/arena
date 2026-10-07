@@ -74,7 +74,11 @@ meaningless, and the bar and line charts keep none.
 **A chart's legend and tooltip render from the chart's own manifest.** Each chart carries one under
 `frameworks/tailwind/components/charts/arena-<chart>/`, holding the slots of its legend and its
 tooltip, so both layers draw them from the same classes and a style plugin reaches them through
-the part hook. The roles those slots spend are in
+the part hook. Each chart also draws inside a `frame` slot of that manifest, which is the box a
+plugin reaches around the plot, and an Angular chart's host is boxless (`display: contents`), so a
+class that needs a box goes on a wrapper of the adopter's. The axis lines, the zero line and the
+crosshair are drawn in the `edge-axis` role and the grid rules behind the marks in `edge-separator`;
+no chart paint reads a compat alias. The roles those slots spend are in
 [`contracts/design/StylePlugins.md`](../contracts/design/StylePlugins.md). **A legend swatch reads the hue channels**: the legend item's group is the series' `tone` or `colorId`,
 rendered as `data-arena-tone` or `data-arena-color-id`, and the swatch paints `--arena-hue-ink`. What
 stays inline is what the render computes: the tooltip's anchor, the strip height and the hover
@@ -154,7 +158,7 @@ is recorded.** A role is a custom property with no value, answered in the cascad
 position is JavaScript arithmetic that produces an SVG attribute, and reading a custom property
 back out of the cascade to divide by it would put a layout pass between the data and the mark.
 So the geometry belongs to the tokens, the tokens belong to the scales, and what a plugin can
-say about a chart is what it can say about `ArenaChartCard`, the legend and the tooltip. **That is the whole consequence of
+say about a chart is what it can say about `ArenaChartCard`, the `frame` slot, the legend, the tooltip and the `edge-axis` role. **That is the whole consequence of
 the geometry**: the plot carries no slot, so it carries no part hook, and the plot is the one
 region of a chart a style plugin cannot re-skin. It wears the skin all the same, because every
 value a chart paints is a token the palette moves: the ramp, the surfaces, the muted ink, the mono face and the hairline.

@@ -90,7 +90,7 @@ comm -23 <(find components -mindepth 2 -maxdepth 2 -type d -printf '%f\n' | sort
          <(find components -name '*.variants.ts' -printf '%h\n' | xargs -n1 basename | sort)
 ```
 
-A chart that draws geometry has no recipe at all, for the reason below. **A compound family's
+A chart's recipe holds its frame, legend and tooltip and never its plot, for the reason below. **A compound family's
 children have none either, because they import the parent's**: each `ArenaSideNav*` child imports
 `arenaSideNavStyles` from `side-nav/ArenaSideNav.variants`, which is the recipe mirror of the rule
 `frameworks/tailwind/AGENTS.md` states for manifests, that a manifest mirrors a *surface* and a
@@ -128,11 +128,13 @@ rather than from a list here**, because a list here rots and nothing checks it:
 `find frameworks/angular/components -mindepth 2 -maxdepth 2 -type d | sort`, and count it
 with the same command piped to `wc -l`.
 
-**A chart that draws geometry is the declared exception to having a MANIFEST**, and a missing
-chart manifest is a decision rather than an omission: a chart's visual identity is path data and
-attribute bindings, not class strings, so it has no recipe of its own and none to inherit either.
-`HAND_DRAWN` in `scripts/lib/tailwind/manifest-surfaces.ts` is the roster, held by
-`check:appearance`, and every entry there is a chart. They style themselves with token-valued
+**A chart that draws geometry has a manifest for what a class can say and draws its plot by
+hand.** The manifest holds the `frame` slot a plugin reaches, the legend and the tooltip, and the
+chart renders them from its recipe; the plot's visual identity is path data and attribute bindings,
+not class strings. `HAND_DRAWN` in `scripts/lib/tailwind/manifest-surfaces.ts` is the roster,
+held by `check:appearance`, and every entry there is a chart. **An Angular chart host is boxless**
+(`display: contents`), so a class that needs a box goes on a wrapper of the adopter's, and the
+frame inside draws the box a plugin styles. The plot's marks style themselves with token-valued
 style **objects**, meaning the camelCase
 `[style]` form, never a kebab-case string or attribute, because that is the only shape
 `check:dimensions` can actually read. `chart-card` is not one of them: it is a bordered
@@ -292,6 +294,17 @@ a modal centres in flow and a toast is a card the host places, and neither goes 
 A styled **native** control does not either: `arena-select` is a real `<select>`, so the popup,
 its keyboard and its type-ahead are the user agent's.
 
+**`anchored` is the one attribute the two layers build from different values, and the CDK is why.**
+`ArenaTooltip` and `ArenaMenu` pass `anchored: true` to their recipe because the overlay positions
+them, where React leaves it unset and positions in CSS. It is an internal group of the recipe that no
+contract declares as a member, and the pixels agree, so no gate compares the two and neither layer
+is the other's authority.
+
+**A style binding may interpolate the name of the property it reads.** The table's cells bind
+`[style.--arena-column-width]` to `var(--arena-column-<key>-width)`, or to `initial` when the
+column has no valid key: the value is a `var(--…)` with no literal operand, so it is not a
+computation `check:dimensions` lists.
+
 **Writing the control is what puts it inside the gates, and that is the standard every
 component here meets.** A component whose DOM and CSS belong to somebody else sits outside
 `check:dimensions` and `check:tailwind`, because a compiled third-party stylesheet is
@@ -338,8 +351,8 @@ primitive also has a static specimen at
 which renders the real markup
 with the real recipe and no Angular executed. A specimen therefore proves the *recipe*,
 never the *component*: it hand-builds the DOM from the manifest, so a component-logic
-bug can render correctly in the card while being broken in the primitive. A chart drawing
-geometry has no specimen at all, by the same exception that gives it no manifest.
+bug can render correctly in the card while being broken in the primitive. A chart's
+specimen proves its frame, legend and tooltip and not its plot, which is drawn by hand.
 
 **What proves the component is a demo page, and there is one per primitive rather than one per
 primitive that earned it.** `<Component>.demo.generated.html` beside the component runs the real
@@ -517,8 +530,8 @@ grep -Lr "'\[class\]':" --include='[A-Z]*.ts' frameworks/angular/components/*/*/
   | grep -vE '\.(test|variants|card\.entry)\.ts$|(State|Window)\.ts$'
 ```
 
-They fall into **four** groups, each with its own reason. The **SVG charts** have no manifest and
-no recipe, so there is no `root` slot to bind. The **form controls** each need their own
+They fall into **four** groups, each with its own reason. The **SVG charts** are boxless
+(`display: contents`) and draw their frame as an inner slot, so there is no `root` slot to bind. The **form controls** each need their own
 `<button>`, `<input>` or `<label>`. Some **keep a specific semantic or structural element**: a
 real `<ul>` for a feed, a `<div role="tablist">` whose panels are siblings outside it, a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
@@ -550,7 +563,7 @@ All four are layer-wide and silent.
 **A resolving transform spells the default twice, and only one of the two runs for any given
 caller.** `input(X, { transform: (value) => value ?? Y })` is the layer's shape for an optional
 member, and Angular runs the transform only for an input that was **bound**: a consumer who writes
-`<arena-grid>` bare reads `X`, and one who writes `[min]="maybe()"` with nothing in it reads `Y`.
+`<arena-section>` bare reads `X`, and one who writes `[headingLevel]="maybe()"` with nothing in it reads `Y`.
 So `X` and `Y` are one decision written in two places, and a disagreement between them is a
 component that answers the same markup two ways. **`check:optional-inputs` holds `X` and `Y` to the
 same text**, which is the only claim about the pair; the two gates that read one half each hold it

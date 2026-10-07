@@ -62,7 +62,7 @@ every sink page links, already imports that plugin's token sheet and its `plugin
 **The second one exists because the first cannot see a value a layer hardcodes.** Anything one
 layer spells as a literal that happens to equal what `default` answers for a role reads as parity
 under `default`, at every pixel, and diverges in the first project that answers the role otherwise.
-That is the class `ArenaGrid.min` was in, and it reached a consumer. `complete` is the appearance
+That is the class a grid's narrowest cell was in, and it reached a consumer. `complete` is the appearance
 that moves the most roles at once, so it is the cheapest second opinion available; a catalogue
 entry would move more of them still, and none of those is compiled, so no class exists and nothing
 here could render one.

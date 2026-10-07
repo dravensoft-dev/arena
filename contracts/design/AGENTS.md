@@ -223,7 +223,8 @@ for (const node of Object.values(nodes).flat())
 All four are normative, and none is a summary of another.
 
 **[`Scales.md`](./Scales.md)** carries every scale step by step: type, layering, quantity
-invariants, control density, tracking, line height, motion and behaviour timing. What a table
+invariants, control density, page rhythm, frame shapes (`aspect`), tracking, line height, motion and
+behaviour timing. What a table
 there adds to the JSON is **which role a step plays**, which is what a reader choosing between
 two steps needs and the one thing the JSON cannot say.
 

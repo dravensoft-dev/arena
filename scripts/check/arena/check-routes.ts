@@ -290,7 +290,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 73_400,
+    budget: 75_100,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop, allowed '
       + 'to cost more than any consumer route because it is paid by whoever changes Arena. It may not '
@@ -302,7 +302,8 @@ export const ROUTES: Route[] = [
       + 'the component; when a primitive is an attribute on a native element; and the Angular default '
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
-      + 'the split that keeps the pair from going stale in one of them.',
+      + 'the split that keeps the pair from going stale in one of them. A layer also states the one '
+      + 'attribute the two build from different values, and the binding that interpolates a property name.',
   },
   {
     name: 'contributor-authoring',
@@ -329,7 +330,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 68_000,
+    budget: 68_700,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -340,7 +341,7 @@ export const ROUTES: Route[] = [
       + 'another elsewhere. The specification states the muted levels as floors a palette moves up '
       + 'and never down, target size as the axis density answers, and what DTCG deliberately does not '
       + 'model. The route moves when the level describes something bigger, never when it describes '
-      + 'the same thing at more length.',
+      + 'the same thing at more length. It states the frame shapes and the roles a kind answers.',
   },
   {
     name: 'contributor-gate',
@@ -348,7 +349,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 87_900,
+    budget: 88_600,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
@@ -361,7 +362,7 @@ export const ROUTES: Route[] = [
       + 'the median is what says how often that happens. The families and neutrality rows of the '
       + 'arena domain table state what the gates now refuse: axis lists, keyed families and an '
       + 'enum of option values, and the classes row names the vocabulary page as a second home for an '
-      + 'option of a component family, and the appearance and neutrality rows now name the chart alias and the description alias guards.',
+      + 'option of a component family, and the appearance and neutrality rows name the chart alias and the description alias guards, and the parts, role-token and families rows what each refuses.',
   },
   {
     name: 'contributor-tailwind',
@@ -369,14 +370,14 @@ export const ROUTES: Route[] = [
       + 'then the one layer that owns an appearance decision for both frameworks at once',
     entry: 'contributor',
     stops: ['frameworks/tailwind/AGENTS.md'],
-    budget: 48_000,
+    budget: 49_600,
     reason:
       'the row a contributor takes when a shape, a colour or a state is wrong and the API is not. '
       + 'The file a corner radius actually moves in is a style plugin under plugin-style-store, '
       + 'because the appearance Arena installs with is itself a plugin, and a cold walk found no page '
       + 'on the way saying so. One stop, and it is the largest single page on the contributor branch, '
       + 'so what this budget holds down is the document most likely to grow by a hazard nobody routes '
-      + 'to and everybody meets.',
+      + 'to and everybody meets. It states the axis, keyed and transparent rules of the vocabulary.',
   },
   {
     name: 'contributor-behaviour',
@@ -384,7 +385,7 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 41_100,
+    budget: 41_700,
     reason:
       'the route a bug report takes, and the one whose answer is most often that nothing in the '
       + 'code is broken: a requirement no suite pins is unfalsifiable rather than unverified, and '
@@ -394,7 +395,8 @@ export const ROUTES: Route[] = [
       + 'the browser as well: a pattern names the role it requires as a field and not only inside '
       + 'prose, and the rule about native semantics states the half that applies where no browser '
       + 'supplies them. The roof names the one page on that level written for somebody who is not '
-      + 'changing Arena, the npm page of the contracts package, and says who it is for.',
+      + 'changing Arena, the npm page of the contracts package, and says who it is for. The roof '
+      + 'also states where a value no option names is set.',
   },
   {
     name: 'contributor-release',
