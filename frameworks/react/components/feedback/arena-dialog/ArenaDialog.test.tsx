@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaDialog } from './ArenaDialog.tsx';
+import manifest from './ArenaDialog.manifest.generated.ts';
+import family from '../../../../tailwind/vocabulary/arena-dialog-width/DialogWidth.family.json' with { type: 'json' };
 
 const TITLE = 'Delete project';
 
@@ -54,20 +56,18 @@ test('eyebrow is drawn above the title when given, and nothing is drawn when it 
   assert.doesNotMatch(without, /text-transform:uppercase/, 'an empty eyebrow row was drawn');
 });
 
-test('width takes a CSS string and reaches the panel verbatim', () => {
-  const html = renderToStaticMarkup(
-    <ArenaDialog open onClose={() => {}} title={TITLE} width="calc(var(--sp-1) * 200)"><p>b</p></ArenaDialog>,
-  );
-  assert.match(html, /width:calc\(var\(--sp-1\) \* 200\)/);
-});
-
-test('an omitted width falls back to the panel\'s own default, and sets no inline width at all', () => {
+test('the panel carries no inline width, because the width is a family its class reads', () => {
   const html = renderToStaticMarkup(
     <ArenaDialog open onClose={() => {}} title={TITLE}><p>b</p></ArenaDialog>,
   );
-  assert.match(html, /\barena-dialog__panel\b/,
-    'the default is 480px, and the contract lets each layer reach it in its own idiom');
-  assert.doesNotMatch(html, /style="width/, 'an omitted width must leave the class to answer');
+  assert.match(html, /\barena-dialog__panel\b/);
+  assert.doesNotMatch(html, /style="/, 'a width written inline would beat the class and the property');
+});
+
+test('the panel slot reads the family channel, then its axis, then the default option\'s value', () => {
+  const [, channel, value] = /^\[(--[\w-]+):(.+)\]$/.exec(family.variants[family.default as keyof typeof family.variants]) ?? [];
+  assert.ok(channel && value);
+  assert.ok(manifest.slots.panel.split(' ').includes(`w-[var(${channel},var(${family.axis},${value}))]`));
 });
 
 test('open governs whether anything renders at all', () => {

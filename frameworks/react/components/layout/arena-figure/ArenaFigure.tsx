@@ -19,21 +19,18 @@ export interface ArenaFigureProps {
 
   /** A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one. */
   caption?: string;
-
-  /** The shape of the frame, as a CSS aspect ratio. The default is the role, so a style plugin answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the plugin's to decide: a video is sixteen by nine whatever the page sounds like. */
-  ratio?: string;
 }
 
 const arenaFigureStyles = arenaStyles(manifest);
 
 export function ArenaFigure({ className, 
-  media, fallback, overlay, caption, ratio = 'var(--aspect-media)',
+  media, fallback, overlay, caption,
 }: ArenaFigureProps) {
   const styles = arenaFigureStyles();
 
   return (
     <figure className={arenaClassName('ArenaFigure', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      <div className={styles.frame()} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ aspectRatio: ratio }}>
+      <div className={styles.frame()} data-arena-part={manifest.parts.frame} {...styles.$data.frame()}>
         {media && <div className={styles.media()} data-arena-part={manifest.parts.media} {...styles.$data.media()} data-arena-boundary="">{media}</div>}
         {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback} {...styles.$data.fallback()} data-arena-boundary="">{fallback}</div>}
         {overlay && <div className={styles.overlay()} data-arena-part={manifest.parts.overlay} {...styles.$data.overlay()} data-arena-boundary="">{overlay}</div>}

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { ArenaDialog } from './ArenaDialog.tsx';
+import manifest from './ArenaDialog.manifest.generated.ts';
 
 afterEach(() => cleanup());
 
@@ -24,16 +25,20 @@ function narrowWidths<T>(width: number, body: () => T): T {
   }
 }
 
-test('below its breakpoint the panel takes the fill variant and drops its width, and above it keeps both', () => {
+test('below its breakpoint the panel takes the fill variant with its full-width group, and above it does not', () => {
   for (const [width, filled] of [[400, true], [900, false]] as const) {
     narrowWidths(width, () => {
-      mount(<ArenaDialog open title="Edit" fillBelow="md" width="62%" footer={<button>Save</button>}>Body</ArenaDialog>);
+      mount(<ArenaDialog open title="Edit" fillBelow="md" footer={<button>Save</button>}>Body</ArenaDialog>);
       const panel = document.querySelector('[role="dialog"]') as HTMLElement;
       assert.equal(panel.hasAttribute('data-arena-fill'), filled, `width ${width}`);
-      assert.equal(panel.style.width, filled ? '' : '62%', `width ${width}`);
+      assert.equal(panel.hasAttribute('style'), false, `width ${width}`);
       cleanup();
     });
   }
+});
+
+test('the fill group of the panel carries w-full, which is what a filling dialog takes in place of the family width', () => {
+  assert.ok(manifest.variants.fill.true.panel.split(' ').includes('w-full'));
 });
 
 test('with no fillBelow the dialog never fills, however narrow', () => {

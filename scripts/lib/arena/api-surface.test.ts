@@ -513,9 +513,9 @@ test('a default the contract and the implementation both state must match', () =
 });
 
 test('an implementation default the contract does not name is undocumented API', () => {
-  const problems = defaultProblems('react/ArenaDialog', 'width', undefined, "'480px'");
+  const problems = defaultProblems('react/ArenaDialog', 'fillBelow', undefined, "'md'");
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /defaults to "480px" and the contract declares no default/);
+  assert.match(problems[0] ?? '', /defaults to "md" and the contract declares no default/);
 });
 
 test('a contract default with no destructuring default is NOT reported, because the default may be applied downstream', () => {
@@ -523,7 +523,7 @@ test('a contract default with no destructuring default is NOT reported, because 
 });
 
 test('a non-literal default is not compared, because the gate reads source and does not evaluate it', () => {
-  assert.deepEqual(defaultProblems('react/ArenaDialog', 'width', 'calc(var(--sp-1) * 120)', 'calc(var(--sp-1) * 120)'), []);
+  assert.deepEqual(defaultProblems('react/ArenaDialog', 'fillBelow', 'calc(var(--sp-1) * 120)', 'calc(var(--sp-1) * 120)'), []);
 });
 
 test('IMPERATIVE_HANDLES names each allowed method by literal value, with a reason', () => {

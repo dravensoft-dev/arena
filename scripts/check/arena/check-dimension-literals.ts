@@ -132,8 +132,6 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    "the consumer's own radius, passed through `frameworks/react/components/display/arena-skeleton/ArenaSkeleton.tsx:ArenaSkeleton({ variant, width, height, lines, radius })`"],
   ['frameworks/react/components/display/arena-table/ArenaTable.tsx:width',
    "the consumer's own column width, read from the column definition `frameworks/react/components/display/arena-table/ArenaTable.tsx:ArenaTable(props)` renders"],
-  ['frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:width',
-   "the consumer's own panel width, withheld below the fill breakpoint by `frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:ArenaDialog({ width, fillBelow })`"],
   ['frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:width',
    'the fill is as wide as the clamped progress `frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:ArenaProgressBar({ progressPercentage })` computes'],
   ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:height',

@@ -21,9 +21,6 @@ export interface ArenaDialogProps {
   /** A short kicker above the title. */
   eyebrow?: string;
 
-  /** A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. */
-  width?: string;
-
   /** The dialog's body. */
   children?: React.ReactNode;
 
@@ -47,17 +44,7 @@ function arenaIsCssWidth(value: string): boolean {
   return probe.style.width !== '';
 }
 
-export function ArenaDialog({ className, open, onClose, title, eyebrow, children, footer, width, fillBelow }: ArenaDialogProps) {
-  useEffect(() => {
-    if (width === undefined || arenaIsCssWidth(width)) return;
-      arenaWarnOnce(
-        `ArenaDialog: width takes a CSS width and "${width}" is not one, so the browser drops the `
-        + 'declaration and the panel keeps its default. Pass a length, or the spacing scale '
-        + 'arithmetic the default itself uses: calc(var(--sp-1) * 160).',
-      );
-  }, [width]);
-
-
+export function ArenaDialog({ className, open, onClose, title, eyebrow, children, footer, fillBelow }: ArenaDialogProps) {
   if (!title) throw new Error('ArenaDialog: `title` is required');
 
   if (open == null) throw new Error('ArenaDialog: `open` is required');
@@ -65,11 +52,21 @@ export function ArenaDialog({ className, open, onClose, title, eyebrow, children
   const panelRef = useRef<HTMLDivElement | null>(null);
   const onKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onClose });
 
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!open || !panel) return;
+    const value = getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
+    if (value === '' || arenaIsCssWidth(value)) return;
+    arenaWarnOnce(`ArenaDialog: --arena-dialog-width is "${value}", which is not a CSS width, so the browser `
+      + 'drops it and the panel keeps the width its class or its default gives it. Set a length, or a derivation '
+      + 'of tokens such as calc(var(--sp-1) * 160).');
+  }, [open]);
+
   const titleId = useId();
   if (!open) return null;
   return (
     <DialogFrame onClose={onClose} onKeyDown={onKeyDown} panelRef={panelRef} titleId={titleId} title={title}
-      eyebrow={eyebrow} footer={footer} width={width} fillBelow={fillBelow} className={className}>
+      eyebrow={eyebrow} footer={footer} fillBelow={fillBelow} className={className}>
       {children}
     </DialogFrame>
   );
@@ -83,13 +80,12 @@ interface DialogFrameProps {
   title: string;
   eyebrow?: string;
   footer?: React.ReactNode;
-  width?: string;
   fillBelow?: ArenaBreakpoint;
   className?: ArenaDialogClass;
   children?: React.ReactNode;
 }
 
-function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, eyebrow, footer, width, fillBelow, children }: DialogFrameProps) {
+function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, eyebrow, footer, fillBelow, children }: DialogFrameProps) {
   const [scrimRef, measured] = useArenaContainerWidth<HTMLDivElement>();
   const fill = fillBelow !== undefined && measured !== null && measured < arenaReadBreakpoint(fillBelow);
   const styles = arenaDialogStyles({ open: true, fill });
@@ -97,7 +93,7 @@ function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, 
     <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className)} data-arena-part={manifest.parts.scrim} {...styles.$data.scrim()} data-arena-surface="floating">
       <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
-        className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()} style={{ width: fill ? undefined : width }}>
+        className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
         <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
           {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</div>}
           <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>
