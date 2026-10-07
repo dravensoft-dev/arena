@@ -18,7 +18,9 @@ test('the roving ring is a focus modifier on the cell, not a flag pushed down th
 
 test('a keyed column binds both channels under its key, and an invalid key writes initial', () => {
   const keyed = renderToStaticMarkup(<ArenaTableCell label="T" column={{ header: 'Status', key: 'status' }}>ok</ArenaTableCell>);
-  const keyedDecls = keyed.match(/style="([^"]*)"/)?.[1].split(';') ?? [];
+  const keyedStyle = keyed.match(/style="([^"]*)"/)?.[1];
+  assert.ok(keyedStyle !== undefined, 'a keyed cell carries no style');
+  const keyedDecls = keyedStyle.split(';');
   assert.ok(keyedDecls.includes('--arena-column-width:var(--arena-column-status-width)'), 'width is not bound under the key');
   assert.ok(keyedDecls.includes('--arena-column-align:var(--arena-column-status-align)'), 'align is not bound under the key');
   const invalid = renderToStaticMarkup(<ArenaTableCell label="T" column={{ header: 'Status', key: 'order.id' }}>ok</ArenaTableCell>);
