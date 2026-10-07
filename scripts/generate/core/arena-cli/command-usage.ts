@@ -1,7 +1,7 @@
 /* arena usage: the components this package ships that your sources draw nowhere, and the parts your
  * style plugins paint. It reads and prints, holds no report, and fails only where it cannot run. */
-import { DEFAULT_CONFIG, commandOptions } from './args.ts';
-import { under, voice } from './io.ts';
+import { commandOptions } from './args.ts';
+import { voice } from './io.ts';
 import type { Io } from './io.ts';
 import { resolveEnvironment } from './host.ts';
 import { missingSource, readPluginDirs } from './sources.ts';
@@ -16,7 +16,7 @@ export function run(argv: string[], io: Io): number {
     say.err(`${missing} is not there`);
     return 2;
   }
-  const config = readPluginDirs(options.config, options.config !== under(io.cwd, DEFAULT_CONFIG));
+  const config = readPluginDirs(options.config, options.configGiven);
   if ('error' in config) {
     say.err(config.error);
     return 2;

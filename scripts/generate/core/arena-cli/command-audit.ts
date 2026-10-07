@@ -1,7 +1,7 @@
 /* arena audit: it reads your sources and style plugins against the rules of the language and
  * writes nothing. A finding is a report of kind audit or restated, held only by --strict. */
-import { DEFAULT_CONFIG, commandOptions } from './args.ts';
-import { under, voice } from './io.ts';
+import { commandOptions } from './args.ts';
+import { voice } from './io.ts';
 import type { Io } from './io.ts';
 import { resolveEnvironment } from './host.ts';
 import { heldMessage, reported } from './reports.ts';
@@ -19,7 +19,7 @@ export function run(argv: string[], io: Io): number {
     say.err(`${missing} is not there`);
     return 2;
   }
-  const config = readPluginDirs(options.config, options.config !== under(io.cwd, DEFAULT_CONFIG));
+  const config = readPluginDirs(options.config, options.configGiven);
   if ('error' in config) {
     say.err(config.error);
     return 2;

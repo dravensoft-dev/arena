@@ -101,3 +101,12 @@ test('no config at the default path reads as no style plugin', () => {
     assert.match(out[2]!, /paint no part\(s\)/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('a --config spelled like the default that is not there exits 2, since it was named', () => {
+  const root = project(null, { 'app.html': '<arena-button></arena-button>' });
+  try {
+    const { io, err } = captureIo(root, environment);
+    assert.equal(run(['--config', 'arena.config.json'], io), 2);
+    assert.match(err[0]!, /^arena usage: cannot read .*arena\.config\.json: /);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

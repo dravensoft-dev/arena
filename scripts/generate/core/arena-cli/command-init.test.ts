@@ -74,7 +74,7 @@ test('a foreign prebuild is kept and the "make it" line names the text to add', 
   const { cwd, io, out } = setup(REACT, JSON.stringify({ scripts: { prebuild: 'tsc -b' } }));
   assert.equal(run([], io), 0);
   assert.equal(scriptsOf(cwd).prebuild, 'tsc -b');
-  assert.ok(out.includes('arena init: package.json already runs "tsc -b" as prebuild, so init left it; make it "arena build && tsc -b"'));
+  assert.ok(out.includes('arena init: package.json already runs "tsc -b" as prebuild, so init left it; make it: arena build && tsc -b'));
   assert.equal(scriptsOf(cwd).predev, 'arena build');
 });
 
@@ -238,7 +238,7 @@ test('the "make it" line carries a non-default --config', () => {
   const { io, out } = setup(REACT, JSON.stringify({ scripts: { prebuild: 'tsc -b' } }));
   assert.equal(run(['--config', 'conf/my arena.json'], io), 0);
   assert.ok(out.includes('arena init: package.json already runs "tsc -b" as prebuild, so init left it; '
-    + 'make it "arena build --config "conf/my arena.json" && tsc -b"'), out.join('\n'));
+    + 'make it: arena build --config "conf/my arena.json" && tsc -b'), out.join('\n'));
 });
 
 test('a package.json saved with a byte order mark is read, and keeps the mark', () => {

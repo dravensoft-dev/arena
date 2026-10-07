@@ -27,7 +27,7 @@ test("every command's defaults: config, src, out, importHeader, watch, strict", 
   for (const command of COMMAND_NAMES) {
     assert.deepEqual(options(command, []), {
       config: DEFAULT_CONFIG, paths: [DEFAULT_SOURCE], out: DEFAULT_OUT,
-      importHeader: true, watch: false, strict: [],
+      importHeader: true, watch: false, strict: [], configGiven: false,
     }, command);
   }
 });
@@ -80,6 +80,12 @@ test('a path flag refuses a separate value that is a flag, and takes one after =
   assert.equal(error('build', ['-o', '--watch']), '-o needs a directory');
   assert.equal(error('check', ['--config', '-h']), '--config needs a path');
   assert.deepEqual(options('build', ['--src=-x']).paths, ['-x']);
+});
+
+test('configGiven says whether --config was typed, whatever its spelling', () => {
+  assert.equal(options('audit', []).configGiven, false);
+  assert.equal(options('audit', ['--config', DEFAULT_CONFIG]).configGiven, true);
+  assert.equal(options('audit', [`--config=${DEFAULT_CONFIG}`]).configGiven, true);
 });
 
 test('a flag given twice is refused unless it repeats, and --src repeats', () => {
@@ -198,7 +204,7 @@ test('commandOptions prints usage on help with 0, prints the error and usage on 
   const got = commandOptions('build', ['--config', 'c.json', '--src', 'a', '--src', join(root, 'b'), '-o', 'lib'], ok.io);
   assert.deepEqual(got, {
     config: join(root, 'c.json'), paths: [join(root, 'a'), join(root, 'b')], out: join(root, 'lib'),
-    importHeader: true, watch: false, strict: [],
+    importHeader: true, watch: false, strict: [], configGiven: true,
   });
   const defaults = commandOptions('check', [], captureIo(root).io) as Options;
   assert.deepEqual(defaults.paths, [join(root, DEFAULT_SOURCE)]);

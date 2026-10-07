@@ -51,6 +51,7 @@ export type Options = {
   importHeader: boolean;
   watch: boolean;
   strict: StrictKind[];
+  configGiven: boolean;
 };
 
 export type Parsed =
@@ -150,7 +151,7 @@ function matchFlag(token: string): { name: FlagName; spelling: string; value: st
 export function parseArgs(command: Command, argv: string[]): Parsed {
   const spec = SPECS[command];
   const options: Options = {
-    config: DEFAULT_CONFIG, paths: [], out: DEFAULT_OUT, importHeader: true, watch: false, strict: [],
+    config: DEFAULT_CONFIG, paths: [], out: DEFAULT_OUT, importHeader: true, watch: false, strict: [], configGiven: false,
   };
   const given = new Set<FlagName>();
   for (let i = 0; i < argv.length; i++) {
@@ -187,7 +188,7 @@ export function parseArgs(command: Command, argv: string[]): Parsed {
     }
     const value = hit.value ?? argv[++i];
     if (!value || (hit.value === null && value.startsWith('-'))) return { kind: 'error', error: `${hit.spelling} needs ${NEEDS[flag.takes]}` };
-    if (hit.name === 'config') options.config = value;
+    if (hit.name === 'config') { options.config = value; options.configGiven = true; }
     else if (hit.name === 'out') options.out = value;
     else options.paths.push(value);
   }

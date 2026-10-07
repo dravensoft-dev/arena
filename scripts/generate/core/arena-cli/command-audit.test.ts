@@ -110,3 +110,11 @@ test('no config at the default path reads as no style plugin', () => {
   assert.equal(result.code, 0);
   assert.match(result.out[0]!, /audited 1 file\(s\), no finding\(s\)/);
 });
+
+test('a --config spelled like the default that is not there exits 2, since it was named', () => {
+  const { root, arena } = setup({ 'src/b.tsx': '<p />' });
+  rmSync(join(root, 'arena.config.json'));
+  const result = audit(root, arena, ['--config', 'arena.config.json']);
+  assert.equal(result.code, 2);
+  assert.match(result.err[0]!, /^arena audit: cannot read .*arena\.config\.json: /);
+});

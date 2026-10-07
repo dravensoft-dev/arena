@@ -97,7 +97,7 @@ export function run(argv: string[], io: Io): number {
       continue;
     } else if (layer.includes(script)) {
       if (!/\barena build\b/.test(value)) {
-        say.out(`package.json already runs "${value}" as ${script}, so init left it; make it "arena build${suffix} && ${value}"`);
+        say.out(`package.json already runs "${value}" as ${script}, so init left it; make it: arena build${suffix} && ${value}`);
       }
     } else {
       say.out(`kept ${script}, which reads "${value}"`);

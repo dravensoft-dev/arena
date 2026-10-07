@@ -88,7 +88,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
 
 ## What if a script is already there?
 
-`arena init` never overwrites. A script already reading what it would write is left alone; another `arena:check` or `arena:audit` is kept and named. A `prebuild`, `predev` or `prestart` that does not run `arena build` is left too. Init prints the line to write instead, `make it "arena build && <yours>"` with the same `--config`, and exits 0.
+`arena init` never overwrites. A script already reading what it would write is left alone; another `arena:check` or `arena:audit` is kept and named. A `prebuild`, `predev` or `prestart` that does not run `arena build` is left too. Init prints the line to write instead, `make it: arena build && <yours>` with the same `--config`, and exits 0.
 
 A `pre` script runs only where the package manager runs one. npm 11.19, pnpm 11.22 under its default configuration and bun 1.4 were each observed running a project's `prebuild` ahead of its `build`. Under a manager not observed here, write the command into the script itself, as `"build": "arena build && vite build"`.
 
