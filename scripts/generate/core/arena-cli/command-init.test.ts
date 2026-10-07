@@ -64,8 +64,10 @@ test('an existing identical script is not rewritten', () => {
     'arena:check': 'arena check --strict=components,glyph,markers', 'arena:audit': 'arena audit --strict' } }));
   writeFileSync(join(again.cwd, 'arena.config.json'), 'x');
   const before = readFileSync(join(again.cwd, 'package.json'), 'utf8');
+  again.out.length = 0;
   run([], again.io);
   assert.equal(readFileSync(join(again.cwd, 'package.json'), 'utf8'), before);
+  assert.deepEqual(again.out, ['arena init: nothing to do']);
 });
 
 test('a foreign prebuild is kept and the "make it" line names the text to add', () => {
@@ -157,4 +159,44 @@ test('bad JSON exits 2', () => {
   assert.equal(run([], io), 2);
   assert.match(err[0] as string, new RegExp(`^arena init: cannot read ${join(cwd, 'package.json').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: `));
   assert.ok(!existsSync(join(cwd, 'arena.config.json')));
+});
+
+test('a package.json that is not a JSON object exits 2 and is untouched', () => {
+  for (const body of ['null', '[]', '7', '"x"']) {
+    const { cwd, io, err } = setup(REACT, body);
+    assert.equal(run([], io), 2);
+    assert.equal(err[0], `arena init: cannot read ${join(cwd, 'package.json')}: it holds ${body === '[]' ? 'an array' : 'no JSON object'}`);
+    assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), body);
+    assert.ok(!existsSync(join(cwd, 'arena.config.json')));
+  }
+});
+
+test('a scripts field that is not an object exits 2 naming it and writes nothing', () => {
+  for (const scripts of ['"x"', '["a"]', 'null']) {
+    const body = `{"scripts":${scripts}}`;
+    const { cwd, io, err } = setup(REACT, body);
+    assert.equal(run([], io), 2);
+    assert.equal(err[0], `arena init: "scripts" in ${join(cwd, 'package.json')} is not an object, so init cannot add to it`);
+    assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), body);
+    assert.ok(!existsSync(join(cwd, 'arena.config.json')));
+  }
+});
+
+test('a --config path that needs quoting is quoted in every script', () => {
+  const { cwd, io } = setup();
+  assert.equal(run(['--config', 'my config/a$b.json'], io), 0);
+  assert.equal(scriptsOf(cwd).prebuild, 'arena build --config "my config/a\\$b.json"');
+  assert.equal(scriptsOf(cwd)['arena:audit'], 'arena audit --strict --config "my config/a\\$b.json"');
+  const plain = setup();
+  run(['--config', 'conf/a-b_c.json'], plain.io);
+  assert.equal(scriptsOf(plain.cwd).prebuild, 'arena build --config conf/a-b_c.json');
+});
+
+test('a CRLF package.json keeps CRLF line endings', () => {
+  const { cwd, io } = setup(REACT, '{\r\n  "name": "app"\r\n}\r\n');
+  run([], io);
+  const text = readFileSync(join(cwd, 'package.json'), 'utf8');
+  assert.ok(text.includes('\r\n'));
+  assert.ok(!/[^\r]\n/.test(text));
+  assert.ok(text.endsWith('}\r\n'));
 });

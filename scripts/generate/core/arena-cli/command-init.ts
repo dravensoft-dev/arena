@@ -42,9 +42,18 @@ export function run(argv: string[], io: Io): number {
   const raw = readFileSync(pkgPath, 'utf8');
   let pkg: Record<string, unknown>;
   try {
-    pkg = JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      say.err(`cannot read ${pkgPath}: it holds ${Array.isArray(parsed) ? 'an array' : 'no JSON object'}`);
+      return 2;
+    }
+    pkg = parsed;
   } catch (error) {
     say.err(`cannot read ${pkgPath}: ${message(error)}`);
+    return 2;
+  }
+  if ('scripts' in pkg && (pkg.scripts === null || typeof pkg.scripts !== 'object' || Array.isArray(pkg.scripts))) {
+    say.err(`"scripts" in ${pkgPath} is not an object, so init cannot add to it`);
     return 2;
   }
 
@@ -58,14 +67,15 @@ export function run(argv: string[], io: Io): number {
 
   const typed = parseArgs('init', argv);
   const typedConfig = typed.kind === 'options' ? typed.options.config : DEFAULT_CONFIG;
-  const suffix = typedConfig === DEFAULT_CONFIG ? '' : ` --config ${typedConfig}`;
+  const quoted = /^[\w./@:+,=-]+$/.test(typedConfig) ? typedConfig : `"${typedConfig.replace(/[\\"$`]/g, '\\$&')}"`;
+  const suffix = typedConfig === DEFAULT_CONFIG ? '' : ` --config ${quoted}`;
   const wanted: [string, string][] = [
     ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
     ['arena:check', `arena check --strict=components,glyph,markers${suffix}`],
     ['arena:audit', `arena audit --strict${suffix}`],
   ];
 
-  const scripts = (pkg.scripts && typeof pkg.scripts === 'object' ? pkg.scripts : {}) as Record<string, string>;
+  const scripts = (pkg.scripts ?? {}) as Record<string, string>;
   const added: string[] = [];
   for (const [script, text] of wanted) {
     const value = scripts[script];
@@ -86,7 +96,8 @@ export function run(argv: string[], io: Io): number {
   if (added.length > 0) {
     pkg.scripts = scripts;
     const indent = /^([ \t]+)"/m.exec(raw)?.[1] ?? '  ';
-    writeFileSync(pkgPath, JSON.stringify(pkg, null, indent) + (raw.endsWith('\n') ? '\n' : ''));
+    const text = JSON.stringify(pkg, null, indent) + (raw.endsWith('\n') ? '\n' : '');
+    writeFileSync(pkgPath, raw.includes('\r\n') ? text.replace(/\n/g, '\r\n') : text);
     say.out(`added ${added.join(', ')} to package.json`);
   }
   if (!wroteConfig && added.length === 0) say.out('nothing to do');
