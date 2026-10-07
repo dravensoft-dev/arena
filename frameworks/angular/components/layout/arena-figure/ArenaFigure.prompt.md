@@ -3,7 +3,7 @@ The host takes itself out of layout with `display: contents` and the real `<figu
 because a `<figcaption>` outside a `<figure>` is associated with nothing.
 
 ```html
-<arena-figure [caption]="lot.farm + ', ' + lot.altitude + ' m'">
+<arena-figure class="arena-ratio-portrait" [caption]="lot.farm + ', ' + lot.altitude + ' m'">
   <img media [src]="lot.image" [alt]="lot.farm + ', ' + lot.region" />
   <i fallback class="ph-bold ph-coffee-bean" aria-hidden="true"></i>
 </arena-figure>
@@ -36,8 +36,8 @@ element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platfo
 them. An image's alternative is editorial: it says what the picture means on this page, which
 nothing can derive from a file name.
 
-**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
-only for the figure whose shape is not the plugin's to decide, such as a video.
+**The `arena-ratio` default is the role.** `arena-ratio-media` reads `--aspect-media`, which a style plugin answers for every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Write a class outright
+only for the figure whose shape is not the plugin's to decide, such as `arena-ratio-video`. For a shape no option names, set `--arena-ratio` on a container to a number, a fraction such as `3 / 2` or a token. A class on the figure wins over a property on its container.
 
 **`fallback` is a state and not an error.** The fallback draws centred and at rest when there is no media.
 With neither media nor fallback the frame is an empty box of the right shape, which is what a
@@ -48,7 +48,7 @@ loading wall wants.
   decorative and the caption already says everything.
 - **Do** remember the host carries no box. Put your layout on the element around it, which is the
   same rule every `display: contents` primitive in this package carries.
-- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from `ratio`.
+- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from the `arena-ratio` class.
 - **Don't** put a control in the overlay and expect it to be reachable before the caption. The slot is in the frame, which comes first in the reading order.
 
 **By hand, in real Chromium**: run `bun run demos` and open

@@ -1,7 +1,7 @@
 Modal for confirmations and short forms. Overlay with blur.
 
 ```tsx
-<ArenaDialog open={o} onClose={close} eyebrow="Confirm" title="Deploy to production"
+<ArenaDialog open={o} onClose={close} className="arena-dialog-width-lg" eyebrow="Confirm" title="Deploy to production"
   footer={<><ArenaButton onClick={close} className="arena-emphasis-ghost">Cancel</ArenaButton><ArenaButton onClick={go}>Deploy</ArenaButton></>}>
   This action publishes build #4821 for all users.
 </ArenaDialog>
@@ -33,8 +33,7 @@ Modal for confirmations and short forms. Overlay with blur.
 required too and throws when absent; `open={false}` is the closed state and is
 not an absence.
 
-`width` is a **CSS string**, not a number; pass a token expression
-(`width="calc(var(--sp-1) * 200)"`), never a bare `520`. A named size is not one of the things it takes. `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
+The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `--arena-dialog-width` on a container takes a **CSS length** for a width no step names. Write a token expression such as `calc(var(--sp-1) * 200)`, never a bare `520`. A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both. Write `className="arena-dialog-width-lg"` on a form's dialog for the wide panel. A value that is not a width, such as `md` written as the property, sets a declaration the browser drops and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
 `92vw` regardless, so a wide dialog still fits a narrow viewport.
 
 Arena dismisses the dialog two ways, and both report through `onClose`: **Escape**
@@ -71,7 +70,7 @@ If you drive this through CDP rather than by hand, one gotcha costs an afternoon
 a `rawKeyDown` does not activate a button. Enter must be dispatched as `keyDown`
 carrying `text: '\r'`. Tab and Escape are fine as `rawKeyDown`.
 
-**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
+**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, the width is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

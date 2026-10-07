@@ -27,7 +27,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 **Do / Don't**
 - Put a value in it, or one of Arena's own components: an `arena-badge` for a status, an
   `arena-button` for an action. The cell is why the table is a compound primitive at all. A column's render function would be per-item projection, which this library does not do. A cell **you** instantiate is just an element you wrote.
-- Don't set alignment, width or the mono face here. Those belong to the column, so a column stays consistent down its whole length. A cell that styled itself would drift from its header.
+- Don't set alignment, width or the mono face here. Those belong to the column: its `key` names `--arena-column-<key>-width` and `--arena-column-<key>-align` on the table or a container, and the column stays consistent down its whole length. A cell that styled itself would drift from its header.
 - Don't add a `role` or a `tabindex`. A `<td>` inside the grid already maps to a gridcell. The roving tab stop belongs to the enclosing grid and is read from the shared state. Adding your own would put a second tab stop inside a composite that must have exactly one.
 - A control you put in a cell **is** a page-level tab stop, and that is deliberate. Arena
   cannot silence markup it does not own, and silencing it would take away a route a keyboard

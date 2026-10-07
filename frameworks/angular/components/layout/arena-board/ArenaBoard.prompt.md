@@ -1,5 +1,5 @@
 The frame of a board: columns side by side, sharing the room equally and never narrower than
-`minColumn`, scrolling sideways once they no longer fit. Standalone, `OnPush`, signal inputs. The
+the `arena-board-column` width, scrolling sideways once they no longer fit. Standalone, `OnPush`, signal inputs. The
 host IS the board, so it carries the group role, the name and the tab stop that make a scrolling
 region reachable by keyboard at all.
 
@@ -40,8 +40,8 @@ what a card does when it is picked up is a question about your data rather than 
 
 **Do / Don't**
 - **Do** say what the columns are columns OF in `label`. The label is the name a keyboard user lands on, and "Board" tells them nothing.
-- **Do** leave `minColumn` alone unless a card needs more room than a grid cell: the default is
-  the same width a card takes in a grid or a rail.
+- **Do** leave the board's column width alone unless a card needs more room than a grid cell: write `class="arena-board-column-lg"` for that and `arena-board-column-sm` for many slim lanes. The default, `arena-board-column-md`, is
+  the same width a card takes in a grid or a rail. `--arena-board-column` on a container takes a width no step names, and a class on the board wins over it.
 - **Don't** wrap it in a scroll container of your own. The board is the scrolling region, and a
   second one around it takes the keyboard's scroll away from the one that announces itself.
 - **Don't** use it for a fixed set of panels that always fit. The component for that is `arena-grid`, which wraps rather than scrolling.
@@ -49,7 +49,7 @@ what a card does when it is picked up is a question about your data rather than 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-board/ArenaBoard.demo.generated.html`:
 - Tab reaches the board itself, the ring lands on the whole frame, and the arrow keys scroll it.
-- Columns share the width while they fit and stop at `minColumn`, after which the board scrolls.
+- Columns share the width while they fit and stop at the `arena-board-column` width, after which the board scrolls.
 - A column is as tall as its own stack: they do not stretch to match the tallest.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

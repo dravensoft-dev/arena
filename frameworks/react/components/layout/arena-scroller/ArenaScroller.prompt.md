@@ -1,8 +1,10 @@
 The honest carousel: a row that scrolls, with no arrows pretending to be a slideshow. The row is one tab stop with a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all.
 
 ```tsx
-<ArenaScroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
-  {arrivals.map((lot) => <LotCard key={lot.id} lot={lot} />)}
+<ArenaScroller label="Recently landed lots" className="arena-scroller-item-lg">
+  {arrivals.map((lot) => (
+    <ArenaScrollerItem key={lot.id}><LotCard lot={lot} /></ArenaScrollerItem>
+  ))}
 </ArenaScroller>
 ```
 
@@ -27,9 +29,7 @@ The honest carousel: a row that scrolls, with no arrows pretending to be a slide
 **Nothing moves on its own.** `snap` and `flow` both describe where a scroll SETTLES, not anything
 that animates: `snap` lands on an item, `flow` lands wherever the reader left it. Nothing moves on its own, so no pause control is owed under WCAG 2.2.2 and `prefers-reduced-motion` has nothing to answer here.
 
-**`itemWidth` reaches the children as a custom property**, because a row sets its items' width and
-cannot reach inside them. Every child is laid out at that width exactly as it was written; nothing
-is wrapped. The default is `--grid-min`, the role `ArenaGrid` reads. A wall of cards and a row of the same cards agree about how wide a card is, and a style plugin re-answers both at once.
+**The `arena-scroller-item` class on the row reaches the `ArenaScrollerItem` children it holds**, because the row is transparent and the item is the box that reads the width. Write `arena-scroller-item-sm`, `-md` or `-lg` on the scroller, or `--arena-scroller-item` on a container for a width no step names. Each item is laid out at that width exactly as it was written; nothing is wrapped. **A bare child keeps its own width**: wrap each card in an `ArenaScrollerItem` for the row to size it. A style plugin re-answers the steps for every row at once.
 
 **`label` is required and guarded after trimming.** Focus lands on the row itself, and a group
 announced as a group tells a reader that focus moved and nothing about where. `children` is
@@ -38,11 +38,11 @@ required and guarded too: an empty row is a tab stop over nothing.
 **Do / Don't**
 - **Do** give it a label that says what the row holds, not what it is. "Recently landed lots" is a
   name; "Scrolling row" is the role read twice.
-- **Do** leave `itemWidth` alone unless the row genuinely wants a different card from the page's
-  grid. The role is there so the two agree.
+- **Do** leave the `arena-scroller-item` class off unless the row genuinely wants a different card from the page's
+  grid. The default, `md`, is the width a card takes in a grid, so the two agree.
 - **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
   the reader gains nothing from.
-- **Don't** wrap the children in cells of your own to set their width. The width is what `itemWidth` is, and a wrapper puts a box between the row and the card it is laying out.
+- **Don't** wrap the children in cells of your own to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

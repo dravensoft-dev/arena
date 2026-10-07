@@ -1,15 +1,13 @@
-Arena loading placeholder. The placeholder reserves the layout the real content will occupy, so a table or a dashboard fills in rather than jumping. `variant="text"` with `lines`
-renders a stack whose last line is short, the way a paragraph ends; `line`, `block`
-and `circle` are single shapes. `width`, `height` and `radius` are CSS strings that
-override the per-variant defaults; each applies only where the shape has
+Arena loading placeholder. The placeholder reserves the layout the real content will occupy, so a table or a dashboard fills in rather than jumping. With `lines` absent it is one box in the shape its class names: `arena-skeleton-block` (the default), `arena-skeleton-line` or `arena-skeleton-circle`. With `lines` given it is a stack of that many text lines whatever its class, the last running short when there is more than one. The size is the properties `--arena-skeleton-width`, `--arena-skeleton-height` and `--arena-skeleton-radius`, set on a container of yours: write a length or a token expression, never a bare number. Each applies only where the shape has
 something to override; see the table below.
 
 ```html
-<arena-skeleton variant="text" [lines]="3" />
-<arena-skeleton variant="circle" />
-<arena-skeleton variant="block" />
-<arena-skeleton variant="block" width="12rem" height="72px" radius="var(--r-lg)" />
-<arena-skeleton variant="circle" width="40px" />
+<arena-skeleton [lines]="3" />
+<arena-skeleton class="arena-skeleton-circle" />
+<arena-skeleton />
+<div style="--arena-skeleton-width: calc(var(--sp-1) * 48); --arena-skeleton-height: calc(var(--sp-1) * 18); --arena-skeleton-radius: var(--r-lg)">
+  <arena-skeleton />
+</div>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSkeleton.json. Edit the contract, not this table. -->
@@ -28,33 +26,33 @@ something to override; see the table below.
 
 <!-- @answers end -->
 
-| variant | `width`        | `height`       | `radius`             |
+| shape | `--arena-skeleton-width` | `--arena-skeleton-height` | `--arena-skeleton-radius` |
 |---------|----------------|----------------|-----------------------|
-| `text`  | applies (stack)| no (rows fixed)| no (rows fixed)      |
-| `line`  | applies        | applies        | no (fixed radius)    |
-| `block` | applies        | applies        | applies                |
-| `circle`| diameter (`height` wins if both are set) | same diameter | no (always a circle) |
+| `lines` given (a stack) | applies | no (rows fixed) | no (rows fixed) |
+| `arena-skeleton-line`   | applies | applies | no (fixed radius) |
+| `arena-skeleton-block`  | applies | applies | applies |
+| `arena-skeleton-circle` | the diameter when the height is not set | the diameter, and it wins over the width | no (always a circle) |
 
 **Do / Don't**
 - Match the placeholder to the shape of what is loading, a circle for an avatar, a
   block for a card. A placeholder that does not match the content is a layout jump
   with extra steps.
-- `radius` only affects `variant="block"`. Passing it to `circle`, `line` or `text`
-  has no effect, a circle is always a perfect circle, and the rows stay a fixed
-  small radius.
+- `--arena-skeleton-radius` only affects `arena-skeleton-block`. Setting it for a circle, a line or a stack
+  has no effect: a circle is always a perfect circle, and the rows stay a fixed
+  small radius. A circle is one diameter, so its height wins over its width.
 - Don't animate a skeleton that will be on screen for more than a moment or two. The shimmer stops entirely under `prefers-reduced-motion`, and it is decoration rather than a progress report. Use `<arena-progress-bar>` when there is real progress to report.
 - Don't wrap a single `<arena-skeleton>` in a live region of your own, because it already
   carries `role="status"`. A set of several is a different case: see below.
 
-**A set of siblings is several announcements, on purpose.** Every variant carries its own `role="status"` and `aria-label="Loading"` host bindings, with no exception for `circle`. A circle beside a text stack is two announcements, and twenty rows of the same pair are forty. Each placeholder announces its own pending replacement, and the component has no way to know where a set of them begins and ends. That repetition is between sibling `<arena-skeleton>` elements only. A `variant="text"` stack already renders as one row per line inside a single host, so its `lines` never repeat the announcement among themselves.
+**A set of siblings is several announcements, on purpose.** Every placeholder carries its own `role="status"` and `aria-label="Loading"` host bindings, with no exception for `circle`. A circle beside a text stack is two announcements, and twenty rows of the same pair are forty. Each placeholder announces its own pending replacement, and the component has no way to know where a set of them begins and ends. That repetition is between sibling `<arena-skeleton>` elements only. A stack given `lines` already renders as one row per line inside a single host, so its `lines` never repeat the announcement among themselves.
 When several skeletons stand for one block of content, wrap the set yourself in a single
 labelled region and hide the individual placeholders from the accessibility tree:
 
 ```html
 <div role="status" aria-label="Loading profile">
-  <div style="display:flex;gap:var(--sp-3)" aria-hidden="true">
-    <arena-skeleton variant="circle" width="40px" />
-    <arena-skeleton variant="text" [lines]="2" width="220px" />
+  <div style="display:flex;gap:var(--sp-3);--arena-skeleton-height:calc(var(--sp-1) * 10);--arena-skeleton-width:calc(var(--sp-1) * 55)" aria-hidden="true">
+    <arena-skeleton class="arena-skeleton-circle" />
+    <arena-skeleton [lines]="2" />
   </div>
 </div>
 ```

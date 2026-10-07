@@ -2,7 +2,7 @@ One cell of an `ArenaScroller`: the box that carries the width the row decided a
 row settles on.
 
 ```tsx
-<ArenaScroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
+<ArenaScroller label="Recently landed lots" className="arena-scroller-item-lg">
   {arrivals.map((lot) => (
     <ArenaScrollerItem key={lot.id}><LotCard lot={lot} /></ArenaScrollerItem>
   ))}
@@ -32,8 +32,8 @@ visible in the cell came from what you put in it.
 
 **Do / Don't**
 - **Do** put one per item, and let the card, the tile or the figure sit inside it.
-- **Don't** set the width here. The row owns it, through `itemWidth`, so a rail of cells is one
-  decision rather than one per cell.
+- **Don't** set the width here. The row owns it, through the `arena-scroller-item` class on the `ArenaScroller` or `--arena-scroller-item` on a container, so a rail of cells is one
+  decision rather than one per cell. A bare child of the row, with no item around it, keeps its own width.
 - **Don't** reach for it outside an `ArenaScroller`. Outside a row it is a box that reads a
   property nothing set.
 

@@ -36,7 +36,7 @@ One row of an `arena-table`. The row is an **attribute on a real `<tr>`**, not a
   components, and a `<td>` without the attribute renders but takes no column, no alignment and no
   place in the keyboard order.
 - Don't reach for the row to style a cell: alignment, width and the mono/gold treatment are
-  the **column's**, so they stay the same all the way down.
+  the **column's**. A column's `key` names `--arena-column-<key>-width` and `--arena-column-<key>-align`, so they stay the same all the way down.
 - `disabled` draws the row and refuses to activate it, by either route: the pointer and the
   grid's `Enter`. The member reflects through `aria-disabled` rather than the native attribute, so a locked row still announces itself. With no `(click)` there is nothing to disable and the
   row is inert already.

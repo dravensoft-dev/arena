@@ -3,7 +3,7 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 `hidden` branch of its own `open` variant when closed, put it anywhere in the template.
 
 ```html
-<arena-dialog [open]="dialogOpen()" title="Promote build 482 to production?" eyebrow="Deployment"
+<arena-dialog [open]="dialogOpen()" class="arena-dialog-width-lg" title="Promote build 482 to production?" eyebrow="Deployment"
               (close)="dialogOpen.set(false)">
   The current production build stays available for rollback for seven days.
   <div footer>
@@ -40,8 +40,7 @@ technology, the panel's `aria-labelledby` points at it, and nothing can derive i
 dialog's subject is editorial. `open` is required because `false` is the closed state and not an
 absence; the host owns it.
 
-`width` is a **CSS string** and an override rather than a requirement. The panel already carries its own default and a `92vw` cap, so a wide dialog still fits a narrow viewport. Pass a token expression
-(`width="calc(var(--sp-1) * 200)"`), never a bare number. A named size is not one of the things it takes. `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence.
+The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `--arena-dialog-width` on a container takes a **CSS length** for a width no step names. Write a token expression such as `calc(var(--sp-1) * 200)`, never a bare `520`. A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both. Write `class="arena-dialog-width-lg"` on a form's dialog for the wide panel. A value that is not a width, such as `md` written as the property, sets a declaration the browser drops and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel already carries its own default, `arena-dialog-width-md`, and a `92vw` cap, so a wide dialog still fits a narrow viewport.
 
 The footer is projected through the `[footer]` marker and is **optional**, with nothing marked,
 the action row is not rendered at all rather than rendered empty. **Import `ArenaFooter` from `@dravensoft/arena-angular` in the component that writes the marker.** The gate is a `contentChild(ArenaFooter)`, which resolves the directive rather than the attribute. An un-imported marker leaves the query null and the whole footer silently unrendered, with no error and no template diagnostic. A bare `footer` attribute on a `<div>` is valid HTML whether or not a directive matches it. The component cannot detect it, because it cannot tell "the marker was not
@@ -87,7 +86,7 @@ Driving it through CDP costs an afternoon on one gotcha: a `rawKeyDown` does not
 button. Enter must be dispatched as `keyDown` carrying `text: '\r'`. Tab and Escape are fine as
 `rawKeyDown`.
 
-**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
+**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, the width is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

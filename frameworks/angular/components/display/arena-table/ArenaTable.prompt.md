@@ -17,6 +17,19 @@ Cells are **positional**: the nth cell takes the nth column.
 </arena-table>
 ```
 
+**A column's width and alignment are properties, set under its `key`.** Name a column with `key` (letters, digits, hyphens and underscores) and the table reads `--arena-column-<key>-width` and `--arena-column-<key>-align` for it, set on the table or on a container of yours. The width is a length or a token expression such as `calc(var(--sp-1) * 24)`, and the alignment is `left`, `center` or `right`. A column with no `key`, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment. A `key` that is not a custom property name warns once and the column takes the table's own layout. A table nested in a cell reads the same key's property from the outer set, so it takes another key.
+
+```html
+<div style="--arena-column-build-width: calc(var(--sp-1) * 24); --arena-column-p95-align: right">
+  <arena-table label="Recent deployments" [columns]="columns">
+    <!-- rows as above -->
+  </arena-table>
+</div>
+```
+
+with `columns` written as `[{ header: 'Build', key: 'build', numeric: true }, { header: 'Project' }, { header: 'p95', key: 'p95', numeric: true }]`.
+
+
 <!-- @api GENERATED from contracts/api/components/ArenaTable.json. Edit the contract, not this table. -->
 
 **Members**, in contract order and under this layer's own names. `*` marks a required one.
@@ -51,7 +64,7 @@ Cells are **positional**: the nth cell takes the nth column.
   in "Recent deployments" or "Team members", and never "Table". Nothing can derive it, which is why it **throws** rather than falling back. `input.required` alone is not the guard: it only proves something was bound, and `[label]="row.title"` with an empty title satisfies it.
 - Put your own components in a cell: an `arena-badge` for a status, an `arena-button` for
   an action. The compound shape is for exactly that, and a column carries no render function.
-- Numeric data and codes in `numeric` columns with `align: 'right'`. `numeric` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, put `.arena-num` on it, which is the same face and the same digit alignment with no colour.
+- Numeric data and codes in `numeric` columns, aligned right through `--arena-column-<key>-align`. `numeric` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, put `.arena-num` on it, which is the same face and the same digit alignment with no colour.
 - Mark the actions column `mobileLayout: 'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive="false"` to "keep it looking like a table" on a phone. A table
   narrower than its content is unreadable; card mode is the honest fallback.

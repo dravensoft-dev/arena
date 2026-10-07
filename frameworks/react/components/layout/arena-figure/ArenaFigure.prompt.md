@@ -3,6 +3,7 @@ answers, and it clips whatever you put in it, so a wall of figures reads as a wa
 
 ```tsx
 <ArenaFigure
+  className="arena-ratio-portrait"
   media={<img src={lot.image} alt={`${lot.farm}, ${lot.region}`} />}
   fallback={<i className="ph-bold ph-coffee-bean" aria-hidden="true" />}
   caption={`${lot.farm}, ${lot.altitude} m`} />
@@ -32,8 +33,8 @@ element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platfo
 them. An image's alternative is editorial: it says what the picture means on this page, which
 nothing can derive from a file name.
 
-**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
-only for the figure whose shape is not the plugin's to decide, such as a video.
+**The `arena-ratio` default is the role.** `arena-ratio-media` reads `--aspect-media`, which a style plugin answers for every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Write a class outright
+only for the figure whose shape is not the plugin's to decide, such as `arena-ratio-video`. For a shape no option names, set `--arena-ratio` on a container to a number, a fraction such as `3 / 2` or a token. A class on the figure wins over a property on its container.
 
 **`fallback` is a state and not an error.** The fallback draws centred and at rest when there is no media,
 which is what a category icon or a monogram is for. With neither media nor fallback the frame is
@@ -45,7 +46,7 @@ an empty box of the right shape, which is what a loading wall wants.
 - **Do** put the alternative text on your own `<img>`, and leave it empty when the figure is
   decorative and the caption already says everything.
 - **Do** let the frame crop. `fit-media` is exactly that, and a style plugin that would rather letterbox re-answers it for the whole page at once.
-- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from `ratio`.
+- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from the `arena-ratio` class.
 - **Don't** put a control in the overlay and expect it to be reachable before the caption. The slot is in the frame, which comes first in the reading order.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

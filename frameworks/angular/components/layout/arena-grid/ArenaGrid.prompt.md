@@ -4,7 +4,7 @@ element you place. A row the items do not fill keeps its empty tracks, so a card
 page is as wide as one on a full page.
 
 ```html
-<arena-grid class="arena-grid-gap-component">
+<arena-grid class="arena-grid-min-lg arena-grid-gap-group">
   <arena-stat-card label="Open orders" [value]="open()" />
   <arena-stat-card label="Overdue" [value]="overdue()" tone="danger" />
   <arena-stat-card label="Collected today" [value]="collected()" />
@@ -31,14 +31,14 @@ page is as wide as one on a full page.
 
 <!-- @answers end -->
 
-**The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six filter bars written by hand end up with three different ones, and none of them matches `--bp-*`. Here the floor is the `grid-min` option and it
-is clamped with `min(<min>, 100%)`, so a minimum wider than the container gives one full-width
+**The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six filter bars written by hand end up with three different ones, and none of them matches `--bp-*`. Here the floor is the `arena-grid-min` class, `sm`, `md` or `lg`. `--arena-grid-min` on a container takes a width no step names. The floor
+is clamped to the container's own width, so a minimum wider than the container gives one full-width
 column rather than an overflow. **The component is also the answer to a media query in a `styles:` block.** Such a query cannot read a `var()`. The query has to restate a threshold Arena already holds.
 
-The gap is four named steps of `grid-gap`, `none`, `group`, `component`, `section`, and not a length. Rhythm is what the spacing scale is for, and a grid is where a hand-picked gap shows worst. Two grids on one page with gaps a step apart read as a mistake.
+The gap is the named steps of `arena-grid-gap`, `none`, `group`, `component` and `section`, and not a length. `--arena-grid-gap` on a container takes a length or a token derivation for a gap no step names. Rhythm is what the spacing scale is for, and a grid is where a hand-picked gap shows worst. Two grids on one page with gaps a step apart read as a mistake.
 
-`grid-max` caps the grid and centres it. Leave it off inside a page and write it on the one grid that
-is the page's own reading width.
+`arena-grid-max-sm`, `arena-grid-max-md` or `arena-grid-max-lg` caps the grid and centres it, and `--arena-grid-max` on a container takes a ceiling no step names. The default, `arena-grid-max-none`, sets no ceiling: leave it off inside a page and write a cap on the one grid that
+is the page's own reading width. A class on the grid wins over a property on its container.
 
 **Do / Don't**
 - **Do** give it real children. Every child is one cell exactly as written; nothing is wrapped, so
@@ -46,7 +46,7 @@ is the page's own reading width.
 - **Do** reach for it for a page's own layout. A component that has to fit the room it was given
   measures its container with `arenaContainerWidth`, which is a different question.
 - **Don't** use it for a row of two or three controls. A toolbar is a flex row, and a grid there gives every control the same width whether or not that helps.
-- **Don't** answer a `grid-min` on it that no card ever reaches. The count only drops when the room runs
+- **Don't** give it an `arena-grid-min` width that no card ever reaches. The count only drops when the room runs
   out, so a minimum nobody meets pins the grid at one column forever.
 - **Don't** nest one to make a two-level layout. Two grids nested pick their counts independently
   and the cells stop lining up; give the outer one the cells it actually has.
@@ -58,7 +58,7 @@ is the page's own reading width.
 - Narrow the window from wide to 390px: the count falls one step at a time and never overflows.
 - At the narrowest, one column fills the width; the minimum is clamped rather than honoured.
 - The four gaps are visibly four steps, and both axes get the same one.
-- With a `grid-max` option written, the grid centres and stops growing; without one, it fills.
+- With an `arena-grid-max` class written, the grid centres and stops growing; without one, it fills.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

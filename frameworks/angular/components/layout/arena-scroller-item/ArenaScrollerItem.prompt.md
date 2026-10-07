@@ -33,14 +33,14 @@ visible in the cell came from what you projected into it.
 
 **Do / Don't**
 - **Do** put one per item, and let the card, the tile or the figure sit inside it.
-- **Don't** set the width here. The row owns it, through `itemWidth`, so a rail of cells is one
-  decision rather than one per cell.
+- **Don't** set the width here. The row owns it, through the `arena-scroller-item` class on the `arena-scroller` or `--arena-scroller-item` on a container, so a rail of cells is one
+  decision rather than one per cell. A bare child of the row, with no item around it, keeps its own width.
 - **Don't** reach for it outside an `arena-scroller`. Outside a row it is a box that reads a
   property nothing set.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-scroller-item/ArenaScrollerItem.demo.generated.html`:
-- The cell is exactly as wide as the row's `itemWidth`, whatever it contains.
+- The cell is exactly as wide as the row's `arena-scroller-item` width, whatever it contains.
 - Every cell is the same width and the same height, whatever component sits inside it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

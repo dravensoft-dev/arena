@@ -1,5 +1,5 @@
 The frame of a board: columns side by side, sharing the room equally and never narrower than
-`minColumn`, scrolling sideways once they no longer fit. The frame is one tab stop with a group role and a name, which is what makes a scrolling region reachable by keyboard at all.
+the `arena-board-column` width, scrolling sideways once they no longer fit. The frame is one tab stop with a group role and a name, which is what makes a scrolling region reachable by keyboard at all.
 
 ```tsx
 <ArenaBoard label="Sprint 32 tasks by status">
@@ -39,7 +39,7 @@ frame, the column and its head, and stops. `ArenaCard` is a good card; so is you
 **Do / Don't**
 - Say what the columns are columns OF in `label`: "Sprint 32 tasks by status", "Candidates by
   stage". The label is the name a keyboard user lands on, and "Board" tells them nothing.
-- Raise `minColumn` when a card needs more room than a grid cell, and leave it alone otherwise. The default is the same width a card takes in a grid or a rail.
+- Write `className="arena-board-column-lg"` when a card needs more room than a grid cell, `arena-board-column-sm` for a board of many slim lanes, and leave it alone otherwise. The default, `arena-board-column-md`, is the same width a card takes in a grid or a rail. `--arena-board-column` on a container takes a width no step names, and a class on the board wins over it.
 - Don't wrap it in your own scroll container. The board is the scrolling region, and a second one
   around it takes the keyboard's scroll away from the one that announces itself.
 - Don't use it for a fixed set of panels that always fit. The component for that is `ArenaGrid`, which wraps rather than scrolling.
