@@ -9,7 +9,7 @@ the one that answers a keyboard or focus defect that every gate is currently hap
 the pattern and both bindings turn out to be right and one layer alone is wrong**, the defect is
 that layer's rather than this level's, and it is answered through
 [`frameworks/AGENTS.md`](../../frameworks/AGENTS.md),
-named by URL because this page is served on the site and that one is not.
+a path a clone resolves. The site copy points it at the repository.
 
 `contracts/design/` answers *what is this value*. This directory answers *what must this
 component do*: which roles it carries, which keys it answers, where focus goes,

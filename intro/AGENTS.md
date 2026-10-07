@@ -71,8 +71,8 @@ A specimen starts with an HTML comment, and it must stay the first line:
 **Nothing measures that viewport.** The card is cropped to it and the overflow is lost
 silently, so a declaration that is too small loses content with nothing to say so, and
 **declaring it by arithmetic does not work**: open the page. [`DOUBTS.md`](../DOUBTS.md)
-carries what that leaves open, by URL rather than by a path beside this one because the record it
-names is the repository's and this page is copied onto a site that carries no such file.
+carries what that leaves open. A clone resolves the path. The published copy of this page points it at the
+repository, because the record is the repository's and the site carries no such file.
 
 **A page nobody crops declares none.** The Console is an app with its own scroll area, and a
 playground's height moves with every knob, so there is no fixed box to declare for either.
