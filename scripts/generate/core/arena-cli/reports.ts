@@ -4,7 +4,11 @@
  * neither of those. One switch over every kind makes the strictest of them the price of any of
  * them, so the kind travels with the message from the step that produced it. REPORT_KINDS is
  * every kind and STRICT_KINDS is the ones --strict may hold: a kind outside it is one no
- * configuration can clear, so making it fatal would only buy a project a build it cannot fix. */
+ * configuration can clear, so making it fatal would only buy a project a build it cannot fix. A
+ * kind with rules is also held one rule at a time, as kind:rule, so a project can hold the rules
+ * it has read and leave the ones it has not. */
+
+import { RULE_TAGS } from './audit.ts';
 
 export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers',
   'audit', 'environment', 'restated'] as const;
@@ -17,15 +21,15 @@ export type StrictKind = (typeof STRICT_KINDS)[number];
 
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
-export type Report = { kind: ReportKind; message: string };
+export type Report = { kind: ReportKind; message: string; rule?: string };
 
-export function report(kind: ReportKind, message: string): Report {
-  return { kind, message };
+export function report(kind: ReportKind, message: string, rule?: string): Report {
+  return rule === undefined ? { kind, message } : { kind, message, rule };
 }
 
-export function reported(reports: Report[], strict: readonly StrictKind[]) {
-  return reports.filter((one) => strict.includes(one.kind as StrictKind));
-}
+export type StrictName = StrictKind | `${StrictKind}:${string}`;
+
+export const RULES_BY_KIND: Partial<Record<StrictKind, readonly string[]>> = { audit: RULE_TAGS };
 
 export const KINDS_BY_COMMAND = {
   check: ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers'],
@@ -42,7 +46,22 @@ export function holder(kind: string): StrictCommand | null {
   return null;
 }
 
-export function heldMessage(strict: readonly StrictKind[], held: Report[]) {
-  const kinds = [...new Set(held.map((one) => one.kind))];
-  return `--strict holds ${strict.join(', ')}, and this run reports ${held.length} of them: ${kinds.join(', ')}`;
+export function strictNames(command: StrictCommand): StrictName[] {
+  return (KINDS_BY_COMMAND[command] as readonly StrictKind[]).flatMap((kind): StrictName[] =>
+    RULES_BY_KIND[kind]?.map((rule): StrictName => `${kind}:${rule}`) ?? [kind]);
+}
+
+export function heldAs(one: Report, strict: readonly string[]) {
+  if (strict.includes(one.kind)) return one.kind;
+  if (one.rule !== undefined && strict.includes(`${one.kind}:${one.rule}`)) return `${one.kind}:${one.rule}`;
+  return null;
+}
+
+export function reported(reports: Report[], strict: readonly string[]) {
+  return reports.filter((one) => heldAs(one, strict) !== null);
+}
+
+export function heldMessage(strict: readonly string[], held: Report[]) {
+  const names = [...new Set(held.map((one) => heldAs(one, strict) ?? one.kind))];
+  return `--strict holds ${strict.join(', ')}, and this run reports ${held.length} of them: ${names.join(', ')}`;
 }
