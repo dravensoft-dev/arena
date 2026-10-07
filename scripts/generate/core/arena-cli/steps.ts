@@ -109,13 +109,13 @@ export function markersStep(options: StepOptions, map: ComponentMap | null) {
 export function undrawnStep(options: StepOptions, packageName: string, map: ComponentMap | null) {
   if (!map) {
     return { notes: [] as string[],
-      fatal: ['the component map this package carries is not beside this command, so arena usage '
-        + 'cannot compare what you draw against what ships'] };
+      fatal: ['the component map this package carries is not beside this command, so what '
+        + 'you draw cannot be compared against what ships'] };
   }
   const found = resolveComponents(map, readSources(options.paths), packageName);
   if (!found) {
     return { notes: [] as string[],
-      fatal: [`arena usage cannot read a map keyed by ${JSON.stringify(map.match)}`] };
+      fatal: [`a map keyed by ${JSON.stringify(map.match)} cannot be read`] };
   }
 
   const shipped = Object.keys(map.draws).sort();

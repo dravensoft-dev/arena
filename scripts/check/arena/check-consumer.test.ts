@@ -8,10 +8,11 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented, CONFIG_REFERENCE,
-  palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem,
+  palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
 
@@ -133,7 +134,8 @@ test('a command that refused a third palette is a failure rather than an empty t
 });
 
 test('the gate runs the one bin the package declares', () => {
-  assert.equal(CLI, 'bin/arena.mjs');
+  assert.equal(CLI, CLI_BINS.arena.slice(2));
+  assert.deepEqual(Object.keys(CLI_BINS), ['arena']);
 });
 
 test('a snapshot sees every byte of the tree but not what node_modules links to, and names what moved', () => {
@@ -161,4 +163,14 @@ test('an exit code that is not the one a command promises is one problem naming 
   assert.equal(wrong.length, 1);
   assert.match(wrong[0] ?? '', /react: arena doctor exited 0 where it promises 1/);
   assert.match(wrong[0] ?? '', /fine/);
+});
+
+test('the packed manifest declares exactly one bin, and it is the one the gate runs', () => {
+  assert.deepEqual(binProblems('react', { arena: `./${CLI}` }), []);
+  assert.equal(binProblems('react', {}).length, 1);
+  assert.equal(binProblems('react', undefined).length, 1);
+  assert.match(binProblems('react', { arena: './bin/other.mjs' })[0] ?? '', /points at/);
+  const two = binProblems('react', { arena: `./${CLI}`, second: './bin/second.mjs' });
+  assert.equal(two.length, 1);
+  assert.match(two[0] ?? '', /2 commands/);
 });

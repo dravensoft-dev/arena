@@ -21,7 +21,6 @@ import { linkDir } from '../../lib/arena/platform.ts';
 import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
-import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import {
   THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
 } from '../../generate/core/arena-cli/sheets.ts';
@@ -396,15 +395,28 @@ export function subcommandProblems(layer: string, base = root, dirs: string[] = 
 
   const built = fresh();
   problems.push(...exitProblem(layer, 'arena build', run(built, ['build']), 0));
-  for (const command of ['check', 'audit', 'usage', 'doctor']) {
-    const before = snapshot(built);
-    const result = run(built, [command]);
-    const moved = treeChanges(before, snapshot(built));
-    if (moved.length > 0) {
-      problems.push(`${layer}: arena ${command} wrote to the tree, and it promises to leave every byte: ${moved.join(', ')}`);
+  const stale = fresh();
+  run(stale, ['build']);
+  writeFileSync(join(stale, 'out', THEME_SHEET), '/* out of date */\n');
+  const unbuiltTree = fresh();
+  const READ_ONLY: [string, number, number][] = [['check', 0, 0], ['audit', 0, 0], ['usage', 0, 0], ['doctor', 1, 0]];
+  for (const [command, wantBefore] of READ_ONLY.map(([name, before]) => [name, before] as const)) {
+    for (const [state, dir] of [['unbuilt', unbuiltTree], ['stale', stale]] as const) {
+      const before = snapshot(dir);
+      const result = run(dir, [command]);
+      const moved = treeChanges(before, snapshot(dir));
+      if (moved.length > 0) {
+        problems.push(`${layer}: arena ${command} on a ${state} tree wrote to it, and it promises to leave every byte: ${moved.join(', ')}`);
+      }
+      problems.push(...exitProblem(layer, `arena ${command} on a ${state} tree`, result, wantBefore));
     }
-    if (command === 'doctor') problems.push(...exitProblem(layer, 'arena doctor after a build', result, 0));
   }
+  const settled = snapshot(built);
+  for (const [command, , wantAfter] of READ_ONLY) {
+    problems.push(...exitProblem(layer, `arena ${command} on a built tree`, run(built, [command]), wantAfter));
+  }
+  const moved = treeChanges(settled, snapshot(built));
+  if (moved.length > 0) problems.push(`${layer}: the read-only commands wrote to a built tree: ${moved.join(', ')}`);
 
   const unbuilt = fresh();
   problems.push(...exitProblem(layer, 'arena doctor before a build', run(unbuilt, ['doctor']), 1));
@@ -420,10 +432,17 @@ export function subcommandProblems(layer: string, base = root, dirs: string[] = 
   const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
   dirs.push(plugged);
   run(plugged, ['build']);
+  writeFileSync(join(plugged, 'out', 'keep.txt'), 'not a sheet\n');
   const sheets = [THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET];
   const absent = sheets.filter((name) => !existsSync(join(plugged, 'out', name)));
   if (absent.length > 0) problems.push(`${layer}: the build the clean case starts from wrote no ${absent.join(', ')}`);
+  const beforeClean = snapshot(plugged);
   problems.push(...exitProblem(layer, 'arena clean', run(plugged, ['clean']), 0));
+  const removed = treeChanges(beforeClean, snapshot(plugged));
+  const wanted = sheets.map((name) => `out/${name}`).sort();
+  if (removed.join('\n') !== wanted.join('\n')) {
+    problems.push(`${layer}: arena clean changed [${removed.join(', ')}] where it promises only [${wanted.join(', ')}]`);
+  }
   const left = sheets.filter((name) => existsSync(join(plugged, 'out', name)));
   if (left.length > 0) problems.push(`${layer}: arena clean left ${left.join(', ')}`);
 
@@ -494,14 +513,22 @@ export function importedSheets(css: string | null) {
   return [...(css ?? '').matchAll(/@import '[^']*\/css\/components\/([^']+)\.css';/g)].map((m) => m[1]).sort();
 }
 
+export function binProblems(layer: string, bin: Record<string, string> | undefined) {
+  const names = Object.keys(bin ?? {});
+  if (names.length !== 1) {
+    return [`${layer}: the packed manifest advertises ${names.length} commands. One command carries every `
+      + 'subcommand; a second bin is the split this command replaced'];
+  }
+  return bin?.['arena'] === `./${CLI}`
+    ? []
+    : [`${layer}: the packed manifest's bin ${names[0]} points at ${bin?.[names[0] ?? '']}, and the gate runs ./${CLI}`];
+}
+
 export function mergeProblems(layer: string, result: CliRun, base = root) {
   const problems = [];
   const bins = readdirSync(join(distDir(layer, base), 'bin'))
     .filter((f) => f.endsWith('.ts') || f.endsWith('.mjs'));
-  if (Object.keys(CLI_BINS).length !== 1) {
-    problems.push(`${layer}: the package advertises ${Object.keys(CLI_BINS).length} commands. One command reads `
-      + 'one config and writes both sheets; a second one is the split this major removed');
-  }
+  problems.push(...binProblems(layer, readJson(join(distDir(layer, base), 'package.json')).bin));
   if (result.status !== 0) {
     problems.push(`${layer}: ${CLI} exited ${result.status} on a config the package itself ships:\n    ${result.stderr.trim()}`);
     return problems;
@@ -653,8 +680,9 @@ function main() {
     process.exit(1);
   }
   console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
-    + `a consumer's sources name, scope a style plugin of the project's own, and emit a block carrying `
-    + `its own polarity for each of three palettes`
+    + `a consumer's sources name, scope a style plugin of the project's own, emit a block carrying `
+    + `its own polarity for each of three palettes, and every subcommand leaves the tree and the exit code `
+    + `it promises`
     + `${built ? ', after assembling what was missing' : ''}`);
 }
 

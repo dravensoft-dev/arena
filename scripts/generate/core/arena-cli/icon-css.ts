@@ -131,7 +131,7 @@ const rule = (at: string, decls: Declarations) => `${at}{${decls.map(([name, val
 export function subset(css: string, weight: string, glyphs: Set<string>, fontPath: string) {
   const rules = sheetRules(css, weight);
   if (!rules.fontFace || !rules.base || rules.glyphs.size === 0) {
-    throw new Error(`arena build: the ${weight} sheet has no @font-face, no .${(WEIGHT_CLASSES as Record<string, string>)[weight]} rule `
+    throw new Error(`icons: the ${weight} sheet has no @font-face, no .${(WEIGHT_CLASSES as Record<string, string>)[weight]} rule `
       + 'or no icon rule, so Phosphor is not shaped the way this reads it');
   }
 

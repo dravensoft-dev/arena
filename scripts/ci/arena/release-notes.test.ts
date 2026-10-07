@@ -48,6 +48,7 @@ test('subjects group by the area each one names, and one that names none is stil
 test('an area of more than one word is an area, because subjects here are written that way', () => {
   assert.equal(AREA.exec('release steps: the checklist pointed somewhere')?.[1], 'release steps');
   assert.equal(AREA.exec('cli: the audit read one line')?.[1], 'cli');
+  assert.equal(AREA.exec('arena-mcp: the server answered')?.[1], 'arena-mcp');
   assert.equal(AREA.exec('no colon here at all'), null);
 });
 

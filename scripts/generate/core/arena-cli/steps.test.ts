@@ -40,8 +40,8 @@ test('the undrawn step without the map beside the command says why rather than r
   const root = project(auto, { 'app.html': '<arena-button />' });
   const step = undrawnStep(options(root), '@dravensoft/arena-react', null);
   assert.equal(step.notes.length, 0);
-  assert.match(step.fatal[0] ?? '', /the component map this package carries is not beside this command, so arena usage cannot/);
-  assert.doesNotMatch(step.fatal[0] ?? '', /--undrawn/);
+  assert.match(step.fatal[0] ?? '', /^the component map this package carries is not beside this command, so what you draw cannot be compared/);
+  assert.doesNotMatch(step.fatal[0] ?? '', /--undrawn|arena usage/);
   rmSync(root, { recursive: true });
 });
 

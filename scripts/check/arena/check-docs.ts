@@ -125,8 +125,8 @@ export function isConsumerDocument(repoRelativePath: string) {
 
 export const CONSUMER_OWN_OUTPUT = new Map([
   ['arena.generated.css',
-   'the stylesheet the CONSUMER generates, in their own project, by running the arena build '
-   + 'command each package ships. It carries the .generated. infix and is nothing this repository '
+   'the stylesheet the CONSUMER generates, in their own project, by running arena build, '
+   + 'from the arena command each package ships. It carries the .generated. infix and is nothing this repository '
    + 'builds, so the build-product rule below reads it backwards: a reader of the npm page has '
    + 'this file and is being told to make it.'],
   ['icons.generated.css',

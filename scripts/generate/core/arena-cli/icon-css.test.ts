@@ -113,7 +113,8 @@ test('duotone keeps both halves of a glyph, because one of them is the second co
 });
 
 test('a sheet shaped unlike Phosphor throws rather than writing a stylesheet that renders nothing', () => {
-  assert.throws(() => subset('.ph-bold{}', 'bold', new Set(['ph-bell']), './b.woff2'), /not shaped the way this reads it/);
+  assert.throws(() => subset('.ph-bold{}', 'bold', new Set(['ph-bell']), './b.woff2'),
+    { message: /^icons: the bold sheet has no @font-face.*not shaped the way this reads it/ });
 });
 
 test('the woff2 the font face names is read off the sheet, never guessed from the weight', () => {

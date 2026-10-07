@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
-import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
+import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, ICON_MANIFEST } from './sheets.ts';
 import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable } from './cli-fixtures.ts';
 
 const NAME = '@dravensoft/arena-react';
@@ -208,4 +208,30 @@ test('a fatal plan keeps the reports gathered before it, with no outputs and no 
   assert.deepEqual(result.outputs, []);
   assert.deepEqual(result.orphans, []);
   cleanup(root, held, arena);
+});
+
+test('the icons Arena draws itself come from the list the package ships, not from reading it as text', () => {
+  const { root: held, web } = phosphor();
+  const arena = hostRoot('@dravensoft/arena-react', '11.1.0', {
+    [ICON_MANIFEST]: JSON.stringify({ pairs: { bold: ['ph-sun'] }, loose: [] }),
+    'index.d.ts': '/** Phosphor class name, e.g. \'ph-bold ph-moon\'. */',
+  });
+  const root = project();
+  const result = plan(options(root), environment(web, { arena }));
+  const css = result.outputs.find((one) => one.name === ICONS_SHEET)?.content ?? '';
+  assert.match(css, /ph-sun/, 'a glyph the package declares it draws reaches the sheet');
+  assert.doesNotMatch(css, /ph-moon/, 'a glyph named in a sentence about the API is not one anything draws');
+  cleanup(root, held, arena);
+});
+
+test('running outside an Arena package reports the environment and nothing else', () => {
+  const { root: held, web } = phosphor();
+  const root = project();
+  const result = plan(options(root), environment(web));
+  assert.equal(result.code, 0);
+  const outside = result.reports.filter((one) => one.message.includes('not running from inside an Arena package'));
+  assert.equal(outside.length, 1);
+  assert.equal(outside[0]!.kind, 'environment');
+  assert.deepEqual(result.reports.filter((one) => one.kind === 'environment' || one.kind === 'glyph').map((one) => one.kind), ['environment']);
+  cleanup(root, held);
 });
