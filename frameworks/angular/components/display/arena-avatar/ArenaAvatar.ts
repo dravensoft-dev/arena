@@ -6,6 +6,10 @@ import { ARENA_AVATAR_FACE } from './AvatarFace';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
 
+const STATUSES: readonly string[] = manifest.values.status;
+const statusOf = (status: string | undefined): ArenaAvatarStatus =>
+  (status && STATUSES.includes(status) ? status as ArenaAvatarStatus : 'offline');
+
 @Component({
   selector: 'arena-avatar',
   standalone: true,
@@ -35,8 +39,9 @@ export class ArenaAvatar {
   protected readonly locale = inject(ARENA_LOCALE);
   protected readonly faced = inject(ARENA_AVATAR_FACE, { optional: true }) === true;
 
-  protected presenceName(status: ArenaAvatarStatus): string {
-    return { online: this.locale.avatarOnline, busy: this.locale.avatarBusy, away: this.locale.avatarAway, offline: this.locale.avatarOffline }[status];
+  protected presenceName(status: string): string {
+    const names: Record<string, string> = { online: this.locale.avatarOnline, busy: this.locale.avatarBusy, away: this.locale.avatarAway, offline: this.locale.avatarOffline };
+    return names[statusOf(status)] ?? this.locale.avatarOffline;
   }
 
   /** Image URL. Absent renders initials from `name`. */
@@ -54,7 +59,7 @@ export class ArenaAvatar {
   readonly nameShown = input(false, { transform: booleanAttribute });
 
   protected readonly styles = computed(() =>
-    arenaAvatarStyles({ kind: this.kind(), status: this.status() ?? 'none' }));
+    arenaAvatarStyles({ kind: this.kind(), status: this.status() ? statusOf(this.status()) : 'none' }));
 
   protected readonly initials = computed(() =>
     this.name().trim().split(/\s+/).slice(0, 2).map((word) => word[0] ?? '').join('').toUpperCase());
