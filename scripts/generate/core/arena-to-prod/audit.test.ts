@@ -8,10 +8,9 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
-  ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, appearanceKind, designMemberFindings, writeNamed, VALUE_MAP, group,
+  ownClassFindings, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
-import { axesOf, readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
   return auditText(path, source).join('\n');
@@ -550,97 +549,6 @@ test('findings carries the vocabulary through to the structural rules', () => {
     .filter((one) => one.rule === 'own-class'), []);
 });
 
-test('full on ArenaButton is appearance, named with the class that says it, in both idioms', () => {
-  for (const source of ['<ArenaButton full>Go</ArenaButton>', '<ArenaButton full={true}>Go</ArenaButton>',
-    '<arena-button full>Go</arena-button>', '<arena-button [full]="wide">Go</arena-button>'])
-    assert.match(findings('src/a.tsx', source).filter((one) => one.rule === 'design-member')[0]?.message ?? '',
-      /`full` on ArenaButton is appearance: `arena-fill`/, source);
-  assert.deepEqual(designMemberFindings('ArenaButton', ' fullName="x"'), []);
-  assert.deepEqual(designMemberFindings('ArenaCard', ' full'), []);
-  assert.ok((RULE_TAGS as readonly string[]).includes('design-member'));
-});
-
-const APPEARANCE_SAMPLES = new Map<string, string>([['size', 'sm'], ['variant', 'ghost'], ['orientation', 'vertical'],
-  ['align', 'center'], ['layout', 'split'], ['placement', 'end'],
-  ['ArenaGrid.min', 'sm'], ['ArenaGrid.maxWidth', 'md'], ['ArenaGrid.gap', 'md'], ['ArenaSection.rhythm', 'lg'],
-  ['ArenaBoard.minColumn', 'lg'], ['ArenaScroller.itemWidth', 'sm'], ['ArenaDialog.width', 'md'],
-  ['ArenaFigure.ratio', 'video'], ['ArenaSkeleton.variant', 'line'], ['ArenaSkeleton.width', 'sm'],
-  ['ArenaSkeleton.height', 'sm'], ['ArenaSkeleton.radius', 'sm']]);
-
-function sampleOf(key: string, attribute: string, retired?: string) {
-  return retired ?? APPEARANCE_SAMPLES.get(key) ?? APPEARANCE_SAMPLES.get(attribute) ?? 'x';
-}
-
-test('every appearance attribute is reported in both idioms, naming the class that says it', () => {
-  assert.ok(APPEARANCE_ATTRIBUTES.size > 0, 'no entry, so this checked nothing');
-  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
-    const [component = '', rest = ''] = key.split('.');
-    const [attribute = '', retired] = rest.split('=');
-    const value = sampleOf(key, attribute, retired);
-    const named = 'member' in target ? target.member : 'role' in target ? target.role
-      : writeNamed(target, value).split(', or ')[0]?.replace(/ on a container of yours$/, '') ?? '';
-    const kebab = kebabTag(component);
-    for (const attributes of [` ${attribute}="${value}"`, ` ${attribute}={'${value}'}`, ` [${attribute}]="'${value}'"`]) {
-      for (const tag of [component, kebab]) {
-        assert.ok(designMemberFindings(tag, attributes).some((one) => one.includes(`\`${attribute}\` on ${component} is appearance: \`${named}\``)),
-          `${tag}${attributes} is not named with ${named}`);
-      }
-    }
-  }
-  assert.match(designMemberFindings('ArenaButton', ' size="sm"')[0] ?? '', /`size` on ArenaButton is appearance: `arena-size-sm`/);
-  assert.match(findings('src/a.tsx', '<ArenaButton size="sm">Go</ArenaButton>')
-    .filter((one) => one.rule === 'design-member')[0]?.message ?? '', /arena-size-sm/);
-});
-
-const CLASS_TAIL = 'Write the class on the component, or on a container whose components should all take it';
-
-test('each kind of entry ends in the instruction for its kind, and names only the class, property or member in backticks', () => {
-  assert.equal(appearanceKind(APPEARANCE_ATTRIBUTES.get('ArenaButton.size')!), 'class');
-  assert.equal(appearanceKind(APPEARANCE_ATTRIBUTES.get('ArenaSkeleton.width')!), 'property');
-  assert.equal(appearanceKind(APPEARANCE_ATTRIBUTES.get('ArenaAvatar.shape')!), 'member');
-  const asClass = designMemberFindings('ArenaButton', ' size="sm"')[0] ?? '';
-  assert.ok(asClass.endsWith(`\`arena-size-sm\`. ${CLASS_TAIL}`), asClass);
-  const asProperty = designMemberFindings('ArenaSkeleton', ' width="4rem"')[0] ?? '';
-  assert.ok(asProperty.endsWith('`--arena-skeleton-width`. Set the property on a container of yours'), asProperty);
-  assert.ok(!asProperty.includes(CLASS_TAIL), asProperty);
-  const asMember = designMemberFindings('ArenaAvatar', ' shape="square"')[0] ?? '';
-  assert.ok(asMember.endsWith('`kind`, team for a team, nothing for a person. Use the `kind` member'), asMember);
-  assert.ok(!asMember.includes(CLASS_TAIL), asMember);
-  const both = designMemberFindings('ArenaGrid', ' gap="md"')[0] ?? '';
-  assert.ok(both.endsWith(`\`arena-grid-gap-component\`. ${CLASS_TAIL}, or set \`--arena-grid-gap\` on a container of yours`), both);
-  const role = designMemberFindings('ArenaSideNav', ' indentStep="2"')[0] ?? '';
-  assert.ok(role.endsWith('`pad-row-indent`. Answer it in your style plugin with the indent of one level'), role);
-});
-
-test('a retired value is reported and a value the type still holds is not', () => {
-  assert.equal(designMemberFindings('ArenaBadge', ' tone="gold"').length, 1);
-  assert.match(designMemberFindings('ArenaBadge', ' tone="gold"')[0] ?? '', /arena-accent-gold/);
-  assert.deepEqual(designMemberFindings('ArenaBadge', ' tone="success"'), []);
-  assert.deepEqual(designMemberFindings('ArenaBadge', ' [tone]="kind"'), []);
-  assert.deepEqual(designMemberFindings('ArenaTag', ' tone="danger"'), []);
-});
-
-test('every appearance attribute holds its target, and states a version of the contract that no longer declares it', () => {
-  const families = readFamilies(repoRoot);
-  const roles = JSON.parse(readFileSync(join(repoRoot, 'contracts/design/roles.json'), 'utf8'));
-  const contractOf = (component: string) =>
-    JSON.parse(readFileSync(join(repoRoot, 'contracts/api/components', `${component}.json`), 'utf8'));
-  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
-    const [component = '', rest = ''] = key.split('.');
-    const [attribute = '', retired] = rest.split('=');
-    if ('family' in target) assert.ok(families.has(target.family), `${key} points at family ${target.family}, which no family declares`);
-    else if ('role' in target) assert.ok(roles[target.role] !== undefined, `${key} points at role ${target.role}, which roles.json does not declare`);
-    else assert.ok(contractOf(component).api?.[target.member] !== undefined, `${key} points at member ${target.member}, which ${component} does not declare`);
-    const declared = contractOf(component).api?.[attribute];
-    if (retired === undefined) {
-      assert.equal(declared, undefined, `${component} still declares ${attribute}, so the entry is not a statement about this version`);
-    } else if (declared !== undefined) {
-      const type = JSON.parse(readFileSync(join(repoRoot, 'contracts/api/types', `${kebabTag(declared.type)}.json`), 'utf8'));
-      assert.ok(!type.values.includes(retired), `${declared.type} still holds ${retired}, so ${key} is not a statement about this version`);
-    }
-  }
-});
-
 test('a markup class on a component is reported as markup-only', () => {
   const vocabulary = { page: 'P', answers: {}, options: {}, classes: { 'arena-stack': { family: 'stack', reach: 'box', target: 'markup' } } } as VocabularyIndex;
   assert.match(ownClassFindings('ArenaCard', ' class="arena-stack"', vocabulary).join('\n'),
@@ -657,75 +565,6 @@ test('an option of a box family the component does not answer is refused, naming
   assert.match(ownClassFindings('ArenaSheet', ' class="arena-placement-top-end"', vocabulary).join('\n'),
     /`arena-placement-top-end` is an option ArenaSheet does not answer: it answers arena-placement-bottom, -start and -end/);
   assert.deepEqual(ownClassFindings('ArenaSheet', ' class="arena-placement-start"', vocabulary), []);
-});
-
-test('every sample is a value some entry reads, so a sample cannot outlive its entry', () => {
-  for (const key of APPEARANCE_SAMPLES.keys())
-    if (key.includes('.')) assert.ok(APPEARANCE_ATTRIBUTES.has(key), `${key} samples an entry that does not exist`);
-});
-
-test('every write names an option or an axis of its family, so a write cannot drift from the family', () => {
-  const families = readFamilies(repoRoot);
-  let checked = 0;
-  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
-    if (!('family' in target)) continue;
-    const family = families.get(target.family);
-    assert.ok(family !== undefined, `${key} points at family ${target.family}`);
-    const names = [...Object.keys(family.variants), ...axesOf(family)];
-    const attribute = key.split('.')[1]?.split('=')[0] ?? '';
-    const sample = sampleOf(key, attribute);
-    for (const token of target.write.matchAll(/(?<![\w-])(-{0,2}arena-[a-z0-9-]*[a-z0-9])(-<[a-z]+>)?/g)) {
-      const written = group(token);
-      if (token[2] === undefined) {
-        assert.ok(names.includes(written), `${key} writes ${written}, which is neither an option nor an axis of ${target.family}`);
-      } else {
-        const named: string = `${written}-${VALUE_MAP[target.family]?.[sample] ?? sample}`;
-        assert.ok(names.includes(named), `${key} writes ${written}-<…>, and ${named} is not an option of ${target.family}`);
-        assert.ok(names.some((name) => name.startsWith(`${written}-`)), `${key} writes a prefix no option of ${target.family} carries`);
-      }
-      checked += 1;
-    }
-  }
-  assert.ok(checked > 10, 'no write was read, so this checked nothing');
-});
-
-test('a gap and a rhythm map their old values onto the page rhythm scale', () => {
-  for (const [key, step] of [['sm', 'group'], ['md', 'component'], ['lg', 'section'], ['none', 'none']] as const) {
-    assert.match(designMemberFindings('ArenaGrid', ` gap="${key}"`)[0] ?? '', new RegExp(`\`arena-grid-gap-${step}\``));
-    assert.match(designMemberFindings('ArenaSection', ` rhythm="${key}"`)[0] ?? '', new RegExp(`\`arena-rhythm-${step}\``));
-  }
-  assert.match(designMemberFindings('ArenaGrid', ' min="240px"')[0] ?? '', /arena-grid-min-<step>/);
-});
-
-test('a skeleton variant of text is the lines member and no other class, and a width is the property', () => {
-  const text = designMemberFindings('ArenaSkeleton', ' variant="text"');
-  assert.equal(text.length, 1);
-  assert.match(text[0] ?? '', /`lines`, the number of lines the placeholder stands in for\. Use the `lines` member$/);
-  assert.match(designMemberFindings('ArenaSkeleton', ' variant="circle"')[0] ?? '', /arena-skeleton-circle/);
-  assert.match(designMemberFindings('arena-skeleton', ' width="4rem"')[0] ?? '', /`--arena-skeleton-width`. Set the property on a container of yours/);
-});
-
-test('a column width or alignment is appearance, named with the key and the property, in both idioms', () => {
-  const react = findings('src/a.tsx', "<ArenaTable columns={[{ header: 'A', width: '8rem', align: 'right' }, { header: 'B' }]} />")
-    .filter((one) => one.rule === 'design-member').map((one) => one.message);
-  assert.equal(react.length, 2);
-  assert.match(react.join('\n'), /`align` on a column of ArenaTable is appearance: give the column a `key` and set `--arena-column-<key>-align` on the table or a container of yours/);
-  assert.match(react.join('\n'), /--arena-column-<key>-width/);
-  const angular = findings('src/a.html', `<arena-table [columns]="[{ header: 'A', align: 'right' }]"></arena-table>`)
-    .filter((one) => one.rule === 'design-member');
-  assert.equal(angular.length, 1);
-  assert.deepEqual(designMemberFindings('ArenaTable', " columns={[{ header: 'A', key: 'a' }]}", undefined, " columns={[{ header: 'A', key: 'a' }]}"), []);
-  assert.deepEqual(designMemberFindings('ArenaCard', " columns={[{ width: 1 }]}"), []);
-});
-
-test('a column reader sees the keys of the column and no deeper, and a brace inside a string does not end the value', () => {
-  const nested = " columns={[{ header: 'A', meta: { width: 1, align: 'left' } }]}";
-  assert.deepEqual(designMemberFindings('ArenaTable', nested), []);
-  assert.deepEqual(findings('src/a.tsx', `<ArenaTable${nested} />`).filter((one) => one.rule === 'design-member'), []);
-  const braced = " columns={[{ header: '}', align: 'right' }]}";
-  assert.equal(designMemberFindings('ArenaTable', braced).length, 1);
-  assert.equal(findings('src/a.tsx', `<ArenaTable${braced} />`).filter((one) => one.rule === 'design-member').length, 1);
-  assert.equal(designMemberFindings('ArenaTable', " columns={[{ header: 'a, width: 1' }]}").length, 0);
 });
 
 const AXES: VocabularyIndex = {
@@ -751,35 +590,6 @@ test('a class and an axis of one family on one component are reported as decidin
     '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min-width\': \'10rem\' }}>x</ArenaGrid>',
   ])
     assert.deepEqual(findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class'), [], source);
-});
-
-test('a retired danger variant names the destructive member, and a live variant still names its class', () => {
-  const danger = designMemberFindings('ArenaButton', ' variant="danger"')[0] ?? '';
-  assert.match(danger, /`variant` on ArenaButton is appearance: `destructive`/);
-  assert.match(danger, /Use the `destructive` member/);
-  assert.doesNotMatch(danger, /arena-emphasis/);
-  assert.match(designMemberFindings('ArenaButton', ' variant="ghost"')[0] ?? '', /`arena-emphasis-ghost`/);
-});
-
-test('every class an appearance attribute writes for an option its component answers is a shipped class', () => {
-  const index = vocabularyIndex(repoRoot);
-  let checked = 0;
-  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
-    if (!('family' in target) || key.includes('=') || !target.write.includes('<')) continue;
-    const component = key.split('.')[0] ?? '';
-    for (const option of index.options[component] ?? []) {
-      if (index.classes[option]?.family !== target.family) continue;
-      const prefix = target.write.split('<')[0] ?? '';
-      if (!option.startsWith(prefix)) continue;
-      const suffix = option.slice(prefix.length);
-      const named: string = writeNamed(target, suffix).split(', or ')[0] ?? '';
-      assert.ok(index.classes[named] !== undefined && !named.includes('<'), `${key} with ${suffix} names ${named}, which is no shipped class`);
-      checked += 1;
-    }
-  }
-  assert.ok(checked > 5, 'no option was checked');
-  assert.equal(writeNamed(APPEARANCE_ATTRIBUTES.get('ArenaToastHost.placement')!, 'top-start'), 'arena-placement-top-start');
-  assert.equal(writeNamed(APPEARANCE_ATTRIBUTES.get('ArenaSwitch.size')!, '2xl'), 'arena-size-2xl');
 });
 
 test('a shape class and the property a family composes with are no conflict, and a class that replaces an axis is, in both binding forms', () => {

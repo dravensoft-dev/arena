@@ -1,18 +1,17 @@
 /* The rules of the language, decided over source text rather than over Arena's own tree, so the
  * one statement of each serves both sides of the ship boundary: this module ships inside the
- * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here
- * rather than holding a second copy that would drift. It depends on nothing but node and its own
- * siblings, because inside a package scripts/ does not exist. It decides what source text shows and nothing
- * else: the render rules are not visible from outside, and a filled danger surface is visible
- * only where a project paints one of its own. A line carrying an allow marker is exempt, and a
- * marker over a line with nothing to exempt is stale. Every rule is read in a SCOPE, because an
- * audit that cannot say where a project's appearance lives has given up half of what it reports:
- * a declared plugin directory may select a part hook and paint a gradient, and a source may not. */
+ * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here.
+ * It depends on nothing but node and its own siblings, because inside a package scripts/ does
+ * not exist. It decides what source text shows and nothing else: the render rules are not
+ * visible from outside, and a filled danger surface is visible only where a project paints one
+ * of its own. A line carrying an allow marker is exempt, and a marker over a line with nothing
+ * to exempt is stale. Every rule is read in a SCOPE: a declared plugin directory may select a
+ * part hook and paint a gradient, and a source may not. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const RULE_TAGS = ['compat-alias', 'danger-fill', 'design-member', 'emoji', 'icon-element',
+export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
   'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link'] as const;
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
@@ -362,27 +361,6 @@ function attributeValueAt(raw: string, from: number): string {
   return raw.slice(from);
 }
 
-function columnLevel(value: string): string {
-  const inner = /^["'`{]/.test(value) ? value.slice(1, -1) : value;
-  let depth = 0;
-  let out = '';
-  for (let i = 0; i < inner.length; i += 1) {
-    const c = inner[i] ?? '';
-    if (c === '"' || c === "'" || c === '`') {
-      let end = i + 1;
-      while (end < inner.length && inner[end] !== c) end += inner[end] === '\\' ? 2 : 1;
-      const key = /^\s*:/.test(inner.slice(end + 1));
-      if (depth === 1) out += key ? inner.slice(i, end + 1) : ' '.repeat(end + 1 - i);
-      i = end;
-      continue;
-    }
-    if (c === '{') depth += 1;
-    if (depth === 1 || (depth === 0 && c === '}')) out += c;
-    if (c === '}') depth -= 1;
-  }
-  return out;
-}
-
 export function ownClassFindings(tag: string, attributes: string, vocabulary: VocabularyIndex | null, raw = attributes): string[] {
   if (!OWN_CLASS_ATTRIBUTE.test(attributes)) return [];
   if (vocabulary === null || COMPUTED_CLASS.test(attributes)) return [OWN_CLASS_MESSAGE];
@@ -431,126 +409,6 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
         found.push(`\`${token}\` and \`${axis}\` on one ${component} decide one axis twice; the class wins on this `
           + 'component. Keep one.');
     }
-  }
-  return found;
-}
-
-export type AppearanceTarget = { family: string } | { role: string } | { member: string };
-
-export const APPEARANCE_ATTRIBUTES = new Map<string, AppearanceTarget & { write: string }>([
-  ['ArenaButton.full', { family: 'fill', write: 'arena-fill' }],
-  ['ArenaButton.variant=danger', { member: 'destructive', write: 'what the action destroys or removes' }],
-  ['ArenaButton.variant', { family: 'emphasis', write: 'arena-emphasis-<value>' }],
-  ['ArenaButton.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaIconButton.variant', { family: 'emphasis', write: 'arena-emphasis-<value>' }],
-  ['ArenaIconButton.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaSegmentedControl.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaSwitch.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaSwitch.orientation', { family: 'orientation', write: 'arena-orientation-<value>' }],
-  ['ArenaSpinner.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaSpinner.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
-  ['ArenaSpinner.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
-  ['ArenaSpinner.tone=neutral', { family: 'accent', write: 'arena-accent-muted' }],
-  ['ArenaSpinner.tone=on-accent', { family: 'accent', write: 'arena-accent-ink' }],
-  ['ArenaProgressBar.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaProgressBar.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
-  ['ArenaProgressBar.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
-  ['ArenaToast.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
-  ['ArenaBadge.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
-  ['ArenaBadge.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
-  ['ArenaStatCard.tone=accent', { family: 'accent', write: 'arena-accent-primary' }],
-  ['ArenaStatCard.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
-  ['ArenaTag.tone=primary', { family: 'accent', write: 'arena-accent-primary' }],
-  ['ArenaAvatar.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaAvatar.shape', { member: 'kind', write: 'team for a team, nothing for a person' }],
-  ['ArenaAppLogo.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaAppLogo.orientation', { family: 'orientation', write: 'arena-orientation-<value>' }],
-  ['ArenaPeopleList.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaCard.accent', { family: 'accent', write: 'arena-accent-primary' }],
-  ['ArenaCard.floating', { family: 'elevation', write: 'arena-elevation-floating' }],
-  ['ArenaHero.align', { family: 'align', write: 'arena-align-<value>' }],
-  ['ArenaHero.layout', { family: 'layout', write: 'arena-layout-<value>' }],
-  ['ArenaPageHead.align', { family: 'align', write: 'arena-align-<value>' }],
-  ['ArenaSheet.placement', { family: 'placement', write: 'arena-placement-<value>' }],
-  ['ArenaToastHost.placement', { family: 'placement', write: 'arena-placement-<value>' }],
-  ['ArenaGrid.min', { family: 'grid-min', write: 'arena-grid-min-<step>, or --arena-grid-min on a container of yours' }],
-  ['ArenaGrid.maxWidth', { family: 'grid-max', write: 'arena-grid-max-<step>, or --arena-grid-max on a container of yours' }],
-  ['ArenaGrid.gap', { family: 'grid-gap', write: 'arena-grid-gap-<value>, or --arena-grid-gap on a container of yours' }],
-  ['ArenaSection.rhythm', { family: 'rhythm', write: 'arena-rhythm-<value>, or --arena-rhythm on a container of yours' }],
-  ['ArenaBoard.minColumn', { family: 'board-column', write: 'arena-board-column-<step>, or --arena-board-column on a container of yours' }],
-  ['ArenaScroller.itemWidth', { family: 'scroller-item', write: 'arena-scroller-item-<step>, or --arena-scroller-item on a container of yours' }],
-  ['ArenaDialog.width', { family: 'dialog-width', write: 'arena-dialog-width-<step>, or --arena-dialog-width on a container of yours' }],
-  ['ArenaFigure.ratio', { family: 'ratio', write: 'arena-ratio-<frame>, or --arena-ratio on a container of yours' }],
-  ['ArenaSkeleton.variant', { family: 'skeleton', write: 'arena-skeleton-<value>' }],
-  ['ArenaSkeleton.variant=text', { member: 'lines', write: 'the number of lines the placeholder stands in for' }],
-  ['ArenaSkeleton.width', { family: 'skeleton', write: '--arena-skeleton-width on a container of yours' }],
-  ['ArenaSkeleton.height', { family: 'skeleton', write: '--arena-skeleton-height on a container of yours' }],
-  ['ArenaSkeleton.radius', { family: 'skeleton', write: '--arena-skeleton-radius on a container of yours' }],
-  ['ArenaSideNav.indentStep', { role: 'pad-row-indent', write: 'the indent of one level' }],
-]);
-
-export const VALUE_MAP: Record<string, Record<string, string>> = {
-  'grid-gap': { sm: 'group', md: 'component', lg: 'section', none: 'none' },
-  rhythm: { sm: 'group', md: 'component', lg: 'section', none: 'none' },
-};
-
-const NAMEABLE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const A_LENGTH = /^\d+(?:px|r?em|vh|vw|ch|fr|pt)$/;
-
-const WRITE_PLACEHOLDER = /<(?:value|step|frame)>/g;
-
-export function writeNamed(target: AppearanceTarget & { write: string }, value?: string): string {
-  const mapped = value !== undefined && 'family' in target ? VALUE_MAP[target.family]?.[value] ?? value : value;
-  const named = mapped !== undefined && NAMEABLE.test(mapped) && !A_LENGTH.test(mapped) ? mapped : undefined;
-  return target.write.replace(WRITE_PLACEHOLDER, (placeholder) => named ?? placeholder);
-}
-
-const COLUMN_KEYS = /[{,]\s*['"]?(width|align)['"]?\s*:/g;
-
-function columnFindings(component: string, raw: string, page?: string): string[] {
-  if (component !== 'ArenaTable') return [];
-  const opening = /(?:^|\s)\[?columns\]?\s*=\s*/.exec(raw);
-  if (opening === null) return [];
-  const value = attributeValueAt(raw, opening.index + opening[0].length);
-  const keys = [...new Set([...columnLevel(value).matchAll(COLUMN_KEYS)].map((m) => group(m)))];
-  return keys.map((key) => `\`${key}\` on a column of ${component} is appearance: give the column a \`key\` and set `
-    + `\`--arena-column-<key>-${key}\` on the table or a container of yours${page ? `. ${page}` : ''}`);
-}
-
-const PROPERTY_ALTERNATIVE = /^(.*?), or (--[\w-]+) on a container of yours$/;
-
-export function appearanceKind(target: AppearanceTarget & { write: string }): 'class' | 'property' | 'member' | 'role' {
-  if ('member' in target) return 'member';
-  if ('role' in target) return 'role';
-  return target.write.startsWith('--') ? 'property' : 'class';
-}
-
-function appearanceSaid(target: AppearanceTarget & { write: string }, value?: string): string {
-  const kind = appearanceKind(target);
-  if (kind === 'member') return `\`${(target as { member: string }).member}\`, ${target.write}. Use the \`${(target as { member: string }).member}\` member`;
-  if (kind === 'role') return `\`${(target as { role: string }).role}\`. Answer it in your style plugin with ${target.write}`;
-  const written = writeNamed(target, value);
-  if (kind === 'property') return `\`${written.replace(/ on a container of yours$/, '')}\`. Set the property on a container of yours`;
-  const [, name = written, property] = PROPERTY_ALTERNATIVE.exec(written) ?? [];
-  return `\`${name}\`. Write the class on the component, or on a container whose components should all take it`
-    + (property === undefined ? '' : `, or set \`${property}\` on a container of yours`);
-}
-
-const LITERAL_VALUE = /^\s*=\s*(?:\{\s*)?["'`]{1,2}\s*([\w-]+)\s*["'`]/;
-
-export function designMemberFindings(tag: string, attributes: string, page?: string, raw = attributes): string[] {
-  const component = componentOf(tag);
-  const found: string[] = columnFindings(component, raw, page);
-  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
-    const [owner, rest = ''] = key.split('.');
-    if (owner !== component) continue;
-    const [attribute = '', retired] = rest.split('=');
-    const opening = new RegExp(`(?:^|\\s)\\[?${attribute}\\]?(?=\\s*=|\\s|$)`).exec(attributes);
-    if (opening === null) continue;
-    const value = LITERAL_VALUE.exec(attributes.slice(opening.index + opening[0].length))?.[1];
-    if (retired !== undefined && value !== retired) continue;
-    if (retired === undefined && value !== undefined && APPEARANCE_ATTRIBUTES.has(`${owner}.${attribute}=${value}`)) continue;
-    found.push(`\`${attribute}\` on ${component} is appearance: ${appearanceSaid(target, value)}${page ? `. ${page}` : ''}`);
   }
   return found;
 }
@@ -692,9 +550,6 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     if (ARENA_TAG.test(name))
       for (const message of ownClassFindings(name, attributes, vocabulary, raw))
         found.push(at(lineAt(text, start), 'own-class', message));
-    if (ARENA_TAG.test(name))
-      for (const message of designMemberFindings(name, attributes, vocabulary?.page, raw))
-        found.push(at(lineAt(text, start), 'design-member', message));
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
 

@@ -60,7 +60,7 @@ identical members, idiomatic binding.
 editorial colour, width, padding, elevation and alignment arrive through a vocabulary class,
 which [`../AGENTS.md`](../AGENTS.md) places in the model. A member that mixes a meaning with a look
 keeps the meaning and leaves the look to the Tailwind layer. **A member carrying a meaning is named
-for the meaning and not for the look it once had**: `destructive` says a destructive action,
+for the meaning and not for the look**: `destructive` says a destructive action,
 `colorId` says which entity, `numeric` says a figure and `kind` says whether an avatar stands for a
 person or a team, so a layer renders each as a `data-arena-<member>` attribute and a plugin decides
 what it looks like.

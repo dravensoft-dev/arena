@@ -107,8 +107,7 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
   vocabulary page. Content you draw yourself is yours, styled through the same tokens. **`--audit`
   reports this one.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
-  component is, is decided by a class, as `arena-fill`. An attribute naming appearance on a
-  component is reported with the class that says it. **`--audit` reports this one.**
+  component is, is decided by a class, as `arena-fill`.
 - **Danger is outline, never filled.** The background stays transparent, and the border and the
   content read `--danger`. Arena draws one filled danger surface, and it is the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`

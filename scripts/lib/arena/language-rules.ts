@@ -39,10 +39,10 @@ export const RULES: LanguageRule[] = [
   {
     id: 'appearance-is-a-class',
     short: 'Appearance is a class of the vocabulary, never a member.',
-    body: 'How wide, how large or how quiet a component is, is decided by a class, as `arena-fill`. An '
-      + 'attribute naming appearance on a component is reported with the class that says it.',
-    held: 'design-member',
-    unheld: null,
+    body: 'How wide, how large or how quiet a component is, is decided by a class, as `arena-fill`.',
+    held: null,
+    unheld: 'a member that does not exist is a type error in React and a template compile error in '
+      + 'Angular, so the compilers hold it before any source text is read',
   },
   {
     id: 'danger-outline',

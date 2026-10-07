@@ -108,7 +108,8 @@ test('a class of the vocabulary on a component is the language and not a class o
   assert.match(checked('<ArenaButton className="arena-size-sm">Go</ArenaButton>', CHECKED_AS, null), /own-class/);
   assert.match(checked('<ArenaButton className="arena-size-sm">Go</ArenaButton>', CHECKED_AS, index), /^No finding\./);
   assert.match(checked('<arena-button class="arena-fill">Go</arena-button>', 'src/app.html', index), /^No finding\./);
-  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>', CHECKED_AS, index), /own-class|not a class of Arena's vocabulary/);
+  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>', CHECKED_AS, index), /own-class/);
+  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>', CHECKED_AS, index), /not a class of Arena's vocabulary/);
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>', CHECKED_AS, index), /1 finding/);
 });
 
