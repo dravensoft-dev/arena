@@ -13,7 +13,7 @@ import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { reactSurface, UnrecognisedShape } from '../../lib/arena/api-surface.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
-import { groupProblems, designGroupCount } from './check-api.ts';
+import { groupProblems } from './check-api.ts';
 import { vocabularyMemberProblems, OWN_ELEMENTLESS } from './check-api.ts';
 
 const TYPES = new Map([['ArenaTone', 'enum'], ['ArenaCrumb', 'object']]);
@@ -910,14 +910,6 @@ test('a group is resolved against the components the manifest covers', () => {
 test('an internal entry naming no group is stale, and one naming a member is declared twice', () => {
   assert.match(sweep(manifest({ internal: { size: 'why', gone: 'why' } }), thing({}))[0] ?? '', /ArenaThing\.internal\.gone names no group/);
   assert.match(sweep(manifest({ internal: { size: 'why' } }))[0] ?? '', /ArenaThing\.size is declared internal and a member at once/);
-});
-
-test('a group naming a design member passes and is counted', () => {
-  const key = 'contracts/api/components/ArenaThing.json:api.size';
-  const members = new Map([[key, { phase: 5 as const, why: 'editorial' }]]);
-  assert.deepEqual(sweep(manifest(), thing(), noTypes, { designMembers: members }), []);
-  assert.equal(designGroupCount(new Map([['t', manifest()]]), thing(), noTypes, members), 1);
-  assert.equal(designGroupCount(new Map([['t', manifest()]]), thing(), noTypes, new Map()), 0);
 });
 
 test('a hues key naming no group, a value the group lacks or an unknown hue fails', () => {

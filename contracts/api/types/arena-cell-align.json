@@ -1,6 +1,0 @@
-{
-  "name": "ArenaCellAlign",
-  "kind": "enum",
-  "description": "How an ArenaTable column's cells align. Checked against every enum already declared here before it was added; nothing carries this set.",
-  "values": ["left", "center", "right"]
-}

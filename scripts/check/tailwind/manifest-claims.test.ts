@@ -272,6 +272,10 @@ export const CLAIMS = {
       slot, has: ['outline-none', 'focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]'],
       why: 'a cell draws its focus ring from the focus tokens and suppresses the UA outline, or a keyboard user cannot see where the cursor is',
     })),
+    ...['th', 'td'].map((slot) => ({
+      slot, has: ['w-[var(--arena-column-width,auto)]', '[text-align:var(--arena-column-align,left)]'], hasNot: ['text-left', 'text-center', 'text-right'],
+      why: 'a column is sized and aligned by the properties its key names, and a cell with none set keeps the automatic width and the left alignment the table always had',
+    })),
     { chosen: { numeric: true }, slot: 'td', has: ['font-mono', 'tabular-nums'], hasNot: ['font-body'], why: 'a figure column aligns by digit, and the figure treatment replaces the prose face rather than stacking on it' },
     { chosen: { numeric: false }, slot: 'td', has: ['font-body'], hasNot: ['font-mono'], why: 'a prose column keeps the body face' },
     { slot: 'root', has: ['block'], why: 'a host-bound root is never the UA-default inline box' },

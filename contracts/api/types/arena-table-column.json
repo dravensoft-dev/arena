@@ -5,10 +5,8 @@
   "fields": {
     "header": { "form": "primitive", "type": "string", "required": true,
                 "description": "The column's label, drawn in the header row." },
-    "align": { "form": "enum", "type": "ArenaCellAlign", "default": "left",
-               "description": "How this column's cells align." },
-    "width": { "form": "primitive", "type": "string",
-               "description": "A CSS width for the column. Omit to let the table distribute." },
+    "key": { "form": "primitive", "type": "string",
+             "description": "The name this column's width and alignment are set under, as --arena-column-<key>-width and --arena-column-<key>-align on the table or a container of yours. Letters, digits, hyphens and underscores; a column without one takes the table's own layout." },
     "numeric": { "form": "primitive", "type": "boolean", "default": false,
                  "description": "The column holds figures: the mono face, tabular numerals and the gold ink, and figure-aligned in the card layout." },
     "sortable": { "form": "primitive", "type": "boolean", "default": false,

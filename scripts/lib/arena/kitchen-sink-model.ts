@@ -16,7 +16,7 @@ import { SUBJECT } from './playground-model.ts';
 import type { Fixture, FixtureChild, FixtureNode, Place, Places } from './playground-model.ts';
 import type { ManifestClassSource } from '../tailwind/manifest-shapes.ts';
 
-export type SinkItem = { component: string; node: FixtureNode; staged: boolean };
+export type SinkItem = { component: string; node: FixtureNode; staged: boolean; vars?: Record<string, string> };
 
 export type SinkSection = { title: string; items: SinkItem[] };
 
@@ -145,7 +145,8 @@ export function sinkModel(fixture: SinkFixture, demos: Map<string, Fixture>,
       }
       const node = rebaseNode(instanceNode(demo), depth.from, depth.to) as FixtureNode;
       componentsIn(node, uses);
-      return { component, node, staged: staged.has(component) };
+      const vars = demo.vars && Object.keys(demo.vars).length > 0 ? { vars: demo.vars } : {};
+      return { component, node, staged: staged.has(component), ...vars };
     }),
   }));
   return {

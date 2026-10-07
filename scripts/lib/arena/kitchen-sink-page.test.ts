@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { READY, READY_SIGNAL, kitchenSinkPage, entryFile, bodyClass, KS } from './kitchen-sink-page.ts';
+import { READY, READY_SIGNAL, kitchenSinkPage, entryFile, bodyClass, varsStyle, KS } from './kitchen-sink-page.ts';
 
 type Fonts = { status: string; ready: Promise<void> };
 
@@ -91,4 +91,21 @@ test('an entry file is named for its arrangement and its layer, so one page neve
 test('a staged component gets the stage class and every other one the plain body', () => {
   assert.equal(bodyClass(true), KS.stage);
   assert.equal(bodyClass(false), KS.body);
+});
+
+test('a fixture\'s vars are written as the style of the wrapper, and a fixture without any writes none', async () => {
+  const { tile } = await import('../react/kitchen-sink-react.ts');
+  const { angularSinkEntry } = await import('../angular/kitchen-sink-angular.ts');
+  const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
+  const node = { text: 'x' };
+  const item = (own?: Record<string, string>) => ({ component: 'ArenaTable', node, staged: false, ...(own ? { vars: own } : {}) });
+  assert.equal(varsStyle(vars), '--arena-column-status-align: right; --arena-column-status-width: 8rem');
+  assert.equal(varsStyle(undefined), '');
+  const react = tile(item(vars), new Map(), 0);
+  assert.ok(react.includes(`<div className="${KS.body}" style={${JSON.stringify(vars)} as React.CSSProperties}>`), react);
+  assert.doesNotMatch(tile(item(), new Map(), 0), /style=/);
+  const entry = (own?: Record<string, string>) => angularSinkEntry(
+    { sink: 's', note: '', uses: [], sections: [{ title: 't', items: [item(own)] }] }, new Map(), new Map(), '', '');
+  assert.ok(entry(vars).includes(`<div class="${KS.body}" style="${varsStyle(vars)}">`));
+  assert.doesNotMatch(entry(), new RegExp(`class="${KS.body}" style=`));
 });

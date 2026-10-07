@@ -23,10 +23,15 @@ const run = (families = new Map([['fill', FILL]]), manifests = new Map([['ArenaB
 const runWith = (family: Family, manifest: Record<string, unknown>) =>
   familyProblems(new Map([[family.family, family]]), [`frameworks/tailwind/vocabulary/arena-${family.family}/${family.family[0]?.toUpperCase()}${family.family.slice(1)}.family.json`],
     new Map<string, any>([[manifest.component as string, manifest]]));
-const typed = (field: string | null) => {
+const typed = (field: string | null, unrelated: string | null = null) => {
   const root = mkdtempSync(join(tmpdir(), 'arena-keyed-'));
   mkdirSync(join(root, 'contracts/api/types'), { recursive: true });
-  if (field) writeFileSync(join(root, 'contracts/api/types/arena-table-column.json'), JSON.stringify({ name: 'ArenaTableColumn', fields: { [field]: {} } }));
+  mkdirSync(join(root, 'contracts/api/components'), { recursive: true });
+  writeFileSync(join(root, 'contracts/api/components/ArenaTable.json'),
+    JSON.stringify({ component: 'ArenaTable', api: { columns: { form: 'array', of: 'ArenaTableColumn' } } }));
+  writeFileSync(join(root, 'contracts/api/types/arena-table-column.json'),
+    JSON.stringify({ name: 'ArenaTableColumn', fields: field ? { [field]: {} } : { header: {} } }));
+  if (unrelated) writeFileSync(join(root, 'contracts/api/types/arena-other.json'), JSON.stringify({ name: 'ArenaOther', fields: { [unrelated]: {} } }));
   return root;
 };
 const KEYED_ROOT = typed('key');
@@ -137,8 +142,10 @@ test('the manifests answering a keyed family are the components it binds, both w
 test('a keyed family reads its key from a field some type declares, and two families never share an axis', () => {
   const table = { component: 'ArenaTable', answers: ['column'], slots: { th: 'w-[var(--arena-column-width,auto)] [text-align:var(--arena-column-align,left)]' } };
   const source = () => ['`var(--arena-column-${key}-width)` --arena-column-width'];
-  assert.match(keyedRun(COLUMN, new Map([['ArenaTable', table]]), source, typed(null)).join('\n'), /column: its key field key is a field of no type under contracts\/api\/types/);
+  assert.match(keyedRun(COLUMN, new Map([['ArenaTable', table]]), source, typed(null)).join('\n'), /column: its key field key is a field of no type the contract of ArenaTable references/);
   assert.deepEqual(keyedRun(COLUMN, new Map([['ArenaTable', table]]), source, typed('key')), []);
+  assert.match(keyedRun(COLUMN, new Map([['ArenaTable', table]]), source, typed(null, 'key')).join('\n'),
+    /column: its key field key is a field of no type the contract of ArenaTable references/);
   const twin = { ...FILL, family: 'fill-twin', axis: '--arena-fill' };
   const text = familyProblems(new Map([['fill', { ...FILL, axis: '--arena-fill' }], ['fill-twin', { ...twin, axis: '--arena-fill-twin' }]]), [], new Map()).join('\n');
   assert.doesNotMatch(text, /is an axis of both/);

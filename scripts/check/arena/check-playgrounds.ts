@@ -330,9 +330,17 @@ export function shapeProblems(name: string, fixture: Fixture & Record<string, un
   const problems: string[] = [];
   if (fixture.component !== name)
     problems.push(`${name}${FIXTURE_SUFFIX}: declares component "${fixture.component}", and the file name says ${name}`);
-  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note'];
+  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note', 'vars'];
   for (const key of Object.keys(fixture))
     if (!known.includes(key)) problems.push(`${name}${FIXTURE_SUFFIX}: carries ${key}, and a fixture holds ${known.join(', ')}`);
+  const vars = fixture.vars;
+  if (vars !== undefined && (vars === null || typeof vars !== 'object' || Array.isArray(vars)))
+    problems.push(`${name}${FIXTURE_SUFFIX}: vars is a map of --arena-* names to string values`);
+  else for (const [property, value] of Object.entries(vars ?? {})) {
+    if (!property.startsWith('--arena-')) problems.push(`${name}${FIXTURE_SUFFIX}: vars sets ${property}, and a fixture sets only --arena-* properties`);
+    if (typeof value !== 'string') problems.push(`${name}${FIXTURE_SUFFIX}: vars ${property} holds ${typeof value}, and a value is a string`);
+    else if (/[";{}<]/.test(value)) problems.push(`${name}${FIXTURE_SUFFIX}: vars ${property} holds ${JSON.stringify(value)}, and a value carries none of " ; { } <, which would break the style attribute it is written into`);
+  }
   return problems;
 }
 

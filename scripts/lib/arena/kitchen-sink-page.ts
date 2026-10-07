@@ -86,6 +86,10 @@ export const KS = {
   stage: 'ks-stage',
 } as const;
 
+export function varsStyle(vars: Record<string, string> | undefined) {
+  return Object.entries(vars ?? {}).map(([name, value]) => `${name}: ${value}`).join('; ');
+}
+
 export function bodyClass(staged: boolean) {
   return staged ? KS.stage : KS.body;
 }

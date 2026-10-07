@@ -45,7 +45,7 @@ The table is a **compound** component. `columns` says how each column is headed 
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`column`](../../../../VOCABULARY.md#column): keyed by each column's `key`, as `--arena-column-<key>-width` and `--arena-column-<key>-align`, set on the component or a container of yours.
 
 <!-- @answers end -->
 

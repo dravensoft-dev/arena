@@ -10,6 +10,7 @@
 | [`align`](#align) | box | `arena-align-center`, `arena-align-start` (default) |  | ArenaHero, ArenaPageHead |
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`board-column`](#board-column) | box | `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm` | `--arena-board-column` | ArenaBoard |
+| [`column`](#column) | box | keyed by `key` | `--arena-column-<key>-width`, `--arena-column-<key>-align` | ArenaTable |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
 | [`dialog-width`](#dialog-width) | box | `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm` | `--arena-dialog-width` | ArenaDialog |
 | [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
@@ -70,6 +71,15 @@ How narrow a column of a board may get before the board scrolls sideways rather 
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-board-column`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
 - **Answered by:** ArenaBoard.
+
+## column
+
+How wide a column of a table is and how its cells align, which is the adopter's to say because the table cannot know what its columns hold. A column opts in by naming itself with an optional key, and the table then reads --arena-column-<key>-width and --arena-column-<key>-align for it. Set them on the table or on a container of yours. The width is a length or a token such as calc(var(--sp-1) * 40), and the alignment is left, center or right. A column with no key, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment.
+
+- **Options:** keyed by `key`.
+- **Reach:** box: it is read by the components that bind it, for the key each one is given.
+- **Property:** `--arena-column-<key>-width`, `--arena-column-<key>-align`, set on the component or a container of yours with a token or a derivation of tokens.
+- **Answered by:** ArenaTable.
 
 ## density
 

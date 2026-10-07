@@ -61,12 +61,19 @@ notices.
   // exactly once, marking where the component under test is placed.
   "host": null,
 
+  // Properties of the component's vocabulary the demo sets the way an adopter would: a map of
+  // --arena-* names to string values, written as the style of the element the page already
+  // wraps the component in (a tile of the kitchen sink, the stage of a playground), so no
+  // element is added and the properties are inherited by everything drawn inside it. Optional.
+  "vars": { "--arena-column-status-align": "right" },
+
   // One line under the page title. Optional.
   "note": "A surface. With interactive or href it becomes one activation target."
 }
 ```
 
-Those seven keys are the whole schema, and an eighth fails the gate.
+Those keys are the whole schema, and another fails the gate; a `vars` key that does not start
+`--arena-` or holds anything but a string fails it too.
 
 ## A node
 

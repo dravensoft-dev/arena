@@ -52,6 +52,7 @@ export interface KnobModel {
   host: unknown;
   uses: string[];
   class?: string;
+  vars?: Record<string, string>;
 }
 
 export interface PlaygroundState {

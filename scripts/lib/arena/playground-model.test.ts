@@ -243,3 +243,9 @@ test('a form outside the nine is refused by name', () => {
     /consumerData/,
   );
 });
+
+test('a fixture\'s vars reach the model, and a fixture without any leaves the field out', () => {
+  const vars = { '--arena-column-status-align': 'right' };
+  assert.deepEqual(playgroundModel(contract, { ...fixture, vars }, types).vars, vars);
+  assert.equal('vars' in model(), false);
+});

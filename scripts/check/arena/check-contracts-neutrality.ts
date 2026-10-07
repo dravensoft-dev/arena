@@ -3,9 +3,7 @@
  * reads it, and one in a `description` is a sentence a person reads. BROWSER_BOUND over values
  * admits no exception; over prose WEB_PROSE exempts one description at a time with its reason, and
  * a new or a stale entry fails. WEB_SHAPED is the opposite record, W3C vocabulary carried on
- * purpose. DESIGN_MEMBERS is the debt the vocabulary still has to take over: each member deciding
- * appearance, with the phase that moves it, so the remainder is a map that shrinks and a stale
- * entry fails. COMPUTED records the members the render reads, with the function that reads them. The walk is over the tree's own contract set, so it has a subject on a fresh clone. */
+ * purpose. COMPUTED records the members the render reads, with the function that reads them. The walk is over the tree's own contract set, so it has a subject on a fresh clone. */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -161,11 +159,6 @@ export function zeroWalkProblems(files: number, strandCount: number, shaped: num
   return problems;
 }
 
-export type Pending = { phase: 5 | 6; why: string };
-
-const EDITORIAL = 'it decides appearance per instance, so it becomes an option of a family';
-const GEOMETRY = 'geometry only interpolated into CSS, so it becomes named steps and one public property';
-
 const at = (component: string, member: string) => `contracts/api/components/${component}.json:api.${member}`;
 const field = (type: string, member: string) => `contracts/api/types/${type}.json:fields.${member}`;
 
@@ -228,11 +221,6 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
   }],
 ]);
 
-export const DESIGN_MEMBERS = new Map<string, Pending>([
-  [field('arena-table-column', 'width'), { phase: 6, why: GEOMETRY }],
-  [field('arena-table-column', 'align'), { phase: 6, why: GEOMETRY }],
-]);
-
 export function resolvesMember(key: string, repo = root) {
   const [rel = '', path = ''] = key.split(':');
   const [section = '', member = ''] = path.split('.');
@@ -242,20 +230,6 @@ export function resolvesMember(key: string, repo = root) {
   } catch {
     return false;
   }
-}
-
-export function designMemberProblems(resolves: (key: string) => boolean = resolvesMember, members = DESIGN_MEMBERS) {
-  const problems: string[] = [];
-  for (const [key, { phase, why }] of members) {
-    if (![5, 6].includes(phase)) problems.push(`DESIGN_MEMBERS: ${key} is owned by phase ${phase}, and only phases 5 and 6 are still to run`);
-    if (!resolves(key)) problems.push(`DESIGN_MEMBERS names ${key} and no contract declares it, so the debt it records is paid: drop the entry (${why})`);
-  }
-  return problems;
-}
-
-export function overlapProblems(computed = COMPUTED, members = DESIGN_MEMBERS) {
-  return [...computed.keys()].filter((key) => members.has(key))
-    .map((key) => `${key} is in COMPUTED and in DESIGN_MEMBERS: a member is recorded once`);
 }
 
 export function computedProblems(resolves: (key: string) => boolean = resolvesMember, entries = COMPUTED, repo = root) {
@@ -292,7 +266,7 @@ export function familyOptions(repo = root): Map<string, string> {
 const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 
 export function optionShapeProblems(contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>,
-  options: Map<string, string> = familyOptions(), computed = COMPUTED, members = DESIGN_MEMBERS) {
+  options: Map<string, string> = familyOptions(), computed = COMPUTED) {
   if (options.size === 0) {
     return ['optionShapeProblems read 0 family options, so every enum passed over nothing; an empty '
       + 'option set is a failure rather than a clean pass'];
@@ -300,7 +274,7 @@ export function optionShapeProblems(contracts: Map<string, ContractCandidate>, t
   const problems: string[] = [];
   const check = (key: string, typeName: string | undefined) => {
     const type = typeName === undefined ? undefined : types.get(typeName);
-    if (type === undefined || computed.has(key) || members.has(key)) return;
+    if (type === undefined || computed.has(key)) return;
     const values = type.values ?? [];
     const byFamily = new Map<string, { value: string; option: string }[]>();
     for (const value of values) {
@@ -348,9 +322,7 @@ export function collect(repo = root) {
       ...valueProblems(all),
       ...proseProblems(all),
       ...staleShapedProblems(all),
-      ...designMemberProblems(),
       ...computedProblems(),
-      ...overlapProblems(),
       ...optionShapeProblems(readDir<ContractCandidate>(join(repo, 'contracts/api/components')),
         readDir<TypeContract>(join(repo, 'contracts/api/types')), familyOptions(repo)),
     ],

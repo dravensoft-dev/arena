@@ -126,14 +126,30 @@ export function treeSource(root: string): KeyedSource {
   };
 }
 
-function typeFields(root: string) {
-  const dir = join(root, 'contracts', 'api', 'types');
-  const names = new Set<string>();
-  if (!existsSync(dir)) return names;
+function readJsonDir(root: string, sub: string) {
+  const dir = join(root, 'contracts', 'api', sub);
+  const out: any[] = [];
+  if (!existsSync(dir)) return out;
   for (const file of readdirSync(dir).filter((one) => one.endsWith('.json'))) {
-    try {
-      for (const field of Object.keys(JSON.parse(readFileSync(join(dir, file), 'utf8')).fields ?? {})) names.add(field);
-    } catch { continue; }
+    try { out.push(JSON.parse(readFileSync(join(dir, file), 'utf8'))); } catch { continue; }
+  }
+  return out;
+}
+
+const referenced = (spec: any) => [spec?.type, spec?.of, spec?.payload].filter((name): name is string => typeof name === 'string');
+
+function reachableFields(root: string, component: string) {
+  const types = new Map<string, any>(readJsonDir(root, 'types').map((type) => [type.name, type]));
+  const contract = readJsonDir(root, 'components').find((one) => one.component === component);
+  const seen = new Set<string>();
+  const queue = Object.values(contract?.api ?? {}).flatMap(referenced);
+  const names = new Set<string>();
+  for (let name = queue.pop(); name !== undefined; name = queue.pop()) {
+    if (seen.has(name)) continue;
+    seen.add(name);
+    const fields = types.get(name)?.fields ?? {};
+    for (const field of Object.keys(fields)) names.add(field);
+    queue.push(...Object.values(fields).flatMap(referenced));
   }
   return names;
 }
@@ -275,8 +291,8 @@ export function familyProblems(
         if (!binds.includes(component)) problems.push(`${family.family}: ${component} answers it and is not in binds, so nothing says it writes the binding`);
       for (const component of binds)
         if (manifests.has(component) && !answering.includes(component)) problems.push(`${family.family}: binds ${component}, and ${component} does not answer ${family.family}`);
-      if (family.keyed && !typeFields(root).has(family.keyed))
-        problems.push(`${family.family}: its key field ${family.keyed} is a field of no type under contracts/api/types`);
+      if (family.keyed && !(family.binds ?? []).some((component) => reachableFields(root, component).has(family.keyed!)))
+        problems.push(`${family.family}: its key field ${family.keyed} is a field of no type the contract of ${(family.binds ?? []).join(', ')} references, directly or through its member types`);
       continue;
     }
     if (family.target === 'markup') continue;

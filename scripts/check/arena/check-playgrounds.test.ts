@@ -284,3 +284,13 @@ test('a context class on a component that answers the family without that option
   assert.deepEqual(classProblems('w', 'ArenaCard', 'arena-size-xl', source({ answers: [] })), []);
   assert.deepEqual(classProblems('w', 'ArenaCard', 'arena-size-xl', source(null)), []);
 });
+
+test('a fixture\'s vars name --arena-* properties and hold strings', () => {
+  assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-column-status-align': 'right' } } as any), []);
+  assert.match(shapeProblems('Widget', { ...ok, vars: { color: 'red' } } as any).join('\n'), /vars sets color, and a fixture sets only --arena-\* properties/);
+  assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 1 } } as any).join('\n'), /vars --arena-x holds number/);
+  assert.match(shapeProblems('Widget', { ...ok, vars: 'x' } as any).join('\n'), /vars is a map/);
+  for (const bad of ['a"b', 'a;b', 'a{b', 'a}b', 'a<b'])
+    assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': bad } } as any).join('\n'), /would break the style attribute/);
+  assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 'calc(var(--sp-1) * 4)' } } as any), []);
+});

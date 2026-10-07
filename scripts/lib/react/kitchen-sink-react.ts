@@ -8,7 +8,7 @@
  * line after render(), which only SCHEDULES a commit: an effect on the root component runs after
  * every descendant's, putting this where bootstrapApplication().then() already puts Angular's. */
 
-import { kitchenSinkPage, KS, bodyClass, MOUNT_ID, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
+import { kitchenSinkPage, KS, bodyClass, varsStyle, MOUNT_ID, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
 import { UP as COMPONENT_UP } from '../arena/playground-page.ts';
 import { renderNode } from './playground-react.ts';
 import { placeOf } from '../arena/playground-model.ts';
@@ -25,7 +25,7 @@ export function tile(item: SinkModel['sections'][number]['items'][number], place
   const pad = '  '.repeat(depth);
   return `${pad}<div className="${KS.tile}">\n`
     + `${pad}  <span className="${KS.label}">${item.component}</span>\n`
-    + `${pad}  <div className="${bodyClass(item.staged)}">\n`
+    + `${pad}  <div className="${bodyClass(item.staged)}"${varsStyle(item.vars) ? ` style={${JSON.stringify(item.vars)} as React.CSSProperties}` : ''}>\n`
     + `${renderNode(item.node, places, depth + 2)}\n`
     + `${pad}  </div>\n`
     + `${pad}</div>`;

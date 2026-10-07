@@ -31,7 +31,6 @@ import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { ALWAYS, alwaysProblems, hueProblems, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { coveredContracts } from '../../lib/tailwind/manifest-surfaces.ts';
 import type { ComponentManifest, Manifests } from '../../lib/tailwind/manifest-shapes.ts';
-import { DESIGN_MEMBERS } from './check-contracts-neutrality.ts';
 
 export const node = {
   name: 'check:api',
@@ -573,7 +572,6 @@ function angularImplementations() {
 type JudgedManifest = ComponentManifest & { readonly values?: Readonly<Record<string, readonly string[]>> };
 
 type GroupOptions = {
-  designMembers?: ReadonlyMap<string, unknown>;
   hueNames?: ReadonlySet<string>;
 };
 
@@ -598,9 +596,7 @@ function groupSources(component: string, group: string, contracts: Map<string, C
 }
 
 function judgeGroups(manifests: Manifests, contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>, options: GroupOptions) {
-  const designMembers = options.designMembers ?? DESIGN_MEMBERS;
   const problems: string[] = [];
-  let designGroups = 0;
   let swept = 0;
   for (const manifest of manifests.values()) {
     problems.push(...alwaysProblems(manifest, options.hueNames));
@@ -615,7 +611,6 @@ function judgeGroups(manifests: Manifests, contracts: Map<string, ContractCandid
         problems.push(`${name}.${group} is declared internal and a member at once: drop the internal entry, the member says what it states`);
       else if (sources.length === 0 && !(group in internal))
         problems.push(`${name}.${group} is a variant group naming no member, no field and no internal entry, so nothing says what it states`);
-      if (sources.some((key) => designMembers.has(key))) designGroups += 1;
     }
     for (const key of Object.keys(internal))
       if (!groups.has(key)) problems.push(`${name}.internal.${key} names no group, so the entry is stale: drop it`);
@@ -633,15 +628,11 @@ function judgeGroups(manifests: Manifests, contracts: Map<string, ContractCandid
   }
   if (swept === 0)
     problems.push('found 0 manifests with a variant group — an empty result set is a failure, not a clean pass; check the discovery path');
-  return { problems, designGroups };
+  return { problems };
 }
 
 export function groupProblems(manifests: Manifests, contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>, options: GroupOptions = {}) {
   return judgeGroups(manifests, contracts, types, options).problems;
-}
-
-export function designGroupCount(manifests: Manifests, contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>, designMembers: ReadonlyMap<string, unknown> = DESIGN_MEMBERS) {
-  return judgeGroups(manifests, contracts, types, { designMembers }).designGroups;
 }
 
 function main() {
@@ -727,7 +718,7 @@ function main() {
     for (const p of new Set(problems)) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-api: ${files.length} contract(s) and ${types.length} type(s) hold across ${layersChecked} layer implementation(s); every manifest group names a member, a field or an internal entry, and ${judged.designGroups} groups still decided by a design member, owned by phase 5 or 6`);
+  console.log(`check-api: ${files.length} contract(s) and ${types.length} type(s) hold across ${layersChecked} layer implementation(s); every manifest group names a member, a field or an internal entry`);
 }
 
 if (isMainModule(import.meta.url)) main();

@@ -4,7 +4,7 @@ import {
   BROWSER_BOUND, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
   valueProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
-import { COMPUTED, DESIGN_MEMBERS, computedProblems, designMemberProblems, optionShapeProblems } from './check-contracts-neutrality.ts';
+import { COMPUTED, computedProblems, optionShapeProblems } from './check-contracts-neutrality.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
@@ -73,23 +73,6 @@ test('every record still names something the payload holds', () => {
   assert.ok(BROWSER_BOUND.size > 0);
 });
 
-test('every design member still to migrate names a member a contract declares, and a later phase', () => {
-  assert.deepEqual(designMemberProblems(() => true), []);
-  assert.match(designMemberProblems((key) => !key.endsWith(':api.size'), new Map([['contracts/api/components/ArenaButton.json:api.size', { phase: 5, why: 'w' }]])).join('\n'),
-    /DESIGN_MEMBERS names contracts\/api\/components\/ArenaButton\.json:api\.size and no contract declares it/);
-  assert.match(designMemberProblems(() => true, new Map([['k', { phase: 1 as never, why: 'w' }]])).join('\n'), /phase 1/);
-});
-
-test('the record holds the tree as it is: every entry resolves, and full is not among them', () => {
-  assert.deepEqual(designMemberProblems(), []);
-  assert.ok(![...DESIGN_MEMBERS.keys()].some((key) => key.endsWith(':api.full')));
-});
-
-test('a design member owned by phase 4 fails, since only phases 5 and 6 are still to run', () => {
-  const problems = designMemberProblems(() => true, new Map([['k', { phase: 4 as never, why: 'w' }]]));
-  assert.match(problems.join('\n'), /only phases 5 and 6 are still to run/);
-});
-
 test('a COMPUTED entry fails when its key does not resolve, its file lacks the function, or the map is empty', () => {
   const entry = { reads: 'scripts/check/arena/check-contracts-neutrality.ts:computedProblems(a)', why: 'w' };
   assert.deepEqual(computedProblems(() => true, new Map([['k', entry]])), []);
@@ -101,10 +84,9 @@ test('a COMPUTED entry fails when its key does not resolve, its file lacks the f
   assert.match(computedProblems(() => true, new Map()).join('\n'), /COMPUTED is empty/);
 });
 
-test('the real COMPUTED holds, and no member is both computed and a design debt', () => {
+test('the real COMPUTED holds', () => {
   assert.deepEqual(computedProblems(), []);
   assert.equal(COMPUTED.size, 14);
-  for (const key of COMPUTED.keys()) assert.ok(!DESIGN_MEMBERS.has(key), `${key} is in both maps`);
 });
 
 const probeContracts = new Map<string, ContractCandidate>([
@@ -117,7 +99,7 @@ const probeOptions = new Map([['arena-size-sm', 'size']]);
 const probeKey = 'contracts/api/components/ArenaButton.json:api.size';
 
 test('an enum member whose value is a family option fails, and the message names the way out', () => {
-  const problems = optionShapeProblems(probeContracts, probeTypes, probeOptions, new Map(), new Map());
+  const problems = optionShapeProblems(probeContracts, probeTypes, probeOptions, new Map());
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /api\.size is an enum whose value sm is the option arena-size-sm: appearance is a class, not a member\. Write the class, or record the member in COMPUTED/);
 });
@@ -127,19 +109,17 @@ test('an enum field of a type whose value is a family option fails too', () => {
     ...probeTypes,
     ['ArenaRow', { name: 'ArenaRow', kind: 'object', fields: { size: { form: 'enum', type: 'ArenaControlSize' } } }],
   ]);
-  const problems = optionShapeProblems(new Map(), types, probeOptions, new Map(), new Map());
+  const problems = optionShapeProblems(new Map(), types, probeOptions, new Map());
   assert.match(problems.join('\n'), /contracts\/api\/types\/arena-row\.json:fields\.size is an enum whose value sm/);
 });
 
-test('a member recorded in COMPUTED or held in DESIGN_MEMBERS passes', () => {
+test('a member recorded in COMPUTED passes', () => {
   const computed = new Map([[probeKey, { reads: 'r', why: 'w' }]]);
-  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, probeOptions, computed, new Map()), []);
-  const members = new Map([[probeKey, { phase: 5 as const, why: 'w' }]]);
-  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, probeOptions, new Map(), members), []);
+  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, probeOptions, computed), []);
 });
 
 test('an enum that meets no option passes, and an empty option map is a zero walk', () => {
-  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, new Map([['arena-fill-card', 'fill']]), new Map(), new Map()), []);
+  assert.deepEqual(optionShapeProblems(probeContracts, probeTypes, new Map([['arena-fill-card', 'fill']]), new Map()), []);
   assert.match(optionShapeProblems(probeContracts, probeTypes, new Map()).join('\n'), /0 family options/);
 });
 
@@ -153,7 +133,7 @@ test('an enum is appearance when two of its values, or its only one, are options
   const contracts = new Map<string, ContractCandidate>([['ArenaX', { component: 'ArenaX', api: {
     level: { form: 'enum', type: 'Heading' }, size: { form: 'enum', type: 'Size' }, only: { form: 'enum', type: 'Only' },
   } }]]);
-  const problems = optionShapeProblems(contracts, types, options, new Map(), new Map()).join('\n');
+  const problems = optionShapeProblems(contracts, types, options, new Map()).join('\n');
   assert.doesNotMatch(problems, /api\.level/);
   assert.match(problems, /api\.size is an enum whose values sm, md are options of size/);
   assert.match(problems, /api\.only is an enum whose value sm is the option arena-size-sm/);
@@ -163,5 +143,5 @@ test('an enum whose values each meet a different family is not appearance', () =
   const options = new Map([['arena-gap-none', 'gap'], ['arena-size-sm', 'size']]);
   const types = new Map<string, TypeContract>([['Mixed', { name: 'Mixed', kind: 'enum', values: ['sm', 'none'] }]]);
   const contracts = new Map<string, ContractCandidate>([['ArenaX', { component: 'ArenaX', api: { mixed: { form: 'enum', type: 'Mixed' } } }]]);
-  assert.deepEqual(optionShapeProblems(contracts, types, options, new Map(), new Map()), []);
+  assert.deepEqual(optionShapeProblems(contracts, types, options, new Map()), []);
 });

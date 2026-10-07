@@ -4,7 +4,7 @@
   "description": "Which column the rows are ordered by, and which way. Controlled: ArenaTable draws the affordance and sets aria-sort, and the consumer does the ordering, because ArenaTable does not hold the rows and pretending otherwise would be the error. Absent, no header is a sort target however many columns declare `sortable`.",
   "fields": {
     "column": { "form": "primitive", "type": "number", "required": true,
-                "description": "Which column, as its index in `columns`. An index rather than a key, because an ArenaTable's cells are already positional -- the nth ArenaTableCell takes the nth column -- so a key would be a second identity for a thing that already has one, and a required one on every column that a caller would have to invent." },
+                "description": "Which column, as its index in `columns`. An index rather than a key, because an ArenaTable's cells are already positional -- the nth ArenaTableCell takes the nth column -- so the index is the identity a column already has, and the optional `key` names a column's properties, not its identity." },
     "direction": { "form": "enum", "type": "ArenaSortDirection", "required": true,
                    "description": "Which way that column is ordered." }
   }

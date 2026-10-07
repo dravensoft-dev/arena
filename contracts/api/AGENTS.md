@@ -73,9 +73,7 @@ so a family added tomorrow catches a member declared yesterday. **`COMPUTED` is 
 A design decision the render computes with (a chart's height, a calendar's view, a menu's
 alignment, which the panel is positioned from) stays a member, recorded in `COMPUTED` in
 `scripts/check/arena/check-contracts-neutrality.ts` with the function that reads it, and the gate
-opens that file and fails an entry whose function is not there. `DESIGN_MEMBERS` beside it holds
-the members geometry still has to move, each with the phase that moves it; a member is in one
-record only, and a stale entry in either fails the gate. **React's `className` is the one member
+opens that file and fails an entry whose function is not there. **React's `className` is the one member
 no contract names**, typed with the component's generated vocabulary class, and `check:api` holds
 it to that type.
 

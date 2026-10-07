@@ -1,15 +1,16 @@
 {
   "component": "ArenaTable",
+  "answers": ["column"],
   "slots": {
     "root": "block w-full font-body shadow-surface-rest",
     "grid": "table w-full border-collapse",
     "body": "table-row-group",
     "headRow": "table-row bg-track",
-    "th": "table-cell px-row-px py-row-py text-left align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "th": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
     "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-edge-separator px-row-px py-row-py",
     "row": "table-row border-t-[length:var(--bw-separator)] border-edge-separator transition-[background] duration-[var(--dur-hover)] ease-hover",
-    "td": "table-cell px-row-px py-row-py text-left align-middle text-ctl outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "td": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle text-ctl outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "link": "inline-flex items-center min-h-ctl-h-sm cursor-pointer no-underline rounded-control outline-none transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "empty": "px-4 py-8 text-center align-middle text-ctl text-ink-muted/(--level-ink-muted)",
     "sortBar": "flex items-center gap-inline w-full",
@@ -55,20 +56,6 @@
         "body": "contents"
       }
     },
-    "align": {
-      "left": {
-        "th": "text-left",
-        "td": "text-left"
-      },
-      "center": {
-        "th": "text-center",
-        "td": "text-center"
-      },
-      "right": {
-        "th": "text-right",
-        "td": "text-right"
-      }
-    },
     "sortable": {
       "true": {
         "th": "cursor-pointer select-none hover:text-ink-body"
@@ -100,7 +87,6 @@
   },
   "defaultVariants": {
     "narrow": false,
-    "align": "left",
     "sortable": false,
     "first": false,
     "interactive": false,

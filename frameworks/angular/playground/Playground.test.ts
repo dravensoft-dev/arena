@@ -237,3 +237,24 @@ test('reset returns every knob to what the fixture and the contract said', () =>
     fixture.destroy();
   }
 });
+
+test('the stage carries the model\'s vars as its style, and a model without any leaves it bare', () => {
+  const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
+  const draw = (shown: KnobModel) => {
+    @Component({ standalone: true, imports: [Playground], template: '<demo-playground [play]="play">x</demo-playground>' })
+    class Own { play = new PlaygroundStore(shown); }
+    const fixture = TestBed.createComponent(Own);
+    fixture.detectChanges();
+    return fixture;
+  };
+  const withVars = draw({ ...model, vars });
+  const without = draw(model);
+  try {
+    const stage = (withVars.nativeElement as HTMLElement).querySelector('.pg-stage') as HTMLElement;
+    for (const [name, value] of Object.entries(vars)) assert.equal(stage.style.getPropertyValue(name), value);
+    assert.equal(((without.nativeElement as HTMLElement).querySelector('.pg-stage') as HTMLElement).getAttribute('style'), null);
+  } finally {
+    withVars.destroy();
+    without.destroy();
+  }
+});
