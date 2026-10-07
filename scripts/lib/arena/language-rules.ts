@@ -2,7 +2,7 @@
  * router's list, the note at the foot of every component prompt, the Context7 index and the
  * repository page. Each rule says whether a gate holds it, by naming the audit tag the shipped
  * module emits, and a rule no gate holds says what holds it instead. That pairing is the claim
- * this file exists for: the router said no gate reads your application while arena-to-prod --audit
+ * this file exists for: the router said no gate reads your application while arena audit
  * already did, and nothing failed, because the sentence and the check had no common source. The
  * short half of every rule is written to survive being quoted alone, since Context7 stores it
  * without the rest and a gate holds it to being a span of the router. */
@@ -204,8 +204,8 @@ export function renderShortList(rules = RULES, at = SUMMARY_WRAP) {
 }
 
 export function renderHeldSentence(rules = RULES) {
-  return wrapped('Every rule below is a rule of the language and not a preference. **`arena-to-prod '
-    + '--audit` reads your own sources and reports the ones marked below.** It reports rather than '
+  return wrapped('Every rule below is a rule of the language and not a preference. **`arena '
+    + 'audit` reads your own sources and reports the ones marked below.** It reports rather than '
     + 'fails, so add `--strict=audit` where a finding should stop the run. Nothing reads your '
     + 'application for the unmarked ones, and those hold because you hold them. The full record, '
     + 'with the reason each unmarked rule is one a source text cannot show, is `arena://rules` on '

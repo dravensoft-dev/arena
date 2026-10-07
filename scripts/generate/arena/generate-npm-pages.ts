@@ -70,7 +70,7 @@ pattern, and \`arena.tokens.json\`.
 point your agent at \`skills/design/SKILL.md\`. Or work over HTTP, starting at
 **https://arena.dravensoft.org/llms.txt**.
 
-Without one of them an agent guesses. \`arena-to-prod --audit\` reads your own sources for the rules a source text can show, and nothing reports the rest. The screen renders, and the rules it breaks are the ones only a reader notices.
+Without one of them an agent guesses. \`arena audit\` reads your own sources for the rules a source text can show, and nothing reports the rest. The screen renders, and the rules it breaks are the ones only a reader notices.
 
 The package is the code. The server, the plugin and the repository are the language.`,
 

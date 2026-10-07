@@ -199,7 +199,7 @@ export function index(base = root) {
     `> ${summary(base)}`,
     '',
     'Arena carries the design language and not the skin: a consuming project declares its own',
-    'palettes and fonts in `arena.config.json`, and the `arena-to-prod` command each package ships',
+    'palettes and fonts in `arena.config.json`, and the `arena` command each package ships',
     'turns that into the one stylesheet a package cannot carry.',
     '',
     '**Read your own framework\'s documents and not the other\'s.** Every component ships under both',

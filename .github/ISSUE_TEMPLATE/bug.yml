@@ -28,7 +28,7 @@ body:
         - Angular package
         - Tailwind layer
         - Design tokens or contracts
-        - arena-to-prod command
+        - arena command
         - Documentation
         - Claude Code plugin or Agent Skill
         - Somewhere else

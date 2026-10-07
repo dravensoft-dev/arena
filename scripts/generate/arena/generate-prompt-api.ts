@@ -85,7 +85,7 @@ export function renderRulesRegion(layer: string) {
     '**The rules of the language hold in the code you write from this page.** An Arena component '
     + `takes a class of the vocabulary and no other, so put no \`${OWN_CLASS_ATTR[layer] ?? 'class'}\` of your own on `
     + 'it. Read every value through its token, never a raw colour and never a bare `16px`. Never '
-    + 'wrap it in your router\'s own link. `arena-to-prod --audit` reports these three in your '
+    + 'wrap it in your router\'s own link. `arena audit` reports these three in your '
     + `sources. The rest are in [\`${ROUTER_FROM_PROMPT}\`](${ROUTER_FROM_PROMPT}), which marks the `
     + 'ones it reports.',
     '',
