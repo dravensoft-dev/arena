@@ -285,7 +285,7 @@ export function renderKeysRegion(binding: Binding | null, patterns: Pattern | Pa
     for (const [key, what] of Object.entries(pattern.requires)) {
       if (!key.startsWith(KEY) || excepted.has(key)) continue;
       const name = key.slice(KEY.length);
-      if (!lines.has(name)) lines.set(name, `- \`${name}\`: ${what.split(';')[0]?.replace(/\.$/, '')}.`);
+      if (!lines.has(name)) lines.set(name, `- \`${name}\`: ${what.replace(/\.$/, '')}.`);
     }
   }
   for (const one of binding ? [binding, ...(binding.cases ?? [])] : []) {

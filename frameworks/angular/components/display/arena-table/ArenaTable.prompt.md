@@ -57,7 +57,7 @@ Cells are **positional**: the nth cell takes the nth column.
 
 <!-- @keys GENERATED from the binding. -->
 **Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
-- `ArrowKeys`: moves focus one cell in the arrow's direction.
+- `ArrowKeys`: moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
 - `Home`: moves focus to the first cell in the current row.
 - `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
@@ -82,7 +82,7 @@ measured the wide shape renders, so the card shape never flashes on first paint.
 
 ### Keyboard
 
-The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid, and arrows move by cell. The header row is row 0 and is navigable, as APG prescribes. `Home` and `End` go to the first and last cell of the **current row**, and `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
+The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
 own place in the page Tab sequence, so nothing you own is silenced.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
@@ -113,8 +113,8 @@ it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
    grid pulled focus back onto the cell, since `focusin` bubbles and only a real browser shows it.
-3. Arrows clamp at all four edges and focus never leaves the grid. `Home`/`End` stay inside
-   the current row. Walk a middle row, not only the first.
+3. Arrows clamp at all four edges and focus never leaves the grid. Walk a middle row for
+   `Home` and `End`, not only the first: they never leave the row.
 4. `Enter` activates a row with `(click)` and does nothing on the header row or on the
    disabled row; the page logs what was activated.
 5. The squeezed container is already in card mode on load. Confirm nothing there took a

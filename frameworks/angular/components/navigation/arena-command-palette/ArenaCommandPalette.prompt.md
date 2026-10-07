@@ -35,7 +35,7 @@ command also closes the palette. The search field is an ARIA 1.2 combobox wired 
 
 <!-- @keys GENERATED from the binding. -->
 **Keys**, from [`combobox`](../../../../../contracts/behaviour/combobox.json):
-- `ArrowDown`: opens the popup if closed.
+- `ArrowDown`: opens the popup if closed; moves into it.
 - `Escape`: closes the popup if it is visible.
 - `Enter`: accepts the active option and closes the popup.
 <!-- @keys end -->

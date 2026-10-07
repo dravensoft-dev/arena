@@ -50,7 +50,7 @@ Two things this default is not. The default is not a `'UTC'` fallback. Such a fa
 
 <!-- @keys GENERATED from the binding. -->
 **Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
-- `ArrowKeys`: moves focus one cell in the arrow's direction.
+- `ArrowKeys`: moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
 - `Home`: moves focus to the first cell in the current row.
 - `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
