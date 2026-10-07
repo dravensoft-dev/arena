@@ -39,7 +39,7 @@ You do not need to run Tailwind. Every component's CSS ships compiled, and one `
 
 An icon is a class name and never an element. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`. The component renders it.
 
-The stylesheet that turns those classes into glyphs is the subset that `arena-to-prod` writes. Phosphor's own stylesheet is not the one Arena reads. [`arena-to-prod.md`](./arena-to-prod.md) says how the subset is built.
+The stylesheet that turns those classes into glyphs is the subset that `arena-to-prod` writes. Phosphor's own stylesheet is not the one Arena reads. [`cli.md`](./cli.md) says how the subset is built.
 
 ## How do I import the stylesheets in React?
 

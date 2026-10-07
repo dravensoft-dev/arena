@@ -61,12 +61,12 @@ The package is the code. The server, the plugin and the repository are the langu
 | How do I send only the component stylesheets my screens render? | [config.md → Build to production](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#build-to-production) |
 | What counts as drawn when I send only some component stylesheets? | [config.md → What counts as drawn in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#what-counts-as-drawn-in-angular) |
 | What can the component stylesheet scan not send? | [config.md → What can a scan not send?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#what-can-a-scan-not-send) |
-| What does the arena-to-prod command write? | [arena-to-prod.md → What does the command write?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#what-does-the-command-write) |
-| Which flags does arena-to-prod take? | [arena-to-prod.md → Which flags does it take?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#which-flags-does-it-take) |
-| When does arena-to-prod report and when does it refuse? | [arena-to-prod.md → Does the command report or refuse?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#does-the-command-report-or-refuse) |
-| How do I run arena-to-prod before every build? | [arena-to-prod.md → How do I run it before every build in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#how-do-i-run-it-before-every-build-in-angular) |
-| Why does arena-to-prod have an audit? | [arena-to-prod.md → Why does the audit script exist?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#why-does-the-audit-script-exist) |
-| What does the arena-to-prod audit read in my sources? | [arena-to-prod.md → What does the audit read in each layer?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#what-does-the-audit-read-in-each-layer) |
+| What does the arena command write? | [cli.md → What does `arena build` write?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cli.md#what-does-arena-build-write) |
+| Which commands and flags does arena take? | [cli.md → Which commands are there?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cli.md#which-commands-are-there) |
+| What does --strict hold? | [cli.md → What does `--strict` hold?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cli.md#what-does---strict-hold) |
+| What does an exit code of arena mean? | [cli.md → What does an exit code mean?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cli.md#what-does-an-exit-code-mean) |
+| How do I run arena build before every build? | [cli.md → How do I wire it into an Angular build?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cli.md#how-do-i-wire-it-into-an-angular-build) |
+| What does arena audit read in my sources? | [cli.md → What does the audit read?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cli.md#what-does-the-audit-read) |
 
 ## The page and the layout
 

@@ -121,7 +121,7 @@ export const ROUTES: Route[] = [
     stops: [
       'skills/design/references/install.md',
       'skills/design/references/config.md',
-      'skills/design/references/arena-to-prod.md',
+      'skills/design/references/cli.md',
     ],
     budget: 25_000,
     reason:
