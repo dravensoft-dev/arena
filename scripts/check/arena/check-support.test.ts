@@ -82,6 +82,10 @@ test('a registry runner that would fetch the foreign arena package is reported',
   for (const line of [
     'npx arena build', 'npx -y arena doctor', 'bunx arena audit', 'npm exec arena', 'npm exec -- arena build',
     'pnpm dlx arena build', 'yarn dlx arena doctor', 'pnpm dlx arena --no-install',
+    'bunx arena@latest build', 'npx arena@latest', 'npx -y arena@0.0.2 doctor', 'Run it with npx arena.',
+    'npm x arena build', 'bun x arena build', 'npx "arena" build', "npx 'arena' build",
+    'bunx --no arena build', 'bun x --no arena build', 'npx    arena   build',
+    'npx --no-install arena doctor; bunx arena build',
   ]) {
     const problems = registryRunnerProblems('page.md', line);
     assert.equal(problems.length, 1, line);
@@ -93,7 +97,7 @@ test('a registry runner that refuses to install, a scoped package and the bare c
   for (const line of [
     'npx --no-install arena doctor', 'npx --no arena doctor', 'bunx --no-install arena build',
     'npm exec --no -- arena build', 'npx @dravensoft/arena-mcp', 'bunx @dravensoft/arena-mcp',
-    'arena build', 'pnpm exec arena doctor', 'yarn arena doctor', 'the arena command, run with npx',
+    'arena build', 'npx arena-foo', 'npx arena/x', 'npm x --no arena', 'pnpm exec arena doctor', 'yarn arena doctor', 'the arena command, run with npx',
   ]) {
     assert.deepEqual(registryRunnerProblems('page.md', line), [], line);
   }
@@ -104,7 +108,8 @@ test('a line can satisfy the runner rule and the registry rule together', () => 
   assert.deepEqual(runnerProblems('page.md', line), []);
   assert.deepEqual(registryRunnerProblems('page.md', line), []);
   const bunx = 'bunx --no-install arena doctor   # or: pnpm exec arena doctor / yarn arena doctor';
-  assert.ok(runnerProblems('page.md', bunx).length === 0 && registryRunnerProblems('page.md', bunx).length === 0);
+  assert.deepEqual(runnerProblems('page.md', bunx), []);
+  assert.deepEqual(registryRunnerProblems('page.md', bunx), []);
 });
 
 test('the repertoire page matches a fresh emit', () => {

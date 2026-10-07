@@ -1,12 +1,9 @@
 /* The repertoire against the tree it describes. Four claims: the emitted regions are what a
  * fresh emit produces, so a range moves in one file and lands in every page that states it; no
- * consumer page names a peer at a version the manifests do not declare, which is the way a
- * hand-typed range goes stale without anything failing; and no consumer page hands a reader a
- * runner without an alternative beside it. The third is the anti-regression rule and it is the
- * reason this gate exists at all: bunx was written into five consumer pages while the shipped
- * command was a Node program reading three node modules, so the branch documented a dependency
- * Arena does not have, and nothing on the board could see it. A registry runner may not fetch
- * the foreign `arena` package either. */
+ * consumer page names a peer at a version the manifests do not declare, or a node engine the
+ * packages do not; no page hands a reader a runner without an alternative beside it, since bunx
+ * was once written into five pages while the shipped command was a Node program; and no page
+ * runs `arena` through a registry runner that would download the foreign package of that name. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -118,20 +115,27 @@ export function runnerProblems(rel: string, source: string) {
   return problems;
 }
 
-const REGISTRY_RUNNERS = /\b(npx|bunx|npm exec)((?:\s+--?[\w-]+(?:=\S+)?)*(?:\s+--)?)\s+arena(?![\w@/.-])/g;
-const ALWAYS_FETCHING = /\b(?:pnpm|yarn) dlx\s+(?:--?[\w-]+(?:=\S+)?\s+)*arena(?![\w@/.-])/;
-const REFUSES_INSTALL = /(?:^|\s)--(?:no-install|no)(?=\s|$)/;
+const REGISTRY_RUNNERS = new RegExp(
+  '\\b(npx|bunx|npm\\s+exec|npm\\s+x|bun\\s+x)((?:\\s+--?[\\w-]+(?:=\\S+)?)*(?:\\s+--)?)'
+  + '\\s+["\']?arena(?:@[^\\s"\'`]*)?(?![\\w/-]|\\.\\w)', 'g');
+const ALWAYS_FETCHING = /\b(?:pnpm|yarn) dlx\s+(?:--?[\w-]+(?:=\S+)?\s+)*["']?arena(?:@[^\s"'`]*)?(?![\w/-]|\.\w)/;
+const REFUSES_INSTALL = /(?:^|\s)--no-install(?=\s|$)/;
+const REFUSES_BY_NO = /(?:^|\s)--no(?=\s|$)/;
+
+function refusesInstall(runner: string, flags: string) {
+  return REFUSES_INSTALL.test(flags) || (!/^(?:bunx|bun\s+x)$/.test(runner) && REFUSES_BY_NO.test(flags));
+}
 
 export function registryRunnerProblems(rel: string, source: string) {
   const problems = [];
   for (const line of source.split('\n')) {
     const fetching = ALWAYS_FETCHING.test(line)
-      || [...line.matchAll(REGISTRY_RUNNERS)].some((match) => !REFUSES_INSTALL.test(match[2] ?? ''));
+      || [...line.matchAll(REGISTRY_RUNNERS)].some((match) => !refusesInstall(match[1] ?? '', match[2] ?? ''));
     if (!fetching) continue;
     problems.push(
       `${rel}: runs \`arena\` through a registry runner that would download a package, and the `
       + 'registry holds a different `arena`, so a reader who runs the line executes a stranger\'s '
-      + 'code and not this command. Pass --no-install (npx, npm exec: --no) so the runner takes '
+      + 'code and not this command. Pass --no-install (npx and npm exec also take --no) so the runner takes '
       + 'the installed bin or stops, or name pnpm exec, yarn or the bare command, since pnpm dlx '
       + `and yarn dlx always download. Line: ${JSON.stringify(line.trim())}`,
     );
