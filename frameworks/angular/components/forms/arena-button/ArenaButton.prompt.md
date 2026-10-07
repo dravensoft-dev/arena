@@ -6,8 +6,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 <arena-button class="arena-emphasis-secondary arena-size-sm">Cancel</arena-button>
 <arena-button destructive icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
 <arena-button iconRight="ph-bold ph-caret-down" class="arena-emphasis-ghost">More</arena-button>
-<arena-button loading>Deploying</arena-button>
-<arena-button type="submit" form="project-form" class="arena-fill">Create project</arena-button>
+<arena-button loading class="arena-emphasis-secondary">Deploying</arena-button>
+<arena-button type="submit" form="project-form" class="arena-emphasis-secondary arena-fill">Create project</arena-button>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaButton.json. Edit the contract, not this table. -->
