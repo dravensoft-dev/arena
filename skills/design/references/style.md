@@ -125,6 +125,41 @@ layout unstated, which reads on the screen as a bug.
 `pad-surface`, `pad-control-x` and `pad-control-y` are kernel roles. The option roles of those are `size-<option>-control-pad-x` and `elevation-<option>-shadow`. Move them by answering them in your style plugin, never by a rule against a component. The cut is whole:
 between is yours and comes from here, inside is the kernel's and comes from [`style-kernel.md`](./style-kernel.md).
 
+## Where does my spacing and sizing go?
+
+**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.** Arena draws no outer margin on anything. A component takes a vocabulary class and no `style`. The only route into an Arena element's own box is a decision the vocabulary names.
+
+Write the rule the same way in both layers. A component's own element is Arena's, and what it renders is free to change. A component that wraps, or that renders none, owes you no warning.
+
+### What does that mean in React?
+
+React renders the real element in almost every case, so a `.row > * { ... }` rule of yours does reach it. `ArenaTabs` is the exception that makes the rule worth stating. The component returns a fragment and puts no element of its own in the DOM. A rule written against it matches the tablist and the panels separately, or nothing. Wrap it, as you wrap anything else whose layout is yours.
+
+### What does that mean in Angular?
+
+`<arena-button>`, `<arena-card>` and `<arena-tabs>` take their host out of layout with `display: contents`. Each has a real root that must be a `<button>`, an `<a>` or a `<div role="tablist">`. That host carries no box. A `margin`, a `flex`, a `min-width` or a `.row > * { ... }` rule aimed at one of them is discarded and nothing reports it. The rule parses and the selector matches. No box exists for the declaration to land on.
+
+Which components do this moves between releases. Write the rule above everywhere and do not check it component by component.
+
+**Your own routed components need the same declaration, for the mirror-image reason.** Angular puts your component's element between `<router-outlet>` and your content. A `gap` on the container around the outlet reaches that one element and stops there.
+
+```ts
+@Component({
+  selector: 'app-overview',
+  host: { style: 'display: contents' },   // without this, the parent's gap stops here
+  template: `<arena-page-head ... /><arena-grid ... />`,
+})
+export class Overview {}
+```
+
+With it, your sections are children of the container again and the gap reaches each of them. Carrying the layout class on the host works as well. Either beats finding out as a page whose spacing collapsed everywhere at once with nothing in the stylesheet to blame.
+
+**`<router-outlet>` is a flex item too, and it draws nothing.** The routed component is inserted as its sibling. The outlet is an empty box that still takes a slot in your stack and spends one whole gap of it. Every page is pushed down by one step. `router-outlet { display: none }` in your global stylesheet ends it.
+
+### What do I do when I wrap a component to size it?
+
+Give the wrapper a display. The wrapper is the flex or grid item now, so it is what stretches. A component inside it as a plain block does not grow with it. The width lands and the height does not. `display: grid` on a wrapper with one child passes the full cell to that child.
+
 ## Density
 
 **`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`.** The first re-densifies the controls. The second grows them to a 48px touch target. A container wearing both gets `.arena-comfortable`, as the vocabulary page states. Each re-answers the control and row sizes and nothing else. The rhythm above does not re-densify, so the air between two components stays where you spent it.

@@ -49,9 +49,41 @@ canonical and the `og:url` beside it both appear.
 means and gains the suffix and the description beside it, so nothing already written gets rewritten
 to suit Arena.
 
-The exports carrying all three, with what each one takes, are on your package's own page:
-[`../../../frameworks/angular/PACKAGE.md`](../../../frameworks/angular/PACKAGE.md), under the
-heading about the `<head>`. Open it when the answer is yes.
+The exports that carry all three are in the next section. Open it when the answer is yes.
+
+## What does the Angular head entry point export?
+
+`provideArenaMetadata()` is the one thing the Angular package does not ship from its root. The writer lives at `@dravensoft/arena-angular/metadata`, because reaching it means reaching `@angular/router`. That router is an optional peer. A project that never imports the subpath never installs it, and nothing else in the package moves.
+
+```ts
+import { provideArenaMetadata, arenaRouteMeta } from '@dravensoft/arena-angular/metadata';
+
+bootstrapApplication(App, {
+  providers: [
+    provideRouter(routes),
+    provideArenaMetadata({ suffix: 'Andina', origin: 'https://andina.example', siteName: 'Andina' }),
+  ],
+});
+
+export const routes: Routes = [
+  { path: 'orders', title: 'Orders', component: Orders,
+    data: arenaRouteMeta({ description: 'Every order in the system.', robots: 'index,follow' }) },
+  { path: 'cash', title: 'Cash', component: Cash },
+];
+```
+
+The writer composes on Angular's own `title:` through the `TitleStrategy` that Angular defines for this. `title: 'Orders'` keeps its meaning and gains a suffix, a description, a canonical and the `og:*` pair beside it.
+
+`robots` defaults to `noindex`. The `cash` route above is private without anybody remembering to make it so. The `orders` route is public because it said so. That key on `provideArenaMetadata` moves the default for the whole application, and a route still outranks it.
+
+Without `origin` there is no canonical and no `og:url`, on purpose. An origin read off `window.location` differs between a server render and the client that hydrates it. A project that wants a canonical says where it lives. The fragment is dropped from it. A route whose canonical is not the url it was reached by says so with `canonical`.
+
+| export | what it is |
+| --- | --- |
+| `provideArenaMetadata(config?)` | the provider, returning `EnvironmentProviders` because a `TitleStrategy` is the application's and not one component's. Takes `suffix`, `separator`, `origin`, `robots`, `description`, `image` and `siteName`, each a default a route can outrank |
+| `arenaRouteMeta(meta)` | a route's own `description`, `robots`, `image`, `type` and `canonical`, under one key of the `data` that is yours. Typed, because `Route.data` is not: written flat, a misspelled `descripton` is a metadatum that never appears and nothing that fails. A deeper route wins a key and keeps what it did not name, so a layout route sets what its section shares |
+| `ArenaMetadataService` | the writer itself, one method, `apply(page)`. Call it for a page whose metadata is not a fact about the route: a detail screen described by the record it just loaded |
+| `ArenaTitleStrategy` | the strategy the provider installs, exported so one of your own extends it rather than replaces it |
 
 ## What both layers publish
 
