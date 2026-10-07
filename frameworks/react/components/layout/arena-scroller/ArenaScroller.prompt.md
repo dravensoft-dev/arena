@@ -27,7 +27,7 @@ The honest carousel: a row that scrolls, with no arrows pretending to be a slide
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`scrollable-region`).
 <!-- @keys end -->
 
 **Nothing moves on its own.** `snap` and `flow` both describe where a scroll SETTLES, not anything

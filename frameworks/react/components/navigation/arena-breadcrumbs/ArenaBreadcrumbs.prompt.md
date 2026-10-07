@@ -29,7 +29,7 @@ Breadcrumb navigation (H3). Gives an explicit return path when the hierarchy is 
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`navigation`).
 <!-- @keys end -->
 
 `ariaLabel` names the landmark and is **required**, throwing when absent. A constant like

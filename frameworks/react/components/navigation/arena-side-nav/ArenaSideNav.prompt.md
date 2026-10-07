@@ -35,7 +35,7 @@ the same shape as `ArenaTable`/`ArenaTableRow` and `ArenaRadioGroup`/`ArenaRadio
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`navigation`).
 <!-- @keys end -->
 
 An item's click reports `onNav(id)` -- the activated item's `id`, with no DOM event.

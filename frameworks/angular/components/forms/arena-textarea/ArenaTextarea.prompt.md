@@ -49,7 +49,7 @@ a real `<textarea>`, named by a real `<label for>`.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`textbox`).
 <!-- @keys end -->
 
 **Do / Don't**

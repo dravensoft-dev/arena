@@ -37,7 +37,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`textbox`).
 <!-- @keys end -->
 
 `onChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the

@@ -27,7 +27,7 @@ Jumps between pages of a large set, the companion to a table or a long list. The
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`navigation`).
 <!-- @keys end -->
 
 `page`, `pageCount` and `ariaLabel` are all required, and the last two are **guarded at

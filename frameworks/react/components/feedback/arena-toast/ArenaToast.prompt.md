@@ -29,7 +29,7 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`alert`, `status`).
 <!-- @keys end -->
 
 The action is a label and an event, never one object. An object member is pure data with known fields, and a callback is not data. `ArenaAlert` takes the same pair for the same reason.

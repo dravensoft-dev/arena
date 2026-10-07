@@ -24,7 +24,7 @@ Jumps between pages of a large set (accompanies `ArenaTable` or long lists). Col
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`navigation`).
 <!-- @keys end -->
 
 `page` and `pageCount` are both required and both throw when absent. Neither has

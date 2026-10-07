@@ -27,7 +27,7 @@ something to override; see the table below.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`status`).
 <!-- @keys end -->
 
 | shape | `--arena-skeleton-width` | `--arena-skeleton-height` | `--arena-skeleton-radius` |

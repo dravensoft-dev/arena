@@ -35,7 +35,7 @@ Persistent message on the page (status notice, system condition, context). Stays
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`alert`, `status`).
 <!-- @keys end -->
 
 **Do / Don't**

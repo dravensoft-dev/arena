@@ -57,7 +57,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`textbox`).
 <!-- @keys end -->
 
 **`validate` is the one member that takes a function.** You supply it, the component calls it on

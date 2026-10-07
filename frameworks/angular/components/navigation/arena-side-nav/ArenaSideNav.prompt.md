@@ -35,7 +35,7 @@ the accessible name and the column layout all sit on it.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`navigation`).
 <!-- @keys end -->
 
 `ariaLabel` is **required and guarded at runtime**, because `input.required` is a compile-time

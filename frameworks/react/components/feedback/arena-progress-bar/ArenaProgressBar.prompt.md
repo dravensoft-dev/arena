@@ -47,7 +47,7 @@ here decides what it draws from what you projected.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`progressbar`).
 <!-- @keys end -->
 
 `progressPercentage` is 0–100, clamped and rounded; it is not a form control's `value`,

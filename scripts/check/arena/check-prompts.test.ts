@@ -16,10 +16,11 @@ test('every committed prompt carries the region its contract emits', () => {
 });
 
 test('the gate read a real corpus rather than an empty one', () => {
-  const { held, anchored, scanned } = promptProblems();
+  const { held, anchored, keyed, scanned } = promptProblems();
   assert.ok(scanned > 100, `reached only ${scanned} prompt(s)`);
   assert.equal(held, scanned, 'a prompt was skipped, so a clean pass says less than it looks');
   assert.equal(anchored, scanned, 'a prompt points nowhere, and it is the reader\'s last stop');
+  assert.equal(keyed, scanned, 'a prompt\'s @keys region was not held, so the summary would overstate the gate');
 });
 
 test('a file with no region is reported for each, since each answers its own question', () => {

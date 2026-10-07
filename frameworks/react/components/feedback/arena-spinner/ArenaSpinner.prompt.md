@@ -25,7 +25,7 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`progressbar`).
 <!-- @keys end -->
 
 **Do**

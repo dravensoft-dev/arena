@@ -34,7 +34,7 @@ exposed as a mono chip.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`alert`).
 <!-- @keys end -->
 
 **Do / Don't**

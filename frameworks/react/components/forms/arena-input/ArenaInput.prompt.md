@@ -47,7 +47,7 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`textbox`).
 <!-- @keys end -->
 
 Rules: validates on `blur` by default; use `validateOn="change"` only for live feedback (passwords, availability). Mark required fields with `required`.

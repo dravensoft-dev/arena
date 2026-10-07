@@ -43,7 +43,7 @@ So the component binds the `select` pattern rather than `combobox`, and `aria-ex
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`select`).
 <!-- @keys end -->
 
 **Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is a form whose fields must report a failure the same way. Otherwise it gets validated by hand or not at all. `hint` is a line of help, `error` is the controlled message, and `valid` forces the green state. The state order is the same normative one: **error, then focus, then valid, then neutral**. An errored field stays crimson while it has focus. Arena names the note to the control with

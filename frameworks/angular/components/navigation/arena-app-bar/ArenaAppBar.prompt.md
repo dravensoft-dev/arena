@@ -36,7 +36,7 @@ banner landmark has to be that element.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`banner`).
 <!-- @keys end -->
 
 **The three slots are attributes**, `brand`, `nav` and `actions`, projected through the marker

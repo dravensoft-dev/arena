@@ -1,9 +1,10 @@
-/* Writes three regions into the component's own prompt, between markers this script owns. @api is
+/* Writes four regions into the component's own prompt, between markers this script owns. @api is
  * every contracted member as a table, so a wrong cell is fixed in the contract. @answers names the
- * families its own manifest answers, linked to their rows. @rules points back at the router, since
+ * families its own manifest answers, linked to their rows. @keys names the pattern its binding binds
+ * and the keys it requires. @rules points back at the router, since
  * a prompt is what an agent rereads deepest into a session; it is owed to every prompt and all sit
  * at one depth, so ROUTER_FROM_PROMPT is a constant. The prose between stays hand-written, and
- * check:prompts holds all three regions equal to a fresh emit. */
+ * check:prompts holds all four regions equal to a fresh emit. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -277,9 +278,11 @@ export function renderKeysRegion(binding: Binding | null, patterns: Pattern | Pa
   const known = new Map((Array.isArray(patterns) ? patterns : patterns ? [patterns] : []).map((one) => [one.name, one]));
   const lines = new Map<string, string>();
   const named = new Set<string>();
+  const bound = new Set<string>();
   for (const one of binding ? casesOf(binding) : []) {
     const pattern = known.get(one.pattern);
     if (!pattern) continue;
+    if (pattern.name !== 'none') bound.add(`\`${pattern.name}\``);
     if (Object.keys(pattern.requires).some((key) => key.startsWith(KEY))) named.add(pattern.name);
     const excepted = new Set((one.exceptions ?? []).map((entry) => entry.requirement));
     for (const [key, what] of Object.entries(pattern.requires)) {
@@ -297,7 +300,7 @@ export function renderKeysRegion(binding: Binding | null, patterns: Pattern | Pa
   }
   const links = [...named].map((name) => `[\`${name}\`](${BEHAVIOUR_FROM_PROMPT}/${name}.json)`);
   const body = lines.size === 0
-    ? '**Keys:** none.'
+    ? `**Keys:** none${bound.size ? ` (${[...bound].join(', ')})` : ''}.`
     : [`**Keys**, from ${links.length ? links.join(' and ') : 'its binding'}:`, ...lines.values()].join('\n');
   return [KEYS_OPEN, body, KEYS_CLOSE_LINE].join('\n');
 }

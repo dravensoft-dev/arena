@@ -33,7 +33,7 @@ because a contentinfo landmark has to be that element.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`contentinfo`).
 <!-- @keys end -->
 
 **One child is one column**, and the count comes from the room rather than from a breakpoint anyone

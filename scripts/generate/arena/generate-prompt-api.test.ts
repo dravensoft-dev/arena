@@ -215,7 +215,7 @@ test('an excepted key is left out and a keyboard addition is listed with its fir
 
 test('a pattern with no key, and no binding at all, each say so in one line', () => {
   assert.match(renderKeysRegion({ pattern: 'status' }, { name: 'status', requires: { 'roles.status': 'status' } }),
-    /\*\*Keys:\*\* none\./);
+    /\*\*Keys:\*\* none \(`status`\)\./);
   assert.match(renderKeysRegion(null, null), /\*\*Keys:\*\* none\./);
 });
 

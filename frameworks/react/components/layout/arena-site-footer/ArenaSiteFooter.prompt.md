@@ -26,7 +26,7 @@ The band across the bottom of every screen: what a page says about itself once i
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`contentinfo`).
 <!-- @keys end -->
 
 **One child is one column**, and the count comes from the room rather than from a breakpoint

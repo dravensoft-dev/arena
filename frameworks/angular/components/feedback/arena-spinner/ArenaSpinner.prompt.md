@@ -26,7 +26,7 @@ and the accessible name all sit on it, with the spinning ring a decorative `aria
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`progressbar`).
 <!-- @keys end -->
 
 The spinner reports **no value at all**: no `aria-valuenow`, no `aria-valuemin` and no `aria-valuemax`. A spinner is indeterminate by definition, and ARIA expresses that by omitting the value.

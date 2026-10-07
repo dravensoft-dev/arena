@@ -1,9 +1,9 @@
-/* Holds every prompt's three generated regions equal to a fresh emit. A prompt is the consumer's
+/* Holds every prompt's four generated regions equal to a fresh emit. A prompt is the consumer's
  * last stop, and the rest of it is hand-written prose no gate can judge; these are the parts
  * something can hold. @api comes from the component's contract, so a member renamed, retyped or
  * given a new default surfaces as a stale table rather than as silence, and the fix is always the
  * contract and then bun run generate:api, never the table. @answers names the families the component's manifest answers, so a family added to a manifest
- * surfaces as a stale prompt. @rules is the note pointing back at
+ * surfaces as a stale prompt. @keys names the keys the binding's pattern requires. @rules is the note pointing back at
  * the router, owed to every prompt whether contracted or not: it is the last stop's only path
  * back to the rules, and a prompt that has lost it is a page an agent can read to the end and
  * drift off. Whether a component is contracted at all is check:api's question, so an uncontracted
@@ -89,6 +89,7 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
   const problems = [];
   let held = 0;
   let anchored = 0;
+  let keyed = 0;
   let uncontracted = 0;
   const families = readFamilies(base);
   const manifests = readManifests(base);
@@ -112,7 +113,9 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
     ));
 
     const { binding, patterns } = keysOf(path, component, base);
-    problems.push(...keysProblem(path, source, binding, patterns));
+    const keys = keysProblem(path, source, binding, patterns);
+    if (keys.length === 0) keyed += 1;
+    problems.push(...keys);
 
     const contract = loadContract(component, base);
     if (!contract) { uncontracted += 1; continue; }
@@ -133,7 +136,7 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
   }
 
   return {
-    problems, held, anchored, uncontracted, scanned: prompts.length,
+    problems, held, anchored, keyed, uncontracted, scanned: prompts.length,
   };
 }
 
@@ -145,7 +148,7 @@ export function zeroScanProblems(scanned: number) {
 
 function main() {
   const {
-    problems, held, anchored, uncontracted, scanned,
+    problems, held, anchored, keyed, uncontracted, scanned,
   } = promptProblems();
   const all = [...zeroScanProblems(scanned), ...problems];
   if (all.length > 0) {
@@ -155,7 +158,7 @@ function main() {
   }
   console.log(
     `check-prompts: ${held} prompt(s) carry an @api region equal to their contract, `
-    + `${anchored} point back at the router`
+    + `${keyed} carry an @keys region equal to their binding, ${anchored} point back at the router`
     + (uncontracted > 0 ? `; ${uncontracted} name a component no contract covers` : ''),
   );
 }

@@ -38,7 +38,7 @@ uppercase mono action; `dismissible` adds the single `ph-x` close control.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`alert`, `status`).
 <!-- @keys end -->
 
 **Do / Don't**

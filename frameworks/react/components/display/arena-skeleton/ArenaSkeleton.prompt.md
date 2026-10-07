@@ -30,7 +30,7 @@ Loading placeholder for asynchronous data (H1). Use it in tables and dashboards 
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`status`).
 <!-- @keys end -->
 
 **Do / Don't**

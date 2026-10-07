@@ -42,7 +42,7 @@ a number. Turn the figure off yourself when you fill it, because the two share t
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`progressbar`).
 <!-- @keys end -->
 
 `progressPercentage` is **clamped to 0 through 100 and rounded**, so a caller cannot report 143% or a fraction. One number drives `aria-valuenow` and the fill's width, which is the point. What a sighted user sees and what a screen reader is told cannot drift apart.

@@ -35,7 +35,7 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`select`).
 <!-- @keys end -->
 
 `options` takes **only** `ArenaSelectOption` objects. The bare-string form, `options={['Production','Staging']}`, is gone. `(string | ArenaSelectOption)[]` is a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.

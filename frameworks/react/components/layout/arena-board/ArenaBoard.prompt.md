@@ -37,7 +37,7 @@ frame, the column and its head, and stops. `ArenaCard` is a good card; so is you
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`scrollable-region`).
 <!-- @keys end -->
 
 **Do / Don't**

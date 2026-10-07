@@ -29,7 +29,7 @@ slideshow. Standalone, `OnPush`, signal I/O. The host **is** the scrolling regio
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none.
+**Keys:** none (`scrollable-region`).
 <!-- @keys end -->
 
 **Nothing moves on its own.** `snap` and `flow` both describe where a scroll SETTLES, not anything
