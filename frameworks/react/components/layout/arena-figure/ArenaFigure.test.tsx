@@ -8,7 +8,6 @@ import React from 'react';
 import { ArenaFigure } from './ArenaFigure.tsx';
 import manifest from './ArenaFigure.classes.generated.ts';
 import source from './ArenaFigure.manifest.generated.ts';
-import family from '../../../../tailwind/vocabulary/arena-ratio/Ratio.family.json' with { type: 'json' };
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 
@@ -27,9 +26,11 @@ test('the frame carries the ratio channel on its class and no inline shape', () 
   const html = render(<ArenaFigure />);
   assert.doesNotMatch(html, /style="/);
   assert.match(html, new RegExp(`class="${manifest.slots.frame}[" ]`));
-  const [, channel, value] = /^\[(--[\w-]+):(.+)\]$/.exec(family.variants[family.default as keyof typeof family.variants]) ?? [];
-  assert.ok(channel && value);
-  assert.ok(source.slots.frame.split(' ').includes(`aspect-[var(${channel},var(${family.axis},${value}))]`));
+  const [family] = source.answers;
+  const axis = `--arena-${family}`;
+  const token = source.slots.frame.split(' ').find((name) => name.includes(`var(${axis},`));
+  assert.ok(token, `the frame slot reads no ${axis}`);
+  assert.match(token, new RegExp(`^aspect-\\[var\\(--[\\w-]+,var\\(${axis},var\\(--aspect-media\\)\\)\\)\\]$`));
 });
 
 test('an option class lands on the figure root', () => {

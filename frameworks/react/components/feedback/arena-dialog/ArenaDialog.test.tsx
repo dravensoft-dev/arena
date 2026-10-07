@@ -4,7 +4,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaDialog } from './ArenaDialog.tsx';
 import manifest from './ArenaDialog.manifest.generated.ts';
-import family from '../../../../tailwind/vocabulary/arena-dialog-width/DialogWidth.family.json' with { type: 'json' };
 
 const TITLE = 'Delete project';
 
@@ -64,10 +63,11 @@ test('the panel carries no inline width, because the width is a family its class
   assert.doesNotMatch(html, /style="/, 'a width written inline would beat the class and the property');
 });
 
-test('the panel slot reads the family channel, then its axis, then the default option\'s value', () => {
-  const [, channel, value] = /^\[(--[\w-]+):(.+)\]$/.exec(family.variants[family.default as keyof typeof family.variants]) ?? [];
-  assert.ok(channel && value);
-  assert.ok(manifest.slots.panel.split(' ').includes(`w-[var(${channel},var(${family.axis},${value}))]`));
+test('the panel slot reads the width through the channel of the family the dialog answers', () => {
+  const axis = `--arena-${manifest.answers.find((name) => name === 'dialog-width')}`;
+  const token = manifest.slots.panel.split(' ').find((name) => name.includes(`var(${axis},`));
+  assert.ok(token, `the panel slot reads no ${axis}`);
+  assert.match(token, new RegExp(`^w-\\[var\\(--[\\w-]+,var\\(${axis},var\\(--dialog-width-md\\)\\)\\)\\]$`));
 });
 
 test('open governs whether anything renders at all', () => {
