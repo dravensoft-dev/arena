@@ -36,7 +36,7 @@ the authority on what each package published.
 
 ## Scope
 
-Arena ships components, design token contracts, and the `arena-to-prod` command
+Arena ships components, design token contracts, and the `arena` command
 that turns a consumer's `arena.config.json` into the stylesheet a package cannot
 carry. That command reads a project's configuration and its source tree and
 writes CSS, so anything it can be made to read or write outside its output is in

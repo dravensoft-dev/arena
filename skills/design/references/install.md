@@ -15,7 +15,7 @@ npm i @dravensoft/arena-angular      # or: pnpm add / yarn add / bun add
 
 Each of these managers installs Arena. Under pnpm the layout is strict, and every peer is declared rather than assumed. The command that ships with the package resolves the icon font through the symlinked store like any other dependency. No hoisting flag is needed.
 
-The package manager brings down whichever peers the project lacks. The package declares `engines: { node: ">=22" }`, the oldest line Node still supports. The `arena-to-prod` command is plain JavaScript over `node:fs`, `node:path` and `node:url`. A project on a supported Node installs without an engine warning.
+The package manager brings down whichever peers the project lacks. The package declares `engines: { node: ">=22" }`, the oldest line Node still supports. The `arena` command is plain JavaScript over `node:fs`, `node:path` and `node:url`. A project on a supported Node installs without an engine warning.
 
 ## What comes down with the React package?
 
@@ -39,11 +39,11 @@ You do not need to run Tailwind. Every component's CSS ships compiled, and one `
 
 An icon is a class name and never an element. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`. The component renders it.
 
-The stylesheet that turns those classes into glyphs is the subset that `arena-to-prod` writes. Phosphor's own stylesheet is not the one Arena reads. [`cli.md`](./cli.md) says how the subset is built.
+The stylesheet that turns those classes into glyphs is the sheet `arena build` writes for the glyphs you draw. Phosphor's own stylesheet is not the one Arena reads. [`cli.md`](./cli.md) says how the sheet is built.
 
 ## How do I import the stylesheets in React?
 
-Run `arena-to-prod` first. The command writes two files, and a third when a style plugin of yours carries CSS. Import them last, in your entry file.
+Run `arena build` first. The command writes two files, and a third when a style plugin of yours carries CSS. Import them last, in your entry file.
 
 ```js
 import './icons.generated.css';

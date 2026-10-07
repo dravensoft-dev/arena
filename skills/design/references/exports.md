@@ -114,7 +114,7 @@ Each marker directive stands behind one attribute, and none is optional.
 
 **Put the marker your template writes in that component's own `imports`.** A component detects a projected slot with a `contentChild` on the directive. An un-imported marker leaves the query null and the slot silently unrendered. There is no error and no template diagnostic.
 
-A bare `footer` attribute on a `<div>` is valid HTML whether or not a directive matches it. The component cannot tell an un-imported marker from an unfilled slot. Nothing can warn you at compile time. `arena-to-prod` reports the marker on every pass, and [`cli.md`](./cli.md) says how.
+A bare `footer` attribute on a `<div>` is valid HTML whether or not a directive matches it. The component cannot tell an un-imported marker from an unfilled slot. Nothing can warn you at compile time. `arena check` reports the marker on every run, and [`cli.md`](./cli.md) says how.
 
 ## How do I bind Angular reactive forms to Arena controls?
 

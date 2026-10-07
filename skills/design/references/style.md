@@ -31,7 +31,7 @@ the table's own layout. A table nested in a cell reads the outer property under 
 it takes another key.
 
 **Put no other class on an Arena component.** A class that is not in the vocabulary does nothing,
-and `arena-to-prod --audit` reports it. A member that does not exist on a component is a type error
+and `arena audit` reports it. A member that does not exist on a component is a type error
 in React and a template compile error in Angular.
 
 ## The column the page sits in

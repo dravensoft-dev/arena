@@ -223,7 +223,7 @@ This is the half that has to be written down rather than discovered.
 **A floor expressed as a token value is a floor over the token half only.** With plugin CSS open,
 the prohibition on gradients is the clear case: it is a floor because a fill whose colour is a
 range turns contrast into a range, and **a plugin paints the gradient from its own stylesheet
-whatever the token tier says**. It stops being a floor and becomes a report. `--audit` names it in
+whatever the token tier says**. It stops being a floor and becomes a report. `arena audit` names it in
 an application source and says nothing about it inside a declared plugin directory, because
 `--strict` may not refuse what this document permits.
 
@@ -237,11 +237,11 @@ an application source and says nothing about it inside a declared plugin directo
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
-| the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
-| a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
-| no gradient | `--audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
-| a colour assigned through one of Arena's own aliases rather than a role | `--audit`, in the plugin scope only | a consumer's style plugins |
-| a declaration restating what the part's slot already paints | `--audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
+| the compiled `arena-` class name is output rather than contract | `arena audit`, in both scopes | a consumer's sources |
+| a raw colour or a bare pixel length where a token belongs | `arena audit`, in both scopes | a consumer's sources |
+| no gradient | `arena audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
+| a colour assigned through one of Arena's own aliases rather than a role | `arena audit`, in the plugin scope only | a consumer's style plugins |
+| a declaration restating what the part's slot already paints | `arena audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
 
 **A brand whose mark IS a gradient is the case that split does not cover.** The scope reads the
 directory a line sits in, which is the right question for a part hook and the wrong one for a

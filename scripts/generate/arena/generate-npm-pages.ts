@@ -180,7 +180,7 @@ What each part means:
   your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one that does not. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
-  gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`--audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
+  gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
   the gradient are still reported, since they are the skin. The key replaces an \`arena-audit allow\` marker, which silences every rule on its line and is repeated wherever the mark is drawn.
 
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and

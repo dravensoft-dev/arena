@@ -59,7 +59,7 @@ The tool reads text and not files. A screen that is still in the conversation ca
 
 `arena://rules` names every rule of the language and says which ones the tool reports. For each of the rest, the resource says why a source text cannot show the rule.
 
-A style plugin of your own is judged by `arena-to-prod --audit` in the framework package. That command reads your config and knows which directories are plugins.
+A style plugin of your own is judged by `arena audit` in the framework package. That command reads your config and knows which directories are plugins.
 
 ## What if the server and my package differ in version?
 

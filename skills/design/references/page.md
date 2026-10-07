@@ -77,7 +77,7 @@ color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)
 
 `--level-ink-body`, `--level-ink-quiet` and `--level-ink-muted` are the three, in
 [`contracts/design/colors.css`](../../../contracts/design/colors.css). The three are floors rather than
-constants. `arena-to-prod` raises one for a palette whose ink has too little room to clear its
+constants. `arena build` raises one for a palette whose ink has too little room to clear its
 contrast bar. So a percentage of your own is the one value on this page that cannot follow the
 palette it was written against.
 

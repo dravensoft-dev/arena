@@ -186,7 +186,7 @@ export function wrapped(text: string, indent = '  ', at = WRAP_AT) {
   return lines.join('\n');
 }
 
-export const REPORTED_MARK = '**`--audit` reports this one.**';
+export const REPORTED_MARK = '**`arena audit` reports this one.**';
 
 export function renderBullet(rule: LanguageRule) {
   const said = [`- **${rule.short}**`, rule.body, rule.held === null ? '' : REPORTED_MARK];

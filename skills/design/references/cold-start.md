@@ -138,7 +138,7 @@ anything:
   not answer is a property that disappears rather than a plainer look.
 - Read its `plugin.css`, if it has one, to see which decisions the project paints by hand. Those decisions are the ones no role reaches, and they are the ones your new screen has to
   keep.
-- Run `arena-to-prod --audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
+- Run `arena audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
   source text can show.
 
 Say what you found. A project whose plugin answers every role needs no style plugin work, and
@@ -259,8 +259,8 @@ Then, in this order, because each file is read by the next.
   then depth, and leave the colour roles at the answers
   [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
 - `design/<name>/plugin.css`, only for a decision no role reaches.
-- Run `arena-to-prod`, which writes the stylesheet no package can carry and subsets the icon font
-  to the glyphs your screens draw. Import what it wrote.
+- Run `arena build`, which writes the stylesheet no package can carry and the icon sheet for
+  the glyphs your screens draw. Import what it wrote.
 - Then the first screen, through the per-screen route in [`../SKILL.md`](../SKILL.md).
 
 The identity document from node 5 is what each of these is checked against, and it stays in the

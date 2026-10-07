@@ -99,33 +99,33 @@ source text cannot show, is `arena://rules` on the MCP server.
   channel triple in `rgb()` or `oklch()`, and a colour's own name are the same defect written
   three ways. Read a value through its custom property, as `var(--crimson)` or `var(--sp-4)`.
   Derive one with `calc()` or `clamp()` over a token, or mix one with `color-mix()` over a token.
-  **`--audit` reports this one.**
+  **`arena audit` reports this one.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components should all take it. Write no rule targeting a
   component: it renders `arena-<component>__<slot>` class names, which are compiler output that no
   contract names, and a slot may be renamed in any release. Every class you may write is on the
-  vocabulary page. Content you draw yourself is yours, styled through the same tokens. **`--audit`
-  reports this one.**
+  vocabulary page. Content you draw yourself is yours, styled through the same tokens. **`arena
+  audit` reports this one.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
 - **Danger is outline, never filled.** The background stays transparent, and the border and the
   content read `--danger`. Arena draws one filled danger surface, and it is the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
-  tint. **`--audit` reports this one.**
+  tint. **`arena audit` reports this one.**
 - **One primary accent per view.** Crimson is the voice, so at most one `arena-emphasis-primary`
-  action stands on a screen. Gold is distinction and focus, and never a second primary.
-  **`--audit` reports this one.**
+  action stands on a screen. Gold is distinction and focus, and never a second primary. **`arena
+  audit` reports this one.**
 - **No gradients, on any surface.** Depth comes from the `base-100` to `base-200` to `base-300`
   surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
-  one exception. **`--audit` reports this one.**
-- **No emoji, in product or in copy.** **`--audit` reports this one.**
+  one exception. **`arena audit` reports this one.**
+- **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
-  ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`--audit` reports
-  this one.**
+  ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
+  reports this one.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. The members that take one are `ArenaCard.href`, `ArenaCommand.route`,
-  `ArenaCrumb.href` and `ArenaSideNavItem.href`. **`--audit` reports this one.**
+  `ArenaCrumb.href` and `ArenaSideNavItem.href`. **`arena audit` reports this one.**
 - **An anchor Arena draws splits its activations.** A primary click with no modifier, and Enter,
   are cancelled and reported through the component's own event. Route from that handler, and
   nothing navigates twice. A modified click, a middle click and the context menu belong to the

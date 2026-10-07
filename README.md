@@ -34,7 +34,7 @@ pattern it named.
 questions about shape, space, weight and depth are Arena's; the answers are a
 style plugin the project writes, and the appearance Arena installs with is one
 such plugin rather than a floor under them. Palettes and fonts sit in an
-`arena.config.json`, which the `arena-to-prod` command each package ships turns
+`arena.config.json`, which the `arena` command each package ships turns
 into the one stylesheet a package cannot carry: **Arena carries the language and
 never the skin**, and none of its own colours reach your build.
 
@@ -103,8 +103,9 @@ bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 command, because Arena renders icon class names and never SVG; the layer page
 below says which peers each package declares.
 
-Then write `arena.config.json`, run `npx arena-to-prod` (or `bunx`, or
-`pnpm exec`), and import what it writes.
+Then run `npx --no-install arena init` (or `pnpm exec arena init`, or `bunx --no-install arena init`),
+which copies an example `arena.config.json` and wires the build scripts, and import what
+`arena build` writes.
 [`skills/design/references/install.md`](./skills/design/references/install.md) is where it
 starts, for React and for Angular, and it links the config and the command. The pages npm shows are an introduction and a table of questions
 that link the same references.
