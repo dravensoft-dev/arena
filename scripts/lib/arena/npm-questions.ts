@@ -77,7 +77,7 @@ const layerSections = (layer: 'React' | 'Angular'): Section[] => {
       section: 'The page and the layout',
       rows: [
         row('Where does my spacing and sizing go?', 'references/style.md', 'Where does my spacing and sizing go?'),
-        row(`How do I size and space a component in ${layer}?`, 'references/style.md', `What does that mean in ${layer}?`),
+        row(`How do I size and space a component in ${layer}?`, 'references/style.md', `How do I size and space a component in ${layer}?`),
         row('What do I do when I wrap a component to size it?', 'references/style.md', 'What do I do when I wrap a component to size it?'),
         row('How wide is the page column, and how much air goes between components?', 'references/style.md', 'The column the page sits in'),
         row('What do I paint the page and my own markup with?', 'references/page.md', 'Which colour your own markup takes'),
@@ -112,9 +112,9 @@ const layerSections = (layer: 'React' | 'Angular'): Section[] => {
           row('Which sheet re-bases the CDK overlay?', 'references/stylesheets.md', 'Which sheet re-bases the Angular CDK overlay?'),
           row('Does my project need a Tailwind source for Arena?', 'references/stylesheets.md', 'Does Angular need a Tailwind `@source` for Arena?'),
         ], !react),
-        row('Does the package write my head, and does the app have to be found?', 'references/seo.md', 'Arena writes the head in one layer, and the router is why'),
+        row(react ? 'Does the package write my head?' : 'Why is the head writer a separate entry point?', 'references/seo.md', 'Which layer writes the head, and why is it a separate entry point?'),
         row('Which stylesheets does the package ship?', 'references/stylesheets.md', 'The stylesheets each package ships'),
-        row('In which order do the two halves of the stylesheet import?', 'references/stylesheets.md', 'Which order do the halves import in?'),
+        row('In which order do the token layer and the component sheets import?', 'references/stylesheets.md', 'Which order do the token layer and the component sheets import in?'),
         row('What does Arena ship at all, and how much of it do I take?', 'references/surface.md', 'Everything Arena ships'),
         row('Where does Arena stop shipping, and what is left to me?', 'references/surface.md', 'Where Arena stops'),
       ],
@@ -173,6 +173,7 @@ export const NPM_QUESTIONS: Record<string, Section[]> = {
       rows: [
         row('How do I install the server?', 'references/mcp.md', 'How do I install the server?'),
         row('How do I point my editor at the server?', 'references/mcp.md', 'How do I point my editor at the server?'),
+        row('What do --layer and --payload do?', 'references/mcp.md', 'What do `--layer` and `--payload` do?'),
       ],
     },
     {
@@ -183,6 +184,13 @@ export const NPM_QUESTIONS: Record<string, Section[]> = {
         row('What does arena_check read?', 'references/mcp.md', 'What does arena_check read?'),
         row('What if the server and my package differ in version?', 'references/mcp.md', 'What if the server and my package differ in version?'),
         row('What is the Arena MCP server not?', 'references/mcp.md', 'What is the server not?'),
+      ],
+    },
+    {
+      section: 'Building with an agent',
+      rows: [
+        row('How does an agent start on Arena?', 'SKILL.md', 'Which job is this?'),
+        row('What does an agent decide before the first screen?', 'references/cold-start.md', 'Before the first screen'),
       ],
     },
     {

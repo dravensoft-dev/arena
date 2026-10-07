@@ -35,7 +35,7 @@ page npm shows holds to the same size, punctuation and comment rules as everythi
 **A page is an intro and a table of questions.** `scripts/lib/arena/npm-questions.ts` holds the
 rows, and `scripts/generate/arena/generate-npm-pages.ts` emits them into the `@shared` regions,
 each answer linking `skills/design/` at the tag of the release. The prose a consumer reads lives
-there, flat and once, with a `## React` and `## Angular` part where a topic differs by layer.
+there, flat and once, with a heading per layer where a topic differs by layer.
 A person places the markers, so where a section sits on the page stays the page's decision and
 only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit
 and every row to a file, a heading and a link from the skill.

@@ -8,7 +8,7 @@ The stylesheets are a tree, and you pick your depth. `arena.css` is all of it an
 
 | stylesheet | what it is |
 | --- | --- |
-| `css/base.css` | the browser reset and nothing of Arena's. Arena needs one: without `button, input, select, textarea { font: inherit }` a control falls back to the browser's 13.33px Arial and every control in the library is 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
+| `css/base.css` | the browser reset and nothing of Arena's. Arena needs one: without `button, input, select, textarea { font: inherit }` a control falls back to the browser's 13.33px Arial. Every control in the library is then 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
 | `css/components.css` | every component Arena draws |
 | `css/components/<name>.css` | one component, named for its sheet as `arena-button.css` or `arena-stat-card.css`. Each imports the prelude it needs itself, so importing one alone is safe |
 | `css/hues/<name>.css` | one component's hue sheet, imported by that component's sheet, writing `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and `--arena-hue-fill-soft` from the component's `data-arena` values, or unconditionally on a slot whose hue no value varies |
@@ -19,9 +19,9 @@ The stylesheets are a tree, and you pick your depth. `arena.css` is all of it an
 
 <!-- @shared sheets end -->
 
-## Which order do the halves import in?
+## Which order do the token layer and the component sheets import in?
 
-Importing the halves in place of `arena.css` makes the order yours. Arena's components have to come before your own rules if you want yours to win.
+The two halves are the token layer and `css/components.css`. Importing them in place of `arena.css` makes the order yours. Arena's components have to come before your own rules if you want yours to win.
 
 ## Which sheet re-bases the Angular CDK overlay?
 

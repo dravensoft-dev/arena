@@ -9,7 +9,7 @@ Declare the palettes in `arena.config.json` first. [`config.md`](./config.md) co
 Call `initArenaTheme` once with the palettes your config declares. Read and set the choice with `useArenaTheme`.
 
 ```tsx
-import { initArenaTheme, useArenaTheme } from '@dravensoft/arena-react';
+import { ArenaButton, initArenaTheme, useArenaTheme } from '@dravensoft/arena-react';
 
 initArenaTheme({
   palettes: [

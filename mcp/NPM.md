@@ -17,6 +17,7 @@ installed.
 | --- | --- |
 | How do I install the server? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#how-do-i-install-the-server) |
 | How do I point my editor at the server? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#how-do-i-point-my-editor-at-the-server) |
+| What do --layer and --payload do? | [mcp.md → What do `--layer` and `--payload` do?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#what-do---layer-and---payload-do) |
 
 ## What the server serves
 
@@ -27,6 +28,13 @@ installed.
 | What does arena_check read? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#what-does-arena_check-read) |
 | What if the server and my package differ in version? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#what-if-the-server-and-my-package-differ-in-version) |
 | What is the Arena MCP server not? | [mcp.md → What is the server not?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#what-is-the-server-not) |
+
+## Building with an agent
+
+| Question | Answer |
+| --- | --- |
+| How does an agent start on Arena? | [SKILL.md → Which job is this?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/SKILL.md#which-job-is-this) |
+| What does an agent decide before the first screen? | [cold-start.md → Before the first screen](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cold-start.md#before-the-first-screen) |
 
 ## Versions and licence
 

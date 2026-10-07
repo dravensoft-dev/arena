@@ -105,8 +105,8 @@ below says which peers each package declares.
 
 Then write `arena.config.json`, run `npx arena-to-prod` (or `bunx`, or
 `pnpm exec`), and import what it writes.
-[`skills/design/references/install.md`](./skills/design/references/install.md) is the whole of
-it, for React and for Angular. The pages npm shows are an introduction and a table of questions
+[`skills/design/references/install.md`](./skills/design/references/install.md) is where it
+starts, for React and for Angular, and it links the config and the command. The pages npm shows are an introduction and a table of questions
 that link the same references.
 
 ### Over MCP

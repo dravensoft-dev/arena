@@ -28,8 +28,8 @@ own components are held to, so what you write is held to the standard the compon
 
 ## One of those two is handed over, and the other is not
 
-**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. [`exports.md`](./exports.md) names three exports. The three are the modal contract, the tone-to-colour map for
-a status shape you draw, and the visually-hidden style object for a label the design does not
+**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. [`exports.md`](./exports.md) lists three handed over here: the modal contract and the tone-to-colour map for
+a status shape you draw. The third is the visually-hidden style object for a label the design does not
 show. Reach
 for those rather than writing a second copy, and read its export table before you reach
 for anything else: what it names is what carries a promise.

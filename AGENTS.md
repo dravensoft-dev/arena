@@ -149,7 +149,7 @@ obey are the one place that reads like an exception and is not: those are DECIDE
 different readers. A third statement, restating either, is what goes stale. **Most of the
 specification is not handed over at all**, because most of it decides values rather than binding a
 builder: a scale a component reads and a consumer never names has one home, and `skills/design/SKILL.md` is not
-it. What a consumer has to know about a value reaches them through `references/stylesheets.md`, which
+it. What a consumer has to know about a value reaches them through `skills/design/references/stylesheets.md`, which
 is where a shipped stylesheet like `css/vocabulary/<family>.css` is documented.
 
 **The question that decides the branch is who has to act on the fact**, never which directory the
@@ -157,9 +157,9 @@ code sits in. A helper under `frameworks/react/` that a consumer imports is a co
 token under `contracts/design/` that only a generator reads is a contributor one.
 
 **Anything a package ships needs a home on the consumer branch**: an exported symbol, a file
-under `css/`, a class a consumer writes. That home is `exports.md` or `stylesheets.md` in `skills/design/references/`. A layer's `PACKAGE.md` is the npm page; the layer's `INDEX.md` beside it is generated and indexes components alone. **A
-layer's `AGENTS.md` is neither**, because the router forbids reading it, so a shipped thing
-documented only there is a thing nobody can find. Derive what ships rather than trusting a list:
+under `css/`, a class a consumer writes. That home is a reference in `skills/design/references/`: `exports.md` for a symbol, `stylesheets.md` for a sheet, unless a topic owns it. A layer's `PACKAGE.md` is the npm page, and its `INDEX.md` is generated and indexes components alone. **A
+layer's `AGENTS.md` is neither**, because the router forbids reading it, so a thing
+documented only there cannot be found. Derive what ships rather than trusting a list:
 `ROOT_TS` in `scripts/build/react/build-react-package.ts`, and every `copy(` in
 `scripts/build/angular/build-angular-package.ts`.
 
@@ -167,8 +167,7 @@ documented only there is a thing nobody can find. Derive what ships rather than 
 component is that component's `.prompt.md`, in each layer's own idiom. **A consumer document
 cites no contributor one**: `check:docs` fails a prompt, or an `INDEX.md` under `frameworks/`,
 naming a path under `scripts/`, an `AGENTS.md` under `contracts/` or `frameworks/`, or
-`frameworks/PACKAGING.md`. The router is the one carve-out, since naming this branch is how it
-redirects. **Telling a consumer to import something names the package, never a path.**
+`frameworks/PACKAGING.md`. The router is the one carve-out, since it redirects by naming this branch. **Telling a consumer to import something names the package, never a path.**
 
 **A `description` in `contracts/api/` is layer-neutral prose that reaches every layer's generated
 types.** One naming a class, a package path or a single layer's idiom is emitted into the other
@@ -188,7 +187,7 @@ two copies and never reads either for meaning. Verify with
   [`scripts/check/arena/AGENTS.md`](./scripts/check/arena/AGENTS.md) says how the gate measures,
   and a document measured any other way is measured against a different number.
 - **A document links into this repository by relative path**, never by its GitHub blob address:
-  `check:docs` fails the address outside the four npm pages and the pull request template, and
+  `check:docs` fails the address outside the npm pages and the pull request template, and
   the builders rewrite what a published copy leaves behind.
 - **No document on this branch carries a literal count of anything**, only the command that
   produces it, with **one** exception: the gate table in `scripts/check/AGENTS.md`, whose numbers

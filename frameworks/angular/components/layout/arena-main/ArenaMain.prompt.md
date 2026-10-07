@@ -28,7 +28,7 @@ and `<arena-main>` itself occupies nothing.
 
 **The component draws no box, and that is the whole design.** The recipe carries one declaration, `display: block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
 whose main landmark is swapped for a plain `<div>` looks identical. Where things go stays the
-container you own, which is what `page.md` says and what this deliberately does not reopen.
+container you own, which is what [`style.md`](../../../../../skills/design/references/style.md) says under "Where does my spacing and sizing go?" and what this deliberately does not reopen.
 What it says is only what the region IS.
 
 **`.arena-shell__main` goes on a `<div>` around it, never on the component.** A shell whose growing child should be the main region cannot hand its slack to this component. The host is out of layout and the `<main>` inside is Arena's element rather than yours, so there is no element here for the class to land on. Wrap it, put the class on the wrapper, and the shell has a child that can take the slack.

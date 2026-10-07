@@ -36,6 +36,8 @@ the `homepage` of the plugin and of the marketplace entry must both be the site'
 **a package version in the README's artifact list is linked and never restated**, because a
 number written there goes stale the next time a package publishes without the plugin.
 
+**The bump moves the npm question links**, which point at the tag `v<version>`. `bun run build` rewrites them. Commit the regenerated pages, then cut the tag on that commit and never before, or every link 404s.
+
 Verify with:
 
 ```bash

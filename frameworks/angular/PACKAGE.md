@@ -18,7 +18,7 @@ See it before you install it: **https://arena.dravensoft.org** has the guideline
 and a playground for every component. Source and full documentation:
 **https://github.com/dravensoft-dev/arena**
 
-**An agent building with Arena needs the language, and this tarball does not carry it.** None of these is in here. The rules every component answers to, the usage document of each one, and the style kernel a project answers to make Arena look like its own product. What is in here is the code, and
+**An agent building with Arena needs the language, and this tarball does not carry it.** Not the rules every component answers to, not the usage document of each one, and not the style kernel that makes Arena look like a project's own product. What is in here is the code, and
 what markup of your own is held to: `contracts/behaviour/`, one file per accessibility
 pattern, and `arena.tokens.json`.
 
@@ -73,7 +73,7 @@ The package is the code. The server, the plugin and the repository are the langu
 | Question | Answer |
 | --- | --- |
 | Where does my spacing and sizing go? | [style.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#where-does-my-spacing-and-sizing-go) |
-| How do I size and space a component in Angular? | [style.md → What does that mean in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#what-does-that-mean-in-angular) |
+| How do I size and space a component in Angular? | [style.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#how-do-i-size-and-space-a-component-in-angular) |
 | What do I do when I wrap a component to size it? | [style.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#what-do-i-do-when-i-wrap-a-component-to-size-it) |
 | How wide is the page column, and how much air goes between components? | [style.md → The column the page sits in](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#the-column-the-page-sits-in) |
 | What do I paint the page and my own markup with? | [page.md → Which colour your own markup takes](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/page.md#which-colour-your-own-markup-takes) |
@@ -104,9 +104,9 @@ The package is the code. The server, the plugin and the repository are the langu
 | What does the head entry point export? | [seo.md → What does the Angular head entry point export?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#what-does-the-angular-head-entry-point-export) |
 | Which sheet re-bases the CDK overlay? | [stylesheets.md → Which sheet re-bases the Angular CDK overlay?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-sheet-re-bases-the-angular-cdk-overlay) |
 | Does my project need a Tailwind source for Arena? | [stylesheets.md → Does Angular need a Tailwind `@source` for Arena?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#does-angular-need-a-tailwind-source-for-arena) |
-| Does the package write my head, and does the app have to be found? | [seo.md → Arena writes the head in one layer, and the router is why](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#arena-writes-the-head-in-one-layer-and-the-router-is-why) |
+| Why is the head writer a separate entry point? | [seo.md → Which layer writes the head, and why is it a separate entry point?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#which-layer-writes-the-head-and-why-is-it-a-separate-entry-point) |
 | Which stylesheets does the package ship? | [stylesheets.md → The stylesheets each package ships](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#the-stylesheets-each-package-ships) |
-| In which order do the two halves of the stylesheet import? | [stylesheets.md → Which order do the halves import in?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-order-do-the-halves-import-in) |
+| In which order do the token layer and the component sheets import? | [stylesheets.md → Which order do the token layer and the component sheets import in?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-order-do-the-token-layer-and-the-component-sheets-import-in) |
 | What does Arena ship at all, and how much of it do I take? | [surface.md → Everything Arena ships](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/surface.md#everything-arena-ships) |
 | Where does Arena stop shipping, and what is left to me? | [surface.md → Where Arena stops](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/surface.md#where-arena-stops) |
 

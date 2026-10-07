@@ -17,7 +17,7 @@ Every component is imported from the package root, and its types ship with it. T
 | `initArenaTheme`, `useArenaTheme`, `getArenaTheme`, `setArenaTheme`, `toggleArenaTheme`, `arenaPalettes`, `ArenaPalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
 | `ArenaLocaleProvider`, `useArenaLocale`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
 | `useArenaContainerWidth(target?)` | `[ref, width]`: attach the ref to the box and read its outer width, the border box with no transform applied. Subtract your own padding and border when you need the content width. For a component or a panel that has to fit the room it was given. **The hook measures when React attaches the ref, before the browser paints**, then a `ResizeObserver` follows the box. A phone's first frame is already narrow, as Arena's own components are. `width` is `null` in a server render and for a box that has never had a width, such as one first drawn in a hidden parent. A box hidden later keeps its last width. Render the wide branch while `width` is `null`, which is what a server's HTML carries. Pass a `useRef` as `target`; a sealed ref is measured after the paint |
-| `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render**; a server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
+| `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render.** A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
 | `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface` |
 | `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, and `toasts` is what you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
 | `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
@@ -36,15 +36,19 @@ Every component is imported from the package root, and its types ship with it. T
 ```tsx
 const confirms = useArenaConfirm();
 const open = confirms.current;
-// …
-{open && (
-  <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
-    confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
-    destructive={open.destructive} requireText={open.requireText}
-    onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
-    {open.message}
-  </ArenaConfirmDialog>
-)}
+
+return (
+  <>
+    {open && (
+      <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
+        confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
+        destructive={open.destructive} requireText={open.requireText}
+        onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
+        {open.message}
+      </ArenaConfirmDialog>
+    )}
+  </>
+);
 ```
 
 `await confirms.ask({ title: 'Delete the project?', destructive: true })` answers `true` or `false`. One request is open at a time, in the order asked. A blank title throws at once. Every pending request answers `false` when the component that holds the queue unmounts.
@@ -57,8 +61,8 @@ Every component is standalone, so import the ones a template uses. **A parent do
 | --- | --- |
 | `provideArenaThemes`, `ArenaThemeService`, `arenaThemeClass`, `ArenaPalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
 | `provideArenaLocale`, `ARENA_LOCALE`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
-| `arenaContainerWidth(target?)` | `Signal<number \| null>` over the host's box, or the `ElementRef` you pass: its outer width, the border box with no transform, so subtract your padding and border for the content width. For a component or panel that has to fit its room. **The box is read in the render hook of the tick that first draws it, before the paint**, then a `ResizeObserver` follows it. A phone's first frame is already narrow. The width is `null` in a server render and for a box that never had a width, such as one first drawn hidden; a box hidden later keeps its last width. Render the wide branch while it is `null`, as a server's HTML does |
-| `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame; a server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
+| `arenaContainerWidth(target?)` | `Signal<number \| null>` over the host's box, or the `ElementRef` you pass: its outer width, the border box with no transform, so subtract your padding and border for the content width. For a component or panel that has to fit its room. **The box is read in the render hook of the tick that first draws it, before the paint**, then a `ResizeObserver` follows it. A phone's first frame is already narrow. The width is `null` in a server render and for a box that never had a width, such as one first drawn hidden. A box hidden later keeps its last width. Render the wide branch while it is `null`, as a server's HTML does |
+| `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame. A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
 | `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface` |
 | `ArenaToastQueue` | the notice queue, provided in root: it holds their identity and their order, and runs the clock `arena-toast-host` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, and `toasts` is the signal you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
 | `ArenaConfirmQueue` | the confirmation queue, provided in root. `ask(request)` returns a promise of the answer, `current` is the signal holding the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |

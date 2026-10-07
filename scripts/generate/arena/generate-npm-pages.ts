@@ -62,7 +62,7 @@ See it before you install it: **https://arena.dravensoft.org** has the guideline
 and a playground for every component. Source and full documentation:
 **https://github.com/dravensoft-dev/arena**
 
-**An agent building with Arena needs the language, and this tarball does not carry it.** None of these is in here. The rules every component answers to, the usage document of each one, and the style kernel a project answers to make Arena look like its own product. What is in here is the code, and
+**An agent building with Arena needs the language, and this tarball does not carry it.** Not the rules every component answers to, not the usage document of each one, and not the style kernel that makes Arena look like a project's own product. What is in here is the code, and
 what markup of your own is held to: \`contracts/behaviour/\`, one file per accessibility
 pattern, and \`arena.tokens.json\`.
 
@@ -85,7 +85,7 @@ The package is the code. The server, the plugin and the repository are the langu
     const listed = `${tokens.slice(0, -1).join(', ')} and ${tokens.at(-1)}`;
     return `| stylesheet | what it is |
 | --- | --- |
-| \`css/base.css\` | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial and every control in the library is 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
+| \`css/base.css\` | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial. Every control in the library is then 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
 | \`css/components.css\` | every component Arena draws |
 | \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
 | \`css/hues/<name>.css\` | one component's hue sheet, imported by that component's sheet, writing \`--arena-hue-ink\`, \`--arena-hue-edge\`, \`--arena-hue-fill-strong\` and \`--arena-hue-fill-soft\` from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |

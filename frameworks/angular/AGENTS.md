@@ -659,9 +659,10 @@ branches carry only interpolated inputs.
 
 ## Adopting it is the package's question and not this document's
 
-**A project adopting Arena installs `@dravensoft/arena-angular` and reads
-[`install.md`](../../skills/design/references/install.md)**: the install, the config file, the
-one command, the theme surface and the script that keeps a palette from flashing on first paint.
+**A project adopting Arena installs `@dravensoft/arena-angular` and starts at
+[`install.md`](../../skills/design/references/install.md)**, which links the config file
+([`config.md`](../../skills/design/references/config.md)), the one command
+([`arena-to-prod.md`](../../skills/design/references/arena-to-prod.md)), and the theme surface and the script that keeps a palette from flashing on first paint ([`theme.md`](../../skills/design/references/theme.md)).
 Nothing under `theme/` reaches them, because the assembly copies `theme/arena-cdk.css` in as
 `css/arena-cdk.css` and copies neither of the other two: `arena-tailwind.css` imports this
 repository's own `intro/styles.css`, and the FOUC script is carried inline in the

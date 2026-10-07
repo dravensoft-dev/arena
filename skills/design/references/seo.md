@@ -14,7 +14,7 @@ until it is told to, because no is so often the true answer. A catalogue, a land
 page, a public listing and a documentation site are a yes, and a yes has consequences before the
 first component.
 
-## Arena writes the head in one layer, and the router is why
+## Which layer writes the head, and why is it a separate entry point?
 
 `@dravensoft/arena-angular/metadata` is a second entry point of the Angular package, apart from the
 one every component comes from. The entry point is apart because reaching it means reaching `@angular/router`. The router is
@@ -53,7 +53,7 @@ The exports that carry all three are in the next section. Open it when the answe
 
 ## What does the Angular head entry point export?
 
-`provideArenaMetadata()` is the one thing the Angular package does not ship from its root. The writer lives at `@dravensoft/arena-angular/metadata`, because reaching it means reaching `@angular/router`. That router is an optional peer. A project that never imports the subpath never installs it, and nothing else in the package moves.
+`provideArenaMetadata()` is the one thing the Angular package does not ship from its root.
 
 ```ts
 import { provideArenaMetadata, arenaRouteMeta } from '@dravensoft/arena-angular/metadata';

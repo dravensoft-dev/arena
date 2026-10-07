@@ -127,15 +127,15 @@ between is yours and comes from here, inside is the kernel's and comes from [`st
 
 ## Where does my spacing and sizing go?
 
-**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.** Arena draws no outer margin on anything. A component takes a vocabulary class and no `style`. The only route into an Arena element's own box is a decision the vocabulary names.
+**Put your spacing and sizing on an element you wrote, and let the Arena element be its child.** A component takes a vocabulary class and no `style`. The only route into an Arena element's own box is a decision the vocabulary names.
 
 Write the rule the same way in both layers. A component's own element is Arena's, and what it renders is free to change. A component that wraps, or that renders none, owes you no warning.
 
-### What does that mean in React?
+### How do I size and space a component in React?
 
 React renders the real element in almost every case, so a `.row > * { ... }` rule of yours does reach it. `ArenaTabs` is the exception that makes the rule worth stating. The component returns a fragment and puts no element of its own in the DOM. A rule written against it matches the tablist and the panels separately, or nothing. Wrap it, as you wrap anything else whose layout is yours.
 
-### What does that mean in Angular?
+### How do I size and space a component in Angular?
 
 `<arena-button>`, `<arena-card>` and `<arena-tabs>` take their host out of layout with `display: contents`. Each has a real root that must be a `<button>`, an `<a>` or a `<div role="tablist">`. That host carries no box. A `margin`, a `flex`, a `min-width` or a `.row > * { ... }` rule aimed at one of them is discarded and nothing reports it. The rule parses and the selector matches. No box exists for the declaration to land on.
 

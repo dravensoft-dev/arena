@@ -9,7 +9,7 @@ Arena over the Model Context Protocol serves the router, the references and ever
 ## How do I install the server?
 
 ```bash
-npm i -D @dravensoft/arena-mcp        # or: bun add -d / pnpm add -D
+npm i -D @dravensoft/arena-mcp        # or: bun add -d / pnpm add -D / yarn add -D
 ```
 
 The server serves the layer your project installed. `@dravensoft/arena-react` or `@dravensoft/arena-angular` in the project tells the server which layer that is. The server resolves whichever it finds above the working directory. With neither
@@ -26,6 +26,8 @@ The configuration file differs per editor and the command does not.
   }
 }
 ```
+
+## What do `--layer` and `--payload` do?
 
 `--layer react|angular` names the half to serve, for a project holding neither package or holding
 both. `--payload <dir>` serves a corpus from somewhere else entirely, for a build of Arena that is
