@@ -1,12 +1,29 @@
-/* arena usage, declared and not yet built: it parses its flags like the finished command will, then
- * says so and exits 2, so the dispatch table is whole before any command is. */
+/* arena usage: the components this package ships that your sources draw nowhere, and the parts your
+ * style plugins paint. It reads and prints, holds no report, and fails only where it cannot run. */
 import { commandOptions } from './args.ts';
 import { voice } from './io.ts';
 import type { Io } from './io.ts';
+import { resolveEnvironment } from './host.ts';
+import { missingSource } from './sources.ts';
+import { auditStep, paintedBy, undrawnStep } from './steps.ts';
 
 export function run(argv: string[], io: Io): number {
   const options = commandOptions('usage', argv, io);
   if (typeof options === 'number') return options;
-  voice(io, 'usage').err('not built yet');
-  return 2;
+  const say = voice(io, 'usage');
+  const missing = missingSource(options.paths);
+  if (missing) {
+    say.err(`${missing} is not there`);
+    return 2;
+  }
+  const env = resolveEnvironment(io.environment);
+  const read = { paths: options.paths, config: options.config };
+  const undrawn = undrawnStep({ ...read, audit: false }, env.packageName, env.map);
+  if (undrawn.fatal.length > 0) {
+    for (const line of undrawn.fatal) say.err(line);
+    return 2;
+  }
+  for (const line of undrawn.notes) say.out(line);
+  say.out(paintedBy(auditStep({ ...read, audit: true }).painted));
+  return 0;
 }
