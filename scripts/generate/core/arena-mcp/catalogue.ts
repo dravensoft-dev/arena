@@ -34,8 +34,7 @@ export const BEHAVIOUR_DIR = 'contracts/behaviour';
 export const TOKENS_PREFIX = `${SCHEME}://tokens/`;
 export const BEHAVIOUR_PREFIX = `${SCHEME}://behaviour/`;
 
-const jsonIn = (rel: string, dir: string) => rel.startsWith(`${dir}/`) && rel.endsWith('.json')
-  && !rel.slice(dir.length + 1).includes('/');
+const jsonIn = (rel: string, dir: string) => dirPosix(rel) === dir && rel.endsWith('.json');
 const jsonName = (rel: string) => (rel.split('/').at(-1) ?? '').replace(/\.json$/, '');
 
 export const FAMILY_PREFIX = `${SCHEME}://family/`;
