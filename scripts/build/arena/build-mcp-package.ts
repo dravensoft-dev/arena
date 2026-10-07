@@ -59,6 +59,7 @@ export const node = {
     'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
+    'frameworks/*/components/**/*.behaviour.json',
     'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
   ],
   writes: [`${DIST}/**`],

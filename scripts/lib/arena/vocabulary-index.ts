@@ -2,7 +2,9 @@
  * beside its component map: the audit ships inside the package and can read neither a family file
  * nor a manifest from there. */
 
-import { join } from 'node:path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { basename, join } from 'node:path';
+import { bindingAlso, bindingCases, type BehaviourBinding } from './behaviour-contracts.ts';
 import { answerOf, answeredFamilies, axesOf, readFamilies, targetOf, type Family } from '../tailwind/vocabulary.ts';
 import { layerManifests } from '../tailwind/tailwind-compile.ts';
 import { DOMAIN } from './site-pages.ts';
@@ -13,7 +15,26 @@ import type { ComponentManifest } from '../tailwind/manifest-shapes.ts';
 
 export const VOCABULARY_FILE = 'arena.vocabulary.json';
 
-export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<ComponentManifest, 'component' | 'answers'>>, page: string): VocabularyIndex {
+export const MODAL_PATTERNS = ['dialog-modal', 'alertdialog'];
+
+export function bindsModal(binding: BehaviourBinding) {
+  return [...bindingCases(binding), ...bindingAlso(binding)].some(({ pattern }) => MODAL_PATTERNS.includes(pattern ?? ''));
+}
+
+export function layerBindings(root = repoRoot): [string, BehaviourBinding][] {
+  const out: [string, BehaviourBinding][] = [];
+  for (const layer of ['react', 'angular']) {
+    const base = join(root, 'frameworks', layer, 'components');
+    for (const entry of readdirSync(base, { recursive: true, encoding: 'utf8' }).sort()) {
+      if (!entry.endsWith('.behaviour.json')) continue;
+      out.push([basename(entry, '.behaviour.json'), JSON.parse(readFileSync(join(base, entry), 'utf8'))]);
+    }
+  }
+  return out;
+}
+
+export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<ComponentManifest, 'component' | 'answers'>>, page: string,
+  bindings: Iterable<[string, BehaviourBinding]> = []): VocabularyIndex {
   const classes: VocabularyIndex['classes'] = {};
   const axes: NonNullable<VocabularyIndex['axes']> = {};
   for (const family of families) {
@@ -37,12 +58,13 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
     }
     if (Object.keys(own).length > 0) defaults[manifest.component] = own;
   }
-  return { page, classes, answers, options, axes, defaults };
+  const modals = [...new Set([...bindings].filter(([, binding]) => bindsModal(binding)).map(([component]) => component))].sort();
+  return { page, classes, answers, options, axes, defaults, modals };
 }
 
 export function vocabularyIndex(root = repoRoot) {
   return vocabularyIndexOf([...readFamilies(root).values()], layerManifests(root).values(),
-    `https://${DOMAIN}/frameworks/VOCABULARY.md`);
+    `https://${DOMAIN}/frameworks/VOCABULARY.md`, layerBindings(root));
 }
 
 export function writeVocabularyIndex(dir: string, root = repoRoot) {

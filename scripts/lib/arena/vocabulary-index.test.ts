@@ -2,7 +2,7 @@
  * answers, since the audit inside a package cannot read either. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { vocabularyIndexOf } from './vocabulary-index.ts';
+import { vocabularyIndex, vocabularyIndexOf } from './vocabulary-index.ts';
 
 test('every option is indexed with its family and reach, and every answering component with its families', () => {
   const index = vocabularyIndexOf(
@@ -15,6 +15,7 @@ test('every option is indexed with its family and reach, and every answering com
     options: { ArenaButton: ['arena-fill', 'arena-fit'] },
     defaults: { ArenaButton: { fill: 'arena-fit' } },
     axes: {},
+    modals: [],
   });
 });
 
@@ -44,4 +45,20 @@ test('an axis an option reads is composed with the class and leaves the axes, so
   const index = vocabularyIndexOf(
     [{ family: 'skeleton', reach: 'box', description: 'd', variants: { 'arena-skeleton-line': '[--w:var(--arena-skeleton-width,100%)]' }, axis: ['--arena-skeleton-width', '--arena-skeleton-radius'] }], [], 'https://x/p');
   assert.deepEqual(index.axes, { skeleton: ['--arena-skeleton-radius'] });
+});
+
+test('a component whose binding binds a modal pattern, directly or in any case, is a modal of its own', () => {
+  const index = vocabularyIndexOf([], [], 'https://x/p', [
+    ['ArenaDialog', { pattern: 'dialog-modal' }],
+    ['ArenaConfirm', { pattern: 'alertdialog' }],
+    ['ArenaSheet', { cases: [{ name: 'modal', pattern: 'dialog-modal' }, { name: 'inline', pattern: 'region' }] }],
+    ['ArenaMenu', { pattern: 'menu' }],
+  ]);
+  assert.deepEqual(index.modals, ['ArenaConfirm', 'ArenaDialog', 'ArenaSheet']);
+});
+
+test('the shipped index names the dialogs from their bindings', () => {
+  const modals = vocabularyIndex().modals ?? [];
+  assert.ok(modals.includes('ArenaDialog') && modals.includes('ArenaConfirmDialog'));
+  assert.ok(!modals.includes('ArenaButton'));
 });

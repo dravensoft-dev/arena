@@ -309,6 +309,7 @@ export type VocabularyIndex = {
   options: Record<string, string[]>;
   axes?: Record<string, string[]>;
   defaults?: Record<string, Record<string, string>>;
+  modals?: string[];
 };
 
 export const VOCABULARY_INDEX = 'arena.vocabulary.json';
@@ -449,6 +450,54 @@ const BRANCH_BLOCK = /@(?:if|else|switch|case|default)\b[^{}@]*\{|@else\s*\{/y;
 const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*|<>\s*)*$/;
 const STRING_CONTEXT = /[=:,(\[?&|]\s*$|\breturn\s*$/;
 const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
+const STATEMENT_BRANCH = /(?<![\w$.@])(?:if\s*\(|else\b|case\b[^:\n]*:|default\s*:)/g;
+const CLASS_VALUE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[attr\.class\])\s*=\s*/g;
+const TAG_LEAD = /[\w$.]/;
+
+function closing(text: string, from: number, open: string, close: string) {
+  let depth = 0;
+  for (let i = from; i < text.length; i += 1) {
+    if (text[i] === open) depth += 1;
+    else if (text[i] === close && --depth === 0) return i + 1;
+  }
+  return text.length;
+}
+
+export function statementBranches(text: string): [number, number][] {
+  const spans: [number, number][] = [];
+  for (const m of text.matchAll(STATEMENT_BRANCH)) {
+    let body = (m.index ?? 0) + m[0].length;
+    if (m[0].startsWith('if')) body = closing(text, body - 1, '(', ')');
+    while (/\s/.test(text[body] ?? '')) body += 1;
+    if (text[body] === '{') spans.push([body, closing(text, body, '{', '}')]);
+    else if (/^return\b/.test(text.slice(body, body + 7))) {
+      let depth = 0;
+      let end = body;
+      for (; end < text.length; end += 1) {
+        const c = text[end];
+        if (c === '(' || c === '{' || c === '[') depth += 1;
+        else if (c === ')' || c === '}' || c === ']') depth -= 1;
+        if (depth < 0 || (depth === 0 && c === ';')) break;
+      }
+      spans.push([body, end]);
+    }
+  }
+  return spans;
+}
+
+export function elementEnd(text: string, name: string, ends: number) {
+  let depth = 1;
+  const tags = new RegExp(`<(/?)${name.replace(/[.]/g, '\\.')}(?![\\w.-])(?:[^>]*[^/>])?>`, 'g');
+  for (const m of text.slice(ends).matchAll(tags)) {
+    depth += m[1] ? -1 : 1;
+    if (depth === 0) return ends + (m.index ?? 0);
+  }
+  return text.length;
+}
+
+export function classValues(raw: string) {
+  return [...raw.matchAll(CLASS_VALUE)].map((m) => attributeValueAt(raw, (m.index ?? 0) + m[0].length)).join(' ');
+}
 
 export function inBranch(text: string, start: number, attributes: string, openBranches: { name: string; end: number }[]) {
   if (BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) return true;
@@ -521,10 +570,17 @@ export function outlineMessage(under: number, over: number) {
     + '`headingLevel`';
 }
 
-const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//g;
+const BLOCK_COMMENT = /\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/g;
+const LINE_COMMENT = /(?<![:\w"'`/\\])\/\/[^\n]*/g;
+const blanked = (span: string) => span.replace(/[^\n]/g, ' ');
+const balanced = (prefix: string) => ['"', "'", '`'].every((quote) => prefix.split(quote).length % 2 === 1);
 
 export function withoutComments(text: string) {
-  return text.replace(BLOCK_COMMENT, (span) => span.replace(/[^\n]/g, ' '));
+  return text.replace(BLOCK_COMMENT, blanked).split('\n').map((line) => {
+    for (const m of line.matchAll(LINE_COMMENT))
+      if (balanced(line.slice(0, m.index))) return line.slice(0, m.index) + blanked(m[0]);
+    return line;
+  }).join('\n');
 }
 
 export type Finding = { line: number; rule: string; message: string };
@@ -577,15 +633,20 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
   const found: Finding[] = [];
   const rungs: number[] = [];
   let firstRung = 0;
-  const primaries: number[] = [];
-  const bare: number[] = [];
+  const primaries: { scope: number; line: number }[] = [];
+  const bare: { scope: number; line: number }[] = [];
   const branches: { name: string; end: number }[] = [];
+  const modals: { start: number; end: number }[] = [];
+  const statements = vocabulary?.defaults ? statementBranches(text) : [];
   let contextEmphasis = false;
+  let statementBranch = false;
   for (const m of text.matchAll(OPEN_TAG)) {
     const name = m[1] ?? '';
     const start = m.index ?? 0;
+    if (start > 0 && TAG_LEAD.test(text[start - 1] ?? '')) continue;
     const ends = tagEnd(text, start);
     if (ends === -1) continue;
+    const scope = modals.findLastIndex((modal) => modal.start < start && start < modal.end);
     const attributes = ownAttributes(text.slice(start + name.length + 1, ends - 1));
 
     const rung = HEADING_RUNGS[kebabTag(name)];
@@ -605,30 +666,38 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
       for (const message of ownClassFindings(name, attributes, vocabulary, raw))
         found.push(at(lineAt(text, start), 'own-class', message));
 
-    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
-    if (ARENA_TAG.test(name) || EMPHASIS_OPTION.test(attributes)) {
+    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
+    const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
+    if (ARENA_TAG.test(name) || emphasis) {
       const component = pascalTag(name);
       const answersEmphasis = (vocabulary?.answers[component] ?? []).includes('emphasis');
-      if (EMPHASIS_OPTION.test(attributes) && !answersEmphasis) contextEmphasis = true;
+      if (emphasis && !answersEmphasis) contextEmphasis = true;
       if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw)
-        && !inBranch(text, start, attributes, branches))
-        bare.push(lineAt(text, start));
+        && !inBranch(text, start, attributes, branches)) {
+        if (statements.some(([from, to]) => from < start && start < to)) statementBranch = true;
+        bare.push({ scope, line: lineAt(text, start) });
+      }
+      if (vocabulary?.modals?.includes(component))
+        modals.push({ start, end: raw.trimEnd().endsWith('/') ? ends : elementEnd(text, name, ends) });
     }
 
     if ((BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) && !raw.trimEnd().endsWith('/')) branches.push({ name, end: ends });
 
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
-    const inside = text.slice(ends).replace(/^\s*(?:\{\s*\/\*[\s\S]*?\*\/\s*\}\s*|<!--[\s\S]*?-->\s*)*/, '');
+    const inside = text.slice(ends).replace(/^\s*(?:\{\s*\}\s*)*/, '');
     const wrapped = /^<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.exec(inside)?.[1];
     if (wrapped !== undefined && LINKABLE_TAGS.has(kebabTag(wrapped)))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
-  const counted = (contextEmphasis ? primaries : [...primaries, ...bare]).sort((a, b) => a - b);
-  for (const line of counted.slice(1))
-    found.push(at(line, 'one-primary', primaryMessage(counted[0] as number)));
+  const all = contextEmphasis || statementBranch ? primaries : [...primaries, ...bare];
+  for (const scope of new Set(all.map((one) => one.scope))) {
+    const counted = all.filter((one) => one.scope === scope).map((one) => one.line).sort((a, b) => a - b);
+    for (const line of counted.slice(1))
+      found.push(at(line, 'one-primary', primaryMessage(counted[0] as number)));
+  }
   return found;
 }
 
@@ -733,7 +802,7 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
   const perLine = stripped.split('\n').flatMap((line, index) =>
     lineFindings(line, isStylesheet, scope, gradientMark, painted.has(index + 1))
       .map((one) => at(index + 1, one.rule, one.message)));
-  return [...perLine, ...structuralFindings(text, vocabulary), ...bracketFindings(text, lines)]
+  return [...perLine, ...structuralFindings(stripped, vocabulary), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 

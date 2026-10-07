@@ -616,6 +616,7 @@ const EMPHASIS_INDEX: VocabularyIndex = {
     ArenaButton: { emphasis: 'arena-emphasis-primary' },
     ArenaIconButton: { emphasis: 'arena-emphasis-ghost' },
   },
+  modals: ['ArenaDialog'],
 };
 
 function defaultPrimaries(source: string, path = 'src/App.tsx', vocabulary: VocabularyIndex | null = EMPHASIS_INDEX) {
@@ -713,4 +714,52 @@ test('a brace in a string literal of a source file does not open a block', () =>
 test('a branch element that has closed is not the ancestor of a later sibling of the same name', () => {
   assert.equal(defaultPrimaries('{a && (\n<div>\n<p>x</p>\n</div>\n)}\n<div>\n<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>').length, 1);
   assert.deepEqual(defaultPrimaries('{a && (\n<div>\n<div>y</div>\n<ArenaButton>A</ArenaButton>\n</div>\n)}\n{b && (\n<div>\n<ArenaButton>B</ArenaButton>\n</div>\n)}'), []);
+});
+
+test('a comment that names a button declares nothing, in any comment form', () => {
+  const one = '<ArenaButton>Save</ArenaButton>\n';
+  assert.deepEqual(defaultPrimaries(`${one}{/* <ArenaButton>Old</ArenaButton> */}`), []);
+  assert.deepEqual(defaultPrimaries(`${one}// Renders an <ArenaButton> for the old flow`), []);
+  assert.deepEqual(defaultPrimaries('<arena-button>Save</arena-button>\n<!-- <arena-button>Old</arena-button> -->',
+    'src/app.html'), []);
+  assert.equal(defaultPrimaries(`const u = 'https://x.dev';\n${one}<ArenaButton>Go</ArenaButton>`).length, 1,
+    'a URL is not a comment, so the code after it is still read');
+  assert.match(rules('<Link to="/x">\n  {/* <ArenaCard> */}\n  <ArenaCard>c</ArenaCard>\n</Link>'), /router-link/);
+});
+
+test('a type argument is not a tag, so a generic naming a button counts nothing', () => {
+  assert.deepEqual(defaultPrimaries('const r = useRef<ArenaButton>(null);\n<ArenaButton>Save</ArenaButton>'), []);
+  assert.deepEqual(defaultPrimaries('@ViewChildren(B) bs!: QueryList<ArenaButton>;\n<arena-button>Save</arena-button>',
+    'src/app.ts'), []);
+});
+
+test('a bare button in a statement-level branch is not guessed at', () => {
+  assert.deepEqual(defaultPrimaries('if (error) return <ArenaButton>Retry</ArenaButton>;\nreturn <ArenaButton>Save</ArenaButton>;'), []);
+  assert.deepEqual(defaultPrimaries('if (error) {\n  return <ArenaButton>Retry</ArenaButton>;\n}\nreturn <ArenaButton>Save</ArenaButton>;'), []);
+  assert.deepEqual(defaultPrimaries('switch (step) {\n  case 1: return <ArenaButton>Next</ArenaButton>;\n'
+    + '  default: return <ArenaButton>Finish</ArenaButton>;\n}'), []);
+  assert.equal(defaultPrimaries('if (ready) load();\nreturn <><ArenaButton>A</ArenaButton><ArenaButton>B</ArenaButton></>;').length, 1,
+    'a branch holding no button leaves the screen counted');
+});
+
+test('a container class an expression writes is still a container', () => {
+  assert.deepEqual(defaultPrimaries('<div className={`toolbar arena-emphasis-secondary ${x}`}>\n'
+    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>'), []);
+});
+
+test('a modal counts its own primary, apart from the page under it', () => {
+  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>'), []);
+  assert.deepEqual(defaultPrimaries('<arena-button>Open</arena-button>\n<arena-dialog>\n<arena-button>Confirm</arena-button>\n</arena-dialog>',
+    'src/app.html'), []);
+  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open footer={<>\n<ArenaButton>Confirm</ArenaButton>\n</>} />'), []);
+  const two = defaultPrimaries('<ArenaButton className="arena-emphasis-secondary">Open</ArenaButton>\n'
+    + '<ArenaDialog open>\n<ArenaButton>Keep</ArenaButton>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>');
+  assert.equal(two.length, 1, 'two bare buttons inside one dialog are two primaries of that dialog');
+  assert.match(two[0] ?? '', /:4:.*line 3/);
+  assert.deepEqual(defaultPrimaries('<ArenaButton className="arena-emphasis-primary">Open</ArenaButton>\n'
+    + '<ArenaDialog open>\n<ArenaButton className="arena-emphasis-primary">Confirm</ArenaButton>\n</ArenaDialog>'), []);
+  assert.equal(defaultPrimaries('<ArenaDialog open>\n<ArenaButton>A</ArenaButton>\n</ArenaDialog>\n'
+    + '<ArenaButton>B</ArenaButton>\n<ArenaButton>C</ArenaButton>').length, 1, 'a closed dialog gives the page back its own count');
+  assert.equal(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>',
+    'src/App.tsx', { ...EMPHASIS_INDEX, modals: undefined }).length, 1, 'with no modals indexed the file is one count, as before');
 });
