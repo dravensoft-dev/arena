@@ -63,6 +63,8 @@ const TEMPLATES: Record<string, string> = {
   'grid-min-class-beats-the-property': '<div style="display: contents; --arena-grid-min: 300px"><arena-grid class="arena-grid-min-sm"><arena-card title="A" /></arena-grid></div>',
   'scroller-class-reaches-its-items': '<arena-scroller class="arena-scroller-item-sm" label="Lots"><arena-scroller-item /></arena-scroller>',
   'skeleton-circle-takes-its-width-as-diameter': '<div style="--arena-skeleton-width: 64px"><arena-skeleton class="arena-skeleton-circle" /></div>',
+  'skeleton-circle-height-wins': '<div style="--arena-skeleton-width: 40px; --arena-skeleton-height: 64px"><arena-skeleton class="arena-skeleton-circle" /></div>',
+  'skeleton-radius-is-read-by-block-only': '<div style="--arena-skeleton-radius: 12px"><arena-skeleton class="arena-skeleton-line" /></div>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -78,6 +80,8 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'grid-min-class-beats-the-property': { part: 'grid', index: 0 },
   'scroller-class-reaches-its-items': { part: 'scroller-item', index: 0 },
   'skeleton-circle-takes-its-width-as-diameter': { part: 'skeleton', index: 0 },
+  'skeleton-circle-height-wins': { part: 'skeleton', index: 0 },
+  'skeleton-radius-is-read-by-block-only': { part: 'skeleton', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();

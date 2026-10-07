@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="../../consume/components/forms/arena-icon-button/ArenaIconButton.styles.generated.css">
 <link rel="stylesheet" href="../../consume/components/display/arena-avatar/ArenaAvatar.styles.generated.css">
 <link rel="stylesheet" href="../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-switch/ArenaSwitch.styles.generated.css">
 <link rel="stylesheet" href="../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../Specimen.css">
 </head><body><div id="root"></div>
@@ -15,6 +16,7 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 const button = await (await fetch('../../components/forms/arena-button/ArenaButton.manifest.json')).json();
 const iconButton = await (await fetch('../../components/forms/arena-icon-button/ArenaIconButton.manifest.json')).json();
 const avatar = await (await fetch('../../components/display/arena-avatar/ArenaAvatar.manifest.json')).json();
+const switchManifest = await (await fetch('../../components/forms/arena-switch/ArenaSwitch.manifest.json')).json();
 const logo = await (await fetch('../../components/brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
 
 function control(manifest, tag, attrs, content, extra = '') {
@@ -37,6 +39,14 @@ function mark(extra = '') {
     el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
 }
 
+function toggle(option) {
+  const c = arenaClassesFor(switchManifest, { state: 'true' });
+  const d = arenaSlotDataFor(switchManifest, { state: 'true' });
+  const knob = el('span', { class: c.knob, ...d.knob }, el('i', { class: `${c.icon} ph-bold ph-check`, ...d.icon }));
+  const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': 'true', 'aria-label': 'Notify' }, knob);
+  return el('span', { class: `${c.root} ${option}`, ...d.root }, track, el('span', { class: c.label, ...d.label }, 'Notify'));
+}
+
 function toolbar(option, nearer = '') {
   const bar = el('div', { class: option });
   bar.style.display = 'flex';
@@ -53,9 +63,11 @@ function toolbar(option, nearer = '') {
 }
 
 mountSpecimen({ sections: [
+  section('arena-size-xs: only the face has an xs, the buttons and the mark stay at the nearest size they answer, here the default', [toolbar('arena-size-xs')]),
   section('arena-size-md, the default: every size question answers md', [toolbar('arena-size-md')]),
   section('arena-size-sm on the toolbar: the buttons, the face and the mark follow it', [toolbar('arena-size-sm')]),
   section('arena-size-lg on the toolbar, and a nearer arena-size-sm on one button', [toolbar('arena-size-lg', 'arena-size-sm')]),
   section('arena-size-xl: the mark has an xl, the buttons have none and stay at the nearest size they answer, here the default', [toolbar('arena-size-xl')]),
+  section('arena-size-2xl: only the switch has a 2xl, and the toolbar beside it stays at the nearest size each part answers', [toggle('arena-size-2xl'), toolbar('arena-size-2xl')]),
 ]});
 </script></body></html>

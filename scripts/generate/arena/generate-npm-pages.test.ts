@@ -13,7 +13,8 @@ import { LAYER_TOKENS } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, REGIONS, openLine, closeLine, renderRegion, applyRegion, renderTarget,
 } from './generate-npm-pages.ts';
-import { axesOf, readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
+import { axesOf, packageSheetName, readFamilies, sheetFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
 test('a shared region names no layer, because it is written into every layer at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -65,6 +66,7 @@ test('the vocabulary region names the fill family and stays under 2000 character
   const lines = region.split('\n');
   const regionContent = lines.slice(2, -1).join('\n');
   assert.ok(regionContent.length < 2000, `vocabulary region is ${regionContent.length} characters, under 2000`);
+  assert.ok(regionContent.length < 2000 - 100, `vocabulary region is ${regionContent.length} characters, with 100 of headroom under 2000`);
 });
 
 
@@ -78,9 +80,12 @@ test('the vocabulary region ends on its text, names each class with its dot, and
 test('the vocabulary region names each component family with its axes, as readFamilies and axesOf give them', () => {
   const region = renderRegion('vocabulary');
   const named = region.split('\n').filter((line) => line.startsWith('- `')).map((line) => line.slice(2));
-  const expected = [...readFamilies().values()].filter((family) => targetOf(family) === 'component')
+  const names = (family: Family) => family.target === 'keyed' ? family.properties ?? [] : axesOf(family);
+  const expected = [...readFamilies().values()].filter((family) => targetOf(family) !== 'markup')
     .sort((a, b) => (a.family < b.family ? -1 : 1))
-    .map((family) => [`\`${family.family}\``, ...(axesOf(family).length ? [`(${axesOf(family).map((axis) => `\`${axis}\``).join(', ')})`] : [])].join(' ') + '.');
+    .map((family) => [`\`${family.family}\``, ...(names(family).length ? [`(${names(family).map((axis) => `\`${axis}\``).join(', ')})`] : [])].join(' ') + '.');
+  assert.ok([...readFamilies().values()].some((family) => targetOf(family) === 'keyed'), 'a keyed family is in the source');
+  assert.ok(expected.some((line) => line.includes('--arena-column-<key>-width')), 'the keyed family is compared with its properties');
   assert.ok(expected.some((line) => line.includes('--arena-grid-min')), 'a family with an axis is in the source');
   assert.deepEqual(named, expected);
   assert.ok(!region.includes('`.arena-grid-min-sm`'), 'the options are on the vocabulary page, not here');
@@ -112,4 +117,35 @@ test('the sheets region names the vocabulary sheets and the spacing sheet, and n
   assert.ok(region.includes('css/vocabulary/stack.css'));
   assert.ok(region.includes('css/spacing.css'));
   assert.ok(!region.includes('css/rhythm.css'));
+});
+
+const sheetNamesIn = (region: string) => {
+  const cell = region.split('\n').find((line) => line.startsWith('| `css/vocabulary/`')) ?? '';
+  return [...cell.matchAll(/`(css\/vocabulary\/[^`]+\.css)`/g)].map((match) => match[1]);
+};
+
+test('the sheets region names each vocabulary sheet once, as sheetFamilies and packageSheetName give them', () => {
+  const named = sheetNamesIn(renderRegion('sheets'));
+  const expected = sheetFamilies().map((family) => family.family).sort().map(packageSheetName);
+  assert.ok(expected.length > 0, 'the source has sheet families');
+  assert.deepEqual(named, expected);
+});
+
+test('the sheets region splits a long list into sentences within the register word limit', () => {
+  const base = mkdtempSync(join(tmpdir(), 'npm-sheets-'));
+  for (let at = 0; at < 45; at++) {
+    const dir = `f${String(at).padStart(2, '0')}`;
+    mkdirSync(join(base, 'frameworks/tailwind/vocabulary', dir), { recursive: true });
+    writeFileSync(join(base, 'frameworks/tailwind/vocabulary', dir, `${dir}.family.json`),
+      JSON.stringify({ family: dir, reach: 'box', description: 'd', variants: { [`arena-${dir}`]: '[display:flex]' } }));
+  }
+  const region = renderRegion('sheets', base);
+  const named = sheetNamesIn(region);
+  assert.equal(named.length, 45);
+  assert.deepEqual(named, sheetFamilies(base).map((family) => family.family).sort().map(packageSheetName));
+  const cell = region.split('\n').find((line) => line.startsWith('| `css/vocabulary/`')) ?? '';
+  const sentences = plain(cell.split('|')[2] ?? '').split(/(?<=\.)\s+/);
+  assert.ok(sentences.length >= 3, 'more than two chunks');
+  for (const sentence of sentences)
+    assert.ok(words(sentence).length <= MAX_WORDS, `a sentence of ${words(sentence).length} words: ${sentence.slice(0, 60)}`);
 });

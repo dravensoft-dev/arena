@@ -38,7 +38,10 @@ export class ArenaSkeleton {
 
   protected readonly styles = computed(() => arenaSkeletonStyles({}));
   protected readonly stacked = computed(() => this.lines() !== undefined);
-  protected readonly rows = computed(() => Array.from({ length: Math.max(0, Math.floor(this.lines() ?? 0)) }, (_, i) => i + 1));
+  protected readonly rows = computed(() => {
+    const lines = this.lines() ?? 0;
+    return Array.from({ length: Number.isFinite(lines) ? Math.max(0, Math.floor(lines)) : 0 }, (_, i) => i + 1);
+  });
   protected readonly hostClass = computed(() => (this.stacked() ? this.styles().stack() : this.styles().root()));
   protected readonly lastStyles = computed(() => arenaSkeletonStyles({ last: true }));
   protected readonly isLast = arenaSkeletonRowIsLast;

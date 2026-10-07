@@ -337,7 +337,7 @@ export function shapeProblems(name: string, fixture: Fixture & Record<string, un
   if (vars !== undefined && (vars === null || typeof vars !== 'object' || Array.isArray(vars)))
     problems.push(`${name}${FIXTURE_SUFFIX}: vars is a map of --arena-* names to string values`);
   else for (const [property, value] of Object.entries(vars ?? {})) {
-    if (!property.startsWith('--arena-')) problems.push(`${name}${FIXTURE_SUFFIX}: vars sets ${property}, and a fixture sets only --arena-* properties`);
+    if (!/^--arena-[a-z0-9-]+$/.test(property)) problems.push(`${name}${FIXTURE_SUFFIX}: vars sets ${property}, and a fixture sets only --arena-* properties named in lower-case letters, digits and hyphens`);
     if (typeof value !== 'string') problems.push(`${name}${FIXTURE_SUFFIX}: vars ${property} holds ${typeof value}, and a value is a string`);
     else if (/[";{}<]/.test(value)) problems.push(`${name}${FIXTURE_SUFFIX}: vars ${property} holds ${JSON.stringify(value)}, and a value carries none of " ; { } <, which would break the style attribute it is written into`);
   }

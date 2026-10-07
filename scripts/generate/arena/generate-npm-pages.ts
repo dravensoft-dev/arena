@@ -148,9 +148,10 @@ ${listed(layout)} go on markup of yours${context.length ? `, along with the ${CO
 
   vocabulary: (base = root) => {
     const families = [...readFamilies(base).values()];
-    const byFamily = families.filter((family) => targetOf(family) === 'component')
+    const namesOf = (family: Family) => family.target === 'keyed' ? family.properties ?? [] : axesOf(family);
+    const byFamily = families.filter((family) => targetOf(family) !== 'markup')
       .sort((a, b) => (a.family < b.family ? -1 : 1))
-      .map((family) => `- ${[`\`${family.family}\``, ...(axesOf(family).length ? [`(${axesOf(family).map((axis) => `\`${axis}\``).join(', ')})`] : [])].join(' ')}.`);
+      .map((family) => `- ${[`\`${family.family}\``, ...(namesOf(family).length ? [`(${namesOf(family).map((axis) => `\`${axis}\``).join(', ')})`] : [])].join(' ')}.`);
     const markupOf = (reach: 'box' | 'context') => families.filter((family) => targetOf(family) === 'markup' && family.reach === reach)
       .flatMap((family) => Object.keys(family.variants)).sort().map((one) => `\`.${one}\``).join(', ');
     const markup = markupOf('box');
@@ -175,7 +176,7 @@ component sheets one by one imports those as well.`;
     const SHEETS_PER_SENTENCE = 20;
     const chunks = Array.from({ length: Math.ceil(families.length / SHEETS_PER_SENTENCE) },
       (_, at) => families.slice(at * SHEETS_PER_SENTENCE, (at + 1) * SHEETS_PER_SENTENCE).join(', '));
-    const sheetList = chunks.join('. The vocabulary page also names ');
+    const sheetList = chunks.join('. Further sheets in that directory are ');
     const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
     const listed = `${tokens.slice(0, -1).join(', ')} and ${tokens.at(-1)}`;
     return `| stylesheet | what it is |

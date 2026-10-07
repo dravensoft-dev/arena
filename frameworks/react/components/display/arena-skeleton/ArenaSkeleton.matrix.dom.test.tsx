@@ -54,6 +54,14 @@ test('matrix: lines of NaN is an empty stack that still has role=status', () => 
   assert.equal(parts(c, 'skeleton.line').length, 0);
 });
 
+test('matrix: lines of Infinity is an empty stack that still has role=status', () => {
+  const c = mount(<ArenaSkeleton lines={Infinity} />);
+  const stack = parts(c, 'skeleton.stack');
+  assert.equal(stack.length, 1);
+  assert.equal(stack[0]!.getAttribute('role'), 'status');
+  assert.equal(parts(c, 'skeleton.line').length, 0);
+});
+
 test('matrix: the circle class is on the root', () => {
   const c = mount(<ArenaSkeleton className="arena-skeleton-circle" />);
   const root = parts(c, 'skeleton');

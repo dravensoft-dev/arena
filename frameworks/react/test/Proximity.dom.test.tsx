@@ -53,6 +53,8 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'grid-min-class-beats-the-property': () => <div style={axis}><ArenaGrid className="arena-grid-min-sm"><ArenaCard title="A">{null}</ArenaCard></ArenaGrid></div>,
   'scroller-class-reaches-its-items': () => <ArenaScroller className="arena-scroller-item-sm" label="Lots"><ArenaScrollerItem>{null}</ArenaScrollerItem></ArenaScroller>,
   'skeleton-circle-takes-its-width-as-diameter': () => <div style={{ '--arena-skeleton-width': '64px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-circle" /></div>,
+  'skeleton-circle-height-wins': () => <div style={{ '--arena-skeleton-width': '40px', '--arena-skeleton-height': '64px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-circle" /></div>,
+  'skeleton-radius-is-read-by-block-only': () => <div style={{ '--arena-skeleton-radius': '12px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-line" /></div>,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -68,6 +70,8 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'grid-min-class-beats-the-property': { part: 'grid', at: 0 },
   'scroller-class-reaches-its-items': { part: 'scroller-item', at: 0 },
   'skeleton-circle-takes-its-width-as-diameter': { part: 'skeleton', at: 0 },
+  'skeleton-circle-height-wins': { part: 'skeleton', at: 0 },
+  'skeleton-radius-is-read-by-block-only': { part: 'skeleton', at: 0 },
 };
 
 const { families, cases } = readProximity();

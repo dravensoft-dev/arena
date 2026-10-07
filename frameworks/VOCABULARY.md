@@ -74,7 +74,7 @@ How narrow a column of a board may get before the board scrolls sideways rather 
 
 ## column
 
-How wide a column of a table is and how its cells align, which is the adopter's to say because the table cannot know what its columns hold. A column opts in by naming itself with an optional key, and the table then reads --arena-column-<key>-width and --arena-column-<key>-align for it. Set them on the table or on a container of yours. The width is a length or a token such as calc(var(--sp-1) * 40), and the alignment is left, center or right. A column with no key, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment.
+How wide a column of a table is and how its cells align, which is the adopter's to say because the table cannot know what its columns hold. A column opts in by naming itself with an optional key, and the table then reads --arena-column-<key>-width and --arena-column-<key>-align for it. Set them on the table or on a container of yours. The width is a length or a token such as calc(var(--sp-1) * 40), and the alignment is left, center or right. A column with no key, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment. A table nested in a cell reads the outer property set under the same key, so it takes another key.
 
 - **Options:** keyed by `key`.
 - **Reach:** box: it is read by the components that bind it, for the key each one is given.

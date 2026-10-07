@@ -288,6 +288,7 @@ test('a context class on a component that answers the family without that option
 test('a fixture\'s vars name --arena-* properties and hold strings', () => {
   assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-column-status-align': 'right' } } as any), []);
   assert.match(shapeProblems('Widget', { ...ok, vars: { color: 'red' } } as any).join('\n'), /vars sets color, and a fixture sets only --arena-\* properties/);
+  assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x}; color: red': 'a' } } as any).join('\n'), /vars sets --arena-x\}; color: red, and a fixture sets only --arena-\* properties/);
   assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 1 } } as any).join('\n'), /vars --arena-x holds number/);
   assert.match(shapeProblems('Widget', { ...ok, vars: 'x' } as any).join('\n'), /vars is a map/);
   for (const bad of ['a"b', 'a;b', 'a{b', 'a}b', 'a<b'])

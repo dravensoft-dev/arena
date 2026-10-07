@@ -19,7 +19,7 @@ export function ArenaSkeleton({ className, lines }: ArenaSkeletonProps) {
   const locale = useArenaLocale();
   const styles = arenaSkeletonStyles({});
   if (lines !== undefined) {
-    const count = Math.max(0, Math.floor(lines));
+    const count = Number.isFinite(lines) ? Math.max(0, Math.floor(lines)) : 0;
     const last = arenaSkeletonStyles({ last: true });
     return (
       <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)}

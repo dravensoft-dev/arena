@@ -10,7 +10,7 @@ import { ArenaSkeleton } from './ArenaSkeleton';
 useTestEnvironment();
 
 function mount(template: string) {
-  const Host = Component({ standalone: true, imports: [ArenaSkeleton], template })(class { readonly nan = NaN; });
+  const Host = Component({ standalone: true, imports: [ArenaSkeleton], template })(class { readonly nan = NaN; readonly infinity = Infinity; });
   const fixture = TestBed.createComponent(Host);
   fixture.detectChanges();
   return fixture;
@@ -64,6 +64,16 @@ test('matrix: lines of 0 is an empty stack that still has role=status', () => {
 
 test('matrix: lines of NaN is an empty stack that still has role=status', () => {
   const fixture = mount('<arena-skeleton [lines]="nan" />');
+  const c = fixture.nativeElement as HTMLElement;
+  const stack = parts(c, 'skeleton.stack');
+  assert.equal(stack.length, 1);
+  assert.equal(stack[0]!.getAttribute('role'), 'status');
+  assert.equal(parts(c, 'skeleton.line').length, 0);
+  fixture.destroy();
+});
+
+test('matrix: lines of Infinity is an empty stack that still has role=status', () => {
+  const fixture = mount('<arena-skeleton [lines]="infinity" />');
   const c = fixture.nativeElement as HTMLElement;
   const stack = parts(c, 'skeleton.stack');
   assert.equal(stack.length, 1);

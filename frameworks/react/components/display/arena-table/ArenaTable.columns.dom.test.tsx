@@ -94,7 +94,7 @@ test('a narrow (card) table writes initial on both channels of every cell', () =
   }
 });
 
-test('a keyed column with no property set keeps auto and left on its header inside a centred container', () => {
+test('a keyed column with no property set keeps auto and left on its header and cell', () => {
   const root = mount(<div style={{ textAlign: 'center' }}>{table('status')}</div>);
   const th = root.querySelector('th')!;
   assert.ok(th.classList.contains(classes.slots.th), 'the header does not carry the th slot class');
