@@ -80,9 +80,9 @@ test('an explicit timeZone still decides the wall clock', () => {
   assert.doesNotMatch(tokyo, /09:00/, 'the Tokyo render still shows the UTC hour -- timeZone was ignored');
 });
 
-test('ArenaCalendar drops a consumer style object -- the ...style escape is gone', () => {
+test('ArenaCalendar drops a consumer style object', () => {
   const html = render({ style: { color: '#ff00ff' } });
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
+  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root');
 });
 
 test('ArenaCalendar drops a consumer attribute -- no {...rest} spread reaches the root', () => {
@@ -102,7 +102,7 @@ test('ArenaCalendarEvent drops a consumer attribute -- no {...rest} spread on th
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the chip -- a {...rest} escape opened');
 });
 
-test('an event colours its chip from colorId, not from the old slot field', () => {
+test('an event colours its chip from colorId, not from a slot field', () => {
   const html = render({});
   const two = 'data-arena-color-id="2"';
   assert.ok(html.includes(two), 'the second event did not take its ramp colour from colorId');
@@ -111,7 +111,7 @@ test('an event colours its chip from colorId, not from the old slot field', () =
   const stale = renderToStaticMarkup(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">{staleChip}</ArenaCalendar>,
   );
-  assert.ok(!stale.includes(two), 'the old `slot` field still picks a ramp colour -- the rename did not land');
+  assert.ok(!stale.includes(two), 'the `slot` field picked a ramp colour');
 });
 
 test('the day affordance follows dayInteractive and never the listener -- R6', () => {
@@ -236,7 +236,7 @@ test('the chip lifts its clip while the panel is open, and only then', () => {
   assert.match(chip({ defaultPanelOpen: true }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-panel-open=""/,
     'the open panel is still clipped by the chip');
   assert.match(chip({}), /\b(?:arena-calendar__chip|arena-calendar__title)\b/,
-    'a closed chip stopped clipping -- a long title no longer ellipsises');
+    'a closed chip did not clip, so a long title did not ellipsise');
   assert.match(chip({}), /\barena-calendar__title\b/,
     'the title span lost the ellipsis the chip clip was standing in for');
 });
@@ -255,7 +255,7 @@ test('the chip height floor clears the title line once the height is an outer he
   assert.match(html, /height:max\(calc\(var\(--sp-1\) \* 6\.5\), \d+px\)/,
     'the height floor is still stated as a content height -- under border-box it leaves too little content box for the title line');
   assert.doesNotMatch(html, /calc\(var\(--sp-1\) \* 4\.5\)/,
-    'the old content-box floor survived somewhere in the render');
+    'a content-box floor appeared in the render');
 });
 
 test('a chip carrying a kebab reserves the width the kebab occupies', () => {

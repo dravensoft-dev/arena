@@ -1,7 +1,7 @@
 {
   "family": "grid-gap",
   "reach": "box",
-  "description": "The air between the cells of a grid, on both axes. The question is the adopter's, because rhythm is the page's and a grid is where a hand-picked gap shows worst. The options are the page rhythm scale itself. arena-grid-gap-group groups related cells, arena-grid-gap-component, the default, sets two peers apart, arena-grid-gap-section reads as two sections, and arena-grid-gap-none closes the gap. Set --arena-grid-gap on a container for a gap no step names. Write a length, or a derivation of tokens such as calc(var(--rhythm-group) / 2). A class on the grid wins over a property on its container.",
+  "description": "The air between the cells of a grid, on both axes. The question is the adopter's, because rhythm is the page's and a grid is where a hand-picked gap shows worst. The options are the page rhythm scale itself. arena-grid-gap-group groups related cells, arena-grid-gap-component, the default, sets two peers apart, arena-grid-gap-section reads as two sections, and arena-grid-gap-none closes the gap. Set --arena-grid-gap on a container for a gap no step names. Write a token, or a derivation of tokens, such as calc(var(--rhythm-group) / 2). A class on the grid wins over a property on its container.",
   "default": "arena-grid-gap-component",
   "variants": {
     "arena-grid-gap-none": "[--arena-grid-gap-size:0]",

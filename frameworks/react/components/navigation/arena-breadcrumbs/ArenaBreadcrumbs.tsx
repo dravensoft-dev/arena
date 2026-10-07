@@ -13,7 +13,7 @@ export interface ArenaBreadcrumbsProps {
   className?: ArenaBreadcrumbsClass;
 
 
-  /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
+  /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as "Breadcrumb" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
   ariaLabel: string;
 
   /** The trail, root first. The last entry is the current location and is never a link. */

@@ -119,7 +119,7 @@ reader's ear.
 ## Verifying the grid by hand
 
 `ArenaTable` has render suites. One walks the grid cell by cell and renders both declared shapes. Another covers the markup: the roles, the name, the `label` guard, the tab-stop count, and that the removed members reach nothing.
-The rule that a `grid` component was hand-tested *instead* is retired. A grid suite asserts at every cell that focus landed where the arrow should take it, and that exactly one `tabindex="0"` exists and is that cell. Each edge clamp costs one extra press. **The bill is the press count**, since every press re-renders the grid through `act()`. The bill is why the fixture stays small and explicitly sized. What is below is what no suite can reach, since happy-dom
+A grid component is not hand-tested instead. A grid suite asserts at every cell that focus landed where the arrow should take it, and that exactly one `tabindex="0"` exists and is that cell. Each edge clamp costs one extra press. **The bill is the press count**, since every press re-renders the grid through `act()`. The bill is why the fixture stays small and explicitly sized. What is below is what no suite can reach, since happy-dom
 implements no layout and no native sequential focus navigation, and only a person checks it.
 
 Serve the tree with `bun run demos`, open

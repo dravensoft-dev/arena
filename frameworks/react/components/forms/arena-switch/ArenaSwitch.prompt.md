@@ -39,11 +39,11 @@ const [dark, setDark] = useState(false);
 once, for the direction the activation moved. There is no `onChange`: read the direction
 from which handler fired, not from an event argument.
 
-For **high-impact** toggles (H5) add `confirm`. An activate no longer fires `onFuncOn` or `onFuncOff` at all, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
+For **high-impact** toggles (H5) add `confirm`. An activate fires neither `onFuncOn` nor `onFuncOff`, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
 never whether a handler was passed: `confirm` set with no `onRequestChange` is a switch that
-does nothing at all. The cost is the accepted one of the rule that no render or behaviour follows from whether a listener is bound. The cost is worth paying, because what it replaced applied a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
+does nothing at all. The cost is the accepted one of the rule that no render or behaviour follows from whether a listener is bound. The cost is worth paying, because a fallback on a bound listener applies a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
 is precisely the question a component may not ask. The behaviour is pinned, so the fallback
-cannot come back unnoticed.
+cannot appear unnoticed.
 
 ```tsx
 const [armed, setArmed] = useState(false);

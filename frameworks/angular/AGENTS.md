@@ -373,8 +373,8 @@ a page, so a page cannot go missing and a list cannot go stale.
 **`check:angular-demos` is structural only**, and the distinction is what the pages are for: it
 proves a page exists, loads its own bundle and mounts a zoneless app, never that what it renders
 is right. What the pages catch is what a suite cannot. A carve-out host that blockifies as a flex item
-leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a `full`
-variant renders as nothing at all, and happy-dom has no layout to see it.
+leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a fill
+class renders as nothing at all, and happy-dom has no layout to see it.
 **A checklist line a real browser can decide belongs in a gate rather than in a checklist**,
 which is what `check:focus-trap` took over for the one it covers. What is left for a
 person is what needs their **judgement**: whether a name is a good name, whether motion reads as

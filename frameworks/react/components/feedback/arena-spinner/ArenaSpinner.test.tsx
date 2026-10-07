@@ -9,7 +9,7 @@ test('ArenaSpinner announces its label through an explicitly polite progressbar'
   assert.match(html, /role="progressbar"/);
   assert.match(html, /aria-live="polite"/,
     'role="progressbar" carries no implicit live region, so dropping the explicit aria-live '
-    + 'silently removes the announcement role="status" used to provide');
+    + 'silently removes the announcement role="status" provides');
   assert.match(html, /aria-label="Loading deploys"/);
 });
 

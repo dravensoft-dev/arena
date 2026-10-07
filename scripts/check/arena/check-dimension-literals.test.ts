@@ -93,7 +93,7 @@ test('a percent in unquoted CSS text is captured whole, not truncated to a bare 
   assert.deepEqual(scanText('width:40%'), []);
 });
 
-test('regression: ArenaProgressBar.jsx keyframe text no longer reads as three violations', () => {
+test('regression: ArenaProgressBar.jsx keyframe text reads as no violation', () => {
 
   const keyframes =
     '@keyframes arena-prog{0%{left:-40%}100%{left:100%}}' +
@@ -318,7 +318,7 @@ test('EXEMPT records the three ARENA_SR_ONLY visually-hidden literals, by name',
   assert.ok(!EXEMPT.has("frameworks/angular/DataVisuals.ts:border:'0'"));
 });
 
-test('no exemption names a demo entry, since a hand-written one no longer exists to carry a literal', () => {
+test('no exemption names a demo entry, since no hand-written one exists to carry a literal', () => {
   for (const key of EXEMPT.keys()) {
     assert.doesNotMatch(key, /\.card\.entry\.tsx:/,
       `${key} names a page entry this layer stopped hand-writing; a generated one binds every value through a knob`);
@@ -617,8 +617,8 @@ test('a governed property name at the tail of a longer one is not that property'
 test('the lookbehind matters because a mismatched property swallows past the string it was found in', () => {
   const src = "const a = 'stroke-width: var(--bw);';\nconst b = 'p95 line chart';\n";
   assert.deepEqual(scanText(src), [],
-    'reading `width` out of `stroke-width` used to run the value past the closing quote and report a '
-    + 'bare literal at a site that had none -- naming a file and a property that were not the defect');
+    'reading `width` out of `stroke-width` stops the value at the closing quote and reports no '
+    + 'bare literal at a site that has none -- naming a file and a property that were not the defect');
 });
 
 test('a dist tree is assembled output, so the scan never opens it', () => {

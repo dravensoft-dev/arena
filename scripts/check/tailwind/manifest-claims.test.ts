@@ -1,8 +1,6 @@
 /* What each manifest MEANS: which tone paints which token, which size is which height, which
- * branch a responsive layout takes. Every claim here was asserted inside a layer suite against
- * the class string a recipe resolved, in both layers, about the same one manifest. A component
- * renders its own class names now, so a layer suite can no longer see a utility, and Angular
- * may not import a manifest to look: that is the edge this whole change removes. So the claims
+ * branch a responsive layout takes. A component renders its own class names, so a layer suite cannot see a utility, and Angular
+ * may not import a manifest to look. So the claims
  * live once, beside the manifests, resolved through classesFor, the function the compiler applies,
  * which concatenates a slot's base and each chosen branch and never merges. */
 

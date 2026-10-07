@@ -91,7 +91,7 @@ never whether anything is listening, which is why `interactive` exists at all.
 The rows are **authored** by the consumer, as `<tr arena-table-row>`, and the width that decides the
 shape is measured at runtime. So the elements cannot change with the shape. A `<tr>` that is not a DOM child of a table is dropped outright by the HTML parser, which is what a server render and its re-parse put it through. A shape that appears and disappears under the rows is therefore not available here. The single shape that survives both widths is a real `<table>` always, restyled by CSS into cards below `--bp-md`.
 
-That also settles a second constraint that used to point the other way. Angular indexes projection slots in template order and hands the content to the **first** matching one. A `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
+That also settles a second constraint. Angular indexes projection slots in template order and hands the content to the **first** matching one. A `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
 and one `<ng-content>`, and nothing to choose between.
 
 `role="grid"` is still written, because APG's grid is not the `table` a `<table>` maps to and the
@@ -101,7 +101,7 @@ The empty state is still a block **beside** the table rather than a cell spannin
 left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 were checked in real Chromium. One Tab in, then the gold inset ring on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
+`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 are checked in real Chromium. One Tab in, then the gold inset ring on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
 it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the

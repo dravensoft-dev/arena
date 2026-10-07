@@ -16,7 +16,7 @@ test('an inline root that answers fill and reads the channel with fit-content be
   assert.deepEqual(manifestFindings(clone('ArenaButton')).findings, []);
 });
 
-test('an inline root that answers fill and no longer reads the channel fails', () => {
+test('an inline root that answers fill and does not read the channel fails', () => {
   const button = clone('ArenaButton');
   slots(button)['root'] = slots(button)['root']!.replace(FILL_READ, 'w-fit');
   assert.ok(manifestFindings(button).findings.length > 0);

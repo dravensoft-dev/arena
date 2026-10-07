@@ -71,7 +71,7 @@ test('a symbol INTERNAL declares is one the page may leave out', () => {
 
 test('a declared symbol no barrel carries any more fails as a stale declaration', () => {
   const reached = new Map([['react', ['arenaThing']]]);
-  const declared = new Map([['arenaGone', 'a helper that used to reach the root and does not now']]);
+  const declared = new Map([['arenaGone', 'a helper that does not reach the root']]);
   const problems = staleInternalProblems(reached, declared);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /INTERNAL declares arenaGone, which no barrel reaches any more/);

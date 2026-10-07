@@ -26,7 +26,7 @@ test('ArenaPageHead takes its alignment as a class on the root', () => {
   assert.doesNotMatch(renderToStaticMarkup(<ArenaPageHead title="Deployments" />), /arena-align|data-arena-align/);
 });
 
-test('ArenaPageHead no longer applies a baked bottom margin -- the parent composes spacing now', () => {
+test('ArenaPageHead applies no bottom margin -- the parent composes spacing', () => {
   const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" />);
   assert.doesNotMatch(html, /\bmb-/);
 });

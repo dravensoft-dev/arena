@@ -229,9 +229,8 @@ package takes a class or a style from its consumer on any component, so there wa
 route into that box to withdraw.
 
 **This is the statement's home rather than each `PACKAGE.md`**, on the same split as the section
-above: a README tells an adopter what to do, and this says what we are free to change. Until now
-the consequence was written three times, once each in `ArenaPagination`'s, `ArenaCalendarEvent`'s
-and `ArenaBreadcrumbs`' own prompt, and the other components that pay it said nothing. A rule
+above: a README tells an adopter what to do, and this says what we are free to change. A consequence written once per component, as in `ArenaPagination`'s, `ArenaCalendarEvent`'s
+and `ArenaBreadcrumbs`' own prompt, leaves the other components that pay it silent. A rule
 recorded per component is a rule that is missing wherever nobody thought to repeat it.
 
 **The vocabulary page lists `.arena-stack` and `.arena-row`.** Telling an adopter to put the layout

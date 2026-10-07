@@ -32,7 +32,7 @@ handler instead:
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". |
+| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as "Breadcrumb" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". |
 | `items*` | array | `readonly ArenaCrumb[]` |  | The trail, root first. The last entry is the current location and is never a link. |
 | `separator` | primitive | `string` | `"/"` | Drawn between crumbs, never before the first. Arena draws it, in its own aria-hidden span. |
 | `origin` | primitive | `string` |  | The scheme and host each crumb's href is resolved against in the structured data the component emits, as in "https://example.com". Absent, the relative href is published as it stands, which is valid and less well supported. It is a member rather than something read off the document because location.origin does not exist on a server, and a value that differs between the server render and the client one is the hydration hazard ArenaCalendar.timeZone already documents; a value the consumer passes cannot differ. One line per application, not per screen. It changes nothing a person sees. |

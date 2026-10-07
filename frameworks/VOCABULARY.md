@@ -65,7 +65,7 @@ The column a page's content sits in, at the page width with a gutter either side
 
 ## board-column
 
-How narrow a column of a board may get before the board scrolls sideways rather than squeezing. The question is the adopter's, because a tracker of many lanes wants slim columns and a board of a few wants room for its cards, from the same markup. arena-board-column-md is the default and reads board-column-md. arena-board-column-sm and arena-board-column-lg read board-column-sm and board-column-lg. Set --arena-board-column on a container for a width no step names. Write a length, or a token such as var(--board-column-md) or calc(var(--board-column-md) * 1.5). A class on the board wins over a property on its container.
+How narrow a column of a board may get before the board scrolls sideways rather than squeezing. The question is the adopter's, because a tracker of many lanes wants slim columns and a board of a few wants room for its cards, from the same markup. arena-board-column-md is the default and reads board-column-md. arena-board-column-sm and arena-board-column-lg read board-column-sm and board-column-lg. Set --arena-board-column on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--board-column-md) or calc(var(--board-column-md) * 1.5). A class on the board wins over a property on its container.
 
 - **Options:** `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -74,7 +74,7 @@ How narrow a column of a board may get before the board scrolls sideways rather 
 
 ## column
 
-How wide a column of a table is and how its cells align, which is the adopter's to say because the table cannot know what its columns hold. A column opts in by naming itself with an optional key, and the table then reads --arena-column-<key>-width and --arena-column-<key>-align for it. Set them on the table or on a container of yours. The width is a length or a token such as calc(var(--sp-1) * 40), and the alignment is left, center or right. A column with no key, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment. A table nested in a cell reads the outer property set under the same key, so it takes another key.
+How wide a column of a table is and how its cells align, which is the adopter's to say because the table cannot know what its columns hold. A column opts in by naming itself with an optional key, and the table then reads --arena-column-<key>-width and --arena-column-<key>-align for it. Set them on the table or on a container of yours. The width is a token or a derivation of tokens such as calc(var(--sp-1) * 40), and the alignment is left, center or right. A column with no key, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment. A table nested in a cell reads the outer property set under the same key, so it takes another key.
 
 - **Options:** keyed by `key`.
 - **Reach:** box: it is read by the components that bind it, for the key each one is given.
@@ -92,7 +92,7 @@ How much a region holds, which is a question about who is pointing at it rather 
 
 ## dialog-width
 
-How wide the panel of a dialog is, which decides how much of a form or a message fits on a line. The question is the adopter's, because a confirmation wants a narrow panel and a form wants a wide one from the same component. arena-dialog-width-md is the default and reads dialog-width-md. arena-dialog-width-sm and arena-dialog-width-lg read dialog-width-sm and dialog-width-lg. Set --arena-dialog-width on a container for a width no step names. Write a length, or a token such as var(--dialog-width-md) or calc(var(--dialog-width-md) * 1.5). A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both.
+How wide the panel of a dialog is, which decides how much of a form or a message fits on a line. The question is the adopter's, because a confirmation wants a narrow panel and a form wants a wide one from the same component. arena-dialog-width-md is the default and reads dialog-width-md. arena-dialog-width-sm and arena-dialog-width-lg read dialog-width-sm and dialog-width-lg. Set --arena-dialog-width on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--dialog-width-md) or calc(var(--dialog-width-md) * 1.5). A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both.
 
 - **Options:** `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -127,7 +127,7 @@ Whether a component takes the width of the box it sits in or the width of its ow
 
 ## grid-gap
 
-The air between the cells of a grid, on both axes. The question is the adopter's, because rhythm is the page's and a grid is where a hand-picked gap shows worst. The options are the page rhythm scale itself. arena-grid-gap-group groups related cells, arena-grid-gap-component, the default, sets two peers apart, arena-grid-gap-section reads as two sections, and arena-grid-gap-none closes the gap. Set --arena-grid-gap on a container for a gap no step names. Write a length, or a derivation of tokens such as calc(var(--rhythm-group) / 2). A class on the grid wins over a property on its container.
+The air between the cells of a grid, on both axes. The question is the adopter's, because rhythm is the page's and a grid is where a hand-picked gap shows worst. The options are the page rhythm scale itself. arena-grid-gap-group groups related cells, arena-grid-gap-component, the default, sets two peers apart, arena-grid-gap-section reads as two sections, and arena-grid-gap-none closes the gap. Set --arena-grid-gap on a container for a gap no step names. Write a token, or a derivation of tokens, such as calc(var(--rhythm-group) / 2). A class on the grid wins over a property on its container.
 
 - **Options:** `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -136,7 +136,7 @@ The air between the cells of a grid, on both axes. The question is the adopter's
 
 ## grid-max
 
-The widest a grid runs before it centres in whatever contains it. The question is the adopter's, because a page's own reading width is a decision about one page, and a grid nested in a page should fill its container. arena-grid-max-none is the default and sets no ceiling. arena-grid-max-sm, arena-grid-max-md and arena-grid-max-lg read grid-max-sm, grid-max-md and grid-max-lg. Set --arena-grid-max on a container for a ceiling no step names. Write a length, or a token such as var(--container-max). A class on the grid wins over a property on its container.
+The widest a grid runs before it centres in whatever contains it. The question is the adopter's, because a page's own reading width is a decision about one page, and a grid nested in a page should fill its container. arena-grid-max-none is the default and sets no ceiling. arena-grid-max-sm, arena-grid-max-md and arena-grid-max-lg read grid-max-sm, grid-max-md and grid-max-lg. Set --arena-grid-max on a container for a ceiling no step names. Write a token, or a derivation of tokens, such as var(--container-max). A class on the grid wins over a property on its container.
 
 - **Options:** `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -145,7 +145,7 @@ The widest a grid runs before it centres in whatever contains it. The question i
 
 ## grid-min
 
-How narrow a cell of a grid may get before the grid drops a column, which decides how many cards a viewport shows. The question is the adopter's, because a gallery wants a dense wall and a ledger wants a wide column from the same markup. arena-grid-min-md is the default and reads grid-min. arena-grid-min-sm and arena-grid-min-lg read grid-min-sm and grid-min-lg. Set --arena-grid-min on a container for a width no step names. Write a length, or a token such as var(--grid-min) or calc(var(--grid-min) * 1.5). A class on the grid wins over a property on its container.
+How narrow a cell of a grid may get before the grid drops a column, which decides how many cards a viewport shows. The question is the adopter's, because a gallery wants a dense wall and a ledger wants a wide column from the same markup. arena-grid-min-md is the default and reads grid-min. arena-grid-min-sm and arena-grid-min-lg read grid-min-sm and grid-min-lg. Set --arena-grid-min on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--grid-min) or calc(var(--grid-min) * 1.5). A class on the grid wins over a property on its container.
 
 - **Options:** `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -205,7 +205,7 @@ The shape of the frame a figure clips its picture to, as the ratio of its width 
 
 ## rhythm
 
-How far the head of a section stands from its body. The question is the adopter's, because the distance depends on what the body holds, and a body that carries its own top edge wants none. The options are the page rhythm scale itself. arena-rhythm-group reads as one unit, arena-rhythm-component, the default, as a head over its own content, arena-rhythm-section as a head over a region of the page, and arena-rhythm-none closes the distance. Set --arena-rhythm on a container for a distance no step names. Write a length, or a derivation of tokens such as calc(var(--rhythm-group) * 1.5). A class on the section wins over a property on its container.
+How far the head of a section stands from its body. The question is the adopter's, because the distance depends on what the body holds, and a body that carries its own top edge wants none. The options are the page rhythm scale itself. arena-rhythm-group reads as one unit, arena-rhythm-component, the default, as a head over its own content, arena-rhythm-section as a head over a region of the page, and arena-rhythm-none closes the distance. Set --arena-rhythm on a container for a distance no step names. Write a token, or a derivation of tokens, such as calc(var(--rhythm-group) * 1.5). A class on the section wins over a property on its container.
 
 - **Options:** `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -222,7 +222,7 @@ Things side by side that read as one unit, at the group step: a mark beside a na
 
 ## scroller-item
 
-How wide each item of a scrolling row is laid out, which makes the row a rail rather than a line of whatever the children measured. The question is the adopter's, because a rail of posters wants narrow items and a rail of cards wants wide ones from the same markup. arena-scroller-item-md is the default and reads scroller-item-md. arena-scroller-item-sm and arena-scroller-item-lg read scroller-item-sm and scroller-item-lg. Set --arena-scroller-item on a container for a width no step names. Write a length, or a token such as var(--scroller-item-md) or calc(var(--scroller-item-md) * 1.5). A class on the row reaches each item, because the row is transparent and the item is the box that reads it.
+How wide each item of a scrolling row is laid out, which makes the row a rail rather than a line of whatever the children measured. The question is the adopter's, because a rail of posters wants narrow items and a rail of cards wants wide ones from the same markup. arena-scroller-item-md is the default and reads scroller-item-md. arena-scroller-item-sm and arena-scroller-item-lg read scroller-item-sm and scroller-item-lg. Set --arena-scroller-item on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--scroller-item-md) or calc(var(--scroller-item-md) * 1.5). A class on the row reaches each item, because the row is transparent and the item is the box that reads it.
 
 - **Options:** `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
@@ -252,7 +252,7 @@ How big a control, a meter, a face or a mark is drawn. The region a component si
 
 ## skeleton
 
-The shape of a loading placeholder that stands in for one box. The shapes are a block for a card or an image, a line for a run of text, and a circle for an avatar. The question is the adopter's, because only the page knows what is loading. arena-skeleton-block is the default. Set --arena-skeleton-width, --arena-skeleton-height and --arena-skeleton-radius on a container for a size or a corner no shape names. Write a length, or a token such as var(--sp-1) or calc(var(--sp-1) * 40). The radius is read by the block only. A line keeps the marker corner and a circle the pill, and a circle is one diameter, so its height wins over its width. A placeholder given lines is a stack of text lines whatever its class, and reads only the width.
+The shape of a loading placeholder that stands in for one box. The shapes are a block for a card or an image, a line for a run of text, and a circle for an avatar. The question is the adopter's, because only the page knows what is loading. arena-skeleton-block is the default. Set --arena-skeleton-width, --arena-skeleton-height and --arena-skeleton-radius on a container for a size or a corner no shape names. Write a token, or a derivation of tokens, such as var(--sp-1) or calc(var(--sp-1) * 40). The radius is read by the block only. A line keeps the marker corner and a circle the pill, and a circle is one diameter, so its height wins over its width. A placeholder given lines is a stack of text lines whatever its class, and reads only the width.
 
 - **Options:** `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.

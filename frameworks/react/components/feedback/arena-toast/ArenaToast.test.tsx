@@ -21,9 +21,9 @@ test('dismissible shows the x, and it is the standard ph-x glyph', () => {
   assert.match(html, /ph-bold ph-x/, 'the close button did not use the standard ph-x dismiss glyph');
 });
 
-test('onClose without dismissible shows no x -- the listener no longer gates the button', () => {
+test('onClose without dismissible shows no x -- the listener does not gate the button', () => {
   const html = renderToStaticMarkup(<ArenaToast title="Deployment archived" onClose={() => {}} />);
-  assert.doesNotMatch(html, /<button/, 'the x rendered from an onClose listener alone -- the pre-EJ gate is back');
+  assert.doesNotMatch(html, /<button/, 'the x rendered from an onClose listener alone');
 });
 
 test('persist renders the Pinned marker, and its absence renders none', () => {

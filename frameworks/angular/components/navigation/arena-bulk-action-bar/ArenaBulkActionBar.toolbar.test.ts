@@ -1,6 +1,6 @@
 /* The toolbar-pattern suite this component's binding requires. The host is the toolbar here, and
- * it drops its role and label entirely when the selection is empty -- before this
- * it announced a labelled region over an empty template, which is a landmark
+ * it drops its role and label entirely when the selection is empty, because
+ * a labelled region over an empty template is a landmark
  * pointing at nothing. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();

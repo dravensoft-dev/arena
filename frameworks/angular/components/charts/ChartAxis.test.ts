@@ -32,8 +32,8 @@ test('the gutter never narrows below the pad, so a short axis draws what it alwa
     assert.ok(arenaValueGutter(domain, String) >= ARENA_PAD.l, `at a maximum of ${max}`);
   }
   assert.equal(arenaValueGutter(arenaNiceDomain(0, 100), String), ARENA_PAD.l,
-    'three digits and a gap fit the pad, which is why the charts that shipped before this draw '
-    + 'the same bytes they drew');
+    'three digits and a gap fit the pad, which is why the charts draw '
+    + 'the same bytes at the same pad');
 });
 
 test('a wider gutter takes its room from the plot rather than from the box', () => {

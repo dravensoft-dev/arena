@@ -28,8 +28,8 @@ test('the schema is named at the depth the staging tree sits at, so an editor re
 test('the one runtime dependency is allowed by name, or ng-packagr refuses to write', () => {
   assert.deepEqual(ngPackageConfig().allowedNonPeerDependencies, Object.keys(RUNTIME_DEPENDENCIES));
   assert.deepEqual(Object.keys(RUNTIME_DEPENDENCIES).sort(), ['tslib'],
-    'a component composes its own class names, so the two recipe libraries that used to ship here '
-    + 'are gone; tslib is Angular\'s own helper import and is the only one left');
+    'a component composes its own class names, so no recipe library ships here; '
+    + 'tslib is Angular\'s own helper import and is the only one left');
 });
 
 test('the library compiles in partial mode under strictTemplates', () => {

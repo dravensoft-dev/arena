@@ -1,7 +1,7 @@
 {
   "family": "rhythm",
   "reach": "box",
-  "description": "How far the head of a section stands from its body. The question is the adopter's, because the distance depends on what the body holds, and a body that carries its own top edge wants none. The options are the page rhythm scale itself. arena-rhythm-group reads as one unit, arena-rhythm-component, the default, as a head over its own content, arena-rhythm-section as a head over a region of the page, and arena-rhythm-none closes the distance. Set --arena-rhythm on a container for a distance no step names. Write a length, or a derivation of tokens such as calc(var(--rhythm-group) * 1.5). A class on the section wins over a property on its container.",
+  "description": "How far the head of a section stands from its body. The question is the adopter's, because the distance depends on what the body holds, and a body that carries its own top edge wants none. The options are the page rhythm scale itself. arena-rhythm-group reads as one unit, arena-rhythm-component, the default, as a head over its own content, arena-rhythm-section as a head over a region of the page, and arena-rhythm-none closes the distance. Set --arena-rhythm on a container for a distance no step names. Write a token, or a derivation of tokens, such as calc(var(--rhythm-group) * 1.5). A class on the section wins over a property on its container.",
   "default": "arena-rhythm-component",
   "variants": {
     "arena-rhythm-none": "[--arena-rhythm-gap:0]",

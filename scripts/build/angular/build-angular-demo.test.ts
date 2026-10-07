@@ -1,4 +1,4 @@
-/* The two claims this step makes about its own output, both of which used to be nobody's: that
+/* The two claims this step makes about its own output, each of which this suite alone states: that
  * ngc compiled an entry for every page, and that the bundler landed each one in build/demo/js
  * under the name the page loads it by. The second is the one a browser gate cannot state: a page
  * whose entry is missing renders an empty document, and every gate that opens one then waits out

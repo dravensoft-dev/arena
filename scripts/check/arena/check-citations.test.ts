@@ -1,6 +1,6 @@
 /* The gate reads the real tree, which is correct by construction once it passes, so these drive
  * its pure functions with the shapes a broken citation takes: a path deleted by charter, one
- * naming a build step nothing answers to, and one sitting in a surface no walk used to reach, a
+ * naming a build step nothing answers to, and one sitting in a surface no walk reaches, a
  * type description and a suite header. EXEMPT and BARE_EXEMPT are asserted by name. */
 
 import { test } from 'node:test';

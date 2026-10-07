@@ -10,18 +10,18 @@ test('a closed ArenaMenu draws its trigger and no panel', () => {
   );
   assert.match(html, /<button type="button" aria-haspopup="menu" aria-expanded="false">Open<\/button>/,
     'the popup state must sit on the real trigger button -- ARIA is not inherited from an ancestor');
-  assert.doesNotMatch(html, /<span[^>]*aria-haspopup/, 'the wrapping span that used to carry it is gone');
+  assert.doesNotMatch(html, /<span[^>]*aria-haspopup/, 'a wrapping span carried it');
   assert.doesNotMatch(html, /role="menu"/, 'the panel rendered before anything opened it');
 
   assert.equal((html.match(/Rename/g) || []).length, 0, 'an entry was drawn while the menu was closed');
 });
 
-test('ArenaMenu drops a consumer style object -- the ...style escape is gone', () => {
+test('ArenaMenu drops a consumer style object', () => {
   const html = renderToStaticMarkup(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     <ArenaMenu trigger={<button type="button">Open</button>} items={[]} style={{ color: '#ff00ff' }} />,
   );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
+  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root');
 });
 
 test('ArenaMenu drops a consumer attribute -- no {...rest} spread reaches the root', () => {

@@ -35,14 +35,13 @@ test('the rule is the matrix: angular may name tailwind, and nothing else names 
 
 test('no layer reads another layer\'s SOURCE; the one authorised edge is a link, not a read', () => {
   assert.deepEqual([...ALLOWED.keys()], [],
-    'a layer stands on contracts/ alone; the one edge that used to exist was Angular reaching for '
-    + 'a Tailwind manifest, and it went when a component started composing its own class names');
+    'a layer stands on contracts/ alone, and a component composes its own class names');
 });
 
 test('no reference across layers is authorised, and asking about one answers no', () => {
   assert.deepEqual([...ALLOWED_SPECIFIERS.keys()], [],
     'every page that links the compiled CSS is emitted, and an emitted file is outside what this '
-    + 'gate scans, so the pattern that used to authorise the edge authorises nothing and went');
+    + 'gate scans, so no pattern authorises the edge');
   for (const reason of ALLOWED_SPECIFIERS.values()) assert.ok(reason.trim().length > 0, 'a reason is the whole entry');
   assert.equal(isAllowedSpecifier('frameworks/tailwind/consume/Components.generated.css'), false);
   assert.equal(isAllowedSpecifier('frameworks/tailwind/components/display/arena-tag/ArenaTag.manifest.generated'), false);

@@ -4,8 +4,8 @@
  * that installed nothing. The payload is a partial clone of this tree, so a path to something it
  * carries needs no rewrite and only what it leaves behind is touched. It is carried once per
  * layer, because the router and several references say different things to a React reader and to
- * an Angular one. The behaviour contracts are carried rather than pointed at, so the one relative
- * link that used to climb into a package root resolves inside the corpus instead. The site list
+ * an Angular one. The behaviour contracts are carried rather than pointed at, so a relative
+ * link that climbs into a package root resolves inside the corpus instead. The site list
  * and the repository list are separate because a wrong guess between them answers 404 to an agent
  * that cannot tell that from an empty answer. */
 

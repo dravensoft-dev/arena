@@ -59,7 +59,7 @@ test('the row still activates from a cell that holds no control', () => {
   const seen = counters();
   const host = table(seen);
   click(host.querySelectorAll('td')[1] as Element);
-  assert.equal(seen.activated, 1, 'a plain cell no longer activates its row');
+  assert.equal(seen.activated, 1, 'a plain cell did not activate its row');
 });
 
 test('Enter on a cell activates only a row that is interactive and not disabled', () => {

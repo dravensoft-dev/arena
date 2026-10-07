@@ -352,7 +352,7 @@ test('the gap is found between any two rungs, not only between one and three', (
 });
 
 test('the ladder this rule reads is the one the contracts declare, or it is judging a shape Arena '
-  + 'no longer draws', () => {
+  + 'does not draw', () => {
   const dir = join(repoRoot, 'contracts/api/components');
   const declared: Record<string, number> = {};
   for (const file of readdirSync(dir)) {
@@ -423,7 +423,7 @@ test('a primary emphasis class is read in either layer idiom, and an expression 
     + '<ArenaButton className="arena-emphasis-primary-x">b</ArenaButton>'), '');
   assert.equal(primaries('<ArenaButton variant="primary">a</ArenaButton>\n'
     + '<ArenaButton variant="primary">b</ArenaButton>').includes('one-primary'), false,
-    'the rule no longer reads variant="primary"');
+    'the rule does not read variant="primary"');
 });
 
 

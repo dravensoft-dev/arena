@@ -40,7 +40,7 @@ test('arena-breadcrumbs is a named nav landmark, and two of them are told apart'
     assert.equal(nav.getAttribute('role'), null,
       'a real <nav> carries the landmark natively, so role="navigation" on top of it is noise');
     assert.notEqual(landmark(other).getAttribute('aria-label'), nav.getAttribute('aria-label'),
-      'two trails on one page must be distinguishable, which the retired hardcoded label made impossible');
+      'two trails on one page must be distinguishable, which a hardcoded label makes impossible');
 
     assertPattern({ root: fixture.nativeElement as Element, bindingPath: BINDING, subjects: { default: nav } });
   } finally {

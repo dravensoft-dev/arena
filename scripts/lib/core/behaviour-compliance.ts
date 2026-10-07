@@ -298,7 +298,7 @@ export function evaluate(
   throw new Error(
     `evaluate: unrecognised requirement key "${key}". ` +
     'Every key must be in DECIDABLE or BEHAVIOURAL in scripts/lib/behaviour-compliance.ts. ' +
-    'If this came from a pattern file, check it for a typo — an unknown key used to return ' +
+    'If this came from a pattern file, check it for a typo — so an unknown key cannot return ' +
     'null, which a suite could silence forever by declaring it behavioural.',
   );
 }

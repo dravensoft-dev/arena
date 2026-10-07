@@ -1,10 +1,8 @@
 /* Danger is outline: the error token is ink, a border and a tint, never a full-strength
  * background. The one filled danger surface in the system is the final irreversible
  * confirmation inside ArenaConfirmDialog, and it says so by reading roles of its own, through
- * bg-confirm-final, rather than --error at full strength. Both halves used to be asserted per
- * component against a resolved class string, which stopped being possible once a component
- * renders its own class names. Asserting them once over the authored manifests is what
- * survived, and the second half was never asserted anywhere at all. */
+ * bg-confirm-final, rather than --error at full strength. Both halves are asserted once over the authored manifests,
+ * because a component renders its own class names and a resolved class string is not there to read. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

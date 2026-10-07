@@ -62,7 +62,7 @@ test('every module a page imports is one the tree holds, so the graph has no dea
   assert.deepEqual(missingModules(), []);
 });
 
-test('the graph reaches past the entry beside the page, which is where it used to stop', () => {
+test('the graph reaches past the entry beside the page', () => {
   const carried = new Set(modules());
   assert.ok(carried.size > 0, 'an empty graph would publish nothing and report every page whole');
   for (const rel of carried) {

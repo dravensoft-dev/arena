@@ -85,7 +85,7 @@ test('the host carries the recipe class and no inline geometry', () => {
     assert.equal(host.getAttribute('style'), null, 'a grid takes no style: its tracks, ceiling and gap are the slot class');
     assert.equal(host.getAttribute('data-arena-part'), manifest.parts.root);
     for (const attr of ['data-arena-gap', 'data-arena-centred']) {
-      assert.equal(host.hasAttribute(attr), false, `${attr} was only produced by a retired member`);
+      assert.equal(host.hasAttribute(attr), false, `${attr} is produced by no member`);
     }
   } finally {
     fixture.destroy();

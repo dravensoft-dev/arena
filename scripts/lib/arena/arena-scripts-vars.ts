@@ -2,7 +2,7 @@
  * needs no exports. A real environment variable wins over a value below, so a one-off override
  * stays a shell prefix rather than an edit to a versioned file. CI is recognised and never
  * declared: claiming it would tell the scripts they run on a runner. ARENA_CHECK_STRICT buys
- * the same thing and claims nothing. CHROME_PATH is recognised too, and used to be declared: a
+ * the same thing and claims nothing. CHROME_PATH is recognised too, and never declared: a
  * default laid under the environment made every machine look like one where a person had named
  * a browser, leaving the candidate list unreachable and its macOS entries dead from the day they
  * were written. A default is not an override, which is also why ARENA_PIXEL_DUMP is recognised

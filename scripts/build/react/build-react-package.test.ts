@@ -66,8 +66,7 @@ test('react, react-dom and Phosphor are the peers, and nothing at all is a depen
   assert.equal(m.peerDependencies.react, '^18 || ^19',
     'the range is the two majors a real tarball install was rendered under; an open >=18 would promise React 20');
   assert.ok(!('dependencies' in m),
-    'a component composes its own class names, so no recipe library ships with it; the two that '
-    + 'used to were 15,834 bytes gzipped and are the reason the package is lighter than the CSS grew');
+    'a component composes its own class names, so no recipe library ships with it');
 });
 
 test('the command the package ships is declared, and it is the one both packages declare', () => {

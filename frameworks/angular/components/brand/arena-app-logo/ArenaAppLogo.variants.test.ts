@@ -6,6 +6,6 @@ test('the logo recipe carries no size or orientation attribute: both are classes
   const styles = arenaAppLogoStyles();
   for (const slot of ['root', 'mark', 'name', 'dim'] as const) {
     const data = JSON.stringify(styles.$data[slot]());
-    assert.ok(!data.includes('data-arena-size') && !data.includes('data-arena-orientation'), `${slot} carries a retired attribute`);
+    assert.ok(!data.includes('data-arena-size') && !data.includes('data-arena-orientation'), `${slot} carries a size or orientation attribute`);
   }
 });

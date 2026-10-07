@@ -18,7 +18,7 @@ this file is not, and the two are almost disjoint by design.
 
 **Most rows below are indexed by what you are changing. The first two are not**, because a
 reader arriving with a symptom does not know yet what they are changing, and that is the state
-this table used to have no row for.
+no other row answers.
 
 | I am here because | Start at |
 |---|---|

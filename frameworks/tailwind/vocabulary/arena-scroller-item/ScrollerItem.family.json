@@ -1,7 +1,7 @@
 {
   "family": "scroller-item",
   "reach": "box",
-  "description": "How wide each item of a scrolling row is laid out, which makes the row a rail rather than a line of whatever the children measured. The question is the adopter's, because a rail of posters wants narrow items and a rail of cards wants wide ones from the same markup. arena-scroller-item-md is the default and reads scroller-item-md. arena-scroller-item-sm and arena-scroller-item-lg read scroller-item-sm and scroller-item-lg. Set --arena-scroller-item on a container for a width no step names. Write a length, or a token such as var(--scroller-item-md) or calc(var(--scroller-item-md) * 1.5). A class on the row reaches each item, because the row is transparent and the item is the box that reads it.",
+  "description": "How wide each item of a scrolling row is laid out, which makes the row a rail rather than a line of whatever the children measured. The question is the adopter's, because a rail of posters wants narrow items and a rail of cards wants wide ones from the same markup. arena-scroller-item-md is the default and reads scroller-item-md. arena-scroller-item-sm and arena-scroller-item-lg read scroller-item-sm and scroller-item-lg. Set --arena-scroller-item on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--scroller-item-md) or calc(var(--scroller-item-md) * 1.5). A class on the row reaches each item, because the row is transparent and the item is the box that reads it.",
   "default": "arena-scroller-item-md",
   "variants": {
     "arena-scroller-item-sm": "[--arena-scroller-item-width:var(--scroller-item-sm)]",

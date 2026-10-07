@@ -58,9 +58,9 @@ test('every row, header cell and data cell takes its grid role from the element 
   const html = render();
   const count = (re: RegExp) => (html.match(re) || []).length;
 
-  assert.equal(count(/<tr\b/g), 3, 'the fixture no longer renders three rows');
-  assert.equal(count(/<th\b/g), 2, 'the fixture no longer renders two header cells');
-  assert.equal(count(/<td\b/g), 4, 'the fixture no longer renders four data cells');
+  assert.equal(count(/<tr\b/g), 3, 'the fixture did not render three rows');
+  assert.equal(count(/<th\b/g), 2, 'the fixture did not render two header cells');
+  assert.equal(count(/<td\b/g), 4, 'the fixture did not render four data cells');
 
   assert.equal(count(/<tr[^>]*role="row"/g), 0,
     'a <tr> already maps to a row, so writing the role back onto it is the hand-rebuild the contract refuses');

@@ -1,7 +1,7 @@
 {
   "family": "dialog-width",
   "reach": "box",
-  "description": "How wide the panel of a dialog is, which decides how much of a form or a message fits on a line. The question is the adopter's, because a confirmation wants a narrow panel and a form wants a wide one from the same component. arena-dialog-width-md is the default and reads dialog-width-md. arena-dialog-width-sm and arena-dialog-width-lg read dialog-width-sm and dialog-width-lg. Set --arena-dialog-width on a container for a width no step names. Write a length, or a token such as var(--dialog-width-md) or calc(var(--dialog-width-md) * 1.5). A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both.",
+  "description": "How wide the panel of a dialog is, which decides how much of a form or a message fits on a line. The question is the adopter's, because a confirmation wants a narrow panel and a form wants a wide one from the same component. arena-dialog-width-md is the default and reads dialog-width-md. arena-dialog-width-sm and arena-dialog-width-lg read dialog-width-sm and dialog-width-lg. Set --arena-dialog-width on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--dialog-width-md) or calc(var(--dialog-width-md) * 1.5). A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both.",
   "default": "arena-dialog-width-md",
   "variants": {
     "arena-dialog-width-sm": "[--arena-dialog-width-size:var(--dialog-width-sm)]",

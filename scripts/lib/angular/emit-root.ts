@@ -1,10 +1,9 @@
 /* Where ngc puts the Angular layer's output, derived rather than spelled out. A source is
  * emitted at `outDir` plus its own path relative to `rootDir`, so the tree a build script
  * walks is `outDir` plus the layer root's path relative to `rootDir`: `build/test` under
- * today's `rootDir: "."`, `build/test/angular` under the `".."` that preceded the layer
- * becoming self-contained. When that one token moved, the scripts holding the old depth
- * pruned every fresh emit as an orphan and called its sources never compiled, and `bun test`
- * was pointed at a directory that no longer existed, which it reports as a clean run of
+ * a `rootDir: "."`, `build/test/angular` under a `".."`. A script holding a fixed depth
+ * prunes every fresh emit as an orphan and calls its sources never compiled, and `bun test`
+ * pointed at a directory that does not exist reports a clean run of
  * nothing. The configs are parsed as strict JSON: tsconfig permits comments, these carry
  * none, and one added later throws here rather than resolving to a different tree. */
 

@@ -5,5 +5,5 @@ import manifest from './ArenaGrid.classes.generated';
 
 test('the recipe resolves the root slot class and takes no choice', () => {
   assert.equal(arenaGridStyles().root(), manifest.slots.root);
-  assert.deepEqual(arenaGridStyles().$data.root(), {}, 'no attribute follows from a choice that no longer exists');
+  assert.deepEqual(arenaGridStyles().$data.root(), {}, 'an attribute followed from a choice Arena does not offer');
 });

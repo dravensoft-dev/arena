@@ -253,7 +253,7 @@ export function scopeProblems(layer: string, audited: CliRun) {
       + `a gate a consumer cannot trust is worse than none:\n    ${reported[0]}`);
   }
   if (!reported.some((line) => line.includes(REACHING_IN))) {
-    problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit no longer says `
+    problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit does not say `
       + 'where a project\'s appearance lives, which is half of what it reports');
   }
   if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {

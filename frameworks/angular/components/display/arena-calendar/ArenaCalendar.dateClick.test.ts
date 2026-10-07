@@ -40,7 +40,7 @@ function headsOf(fixture: ComponentFixture<unknown>): HTMLElement[] {
   const strip = section?.children[1];
   assert.ok(
     strip && !strip.querySelector('[role="grid"]') && strip.children.length === DAYS.length,
-    'the head strip is no longer the section\'s second child holding one element per day -- this suite indexes it structurally',
+    'the head strip is the section\'s second child holding one element per day -- this suite indexes it structurally',
   );
   return [...strip.children] as HTMLElement[];
 }

@@ -1,7 +1,7 @@
 /* Assembles @dravensoft/arena-angular into frameworks/angular/dist/. The layer is staged
  * rather than built in place because ng-packagr needs its own `ng-package.json`,
  * `tsconfig.lib.json` and `package.json` at the root it compiles from, and writing those into
- * the tracked layer would leave build files beside the source. It no longer stages anything of
+ * the tracked layer would leave build files beside the source. It stages nothing of
  * another layer: a component composes its own class names, so nothing reaches out. Staging
  * is also where each style factory is marked pure, because the annotation belongs to what
  * ships and a component directory is the one place a bare block comment is refused. */

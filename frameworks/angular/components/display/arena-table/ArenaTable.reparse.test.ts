@@ -3,7 +3,7 @@
  * non-table element straight out of the table it was written in: a row inside a plain box does not
  * come back as a row, it comes back as the text it held, with the row and every cell gone. So the
  * markup is put through exactly that round trip here. The control case is what gives the assertion
- * its teeth -- it shows the parser really does drop the shape this component used to have. */
+ * its teeth -- it shows the parser really does drop the shape of a `<tr>` outside a table. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 

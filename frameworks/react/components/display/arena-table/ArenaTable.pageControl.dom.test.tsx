@@ -41,5 +41,5 @@ test('a page past the end still resets, because that is knowledge rather than dr
   const seen = { chose: 0 };
   table('none', { index: 9, size: 10, total: 45 }, seen);
   assert.equal(seen.chose, 1,
-    'the one reset ArenaTable performs went away with the control it no longer draws');
+    'the one reset ArenaTable performs did not run when no pager is drawn');
 });

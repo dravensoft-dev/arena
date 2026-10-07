@@ -37,8 +37,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: the chip's border and
-  text render in `--error`, never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
-- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot. convention section.
+  text render in the danger hue (`--arena-hue-ink`), never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
+- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
 - Use `removable` only when removing the tag is a real user action (applied
   filters), not on informational tags, and handle `(remove)`, or the × has
   nothing wired to it.

@@ -445,7 +445,7 @@ test('comparePattern reports an overclaim when a requirement is unmet and unexce
   assert.match(problems[0] ?? '', /roles\.label/);
 });
 
-test('comparePattern is silent for a correct button, which is the case it used to fail', () => {
+test('comparePattern is silent for a correct button', () => {
 
   const button = PATTERNS.get('button');
   const problems = comparePattern({

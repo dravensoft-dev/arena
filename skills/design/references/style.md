@@ -15,8 +15,8 @@ before you reach for a class, a member or a stylesheet of your own to change one
 **Every class of the vocabulary is on [the vocabulary page](../../../frameworks/VOCABULARY.md)**, with
 the components that answer it. **The class nearest the component wins**, so `arena-fill` on a
 button beats `arena-fit` on the container holding it, whatever order your stylesheets load in.
-**A box family stops at the content a component projects**: `arena-fill` on a container reaches the
-card inside it and not the button inside the card's body. The trigger of a tooltip or a menu is
+**A box family stops at the content a component projects**: `arena-fill` on a container reaches a button
+beside the card and not the button inside the card's body. The trigger of a tooltip or a menu is
 the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so no class
 above the trigger reaches it. The Angular overlay does this. In React a menu panel renders
 inside its root, and a class above the trigger reaches it.

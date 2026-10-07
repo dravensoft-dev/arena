@@ -1,7 +1,7 @@
 {
   "family": "grid-max",
   "reach": "box",
-  "description": "The widest a grid runs before it centres in whatever contains it. The question is the adopter's, because a page's own reading width is a decision about one page, and a grid nested in a page should fill its container. arena-grid-max-none is the default and sets no ceiling. arena-grid-max-sm, arena-grid-max-md and arena-grid-max-lg read grid-max-sm, grid-max-md and grid-max-lg. Set --arena-grid-max on a container for a ceiling no step names. Write a length, or a token such as var(--container-max). A class on the grid wins over a property on its container.",
+  "description": "The widest a grid runs before it centres in whatever contains it. The question is the adopter's, because a page's own reading width is a decision about one page, and a grid nested in a page should fill its container. arena-grid-max-none is the default and sets no ceiling. arena-grid-max-sm, arena-grid-max-md and arena-grid-max-lg read grid-max-sm, grid-max-md and grid-max-lg. Set --arena-grid-max on a container for a ceiling no step names. Write a token, or a derivation of tokens, such as var(--container-max). A class on the grid wins over a property on its container.",
   "default": "arena-grid-max-none",
   "variants": {
     "arena-grid-max-none": "[--arena-grid-max-width:none]",
