@@ -2,6 +2,7 @@
  * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan sheet
  * and a held environment report exit 1; notes never change the exit. */
 import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { commandOptions } from './args.ts';
 import { under, voice } from './io.ts';
 import type { Io } from './io.ts';
@@ -9,7 +10,6 @@ import { hostManifest, resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
 import { heldMessage, report, reported } from './reports.ts';
 import type { Report } from './reports.ts';
-import { join } from 'node:path';
 
 function triple(text: string): [number, number, number] | null {
   const found = /^(\d+)(?:\.(\d+))?(?:\.(\d+))?$/.exec(text);

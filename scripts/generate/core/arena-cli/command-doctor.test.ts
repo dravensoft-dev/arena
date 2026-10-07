@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run, satisfies } from './command-doctor.ts';
 import { plan } from './plan.ts';
-import { PLUGIN_SHEET } from './sheets.ts';
+import { ICON_MANIFEST, PLUGIN_SHEET } from './sheets.ts';
 import { captureIo, hostRoot, options, phosphor, project } from './cli-fixtures.ts';
 
 function setup(extra: Record<string, unknown> = {}) {
@@ -96,6 +96,7 @@ test('satisfies reads >=22 against v22.0.0, v21.9.9 and v23.1.0, >=22.11 against
 
 const withEngines = (range: string) => hostRoot('@dravensoft/arena-react', '1.2.3', {
   'package.json': JSON.stringify({ name: '@dravensoft/arena-react', version: '1.2.3', engines: { node: range } }),
+  [ICON_MANIFEST]: JSON.stringify({ pairs: {}, loose: [] }),
 });
 
 test('Node below engines is an environment report, held only by --strict=environment', () => {
@@ -105,11 +106,12 @@ test('Node below engines is an environment report, held only by --strict=environ
   const env = { ...environment, arena: host };
   const loose = captureIo(root, env);
   assert.equal(run([], loose.io), 0);
-  assert.ok(loose.err.includes('arena doctor: [environment] node v22.12.0 does not satisfy engines.node >=99'));
+  assert.deepEqual(loose.err.filter((line) => line.includes('[environment]')),
+    ['arena doctor: [environment] node v22.12.0 does not satisfy engines.node >=99']);
   assert.ok(loose.out.includes('arena doctor: package @dravensoft/arena-react 1.2.3'));
   const held = captureIo(root, env);
   assert.equal(run(['--strict=environment'], held.io), 1);
-  assert.ok(held.err.some((line) => line.startsWith('arena doctor: --strict holds environment')));
+  assert.ok(held.err.includes('arena doctor: --strict holds environment, and this run reports 1 of them: environment'));
   const modern = withEngines('>=22');
   build(root, web, modern);
   const fine = captureIo(root, { ...environment, arena: modern });
