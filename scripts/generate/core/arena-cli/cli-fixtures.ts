@@ -95,3 +95,11 @@ export function captureIo(cwd: string, environment: HostEnvironment = {}) {
   const io: Io = { out: (line) => out.push(line), err: (line) => err.push(line), cwd, environment, node: 'v22.12.0' };
   return { io, out, err };
 }
+
+export function hostRoot(name: string, version: string, files: Record<string, string> = {}) {
+  const root = mkdtempSync(join(tmpdir(), 'arena-host-root-'));
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name, version }));
+  writeFileSync(join(root, 'arena.config.example.json'), JSON.stringify({ palettes: [] }));
+  for (const [file, content] of Object.entries(files)) writeFileSync(join(root, file), content);
+  return root;
+}

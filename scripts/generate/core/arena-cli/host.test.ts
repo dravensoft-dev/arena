@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hostPackage, hostPackageName, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
+import { hostManifest, hostPackage, hostPackageName, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
-import { phosphor } from './cli-fixtures.ts';
+import { hostRoot, phosphor } from './cli-fixtures.ts';
 
 test('the package around the command is found by its name, and nothing else is', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-host-'));
@@ -106,4 +106,16 @@ test('an override a caller hands in wins over what the install would answer, and
   const named = resolveEnvironment({ arena: null, phosphor: '/p', packageName: '@dravensoft/arena-angular' });
   assert.equal(named.packageName, '@dravensoft/arena-angular');
   assert.equal(named.phosphor, '/p');
+});
+
+test('hostManifest reads name, version and engines, and null for no package.json', () => {
+  const root = hostRoot('@dravensoft/arena-react', '11.1.0');
+  assert.deepEqual(hostManifest(root), { name: '@dravensoft/arena-react', version: '11.1.0' });
+  writeFileSync(join(root, 'package.json'),
+    JSON.stringify({ name: '@dravensoft/arena-angular', version: '2.0.0', engines: { node: '>=22' } }));
+  assert.deepEqual(hostManifest(root), { name: '@dravensoft/arena-angular', version: '2.0.0', engines: { node: '>=22' } });
+  rmSync(join(root, 'package.json'));
+  assert.equal(hostManifest(root), null);
+  assert.equal(hostManifest(null), null);
+  rmSync(root, { recursive: true });
 });

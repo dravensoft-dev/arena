@@ -111,3 +111,14 @@ export function resolveEnvironment(environment: HostEnvironment = {}) {
   const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
   return { arena, packageName, sheets, map, vocabulary, phosphor };
 }
+
+export function hostManifest(root: string | null): { name: string; version: string; engines?: { node?: string } } | null {
+  if (!root) return null;
+  try {
+    const { name, version, engines } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+    if (typeof name !== 'string' || typeof version !== 'string') return null;
+    return engines && typeof engines === 'object' ? { name, version, engines } : { name, version };
+  } catch {
+    return null;
+  }
+}
