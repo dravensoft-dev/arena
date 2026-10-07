@@ -26,7 +26,7 @@ function dot(id: string): Element | null {
   return fixture.nativeElement.querySelector(`#${id} [data-arena-part="avatar.status"]`);
 }
 
-test('an avatar with an unknown status draws offline, as React does', () => {
+test('an avatar with an unknown status draws offline', () => {
   const odd = dot('odd')!;
   assert.equal(odd.getAttribute('data-arena-status'), 'offline');
   assert.equal(odd.getAttribute('aria-label'), ARENA_DEFAULT_LOCALE.avatarOffline);
