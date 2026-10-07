@@ -57,7 +57,7 @@ is the page's own reading width. A class on the grid wins over a property on its
 `/frameworks/angular/components/layout/arena-grid/ArenaGrid.demo.generated.html`:
 - Narrow the window from wide to 390px: the count falls one step at a time and never overflows.
 - At the narrowest, one column fills the width; the minimum is clamped rather than honoured.
-- The four gaps are visibly four steps, and both axes get the same one.
+- Each gap is a visibly different step, and both axes get the same one.
 - With an `arena-grid-max` class written, the grid centres and stops growing; without one, it fills.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

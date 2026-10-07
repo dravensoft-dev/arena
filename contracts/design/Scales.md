@@ -113,7 +113,7 @@ The air BETWEEN two components, which Arena itself never draws: every component 
 | `--rhythm-component` | 16px (`sp-4`) | between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing |
 | `--rhythm-section` | 24px (`sp-6`) | between two sections of a page. The two sides answer different questions, and this gap is what says so |
 
-**These three were already chosen, and what they lacked was names.** A grid's gap and a section's rhythm spend `group`, `component` and `section` on exactly 12/16/24px with the middle as the default, and `arena-grid-gap-<value>` and `arena-rhythm-<value>` read the tokens rather than the raw steps, so a grid is the rhythm plus a grid.
+**The scale reuses steps the system already holds, and what they lacked was names.** A grid's gap and a section's rhythm spend `group`, `component` and `section` on exactly 12/16/24px with the middle as the default, and `arena-grid-gap-<value>` and `arena-rhythm-<value>` read the tokens rather than the raw steps, so a grid is the rhythm plus a grid.
 
 **The scale is closed at both ends.** A gap tighter than `--rhythm-group` is inside a component rather than between two, which is that component's own recipe and not a page decision. A gap wider than `--rhythm-section` is the frame a page draws around its content rather than rhythm within it, and a frame is the consumer's.
 

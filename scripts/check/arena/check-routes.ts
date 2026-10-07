@@ -303,7 +303,7 @@ export const ROUTES: Route[] = [
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
       + 'the split that keeps the pair from going stale in one of them. The roof also states the one '
-      + 'attribute the layers build from different values, and a layer the binding that interpolates a property name.',
+      + 'attribute the layers build from different values, and each layer the binding that interpolates a property name.',
   },
   {
     name: 'contributor-authoring',

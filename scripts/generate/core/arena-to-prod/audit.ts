@@ -444,7 +444,7 @@ export const APPEARANCE_ATTRIBUTES = new Map<string, AppearanceTarget & { write:
   ['ArenaStatCard.tone=gold', { family: 'accent', write: 'arena-accent-gold' }],
   ['ArenaTag.tone=primary', { family: 'accent', write: 'arena-accent-primary' }],
   ['ArenaAvatar.size', { family: 'size', write: 'arena-size-<value>' }],
-  ['ArenaAvatar.shape', { member: 'kind', write: 'kind="team" for a team, nothing for a person' }],
+  ['ArenaAvatar.shape', { member: 'kind', write: 'team for a team, nothing for a person' }],
   ['ArenaAppLogo.size', { family: 'size', write: 'arena-size-<value>' }],
   ['ArenaAppLogo.orientation', { family: 'orientation', write: 'arena-orientation-<value>' }],
   ['ArenaPeopleList.size', { family: 'size', write: 'arena-size-<value>' }],
@@ -457,18 +457,18 @@ export const APPEARANCE_ATTRIBUTES = new Map<string, AppearanceTarget & { write:
   ['ArenaToastHost.placement', { family: 'placement', write: 'arena-placement-<value>' }],
   ['ArenaGrid.min', { family: 'grid-min', write: 'arena-grid-min-<step>, or --arena-grid-min on a container of yours' }],
   ['ArenaGrid.maxWidth', { family: 'grid-max', write: 'arena-grid-max-<step>, or --arena-grid-max on a container of yours' }],
-  ['ArenaGrid.gap', { family: 'grid-gap', write: 'arena-grid-gap-<value>' }],
-  ['ArenaSection.rhythm', { family: 'rhythm', write: 'arena-rhythm-<value>' }],
+  ['ArenaGrid.gap', { family: 'grid-gap', write: 'arena-grid-gap-<value>, or --arena-grid-gap on a container of yours' }],
+  ['ArenaSection.rhythm', { family: 'rhythm', write: 'arena-rhythm-<value>, or --arena-rhythm on a container of yours' }],
   ['ArenaBoard.minColumn', { family: 'board-column', write: 'arena-board-column-<step>, or --arena-board-column on a container of yours' }],
   ['ArenaScroller.itemWidth', { family: 'scroller-item', write: 'arena-scroller-item-<step>, or --arena-scroller-item on a container of yours' }],
   ['ArenaDialog.width', { family: 'dialog-width', write: 'arena-dialog-width-<step>, or --arena-dialog-width on a container of yours' }],
   ['ArenaFigure.ratio', { family: 'ratio', write: 'arena-ratio-<frame>, or --arena-ratio on a container of yours' }],
   ['ArenaSkeleton.variant', { family: 'skeleton', write: 'arena-skeleton-<value>' }],
-  ['ArenaSkeleton.variant=text', { member: 'lines', write: 'lines, the number of lines the placeholder stands in for' }],
+  ['ArenaSkeleton.variant=text', { member: 'lines', write: 'the number of lines the placeholder stands in for' }],
   ['ArenaSkeleton.width', { family: 'skeleton', write: '--arena-skeleton-width on a container of yours' }],
   ['ArenaSkeleton.height', { family: 'skeleton', write: '--arena-skeleton-height on a container of yours' }],
   ['ArenaSkeleton.radius', { family: 'skeleton', write: '--arena-skeleton-radius on a container of yours' }],
-  ['ArenaSideNav.indentStep', { role: 'pad-row-indent', write: 'answer pad-row-indent in your style plugin with the indent of one level' }],
+  ['ArenaSideNav.indentStep', { role: 'pad-row-indent', write: 'the indent of one level' }],
 ]);
 
 export const VALUE_MAP: Record<string, Record<string, string>> = {
@@ -496,6 +496,25 @@ function columnFindings(component: string, raw: string, page?: string): string[]
     + `\`--arena-column-<key>-${key}\` on the table or a container of yours${page ? `. ${page}` : ''}`);
 }
 
+const PROPERTY_ALTERNATIVE = /^(.*?), or (--[\w-]+) on a container of yours$/;
+
+export function appearanceKind(target: AppearanceTarget & { write: string }): 'class' | 'property' | 'member' | 'role' {
+  if ('member' in target) return 'member';
+  if ('role' in target) return 'role';
+  return target.write.startsWith('--') ? 'property' : 'class';
+}
+
+function appearanceSaid(target: AppearanceTarget & { write: string }, value?: string): string {
+  const kind = appearanceKind(target);
+  if (kind === 'member') return `\`${(target as { member: string }).member}\`, ${target.write}. Use the \`${(target as { member: string }).member}\` member`;
+  if (kind === 'role') return `\`${(target as { role: string }).role}\`. Answer it in your style plugin with ${target.write}`;
+  const written = writeNamed(target, value);
+  if (kind === 'property') return `\`${written.replace(/ on a container of yours$/, '')}\`. Set the property on a container of yours`;
+  const [, name = written, property] = PROPERTY_ALTERNATIVE.exec(written) ?? [];
+  return `\`${name}\`. Write the class on the component, or on a container whose components should all take it`
+    + (property === undefined ? '' : `, or set \`${property}\` on a container of yours`);
+}
+
 const LITERAL_VALUE = /^\s*=\s*(?:\{\s*)?["'`]{1,2}\s*([\w-]+)\s*["'`]/;
 
 export function designMemberFindings(tag: string, attributes: string, page?: string, raw = attributes): string[] {
@@ -510,8 +529,7 @@ export function designMemberFindings(tag: string, attributes: string, page?: str
     const value = LITERAL_VALUE.exec(attributes.slice(opening.index + opening[0].length))?.[1];
     if (retired !== undefined && value !== retired) continue;
     if (retired === undefined && value !== undefined && APPEARANCE_ATTRIBUTES.has(`${owner}.${attribute}=${value}`)) continue;
-    found.push(`\`${attribute}\` on ${component} is appearance: \`${writeNamed(target, value)}\`. `
-      + `Write the class on the component, or on a container whose components should all take it${page ? `. ${page}` : ''}`);
+    found.push(`\`${attribute}\` on ${component} is appearance: ${appearanceSaid(target, value)}${page ? `. ${page}` : ''}`);
   }
   return found;
 }

@@ -43,7 +43,7 @@ announced as a group tells a reader that focus moved and nothing about where. Th
   grid. The default, `md`, is the width a card takes in a grid, so the two agree.
 - **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
   the reader gains nothing from.
-- **Don't** wrap the children in cells of your own to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
+- **Don't** wrap the children in cells of your own other than `ArenaScrollerItem` to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
 
 **By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/layout/arena-scroller/ArenaScroller.demo.generated.html`: - Tab into the row. The row takes focus as one stop and shows the focus ring, and the arrow keys scroll it.
 - Under `snap`, releasing a drag mid-item settles on an item edge; under `flow` it stays put.

@@ -21,14 +21,12 @@ Cells are **positional**: the nth cell takes the nth column.
 
 ```html
 <div style="--arena-column-build-width: calc(var(--sp-1) * 24); --arena-column-p95-align: right">
-  <arena-table label="Recent deployments" [columns]="columns">
+  <arena-table label="Recent deployments"
+    [columns]="[{ header: 'Build', key: 'build', numeric: true }, { header: 'Project' }, { header: 'p95', key: 'p95', numeric: true }]">
     <!-- rows as above -->
   </arena-table>
 </div>
 ```
-
-with `columns` written as `[{ header: 'Build', key: 'build', numeric: true }, { header: 'Project' }, { header: 'p95', key: 'p95', numeric: true }]`.
-
 
 <!-- @api GENERATED from contracts/api/components/ArenaTable.json. Edit the contract, not this table. -->
 

@@ -91,7 +91,7 @@ comm -23 <(find components -mindepth 2 -maxdepth 2 -type d -printf '%f\n' | sort
 ```
 
 A chart's recipe holds its frame, legend and tooltip and never its plot, for the reason below. **A compound family's
-children have none either, because they import the parent's**: each `ArenaSideNav*` child imports
+children have none of their own, because they import the parent's**: each `ArenaSideNav*` child imports
 `arenaSideNavStyles` from `side-nav/ArenaSideNav.variants`, which is the recipe mirror of the rule
 `frameworks/tailwind/AGENTS.md` states for manifests, that a manifest mirrors a *surface* and a
 family draws one. The category is the one

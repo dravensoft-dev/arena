@@ -443,14 +443,14 @@ comm -13 <(find components -name '*.manifest.json' -exec basename {} .manifest.j
          <(python3 -c "import json;print('\n'.join(sorted(n for v in json.load(open('../Components.json')).values() for n in v)))")
 ```
 
-Two reasons put a component in it. **A compound family draws one surface**, so the parent's
-manifest holds every level of it and its members have none of their own. `MANIFEST_COVERS` in
-`scripts/lib/tailwind/manifest-surfaces.ts` is the mapping, read it there rather than from a list
-here. **And a chart's plot has no surface a class string can describe**: it is SVG geometry driven by
-measured container width, its identity is path data and attribute bindings. `HAND_DRAWN` beside
-`MANIFEST_COVERS` is that roster, and each chart also has a manifest for what a class can say: the
-`frame` slot a plugin reaches, the legend and the tooltip. `ArenaChartCard` is in neither, since it
-is a bordered tile.
+**A compound family draws one surface**, so the parent's manifest holds every level of it and its
+members have none of their own. `MANIFEST_COVERS` in `scripts/lib/tailwind/manifest-surfaces.ts` is
+the mapping, read it there rather than from a list here.
+
+**A chart has a manifest too, for what a class can say**: the `frame` slot a plugin reaches, the
+legend and the tooltip. Its plot has no surface a class string can describe: it is SVG geometry
+driven by measured container width, and its identity is path data and attribute bindings. The
+`HAND_DRAWN` roster beside `MANIFEST_COVERS` names the plots drawn by hand.
 
 `Utilities.generated.css` is **generated** and **git-ignored**: `bun run build:tailwind`
 compiles the preset with the manifests as content, and `bun run check:tailwind-generated` fails

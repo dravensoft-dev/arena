@@ -31,7 +31,7 @@ Loading placeholder for asynchronous data (H1). Use it in tables and dashboards 
 
 **Do / Don't**
 - Reproduce the shape of the real content (same approximate height/width) to avoid layout shift on load.
-- The size properties take a length or a token expression, not a bare number; write `calc(var(--sp-1) * 10)`, not `40`. A class on the placeholder wins over a property on its container.
+- The size properties take a length or a token expression, not a bare number; write `calc(var(--sp-1) * 10)`, not `40`.
 - `--arena-skeleton-radius` only affects `arena-skeleton-block`. A circle is always a perfect circle and a line or a stack keeps
   a fixed small radius, so setting it for either has no effect.
 - A circle's diameter is `--arena-skeleton-height`, else `--arena-skeleton-width`. A stack reads only the width.

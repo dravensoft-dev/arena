@@ -36,7 +36,6 @@ The table is a **compound** component. `columns` says how each column is headed 
 </div>
 ```
 
-
 <!-- @api GENERATED from contracts/api/components/ArenaTable.json. Edit the contract, not this table. -->
 
 **Members**, in contract order and under this layer's own names. `*` marks a required one.

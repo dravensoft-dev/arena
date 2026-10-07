@@ -58,7 +58,7 @@ a gate with nothing to check rather than something to fail.
    reaches a primitive **through** that chain. One missing from any link is never typechecked and
    no adopter can import it from the layer root either, so the gap is quiet in a green run.
 5. **Author its appearance** as a Tailwind manifest, unless it draws geometry rather than a
-   surface, which is what puts every chart drawing geometry outside.
+   surface. A chart's manifest holds its frame, legend and tooltip, and its plot is drawn by hand.
 6. **Seed its playground fixture** in `demos/`, or `check:playgrounds` fails the contract that
    has none.
 7. **Write its suites**, beside the source in each layer, to that layer's own naming: the

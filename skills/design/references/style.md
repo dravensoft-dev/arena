@@ -23,7 +23,7 @@ inside its root, and a class above the trigger reaches it.
 
 **A step class on the component beats the property.** `--arena-grid-min` on a container sets
 the cell width of every grid inside it, and `arena-grid-min-lg` on one grid keeps that grid at
-`lg`. **A property stops where its class does.**
+`lg`. **A box family's property stops at the content a component projects, as its class does.**
 A column of a table is keyed rather than stepped: give the column a `key`, say `key: 'name'`,
 then set `--arena-column-name-width: calc(var(--sp-1) * 40)` and `--arena-column-name-align: right`
 on the table or a container of yours. A column with no key, or a key with no property set, keeps

@@ -8,7 +8,7 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
-  ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, designMemberFindings, writeNamed, VALUE_MAP, group,
+  ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, appearanceKind, designMemberFindings, writeNamed, VALUE_MAP, group,
 } from './audit.ts';
 import { axesOf, readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 
@@ -576,7 +576,8 @@ test('every appearance attribute is reported in both idioms, naming the class th
     const [component = '', rest = ''] = key.split('.');
     const [attribute = '', retired] = rest.split('=');
     const value = sampleOf(key, attribute, retired);
-    const named = writeNamed(target, value);
+    const named = 'member' in target ? target.member : 'role' in target ? target.role
+      : writeNamed(target, value).split(', or ')[0]?.replace(/ on a container of yours$/, '') ?? '';
     const kebab = kebabTag(component);
     for (const attributes of [` ${attribute}="${value}"`, ` ${attribute}={'${value}'}`, ` [${attribute}]="'${value}'"`]) {
       for (const tag of [component, kebab]) {
@@ -588,6 +589,26 @@ test('every appearance attribute is reported in both idioms, naming the class th
   assert.match(designMemberFindings('ArenaButton', ' size="sm"')[0] ?? '', /`size` on ArenaButton is appearance: `arena-size-sm`/);
   assert.match(findings('src/a.tsx', '<ArenaButton size="sm">Go</ArenaButton>')
     .filter((one) => one.rule === 'design-member')[0]?.message ?? '', /arena-size-sm/);
+});
+
+const CLASS_TAIL = 'Write the class on the component, or on a container whose components should all take it';
+
+test('each kind of entry ends in the instruction for its kind, and names only the class, property or member in backticks', () => {
+  assert.equal(appearanceKind(APPEARANCE_ATTRIBUTES.get('ArenaButton.size')!), 'class');
+  assert.equal(appearanceKind(APPEARANCE_ATTRIBUTES.get('ArenaSkeleton.width')!), 'property');
+  assert.equal(appearanceKind(APPEARANCE_ATTRIBUTES.get('ArenaAvatar.shape')!), 'member');
+  const asClass = designMemberFindings('ArenaButton', ' size="sm"')[0] ?? '';
+  assert.ok(asClass.endsWith(`\`arena-size-sm\`. ${CLASS_TAIL}`), asClass);
+  const asProperty = designMemberFindings('ArenaSkeleton', ' width="4rem"')[0] ?? '';
+  assert.ok(asProperty.endsWith('`--arena-skeleton-width`. Set the property on a container of yours'), asProperty);
+  assert.ok(!asProperty.includes(CLASS_TAIL), asProperty);
+  const asMember = designMemberFindings('ArenaAvatar', ' shape="square"')[0] ?? '';
+  assert.ok(asMember.endsWith('`kind`, team for a team, nothing for a person. Use the `kind` member'), asMember);
+  assert.ok(!asMember.includes(CLASS_TAIL), asMember);
+  const both = designMemberFindings('ArenaGrid', ' gap="md"')[0] ?? '';
+  assert.ok(both.endsWith(`\`arena-grid-gap-component\`. ${CLASS_TAIL}, or set \`--arena-grid-gap\` on a container of yours`), both);
+  const role = designMemberFindings('ArenaSideNav', ' indentStep="2"')[0] ?? '';
+  assert.ok(role.endsWith('`pad-row-indent`. Answer it in your style plugin with the indent of one level'), role);
 });
 
 test('a retired value is reported and a value the type still holds is not', () => {
@@ -678,9 +699,9 @@ test('a gap and a rhythm map their old values onto the page rhythm scale', () =>
 test('a skeleton variant of text is the lines member and no other class, and a width is the property', () => {
   const text = designMemberFindings('ArenaSkeleton', ' variant="text"');
   assert.equal(text.length, 1);
-  assert.match(text[0] ?? '', /`lines, the number of lines the placeholder stands in for`/);
+  assert.match(text[0] ?? '', /`lines`, the number of lines the placeholder stands in for\. Use the `lines` member$/);
   assert.match(designMemberFindings('ArenaSkeleton', ' variant="circle"')[0] ?? '', /arena-skeleton-circle/);
-  assert.match(designMemberFindings('arena-skeleton', ' width="4rem"')[0] ?? '', /--arena-skeleton-width on a container of yours/);
+  assert.match(designMemberFindings('arena-skeleton', ' width="4rem"')[0] ?? '', /`--arena-skeleton-width`. Set the property on a container of yours/);
 });
 
 test('a column width or alignment is appearance, named with the key and the property, in both idioms', () => {

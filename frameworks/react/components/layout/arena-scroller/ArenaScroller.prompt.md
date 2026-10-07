@@ -42,7 +42,7 @@ required and guarded too: an empty row is a tab stop over nothing.
   grid. The default, `md`, is the width a card takes in a grid, so the two agree.
 - **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
   the reader gains nothing from.
-- **Don't** wrap the children in cells of your own to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
+- **Don't** wrap the children in cells of your own other than `ArenaScrollerItem` to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
