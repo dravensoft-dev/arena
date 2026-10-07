@@ -32,7 +32,9 @@ export const RULES: LanguageRule[] = [
     body: 'Write it as a literal on the component, or on a container whose components should all take it. '
       + 'Write no rule targeting a component: it renders `arena-<component>__<slot>` class names, which are '
       + 'compiler output that no contract names, and a slot may be renamed in any release. Every class you may '
-      + 'write is on the vocabulary page. Content you draw yourself is yours, styled through the same tokens.',
+      + 'write is on the vocabulary page. Content you draw yourself is yours, styled through the same tokens. '
+      + 'React types `className` to the classes that component answers, so any other is a compile '
+      + 'error; Angular cannot type a host `class`, so there the audit is the check.',
     held: 'own-class',
     unheld: null,
   },
@@ -57,6 +59,8 @@ export const RULES: LanguageRule[] = [
     id: 'one-primary',
     short: 'One primary accent per view.',
     body: 'Crimson is the voice, so at most one `arena-emphasis-primary` action stands on a screen. '
+      + 'A button with no emphasis class is that primary, so every other button names '
+      + '`arena-emphasis-secondary` or `arena-emphasis-ghost`. '
       + 'Gold is distinction and focus, and never a second primary.',
     held: 'one-primary',
     unheld: null,
@@ -65,7 +69,10 @@ export const RULES: LanguageRule[] = [
     id: 'no-gradients',
     short: 'No gradients, on any surface.',
     body: 'Depth comes from the `base-100` to `base-200` to `base-300` surface scale, the hairline '
-      + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception.',
+      + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
+      + 'A brand whose mark is itself a gradient declares it once, with `"gradientMark": true` in '
+      + '`arena.config.json`, and the audit then stops reporting gradients in app source; '
+      + 'a declared plugin directory may paint one either way.',
     held: 'raw-value',
     unheld: null,
   },

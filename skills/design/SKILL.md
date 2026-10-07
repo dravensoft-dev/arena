@@ -104,8 +104,9 @@ source text cannot show, is `arena://rules` on the MCP server.
   component, or on a container whose components should all take it. Write no rule targeting a
   component: it renders `arena-<component>__<slot>` class names, which are compiler output that no
   contract names, and a slot may be renamed in any release. Every class you may write is on the
-  vocabulary page. Content you draw yourself is yours, styled through the same tokens. **`arena
-  audit` reports this one.**
+  vocabulary page. Content you draw yourself is yours, styled through the same tokens. React types
+  `className` to the classes that component answers, so any other is a compile error; Angular
+  cannot type a host `class`, so there the audit is the check. **`arena audit` reports this one.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
 - **Danger is outline, never filled.** The background stays transparent, and the border and the
@@ -113,11 +114,14 @@ source text cannot show, is `arena://rules` on the MCP server.
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
   tint. **`arena audit` reports this one.**
 - **One primary accent per view.** Crimson is the voice, so at most one `arena-emphasis-primary`
-  action stands on a screen. Gold is distinction and focus, and never a second primary. **`arena
-  audit` reports this one.**
+  action stands on a screen. A button with no emphasis class is that primary, so every other
+  button names `arena-emphasis-secondary` or `arena-emphasis-ghost`. Gold is distinction and
+  focus, and never a second primary. **`arena audit` reports this one.**
 - **No gradients, on any surface.** Depth comes from the `base-100` to `base-200` to `base-300`
   surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
-  one exception. **`arena audit` reports this one.**
+  one exception. A brand whose mark is itself a gradient declares it once, with `"gradientMark":
+  true` in `arena.config.json`, and the audit then stops reporting gradients in app source; a
+  declared plugin directory may paint one either way. **`arena audit` reports this one.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
   ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
