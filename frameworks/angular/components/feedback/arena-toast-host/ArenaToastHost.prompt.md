@@ -5,13 +5,16 @@ The host exists because `arena-toast` carries `--z-toast` and no `position` of i
 
 ```html
 <arena-toast-host class="arena-placement-bottom-end">
-  @for (notice of notices(); track notice.id) {
+  @for (notice of toasts.toasts(); track notice.id) {
     <arena-toast [title]="notice.title" [message]="notice.message" [tone]="notice.tone"
-                 actionLabel="Retry" dismissible
-                 (action)="retry(notice)" (close)="drop(notice)" />
+                 [actionLabel]="notice.actionLabel" [persist]="notice.persist" dismissible
+                 (action)="retry(notice.id)" (close)="toasts.dismiss(notice.id)" />
   }
 </arena-toast-host>
 ```
+
+`toasts` is `inject(ArenaToastQueue)`. A notice is data, so it carries the action's label and never
+its handler. `retry` is yours, keyed by the id `raise` returned.
 
 <!-- @api GENERATED from contracts/api/components/ArenaToastHost.json. Edit the contract, not this table. -->
 
@@ -38,7 +41,7 @@ flips the stack with the text. A bottom placement stands off `max(var(--sp-6),
 var(--pad-safe-bottom))`, so on a phone the stack clears the home indicator instead of sitting
 under it, and nothing about the device's own geometry is retyped.
 
-**The host owns no clock, and it counts nothing.** The queue that produced these notices already holds their ids, their order and how many there are. The timer and any ceiling stay there. Read `data-persist` off each notice and skip the timer for the ones that carry it. Take the interval from `ARENA_TOAST_DISMISS`, exported beside `arena-toast`. Use `.default` for a notice that only has to be read, and `.actionable` for one carrying a button.
+**The host owns no clock, and it counts nothing.** `ArenaToastQueue` is the queue that produces these notices: it holds their ids, their order and how many there are, and it runs the timer. A queue of your own takes the interval from `arenaToastDelay(notice, ARENA_TOAST_DISMISS)` rather than typing a number, and puts no timer on a notice it answers `null` for.
 
 **Do / Don't** - **Do** mount exactly one per placement, in the app's root template, outside anything that scrolls or transforms. A `transform` on an ancestor becomes the containing block for a fixed descendant, and the stack then scrolls away with it instead of staying put.
 - **Do** leave the notices in the order they were raised. The stack is a plain column, so what is read is what is seen. Reversing the list to put the newest on top puts it last in the reading order.

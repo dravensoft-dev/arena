@@ -8,7 +8,9 @@ If you build a screen with Arena on the web, this is not the package you want. `
 
 ```
 arena.contracts.json          every path below, sorted, with the version that produced them
-contracts/design/*.json       colour, type, spacing, density, effects, layering, motion
+contracts/design/*.json       one file per group: palette.<polarity>, typography, spacing, density.<name>,
+                              effects, layering, chart, icon, component, behaviour (delays and
+                              limits) and roles (the style kernel's questions)
 contracts/api/components/*    one capability statement per component, in neutral member forms
 contracts/api/types/*         the shared enums and objects those members take
 contracts/behaviour/*.json    one accessibility pattern per file, cited to its source

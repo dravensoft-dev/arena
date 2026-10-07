@@ -88,8 +88,8 @@ failure as a screenshot read silently, with a better result and the same missing
 **An entry is copied rather than cited.** The entry's `plugin.tokens.json` and `plugin.css` become
 your project's own under `design/<name>/`, and node 11 is where they land.
 
-**The catalogue is in the Arena repository rather than in the package.** From an installed project,
-read it there.
+**The catalogue is on the site and in the repository, not the package.** Each entry's files sit
+beside its `ENTRY.md`.
 
 | The answer | Go to | What it costs you |
 |---|---|---|

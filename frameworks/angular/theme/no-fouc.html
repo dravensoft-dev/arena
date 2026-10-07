@@ -3,10 +3,10 @@
      so the stored palette is applied before first paint (no flash). It shares the
      `arena-theme` storage key with ArenaThemeService.ts, and the same rule: the default
      palette sits on :root and wears no class, every other one wears .arena-<name>.
-     PALETTES and DEFAULT below are the same two values ArenaThemeService takes, so a
-     build with three or four palettes states them once and the two cannot disagree.
-     A first visit with nothing stored answers the device, and the device answers a
-     polarity rather than a name, so the first palette of that polarity is the one. -->
+     PALETTES and DEFAULT below are the same two values ArenaThemeService takes, written
+     twice, so keep them equal. A first visit, or a stored name the build no longer declares,
+     answers the device, and the device answers a polarity rather than a name, so the first
+     palette of that polarity is the one. -->
 <script>
   (function () {
     var PALETTES = [
@@ -15,14 +15,18 @@
     ];
     var DEFAULT = 'dark';
     try {
-      var name = localStorage.getItem('arena-theme');
+      var stored = localStorage.getItem('arena-theme');
+      var name = null;
+      for (var i = 0; i < PALETTES.length; i++) {
+        if (PALETTES[i].name === stored) { name = stored; break; }
+      }
       if (!name) {
         var wants = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        for (var i = 0; i < PALETTES.length; i++) {
-          if (PALETTES[i].polarity === wants) { name = PALETTES[i].name; break; }
+        for (var j = 0; j < PALETTES.length; j++) {
+          if (PALETTES[j].polarity === wants) { name = PALETTES[j].name; break; }
         }
       }
-      if (name && name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
+      if (name && name !== DEFAULT) {
         document.documentElement.classList.add('arena-' + name);
       }
     } catch (e) {}

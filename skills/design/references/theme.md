@@ -62,14 +62,18 @@ Apply the class before your stylesheet loads. In React put the script in your HT
     ];
     var DEFAULT = 'dark';          // the palette your arena.config.json marks default
     try {
-      var name = localStorage.getItem('arena-theme');
+      var stored = localStorage.getItem('arena-theme');
+      var name = null;
+      for (var i = 0; i < PALETTES.length; i++) {
+        if (PALETTES[i].name === stored) { name = stored; break; }
+      }
       if (!name) {
         var wants = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        for (var i = 0; i < PALETTES.length; i++) {
-          if (PALETTES[i].polarity === wants) { name = PALETTES[i].name; break; }
+        for (var j = 0; j < PALETTES.length; j++) {
+          if (PALETTES[j].polarity === wants) { name = PALETTES[j].name; break; }
         }
       }
-      if (name && name !== DEFAULT && /^[a-z][a-z0-9-]*$/.test(name)) {
+      if (name && name !== DEFAULT) {
         document.documentElement.classList.add('arena-' + name);
       }
     } catch (e) {}
@@ -77,7 +81,7 @@ Apply the class before your stylesheet loads. In React put the script in your HT
 </script>
 ```
 
-Set the list to your own palettes and `DEFAULT` to the palette your config marks default. Those two values are what the theme surface takes. A build with several palettes states them once, and the snippet cannot drift from the app.
+Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does.
 
 The default reaches `:root` and wears no class. A snippet that names the wrong default puts a class on the very palette that must not have one.
 

@@ -82,7 +82,8 @@ the other, so a hex here is a light-mode colour showing through your dark theme.
 - **A literal**, where the scale has nothing you want: `{ "value": 920, "unit": "px" }`, or a bare
   number for a ratio such as `press-scale`. **Two of the loudest decisions need one**, because the scale has no step for
   them. A square corner is `{ "value": 0, "unit": "px" }`. No shadow at all is a shadow object
-  whose every length is zero and whose colour is fully transparent.
+  whose every length is zero and whose colour is `{ "colorSpace": "srgb", "components": [0, 0, 0],
+  "alpha": 0 }`, beside `offsetX`, `offsetY`, `blur` and `spread`.
 - **A unit the type does not carry**, through `$extensions`. Four roles need it and the rest do
   not: `track-heading`, `track-eyebrow` and `track-label` take `em`, and `measure-prose` takes
   `ch`. A tracking role that forgets it emits a bare number, which is not a valid letter spacing,
@@ -170,10 +171,9 @@ The default plugin is
 [`plugin-style-store/default/plugin.tokens.json`](../../../plugin-style-store/default/plugin.tokens.json)
 and
 [`plugin-style-store/complete/`](../../../plugin-style-store/complete/plugin.tokens.json) beside
-it is a second one answering the same roles differently. Read one before writing yours, because a worked answer is worth more than a list of role names. **Both are in the repository rather than in the
-package.** From an installed project, read them on the Arena repository. Or start from
-`"stylePlugins": ["default"]` and replace one role at a time against something that already
-runs.
+it is a second one answering the same roles differently. Read one before writing yours, because a worked answer is worth more than a list of role names. **Both are on the site and in the repository, not the package.** Start by
+copying the default into `design/<name>/` and replacing one role at a time: `["default"]` is no
+start, because your root plugin inherits nothing from it.
 
 **The roles below are where a product lives**, and the eight measured products disagree on every one of
 them:

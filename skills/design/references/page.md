@@ -4,7 +4,7 @@ Arena paints no page of yours. Arena draws the components, declares the floor th
 ships the column and the air as classes you put on your own markup. The page itself is a thing you
 write, and Arena hands you every value to write it with.
 
-Read this page before the first screen, and again while you write one. This page covers the half of a page that is never a component. Three questions belong here: what colour your own markup takes,
+Read this page first. Three questions are its own: what colour your own markup takes,
 how wide the content column gets, and how much space goes between one component and the next.
 
 ## The floor, and Arena does not paint it
@@ -23,7 +23,7 @@ light rather than leaving it inferred.
 ## Which colour your own markup takes
 
 **Reach for a role when the thing you are drawing is furniture, and an alias when it is voice.**
-Both are legitimate, and they differ when the skin changes. A style plugin
+A style plugin
 re-answers a role, so markup painted through one follows the appearance it is handed. An alias
 resolves to a palette colour and follows the palette instead.
 
@@ -63,8 +63,7 @@ Each role's full description is one entry in
 | the wash a media frame draws under anything laid over it | `--overlay-media` |
 
 Each edge role has a width beside it: `--bw-surface`, `--bw-control`, `--bw-field`,
-`--bw-separator` and `--bw-marker`. So a border of yours is a role for the colour and a role for
-the thickness, never a length you chose.
+`--bw-separator` and `--bw-marker`. So a border of yours takes two roles, never a length you chose.
 
 **A role says which colour the text takes, and a level says how far it is held back**, and text
 needs both. Under the default style plugin `--ink-muted` and `--ink-body` resolve to the same
@@ -85,7 +84,7 @@ palette it was written against.
 **The aliases are in [`contracts/design/colors.css`](../../../contracts/design/colors.css)**:
 `--crimson` and `--gold` are the two accents, with a soft wash beside each. `--danger`,
 `--success`, `--warning` and `--info` are the four status colours, with the same. `--bone` and
-`--mute` are text at full strength and text held back. The percentages the held-back registers stand at are tokens, not frozen numbers. Raising one is a palette decision, not an edit in a hundred places.
+`--mute` are text at full strength and text held back.
 
 ## Meaning and identity are two different colour sets
 
@@ -106,6 +105,11 @@ way. Otherwise a reader learns that green is sometimes a category.
 are `--sp-0` through `--sp-6` one at a time, then `--sp-8`, `--sp-10`, `--sp-12`, `--sp-16`,
 `--sp-20` and `--sp-24`. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says
 what each step is for.
+
+**Every other group reads the same way.** Your package's `arena.tokens.json` lists each
+value: `--fs-*`, `--fw-*`, `--lh-*`, `--ls-*` and `--font-*` for type, `--r-*`, `--bw-*`,
+`--shadow-*`, `--dur-*`, `--ease-*`, `--loop-*`, `--z-*`, `--bp-*` and `--dz-*`. A media query
+takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper.
 
 **`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
 device's own insets with that scale, in

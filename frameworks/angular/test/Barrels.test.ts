@@ -67,12 +67,6 @@ const ROOT_PRIVATE = new Map([
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
    + 'imports across one. A consumer has no '
    + 'reason to call it: they render a component, not a recipe.'],
-  ['StructuredData.ts',
-   'the schema.org serialisation behind contracts/behaviour/structured-data.json. A component '
-   + 'emits its own, from the items it was already given, and that is the whole reason the '
-   + 'pattern is worth having: a consumer who could call this would be maintaining the same '
-   + 'hierarchy twice, which is the duplication it removes. Written twice at one path so '
-   + 'check:shared-arithmetic holds the two layers to the same output.'],
   ['ArenaIds.ts',
    'the generator behind the ids a component uses to point one of its own elements at another, '
    + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '

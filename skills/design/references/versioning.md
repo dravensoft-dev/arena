@@ -1,6 +1,14 @@
-# Why a package version may differ from Arena's, and the licence
+# What a version promises, and why a package's may differ from Arena's
 
-Why is the latest version of `@dravensoft/arena-react` not the latest version of `@dravensoft/arena-angular`? Which version is Arena's? Which licence does Arena carry? Read this when two Arena packages in a project sit at different versions.
+Why is the latest version of `@dravensoft/arena-react` not the latest version of `@dravensoft/arena-angular`? Which version is Arena's? What does a version promise? Can two copies of Arena share an app? Which licence does Arena carry? Read this when you choose a range, plan an upgrade, or find two Arena packages at different versions.
+
+## What does a version promise?
+
+Every package follows semantic versioning, measured against what these references name. Only a major renames or removes a component, a member or an export [`exports.md`](./exports.md) names. A class of the vocabulary and a token move only in a major too, and so does a behaviour pattern that asks for more. A new role is a major too, because a root style plugin answers every role. A minor adds anything else, and a patch changes none of it. A symbol the references do not name carries no promise.
+
+## Can two copies of Arena share an app?
+
+No. One app installs one copy of its layer package. The stylesheet, its classes and the custom properties on `:root` belong to the whole document. So does the `arena-theme` storage key, and two copies overwrite each other in whatever order their sheets load. What a provider hands down, the locale or the themes, reaches only its own copy's components. Move the whole app to a new major at once. The build refuses a name the new version does not ship and says what it ships instead, and that list is the migration.
 
 ## Why might a package's latest version not match Arena's latest version?
 

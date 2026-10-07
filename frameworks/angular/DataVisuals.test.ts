@@ -81,7 +81,7 @@ test('the layout constants carry the values the chart family shares', () => {
 test('ARENA_SR_ONLY hides the element without removing it from the accessibility tree', () => {
 
   assert.equal(ARENA_SR_ONLY.position, 'absolute');
-  assert.equal(ARENA_SR_ONLY.clip, 'rect(0 0 0 0)');
+  assert.equal(ARENA_SR_ONLY.clipPath, 'inset(50%)');
   assert.equal(ARENA_SR_ONLY.overflow, 'hidden');
   assert.ok(!('display' in ARENA_SR_ONLY), 'display:none would drop it from the accessibility tree');
 });

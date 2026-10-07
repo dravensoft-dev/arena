@@ -10,10 +10,10 @@ component's only say in the matter is `data-persist`, which it sets when the not
 taken away on a timer.
 
 ```html
-@for (notice of notices(); track notice.id) {
+@for (notice of toasts.toasts(); track notice.id) {
   <arena-toast [title]="notice.title" [message]="notice.message" [tone]="notice.tone"
-               actionLabel="Retry" dismissible
-               (action)="retry(notice)" (close)="drop(notice)" />
+               [actionLabel]="notice.actionLabel" [persist]="notice.persist" dismissible
+               (action)="retry(notice.id)" (close)="toasts.dismiss(notice.id)" />
 }
 ```
 

@@ -96,7 +96,8 @@ The component's own prompt is where that member is documented.
 binds it when the markup describes a structure worth handing to a reader rather than only to a
 person. The file asks for a script of type `application/ld+json` next to the markup, and the same
 structure in `schema.org` terms. The file also asks for `<` escaped in the serialisation, so no value
-you supply can close the tag. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
+you supply can close the tag. `arenaEscapeJsonLd(json)`, exported by both packages, is that escape:
+serialise with `JSON.stringify` and write what it returns into the script. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
 requirement.
 
 ## What Arena does not decide

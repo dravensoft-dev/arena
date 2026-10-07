@@ -329,7 +329,7 @@ test('the ARENA_SR_ONLY object shape produces exactly the raws those keys are cu
 
   const hits = scanText(
     "export const ARENA_SR_ONLY = { position: 'absolute', width: '1px', height: '1px',"
-    + " padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0 0 0 0)',"
+    + " padding: '0', margin: '-1px', overflow: 'hidden', clipPath: 'inset(50%)',"
     + " whiteSpace: 'nowrap', border: '0' };",
   );
   assert.deepEqual(hits.map((h) => `${h.prop}:${h.raw}`), ["width:'1px'", "height:'1px'", "margin:'-1px'"]);
