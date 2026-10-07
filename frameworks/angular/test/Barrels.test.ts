@@ -18,6 +18,10 @@ import { ANGULAR_COMPONENTS } from './Compliance';
 const LAYER = join(ANGULAR_COMPONENTS, '..');
 
 const PRIVATE = new Map([
+  ['display/arena-table/ColumnKey.ts',
+   'the check the table and its cells run on a column key before they bind its width and alignment '
+   + 'under it, and the one warning for a key that cannot name a property; an adopter sets '
+   + '`--arena-column-<key>-width`, never calls it, and it is typechecked through the table that imports it.'],
   ['display/arena-avatar/AvatarFace.ts',
    'the token a person row provides to the avatar it draws, so the avatar binds its size channel to '
    + 'the list\'s face; an adopter never provides it, and it is typechecked through the avatar that '

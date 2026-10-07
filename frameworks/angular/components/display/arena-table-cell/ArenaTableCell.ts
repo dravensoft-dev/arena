@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output } f
 import type { ArenaTableColumn } from '../../../Api.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
 import { ArenaTableState } from '../arena-table/ArenaTableState';
+import { arenaColumnKey } from '../arena-table/ColumnKey';
 import { ArenaTableRowState } from '../arena-table-row/ArenaTableRowState';
 import { arenaTableCellStyles } from './ArenaTableCell.variants';
 import manifest from '../arena-table/ArenaTable.classes.generated';
@@ -22,7 +23,8 @@ const PLAIN: ArenaTableColumn = { header: '' };
     '[attr.data-arena-part]': 'narrow() ? (blocked() ? parts.cardBlock : parts.cardRow) : parts.td',
     '[attr.role]': 'role()',
     '[attr.tabindex]': 'tabIndex()',
-    '[style.width]': 'width()',
+    '[style.--arena-column-width]': 'columnWidth()',
+    '[style.--arena-column-align]': 'columnAlign()',
     '(focus)': 'onFocus()',
   },
   imports: [NgTemplateOutlet, ArenaSlotAttributes],
@@ -69,7 +71,17 @@ export class ArenaTableCell {
 
   protected readonly role = computed(() => (this.narrow() ? 'presentation' : null));
 
-  protected readonly width = computed(() => (this.narrow() ? null : this.column().width ?? null));
+  protected readonly columnKey = computed(() => (this.narrow() ? null : arenaColumnKey(this.table.label(), this.column().key)));
+
+  protected readonly columnWidth = computed(() => {
+    const key = this.columnKey();
+    return key === null ? 'initial' : `var(--arena-column-${key}-width)`;
+  });
+
+  protected readonly columnAlign = computed(() => {
+    const key = this.columnKey();
+    return key === null ? 'initial' : `var(--arena-column-${key}-align)`;
+  });
 
   protected readonly tabIndex = computed(() => {
     if (this.narrow()) return null;
@@ -84,7 +96,7 @@ export class ArenaTableCell {
       const styles = arenaTableCellStyles({ narrow: true });
       return column.mobileLayout === 'block' ? styles.cardBlock() : styles.cardRow();
     }
-    return arenaTableCellStyles({ narrow: false, align: column.align ?? 'left', numeric: Boolean(column.numeric) }).td();
+    return arenaTableCellStyles({ narrow: false, numeric: Boolean(column.numeric) }).td();
   });
 
   protected readonly cellData = computed(() => {
@@ -93,7 +105,7 @@ export class ArenaTableCell {
       const styles = arenaTableCellStyles({ narrow: true });
       return column.mobileLayout === 'block' ? styles.$data.cardBlock() : styles.$data.cardRow();
     }
-    return arenaTableCellStyles({ narrow: false, align: column.align ?? 'left', numeric: Boolean(column.numeric) }).$data.td();
+    return arenaTableCellStyles({ narrow: false, numeric: Boolean(column.numeric) }).$data.td();
   });
 
   protected readonly valueData = computed(() => {

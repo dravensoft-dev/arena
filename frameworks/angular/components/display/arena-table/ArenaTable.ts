@@ -12,6 +12,7 @@ import { ArenaPagination } from '../../navigation/arena-pagination/ArenaPaginati
 import { ArenaSelect } from '../../forms/arena-select/ArenaSelect';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
+import { arenaColumnKey } from './ColumnKey';
 import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -54,7 +55,8 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
           <tr [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow"
               [attr.aria-rowindex]="extent() ? 1 : null">
             @for (column of columns(); track $index; let i = $index) {
-              <th scope="col" [class]="headerStyles(column).th()" [arenaSlotData]="headerStyles(column).$data.th()" [attr.data-arena-part]="parts.th" [style.width]="column.width"
+              <th scope="col" [class]="headerStyles(column).th()" [arenaSlotData]="headerStyles(column).$data.th()" [attr.data-arena-part]="parts.th"
+                  [style.--arena-column-width]="widthOf(i)" [style.--arena-column-align]="alignOf(i)"
                   [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
                   [attr.aria-sort]="sortStateOf(i)"
                   (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
@@ -204,7 +206,19 @@ export class ArenaTable {
   }
 
   protected headerStyles(column: ArenaTableColumn) {
-    return arenaTableStyles({ narrow: false, align: column.align ?? 'left', sortable: Boolean(column.sortable && this.sort()) });
+    return arenaTableStyles({ narrow: false, sortable: Boolean(column.sortable && this.sort()) });
+  }
+
+  protected readonly keys = computed(() => this.columns().map((column) => arenaColumnKey(this.label(), column.key)));
+
+  protected widthOf(column: number): string {
+    const key = this.keys()[column] ?? null;
+    return key === null ? 'initial' : `var(--arena-column-${key}-width)`;
+  }
+
+  protected alignOf(column: number): string {
+    const key = this.keys()[column] ?? null;
+    return key === null ? 'initial' : `var(--arena-column-${key}-align)`;
   }
 
   protected onHeader(column: number): void {
@@ -218,6 +232,7 @@ export class ArenaTable {
 
   constructor() {
     this.state.columns = this.columns;
+    this.state.label = this.label;
     this.state.narrow = this.narrow;
     this.state.rows = this.rows;
     this.state.extent = this.extent;
