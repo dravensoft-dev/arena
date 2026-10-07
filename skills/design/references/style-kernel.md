@@ -271,8 +271,8 @@ Prose leading holds at 1.5 or more, heading leading at 1 or more, and the prose 
 and 90. `{lh.tight}` is a perfectly normal step of the leading scale and it is under the heading
 floor, so answering `lh-heading` with it refuses the build.
 
-Beyond those, no gate reads your application, so the last step is the only one that checks the
-thing you care about.
+Beyond those, `arena audit` reads each source file and nothing reads the rendered view. The
+last step is the only one that checks the thing you care about.
 
 - [ ] Answer every role in `plugin.tokens.json`, starting with the shapes.
 - [ ] Run `arena audit`. Your plugin directory is in scope because the config
