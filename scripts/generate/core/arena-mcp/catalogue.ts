@@ -206,6 +206,24 @@ export function score(entry: Entry, wanted: Set<string>, summary: string) {
   return { hits, rank };
 }
 
+export function tokenNames(node: unknown, path: string[] = []): string[] {
+  if (node === null || typeof node !== 'object') return [];
+  const own = '$value' in node ? [path.join('-')] : [];
+  return [...own, ...Object.entries(node).filter(([key]) => !key.startsWith('$'))
+    .flatMap(([key, child]) => tokenNames(child, [...path, key]))];
+}
+
+export function summaryOf(entry: Entry, text: string) {
+  if (entry.uri.startsWith(BEHAVIOUR_PREFIX)) return '';
+  if (!entry.uri.startsWith(TOKENS_PREFIX)) return text.slice(0, 400);
+  try {
+    const tree = JSON.parse(text);
+    return [...Object.keys(tree), ...tokenNames(tree)].join(' ');
+  } catch {
+    return '';
+  }
+}
+
 export function search(payload: string, found: Entry[], query: string, limit = 8) {
   const wanted = words(query);
   if (wanted.size === 0) return [];
@@ -213,8 +231,7 @@ export function search(payload: string, found: Entry[], query: string, limit = 8
   return found
     .map((entry) => {
       const text = textOf(payload, entry, byRel) ?? '';
-      const summary = entry.mime === 'text/markdown' ? text.slice(0, 400) : '';
-      return { entry, ...score(entry, wanted, summary) };
+      return { entry, ...score(entry, wanted, summaryOf(entry, text)) };
     })
     .filter((one) => one.hits > 0)
     .sort((a, b) => b.rank - a.rank || byCodeUnit(a.entry.uri, b.entry.uri))

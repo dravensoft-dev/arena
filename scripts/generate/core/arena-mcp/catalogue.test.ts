@@ -262,3 +262,27 @@ test('behaviour and token JSON add no boilerplate words, so a reference on focus
     assert.ok(search(dir, found, 'tabs keys').some((one) => one.entry.uri === `${SCHEME}://behaviour/tabs`));
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('a JSON resource that is not a token group or a pattern is found by what it opens with', () => {
+  const dir = payload({
+    'contracts/design/roles.json': '{"radius":{"$type":"dimension","compat":"the alias"}}',
+    'rules.json': '{"raw-value":{"says":"read sp-4 through its token, never a raw value"}}',
+  });
+  try {
+    const found = entries(dir, MANIFEST);
+    assert.equal(search(dir, found, 'radius')[0]?.entry.uri, ROLES_URI);
+    assert.ok(search(dir, found, 'raw value').some((one) => one.entry.uri === `${SCHEME}://rules`));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a token group is found by the names of its tokens', () => {
+  const dir = payload({
+    'contracts/design/spacing.json': JSON.stringify({ sp: { $type: 'dimension', 4: { $value: { value: 16, unit: 'px' } } } }),
+    'contracts/design/effects.json': JSON.stringify({ shadow: { $type: 'shadow', soft: { $value: 'x' } } }),
+  });
+  try {
+    const found = entries(dir, MANIFEST);
+    assert.equal(search(dir, found, 'sp-4')[0]?.entry.uri, `${SCHEME}://tokens/spacing`);
+    assert.equal(search(dir, found, 'shadow soft')[0]?.entry.uri, `${SCHEME}://tokens/effects`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
