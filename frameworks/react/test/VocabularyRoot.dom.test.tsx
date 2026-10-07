@@ -11,7 +11,7 @@ import { element } from './FixtureRender.tsx';
 import { ARENA_VOCABULARY } from '../Vocabulary.generated.ts';
 import { loadDemos } from '../../../scripts/generate/arena/generate-kitchen-sink.ts';
 import { instanceNode } from '../../../scripts/lib/arena/kitchen-sink-model.ts';
-import { OWN_ELEMENTLESS } from '../../../scripts/check/arena/check-api.ts';
+import { OWN_ELEMENTLESS } from '../../../scripts/lib/arena/elementless.ts';
 import { manifestFor, HAND_DRAWN } from '../../../scripts/lib/tailwind/manifest-surfaces.ts';
 
 afterEach(cleanup);

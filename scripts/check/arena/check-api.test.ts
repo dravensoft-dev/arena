@@ -14,7 +14,8 @@ import { reactSurface, UnrecognisedShape } from '../../lib/arena/api-surface.ts'
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { groupProblems } from './check-api.ts';
-import { vocabularyMemberProblems, OWN_ELEMENTLESS } from './check-api.ts';
+import { vocabularyMemberProblems } from './check-api.ts';
+import { OWN_ELEMENTLESS } from '../../lib/arena/elementless.ts';
 
 const TYPES = new Map([['ArenaTone', 'enum'], ['ArenaCrumb', 'object']]);
 

@@ -223,8 +223,6 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
 
 export const VOCABULARY_MEMBER = 'className';
 
-export { OWN_ELEMENTLESS };
-
 export function vocabularyMemberProblems(
   component: string, members: SurfaceMember[], layer: string, contracted: Set<string>,
   elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS,
