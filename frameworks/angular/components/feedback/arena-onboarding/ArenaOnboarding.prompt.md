@@ -33,12 +33,9 @@ Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-mod
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json) pattern this component binds:
-
-- `Escape` close.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json):
+- `Escape`: close.
 <!-- @keys end -->
 
 **Do / Don't**

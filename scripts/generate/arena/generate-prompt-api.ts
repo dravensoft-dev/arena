@@ -263,34 +263,43 @@ export function promptPaths(base = root) {
 
 export const KEYS_OPEN_LINE = /^<!-- @keys GENERATED[^\n]*-->$/m;
 export const KEYS_CLOSE_LINE = '<!-- @keys end -->';
-export const KEYS_OPEN = '<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->';
+export const KEYS_OPEN = '<!-- @keys GENERATED from the binding. -->';
 export const BEHAVIOUR_FROM_PROMPT = '../../../../../contracts/behaviour';
 const KEY = 'keyboard.';
 
-export type Binding = { pattern: string; exceptions?: { requirement: string }[]; additions?: { provides: string; reason: string }[] };
+type Case = { pattern: string; exceptions?: { requirement: string }[]; additions?: { provides: string; reason: string }[] };
+export type Binding = Partial<Case> & { cases?: ({ name?: string; when?: string } & Case)[] };
 export type Pattern = { name: string; requires: Record<string, string> };
 
-const firstSentence = (text: string) => /^[\s\S]*?[.!?](?=\s|$)/.exec(text)?.[0] ?? text;
+const casesOf = (binding: Binding): Case[] => (binding.cases ?? (binding.pattern ? [binding as Case] : []));
 
-export function renderKeysRegion(binding: Binding | null, pattern: Pattern | null) {
-  let body: string;
-  if (!binding || !pattern) {
-    body = '**Keys.** This component binds no behaviour pattern.';
-  } else {
-    const link = `[\`${pattern.name}\`](${BEHAVIOUR_FROM_PROMPT}/${pattern.name}.json)`;
-    const excepted = new Set((binding.exceptions ?? []).map((one) => one.requirement));
-    const keys = Object.entries(pattern.requires)
-      .filter(([key]) => key.startsWith(KEY) && !excepted.has(key))
-      .map(([key, what]) => `- \`${key.slice(KEY.length)}\` ${what.replace(/\.$/, '')}.`);
-    const added = (binding.additions ?? [])
-      .filter((one) => one.provides.startsWith(KEY))
-      .map((one) => `- \`${one.provides.slice(KEY.length)}\`: ${firstSentence(one.reason)}`);
-    const listed = [...keys, ...added];
-    body = listed.length === 0
-      ? `**Keys.** This component binds ${link}, which names no key.`
-      : [`**Keys**, from the ${link} pattern this component binds:`, '', ...listed].join('\n');
+export function renderKeysRegion(binding: Binding | null, patterns: Pattern | Pattern[] | null) {
+  const known = new Map((Array.isArray(patterns) ? patterns : patterns ? [patterns] : []).map((one) => [one.name, one]));
+  const lines = new Map<string, string>();
+  const named = new Set<string>();
+  for (const one of binding ? casesOf(binding) : []) {
+    const pattern = known.get(one.pattern);
+    if (!pattern) continue;
+    if (Object.keys(pattern.requires).some((key) => key.startsWith(KEY))) named.add(pattern.name);
+    const excepted = new Set((one.exceptions ?? []).map((entry) => entry.requirement));
+    for (const [key, what] of Object.entries(pattern.requires)) {
+      if (!key.startsWith(KEY) || excepted.has(key)) continue;
+      const name = key.slice(KEY.length);
+      if (!lines.has(name)) lines.set(name, `- \`${name}\`: ${what.split(';')[0]?.replace(/\.$/, '')}.`);
+    }
   }
-  return [KEYS_OPEN, '', body, '', KEYS_CLOSE_LINE].join('\n');
+  for (const one of binding ? [binding, ...(binding.cases ?? [])] : []) {
+    for (const add of one.additions ?? []) {
+      if (!add.provides.startsWith(KEY)) continue;
+      const name = add.provides.slice(KEY.length);
+      lines.set(name, `- \`${name}\`: an addition of this component, see its binding.`);
+    }
+  }
+  const links = [...named].map((name) => `[\`${name}\`](${BEHAVIOUR_FROM_PROMPT}/${name}.json)`);
+  const body = lines.size === 0
+    ? '**Keys:** none.'
+    : [`**Keys**, from ${links.length ? links.join(' and ') : 'its binding'}:`, ...lines.values()].join('\n');
+  return [KEYS_OPEN, body, KEYS_CLOSE_LINE].join('\n');
 }
 
 export function applyKeysRegion(source: string, region: string) {
@@ -308,11 +317,14 @@ export function applyKeysRegion(source: string, region: string) {
 
 export function keysOf(path: string, component: string, base = root) {
   const at = join(base, dirname(path), `${component}.behaviour.json`);
-  if (!existsSync(at)) return { binding: null, pattern: null };
+  if (!existsSync(at)) return { binding: null, patterns: [] as Pattern[] };
   const binding = JSON.parse(readFileSync(at, 'utf8')) as Binding;
-  const file = join(base, 'contracts/behaviour', `${binding.pattern}.json`);
-  const pattern = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) as Pattern : null;
-  return { binding, pattern };
+  const patterns: Pattern[] = [];
+  for (const name of new Set(casesOf(binding).map((one) => one.pattern))) {
+    const file = join(base, 'contracts/behaviour', `${name}.json`);
+    if (existsSync(file)) patterns.push(JSON.parse(readFileSync(file, 'utf8')) as Pattern);
+  }
+  return { binding, patterns };
 }
 
 export function writePromptApis({
@@ -328,8 +340,8 @@ export function writePromptApis({
     const withAnswers = applyAnswersRegion(
       withApi, renderAnswersRegion(component, layer, answeredFamilies(component, base, families, manifests)),
     );
-    const { binding, pattern } = keysOf(path, component, base);
-    const withKeys = applyKeysRegion(withAnswers, renderKeysRegion(binding, pattern));
+    const { binding, patterns } = keysOf(path, component, base);
+    const withKeys = applyKeysRegion(withAnswers, renderKeysRegion(binding, patterns));
     const after = applyRulesRegion(withKeys, renderRulesRegion(layer));
     if (after !== before) { write(join(base, path), after); written.push(path); }
   }

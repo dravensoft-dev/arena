@@ -46,10 +46,8 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`textbox`](../../../../../contracts/behaviour/textbox.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 Rules: validates on `blur` by default; use `validateOn="change"` only for live feedback (passwords, availability). Mark required fields with `required`.

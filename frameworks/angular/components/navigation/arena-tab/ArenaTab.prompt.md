@@ -27,10 +27,8 @@ Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The component draws the panel, not the button.** `arena-tabs` renders the tablist and every tab button in it from this component's `label`. `arena-tab`'s own host **is** the tabpanel. That split is not a

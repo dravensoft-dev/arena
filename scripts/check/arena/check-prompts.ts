@@ -27,7 +27,8 @@ export const node = {
   name: 'check:prompts',
   reads: [
     'contracts/api/components', 'frameworks/Components.json',
-    'frameworks/tailwind/vocabulary', 'frameworks/tailwind/components',
+    'frameworks/tailwind/vocabulary', 'frameworks/tailwind/components', 'contracts/behaviour',
+    'frameworks/react/components', 'frameworks/angular/components',
     'frameworks/react/components/**/*.prompt.md', 'frameworks/angular/components/**/*.prompt.md',
   ],
   writes: [],
@@ -71,13 +72,13 @@ export function answersProblem(
   return [];
 }
 
-export function keysProblem(path: string, source: string, binding: Binding | null, pattern: Pattern | null) {
+export function keysProblem(path: string, source: string, binding: Binding | null, patterns: Pattern | Pattern[] | null) {
   const found = sliceRegion(source, KEYS_OPEN_LINE, KEYS_CLOSE_LINE);
   if (found === null) {
     return [`${path}: carries no @keys region, so it names no key its pattern requires. `
       + 'Run bun run generate:api, which places one after the @answers region'];
   }
-  if (found !== renderKeysRegion(binding, pattern)) {
+  if (found !== renderKeysRegion(binding, patterns)) {
     return [`${path}: its @keys region does not match its behaviour binding and pattern. `
       + 'Fix the binding or the pattern and run bun run generate:api'];
   }
@@ -110,8 +111,8 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
       path, source, component, layer, answeredFamilies(component, base, families, manifests),
     ));
 
-    const { binding, pattern } = keysOf(path, component, base);
-    problems.push(...keysProblem(path, source, binding, pattern));
+    const { binding, patterns } = keysOf(path, component, base);
+    problems.push(...keysProblem(path, source, binding, patterns));
 
     const contract = loadContract(component, base);
     if (!contract) { uncontracted += 1; continue; }

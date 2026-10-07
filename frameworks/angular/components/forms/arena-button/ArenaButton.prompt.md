@@ -42,13 +42,10 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`button`](../../../../../contracts/behaviour/button.json) pattern this component binds:
-
-- `Space` activate.
-- `Enter` activate.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
 <!-- @keys end -->
 
 **Do / Don't**

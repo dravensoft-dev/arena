@@ -38,10 +38,8 @@ what a card does when it is picked up is a question about your data rather than 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`scrollable-region`](../../../../../contracts/behaviour/scrollable-region.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Do / Don't**

@@ -48,14 +48,11 @@ Two things this default is not. The default is not a `'UTC'` fallback. Such a fa
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`grid`](../../../../../contracts/behaviour/grid.json) pattern this component binds:
-
-- `ArrowKeys` moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
-- `Home` moves focus to the first cell in the current row.
-- `End` moves focus to the last cell in the current row.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
 
 The anchor is internal, so prev/Today/next work with nothing wired. `onRangeChange` reports the new anchor date; take it as the cue to refetch. Pass `anchorDate` only when you want to drive the date yourself; it wins whenever it changes.

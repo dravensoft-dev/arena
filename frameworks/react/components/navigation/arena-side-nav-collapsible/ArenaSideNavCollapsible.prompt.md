@@ -34,13 +34,10 @@ A named group inside an `ArenaSideNav` that shows and hides its own contents -- 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`disclosure`](../../../../../contracts/behaviour/disclosure.json) pattern this component binds:
-
-- `Enter` activates the button and toggles the region.
-- `Space` activates the button and toggles the region.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`disclosure`](../../../../../contracts/behaviour/disclosure.json):
+- `Enter`: activates the button and toggles the region.
+- `Space`: activates the button and toggles the region.
 <!-- @keys end -->
 
 The trigger carries `aria-expanded` and an `aria-controls` naming the region it toggles.

@@ -28,10 +28,8 @@ answers, and it clips whatever you put in it, so a wall of figures reads as a wa
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Nothing here takes a source or an alternative text**, and that is the point. The picture is the

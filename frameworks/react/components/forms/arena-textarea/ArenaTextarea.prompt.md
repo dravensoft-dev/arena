@@ -36,10 +36,8 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`textbox`](../../../../../contracts/behaviour/textbox.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 `onChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the

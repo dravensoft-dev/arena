@@ -31,12 +31,9 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
-
-- `legend-reachable`: Every legend row is a real <button type="button">, so onSliceActivate is reachable by keyboard and the row answers Enter and Space without the component binding either.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json):
+- `legend-reachable`: an addition of this component, see its binding.
 <!-- @keys end -->
 
 **Do**

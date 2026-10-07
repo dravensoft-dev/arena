@@ -34,10 +34,8 @@ the same shape as `ArenaTable`/`ArenaTableRow` and `ArenaRadioGroup`/`ArenaRadio
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 An item's click reports `onNav(id)` -- the activated item's `id`, with no DOM event.

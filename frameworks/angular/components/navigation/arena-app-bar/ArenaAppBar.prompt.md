@@ -35,10 +35,8 @@ banner landmark has to be that element.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`banner`](../../../../../contracts/behaviour/banner.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The three slots are attributes**, `brand`, `nav` and `actions`, projected through the marker

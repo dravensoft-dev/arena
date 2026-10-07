@@ -28,10 +28,8 @@ Dravensoft's by accident.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 An `arena-size-*` class sizes both halves at once, the mark's slot and the wordmark. The scale is a fixed repertoire rather than a ratio. `arena-size-sm` (30/17) sits beside a product name in an application frame, and `arena-size-md` (40/24) heads a signed-out panel. `arena-size-lg` (54/34) is the brand manual's Primary horizontal, and `arena-size-xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.

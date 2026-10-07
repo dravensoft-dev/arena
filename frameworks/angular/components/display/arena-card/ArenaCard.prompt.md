@@ -40,10 +40,10 @@ take, and the host goes `display: contents`.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
 <!-- @keys end -->
 
 **`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `(click)` bound?". Arena never derives what it draws from what a consumer listens for. `arena-table-row`'s `interactive` gives the same answer. Arena writes `role="button"`, a tab stop and

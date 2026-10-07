@@ -26,10 +26,8 @@ Phosphor class name Arena draws (not a node); absent renders no glyph at all.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

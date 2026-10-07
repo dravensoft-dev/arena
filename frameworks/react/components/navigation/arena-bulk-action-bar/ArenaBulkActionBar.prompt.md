@@ -31,13 +31,10 @@ Bulk actions (H7). Appears when there's a selection and operates on the set. Com
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`toolbar`](../../../../../contracts/behaviour/toolbar.json) pattern this component binds:
-
-- `ArrowRight` moves focus to the next control, optionally wrapping from the last to the first.
-- `ArrowLeft` moves focus to the previous control, optionally wrapping from the first to the last.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`toolbar`](../../../../../contracts/behaviour/toolbar.json):
+- `ArrowRight`: moves focus to the next control, optionally wrapping from the last to the first.
+- `ArrowLeft`: moves focus to the previous control, optionally wrapping from the first to the last.
 <!-- @keys end -->
 
 `clearable` (default `true`) gates the Clear control; pass `clearable={false}` to hide it entirely.

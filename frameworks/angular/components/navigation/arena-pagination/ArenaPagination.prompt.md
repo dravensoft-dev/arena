@@ -26,10 +26,8 @@ Jumps between pages of a large set, the companion to a table or a long list. The
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 `page`, `pageCount` and `ariaLabel` are all required, and the last two are **guarded at

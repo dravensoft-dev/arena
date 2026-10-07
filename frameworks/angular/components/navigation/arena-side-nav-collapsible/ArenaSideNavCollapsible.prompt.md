@@ -30,13 +30,10 @@ hides a group of destinations. Standalone, `OnPush`, signal I/O.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`disclosure`](../../../../../contracts/behaviour/disclosure.json) pattern this component binds:
-
-- `Enter` activates the button and toggles the region.
-- `Space` activates the button and toggles the region.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`disclosure`](../../../../../contracts/behaviour/disclosure.json):
+- `Enter`: activates the button and toggles the region.
+- `Space`: activates the button and toggles the region.
 <!-- @keys end -->
 
 The trigger is a native `<button type="button">` carrying `aria-expanded` and an `aria-controls`

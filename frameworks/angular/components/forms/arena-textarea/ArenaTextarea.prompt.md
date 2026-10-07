@@ -48,10 +48,8 @@ a real `<textarea>`, named by a real `<label for>`.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`textbox`](../../../../../contracts/behaviour/textbox.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Do / Don't**

@@ -35,10 +35,10 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
 <!-- @keys end -->
 
 `id`, `title`, `start` and `end` are all required and **throw** when absent. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.

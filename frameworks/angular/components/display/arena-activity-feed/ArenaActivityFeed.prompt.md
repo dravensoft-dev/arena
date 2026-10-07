@@ -27,10 +27,12 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`feed`](../../../../../contracts/behaviour/feed.json):
+- `PageDown`: moves focus to the next article.
+- `PageUp`: moves focus to the previous article.
+- `ControlEnd`: Control+End moves focus to the first focusable element after the feed.
+- `ControlHome`: Control+Home moves focus to the first focusable element before the feed.
 <!-- @keys end -->
 
 **Do / Don't**

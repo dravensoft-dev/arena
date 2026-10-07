@@ -39,14 +39,11 @@ useEffect(() => {
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`combobox`](../../../../../contracts/behaviour/combobox.json) pattern this component binds:
-
-- `ArrowDown` opens the popup if closed; moves into it.
-- `Escape` closes the popup if it is visible.
-- `Enter` accepts the active option and closes the popup.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`combobox`](../../../../../contracts/behaviour/combobox.json):
+- `ArrowDown`: opens the popup if closed.
+- `Escape`: closes the popup if it is visible.
+- `Enter`: accepts the active option and closes the popup.
 <!-- @keys end -->
 
 ### Groups and routes

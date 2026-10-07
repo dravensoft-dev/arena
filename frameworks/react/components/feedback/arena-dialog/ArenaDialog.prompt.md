@@ -29,12 +29,9 @@ Modal for confirmations and short forms. Overlay with blur.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json) pattern this component binds:
-
-- `Escape` close.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json):
+- `Escape`: close.
 <!-- @keys end -->
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a dialog, because its subject is editorial. `open` is

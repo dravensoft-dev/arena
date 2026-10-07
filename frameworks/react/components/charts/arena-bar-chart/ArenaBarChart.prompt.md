@@ -44,17 +44,14 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
-
-- `ArrowLeft` moves the data cursor to the previous point, clamping at the first.
-- `ArrowRight` moves the data cursor to the next point, clamping at the last.
-- `Home` moves the data cursor to the first point.
-- `End` moves the data cursor to the last point.
-- `Escape` clears the data cursor.
-- `data-cursor`: The chart plot is one keyboard region and the data cursor rides inside it: the rail carries tabindex="0", role="group" and the chart name whether it overflows or not, and the arrow keys, Home, End and Escape move a cursor that drives exactly what hover drives.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json):
+- `ArrowLeft`: moves the data cursor to the previous point, clamping at the first.
+- `ArrowRight`: moves the data cursor to the next point, clamping at the last.
+- `Home`: moves the data cursor to the first point.
+- `End`: moves the data cursor to the last point.
+- `Escape`: clears the data cursor.
+- `data-cursor`: an addition of this component, see its binding.
 <!-- @keys end -->
 
 **Do**

@@ -24,10 +24,8 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`progressbar`](../../../../../contracts/behaviour/progressbar.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Do**

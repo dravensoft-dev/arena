@@ -30,10 +30,8 @@ that follow the reader everywhere. The bar is the banner landmark, so a page car
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`banner`](../../../../../contracts/behaviour/banner.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`

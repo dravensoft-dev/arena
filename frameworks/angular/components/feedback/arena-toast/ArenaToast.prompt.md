@@ -40,10 +40,8 @@ taken away on a timer.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Tone decides how the message is announced, and that is the whole reason this primitive exists.** `tone="danger"` renders `role="alert"` with `aria-live="assertive"`. A critical message then interrupts whatever a screen reader is already saying. Every other tone renders `role="status"` with `aria-live="polite"` and queues behind it. `persist` is **implied by danger and ignores an explicit `false`**. A critical message that vanishes on a timer is one a user can miss entirely. A pinned toast says so visibly with the `Pinned` marker as well as in `data-persist`.

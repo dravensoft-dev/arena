@@ -41,10 +41,8 @@ a number. Turn the figure off yourself when you fill it, because the two share t
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 `progressPercentage` is **clamped to 0 through 100 and rounded**, so a caller cannot report 143% or a fraction. One number drives `aria-valuenow` and the fill's width, which is the point. What a sighted user sees and what a screen reader is told cannot drift apart.

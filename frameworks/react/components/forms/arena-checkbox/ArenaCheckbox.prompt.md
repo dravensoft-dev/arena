@@ -28,12 +28,9 @@ A single checkbox. Checked shows a crimson fill with a check. `onChange` carries
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`checkbox`](../../../../../contracts/behaviour/checkbox.json) pattern this component binds:
-
-- `Space` toggle the checked state.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`checkbox`](../../../../../contracts/behaviour/checkbox.json):
+- `Space`: toggle the checked state.
 <!-- @keys end -->
 
 **Do / Don't**

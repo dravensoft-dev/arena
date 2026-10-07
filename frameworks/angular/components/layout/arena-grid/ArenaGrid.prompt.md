@@ -31,10 +31,8 @@ page is as wide as one on a full page.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six filter bars written by hand end up with three different ones, and none of them matches `--bp-*`. Here the floor is the `arena-grid-min` class, `sm`, `md` or `lg`. `--arena-grid-min` on a container takes a width no step names. The floor

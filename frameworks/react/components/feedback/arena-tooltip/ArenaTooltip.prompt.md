@@ -21,12 +21,9 @@ Brief tooltip over icons/actions.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`tooltip`](../../../../../contracts/behaviour/tooltip.json) pattern this component binds:
-
-- `Escape` dismisses the tooltip.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`tooltip`](../../../../../contracts/behaviour/tooltip.json):
+- `Escape`: dismisses the tooltip.
 <!-- @keys end -->
 
 `label` is the bubble's text and is required; Arena draws the bubble, the consumer

@@ -37,10 +37,8 @@ between a board, a table and a chart. The member inks the head's mark. The colou
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Do / Don't** - Give the same entity the same `colorId` everywhere. A status that is slot 3 on the board and slot 3 in the chart beside it is one thing said twice, which is what the ramp is for.

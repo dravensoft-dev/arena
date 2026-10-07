@@ -37,10 +37,8 @@ Arena draws itself, not projected content.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 Import `ArenaAction` from `@dravensoft/arena-angular` alongside `ArenaEmptyState` in the host component's `imports`. `action` is a directive rather than a plain attribute, because it is how the empty state detects that an action was projected at all. `ArenaAction` is shared: every

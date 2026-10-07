@@ -38,12 +38,9 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json) pattern this component binds:
-
-- `Escape` close.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json):
+- `Escape`: close.
 <!-- @keys end -->
 
 `title` is **required**: the panel's `aria-labelledby` points at it, and nothing can

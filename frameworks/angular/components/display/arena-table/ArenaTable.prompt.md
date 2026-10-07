@@ -55,10 +55,11 @@ Cells are **positional**: the nth cell takes the nth column.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.

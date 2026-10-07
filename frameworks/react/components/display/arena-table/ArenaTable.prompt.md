@@ -63,10 +63,11 @@ The table is a **compound** component. `columns` says how each column is headed 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
@@ -110,9 +111,9 @@ Each column picks its card-mode layout with `mobileLayout`:
 
 ### Keyboard
 
-The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid, and arrows move by cell. The header row is row 0 and is navigable, as APG prescribes. `Home` and `End` go to the first and last cell of the **current row**, and `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onClick`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced.
+The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onClick`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced.
 
-The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row and no `role="grid"`, only the `empty` block. A column head standing over a "no results" sentence describes a table that is not there.
+The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row and no `role="grid"`, only the `empty` block.
 
 Card mode answers none of this. A card is a list item, and a list is traversed with Tab. A card whose row carries `interactive` becomes a `role="button"` tab stop of its own with an Enter and Space handler. The tab stop is `ArenaTableRow`'s `card-interactive` case rather than a clause of this component's binding, which carries no exception in either shape. A card row without `interactive` is inert in both shapes.
 
@@ -144,8 +145,7 @@ Serve the tree with `bun run demos`, open
    leaves the grid. Try it on a table whose rows carry a different number of cells
    than there are columns: the cursor must clamp against the row it is in, not
    against `columns.length`.
-4. `Home` and `End` stay INSIDE the current row: its first and last cell, never the
-   first row of the table. Walk a middle row, not only the first.
+4. Walk a middle row for `Home` and `End`, not only the first: they never leave the row.
 5. `Enter` activates the row when the `ArenaTableRow` has `onClick`, and does nothing on
    the header row.
 6. Card mode answers none of the grid keyboard, and it is not supposed to. That page

@@ -26,10 +26,8 @@ something to override; see the table below.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`status`](../../../../../contracts/behaviour/status.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 | shape | `--arena-skeleton-width` | `--arena-skeleton-height` | `--arena-skeleton-radius` |

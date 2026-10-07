@@ -29,10 +29,8 @@ A named region of a page: a heading, what sits around it, and the group it names
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which the vocabulary page lists as `.arena-stack`. With no children the heading names nothing. The title guard trims first,

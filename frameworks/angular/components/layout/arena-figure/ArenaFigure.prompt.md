@@ -28,10 +28,8 @@ because a `<figcaption>` outside a `<figure>` is associated with nothing.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The three slots are attributes**, `media`, `fallback` and `overlay`, projected through the marker

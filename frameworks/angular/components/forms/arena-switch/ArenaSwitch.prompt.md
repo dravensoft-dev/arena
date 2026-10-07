@@ -44,12 +44,9 @@ supplies the state.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`switch`](../../../../../contracts/behaviour/switch.json) pattern this component binds:
-
-- `Space` toggle between on and off.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`switch`](../../../../../contracts/behaviour/switch.json):
+- `Space`: toggle between on and off.
 <!-- @keys end -->
 
 **Do / Don't**

@@ -28,10 +28,8 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 The action is a label and an event, never one object. An object member is pure data with known fields, and a callback is not data. `ArenaAlert` takes the same pair for the same reason.

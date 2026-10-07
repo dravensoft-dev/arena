@@ -40,13 +40,10 @@ Action button. The main action is the default emphasis, `arena-emphasis-primary`
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`button`](../../../../../contracts/behaviour/button.json) pattern this component binds:
-
-- `Space` activate.
-- `Enter` activate.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
 <!-- @keys end -->
 The `arena-emphasis-*` classes pick primary, secondary or ghost, and `destructive` adds the danger outline. The `arena-size-*` classes pick sm, md or lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
 

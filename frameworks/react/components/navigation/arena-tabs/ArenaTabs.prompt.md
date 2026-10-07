@@ -26,13 +26,10 @@ A row of tabs and the one panel they switch between. The active tab has a crimso
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`tabs`](../../../../../contracts/behaviour/tabs.json) pattern this component binds:
-
-- `ArrowLeft` moves focus to the previous tab, wrapping to the last.
-- `ArrowRight` moves focus to the next tab, wrapping to the first.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`tabs`](../../../../../contracts/behaviour/tabs.json):
+- `ArrowLeft`: moves focus to the previous tab, wrapping to the last.
+- `ArrowRight`: moves focus to the next tab, wrapping to the first.
 <!-- @keys end -->
 
 **Do / Don't**

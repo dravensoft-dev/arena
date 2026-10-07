@@ -25,13 +25,10 @@ One option inside an `arena-radio-group`. Standalone, `OnPush`, signal I/O. The 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json) pattern this component binds:
-
-- `ArrowKeys` Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
-- `Space` checks the focused radio button if it is not already checked.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json):
+- `ArrowKeys`: Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
+- `Space`: checks the focused radio button if it is not already checked.
 <!-- @keys end -->
 
 **Do / Don't**

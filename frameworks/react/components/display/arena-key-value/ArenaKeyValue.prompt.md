@@ -27,10 +27,8 @@ A list of terms and the values against them, with an optional summed row ruled o
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The component renders a real `<dl>`**, so the association between a term and its value is the platform's rather than a class name's. Each row is a `<dt>` and a `<dd>` in a wrapper, which is the shape a

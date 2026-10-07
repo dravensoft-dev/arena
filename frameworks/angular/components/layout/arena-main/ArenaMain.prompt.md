@@ -26,10 +26,8 @@ and `<arena-main>` itself occupies nothing.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`main`](../../../../../contracts/behaviour/main.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The component draws no box, and that is the whole design.** The recipe carries one declaration, `display: block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page

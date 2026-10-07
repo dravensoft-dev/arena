@@ -33,10 +33,8 @@ The title block at the top of a page. The block holds the page's own heading, wh
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 `arena-align-start`, the default, keeps the actions top-aligned with a tall title, and `arena-align-center` vertically centers them against it. Both govern only the wide layout. Below `--bp-sm` the row always stacks and

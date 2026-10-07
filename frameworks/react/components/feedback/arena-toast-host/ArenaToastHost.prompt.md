@@ -26,10 +26,8 @@ The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 A placement class picks the corner: `arena-placement-top-start`, `arena-placement-top-end`, `arena-placement-bottom-start` or `arena-placement-bottom-end`, which is the default. The inline half is `start`/`end` rather than left/right, so a right-to-left document

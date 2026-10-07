@@ -29,10 +29,10 @@ navigation and focus semantics are never re-implemented.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
 <!-- @keys end -->
 
 **`href` decides the element.** With one it renders an `<a>`; without one, a `<button

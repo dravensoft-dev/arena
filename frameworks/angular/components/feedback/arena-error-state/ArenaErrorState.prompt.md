@@ -44,10 +44,8 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`alert`](../../../../../contracts/behaviour/alert.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState` in the host component's `imports`. `secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.

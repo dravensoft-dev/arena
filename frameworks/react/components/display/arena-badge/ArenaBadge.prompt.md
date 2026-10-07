@@ -23,10 +23,8 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Tone taxonomy (H4).** Two families, don't mix them:

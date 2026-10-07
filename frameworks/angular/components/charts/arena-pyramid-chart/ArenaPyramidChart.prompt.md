@@ -29,17 +29,14 @@ readonly byAge = computed<ArenaSeries[]>(() => [
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json) pattern this component binds:
-
-- `ArrowUp` moves the data cursor to the previous point, clamping at the first, on a chart whose categories run down the plot rather than across it.
-- `ArrowDown` moves the data cursor to the next point, clamping at the last, on a chart whose categories run down the plot rather than across it.
-- `Home` moves the data cursor to the first point.
-- `End` moves the data cursor to the last point.
-- `Escape` clears the data cursor.
-- `data-cursor`: The plot is one keyboard region and the data cursor rides inside it: the group carries tabindex="0", role="group" and the chart name, and ArrowUp, ArrowDown, Home, End and Escape move a cursor that drives exactly what hover drives.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json):
+- `ArrowUp`: moves the data cursor to the previous point, clamping at the first, on a chart whose categories run down the plot rather than across it.
+- `ArrowDown`: moves the data cursor to the next point, clamping at the last, on a chart whose categories run down the plot rather than across it.
+- `Home`: moves the data cursor to the first point.
+- `End`: moves the data cursor to the last point.
+- `Escape`: clears the data cursor.
+- `data-cursor`: an addition of this component, see its binding.
 <!-- @keys end -->
 
 ```html

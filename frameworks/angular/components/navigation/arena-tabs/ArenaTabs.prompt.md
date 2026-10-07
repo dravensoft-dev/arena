@@ -34,13 +34,10 @@ view and `arena-tabs` draws the tablist, places the panels, and owns the keyboar
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`tabs`](../../../../../contracts/behaviour/tabs.json) pattern this component binds:
-
-- `ArrowLeft` moves focus to the previous tab, wrapping to the last.
-- `ArrowRight` moves focus to the next tab, wrapping to the first.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`tabs`](../../../../../contracts/behaviour/tabs.json):
+- `ArrowLeft`: moves focus to the previous tab, wrapping to the last.
+- `ArrowRight`: moves focus to the next tab, wrapping to the first.
 <!-- @keys end -->
 
 **The children pull, and the parent pushes nothing.** `arena-tabs` provides an injectable `ArenaTabsState`. Each `arena-tab` injects it and pulls its selected state and the two ids wiring it to its button. Nothing is pushed, and **no member of either contract describes any of it**. The state

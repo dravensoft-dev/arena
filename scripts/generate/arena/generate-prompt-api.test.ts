@@ -196,8 +196,8 @@ const TABS = { name: 'tabs', requires: {
 test('the keys region lists every key the bound pattern requires, linked to the pattern', () => {
   const region = renderKeysRegion({ pattern: 'tabs' }, TABS);
   assert.match(region, /\[`tabs`\]\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/contracts\/behaviour\/tabs\.json\)/);
-  assert.match(region, /- `ArrowLeft` moves focus to the previous tab, wrapping to the last/);
-  assert.match(region, /- `ArrowRight` moves focus to the next tab/);
+  assert.match(region, /- `ArrowLeft`: moves focus to the previous tab, wrapping to the last/);
+  assert.match(region, /- `ArrowRight`: moves focus to the next tab/);
   assert.doesNotMatch(region, /roles\.tab/);
   assert.ok(region.endsWith(KEYS_CLOSE_LINE));
 });
@@ -209,14 +209,14 @@ test('an excepted key is left out and a keyboard addition is listed with its fir
     additions: [{ provides: 'keyboard.data-cursor', reason: 'The plot is one keyboard region. More detail.' }],
   }, TABS);
   assert.doesNotMatch(region, /ArrowLeft/);
-  assert.match(region, /- `data-cursor`: The plot is one keyboard region\./);
-  assert.doesNotMatch(region, /More detail/);
+  assert.match(region, /- `data-cursor`: an addition of this component/);
+  assert.doesNotMatch(region, /keyboard region/);
 });
 
 test('a pattern with no key, and no binding at all, each say so in one line', () => {
   assert.match(renderKeysRegion({ pattern: 'status' }, { name: 'status', requires: { 'roles.status': 'status' } }),
-    /binds \[`status`\]\([^)]*\), which names no key/);
-  assert.match(renderKeysRegion(null, null), /binds no behaviour pattern/);
+    /\*\*Keys:\*\* none\./);
+  assert.match(renderKeysRegion(null, null), /\*\*Keys:\*\* none\./);
 });
 
 test('the keys region goes after the answers region and replaces itself on a second run', () => {
@@ -224,4 +224,22 @@ test('the keys region goes after the answers region and replaces itself on a sec
   const once = applyKeysRegion(source, renderKeysRegion({ pattern: 'tabs' }, TABS));
   assert.ok(once.indexOf(ANSWERS_CLOSE_LINE) < once.indexOf('@keys'));
   assert.equal(applyKeysRegion(once, renderKeysRegion({ pattern: 'tabs' }, TABS)), once);
+});
+
+test('a cases binding lists the keys of every case once, and a case exception removes only its own', () => {
+  const grid = { name: 'grid', requires: { 'keyboard.ArrowUp': 'moves up', 'keyboard.Home': 'moves to the first cell' } };
+  const none = { name: 'none', requires: {} };
+  const button = { name: 'button', requires: { 'keyboard.Enter': 'activates', 'keyboard.Home': 'moves to the start' } };
+  const region = renderKeysRegion({ cases: [
+    { pattern: 'grid', exceptions: [{ requirement: 'keyboard.Home' }] },
+    { pattern: 'none' },
+    { pattern: 'button' },
+  ] }, [grid, none, button]);
+  assert.match(region, /\[`grid`\]/);
+  assert.match(region, /\[`button`\]/);
+  assert.doesNotMatch(region, /\[`none`\]/);
+  assert.match(region, /- `ArrowUp`: moves up\./);
+  assert.equal((region.match(/`Home`/g) ?? []).length, 1);
+  assert.match(region, /`Home`: moves to the start/);
+  assert.match(renderKeysRegion({ cases: [{ pattern: 'none' }] }, [none]), /\*\*Keys:\*\* none\./);
 });

@@ -39,14 +39,11 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`grid`](../../../../../contracts/behaviour/grid.json) pattern this component binds:
-
-- `ArrowKeys` moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
-- `Home` moves focus to the first cell in the current row.
-- `End` moves focus to the last cell in the current row.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
 
 `timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. The default is also **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration.

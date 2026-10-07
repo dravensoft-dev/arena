@@ -30,10 +30,8 @@ one reports.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`navigation`](../../../../../contracts/behaviour/navigation.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **The bar is not an `ArenaSideNav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `ArenaTabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it an `ArenaSegmentedControl`, which is a radio group that chooses rather than navigates.

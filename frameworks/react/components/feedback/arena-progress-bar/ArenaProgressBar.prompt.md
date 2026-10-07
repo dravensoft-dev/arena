@@ -46,10 +46,8 @@ here decides what it draws from what you projected.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 `progressPercentage` is 0–100, clamped and rounded; it is not a form control's `value`,

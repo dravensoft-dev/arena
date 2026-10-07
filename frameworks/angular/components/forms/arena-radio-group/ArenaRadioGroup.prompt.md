@@ -32,13 +32,10 @@ the accessible name and the column layout, so there is no wrapper inside it.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys**, from the [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json) pattern this component binds:
-
-- `ArrowKeys` Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
-- `Space` checks the focused radio button if it is not already checked.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json):
+- `ArrowKeys`: Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
+- `Space`: checks the focused radio button if it is not already checked.
 <!-- @keys end -->
 
 **The children pull, and the parent does not push.** `arena-radio` injects a `ArenaRadioGroupState` the group provides. The option reads the shared name and the selected value from that state, and reports a choice back through it. Nothing is injected into the option. So none of that coordination is a member of either contract, and an option outside a group is a DI error rather than a silently inert control.

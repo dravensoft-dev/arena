@@ -25,10 +25,8 @@ row settles on.
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`none`](../../../../../contracts/behaviour/none.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. A child that is an Arena component may render no box of its own. A `> *` rule then lands on the card in one layer and on nothing in the other. The two layers lay the same markup out differently, with every gate green. The item is the box both layers agree about.

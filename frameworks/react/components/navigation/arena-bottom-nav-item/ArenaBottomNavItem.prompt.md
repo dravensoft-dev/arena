@@ -27,10 +27,10 @@ active and how it reports are settled with its parent, so nothing about that is 
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds no behaviour pattern.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
 <!-- @keys end -->
 
 **`icon` is required here where a sidebar leaves it optional**, and the active weight is not a member. The destination whose `id` matches the bar's `active` has whatever weight the string carries swapped for `ph-fill`. Pass one string per destination rather than two and a conditional. Passing

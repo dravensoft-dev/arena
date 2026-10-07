@@ -25,10 +25,8 @@ The band across the bottom of every screen: what a page says about itself once i
 
 <!-- @answers end -->
 
-<!-- @keys GENERATED from the behaviour binding and its pattern. Edit the binding or the pattern, not this list. -->
-
-**Keys.** This component binds [`contentinfo`](../../../../../contracts/behaviour/contentinfo.json), which names no key.
-
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
 <!-- @keys end -->
 
 **One child is one column**, and the count comes from the room rather than from a breakpoint
