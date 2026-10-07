@@ -455,9 +455,13 @@ const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
 export function inBranch(text: string, start: number, attributes: string, openBranches: { name: string; end: number }[]) {
   if (BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) return true;
   if (openBranches.some(({ name, end }) => {
-    const between = text.slice(end, start);
-    const opened = [...between.matchAll(new RegExp(`<${name}(?![\\w.-])(?:[^>]*[^/>])?>`, 'g'))].length;
-    return [...between.matchAll(new RegExp(`</${name}\\s*>`, 'g'))].length <= opened;
+    let depth = 1;
+    const tags = new RegExp(`<(/?)${name}(?![\\w.-])(?:[^>]*[^/>])?>`, 'g');
+    for (const m of text.slice(end, start).matchAll(tags)) {
+      depth += m[1] ? -1 : 1;
+      if (depth === 0) return false;
+    }
+    return true;
   })) return true;
   const stack: boolean[] = [];
   for (let i = 0; i < start; i++) {

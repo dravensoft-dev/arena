@@ -709,3 +709,8 @@ test('a brace in a string literal of a source file does not open a block', () =>
   assert.deepEqual(defaultPrimaries('@Component({ template: `@if (a) {\n<arena-button>A</arena-button>\n} @else {\n<arena-button>B</arena-button>\n}` })'), []);
   assert.equal(defaultPrimaries("it's {\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>", 'src/app.html').length, 1);
 });
+
+test('a branch element that has closed is not the ancestor of a later sibling of the same name', () => {
+  assert.equal(defaultPrimaries('{a && (\n<div>\n<p>x</p>\n</div>\n)}\n<div>\n<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>').length, 1);
+  assert.deepEqual(defaultPrimaries('{a && (\n<div>\n<div>y</div>\n<ArenaButton>A</ArenaButton>\n</div>\n)}\n{b && (\n<div>\n<ArenaButton>B</ArenaButton>\n</div>\n)}'), []);
+});
