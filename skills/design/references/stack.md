@@ -144,6 +144,6 @@ the same style plugin travels whatever installs it and whatever assembles it.
   rendered, because an open range would promise a major nobody has seen. The Angular floor is open
   above it, so a version past the exercised one resolves and is untested: that is a permission, not
   a promise.
-- **No project of yours is read.** No gate here opens your application, so every rule of the
-  language holds because you hold it. The closest thing is the command's own audit. The audit reads your source text for the rules a source text can show,
+- **No project of yours is read.** No gate here opens your application, so no support row is
+  evidence about your application. The closest thing is the command's own audit. The audit reads your source text for the rules a source text can show,
   and reports rather than fails unless you ask it to.

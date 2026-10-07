@@ -63,9 +63,9 @@ Import the generated files from `src/styles.css`, and import them last.
 @import './plugin.generated.css';   /* only when a style plugin of yours carries CSS */
 ```
 
-The CDK overlay sheet comes with them. `arena.css` imports `css/arena-cdk.css` itself, and a `stylesheet` block carries it too. There is no extra line to add.
+The CDK overlay sheet comes with them. `arena.css` imports `css/arena-cdk.css` itself, and a `stylesheet` block carries it too.
 
-That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a menu opened inside a dialog paints behind the dialog. Write the import yourself only under `--no-import`, where you import the package sheet by hand.
+That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a menu in a dialog paints behind it. Write the import yourself only under `--no-import`, as `@import '@dravensoft/arena-angular/arena.css';`.
 
 ## Why does TypeScript report TS2307 on a stylesheet import in React?
 

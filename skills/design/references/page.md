@@ -14,15 +14,16 @@ owns the whole viewport. A page with no floor shows the browser's own canvas bel
 screenful. That canvas is white under a dark palette, and it is the most common way a correctly
 built Arena screen looks broken.
 
-**What Arena does declare is `color-scheme`, from the palette's polarity.** The scrollbars, the
-native controls and the autofill the browser draws point the way the palette does, without you
-asking. A palette states whether it is dark or light for that reason, rather than leaving it
-inferred.
+**`--font-body` is the body face, and the document does not take it.** Components read their faces through roles and your markup does not. Put `font-family: var(--font-body)` on the floor's element, and your copy is in the face `arena.config.json` names.
+
+**What Arena does declare is `color-scheme`, from the palette's polarity.** Scrollbars, native
+controls and autofill point the way the palette does, so a palette states whether it is dark or
+light rather than leaving it inferred.
 
 ## Which colour your own markup takes
 
 **Reach for a role when the thing you are drawing is furniture, and an alias when it is voice.**
-Both are legitimate. The difference is what happens when the skin changes. A style plugin
+Both are legitimate, and they differ when the skin changes. A style plugin
 re-answers a role, so markup painted through one follows the appearance it is handed. An alias
 resolves to a palette colour and follows the palette instead.
 
@@ -38,8 +39,8 @@ layer's viewport helper instead, right at the first client render and wide in a 
 The `md:hidden` pair also chooses a side nav or a bottom nav, and an app bar's `nav` slot or its phone toggle.
 Arena's components narrow before the client's first paint and are wide in a server's HTML.
 
-**Nineteen of the kernel's roles are colours**, and these are the ones a page of yours reaches
-for. Each role's full description is one entry in
+**The colour roles below are what a page of yours reaches for**; the kernel has more, each for a surface Arena draws.
+Each role's full description is one entry in
 [`contracts/design/roles.json`](../../../contracts/design/roles.json).
 
 | what you are drawing | the role |
@@ -84,9 +85,7 @@ palette it was written against.
 **The aliases are in [`contracts/design/colors.css`](../../../contracts/design/colors.css)**:
 `--crimson` and `--gold` are the two accents, with a soft wash beside each. `--danger`,
 `--success`, `--warning` and `--info` are the four status colours, with the same. `--bone` and
-`--mute` are text at full strength and text held back. The percentages the held-back registers
-stand at are tokens rather than numbers frozen into a rule. Raising one is a palette decision and
-not an edit in a hundred places.
+`--mute` are text at full strength and text held back. The percentages the held-back registers stand at are tokens, not frozen numbers. Raising one is a palette decision, not an edit in a hundred places.
 
 ## Meaning and identity are two different colour sets
 
@@ -105,8 +104,7 @@ way. Otherwise a reader learns that green is sometimes a category.
 
 **`--sp-*` is the spacing scale in thirteen steps**, and everything the rhythm classes do not cover reads it. The steps
 are `--sp-0` through `--sp-6` one at a time, then `--sp-8`, `--sp-10`, `--sp-12`, `--sp-16`,
-`--sp-20` and `--sp-24`. A bare length is a bug and this is the scale that
-makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says
+`--sp-20` and `--sp-24`. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says
 what each step is for.
 
 **`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
@@ -125,5 +123,5 @@ appearance the project adopts later.
 **All of it is the same page with the roles re-answered.** Every name above that is a role rather
 than an alias is a question your own style plugin answers. The page you already wrote then takes
 the new corners, the new borders, the new column width and the new air, without one of its rules
-being edited. Reaching for the role over the alias in the first place is what buys that, and
+being edited. Reaching for the role over the alias buys that, and
 [`style-kernel.md`](./style-kernel.md) is where the answers are written.

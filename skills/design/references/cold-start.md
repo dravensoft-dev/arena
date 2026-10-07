@@ -49,15 +49,14 @@ concluded before you build on it.
 Five questions, and they cover the decisions
 [`style-kernel.md`](./style-kernel.md) measured as the ones that separate one product from another.
 Ask them one at a time. Which colour the TEXT takes is not among them, because eight unrelated
-products answered that identically. Which surface the page takes is settled by the first question
-rather than by a sixth of its own, since it follows from what the screen is. That page's own table
+products answered that identically. The first question settles which surface the page takes. That page's own table
 is where both are.
 
 | Ask | What the answer fixes |
 |---|---|
 | What is being built, and who works in it | the register, whether Arena's component list is the right one, and `aspect-media` and `fit-media` |
 | Whose brand is this, which polarity leads, and which colour is the voice | the palettes in `arena.config.json`, both of them |
-| Which three faces: display, body, mono | `ff-heading`, `ff-body`, `ff-mono` |
+| Which three faces: display, body, mono | `fonts.display`, `fonts.body` and `fonts.mono` in `arena.config.json`, and the `ff-heading`, `ff-eyebrow` and `ff-label` roles that pick among them |
 | What character does it have to the eye: soft, drawn, or flat | `r-*`, `bw-*`, `fw-*`, `tt-*` and `track-*`, `shadow-*`, `press-scale` and `lift-control` |
 | How dense is it, and how wide does it breathe | `pad-control-*` and `gap-*`, `container-max`, `measure-prose`, `grid-min`, `gutter` |
 

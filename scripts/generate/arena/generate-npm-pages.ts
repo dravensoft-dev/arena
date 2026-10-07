@@ -175,7 +175,7 @@ What each part means:
   project stopping there looks like every other one. Writing one of your own is what makes the
   corners, the weights, the borders, the depth and the internal air the product's own, with no
   component rewritten to get there.
-  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\` and is a difference. An entry is the word
+  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
   your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one that does not. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.

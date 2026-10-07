@@ -68,7 +68,7 @@ yours is running to hundreds, the answer is almost always a role you have not mo
 **The first entry in `stylePlugins` is the root plugin, and it answers every role.** The root plugin emits on `:root`, and a custom property with no value is invalid at
 computed-value time. The declaration reading it is dropped and the property disappears. A partial root plugin is not a plainer
 appearance, it is a page with no borders. Every later entry emits under `.arena-<name>`, taken from
-its directory, and is a difference sitting over the root plugin, so it answers only what it changes.
+its directory, and you put that class on `<html>`. A later entry is a difference sitting over the root plugin, so it answers only what it changes.
 
 **A colour role takes one of your palette colours as a `{color.*}` alias, and never a literal.**
 The palette is yours and what a role says is WHICH of your colours a surface takes. The reason is mechanical as well. A bare colour alias

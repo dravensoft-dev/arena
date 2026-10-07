@@ -20,7 +20,7 @@ The command ships inside both component packages, so installing Arena installs i
 
 ## What does `arena build` write?
 
-**`arena.generated.css`** holds your palettes and your `@font-face` rules. The sheet leads with an `@import` of the package's own stylesheet; `--no-import` leaves that out, for a project that imports the package's `arena.css` itself. Every colour comes from this file: the package declares no `--color-*` of its own, only the rules that read them. The font roles are the half that overrides: the package declares them, and your file comes later at equal specificity in `:root` and wins.
+**`arena.generated.css`** holds your palettes and your `@font-face` rules. The sheet leads with an `@import` of the package's stylesheet; `--no-import` leaves that out, for a project that imports `@dravensoft/arena-<layer>/arena.css` itself. Every colour comes from this file: the package declares no `--color-*`, only the rules that read them. The font roles are the half that overrides: the package declares them, and your file comes later at equal specificity in `:root` and wins.
 
 **`icons.generated.css`** holds the class rules, in `woff2` alone, for every glyph your sources draw and every glyph Arena's components draw for you. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, because a navigation item draws its active destination filled. The `@font-face` points at the whole font Phosphor ships; subset it to this glyph list if the bytes matter.
 
@@ -52,7 +52,7 @@ A report never changes the exit until `--strict` holds its kind. Bare, `--strict
 
 ## What does the audit read?
 
-The rules it reports, and the ones nothing reads, are the router's: [the rules section of `SKILL.md`](../SKILL.md). The audit reads TypeScript, stylesheets and, in Angular, templates. **Every rule is read in a scope.** Inside a directory `stylePlugins` declares, a part hook is what you are meant to select and a gradient is yours to paint, so neither is reported there. A compiled `arena-` class and a raw value are reported in both scopes. A comment is prose and declares nothing. Exempt a line the audit is wrong about with an `arena-audit allow` comment on that line; the audit reports the allowance once nothing on the line needs it. Nothing reads your application, so this is the only automatic signal there is. With no `arena.config.json`, audit and usage read no style plugin; a named `--config` that is not there exits 2.
+The rules it reports, and the ones nothing reads, are the router's: [the rules section of `SKILL.md`](../SKILL.md). The audit reads TypeScript, stylesheets and, in Angular, templates. **Every rule is read in a scope.** Inside a directory `stylePlugins` declares, a part hook is what you are meant to select and a gradient is yours to paint, so neither is reported there. A compiled `arena-` class and a raw value are reported in both scopes. A comment is prose and declares nothing. Exempt a line the audit is wrong about with an `arena-audit allow` comment on that line; the audit reports the allowance once nothing on the line needs it. Nothing else reads your sources, so this is the only automatic signal. With no `arena.config.json`, audit and usage read no style plugin; a named `--config` that is not there exits 2.
 
 ## How do I wire it into a React build?
 

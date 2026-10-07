@@ -53,7 +53,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - Don't use `disabled` to mean "this tag is greyed out". A tag with no `×` is
   already inert; the state is about the remove action alone.
 - Don't use a tag as a button. The chip is a status or emphasis label. An action belongs on an `arena-button` rather than on the chip itself. The dismiss `×` is the one exception, and it is a real `<button>` gated on `removable`.
-- Don't add a `tone` outside the taxonomy: the five tones are the whole set.
+- Don't add a `tone` outside the taxonomy: `neutral`, `success`, `warning` and `danger` are the whole set. Emphasis is the `accent` family's `arena-accent-primary`, a class and never a tone.
 - Reach for `colorId` when the colour identifies rather than warns, and give the same entity the same slot on every screen. The ramp is the one the charts and `arena-calendar-event` read, so a label, a series and a schedule chip agree. Derive the slot from a stable key with
   `arenaCatSlotFor` rather than from the position of a row, which moves when the list is sorted.
 - Bind it, `[colorId]="3"`, rather than writing `colorId="3"`: the input takes a number and an
