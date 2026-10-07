@@ -9,6 +9,7 @@ before you reach for a class, a member or a stylesheet of your own to change one
 | What a whole project looks like | your style plugin and your palette | answer the roles in your plugin and your colours in `arena.config.json` ([`style-kernel.md`](./style-kernel.md)) |
 | How a region of the page reads | a context family | write its class on a container of yours; it reaches every component inside |
 | How one component sits in its box: how wide, how large, how quiet | a box family | write its class on the component, or on a container whose components should all take it |
+| A value no step names | the family's property, `--arena-<family>` | set it on a container of yours with a token or a derivation of tokens, as `--arena-grid-gap: calc(var(--rhythm-group) / 2)` |
 | What a component does: its state, data, events, accessibility | the component's members | the members table in the component's prompt |
 
 **Every class of the vocabulary is on [the vocabulary page](../../../frameworks/VOCABULARY.md)**, with
@@ -19,6 +20,15 @@ card inside it and not the button inside the card's body. The trigger of a toolt
 the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so no class
 above the trigger reaches it. The Angular overlay does this. In React a menu panel renders
 inside its root, and a class above the trigger reaches it.
+
+**A step class on the component beats the property.** `--arena-grid-min` on a container sets
+the cell width of every grid inside it, and `arena-grid-min-lg` on one grid keeps that grid at
+`lg`. **A property stops where its class does.**
+A column of a table is keyed rather than stepped: give the column a `key`, say `key: 'name'`,
+then set `--arena-column-name-width: calc(var(--sp-1) * 40)` and `--arena-column-name-align: right`
+on the table or a container of yours. A column with no key, or a key with no property set, keeps
+the table's own layout. A table nested in a cell reads the outer property under the same key, so
+it takes another key.
 
 **Put no other class on an Arena component.** A class that is not in the vocabulary does nothing,
 and `arena-to-prod --audit` reports it, as it reports a member that names appearance with the class

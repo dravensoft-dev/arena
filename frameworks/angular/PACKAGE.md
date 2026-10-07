@@ -148,8 +148,9 @@ in a `stylesheet` list.
 ## How a component looks is decided in one place
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
-on a container of yours whose components should all take it, and the nearest one wins. The classes
-this version ships for components come by family. A family with a property names it in brackets:
+on a container of yours whose components should all take it, and the nearest one wins. What this
+version ships for components comes by family: its classes, and a property in brackets for a
+family that has one:
 - `accent`.
 - `align`.
 - `board-column` (`--arena-board-column`).

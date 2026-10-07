@@ -159,7 +159,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena hands over instead of a component',
     entry: 'consumer',
     stops: ['skills/design/references/media-register.md'],
-    budget: 9_600,
+    budget: 9_700,
     reason:
       'paid once per project, by a reader the router has just told to write their own markup. What '
       + 'it buys is that the honest sentence sending them away from the component list stops costing '
@@ -168,7 +168,8 @@ export const ROUTES: Route[] = [
       + 'one line of CSS. It names what Arena hands over instead of a component, the component names '
       + 'that look like the answer and are not, and the viewer that opens a picture at full size with '
       + 'the answers every walk otherwise invents: what dims the page, whether the picture is '
-      + 'contained, what a control over it stands on, and which pattern it still binds. The number is '
+      + 'contained, what a control over it stands on, and which pattern it still binds. It also says '
+      + 'where a value no step names is set. The number is '
       + 'what the stops measure with room for one section, and it grows when the register gains a '
       + 'part to hand over rather than when the page gains a paragraph.',
   },
@@ -238,7 +239,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 17_933,
+    budget: 18_900,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -247,7 +248,8 @@ export const ROUTES: Route[] = [
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
-      + 'sheet\'s variants. Cold walks missed each of those when the pages left it out. The page '
+      + 'sheet\'s variants, and where a value no step names is set. Cold walks missed each of those '
+      + 'when the pages left it out. The page '
       + 'closes on the same least-to-most the surface page opens with. The number is what the '
       + 'stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
       + 'than when these pages argue again for one they already name.',

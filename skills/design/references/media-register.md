@@ -54,7 +54,8 @@ is not a component. The vocabulary page lists `.arena-stack` for the vertical st
 `.arena-sr-only` is the label a screen reader needs and the design does not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
 
 **The frame around a picture is a component, and the grid around the frames usually is not.**
-`ArenaFigure` is the cell. That component's `ratio` defaults to the `aspect-media` role and its overlay slot paints
+`ArenaFigure` is the cell. That component's frame is `arena-ratio-media` unless a step class or `--arena-ratio` says
+otherwise, and `arena-ratio-media` reads the `aspect-media` role. The figure's overlay slot paints
 `overlay-media`, so the two roles below are answered for every picture at once. A wall then
 reads as a wall rather than as whatever sizes the images happened to be. Use it for a post's image
 and for a wall's cell alike.

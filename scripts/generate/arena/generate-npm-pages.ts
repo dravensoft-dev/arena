@@ -161,8 +161,9 @@ ${listed(layout)} go on markup of yours${context.length ? `, along with the ${CO
     return `## How a component looks is decided in one place
 
 **A component takes a class of Arena's vocabulary and nothing else.** Write it on the component, or
-on a container of yours whose components should all take it, and the nearest one wins. The classes
-this version ships for components come by family. A family with a property names it in brackets:
+on a container of yours whose components should all take it, and the nearest one wins. What this
+version ships for components comes by family: its classes, and a property in brackets for a
+family that has one:
 ${byFamily.join('\n')}
 ${markup ? `The classes for markup you write are ${markup}. Each goes on an element you wrote, never on a component.\n` : ''}${context ? `The ${contextFamilies} classes ${context} go on an element you wrote or on a component.\n` : ''}[The vocabulary page](https://${DOMAIN}/frameworks/VOCABULARY.md) lists the options of each family with the
 components that answer it. \`arena.css\` imports their sheets under \`css/vocabulary/\`; a project importing
