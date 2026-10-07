@@ -1,10 +1,10 @@
 # Arena, the Angular layer
 
-> **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
+> **For whoever works on this layer.** Building an app with it instead? Read [`install.md`](../../skills/design/references/install.md) to install it,
 > [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
-**Published as `@dravensoft/arena-angular`.** [`PACKAGE.md`](./PACKAGE.md) is what a consumer
-reads, and the assembly copies it into `dist/` as the package README;
+**Published as `@dravensoft/arena-angular`.** [`PACKAGE.md`](./PACKAGE.md) is the page npm shows, an
+introduction and a table of questions, and the assembly copies it into `dist/` as the package README;
 [`../PACKAGING.md`](../PACKAGING.md) is how the package is built and what it leaves out.
 
 Arena for an Angular and Tailwind v4 app, in two kinds of artifact: the components this layer
@@ -660,12 +660,12 @@ branches carry only interpolated inputs.
 ## Adopting it is the package's question and not this document's
 
 **A project adopting Arena installs `@dravensoft/arena-angular` and reads
-[`PACKAGE.md`](./PACKAGE.md)**, which is the page npm shows: the install, the config file, the
+[`install.md`](../../skills/design/references/install.md)**: the install, the config file, the
 one command, the theme surface and the script that keeps a palette from flashing on first paint.
 Nothing under `theme/` reaches them, because the assembly copies `theme/arena-cdk.css` in as
 `css/arena-cdk.css` and copies neither of the other two: `arena-tailwind.css` imports this
-repository's own `intro/styles.css`, and the FOUC script is carried inline on the npm page where
-its reader is.
+repository's own `intro/styles.css`, and the FOUC script is carried inline in the
+consumer reference `theme.md`, where its reader is.
 
 What belongs here is the half a contributor needs, and it is one sentence: the theme surface is
 authored in `theme/`, beside the service that reads it, so a palette rule and the service that

@@ -28,7 +28,7 @@ export const githubSlug = (heading: string) => heading
   .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '')
   .replace(/\s/g, '-');
 
-const ref = (file: string) => `skills/design/${file}`;
+const ref = (file: string) => (file.startsWith('frameworks/') ? file : `skills/design/${file}`);
 const row = (question: string, file: string, heading: string): Row => ({ question, file: ref(file), heading });
 
 const layerSections = (layer: 'React' | 'Angular'): Section[] => {
@@ -54,8 +54,7 @@ const layerSections = (layer: 'React' | 'Angular'): Section[] => {
     {
       section: 'Declare your skin',
       rows: [
-        row('How do I declare a palette, a font or a style plugin in arena.config.json?', 'references/config.md', 'Declare your skin'),
-        row('Which colour keys does a palette take?', 'references/config.md', 'Declare your skin'),
+        row('How do I declare a palette, a font or a style plugin in arena.config.json, and which colour keys does a palette take?', 'references/config.md', 'Declare your skin'),
         row('How do I make Arena look like my product and not like Dravensoft?', 'references/style-kernel.md', 'Making Arena look like your product'),
         row('Where does the appearance come from, and what does a palette leave undecided?', 'references/style-kernel.md', 'Where the appearance actually comes from'),
       ],
@@ -64,26 +63,26 @@ const layerSections = (layer: 'React' | 'Angular'): Section[] => {
       section: 'Build to production',
       rows: [
         row('How do I send only the component stylesheets my screens render?', 'references/config.md', 'Build to production'),
-        row('What counts as drawn?', 'references/config.md', `What counts as drawn in ${layer}?`),
-        row('What can the scan not send?', 'references/config.md', 'What can a scan not send?'),
+        row('What counts as drawn when I send only some component stylesheets?', 'references/config.md', `What counts as drawn in ${layer}?`),
+        row('What can the component stylesheet scan not send?', 'references/config.md', 'What can a scan not send?'),
         row('What does the arena-to-prod command write?', 'references/arena-to-prod.md', 'What does the command write?'),
-        row('Which flags does the command take?', 'references/arena-to-prod.md', 'Which flags does it take?'),
-        row('When does the command report and when does it refuse?', 'references/arena-to-prod.md', 'Does the command report or refuse?'),
-        row('How do I run it before every build?', 'references/arena-to-prod.md', `How do I run it before every build in ${layer}?`),
-        row('Why does the audit script exist?', 'references/arena-to-prod.md', 'Why does the audit script exist?'),
-        row('What does the audit read in my sources?', 'references/arena-to-prod.md', 'What does the audit read in each layer?'),
+        row('Which flags does arena-to-prod take?', 'references/arena-to-prod.md', 'Which flags does it take?'),
+        row('When does arena-to-prod report and when does it refuse?', 'references/arena-to-prod.md', 'Does the command report or refuse?'),
+        row('How do I run arena-to-prod before every build?', 'references/arena-to-prod.md', `How do I run it before every build in ${layer}?`),
+        row('Why does arena-to-prod have an audit?', 'references/arena-to-prod.md', 'Why does the audit script exist?'),
+        row('What does the arena-to-prod audit read in my sources?', 'references/arena-to-prod.md', 'What does the audit read in each layer?'),
       ],
     },
     {
       section: 'The page and the layout',
       rows: [
         row('Where does my spacing and sizing go?', 'references/style.md', 'Where does my spacing and sizing go?'),
-        row('What does that mean for a component here?', 'references/style.md', `What does that mean in ${layer}?`),
+        row(`How do I size and space a component in ${layer}?`, 'references/style.md', `What does that mean in ${layer}?`),
         row('What do I do when I wrap a component to size it?', 'references/style.md', 'What do I do when I wrap a component to size it?'),
         row('How wide is the page column, and how much air goes between components?', 'references/style.md', 'The column the page sits in'),
         row('What do I paint the page and my own markup with?', 'references/page.md', 'Which colour your own markup takes'),
         row('Why is my page white under a dark palette?', 'references/page.md', 'The floor, and Arena does not paint it'),
-        row('Which class makes a component wider, smaller, filled or quieter?', 'SKILL.md', 'Where each question is answered'),
+        row('Which class makes a component wider, smaller, filled or quieter?', 'frameworks/VOCABULARY.md', 'The vocabulary'),
         row('Which screens is Arena for, and which markup is mine?', 'references/media-register.md', 'When the markup is yours'),
       ],
     },
@@ -115,9 +114,9 @@ const layerSections = (layer: 'React' | 'Angular'): Section[] => {
         ], !react),
         row('Does the package write my head, and does the app have to be found?', 'references/seo.md', 'Arena writes the head in one layer, and the router is why'),
         row('Which stylesheets does the package ship?', 'references/stylesheets.md', 'The stylesheets each package ships'),
-        row('In which order do the halves import?', 'references/stylesheets.md', 'Which order do the halves import in?'),
+        row('In which order do the two halves of the stylesheet import?', 'references/stylesheets.md', 'Which order do the halves import in?'),
         row('What does Arena ship at all, and how much of it do I take?', 'references/surface.md', 'Everything Arena ships'),
-        row('Where does Arena stop?', 'references/surface.md', 'Where Arena stops'),
+        row('Where does Arena stop shipping, and what is left to me?', 'references/surface.md', 'Where Arena stops'),
       ],
     },
     {
@@ -183,7 +182,7 @@ export const NPM_QUESTIONS: Record<string, Section[]> = {
         row('Which arena:// resources does the server offer?', 'references/mcp.md', 'Which arena:// resources does the server offer?'),
         row('What does arena_check read?', 'references/mcp.md', 'What does arena_check read?'),
         row('What if the server and my package differ in version?', 'references/mcp.md', 'What if the server and my package differ in version?'),
-        row('What is the server not?', 'references/mcp.md', 'What is the server not?'),
+        row('What is the Arena MCP server not?', 'references/mcp.md', 'What is the server not?'),
       ],
     },
     {
@@ -210,8 +209,9 @@ export function renderQuestions(page: string, base = root, manifest = NPM_QUESTI
     '| Question | Answer |',
     '| --- | --- |',
     ...rows.map(({ question, file, heading }) => {
-      const name = file.split('/').at(-1);
-      return `| ${cell(question)} | [${name}: ${cell(heading)}](${tag}/${file}#${githubSlug(heading)}) |`;
+      const name = file.split('/').at(-1) ?? file;
+      const text = heading === question ? name : `${name} → ${heading}`;
+      return `| ${cell(question)} | [${cell(text)}](${tag}/${file}#${githubSlug(heading)}) |`;
     }),
   ].join('\n')).join('\n\n');
 }

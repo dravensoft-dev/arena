@@ -38,95 +38,94 @@ The package is the code. The server, the plugin and the repository are the langu
 
 | Question | Answer |
 | --- | --- |
-| How do I install the package? | [install.md: How do I install a package?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#how-do-i-install-a-package) |
-| What comes down with the package? | [install.md: What comes down with the Angular package?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#what-comes-down-with-the-angular-package) |
-| What is an icon in Arena, and what do I install for it? | [install.md: What is an icon in Arena?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#what-is-an-icon-in-arena) |
-| How do I import the stylesheets? | [install.md: How do I import the stylesheets in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#how-do-i-import-the-stylesheets-in-angular) |
-| What is a component, its class and its stylesheet called? | [install.md: One name everywhere in Angular](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#one-name-everywhere-in-angular) |
-| Why do class names and stylesheet names carry the component name? | [install.md: Why do class names and stylesheet names carry the component name?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#why-do-class-names-and-stylesheet-names-carry-the-component-name) |
-| Which bundlers, runtimes and framework versions does it work with? | [stack.md: The repertoire](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stack.md#the-repertoire) |
+| How do I install the package? | [install.md → How do I install a package?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#how-do-i-install-a-package) |
+| What comes down with the package? | [install.md → What comes down with the Angular package?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#what-comes-down-with-the-angular-package) |
+| What is an icon in Arena, and what do I install for it? | [install.md → What is an icon in Arena?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#what-is-an-icon-in-arena) |
+| How do I import the stylesheets? | [install.md → How do I import the stylesheets in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#how-do-i-import-the-stylesheets-in-angular) |
+| What is a component, its class and its stylesheet called? | [install.md → One name everywhere in Angular](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#one-name-everywhere-in-angular) |
+| Why do class names and stylesheet names carry the component name? | [install.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/install.md#why-do-class-names-and-stylesheet-names-carry-the-component-name) |
+| Which bundlers, runtimes and framework versions does it work with? | [stack.md → The repertoire](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stack.md#the-repertoire) |
 
 ## Declare your skin
 
 | Question | Answer |
 | --- | --- |
-| How do I declare a palette, a font or a style plugin in arena.config.json? | [config.md: Declare your skin](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#declare-your-skin) |
-| Which colour keys does a palette take? | [config.md: Declare your skin](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#declare-your-skin) |
-| How do I make Arena look like my product and not like Dravensoft? | [style-kernel.md: Making Arena look like your product](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style-kernel.md#making-arena-look-like-your-product) |
-| Where does the appearance come from, and what does a palette leave undecided? | [style-kernel.md: Where the appearance actually comes from](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style-kernel.md#where-the-appearance-actually-comes-from) |
+| How do I declare a palette, a font or a style plugin in arena.config.json, and which colour keys does a palette take? | [config.md → Declare your skin](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#declare-your-skin) |
+| How do I make Arena look like my product and not like Dravensoft? | [style-kernel.md → Making Arena look like your product](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style-kernel.md#making-arena-look-like-your-product) |
+| Where does the appearance come from, and what does a palette leave undecided? | [style-kernel.md → Where the appearance actually comes from](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style-kernel.md#where-the-appearance-actually-comes-from) |
 
 ## Build to production
 
 | Question | Answer |
 | --- | --- |
-| How do I send only the component stylesheets my screens render? | [config.md: Build to production](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#build-to-production) |
-| What counts as drawn? | [config.md: What counts as drawn in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#what-counts-as-drawn-in-angular) |
-| What can the scan not send? | [config.md: What can a scan not send?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#what-can-a-scan-not-send) |
-| What does the arena-to-prod command write? | [arena-to-prod.md: What does the command write?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#what-does-the-command-write) |
-| Which flags does the command take? | [arena-to-prod.md: Which flags does it take?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#which-flags-does-it-take) |
-| When does the command report and when does it refuse? | [arena-to-prod.md: Does the command report or refuse?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#does-the-command-report-or-refuse) |
-| How do I run it before every build? | [arena-to-prod.md: How do I run it before every build in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#how-do-i-run-it-before-every-build-in-angular) |
-| Why does the audit script exist? | [arena-to-prod.md: Why does the audit script exist?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#why-does-the-audit-script-exist) |
-| What does the audit read in my sources? | [arena-to-prod.md: What does the audit read in each layer?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#what-does-the-audit-read-in-each-layer) |
+| How do I send only the component stylesheets my screens render? | [config.md → Build to production](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#build-to-production) |
+| What counts as drawn when I send only some component stylesheets? | [config.md → What counts as drawn in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#what-counts-as-drawn-in-angular) |
+| What can the component stylesheet scan not send? | [config.md → What can a scan not send?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/config.md#what-can-a-scan-not-send) |
+| What does the arena-to-prod command write? | [arena-to-prod.md → What does the command write?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#what-does-the-command-write) |
+| Which flags does arena-to-prod take? | [arena-to-prod.md → Which flags does it take?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#which-flags-does-it-take) |
+| When does arena-to-prod report and when does it refuse? | [arena-to-prod.md → Does the command report or refuse?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#does-the-command-report-or-refuse) |
+| How do I run arena-to-prod before every build? | [arena-to-prod.md → How do I run it before every build in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#how-do-i-run-it-before-every-build-in-angular) |
+| Why does arena-to-prod have an audit? | [arena-to-prod.md → Why does the audit script exist?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#why-does-the-audit-script-exist) |
+| What does the arena-to-prod audit read in my sources? | [arena-to-prod.md → What does the audit read in each layer?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/arena-to-prod.md#what-does-the-audit-read-in-each-layer) |
 
 ## The page and the layout
 
 | Question | Answer |
 | --- | --- |
-| Where does my spacing and sizing go? | [style.md: Where does my spacing and sizing go?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#where-does-my-spacing-and-sizing-go) |
-| What does that mean for a component here? | [style.md: What does that mean in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#what-does-that-mean-in-angular) |
-| What do I do when I wrap a component to size it? | [style.md: What do I do when I wrap a component to size it?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#what-do-i-do-when-i-wrap-a-component-to-size-it) |
-| How wide is the page column, and how much air goes between components? | [style.md: The column the page sits in](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#the-column-the-page-sits-in) |
-| What do I paint the page and my own markup with? | [page.md: Which colour your own markup takes](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/page.md#which-colour-your-own-markup-takes) |
-| Why is my page white under a dark palette? | [page.md: The floor, and Arena does not paint it](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/page.md#the-floor-and-arena-does-not-paint-it) |
-| Which class makes a component wider, smaller, filled or quieter? | [SKILL.md: Where each question is answered](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/SKILL.md#where-each-question-is-answered) |
-| Which screens is Arena for, and which markup is mine? | [media-register.md: When the markup is yours](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/media-register.md#when-the-markup-is-yours) |
+| Where does my spacing and sizing go? | [style.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#where-does-my-spacing-and-sizing-go) |
+| How do I size and space a component in Angular? | [style.md → What does that mean in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#what-does-that-mean-in-angular) |
+| What do I do when I wrap a component to size it? | [style.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#what-do-i-do-when-i-wrap-a-component-to-size-it) |
+| How wide is the page column, and how much air goes between components? | [style.md → The column the page sits in](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/style.md#the-column-the-page-sits-in) |
+| What do I paint the page and my own markup with? | [page.md → Which colour your own markup takes](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/page.md#which-colour-your-own-markup-takes) |
+| Why is my page white under a dark palette? | [page.md → The floor, and Arena does not paint it](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/page.md#the-floor-and-arena-does-not-paint-it) |
+| Which class makes a component wider, smaller, filled or quieter? | [VOCABULARY.md → The vocabulary](https://github.com/dravensoft-dev/arena/blob/v11.1.0/frameworks/VOCABULARY.md#the-vocabulary) |
+| Which screens is Arena for, and which markup is mine? | [media-register.md → When the markup is yours](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/media-register.md#when-the-markup-is-yours) |
 
 ## At runtime: theme, locale and confirmations
 
 | Question | Answer |
 | --- | --- |
-| How do I switch palettes? | [theme.md: How do I switch palettes in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/theme.md#how-do-i-switch-palettes-in-angular) |
-| How do I avoid a flash of the wrong palette on first paint? | [theme.md: How do I avoid a flash on first paint?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/theme.md#how-do-i-avoid-a-flash-on-first-paint) |
-| Why does the first-paint snippet read the media query? | [theme.md: Why does the snippet read the media query?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/theme.md#why-does-the-snippet-read-the-media-query) |
-| Which words does Arena draw itself? | [locale.md: Which words does Arena draw itself?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/locale.md#which-words-does-arena-draw-itself) |
-| In what order does a word resolve? | [locale.md: In what order does a word resolve?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/locale.md#in-what-order-does-a-word-resolve) |
-| How do I set the locale? | [locale.md: How do I set the locale in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/locale.md#how-do-i-set-the-locale-in-angular) |
-| How do I raise a confirmation from code? | [exports.md: How do I raise a confirmation from code in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-angular) |
-| How do I bind reactive forms to Arena controls? | [exports.md: How do I bind Angular reactive forms to Arena controls?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#how-do-i-bind-angular-reactive-forms-to-arena-controls) |
+| How do I switch palettes? | [theme.md → How do I switch palettes in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/theme.md#how-do-i-switch-palettes-in-angular) |
+| How do I avoid a flash of the wrong palette on first paint? | [theme.md → How do I avoid a flash on first paint?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/theme.md#how-do-i-avoid-a-flash-on-first-paint) |
+| Why does the first-paint snippet read the media query? | [theme.md → Why does the snippet read the media query?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/theme.md#why-does-the-snippet-read-the-media-query) |
+| Which words does Arena draw itself? | [locale.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/locale.md#which-words-does-arena-draw-itself) |
+| In what order does a word resolve? | [locale.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/locale.md#in-what-order-does-a-word-resolve) |
+| How do I set the locale? | [locale.md → How do I set the locale in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/locale.md#how-do-i-set-the-locale-in-angular) |
+| How do I raise a confirmation from code? | [exports.md → How do I raise a confirmation from code in Angular?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-angular) |
+| How do I bind reactive forms to Arena controls? | [exports.md → How do I bind Angular reactive forms to Arena controls?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#how-do-i-bind-angular-reactive-forms-to-arena-controls) |
 
 ## What else the package ships
 
 | Question | Answer |
 | --- | --- |
-| Does every export carry a compatibility promise? | [exports.md: Does every export carry a compatibility promise?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#does-every-export-carry-a-compatibility-promise) |
-| What does the package export besides components? | [exports.md: What does the Angular package export besides components?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#what-does-the-angular-package-export-besides-components) |
-| Which projection markers must I import? | [exports.md: Which Angular projection markers must I import?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#which-angular-projection-markers-must-i-import) |
-| What does the head entry point export? | [seo.md: What does the Angular head entry point export?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#what-does-the-angular-head-entry-point-export) |
-| Which sheet re-bases the CDK overlay? | [stylesheets.md: Which sheet re-bases the Angular CDK overlay?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-sheet-re-bases-the-angular-cdk-overlay) |
-| Does my project need a Tailwind source for Arena? | [stylesheets.md: Does Angular need a Tailwind `@source` for Arena?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#does-angular-need-a-tailwind-source-for-arena) |
-| Does the package write my head, and does the app have to be found? | [seo.md: Arena writes the head in one layer, and the router is why](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#arena-writes-the-head-in-one-layer-and-the-router-is-why) |
-| Which stylesheets does the package ship? | [stylesheets.md: The stylesheets each package ships](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#the-stylesheets-each-package-ships) |
-| In which order do the halves import? | [stylesheets.md: Which order do the halves import in?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-order-do-the-halves-import-in) |
-| What does Arena ship at all, and how much of it do I take? | [surface.md: Everything Arena ships](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/surface.md#everything-arena-ships) |
-| Where does Arena stop? | [surface.md: Where Arena stops](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/surface.md#where-arena-stops) |
+| Does every export carry a compatibility promise? | [exports.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#does-every-export-carry-a-compatibility-promise) |
+| What does the package export besides components? | [exports.md → What does the Angular package export besides components?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#what-does-the-angular-package-export-besides-components) |
+| Which projection markers must I import? | [exports.md → Which Angular projection markers must I import?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/exports.md#which-angular-projection-markers-must-i-import) |
+| What does the head entry point export? | [seo.md → What does the Angular head entry point export?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#what-does-the-angular-head-entry-point-export) |
+| Which sheet re-bases the CDK overlay? | [stylesheets.md → Which sheet re-bases the Angular CDK overlay?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-sheet-re-bases-the-angular-cdk-overlay) |
+| Does my project need a Tailwind source for Arena? | [stylesheets.md → Does Angular need a Tailwind `@source` for Arena?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#does-angular-need-a-tailwind-source-for-arena) |
+| Does the package write my head, and does the app have to be found? | [seo.md → Arena writes the head in one layer, and the router is why](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/seo.md#arena-writes-the-head-in-one-layer-and-the-router-is-why) |
+| Which stylesheets does the package ship? | [stylesheets.md → The stylesheets each package ships](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#the-stylesheets-each-package-ships) |
+| In which order do the two halves of the stylesheet import? | [stylesheets.md → Which order do the halves import in?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stylesheets.md#which-order-do-the-halves-import-in) |
+| What does Arena ship at all, and how much of it do I take? | [surface.md → Everything Arena ships](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/surface.md#everything-arena-ships) |
+| Where does Arena stop shipping, and what is left to me? | [surface.md → Where Arena stops](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/surface.md#where-arena-stops) |
 
 ## Building with an agent
 
 | Question | Answer |
 | --- | --- |
-| How does an agent start on Arena? | [SKILL.md: Which job is this?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/SKILL.md#which-job-is-this) |
-| Where does each question go? | [SKILL.md: Where each question is answered](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/SKILL.md#where-each-question-is-answered) |
-| What does an agent decide before the first screen? | [cold-start.md: Before the first screen](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cold-start.md#before-the-first-screen) |
-| What may I build this with, and how sure is Arena about each answer? | [stack.md: What you may choose](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stack.md#what-you-may-choose) |
-| What does each layer require? | [stack.md: What each layer requires](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stack.md#what-each-layer-requires) |
-| How do I serve Arena to my editor? | [mcp.md: Serving Arena to your editor over MCP](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#serving-arena-to-your-editor-over-mcp) |
+| How does an agent start on Arena? | [SKILL.md → Which job is this?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/SKILL.md#which-job-is-this) |
+| Where does each question go? | [SKILL.md → Where each question is answered](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/SKILL.md#where-each-question-is-answered) |
+| What does an agent decide before the first screen? | [cold-start.md → Before the first screen](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/cold-start.md#before-the-first-screen) |
+| What may I build this with, and how sure is Arena about each answer? | [stack.md → What you may choose](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stack.md#what-you-may-choose) |
+| What does each layer require? | [stack.md → What each layer requires](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/stack.md#what-each-layer-requires) |
+| How do I serve Arena to my editor? | [mcp.md → Serving Arena to your editor over MCP](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/mcp.md#serving-arena-to-your-editor-over-mcp) |
 
 ## Versions and licence
 
 | Question | Answer |
 | --- | --- |
-| Why might a package version differ from the Arena version? | [versioning.md: Why might a package's latest version not match Arena's latest version?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version) |
-| Which licence does Arena carry? | [versioning.md: Which licence does Arena carry?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/versioning.md#which-licence-does-arena-carry) |
+| Why might a package version differ from the Arena version? | [versioning.md → Why might a package's latest version not match Arena's latest version?](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version) |
+| Which licence does Arena carry? | [versioning.md](https://github.com/dravensoft-dev/arena/blob/v11.1.0/skills/design/references/versioning.md#which-licence-does-arena-carry) |
 
 <!-- @shared questions end -->

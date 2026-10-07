@@ -28,11 +28,10 @@ own components are held to, so what you write is held to the standard the compon
 
 ## One of those two is handed over, and the other is not
 
-**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. Your
-layer's `PACKAGE.md` names three exports. The three are the modal contract, the tone-to-colour map for
+**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. [`exports.md`](./exports.md) names three exports. The three are the modal contract, the tone-to-colour map for
 a status shape you draw, and the visually-hidden style object for a label the design does not
 show. Reach
-for those rather than writing a second copy, and read that page's export table before you reach
+for those rather than writing a second copy, and read its export table before you reach
 for anything else: what it names is what carries a promise.
 
 **The feed pattern has no such export, and it is not an oversight you can wait out.** Arena binds
@@ -51,7 +50,7 @@ Arena's own clickable rows run on.
 
 The package ships more than the components' own CSS. Seven classes are written for markup that
 is not a component. The vocabulary page lists `.arena-stack` for the vertical stack between your elements and `.arena-row` for the horizontal one. `.arena-shell`, `.arena-shell__main` and `.arena-band` are the column the page sits in. `.arena-num` is a figure that must not jitter as it counts.
-`.arena-sr-only` is the label a screen reader needs and the design does not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
+`.arena-sr-only` is the label a screen reader needs and the design does not show. [`stylesheets.md`](./stylesheets.md) has the whole tree and each depth.
 
 **The frame around a picture is a component, and the grid around the frames usually is not.**
 `ArenaFigure` is the cell. That component's frame is `arena-ratio-media` unless a step class or `--arena-ratio` says

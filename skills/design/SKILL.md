@@ -35,10 +35,10 @@ and the style plugin already there. A project that does not gets the only page t
 product looks like before anything answers.
 
 **Changing Arena itself**, meaning adding a component, moving a token, or editing a contract or a
-gate: read [`AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/AGENTS.md) instead.
-That file is the root of the other branch and this file is not. `AGENTS.md` is named by URL
-because that branch belongs to the repository and reaches nothing a package or this site
-carries.
+gate: read [`AGENTS.md`](../../AGENTS.md) instead.
+That file is the root of the other branch and this file is not. The path is relative to a clone.
+A published copy of this file points that link at the repository, because that branch belongs
+to the repository and reaches nothing a package or this site carries.
 
 **A value you answer is not a value you move**, and that is what decides the branch when the job
 is an appearance. A role your project fills belongs to this branch, whatever it paints. A scale
@@ -171,8 +171,7 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else does the package export, besides components? | the layer's `PACKAGE.md`: the theme surface, the two measurements, the chart ramp helpers, and Angular's projection markers |
-| How do I size a page layout, or fit a panel to its own box? | the layer's `PACKAGE.md`, in that same section, for a box and the viewport helper, and `references/page.md` for a frame |
+| What else does the package export, and how do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the nineteen colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
@@ -180,10 +179,11 @@ unmarked rule is one a source text cannot show, is `arena://rules` on the MCP se
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
-| How do I install Arena in my app? | [`frameworks/react/PACKAGE.md`](../../frameworks/react/PACKAGE.md) or [`frameworks/angular/PACKAGE.md`](../../frameworks/angular/PACKAGE.md) |
+| How do I install Arena in my app? | [install](./references/install.md), then [config](./references/config.md) for `arena.config.json`, [arena-to-prod](./references/arena-to-prod.md) for the command and [stylesheets](./references/stylesheets.md) for the import depth |
+| Contracts, an editor server, or two package versions? | [contracts](./references/contracts.md), [mcp](./references/mcp.md), [versioning](./references/versioning.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
 | What does a token look like on screen? | `intro/guidelines/*.html`, the specimen cards |
-| Arena itself is wrong, or one of these pages sent me somewhere empty. Where does that go? | [`CONTRIBUTING.md`](https://github.com/dravensoft-dev/arena/blob/main/CONTRIBUTING.md), which takes an issue and a pull request alike, and says what makes either usable. A question this documentation did not answer is one of them |
+| Arena itself is wrong, or one of these pages sent me somewhere empty. Where does that go? | [`CONTRIBUTING.md`](../../CONTRIBUTING.md), which takes an issue and a pull request alike, and says what makes either usable. A question this documentation did not answer is one of them |
 
 **Do not read these to build something.** `contracts/api/AGENTS.md`,
 `contracts/behaviour/AGENTS.md`, `frameworks/PACKAGING.md`, and each layer's own `AGENTS.md`

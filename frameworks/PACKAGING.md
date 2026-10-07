@@ -1,7 +1,7 @@
 # Packaging Arena for npm
 
-> **For whoever builds or publishes a package.** Installing one instead? Read [`react/PACKAGE.md`](./react/PACKAGE.md) or
-> [`angular/PACKAGE.md`](./angular/PACKAGE.md), which is the page npm shows.
+> **For whoever builds or publishes a package.** Installing one instead? Read
+> [`install.md`](../skills/design/references/install.md), which covers both layers.
 
 Arena ships three ways from one tree. Two of them assume the consumer has this repository:
 the Claude Code plugin, served from the git tag, and the Agent Skill. The third does not,
@@ -182,7 +182,7 @@ symbols each package exports, the files under `css/`, and the shape of `arena.co
 Re-skinning goes through the last of those, which is what it is for; content a consumer draws
 themselves is theirs, and their rules on their own elements are theirs too.
 
-**This is where the statement lives rather than only in each `PACKAGE.md`**, because the two
+**This is where the statement lives rather than only in the consumer references**, because the two
 say different things to different readers. A package's README tells an adopter what they may
 lean on. This tells us what we are free to change, and it is the reason a manifest edit ships
 in a patch. It is also the reason prefixing Arena's utilities, if that is ever worth doing,
@@ -226,7 +226,7 @@ and nothing in the tree ties an element's display to anything an adopter can nam
 package takes a class or a style from its consumer on any component, so there was no supported
 route into that box to withdraw.
 
-**This is the statement's home rather than each `PACKAGE.md`**, on the same split as the section
+**This is the statement's home rather than the consumer references**, on the same split as the section
 above: a README tells an adopter what to do, and this says what we are free to change. A consequence written once per component, as in `ArenaPagination`'s, `ArenaCalendarEvent`'s
 and `ArenaBreadcrumbs`' own prompt, leaves the other components that pay it silent. A rule
 recorded per component is a rule that is missing wherever nobody thought to repeat it.
@@ -356,8 +356,8 @@ whether `plugin.json`'s version is already on the registry, and if it is not, wh
 anything in `scripts/ci/arena/package-inputs.ts` has changed since the tag of the version
 that is. So a release touching only React publishes only React, and the Angular package
 keeps its number rather than shipping an identical tree under a new one. That is why the two
-packages can sit at different versions, and both `PACKAGE.md` files point a reader at
-[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) for the explanation.
+packages can sit at different versions. [`versioning.md`](../skills/design/references/versioning.md) tells a consumer so, and
+[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) is the explanation.
 
 Three things about the publish itself, each of which has a way of going wrong:
 

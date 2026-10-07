@@ -35,9 +35,8 @@ installs with. A project moves off it when the appearance starts mattering, rath
 this page costs you is paid when you decide to look like yourself, not to start.
 
 Arena ships two themes and is dark first, so a real config carries a dark palette as well as the
-light one above. The full colour list, the font slots and the rest of the config are on your
-package's own page. The file to copy is there rather than here: [`../../../frameworks/react/PACKAGE.md`](../../../frameworks/react/PACKAGE.md)
-or [`../../../frameworks/angular/PACKAGE.md`](../../../frameworks/angular/PACKAGE.md).
+light one above. The full colour list, the font slots and the rest of the config are in
+[`config.md`](./config.md). The file to copy is there rather than here.
 
 **`design/<name>/plugin.tokens.json`.** One entry per role, and the directory name becomes the
 plugin's name:

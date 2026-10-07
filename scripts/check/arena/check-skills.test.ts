@@ -10,7 +10,7 @@ import { skillTargets } from '../../generate/arena/generate-skills.ts';
 
 test('every committed index matches a fresh emit', () => {
   const { problems } = skillProblems();
-  assert.deepEqual(problems.filter((problem) => !problem.includes('is not linked from skills/design/SKILL.md')), []);
+  assert.deepEqual(problems, []);
 });
 
 test('the gate compared a real result set rather than an empty one', () => {

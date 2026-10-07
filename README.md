@@ -104,9 +104,10 @@ command, because Arena renders icon class names and never SVG; the layer page
 below says which peers each package declares.
 
 Then write `arena.config.json`, run `npx arena-to-prod` (or `bunx`, or
-`pnpm exec`), and import what it writes. [`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) and
-[`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) are the whole
-of it, and they are the pages npm shows.
+`pnpm exec`), and import what it writes.
+[`skills/design/references/install.md`](./skills/design/references/install.md) is the whole of
+it, for React and for Angular. The pages npm shows are an introduction and a table of questions
+that link the same references.
 
 ### Over MCP
 
@@ -215,8 +216,7 @@ router. From
 it: [`frameworks/INDEX.md`](./frameworks/INDEX.md) is every component in one
 read and `frameworks/<layer>/INDEX.md` is the same list under your own
 framework's names, each component's `.prompt.md` is how to use that one, and
-[`frameworks/react/PACKAGE.md`](./frameworks/react/PACKAGE.md) or
-[`frameworks/angular/PACKAGE.md`](./frameworks/angular/PACKAGE.md) is how to
+[`skills/design/references/install.md`](./skills/design/references/install.md) is how to
 install it.
 
 **Working on Arena itself.** [`AGENTS.md`](./AGENTS.md) is the root of that

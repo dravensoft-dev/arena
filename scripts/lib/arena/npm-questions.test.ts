@@ -32,10 +32,18 @@ test('the rendered table splits by section and links the file at its anchor', ()
   const text = renderQuestions('contracts/NPM.md');
   assert.match(text, /^## What the package holds$/m);
   assert.match(text, /\| Question \| Answer \|/);
-  assert.match(text, /\[contracts\.md: What arrives\]\(https:\/\/github\.com\/dravensoft-dev\/arena\/blob\/v\d+\.\d+\.\d+\/skills\/design\/references\/contracts\.md#what-arrives\)/);
+  assert.match(text, /\[contracts\.md → What arrives\]\(https:\/\/github\.com\/dravensoft-dev\/arena\/blob\/v\d+\.\d+\.\d+\/skills\/design\/references\/contracts\.md#what-arrives\)/);
+  assert.match(text, /\[contracts\.md\]\(https:[^)]*#how-do-i-read-a-design-value\)/);
   assert.throws(() => renderQuestions('nothing.md'), /no question manifest/);
 });
 
 test('githubSlug reads link syntax inside a heading as its text', () => {
   assert.equal(githubSlug('The [stack page](./stack.md) answers'), 'the-stack-page-answers');
+});
+
+test('no page has two rows on one anchor', () => {
+  for (const page of NPM_PAGES) {
+    const anchors = (NPM_QUESTIONS[page] ?? []).flatMap(({ rows }) => rows.map((r) => `${r.file}#${githubSlug(r.heading)}`));
+    assert.equal(new Set(anchors).size, anchors.length, page);
+  }
 });

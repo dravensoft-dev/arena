@@ -62,7 +62,7 @@ test('a question row links the tag of the release and the anchor GitHub gives it
   const region = renderRegion('questions', repoRoot, 'mcp/NPM.md');
   assert.ok(region.includes('| Question | Answer |'));
   assert.ok(region.includes(`(https://github.com/dravensoft-dev/arena/blob/v${version}/skills/design/references/mcp.md#how-do-i-install-the-server)`));
-  assert.ok(region.includes('[mcp.md: How do I install the server?]'));
+  assert.ok(region.includes('[mcp.md](https:'));
 });
 
 test('a question table cell stays under 2000 characters', () => {

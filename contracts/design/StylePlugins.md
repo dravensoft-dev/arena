@@ -25,7 +25,7 @@ the token tier, since every value a chart paints is one the palette moves, and `
 role that draws the axis lines, the zero line and the crosshair, heavier than the grid rules
 `edge-separator` draws behind the marks. The remaining chart paint reads roles and never a compat
 alias, so a plugin that answers a role moves every chart.
-[`frameworks/CHARTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/CHARTS.md)
+[`frameworks/CHARTS.md`](../../frameworks/CHARTS.md)
 records why the plot geometry cannot be a role at all.
 
 [`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
@@ -111,7 +111,7 @@ and for the same reason: the file carries what it depends on rather than documen
 
 A slot declares what kind of thing it is, and the kind decides which padding, gap and radius
 roles it may ask. A slot of another kind spending one of these roles fails `check:roles`, which
-[`frameworks/tailwind/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/AGENTS.md)
+[`frameworks/tailwind/AGENTS.md`](../../frameworks/tailwind/AGENTS.md)
 describes. A plugin answers each role once and every slot of the kind follows.
 
 | Kind | Padding roles | Gap role | Radius role |
@@ -157,7 +157,7 @@ density. The interactive day head of `ArenaCalendar` takes it too, and `check:pr
 **An option of a family is a question by construction.** `arena-size-sm` asks how tall a button is
 at that size, `arena-emphasis-ghost` asks what ink an action takes with no fill, and the answer to
 each is a plugin's. The family file in
-[`frameworks/tailwind/vocabulary/`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/vocabulary/arena-size/Size.family.json)
+[`frameworks/tailwind/vocabulary/`](../../frameworks/tailwind/vocabulary/arena-size/Size.family.json)
 writes each channel from a role, so the option is the question and the role is where it is
 answered. An option no component draws differently asks nothing, and declares no role.
 
@@ -204,7 +204,7 @@ a chart legend swatch and the tag's dot read the ink, following series painted f
 `color-mix(in oklab, var(--hue-<hue>-fill-soft) var(--level-hue-soft-<hue>), transparent)`, with
 the percentage in [`colors.css`](./colors.css), so the role says which colour and the level says
 how far it is held back. The table of channels is authored once, in
-[`frameworks/tailwind/Hues.json`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/Hues.json).
+[`frameworks/tailwind/Hues.json`](../../frameworks/tailwind/Hues.json).
 
 **Identity has no roles.** The eight categorical colours derive their channels from the ramp: ink,
 edge and strong fill are `--color-cat-N`, and the soft fill is that colour at `--tint-soft` over
@@ -278,7 +278,7 @@ part no rule in the witness plugin paints.
 
 A manifest's slot names leave the repository as the part hook, so **renaming one is a break**.
 That is the price of the escape hatch, and it is recorded in
-[`frameworks/tailwind/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/AGENTS.md), where slots are defined,
+[`frameworks/tailwind/AGENTS.md`](../../frameworks/tailwind/AGENTS.md), where slots are defined,
 rather than left to be discovered at a consumer's build.
 `scripts/check/arena/check-parts.ts` fails an element that carries a slot class and no hook.
 

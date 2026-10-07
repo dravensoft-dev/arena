@@ -1,6 +1,6 @@
 # Arena, the React layer
 
-> **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
+> **For whoever works on this layer.** Building an app with it instead? Read [`install.md`](../../skills/design/references/install.md) to install it,
 > [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
 The React primitives, the kitchen-sink page one style plugin gets, and the shared modules both of them read.
@@ -8,8 +8,8 @@ Every value here comes from `contracts/design/`; this layer introduces no design
 of its own. For what those values mean, read
 [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md).
 
-**Published as `@dravensoft/arena-react`.** [`PACKAGE.md`](./PACKAGE.md) is what a consumer
-reads, and the assembly copies it into `dist/` as the package README;
+**Published as `@dravensoft/arena-react`.** [`PACKAGE.md`](./PACKAGE.md) is the page npm shows, an
+introduction and a table of questions, and the assembly copies it into `dist/` as the package README;
 [`../PACKAGING.md`](../PACKAGING.md) is how the package is built and what it leaves out.
 
 ## This layer stands on the contracts alone

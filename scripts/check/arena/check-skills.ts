@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { renderTarget, skillTargets, loadCategories } from '../../generate/arena/generate-skills.ts';
 import {
@@ -76,10 +77,15 @@ export function questionProblems(base = root, manifest: Record<string, Section[]
     }
   };
   const skill = read('skills/design/SKILL.md') ?? '';
-  for (const [page, sections] of Object.entries(manifest))
+  for (const [page, sections] of Object.entries(manifest)) {
+    const seen = new Map<string, string>();
     for (const { section, rows } of sections)
       for (const { question, file, heading } of rows) {
         const where = `${page} (${section}): "${question}"`;
+        const anchor = `${file}#${githubSlug(heading)}`;
+        const twin = seen.get(anchor);
+        if (twin) problems.push(`${where} targets ${anchor}, which "${twin}" already targets, so the two are one question`);
+        seen.set(anchor, question);
         const text = read(file);
         if (text === null) {
           problems.push(`${where} answers from ${file}, which does not exist`);
@@ -87,10 +93,12 @@ export function questionProblems(base = root, manifest: Record<string, Section[]
         }
         if (!slugsIn(text).has(githubSlug(heading)))
           problems.push(`${where} links ${file}#${githubSlug(heading)}, and no heading of that file gives that anchor`);
-        const inside = file.replace('skills/design/', '');
-        if (file !== 'skills/design/SKILL.md' && !new RegExp(`\\((?:\\./)?${inside.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:#[^)]*)?\\)`).test(skill))
+        const inside = relPosix('skills/design', file).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const prefix = inside.startsWith('\\.\\.') ? '' : '(?:\\./)?';
+        if (file !== 'skills/design/SKILL.md' && !new RegExp(`\\(${prefix}${inside}(?:#[^)]*)?\\)`).test(skill))
           problems.push(`${page}: ${file} is not linked from skills/design/SKILL.md, so an agent reading the skill never reaches the answer`);
       }
+  }
   return [...new Set(problems)];
 }
 
