@@ -95,51 +95,47 @@ where a finding should stop the run. Nothing reads your application for the unma
 those hold because you hold them. The full record, with the reason each unmarked rule is one a
 source text cannot show, is `arena://rules` on the MCP server.
 
-- **Tokens are the only styling layer.** A raw colour is a bug, and so is a bare `16px`. A hex, a
-  channel triple in `rgb()` or `oklch()`, and a colour's own name are the same defect written
-  three ways. Read a value through its custom property, as `var(--crimson)` or `var(--sp-4)`.
-  Derive one with `calc()` or `clamp()` over a token, or mix one with `color-mix()` over a token.
-  **`arena audit` reports this one.**
+- **Tokens are the only styling layer.** A raw colour is a bug, as is a bare `16px`. A hex, a
+  channel triple in `rgb()` or `oklch()`, and a colour's own name are one defect written three
+  ways. Read a value through its custom property, as `var(--crimson)` or `var(--sp-4)`. Derive one
+  with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. **`arena audit` reports
+  this one.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
-  component, or on a container whose components should all take it. Write no rule targeting a
-  component: it renders `arena-<component>__<slot>` class names, which are compiler output that no
-  contract names, and a slot may be renamed in any release. Every class you may write is on the
-  vocabulary page. Content you draw yourself is yours, styled through the same tokens. React types
-  `className` to the classes that component answers, so any other is a compile error; Angular
-  cannot type a host `class`, so there the audit is the check. **`arena audit` reports this one.**
+  component, or on a container whose components all take it. Write no rule targeting a component:
+  its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
+  renamed. Every class you may write is on the vocabulary page; your own content is styled through
+  the same tokens. React checks it at compile time, Angular through the audit. **`arena audit`
+  reports this one.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
 - **Danger is outline, never filled.** The background stays transparent, and the border and the
-  content read `--danger`. Arena draws one filled danger surface, and it is the final irreversible
+  content read `--danger`. Arena draws one filled danger surface, the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
   tint. **`arena audit` reports this one.**
-- **One primary accent per view.** Crimson is the voice, so at most one `arena-emphasis-primary`
-  action stands on a screen. A button with no emphasis class is that primary, so every other
-  button names `arena-emphasis-secondary` or `arena-emphasis-ghost`. Gold is distinction and
-  focus, and never a second primary. **`arena audit` reports this one.**
+- **One primary accent per view.** Crimson is the voice, so one `arena-emphasis-primary` action at
+  most stands on a screen, and a button with no emphasis class is it. Gold is distinction and
+  focus, never a second primary. **`arena audit` reports this one.**
 - **No gradients, on any surface.** Depth comes from the `base-100` to `base-200` to `base-300`
   surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
-  one exception. A brand whose mark is itself a gradient declares it once, with `"gradientMark":
-  true` in `arena.config.json`, and the audit then stops reporting gradients in app source; the
-  audit does not scan a declared plugin directory for gradients either way. **`arena audit`
-  reports this one.**
+  one exception. A gradient mark declares `"gradientMark": true`. **`arena audit` reports this
+  one.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
   ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
   reports this one.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
-  the event it reports. The members that take one are `ArenaCard.href`, `ArenaCommand.route`,
+  the event it reports. The members that take one: `ArenaCard.href`, `ArenaCommand.route`,
   `ArenaCrumb.href` and `ArenaSideNavItem.href`. **`arena audit` reports this one.**
 - **An anchor Arena draws splits its activations.** A primary click with no modifier, and Enter,
-  are cancelled and reported through the component's own event. Route from that handler, and
+  are cancelled and reported through the component's own event. Route from that handler and
   nothing navigates twice. A modified click, a middle click and the context menu belong to the
-  browser: they open the `href` themselves and report nothing.
+  browser, which opens the `href` and reports nothing.
 - **A press that starts on a control keeps to that control.** Arena draws an activation target
   around content you write, such as a card or a table row. A click or an Enter that begins on a
   button, a link or a field inside that target runs the control and nothing else. A press anywhere
-  else on the surface activates the surface. So a card or a row may hold controls of your own, and
-  it may also hand the press over entirely by not being interactive at all.
+  else on the surface activates the surface. So a card or a row may hold controls of your own, or
+  hand the press over entirely by not being interactive.
 - **Two themes, dark first.** Dark is `:root`, light is `.arena-light`. Components never rewrite
   per theme; they read tokens. `.arena-compact` and `.arena-comfortable` are the density family on
   the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second
@@ -149,7 +145,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
   is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails
-  hard rather than drawing something empty, so an absent member is loud on the first render.
+  hard rather than drawing something empty, so it is loud on the first render.
 - **No render follows from whether you bound a listener or filled a slot.** A member decides,
   always, because at least one platform cannot ask the question.
 - **A few components answer with a method rather than a member.** No member is imperative. The

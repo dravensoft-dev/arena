@@ -19,22 +19,21 @@ export const RULES: LanguageRule[] = [
   {
     id: 'tokens-only',
     short: 'Tokens are the only styling layer.',
-    body: 'A raw colour is a bug, and so is a bare `16px`. A hex, a channel triple in `rgb()` or '
-      + '`oklch()`, and a colour\'s own name are the same defect written three ways. Read a value '
+    body: 'A raw colour is a bug, as is a bare `16px`. A hex, a channel triple in `rgb()` or '
+      + '`oklch()`, and a colour\'s own name are one defect written three ways. Read a value '
       + 'through its custom property, as `var(--crimson)` or `var(--sp-4)`. Derive one with '
-      + '`calc()` or `clamp()` over a token, or mix one with `color-mix()` over a token.',
+      + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token.',
     held: 'raw-value',
     unheld: null,
   },
   {
     id: 'own-class',
     short: 'Only a class of the vocabulary goes on an Arena component.',
-    body: 'Write it as a literal on the component, or on a container whose components should all take it. '
-      + 'Write no rule targeting a component: it renders `arena-<component>__<slot>` class names, which are '
-      + 'compiler output that no contract names, and a slot may be renamed in any release. Every class you may '
-      + 'write is on the vocabulary page. Content you draw yourself is yours, styled through the same tokens. '
-      + 'React types `className` to the classes that component answers, so any other is a compile '
-      + 'error; Angular cannot type a host `class`, so there the audit is the check.',
+    body: 'Write it as a literal on the component, or on a container whose components all take it. '
+      + 'Write no rule targeting a component: its `arena-<component>__<slot>` classes are compiler output '
+      + 'no contract names, and a slot may be renamed. Every class you may write is on the '
+      + 'vocabulary page; your own content is styled through the same tokens. '
+      + 'React checks it at compile time, Angular through the audit.',
     held: 'own-class',
     unheld: null,
   },
@@ -50,7 +49,7 @@ export const RULES: LanguageRule[] = [
     id: 'danger-outline',
     short: 'Danger is outline, never filled.',
     body: 'The background stays transparent, and the border and the content read `--danger`. '
-      + 'Arena draws one filled danger surface, and it is the final irreversible confirmation '
+      + 'Arena draws one filled danger surface, the final irreversible confirmation '
       + 'inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft` tint.',
     held: 'danger-fill',
     unheld: null,
@@ -58,10 +57,9 @@ export const RULES: LanguageRule[] = [
   {
     id: 'one-primary',
     short: 'One primary accent per view.',
-    body: 'Crimson is the voice, so at most one `arena-emphasis-primary` action stands on a screen. '
-      + 'A button with no emphasis class is that primary, so every other button names '
-      + '`arena-emphasis-secondary` or `arena-emphasis-ghost`. '
-      + 'Gold is distinction and focus, and never a second primary.',
+    body: 'Crimson is the voice, so one `arena-emphasis-primary` action at most stands on a screen, and a '
+      + 'button with no emphasis class is it. '
+      + 'Gold is distinction and focus, never a second primary.',
     held: 'one-primary',
     unheld: null,
   },
@@ -70,9 +68,7 @@ export const RULES: LanguageRule[] = [
     short: 'No gradients, on any surface.',
     body: 'Depth comes from the `base-100` to `base-200` to `base-300` surface scale, the hairline '
       + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
-      + 'A brand whose mark is itself a gradient declares it once, with `"gradientMark": true` in '
-      + '`arena.config.json`, and the audit then stops reporting gradients in app source; '
-      + 'the audit does not scan a declared plugin directory for gradients either way.',
+      + 'A gradient mark declares `"gradientMark": true`.',
     held: 'raw-value',
     unheld: null,
   },
@@ -95,7 +91,7 @@ export const RULES: LanguageRule[] = [
     id: 'router-link',
     short: 'Never wrap an Arena component in your router\'s own link.',
     body: 'That nests an anchor inside an anchor, and in Angular it does not bind at all. Pass the '
-      + 'href to the component and route from the event it reports. The members that take one are '
+      + 'href to the component and route from the event it reports. The members that take one: '
       + '`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href` and `ArenaSideNavItem.href`.',
     held: 'router-link',
     unheld: null,
@@ -104,9 +100,9 @@ export const RULES: LanguageRule[] = [
     id: 'anchor-splits',
     short: 'An anchor Arena draws splits its activations.',
     body: 'A primary click with no modifier, and Enter, are cancelled and reported through the '
-      + 'component\'s own event. Route from that handler, and nothing navigates twice. A modified '
-      + 'click, a middle click and the context menu belong to the browser: they open the `href` '
-      + 'themselves and report nothing.',
+      + 'component\'s own event. Route from that handler and nothing navigates twice. A modified '
+      + 'click, a middle click and the context menu belong to the browser, which opens the `href` '
+      + 'and reports nothing.',
     held: null,
     unheld: 'what a click does is decided at run time, and a source text shows the handler rather '
       + 'than the navigation it causes',
@@ -117,8 +113,8 @@ export const RULES: LanguageRule[] = [
     body: 'Arena draws an activation target around content you write, such as a card or a table '
       + 'row. A click or an Enter that begins on a button, a link or a field inside that target '
       + 'runs the control and nothing else. A press anywhere else on the surface activates the '
-      + 'surface. So a card or a row may hold controls of your own, and it may also hand the press '
-      + 'over entirely by not being interactive at all.',
+      + 'surface. So a card or a row may hold controls of your own, or hand the press '
+      + 'over entirely by not being interactive.',
     held: null,
     unheld: 'which control a press lands on is decided at run time',
   },
@@ -155,7 +151,7 @@ export const RULES: LanguageRule[] = [
     id: 'required-member',
     short: 'A required member absent is a caller bug.',
     body: 'It is not a state to render. Every layer fails hard rather than drawing something '
-      + 'empty, so an absent member is loud on the first render.',
+      + 'empty, so it is loud on the first render.',
     held: null,
     unheld: 'your editor reports it from the package\'s own type declarations before anything '
       + 'runs, and the component fails hard on the first render',
