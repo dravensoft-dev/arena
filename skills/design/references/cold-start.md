@@ -41,15 +41,15 @@ gives the second a skin it was never designed to wear.
 a pixel is the composite of a surface, an opacity level and whatever was laid over it. That composite enters the palette as a literal that no theme can move, and the second polarity
 inherits it and is wrong.
 
-Neither is a reason to stop. Both are reasons to run node 3 first and to show the user what you
-concluded before you build on it.
+Neither is a reason to stop; run node 3 first and show the user your conclusion before you
+build on it.
 
 ## 3. The minimum interview
 
 Five questions, and they cover the decisions
 [`style-kernel.md`](./style-kernel.md) measured as the ones that separate one product from another.
 Ask them one at a time. Which colour the TEXT takes is not among them, because eight unrelated
-products answered that identically. The first question settles which surface the page takes. That page's own table
+products answered that identically. The first question settles the page's surface, since it follows from what the screen is. That page's own table
 is where both are.
 
 | Ask | What the answer fixes |

@@ -65,7 +65,7 @@ Import the generated files from `src/styles.css`, and import them last.
 
 The CDK overlay sheet comes with them. `arena.css` imports `css/arena-cdk.css` itself, and a `stylesheet` block carries it too.
 
-That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a menu in a dialog paints behind it. Write the import yourself only under `--no-import`, as `@import '@dravensoft/arena-angular/arena.css';`.
+That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind it. Write the import yourself only under `--no-import`, as `@import '@dravensoft/arena-angular/arena.css';`.
 
 ## Why does TypeScript report TS2307 on a stylesheet import in React?
 

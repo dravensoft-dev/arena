@@ -20,9 +20,9 @@ The command ships inside both component packages, so installing Arena installs i
 
 ## What does `arena build` write?
 
-**`arena.generated.css`** holds your palettes and your `@font-face` rules. The sheet leads with an `@import` of the package's stylesheet; `--no-import` leaves that out, for a project that imports `@dravensoft/arena-<layer>/arena.css` itself. Every colour comes from this file: the package declares no `--color-*`, only the rules that read them. The font roles are the half that overrides: the package declares them, and your file comes later at equal specificity in `:root` and wins.
+**`arena.generated.css`** holds your palettes and your `@font-face` rules. The sheet leads with an `@import` of the package stylesheet; `--no-import` leaves that out, for a project that imports `@dravensoft/arena-react/arena.css` or `@dravensoft/arena-angular/arena.css` itself. Every colour comes from this file: the package declares no `--color-*`, only the rules that read them. The font roles are the half that overrides: the package declares them, and your later file wins at equal specificity in `:root`.
 
-**`icons.generated.css`** holds the class rules, in `woff2` alone, for every glyph your sources draw and every glyph Arena's components draw for you. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, because a navigation item draws its active destination filled. The `@font-face` points at the whole font Phosphor ships; subset it to this glyph list if the bytes matter.
+**`icons.generated.css`** holds the class rules, in `woff2` alone, for every glyph your sources draw and every glyph Arena's components draw for you. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, since an active navigation item draws filled. The `@font-face` points at the whole font Phosphor ships; subset it to this glyph list if the bytes matter.
 
 **`plugin.generated.css`** is written when a style plugin carries a `plugin.css`. The sheet holds that CSS in the reserved cascade layer and leads with the layer order itself, so where a bundler places it cannot change what wins.
 

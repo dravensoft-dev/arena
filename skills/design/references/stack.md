@@ -138,12 +138,11 @@ the same style plugin travels whatever installs it and whatever assembles it.
 ## Where the repertoire stops
 
 - **No matrix is installed on every run.** The package-manager and bundler rows are claims about
-  somebody else's tool, and nothing here revalidates them per release. Each row carries the
-  evidence it carries rather than a stronger word for that reason.
+  somebody else's tool, and nothing here revalidates them per release, so each carries the
+  evidence it has and no stronger word.
 - **No version is pinned upward for you.** The React range is closed at the majors that have been
   rendered, because an open range would promise a major nobody has seen. The Angular floor is open
   above it, so a version past the exercised one resolves and is untested: that is a permission, not
   a promise.
 - **No project of yours is read.** No gate here opens your application, so no support row is
-  evidence about your application. The closest thing is the command's own audit. The audit reads your source text for the rules a source text can show,
-  and reports rather than fails unless you ask it to.
+  evidence about it. The closest thing is `arena audit`, which reads each source file for what a source text can show, a second primary action and a filled danger surface among them. Nothing reads the rendered view, the application as a whole, or the rules about meaning.
