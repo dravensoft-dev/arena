@@ -1,8 +1,9 @@
 /* The MCP package against what it promises. Six claims. It declares the dependencies it actually
  * imports and no others, since a server that resolves at build and throws at spawn is what an
  * editor reports as a broken configuration rather than a missing package. Its bin resolves to a
- * file that is there. It carries the corpus, one per layer, since a package shipping the transport
- * and none of the documents installs cleanly and answers every question with silence. Every path
+ * file that is there. It carries the corpus and its vocabulary index, one per layer, since a
+ * package shipping the transport and none of the documents installs cleanly and answers every
+ * question with silence. Every path
  * inside it resolves to something the package carries or the site publishes, a rewritten link
  * landing nowhere being the one failure a reader cannot tell from an empty answer. The catalogue
  * reaches every component the tree declares. And server.json states this tree's own name and
@@ -19,6 +20,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
 } from '../../build/arena/build-mcp-package.ts';
+import { loadVocabulary } from '../../generate/core/arena-to-prod/audit.ts';
 import { catalogue, textOf, MARKDOWN_LINK, ADDRESSED } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs } from '../../lib/arena/llms-index.ts';
@@ -241,6 +243,18 @@ export function corpusProblems(dir: string) {
   return problems;
 }
 
+export function vocabularyProblems(dir: string) {
+  const problems = [];
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null || loadVocabulary(payload) !== null) continue;
+    problems.push(`${NAME} carries no vocabulary index for the ${layer} layer. arena_check reads a class `
+      + 'against it, so without it every class of the language on a component is reported as a class '
+      + 'of the adopter\'s own');
+  }
+  return problems;
+}
+
 export function servedLinkProblems(dir: string) {
   const problems = [];
   for (const layer of BUILT_LAYERS) {
@@ -289,7 +303,7 @@ export function collect(base = root) {
   return {
     problems: [
       ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
-      ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
+      ...vocabularyProblems(dir), ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
     ],
     assembled: true,
   };

@@ -10,8 +10,8 @@ import {
   ICON_MANIFEST,
   COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
   pluginCss, PLUGIN_LAYER_ORDER, auditStep, auditFiles, pluginDirs,
-  loadVocabulary, VOCABULARY_INDEX,
 } from './arena-to-prod.ts';
+import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { STRICT_KINDS, report } from './reports.ts';
 import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';

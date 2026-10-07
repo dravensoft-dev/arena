@@ -1,13 +1,16 @@
 /* The rules of the language, decided over source text rather than over Arena's own tree, so the
  * one statement of each serves both sides of the ship boundary: this module ships inside the
  * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here
- * rather than holding a second copy that would drift. It depends on nothing but its own siblings,
- * because inside a package scripts/ does not exist. It decides what source text shows and nothing
+ * rather than holding a second copy that would drift. It depends on nothing but node and its own
+ * siblings, because inside a package scripts/ does not exist. It decides what source text shows and nothing
  * else: the render rules are not visible from outside, and a filled danger surface is visible
  * only where a project paints one of its own. A line carrying an allow marker is exempt, and a
  * marker over a line with nothing to exempt is stale. Every rule is read in a SCOPE, because an
  * audit that cannot say where a project's appearance lives has given up half of what it reports:
  * a declared plugin directory may select a part hook and paint a gradient, and a source may not. */
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'design-member', 'emoji', 'icon-element',
   'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link'] as const;
@@ -307,6 +310,17 @@ export type VocabularyIndex = {
   options: Record<string, string[]>;
   axes?: Record<string, string[]>;
 };
+
+export const VOCABULARY_INDEX = 'arena.vocabulary.json';
+
+export function loadVocabulary(root: string): VocabularyIndex | null {
+  try {
+    const index = JSON.parse(readFileSync(join(root, VOCABULARY_INDEX), 'utf8'));
+    return index && index.classes && index.answers ? index : null;
+  } catch {
+    return null;
+  }
+}
 
 const STATIC_CLASS = /(?:^|\s)(?:className|class)\s*=\s*(["'])([^"']*)\1/;
 const CLASS_TOGGLE = /(?:^|\s)\[class\.([a-z0-9-]+)\]\s*=/g;

@@ -4,13 +4,14 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS,
+  parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS, vocabularyOf,
 } from './arena-mcp.ts';
 import { manifestIn, bundledPayload } from './payload.ts';
 import { catalogue, entries, search, SCHEME, ROUTER_URI } from './catalogue.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { relPosix } from '../../../utils/posix-path.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+import { vocabularyIndex, writeVocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 
 const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '12.0.0',
   package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
@@ -100,6 +101,32 @@ test('arena_check reports the rules of the language over text, and says so when 
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /1 finding/);
   assert.match(checked('<ArenaButton>Go</ArenaButton>'), /^No finding\./);
+});
+
+test('a class of the vocabulary on a component is the language and not a class of your own', () => {
+  const index = vocabularyIndex();
+  assert.match(checked('<ArenaButton className="arena-size-sm">Go</ArenaButton>', CHECKED_AS, null), /own-class/);
+  assert.match(checked('<ArenaButton className="arena-size-sm">Go</ArenaButton>', CHECKED_AS, index), /^No finding\./);
+  assert.match(checked('<arena-button class="arena-fill">Go</arena-button>', 'src/app.html', index), /^No finding\./);
+  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>', CHECKED_AS, index), /own-class|not a class of Arena's vocabulary/);
+  assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>', CHECKED_AS, index), /1 finding/);
+});
+
+test('the index is read from the payload first, then from the installed package, then nowhere', () => {
+  const payload = mkdtempSync(join(tmpdir(), 'arena-mcp-vocab-'));
+  const installed = mkdtempSync(join(tmpdir(), 'arena-mcp-installed-'));
+  try {
+    assert.equal(vocabularyOf(payload, null), null);
+    assert.equal(vocabularyOf(payload, { package: 'p', layer: 'react', version: '1', dir: installed }), null);
+    writeVocabularyIndex(installed);
+    const index = vocabularyOf(payload, { package: 'p', layer: 'react', version: '1', dir: installed });
+    assert.ok(index !== null && Object.keys(index.classes).length > 0, 'a real index has classes');
+    writeFileSync(join(payload, 'arena.vocabulary.json'), JSON.stringify({ page: 'own', classes: {}, answers: {}, options: {} }));
+    assert.equal(vocabularyOf(payload, { package: 'p', layer: 'react', version: '1', dir: installed })?.page, 'own');
+  } finally {
+    rmSync(payload, { recursive: true });
+    rmSync(installed, { recursive: true });
+  }
 });
 
 test('the name a check is given decides whether the text is read as a stylesheet', () => {

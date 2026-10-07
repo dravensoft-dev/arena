@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import {
   collect, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
-  REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER,
+  REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
 } from './check-mcp.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest,
@@ -63,6 +63,23 @@ test('a layer this package carries no corpus for is a half no agent can read', (
   const problems = corpusProblems(dir);
   assert.equal(problems.length, LAYERS.length - 1);
   assert.match(problems[0] ?? '', /carries no corpus for the angular layer/);
+  rmSync(dir, { recursive: true });
+});
+
+test('a layer whose payload lacks the vocabulary index reports every class of the language as the adopter\'s own', () => {
+  const index = JSON.stringify({ page: 'p', classes: {}, answers: {}, options: {} });
+  const both = Object.fromEntries(LAYERS.flatMap((layer) => [
+    [`agent/${layer}/skill.json`, MANIFEST], [`agent/${layer}/arena.vocabulary.json`, index],
+  ]));
+  const whole = corpus(both);
+  assert.deepEqual(vocabularyProblems(whole), []);
+  rmSync(whole, { recursive: true });
+
+  delete both['agent/angular/arena.vocabulary.json'];
+  const dir = corpus(both);
+  const problems = vocabularyProblems(dir);
+  assert.equal(problems.length, 1, 'one layer lacks it');
+  assert.match(problems[0] ?? '', /no vocabulary index for the angular layer/);
   rmSync(dir, { recursive: true });
 });
 

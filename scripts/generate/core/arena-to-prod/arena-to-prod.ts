@@ -28,7 +28,9 @@ import {
 import type { IconScan, ShippedIcons } from './icon-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import { markerProblems } from './markers.ts';
-import { auditText, paintedParts, sourceScope, type VocabularyIndex } from './audit.ts';
+import {
+  auditText, paintedParts, sourceScope, loadVocabulary, type VocabularyIndex,
+} from './audit.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
 import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
@@ -44,7 +46,6 @@ export const PLUGIN_LAYER = 'arena-plugin';
 export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
 export const ICON_MANIFEST = 'icons.json';
-export const VOCABULARY_INDEX = 'arena.vocabulary.json';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
 export const DEFAULT_SOURCE = 'src';
@@ -292,15 +293,6 @@ export function iconManifest(root: string): ShippedIcons | null {
   try {
     const manifest = JSON.parse(readFileSync(join(root, ICON_MANIFEST), 'utf8'));
     return manifest && typeof manifest === 'object' && manifest.pairs ? manifest : null;
-  } catch {
-    return null;
-  }
-}
-
-export function loadVocabulary(root: string): VocabularyIndex | null {
-  try {
-    const index = JSON.parse(readFileSync(join(root, VOCABULARY_INDEX), 'utf8'));
-    return index && index.classes && index.answers ? index : null;
   } catch {
     return null;
   }

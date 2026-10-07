@@ -14,11 +14,12 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
   copyAgentPayload,
 } from '../../lib/arena/package-assembly.ts';
-import { PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
+import { AGENT_DIR, PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
 export const NAME = '@dravensoft/arena-mcp';
 export const DIST = 'dist/mcp';
@@ -58,6 +59,7 @@ export const node = {
     'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
+    'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
   ],
   writes: [`${DIST}/**`],
   feeds: ['check:community', 'check:mcp'],
@@ -118,7 +120,10 @@ export function buildMcpPackage(root = repoRoot) {
       + 'as the bin, so the package would install a command that is not there');
   }
 
-  for (const layer of LAYERS) written.push(...copyAgentPayload(dir, layer, NAME, root));
+  for (const layer of LAYERS) {
+    written.push(...copyAgentPayload(dir, layer, NAME, root));
+    written.push(writeVocabularyIndex(join(dir, AGENT_DIR, layer), root));
+  }
 
   written.push(copy(join(root, ...NPM_PAGE.split('/')), dir, 'README.md'));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
