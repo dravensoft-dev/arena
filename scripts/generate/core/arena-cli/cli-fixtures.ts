@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseArgs, resolved } from './arena-to-prod.ts';
 import type { ComponentMap } from './components.ts';
+import type { HostEnvironment } from './host.ts';
+import type { Io } from './io.ts';
 
 export const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
   const out: Record<string, string> = {};
@@ -86,3 +88,10 @@ export const MAP: ComponentMap = {
 export const SHEETS = { layers: ['css/base.css', 'css/components.css'], components: ['button', 'pagination', 'select', 'table'] };
 
 export const auto = { ...readable, stylesheet: { components: 'auto' } };
+
+export function captureIo(cwd: string, environment: HostEnvironment = {}) {
+  const out: string[] = [];
+  const err: string[] = [];
+  const io: Io = { out: (line) => out.push(line), err: (line) => err.push(line), cwd, environment, node: 'v22.12.0' };
+  return { io, out, err };
+}
