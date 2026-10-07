@@ -32,8 +32,8 @@ export const RULES: LanguageRule[] = [
     body: 'Write it as a literal on the component, or on a container whose components all take it. '
       + 'Write no rule targeting a component: its `arena-<component>__<slot>` classes are compiler output '
       + 'no contract names, and a slot may be renamed. Every class you may write is on the '
-      + 'vocabulary page; your own content is styled through the same tokens. '
-      + 'React checks it at compile time, Angular through the audit.',
+      + 'vocabulary page; your own content uses the same tokens. '
+      + 'React checks the class at compile time, Angular through the audit.',
     held: 'own-class',
     unheld: null,
   },
@@ -57,18 +57,18 @@ export const RULES: LanguageRule[] = [
   {
     id: 'one-primary',
     short: 'One primary accent per view.',
-    body: 'Crimson is the voice, so one `arena-emphasis-primary` action at most stands on a screen, and a '
+    body: 'Crimson is the voice: one `arena-emphasis-primary` action at most stands on a screen, and a '
       + 'button with no emphasis class is it. '
-      + 'Gold is distinction and focus, never a second primary.',
+      + 'Gold is distinction and focus, not a second primary.',
     held: 'one-primary',
     unheld: null,
   },
   {
     id: 'no-gradients',
     short: 'No gradients, on any surface.',
-    body: 'Depth comes from the `base-100` to `base-200` to `base-300` surface scale, the hairline '
+    body: 'Depth comes from the `base-100` to `base-300` surface scale, the hairline '
       + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
-      + 'A gradient mark declares `"gradientMark": true`.',
+      + 'A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.',
     held: 'raw-value',
     unheld: null,
   },

@@ -103,8 +103,8 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
   its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
-  renamed. Every class you may write is on the vocabulary page; your own content is styled through
-  the same tokens. React checks it at compile time, Angular through the audit. **`arena audit`
+  renamed. Every class you may write is on the vocabulary page; your own content uses the same
+  tokens. React checks the class at compile time, Angular through the audit. **`arena audit`
   reports this one.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
@@ -112,13 +112,13 @@ source text cannot show, is `arena://rules` on the MCP server.
   content read `--danger`. Arena draws one filled danger surface, the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
   tint. **`arena audit` reports this one.**
-- **One primary accent per view.** Crimson is the voice, so one `arena-emphasis-primary` action at
+- **One primary accent per view.** Crimson is the voice: one `arena-emphasis-primary` action at
   most stands on a screen, and a button with no emphasis class is it. Gold is distinction and
-  focus, never a second primary. **`arena audit` reports this one.**
-- **No gradients, on any surface.** Depth comes from the `base-100` to `base-200` to `base-300`
-  surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
-  one exception. A gradient mark declares `"gradientMark": true`. **`arena audit` reports this
-  one.**
+  focus, not a second primary. **`arena audit` reports this one.**
+- **No gradients, on any surface.** Depth comes from the `base-100` to `base-300` surface scale,
+  the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the one exception.
+  A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`. **`arena audit`
+  reports this one.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
   ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`

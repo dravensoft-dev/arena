@@ -76,9 +76,9 @@ it instead of waiting for it.
   `"datetime-local"` are the sanctioned controls: keyboard accessible, localized, and already
   known to whoever drives a phone. Arena's job is to make them look like Arena, which it does
   in both themes, and `ArenaInput`'s prompt in your layer is where they are written.
-- **No route into a component's own box.** No component takes a class or a style of yours, and
-  the class names one renders are compiler output that no contract names. Your layout goes on a
-  container you own. React rejects any other class at compile time.
+- **No route into a component's own box.** A component takes only vocabulary classes, never a
+  style of yours, and its class names are compiler output. Lay out on a container you
+  own. React types `className` to those classes; `arena audit` checks Angular's `class`.
 - **No icon font bundled.** Icons are Phosphor class-name strings a component renders, and the
   font arrives as a peer dependency rather than inside the package.
 - **No runtime dependency and no CSS toolchain.** Every component's CSS ships compiled against
