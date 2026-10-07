@@ -116,6 +116,16 @@ test('a page named on the domain is judged against what the site actually publis
     /the site publishes nothing there/);
 });
 
+test('a page the site build writes is published although no file in the tree carries it', () => {
+  const payload = join(root, 'nowhere');
+  const from = 'skills/design/ROUTER.md';
+  for (const page of ['llms.txt', 'llms-react.txt', 'llms-angular.txt']) {
+    assert.equal(unresolvedTarget(`${SITE_BASE}${page}`, from, payload, new Set()), null);
+  }
+  assert.match(unresolvedTarget(`${SITE_BASE}llms-nowhere.txt`, from, payload, new Set()) ?? '',
+    /the site publishes nothing there/);
+});
+
 test('a link, a relative inline path and an absolute one are all targets; prose is not', () => {
   const found = targetsIn('see [a](./b.md) and `../c.md` and `https://d/e` but not `a word`');
   assert.deepEqual(found, ['./b.md', '../c.md', 'https://d/e']);

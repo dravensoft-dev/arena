@@ -20,7 +20,7 @@ import {
 import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
 import { catalogue, textOf, MARKDOWN_LINK, ADDRESSED } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
-import { servedDocs } from '../../lib/arena/llms-index.ts';
+import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { LINK, INLINE, isRepoPath } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
@@ -126,7 +126,7 @@ export function unresolvedTarget(target: string, from: string, agent: string, se
   if (target.startsWith(SITE_BASE)) {
     const rel = target.slice(SITE_BASE.length).replace(/[#?].*$/, '');
     if (rel.includes('*') || rel.includes('<')) return null;
-    return served.has(rel) || existsSync(join(root, ...rel.split('/')))
+    return served.has(rel) || writtenPages().includes(rel) || existsSync(join(root, ...rel.split('/')))
       ? null
       : `${rel} is named as a page on the domain and this tree does not carry it, `
         + 'so the site publishes nothing there';

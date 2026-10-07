@@ -186,6 +186,8 @@ export function servedDocs(base = root) {
     .filter((rel) => existsSync(join(base, rel)));
 }
 
+export const writtenPages = () => [LLMS_INDEX, ...LAYERS.map(layerFile)];
+
 export const nameOf = (rel: string) => basename(rel).replace(PROMPT_SUFFIX, '').replace(/\.md$/, '');
 
 export const categoryOf = (rel: string) => rel.split('/').at(-2) ?? '';
