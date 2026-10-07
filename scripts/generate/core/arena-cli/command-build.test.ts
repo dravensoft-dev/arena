@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { run } from './command-build.ts';
+import { run, writeOutputs } from './command-build.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
 import { captureIo, phosphor, project, readable } from './cli-fixtures.ts';
 
@@ -116,6 +116,25 @@ test('a write that fails says where and returns 2', async () => {
   const { io, err } = captureIo(root, environment(web));
   assert.equal(await run(flags(root), io), 2);
   assert.match(err[0]!, new RegExp(`^arena build: cannot write ${join(root, 'src', THEME_SHEET).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: `));
+});
+
+test('a write that fails after earlier sheets were written still prints what was written before it', async () => {
+  const { web } = phosphor();
+  const root = project();
+  mkdirSync(join(root, 'src', ICONS_SHEET));
+  const { io, out, err } = captureIo(root, environment(web));
+  assert.equal(await run(flags(root), io), 2);
+  assert.ok(existsSync(join(root, 'src', THEME_SHEET)));
+  assert.ok(out.some((line) => line.startsWith(`arena build: wrote ${join(root, 'src', THEME_SHEET)} (`)), out.join('\n'));
+  assert.ok(err[0]!.startsWith(`arena build: cannot write ${join(root, 'src', ICONS_SHEET)}: `));
+});
+
+test('an orphan already gone when the write runs is not an error and is not reported', () => {
+  const root = project();
+  const said: string[] = [];
+  const result = writeOutputs([], [PLUGIN_SHEET], join(root, 'src'), { wrote: () => said.push('wrote'), removed: (at) => said.push(at) });
+  assert.deepEqual(result.removed, []);
+  assert.deepEqual(said, []);
 });
 
 test('--strict on build exits 2 pointing at arena check', async () => {
