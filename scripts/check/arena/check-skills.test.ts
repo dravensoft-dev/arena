@@ -88,3 +88,17 @@ test('a heading inside a code fence is not a heading', () => {
   writeFileSync(join(base, 'skills/design/SKILL.md'), '# Arena\n\n```sh\n# a comment\n```\n');
   assert.equal(questionProblems(base, manifest('a comment', 'skills/design/SKILL.md')).length, 1);
 });
+
+test('a SKILL.md link carrying an anchor links the file, and a repeated heading takes -1 in document order', () => {
+  const base = mkdtempSync(join(tmpdir(), 'questions-'));
+  mkdirSync(join(base, 'skills/design/references'), { recursive: true });
+  writeFileSync(join(base, 'skills/design/SKILL.md'), '# Arena\n\nSee [a](./references/a.md#linked).\n');
+  writeFileSync(join(base, 'skills/design/references/a.md'), '# A\n\n## Same\n\n## Same\n');
+  const at = (heading: string) => questionProblems(base, manifest(heading, 'skills/design/references/a.md'));
+  assert.deepEqual(at('Same'), []);
+  assert.equal(at('Same').length, 0);
+  assert.equal(questionProblems(base, manifest('Same', 'skills/design/references/a.md')).length, 0);
+  const second = { 'contracts/NPM.md': [{ section: 's', rows: [{ question: 'q?', file: 'skills/design/references/a.md', heading: 'Same' }] }] };
+  assert.deepEqual(questionProblems(base, second), []);
+  assert.equal(questionProblems(base, manifest('Same-2', 'skills/design/references/a.md')).length, 1);
+});

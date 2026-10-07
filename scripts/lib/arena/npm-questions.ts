@@ -3,7 +3,7 @@
  * nowhere else. This file is the one manifest of those questions; the generator emits it between
  * the markers a person placed, and `check:skills` holds each row to a file and a heading that
  * exist and to a file the skill links. A row of a layer's page names no other layer.
- * githubSlug gives GitHub's anchor for a heading: lower case, punctuation other than - and _
+ * githubSlug gives GitHub's anchor for a heading: link syntax read as its text, lower case, punctuation other than - and _
  * dropped, spaces to -. */
 
 import { readFileSync } from 'node:fs';
@@ -23,6 +23,7 @@ export const NPM_PAGES = [REACT_PAGE, ANGULAR_PAGE, CONTRACTS_PAGE, MCP_PAGE];
 export const githubSlug = (heading: string) => heading
   .replace(/^#+\s*/, '')
   .trim()
+  .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
   .toLowerCase()
   .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '')
   .replace(/\s/g, '-');

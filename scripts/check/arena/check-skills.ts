@@ -24,7 +24,7 @@ export const node = {
   name: 'check:skills',
   reads: [
     'contracts/api/components', 'frameworks/Components.json', 'frameworks/INDEX.md',
-    ...NPM_TARGETS,
+    ...NPM_TARGETS, 'skills/design/**', '.claude-plugin/plugin.json',
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
   ],
@@ -53,7 +53,18 @@ export function sharedRegionProblems(base = root) {
   return problems;
 }
 
-const slugsIn = (text: string) => new Set(text.replace(/^```[\s\S]*?^```/gm, '').split('\n').filter((line) => /^#{1,6}\s/.test(line)).map(githubSlug));
+const slugsIn = (text: string) => {
+  const seen = new Map<string, number>();
+  const slugs = new Set<string>();
+  for (const line of text.replace(/^```[\s\S]*?^```/gm, '').split('\n')) {
+    if (!/^#{1,6}\s/.test(line)) continue;
+    const slug = githubSlug(line);
+    const count = seen.get(slug) ?? 0;
+    seen.set(slug, count + 1);
+    slugs.add(count ? `${slug}-${count}` : slug);
+  }
+  return slugs;
+};
 
 export function questionProblems(base = root, manifest: Record<string, Section[]> = NPM_QUESTIONS) {
   const problems: string[] = [];
@@ -77,7 +88,7 @@ export function questionProblems(base = root, manifest: Record<string, Section[]
         if (!slugsIn(text).has(githubSlug(heading)))
           problems.push(`${where} links ${file}#${githubSlug(heading)}, and no heading of that file gives that anchor`);
         const inside = file.replace('skills/design/', '');
-        if (file !== 'skills/design/SKILL.md' && !skill.includes(`(./${inside})`) && !skill.includes(`(${inside})`))
+        if (file !== 'skills/design/SKILL.md' && !new RegExp(`\\((?:\\./)?${inside.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:#[^)]*)?\\)`).test(skill))
           problems.push(`${page}: ${file} is not linked from skills/design/SKILL.md, so an agent reading the skill never reaches the answer`);
       }
   return [...new Set(problems)];

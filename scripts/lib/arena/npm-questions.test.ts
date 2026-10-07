@@ -16,7 +16,7 @@ test('githubSlug keeps hyphens and underscores and the text inside inline code',
     'why-might-a-packages-latest-version-not-match-arenas-latest-version');
 });
 
-test('githubSlug keeps a colon-free form of "Which arena:// resources does the server offer?"', () => {
+test('githubSlug drops the colon and slashes of an arena:// heading', () => {
   assert.equal(githubSlug('Which arena:// resources does the server offer?'), 'which-arena-resources-does-the-server-offer');
 });
 
@@ -34,4 +34,8 @@ test('the rendered table splits by section and links the file at its anchor', ()
   assert.match(text, /\| Question \| Answer \|/);
   assert.match(text, /\[contracts\.md: What arrives\]\(https:\/\/github\.com\/dravensoft-dev\/arena\/blob\/v\d+\.\d+\.\d+\/skills\/design\/references\/contracts\.md#what-arrives\)/);
   assert.throws(() => renderQuestions('nothing.md'), /no question manifest/);
+});
+
+test('githubSlug reads link syntax inside a heading as its text', () => {
+  assert.equal(githubSlug('The [stack page](./stack.md) answers'), 'the-stack-page-answers');
 });
