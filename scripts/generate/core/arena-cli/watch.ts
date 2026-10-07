@@ -2,7 +2,7 @@
  * 100 because an editor saves by truncate, write and rename within a few milliseconds, and the quiet
  * window folds that burst into one build; it bounds no hang, so it is a plain constant, not a deadline. */
 import { existsSync, statSync, watch } from 'node:fs';
-import { basename, dirname, resolve, sep } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import type { Options } from './args.ts';
 import { voice } from './io.ts';
 import type { Io } from './io.ts';
@@ -23,23 +23,36 @@ export type WatchDeps = {
 
 const keyOf = (target: WatchTarget) => `${target.dir}|${target.recursive}|${target.only}`;
 
+function awaited(path: string): WatchTarget | null {
+  let child = resolve(path);
+  let parent = dirname(child);
+  while (!existsSync(parent)) {
+    if (dirname(parent) === parent) return null;
+    child = parent;
+    parent = dirname(parent);
+  }
+  return { dir: parent, recursive: false, only: basename(child) };
+}
+
 export function watchTargets(options: Pick<Options, 'config' | 'paths'>): WatchTarget[] {
   const found = new Map<string, WatchTarget>();
-  const add = (target: WatchTarget) => { if (!found.has(keyOf(target))) found.set(keyOf(target), target); };
+  const add = (target: WatchTarget | null) => { if (target && !found.has(keyOf(target))) found.set(keyOf(target), target); };
   const config = resolve(options.config);
   add({ dir: dirname(config), recursive: false, only: basename(config) });
   for (const path of options.paths) {
-    if (!existsSync(path)) continue;
-    if (statSync(path).isDirectory()) add({ dir: resolve(path), recursive: true, only: null });
+    if (!existsSync(path)) add(awaited(path));
+    else if (statSync(path).isDirectory()) add({ dir: resolve(path), recursive: true, only: null });
     else add({ dir: dirname(resolve(path)), recursive: false, only: basename(path) });
   }
-  for (const dir of pluginDirs(options)) if (existsSync(dir)) add({ dir, recursive: true, only: null });
+  for (const dir of pluginDirs(options)) add(existsSync(dir) ? { dir, recursive: true, only: null } : awaited(dir));
   return [...found.values()];
 }
 
-export function relevant({ target, filename }: WatchEvent, separator = sep): boolean {
-  if (filename === null) return true;
-  const parts = toPosix(filename, separator).split('/');
+const rootEvent = (filename: string | null) => filename === null || filename === '';
+
+export function relevant({ target, filename }: WatchEvent, separator?: Parameters<typeof toPosix>[1]): boolean {
+  if (rootEvent(filename)) return true;
+  const parts = toPosix(filename as string, separator).split('/');
   const name = parts[parts.length - 1] ?? '';
   if (target.only !== null) return name === target.only;
   if (OUTPUT_SHEETS.has(name as never) || parts.some((part) => SKIPPED_DIRECTORIES.has(part))) return false;
@@ -64,21 +77,24 @@ export function systemWatch(): WatchDeps {
 export function watchBuild(options: Options, build: () => number, io: Io, deps: WatchDeps): Promise<number> {
   const say = voice(io, 'build');
   const open = new Map<string, Watcher>();
+  const stale = new Set<string>();
   let pending: unknown = null;
   let stopped = false;
 
   const reconcile = () => {
     const wanted = new Map(watchTargets(options).map((target) => [keyOf(target), target]));
     for (const [key, watcher] of open) {
-      if (wanted.has(key)) continue;
+      if (wanted.has(key) && !stale.has(key)) continue;
       watcher.close();
       open.delete(key);
     }
+    stale.clear();
     for (const [key, target] of wanted) {
       if (open.has(key)) continue;
       try {
         open.set(key, deps.watch(target.dir, target.recursive, (filename) => {
           if (stopped || !relevant({ target, filename })) return;
+          if (rootEvent(filename)) stale.add(key);
           if (pending !== null) deps.cancel(pending);
           pending = deps.schedule(rebuild, SETTLE_MS);
         }, (error) => {
@@ -104,7 +120,11 @@ export function watchBuild(options: Options, build: () => number, io: Io, deps: 
     reconcile();
   }
 
-  build();
+  try {
+    build();
+  } catch (error) {
+    say.err(`build failed: ${(error as Error).message}`);
+  }
   reconcile();
   say.out(`watching ${open.size} location(s); Ctrl-C stops`);
   return new Promise((done) => {

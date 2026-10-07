@@ -1,7 +1,7 @@
 /* arena build --watch: the loop is driven with a fake watch and a fake schedule, never real time. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
 import type { Options } from './args.ts';
@@ -50,21 +50,25 @@ function harness(build: () => number = () => 0) {
 const event = (target: Partial<WatchTarget>, filename: string | null): WatchEvent =>
   ({ target: { dir: '/p', recursive: true, only: null, ...target }, filename });
 
-test('watchTargets: config dir with only, src dir recursive, src file with only, plugin dirs, no target for a missing path, duplicates merged', () => {
+test('watchTargets: config dir with only, src dir recursive, src file with only, plugin dirs, a missing path watched through its nearest existing parent with only its first missing segment, duplicates merged', () => {
   const root = pluginRoot();
   writeFileSync(join(root, 'main.ts'), '');
-  const targets = watchTargets(optionsOf(root, ['--src', join(root, 'main.ts'), '--src', join(root, 'nowhere'), '--src', join(root, 'src')]));
+  const targets = watchTargets(optionsOf(root, ['--src', join(root, 'main.ts'), '--src', join(root, 'nowhere'), '--src', join(root, 'deep', 'er'), '--src', join(root, 'src')]));
   assert.deepEqual(targets, [
     { dir: root, recursive: false, only: 'arena.config.json' },
     { dir: join(root, 'src'), recursive: true, only: null },
     { dir: root, recursive: false, only: 'main.ts' },
+    { dir: root, recursive: false, only: 'nowhere' },
+    { dir: root, recursive: false, only: 'deep' },
     { dir: join(root, 'design', 'andina'), recursive: true, only: null },
   ]);
+  rmSync(join(root, 'design', 'andina'), { recursive: true });
+  assert.deepEqual(watchTargets(optionsOf(root)).at(-1), { dir: join(root, 'design'), recursive: false, only: 'andina' });
   const twice = watchTargets(optionsOf(root, ['--src', join(root, 'src')]));
   assert.equal(twice.filter((one) => one.dir === join(root, 'src')).length, 1);
 });
 
-test('relevant keeps only the config basename on an only target, ignores output sheets and node_modules segments, keeps source extensions, .json and a null filename, and reads a Windows-style name through toPosix', () => {
+test('relevant keeps only the config basename on an only target, ignores output sheets and node_modules segments, keeps source extensions, .json and a null or empty filename, and reads a Windows-style name through toPosix', () => {
   const only = { only: 'arena.config.json', recursive: false };
   assert.equal(relevant(event(only, 'arena.config.json')), true);
   assert.equal(relevant(event(only, 'other.json')), false);
@@ -75,6 +79,7 @@ test('relevant keeps only the config basename on an only target, ignores output 
   assert.equal(relevant(event({}, 'notes.md')), false);
   assert.equal(relevant(event({}, null)), true);
   assert.equal(relevant(event(only, null)), true);
+  assert.equal(relevant(event({}, '')), true);
   assert.equal(relevant(event({}, 'a\\node_modules\\b.ts'), '\\'), false);
 });
 
@@ -86,6 +91,21 @@ test('the initial build runs once before any event', async () => {
   assert.equal(h.builds(), 1);
   assert.equal(h.pending.length, 0);
   assert.ok(out.some((line) => /^arena build: watching \d+ location\(s\); Ctrl-C stops$/.test(line)));
+  h.controller.abort();
+  assert.equal(await done, 0);
+});
+
+test('a first build that throws prints build failed and still watches, and the next event builds again', async () => {
+  const root = project();
+  let step = 0;
+  const h = harness(() => { step += 1; if (step === 1) throw new Error('boom'); return 0; });
+  const { io, out, err } = captureIo(root);
+  const done = watchBuild(optionsOf(root), h.counted, io, h.deps);
+  assert.ok(err.includes('arena build: build failed: boom'));
+  assert.ok(out.some((line) => /^arena build: watching \d+ location\(s\); Ctrl-C stops$/.test(line)));
+  h.live().find((one) => one.dir === join(root, 'src'))!.changed('a.ts');
+  h.flush();
+  assert.equal(h.builds(), 2);
   h.controller.abort();
   assert.equal(await done, 0);
 });
@@ -164,6 +184,68 @@ test('a failed watcher is dropped and reopened at the next reconcile', async () 
   const again = h.live().filter((one) => one.dir === join(root, 'src'));
   assert.equal(again.length, 1);
   assert.notEqual(again[0], first);
+  h.controller.abort();
+  await done;
+});
+
+for (const root_event of [null, '']) test(`a src dir removed and recreated within the settle window is reopened after its root event (${JSON.stringify(root_event)})`, async () => {
+  const root = project();
+  const h = harness();
+  const { io } = captureIo(root);
+  const done = watchBuild(optionsOf(root), h.counted, io, h.deps);
+  const first = h.live().find((one) => one.dir === join(root, 'src'))!;
+  rmSync(join(root, 'src'), { recursive: true });
+  mkdirSync(join(root, 'src'));
+  first.changed(root_event);
+  h.flush();
+  assert.equal(h.builds(), 2);
+  assert.equal(first.closed, true);
+  const again = h.live().filter((one) => one.dir === join(root, 'src'));
+  assert.equal(again.length, 1);
+  assert.notEqual(again[0], first);
+  again[0]!.changed('a.ts');
+  assert.equal(h.pending.filter((one) => one.live).length, 1);
+  h.controller.abort();
+  await done;
+});
+
+test('a src dir missing at start is watched through its parent, and creating it rebuilds and swaps in the real watcher', async () => {
+  const root = project();
+  rmSync(join(root, 'src'), { recursive: true });
+  const h = harness();
+  const { io } = captureIo(root);
+  const done = watchBuild(optionsOf(root), h.counted, io, h.deps);
+  assert.equal(h.live().some((one) => one.dir === join(root, 'src')), false);
+  const parents = h.live().filter((one) => one.dir === root && !one.recursive);
+  assert.equal(parents.length, 2);
+  for (const one of parents) one.changed('other.ts');
+  assert.equal(h.pending.length, 0);
+  mkdirSync(join(root, 'src'));
+  for (const one of parents) one.changed('src');
+  h.flush();
+  assert.equal(h.builds(), 2);
+  assert.equal(h.live().filter((one) => one.dir === join(root, 'src') && one.recursive).length, 1);
+  assert.equal(h.live().filter((one) => one.dir === root).length, 1);
+  h.controller.abort();
+  await done;
+});
+
+test('a src dir removed while watching is watched through its parent until it comes back', async () => {
+  const root = project();
+  const h = harness();
+  const { io } = captureIo(root);
+  const done = watchBuild(optionsOf(root), h.counted, io, h.deps);
+  const first = h.live().find((one) => one.dir === join(root, 'src'))!;
+  rmSync(join(root, 'src'), { recursive: true });
+  first.changed(null);
+  h.flush();
+  assert.equal(first.closed, true);
+  assert.equal(h.live().some((one) => one.dir === join(root, 'src')), false);
+  mkdirSync(join(root, 'src'));
+  for (const one of h.live().filter((one) => one.dir === root)) one.changed('src');
+  h.flush();
+  assert.equal(h.builds(), 3);
+  assert.equal(h.live().filter((one) => one.dir === join(root, 'src') && one.recursive).length, 1);
   h.controller.abort();
   await done;
 });
