@@ -209,20 +209,31 @@ export function unreachedProblems(name: string, parts: Record<string, string>, r
     + 'behind it, so a style plugin answering it paints nothing. Draw it or remove the slot.'));
 }
 
+export function partProblemsOf(
+  name: string,
+  parts: Record<string, string>,
+  siteProblemList: string[],
+  drawn: { react: Set<string>; angular: Set<string> },
+  implemented: Layer[],
+) {
+  const problems = [...siteProblemList];
+  if (implemented.length === 2) problems.push(...symmetryProblems(name, drawn.react, drawn.angular));
+  problems.push(...unreachedProblems(name, parts, drawn.react, drawn.angular));
+  return problems;
+}
+
 export function partProblems(name: string) {
   const parts = partsOf(name);
-  const problems = [];
+  const sites = [];
   for (const layer of Object.keys(LAYERS) as Layer[]) {
     for (const file of layerSources(name, layer)) {
       for (const problem of siteProblems(readFileSync(file, 'utf8'), parts, name, layer))
-        problems.push(`${relPosix(repoRoot, file)}: ${problem}`);
+        sites.push(`${relPosix(repoRoot, file)}: ${problem}`);
     }
   }
   const drawn = { react: layerParts(name, 'react'), angular: layerParts(name, 'angular') };
   const implemented = (Object.keys(LAYERS) as Layer[]).filter((layer) => layerSources(name, layer).length > 0);
-  if (implemented.length === 2) problems.push(...symmetryProblems(name, drawn.react, drawn.angular));
-  problems.push(...unreachedProblems(name, parts, drawn.react, drawn.angular));
-  return problems;
+  return partProblemsOf(name, parts, sites, drawn, implemented);
 }
 
 export function reachedParts(name: string) {
@@ -255,10 +266,18 @@ export function collect() {
   return { problems, manifests: names.length, declared, reached: reached.size };
 }
 
+export function gateProblems(collected: ReturnType<typeof collect>) {
+  return [
+    ...zeroPartProblems(collected.manifests),
+    ...zeroReachedProblems(collected.reached),
+    ...collected.problems,
+  ];
+}
+
 function main() {
-  const { problems, manifests, declared, reached } = collect();
-  const zero = [...zeroPartProblems(manifests), ...zeroReachedProblems(reached)];
-  const all = [...zero, ...problems];
+  const collected = collect();
+  const { manifests, declared, reached } = collected;
+  const all = gateProblems(collected);
   if (all.length > 0) {
     console.error(`check-parts: ${all.length} problem(s)\n`);
     for (const one of all) console.error(`  ${one}`);

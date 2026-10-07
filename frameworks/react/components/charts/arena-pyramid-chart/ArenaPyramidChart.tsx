@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -105,7 +105,7 @@ export function ArenaPyramidChart({ className,
             <line x1={tick.x} x2={tick.x} y1={box.y} y2={box.y + box.h}
               stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={tick.x} y={arenaTickLabelY(strip.plotH)} textAnchor="middle"
-              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
         <line x1={axis.zeroX} x2={axis.zeroX} y1={box.y} y2={box.y + box.h}
@@ -129,7 +129,7 @@ export function ArenaPyramidChart({ className,
 
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
-            fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"

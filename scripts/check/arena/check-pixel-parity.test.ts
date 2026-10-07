@@ -230,6 +230,11 @@ test('an allowance rect covers what the matched element paints, a descendant ove
   const withChild = run([{ ...frame, querySelectorAll: () => [child] }])[0]!;
   assert.equal(withChild.right - alone.right, 1, 'the overflowing descendant widens the rect by what it overflows');
   assert.deepEqual(run([{ ...frame, querySelectorAll: () => [unrendered] }])[0], alone, 'a descendant with no box leaves the rect alone');
+  const hidden = { ...unrendered, querySelectorAll: () => [] };
+  assert.deepEqual(run([hidden, bare]), [{ left: 0, top: 0, right: 10, bottom: 10 }], 'a matched element with no box contributes no rect');
+  const contents = { ...unrendered, querySelectorAll: () => [child] };
+  assert.deepEqual(run([contents]), [{ left: 627, top: 12508, right: 645, bottom: 12520 }],
+    'an element with no box of its own still counts for its rendered descendants, and its own zero box does not');
 });
 
 test('an invalid selector fails with the selector named, and any other throw passes through', async () => {

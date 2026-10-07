@@ -12,6 +12,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { expectedCarried } from './check-contracts-package.ts';
 import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { COMPAT_ALIASES } from '../../generate/core/arena-to-prod/audit.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 export const node = {
@@ -132,6 +133,25 @@ export function proseProblems(all: Strand[], bound = BROWSER_BOUND, exempt = WEB
     }
   }
   return problems;
+}
+
+export function aliasProseProblems(all: Strand[], aliases: readonly string[] = COMPAT_ALIASES) {
+  const problems: string[] = [];
+  for (const strand of all.filter((s) => s.prose && s.rel.startsWith('contracts/api/'))) {
+    for (const alias of aliases) {
+      if (new RegExp(`(?<![A-Za-z0-9-])--${alias}(?![A-Za-z0-9-])`).test(strand.text)) {
+        problems.push(`${tokenPath(strand)} names --${alias}, a compatibility alias. A description says what is `
+          + 'drawn in roles (the body ink, the danger hue\'s edge), never in a name the skin may rename');
+      }
+    }
+  }
+  return problems;
+}
+
+export function zeroAliasProseProblems(all: Strand[]) {
+  const scanned = all.filter((s) => s.prose && s.rel.startsWith('contracts/api/')).length;
+  return scanned > 0 ? [] : ['0 description(s) under contracts/api were scanned for a compatibility alias, '
+    + 'which is a failure rather than a clean pass'];
 }
 
 export function staleShapedProblems(all: Strand[], shaped = WEB_SHAPED) {
@@ -321,6 +341,8 @@ export function collect(repo = root) {
       ...zeroWalkProblems(files.length, all.length, WEB_SHAPED.size),
       ...valueProblems(all),
       ...proseProblems(all),
+      ...zeroAliasProseProblems(all),
+      ...aliasProseProblems(all),
       ...staleShapedProblems(all),
       ...computedProblems(),
       ...optionShapeProblems(readDir<ContractCandidate>(join(repo, 'contracts/api/components')),

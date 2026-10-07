@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles } from './check-role-tokens.ts';
+import { join } from 'node:path';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES } from './check-role-tokens.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('a radius scale step in a class string is reported', () => {
   assert.deepEqual(scaleUsesIn('bg-neutral rounded-lg overflow-hidden'), ['rounded-lg']);
@@ -219,4 +222,42 @@ test('the derived sets are not empty, and an empty one is a failure', () => {
   assert.equal(derivedSetsProblem(), null);
   assert.notEqual(derivedSetsProblem(new Set(), gapRoles()), null);
   assert.notEqual(derivedSetsProblem(padStems(), new Set()), null);
+});
+
+type Dimension = { value: number; unit: string };
+type Entry = { $value: Dimension | string };
+
+const ANSWERS = /\b([a-z]+(?:-[a-z]+)*) answers (\d+(?:\.\d+)?)px/g;
+
+const defaultTokens = () => readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, Entry>;
+const spacing = () => (readJson(join(repoRoot, 'contracts/design/spacing.json')) as { sp: Record<string, Entry> }).sp;
+
+function answerClaims(reasons: Iterable<string>) {
+  return [...reasons].flatMap((reason) => [...reason.matchAll(ANSWERS)].map((m) => ({ role: m[1] as string, px: Number(m[2]) })));
+}
+
+function claimProblems(claims: { role: string; px: number }[], tokens: Record<string, Entry>, sp: Record<string, Entry>) {
+  const problems: string[] = [];
+  for (const { role, px } of claims) {
+    let value = tokens[role]?.$value;
+    if (typeof value === 'string') value = sp[value.replace(/^\{sp\.|\}$/g, '')]?.$value;
+    if (!value || typeof value === 'string') { problems.push(`${role} answers ${px}px in a SCALE_USES reason, and the default plugin has no such role`); continue; }
+    if (value.unit !== 'px' || value.value !== px) problems.push(`${role} answers ${px}px in a SCALE_USES reason, and the default plugin answers ${value.value}${value.unit}`);
+  }
+  return problems;
+}
+
+test('every pixel figure a SCALE_USES reason gives a role is the default plugin\'s own answer', () => {
+  const claims = answerClaims(SCALE_USES.values());
+  assert.ok(claims.length > 0, 'a guard over no claim proves nothing');
+  assert.deepEqual(claimProblems(claims, defaultTokens(), spacing()), []);
+});
+
+test('a reason whose figure drifts from the default plugin fails, and a role with no token fails too', () => {
+  const drifted = [...SCALE_USES.values()].map((reason) => reason.replace('pad-row-y answers 10px', 'pad-row-y answers 11px'));
+  const problems = claimProblems(answerClaims(drifted), defaultTokens(), spacing());
+  assert.ok(problems.length > 0);
+  assert.match(problems[0] ?? '', /pad-row-y answers 11px/);
+  assert.equal(claimProblems([{ role: 'pad-nowhere', px: 4 }], defaultTokens(), spacing()).length, 1);
+  assert.deepEqual(claimProblems(answerClaims(['a slot where gap-row answers 12px']), defaultTokens(), spacing()), []);
 });

@@ -409,7 +409,7 @@
   },
   "edge-axis": {
     "$type": "color",
-    "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by every chart. It is heavier than edge-separator, which draws the grid rules behind the marks."
+    "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by the line, bar, horizontal bar, scatter, radar and pyramid charts, and not by the doughnut, which has no axis. It is heavier than edge-separator, which draws the grid rules behind the marks."
   },
   "bw-surface": {
     "$type": "dimension",

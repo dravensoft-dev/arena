@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BROWSER_BOUND, WEB_PROSE, WEB_SHAPED, collect, memberPath, proseProblems, strands,
+  BROWSER_BOUND, WEB_PROSE, aliasProseProblems, zeroAliasProseProblems, WEB_SHAPED, collect, memberPath, proseProblems, strands,
   valueProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
 import { COMPUTED, computedProblems, optionShapeProblems } from './check-contracts-neutrality.ts';
@@ -144,4 +144,20 @@ test('an enum whose values each meet a different family is not appearance', () =
   const types = new Map<string, TypeContract>([['Mixed', { name: 'Mixed', kind: 'enum', values: ['sm', 'none'] }]]);
   const contracts = new Map<string, ContractCandidate>([['ArenaX', { component: 'ArenaX', api: { mixed: { form: 'enum', type: 'Mixed' } } }]]);
   assert.deepEqual(optionShapeProblems(contracts, types, options, new Map()), []);
+});
+
+test('a description under contracts/api naming a compatibility alias fails', () => {
+  const at = 'contracts/api/types/arena-x.json';
+  const fixture = (text: string) => of(at, { description: text });
+  assert.deepEqual(aliasProseProblems(fixture('Drawn bold in the body ink.')), []);
+  assert.equal(aliasProseProblems(fixture('Drawn bold in --bone.')).length, 1);
+  assert.equal(aliasProseProblems(fixture('Outline in --error rather than --bone-dim.')).length, 1);
+  assert.deepEqual(aliasProseProblems(fixture('Painted on a --color-cat slot, or --accent-primary.')), []);
+  assert.deepEqual(aliasProseProblems(of('contracts/design/x.json', { description: 'in --bone' })), []);
+});
+
+test('the alias guard fails on a walk that read no description under contracts/api', () => {
+  assert.equal(zeroAliasProseProblems([]).length, 1);
+  assert.deepEqual(zeroAliasProseProblems(of('contracts/api/types/a.json', { description: 'x' })), []);
+  assert.deepEqual(zeroAliasProseProblems(collect().all), []);
 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_PAD, ARENA_SR_ONLY,
+  ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_PAD, ARENA_SR_ONLY,
   arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
 } from './DataVisuals';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
@@ -98,4 +98,10 @@ test('every ARENA_SR_ONLY value carries its unit, because Angular appends none',
 test('ARENA_SR_ONLY cancels its own footprint so the hidden table shifts no sibling', () => {
   assert.equal(ARENA_SR_ONLY.margin, `-${ARENA_SR_ONLY.width}`);
   assert.equal(ARENA_SR_ONLY.width, ARENA_SR_ONLY.height);
+});
+
+test('the neutral tone is the body ink constant, and the muted ink is the body ink at its muted role and level', () => {
+  assert.equal(arenaToneColor('neutral'), ARENA_INK_BODY);
+  assert.equal(ARENA_INK_BODY, 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)');
+  assert.equal(ARENA_INK_MUTED, 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)');
 });

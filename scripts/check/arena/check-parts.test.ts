@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  MANIFESTS, angularPartProblems, classSites, collect, partProblems, partsOf, reachedParts, reactPartProblems,
+  MANIFESTS, angularPartProblems, classSites, collect, gateProblems, partProblems, partProblemsOf, partsOf, reachedParts, reactPartProblems,
   symmetryProblems, unreachedProblems, zeroPartProblems, zeroReachedProblems,
 } from './check-parts.ts';
 
@@ -69,6 +69,24 @@ test('a declared part no layer renders is a plugin hook with nothing behind it',
   assert.match(problems[0] ?? '', /no layer draws card\.ghost/);
   assert.match(problems[0] ?? '', /plugin hook with nothing behind it/);
   assert.deepEqual(unreachedProblems('ArenaCard', parts, new Set(['card', 'card.ghost']), new Set(['card.body'])), []);
+});
+
+test('the assembled problems of a component carry the unreached rule', () => {
+  const parts = { root: 'card', ghost: 'card.ghost' };
+  const drawn = { react: new Set(['card']), angular: new Set(['card']) };
+  const problems = partProblemsOf('ArenaCard', parts, [], drawn, ['react', 'angular']);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no layer draws card\.ghost/);
+  assert.deepEqual(partProblemsOf('ArenaCard', { root: 'card' }, [], drawn, ['react', 'angular']), []);
+});
+
+test('the gate carries the zero guards and the component problems', () => {
+  const empty = gateProblems({ problems: [], manifests: 3, declared: 4, reached: 0 });
+  assert.equal(empty.length, 1);
+  assert.match(empty[0] ?? '', /0 declared part\(s\) reach the DOM/);
+  assert.equal(gateProblems({ problems: [], manifests: 0, declared: 0, reached: 2 }).length, 1);
+  assert.equal(gateProblems({ problems: ['x'], manifests: 1, declared: 1, reached: 1 }).length, 1);
+  assert.deepEqual(gateProblems(collect()), []);
 });
 
 test('the whole tree holds', () => {

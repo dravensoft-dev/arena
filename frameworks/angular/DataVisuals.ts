@@ -53,8 +53,12 @@ export function arenaAreaFill(colour: string): string {
   return `color-mix(in oklab, ${colour} ${tintArea}%, transparent)`;
 }
 
+export const ARENA_INK_BODY = 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)';
+
+export const ARENA_INK_MUTED = 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)';
+
 const TONE_VARS: Record<ArenaTone, string> = {
-  neutral: 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)',
+  neutral: ARENA_INK_BODY,
   success: 'var(--success)',
   warning: 'var(--warning)',
   danger: 'var(--danger)',

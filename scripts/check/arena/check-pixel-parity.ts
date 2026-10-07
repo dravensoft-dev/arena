@@ -245,10 +245,11 @@ export function loaded(cdp: Cdp, sessionId: string) {
 export type Rect = { left: number; top: number; right: number; bottom: number };
 
 export function rectsExpression(selector: string) {
-  return `[...document.querySelectorAll(${JSON.stringify(selector)})].map((e) => { `
-    + 'const all = [e, ...[...e.querySelectorAll("*")].filter((n) => n.getClientRects().length > 0)].map((n) => n.getBoundingClientRect()); '
-    + 'return { left: Math.min(...all.map((r) => r.left)) + scrollX, top: Math.min(...all.map((r) => r.top)) + scrollY, '
-    + 'right: Math.max(...all.map((r) => r.right)) + scrollX, bottom: Math.max(...all.map((r) => r.bottom)) + scrollY }; })';
+  return `[...document.querySelectorAll(${JSON.stringify(selector)})].flatMap((e) => { `
+    + 'const all = [e, ...e.querySelectorAll("*")].filter((n) => n.getClientRects().length > 0).map((n) => n.getBoundingClientRect()); '
+    + 'if (all.length === 0) return []; '
+    + 'return [{ left: Math.min(...all.map((r) => r.left)) + scrollX, top: Math.min(...all.map((r) => r.top)) + scrollY, '
+    + 'right: Math.max(...all.map((r) => r.right)) + scrollX, bottom: Math.max(...all.map((r) => r.bottom)) + scrollY }]; })';
 }
 
 export class SelectorProblem extends Error {}

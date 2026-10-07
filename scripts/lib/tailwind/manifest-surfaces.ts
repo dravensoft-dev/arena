@@ -75,13 +75,13 @@ export const MANIFEST_COVERS = new Map([
 ]);
 
 export const HAND_DRAWN = new Map([
-  ['ArenaScatterChart', 'draws its plot by hand: each mark is placed from two of the data\'s own ranges against a measured plot box, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
-  ['ArenaRadarChart', 'draws its plot by hand: the polygon vertices are polar projections of the data\'s own reach, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
-  ['ArenaPyramidChart', 'draws its plot by hand: the two mirrored runs of bars are positioned from the data\'s own reach against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
-  ['ArenaHorizontalBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
-  ['ArenaBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner height, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
-  ['ArenaDoughnutChart', 'draws its plot by hand: the arc paths are swept from each slice\'s share of the total, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
-  ['ArenaLineChart', 'draws its plot by hand: the polyline points are the series projected onto the measured plot area, so a class string cannot describe a shape whose coordinates ARE the data. The legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaScatterChart', 'draws its plot by hand: each mark is placed from two of the data\'s own ranges against a measured plot box, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaRadarChart', 'draws its plot by hand: the polygon vertices are polar projections of the data\'s own reach, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaPyramidChart', 'draws its plot by hand: the two mirrored runs of bars are positioned from the data\'s own reach against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaHorizontalBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner height, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaDoughnutChart', 'draws its plot by hand: the arc paths are swept from each slice\'s share of the total, so a class string cannot describe a shape whose coordinates ARE the data. The frame and the legend are drawn from the chart\'s manifest.'],
+  ['ArenaLineChart', 'draws its plot by hand: the polyline points are the series projected onto the measured plot area, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
 ]);
 
 const COMPONENTS_JSON = join(repoRoot, 'frameworks/Components.json');

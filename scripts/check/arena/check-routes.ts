@@ -346,7 +346,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 87_500,
+    budget: 87_900,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
@@ -359,7 +359,7 @@ export const ROUTES: Route[] = [
       + 'the median is what says how often that happens. The families and neutrality rows of the '
       + 'arena domain table state what the gates now refuse: axis lists, keyed families and an '
       + 'enum of option values, and the classes row names the vocabulary page as a second home for an '
-      + 'option of a component family.',
+      + 'option of a component family, and the appearance and neutrality rows now name the chart alias and the description alias guards.',
   },
   {
     name: 'contributor-tailwind',

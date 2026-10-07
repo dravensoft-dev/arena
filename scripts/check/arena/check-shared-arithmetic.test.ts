@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   DIVERGENT, PAIRED, collect, exportedFunctions, normalise, pairProblems, staleEntries,
@@ -80,4 +80,22 @@ test('every DIVERGENT entry carries a reason worth reading, not a placeholder', 
   for (const [key, reason] of DIVERGENT) {
     assert.ok(reason.length > 60, `${key} carries a reason too short to say why the two differ`);
   }
+});
+
+const inkConstants = (src: string) => new Map([...src.matchAll(/export const (ARENA_INK_[A-Z]+) = '([^']*)';/g)]
+  .map((m) => [m[1] as string, m[2] as string]));
+
+const inkDiffers = (react: string, angular: string) => {
+  const [a, b] = [inkConstants(react), inkConstants(angular)];
+  const names = new Set([...a.keys(), ...b.keys()]);
+  return [...names].filter((name) => a.get(name) !== b.get(name));
+};
+
+test('the ink constants of the two DataVisuals files are equal, and the comparison fails a drift or a missing one', () => {
+  const read = (layer: string) => readFileSync(join(repoRoot, 'frameworks', layer, 'DataVisuals.ts'), 'utf8');
+  const react = read('react');
+  assert.equal(inkConstants(react).size, 2, 'a comparison over no constant proves nothing');
+  assert.deepEqual(inkDiffers(react, read('angular')), []);
+  assert.deepEqual(inkDiffers(react, react.replace('var(--level-ink-body)', 'var(--level-ink-bodyy)')), ['ARENA_INK_BODY']);
+  assert.deepEqual(inkDiffers(react, react.replace(/export const ARENA_INK_MUTED[^\n]*\n/, '')), ['ARENA_INK_MUTED']);
 });

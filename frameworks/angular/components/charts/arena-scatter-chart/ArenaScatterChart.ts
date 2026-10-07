@@ -2,7 +2,7 @@ import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales';
@@ -31,7 +31,7 @@ const LINE_STYLE = { strokeWidth: 'var(--bw)' } as const satisfies Readonly<Reco
 const TICK_LABEL_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies Readonly<Record<string, string>>;
 
 const SIZE_KEY_VALUE_STYLE = {
-  fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)',
+  fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: ARENA_INK_BODY,
 } as const satisfies Readonly<Record<string, string>>;
 
 const MARK_STYLE = {
@@ -58,14 +58,14 @@ const MARK_STYLE = {
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
                 stroke="var(--edge-separator)" [style]="lineStyle" />
           <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
-                fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-mono)"
+                [attr.fill]="inkMuted" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
       }
 
       @for (tick of xTicks(); track tick.value) {
         <text [attr.x]="tick.x" [attr.y]="xLabelY()" text-anchor="middle"
-              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-mono)"
+              [attr.fill]="inkMuted" font-family="var(--font-mono)"
               [style]="tickLabelStyle">{{ tick.label }}</text>
       }
 
@@ -167,6 +167,7 @@ export class ArenaScatterChart {
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;
   protected readonly lineStyle = LINE_STYLE;
+  protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
   protected readonly markStyle = MARK_STYLE;
   protected readonly sizeKeyValueStyle = SIZE_KEY_VALUE_STYLE;

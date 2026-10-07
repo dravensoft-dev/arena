@@ -44,6 +44,8 @@ export const INTERNAL = new Map<string, string>([
     + 'A consumer asks the hook rather than the sheet'],
   ['ARENA_PAD', CHART_GEOMETRY],
   ['ARENA_CHART_HEIGHT', CHART_GEOMETRY],
+  ['ARENA_INK_BODY', CHART_GEOMETRY],
+  ['ARENA_INK_MUTED', CHART_GEOMETRY],
   ['arenaPlotWidth', CHART_GEOMETRY],
   ['arenaRailStyle', CHART_GEOMETRY],
   ['ARENA_RAIL_STYLE', CHART_GEOMETRY],
