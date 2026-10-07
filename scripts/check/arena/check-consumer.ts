@@ -25,7 +25,7 @@ import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import {
   THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
-} from '../../generate/core/arena-cli/arena-to-prod.ts';
+} from '../../generate/core/arena-cli/sheets.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { WEIGHT_CLASSES } from '../../generate/core/arena-cli/icon-css.ts';

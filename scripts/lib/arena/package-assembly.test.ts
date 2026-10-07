@@ -32,6 +32,11 @@ test('a test never ships, whichever extension it takes', () => {
   }
 });
 
+test('a fixture a test builds its projects from never ships, though it is not itself a test', () => {
+  assert.equal(excluded('cli-fixtures.ts'), true);
+  assert.equal(excluded('fixtures.ts'), false, 'only a name ending in -fixtures is a test helper');
+});
+
 test('a demo, a specimen, a binding and a prompt never ship either', () => {
   for (const name of ['ArenaTag.card.html', 'ArenaTag.card.entry.ts', 'ArenaButton.card.entry.jsx',
     'ArenaTag.demo.generated.html', 'ArenaTag.demo.entry.generated.tsx', 'ArenaTag.demo.entry.generated.ts',

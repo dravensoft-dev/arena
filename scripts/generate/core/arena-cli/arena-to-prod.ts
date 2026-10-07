@@ -5,55 +5,38 @@
  * package `scripts/` does not exist. The theme step turns their palettes and fonts into the
  * stylesheet a package cannot carry; the icons step writes the Phosphor subset the project and
  * the package between them draw. Theme first, and its failure stops the run: a project whose
- * config does not parse has no theme, and nothing to subset for. hostPackage answers a path
- * rather than a name because the two steps want different things out of it. A configuration
- * problem is always fatal and a report is not, since a consumer owns their brand; --strict is
- * what makes one fatal, and it takes the kinds it holds, on reports.ts's reasoning. */
+ * config does not parse has no theme, and nothing to subset for. This file is the surface: the
+ * flags, the two steps that write, and the order they run in. A configuration problem is always
+ * fatal and a report is not, since a consumer owns their brand; --strict is what makes one fatal,
+ * and it takes the kinds it holds, on reports.ts's reasoning. */
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSync, realpathSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, basename, join, resolve } from 'node:path';
-import { toPosix, relativeFrom } from './posix.ts';
-export { toPosix, relativeFrom };
+import { relativeFrom } from './posix.ts';
 import {
-  DEFAULT_PLUGIN, PLUGIN_TOKENS, configProblems, paletteReports, pluginName, pluginValue, readPlugin,
-  themeCss, weightReports,
+  configProblems, paletteReports, themeCss, weightReports,
 } from './theme-css.ts';
-import type { ArenaConfig, PackageSheets, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
-import { POLARITIES } from './palette-keys.ts';
+import type { PackageSheets } from './theme-css.ts';
 import type { ComponentMap } from './components.ts';
 import {
   scan, drawn, glyphNames, iconsCss, mergeShipped, shippedNames, woff2Source, WEIGHT_CLASSES,
 } from './icon-css.ts';
-import type { IconScan, ShippedIcons } from './icon-css.ts';
-import { AUTO, resolve as resolveComponents } from './components.ts';
-import { markerProblems } from './markers.ts';
-import {
-  auditText, paintedParts, sourceScope, loadVocabulary, type VocabularyIndex,
-} from './audit.ts';
-import { restatedFindings, sheetFor } from './restated.ts';
+import type { IconScan } from './icon-css.ts';
+import { AUTO } from './components.ts';
 import { STRICT_KINDS, report, reported } from './reports.ts';
-import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
 import type { Report, StrictKind } from './reports.ts';
-
-const here = dirname(fileURLToPath(import.meta.url));
-
-export const THEME_SHEET = 'arena.generated.css';
-export const ICONS_SHEET = 'icons.generated.css';
-export const PLUGIN_SHEET = 'plugin.generated.css';
-export const PLUGIN_CSS = 'plugin.css';
-export const PLUGIN_LAYER = 'arena-plugin';
-export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
-export const COMPONENT_MAP = 'components.json';
-export const ICON_MANIFEST = 'icons.json';
+import {
+  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_LAYER, ICON_MANIFEST,
+  iconManifest, packageCatalogue, pluginCss, pluginSheets, readPlugins,
+} from './sheets.ts';
+import { DEFAULT_SOURCE, sourceFiles } from './sources.ts';
+import { resolveEnvironment } from './host.ts';
+import type { HostEnvironment } from './host.ts';
+import { auditStep, autoComponents, markersStep, paintedBy, reportLines, undrawnStep } from './steps.ts';
 
 export const DEFAULT_CONFIG = 'arena.config.json';
-export const DEFAULT_SOURCE = 'src';
 export const DEFAULT_OUT = 'src';
-
-export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
-export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
-export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET]);
 
 export const USAGE = [
   'usage: arena-to-prod [--config <path>] [--src <path>...] [--out <dir>] [--audit] [--undrawn] [--strict[=<kind>,...]]',
@@ -157,358 +140,6 @@ export function parseArgs(argv: string[]): CliOptions {
   options.out ??= DEFAULT_OUT;
   if (paths.length === 0) paths.push(DEFAULT_SOURCE);
   return options;
-}
-
-export function hostPackage(dir = here) {
-  try {
-    const root = join(dir, '..');
-    return /^@dravensoft\/arena-/.test(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).name) ? root : null;
-  } catch {
-    return null;
-  }
-}
-
-export function hostPackageName(root: string) {
-  try {
-    return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).name;
-  } catch {
-    return null;
-  }
-}
-
-export const SHEET_IMPORT = /@import\s+'\.\/([^']+)';/g;
-
-export const CSS_BLOCK = /([^{}]+)\{([^}]*)\}/g;
-
-export const CATALOGUE_FILE = 'arena.tokens.json';
-
-export const REFERENCE_DECLARATION = /^--[\w-]+:\s*var\(--color-[\w-]+\)$/;
-
-export function packageCatalogue(root: string): TokenCatalogue | null {
-  try {
-    return JSON.parse(readFileSync(join(root, CATALOGUE_FILE), 'utf8')) as TokenCatalogue;
-  } catch {
-    return null;
-  }
-}
-
-export function roleReferencesIn(catalogue: TokenCatalogue | null): string[] {
-  if (!catalogue) return [];
-  return Object.entries(catalogue.tokens ?? {})
-    .map(([name, value]) => `--${name}:${value};`)
-    .filter((d) => REFERENCE_DECLARATION.test(d.replace(/;$/, '')));
-}
-
-const read = (at: string) => {
-  try { return readFileSync(at, 'utf8'); } catch { return ''; }
-};
-
-const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
-
-export const SCOPE_CLASS = /\.arena-([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;
-
-export function scopesIn(css: string) {
-  return [...css.replace(CSS_COMMENT, ' ').matchAll(SCOPE_CLASS)].map((m) => m[1] as string);
-}
-
-export function packageSheets(root: string): PackageSheets {
-  try {
-    const layers = [...readFileSync(join(root, 'arena.css'), 'utf8').matchAll(SHEET_IMPORT)]
-      .map((m) => m[1] ?? '');
-    const components = readdirSync(join(root, 'css', 'components'))
-      .filter((name) => name.endsWith('.css'))
-      .map((name) => basename(name, '.css'))
-      .sort();
-    if (!layers.length || !components.length) return null;
-    const catalogue = packageCatalogue(root);
-    const defaults = levelDefaults(read(join(root, 'css', 'colors.css')));
-    const roles = new Map<string, string>();
-    for (const [, name, value] of read(join(root, 'css', 'style-plugin-default.css'))
-      .matchAll(/--(hue-[\w-]+)\s*:\s*([^;]+);/g)) if (!roles.has(name as string)) roles.set(name as string, (value as string).trim());
-    const held = Object.fromEntries(Object.entries(defaults).map(([name, percent]) => [name, `${percent}%`]));
-    const sheets = components.map((name) => inlineHues(
-      readFileSync(join(root, 'css', 'components', `${name}.css`), 'utf8'),
-      read(join(root, 'css', 'hues', `${name}.css`)), roles, held));
-    const familyDir = join(root, 'css', 'vocabulary');
-    const families = existsSync(familyDir)
-      ? readdirSync(familyDir).filter((name) => name.endsWith('.css')).sort().map((name) => read(join(familyDir, name)))
-      : [];
-    const levels = [...sheets, ...families].flatMap((css) => levelsIn(css, defaults));
-    const washes = [...sheets, ...families].flatMap((css) => washesIn(css, defaults));
-    const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));
-    return {
-      layers,
-      components,
-      levels,
-      washes,
-      scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
-      roleReferences: roleReferencesIn(catalogue),
-      catalogue: catalogue ?? undefined,
-    };
-  } catch {
-    return null;
-  }
-}
-
-export function pluginCss(sheets: { name: string; css: string; root?: boolean }[]) {
-  const carried = sheets.filter(({ css }) => css.trim() !== '');
-  if (carried.length === 0) return null;
-  const scoped = ({ name, css, root }: { name: string; css: string; root?: boolean }) =>
-    (root ? css.trim() : `.arena-${name} {\n${css.trim()}\n}`);
-  return `${PLUGIN_LAYER_ORDER}\n@layer ${PLUGIN_LAYER} {\n${carried.map(scoped).join('\n')}\n}\n`;
-}
-
-export function pluginSheets(config: ArenaConfig, from: string) {
-  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
-  const out: { name: string; css: string; root: boolean }[] = [];
-  declared.forEach((entry, i) => {
-    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) return;
-    const at = join(resolve(from, entry.trim()), PLUGIN_CSS);
-    if (!existsSync(at)) return;
-    out.push({ name: pluginName(entry), css: readFileSync(at, 'utf8'), root: i === 0 });
-  });
-  return out;
-}
-
-export function readPlugins(config: ArenaConfig, from: string) {
-  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
-  const plugins: ResolvedPlugins = [];
-  const fatal: string[] = [];
-  declared.forEach((entry, i) => {
-    if (typeof entry !== 'string' || entry.trim() === DEFAULT_PLUGIN) { plugins.push(null); return; }
-    const dir = resolve(from, entry.trim());
-    const file = join(dir, PLUGIN_TOKENS);
-    try {
-      plugins.push(readPlugin(pluginName(entry), JSON.parse(readFileSync(file, 'utf8'))));
-    } catch (error) {
-      plugins.push(null);
-      fatal.push(`stylePlugins[${i}]: cannot read ${file}: ${(error as Error).message}. An entry is `
-        + `the word "${DEFAULT_PLUGIN}" or a directory of your own holding ${PLUGIN_TOKENS}`);
-    }
-  });
-  return { plugins, fatal };
-}
-
-export function iconManifest(root: string): ShippedIcons | null {
-  try {
-    const manifest = JSON.parse(readFileSync(join(root, ICON_MANIFEST), 'utf8'));
-    return manifest && typeof manifest === 'object' && manifest.pairs ? manifest : null;
-  } catch {
-    return null;
-  }
-}
-
-export function componentMap(root: string): ComponentMap | null {
-  try {
-    const map = JSON.parse(readFileSync(join(root, COMPONENT_MAP), 'utf8'));
-    return map.match && map.draws ? map : null;
-  } catch {
-    return null;
-  }
-}
-
-const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-
-export function sourceFiles(path: string) {
-  const found: string[] = [];
-  const walk = (at: string) => {
-    for (const entry of readdirSync(at, { withFileTypes: true }).sort((a, b) => byCodeUnit(a.name, b.name))) {
-      if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
-      const full = join(at, entry.name);
-      if (entry.isDirectory()) { walk(full); continue; }
-      if (OUTPUT_SHEETS.has(entry.name)) continue;
-      if (SOURCE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) found.push(full);
-    }
-  };
-  if (!existsSync(path)) return null;
-  if (statSync(path).isDirectory()) walk(path); else found.push(path);
-  return found;
-}
-
-export function phosphorRoot(from = process.cwd(), fallback = here) {
-  for (const start of [from, fallback]) {
-    let at = resolve(start);
-    for (;;) {
-      const candidate = join(at, 'node_modules', '@phosphor-icons', 'web');
-      if (existsSync(join(candidate, 'package.json'))) return candidate;
-      const up = dirname(at);
-      if (up === at) break;
-      at = up;
-    }
-  }
-  return null;
-}
-
-export function reportLines(reports: { palette: string; messages: Report[] }[]) {
-  return reports.flatMap(({ palette, messages }) =>
-    messages.map((one) => report(one.kind, `${palette}: ${one.message}`)));
-}
-
-export function autoComponents(config: ArenaConfig, options: ResolvedOptions,
-  map: ComponentMap, packageName: string) {
-  const sources = [];
-  for (const path of options.paths) {
-    for (const file of sourceFiles(path) ?? []) sources.push(readFileSync(file, 'utf8'));
-  }
-
-  const found = resolveComponents(map, sources, packageName);
-  if (!found) {
-    return { fatal: [`"components": "${AUTO}" cannot be read against a map keyed by ${JSON.stringify(map.match)}, `
-      + 'which this command does not know how to scan for; name the sheets instead'] };
-  }
-  if (found.components.length === 0) {
-    return { fatal: [`"components": "${AUTO}" found no Arena component under ${options.paths.join(', ')}, `
-      + 'so the subset would be empty; point --src at the sources that render them, or name the sheets'] };
-  }
-
-  return {
-    components: found.components,
-    reports: found.unplaced.map((one) => `${one} is not a component this package ships, so no sheet was added for it`),
-    note: `${found.drawn.length} component sheet(s) drawn`
-      + (found.pulled.length ? `, and ${found.pulled.length} Arena draws for you: ${found.pulled.join(', ')}` : ''),
-  };
-}
-
-export function readSources(paths: string[]) {
-  const sources = [];
-  for (const path of paths) {
-    for (const file of sourceFiles(path) ?? []) sources.push(readFileSync(file, 'utf8'));
-  }
-  return sources;
-}
-
-export function pluginDirs(options: ResolvedOptions) {
-  let config;
-  try {
-    config = JSON.parse(readFileSync(options.config, 'utf8'));
-  } catch {
-    return [] as string[];
-  }
-  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
-  return declared
-    .filter((entry: unknown): entry is string => typeof entry === 'string' && entry.trim() !== DEFAULT_PLUGIN)
-    .map((entry: string) => resolve(dirname(resolve(options.config)), entry.trim()));
-}
-
-export function gradientMark(options: ResolvedOptions) {
-  try {
-    return JSON.parse(readFileSync(options.config, 'utf8')).gradientMark === true;
-  } catch {
-    return false;
-  }
-}
-
-export function auditFiles(paths: string[], dirs: string[]) {
-  const seen = new Set<string>();
-  const files: string[] = [];
-  for (const path of [...paths, ...dirs])
-    for (const file of sourceFiles(path) ?? []) {
-      const at = resolve(file);
-      if (seen.has(at)) continue;
-      seen.add(at);
-      files.push(file);
-    }
-  return files;
-}
-
-export function owningPlugin(file: string, dirs: string[]) {
-  const at = dirs
-    .filter((dir) => sourceScope(file, [dir]) === 'plugin')
-    .sort((one, two) => two.length - one.length);
-  return at[0] ?? null;
-}
-
-export function pluginTokenMaps(dirs: string[], catalogue: TokenCatalogue | null) {
-  const out = new Map<string, Map<string, string>>();
-  const answersOf = (dir: string) => {
-    try {
-      return readPlugin(pluginName(dir), JSON.parse(readFileSync(join(dir, PLUGIN_TOKENS), 'utf8'))).tokens;
-    } catch {
-      return {} as Record<string, unknown>;
-    }
-  };
-  const root = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-  dirs.forEach((dir, i) => {
-    const at = new Map(i === 0 ? root : out.get(dirs[0] ?? '') ?? root);
-    for (const [key, raw] of Object.entries(answersOf(dir))) {
-      const value = pluginValue(raw, catalogue);
-      if (value !== null) at.set(key, value);
-    }
-    out.set(dir, at);
-  });
-  return out;
-}
-
-export function auditStep(
-  options: ResolvedOptions, arena: string | null = null, catalogue: TokenCatalogue | null = null,
-  vocabulary: VocabularyIndex | null = null,
-) {
-  if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
-  const dirs = pluginDirs(options);
-  const tokensAt = pluginTokenMaps(dirs, catalogue);
-  const declaredMark = gradientMark(options);
-  const reports: Report[] = [];
-  const painted = new Set<string>();
-  let scanned = 0;
-  const sheetOf = (part: string) => {
-    if (!arena) return null;
-    const path = join(arena, 'css', 'components', sheetFor(part));
-    return existsSync(path) ? readFileSync(path, 'utf8') : null;
-  };
-  for (const file of auditFiles(options.paths, dirs)) {
-    scanned += 1;
-    const cited = toPosix(file);
-    const text = readFileSync(file, 'utf8');
-    const scope = sourceScope(resolve(file), dirs);
-    reports.push(...auditText(cited, text, scope, declaredMark, vocabulary).map((line) => report('audit', line)));
-    if (scope !== 'plugin') continue;
-    for (const part of paintedParts(text)) painted.add(part);
-    if (!file.endsWith('.css')) continue;
-    const owner = owningPlugin(resolve(file), dirs);
-    for (const one of restatedFindings(text, sheetOf, owner ? tokensAt.get(owner) ?? null : null)) {
-      reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
-        + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
-        + 'counts a part as painted by reading source text, and a role is grown from that count, '
-        + 'so a restatement is evidence for a question nobody asked'));
-    }
-  }
-  return { reports, scanned, painted: [...painted].sort() };
-}
-
-export function markersStep(options: ResolvedOptions, map: ComponentMap | null) {
-  if (!map?.markers) return { reports: [] as Report[] };
-  const files = [];
-  for (const path of options.paths) {
-    for (const file of sourceFiles(path) ?? []) {
-      if (!file.endsWith('.ts')) continue;
-      files.push({ path: toPosix(file), source: readFileSync(file, 'utf8') });
-    }
-  }
-  return { reports: markerProblems(files, map.markers, map.markerDirectives ?? {})
-    .map((line) => report('markers', line)) };
-}
-
-export function undrawnStep(options: ResolvedOptions, packageName: string, map: ComponentMap | null) {
-  if (!map) {
-    return { notes: [] as string[],
-      fatal: ['--undrawn reads the component map this package carries, and it is not beside this '
-        + 'command, so what you draw cannot be compared against what ships'] };
-  }
-  const found = resolveComponents(map, readSources(options.paths), packageName);
-  if (!found) {
-    return { notes: [] as string[],
-      fatal: [`--undrawn cannot read a map keyed by ${JSON.stringify(map.match)}`] };
-  }
-
-  const shipped = Object.keys(map.draws).sort();
-  const undrawn = shipped.filter((key) => !found.keys.includes(key));
-  const notes = [
-    `${found.keys.length} of ${shipped.length} shipped component(s) drawn under ${options.paths.join(', ')}`,
-  ];
-  notes.push(undrawn.length === 0
-    ? 'every component this package ships is drawn somewhere'
-    : `${undrawn.length} drawn nowhere: ${undrawn.join(', ')}`);
-  return { notes, fatal: [] as string[] };
 }
 
 export function themeStep(
@@ -637,20 +268,14 @@ export function iconsStep(options: ResolvedOptions,
       + `${sheets.length} weight(s), ${css.length} bytes)` };
 }
 
+
 export type ThemeEnvironment = {
   packageName: string;
   sheets: PackageSheets;
   map?: ComponentMap | null;
 };
 
-export type Environment = {
-  packageName?: string;
-  arena?: string | null;
-  phosphor?: string | null;
-  sheets?: PackageSheets;
-  map?: ComponentMap | null;
-  vocabulary?: VocabularyIndex | null;
-};
+export type Environment = HostEnvironment;
 
 export function main(argv: string[], environment: Environment = {}) {
   const parsed = parseArgs(argv);
@@ -658,16 +283,7 @@ export function main(argv: string[], environment: Environment = {}) {
   if (parsed.error) { console.error(`arena-to-prod: ${parsed.error}\n\n${USAGE}`); return 2; }
   const options = resolved(parsed);
 
-  const arena = ('arena' in environment ? environment.arena : hostPackage()) ?? null;
-
-  const packageName = environment.packageName
-    ?? (arena ? hostPackageName(arena) : null)
-    ?? '@dravensoft/arena-react';
-  const sheets = ('sheets' in environment ? environment.sheets : (arena ? packageSheets(arena) : null)) ?? null;
-  const map = ('map' in environment ? environment.map : (arena ? componentMap(arena) : null)) ?? null;
-  const vocabulary: VocabularyIndex | null = environment.vocabulary !== undefined
-    ? environment.vocabulary : (arena ? loadVocabulary(arena) : null);
-  const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
+  const { arena, packageName, sheets, map, vocabulary, phosphor } = resolveEnvironment(environment);
 
   const theme = themeStep(options, { packageName, sheets, map });
   for (const line of theme.fatal) console.error(`arena-to-prod: ${line}`);
@@ -689,10 +305,7 @@ export function main(argv: string[], environment: Environment = {}) {
     console.log(`arena-to-prod: audited ${audit.scanned} file(s), `
       + `${audit.reports.length || 'no'} finding(s). No gate reads your application, so these hold `
       + 'because you hold them');
-    const named = audit.painted.length ? `: ${audit.painted.join(', ')}` : '';
-    console.log(`arena-to-prod: your style plugin(s) paint ${audit.painted.length || 'no'} part(s)${named}. `
-      + 'A role is added to Arena when several style plugins are measured painting the same decision '
-      + 'by hand through the same part, so this note is where the evidence for one comes from');
+    console.log(`arena-to-prod: ${paintedBy(audit.painted)}`);
   }
 
   const markers = markersStep(options, map);

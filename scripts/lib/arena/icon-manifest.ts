@@ -12,7 +12,7 @@ import { join, basename } from 'node:path';
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
 import { scan } from '../../generate/core/arena-cli/icon-css.ts';
 import type { IconScan, ShippedIcons } from '../../generate/core/arena-cli/icon-css.ts';
-import { ICON_MANIFEST as MANIFEST_FILE } from '../../generate/core/arena-cli/arena-to-prod.ts';
+import { ICON_MANIFEST as MANIFEST_FILE } from '../../generate/core/arena-cli/sheets.ts';
 import { collectFiles } from './package-assembly.ts';
 import { repoRoot } from './repo-root.ts';
 

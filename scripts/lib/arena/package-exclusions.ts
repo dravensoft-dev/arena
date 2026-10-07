@@ -10,6 +10,7 @@ export const EXCLUDED_NAMES = new Set(['node_modules', 'dist', 'vendor', 'test',
 
 export const EXCLUDED_PATTERNS = [
   /\.test\.(mjs|[jt]sx?)$/,
+  /-fixtures\.[jt]s$/,
   /\.card\.html$/,
   /\.card\.entry\.[jt]sx?$/,
   /\.demo\.generated\.html$/,

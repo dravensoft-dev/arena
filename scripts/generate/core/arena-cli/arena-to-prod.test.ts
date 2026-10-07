@@ -1,23 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import {
-  undrawnStep,
-  parseArgs, resolved, reportLines, hostPackage, hostPackageName, packageSheets, sourceFiles, phosphorRoot,
-  relativeFrom, toPosix, themeStep, iconsStep, main, componentMap, isProgram, USAGE, THEME_SHEET, ICONS_SHEET,
-  ICON_MANIFEST,
-  COMPONENT_MAP, OUTPUT_SHEETS, CATALOGUE_FILE, roleReferencesIn, PLUGIN_SHEET, PLUGIN_CSS,
-  pluginCss, PLUGIN_LAYER_ORDER, auditStep, auditFiles, pluginDirs,
-} from './arena-to-prod.ts';
-import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
-import { PALETTE_KEYS } from './palette-keys.ts';
-import { STRICT_KINDS, report } from './reports.ts';
-import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';
-import { repoRoot } from '../../../lib/arena/repo-root.ts';
-import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
-import type { ComponentMap } from './components.ts';
+import { parseArgs, resolved, themeStep, iconsStep, main, isProgram, USAGE } from './arena-to-prod.ts';
+import { THEME_SHEET, ICONS_SHEET, ICON_MANIFEST } from './sheets.ts';
+import { STRICT_KINDS } from './reports.ts';
+import { auto, MAP, SHEETS, options, phosphor, project, quietly, readable } from './cli-fixtures.ts';
 import type { Environment, ThemeEnvironment } from './arena-to-prod.ts';
 
 test('every path has a default, so the bare command is the whole of it', () => {
@@ -72,86 +61,7 @@ test('--help asks for nothing else', () => {
   assert.match(USAGE, new RegExp(ICONS_SHEET.replace('.', '\\.')));
 });
 
-test('a report line names the palette it came from, and keeps the kind it is', () => {
-  assert.deepEqual(
-    reportLines([{ palette: 'ember', messages: [report('contrast', 'text, x: 2.00:1')] }]),
-    [report('contrast', 'ember: text, x: 2.00:1')],
-  );
-});
-
-const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
-  const out: Record<string, string> = {};
-  for (const key of PALETTE_KEYS) out[key] = '#141010';
-  return { ...out, ...overrides };
-};
-
-const readable = {
-  palettes: [{ name: 'dark', default: true, polarity: 'dark',
-    colors: colors({ 'base-content': '#f3ede5',
-      'cat-1': '#3c7b0a', 'cat-2': '#3b63be', 'cat-3': '#0a924b', 'cat-4': '#6a59bc',
-      'cat-5': '#00a3c0', 'cat-6': '#884da9', 'cat-7': '#00a99a', 'cat-8': '#984697' }) }],
-  fonts: {
-    display: { family: 'Archivo', src: 'https://example.com/a.woff2' },
-    body: { family: 'Familjen Grotesk', src: 'https://example.com/b.woff2' },
-    mono: { family: 'Spline Sans Mono', src: 'https://example.com/m.woff2' },
-  },
-};
-
-const PHOSPHOR_SHEET = (selector: string, family: string) => `@font-face {
-  font-family: "${family}";
-  src: url("./${family}.woff2") format("woff2"), url("./${family}.ttf") format("truetype");
-  font-weight: normal;
-}
-
-${selector} { font-family: "${family}" !important; }
-
-${selector}.ph-bell:before { content: "\\e0ce"; }
-${selector}.ph-moon:before { content: "\\e330"; }
-${selector}.ph-sun:before { content: "\\e6a2"; }
-`;
-
-function phosphor(weights: Record<string, string> = { bold: 'Phosphor-Bold', fill: 'Phosphor-Fill' }) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-phosphor-'));
-  const web = join(root, 'node_modules', '@phosphor-icons', 'web');
-  mkdirSync(web, { recursive: true });
-  writeFileSync(join(web, 'package.json'), JSON.stringify({ name: '@phosphor-icons/web' }));
-  for (const [weight, family] of Object.entries(weights)) {
-    const dir = join(web, 'src', weight);
-    mkdirSync(dir, { recursive: true });
-    const selector = weight === 'regular' ? '.ph' : `.ph-${weight}`;
-    writeFileSync(join(dir, 'style.css'), PHOSPHOR_SHEET(selector, family));
-    writeFileSync(join(dir, `${family}.woff2`), '');
-  }
-  return { root, web };
-}
-
-function project(config: any = readable, files: Record<string, string> = { 'app.html': '<i class="ph-bold ph-bell"></i>' }) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-to-prod-'));
-  mkdirSync(join(root, 'src'), { recursive: true });
-  if (config) writeFileSync(join(root, 'arena.config.json'), JSON.stringify(config));
-  for (const [name, content] of Object.entries(files)) writeFileSync(join(root, 'src', name), content);
-  return root;
-}
-
 const errorOf = (argv: string[]) => parseArgs(argv).error ?? '';
-
-const options = (
-  root: string,
-  extra: { strict?: boolean; importHeader?: boolean; undrawn?: boolean } = {},
-) => resolved(parseArgs([
-  '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'),
-  ...(extra.strict ? ['--strict'] : []),
-  ...(extra.undrawn ? ['--undrawn'] : []),
-  ...(extra.importHeader === false ? ['--no-import'] : []),
-]));
-
-function quietly(run: () => void) {
-  const log = console.log, error = console.error;
-  const said: string[] = [];
-  console.log = (m) => said.push(m);
-  console.error = (m) => said.push(m);
-  try { return { code: run(), said }; } finally { console.log = log; console.error = error; }
-}
 
 test('the theme step writes the stylesheet and creates the directory leading to it', () => {
   const root = project();
@@ -215,16 +125,6 @@ test('a scoped run writes the per-component imports and never the barrel', () =>
   rmSync(root, { recursive: true });
 });
 
-const MAP: ComponentMap = {
-  match: 'selector',
-  draws: { 'arena-button': 'button', 'arena-table': 'table', 'arena-bar-chart': null },
-  needs: { table: ['pagination', 'select'] },
-};
-
-const SHEETS = { layers: ['css/base.css', 'css/components.css'], components: ['button', 'pagination', 'select', 'table'] };
-
-const auto = { ...readable, stylesheet: { components: 'auto' } };
-
 test('"auto" writes the sheets the sources draw and the ones Arena draws for them', () => {
   const root = project(auto, { 'app.html': '<arena-table /><arena-button />' });
   const step = themeStep(options(root), { packageName: '@dravensoft/arena-react', sheets: SHEETS, map: MAP });
@@ -281,16 +181,6 @@ test('a named list is untouched by any of this, and no map is read for it', () =
   const step = themeStep(options(root), { packageName: '@dravensoft/arena-react', sheets: SHEETS, map: null });
   assert.equal(step.code, 0);
   assert.deepEqual(step.notes, []);
-  rmSync(root, { recursive: true });
-});
-
-test('the map is read from beside the command, by the name both packages write it under', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-installed-'));
-  writeFileSync(join(root, COMPONENT_MAP), JSON.stringify(MAP));
-  assert.deepEqual(componentMap(root), MAP);
-  writeFileSync(join(root, COMPONENT_MAP), JSON.stringify({ nothing: true }));
-  assert.equal(componentMap(root), null, 'a file of the right name and the wrong shape is no map');
-  assert.equal(componentMap(join(tmpdir(), 'arena-nowhere')), null);
   rmSync(root, { recursive: true });
 });
 
@@ -482,129 +372,6 @@ test('--strict promotes a report from either step, and neither is fatal without 
   rmSync(phosphorRootDir, { recursive: true });
 });
 
-test('the package around the command is found by its name, and nothing else is', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-host-'));
-  mkdirSync(join(root, 'bin'));
-  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: '@dravensoft/arena-angular' }));
-  assert.equal(hostPackage(join(root, 'bin')), root);
-  assert.equal(hostPackageName(root), '@dravensoft/arena-angular');
-  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'arena' }));
-  assert.equal(hostPackage(join(root, 'bin')), null);
-  assert.equal(hostPackage(join(root, 'nowhere')), null);
-  assert.equal(hostPackageName(join(root, 'nowhere')), null);
-  rmSync(root, { recursive: true });
-});
-
-function installed(barrel: string, components: string[]) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-installed-'));
-  mkdirSync(join(root, 'css', 'components'), { recursive: true });
-  writeFileSync(join(root, 'arena.css'), barrel);
-  writeFileSync(join(root, 'css', 'colors.css'), ':root{--level-ink-muted:62%;}');
-  for (const name of components) writeFileSync(join(root, 'css', 'components', `${name}.css`), '');
-  return root;
-}
-
-test('the sheets a package ships are read from beside the command, so no copy of them can age', () => {
-  const root = installed("@import './css/reset.css';\n@import './css/components.css';\n", ['table', 'button']);
-  assert.deepEqual(packageSheets(root), {
-    layers: ['css/reset.css', 'css/components.css'],
-    components: ['button', 'table'],
-    levels: [],
-    washes: [],
-    scopes: [],
-    roleReferences: [],
-    catalogue: undefined,
-  });
-  rmSync(root, { recursive: true });
-});
-
-test('the classes a package ships are read out of its own sheets, from every layer and component', () => {
-  const root = installed("@import './css/colors.css';\n@import './css/rhythm.css';\n", ['button', 'stat-card']);
-  writeFileSync(join(root, 'css', 'colors.css'), '/* .arena-ghost in prose is not a class */\n'
-    + ':root{--level-ink-muted:62%;}\n.arena-light{--picker-invert:0;}\n');
-  writeFileSync(join(root, 'css', 'rhythm.css'), '.arena-stack{gap:1px}\n.arena-stack--group{gap:0}\n');
-  writeFileSync(join(root, 'css', 'components', 'stat-card.css'), '.arena-stat-card__icon{color:red}\n');
-  assert.deepEqual(packageSheets(root)?.scopes, ['light', 'stack', 'stat-card']);
-  rmSync(root, { recursive: true });
-});
-
-test('the levels a component sheet paints are read from that sheet and not from a list', () => {
-  const root = installed("@import './css/components.css';\n", ['table']);
-  writeFileSync(join(root, 'css', 'components', 'table.css'),
-    '.arena-table__caption {\n  color: color-mix(in oklab, var(--ink-muted) 62%, transparent);\n}\n');
-  assert.deepEqual(packageSheets(root)?.levels, [{
-    selector: '.arena-table__caption',
-    state: '.arena-table__caption',
-    property: 'color',
-    variable: 'ink-muted',
-    percent: 62,
-    level: null,
-  }]);
-  rmSync(root, { recursive: true });
-});
-
-test('no package around the command means no sheet list rather than an empty one', () => {
-  assert.equal(packageSheets(join(tmpdir(), 'arena-nowhere')), null);
-  const bare = installed('', []);
-  assert.equal(packageSheets(bare), null);
-  rmSync(bare, { recursive: true });
-});
-
-test('a path that is not there reads as nothing rather than as an empty tree', () => {
-  assert.equal(sourceFiles(join(tmpdir(), 'arena-to-prod-nowhere')), null);
-});
-
-test('Phosphor is looked for upwards, which is where a package manager puts it', () => {
-  const { root, web } = phosphor();
-  const deep = join(root, 'apps', 'web', 'src');
-  mkdirSync(deep, { recursive: true });
-  assert.equal(phosphorRoot(deep, deep), web);
-  assert.equal(phosphorRoot(tmpdir(), tmpdir()), null);
-  rmSync(root, { recursive: true });
-});
-
-test('a path already leaving the directory keeps its shape, and a sibling gains one', () => {
-  assert.equal(relativeFrom(join('a', 'b'), join('a', 'b', 'c.woff2')), './c.woff2');
-  assert.equal(relativeFrom(join('a', 'b'), join('a', 'd.woff2')), '../d.woff2');
-});
-
-test('a path the walk answers is cited in one separator, whichever one the host walked with', () => {
-  assert.equal(toPosix('src\\reach.css', '\\'), 'src/reach.css');
-  assert.equal(toPosix('design\\console\\plugin.css', '\\'), 'design/console/plugin.css');
-  assert.equal(toPosix('src/reach.css', '/'), 'src/reach.css');
-});
-
-test('--undrawn names the shipped components a project draws nowhere', () => {
-  const root = project(auto, { 'app.html': '<arena-button />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
-  assert.deepEqual(step.fatal, []);
-  assert.match(step.notes[0] ?? '', /1 of 3 shipped component\(s\) drawn/);
-  assert.match(step.notes[1] ?? '', /2 drawn nowhere: arena-bar-chart, arena-table/);
-  rmSync(root, { recursive: true });
-});
-
-test('a project drawing everything is told so, rather than being handed an empty list', () => {
-  const root = project(auto, { 'app.html': '<arena-button /><arena-table /><arena-bar-chart />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
-  assert.match(step.notes[1] ?? '', /every component this package ships is drawn somewhere/);
-  rmSync(root, { recursive: true });
-});
-
-test('a component Arena draws on your behalf is still undrawn, because you never wrote it', () => {
-  const root = project(auto, { 'app.html': '<arena-table />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
-  assert.match(step.notes[1] ?? '', /arena-button/);
-  rmSync(root, { recursive: true });
-});
-
-test('--undrawn without the map beside the command says why rather than reporting nothing', () => {
-  const root = project(auto, { 'app.html': '<arena-button />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', null);
-  assert.equal(step.notes.length, 0);
-  assert.match(step.fatal[0] ?? '', /reads the component map this package carries/);
-  rmSync(root, { recursive: true });
-});
-
 test('--undrawn is a flag rather than an argument, and an unknown one still fails', () => {
   assert.equal(parseArgs(['--undrawn']).undrawn, true);
   assert.equal(parseArgs([]).undrawn, false);
@@ -656,156 +423,4 @@ test('it takes the union both ways, which is the half the shipped copy had lost'
       + 'only argv[1]; this file ships inside both packages, where scripts/ does not exist, so it '
       + 'could not import the union and was left spelling the losing half.');
   } finally { rmSync(dir, { recursive: true, force: true }); }
-});
-
-test('a package carrying no catalogue reads as empty rather than failing', () => {
-  const root = installed("@import './css/reset.css';\n", ['button']);
-  assert.deepEqual(packageSheets(root)?.roleReferences, []);
-  rmSync(root, { recursive: true });
-});
-
-test('a colour reference is derived from the catalogue, because a consumer palette has to restate it', () => {
-  assert.deepEqual(roleReferencesIn({
-    tokens: {
-      'fill-surface': 'var(--color-base-200)',
-      'r-surface': '14px',
-      'step-eyebrow': 'var(--dz-text-xs)',
-    },
-    roles: {},
-  }), ['--fill-surface:var(--color-base-200);'],
-  'only a colour reference is restated per palette. A dz reference is restated per DENSITY, which '
-  + 'is another axis and another block, and a resolved length is right in every scope there is');
-  assert.deepEqual(roleReferencesIn(null), []);
-});
-
-test('the walk skips the two sheets this command writes, so a scan never reads its own output', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-selfscan-'));
-  writeFileSync(join(root, 'App.tsx'), '<i className="ph-bold ph-bell" />');
-  writeFileSync(join(root, THEME_SHEET), ':root{--color-primary:#b52a20;}');
-  writeFileSync(join(root, ICONS_SHEET), '.ph-bold.ph-gear{content:"\\e000"}');
-  assert.deepEqual(sourceFiles(root), [join(root, 'App.tsx')]);
-  rmSync(root, { recursive: true });
-});
-
-test('a consumer file that merely ends in .generated.css is still a source, since only the two names are ours', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-selfscan2-'));
-  writeFileSync(join(root, 'tokens.generated.css'), '.ph-bold.ph-bell{}');
-  assert.deepEqual(sourceFiles(root), [join(root, 'tokens.generated.css')]);
-  rmSync(root, { recursive: true });
-});
-
-test('the skipped names are exactly what the command writes, derived rather than restated', () => {
-  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, PLUGIN_SHEET, THEME_SHEET].sort());
-});
-
-
-
-test('the shipped catalogue is the one this build actually assembles, not only a fixture', () => {
-  const catalogue = tokenCatalogue(repoRoot);
-  assert.ok(Object.keys(catalogue.roles).length > 0, 'found 0 roles, so nothing could be answered');
-  assert.ok(Object.keys(catalogue.tokens).length > 0, 'found 0 tokens, so no alias could resolve');
-  for (const [name, role] of Object.entries(catalogue.roles)) {
-    const { type } = role as { type?: string };
-    assert.ok(type, `${name} reaches a consumer with no type, so nothing can check an answer to it`);
-  }
-});
-
-
-test('the root plugin\'s stylesheet is wrapped and its author never spells the layer', () => {
-  assert.equal(
-    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }', root: true }]),
-    `${PLUGIN_LAYER_ORDER}\n@layer arena-plugin {\n[data-arena-part="card"] { border-radius: 0 }\n}\n`,
-    'the layer is the build\'s to declare, because a plugin author writing it could get it wrong '
-    + 'in a way nothing reports',
-  );
-});
-
-test('the sheet declares the layer order itself, so where a bundler puts it cannot matter', () => {
-  const css = pluginCss([{ name: 'shop', css: '.x{}', root: true }]) ?? '';
-  assert.ok(css.startsWith(PLUGIN_LAYER_ORDER), 'the order leads the file');
-  assert.ok(
-    css.indexOf('@layer theme, base, components, utilities, arena-plugin;')
-    < css.indexOf('@layer arena-plugin {'),
-    'a bare @layer arena-plugin block met before the order statement registers that name as the '
-    + 'LOWEST layer, and every plugin rule contesting a component rule then loses in silence',
-  );
-  assert.equal(
-    PLUGIN_LAYER_ORDER,
-    LAYER_ORDER,
-    'the consumer sheet and the prelude declare one order, or the two disagree about where the '
-    + 'plugin layer sits',
-  );
-});
-
-test('a plugin that is not the root is nested under its own class', () => {
-  assert.equal(
-    pluginCss([{ name: 'shop', css: '[data-arena-part="card"] { border-radius: 0 }' }]),
-    `${PLUGIN_LAYER_ORDER}\n@layer arena-plugin {\n.arena-shop {\n[data-arena-part="card"] { border-radius: 0 }\n}\n}\n`,
-    'a later plugin is a difference and paints where its class is, or it would paint the pages '
-    + 'the root plugin is what looks like',
-  );
-});
-
-test('several plugins concatenate in list order, so a later one wins by source order', () => {
-  const css = pluginCss([{ name: 'a', css: '.x{}', root: true }, { name: 'b', css: '.y{}', root: true }]);
-  assert.ok((css ?? '').indexOf('.x{}') < (css ?? '').indexOf('.y{}'));
-});
-
-test('no plugin carrying css writes no sheet at all', () => {
-  assert.equal(pluginCss([]), null, 'an empty layer is a file a consumer imports for nothing');
-});
-
-test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {
-  assert.ok(OUTPUT_SHEETS.has(PLUGIN_SHEET));
-  assert.equal(PLUGIN_CSS, 'plugin.css');
-});
-
-test('a style plugin the config declares is walked wherever it lives, so the bare command measures it', () => {
-  const root = project({ ...readable, stylePlugins: ['./design/andina'] });
-  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
-  writeFileSync(join(root, 'design', 'andina', 'plugin.css'),
-    '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n'
-    + '[data-arena-part="chart-card.title"] { font-size: var(--fs-sm); }\n');
-  const audit = auditStep(resolved(parseArgs([
-    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
-  ])));
-  assert.deepEqual(audit.painted, ['chart-card.title', 'table.th'],
-    'the plugin directory is resolved from the config, so nothing has to name it a second time as a source');
-  rmSync(root, { recursive: true, force: true });
-});
-
-test('a plugin under src is walked once, so a part it paints is not counted twice', () => {
-  const root = project({ ...readable, stylePlugins: ['./src/design/andina'] });
-  mkdirSync(join(root, 'src', 'design', 'andina'), { recursive: true });
-  writeFileSync(join(root, 'src', 'design', 'andina', 'plugin.css'),
-    '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n');
-  const options = resolved(parseArgs([
-    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
-  ]));
-  const files = auditFiles(options.paths, pluginDirs(options));
-  assert.equal(new Set(files).size, files.length,
-    'the walk is the union of the sources and the declared plugin directories, deduplicated by path');
-  rmSync(root, { recursive: true, force: true });
-});
-
-test('the audit reads a class against the vocabulary the package carries, and without one reports every class', () => {
-  const root = project(readable);
-  mkdirSync(join(root, 'src'), { recursive: true });
-  writeFileSync(join(root, 'src', 'a.tsx'), '<ArenaButton className="arena-fill">Go</ArenaButton>\n');
-  const options = resolved(parseArgs([
-    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
-  ]));
-  const vocabulary = { page: 'p', classes: { 'arena-fill': { family: 'fill', reach: 'box' as const } }, answers: { ArenaButton: ['fill'] }, options: { ArenaButton: ['arena-fill'] } };
-  const ownClass = (found: { reports: { message: string }[] }) => found.reports.filter((one) => one.message.includes('(own-class)'));
-  assert.deepEqual(ownClass(auditStep(options, null, null, vocabulary)), []);
-  assert.equal(ownClass(auditStep(options, null, null, null)).length, 1);
-  rmSync(root, { recursive: true, force: true });
-});
-
-test('the vocabulary index is read from beside the command, and a file that is not one reads as none', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-vocab-index-'));
-  assert.equal(loadVocabulary(root), null);
-  writeFileSync(join(root, VOCABULARY_INDEX), JSON.stringify({ page: 'p', classes: {}, answers: {}, options: {} }));
-  assert.deepEqual(loadVocabulary(root), { page: 'p', classes: {}, answers: {}, options: {} });
-  rmSync(root, { recursive: true, force: true });
 });
