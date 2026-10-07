@@ -450,8 +450,6 @@ const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*|<>\s*)*$/;
 const STRING_CONTEXT = /[=:,(\[?&|]\s*$|\breturn\s*$/;
 const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
 
-/* A branch is what the scanner can see without a tree: an @if/@else/@switch block still open before the tag,
- * a *ngIf on the tag or on an element still open around it, or a JSX operator (? : && ||) just before it. */
 export function inBranch(text: string, start: number, attributes: string, openBranches: { name: string; end: number }[]) {
   if (BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) return true;
   if (openBranches.some(({ name, end }) => {
