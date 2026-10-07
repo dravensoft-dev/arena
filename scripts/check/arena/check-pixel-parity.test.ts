@@ -10,7 +10,7 @@ import {
   THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
   pairProblems, sizeProblem, paintProblem, dumpDir,
   ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem, maskedProblem, allowancesFor,
-  rectsExpression, rectsOf, matchedLine, SelectorProblem,
+  rectsExpression, rectsOf, matchedLine, SelectorProblem, type Rect,
 } from './check-pixel-parity.ts';
 import { PageThrew } from '../../lib/arena/cdp.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
@@ -210,6 +210,26 @@ test('the rects of an allowance are read through the page, one list per selector
   assert.equal(rects[0]?.length, 2);
   assert.equal(asked[0], rectsExpression('[data-arena-part*="-chart"]'));
   assert.match(asked[0] ?? '', /document\.querySelectorAll\("\[data-arena-part\*=\\"-chart\\"\]"\)/);
+});
+
+test('an allowance rect covers what the matched element paints, a descendant overflowing it included, one rect per element', () => {
+  const box = (left: number, top: number, right: number, bottom: number, rendered = true) => ({
+    getBoundingClientRect: () => ({ left, top, right, bottom }), getClientRects: () => (rendered ? [{}] : []),
+  });
+  const child = box(627, 12508, 645, 12520);
+  const unrendered = box(0, 0, 0, 0, false);
+  const frame = { ...box(344, 12271, 644, 12551), querySelectorAll: () => [child, unrendered] };
+  const bare = { ...box(0, 0, 10, 10), querySelectorAll: () => [] };
+  const run = (all: unknown[]) => new Function('document', 'scrollX', 'scrollY', `return ${rectsExpression('x')}`)(
+    { querySelectorAll: () => all }, 0, 0) as Rect[];
+  const rects = run([frame, bare]);
+  assert.equal(rects.length, 2);
+  assert.deepEqual(rects[0], { left: 344, top: 12271, right: 645, bottom: 12551 });
+  assert.deepEqual(rects[1], { left: 0, top: 0, right: 10, bottom: 10 });
+  const alone = run([{ ...frame, querySelectorAll: () => [] }])[0]!;
+  const withChild = run([{ ...frame, querySelectorAll: () => [child] }])[0]!;
+  assert.equal(withChild.right - alone.right, 1, 'the overflowing descendant widens the rect by what it overflows');
+  assert.deepEqual(run([{ ...frame, querySelectorAll: () => [unrendered] }])[0], alone, 'a descendant with no box leaves the rect alone');
 });
 
 test('an invalid selector fails with the selector named, and any other throw passes through', async () => {
