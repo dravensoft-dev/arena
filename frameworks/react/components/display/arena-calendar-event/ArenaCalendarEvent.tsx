@@ -85,7 +85,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
     colorId: String(arenaCatIndex(colorId ?? 1)),
     reserve: hasPanel && !actionsBelow,
     panelOpen,
-    clickable: interactive,
+    clickable: interactive && !disabled,
     disabled: interactive && disabled,
     actionsBelow,
   });
