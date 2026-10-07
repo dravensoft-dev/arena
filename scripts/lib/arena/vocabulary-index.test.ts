@@ -13,7 +13,15 @@ test('every option is indexed with its family and reach, and every answering com
     classes: { 'arena-fill': { family: 'fill', reach: 'box', target: 'component' }, 'arena-fit': { family: 'fill', reach: 'box', target: 'component' } },
     answers: { ArenaButton: ['fill'] },
     options: { ArenaButton: ['arena-fill', 'arena-fit'] },
+    axes: {},
   });
+});
+
+test('a family with axes is indexed with them, so the audit can name a class and a property that decide one axis', () => {
+  const index = vocabularyIndexOf(
+    [{ family: 'grid-min', reach: 'box', description: 'd', variants: { 'arena-grid-min-sm': 'a' }, axis: '--arena-grid-min' },
+      { family: 'skeleton', reach: 'box', description: 'd', variants: { 'arena-skeleton-line': 'a' }, axis: ['--arena-skeleton-width', '--arena-skeleton-height'] }], [], 'https://x/p');
+  assert.deepEqual(index.axes, { 'grid-min': ['--arena-grid-min'], skeleton: ['--arena-skeleton-width', '--arena-skeleton-height'] });
 });
 
 test('an option of a markup family is indexed with target markup', () => {

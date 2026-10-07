@@ -8,9 +8,9 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
-  ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, designMemberFindings,
+  ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, designMemberFindings, writeNamed, VALUE_MAP, group,
 } from './audit.ts';
-import { readFamilies } from '../../../lib/tailwind/vocabulary.ts';
+import { axesOf, readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
   return auditText(path, source).join('\n');
@@ -560,10 +560,14 @@ test('full on ArenaButton is appearance, named with the class that says it, in b
 });
 
 const APPEARANCE_SAMPLES = new Map<string, string>([['size', 'sm'], ['variant', 'ghost'], ['orientation', 'vertical'],
-  ['align', 'center'], ['layout', 'split'], ['placement', 'end']]);
+  ['align', 'center'], ['layout', 'split'], ['placement', 'end'],
+  ['ArenaGrid.min', 'sm'], ['ArenaGrid.maxWidth', 'md'], ['ArenaGrid.gap', 'md'], ['ArenaSection.rhythm', 'lg'],
+  ['ArenaBoard.minColumn', 'lg'], ['ArenaScroller.itemWidth', 'sm'], ['ArenaDialog.width', 'md'],
+  ['ArenaFigure.ratio', 'video'], ['ArenaSkeleton.variant', 'line'], ['ArenaSkeleton.width', 'sm'],
+  ['ArenaSkeleton.height', 'sm'], ['ArenaSkeleton.radius', 'sm']]);
 
-function sampleOf(attribute: string, retired?: string) {
-  return retired ?? APPEARANCE_SAMPLES.get(attribute) ?? 'x';
+function sampleOf(key: string, attribute: string, retired?: string) {
+  return retired ?? APPEARANCE_SAMPLES.get(key) ?? APPEARANCE_SAMPLES.get(attribute) ?? 'x';
 }
 
 test('every appearance attribute is reported in both idioms, naming the class that says it', () => {
@@ -571,8 +575,8 @@ test('every appearance attribute is reported in both idioms, naming the class th
   for (const [key, target] of APPEARANCE_ATTRIBUTES) {
     const [component = '', rest = ''] = key.split('.');
     const [attribute = '', retired] = rest.split('=');
-    const value = sampleOf(attribute, retired);
-    const named = target.write.replace('<value>', value);
+    const value = sampleOf(key, attribute, retired);
+    const named = writeNamed(target, value);
     const kebab = kebabTag(component);
     for (const attributes of [` ${attribute}="${value}"`, ` ${attribute}={'${value}'}`, ` [${attribute}]="'${value}'"`]) {
       for (const tag of [component, kebab]) {
@@ -631,4 +635,98 @@ test('an option of a box family the component does not answer is refused, naming
   assert.match(ownClassFindings('ArenaSheet', ' class="arena-placement-top-end"', vocabulary).join('\n'),
     /`arena-placement-top-end` is an option ArenaSheet does not answer: it answers arena-placement-bottom, -start and -end/);
   assert.deepEqual(ownClassFindings('ArenaSheet', ' class="arena-placement-start"', vocabulary), []);
+});
+
+test('every sample is a value some entry reads, so a sample cannot outlive its entry', () => {
+  for (const key of APPEARANCE_SAMPLES.keys())
+    if (key.includes('.')) assert.ok(APPEARANCE_ATTRIBUTES.has(key), `${key} samples an entry that does not exist`);
+});
+
+test('every write names an option or an axis of its family, so a write cannot drift from the family', () => {
+  const families = readFamilies(repoRoot);
+  let checked = 0;
+  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
+    if (!('family' in target)) continue;
+    const family = families.get(target.family);
+    assert.ok(family !== undefined, `${key} points at family ${target.family}`);
+    const names = [...Object.keys(family.variants), ...axesOf(family)];
+    const attribute = key.split('.')[1]?.split('=')[0] ?? '';
+    const sample = sampleOf(key, attribute);
+    for (const token of target.write.matchAll(/(?<![\w-])(-{0,2}arena-[a-z0-9-]*[a-z0-9])(-<[a-z]+>)?/g)) {
+      const written = group(token);
+      if (token[2] === undefined) {
+        assert.ok(names.includes(written), `${key} writes ${written}, which is neither an option nor an axis of ${target.family}`);
+      } else {
+        const named: string = `${written}-${VALUE_MAP[target.family]?.[sample] ?? sample}`;
+        assert.ok(names.includes(named), `${key} writes ${written}-<…>, and ${named} is not an option of ${target.family}`);
+        assert.ok(names.some((name) => name.startsWith(`${written}-`)), `${key} writes a prefix no option of ${target.family} carries`);
+      }
+      checked += 1;
+    }
+  }
+  assert.ok(checked > 10, 'no write was read, so this checked nothing');
+});
+
+test('a gap and a rhythm map their old values onto the page rhythm scale', () => {
+  for (const [key, step] of [['sm', 'group'], ['md', 'component'], ['lg', 'section'], ['none', 'none']] as const) {
+    assert.match(designMemberFindings('ArenaGrid', ` gap="${key}"`)[0] ?? '', new RegExp(`\`arena-grid-gap-${step}\``));
+    assert.match(designMemberFindings('ArenaSection', ` rhythm="${key}"`)[0] ?? '', new RegExp(`\`arena-rhythm-${step}\``));
+  }
+  assert.match(designMemberFindings('ArenaGrid', ' min="240px"')[0] ?? '', /arena-grid-min-<step>/);
+});
+
+test('a skeleton variant of text is the lines member and no other class, and a width is the property', () => {
+  const text = designMemberFindings('ArenaSkeleton', ' variant="text"');
+  assert.equal(text.length, 1);
+  assert.match(text[0] ?? '', /`lines, the number of lines the placeholder stands in for`/);
+  assert.match(designMemberFindings('ArenaSkeleton', ' variant="circle"')[0] ?? '', /arena-skeleton-circle/);
+  assert.match(designMemberFindings('arena-skeleton', ' width="4rem"')[0] ?? '', /--arena-skeleton-width on a container of yours/);
+});
+
+test('a column width or alignment is appearance, named with the key and the property, in both idioms', () => {
+  const react = findings('src/a.tsx', "<ArenaTable columns={[{ header: 'A', width: '8rem', align: 'right' }, { header: 'B' }]} />")
+    .filter((one) => one.rule === 'design-member').map((one) => one.message);
+  assert.equal(react.length, 2);
+  assert.match(react.join('\n'), /`align` on a column of ArenaTable is appearance: give the column a `key` and set `--arena-column-<key>-align` on the table or a container of yours/);
+  assert.match(react.join('\n'), /--arena-column-<key>-width/);
+  const angular = findings('src/a.html', `<arena-table [columns]="[{ header: 'A', align: 'right' }]"></arena-table>`)
+    .filter((one) => one.rule === 'design-member');
+  assert.equal(angular.length, 1);
+  assert.deepEqual(designMemberFindings('ArenaTable', " columns={[{ header: 'A', key: 'a' }]}", undefined, " columns={[{ header: 'A', key: 'a' }]}"), []);
+  assert.deepEqual(designMemberFindings('ArenaCard', " columns={[{ width: 1 }]}"), []);
+});
+
+test('a column reader sees the keys of the column and no deeper, and a brace inside a string does not end the value', () => {
+  const nested = " columns={[{ header: 'A', meta: { width: 1, align: 'left' } }]}";
+  assert.deepEqual(designMemberFindings('ArenaTable', nested), []);
+  assert.deepEqual(findings('src/a.tsx', `<ArenaTable${nested} />`).filter((one) => one.rule === 'design-member'), []);
+  const braced = " columns={[{ header: '}', align: 'right' }]}";
+  assert.equal(designMemberFindings('ArenaTable', braced).length, 1);
+  assert.equal(findings('src/a.tsx', `<ArenaTable${braced} />`).filter((one) => one.rule === 'design-member').length, 1);
+  assert.equal(designMemberFindings('ArenaTable', " columns={[{ header: 'a, width: 1' }]}").length, 0);
+});
+
+const AXES: VocabularyIndex = {
+  page: 'P',
+  classes: { 'arena-grid-min-sm': { family: 'grid-min', reach: 'box' }, 'arena-grid-min-md': { family: 'grid-min', reach: 'box' } },
+  answers: { ArenaGrid: ['grid-min'] },
+  options: { ArenaGrid: ['arena-grid-min-sm', 'arena-grid-min-md'] },
+  axes: { 'grid-min': ['--arena-grid-min'] },
+};
+
+test('a class and an axis of one family on one component are reported as deciding one axis twice, under own-class', () => {
+  const message = '`arena-grid-min-sm` and `--arena-grid-min` on one ArenaGrid decide one axis twice; the class wins on this component. Keep one.';
+  for (const source of [
+    '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min\': \'10rem\' }}>x</ArenaGrid>',
+    '<arena-grid class="arena-grid-min-sm" style="--arena-grid-min: 10rem">x</arena-grid>',
+  ]) {
+    const own = findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class');
+    assert.deepEqual(own.map((one) => one.message), [message], source);
+  }
+  for (const source of [
+    '<ArenaGrid className="arena-grid-min-sm">x</ArenaGrid>',
+    '<ArenaGrid style={{ \'--arena-grid-min\': \'10rem\' }}>x</ArenaGrid>',
+    '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min-width\': \'10rem\' }}>x</ArenaGrid>',
+  ])
+    assert.deepEqual(findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class'), [], source);
 });

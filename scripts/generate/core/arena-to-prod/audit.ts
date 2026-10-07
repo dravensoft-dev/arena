@@ -305,6 +305,7 @@ export type VocabularyIndex = {
   classes: Record<string, { family: string; reach: 'context' | 'box'; target?: 'component' | 'markup' }>;
   answers: Record<string, string[]>;
   options: Record<string, string[]>;
+  axes?: Record<string, string[]>;
 };
 
 const STATIC_CLASS = /(?:^|\s)(?:className|class)\s*=\s*(["'])([^"']*)\1/;
@@ -314,7 +315,58 @@ const COMPUTED_CLASS = /(?:^|\s)(?:className\s*=\s*\{|\[class\]\s*=|\[ngClass\]\
 export const componentOf = (tag: string) => (tag.startsWith('Arena') ? tag
   : tag.split('-').map((word) => word.slice(0, 1).toUpperCase() + word.slice(1)).join(''));
 
-export function ownClassFindings(tag: string, attributes: string, vocabulary: VocabularyIndex | null): string[] {
+export function styleValueOf(raw: string): string {
+  const opening = /(?:^|\s)\[?style\]?\s*=\s*/.exec(raw);
+  if (opening === null) return '';
+  return attributeValueAt(raw, opening.index + opening[0].length);
+}
+
+function attributeValueAt(raw: string, from: number): string {
+  const first = raw[from] ?? '';
+  if (first === '"' || first === "'" || first === '`') {
+    const close = raw.indexOf(first, from + 1);
+    return raw.slice(from, close === -1 ? raw.length : close + 1);
+  }
+  if (first !== '{') return raw.slice(from).split(/\s/)[0] ?? '';
+  let depth = 0;
+  let quote = '';
+  for (let i = from; i < raw.length; i += 1) {
+    const c = raw[i];
+    if (quote) {
+      if (c === '\\') i += 1;
+      else if (c === quote) quote = '';
+      continue;
+    }
+    if (c === '"' || c === "'" || c === '`') quote = c;
+    if (c === '{') depth += 1;
+    if (c === '}') depth -= 1;
+    if (depth === 0) return raw.slice(from, i + 1);
+  }
+  return raw.slice(from);
+}
+
+function columnLevel(value: string): string {
+  const inner = /^["'`{]/.test(value) ? value.slice(1, -1) : value;
+  let depth = 0;
+  let out = '';
+  for (let i = 0; i < inner.length; i += 1) {
+    const c = inner[i] ?? '';
+    if (c === '"' || c === "'" || c === '`') {
+      let end = i + 1;
+      while (end < inner.length && inner[end] !== c) end += inner[end] === '\\' ? 2 : 1;
+      const key = /^\s*:/.test(inner.slice(end + 1));
+      if (depth === 1) out += key ? inner.slice(i, end + 1) : ' '.repeat(end + 1 - i);
+      i = end;
+      continue;
+    }
+    if (c === '{') depth += 1;
+    if (depth === 1 || (depth === 0 && c === '}')) out += c;
+    if (c === '}') depth -= 1;
+  }
+  return out;
+}
+
+export function ownClassFindings(tag: string, attributes: string, vocabulary: VocabularyIndex | null, raw = attributes): string[] {
   if (!OWN_CLASS_ATTRIBUTE.test(attributes)) return [];
   if (vocabulary === null || COMPUTED_CLASS.test(attributes)) return [OWN_CLASS_MESSAGE];
   const component = componentOf(tag);
@@ -354,6 +406,13 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
     if (written.length > 1) {
       found.push(`${written.join(' and ')} are two options of ${family} on one component, and which one `
         + 'holds would be decided by the order the sheet happens to list them in. Keep one');
+    }
+    const style = styleValueOf(raw);
+    for (const axis of vocabulary.axes?.[family] ?? []) {
+      if (!new RegExp(`(?<![\\w-])${axis}(?![\\w-])`).test(style)) continue;
+      for (const token of written)
+        found.push(`\`${token}\` and \`${axis}\` on one ${component} decide one axis twice; the class wins on this `
+          + 'component. Keep one.');
     }
   }
   return found;
@@ -396,15 +455,53 @@ export const APPEARANCE_ATTRIBUTES = new Map<string, AppearanceTarget & { write:
   ['ArenaPageHead.align', { family: 'align', write: 'arena-align-<value>' }],
   ['ArenaSheet.placement', { family: 'placement', write: 'arena-placement-<value>' }],
   ['ArenaToastHost.placement', { family: 'placement', write: 'arena-placement-<value>' }],
+  ['ArenaGrid.min', { family: 'grid-min', write: 'arena-grid-min-<step>, or --arena-grid-min on a container of yours' }],
+  ['ArenaGrid.maxWidth', { family: 'grid-max', write: 'arena-grid-max-<step>, or --arena-grid-max on a container of yours' }],
+  ['ArenaGrid.gap', { family: 'grid-gap', write: 'arena-grid-gap-<value>' }],
+  ['ArenaSection.rhythm', { family: 'rhythm', write: 'arena-rhythm-<value>' }],
+  ['ArenaBoard.minColumn', { family: 'board-column', write: 'arena-board-column-<step>, or --arena-board-column on a container of yours' }],
+  ['ArenaScroller.itemWidth', { family: 'scroller-item', write: 'arena-scroller-item-<step>, or --arena-scroller-item on a container of yours' }],
+  ['ArenaDialog.width', { family: 'dialog-width', write: 'arena-dialog-width-<step>, or --arena-dialog-width on a container of yours' }],
+  ['ArenaFigure.ratio', { family: 'ratio', write: 'arena-ratio-<frame>, or --arena-ratio on a container of yours' }],
+  ['ArenaSkeleton.variant', { family: 'skeleton', write: 'arena-skeleton-<value>' }],
+  ['ArenaSkeleton.variant=text', { member: 'lines', write: 'lines, the number of lines the placeholder stands in for' }],
+  ['ArenaSkeleton.width', { family: 'skeleton', write: '--arena-skeleton-width on a container of yours' }],
+  ['ArenaSkeleton.height', { family: 'skeleton', write: '--arena-skeleton-height on a container of yours' }],
+  ['ArenaSkeleton.radius', { family: 'skeleton', write: '--arena-skeleton-radius on a container of yours' }],
   ['ArenaSideNav.indentStep', { role: 'pad-row-indent', write: 'answer pad-row-indent in your style plugin with the indent of one level' }],
 ]);
 
+export const VALUE_MAP: Record<string, Record<string, string>> = {
+  'grid-gap': { sm: 'group', md: 'component', lg: 'section', none: 'none' },
+  rhythm: { sm: 'group', md: 'component', lg: 'section', none: 'none' },
+};
+
+const WRITE_PLACEHOLDER = /<(?:value|step|frame)>/g;
+
+export function writeNamed(target: AppearanceTarget & { write: string }, value?: string): string {
+  const mapped = value !== undefined && 'family' in target ? VALUE_MAP[target.family]?.[value] ?? value : value;
+  const named = mapped !== undefined && /^[a-z]+$/.test(mapped) ? mapped : undefined;
+  return target.write.replace(WRITE_PLACEHOLDER, (placeholder) => named ?? placeholder);
+}
+
+const COLUMN_KEYS = /[{,]\s*['"]?(width|align)['"]?\s*:/g;
+
+function columnFindings(component: string, raw: string, page?: string): string[] {
+  if (component !== 'ArenaTable') return [];
+  const opening = /(?:^|\s)\[?columns\]?\s*=\s*/.exec(raw);
+  if (opening === null) return [];
+  const value = attributeValueAt(raw, opening.index + opening[0].length);
+  const keys = [...new Set([...columnLevel(value).matchAll(COLUMN_KEYS)].map((m) => group(m)))];
+  return keys.map((key) => `\`${key}\` on a column of ${component} is appearance: give the column a \`key\` and set `
+    + `\`--arena-column-<key>-${key}\` on the table or a container of yours${page ? `. ${page}` : ''}`);
+}
+
 const LITERAL_VALUE = /^\s*=\s*(?:\{\s*)?["'`]{1,2}\s*([\w-]+)\s*["'`]/;
 
-export function designMemberFindings(tag: string, attributes: string, page?: string): string[] {
+export function designMemberFindings(tag: string, attributes: string, page?: string, raw = attributes): string[] {
   const component = componentOf(tag);
-  const found: string[] = [];
-  for (const [key, { write }] of APPEARANCE_ATTRIBUTES) {
+  const found: string[] = columnFindings(component, raw, page);
+  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
     const [owner, rest = ''] = key.split('.');
     if (owner !== component) continue;
     const [attribute = '', retired] = rest.split('=');
@@ -412,7 +509,8 @@ export function designMemberFindings(tag: string, attributes: string, page?: str
     if (opening === null) continue;
     const value = LITERAL_VALUE.exec(attributes.slice(opening.index + opening[0].length))?.[1];
     if (retired !== undefined && value !== retired) continue;
-    found.push(`\`${attribute}\` on ${component} is appearance: \`${write.replace('<value>', value ?? '<value>')}\`. `
+    if (retired === undefined && value !== undefined && APPEARANCE_ATTRIBUTES.has(`${owner}.${attribute}=${value}`)) continue;
+    found.push(`\`${attribute}\` on ${component} is appearance: \`${writeNamed(target, value)}\`. `
       + `Write the class on the component, or on a container whose components should all take it${page ? `. ${page}` : ''}`);
   }
   return found;
@@ -551,11 +649,12 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
       }
     }
 
+    const raw = text.slice(start + name.length + 1, ends - 1);
     if (ARENA_TAG.test(name))
-      for (const message of ownClassFindings(name, attributes, vocabulary))
+      for (const message of ownClassFindings(name, attributes, vocabulary, raw))
         found.push(at(lineAt(text, start), 'own-class', message));
     if (ARENA_TAG.test(name))
-      for (const message of designMemberFindings(name, attributes, vocabulary?.page))
+      for (const message of designMemberFindings(name, attributes, vocabulary?.page, raw))
         found.push(at(lineAt(text, start), 'design-member', message));
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
