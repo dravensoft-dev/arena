@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { ArenaDialog } from './ArenaDialog.tsx';
+import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import manifest from './ArenaDialog.manifest.generated.ts';
+import classes from './ArenaDialog.classes.generated.ts';
 
 afterEach(() => cleanup());
 
@@ -37,7 +39,7 @@ test('below its breakpoint the panel takes the fill variant with its full-width 
   }
 });
 
-test('the fill group of the panel carries w-full, which is what a filling dialog takes in place of the family width', () => {
+test('the fill group of the panel carries w-full', () => {
   assert.ok(manifest.variants.fill.true.panel.split(' ').includes('w-full'));
 });
 
@@ -69,5 +71,23 @@ test('focus moves into the panel on open and returns to the opener on close, in 
       cleanup();
       opener.remove();
     });
+  }
+});
+
+test('a filling dialog with a property that is not a width does not warn, because filling ignores the property', () => {
+  forgetArenaWarnings();
+  const said: string[] = [];
+  const saved = globalThis.console.warn;
+  globalThis.console.warn = (...parts: unknown[]) => { said.push(parts.map(String).join(' ')); };
+  const sheet = document.head.appendChild(document.createElement('style'));
+  sheet.textContent = `[data-arena-part="${classes.parts.panel}"] { --arena-dialog-width: md; }`;
+  try {
+    narrowWidths(400, () => {
+      mount(<ArenaDialog open title="Edit" fillBelow="md">Body</ArenaDialog>);
+      assert.equal((document.querySelector('[role="dialog"]') as HTMLElement).hasAttribute('data-arena-fill'), true);
+    });
+    assert.deepEqual(said, []);
+  } finally {
+    sheet.remove(); globalThis.console.warn = saved; forgetArenaWarnings();
   }
 });

@@ -674,3 +674,20 @@ test('a non-destructive button draws its focus ring after its hover rule, so a h
   assert.ok(hover >= 0, 'the compiled sheet has no non-destructive hover rule');
   assert.ok(focus > hover, 'the non-destructive focus-visible rule must follow its hover rule');
 });
+
+const DIALOG_PANEL = '.arena-dialog__panel';
+
+function fillOutranksFamilyWidth(sheet: string): boolean {
+  const family = sheet.indexOf(`${DIALOG_PANEL} {`);
+  const fill = sheet.indexOf(`${DIALOG_PANEL}:where([data-arena-fill]) {`);
+  return family >= 0 && fill > family && /width: 100%;/.test(sheet.slice(fill, sheet.indexOf('}', fill)));
+}
+
+test('a filling dialog panel is 100% wide after its family width rule at no lower specificity, so a set --arena-dialog-width cannot beat filling', () => {
+  const sheet = readFileSync(join(repoRoot, 'frameworks/tailwind/consume/components/feedback/arena-dialog/ArenaDialog.styles.generated.css'), 'utf8');
+  assert.ok(fillOutranksFamilyWidth(sheet), 'the fill rule must come after the panel rule and set width: 100%');
+  const familyRule = sheet.slice(sheet.indexOf(`${DIALOG_PANEL} {`), sheet.indexOf('}', sheet.indexOf(`${DIALOG_PANEL} {`)));
+  assert.match(familyRule, /width: var\(--arena-dialog-width-size,/);
+  const swapped = '.arena-dialog__panel:where([data-arena-fill]) {\n width: 100%;\n}\n.arena-dialog__panel {\n width: var(--arena-dialog-width-size,x);\n}';
+  assert.equal(fillOutranksFamilyWidth(swapped), false, 'a fill rule before the family rule must fail the check');
+});

@@ -14,7 +14,7 @@ import { ArenaDialog } from './ArenaDialog';
 import manifest from './ArenaDialog.classes.generated';
 import { TAILWIND_COMPONENTS, REPO } from '../../../test/Compliance';
 
-const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'feedback/arena-dialog/ArenaDialog.manifest.json'), 'utf8')) as { slots: { frame: string; panel: string } };
+const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'feedback/arena-dialog/ArenaDialog.manifest.json'), 'utf8')) as { slots: { panel: string } };
 const family = JSON.parse(readFileSync(join(REPO, 'frameworks/tailwind/vocabulary/arena-dialog-width/DialogWidth.family.json'), 'utf8')) as { axis: string; default: string; variants: Record<string, string> };
 
 afterEach(() => { forgetArenaWarnings(); });

@@ -8,6 +8,7 @@ import { ArenaDialog } from './ArenaDialog';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
+import { forgetArenaWarnings } from '../../../WarnOnce';
 import { assertSameNode } from '../../../test/NodeAssert';
 
 const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'feedback/arena-dialog/ArenaDialog.manifest.json'), 'utf8')) as { variants: { fill: { true: { panel: string } } } };
@@ -60,7 +61,7 @@ test('below its breakpoint the panel takes the fill group with its full-width cl
   }
 });
 
-test('the fill group of the panel carries w-full, which is what a filling dialog takes in place of the family width', () => {
+test('the fill group of the panel carries w-full', () => {
   assert.ok(source.variants.fill.true.panel.split(' ').includes('w-full'));
 });
 
@@ -84,5 +85,21 @@ test('focus moves into the panel on open and returns to the opener on close, in 
       await fixture.whenStable();
       assertSameNode(document.activeElement, opener, `width ${width}: focus returned to the opener`);
     } finally { fixture.destroy(); restore(); opener.remove(); }
+  }
+});
+
+test('a filling dialog with a property that is not a width does not warn, because filling ignores the property', async () => {
+  forgetArenaWarnings();
+  const said: string[] = [];
+  const saved = globalThis.console.warn;
+  globalThis.console.warn = (...parts: unknown[]) => { said.push(parts.map(String).join(' ')); };
+  const sheet = document.head.appendChild(document.createElement('style'));
+  sheet.textContent = '[data-arena-part="dialog.panel"] { --arena-dialog-width: md; }';
+  const { fixture, panel, restore } = await render(400, 'md');
+  try {
+    assert.equal(panel.hasAttribute('data-arena-fill'), true);
+    assert.deepEqual(said, []);
+  } finally {
+    fixture.destroy(); restore(); sheet.remove(); globalThis.console.warn = saved; forgetArenaWarnings();
   }
 });

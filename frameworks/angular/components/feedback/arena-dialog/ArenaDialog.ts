@@ -95,8 +95,11 @@ export class ArenaDialog {
   constructor() {
     effect(() => {
       const panel = this.panel()?.nativeElement;
-      if (!this.open() || !panel) return;
-      const value = getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
+      if (!this.open() || this.fill() || !panel) return;
+      if (this.fillBelow() !== undefined && this.measured() === null) return;
+      const view = this.doc.defaultView;
+      if (!view) return;
+      const value = view.getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
       if (value === '' || arenaIsCssWidth(value)) return;
       arenaWarnOnce(
         `arena-dialog: --arena-dialog-width is "${value}", which is not a CSS width, so the browser `

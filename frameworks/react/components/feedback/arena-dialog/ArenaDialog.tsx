@@ -52,16 +52,6 @@ export function ArenaDialog({ className, open, onClose, title, eyebrow, children
   const panelRef = useRef<HTMLDivElement | null>(null);
   const onKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onClose });
 
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (!open || !panel) return;
-    const value = getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
-    if (value === '' || arenaIsCssWidth(value)) return;
-    arenaWarnOnce(`ArenaDialog: --arena-dialog-width is "${value}", which is not a CSS width, so the browser `
-      + 'drops it and the panel keeps the width its class or its default gives it. Set a length, or a derivation '
-      + 'of tokens such as calc(var(--sp-1) * 160).');
-  }, [open]);
-
   const titleId = useId();
   if (!open) return null;
   return (
@@ -89,6 +79,16 @@ function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, 
   const [scrimRef, measured] = useArenaContainerWidth<HTMLDivElement>();
   const fill = fillBelow !== undefined && measured !== null && measured < arenaReadBreakpoint(fillBelow);
   const styles = arenaDialogStyles({ open: true, fill });
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (fill || !panel || (fillBelow !== undefined && measured === null)) return;
+    const value = getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
+    if (value === '' || arenaIsCssWidth(value)) return;
+    arenaWarnOnce(`ArenaDialog: --arena-dialog-width is "${value}", which is not a CSS width, so the browser `
+      + 'drops it and the panel keeps the width its class or its default gives it. Set a length, or a derivation '
+      + 'of tokens such as calc(var(--sp-1) * 160).');
+  }, [fill, fillBelow, measured, panelRef]);
+
   return (
     <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className)} data-arena-part={manifest.parts.scrim} {...styles.$data.scrim()} data-arena-surface="floating">
       <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"

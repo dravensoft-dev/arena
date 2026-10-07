@@ -19,7 +19,7 @@ import { ArenaFallback, ArenaMedia, ArenaOverlay } from '../../../ProjectionMark
 import { assertPattern, isFocusable, ANGULAR_COMPONENTS, TAILWIND_COMPONENTS, REPO } from '../../../test/Compliance';
 import { assertNoNode } from '../../../test/NodeAssert';
 
-const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'layout/arena-figure/ArenaFigure.manifest.json'), 'utf8')) as { slots: { frame: string; panel: string } };
+const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'layout/arena-figure/ArenaFigure.manifest.json'), 'utf8')) as { slots: { frame: string } };
 const family = JSON.parse(readFileSync(join(REPO, 'frameworks/tailwind/vocabulary/arena-ratio/Ratio.family.json'), 'utf8')) as { axis: string; default: string; variants: Record<string, string> };
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-figure/ArenaFigure.behaviour.json');
 
