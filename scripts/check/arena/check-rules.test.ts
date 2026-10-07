@@ -84,7 +84,7 @@ test('the rules say a class of the vocabulary is the only thing on a component, 
   const own = RULES.find((one) => one.id === 'own-class');
   assert.ok(own, 'own-class is declared');
   assert.equal(own.short, 'Only a class of the vocabulary goes on an Arena component.');
-  assert.match(own.body, /Every class you may write is on the vocabulary page\./);
+  assert.match(own.body, /Every class you may write is on the vocabulary page[;.]/);
   assert.equal(own.held, 'own-class');
   const appearance = RULES.find((one) => one.id === 'appearance-is-a-class');
   assert.ok(appearance, 'appearance-is-a-class is declared');
