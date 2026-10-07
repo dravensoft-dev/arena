@@ -31,6 +31,10 @@ Where two layers answer the same question differently, **the contract is what ma
 comparable**. A cross-layer *gate* under `scripts/check/arena/` reading several layers is that
 mechanism rather than an instance of the coupling, which is why `scripts/` is outside the gate's
 scope. **A fact only recorded as "matching the other layer" is a fact missing from a contract.**
+`anchored` on `ArenaTooltip` and `ArenaMenu` is the one attribute the layers build from different
+values: React leaves it unset and positions in CSS, Angular passes `true` and positions with the CDK
+overlay. It is an internal group of the recipe that no contract declares as a member and the pixels
+agree, so no gate sees it, and each layer's page states its own side.
 
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name
 all three. So does `Components.json`, and so do `demos/` and `kitchen-sink/`: each is a fact

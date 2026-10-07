@@ -290,7 +290,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 75_100,
+    budget: 75_500,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop, allowed '
       + 'to cost more than any consumer route because it is paid by whoever changes Arena. It may not '
@@ -302,8 +302,8 @@ export const ROUTES: Route[] = [
       + 'the component; when a primitive is an attribute on a native element; and the Angular default '
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
-      + 'the split that keeps the pair from going stale in one of them. A layer also states the one '
-      + 'attribute the two build from different values, and the binding that interpolates a property name.',
+      + 'the split that keeps the pair from going stale in one of them. The roof also states the one '
+      + 'attribute the layers build from different values, and a layer the binding that interpolates a property name.',
   },
   {
     name: 'contributor-authoring',

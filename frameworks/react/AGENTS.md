@@ -94,10 +94,8 @@ keeps a `useState` to paint one.
 valid key, a card layout included. The value is a `var(--…)` with no literal operand, so it is not a
 computation the gate lists.
 
-**`anchored` is the one attribute the two layers build from different values.** React leaves it
-unset on `ArenaTooltip` and `ArenaMenu` and positions them in CSS; Angular passes `true` and
-positions them with the CDK overlay. It is an internal group of the recipe that no contract
-declares as a member, and the pixels agree, so no gate compares the two.
+**`ArenaTooltip` and `ArenaMenu` leave `anchored` unset and position themselves in CSS**, since
+nothing in this layer positions a surface from script.
 
 **A variant key the manifest does not declare resolves to no classes at all**, rather than
 falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the

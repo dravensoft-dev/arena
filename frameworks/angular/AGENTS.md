@@ -294,11 +294,8 @@ a modal centres in flow and a toast is a card the host places, and neither goes 
 A styled **native** control does not either: `arena-select` is a real `<select>`, so the popup,
 its keyboard and its type-ahead are the user agent's.
 
-**`anchored` is the one attribute the two layers build from different values, and the CDK is why.**
-`ArenaTooltip` and `ArenaMenu` pass `anchored: true` to their recipe because the overlay positions
-them, where React leaves it unset and positions in CSS. It is an internal group of the recipe that no
-contract declares as a member, and the pixels agree, so no gate compares the two and neither layer
-is the other's authority.
+**`ArenaTooltip` and `ArenaMenu` pass `anchored: true` to their recipe**, because the CDK overlay
+positions them and the recipe has to say so.
 
 **A style binding may interpolate the name of the property it reads.** The table's cells bind
 `[style.--arena-column-width]` to `var(--arena-column-<key>-width)`, or to `initial` when the
