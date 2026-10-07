@@ -10,6 +10,7 @@ import {
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
   ownClassFindings, type VocabularyIndex, APPEARANCE_ATTRIBUTES, appearanceKind, designMemberFindings, writeNamed, VALUE_MAP, group,
 } from './audit.ts';
+import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 import { axesOf, readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
@@ -750,4 +751,41 @@ test('a class and an axis of one family on one component are reported as decidin
     '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min-width\': \'10rem\' }}>x</ArenaGrid>',
   ])
     assert.deepEqual(findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class'), [], source);
+});
+
+test('a retired danger variant names the destructive member, and a live variant still names its class', () => {
+  const danger = designMemberFindings('ArenaButton', ' variant="danger"')[0] ?? '';
+  assert.match(danger, /`variant` on ArenaButton is appearance: `destructive`/);
+  assert.match(danger, /Use the `destructive` member/);
+  assert.doesNotMatch(danger, /arena-emphasis/);
+  assert.match(designMemberFindings('ArenaButton', ' variant="ghost"')[0] ?? '', /`arena-emphasis-ghost`/);
+});
+
+test('every class an appearance attribute writes for an option its component answers is a shipped class', () => {
+  const index = vocabularyIndex(repoRoot);
+  let checked = 0;
+  for (const [key, target] of APPEARANCE_ATTRIBUTES) {
+    if (!('family' in target) || key.includes('=') || !target.write.includes('<')) continue;
+    const component = key.split('.')[0] ?? '';
+    for (const option of index.options[component] ?? []) {
+      if (index.classes[option]?.family !== target.family) continue;
+      const prefix = target.write.split('<')[0] ?? '';
+      if (!option.startsWith(prefix)) continue;
+      const suffix = option.slice(prefix.length);
+      const named: string = writeNamed(target, suffix).split(', or ')[0] ?? '';
+      assert.ok(index.classes[named] !== undefined && !named.includes('<'), `${key} with ${suffix} names ${named}, which is no shipped class`);
+      checked += 1;
+    }
+  }
+  assert.ok(checked > 5, 'no option was checked');
+  assert.equal(writeNamed(APPEARANCE_ATTRIBUTES.get('ArenaToastHost.placement')!, 'top-start'), 'arena-placement-top-start');
+  assert.equal(writeNamed(APPEARANCE_ATTRIBUTES.get('ArenaSwitch.size')!, '2xl'), 'arena-size-2xl');
+});
+
+test('a shape class and the property a family composes with are no conflict, and a class that replaces an axis is, in both binding forms', () => {
+  const index = vocabularyIndex(repoRoot);
+  const own = (source: string) => findings('src/a.tsx', source, 'app', false, index).filter((one) => one.rule === 'own-class');
+  assert.deepEqual(own('<arena-skeleton class="arena-skeleton-line" style="--arena-skeleton-width: var(--sp-8)"></arena-skeleton>'), []);
+  assert.equal(own('<arena-grid class="arena-grid-min-lg" [style.--arena-grid-min]="\'var(--sp-8)\'"></arena-grid>').length, 1);
+  assert.equal(own('<arena-grid class="arena-grid-min-lg" style="--arena-grid-min: var(--sp-8)"></arena-grid>').length, 1);
 });

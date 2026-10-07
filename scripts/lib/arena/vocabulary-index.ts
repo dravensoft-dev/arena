@@ -17,7 +17,8 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
   const classes: VocabularyIndex['classes'] = {};
   const axes: NonNullable<VocabularyIndex['axes']> = {};
   for (const family of families) {
-    if (axesOf(family).length > 0) axes[family.family] = axesOf(family);
+    const replaced = axesOf(family).filter((axis) => !Object.values(family.variants).some((variant) => variant.includes(`var(${axis}`)));
+    if (replaced.length > 0) axes[family.family] = replaced;
     const target = targetOf(family);
     if (target === 'keyed') continue;
     for (const option of Object.keys(family.variants).sort()) classes[option] = { family: family.family, reach: family.reach, target };

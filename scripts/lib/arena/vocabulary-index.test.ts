@@ -37,3 +37,9 @@ test('an answers object narrows the options a component keeps', () => {
   assert.deepEqual(index.answers, { ArenaSheet: ['placement'] });
   assert.deepEqual(index.options, { ArenaSheet: ['arena-placement-end'] });
 });
+
+test('an axis an option reads is composed with the class and leaves the axes, so the audit does not call the pair a conflict', () => {
+  const index = vocabularyIndexOf(
+    [{ family: 'skeleton', reach: 'box', description: 'd', variants: { 'arena-skeleton-line': '[--w:var(--arena-skeleton-width,100%)]' }, axis: ['--arena-skeleton-width', '--arena-skeleton-radius'] }], [], 'https://x/p');
+  assert.deepEqual(index.axes, { skeleton: ['--arena-skeleton-radius'] });
+});

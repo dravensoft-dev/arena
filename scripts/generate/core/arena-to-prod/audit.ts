@@ -315,10 +315,13 @@ const COMPUTED_CLASS = /(?:^|\s)(?:className\s*=\s*\{|\[class\]\s*=|\[ngClass\]\
 export const componentOf = (tag: string) => (tag.startsWith('Arena') ? tag
   : tag.split('-').map((word) => word.slice(0, 1).toUpperCase() + word.slice(1)).join(''));
 
+const STYLE_BINDING = /(?:^|\s)\[style\.(--[\w-]+)\]\s*=/g;
+
 export function styleValueOf(raw: string): string {
+  const bound = [...raw.matchAll(STYLE_BINDING)].map((m) => group(m)).join(' ');
   const opening = /(?:^|\s)\[?style\]?\s*=\s*/.exec(raw);
-  if (opening === null) return '';
-  return attributeValueAt(raw, opening.index + opening[0].length);
+  if (opening === null) return bound;
+  return `${attributeValueAt(raw, opening.index + opening[0].length)} ${bound}`;
 }
 
 function attributeValueAt(raw: string, from: number): string {
@@ -422,6 +425,7 @@ export type AppearanceTarget = { family: string } | { role: string } | { member:
 
 export const APPEARANCE_ATTRIBUTES = new Map<string, AppearanceTarget & { write: string }>([
   ['ArenaButton.full', { family: 'fill', write: 'arena-fill' }],
+  ['ArenaButton.variant=danger', { member: 'destructive', write: 'what the action destroys or removes' }],
   ['ArenaButton.variant', { family: 'emphasis', write: 'arena-emphasis-<value>' }],
   ['ArenaButton.size', { family: 'size', write: 'arena-size-<value>' }],
   ['ArenaIconButton.variant', { family: 'emphasis', write: 'arena-emphasis-<value>' }],
@@ -476,11 +480,14 @@ export const VALUE_MAP: Record<string, Record<string, string>> = {
   rhythm: { sm: 'group', md: 'component', lg: 'section', none: 'none' },
 };
 
+const NAMEABLE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const A_LENGTH = /^\d+(?:px|r?em|vh|vw|ch|fr|pt)$/;
+
 const WRITE_PLACEHOLDER = /<(?:value|step|frame)>/g;
 
 export function writeNamed(target: AppearanceTarget & { write: string }, value?: string): string {
   const mapped = value !== undefined && 'family' in target ? VALUE_MAP[target.family]?.[value] ?? value : value;
-  const named = mapped !== undefined && /^[a-z]+$/.test(mapped) ? mapped : undefined;
+  const named = mapped !== undefined && NAMEABLE.test(mapped) && !A_LENGTH.test(mapped) ? mapped : undefined;
   return target.write.replace(WRITE_PLACEHOLDER, (placeholder) => named ?? placeholder);
 }
 
