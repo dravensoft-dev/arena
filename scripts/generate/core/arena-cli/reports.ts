@@ -26,3 +26,23 @@ export function report(kind: ReportKind, message: string): Report {
 export function reported(reports: Report[], strict: readonly StrictKind[]) {
   return reports.filter((one) => strict.includes(one.kind as StrictKind));
 }
+
+export const KINDS_BY_COMMAND = {
+  check: ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers'],
+  audit: ['audit', 'restated'],
+  doctor: ['environment'],
+} as const satisfies Record<string, readonly StrictKind[]>;
+
+export type StrictCommand = keyof typeof KINDS_BY_COMMAND;
+
+export function holder(kind: string): StrictCommand | null {
+  for (const command of Object.keys(KINDS_BY_COMMAND) as StrictCommand[]) {
+    if ((KINDS_BY_COMMAND[command] as readonly string[]).includes(kind)) return command;
+  }
+  return null;
+}
+
+export function heldMessage(strict: readonly StrictKind[], held: Report[]) {
+  const kinds = [...new Set(held.map((one) => one.kind))];
+  return `--strict holds ${strict.join(', ')}, and this run reports ${held.length} of them: ${kinds.join(', ')}`;
+}
