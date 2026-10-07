@@ -112,8 +112,6 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    "the consumer's own column width, read from the definition `frameworks/angular/components/display/arena-table/ArenaTable.ts:columns()` returns"],
   ['frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:width',
    "the consumer's own column width, resolved by `frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:width()`"],
-  ['frameworks/angular/components/feedback/arena-dialog/ArenaDialog.ts:width',
-   "the consumer's own panel width, withheld by `frameworks/angular/components/feedback/arena-dialog/ArenaDialog.ts:fill()` below the fill breakpoint"],
   ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:top',
    'the panel sits below the anchor and clamps against the viewport height in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
   ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:left',

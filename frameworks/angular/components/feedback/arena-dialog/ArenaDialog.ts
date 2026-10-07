@@ -44,7 +44,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   template: `
     @if (open()) {
       <div #panel [class]="styles().panel()" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
-           [attr.aria-labelledby]="titleId" [style.width]="fill() ? null : width()"
+           [attr.aria-labelledby]="titleId"
            (click)="$event.stopPropagation()">
         <div [class]="styles().head()" [arenaSlotData]="styles().$data.head()" [attr.data-arena-part]="parts.head">
           @if (eyebrow(); as label) {
@@ -70,8 +70,6 @@ export class ArenaDialog {
   readonly title = input.required<string>();
   /** A short kicker above the title. */
   readonly eyebrow = input<string>();
-  /** A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. */
-  readonly width = input<string>();
   /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
   readonly fillBelow = input<ArenaBreakpoint>();
   /** The dialog was dismissed -- by Escape or by a scrim click. No payload. */
@@ -96,12 +94,14 @@ export class ArenaDialog {
 
   constructor() {
     effect(() => {
-      const value = this.width();
-      if (value === undefined || arenaIsCssWidth(value)) return;
+      const panel = this.panel()?.nativeElement;
+      if (!this.open() || !panel) return;
+      const value = getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
+      if (value === '' || arenaIsCssWidth(value)) return;
       arenaWarnOnce(
-        `arena-dialog: width takes a CSS width and "${value}" is not one, so the browser drops the `
-        + 'declaration and the panel keeps its default. Pass a length, or the spacing scale '
-        + 'arithmetic the default itself uses: calc(var(--sp-1) * 160).',
+        `arena-dialog: --arena-dialog-width is "${value}", which is not a CSS width, so the browser `
+        + 'drops it and the panel keeps the width its class or its default gives it. Set a length, or a derivation '
+        + 'of tokens such as calc(var(--sp-1) * 160).',
       );
     });
     afterRenderEffect(() => {

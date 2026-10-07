@@ -5,7 +5,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TestBed } from '@angular/core/testing';
 import { ArenaDialog } from './ArenaDialog';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
 import { assertSameNode } from '../../../test/NodeAssert';
+
+const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'feedback/arena-dialog/ArenaDialog.manifest.json'), 'utf8')) as { variants: { fill: { true: { panel: string } } } };
 
 const BP_MD = '768px';
 
@@ -37,7 +42,6 @@ async function render(width: number, fillBelow?: 'md') {
   const fixture = TestBed.createComponent(ArenaDialog);
   fixture.componentRef.setInput('open', true);
   fixture.componentRef.setInput('title', 'Edit');
-  fixture.componentRef.setInput('width', '62%');
   if (fillBelow) fixture.componentRef.setInput('fillBelow', fillBelow);
   fixture.detectChanges();
   await fixture.whenStable();
@@ -46,14 +50,18 @@ async function render(width: number, fillBelow?: 'md') {
   return { fixture, panel, restore };
 }
 
-test('below its breakpoint the panel takes the fill group and drops its width, and above it keeps both', async () => {
+test('below its breakpoint the panel takes the fill group with its full-width class, and above it does not', async () => {
   for (const [width, filled] of [[400, true], [900, false]] as const) {
     const { fixture, panel, restore } = await render(width, 'md');
     try {
       assert.equal(panel.hasAttribute('data-arena-fill'), filled, `width ${width}`);
-      assert.equal(panel.style.width, filled ? '' : '62%', `width ${width}`);
+      assert.equal(panel.hasAttribute('style'), false, `width ${width}`);
     } finally { fixture.destroy(); restore(); }
   }
+});
+
+test('the fill group of the panel carries w-full, which is what a filling dialog takes in place of the family width', () => {
+  assert.ok(source.variants.fill.true.panel.split(' ').includes('w-full'));
 });
 
 test('with no fillBelow the dialog never fills, however narrow', async () => {
