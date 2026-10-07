@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, pluginIdentity, version, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -353,4 +353,10 @@ test('a keyed family ships no sheet beside the component ones', () => {
   assert.ok(names.includes('css/vocabulary/fill.css'));
   assert.equal(names.includes('css/vocabulary/column.css'), false);
   rmSync(root, { recursive: true });
+});
+
+test('what a published copy leaves behind is read at the release tag and never at main', () => {
+  const tag = `https://github.com/dravensoft-dev/arena/blob/v${version()}`;
+  assert.equal(repositoryBase(), tag);
+  assert.equal(agentBases().repository, tag);
 });

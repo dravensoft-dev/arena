@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   matchesSpec, inPayload, servedBy, classify, resolvePosix, relativePosix,
-  rewrite, rewriteTarget, carriedSpecs, isRepoPath, ROUTER_SOURCE, ROUTER_FILE,
+  rewrite, rewriteTarget, retarget, carriedSpecs, isRepoPath, ROUTER_SOURCE, ROUTER_FILE,
 } from './agent-payload.ts';
 
 const BASES = {
@@ -97,4 +97,21 @@ test('isRepoPath answers for a repository root and refuses a class name or a wor
   assert.ok(isRepoPath('AGENTS.md'));
   assert.ok(!isRepoPath('.arena-shell'));
   assert.ok(!isRepoPath('arena.config.json'));
+});
+
+test('a page the site publishes points what the site leaves behind at the tag and keeps the rest', () => {
+  const tag = 'https://github.com/dravensoft-dev/arena/blob/v1.2.3';
+  const from = 'intro/AGENTS.md';
+  const text = '[a](../AGENTS.md) [b](../scripts/x.ts#top) [c](./guidelines/y.html) [d](https://e.org/z) [e](#k)';
+  assert.equal(
+    retarget(text, from, tag),
+    `[a](${tag}/AGENTS.md) [b](${tag}/scripts/x.ts#top) [c](./guidelines/y.html) [d](https://e.org/z) [e](#k)`,
+  );
+});
+
+test('a link into a tree the site serves but did not carry is pointed at the tag as well', () => {
+  const tag = 'https://github.com/dravensoft-dev/arena/blob/v1.2.3';
+  const out = retarget('[a](../../frameworks/CHARTS.md) [b](../../frameworks/INDEX.md)', 'contracts/design/S.md', tag,
+    (path) => path === 'frameworks/INDEX.md');
+  assert.equal(out, `[a](${tag}/frameworks/CHARTS.md) [b](../../frameworks/INDEX.md)`);
 });

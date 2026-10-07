@@ -130,3 +130,11 @@ test('this tree conforms', () => {
   const problems = collect();
   assert.deepEqual(problems, [], problems.join('\n'));
 });
+
+test('a layer whose every home file is missing fails rather than passing by reading nothing', () => {
+  const base = tree({ 'frameworks/react/Index.generated.ts': BARREL, 'frameworks/react/Helpers.ts': HELPERS });
+  const reached = reachedSymbols(base, new Map([['react', 'frameworks/react/Index.generated.ts']]));
+  const problems = homeProblems(base, reached, new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no react section of .* exists to name/);
+});

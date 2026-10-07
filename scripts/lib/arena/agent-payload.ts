@@ -7,7 +7,7 @@
  * an Angular one. The behaviour contracts are carried rather than pointed at, so a relative
  * link that climbs into a package root resolves inside the corpus instead. The site list
  * and the repository list are separate because a wrong guess between them answers 404 to an agent
- * that cannot tell that from an empty answer. */
+ * that cannot tell that from an empty answer. retarget does the same for the site's pages. */
 
 import { posix } from 'node:path';
 
@@ -151,5 +151,19 @@ export function rewrite(text: string, from: string, layer: string, bases: Bases)
     }
     if (!isRepoPath(target)) return whole;
     return `\`${rewriteTarget(target, from, layer, bases)}\``;
+  });
+}
+
+export function retarget(
+  text: string, from: string, repository: string, carried = (_path: string) => true,
+  exists = (_path: string) => true,
+) {
+  return text.replace(LINK, (whole, target: string) => {
+    if (/^[a-z]+:/i.test(target) || target.startsWith('#') || target.startsWith('/')) return whole;
+    const [path = '', ...rest] = target.split('#');
+    const real = resolvePosix(from, path);
+    if (real === '' || (servedBy(real) !== 'repository' && carried(real)) || !exists(real)) return whole;
+    const fragment = rest.length > 0 ? `#${rest.join('#')}` : '';
+    return `](${repository}/${real}${fragment})`;
   });
 }

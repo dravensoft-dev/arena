@@ -166,8 +166,12 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   ];
 }
 
-export function agentBases(): Bases {
-  return { site: `https://${DOMAIN}`, repository: `${REPOSITORY}/blob/main` };
+export function repositoryBase(root = repoRoot) {
+  return `${REPOSITORY}/blob/v${version(root)}`;
+}
+
+export function agentBases(root = repoRoot): Bases {
+  return { site: `https://${DOMAIN}`, repository: repositoryBase(root) };
 }
 
 export function carriedFiles(layer: string, root = repoRoot) {
@@ -215,7 +219,7 @@ export function agentRules(rules = RULES) {
 }
 
 export function copyAgentPayload(dir: string, layer: string, name: string, root = repoRoot) {
-  const bases = agentBases();
+  const bases = agentBases(root);
   const at = payloadDir(layer);
   const written = [];
   const files = carriedFiles(layer, root);

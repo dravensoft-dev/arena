@@ -5,9 +5,9 @@
  * hand-written source none, the branch boundary, which keeps a contributor path out of a
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
  * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
- * the claim a consumer page makes about what SHIPS: how many components. SIZE_ALLOWANCE is
- * empty, and that emptiness is the claim: a document falling back inside the shared limit
- * fails. */
+ * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
+ * for a link into this repository. SIZE_ALLOWANCE is empty, and that emptiness is the claim: a
+ * document falling back inside the shared limit fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -466,6 +466,32 @@ export function foreignCodeProblems(root = ROOT) {
   return { problems, scanned: scanned.length };
 }
 
+export const REPOSITORY_BLOB = 'github.com/dravensoft-dev/arena/blob/';
+
+export const BLOB_LINK_EXEMPT = new Map([
+  ['frameworks/react/PACKAGE.md', 'npm renders the page away from any clone, so its links are absolute'],
+  ['frameworks/angular/PACKAGE.md', 'npm renders the page away from any clone, so its links are absolute'],
+  ['contracts/NPM.md', 'npm renders the page away from any clone, so its links are absolute'],
+  ['mcp/NPM.md', 'npm renders the page away from any clone, so its links are absolute'],
+  ['.github/pull_request_template.md', 'GitHub renders the template outside the tree it links into'],
+]);
+
+export function blobLinkProblems(root = ROOT) {
+  const problems: string[] = [];
+  for (const path of documents(root)) {
+    const rel = relPosix(root, path);
+    if (BLOB_LINK_EXEMPT.has(rel)) continue;
+    readFileSync(path, 'utf8').split('\n').forEach((line, at) => {
+      if (!line.includes(REPOSITORY_BLOB)) return;
+      problems.push(
+        `${rel}:${at + 1}: a link into this repository by its GitHub address; a document read in a `
+        + 'clone links by relative path, and the builders that publish it rewrite what they leave behind',
+      );
+    });
+  }
+  return problems;
+}
+
 export function zeroScanProblems(
   { documents, sources, prompts }: { documents: number; sources: number; prompts: number },
 ) {
@@ -498,7 +524,7 @@ function main() {
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
-    ...counts.problems,
+    ...counts.problems, ...blobLinkProblems(),
   ];
 
   if (problems.length > 0) {

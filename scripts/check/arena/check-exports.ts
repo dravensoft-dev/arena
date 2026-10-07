@@ -108,7 +108,11 @@ export function homeProblems(base = root, reached = reachedSymbols(base), intern
   const problems = [];
   for (const [layer, names] of reached) {
     const text = referenceText(base, HOMES, asLayer(layer));
-    if (text === '') continue;
+    if (text === '') {
+      problems.push(`no ${layer} section of ${REFERENCES} (${HOMES.join(', ')}) exists to name what the `
+        + `${layer} package reaches, so the gate would pass every symbol by reading nothing`);
+      continue;
+    }
     for (const name of names) {
       if (internal.has(name) || text.includes(name)) continue;
       problems.push(
