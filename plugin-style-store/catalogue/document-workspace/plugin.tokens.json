@@ -480,6 +480,10 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "edge-axis": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": {

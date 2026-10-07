@@ -78,6 +78,7 @@
   --color-edge-control-quiet: var(--edge-control-quiet);
   --color-edge-field: var(--edge-field);
   --color-edge-separator: var(--edge-separator);
+  --color-edge-axis: var(--edge-axis);
   --color-edge-marker: var(--edge-marker);
 
   /* brand voice */

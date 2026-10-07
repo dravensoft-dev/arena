@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -55,6 +55,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'skeleton-circle-takes-its-width-as-diameter': () => <div style={{ '--arena-skeleton-width': '64px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-circle" /></div>,
   'skeleton-circle-height-wins': () => <div style={{ '--arena-skeleton-width': '40px', '--arena-skeleton-height': '64px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-circle" /></div>,
   'skeleton-radius-is-read-by-block-only': () => <div style={{ '--arena-skeleton-radius': '12px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-line" /></div>,
+  'day-head-clears-the-comfortable-row': () => <ArenaCalendar view="week" anchorDate="2025-03-03" dayInteractive />,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -72,6 +73,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'skeleton-circle-takes-its-width-as-diameter': { part: 'skeleton', at: 0 },
   'skeleton-circle-height-wins': { part: 'skeleton', at: 0 },
   'skeleton-radius-is-read-by-block-only': { part: 'skeleton', at: 0 },
+  'day-head-clears-the-comfortable-row': { part: 'calendar.day-head', at: 0 },
 };
 
 const { families, cases } = readProximity();

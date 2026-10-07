@@ -93,6 +93,7 @@
   --edge-control:var(--color-secondary);
   --edge-field:var(--color-neutral);
   --edge-separator:var(--color-neutral);
+  --edge-axis:var(--color-secondary);
   --bw-surface:2px;
   --bw-control:2px;
   --bw-field:2px;
@@ -260,6 +261,7 @@
   --edge-control:var(--color-secondary);
   --edge-field:var(--color-neutral);
   --edge-separator:var(--color-neutral);
+  --edge-axis:var(--color-secondary);
   --hue-danger-ink:var(--color-base-content);
   --hue-danger-edge:var(--color-base-content);
   --hue-danger-fill-soft:var(--color-neutral);

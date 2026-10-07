@@ -1,6 +1,7 @@
 {
   "component": "ArenaBarChart",
   "slots": {
+    "frame": "relative w-full",
     "legend": "flex items-center gap-4 overflow-hidden whitespace-nowrap",
     "legendItem": "flex items-center gap-marker min-w-0",
     "legendSwatch": "size-2.5 rounded-marker shrink-0",
@@ -10,6 +11,7 @@
     "tooltipValue": "font-mono text-ctl-md text-ink-body"
   },
   "kind": {
+    "frame": "none",
     "legend": "none",
     "legendItem": "marker",
     "legendSwatch": "none",

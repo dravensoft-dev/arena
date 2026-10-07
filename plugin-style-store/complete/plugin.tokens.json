@@ -477,6 +477,10 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "edge-axis": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw-strong}"

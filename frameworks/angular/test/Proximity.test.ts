@@ -27,6 +27,7 @@ import { ArenaGrid } from '../components/layout/arena-grid/ArenaGrid';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller';
 import { ArenaScrollerItem } from '../components/layout/arena-scroller-item/ArenaScrollerItem';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
+import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalendar';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
@@ -65,6 +66,7 @@ const TEMPLATES: Record<string, string> = {
   'skeleton-circle-takes-its-width-as-diameter': '<div style="--arena-skeleton-width: 64px"><arena-skeleton class="arena-skeleton-circle" /></div>',
   'skeleton-circle-height-wins': '<div style="--arena-skeleton-width: 40px; --arena-skeleton-height: 64px"><arena-skeleton class="arena-skeleton-circle" /></div>',
   'skeleton-radius-is-read-by-block-only': '<div style="--arena-skeleton-radius: 12px"><arena-skeleton class="arena-skeleton-line" /></div>',
+  'day-head-clears-the-comfortable-row': '<arena-calendar view="week" anchorDate="2025-03-03" dayInteractive />',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
@@ -82,6 +84,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'skeleton-circle-takes-its-width-as-diameter': { part: 'skeleton', index: 0 },
   'skeleton-circle-height-wins': { part: 'skeleton', index: 0 },
   'skeleton-radius-is-read-by-block-only': { part: 'skeleton', index: 0 },
+  'day-head-clears-the-comfortable-row': { part: 'calendar.day-head', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -95,7 +98,7 @@ for (const kase of cases) {
   test(`${kase.name}: Angular renders the tree the gate measures`, () => {
     const Host = Component({
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

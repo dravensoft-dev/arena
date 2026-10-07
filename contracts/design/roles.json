@@ -407,6 +407,10 @@
     "$type": "color",
     "$description": "The colour of the rule that divides one thing from the next inside a surface.\nBorn at base-300 beside edge-surface, and separate for the reason bw-separator is separate from\nbw-surface: a style plugin that removes the enclosure keeps the rules, because a table whose rows lost\ntheir lines at the same moment stops being readable.\n\nIt is the ornament a style plugin grouping by CONTINUITY would spend, if such a style plugin is ever written:\nthe line that runs across is the only thing saying the rows are a series."
   },
+  "edge-axis": {
+    "$type": "color",
+    "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by every chart. It is heavier than edge-separator, which draws the grid rules behind the marks."
+  },
   "bw-surface": {
     "$type": "dimension",
     "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn style plugin that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."
