@@ -446,7 +446,9 @@ const DESTRUCTIVE = /(?:^|\s)\[?destructive\]?(?=[\s=/>]|$)/;
 const BARE_COMPUTED_CLASS = /(?:^|\s)(?:className\s*=\s*\{|\[(?:class|ngClass|attr\.class|class\.[a-z0-9-]+)\]\s*=|class\s*=\s*["'][^"']*\{\{)|\{\s*\.\.\./;
 const BRANCH_ATTRIBUTE = /(?:^|\s)\*ng(?:If|SwitchCase|SwitchDefault)\b/;
 const BRANCH_BLOCK = /@(?:if|else|switch|case|default)\b[^{}@]*\{|@else\s*\{/y;
-const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*)*$/;
+const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*|<>\s*)*$/;
+const STRING_CONTEXT = /[=:,(\[?&|]\s*$|\breturn\s*$/;
+const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
 
 /* A branch is what the scanner can see without a tree: an @if/@else/@switch block still open before the tag,
  * a *ngIf on the tag or on an element still open around it, or a JSX operator (? : && ||) just before it. */
@@ -454,13 +456,20 @@ export function inBranch(text: string, start: number, attributes: string, openBr
   if (BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) return true;
   if (openBranches.some(({ name, end }) => {
     const between = text.slice(end, start);
-    const opened = [...between.matchAll(new RegExp(`<${name}(?![\\w.-])[^>]*[^/]>`, 'g'))].length;
+    const opened = [...between.matchAll(new RegExp(`<${name}(?![\\w.-])(?:[^>]*[^/>])?>`, 'g'))].length;
     return [...between.matchAll(new RegExp(`</${name}\\s*>`, 'g'))].length <= opened;
   })) return true;
   const stack: boolean[] = [];
   for (let i = 0; i < start; i++) {
     const c = text[i];
-    if (c === '@') {
+    if (c === '"' || c === "'" || c === '`') {
+      const before = text.slice(0, i);
+      if (STRING_CONTEXT.test(before.slice(-12)) && !(c === '`' && INLINE_TEMPLATE.test(before.slice(-24)))) {
+        let j = i + 1;
+        while (j < start && text[j] !== c) j += text[j] === '\\' ? 2 : 1;
+        i = j;
+      }
+    } else if (c === '@') {
       BRANCH_BLOCK.lastIndex = i;
       const m = BRANCH_BLOCK.exec(text);
       if (m) { stack.push(true); i += m[0].length - 1; }
@@ -604,7 +613,7 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
         bare.push(lineAt(text, start));
     }
 
-    if (BRANCH_ATTRIBUTE.test(attributes) && !raw.trimEnd().endsWith('/')) branches.push({ name, end: ends });
+    if ((BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) && !raw.trimEnd().endsWith('/')) branches.push({ name, end: ends });
 
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
