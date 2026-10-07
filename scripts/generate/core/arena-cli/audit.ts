@@ -570,13 +570,13 @@ export function outlineMessage(under: number, over: number) {
     + '`headingLevel`';
 }
 
-const BLOCK_COMMENT = /\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/g;
+const BLOCK_COMMENT = /'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/g;
 const LINE_COMMENT = /(?<![:\w"'`/\\])\/\/[^\n]*/g;
 const blanked = (span: string) => span.replace(/[^\n]/g, ' ');
 const balanced = (prefix: string) => ['"', "'", '`'].every((quote) => prefix.split(quote).length % 2 === 1);
 
 export function withoutComments(text: string) {
-  return text.replace(BLOCK_COMMENT, blanked).split('\n').map((line) => {
+  return text.replace(BLOCK_COMMENT, (span) => (span[0] === '/' || span[0] === '<' ? blanked(span) : span)).split('\n').map((line) => {
     for (const m of line.matchAll(LINE_COMMENT))
       if (balanced(line.slice(0, m.index))) return line.slice(0, m.index) + blanked(m[0]);
     return line;
@@ -629,7 +629,7 @@ export function ownAttributes(attributes: string) {
   return out;
 }
 
-export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null): Finding[] {
+export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null, source = text): Finding[] {
   const found: Finding[] = [];
   const rungs: number[] = [];
   let firstRung = 0;
@@ -678,7 +678,7 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
         bare.push({ scope, line: lineAt(text, start) });
       }
       if (vocabulary?.modals?.includes(component))
-        modals.push({ start, end: raw.trimEnd().endsWith('/') ? ends : elementEnd(text, name, ends) });
+        modals.push({ start, end: raw.trimEnd().endsWith('/') ? ends : elementEnd(source, name, ends) });
     }
 
     if ((BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) && !raw.trimEnd().endsWith('/')) branches.push({ name, end: ends });
@@ -802,7 +802,7 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
   const perLine = stripped.split('\n').flatMap((line, index) =>
     lineFindings(line, isStylesheet, scope, gradientMark, painted.has(index + 1))
       .map((one) => at(index + 1, one.rule, one.message)));
-  return [...perLine, ...structuralFindings(stripped, vocabulary), ...bracketFindings(text, lines)]
+  return [...perLine, ...structuralFindings(stripped, vocabulary, text), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 

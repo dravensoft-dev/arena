@@ -763,3 +763,10 @@ test('a modal counts its own primary, apart from the page under it', () => {
   assert.equal(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>',
     'src/App.tsx', { ...EMPHASIS_INDEX, modals: undefined }).length, 1, 'with no modals indexed the file is one count, as before');
 });
+
+test('text that only looks like a comment does not carry a modal past its close tag', () => {
+  assert.deepEqual(defaultPrimaries('<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>Rate: 5 // month</p></ArenaDialog>\n'
+    + '<ArenaButton>New</ArenaButton>\n</>'), []);
+  assert.deepEqual(defaultPrimaries("<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>{'src/**/*.tsx'}</p></ArenaDialog>\n"
+    + '<ArenaButton>New</ArenaButton>\n</>\n/* a note */'), []);
+});
