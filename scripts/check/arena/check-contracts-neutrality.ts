@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { expectedCarried } from './check-contracts-package.ts';
-import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { axesOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { COMPAT_ALIASES } from '../../generate/core/arena-to-prod/audit.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -184,20 +184,20 @@ const field = (type: string, member: string) => `contracts/api/types/${type}.jso
 
 export const COMPUTED = new Map<string, { reads: string; why: string }>([
   [at('ArenaBarChart', 'stack'), {
-    reads: 'frameworks/react/components/charts/ChartSeries.ts:arenaStackSegments(series, index)',
-    why: 'the render stacks the bars, and the axis is sized from the stacked sums',
+    reads: 'frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx:ArenaBarChart(props)',
+    why: 'the render stacks the bars with arenaStackSegments, and the axis is sized from the stacked sums',
   }],
   [at('ArenaHorizontalBarChart', 'stack'), {
-    reads: 'frameworks/react/components/charts/ChartSeries.ts:arenaStackSegments(series, index)',
-    why: 'the render stacks the bars, and the axis is sized from the stacked sums',
+    reads: 'frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx:ArenaHorizontalBarChart(props)',
+    why: 'the render stacks the bars with arenaStackSegments, and the axis is sized from the stacked sums',
   }],
   [at('ArenaScatterChart', 'sizeLegend'), {
-    reads: 'frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)',
-    why: 'the render reserves the size key\'s strip and draws it from the data',
+    reads: 'frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:ArenaScatterChart(props)',
+    why: 'the render reserves, through arenaLegendStrip, the size key\'s strip and draws it from the data',
   }],
   [at('ArenaTextarea', 'autoResize'), {
-    reads: 'frameworks/react/components/forms/arena-textarea/ArenaTextarea.tsx:arenaFitToContent(element)',
-    why: 'the render measures the content and sets the height',
+    reads: 'frameworks/react/components/forms/arena-textarea/ArenaTextarea.tsx:ArenaTextarea(props)',
+    why: 'the render measures the content with arenaFitToContent and sets the height',
   }],
   [field('arena-table-column', 'mobileLayout'), {
     reads: 'frameworks/angular/components/display/arena-table-cell/ArenaTableCell.ts:blocked()',
@@ -216,20 +216,20 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     why: 'the native control lays its initial height out from it, and that height is the floor the field grows from',
   }],
   [at('ArenaLineChart', 'area'), {
-    reads: 'frameworks/react/components/charts/ChartMarks.ts:arenaLineAreaPath(points, baseline)',
-    why: 'the render draws an area path under the line, closed down to the baseline',
+    reads: 'frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx:ArenaLineChart(props)',
+    why: 'the render draws, through arenaLineAreaPath, an area path under the line, closed down to the baseline',
   }],
   [at('ArenaRadarChart', 'fill'), {
-    reads: 'frameworks/react/DataVisuals.ts:arenaAreaFill(colour)',
-    why: 'the render draws a filled polygon per series in a tint of the series colour',
+    reads: 'frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx:ArenaRadarChart(props)',
+    why: 'the render draws, through arenaAreaFill, a filled polygon per series in a tint of the series colour',
   }],
   [at('ArenaDoughnutChart', 'shape'), {
-    reads: 'frameworks/react/components/charts/ChartAxis.ts:arenaDoughnutRadii(plotWidth, height, shape)',
-    why: 'the render computes the inner radius from it, and the accessible name and the centre figure follow',
+    reads: 'frameworks/react/components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx:ArenaDoughnutChart(props)',
+    why: 'the render computes, through arenaDoughnutRadii, the inner radius from it, and the accessible name and the centre figure follow',
   }],
   [at('ArenaDoughnutChart', 'legendLayout'), {
-    reads: 'frameworks/react/components/charts/ChartLegend.ts:arenaLegendStacked(layout, width)',
-    why: 'the render decides from it and the measured width whether each legend row stacks',
+    reads: 'frameworks/react/components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx:ArenaDoughnutChart(props)',
+    why: 'the render decides, through arenaLegendStacked, from it and the measured width whether each legend row stacks',
   }],
   [at('ArenaDialog', 'fillBelow'), {
     reads: 'frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:DialogFrame(props)',
@@ -241,6 +241,11 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
   }],
 ]);
 
+export const NOT_GEOMETRY = new Map<string, string>([
+  [at('ArenaInput', 'min'), 'the lower bound of the value a number or date input accepts, which the browser validates'],
+  [at('ArenaInput', 'max'), 'the upper bound of the value a number or date input accepts, which the browser validates'],
+]);
+
 export function resolvesMember(key: string, repo = root) {
   const [rel = '', path = ''] = key.split(':');
   const [section = '', member = ''] = path.split('.');
@@ -250,6 +255,19 @@ export function resolvesMember(key: string, repo = root) {
   } catch {
     return false;
   }
+}
+
+export function functionBody(text: string, name: string): string | undefined {
+  const head = new RegExp(`(?:function\\s+|const\\s+|^|\\s)${name}\\s*[(=<:]`, 'm').exec(text);
+  if (!head) return undefined;
+  const open = text.indexOf('{', text.indexOf(')', head.index));
+  if (open < 0) return undefined;
+  let depth = 0;
+  for (let i = open; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}' && --depth === 0) return text.slice(open, i + 1);
+  }
+  return undefined;
 }
 
 export function computedProblems(resolves: (key: string) => boolean = resolvesMember, entries = COMPUTED, repo = root) {
@@ -265,12 +283,64 @@ export function computedProblems(resolves: (key: string) => boolean = resolvesMe
     }
     const [file = '', call = ''] = reads.split(':');
     const name = call.split('(')[0] ?? '';
+    const member = key.split('.').pop() ?? '';
     let text: string | undefined;
     try { text = readFileSync(join(repo, file), 'utf8'); } catch { text = undefined; }
     if (text === undefined) {
       problems.push(`COMPUTED: ${key} reads ${reads} and ${file} does not exist`);
-    } else if (!name || !text.includes(name)) {
+      continue;
+    }
+    const body = name ? functionBody(text, name) : undefined;
+    if (body === undefined) {
       problems.push(`COMPUTED: ${key} reads ${reads} and ${file} does not contain ${name || 'a function name'}`);
+    } else if (!new RegExp(`\\b${member}\\b`).test(body)) {
+      problems.push(`COMPUTED: ${key} reads ${reads} and the body of ${name} does not read ${member}, so the entry `
+        + 'cites a function that does not compute the member');
+    }
+  }
+  return problems;
+}
+
+const CSS_LENGTH = /^-?\d*\.?\d+(px|rem|em|%|ch|vh|vw|vmin|vmax|fr)$/;
+const CSS_RATIO = /^\d+\s*\/\s*\d+$/;
+
+export function axisNames(families: Map<string, { axis?: string | string[] }>): Set<string> {
+  const out = new Set<string>();
+  for (const family of families.values())
+    for (const axis of axesOf(family)) {
+      const last = axis.replace(/^--arena-/, '').split('-').pop();
+      if (last) out.add(last);
+    }
+  return out;
+}
+
+export function cssLengthProblems(contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>,
+  families: Map<string, { axis?: string | string[] }>, computed = COMPUTED, notGeometry = NOT_GEOMETRY) {
+  const names = axisNames(families);
+  if (names.size === 0) {
+    return ['cssLengthProblems derived 0 axis names from the families, so no member name was compared; an '
+      + 'empty axis set is a failure rather than a clean pass'];
+  }
+  const problems: string[] = [];
+  const matched = new Set<string>();
+  const check = (key: string, spec: { form?: string; type?: string; default?: unknown; examples?: unknown }, name: string) => {
+    if (spec.form !== 'primitive' || spec.type !== 'string' || computed.has(key)) return;
+    if (notGeometry.has(key) && names.has(name)) { matched.add(key); return; }
+    const samples = [spec.default, ...(Array.isArray(spec.examples) ? spec.examples : [])]
+      .filter((v): v is string => typeof v === 'string');
+    const length = samples.find((v) => CSS_LENGTH.test(v.trim()) || CSS_RATIO.test(v.trim()));
+    const way = 'a length is a token or a class, not a member. Write the class, or record the member in COMPUTED with the function that reads it';
+    if (length !== undefined) problems.push(`${key} is a string carrying the CSS length ${JSON.stringify(length)}: ${way}`);
+    else if (names.has(name)) problems.push(`${key} is a string named for the axis ${name}, which a family ships: ${way}`);
+  };
+  for (const [component, contract] of contracts)
+    for (const [member, spec] of Object.entries(contract.api ?? {})) check(at(component, member), spec, member);
+  for (const type of types.values())
+    for (const [member, spec] of Object.entries(type.fields ?? {})) check(field(kebab(type.name), member), spec, member);
+  for (const key of notGeometry.keys()) {
+    if (!matched.has(key)) {
+      problems.push(`NOT_GEOMETRY names ${key} and no string member of that name is matched by an axis name, so the `
+        + 'entry outlived the member or the match');
     }
   }
   return problems;
@@ -347,6 +417,8 @@ export function collect(repo = root) {
       ...computedProblems(),
       ...optionShapeProblems(readDir<ContractCandidate>(join(repo, 'contracts/api/components')),
         readDir<TypeContract>(join(repo, 'contracts/api/types')), familyOptions(repo)),
+      ...cssLengthProblems(readDir<ContractCandidate>(join(repo, 'contracts/api/components')),
+        readDir<TypeContract>(join(repo, 'contracts/api/types')), readFamilies(repo)),
     ],
   };
 }

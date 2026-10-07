@@ -4,7 +4,7 @@ import {
   BROWSER_BOUND, WEB_PROSE, aliasProseProblems, zeroAliasProseProblems, WEB_SHAPED, collect, memberPath, proseProblems, strands,
   valueProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
-import { COMPUTED, computedProblems, optionShapeProblems } from './check-contracts-neutrality.ts';
+import { COMPUTED, computedProblems, cssLengthProblems, functionBody, NOT_GEOMETRY, optionShapeProblems } from './check-contracts-neutrality.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
@@ -75,13 +75,20 @@ test('every record still names something the payload holds', () => {
 
 test('a COMPUTED entry fails when its key does not resolve, its file lacks the function, or the map is empty', () => {
   const entry = { reads: 'scripts/check/arena/check-contracts-neutrality.ts:computedProblems(a)', why: 'w' };
-  assert.deepEqual(computedProblems(() => true, new Map([['k', entry]])), []);
+  assert.deepEqual(computedProblems(() => true, new Map([['x:api.resolves', entry]])), []);
   assert.match(computedProblems(() => false, new Map([['k', entry]])).join('\n'), /names k and no contract declares it/);
   const lacking = { reads: 'scripts/check/arena/check-contracts-neutrality.ts:noSuchFunction(a)', why: 'w' };
   assert.match(computedProblems(() => true, new Map([['k', lacking]])).join('\n'), /noSuchFunction/);
   const missing = { reads: 'scripts/check/arena/no-such-file.ts:computedProblems(a)', why: 'w' };
   assert.match(computedProblems(() => true, new Map([['k', missing]])).join('\n'), /no-such-file/);
   assert.match(computedProblems(() => true, new Map()).join('\n'), /COMPUTED is empty/);
+});
+
+test('a COMPUTED entry fails when its function body does not read the member', () => {
+  const entry = { reads: 'scripts/check/arena/check-contracts-neutrality.ts:computedProblems(a)', why: 'w' };
+  const problems = computedProblems(() => true, new Map([['x:api.zzNeverRead', entry]])).join('\n');
+  assert.match(problems, /body of computedProblems does not read zzNeverRead/);
+  assert.ok(functionBody('function f(a) { if (a) { return 1; } return 2; }\nconst g = 3;', 'f')?.endsWith('return 2; }'));
 });
 
 test('the real COMPUTED holds', () => {
@@ -160,4 +167,40 @@ test('the alias guard fails on a walk that read no description under contracts/a
   assert.equal(zeroAliasProseProblems([]).length, 1);
   assert.deepEqual(zeroAliasProseProblems(of('contracts/api/types/a.json', { description: 'x' })), []);
   assert.deepEqual(zeroAliasProseProblems(collect().all), []);
+});
+
+const lengthFamilies = new Map([['dialog', { axis: '--arena-dialog-width' }], ['grid', { axis: ['--arena-grid-min', '--arena-grid-max'] }]]);
+const stringMember = (extra: object = {}) => ({ form: 'primitive', type: 'string', ...extra });
+const lengthOf = (api: Record<string, object>, computed = new Map<string, { reads: string; why: string }>(),
+  notGeometry = new Map<string, string>()) =>
+  cssLengthProblems(new Map<string, ContractCandidate>([['ArenaX', { component: 'ArenaX', api }]]), new Map(), lengthFamilies, computed, notGeometry);
+
+test('a string member named for a shipped axis fails, and one with another name passes', () => {
+  assert.match(lengthOf({ width: stringMember() }).join('\n'), /ArenaX\.json:api\.width is a string named for the axis width/);
+  assert.match(lengthOf({ min: stringMember() }).join('\n'), /api\.min is a string named for the axis min/);
+  assert.deepEqual(lengthOf({ label: stringMember() }), []);
+  assert.deepEqual(lengthOf({ width: { form: 'primitive', type: 'number' } }), []);
+});
+
+test('a string member whose default or example parses as a length, percentage or ratio fails under any name', () => {
+  assert.match(lengthOf({ label: stringMember({ default: '40rem' }) }).join('\n'), /api\.label is a string carrying the CSS length "40rem"/);
+  assert.equal(lengthOf({ a: stringMember({ examples: ['x', '50%'] }) }).length, 1);
+  assert.equal(lengthOf({ a: stringMember({ default: '16/9' }) }).length, 1);
+  assert.deepEqual(lengthOf({ a: stringMember({ default: 'wide' }) }), []);
+});
+
+test('a COMPUTED-recorded string member passes, and a run that derived no axis name fails', () => {
+  const computed = new Map([['contracts/api/components/ArenaX.json:api.width', { reads: 'r', why: 'w' }]]);
+  assert.deepEqual(lengthOf({ width: stringMember() }, computed), []);
+  const none = cssLengthProblems(new Map(), new Map(), new Map());
+  assert.match(none.join('\n'), /derived 0 axis names/);
+});
+
+test('a NOT_GEOMETRY member passes, and an entry whose member is gone or no longer matched fails', () => {
+  const key = 'contracts/api/components/ArenaX.json:api.min';
+  const exempt = new Map([[key, 'bounds the value']]);
+  assert.deepEqual(lengthOf({ min: stringMember() }, new Map(), exempt), []);
+  assert.match(lengthOf({ label: stringMember() }, new Map(), exempt).join('\n'), /NOT_GEOMETRY names .*api\.min/);
+  assert.match(lengthOf({ min: stringMember() }, new Map(), new Map()).join('\n'), /api\.min is a string named for the axis/);
+  assert.ok(NOT_GEOMETRY.size > 0);
 });
