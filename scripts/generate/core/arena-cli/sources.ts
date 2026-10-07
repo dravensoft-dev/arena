@@ -41,17 +41,23 @@ export function readSources(paths: string[]) {
   return sources;
 }
 
-export function pluginDirs(options: { config: string }) {
+export function readPluginDirs(path: string, required: boolean): { dirs: string[] } | { error: string } {
+  if (!required && !existsSync(path)) return { dirs: [] };
   let config;
   try {
-    config = JSON.parse(readFileSync(options.config, 'utf8'));
-  } catch {
-    return [] as string[];
+    config = JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    return { error: `cannot read ${path}: ${(error as Error).message}` };
   }
-  const declared = Array.isArray(config.stylePlugins) ? config.stylePlugins : [];
-  return declared
+  const declared = Array.isArray(config?.stylePlugins) ? config.stylePlugins : [];
+  return { dirs: declared
     .filter((entry: unknown): entry is string => typeof entry === 'string' && entry.trim() !== DEFAULT_PLUGIN)
-    .map((entry: string) => resolve(dirname(resolve(options.config)), entry.trim()));
+    .map((entry: string) => resolve(dirname(resolve(path)), entry.trim())) };
+}
+
+export function pluginDirs(options: { config: string }) {
+  const read = readPluginDirs(options.config, false);
+  return 'dirs' in read ? read.dirs : [];
 }
 
 export function auditFiles(paths: string[], dirs: string[]) {

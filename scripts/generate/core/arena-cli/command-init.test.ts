@@ -1,7 +1,7 @@
 /* arena init: the config it copies, the scripts it wires, and what it leaves alone. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-init.ts';
@@ -210,4 +210,41 @@ test('a CRLF package.json keeps CRLF line endings', () => {
   assert.ok(text.includes('\r\n'));
   assert.ok(!/[^\r]\n/.test(text));
   assert.ok(text.endsWith('}\r\n'));
+});
+
+test('a config it cannot write exits 2 naming it, and package.json is untouched', () => {
+  const { cwd, io, out, err } = setup();
+  writeFileSync(join(cwd, 'blocker'), 'a file, not a directory');
+  assert.equal(run(['--config', 'blocker/arena.json'], io), 2);
+  assert.deepEqual(out, []);
+  assert.equal(err.length, 1);
+  assert.ok(err[0]!.startsWith(`arena init: cannot write ${join(cwd, 'blocker', 'arena.json')}: `), err.join('\n'));
+  assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), '{}\n');
+});
+
+test('a package.json it cannot write exits 2 naming it', { skip: process.getuid?.() === 0 && 'root writes a read-only file' }, () => {
+  const { cwd, io, err } = setup();
+  const pkg = join(cwd, 'package.json');
+  chmodSync(pkg, 0o444);
+  try {
+    assert.equal(run([], io), 2);
+    assert.equal(err.length, 1);
+    assert.ok(err[0]!.startsWith(`arena init: cannot write ${pkg}: `), err.join('\n'));
+    assert.equal(readFileSync(pkg, 'utf8'), '{}\n');
+  } finally { chmodSync(pkg, 0o644); }
+});
+
+test('the "make it" line carries a non-default --config', () => {
+  const { io, out } = setup(REACT, JSON.stringify({ scripts: { prebuild: 'tsc -b' } }));
+  assert.equal(run(['--config', 'conf/my arena.json'], io), 0);
+  assert.ok(out.includes('arena init: package.json already runs "tsc -b" as prebuild, so init left it; '
+    + 'make it "arena build --config "conf/my arena.json" && tsc -b"'), out.join('\n'));
+});
+
+test('a package.json saved with a byte order mark is read, and keeps the mark', () => {
+  const { cwd, io } = setup(REACT, '﻿{\n  "name": "app"\n}\n');
+  assert.equal(run([], io), 0);
+  const text = readFileSync(join(cwd, 'package.json'), 'utf8');
+  assert.ok(text.startsWith('﻿{\n  "name": "app",\n  "scripts": {'), JSON.stringify(text.slice(0, 40)));
+  assert.equal(JSON.parse(text.slice(1)).scripts.prebuild, 'arena build');
 });

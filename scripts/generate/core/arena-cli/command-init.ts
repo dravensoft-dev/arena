@@ -45,7 +45,9 @@ export function run(argv: string[], io: Io): number {
     say.err(`no package.json in ${io.cwd}; arena init adds scripts to the one your project has`);
     return 2;
   }
-  const raw = readFileSync(pkgPath, 'utf8');
+  const read = readFileSync(pkgPath, 'utf8');
+  const bom = read.startsWith('\uFEFF') ? '\uFEFF' : '';
+  const raw = read.slice(bom.length);
   let pkg: Record<string, unknown>;
   try {
     const parsed = JSON.parse(raw);
@@ -65,8 +67,13 @@ export function run(argv: string[], io: Io): number {
 
   let wroteConfig = false;
   if (!existsSync(options.config)) {
-    mkdirSync(dirname(options.config), { recursive: true });
-    copyFileSync(example, options.config);
+    try {
+      mkdirSync(dirname(options.config), { recursive: true });
+      copyFileSync(example, options.config);
+    } catch (error) {
+      say.err(`cannot write ${options.config}: ${message(error)}`);
+      return 2;
+    }
     say.out(`wrote ${options.config}, a copy of the example this package carries`);
     wroteConfig = true;
   }
@@ -90,7 +97,7 @@ export function run(argv: string[], io: Io): number {
       continue;
     } else if (layer.includes(script)) {
       if (!/\barena build\b/.test(value)) {
-        say.out(`package.json already runs "${value}" as ${script}, so init left it; make it "arena build && ${value}"`);
+        say.out(`package.json already runs "${value}" as ${script}, so init left it; make it "arena build${suffix} && ${value}"`);
       }
     } else {
       say.out(`kept ${script}, which reads "${value}"`);
@@ -101,7 +108,12 @@ export function run(argv: string[], io: Io): number {
     pkg.scripts = scripts;
     const indent = /^([ \t]+)"/m.exec(raw)?.[1] ?? '  ';
     const text = JSON.stringify(pkg, null, indent) + (raw.endsWith('\n') ? '\n' : '');
-    writeFileSync(pkgPath, raw.includes('\r\n') ? text.replace(/\n/g, '\r\n') : text);
+    try {
+      writeFileSync(pkgPath, bom + (raw.includes('\r\n') ? text.replace(/\n/g, '\r\n') : text));
+    } catch (error) {
+      say.err(`cannot write ${pkgPath}: ${message(error)}`);
+      return 2;
+    }
     say.out(`added ${added.join(', ')} to package.json`);
   }
   if (!wroteConfig && added.length === 0) say.out('nothing to do');

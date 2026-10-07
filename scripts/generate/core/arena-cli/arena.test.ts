@@ -87,6 +87,31 @@ test('a command receives the rest of argv and its code is returned', async () =>
   } finally { COMMANDS.doctor = held; }
 });
 
+test('a command that throws exits 2 with one line naming the command, sync or async', async () => {
+  const held = { clean: COMMANDS.clean, build: COMMANDS.build };
+  COMMANDS.clean = () => { throw new Error('EACCES: permission denied'); };
+  COMMANDS.build = async () => { throw new Error('ENOSPC: no space left'); };
+  try {
+    const sync = captureIo(cwd);
+    assert.equal(await main(['clean'], sync.io), 2);
+    assert.deepEqual(sync.err, ['arena clean: EACCES: permission denied']);
+    const later = captureIo(cwd);
+    assert.equal(await main(['build'], later.io), 2);
+    assert.deepEqual(later.err, ['arena build: ENOSPC: no space left']);
+  } finally { Object.assign(COMMANDS, held); }
+});
+
+test('help takes one word: extra words exit 2, and help --help prints the usage', async () => {
+  const extra = captureIo(cwd);
+  assert.equal(await main(['help', 'clean', 'build'], extra.io), 2);
+  assert.deepEqual(extra.err, ['arena: help takes one command, and build is one too many', '', USAGE]);
+  for (const flag of ['--help', '-h']) {
+    const self = captureIo(cwd);
+    assert.equal(await main(['help', flag], self.io), 0);
+    assert.deepEqual(self.out, [USAGE]);
+  }
+});
+
 test('every command has an entry in the table', async () => {
   for (const name of COMMAND_NAMES) assert.equal(typeof COMMANDS[name], 'function');
   assert.deepEqual(Object.keys(COMMANDS).sort(), [...COMMAND_NAMES].sort());

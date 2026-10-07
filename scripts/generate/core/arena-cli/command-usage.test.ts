@@ -75,3 +75,29 @@ test('--strict exits 2 with the neighbour message', () => {
     assert.match(err[0]!, /^arena usage: --strict is not a flag of arena usage; arena usage reports nothing a project fixes/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('a config it cannot read exits 2 naming it, and a named config that is not there does too', () => {
+  const root = project({ ...readable, stylePlugins: ['plugin'] }, { 'app.html': '<arena-button></arena-button>' });
+  try {
+    const config = join(root, 'arena.config.json');
+    writeFileSync(config, '{ "stylePlugins": ["plugin"], }');
+    const broken = captureIo(root, environment);
+    assert.equal(run([], broken.io), 2);
+    assert.deepEqual(broken.out, []);
+    assert.equal(broken.err.length, 1);
+    assert.ok(broken.err[0]!.startsWith(`arena usage: cannot read ${config}: `), broken.err.join('\n'));
+
+    const named = captureIo(root, environment);
+    assert.equal(run(['--config', 'nope.json'], named.io), 2);
+    assert.ok(named.err[0]!.startsWith(`arena usage: cannot read ${join(root, 'nope.json')}: `), named.err.join('\n'));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('no config at the default path reads as no style plugin', () => {
+  const root = project(null, { 'app.html': '<arena-button></arena-button>' });
+  try {
+    const { io, out } = captureIo(root, environment);
+    assert.equal(run([], io), 0);
+    assert.match(out[2]!, /paint no part\(s\)/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

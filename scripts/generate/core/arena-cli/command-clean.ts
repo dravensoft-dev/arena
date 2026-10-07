@@ -12,13 +12,21 @@ export function run(argv: string[], io: Io): number {
   if (typeof options === 'number') return options;
   const say = voice(io, 'clean');
   let removed = 0;
+  let failed = 0;
   for (const name of OUTPUT_SHEETS) {
     const at = join(options.out, name);
     if (!existsSync(at)) continue;
-    rmSync(at);
+    try {
+      rmSync(at);
+    } catch (error) {
+      say.err(`cannot delete ${at}: ${(error as Error).message}`);
+      failed++;
+      continue;
+    }
     say.out(`removed ${at}`);
     removed++;
   }
+  if (failed > 0) return 2;
   if (removed === 0) say.out(`nothing to remove in ${options.out}`);
   return 0;
 }

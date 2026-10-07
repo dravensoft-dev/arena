@@ -120,6 +120,7 @@ export function strictKinds(command: StrictCommand, value: string): { kinds: Str
   const held = KINDS_BY_COMMAND[command] as readonly StrictKind[];
   const list = held.join(', ');
   const named = value.split(',').map((one) => one.trim()).filter(Boolean);
+  if (named.length === 0) return { error: `--strict= names no kind; arena ${command} holds ${list}` };
   for (const name of named) {
     if (name === 'wash') {
       return { error: `wash is reported and never held, since no configuration can clear it; arena ${command} holds ${list}` };
@@ -151,6 +152,7 @@ export function parseArgs(command: Command, argv: string[]): Parsed {
   const options: Options = {
     config: DEFAULT_CONFIG, paths: [], out: DEFAULT_OUT, importHeader: true, watch: false, strict: [],
   };
+  const given = new Set<FlagName>();
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i]!;
     if (token === '--help' || token === '-h') return { kind: 'help' };
@@ -163,6 +165,10 @@ export function parseArgs(command: Command, argv: string[]): Parsed {
     if (!spec.flags.includes(hit.name)) {
       return { kind: 'error', error: `${hit.spelling} is not a flag of arena ${command}; ${NEIGHBOURS[command][hit.name]}` };
     }
+    if (given.has(hit.name) && !flag.repeatable) {
+      return { kind: 'error', error: `${hit.spelling} is given twice; arena ${command} takes it once` };
+    }
+    given.add(hit.name);
     if (flag.takes === 'none') {
       if (hit.value !== null) return { kind: 'error', error: `${hit.spelling} takes no value` };
       if (hit.name === 'watch') options.watch = true;
@@ -180,7 +186,7 @@ export function parseArgs(command: Command, argv: string[]): Parsed {
       continue;
     }
     const value = hit.value ?? argv[++i];
-    if (!value) return { kind: 'error', error: `${hit.spelling} needs ${NEEDS[flag.takes]}` };
+    if (!value || (hit.value === null && value.startsWith('-'))) return { kind: 'error', error: `${hit.spelling} needs ${NEEDS[flag.takes]}` };
     if (hit.name === 'config') options.config = value;
     else if (hit.name === 'out') options.out = value;
     else options.paths.push(value);

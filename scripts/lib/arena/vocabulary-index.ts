@@ -1,4 +1,4 @@
-/* What --audit needs to read a class against the vocabulary, as one JSON file a package carries
+/* What `arena audit` needs to read a class against the vocabulary, as one JSON file a package carries
  * beside its component map: the audit ships inside the package and can read neither a family file
  * nor a manifest from there. */
 

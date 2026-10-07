@@ -35,7 +35,6 @@ test("every command's defaults: config, src, out, importHeader, watch, strict", 
 test('--config, --src, -o and --out take their value either way, and --src repeats', () => {
   assert.equal(options('build', ['--config', 'a.json']).config, 'a.json');
   assert.equal(options('build', ['--config=a.json']).config, 'a.json');
-  assert.equal(options('build', ['--config', 'a', '--config', 'b']).config, 'b');
   assert.deepEqual(options('build', ['--src', 'a', '--src=b']).paths, ['a', 'b']);
   assert.equal(options('build', ['-o', 'x']).out, 'x');
   assert.equal(options('build', ['--out', 'x']).out, 'x');
@@ -67,8 +66,30 @@ test("bare --strict holds exactly the command's set, for check, audit and doctor
   assert.deepEqual(options('check', ['--strict=glyph,contrast']).strict, ['glyph', 'contrast']);
 });
 
-test('--strict= holds nothing', () => {
-  for (const command of holding) assert.deepEqual(options(command, ['--strict=']).strict, [], command);
+test('--strict= naming no kind is refused, and names the kinds the command holds', () => {
+  for (const command of holding) {
+    for (const value of ['--strict=', '--strict=,', '--strict= , ']) {
+      assert.equal(error(command, [value]),
+        `--strict= names no kind; arena ${command} holds ${KINDS_BY_COMMAND[command].join(', ')}`, `${command} ${value}`);
+    }
+  }
+});
+
+test('a path flag refuses a separate value that is a flag, and takes one after =', () => {
+  assert.equal(error('build', ['--src', '--out', 'out']), '--src needs a path');
+  assert.equal(error('build', ['-o', '--watch']), '-o needs a directory');
+  assert.equal(error('check', ['--config', '-h']), '--config needs a path');
+  assert.deepEqual(options('build', ['--src=-x']).paths, ['-x']);
+});
+
+test('a flag given twice is refused unless it repeats, and --src repeats', () => {
+  assert.equal(error('build', ['--config', 'a.json', '--config', 'b.json']), '--config is given twice; arena build takes it once');
+  assert.equal(error('build', ['-o', 'a', '--out', 'b']), '--out is given twice; arena build takes it once');
+  assert.equal(error('build', ['--watch', '--watch']), '--watch is given twice; arena build takes it once');
+  assert.equal(error('build', ['--no-import', '--no-import']), '--no-import is given twice; arena build takes it once');
+  assert.equal(error('check', ['--strict', '--strict=glyph']), '--strict is given twice; arena check takes it once');
+  assert.deepEqual(options('build', ['--src', 'a', '--src', 'b']).paths, ['a', 'b']);
+  for (const name of FLAG_NAMES) assert.equal(FLAGS[name].repeatable, name === 'src', name);
 });
 
 test('--strict with a kind of another command names that command', () => {

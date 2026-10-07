@@ -23,8 +23,6 @@ export const ICON_MANIFEST = 'icons.json';
 
 export const SHEET_IMPORT = /@import\s+'\.\/([^']+)';/g;
 
-export const CSS_BLOCK = /([^{}]+)\{([^}]*)\}/g;
-
 export const CATALOGUE_FILE = 'arena.tokens.json';
 
 export const REFERENCE_DECLARATION = /^--[\w-]+:\s*var\(--color-[\w-]+\)$/;

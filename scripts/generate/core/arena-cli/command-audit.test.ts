@@ -2,7 +2,7 @@
  * summary line. A project is a temp directory, so every case reads real files and nothing else. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-audit.ts';
@@ -86,4 +86,27 @@ test('a missing --src exits 2', () => {
   const result = audit(root, arena, ['--src', 'nowhere']);
   assert.equal(result.code, 2);
   assert.match(result.err.join('\n'), /arena audit: .*nowhere is not there/);
+});
+
+test('a config it cannot read exits 2 naming it, and a named config that is not there does too', () => {
+  const { root, arena } = setup({ 'src/App.tsx': '<p />', 'src/skin/plugin.css': '[data-arena-part="card.title"] { color: red; }' });
+  const config = join(root, 'arena.config.json');
+  writeFileSync(config, '{ "stylePlugins": ["./src/skin"], }');
+  const broken = audit(root, arena, ['--strict']);
+  assert.equal(broken.code, 2);
+  assert.equal(broken.out.length, 0);
+  assert.match(broken.err[0]!, new RegExp(`^arena audit: cannot read ${config.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: `));
+  assert.equal(broken.err.length, 1);
+
+  const named = audit(root, arena, ['--config', 'nope.json']);
+  assert.equal(named.code, 2);
+  assert.match(named.err[0]!, /^arena audit: cannot read .*nope\.json: /);
+});
+
+test('no config at the default path reads as no style plugin', () => {
+  const { root, arena } = setup({ 'src/b.tsx': '<p />' });
+  rmSync(join(root, 'arena.config.json'));
+  const result = audit(root, arena);
+  assert.equal(result.code, 0);
+  assert.match(result.out[0]!, /audited 1 file\(s\), no finding\(s\)/);
 });

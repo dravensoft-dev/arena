@@ -46,8 +46,9 @@ export function main(argv: string[], io: Io = processIo()): number | Promise<num
   if (first === undefined) { io.err(USAGE); return 2; }
   if (first === '--help' || first === '-h') { io.out(USAGE); return 0; }
   if (first === 'help') {
-    const [word] = rest;
-    if (word === undefined) { io.out(USAGE); return 0; }
+    const [word, extra] = rest;
+    if (word === undefined || word === '--help' || word === '-h') { io.out(USAGE); return 0; }
+    if (extra !== undefined) return refuse(io, `arena: help takes one command, and ${extra} is one too many`);
     if (!isCommand(word)) return refuse(io, `arena: no command named ${word}`);
     io.out(usageOf(word));
     return 0;
@@ -63,7 +64,16 @@ export function main(argv: string[], io: Io = processIo()): number | Promise<num
   }
   if (first.startsWith('-')) return refuse(io, 'arena: a command comes first');
   if (!isCommand(first)) return refuse(io, `arena: no command named ${first}`);
-  return COMMANDS[first](rest, io);
+  const failed = (error: unknown) => {
+    io.err(`arena ${first}: ${error instanceof Error ? error.message : String(error)}`);
+    return 2;
+  };
+  try {
+    const code = COMMANDS[first](rest, io);
+    return typeof code === 'number' ? code : code.catch(failed);
+  } catch (error) {
+    return failed(error);
+  }
 }
 
 export function isProgram(entry: string | undefined, self: string) {
