@@ -31,7 +31,7 @@ export function run(argv: string[], io: Io): number {
 
   for (const one of found.reports) say.err(`[${one.kind}] ${one.message}`);
   say.out(`audited ${found.scanned} file(s), ${found.reports.length || 'no'} finding(s). `
-    + 'Nothing reads the rendered view or the application as a whole, so those hold because you hold them');
+    + 'Nothing reads the rendered view or the application as a whole; what they show holds because you hold it');
 
   const held = reported(found.reports, options.strict);
   if (held.length === 0) return 0;

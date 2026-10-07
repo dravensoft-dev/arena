@@ -75,7 +75,7 @@ test('the summary line counts files and findings, and the painted note is absent
   const { root, arena } = setup({ 'src/App.tsx': BREAK, 'src/b.tsx': '<p />' });
   const result = audit(root, arena);
   assert.equal(result.out.length, 1);
-  assert.match(result.out[0]!, /^arena audit: audited 2 file\(s\), 1 finding\(s\)\. Nothing reads the rendered view or the application as a whole, so those hold because you hold them$/);
+  assert.match(result.out[0]!, /^arena audit: audited 2 file\(s\), 1 finding\(s\)\. Nothing reads the rendered view or the application as a whole; what they show holds because you hold it$/);
   assert.doesNotMatch(result.out.join('\n'), /paint/);
   const clean = setup({ 'src/b.tsx': '<p />' });
   assert.match(audit(clean.root, clean.arena).out[0]!, /audited 1 file\(s\), no finding\(s\)/);
