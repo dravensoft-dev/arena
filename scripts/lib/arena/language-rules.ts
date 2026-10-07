@@ -72,7 +72,7 @@ export const RULES: LanguageRule[] = [
       + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
       + 'A brand whose mark is itself a gradient declares it once, with `"gradientMark": true` in '
       + '`arena.config.json`, and the audit then stops reporting gradients in app source; '
-      + 'a declared plugin directory may paint one either way.',
+      + 'the audit does not scan a declared plugin directory for gradients either way.',
     held: 'raw-value',
     unheld: null,
   },

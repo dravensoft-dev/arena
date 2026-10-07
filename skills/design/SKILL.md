@@ -120,8 +120,9 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **No gradients, on any surface.** Depth comes from the `base-100` to `base-200` to `base-300`
   surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
   one exception. A brand whose mark is itself a gradient declares it once, with `"gradientMark":
-  true` in `arena.config.json`, and the audit then stops reporting gradients in app source; a
-  declared plugin directory may paint one either way. **`arena audit` reports this one.**
+  true` in `arena.config.json`, and the audit then stops reporting gradients in app source; the
+  audit does not scan a declared plugin directory for gradients either way. **`arena audit`
+  reports this one.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
   ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
