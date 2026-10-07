@@ -52,7 +52,7 @@ What covers what is a system-wide invariant, not a per-component choice, so it i
 |---|---|---|
 | `--z-nav` | 800 | `ArenaBottomNav`, and the host's own fixed page chrome beside it: a sticky top bar, a second bar of its own. Below dropdown, so an `ArenaMenu` opened from the bar covers it |
 | `--z-sheet` | 850 | `ArenaSheet`, and the host's own edge panels beside it: a cart, a filter drawer, a detail pane that leaves the page usable behind it. Above nav, because a sheet that slides over a fixed bar and lands under it is the failure; below dropdown, because an `ArenaMenu` opened from inside the sheet belongs over it |
-| `--z-dropdown` | 900 | `ArenaMenu`, `ArenaSelect`'s popover layer, a calendar event's panel |
+| `--z-dropdown` | 900 | `ArenaMenu`, a calendar event's panel |
 | `--z-tooltip` | 950 | `ArenaTooltip`, above dropdown, so a tooltip on a menu item wins over the menu itself |
 | `--z-modal` | 1000 | `ArenaDialog` |
 | `--z-modal-nested` | 1050 | `ArenaConfirmDialog`, which opens *from* an `ArenaDialog` and so must sit above one |

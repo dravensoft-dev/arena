@@ -115,12 +115,12 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
   for (const rel of files) {
     if (jsonIn(rel, TOKENS_DIR) && rel !== ROLES) {
       found.push({ uri: `${TOKENS_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
-        title: `Tokens: the ${jsonName(rel)} group, every value as DTCG JSON` });
+        title: `Tokens: ${jsonName(rel)}` });
       continue;
     }
     if (jsonIn(rel, BEHAVIOUR_DIR)) {
       found.push({ uri: `${BEHAVIOUR_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
-        title: `Behaviour: the ${jsonName(rel)} pattern, the roles, keys and focus it requires` });
+        title: `Behaviour: ${jsonName(rel)}` });
       continue;
     }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
@@ -214,7 +214,7 @@ export function search(payload: string, found: Entry[], query: string, limit = 8
   return found
     .map((entry) => {
       const text = textOf(payload, entry, byRel) ?? '';
-      const summary = text.slice(0, 400);
+      const summary = entry.mime === 'text/markdown' ? text.slice(0, 400) : '';
       return { entry, ...score(entry, wanted, summary) };
     })
     .filter((one) => one.hits > 0)

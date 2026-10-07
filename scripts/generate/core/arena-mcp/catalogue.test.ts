@@ -245,3 +245,20 @@ test('a relative link to a carried token group or pattern resolves to its URI', 
     assert.match(text, /\]\(arena:\/\/behaviour\/tabs\)/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('behaviour and token JSON add no boilerplate words, so a reference on focus ranks first', () => {
+  const files: Record<string, string> = {
+    'skills/design/references/focus.md': '# Keyboard focus\n\nHow keys move focus.\n',
+  };
+  for (const name of ['tabs', 'menu', 'grid', 'listbox', 'dialog']) {
+    files[`contracts/behaviour/${name}.json`] = '{"requires":{"roles":["x"],"keys":["Tab"],"focus":"in"}}';
+  }
+  const dir = payload(files);
+  try {
+    const found = entries(dir, MANIFEST);
+    for (const q of ['focus', 'keys']) {
+      assert.equal(search(dir, found, q)[0]?.entry.uri, `${SCHEME}://reference/focus`, q);
+    }
+    assert.ok(search(dir, found, 'tabs keys').some((one) => one.entry.uri === `${SCHEME}://behaviour/tabs`));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

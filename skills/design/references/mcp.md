@@ -45,9 +45,9 @@ not installed anywhere.
 
 ## Which arena:// resources does the server offer?
 
-Every document is also offered as an MCP resource under an `arena://` URI. The resources are the router, one per reference, the component indexes, one per component, and the vocabulary, one per family. The style roles, the rules of the language and the support record are resources too.
+Every document is also offered as an MCP resource under an `arena://` URI. The resources are the router, one per reference, the component indexes, one per component, the vocabulary, one per family and the style roles. The rules of the language and the support record are resources too.
 
-The values travel too. `arena://tokens/<group>` is one DTCG group of `contracts/design/`, such as `arena://tokens/spacing` for the `--sp-*` scale. `arena://behaviour/<pattern>` is one behaviour contract: the roles, keys and focus a pattern requires.
+The values travel too. Every JSON file of `contracts/design/` is one group at `arena://tokens/<group>`, such as `arena://tokens/spacing` for the `--sp-*` scale or `arena://tokens/palette.dark`. The group `arena://tokens/behaviour` holds the motion delays and is not a behaviour pattern. `arena://behaviour/<pattern>` is one behaviour contract: the roles, keys and focus a pattern requires.
 
 Read the router first. The router carries the rules of the language and routes every other question. The route past it is one component at a time, and never a corpus read whole.
 
