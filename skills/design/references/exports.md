@@ -6,7 +6,7 @@ A name on this page may be leaned on. A symbol you found by autocomplete may not
 
 ## Does every export carry a compatibility promise?
 
-No. Every other symbol reaching a package root is an internal of that layer. The barrel is generated wholesale and not curated. Such a symbol carries no compatibility promise. The symbol carries the `Arena` prefix too, since the convention is about the name and not about the promise. Reading `Arena` on a symbol tells you where it comes from. The prefix never tells you the symbol is yours to depend on.
+Only the names listed on this page do. Every other symbol reaching a package root is an internal of that layer. The barrel is generated wholesale and not curated. Such a symbol carries no compatibility promise. The symbol carries the `Arena` prefix too, since the convention is about the name and not about the promise. Reading `Arena` on a symbol tells you where it comes from. The prefix never tells you the symbol is yours to depend on.
 
 ## What does the React package export besides components?
 
@@ -93,7 +93,7 @@ The `<head>` writer is not in that table. The writer lives at `@dravensoft/arena
 
 ## Which Angular projection markers must I import?
 
-Ten directives stand behind ten attributes, and they are not optional.
+Each marker directive stands behind one attribute, and none is optional.
 
 - `ArenaAction` behind `[action]`.
 - `ArenaActions` behind `[actions]`.

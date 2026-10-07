@@ -13,7 +13,7 @@ npm i @dravensoft/arena-react        # or: pnpm add / yarn add / bun add
 npm i @dravensoft/arena-angular      # or: pnpm add / yarn add / bun add
 ```
 
-All four managers install Arena. Under pnpm the layout is strict, and every peer is declared rather than assumed. The command that ships with the package resolves the icon font through the symlinked store like any other dependency. No hoisting flag is needed.
+Each of these managers installs Arena. Under pnpm the layout is strict, and every peer is declared rather than assumed. The command that ships with the package resolves the icon font through the symlinked store like any other dependency. No hoisting flag is needed.
 
 The package manager brings down whichever peers the project lacks. The package declares `engines: { node: ">=22" }`, the oldest line Node still supports. The `arena-to-prod` command is plain JavaScript over `node:fs`, `node:path` and `node:url`. A project on a supported Node installs without an engine warning.
 
@@ -69,7 +69,7 @@ That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a men
 
 ## Why does TypeScript report TS2307 on a stylesheet import in React?
 
-Those three import lines are a bundler idiom and not TypeScript's. A `.css` specifier resolves to no module. Under `strict` the compiler reports TS2307 on every one of them. The build then stops at the file that wires Arena in.
+Those import lines are a bundler idiom and not TypeScript's. A `.css` specifier resolves to no module. Under `strict` the compiler reports TS2307 on every one of them. The build then stops at the file that wires Arena in.
 
 Most toolchains already ship the declaration, and the fix is to reference it. Vite takes `"types": ["vite/client"]` in `tsconfig.json`. Next.js generates `next-env.d.ts`.
 
