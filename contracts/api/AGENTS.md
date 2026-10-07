@@ -73,7 +73,9 @@ so a family added tomorrow catches a member declared yesterday. **`COMPUTED` is 
 A design decision the render computes with (a chart's height, a calendar's view, a menu's
 alignment, which the panel is positioned from) stays a member, recorded in `COMPUTED` in
 `scripts/check/arena/check-contracts-neutrality.ts` with the function that reads it, and the gate
-opens that file and fails an entry whose function is not there. **`ArenaTextarea.rows` is a member
+opens that file and fails an entry whose function body does not read the member. A string member
+that takes a CSS length, or is named for a geometry axis a family ships, fails the same way unless
+`COMPUTED` records it or `NOT_GEOMETRY` records why its name is not appearance. **`ArenaTextarea.rows` is a member
 by that ruling**: it is a number of lines, which the native control lays its initial height out
 from, and not a length an adopter could write as a class. **A member that names a thing the adopter
 styles is a key and not a value**: `ArenaTableColumn.key` names a column, and its width and

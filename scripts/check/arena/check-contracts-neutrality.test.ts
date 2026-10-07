@@ -204,3 +204,25 @@ test('a NOT_GEOMETRY member passes, and an entry whose member is gone or no long
   assert.match(lengthOf({ min: stringMember() }, new Map(), new Map()).join('\n'), /api\.min is a string named for the axis/);
   assert.ok(NOT_GEOMETRY.size > 0);
 });
+
+test('NOT_GEOMETRY exempts a member from the name rule only, never from the CSS-length rule', () => {
+  const exempt = new Map([['contracts/api/components/ArenaX.json:api.min', 'bounds the value']]);
+  const problems = lengthOf({ min: stringMember({ default: '40rem' }) }, new Map(), exempt);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /api\.min is a string carrying the CSS length "40rem"/);
+});
+
+test('functionBody anchors on the definition, whatever form it takes, and reads braces past literals', () => {
+  const call = 'const a = work(1);\nfunction work(x) { return x; }\n';
+  assert.equal(functionBody(call, 'work'), '{ return x; }');
+  const method = 'class A {\n  go(a) { return this.work(a); }\n  work(a: number): number { if (a) { return 1; } return 2; }\n}\n';
+  assert.equal(functionBody(method, 'work'), '{ if (a) { return 1; } return 2; }');
+  assert.equal(functionBody('foo(1);\nbar();\nfoo(2) { return 3; }', 'foo'), '{ return 3; }');
+  assert.equal(functionBody('export const f = (a: number) => { return a; };', 'f'), '{ return a; }');
+  assert.equal(functionBody('const f = (a) => a + 1;\nconst g = {};', 'f'), 'a + 1');
+  assert.equal(functionBody('const f = (a) => ({ x: a });\nconst g = {};', 'f'), '({ x: a })');
+  assert.equal(functionBody("function f() { const s = '}'; const t = `}${'}'}`; const r = /}/; return s; }\nfunction g() { x }", 'f')?.endsWith('return s; }'), true);
+  assert.equal(functionBody('function f() { return "}"; } // }\n', 'f'), '{ return "}"; }');
+  assert.equal(functionBody('class A {\n  protected readonly r = computed(() => this.shape() === 1);\n}', 'r'), 'computed(() => this.shape() === 1)');
+  assert.equal(functionBody('const y = 1;', 'f'), undefined);
+});

@@ -257,15 +257,97 @@ export function resolvesMember(key: string, repo = root) {
   }
 }
 
-export function functionBody(text: string, name: string): string | undefined {
-  const head = new RegExp(`(?:function\\s+|const\\s+|^|\\s)${name}\\s*[(=<:]`, 'm').exec(text);
-  if (!head) return undefined;
-  const open = text.indexOf('{', text.indexOf(')', head.index));
-  if (open < 0) return undefined;
+const REGEX_AFTER = /[(,=:[!&|?{};]/;
+
+function literalEnd(text: string, i: number): number {
+  const c = text[i];
+  if (c === '/' && text[i + 1] === '/') { const n = text.indexOf('\n', i); return n < 0 ? text.length : n; }
+  if (c === '/' && text[i + 1] === '*') { const n = text.indexOf('*/', i + 2); return n < 0 ? text.length : n + 2; }
+  if (c === '"' || c === "'") {
+    for (let j = i + 1; j < text.length && text[j] !== '\n'; j++) {
+      if (text[j] === '\\') j++;
+      else if (text[j] === c) return j + 1;
+    }
+    return i;
+  }
+  if (c === '`') {
+    for (let j = i + 1; j < text.length; j++) {
+      if (text[j] === '\\') j++;
+      else if (text[j] === '`') return j + 1;
+      else if (text[j] === '$' && text[j + 1] === '{') j = closeOf(text, j + 1) - 1;
+    }
+    return text.length;
+  }
+  if (c === '/') {
+    const before = text.slice(0, i).trimEnd().slice(-1);
+    if (before !== '' && !REGEX_AFTER.test(before)) return i;
+    for (let j = i + 1, inClass = false; j < text.length && text[j] !== '\n'; j++) {
+      if (text[j] === '\\') j++;
+      else if (text[j] === '[') inClass = true;
+      else if (text[j] === ']') inClass = false;
+      else if (text[j] === '/' && !inClass) return j + 1;
+    }
+  }
+  return i;
+}
+
+function closeOf(text: string, open: number): number {
+  const opener = text[open] ?? '{';
+  const closer = opener === '(' ? ')' : '}';
   let depth = 0;
   for (let i = open; i < text.length; i++) {
-    if (text[i] === '{') depth++;
-    else if (text[i] === '}' && --depth === 0) return text.slice(open, i + 1);
+    const end = literalEnd(text, i);
+    if (end > i) { i = end - 1; continue; }
+    if (text[i] === opener) depth++;
+    else if (text[i] === closer && --depth === 0) return i + 1;
+  }
+  return text.length;
+}
+
+export function functionBody(text: string, name: string): string | undefined {
+  const id = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const forms = [
+    new RegExp(`^[ \\t]*(?:export\\s+)?(?:default\\s+)?(?:async\\s+)?function\\s*\\*?\\s*${id}\\s*(?:<[^>(]*>)?\\(`, 'gm'),
+    new RegExp(`^[ \\t]*(?:export\\s+)?(?:const|let|var)\\s+${id}\\b[^=\\n]*=\\s*(?:async\\s*)?(?:<[^>(]*>\\s*)?\\(`, 'gm'),
+    new RegExp(`^[ \\t]*(?:(?:public|private|protected|static|async|readonly|override)\\s+)*${id}\\s*(?:<[^>(]*>)?\\(`, 'gm'),
+  ];
+  const initializer = new RegExp(`^[ \\t]*(?:(?:export|public|private|protected|static|readonly|override|const|let|var)\\s+)*${id}\\b[^=\\n(]*=(?!=|>)\\s*`, 'gm');
+  for (const [kind, form] of forms.entries()) {
+    for (const match of text.matchAll(form)) {
+      const paramsEnd = closeOf(text, match.index + match[0].length - 1);
+      let at = paramsEnd;
+      for (; at < text.length; at++) {
+        if (text[at] === '{' || text[at] === ';' || text.startsWith('=>', at)) break;
+        if (text[at] === '\n' && kind === 2) break;
+      }
+      if (text[at] === '{') return text.slice(at, closeOf(text, at));
+      if (kind === 1 && text.startsWith('=>', at)) {
+        let from = at + 2;
+        while (/\s/.test(text[from] ?? '')) from++;
+        if (text[from] === '{') return text.slice(from, closeOf(text, from));
+        let end = from;
+        for (let depth = 0; end < text.length; end++) {
+          const skipped = literalEnd(text, end);
+          if (skipped > end) { end = skipped - 1; continue; }
+          if ('({['.includes(text[end] ?? '')) depth++;
+          else if (')}]'.includes(text[end] ?? '')) { if (depth-- === 0) break; }
+          else if (text[end] === ';' && depth === 0) break;
+        }
+        return text.slice(from, end);
+      }
+    }
+  }
+  for (const match of text.matchAll(initializer)) {
+    const from = match.index + match[0].length;
+    let end = from;
+    for (let depth = 0; end < text.length; end++) {
+      const skipped = literalEnd(text, end);
+      if (skipped > end) { end = skipped - 1; continue; }
+      if ('({['.includes(text[end] ?? '')) depth++;
+      else if (')}]'.includes(text[end] ?? '')) { if (depth-- === 0) break; }
+      else if (text[end] === ';' && depth === 0) break;
+    }
+    return text.slice(from, end);
   }
   return undefined;
 }
@@ -325,13 +407,13 @@ export function cssLengthProblems(contracts: Map<string, ContractCandidate>, typ
   const matched = new Set<string>();
   const check = (key: string, spec: { form?: string; type?: string; default?: unknown; examples?: unknown }, name: string) => {
     if (spec.form !== 'primitive' || spec.type !== 'string' || computed.has(key)) return;
-    if (notGeometry.has(key) && names.has(name)) { matched.add(key); return; }
     const samples = [spec.default, ...(Array.isArray(spec.examples) ? spec.examples : [])]
       .filter((v): v is string => typeof v === 'string');
     const length = samples.find((v) => CSS_LENGTH.test(v.trim()) || CSS_RATIO.test(v.trim()));
+    if (names.has(name) && notGeometry.has(key)) matched.add(key);
     const way = 'a length is a token or a class, not a member. Write the class, or record the member in COMPUTED with the function that reads it';
     if (length !== undefined) problems.push(`${key} is a string carrying the CSS length ${JSON.stringify(length)}: ${way}`);
-    else if (names.has(name)) problems.push(`${key} is a string named for the axis ${name}, which a family ships: ${way}`);
+    else if (names.has(name) && !notGeometry.has(key)) problems.push(`${key} is a string named for the axis ${name}, which a family ships: ${way}`);
   };
   for (const [component, contract] of contracts)
     for (const [member, spec] of Object.entries(contract.api ?? {})) check(at(component, member), spec, member);
