@@ -1,5 +1,5 @@
-Filter/technology/status chip. `tone` follows the ArenaBadge/ArenaTag taxonomy and colours
-the chip's border, text and leading dot together. `removable` shows a dismiss
+Filter/technology/status chip. `tone` is `neutral`, `success`, `warning` or `danger`, never
+ArenaBadge's `info`, and colours the chip's border, text and leading dot together. `removable` shows a dismiss
 `×`, which uses the standard Phosphor icon `ph-x` (H4), the same close as
 ArenaToast.
 
@@ -56,8 +56,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
   already inert; the state is about the remove action alone.
 - Don't mix the ArenaTag/ArenaToast × with the modal close: dialogs close with their
   explicit button (Cancel), not with the ph-x icon.
-- Don't add a `tone` outside the taxonomy: `neutral`, `success`,
-  `warning` and `danger` are the whole set. Emphasis is the `accent` family's `arena-accent-primary`, a class and never a tone.
+- Don't make emphasis a `tone`: it is the `accent` family's `arena-accent-primary` class.
 - Reach for `colorId` when the colour identifies rather than warns, and give the same entity the same slot on every screen. The ramp is the one the charts and `ArenaCalendarEvent` read, so a label, a series and a schedule chip agree.
   Derive the slot from a stable key with `arenaCatSlotFor` rather than from the
   position of a row, which moves when the list is sorted.
