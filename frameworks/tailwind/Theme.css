@@ -271,6 +271,7 @@
      the inside of a component where they answer the space between two. */
   --spacing-surface: var(--pad-surface);
   --spacing-surface-head: var(--pad-surface-head);
+  --spacing-surface-head-top: var(--pad-surface-head-top);
 
   /* Air ROLES inside a component, beside the surface's own padding. The two control paddings are
      split because a control's axes are not one decision: width is where air lives and height is
@@ -280,6 +281,7 @@
   --spacing-control-x: var(--pad-control-x);
   --spacing-floating-x: var(--pad-floating-x);
   --spacing-floating-y: var(--pad-floating-y);
+  --spacing-floating-edge-x: var(--pad-floating-edge-x);
   --spacing-status-x: var(--pad-status-x);
   --spacing-status-y: var(--pad-status-y);
   --spacing-marker-x: var(--pad-marker-x);
@@ -287,9 +289,14 @@
   --spacing-marker: var(--gap-marker);
   --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));
   --spacing-row-y: calc(var(--pad-row-y) * var(--dz-row-scale-y));
+  --spacing-row-floating-x: calc(var(--pad-row-floating-x) * var(--dz-row-scale-x));
+  --spacing-row-floating-y: calc(var(--pad-row-floating-y) * var(--dz-row-scale-y));
   --spacing-row: var(--gap-row);
+  --spacing-row-floating: var(--gap-row-floating);
+  --spacing-actions: var(--gap-actions);
   --spacing-row-min: var(--dz-row-min);
   --spacing-control-y: var(--pad-control-y);
+  --spacing-control-text-y: var(--pad-control-text-y);
   --spacing-control: var(--gap-control);
   --spacing-inline: var(--gap-inline);
   --spacing-items: var(--gap-items);

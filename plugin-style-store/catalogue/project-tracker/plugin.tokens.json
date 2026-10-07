@@ -160,6 +160,13 @@
     "$type": "dimension",
     "$value": "{sp.2}"
   },
+  "pad-control-text-y": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
   "gap-control": {
     "$type": "dimension",
     "$value": "{sp.2}"
@@ -296,6 +303,13 @@
     "$type": "dimension",
     "$value": "{sp.2}"
   },
+  "pad-surface-head-top": {
+    "$type": "dimension",
+    "$value": {
+      "value": 18,
+      "unit": "px"
+    }
+  },
   "pad-floating-x": {
     "$type": "dimension",
     "$value": "{sp.6}"
@@ -303,6 +317,10 @@
   "pad-floating-y": {
     "$type": "dimension",
     "$value": "{sp.4}"
+  },
+  "pad-floating-edge-x": {
+    "$type": "dimension",
+    "$value": "{sp.5}"
   },
   "pad-status-x": {
     "$type": "dimension",
@@ -341,6 +359,17 @@
     "$type": "dimension",
     "$value": "{sp.3}"
   },
+  "pad-row-floating-x": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "pad-row-floating-y": {
+    "$type": "dimension",
+    "$value": "{sp.2}"
+  },
   "gap-marker": {
     "$type": "dimension",
     "$value": {
@@ -351,6 +380,20 @@
   "gap-row": {
     "$type": "dimension",
     "$value": "{sp.2}"
+  },
+  "gap-row-floating": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "gap-actions": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "px"
+    }
   },
   "fill-surface": {
     "$type": "color",

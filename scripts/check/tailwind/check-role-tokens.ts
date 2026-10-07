@@ -91,9 +91,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSideNav:badge:bg-base-300', 'the same marker ground, on the count beside a navigation row that is not current'],
   ['ArenaAvatar:box:bg-base-300', 'the ground a monogram or a missing photograph sits on, which is a marker ground for the reason above and is the same slot that keeps font-display and font-extrabold for standing in for a face'],
 
-  ['ArenaSheet:head:px-5', 'the head of a sheet, which is pinned to the viewport edge, at 20px on its sides, where pad-floating-x answers 24px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaSheet:body:px-5', 'the body of a sheet, which is pinned to the viewport edge, at 20px on its sides, where pad-floating-x answers 24px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaSheet:foot:px-5', 'the foot of a sheet, which is pinned to the viewport edge, at 20px on its sides, where pad-floating-x answers 24px: the length is this slot\'s own and the role does not move it'],
   ['ArenaAvatar:box:font-extrabold', 'a monogram rather than a heading: two letters standing in for a face, weighted to read at 12px inside a circle. A style plugin that lightened its headings has said nothing about initials'],
   ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no style plugin'],
   ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading style plugin would reflow a form field under somebody mid-sentence'],
@@ -166,7 +163,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaCalendar:scroll:py-2', 'the scrolling body of a calendar, above its first hour and below its last: 8px of padding inside the component, which no role answers'],
   ['ArenaCalendar:toolbar:mb-3', 'the toolbar of a calendar, above its day heads: 12px of separation inside the component, which no role answers'],
   ['ArenaCard:eyebrow:mb-1.5', 'the eyebrow above a card title: 6px of separation inside the component, which no role answers'],
-  ['ArenaCard:head:pt-4.5', 'the head of a card, at 18px from the card\'s top edge, where pad-surface answers 20px: the length is this slot\'s own and the role does not move it'],
   ['ArenaCheckbox:root:gap-2.5', 'a checkbox, between its box and its label: 10px of gap inside the component, which no role answers'],
   ['ArenaCommandPalette:empty:px-3', 'the line a command palette shows when nothing matches, at 12px on its sides, where pad-floating-x answers 24px: the length is this slot\'s own and the role does not move it'],
   ['ArenaCommandPalette:empty:py-4.5', 'the line a command palette shows when nothing matches, at 18px above and below, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
@@ -180,14 +176,12 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaCommandPalette:search:py-3.5', 'the search line of a command palette, at 14px above and below, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaConfirmDialog:confirm:px-4.5', 'the confirm button of a confirm dialog, sized as a medium button, at 18px on its sides, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaConfirmDialog:eyebrow:mb-2', 'the eyebrow above a confirm dialog\'s title: 8px of separation inside the component, which no role answers'],
-  ['ArenaConfirmDialog:foot:gap-2.5', 'the foot of a confirm dialog, between its buttons on one line, at 10px, where gap-inline answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaConfirmDialog:foot:pb-5.5', 'the foot of a confirm dialog, at 22px from the panel\'s bottom edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaConfirmDialog:head:pt-5.5', 'the head of a confirm dialog, at 22px from the panel\'s top edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaConfirmDialog:panel:rounded-surface', 'the panel of a confirm dialog, whose corner is rounded-surface rather than the floating tier'],
   ['ArenaConfirmDialog:requireBlock:mt-3.5', 'the block that asks for a typed confirmation, under the dialog\'s message: 14px of separation inside the component, which no role answers'],
   ['ArenaConfirmDialog:requireLabel:mb-1.5', 'the label above the typed confirmation field: 6px of separation inside the component, which no role answers'],
   ['ArenaDialog:eyebrow:mb-2', 'the eyebrow above a dialog\'s title: 8px of separation inside the component, which no role answers'],
-  ['ArenaDialog:foot:gap-2.5', 'the foot of a dialog, between its buttons on one line, at 10px, where gap-inline answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:foot:pb-5.5', 'the foot of a dialog, at 22px from the panel\'s bottom edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:foot:pb-[max(calc(var(--sp-1)*5.5),var(--pad-safe-bottom))]', 'the foot of a dialog filling a narrow screen, at 22px from the screen\'s bottom edge or the safe-area inset, whichever is larger, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaDialog:head:pt-5.5', 'the head of a dialog, at 22px from the panel\'s top edge, where pad-floating-y answers 16px: the length is this slot\'s own and the role does not move it'],
@@ -211,10 +205,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaMenu:divider:my-1', 'the rule between groups of menu items: 4px above and below of separation inside the component, which no role answers'],
   ['ArenaMenu:header:pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]', 'the header over a group of menu items, under its text, a row at 4px before density scales it, where pad-row-y answers 10px: it keeps its own length and still re-densifies with the row factor'],
   ['ArenaMenu:header:pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))]', 'the header over a group of menu items, above its text, a row at 8px before density scales it, where pad-row-y answers 10px: it keeps its own length and still re-densifies with the row factor'],
-  ['ArenaMenu:header:px-[calc(var(--sp-1)*2.5*var(--dz-row-scale-x))]', 'the header over a group of menu items, on its sides, a row at 10px before density scales it, where pad-row-x answers 12px: it keeps its own length and still re-densifies with the row factor'],
-  ['ArenaMenu:item:gap-2.5', 'an item of a menu, between its icon, its label and its shortcut, at 10px, where gap-row answers 12px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaMenu:item:px-[calc(var(--sp-1)*2.5*var(--dz-row-scale-x))]', 'an item of a menu, on its sides, a row at 10px before density scales it, where pad-row-x answers 12px: it keeps its own length and still re-densifies with the row factor'],
-  ['ArenaMenu:item:py-[calc(var(--pad-control-y)*var(--dz-row-scale-y))]', 'an item of a menu, which takes the control role pad-control-y, answering 8px, because it keeps the vertical air of a control so a style plugin answering pad-control-y still reaches the menu item, and it re-densifies by the row factor'],
   ['ArenaMenu:panel:mt-1.5', 'the panel of a menu that JS does not anchor, under its trigger: 6px of separation inside the component, which no role answers'],
   ['ArenaMenu:panel:p-1.5', 'the panel of a menu, around its items, at 6px on every side, where pad-floating-x answers 24px and pad-floating-y 16px: the length is this slot\'s own and the role does not move it'],
   ['ArenaOnboarding:body:mt-2', 'the body of a coachmark, under its title: 8px of separation inside the component, which no role answers'],
@@ -242,14 +232,12 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSelect:field:pl-9', 'the field of a select with a leading icon, at 36px before its value, clearing that icon, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSelect:field:pr-9', 'the field of a select, at 36px after its value, clearing its caret, where pad-control-x answers 12px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSelect:root:gap-1.5', 'a select, between its label, its field and its hint: 6px of gap inside the component, which no role answers'],
-  ['ArenaSheet:foot:gap-2.5', 'the foot of a sheet, between its buttons on one line, at 10px, where gap-inline answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaSideNav:region:gap-1', 'the collapsible region under a side nav trigger, between one item and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaSideNav:root:gap-1', 'a side nav, between one item or section and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaSideNav:section:gap-1', 'a section of a side nav, between its label and its items and between one item and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaSideNav:sectionLabel:py-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))]', 'the label over a section of a side nav, above and below, a row at 6px before density scales it, where pad-row-y answers 10px: it keeps its own length and still re-densifies with the row factor'],
   ['ArenaSideNav:separator:my-1', 'the rule between sections of a side nav: 4px above and below of separation inside the component, which no role answers'],
   ['ArenaSkeleton:stack:gap-2.5', 'a skeleton of text lines, between one line and the next: 10px of gap inside the component, which no role answers'],
-  ['ArenaSkipLink:root:py-2.5', 'the skip link, at 10px above and below, where pad-control-y answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaStatCard:delta:gap-1', 'the change a stat card reports under its value, between its arrow and its figure, at 4px, where gap-marker answers 6px: the length is this slot\'s own and the role does not move it'],
   ['ArenaStatCard:delta:px-2', 'the change a stat card reports under its value, at 8px on its sides, where pad-marker-x answers 6px: the length is this slot\'s own and the role does not move it'],
   ['ArenaStatCard:delta:py-0.5', 'the change a stat card reports under its value, at 2px above and below, where pad-marker-y answers 4px: the length is this slot\'s own and the role does not move it'],
@@ -269,7 +257,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaTabs:tab:px-[calc(var(--sp-1)*4*var(--dz-row-scale-x))]', 'a tab, on its sides, a row at 16px before density scales it, where pad-row-x answers 12px: it keeps its own length and still re-densifies with the row factor'],
   ['ArenaTag:root:px-2', 'a tag, at 8px on its sides, where pad-marker-x answers 6px: the length is this slot\'s own and the role does not move it'],
   ['ArenaTag:root:py-0.5', 'a tag, at 2px above and below, where pad-marker-y answers 4px: the length is this slot\'s own and the role does not move it'],
-  ['ArenaTextarea:field:py-2.5', 'the field of a textarea, at 10px above and below its text, where pad-control-y answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaTextarea:required:ml-1', 'the required mark after a textarea\'s label: 4px of separation inside the component, which no role answers'],
   ['ArenaTextarea:root:gap-1.5', 'a textarea, between its label, its field and its foot: 6px of gap inside the component, which no role answers'],
   ['ArenaToast:action:mt-2.5', 'the word a reader presses to answer a toast, under its message: 10px of separation inside the component, which no role answers'],
@@ -348,8 +335,20 @@ const SPACE = '(?:p|px|py|pt|pb|pl|pr|ps|pe|gap|gap-x|gap-y|m|mx|my|mt|mb|ml|mr|
 const STEP = new RegExp(`^-?${SPACE}-(\\d+(?:\\.\\d+)?)$`);
 const PAD_ROLE = new RegExp(`^${PAD}-([a-z]+(?:-[a-z]+)*)$`);
 const PAD_ARBITRARY = new RegExp(`^${PAD}-\\[(.*)\\]$`);
-const GAP_ROLES = new Set(['gap-control', 'gap-marker', 'gap-row']);
-const PAD_STEMS = new Set(KINDS.flatMap((k) => KIND_AIR[k].pad));
+let derived: { pad: Set<string>; gap: Set<string> } | undefined;
+
+function derivedSets() {
+  if (derived) return derived;
+  const names = Object.keys(readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, unknown>);
+  derived = {
+    gap: new Set([...names.filter((n) => n.startsWith('gap-')), ...KINDS.flatMap((k) => KIND_AIR[k].gap)]),
+    pad: new Set([...names.filter((n) => n.startsWith('pad-')).map((n) => n.slice(4)), ...KINDS.flatMap((k) => KIND_AIR[k].pad)]),
+  };
+  return derived;
+}
+
+export const padStems = () => derivedSets().pad;
+export const gapRoles = () => derivedSets().gap;
 const RADIUS_ROLES = new Set(KINDS.flatMap((k) => KIND_AIR[k].radius));
 const STATE_PREFIX = /^(?:[^\s:[\]]+:|\[[^\]]*\]:)+/;
 
@@ -368,11 +367,11 @@ function kindProblem(utility: string, kind: SlotKind) {
   if (KIND_FREE.has(utility)) return false;
   const air = KIND_AIR[kind];
   const role = PAD_ROLE.exec(utility);
-  if (role && PAD_STEMS.has(role[1]!)) return !air.pad.includes(role[1]!);
+  if (role && padStems().has(role[1]!)) return !air.pad.includes(role[1]!);
   const arbitrary = PAD_ARBITRARY.exec(utility);
   const operand = arbitrary && /var\(--pad-([a-z]+(?:-[a-z]+)*)\)/.exec(arbitrary[1]!);
-  if (operand && PAD_STEMS.has(operand[1]!)) return true;
-  if (GAP_ROLES.has(utility.replace(/^gap-[xy]-/, 'gap-'))) return !air.gap.includes(utility.replace(/^gap-[xy]-/, 'gap-'));
+  if (operand && padStems().has(operand[1]!)) return true;
+  if (gapRoles().has(utility.replace(/^gap-[xy]-/, 'gap-'))) return !air.gap.includes(utility.replace(/^gap-[xy]-/, 'gap-'));
   const radius = utility.replace(/^rounded-(?:tl|tr|bl|br|ss|se|es|ee|[trblse])-/, 'rounded-');
   if (RADIUS_ROLES.has(radius)) return !air.radius.includes(radius);
   return false;
@@ -421,6 +420,12 @@ export function staleAllowances(seen: Set<string>, allowed = SCALE_USES) {
     .map((key) => `${key} is excused in SCALE_USES but no manifest carries it -- drop the entry`);
 }
 
+export function derivedSetsProblem(pad: ReadonlySet<string> = padStems(), gap: ReadonlySet<string> = gapRoles()) {
+  return pad.size === 0 || gap.size === 0
+    ? 'derived 0 pad stems or 0 gap roles from contracts/design/roles.json -- an empty set judges nothing; check the contract path'
+    : null;
+}
+
 export function zeroManifestProblem(files: string[]) {
   return files.length === 0
     ? 'found 0 manifests -- an empty result set is a failure, not a clean pass; check the discovery path'
@@ -440,6 +445,11 @@ export function collect(files = manifestFiles(COMPONENTS_DIR)) {
 
 function main() {
   const files = manifestFiles(COMPONENTS_DIR);
+  const derived = derivedSetsProblem();
+  if (derived) {
+    console.error(`check-role-tokens: ${derived}`);
+    process.exit(1);
+  }
   const zero = zeroManifestProblem(files);
   if (zero) {
     console.error(`check-role-tokens: ${zero}`);

@@ -13,12 +13,12 @@
   ],
   "slots": {
     "root": "fixed z-sheet flex flex-col bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating shadow-surface-deep overflow-hidden top-[var(--arena-placement-top,auto)] bottom-[var(--arena-placement-bottom,0)] start-[var(--arena-placement-start,0)] end-[var(--arena-placement-end,0)] w-[var(--arena-placement-width,auto)] max-w-[var(--arena-placement-max-width,none)] max-h-[var(--arena-placement-max-height,80vh)] rounded-ss-[var(--arena-placement-radius-ss,var(--r-lg))] rounded-se-[var(--arena-placement-radius-se,var(--r-lg))] rounded-es-[var(--arena-placement-radius-es,0)] rounded-ee-[var(--arena-placement-radius-ee,0)] pt-[var(--arena-placement-pad-top,0)] pb-[var(--pad-safe-bottom)]",
-    "head": "flex items-center gap-items px-5 py-floating-y border-b-[length:var(--bw-separator)] border-edge-separator",
+    "head": "flex items-center gap-items px-floating-edge-x py-floating-y border-b-[length:var(--bw-separator)] border-edge-separator",
     "trigger": "flex flex-1 items-center min-h-ctl-h gap-control bg-transparent border-none p-0 cursor-pointer text-left font-display font-heading text-h3 text-ink-body tracking-heading transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body/(--level-ink-body) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
     "caret": "shrink-0 text-[length:var(--icon-md)] leading-ctl text-ink-muted/(--level-ink-muted)",
     "close": "inline-flex items-center justify-center size-ctl-h-sm shrink-0 bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-    "body": "flex-1 overflow-y-auto px-5 py-floating-y font-body text-md leading-prose text-ink-body/(--level-ink-body)",
-    "foot": "flex flex-wrap justify-end gap-2.5 px-5 py-floating-y border-t-[length:var(--bw-separator)] border-edge-separator"
+    "body": "flex-1 overflow-y-auto px-floating-edge-x py-floating-y font-body text-md leading-prose text-ink-body/(--level-ink-body)",
+    "foot": "flex flex-wrap justify-end gap-actions px-floating-edge-x py-floating-y border-t-[length:var(--bw-separator)] border-edge-separator"
   },
   "kind": {
     "root": "floating",

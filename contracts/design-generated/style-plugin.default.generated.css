@@ -34,6 +34,7 @@
   --step-title-hero:64px;
   --pad-control-x:12px;
   --pad-control-y:8px;
+  --pad-control-text-y:10px;
   --gap-control:8px;
   --gap-inline:8px;
   --gap-items:12px;
@@ -56,8 +57,10 @@
   --gutter:88px;
   --pad-surface:20px;
   --pad-surface-head:0px;
+  --pad-surface-head-top:18px;
   --pad-floating-x:24px;
   --pad-floating-y:16px;
+  --pad-floating-edge-x:20px;
   --pad-status-x:16px;
   --pad-status-y:14px;
   --pad-marker-x:6px;
@@ -65,8 +68,12 @@
   --pad-row-x:12px;
   --pad-row-y:10px;
   --pad-row-indent:12px;
+  --pad-row-floating-x:10px;
+  --pad-row-floating-y:8px;
   --gap-marker:6px;
   --gap-row:12px;
+  --gap-row-floating:10px;
+  --gap-actions:10px;
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
   --fill-surface-raised:var(--color-base-300);

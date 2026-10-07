@@ -9,12 +9,12 @@
   "slots": {
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
     "panel": "arena-menu z-dropdown min-w-50 p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
-    "item": "flex items-center gap-2.5 w-full min-h-row-min text-left px-[calc(var(--sp-1)*2.5*var(--dz-row-scale-x))] py-[calc(var(--pad-control-y)*var(--dz-row-scale-y))] border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "icon": "inline-flex text-[length:var(--icon-md)]",
     "label": "flex-1",
     "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "divider": "h-px my-1 bg-edge-separator",
-    "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-[calc(var(--sp-1)*2.5*var(--dz-row-scale-x))] pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
+    "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-row-floating-x pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
   },
   "kind": {
     "root": "none",

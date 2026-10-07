@@ -13,13 +13,13 @@ export const KIND_FREE: ReadonlySet<string> = new Set([
 ]);
 
 export const KIND_AIR: Readonly<Record<SlotKind, { pad: readonly string[]; gap: readonly string[]; radius: readonly string[] }>> = {
-  surface: { pad: ['surface', 'surface-head'], gap: ['gap-items', 'gap-inline'], radius: ['rounded-surface'] },
-  floating: { pad: ['floating-x', 'floating-y'], gap: ['gap-items', 'gap-inline'], radius: ['rounded-surface-floating'] },
-  control: { pad: ['control-x', 'control-y'], gap: ['gap-control'], radius: ['rounded-control', 'rounded-control-sm'] },
-  field: { pad: ['control-x', 'control-y'], gap: ['gap-control'], radius: ['rounded-field'] },
+  surface: { pad: ['surface', 'surface-head', 'surface-head-top'], gap: ['gap-items', 'gap-inline'], radius: ['rounded-surface'] },
+  floating: { pad: ['floating-x', 'floating-y', 'floating-edge-x'], gap: ['gap-items', 'gap-inline', 'gap-actions'], radius: ['rounded-surface-floating'] },
+  control: { pad: ['control-x', 'control-y', 'control-text-y'], gap: ['gap-control'], radius: ['rounded-control', 'rounded-control-sm'] },
+  field: { pad: ['control-x', 'control-y', 'control-text-y'], gap: ['gap-control'], radius: ['rounded-field'] },
   marker: { pad: ['marker-x', 'marker-y'], gap: ['gap-marker'], radius: ['rounded-marker'] },
   status: { pad: ['status-x', 'status-y'], gap: ['gap-items', 'gap-inline'], radius: ['rounded-surface-floating'] },
-  row: { pad: ['row-x', 'row-y', 'row-px', 'row-py'], gap: ['gap-row'], radius: ['rounded-control'] },
+  row: { pad: ['row-x', 'row-y', 'row-px', 'row-py', 'row-floating-x', 'row-floating-y'], gap: ['gap-row', 'gap-row-floating'], radius: ['rounded-control'] },
   none: { pad: [], gap: [], radius: [] },
 };
 

@@ -171,6 +171,10 @@
     "$type": "dimension",
     "$description": "The room a control gives its content down. Split from pad-control-x rather than\nfolded into one padding role because a control's two axes are not one decision: a style plugin widens a\nbutton without making it taller, since height is where density and target size live and width is\nwhere air does."
   },
+  "pad-control-text-y": {
+    "$type": "dimension",
+    "$description": "The room above and below a control or field whose height is its text rather than the control height, read by ArenaSkipLink and the field of ArenaTextarea."
+  },
   "gap-control": {
     "$type": "dimension",
     "$description": "The gap between the parts of one control: an icon and its label, a checkbox and\nits text, a chip and its dismiss. Born at sp.2, which nineteen slots name.\n\nThe smallest of the three air roles and the one a style plugin moves least, because it is the distance\ninside a thing rather than between two things. It is here so that a style plugin which opens everything\nelse up does not leave its icons welded to their labels."
@@ -259,6 +263,10 @@
     "$type": "dimension",
     "$description": "The air a surface leaves under its head, above the rule bw-surface-head draws. Nothing by\ndefault, for the reason that role gives: the property is painted so that a value can move it.\n\nSplit from pad-surface, which is the room a surface gives its own content, because the two are\nnot one decision. A head sitting hard on its rule reads as a caption and a head with room under\nit reads as a section, and a style plugin that opens a card up has said nothing about which of\nthose its tiles are. The two plugins drawing the rule spend this at the same moment, which is\nwhat says it belongs beside that question rather than inside it."
   },
+  "pad-surface-head-top": {
+    "$type": "dimension",
+    "$description": "The room above the head of a surface, between its top edge and its title, read by ArenaCard. It sits beside pad-surface-head, which is the room under the head."
+  },
   "pad-floating-x": {
     "$type": "dimension",
     "$description": "The room a surface sitting over the page gives its content across: a dialog, a sheet, a menu, a popover. It is cut from pad-surface, which is the room a surface that belongs to the page gives, because a floating surface is separated from what it covers rather than grouped against it. It is split by axis because the dialog's sides and its top differ."
@@ -266,6 +274,10 @@
   "pad-floating-y": {
     "$type": "dimension",
     "$description": "The room a surface sitting over the page gives its content down. Split from pad-floating-x because the dialog's sides and its top are not one decision."
+  },
+  "pad-floating-edge-x": {
+    "$type": "dimension",
+    "$description": "The room on the sides of a floating surface pinned to a viewport edge, read by the head, body and foot of ArenaSheet. A panel pinned to an edge is narrower than one centred, so it is its own question beside pad-floating-x."
   },
   "pad-status-x": {
     "$type": "dimension",
@@ -295,6 +307,14 @@
     "$type": "dimension",
     "$description": "The length of one level of indent, which the row's depth multiplies. It is cut from pad-row-x because the indent says how deep a row sits and the padding says how much room its content has."
   },
+  "pad-row-floating-x": {
+    "$type": "dimension",
+    "$description": "The room on the sides of a row in a floating list, read by the items and headers of ArenaMenu. Density scales it by the row factor, the way it scales pad-row-x."
+  },
+  "pad-row-floating-y": {
+    "$type": "dimension",
+    "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu. Density scales it by the row factor."
+  },
   "gap-marker": {
     "$type": "dimension",
     "$description": "The gap between the parts of a marker: a dot and its label, a label and its dismiss. It is cut from gap-control because a marker is read and not pressed, so a style plugin that opens controls up leaves its markers compact."
@@ -302,6 +322,14 @@
   "gap-row": {
     "$type": "dimension",
     "$description": "The gap between the parts of a row: an icon and its text, a label and its trailing meta. It is cut from gap-control because a row is one of many in a column and its parts follow the row's register rather than a control's."
+  },
+  "gap-row-floating": {
+    "$type": "dimension",
+    "$description": "The gap between the icon, the label and the shortcut of a row in a floating list, read by ArenaMenu."
+  },
+  "gap-actions": {
+    "$type": "dimension",
+    "$description": "The gap between the buttons of the action row at the foot of a floating surface, read by ArenaDialog, ArenaConfirmDialog and ArenaSheet."
   },
   "fill-surface": {
     "$type": "color",

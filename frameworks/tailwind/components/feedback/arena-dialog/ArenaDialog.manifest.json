@@ -10,7 +10,7 @@
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
     "body": "px-floating-x py-floating-y font-body text-md leading-prose text-ink-body/(--level-ink-body)",
-    "foot": "flex flex-wrap justify-end gap-2.5 px-floating-x pb-5.5"
+    "foot": "flex flex-wrap justify-end gap-actions px-floating-x pb-5.5"
   },
   "kind": {
     "scrim": "none",

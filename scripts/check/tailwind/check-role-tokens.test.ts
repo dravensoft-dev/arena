@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles } from './check-role-tokens.ts';
 
 test('a radius scale step in a class string is reported', () => {
   assert.deepEqual(scaleUsesIn('bg-neutral rounded-lg overflow-hidden'), ['rounded-lg']);
@@ -188,4 +188,35 @@ test('a recorded step and a recorded kind use are excused by their key', () => {
   const manifest = siblings('px-control-x py-2.5');
   const allowed = new Map([['Fixture:trigger:px-control-x', 'r'], ['Fixture:trigger:py-2.5', 'r']]);
   assert.deepEqual(evaluateManifest(manifest, allowed), []);
+});
+
+for (const [cls, kind, bad] of [
+  ['pt-surface-head-top', 'surface', 'marker'],
+  ['px-floating-edge-x', 'floating', 'surface'],
+  ['gap-actions', 'floating', 'marker'],
+  ['py-control-text-y', 'control', 'marker'],
+  ['py-control-text-y', 'field', 'marker'],
+  ['px-row-floating-x', 'row', 'control'],
+  ['py-row-floating-y', 'row', 'control'],
+  ['gap-row-floating', 'row', 'control'],
+] as const) {
+  test(`${cls} passes on a ${kind} slot and fails on a ${bad} slot`, () => {
+    const at = (k: string) => evaluateManifest({ component: 'X', slots: { s: cls }, kind: { s: k } }, new Map());
+    assert.deepEqual(at(kind), []);
+    assert.equal(at(bad).length, 1);
+  });
+}
+
+test('a pad stem in roles.json that no kind lists fails on a slot of every kind', () => {
+  assert.equal(padStems().has('row-indent'), true);
+  for (const k of ['surface', 'floating', 'control', 'field', 'marker', 'status', 'row', 'none']) {
+    const found = evaluateManifest({ component: 'X', slots: { s: 'pt-row-indent' }, kind: { s: k } }, new Map());
+    assert.equal(found.length, 1, k);
+  }
+});
+
+test('the derived sets are not empty, and an empty one is a failure', () => {
+  assert.equal(derivedSetsProblem(), null);
+  assert.notEqual(derivedSetsProblem(new Set(), gapRoles()), null);
+  assert.notEqual(derivedSetsProblem(padStems(), new Set()), null);
 });
