@@ -7,7 +7,7 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { COMMAND_NAMES, SPECS, usageOf } from './args.ts';
 import type { Command } from './args.ts';
-import { hostManifest, resolveEnvironment } from './host.ts';
+import { hostManifest, hostPackage } from './host.ts';
 import { processIo } from './io.ts';
 import type { Io } from './io.ts';
 import { run as audit } from './command-audit.ts';
@@ -53,7 +53,7 @@ export function main(argv: string[], io: Io = processIo()): number | Promise<num
     return 0;
   }
   if (first === '--version') {
-    const manifest = hostManifest(resolveEnvironment(io.environment).arena);
+    const manifest = hostManifest('arena' in io.environment ? (io.environment.arena ?? null) : hostPackage());
     if (!manifest) {
       io.err('arena: not running from inside an Arena package, so there is no version to name');
       return 2;

@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
-import { auto, MAP, SHEETS, options, phosphor, project, readable } from './cli-fixtures.ts';
+import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable } from './cli-fixtures.ts';
 
 const NAME = '@dravensoft/arena-react';
 
@@ -196,4 +196,17 @@ test('the icon font path is relative to out even when out does not exist yet', (
   assert.ok(path.startsWith('../../..'), path);
   assert.ok(path.endsWith('/bold/Phosphor-Bold.woff2'), path);
   cleanup(root, held);
+});
+
+test('a fatal plan keeps the reports gathered before it, with no outputs and no orphans', () => {
+  const { root: held, web } = phosphor();
+  const arena = hostRoot('@dravensoft/arena-react', '11.1.0');
+  const root = project(readable, { 'app.html': '<h1>no icons</h1>' });
+  writeFileSync(join(root, 'src', PLUGIN_SHEET), 'old');
+  const result = plan(options(root), environment(web, { arena }));
+  assert.equal(result.code, 1);
+  assert.ok(result.reports.some((one) => one.kind === 'environment' && one.message.includes('is not beside this package')));
+  assert.deepEqual(result.outputs, []);
+  assert.deepEqual(result.orphans, []);
+  cleanup(root, held, arena);
 });

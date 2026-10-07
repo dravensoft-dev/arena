@@ -67,6 +67,15 @@ test('--version prints the host package\'s name and version, and exits 2 with no
   rmSync(root, { recursive: true });
 });
 
+test('--version reads only the package manifest, so nothing else the host carries can fail it', async () => {
+  const root = hostRoot('@dravensoft/arena-react', '11.1.0');
+  const environment = { arena: root, get sheets(): never { throw new Error('the catalogue is malformed'); } };
+  const { io, out } = captureIo(cwd, environment);
+  assert.equal(await main(['--version'], io), 0);
+  assert.deepEqual(out, ['@dravensoft/arena-react 11.1.0']);
+  rmSync(root, { recursive: true });
+});
+
 test('a command receives the rest of argv and its code is returned', async () => {
   const held = COMMANDS.doctor;
   const seen: string[][] = [];
@@ -92,12 +101,9 @@ test('the CLI decides it is the program the same way the tooling does, since it 
     assert.equal(isProgram(join(dir, 'other.mjs'), self), false);
     assert.equal(isProgram(undefined, self), false);
     assert.equal(isProgram(join(dir, 'gone.mjs'), self), false);
-    try {
-      const link = join(dir, 'linked.mjs');
-      symlinkSync(self, link);
-      assert.equal(isProgram(link, self), true, 'an npm bin entry is a link to the module');
-    } catch {
-      assert.ok(true);
-    }
+    const link = join(dir, 'linked.mjs');
+    let linked = true;
+    try { symlinkSync(self, link); } catch { linked = false; }
+    if (linked) assert.equal(isProgram(link, self), true, 'an npm bin entry is a link to the module');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

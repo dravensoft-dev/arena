@@ -167,18 +167,18 @@ export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: s
   };
 }
 
-const failed = (code: 1 | 2, fatal: string[]): Plan =>
-  ({ code, fatal, reports: [], notes: [], outputs: [], orphans: [] });
+const failed = (code: 1 | 2, fatal: string[], reports: Report[] = []): Plan =>
+  ({ code, fatal, reports, notes: [], outputs: [], orphans: [] });
 
 export function plan(options: PlanOptions, env: PlanEnvironment): Plan {
   const absent = missingSource(options.paths);
   if (absent !== null) return failed(2, [`${absent} is not there`]);
 
   const theme = themeSheets(options, env);
-  if (theme.fatal.length) return failed(theme.code === 2 ? 2 : 1, theme.fatal);
+  if (theme.fatal.length) return failed(theme.code === 2 ? 2 : 1, theme.fatal, theme.reports);
 
   const icons = iconsSheet(options, env);
-  if (icons.fatal.length || !icons.sheet) return failed(icons.code === 2 ? 2 : 1, icons.fatal);
+  if (icons.fatal.length || !icons.sheet) return failed(icons.code === 2 ? 2 : 1, icons.fatal, [...theme.reports, ...icons.reports]);
 
   const outputs = [...theme.sheets, icons.sheet];
   const carried = new Set<string>(outputs.map((one) => one.name));
